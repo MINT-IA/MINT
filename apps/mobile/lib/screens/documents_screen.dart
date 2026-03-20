@@ -37,7 +37,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final docProvider = context.watch<DocumentProvider>();
     final sub = context.watch<SubscriptionProvider>();
     final totalDocs = docProvider.documentCount;
@@ -45,7 +45,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       floatingActionButton: Semantics(
-        label: s?.vaultUploadButton ?? 'Ajouter un document',
+        label: s.vaultUploadButton,
         button: true,
         child: FloatingActionButton(
           onPressed: () => _showUploadTypeSheet(s),
@@ -63,7 +63,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          s?.vaultTitle ?? 'Documents',
+          s.vaultTitle,
           style: MintTextStyles.headlineMedium(),
         ),
         actions: [
@@ -81,7 +81,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   const Icon(Icons.star_rounded, color: MintColors.primary, size: 16),
                   const SizedBox(width: MintSpacing.xs),
                   Text(
-                    s?.vaultPremiumBadge ?? 'Premium',
+                    s.vaultPremiumBadge,
                     style: MintTextStyles.labelSmall(color: MintColors.primary),
                   ),
                 ],
@@ -155,7 +155,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 2. Header Card — standard card (no glassmorphism)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildHeaderCard(S? s, int totalDocs) {
+  Widget _buildHeaderCard(S s, int totalDocs) {
     // Compute confidence choc: rough heuristic
     final confidencePct = totalDocs >= 6 ? 95 : (totalDocs * 15).clamp(0, 90);
 
@@ -186,13 +186,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s?.vaultHeaderTitle ?? 'Ton coffre-fort financier',
+                      s.vaultHeaderTitle,
                       style: MintTextStyles.headlineLarge().copyWith(fontSize: 24),
                     ),
                     const SizedBox(height: MintSpacing.xs),
                     Text(
-                      s?.vaultHeaderSubtitle ??
-                          'Centralise, comprends et agis sur tes documents',
+                      s.vaultHeaderSubtitle,
                       style: MintTextStyles.bodyMedium(),
                     ),
                   ],
@@ -203,7 +202,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(height: MintSpacing.md),
           // Chiffre-choc: X documents = Y% confiance
           Semantics(
-            label: s?.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
+            label: s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: MintSpacing.sm),
               decoration: BoxDecoration(
@@ -217,8 +216,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                       color: MintColors.info, size: 18),
                   const SizedBox(width: MintSpacing.sm),
                   Text(
-                    s?.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()) ??
-                        '$totalDocs documents = $confidencePct% confiance',
+                    s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
                     style: MintTextStyles.bodySmall(color: MintColors.info),
                   ),
                 ],
@@ -234,7 +232,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 3. Category Grid — 2-column grid of tappable category cards
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildCategoryGrid(S? s, DocumentProvider docProvider) {
+  Widget _buildCategoryGrid(S s, DocumentProvider docProvider) {
     final categories = _getCategoryDefinitions(s);
 
     return GridView.builder(
@@ -257,7 +255,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildCategoryCard(
-    S? s,
+    S s,
     VaultDocumentType type,
     IconData icon,
     Color color,
@@ -298,8 +296,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
             Text(
               count > 0
-                  ? (s?.vaultCategoryCount(count.toString()) ?? '$count')
-                  : (s?.vaultCategoryNone ?? 'Aucun'),
+                  ? s.vaultCategoryCount(count.toString())
+                  : s.vaultCategoryNone,
               style: MintTextStyles.labelSmall(
                 color: count > 0 ? color : MintColors.textMuted,
               ),
@@ -315,12 +313,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 4. Legal Guidance Section
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildGuidanceSection(S? s) {
+  Widget _buildGuidanceSection(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultGuidanceTitle ?? 'Guidance juridique',
+          s.vaultGuidanceTitle,
           style: MintTextStyles.labelSmall(),
         ),
         const SizedBox(height: MintSpacing.md),
@@ -329,15 +327,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.home_outlined,
-          title: s?.vaultGuidanceLeaseTitle ??
-              'Bail \u2014 Tes droits de locataire',
-          body: s?.vaultGuidanceLeaseBody ??
-              'En Suisse, le loyer peut \u00eatre contest\u00e9 s\u2019il d\u00e9passe '
-                  'le rendement admissible (CO art. 269). Le pr\u00e9avis l\u00e9gal est '
-                  'de 3 mois pour un appartement, sauf clause contraire dans le bail. '
-                  'L\u2019ASLOCA offre des consultations gratuites dans la plupart des cantons.',
-          source:
-              s?.vaultGuidanceLeaseSource ?? 'CO art. 269-270, OBLF art. 12-13',
+          title: s.vaultGuidanceLeaseTitle,
+          body: s.vaultGuidanceLeaseBody,
+          source: s.vaultGuidanceLeaseSource,
         ),
         const SizedBox(height: MintSpacing.sm),
 
@@ -345,16 +337,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.health_and_safety_outlined,
-          title: s?.vaultGuidanceInsuranceTitle ??
-              'Assurances \u2014 Audit de couverture',
-          body: s?.vaultGuidanceInsuranceBody ??
-              'La RC priv\u00e9e et l\u2019assurance m\u00e9nage ne sont pas obligatoires '
-                  'en Suisse, mais fortement recommand\u00e9es. V\u00e9rifie que ta somme '
-                  'assur\u00e9e m\u00e9nage couvre la valeur r\u00e9elle de tes biens. '
-                  'La sous-assurance peut r\u00e9duire l\u2019indemnisation proportionnellement '
-                  '(LCA art. 69).',
-          source:
-              s?.vaultGuidanceInsuranceSource ?? 'LCA art. 69, CGA assureurs',
+          title: s.vaultGuidanceInsuranceTitle,
+          body: s.vaultGuidanceInsuranceBody,
+          source: s.vaultGuidanceInsuranceSource,
         ),
         const SizedBox(height: MintSpacing.sm),
 
@@ -362,15 +347,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.local_hospital_outlined,
-          title: s?.vaultGuidanceLamalTitle ??
-              'LAMal \u2014 Optimisation franchise',
-          body: s?.vaultGuidanceLamalBody ??
-              'Tu peux changer de franchise LAMal chaque ann\u00e9e au 30 novembre '
-                  '(franchise plus haute) ou au 31 d\u00e9cembre (franchise plus basse). '
-                  'Un\u00b7e adulte en bonne sant\u00e9 peut \u00e9conomiser jusqu\u2019\u00e0 '
-                  '1\u2019500 CHF/an avec une franchise de 2\u2019500 CHF vs 300 CHF.',
-          source:
-              s?.vaultGuidanceLamalSource ?? 'LAMal art. 62, OAMal art. 93-94',
+          title: s.vaultGuidanceLamalTitle,
+          body: s.vaultGuidanceLamalBody,
+          source: s.vaultGuidanceLamalSource,
         ),
         const SizedBox(height: MintSpacing.sm),
 
@@ -378,22 +357,16 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.payments_outlined,
-          title: s?.vaultGuidanceSalaryTitle ??
-              'Salaire \u2014 V\u00e9rification du certificat',
-          body: s?.vaultGuidanceSalaryBody ??
-              'Ton certificat de salaire (Lohnausweis) est le document cl\u00e9 pour ta '
-                  'd\u00e9claration fiscale. V\u00e9rifie que les cotisations LPP, AVS et '
-                  'allocations familiales correspondent \u00e0 tes fiches de paie. '
-                  'Toute erreur peut impacter tes imp\u00f4ts et ta pr\u00e9voyance.',
-          source: s?.vaultGuidanceSalarySource ??
-              'LIFD art. 127, OFS formulaire 11',
+          title: s.vaultGuidanceSalaryTitle,
+          body: s.vaultGuidanceSalaryBody,
+          source: s.vaultGuidanceSalarySource,
         ),
       ],
     );
   }
 
   Widget _buildGuidanceCard(
-    S? s, {
+    S s, {
     required IconData icon,
     required String title,
     required String body,
@@ -451,12 +424,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildDocumentsList(
-      S? s, DocumentProvider docProvider, SubscriptionProvider sub) {
+      S s, DocumentProvider docProvider, SubscriptionProvider sub) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultDocListTitle ?? 'Mes documents',
+          s.vaultDocListTitle,
           style: MintTextStyles.labelSmall(),
         ),
         const SizedBox(height: MintSpacing.sm),
@@ -478,7 +451,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   List<Widget> _buildGroupedDocuments(
-      S? s, DocumentProvider docProvider, SubscriptionProvider sub) {
+      S s, DocumentProvider docProvider, SubscriptionProvider sub) {
     final docs = sub.isCoach
         ? docProvider.documents
         : docProvider.documents.take(_freeDocLimit).toList();
@@ -521,7 +494,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildDocumentListItem(
-      S? s, DocumentSummary doc, DocumentProvider docProvider) {
+      S s, DocumentSummary doc, DocumentProvider docProvider) {
     final typeLabel = _labelForType(s, doc.documentType);
     final typeIcon = _iconForType(doc.documentType);
     final typeColor = _colorForType(doc.documentType);
@@ -594,8 +567,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              s?.vaultConfidence(confidence.toString()) ??
-                                  'Confiance\u00a0: $confidence%',
+                              s.vaultConfidence(confidence.toString()),
                               style: MintTextStyles.labelSmall(
                                 color: _confidenceColor(confidence),
                               ),
@@ -620,7 +592,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildEmptyState(S? s) {
+  Widget _buildEmptyState(S s) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(MintSpacing.xl),
@@ -635,13 +607,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
           const SizedBox(height: MintSpacing.md),
           Text(
-            s?.vaultEmptyTitle ?? 'Aucun document',
+            s.vaultEmptyTitle,
             style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            s?.documentsEmptyVoice ??
-                'C\u2019est vide pour l\u2019instant. Un scan de certificat, et tout s\u2019\u00e9claire.',
+            s.documentsEmptyVoice,
             textAlign: TextAlign.center,
             style: MintTextStyles.bodyMedium(),
           ),
@@ -658,7 +629,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
             icon: const Icon(Icons.add_rounded, size: 20),
             label: Text(
-              s?.vaultUploadButton ?? 'Choisir un fichier PDF',
+              s.vaultUploadButton,
               style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 14),
             ),
           ),
@@ -667,7 +638,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildPremiumUpsellCard(S? s) {
+  Widget _buildPremiumUpsellCard(S s) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
@@ -698,7 +669,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  s?.vaultPremiumTitle ?? 'Coffre-fort Premium',
+                  s.vaultPremiumTitle,
                   style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontSize: 18),
                 ),
               ),
@@ -706,9 +677,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            s?.vaultPremiumBody ??
-                'Passe \u00e0 MINT Premium pour stocker un nombre illimit\u00e9 de documents '
-                    'et d\u00e9bloquer l\u2019audit de couverture automatique',
+            s.vaultPremiumBody,
             style: MintTextStyles.bodyMedium(color: MintColors.white),
           ),
           const SizedBox(height: MintSpacing.lg),
@@ -729,7 +698,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
               ),
               child: Text(
-                s?.vaultPremiumCta ?? 'D\u00e9couvrir Premium',
+                s.vaultPremiumCta,
                 style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 14),
               ),
             ),
@@ -743,7 +712,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Uploading Indicator (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildUploadingIndicator(S? s) {
+  Widget _buildUploadingIndicator(S s) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
@@ -763,7 +732,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
           const SizedBox(width: MintSpacing.md),
           Text(
-            s?.vaultAnalyzing ?? 'Analyse en cours...',
+            s.vaultAnalyzing,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
         ],
@@ -806,7 +775,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Upload Result Section (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildResultSection(S? s, DocumentUploadResult result) {
+  Widget _buildResultSection(S s, DocumentUploadResult result) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -826,8 +795,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               context.push('/documents/${result.id}');
             },
             child: Text(
-              s?.documentsConfirmButton ??
-                  'Confirmer et mettre \u00e0 jour mon profil',
+              s.documentsConfirmButton,
             ),
           ),
         ),
@@ -835,7 +803,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildConfidenceCard(S? s, DocumentUploadResult result) {
+  Widget _buildConfidenceCard(S s, DocumentUploadResult result) {
     final confidence = (result.confidence * 100).round();
     final Color color = _confidenceColor(confidence);
 
@@ -887,7 +855,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildExtractedFieldsPreview(S? s, LppExtractedFields fields) {
+  Widget _buildExtractedFieldsPreview(S s, LppExtractedFields fields) {
     final entries = _buildFieldEntries(s, fields);
     if (entries.isEmpty) return const SizedBox.shrink();
 
@@ -895,7 +863,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultExtractedFields ?? 'Champs extraits',
+          s.vaultExtractedFields,
           style: MintTextStyles.labelSmall(),
         ),
         const SizedBox(height: MintSpacing.sm),
@@ -932,7 +900,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildWarningsCard(S? s, List<String> warnings) {
+  Widget _buildWarningsCard(S s, List<String> warnings) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
@@ -949,7 +917,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   size: 18, color: MintColors.warning.withValues(alpha: 0.8)),
               const SizedBox(width: MintSpacing.sm),
               Text(
-                s?.documentsWarningsTitle ?? 'Points d\'attention',
+                s.documentsWarningsTitle,
                 style: MintTextStyles.bodySmall(color: MintColors.warning),
               ),
             ],
@@ -981,9 +949,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Bank Import Card (kept as fallback)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildBankImportCard(S? s) {
+  Widget _buildBankImportCard(S s) {
     return Semantics(
-      label: s?.bankImportTitle ?? 'Importer un relev\u00e9 bancaire',
+      label: s.bankImportTitle,
       button: true,
       child: InkWell(
         onTap: () => context.push('/bank-import'),
@@ -1012,13 +980,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    s?.bankImportTitle ?? 'Importer un relev\u00e9 bancaire',
+                    s.bankImportTitle,
                     style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                   ),
                   const SizedBox(height: MintSpacing.xs),
                   Text(
-                    s?.bankImportSubtitle ??
-                        'Analyse automatique de tes transactions',
+                    s.bankImportSubtitle,
                     style: MintTextStyles.bodySmall(color: MintColors.textMuted),
                   ),
                 ],
@@ -1037,7 +1004,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Privacy Footer (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildPrivacyFooter(S? s) {
+  Widget _buildPrivacyFooter(S s) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
@@ -1060,10 +1027,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              s?.vaultPrivacy ??
-                  'Tes documents sont analys\u00e9s localement et ne sont '
-                      'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
-                      '\u00e0 tout moment.',
+              s.vaultPrivacy,
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
@@ -1076,7 +1040,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Disclaimer (compliance — MANDATORY)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildDisclaimer(S? s) {
+  Widget _buildDisclaimer(S s) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
@@ -1092,12 +1056,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
-              s?.vaultDisclaimer ??
-                  'MINT est un outil \u00e9ducatif. Les informations juridiques '
-                      'pr\u00e9sent\u00e9es sont \u00e0 titre informatif et ne constituent '
-                      'pas un conseil juridique personnalis\u00e9 (LSFin, nLPD). '
-                      'Pour toute question sp\u00e9cifique, consulte un\u00b7e '
-                      'sp\u00e9cialiste qualifi\u00e9\u00b7e.',
+              s.vaultDisclaimer,
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
@@ -1110,7 +1069,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Upload Bottom Sheet
   // ──────────────────────────────────────────────────────────
 
-  void _showUploadTypeSheet(S? s) {
+  void _showUploadTypeSheet(S s) {
     final sub = context.read<SubscriptionProvider>();
     final docProvider = context.read<DocumentProvider>();
 
@@ -1153,7 +1112,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildUploadTypeSheet(BuildContext ctx, S? s) {
+  Widget _buildUploadTypeSheet(BuildContext ctx, S s) {
     final categories = _getCategoryDefinitions(s);
 
     return SafeArea(
@@ -1176,7 +1135,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  s?.vaultUploadTitle ?? 'Quel type de document\u00a0?',
+                  s.vaultUploadTitle,
                   style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
                 ),
               ),
@@ -1216,7 +1175,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     color: MintColors.textMuted, size: 22),
               ),
               title: Text(
-                s?.vaultCategoryOther ?? 'Autre',
+                s.vaultCategoryOther,
                 style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
               ),
               trailing: const Icon(Icons.chevron_right_rounded,
@@ -1252,7 +1211,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<void> _confirmDelete(
-      S? s, String docId, DocumentProvider docProvider) async {
+      S s, String docId, DocumentProvider docProvider) async {
     final confirm = await _confirmDeleteDialog(s, docId, docProvider);
     if (confirm == true) {
       await docProvider.deleteDocument(docId);
@@ -1260,23 +1219,22 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<bool?> _confirmDeleteDialog(
-      S? s, String docId, DocumentProvider docProvider) async {
+      S s, String docId, DocumentProvider docProvider) async {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(s?.vaultDeleteTitle ?? 'Supprimer le document\u00a0?'),
-        content: Text(
-            s?.vaultDeleteMessage ?? 'Cette action est irr\u00e9versible.'),
+        title: Text(s.vaultDeleteTitle),
+        content: Text(s.vaultDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(s?.vaultCancelButton ?? 'Annuler'),
+            child: Text(s.vaultCancelButton),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: MintColors.error),
-            child: Text(s?.vaultDeleteButton ?? 'Supprimer'),
+            child: Text(s.vaultDeleteButton),
           ),
         ],
       ),
@@ -1284,26 +1242,23 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   void _showInfoDialog() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          s?.vaultTitle ?? 'Coffre-fort',
+          s.vaultTitle,
           style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
         ),
         content: Text(
-          s?.vaultPrivacy ??
-              'Tes documents sont analys\u00e9s localement et ne sont '
-                  'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
-                  '\u00e0 tout moment.',
+          s.vaultPrivacy,
           style: MintTextStyles.bodyMedium(),
         ),
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(s?.vaultOkButton ?? 'OK'),
+            child: Text(s.vaultOkButton),
           ),
         ],
       ),
@@ -1314,43 +1269,43 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Helpers — Category definitions
   // ──────────────────────────────────────────────────────────
 
-  List<_CategoryDef> _getCategoryDefinitions(S? s) {
+  List<_CategoryDef> _getCategoryDefinitions(S s) {
     return [
       _CategoryDef(
         type: VaultDocumentType.lppCertificate,
         icon: Icons.shield_outlined,
         color: MintColors.info,
-        label: s?.vaultCategoryLpp ?? 'Pr\u00e9voyance LPP',
+        label: s.vaultCategoryLpp,
       ),
       _CategoryDef(
         type: VaultDocumentType.salaryCertificate,
         icon: Icons.payments_outlined,
         color: MintColors.success,
-        label: s?.vaultCategorySalary ?? 'Certificat de salaire',
+        label: s.vaultCategorySalary,
       ),
       _CategoryDef(
         type: VaultDocumentType.pillar3aAttestation,
         icon: Icons.savings_outlined,
         color: MintColors.purple,
-        label: s?.vaultCategory3a ?? '3e pilier',
+        label: s.vaultCategory3a,
       ),
       _CategoryDef(
         type: VaultDocumentType.insurancePolicy,
         icon: Icons.health_and_safety_outlined,
         color: MintColors.warning,
-        label: s?.vaultCategoryInsurance ?? 'Assurances',
+        label: s.vaultCategoryInsurance,
       ),
       _CategoryDef(
         type: VaultDocumentType.lease,
         icon: Icons.home_outlined,
         color: MintColors.cyan,
-        label: s?.vaultCategoryLease ?? 'Bail',
+        label: s.vaultCategoryLease,
       ),
       _CategoryDef(
         type: VaultDocumentType.lamalStatement,
         icon: Icons.local_hospital_outlined,
         color: MintColors.error,
-        label: s?.vaultCategoryLamal ?? 'Sant\u00e9 (LAMal)',
+        label: s.vaultCategoryLamal,
       ),
     ];
   }
@@ -1360,22 +1315,22 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return docProvider.documents.where((d) => d.documentType == type).length;
   }
 
-  String _labelForType(S? s, VaultDocumentType type) {
+  String _labelForType(S s, VaultDocumentType type) {
     switch (type) {
       case VaultDocumentType.lppCertificate:
-        return s?.vaultCategoryLpp ?? 'Pr\u00e9voyance LPP';
+        return s.vaultCategoryLpp;
       case VaultDocumentType.salaryCertificate:
-        return s?.vaultCategorySalary ?? 'Certificat de salaire';
+        return s.vaultCategorySalary;
       case VaultDocumentType.pillar3aAttestation:
-        return s?.vaultCategory3a ?? '3e pilier';
+        return s.vaultCategory3a;
       case VaultDocumentType.insurancePolicy:
-        return s?.vaultCategoryInsurance ?? 'Assurances';
+        return s.vaultCategoryInsurance;
       case VaultDocumentType.lease:
-        return s?.vaultCategoryLease ?? 'Bail';
+        return s.vaultCategoryLease;
       case VaultDocumentType.lamalStatement:
-        return s?.vaultCategoryLamal ?? 'Sant\u00e9 (LAMal)';
+        return s.vaultCategoryLamal;
       case VaultDocumentType.other:
-        return s?.vaultCategoryOther ?? 'Autre';
+        return s.vaultCategoryOther;
     }
   }
 
@@ -1427,55 +1382,54 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Helpers — Field entries (LPP-specific)
   // ──────────────────────────────────────────────────────────
 
-  List<(String, String)> _buildFieldEntries(S? s, LppExtractedFields fields) {
+  List<(String, String)> _buildFieldEntries(S s, LppExtractedFields fields) {
     final entries = <(String, String)>[];
 
     if (fields.avoirVieillesseTotal != null) {
       entries.add((
-        s?.documentsFieldAvoirTotal ?? 'Avoir de vieillesse total',
+        s.documentsFieldAvoirTotal,
         _formatChf(fields.avoirVieillesseTotal!),
       ));
     }
     if (fields.salaireAssure != null) {
       entries.add((
-        s?.documentsFieldSalaireAssure ?? 'Salaire assur\u00e9',
+        s.documentsFieldSalaireAssure,
         _formatChf(fields.salaireAssure!),
       ));
     }
     if (fields.tauxConversionObligatoire != null) {
       entries.add((
-        s?.documentsFieldTauxObligatoire ?? 'Taux de conversion obligatoire',
+        s.documentsFieldTauxObligatoire,
         '${fields.tauxConversionObligatoire!.toStringAsFixed(1)}%',
       ));
     }
     if (fields.rachatMaximum != null) {
       entries.add((
-        s?.documentsFieldRachatMax ?? 'Rachat maximum possible',
+        s.documentsFieldRachatMax,
         _formatChf(fields.rachatMaximum!),
       ));
     }
     if (fields.renteInvalidite != null) {
       entries.add((
-        s?.documentsFieldRenteInvalidite ?? 'Rente d\'invalidit\u00e9 annuelle',
+        s.documentsFieldRenteInvalidite,
         '${_formatChf(fields.renteInvalidite!)}/an',
       ));
     }
     if (fields.capitalDeces != null) {
       entries.add((
-        s?.documentsFieldCapitalDeces ?? 'Capital-d\u00e9c\u00e8s',
+        s.documentsFieldCapitalDeces,
         _formatChf(fields.capitalDeces!),
       ));
     }
     if (fields.cotisationEmploye != null) {
       entries.add((
-        s?.documentsFieldCotisationEmploye ??
-            'Cotisation employ\u00e9 annuelle',
+        s.documentsFieldCotisationEmploye,
         _formatChf(fields.cotisationEmploye!),
       ));
     }
     if (fields.cotisationEmployeur != null) {
       entries.add((
-        s?.documentsFieldCotisationEmployeur ?? 'Cotisation employeur annuelle',
+        s.documentsFieldCotisationEmployeur,
         _formatChf(fields.cotisationEmployeur!),
       ));
     }
@@ -1502,14 +1456,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return value < 0 ? '-${buffer.toString()}' : buffer.toString();
   }
 
-  String _formatConfidence(S? s, int confidence) {
-    return s?.documentsConfidence(confidence.toString()) ??
-        'Confiance\u00a0: $confidence%';
+  String _formatConfidence(S s, int confidence) {
+    return s.documentsConfidence(confidence.toString());
   }
 
-  String _formatFieldsFound(S? s, int found, int total) {
-    return s?.documentsFieldsFound(found.toString(), total.toString()) ??
-        '$found champs extraits sur $total';
+  String _formatFieldsFound(S s, int found, int total) {
+    return s.documentsFieldsFound(found.toString(), total.toString());
   }
 }
 

@@ -128,12 +128,12 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 // ── P14-A : Guide de première urgence ────────────
                 EduSectionTitle(text: l.successionDecesProche),
                 const SizedBox(height: MintSpacing.sm + 4),
-                const DeathUrgencyGuideWidget(
+                DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
                       timeframe: 'J+1 à J+7',
                       emoji: '',
-                      title: 'Urgence immédiate',
+                      title: S.of(context)!.successionUrgence,
                       color: MintColors.urgentOrange,
                       actions: [
                         'Déclarer le décès à l\'état civil dans les 2 jours',
@@ -145,7 +145,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                     UrgencyPhase(
                       timeframe: 'J+8 à J+30',
                       emoji: '',
-                      title: 'Démarches administratives',
+                      title: S.of(context)!.successionDemarches,
                       color: MintColors.orangeDarkDeep,
                       actions: [
                         'Demander les rentes de survivants AVS (LAVS art. 23)',
@@ -158,7 +158,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                     UrgencyPhase(
                       timeframe: 'J+31 à J+365',
                       emoji: '',
-                      title: 'Succession légale',
+                      title: S.of(context)!.successionLegale,
                       color: MintColors.successDeep,
                       actions: [
                         'Ouvrir la procédure de succession avec le notaire',

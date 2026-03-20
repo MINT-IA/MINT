@@ -988,9 +988,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
         LppVs3aDecisionTree(
           expectedIncome: _revenuNet,
           lppOption: DecisionOption(
-            title: 'Caisse LPP facultative',
+            title: S.of(context)!.indepCaisseLpp,
             emoji: '\u{1F3DB}\uFE0F',
-            subtitle: 'Protection rente invalidit\u00e9 + retraite',
+            subtitle: S.of(context)!.indepCaisseLppSub,
             pros: const [
               'Couverture invalidit\u00e9 incluse',
               'Cotisations d\u00e9ductibles',
@@ -1003,7 +1003,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             annualTaxSavings: _revenuNet * 0.08,
           ),
           grand3aOption: DecisionOption(
-            title: 'Grand 3a (sans LPP)',
+            title: S.of(context)!.indepGrand3a,
             emoji: '\u{1F3E6}',
             subtitle: '20% du revenu net, max CHF 36\'288/an',
             pros: const [
@@ -1115,10 +1115,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
         const SizedBox(height: MintSpacing.lg),
 
         // 90-day plan
-        const NinetyDayPlanWidget(
+        NinetyDayPlanWidget(
           phases: [
             PlanPhase(
-              title: 'Administratif urgent',
+              title: S.of(context)!.indepAdminUrgent,
               emoji: '\u{1F4CB}',
               deadline: 'J+30',
               urgencyColor: MintColors.scoreCritique,
@@ -1137,7 +1137,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ],
             ),
             PlanPhase(
-              title: 'Pr\u00e9voyance',
+              title: S.of(context)!.indepPrevoyance,
               emoji: '\u{1F3E6}',
               deadline: 'J+60',
               urgencyColor: MintColors.scoreAttention,
@@ -1156,7 +1156,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ],
             ),
             PlanPhase(
-              title: 'Optimisation fiscale',
+              title: S.of(context)!.indepOptiFiscale,
               emoji: '\u{1F4A1}',
               deadline: 'J+90',
               urgencyColor: MintColors.primary,

@@ -42,17 +42,6 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     });
   }
 
-  Future<void> _exportPdf() async {
-    if (_result == null) return;
-    
-    // TODO: Implement PDF export for debt risk check
-    // await PdfService.generateBilanPdf(
-    //   title: 'Bilan Risque d\'Endettement',
-    //   results: results,
-    //   recommendations: recommendations,
-    // );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

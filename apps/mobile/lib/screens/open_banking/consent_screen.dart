@@ -87,7 +87,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 // Active consents
                 if (!_showNewConsentFlow) ...[
                   _buildSectionTitle(
-                      'CONSENTEMENTS ACTIFS', Icons.privacy_tip_outlined),
+                      S.of(context)!.consentActiveSection, Icons.privacy_tip_outlined),
                   const SizedBox(height: 12),
                   ..._consents.asMap().entries.map((entry) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -166,13 +166,12 @@ class _ConsentScreenState extends State<ConsentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Fonctionnalite en preparation',
+                  S.of(context)!.consentFinmaTitle,
                   style: MintTextStyles.bodyMedium(color: MintColors.amberDark).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Consultation reglementaire FINMA en cours. '
-                  'Les donnees affichees sont des exemples de demonstration.',
+                  S.of(context)!.consentFinmaDesc,
                   style: MintTextStyles.bodySmall(color: MintColors.amberDark),
                 ),
               ],
@@ -196,7 +195,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
-          'MODE DEMO',
+          S.of(context)!.consentModeDemo,
           style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
@@ -291,7 +290,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
           // Scopes
           Text(
-            'Autorisations',
+            S.of(context)!.consentAutorisations,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: 6),
@@ -319,12 +318,12 @@ class _ConsentScreenState extends State<ConsentScreen> {
           Row(
             children: [
               Text(
-                'Accorde le ${_formatDate(consent.grantedAt)}',
+                S.of(context)!.consentGrantedAtLabel(_formatDate(consent.grantedAt)),
                 style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
               const SizedBox(width: MintSpacing.md),
               Text(
-                'Expire le ${_formatDate(consent.expiresAt)}',
+                S.of(context)!.consentExpiresAtLabel(_formatDate(consent.expiresAt)),
                 style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
@@ -363,7 +362,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                       color: MintColors.error.withValues(alpha: 0.7), size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    'Consentement revoque',
+                    S.of(context)!.consentRevokedLabel,
                     style: MintTextStyles.bodySmall(color: MintColors.error),
                   ),
                 ],
@@ -393,30 +392,21 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   color: MintColors.tealLight, size: 20),
               const SizedBox(width: 10),
               Text(
-                'Tes droits (nLPD)',
+                S.of(context)!.consentNlpdTitle,
                 style: MintTextStyles.titleMedium(color: MintColors.tealDark).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
             ],
           ),
           const SizedBox(height: 14),
           Text(
-            'Tes droits selon la nLPD '
-            '(Loi federale sur la protection des donnees) :',
+            S.of(context)!.consentNlpdSubtitle,
             style: MintTextStyles.bodySmall(color: MintColors.tealLight),
           ),
           const SizedBox(height: 10),
-          _buildNlpdPoint(
-            '\u2022 Tu peux revoquer ton consentement a tout moment',
-          ),
-          _buildNlpdPoint(
-            '\u2022 Tes donnees ne sont jamais partagees avec des tiers',
-          ),
-          _buildNlpdPoint(
-            '\u2022 Acces en lecture seule \u2014 aucune operation financiere',
-          ),
-          _buildNlpdPoint(
-            '\u2022 Duree maximale de consentement : 90 jours (renouvelable)',
-          ),
+          _buildNlpdPoint(S.of(context)!.consentNlpdPoint1),
+          _buildNlpdPoint(S.of(context)!.consentNlpdPoint2),
+          _buildNlpdPoint(S.of(context)!.consentNlpdPoint3),
+          _buildNlpdPoint(S.of(context)!.consentNlpdPoint4),
         ],
       ),
     );
@@ -474,7 +464,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               border: Border.all(color: MintColors.neutralBg),
             ),
             child: Text(
-              'MODE DEMO',
+              S.of(context)!.consentModeDemo,
               style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,
@@ -496,7 +486,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           child: TextButton(
             onPressed: _cancelNewConsentFlow,
             child: Text(
-              'Annuler',
+              S.of(context)!.consentAnnuler,
               style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
             ),
           ),
@@ -506,7 +496,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }
 
   Widget _buildStepIndicator() {
-    const steps = ['Banque', 'Autorisations', 'Confirmation'];
+    final steps = [S.of(context)!.consentStepBanque, S.of(context)!.consentStepAutorisations, S.of(context)!.consentStepConfirmation];
     return Row(
       children: List.generate(steps.length, (i) {
         final isActive = i == _newConsentStep;
@@ -573,7 +563,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Choisir une banque',
+            S.of(context)!.consentSelectBankTitle,
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 16),
@@ -589,7 +579,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   Widget _buildBankOption(Map<String, String> bank) {
     final isSelected = _selectedBankId == bank['id'];
     return Semantics(
-      label: 'Sélectionner la banque ${bank['name']}',
+      label: S.of(context)!.consentSelectedBankLabel(bank['name'] ?? ''),
       button: true,
       child: InkWell(
       onTap: () {
@@ -675,12 +665,12 @@ class _ConsentScreenState extends State<ConsentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Choisir les autorisations',
+            S.of(context)!.consentSelectScopesTitle,
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
-            'Banque selectionnee : $_selectedBankName',
+            S.of(context)!.consentSelectedBankLabel(_selectedBankName ?? ''),
             style: MintTextStyles.bodySmall(),
           ),
           const SizedBox(height: 16),
@@ -688,17 +678,17 @@ class _ConsentScreenState extends State<ConsentScreen> {
           // Checkboxes — NOT pre-checked (nLPD compliance)
           _buildScopeCheckbox(
             value: _scopeAccounts,
-            label: 'Comptes (liste de tes comptes)',
+            label: S.of(context)!.consentScopeAccountsDesc,
             onChanged: (v) => setState(() => _scopeAccounts = v ?? false),
           ),
           _buildScopeCheckbox(
             value: _scopeBalances,
-            label: 'Soldes (solde actuel de tes comptes)',
+            label: S.of(context)!.consentScopeBalancesDesc,
             onChanged: (v) => setState(() => _scopeBalances = v ?? false),
           ),
           _buildScopeCheckbox(
             value: _scopeTransactions,
-            label: 'Transactions (historique des mouvements)',
+            label: S.of(context)!.consentScopeTransactionsDesc,
             onChanged: (v) => setState(() => _scopeTransactions = v ?? false),
           ),
 
@@ -718,8 +708,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Acces en lecture seule. Aucune operation '
-                    'financiere ne peut etre effectuee.',
+                    S.of(context)!.consentReadOnlyInfo,
                     style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                   ),
                 ),
@@ -800,9 +789,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
   Widget _buildStepConfirm() {
     final scopes = <String>[];
-    if (_scopeAccounts) scopes.add('Comptes');
-    if (_scopeBalances) scopes.add('Soldes');
-    if (_scopeTransactions) scopes.add('Transactions');
+    if (_scopeAccounts) scopes.add(S.of(context)!.consentScopeComptes);
+    if (_scopeBalances) scopes.add(S.of(context)!.consentScopeSoldes);
+    if (_scopeTransactions) scopes.add(S.of(context)!.consentScopeTransactions);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -816,19 +805,19 @@ class _ConsentScreenState extends State<ConsentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Confirmation',
+            S.of(context)!.consentStepConfirmation,
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 16),
 
           // Summary
-          _buildConfirmRow('Banque', _selectedBankName ?? '-'),
+          _buildConfirmRow(S.of(context)!.consentConfirmBanque, _selectedBankName ?? '-'),
           const SizedBox(height: 8),
-          _buildConfirmRow('Autorisations', scopes.join(', ')),
+          _buildConfirmRow(S.of(context)!.consentConfirmAutorisations, scopes.join(', ')),
           const SizedBox(height: 8),
-          _buildConfirmRow('Duree', '90 jours'),
+          _buildConfirmRow(S.of(context)!.consentConfirmDuree, S.of(context)!.consentConfirmDureeValue),
           const SizedBox(height: 8),
-          _buildConfirmRow('Acces', 'Lecture seule'),
+          _buildConfirmRow(S.of(context)!.consentConfirmAcces, S.of(context)!.consentConfirmAccesValue),
 
           const SizedBox(height: 16),
 
@@ -841,10 +830,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               border: Border.all(color: MintColors.orangeRetroWarm),
             ),
             child: Text(
-              'En confirmant, tu autorises MINT a acceder aux '
-              'donnees selectionnees en lecture seule pour une duree '
-              'de 90 jours. Tu peux revoquer ce consentement '
-              'a tout moment.',
+              S.of(context)!.consentConfirmDisclaimer,
               style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
@@ -946,10 +932,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette fonctionnalite est en cours de developpement. '
-              'Les donnees affichees sont des exemples. '
-              'L\'activation du service Open Banking est soumise '
-              'a une consultation reglementaire prealable.',
+              S.of(context)!.consentDisclaimer,
               style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
@@ -961,29 +944,30 @@ class _ConsentScreenState extends State<ConsentScreen> {
   // ── Helpers ────────────────────────────────────────────────
 
   _StatusConfig _getStatusConfig(String statusKey) {
+    final l = S.of(context)!;
     switch (statusKey) {
       case 'active':
-        return const _StatusConfig(label: 'Actif', color: MintColors.success);
+        return _StatusConfig(label: l.consentStatusActif, color: MintColors.success);
       case 'expiring_soon':
-        return const _StatusConfig(
-            label: 'Expire bientot', color: MintColors.warning);
+        return _StatusConfig(label: l.consentStatusExpirantBientot, color: MintColors.warning);
       case 'expired':
-        return const _StatusConfig(label: 'Expire', color: MintColors.error);
+        return _StatusConfig(label: l.consentStatusExpire, color: MintColors.error);
       case 'revoked':
-        return const _StatusConfig(label: 'Revoque', color: MintColors.error);
+        return _StatusConfig(label: l.consentStatusRevoque, color: MintColors.error);
       default:
-        return const _StatusConfig(label: 'Inconnu', color: MintColors.textMuted);
+        return _StatusConfig(label: l.consentStatusInconnu, color: MintColors.textMuted);
     }
   }
 
   String _scopeLabel(String scope) {
+    final l = S.of(context)!;
     switch (scope) {
       case 'accounts':
-        return 'Comptes';
+        return l.consentScopeComptes;
       case 'balances':
-        return 'Soldes';
+        return l.consentScopeSoldes;
       case 'transactions':
-        return 'Transactions';
+        return l.consentScopeTransactions;
       default:
         return scope;
     }

@@ -37,59 +37,59 @@ class OpenBankingHubScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildFinmaGateBanner(),
+                _buildFinmaGateBanner(context),
                 const SizedBox(height: 12),
-                _buildDemoModeBadge(),
+                _buildDemoModeBadge(context),
                 const SizedBox(height: 16),
-                _buildHeader(),
+                _buildHeader(context),
                 const SizedBox(height: 24),
 
                 // Connected accounts
-                _buildSectionTitle('COMPTES CONNECTES', Icons.account_balance),
+                _buildSectionTitle(S.of(context)!.openBankingHubConnectedAccounts, Icons.account_balance),
                 const SizedBox(height: 12),
                 ...accounts.map((acc) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildAccountCard(acc),
+                      child: _buildAccountCard(context, acc),
                     )),
-                _buildAddBankButton(),
+                _buildAddBankButton(context),
                 const SizedBox(height: 28),
 
                 // Financial overview
-                _buildSectionTitle('APERCU FINANCIER', Icons.insights),
+                _buildSectionTitle(S.of(context)!.openBankingHubApercu, Icons.insights),
                 const SizedBox(height: 12),
-                _buildTotalBalanceCard(totalBalance),
+                _buildTotalBalanceCard(context, totalBalance),
                 const SizedBox(height: 12),
-                _buildIncomeExpenseBar(summary),
+                _buildIncomeExpenseBar(context, summary),
                 const SizedBox(height: 12),
-                _buildTopCategories(categories),
+                _buildTopCategories(context, categories),
                 const SizedBox(height: 28),
 
                 // Quick links
-                _buildSectionTitle('NAVIGATION', Icons.link),
+                _buildSectionTitle(S.of(context)!.openBankingHubNavigation, Icons.link),
                 const SizedBox(height: 12),
                 _buildQuickLinkTile(
                   context,
                   icon: Icons.receipt_long,
-                  title: 'Voir les transactions',
-                  subtitle: 'Historique detaille par categorie',
+                  title: S.of(context)!.openBankingHubViewTransactions,
+                  subtitle: S.of(context)!.openBankingHubViewTransactionsDesc,
                   route: '/open-banking/transactions',
                 ),
                 const SizedBox(height: 10),
                 _buildQuickLinkTile(
                   context,
                   icon: Icons.privacy_tip_outlined,
-                  title: 'Gerer les consentements',
-                  subtitle: 'Droits nLPD, revocation, scopes',
+                  title: S.of(context)!.openBankingHubManageConsents,
+                  subtitle: S.of(context)!.openBankingHubManageConsentsDesc,
                   route: '/open-banking/consents',
                 ),
                 const SizedBox(height: 28),
 
                 // bLink badge
-                _buildBlinkBadge(),
+                _buildBlinkBadge(context),
                 const SizedBox(height: 16),
 
                 // Disclaimer
-                _buildDisclaimer(),
+                _buildDisclaimer(context),
                 const SizedBox(height: 100),
               ]),
             ),
@@ -120,7 +120,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── FINMA Gate Banner ──────────────────────────────────────
 
-  Widget _buildFinmaGateBanner() {
+  Widget _buildFinmaGateBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -138,13 +138,12 @@ class OpenBankingHubScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Fonctionnalite en preparation',
+                  S.of(context)!.openBankingHubFinmaTitle,
                   style: MintTextStyles.bodyMedium(color: MintColors.amberDark).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Consultation reglementaire FINMA en cours. '
-                  'Les donnees affichees sont des exemples de demonstration.',
+                  S.of(context)!.openBankingHubFinmaDesc,
                   style: MintTextStyles.bodySmall(color: MintColors.amberDark),
                 ),
               ],
@@ -157,7 +156,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Demo mode badge ──────────────────────────────────────
 
-  Widget _buildDemoModeBadge() {
+  Widget _buildDemoModeBadge(BuildContext context) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
@@ -168,7 +167,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
-          'MODE DEMO',
+          S.of(context)!.openBankingDemoMode,
           style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
@@ -180,7 +179,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Header ─────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
         Container(
@@ -201,12 +200,12 @@ class OpenBankingHubScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Open Banking',
+                S.of(context)!.openBankingTitle,
                 style: MintTextStyles.headlineMedium(),
               ),
               const SizedBox(height: 4),
               Text(
-                'Connecte tes comptes bancaires',
+                S.of(context)!.openBankingHubSubtitle,
                 style: MintTextStyles.bodyMedium(),
               ),
             ],
@@ -236,7 +235,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Account Card ───────────────────────────────────────────
 
-  Widget _buildAccountCard(BankAccount account) {
+  Widget _buildAccountCard(BuildContext context, BankAccount account) {
     final avatarColor = _bankColor(account.bankId);
 
     return Container(
@@ -302,7 +301,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                _formatSyncTime(account.lastSync),
+                _formatSyncTime(context, account.lastSync),
                 style: MintTextStyles.micro(),
               ),
             ],
@@ -312,11 +311,11 @@ class OpenBankingHubScreen extends StatelessWidget {
     );
   }
 
-  String _formatSyncTime(DateTime lastSync) {
+  String _formatSyncTime(BuildContext context, DateTime lastSync) {
     final diff = DateTime.now().difference(lastSync);
-    if (diff.inMinutes < 60) return 'Il y a ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'Il y a ${diff.inHours}h';
-    return 'Il y a ${diff.inDays}j';
+    if (diff.inMinutes < 60) return S.of(context)!.openBankingHubSyncMinutes(diff.inMinutes);
+    if (diff.inHours < 24) return S.of(context)!.openBankingHubSyncHours(diff.inHours);
+    return S.of(context)!.openBankingHubSyncDays(diff.inDays);
   }
 
   Color _bankColor(String bankId) {
@@ -346,9 +345,9 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Add Bank Button (disabled) ─────────────────────────────
 
-  Widget _buildAddBankButton() {
+  Widget _buildAddBankButton(BuildContext context) {
     return Tooltip(
-      message: 'Disponible apres consultation FINMA',
+      message: S.of(context)!.openBankingAddBankDisabled,
       child: Opacity(
         opacity: 0.5,
         child: Container(
@@ -366,7 +365,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                   color: MintColors.textMuted, size: 20),
               const SizedBox(width: 10),
               Text(
-                'Ajouter une banque',
+                S.of(context)!.openBankingHubAddBankLabel,
                 style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
               ),
               const SizedBox(width: 8),
@@ -381,7 +380,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Total Balance Card ─────────────────────────────────────
 
-  Widget _buildTotalBalanceCard(double total) {
+  Widget _buildTotalBalanceCard(BuildContext context, double total) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -400,7 +399,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Solde total',
+            S.of(context)!.openBankingHubSoldeTotal,
             style: MintTextStyles.bodySmall(),
           ),
           const SizedBox(height: 8),
@@ -410,7 +409,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '3 comptes connectes',
+            S.of(context)!.openBankingHubComptesConnectes,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
         ],
@@ -420,7 +419,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Income / Expense Bar ───────────────────────────────────
 
-  Widget _buildIncomeExpenseBar(Map<String, double> summary) {
+  Widget _buildIncomeExpenseBar(BuildContext context, Map<String, double> summary) {
     final income = summary['income'] ?? 0;
     final expenses = summary['expenses'] ?? 0;
     final maxVal = income > expenses ? income : expenses;
@@ -437,7 +436,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         children: [
           // Income
           _buildBarRow(
-            label: 'Revenus',
+            label: S.of(context)!.openBankingHubRevenus,
             value: income,
             maxValue: maxVal,
             color: MintColors.success,
@@ -445,7 +444,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           const SizedBox(height: 12),
           // Expenses
           _buildBarRow(
-            label: 'Depenses',
+            label: S.of(context)!.openBankingHubDepenses,
             value: expenses,
             maxValue: maxVal,
             color: MintColors.error,
@@ -458,7 +457,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Epargne nette',
+                S.of(context)!.openBankingHubEpargneNette,
                 style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -519,7 +518,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Top Categories ─────────────────────────────────────────
 
-  Widget _buildTopCategories(List<CategoryBreakdown> categories) {
+  Widget _buildTopCategories(BuildContext context, List<CategoryBreakdown> categories) {
     final top3 = categories.take(3).toList();
 
     return Container(
@@ -534,7 +533,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Top 3 depenses',
+            S.of(context)!.openBankingHubTop3Depenses,
             style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
           ),
           const SizedBox(height: 12),
@@ -545,7 +544,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    _categoryLabel(cat.category),
+                    _categoryLabel(context, cat.category),
                     style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                   ),
                 ),
@@ -640,7 +639,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── bLink Badge ────────────────────────────────────────────
 
-  Widget _buildBlinkBadge() {
+  Widget _buildBlinkBadge(BuildContext context) {
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -649,7 +648,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
-          'Propulse par bLink (SIX)',
+          S.of(context)!.openBankingBlink,
           style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ),
@@ -658,7 +657,7 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   // ── Disclaimer ─────────────────────────────────────────────
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -673,10 +672,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette fonctionnalite est en cours de developpement. '
-              'Les donnees affichees sont des exemples. '
-              'L\'activation du service Open Banking est soumise '
-              'a une consultation reglementaire prealable.',
+              S.of(context)!.openBankingDisclaimer,
               style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
@@ -706,32 +702,33 @@ class OpenBankingHubScreen extends StatelessWidget {
     return Icon(iconData, size: 18, color: color);
   }
 
-  String _categoryLabel(String category) {
+  String _categoryLabel(BuildContext context, String category) {
+    final l = S.of(context)!;
     switch (category) {
       case 'alimentation':
-        return 'Alimentation';
+        return l.openBankingCategoryAlimentation;
       case 'transport':
-        return 'Transport';
+        return l.openBankingCategoryTransport;
       case 'logement':
-        return 'Logement';
+        return l.openBankingCategoryLogement;
       case 'telecom':
-        return 'Telecom';
+        return l.openBankingCategoryTelecom;
       case 'assurances':
-        return 'Assurances';
+        return l.openBankingCategoryAssurances;
       case 'energie':
-        return 'Energie';
+        return l.openBankingCategoryEnergie;
       case 'sante':
-        return 'Sante';
+        return l.openBankingCategorySante;
       case 'loisirs':
-        return 'Loisirs';
+        return l.openBankingCategoryLoisirs;
       case 'impots':
-        return 'Impots';
+        return l.openBankingCategoryImpots;
       case 'epargne':
-        return 'Epargne';
+        return l.openBankingCategoryEpargne;
       case 'revenu':
-        return 'Revenu';
+        return l.openBankingCategoryRevenu;
       default:
-        return 'Divers';
+        return l.openBankingCategoryDivers;
     }
   }
 }

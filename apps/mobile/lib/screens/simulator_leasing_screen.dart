@@ -39,17 +39,6 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
     });
   }
 
-  Future<void> _exportPdf() async {
-    if (_result == null) return;
-    
-    // TODO: Implement PDF export for leasing simulator
-    // await PdfService.generateBilanPdf(
-    //   title: 'Bilan Anti-Leasing',
-    //   results: results,
-    //   recommendations: recommendations,
-    // );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -87,12 +87,6 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     });
   }
 
-  Future<void> _exportPdf() async {
-    if (_result == null) return;
-
-    // TODO: Implement PDF export for 3a simulator
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
@@ -104,18 +98,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
-        actions: [
-          Semantics(
-            label: l.sim3aExportTooltip,
-            button: true,
-            child: IconButton(
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              onPressed: _exportPdf,
-              tooltip: l.sim3aExportTooltip,
-            ),
-          ),
-          const SizedBox(width: MintSpacing.sm),
-        ],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),

@@ -1188,6 +1188,7 @@
   "openBankingCancel": "Cancelar",
   "openBankingBack": "Volver",
   "openBankingNext": "Siguiente",
+  "openBankingCategoryAll": "Todas",
   "openBankingCategoryAlimentation": "Alimentacion",
   "openBankingCategoryTransport": "Transporte",
   "openBankingCategoryLogement": "Vivienda",
@@ -7839,5 +7840,19 @@
   "pillar3aIndepTaux45": "45 %"
 ,
   "actionSuccessNext": "Siguiente paso",
-  "actionSuccessDone": "Entendido"
+  "actionSuccessDone": "Entendido",
+  "dividendeBeneficeTotal": "Beneficio total",
+  "dividendePartSalaire": "Parte salarial",
+  "dividendeTauxMarginal": "Tipo marginal de impuesto",
+  "successionUrgence": "Urgencia inmediata",
+  "successionDemarches": "Trámites administrativos",
+  "successionLegale": "Sucesión legal",
+  "disabilityGapEmployerSub": "CO art. 324a — 3 a 26 semanas según antigüedad",
+  "disabilityGapAiDelaySub": "Plazo medio decisión AI: 14 meses · LAI art. 28 + LPP art. 23",
+  "indepCaisseLpp": "Caja LPP voluntaria",
+  "indepCaisseLppSub": "Cobertura pensión invalidez + jubilación",
+  "indepGrand3a": "Gran 3a (sin LPP)",
+  "indepAdminUrgent": "Administrativo urgente",
+  "indepPrevoyance": "Previsión",
+  "indepOptiFiscale": "Optimización fiscal"
 }

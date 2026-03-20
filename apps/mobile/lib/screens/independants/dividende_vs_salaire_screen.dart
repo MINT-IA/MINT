@@ -143,7 +143,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildBeneficeSlider() {
     return _buildSliderCard(
-      title: 'Bénéfice total',
+      title: S.of(context)!.dividendeBeneficeTotal,
       valueLabel: IndependantsService.formatChf(_benefice),
       minLabel: 'CHF 0',
       maxLabel: "CHF 500'000",
@@ -160,7 +160,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildPartSalaireSlider() {
     return _buildSliderCard(
-      title: 'Part salaire',
+      title: S.of(context)!.dividendePartSalaire,
       valueLabel: '${_partSalairePct.toInt()}%',
       minLabel: '0%',
       maxLabel: '100%',
@@ -177,7 +177,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildTauxSlider() {
     return _buildSliderCard(
-      title: 'Taux marginal d\'imposition',
+      title: S.of(context)!.dividendeTauxMarginal,
       valueLabel: '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
       minLabel: '10%',
       maxLabel: '45%',

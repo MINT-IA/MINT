@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -28,21 +27,24 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   String _selectedCategory = 'all';
   String _selectedPeriod = 'this_month';
 
-  static const List<Map<String, String>> _categories = [
-    {'id': 'all', 'label': 'Toutes'},
-    {'id': 'alimentation', 'label': 'Alimentation'},
-    {'id': 'transport', 'label': 'Transport'},
-    {'id': 'logement', 'label': 'Logement'},
-    {'id': 'telecom', 'label': 'Telecom'},
-    {'id': 'assurances', 'label': 'Assurances'},
-    {'id': 'sante', 'label': 'Santé'},
-    {'id': 'loisirs', 'label': 'Loisirs'},
-    {'id': 'impots', 'label': 'Impôts'},
-    {'id': 'energie', 'label': 'Énergie'},
-    {'id': 'epargne', 'label': 'Épargne'},
-    {'id': 'revenu', 'label': 'Revenu'},
-    {'id': 'divers', 'label': 'Divers'},
-  ];
+  List<Map<String, String>> _categories(BuildContext context) {
+    final l = S.of(context)!;
+    return [
+      {'id': 'all', 'label': l.openBankingCategoryAll},
+      {'id': 'alimentation', 'label': l.openBankingCategoryAlimentation},
+      {'id': 'transport', 'label': l.openBankingCategoryTransport},
+      {'id': 'logement', 'label': l.openBankingCategoryLogement},
+      {'id': 'telecom', 'label': l.openBankingCategoryTelecom},
+      {'id': 'assurances', 'label': l.openBankingCategoryAssurances},
+      {'id': 'sante', 'label': l.openBankingCategorySante},
+      {'id': 'loisirs', 'label': l.openBankingCategoryLoisirs},
+      {'id': 'impots', 'label': l.openBankingCategoryImpots},
+      {'id': 'energie', 'label': l.openBankingCategoryEnergie},
+      {'id': 'epargne', 'label': l.openBankingCategoryEpargne},
+      {'id': 'revenu', 'label': l.openBankingCategoryRevenu},
+      {'id': 'divers', 'label': l.openBankingCategoryDivers},
+    ];
+  }
 
   List<BankTransaction> get _filteredTransactions {
     var transactions = OpenBankingService.getMockTransactions();
@@ -165,13 +167,12 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Fonctionnalite en preparation',
+                  S.of(context)!.transactionListFinmaTitle,
                   style: MintTextStyles.bodyMedium(color: MintColors.amberDark).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Consultation réglementaire FINMA en cours. '
-                  'Les données affichées sont des exemples de démonstration.',
+                  S.of(context)!.transactionListFinmaDesc,
                   style: MintTextStyles.bodySmall(color: MintColors.amberDark),
                 ),
               ],
@@ -195,7 +196,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
-          'MODE DEMO',
+          S.of(context)!.transactionListModeDemo,
           style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
@@ -210,9 +211,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Widget _buildPeriodSelector() {
     return Row(
       children: [
-        _buildPeriodChip('this_month', 'Ce mois'),
+        _buildPeriodChip('this_month', S.of(context)!.transactionListThisMonth),
         const SizedBox(width: 8),
-        _buildPeriodChip('last_month', 'Mois precedent'),
+        _buildPeriodChip('last_month', S.of(context)!.transactionListLastMonth),
       ],
     );
   }
@@ -220,7 +221,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Widget _buildPeriodChip(String value, String label) {
     final isSelected = _selectedPeriod == value;
     return Semantics(
-      label: 'Filtrer par période : $label',
+      label: label,
       button: true,
       child: GestureDetector(
       onTap: () => setState(() => _selectedPeriod = value),
@@ -253,13 +254,13 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
+        itemCount: _categories(context).length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final cat = _categories[index];
+          final cat = _categories(context)[index];
           final isSelected = _selectedCategory == cat['id'];
           return Semantics(
-            label: 'Filtrer par catégorie : ${cat['label']}',
+            label: cat['label']!,
             button: true,
             child: GestureDetector(
             onTap: () => setState(() => _selectedCategory = cat['id']!),
@@ -394,7 +395,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        _categoryLabel(category),
+        _categoryLabel(context, category),
         style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
           fontWeight: FontWeight.w500,
         ),
@@ -413,7 +414,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
-            'Aucune transaction',
+            S.of(context)!.transactionListNoTransaction,
             style: MintTextStyles.titleMedium(color: MintColors.textMuted),
           ),
         ],
@@ -444,18 +445,18 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Synthese du mois',
+            S.of(context)!.openBankingMonthlySummary,
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 16),
           _buildSummaryRow(
-            'Revenus',
+            S.of(context)!.transactionListRevenus,
             OpenBankingService.formatChf(summary['income'] ?? 0),
             MintColors.success,
           ),
           const SizedBox(height: 10),
           _buildSummaryRow(
-            'Depenses',
+            S.of(context)!.transactionListDepenses,
             OpenBankingService.formatChf(summary['expenses'] ?? 0),
             MintColors.error,
           ),
@@ -463,7 +464,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const Divider(height: 1),
           const SizedBox(height: 10),
           _buildSummaryRow(
-            'Épargne nette',
+            S.of(context)!.transactionListEpargneNette,
             OpenBankingService.formatChf(summary['net'] ?? 0),
             (summary['net'] ?? 0) >= 0
                 ? MintColors.success
@@ -471,8 +472,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           ),
           const SizedBox(height: 10),
           _buildSummaryRow(
-            'Taux d\'epargne',
-            '${(summary['savingsRate'] ?? 0).toStringAsFixed(1)}%',
+            S.of(context)!.transactionListTauxEpargne,
+            '${(summary['savingsRate'] ?? 0).toStringAsFixed(1)}\u00a0%',
             MintColors.info,
           ),
         ],
@@ -515,10 +516,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette fonctionnalité est en cours de développement. '
-              'Les données affichées sont des exemples. '
-              'L\'activation du service Open Banking est soumise '
-              'à une consultation réglementaire préalable.',
+              S.of(context)!.openBankingDisclaimer,
               style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
@@ -541,32 +539,33 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
   }
 
-  String _categoryLabel(String category) {
+  String _categoryLabel(BuildContext context, String category) {
+    final l = S.of(context)!;
     switch (category) {
       case 'alimentation':
-        return 'Alimentation';
+        return l.openBankingCategoryAlimentation;
       case 'transport':
-        return 'Transport';
+        return l.openBankingCategoryTransport;
       case 'logement':
-        return 'Logement';
+        return l.openBankingCategoryLogement;
       case 'telecom':
-        return 'Telecom';
+        return l.openBankingCategoryTelecom;
       case 'assurances':
-        return 'Assurances';
+        return l.openBankingCategoryAssurances;
       case 'energie':
-        return 'Énergie';
+        return l.openBankingCategoryEnergie;
       case 'sante':
-        return 'Santé';
+        return l.openBankingCategorySante;
       case 'loisirs':
-        return 'Loisirs';
+        return l.openBankingCategoryLoisirs;
       case 'impots':
-        return 'Impôts';
+        return l.openBankingCategoryImpots;
       case 'epargne':
-        return 'Épargne';
+        return l.openBankingCategoryEpargne;
       case 'revenu':
-        return 'Revenu';
+        return l.openBankingCategoryRevenu;
       default:
-        return 'Divers';
+        return l.openBankingCategoryDivers;
     }
   }
 }

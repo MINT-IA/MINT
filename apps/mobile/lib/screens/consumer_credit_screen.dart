@@ -45,17 +45,6 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     });
   }
 
-  Future<void> _exportPdf() async {
-    if (_result == null) return;
-    
-    // TODO: Implement PDF export for consumer credit simulator
-    // await PdfService.generateBilanPdf(
-    //   title: 'Simulation de Crédit à la Consommation',
-    //   results: results,
-    //   recommendations: recommendations,
-    // );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

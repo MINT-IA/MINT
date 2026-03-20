@@ -1188,6 +1188,7 @@
   "openBankingCancel": "Cancel",
   "openBankingBack": "Back",
   "openBankingNext": "Next",
+  "openBankingCategoryAll": "All",
   "openBankingCategoryAlimentation": "Groceries",
   "openBankingCategoryTransport": "Transport",
   "openBankingCategoryLogement": "Housing",
@@ -8084,5 +8085,19 @@
   "pillar3aIndepTaux45": "45 %"
 ,
   "actionSuccessNext": "What's next",
-  "actionSuccessDone": "Got it"
+  "actionSuccessDone": "Got it",
+  "dividendeBeneficeTotal": "Total profit",
+  "dividendePartSalaire": "Salary share",
+  "dividendeTauxMarginal": "Marginal tax rate",
+  "successionUrgence": "Immediate urgency",
+  "successionDemarches": "Administrative steps",
+  "successionLegale": "Legal succession",
+  "disabilityGapEmployerSub": "CO art. 324a — 3 to 26 weeks depending on seniority",
+  "disabilityGapAiDelaySub": "Average AI decision delay: 14 months · LAI art. 28 + LPP art. 23",
+  "indepCaisseLpp": "Optional LPP fund",
+  "indepCaisseLppSub": "Disability pension + retirement coverage",
+  "indepGrand3a": "Grand 3a (without LPP)",
+  "indepAdminUrgent": "Urgent administrative",
+  "indepPrevoyance": "Pension planning",
+  "indepOptiFiscale": "Tax optimisation"
 }

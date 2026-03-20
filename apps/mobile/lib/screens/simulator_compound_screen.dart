@@ -41,17 +41,6 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
     });
   }
 
-  Future<void> _exportPdf() async {
-    if (_result == null) return;
-    
-    // TODO: Implement PDF export for compound interest simulator
-    // await PdfService.generateBilanPdf(
-    //   title: 'Simulation Intérêts Composés',
-    //   results: results,
-    //   recommendations: recommendations,
-    // );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

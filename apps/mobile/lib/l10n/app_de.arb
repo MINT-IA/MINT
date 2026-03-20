@@ -1188,6 +1188,7 @@
   "openBankingCancel": "Abbrechen",
   "openBankingBack": "Zuruck",
   "openBankingNext": "Weiter",
+  "openBankingCategoryAll": "Alle",
   "openBankingCategoryAlimentation": "Lebensmittel",
   "openBankingCategoryTransport": "Transport",
   "openBankingCategoryLogement": "Wohnen",
@@ -8054,5 +8055,19 @@
   "pillar3aIndepTaux45": "45 %"
 ,
   "actionSuccessNext": "Was kommt als Nächstes",
-  "actionSuccessDone": "Verstanden"
+  "actionSuccessDone": "Verstanden",
+  "dividendeBeneficeTotal": "Gesamtgewinn",
+  "dividendePartSalaire": "Lohnanteil",
+  "dividendeTauxMarginal": "Grenzsteuersatz",
+  "successionUrgence": "Sofortiger Handlungsbedarf",
+  "successionDemarches": "Verwaltungsschritte",
+  "successionLegale": "Gesetzliche Erbfolge",
+  "disabilityGapEmployerSub": "OR art. 324a — 3 bis 26 Wochen je nach Dienstalter",
+  "disabilityGapAiDelaySub": "Durchschn. IV-Entscheid: 14 Monate · IVG art. 28 + BVG art. 23",
+  "indepCaisseLpp": "Freiwillige BVG-Kasse",
+  "indepCaisseLppSub": "Invalidenrente + Altersvorsorge",
+  "indepGrand3a": "Grosses 3a (ohne BVG)",
+  "indepAdminUrgent": "Dringend administrative Aufgaben",
+  "indepPrevoyance": "Vorsorge",
+  "indepOptiFiscale": "Steueroptimierung"
 }

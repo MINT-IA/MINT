@@ -122,9 +122,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     };
 
     final label = switch (result.niveau) {
-      DebtRiskLevel.vert => 'SAIN',
-      DebtRiskLevel.orange => 'ATTENTION',
-      DebtRiskLevel.rouge => 'CRITIQUE',
+      DebtRiskLevel.vert => S.of(context)!.debtRatioLevelSain,
+      DebtRiskLevel.orange => S.of(context)!.debtRatioLevelAttention,
+      DebtRiskLevel.rouge => S.of(context)!.debtRatioLevelCritique,
     };
 
     return Container(
@@ -218,7 +218,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           children: [
             Expanded(
               child: _buildValueCard(
-                label: 'Revenu net',
+                label: S.of(context)!.debtRatioRevenuNet,
                 value: _revenusMensuels,
                 prefix: 'CHF',
                 step: 500,
@@ -231,7 +231,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildValueCard(
-                label: 'Charges dette',
+                label: S.of(context)!.debtRatioChargesDette,
                 value: _chargesDetteMensuelles,
                 prefix: 'CHF',
                 step: 100,
@@ -276,7 +276,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   ),
                 ),
                 Text(
-                  _showDetails ? '' : 'Loyer, situation, enfants',
+                  _showDetails ? '' : S.of(context)!.debtRatioRefineSuffix,
                   style: const TextStyle(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -308,7 +308,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   children: [
                     Expanded(
                       child: _buildValueCard(
-                        label: 'Loyer',
+                        label: S.of(context)!.debtRatioLoyer,
                         value: _loyer,
                         prefix: 'CHF',
                         step: 100,
@@ -321,7 +321,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildValueCard(
-                        label: 'Autres charges',
+                        label: S.of(context)!.debtRatioAutresCharges,
                         value: _autresCharges,
                         prefix: 'CHF',
                         step: 50,
@@ -338,8 +338,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   children: [
                     Expanded(
                       child: _buildToggleCard(
-                        label: 'Situation',
-                        options: const ['Seul·e', 'En couple'],
+                        label: S.of(context)!.debtRatioSituation,
+                        options: [S.of(context)!.debtRatioSeul, S.of(context)!.debtRatioEnCouple],
                         selectedIndex: _estCelibataire ? 0 : 1,
                         onChanged: (i) =>
                             setState(() => _estCelibataire = i == 0),
@@ -348,7 +348,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildPillSelector(
-                        label: 'Enfants',
+                        label: S.of(context)!.debtRatioEnfants,
                         value: _nombreEnfants,
                         options: const [0, 1, 2, 3, 4],
                         onChanged: (v) =>
@@ -691,7 +691,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Min ${formatChf(min)} · Max ${formatChf(max)}',
+                S.of(context)!.debtRatioMinMaxDisplay(formatChf(min), formatChf(max)),
                 style: const TextStyle(
                   fontSize: 11,
                   color: MintColors.textMuted,
@@ -720,9 +720,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Valider',
-                    style: TextStyle(
+                  child: Text(
+                    S.of(context)!.debtRatioValidate,
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -761,12 +761,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
-            'Minimum vital',
+            S.of(context)!.debtRatioMinimumVitalLabel,
             'CHF ${formatChf(result.minimumVital)} / mois',
           ),
           const Divider(height: 20),
           _buildInfoRow(
-            'Marge disponible',
+            S.of(context)!.debtRatioMargeDisponible,
             'CHF ${formatChf(result.margeDisponible)} / mois',
             color: result.margeDisponible > result.minimumVital
                 ? MintColors.success
@@ -781,16 +781,15 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 color: MintColors.redBg,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded,
+                  const Icon(Icons.warning_amber_rounded,
                       color: MintColors.redMedium, size: 20),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Votre marge residuelle est inferieure au minimum vital. '
-                      'Contactez un service d\'aide professionnelle.',
-                      style: TextStyle(
+                      S.of(context)!.debtRatioMinVitalWarning,
+                      style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.redDark,
                         fontWeight: FontWeight.w600,
@@ -874,7 +873,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     final bgColor = isRouge ? MintColors.urgentBg : MintColors.warningBg;
 
     return Semantics(
-      label: 'Créer un plan de remboursement',
+      label: S.of(context)!.debtRatioCtaSemantics,
       button: true,
       child: InkWell(
         onTap: () => context.push('/debt/repayment'),
@@ -911,7 +910,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Compare avalanche et boule de neige pour rembourser plus vite.',
+                      S.of(context)!.debtRatioCtaDescription,
                       style: TextStyle(
                         fontSize: 12,
                         color: isRouge ? MintColors.redDark : MintColors.deepOrange,
@@ -961,8 +960,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Dettes Conseils
           _buildResourceLink(
-            nom: 'Dettes Conseils Suisse',
-            description: 'Conseil gratuit et confidentiel',
+            nom: S.of(context)!.debtRatioDetteConseilNom,
+            description: S.of(context)!.debtRatioDetteConseilDesc,
             url: 'https://www.dettes.ch',
             telephone: '0800 40 40 40',
           ),
@@ -970,8 +969,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Caritas
           _buildResourceLink(
-            nom: 'Caritas — Aide aux dettes',
-            description: 'Aide au desendettement et negociation',
+            nom: S.of(context)!.debtRatioCaritasNom,
+            description: S.of(context)!.debtRatioCaritasDesc,
             url: 'https://www.caritas.ch/dettes',
             telephone: '0800 708 708',
           ),

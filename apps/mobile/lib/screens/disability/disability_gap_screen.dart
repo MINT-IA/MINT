@@ -74,7 +74,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     return [
       DisabilityAct(
         label: 'ACTE 1 · Employeur',
-        subtitle: 'CO art. 324a — 3 à 26 semaines selon ancienneté',
+        subtitle: S.of(context)!.disabilityGapEmployerSub,
         durationLabel: 'Semaines 1-26',
         monthlyIncome: act1Income,
         emoji: '🟢',
@@ -96,7 +96,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       ),
       DisabilityAct(
         label: 'ACTE 3 · AI + LPP (définitif)',
-        subtitle: 'Délai moyen décision AI : 14 mois · LAI art. 28 + LPP art. 23',
+        subtitle: S.of(context)!.disabilityGapAiDelaySub,
         durationLabel: 'Après 24 mois',
         monthlyIncome: act3Income,
         emoji: '🔴',

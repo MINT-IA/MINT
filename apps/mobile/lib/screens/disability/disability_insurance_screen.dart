@@ -3,6 +3,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
 import 'package:mint_mobile/widgets/coach/franchise_cost_widget.dart';
@@ -188,19 +189,12 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                   initialConsultationsPerYear: 3,
                 ),
                 const SizedBox(height: 20),
-                const EduDisclaimer(
-                  text:
-                      'Outil éducatif — ne constitue pas un conseil en assurance. '
-                      'Les montants de franchise et primes sont indicatifs. '
-                      'Compare les offres sur comparaison.ch ou via un·e courtier·ère indépendant·e.',
+                EduDisclaimer(
+                  text: S.of(context)!.disabilityInsDisclaimer,
                 ),
                 const SizedBox(height: 8),
-                const EduLegalSources(
-                  sources:
-                      '• LAMal art. 64-64a (franchise)\n'
-                      '• OAMal art. 93 (primes)\n'
-                      '• LAI art. 28 (rente AI)\n'
-                      '• LPP art. 23-26 (invalidité 2e pilier)',
+                EduLegalSources(
+                  sources: S.of(context)!.disabilityInsSources,
                 ),
               ]),
             ),
@@ -233,11 +227,11 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Ma couverture invalidité',
+                    S.of(context)!.disabilityInsTitle,
                     style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                   Text(
-                    'Bulletin scolaire · Franchise LAMal · AI/APG',
+                    S.of(context)!.disabilityInsSubtitle,
                     style: MintTextStyles.labelSmall(color: MintColors.white70),
                   ),
                 ],
@@ -247,7 +241,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         ),
       ),
       title: Text(
-        'Ma couverture',
+        S.of(context)!.disabilityInsAppBarTitle,
         style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
       ),
     );
@@ -265,12 +259,12 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Affine ta situation',
+            S.of(context)!.disabilityInsRefineSituation,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           _buildSliderRow(
-            label: 'Salaire brut mensuel',
+            label: S.of(context)!.disabilityInsGrossSalary,
             value: _grossMonthly,
             min: 2000,
             max: 25000,
@@ -280,7 +274,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Épargne disponible',
+            label: S.of(context)!.disabilityInsSavings,
             value: _savings,
             min: 0,
             max: 200000,
@@ -290,13 +284,13 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           ),
           const SizedBox(height: 16),
           _buildToggleRow(
-            label: 'IJM via mon employeur',
+            label: S.of(context)!.disabilityInsIjmEmployer,
             value: _hasIjm,
             onChanged: (v) => setState(() => _hasIjm = v),
           ),
           const SizedBox(height: 8),
           _buildToggleRow(
-            label: 'Assurance perte de gain privée',
+            label: S.of(context)!.disabilityInsPrivateLossInsurance,
             value: _hasPrivateInsurance,
             onChanged: (v) => setState(() => _hasPrivateInsurance = v),
           ),

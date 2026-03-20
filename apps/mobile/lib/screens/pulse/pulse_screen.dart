@@ -14,6 +14,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 
@@ -55,6 +56,9 @@ class _PulseScreenState extends State<PulseScreen> {
   /// The current cap decision. Recomputed when profile changes.
   CapDecision? _cachedCap;
 
+  /// Tracks when we last showed ActionSuccess to avoid repeat.
+  DateTime? _lastSeenCompletedDate;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -84,6 +88,7 @@ class _PulseScreenState extends State<PulseScreen> {
         if (mounted) {
           setState(() => _capMemory = mem);
           _recomputeCap(profile);
+          _checkForCompletionFeedback(profile);
         }
       });
     }
@@ -122,6 +127,45 @@ class _PulseScreenState extends State<PulseScreen> {
     } catch (_) {
       _cachedCap = null;
     }
+  }
+
+  /// Show ActionSuccess sheet if the user just completed a cap action
+  /// and we haven't shown feedback yet.
+  void _checkForCompletionFeedback(CoachProfile profile) {
+    final completedDate = _capMemory.lastCompletedDate;
+    if (completedDate == null) return;
+    if (_lastSeenCompletedDate == completedDate) return;
+
+    // Only show if completed within the last 5 minutes (fresh return)
+    final minutesSince = DateTime.now().difference(completedDate).inMinutes;
+    if (minutesSince > 5) {
+      _lastSeenCompletedDate = completedDate;
+      return;
+    }
+
+    _lastSeenCompletedDate = completedDate;
+
+    // Show feedback after build completes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final completedCap = _cachedCap;
+      if (completedCap == null) return;
+
+      // Compute next cap for the "what's next" section
+      final nextCap = CapEngine.compute(
+        profile: profile,
+        now: DateTime.now(),
+        memory: _capMemory,
+      );
+
+      showActionSuccessSheet(
+        context,
+        ActionSuccessData.fromCap(
+          completedCap: completedCap,
+          nextCap: nextCap.id != completedCap.id ? nextCap : null,
+        ),
+      );
+    });
   }
 
   // ── BUILD ──
