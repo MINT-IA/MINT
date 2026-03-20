@@ -645,7 +645,7 @@ class ResponseCardService {
 
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
     final lppMonthly = lppAvoir > 0
-        ? (lppAvoir * 0.068 / 12) // taux conversion min 6.8%
+        ? (lppAvoir * lppTauxConversionSurobligDecimal / 12) // conservative 5.4% (suroblig estimate)
         : 0.0;
 
     final totalMonthly = monthlyAvs + lppMonthly;

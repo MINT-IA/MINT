@@ -96,9 +96,10 @@ class CapEngine {
     }
 
     // ── 3. Critical: independent with zero LPP ──
-    if (profile.employmentStatus == 'independant' &&
+    final isIndepNoLpp = profile.employmentStatus == 'independant' &&
         (profile.prevoyance.avoirLppTotal == null ||
-            profile.prevoyance.avoirLppTotal == 0)) {
+            profile.prevoyance.avoirLppTotal == 0);
+    if (isIndepNoLpp) {
       candidates.add(CapDecision(
         id: 'indep_no_lpp',
         kind: CapKind.secure,
@@ -118,6 +119,34 @@ class CapEngine {
         expectedImpact: 'retraite renforcée',
         sourceCards: const ['independant_coverage'],
       ));
+
+      // ── 3b. Disability gap for independent without LPP ──
+      // Without LPP, disability coverage = AI only (~30% of income).
+      // The gap can reach ~70%. This is the most under-estimated risk.
+      if (!memory.completedActions.contains('disability_gap')) {
+        candidates.add(CapDecision(
+          id: 'disability_gap',
+          kind: CapKind.secure,
+          priorityScore: _score(
+            impact: 0.9,
+            urgency: 0.85,
+            confidencePenalty: _confPenalty(confidence.score),
+            readiness: 1.0,
+            recency: _recencyModifier('disability_gap', memory, now),
+          ),
+          headline: 'Ton filet invalidité\u00a0: AI seule',
+          whyNow: 'Sans LPP, ton filet invalidité se limite '
+              'à l\u2019AI. L\u2019écart peut surprendre.',
+          ctaLabel: 'Voir l\u2019écart',
+          ctaMode: CtaMode.route,
+          ctaRoute: '/invalidite',
+          coachPrompt: 'Je suis indépendant\u00b7e sans LPP. '
+              'Aide-moi à comprendre l\u2019écart entre mon revenu '
+              'et ce que l\u2019AI couvrirait en cas d\u2019invalidité.',
+          expectedImpact: 'comprendre le gap ~70\u00a0%',
+          sourceCards: const ['disability'],
+        ));
+      }
     }
 
     // ── 4. Fiscal window: 3a before year-end ──
@@ -258,6 +287,10 @@ class CapEngine {
     // - OR has a mortgage (need life insurance)
     // - OR age 50+ (disability gap matters more)
     // Never trigger on just "age >= 35 salarié".
+    //
+    // Differentiated urgency:
+    // - Salarié 50+ → moderate trigger (disability gap ~40%)
+    // - Salarié with dependents/mortgage → normal trigger
     final hasDependents = profile.isCouple || profile.nombreEnfants > 0;
     final hasMortgage = (profile.patrimoine.mortgageBalance ?? 0) > 0;
     final isSenior = profile.age >= 50;
@@ -268,18 +301,33 @@ class CapEngine {
         id: 'coverage_check',
         kind: CapKind.secure,
         priorityScore: _score(
-          impact: 0.5,
-          urgency: hasMortgage ? 0.6 : 0.4,
+          impact: _isSeniorSalarie(profile) ? 0.65 : 0.5,
+          urgency: hasMortgage
+              ? 0.6
+              : _isSeniorSalarie(profile)
+                  ? 0.55
+                  : 0.4,
           confidencePenalty: _confPenalty(confidence.score),
           readiness: 1.0,
           recency: _recencyModifier('coverage_check', memory, now),
         ),
-        headline: 'Ta couverture mérite un check',
-        whyNow: 'IJM, AI, LPP invalidité — '
-            'vérifie que ton filet tient.',
+        headline: _isSeniorSalarie(profile)
+            ? 'Invalidité après 50 ans\u00a0: un angle mort\u00a0?'
+            : 'Ta couverture mérite un check',
+        whyNow: _isSeniorSalarie(profile)
+            ? 'Après 50 ans, l\u2019écart entre revenu et rentes '
+                'AI\u00a0+\u00a0LPP peut dépasser 40\u00a0%. '
+                'Ton IJM couvre-t-elle le reste\u00a0?'
+            : 'IJM, AI, LPP invalidité — '
+                'vérifie que ton filet tient.',
         ctaLabel: 'Vérifier',
         ctaMode: CtaMode.route,
         ctaRoute: '/invalidite',
+        coachPrompt: _isSeniorSalarie(profile)
+            ? 'J\u2019ai plus de 50 ans. Aide-moi à comprendre '
+                'ce que couvrent l\u2019AI et la LPP invalidité, '
+                'et si une IJM est utile dans mon cas.'
+            : null,
         sourceCards: const [],
       ));
     }
@@ -288,12 +336,34 @@ class CapEngine {
     final lifeEventCap = _tryLifeEventCap(profile, confidence.score, memory, now);
     if (lifeEventCap != null) candidates.add(lifeEventCap);
 
+    // ── 9b. Couple caps (ménage) ──
+    // When the user is in a couple with conjoint data, generate
+    // household-level caps: 3a couple, rachat LPP conjoint, AVS cap 150%.
+    // Priority intentionally lower than individual critical caps.
+    if (profile.isCouple && profile.conjoint != null) {
+      candidates.addAll(
+        _coupleCaps(profile, confidence.score, memory, now),
+      );
+    }
+
     // ── 10. Goal alignment boost ──
     // If the user declared a GoalA, boost candidates that align with it.
     _applyGoalBoost(candidates, profile.goalA);
 
-    // ── 10. Fallback: best ResponseCard → Cap ──
-    // (renumbered from 9)
+    // ── 11. Honesty clause (spec §7) ──
+    // If profile has no realistic lever, acknowledge it with tact.
+    final honestyCap = _tryHonestyCap(profile, confidence.score, memory, now);
+    if (honestyCap != null) {
+      // Honesty cap overrides weaker candidates — return immediately.
+      // Only real critical caps (debt, missing data) should beat it,
+      // and those are already in candidates with higher scores.
+      if (candidates.isEmpty) {
+        return honestyCap;
+      }
+      candidates.add(honestyCap);
+    }
+
+    // ── 12. Fallback: best ResponseCard → Cap ──
     if (candidates.isEmpty) {
       final cards =
           ResponseCardService.generateForPulse(profile, limit: 1);
@@ -303,7 +373,7 @@ class CapEngine {
       }
     }
 
-    // ── 10. Ultimate fallback: enrichment ──
+    // ── 13. Ultimate fallback: enrichment ──
     if (candidates.isEmpty) {
       return CapDecision(
         id: 'fallback_enrich',
@@ -353,6 +423,8 @@ class CapEngine {
       blockingData: winner.blockingData,
       supportingSignals: signals,
       sourceCards: winner.sourceCards,
+      isHonestyCap: winner.isHonestyCap,
+      acquiredAssets: winner.acquiredAssets,
     );
   }
 
@@ -540,6 +612,9 @@ class CapEngine {
           'lpp_buyback',
           'replacement_rate',
           'coverage_check',
+          'couple_3a',
+          'couple_lpp_buyback',
+          'couple_avs_cap',
         },
       GoalAType.achatImmo => {
           'lpp_buyback',
@@ -547,6 +622,7 @@ class CapEngine {
         },
       GoalAType.independance => {
           'indep_no_lpp',
+          'disability_gap',
           'pillar_3a',
         },
       GoalAType.debtFree => {
@@ -555,6 +631,123 @@ class CapEngine {
         },
       GoalAType.custom => <String>{},
     };
+  }
+
+  // ── COVERAGE CHECK HELPERS ──────────────────────────────
+
+  /// True if the user is a salarié aged 50+.
+  /// Used to differentiate coverage check urgency/messaging.
+  static bool _isSeniorSalarie(CoachProfile profile) =>
+      profile.age >= 50 && profile.employmentStatus == 'salarie';
+
+  /// Generate household-level caps when conjoint data is available.
+  ///
+  /// Three possible caps:
+  /// - **couple_3a**: conjoint has no declared 3a → double fiscal deduction.
+  /// - **couple_lpp_buyback**: conjoint has significant rachat room (> 10k).
+  /// - **couple_avs_cap**: married couple, both working → LAVS art. 35
+  ///   plafonnement 150% reminder (~10'000 CHF/an impact).
+  ///
+  /// All couple caps use inclusive voice ("vous deux", "votre ménage").
+  /// Priority intentionally below critical individual caps.
+  static List<CapDecision> _coupleCaps(
+    CoachProfile profile,
+    double confidenceScore,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final conjoint = profile.conjoint!;
+    final caps = <CapDecision>[];
+
+    // ── Couple 3a: conjoint has no declared 3a ──
+    // If FATCA blocks 3a, skip (canContribute3a == false).
+    final conjoint3a = conjoint.prevoyance?.totalEpargne3a ?? 0;
+    final conjointCan3a = conjoint.canContribute3a;
+    if (conjoint3a == 0 && conjointCan3a) {
+      caps.add(CapDecision(
+        id: 'couple_3a',
+        kind: CapKind.optimize,
+        priorityScore: _score(
+          impact: 0.6,
+          urgency: 0.45,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('couple_3a', memory, now),
+        ),
+        headline: 'À deux, un levier de plus',
+        whyNow: 'Votre ménage peut déduire 2\u00a0\u00d7\u00a07\u2019258\u00a0CHF '
+            'en cotisant chacun au 3a. '
+            'Le compte de votre conjoint\u00b7e n\u2019est pas encore renseigné.',
+        ctaLabel: 'Simuler le 3a couple',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/pilier-3a',
+        coachPrompt: 'Comment optimiser notre prévoyance à deux\u00a0? '
+            'Mon\u00b7ma conjoint\u00b7e n\u2019a pas encore de 3a.',
+        expectedImpact: 'jusqu\u2019à 14\u2019516\u00a0CHF de déductions',
+        sourceCards: const ['couple_3a'],
+      ));
+    }
+
+    // ── Couple LPP buyback: conjoint has significant rachat room ──
+    final conjointRachat = conjoint.prevoyance?.rachatMaximum ?? 0;
+    if (conjointRachat > 10000) {
+      caps.add(CapDecision(
+        id: 'couple_lpp_buyback',
+        kind: CapKind.optimize,
+        priorityScore: _score(
+          impact: 0.6,
+          urgency: 0.4,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('couple_lpp_buyback', memory, now),
+        ),
+        headline: 'Rachat LPP\u00a0: le levier conjoint',
+        whyNow: 'Votre conjoint\u00b7e dispose d\u2019un rachat possible '
+            'de ${_formatChfRound(conjointRachat)}. '
+            'Prioriser le TMI le plus élevé maximise la déduction.',
+        ctaLabel: 'Comparer les rachats',
+        ctaMode: CtaMode.coach,
+        coachPrompt: 'Nous sommes en couple. '
+            'Aide-nous à comparer un rachat LPP sur mon profil '
+            'vs celui de mon\u00b7ma conjoint\u00b7e. '
+            'Qui a le TMI le plus élevé\u00a0?',
+        expectedImpact: 'optimisation fiscale ménage',
+        sourceCards: const ['couple_lpp_buyback'],
+      ));
+    }
+
+    // ── AVS couple cap 150% (married only, LAVS art. 35) ──
+    // Only applies to married couples. Concubins are NOT capped.
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final bothWork = profile.salaireBrutMensuel > 0 &&
+        (conjoint.salaireBrutMensuel ?? 0) > 0;
+    if (isMarried && bothWork) {
+      caps.add(CapDecision(
+        id: 'couple_avs_cap',
+        kind: CapKind.prepare,
+        priorityScore: _score(
+          impact: 0.5,
+          urgency: 0.3,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('couple_avs_cap', memory, now),
+        ),
+        headline: 'AVS couple\u00a0: le plafond 150\u00a0%',
+        whyNow: 'Marié\u00b7es, vos rentes AVS cumulées sont plafonnées '
+            'à 150\u00a0% de la rente maximale (LAVS art.\u00a035). '
+            'L\u2019écart peut atteindre ~10\u2019000\u00a0CHF/an.',
+        ctaLabel: 'Voir l\u2019impact AVS',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/rente-vs-capital',
+        coachPrompt: 'Nous sommes mariés et nous travaillons tous les deux. '
+            'Aide-nous à comprendre l\u2019impact du plafonnement AVS '
+            'à 150\u00a0% sur notre retraite.',
+        expectedImpact: 'comprendre le delta ~10k/an',
+        sourceCards: const ['couple_avs'],
+      ));
+    }
+
+    return caps;
   }
 
   // ── SCORING ──────────────────────────────────────────────
@@ -642,6 +835,143 @@ class CapEngine {
       case ResponseCardType.independant:
         return CapKind.secure;
     }
+  }
+
+  // ── HONESTY CLAUSE (spec §7) ────────────────────────────
+
+  /// Detect profiles where no realistic lever exists at useful horizon.
+  ///
+  /// Criteria (any one triggers):
+  /// - Age 60+ with zero or near-zero LPP (< 5k) and not independent
+  /// - Debt > 200% of annual gross income (overwhelmed, levers are marginal)
+  /// - Cross-border 62+ with zero LPP (no time to build meaningful 2nd pillar)
+  ///
+  /// When triggered, produces a calm cap that:
+  /// - Acknowledges the limit honestly
+  /// - Shows what IS acquired (AVS, partial LPP, 3a)
+  /// - Orients toward a human specialist via coach
+  static CapDecision? _tryHonestyCap(
+    CoachProfile profile,
+    double confidenceScore,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final age = profile.age;
+    final lpp = profile.prevoyance.avoirLppTotal ?? 0;
+    final revenuAnnuel = profile.revenuBrutAnnuel;
+    final totalDettes = profile.dettes.totalDettes;
+    final archetype = profile.archetype;
+
+    // Case 1: 60+ with negligible LPP (salarié or retraité)
+    final isSeniorNoLpp = age >= 60 &&
+        lpp < 5000 &&
+        profile.employmentStatus != 'independant';
+
+    // Case 2: Debt exceeds 200% of annual income (debt spiral)
+    final isDebtOverwhelmed =
+        revenuAnnuel > 0 && totalDettes > revenuAnnuel * 2;
+
+    // Case 3: Cross-border 62+ with zero LPP
+    final isCrossBorderLateLpp = archetype == FinancialArchetype.crossBorder &&
+        age >= 62 &&
+        lpp == 0;
+
+    if (!isSeniorNoLpp && !isDebtOverwhelmed && !isCrossBorderLateLpp) {
+      return null;
+    }
+
+    final acquired = _acquiredAssets(profile);
+
+    // Choose the right tone depending on the trigger
+    String headline;
+    String whyNow;
+    String coachPrompt;
+
+    if (isDebtOverwhelmed) {
+      headline = 'Ta situation mérite un regard expert';
+      whyNow = 'Les leviers classiques ne suffisent pas ici. '
+          'Un\u00b7e spécialiste en désendettement peut '
+          't\u2019aider à construire un plan réaliste.';
+      coachPrompt = 'Ma dette dépasse largement mon revenu annuel. '
+          'Les simulateurs ne suffisent plus. '
+          'Oriente-moi vers un\u00b7e spécialiste en désendettement.';
+    } else if (isCrossBorderLateLpp) {
+      headline = 'Faisons le point ensemble';
+      whyNow = 'À ton horizon, les leviers 2e pilier sont limités. '
+          'Un\u00b7e spécialiste frontalier peut identifier '
+          'des pistes que MINT ne couvre pas encore.';
+      coachPrompt = 'Je suis frontalier\u00b7ère proche de la retraite '
+          'sans LPP. Quelles options réalistes existent\u00a0? '
+          'Oriente-moi vers un\u00b7e spécialiste.';
+    } else {
+      // Senior no LPP
+      headline = 'Ton socle est là';
+      whyNow = 'Les leviers classiques ne changent pas beaucoup '
+          'la donne ici. Un\u00b7e spécialiste peut t\u2019aider '
+          'à voir plus loin.';
+      coachPrompt = 'J\u2019approche de la retraite avec peu de 2e pilier. '
+          'Aide-moi à comprendre ce qui est acquis '
+          'et oriente-moi vers un\u00b7e spécialiste.';
+    }
+
+    return CapDecision(
+      id: 'honesty_no_lever',
+      kind: CapKind.prepare,
+      isHonestyCap: true,
+      acquiredAssets: acquired,
+      // High priority: when honesty triggers, other "lever" caps are
+      // misleading for this profile. No confidence penalty — the diagnosis
+      // is clear regardless of data completeness. Only debt_correct
+      // with goal boost (0.9×0.9×1.3 ≈ 1.05) can legitimately outrank.
+      priorityScore: _score(
+        impact: 0.9,
+        urgency: 0.85,
+        confidencePenalty: 1.0, // No penalty — honesty is data-independent
+        readiness: 1.0,
+        recency: _recencyModifier('honesty_no_lever', memory, now),
+      ),
+      headline: headline,
+      whyNow: whyNow,
+      ctaLabel: 'Parler au coach',
+      ctaMode: CtaMode.coach,
+      coachPrompt: coachPrompt,
+      expectedImpact: 'clarification',
+      sourceCards: const [],
+    );
+  }
+
+  /// Build a list of what the user HAS acquired (for honesty cap).
+  /// Shows the positive side even when levers are exhausted.
+  static List<String> _acquiredAssets(CoachProfile profile) {
+    final assets = <String>[];
+
+    // AVS is always acquired if contributed
+    final avsYears = profile.prevoyance.anneesContribuees ?? 0;
+    if (avsYears > 0) {
+      final renteAvs = profile.prevoyance.renteAVSEstimeeMensuelle;
+      if (renteAvs != null && renteAvs > 0) {
+        assets.add('AVS\u00a0: ~${renteAvs.round()}\u00a0CHF/mois '
+            '($avsYears ans cotisés)');
+      } else {
+        assets.add('AVS\u00a0: $avsYears années cotisées');
+      }
+    } else {
+      assets.add('AVS\u00a0: droits en cours');
+    }
+
+    // LPP if any
+    final lpp = profile.prevoyance.avoirLppTotal ?? 0;
+    if (lpp > 0) {
+      assets.add('LPP\u00a0: ${_formatChfRound(lpp)} acquis');
+    }
+
+    // 3a if any
+    final epargne3a = profile.prevoyance.totalEpargne3a;
+    if (epargne3a > 0) {
+      assets.add('3a\u00a0: ${_formatChfRound(epargne3a)} épargnés');
+    }
+
+    return assets;
   }
 
   // ── HELPERS ──────────────────────────────────────────────
