@@ -5,11 +5,16 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 
 /// Screen for simulating the financial impact of a cantonal move (Cat C — Life Event).
 ///
-/// Covers tax comparison (income + capital withdrawal + wealth),
-/// LAMal premium differences, and administrative checklist.
+/// Layout S55: enjeu d'abord, consequence avant controle, matiere chaude.
+/// Hero = delta fiscal annuel. Consequence de demenager, pas un tableau fiscal.
 /// Life Event: cantonMove.
 class DemenagementCantonalScreen extends StatefulWidget {
   const DemenagementCantonalScreen({super.key});
@@ -48,8 +53,11 @@ class _DemenagementCantonalScreenState
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
+    final economieTotal = _economieFiscaleAnnuelle + _economieLamalAnnuelle;
+    final estPositif = economieTotal >= 0;
+
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: MintColors.porcelaine,
       // ── White standard AppBar (Design System §4.5) ──
       appBar: AppBar(
         title: Text(
@@ -62,36 +70,73 @@ class _DemenagementCantonalScreenState
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(MintSpacing.md + MintSpacing.xs),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Hero: chiffre choc — economie/surcout annuel ──
-              _buildChiffreChoc(s),
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 1 — L'ENJEU : delta fiscal hero
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              MintHeroNumber(
+                value: '${estPositif ? '+\u00a0' : ''}'
+                    '${formatChfWithPrefix(economieTotal)}',
+                caption: s.demenagementChiffreChocSousTitre,
+                color: estPositif ? MintColors.success : MintColors.error,
+                semanticsLabel: s.demenagementBilanTotal,
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                s.demenagementChiffreChocDetail(_cantonDepart, _cantonArrivee),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+              ),
+              const SizedBox(height: MintSpacing.xxl),
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 2 — COMPARAISON : deux cantons cote a cote
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              _buildCantonComparison(s),
+              const SizedBox(height: MintSpacing.xl),
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 3 — DETAIL par poste (MintSignalRow)
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              _buildDetailParPoste(s),
               const SizedBox(height: MintSpacing.lg),
 
-              // ── Inputs ──
-              _buildInputs(s),
-              const SizedBox(height: MintSpacing.lg),
-
-              // ── Comparaison fiscale ──
-              _buildComparaisonFiscale(s),
-              const SizedBox(height: MintSpacing.lg),
-
-              // ── LAMal comparaison ──
-              _buildLamalComparaison(s),
-              const SizedBox(height: MintSpacing.lg),
-
-              // ── Emotional insight ──
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 4 — INSIGHT emotionnel
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               _buildInsight(s),
               const SizedBox(height: MintSpacing.lg),
 
-              // ── Checklist demenagement ──
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 5 — CONFIDENCE NOTICE
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              MintConfidenceNotice(
+                percent: 40,
+                message: s.demenagementDisclaimer,
+              ),
+              const SizedBox(height: MintSpacing.xl),
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 6 — CONTROLES : sous le resultat
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              _buildInputs(s),
+              const SizedBox(height: MintSpacing.xl),
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 7 — CHECKLIST demenagement
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               _buildChecklist(s),
               const SizedBox(height: MintSpacing.lg),
 
-              // ── Disclaimer ──
-              _buildDisclaimer(s),
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // SECTION 8 — DISCLAIMER (micro)
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              Text(
+                s.demenagementDisclaimer,
+                style: MintTextStyles.micro(),
+              ),
             ],
           ),
         ),
@@ -115,260 +160,169 @@ class _DemenagementCantonalScreenState
     return (lamalDepart - lamalArrivee) * 12 * nbPersonnes.toDouble();
   }
 
-  Widget _buildChiffreChoc(S s) {
-    final economieTotal = _economieFiscaleAnnuelle + _economieLamalAnnuelle;
-    final estPositif = economieTotal >= 0;
-    final color = estPositif ? MintColors.success : MintColors.error;
+  /// Two MintSurface cards side by side: sauge for the winning canton, peche for the losing one.
+  Widget _buildCantonComparison(S s) {
+    final econFiscale = _economieFiscaleAnnuelle;
+    final econLamal = _economieLamalAnnuelle;
+    final economieTotal = econFiscale + econLamal;
 
-    return Semantics(
-      label: s.demenagementBilanTotal,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-        ),
-        child: Column(
-          children: [
-            // displayMedium for Life Event (Cat C)
-            Text(
-              '${estPositif ? '+' : ''}${formatChfWithPrefix(economieTotal)}',
-              style: MintTextStyles.displayMedium(color: color),
-            ),
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              s.demenagementChiffreChocSousTitre,
-              style: MintTextStyles.bodyMedium(),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              s.demenagementChiffreChocDetail(
-                  _cantonDepart, _cantonArrivee),
-              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+    // Determine which canton "wins"
+    final departGagne = economieTotal < 0;
+    final idxDepart = _indiceFiscal[_cantonDepart] ?? 75;
+    final idxArrivee = _indiceFiscal[_cantonArrivee] ?? 75;
+    final lamalDepart = _lamalMensuelle[_cantonDepart] ?? 370;
+    final lamalArrivee = _lamalMensuelle[_cantonArrivee] ?? 370;
 
-  Widget _buildInputs(S s) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          s.demenagementSituation,
-          style: MintTextStyles.headlineMedium(),
-        ),
-        const SizedBox(height: MintSpacing.md),
-
-        // Canton depart / arrivee
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(s.demenagementCantonDepart,
-                      style: MintTextStyles.bodySmall()),
-                  const SizedBox(height: MintSpacing.xs),
-                  Semantics(
-                    label: s.demenagementCantonDepart,
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      value: _cantonDepart,
-                      items: sortedCantonCodes
-                          .map((c) =>
-                              DropdownMenuItem(value: c, child: Text(c)))
-                          .toList(),
-                      onChanged: (v) =>
-                          setState(() => _cantonDepart = v ?? _cantonDepart),
-                    ),
+        // Canton depart
+        Expanded(
+          child: MintSurface(
+            tone: departGagne
+                ? MintSurfaceTone.sauge
+                : MintSurfaceTone.peche,
+            padding: const EdgeInsets.all(MintSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _cantonDepart,
+                  style: MintTextStyles.headlineMedium(
+                    color: MintColors.textPrimary,
                   ),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: MintSpacing.sm + MintSpacing.xs),
-              child: Icon(Icons.arrow_forward, color: MintColors.textMuted),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(s.demenagementCantonArrivee,
-                      style: MintTextStyles.bodySmall()),
-                  const SizedBox(height: MintSpacing.xs),
-                  Semantics(
-                    label: s.demenagementCantonArrivee,
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      value: _cantonArrivee,
-                      items: sortedCantonCodes
-                          .map((c) =>
-                              DropdownMenuItem(value: c, child: Text(c)))
-                          .toList(),
-                      onChanged: (v) =>
-                          setState(() => _cantonArrivee = v ?? _cantonArrivee),
-                    ),
+                ),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  s.demenagementCantonDepart,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: MintSpacing.md),
+                Text(
+                  s.demenagementFiscalTitre,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                Text(
+                  '$idxDepart',
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+                Text(
+                  s.demenagementLamalTitre,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                Text(
+                  'CHF\u00a0$lamalDepart/mois',
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-        const SizedBox(height: MintSpacing.md),
-
-        // Revenu brut
-        Text(s.demenagementRevenu,
-            style: MintTextStyles.bodyMedium()),
-        Slider(
-          value: _revenuBrut,
-          min: 30000,
-          max: 500000,
-          divisions: 94,
-          label: formatChfWithPrefix(_revenuBrut),
-          activeColor: MintColors.primary,
-          onChanged: (v) => setState(() => _revenuBrut = v),
-        ),
-        Text(formatChfWithPrefix(_revenuBrut),
-            style: MintTextStyles.titleMedium()),
-        const SizedBox(height: MintSpacing.md),
-
-        // Situation familiale
-        Semantics(
-          label: s.demenagementCelibataire,
-          child: SegmentedButton<String>(
-            segments: [
-              ButtonSegment(
-                  value: 'celibataire', label: Text(s.demenagementCelibataire)),
-              ButtonSegment(
-                  value: 'marie', label: Text(s.demenagementMarie)),
-            ],
-            selected: {_situationFamiliale},
-            onSelectionChanged: (v) =>
-                setState(() => _situationFamiliale = v.first),
+        const SizedBox(width: MintSpacing.sm),
+        // Canton arrivee
+        Expanded(
+          child: MintSurface(
+            tone: departGagne
+                ? MintSurfaceTone.peche
+                : MintSurfaceTone.sauge,
+            padding: const EdgeInsets.all(MintSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _cantonArrivee,
+                  style: MintTextStyles.headlineMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  s.demenagementCantonArrivee,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.md),
+                Text(
+                  s.demenagementFiscalTitre,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                Text(
+                  '$idxArrivee',
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+                Text(
+                  s.demenagementLamalTitre,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                Text(
+                  'CHF\u00a0$lamalArrivee/mois',
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildComparaisonFiscale(S s) {
-    final idxDepart = _indiceFiscal[_cantonDepart] ?? 75;
-    final idxArrivee = _indiceFiscal[_cantonArrivee] ?? 75;
+  /// Detail breakdown with MintSignalRow for each financial post.
+  Widget _buildDetailParPoste(S s) {
     final econFiscale = _economieFiscaleAnnuelle;
-
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            s.demenagementFiscalTitre,
-            style: MintTextStyles.titleMedium(),
-          ),
-          const SizedBox(height: MintSpacing.md),
-          _comparisonBar(
-              _cantonDepart, idxDepart.toDouble(), MintColors.error),
-          const SizedBox(height: MintSpacing.sm),
-          _comparisonBar(
-              _cantonArrivee, idxArrivee.toDouble(), MintColors.success),
-          const SizedBox(height: MintSpacing.md),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(s.demenagementEconomieFiscale,
-                  style: MintTextStyles.bodyMedium()),
-              Text(
-                '${econFiscale >= 0 ? '+' : ''}${formatChfWithPrefix(econFiscale)}/an',
-                style: MintTextStyles.titleMedium(
-                  color: econFiscale >= 0
-                      ? MintColors.success
-                      : MintColors.error,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _comparisonBar(String canton, double index, Color color) {
-    return Semantics(
-      label: '$canton: ${index.round()}',
-      child: Row(
-        children: [
-          SizedBox(
-            width: 32,
-            child: Text(canton,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-          ),
-          const SizedBox(width: MintSpacing.sm),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: index / 100,
-                backgroundColor: MintColors.border,
-                valueColor: AlwaysStoppedAnimation(color),
-                minHeight: 12,
-              ),
-            ),
-          ),
-          const SizedBox(width: MintSpacing.sm),
-          Text('${index.round()}',
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLamalComparaison(S s) {
     final econLamal = _economieLamalAnnuelle;
-    final lamalDepart = _lamalMensuelle[_cantonDepart] ?? 370;
-    final lamalArrivee = _lamalMensuelle[_cantonArrivee] ?? 370;
+    final economieTotal = econFiscale + econLamal;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s.demenagementLamalTitre,
-            style: MintTextStyles.titleMedium(),
+            s.demenagementSituation,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('$_cantonDepart\u00A0: CHF\u00A0$lamalDepart/mois',
-                  style: MintTextStyles.bodyMedium()),
-              Text('$_cantonArrivee\u00A0: CHF\u00A0$lamalArrivee/mois',
-                  style: MintTextStyles.bodyMedium()),
-            ],
+          MintSignalRow(
+            label: s.demenagementEconomieFiscale,
+            value: '${econFiscale >= 0 ? '+' : ''}${formatChfWithPrefix(econFiscale)}/an',
+            valueColor:
+                econFiscale >= 0 ? MintColors.success : MintColors.error,
           ),
-          const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-          Text(
-            '${econLamal >= 0 ? '+' : ''}${formatChfWithPrefix(econLamal)}/an',
-            style: MintTextStyles.headlineMedium(
-              color: econLamal >= 0 ? MintColors.success : MintColors.error,
-            ),
+          MintSignalRow(
+            label: s.demenagementLamalTitre,
+            value: '${econLamal >= 0 ? '+' : ''}${formatChfWithPrefix(econLamal)}/an',
+            valueColor:
+                econLamal >= 0 ? MintColors.success : MintColors.error,
+          ),
+          Divider(
+            color: MintColors.border.withValues(alpha: 0.3),
+            height: 1,
+          ),
+          MintSignalRow(
+            label: s.demenagementBilanTotal,
+            value: '${economieTotal >= 0 ? '+' : ''}${formatChfWithPrefix(economieTotal)}/an',
+            valueColor:
+                economieTotal >= 0 ? MintColors.success : MintColors.error,
           ),
         ],
       ),
@@ -378,34 +332,161 @@ class _DemenagementCantonalScreenState
   Widget _buildInsight(S s) {
     final economieTotal = _economieFiscaleAnnuelle + _economieLamalAnnuelle;
     final estPositif = economieTotal >= 0;
-    // Average monthly rent in Switzerland ~ CHF 1'500
     const loyerMoyen = 1500.0;
     final moisCouverts = economieTotal.abs() / loyerMoyen;
 
-    final color = estPositif ? MintColors.success : MintColors.warning;
-
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
-      ),
+    return MintSurface(
+      tone: estPositif ? MintSurfaceTone.sauge : MintSurfaceTone.peche,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             estPositif ? Icons.check_circle_outline : Icons.info_outline,
-            color: color,
+            color: estPositif ? MintColors.success : MintColors.corailDiscret,
             size: 20,
           ),
-          const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               estPositif
-                  ? s.demenagementInsightPositif(moisCouverts.toStringAsFixed(0))
+                  ? s.demenagementInsightPositif(
+                      moisCouverts.toStringAsFixed(0))
                   : s.demenagementInsightNegatif,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputs(S s) {
+    return MintSurface(
+      tone: MintSurfaceTone.craie,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.demenagementSituation,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+          ),
+          const SizedBox(height: MintSpacing.md),
+
+          // Canton depart / arrivee
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(s.demenagementCantonDepart,
+                        style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary)),
+                    const SizedBox(height: MintSpacing.xs),
+                    Semantics(
+                      label: s.demenagementCantonDepart,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: MintSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: MintColors.border),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _cantonDepart,
+                            items: sortedCantonCodes
+                                .map((c) => DropdownMenuItem(
+                                    value: c,
+                                    child: Text(c,
+                                        style: MintTextStyles.bodySmall(
+                                            color: MintColors.textPrimary))))
+                                .toList(),
+                            onChanged: (v) => setState(
+                                () => _cantonDepart = v ?? _cantonDepart),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                child:
+                    Icon(Icons.arrow_forward, color: MintColors.textMuted),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(s.demenagementCantonArrivee,
+                        style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary)),
+                    const SizedBox(height: MintSpacing.xs),
+                    Semantics(
+                      label: s.demenagementCantonArrivee,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: MintSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: MintColors.border),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _cantonArrivee,
+                            items: sortedCantonCodes
+                                .map((c) => DropdownMenuItem(
+                                    value: c,
+                                    child: Text(c,
+                                        style: MintTextStyles.bodySmall(
+                                            color: MintColors.textPrimary))))
+                                .toList(),
+                            onChanged: (v) => setState(
+                                () => _cantonArrivee = v ?? _cantonArrivee),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Revenu brut
+          MintPremiumSlider(
+            label: s.demenagementRevenu,
+            value: _revenuBrut,
+            min: 30000,
+            max: 500000,
+            divisions: 94,
+            formatValue: (_) => formatChfWithPrefix(_revenuBrut),
+            onChanged: (v) => setState(() => _revenuBrut = v),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Situation familiale
+          Semantics(
+            label: s.demenagementCelibataire,
+            child: SegmentedButton<String>(
+              segments: [
+                ButtonSegment(
+                    value: 'celibataire',
+                    label: Text(s.demenagementCelibataire)),
+                ButtonSegment(
+                    value: 'marie', label: Text(s.demenagementMarie)),
+              ],
+              selected: {_situationFamiliale},
+              onSelectionChanged: (v) =>
+                  setState(() => _situationFamiliale = v.first),
             ),
           ),
         ],
@@ -428,26 +509,23 @@ class _DemenagementCantonalScreenState
           s.demenagementChecklistTitre,
           style: MintTextStyles.headlineMedium(),
         ),
-        const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+        const SizedBox(height: MintSpacing.sm),
         ...items.map(
           (item) => Semantics(
             label: item,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: MintSpacing.sm),
-              padding: const EdgeInsets.all(MintSpacing.sm + MintSpacing.xs),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: MintColors.border),
-              ),
+            child: MintSurface(
+              tone: MintSurfaceTone.blanc,
+              padding: const EdgeInsets.all(MintSpacing.md),
+              radius: 12,
               child: Row(
                 children: [
                   const Icon(Icons.check_box_outline_blank,
                       color: MintColors.textMuted, size: 20),
-                  const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+                  const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(item,
-                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
+                        style: MintTextStyles.bodyMedium(
+                            color: MintColors.textPrimary)),
                   ),
                 ],
               ),
@@ -455,21 +533,6 @@ class _DemenagementCantonalScreenState
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDisclaimer(S s) {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.sm + MintSpacing.xs),
-      decoration: BoxDecoration(
-        color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
-      ),
-      child: Text(
-        s.demenagementDisclaimer,
-        style: MintTextStyles.micro(),
-      ),
     );
   }
 }

@@ -19,6 +19,7 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.coach_chat import (
     CoachChatRequest,
     CoachChatResponse,
+    WidgetCall,
 )
 from app.services.coach.claude_coach_service import (
     ClaudeCoachService,
@@ -125,8 +126,16 @@ def coach_chat(request: CoachChatRequest) -> CoachChatResponse:
         system_prompt=system_prompt,
     )
 
+    # Build response with optional widget from Claude tool call
+    widget_data = result.get("widget")
+    widget = WidgetCall(
+        tool=widget_data["tool"],
+        params=widget_data["params"],
+    ) if widget_data else None
+
     return CoachChatResponse(
         reply=result["reply"],
+        widget=widget,
         disclaimer=DISCLAIMER,
         used_model=result["model"],
         tokens_used=result["tokens_used"],

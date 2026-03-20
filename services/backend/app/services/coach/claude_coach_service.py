@@ -210,10 +210,14 @@ class ClaudeCoachService:
         conversation_history: list,
         system_prompt: str,
     ) -> dict:
-        """Send a message to Claude and return the response.
+        """Send a message to Claude with tool calling.
+
+        Claude can choose to call a tool (show a widget) alongside
+        its text response. The response includes both 'reply' (text)
+        and optionally 'widget' (tool call with parameters).
 
         Returns:
-            dict with 'reply', 'model', 'tokens_used'
+            dict with 'reply', 'model', 'tokens_used', 'widget' (optional)
         """
         if not self._client:
             return {
@@ -225,9 +229,11 @@ class ClaudeCoachService:
                 "tokens_used": 0,
             }
 
+        from app.services.coach.coach_tools import COACH_TOOLS
+
         # Build messages array
         messages = []
-        for msg in conversation_history[-20:]:  # Max 20 messages context
+        for msg in conversation_history[-20:]:
             messages.append({
                 "role": msg.get("role", "user"),
                 "content": msg.get("content", ""),
@@ -240,24 +246,42 @@ class ClaudeCoachService:
                 max_tokens=settings.COACH_MAX_TOKENS,
                 system=system_prompt,
                 messages=messages,
+                tools=COACH_TOOLS,
             )
 
-            reply_text = response.content[0].text
-            filtered = compliance_filter(reply_text)
+            # Extract text and tool calls from response
+            reply_text = ""
+            widget = None
+
+            for block in response.content:
+                if block.type == "text":
+                    reply_text = block.text
+                elif block.type == "tool_use":
+                    widget = {
+                        "tool": block.name,
+                        "params": block.input,
+                    }
+
+            filtered = compliance_filter(reply_text) if reply_text else ""
 
             # Ensure disclaimer
-            if "educatif" not in filtered.lower():
+            if filtered and "educatif" not in filtered.lower():
                 filtered += f"\n\n_{DISCLAIMER}_"
 
             total_tokens = (
                 response.usage.input_tokens + response.usage.output_tokens
             )
 
-            return {
+            result = {
                 "reply": filtered,
                 "model": settings.COACH_MODEL,
                 "tokens_used": total_tokens,
             }
+
+            if widget:
+                result["widget"] = widget
+
+            return result
 
         except Exception as e:
             logger.error("Claude API error: %s", str(e))

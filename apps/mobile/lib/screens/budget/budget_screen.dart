@@ -10,6 +10,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -86,10 +88,12 @@ class _BudgetScreenState extends State<BudgetScreen>
   Widget build(BuildContext context) {
     final l = S.of(context)!;
     return Scaffold(
+      backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
-        backgroundColor: MintColors.white,
+        backgroundColor: MintColors.porcelaine,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
+        surfaceTintColor: MintColors.transparent,
         title: Text(
           l.budgetMonthlyTitle,
           style: MintTextStyles.headlineMedium(),
@@ -134,7 +138,10 @@ class _BudgetScreenState extends State<BudgetScreen>
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(MintSpacing.md),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+              vertical: MintSpacing.md,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -143,11 +150,11 @@ class _BudgetScreenState extends State<BudgetScreen>
                   index: 0,
                   child: _buildDataQualityBanner(widget.inputs, l),
                 ),
-                const SizedBox(height: MintSpacing.sm),
+                const SizedBox(height: MintSpacing.md),
 
-                // ── ABOVE FOLD: Section 2 — Hero chiffre + caption ──
+                // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
                 _staggeredEntry(index: 0, child: _buildHeader(plan, l)),
-                const SizedBox(height: MintSpacing.lg),
+                const SizedBox(height: MintSpacing.xxl),
 
                 // ── ABOVE FOLD: Section 3 — Spending meter ──
                 _staggeredEntry(
@@ -158,22 +165,22 @@ class _BudgetScreenState extends State<BudgetScreen>
                     totalAvailable: plan.available,
                   ),
                 ),
-                const SizedBox(height: MintSpacing.xl),
+                const SizedBox(height: MintSpacing.xxl),
 
-                // ── BELOW FOLD: Envelopes sliders ──
+                // ── BELOW FOLD: Envelopes sliders (secondary visually) ──
                 if (widget.inputs.style == BudgetStyle.envelopes3) ...[
                   _staggeredEntry(
                     index: 2,
                     child: _buildSliders(context, provider, plan, l),
                   ),
-                  const SizedBox(height: MintSpacing.lg),
+                  const SizedBox(height: MintSpacing.xl),
                 ],
                 if (plan.stopRuleTriggered) ...[
                   _staggeredEntry(
                     index: 2,
                     child: const StopRuleCallout(),
                   ),
-                  const SizedBox(height: MintSpacing.lg),
+                  const SizedBox(height: MintSpacing.xl),
                 ],
 
                 // ── Educational insert ──
@@ -181,7 +188,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                   index: 2,
                   child: _buildEducationalInsert(l),
                 ),
-                const SizedBox(height: MintSpacing.lg),
+                const SizedBox(height: MintSpacing.xxl),
 
                 // ── 50/30/20 Rule ──
                 _staggeredEntry(
@@ -350,35 +357,22 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   Widget _buildHeader(BudgetPlan plan, S l) {
+    final isPositive = plan.available >= 0;
+    final heroColor = isPositive ? MintColors.success : MintColors.warning;
+
     return Column(
       children: [
-        Text(
-          l.budgetAvailableThisMonth,
-          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+        // Hero: budget libre — MintHeroNumber (consequence, not output)
+        MintHeroNumber(
+          value: 'CHF\u00a0${plan.available.toStringAsFixed(0)}',
+          caption: l.budgetChiffreChocCaption,
+          color: heroColor,
+          semanticsLabel:
+              'CHF ${plan.available.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
         ),
-        const SizedBox(height: MintSpacing.sm),
-        TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: plan.available),
-          duration: const Duration(milliseconds: 1400),
-          curve: Curves.easeOutCubic,
-          builder: (context, value, _) {
-            return Semantics(
-              label:
-                  'CHF ${plan.available.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
-              child: Text(
-                'CHF\u00a0${value.toStringAsFixed(0)}',
-                style: MintTextStyles.displayMedium(),
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: MintSpacing.xs),
-        Text(
-          l.budgetChiffreChocCaption,
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: MintSpacing.md),
+        const SizedBox(height: MintSpacing.xl),
+
+        // Breakdown in MintSurface (craie — warm, no border)
         _buildBreakdown(l),
       ],
     );
@@ -393,13 +387,10 @@ class _BudgetScreenState extends State<BudgetScreen>
     final otherFixed = widget.inputs.otherFixedCosts;
     final available = income - housing - debt - taxes - health - otherFixed;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.craie,
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      radius: 16,
       child: Column(
         children: [
           _breakdownRow(l.budgetNetIncome, income, isPositive: true),
@@ -585,7 +576,7 @@ class _BudgetScreenState extends State<BudgetScreen>
             provider.updateOverride('future', val);
           },
         ),
-        const SizedBox(height: MintSpacing.md),
+        const SizedBox(height: MintSpacing.lg),
         MintPremiumSlider(
           label: l.budgetEnvelopeVariables,
           value: plan.variables,
@@ -602,13 +593,10 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   Widget _buildEducationalInsert(S l) {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.bleu,
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -655,20 +643,10 @@ class _BudgetScreenState extends State<BudgetScreen>
             ? l.budgetOnTrack
             : l.budgetToReinforce;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md + MintSpacing.xs),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return MintSurface(
+      tone: isComplete ? MintSurfaceTone.sauge : MintSurfaceTone.peche,
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
