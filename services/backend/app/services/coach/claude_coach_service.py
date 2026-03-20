@@ -16,9 +16,16 @@ import os
 import re
 from typing import List, Optional
 
-from anthropic import Anthropic
-
 from app.core.config import settings
+
+# Lazy import: anthropic SDK may not be installed in all environments (CI cache).
+# The service degrades gracefully without it.
+try:
+    from anthropic import Anthropic
+    _HAS_ANTHROPIC = True
+except ImportError:
+    Anthropic = None  # type: ignore[assignment,misc]
+    _HAS_ANTHROPIC = False
 
 logger = logging.getLogger(__name__)
 
@@ -181,6 +188,10 @@ class ClaudeCoachService:
     """Server-side Claude proxy for MINT coach."""
 
     def __init__(self):
+        if not _HAS_ANTHROPIC:
+            logger.warning("anthropic SDK not installed — coach chat disabled")
+            self._client = None
+            return
         api_key = settings.ANTHROPIC_API_KEY
         if not api_key:
             logger.warning("ANTHROPIC_API_KEY not set — coach chat disabled")
