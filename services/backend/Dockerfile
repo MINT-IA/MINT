@@ -12,8 +12,8 @@ RUN apt-get update && \
 # Install deps from pyproject.toml (single source of truth)
 COPY pyproject.toml .
 COPY app/ app/
-ARG CACHE_BUST=S56_anthropic_20260320
-RUN pip install --no-cache-dir . && pip list | grep anthropic
+ARG CACHE_BUST=S56_anthropic_20260320v2
+RUN pip install --no-cache-dir . && echo "=== Installed packages ===" && pip list | head -30
 
 # --- Stage 2: Production ---
 FROM python:3.12-slim AS production
