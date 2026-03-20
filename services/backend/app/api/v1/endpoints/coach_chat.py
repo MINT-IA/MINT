@@ -11,8 +11,11 @@ Sources:
     - LPD art. 6 (protection des donnees)
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import date
+from typing import Dict, Optional
 
 from fastapi import APIRouter, HTTPException
 

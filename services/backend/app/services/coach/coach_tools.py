@@ -12,6 +12,11 @@ Architecture:
   User question → Claude (system prompt + tools) → text + tool_use
   → Backend extracts tool call → returns {reply, widget} to Flutter
   → Flutter renders text bubble + rich widget inline
+
+Profile input tools (ask_user_input, show_onboarding_progress) allow
+Claude to collect missing profile data conversationally. The frontend
+renders the appropriate inline input (picker, numeric keyboard, etc.)
+based on the `field` parameter.
 """
 
 # The tools Claude can call — each maps to a Flutter widget.
@@ -196,6 +201,64 @@ COACH_TOOLS = [
                 },
             },
             "required": ["avs_monthly", "lpp_monthly", "narrative"],
+        },
+    },
+    # --- Profile input tools (conversational onboarding) ---
+    {
+        "name": "ask_user_input",
+        "description": (
+            "Demande une information specifique a l'utilisateur pour completer "
+            "son profil. Utilise quand une donnee manque pour repondre "
+            "correctement. Le frontend affichera le bon type d'input inline "
+            "dans le chat."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "enum": [
+                        "age", "salary", "canton", "civil_status",
+                        "employment_status", "children", "lpp_certificate",
+                    ],
+                    "description": "Le champ a demander",
+                },
+                "message": {
+                    "type": "string",
+                    "description": (
+                        "Message contextuel pour accompagner la demande "
+                        "(max 20 mots)"
+                    ),
+                },
+            },
+            "required": ["field", "message"],
+        },
+    },
+    {
+        "name": "show_onboarding_progress",
+        "description": (
+            "Affiche la progression du profil utilisateur. "
+            "Utilise apres que l'utilisateur a fourni une information."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "completed_fields": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Champs deja remplis",
+                },
+                "missing_fields": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Champs encore manquants",
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Message de progression",
+                },
+            },
+            "required": ["completed_fields", "missing_fields"],
         },
     },
 ]

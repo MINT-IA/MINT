@@ -153,6 +153,42 @@ def build_system_prompt(
     if last_cap_served:
         parts.append(f"- Dernier cap servi : {last_cap_served}")
 
+    # Missing fields detection — conversational profile collection
+    missing = []
+    if not age:
+        missing.append("age")
+    if not salary_annual:
+        missing.append("salary")
+    if not canton:
+        missing.append("canton")
+
+    if missing:
+        parts.append("")
+        parts.append("DONNEES MANQUANTES DU PROFIL :")
+        parts.append(f"- Donnees manquantes : {', '.join(missing)}")
+        parts.append(
+            "- Utilise ask_user_input pour demander UNE donnee a la fois, "
+            "naturellement."
+        )
+        parts.append(
+            "- Si l'utilisateur n'a pas d'age renseigne, utilise "
+            "ask_user_input pour le demander."
+        )
+        parts.append(
+            "- Si le revenu manque, demande-le naturellement dans "
+            "la conversation."
+        )
+        parts.append("- Si le canton manque, demande-le.")
+        parts.append("- Ne demande qu'UNE seule information a la fois.")
+        parts.append(
+            "- Integre la demande naturellement dans la conversation, "
+            "pas comme un formulaire."
+        )
+        parts.append(
+            "- Apres 3 informations obtenues (age, revenu, canton), "
+            "montre le premier apercu retraite."
+        )
+
     parts.append("")
     parts.append(
         "STRUCTURE DE TA REPONSE :"

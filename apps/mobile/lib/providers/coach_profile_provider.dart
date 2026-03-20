@@ -311,6 +311,20 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Merge individual fields into the existing profile (incremental update).
+  /// Used by chat inline pickers to update one field at a time without
+  /// overwriting the rest of the profile.
+  void mergeAnswers(Map<String, dynamic> partial) {
+    if (partial.isEmpty) return;
+    final merged = Map<String, dynamic>.from(_lastAnswers)..addAll(partial);
+    _lastAnswers = merged;
+    _profile = CoachProfile.fromWizardAnswers(merged);
+    _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+    ReportPersistenceService.saveAnswers(merged);
+  }
+
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).
   /// Cree un profil partiel immediatement utilisable par le dashboard.
   void updateFromMiniOnboarding(Map<String, dynamic> answers) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/backend_coach_service.dart';
+import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -12,6 +13,11 @@ import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 //
 //  Claude chooses the tool + params → Backend returns them →
 //  Flutter calls WidgetRenderer.build() → Rich widget in chat.
+//
+//  Also handles `ask_user_input` tool calls from Claude, which
+//  display inline pickers (age, salary, canton, etc.) in the chat.
+//  When the user answers, the onInputSubmitted callback fires to
+//  update the profile and continue the conversation.
 // ────────────────────────────────────────────────────────────
 
 class WidgetRenderer {
@@ -19,7 +25,16 @@ class WidgetRenderer {
 
   /// Build a rich chat widget from a Claude tool call.
   /// Returns null if the tool is unknown or params are invalid.
-  static Widget? build(BuildContext context, WidgetCall call) {
+  ///
+  /// [onInputSubmitted] — callback fired when the user responds to an
+  /// `ask_user_input` picker. Parameters: (field, displayValue).
+  /// The caller is responsible for updating the profile and sending
+  /// the value as a chat message.
+  static Widget? build(
+    BuildContext context,
+    WidgetCall call, {
+    void Function(String field, String value)? onInputSubmitted,
+  }) {
     switch (call.tool) {
       case 'show_retirement_comparison':
         return _buildRetirementComparison(context, call.params);
@@ -33,6 +48,8 @@ class WidgetRenderer {
         return _buildChoiceComparison(context, call.params);
       case 'show_pillar_breakdown':
         return _buildPillarBreakdown(context, call.params);
+      case 'ask_user_input':
+        return _buildInputRequest(context, call.params, onInputSubmitted);
       default:
         return null;
     }
@@ -125,8 +142,91 @@ class WidgetRenderer {
     );
   }
 
+  // ────────────────────────────────────────────────────────────
+  //  INPUT REQUEST — ask_user_input tool
+  // ────────────────────────────────────────────────────────────
+
+  /// Build an inline input picker based on the `field` parameter.
+  /// Claude calls `ask_user_input` with {field, message} when it
+  /// needs a missing profile value. The picker appears inline in the
+  /// chat. When the user selects a value, [onInputSubmitted] fires.
+  static Widget? _buildInputRequest(
+    BuildContext context,
+    Map<String, dynamic> p,
+    void Function(String field, String value)? onInputSubmitted,
+  ) {
+    final field = p['field'] as String? ?? '';
+    final message = p['message'] as String?;
+
+    switch (field) {
+      case 'age':
+        return ChatAgePicker(
+          label: message,
+          initialAge: 35,
+          onSelected: (age) {
+            onInputSubmitted?.call('age', '$age');
+          },
+        );
+
+      case 'salary':
+        return ChatAmountInput(
+          label: message ?? 'Ton revenu brut annuel',
+          onSubmitted: (amount) {
+            onInputSubmitted?.call('salary', '${amount.round()}');
+          },
+        );
+
+      case 'canton':
+        return ChatCantonPicker(
+          label: message,
+          onSelected: (canton) {
+            onInputSubmitted?.call('canton', canton);
+          },
+        );
+
+      case 'civil_status':
+        return ChatChoiceButtons(
+          label: message,
+          choices: const [
+            'C\u00e9libataire',
+            'Mari\u00e9\u00b7e',
+            'Divorc\u00e9\u00b7e',
+            'En concubinage',
+          ],
+          onSelected: (choice) {
+            onInputSubmitted?.call('civil_status', choice);
+          },
+        );
+
+      case 'employment_status':
+        return ChatChoiceButtons(
+          label: message,
+          choices: const [
+            'Salari\u00e9\u00b7e',
+            'Ind\u00e9pendant\u00b7e',
+            'Sans emploi',
+          ],
+          onSelected: (choice) {
+            onInputSubmitted?.call('employment_status', choice);
+          },
+        );
+
+      case 'children':
+        return ChatChoiceButtons(
+          label: message,
+          choices: const ['0', '1', '2', '3', '4+'],
+          onSelected: (choice) {
+            onInputSubmitted?.call('children', choice);
+          },
+        );
+
+      default:
+        return null;
+    }
+  }
+
   static String _fmt(dynamic n) {
-    if (n == null) return '—';
+    if (n == null) return '\u2014';
     final num value = n is num ? n : 0;
     final rounded = value.round();
     return rounded.toString().replaceAllMapped(
