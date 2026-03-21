@@ -283,12 +283,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         await ProactiveTriggerService.storeCurrentPhase(p, prefs);
         await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
       } else if (trigger == null) {
-        // No trigger — still update baseline if not yet stored.
-        final hasPhase = prefs.getString('_proactive_stored_phase') != null;
-        if (!hasPhase) {
-          await ProactiveTriggerService.storeCurrentPhase(p, prefs);
-          await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
-        }
+        // No trigger — store baseline (idempotent, avoids hardcoded SP keys).
+        await ProactiveTriggerService.storeCurrentPhase(p, prefs);
+        await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
       }
     } catch (_) {
       // Graceful degradation: greeting works without proactive trigger.
@@ -325,13 +322,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ];
     }
 
-    // If a proactive trigger was fired, prepend its intentTag as
-    // the first suggestion chip so the user can act on it directly.
+    // If a proactive trigger was fired, resolve its intentTag to a
+    // human-readable label (never show raw routes as chip text).
     if (proactiveIntentTag != null && proactiveIntentTag.isNotEmpty) {
-      // Remove duplicate if already present, then prepend.
-      suggestions.remove(proactiveIntentTag);
+      final chipLabel = _resolveIntentTagToLabel(proactiveIntentTag, s);
+      suggestions.remove(chipLabel);
       suggestions = [
-        proactiveIntentTag,
+        chipLabel,
         ...suggestions.take(3),
       ];
     }
@@ -400,6 +397,28 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   ///
   /// Parameterised keys (e.g. proactiveGoalMilestone with {progress})
   /// are resolved using [trigger.params]. Returns empty string on failure.
+  /// Resolve a route-style intentTag to a user-readable chip label.
+  /// Never show raw routes like '/coach/weekly-recap' as chip text.
+  String _resolveIntentTagToLabel(String intentTag, S s) {
+    // Map known proactive intent tags to i18n labels.
+    final map = <String, String>{
+      '/coach/weekly-recap': s.recapTitle,
+      '/coach/chat': s.coachSuggestRetirement,
+      '/home': s.pulseFeedbackRecalculated,
+      '/profile': s.profileSectionIdentity,
+    };
+    // Try direct map, then try ScreenRegistry for intent-tag based labels.
+    if (map.containsKey(intentTag)) return map[intentTag]!;
+    // Fallback: strip slashes and capitalize.
+    final fallback = intentTag
+        .replaceAll('/', ' ')
+        .replaceAll('-', ' ')
+        .trim();
+    return fallback.isNotEmpty
+        ? '${fallback[0].toUpperCase()}${fallback.substring(1)}'
+        : intentTag;
+  }
+
   String _resolveProactiveMessage(ProactiveTrigger trigger, S s) {
     try {
       final p = trigger.params;
