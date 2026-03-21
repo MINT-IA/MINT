@@ -2982,7 +2982,7 @@ class SEs extends S {
   String get lppDeepRachatComparaison => 'Comparacion';
 
   @override
-  String get lppDeepRachatBloc => 'TODO EN 1 ANO';
+  String get lppDeepRachatBloc => 'TODO EN 1 AÑO';
 
   @override
   String get lppDeepRachatBlocSub => 'Rescate en bloque';

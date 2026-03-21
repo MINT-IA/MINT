@@ -856,6 +856,116 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
+  static const ScreenEntry _profileBilan = ScreenEntry(
+    route: '/profile/bilan',
+    intentTag: 'profile_bilan',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: ['salaireBrut', 'age', 'canton'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _scanReview = ScreenEntry(
+    route: '/scan/review',
+    intentTag: 'scan_review',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _scanImpact = ScreenEntry(
+    route: '/scan/impact',
+    intentTag: 'scan_impact',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _documentDetail = ScreenEntry(
+    route: '/documents/:id',
+    intentTag: 'document_detail',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _coupleAccept = ScreenEntry(
+    route: '/couple/accept',
+    intentTag: 'couple_accept_invitation',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _dataBlock = ScreenEntry(
+    route: '/data-block/:type',
+    intentTag: 'data_block_enrichment',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _bankImport = ScreenEntry(
+    route: '/bank-import',
+    intentTag: 'bank_import',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _openBankingTransactions = ScreenEntry(
+    route: '/open-banking/transactions',
+    intentTag: 'open_banking_transactions',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _openBankingConsents = ScreenEntry(
+    route: '/open-banking/consents',
+    intentTag: 'open_banking_consents',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _adminObservability = ScreenEntry(
+    route: '/profile/admin-observability',
+    intentTag: 'admin_observability',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _adminAnalytics = ScreenEntry(
+    route: '/profile/admin-analytics',
+    intentTag: 'admin_analytics',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
   // ── E — Conversation pure / Non-routable from chat ─────────────
 
   static const ScreenEntry _landing = ScreenEntry(
@@ -877,6 +987,218 @@ class MintScreenRegistry extends ScreenRegistry {
     intentTag: 'achievements',
     behavior: ScreenBehavior.conversationPure,
     preferFromChat: false,
+  );
+
+  static const ScreenEntry _home = ScreenEntry(
+    route: '/home',
+    intentTag: 'home_shell',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _authLogin = ScreenEntry(
+    route: '/auth/login',
+    intentTag: 'auth_login',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _authRegister = ScreenEntry(
+    route: '/auth/register',
+    intentTag: 'auth_register',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _authForgotPassword = ScreenEntry(
+    route: '/auth/forgot-password',
+    intentTag: 'auth_forgot_password',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _authVerifyEmail = ScreenEntry(
+    route: '/auth/verify-email',
+    intentTag: 'auth_verify_email',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _exploreRetraite = ScreenEntry(
+    route: '/explore/retraite',
+    intentTag: 'explore_hub_retraite',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['age', 'salaireBrut'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _exploreFamille = ScreenEntry(
+    route: '/explore/famille',
+    intentTag: 'explore_hub_famille',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _exploreTravail = ScreenEntry(
+    route: '/explore/travail',
+    intentTag: 'explore_hub_travail',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['employmentStatus'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _exploreLogement = ScreenEntry(
+    route: '/explore/logement',
+    intentTag: 'explore_hub_logement',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['canton'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _exploreFiscalite = ScreenEntry(
+    route: '/explore/fiscalite',
+    intentTag: 'explore_hub_fiscalite',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['canton', 'salaireBrut'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _explorePatrimoine = ScreenEntry(
+    route: '/explore/patrimoine',
+    intentTag: 'explore_hub_patrimoine',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _exploreSante = ScreenEntry(
+    route: '/explore/sante',
+    intentTag: 'explore_hub_sante',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _coachCheckin = ScreenEntry(
+    route: '/coach/checkin',
+    intentTag: 'coach_checkin',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _coachRefresh = ScreenEntry(
+    route: '/coach/refresh',
+    intentTag: 'coach_annual_refresh',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _coachHistory = ScreenEntry(
+    route: '/coach/history',
+    intentTag: 'coach_history',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _coachWeeklyRecap = ScreenEntry(
+    route: '/coach/weekly-recap',
+    intentTag: 'coach_weekly_recap',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _educationHub = ScreenEntry(
+    route: '/education/hub',
+    intentTag: 'education_hub',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _educationTheme = ScreenEntry(
+    route: '/education/theme/:id',
+    intentTag: 'education_theme_detail',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _portfolio = ScreenEntry(
+    route: '/portfolio',
+    intentTag: 'portfolio_overview',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: [],
+    optionalFields: ['salaireBrut', 'epargne'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _scoreReveal = ScreenEntry(
+    route: '/score-reveal',
+    intentTag: 'score_reveal',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _onboardingQuick = ScreenEntry(
+    route: '/onboarding/quick',
+    intentTag: 'onboarding_quick',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _onboardingChiffreChoc = ScreenEntry(
+    route: '/onboarding/chiffre-choc',
+    intentTag: 'onboarding_chiffre_choc',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: false,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _askMint = ScreenEntry(
+    route: '/ask-mint',
+    intentTag: 'ask_mint',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
   );
 
   // ── S65 — Expert Tier ────────────────────────────────────────
@@ -1011,10 +1333,45 @@ class MintScreenRegistry extends ScreenRegistry {
     _consent,
     _byokSettings,
     _slmSettings,
+    _profileBilan,
+    _scanReview,
+    _scanImpact,
+    _documentDetail,
+    _coupleAccept,
+    _dataBlock,
+    _bankImport,
+    _openBankingTransactions,
+    _openBankingConsents,
+    _adminObservability,
+    _adminAnalytics,
+    _coachRefresh,
+    _onboardingQuick,
+    _onboardingChiffreChoc,
     // E — Conversation pure / non-routable
     _landing,
     _coachChat,
     _achievements,
+    _home,
+    _authLogin,
+    _authRegister,
+    _authForgotPassword,
+    _authVerifyEmail,
+    _exploreRetraite,
+    _exploreFamille,
+    _exploreTravail,
+    _exploreLogement,
+    _exploreFiscalite,
+    _explorePatrimoine,
+    _exploreSante,
+    _coachCheckin,
+    _coachHistory,
+    _coachWeeklyRecap,
+    _educationHub,
+    _educationTheme,
+    _scoreReveal,
+    _askMint,
+    // B — Decision Canvas (additional)
+    _portfolio,
     // S65 — Expert Tier
     _consultSpecialist,
     // S68 — Agent Autonome

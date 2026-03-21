@@ -48,8 +48,8 @@ void main() {
       }
     });
 
-    test('total entry count covers all registered surfaces (≥ 40)', () {
-      expect(MintScreenRegistry.entries.length, greaterThanOrEqualTo(40));
+    test('total entry count covers all registered surfaces (= 108)', () {
+      expect(MintScreenRegistry.entries.length, equals(108));
     });
   });
 
@@ -116,6 +116,56 @@ void main() {
       final entry = MintScreenRegistry.findByIntentStatic('document_scan');
       expect(entry, isNotNull);
       expect(entry!.behavior, equals(ScreenBehavior.captureUtility));
+    });
+
+    test('explore_hub_retraite → /explore/retraite', () {
+      final entry =
+          MintScreenRegistry.findByIntentStatic('explore_hub_retraite');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/explore/retraite'));
+    });
+
+    test('education_hub → /education/hub, preferFromChat true', () {
+      final entry = MintScreenRegistry.findByIntentStatic('education_hub');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/education/hub'));
+      expect(entry.preferFromChat, isTrue);
+    });
+
+    test('onboarding_quick → /onboarding/quick, preferFromChat false', () {
+      final entry = MintScreenRegistry.findByIntentStatic('onboarding_quick');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/onboarding/quick'));
+      expect(entry.preferFromChat, isFalse);
+    });
+
+    test('portfolio_overview → /portfolio, decisionCanvas', () {
+      final entry =
+          MintScreenRegistry.findByIntentStatic('portfolio_overview');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/portfolio'));
+      expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
+    });
+
+    test('auth_login → /auth/login, preferFromChat false', () {
+      final entry = MintScreenRegistry.findByIntentStatic('auth_login');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/auth/login'));
+      expect(entry.preferFromChat, isFalse);
+    });
+
+    test('document_detail → /documents/:id, captureUtility', () {
+      final entry = MintScreenRegistry.findByIntentStatic('document_detail');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/documents/:id'));
+      expect(entry.behavior, equals(ScreenBehavior.captureUtility));
+    });
+
+    test('admin_observability → preferFromChat false', () {
+      final entry =
+          MintScreenRegistry.findByIntentStatic('admin_observability');
+      expect(entry, isNotNull);
+      expect(entry!.preferFromChat, isFalse);
     });
 
     test('unknown intent tag returns null', () {
@@ -235,7 +285,9 @@ void main() {
               '(admin/auth entries are excluded)');
     });
 
-    test('non-routable surfaces are excluded (landing, achievements, byok)', () {
+    test(
+        'non-routable surfaces are excluded '
+        '(landing, achievements, byok, auth, admin, onboarding)', () {
       final routable = MintScreenRegistry.chatRoutable();
       final routeSet = routable.map((e) => e.intentTag).toSet();
       expect(routeSet, isNot(contains('landing')));
@@ -243,6 +295,24 @@ void main() {
       expect(routeSet, isNot(contains('byok_settings')));
       expect(routeSet, isNot(contains('slm_settings')));
       expect(routeSet, isNot(contains('consent_settings')));
+      expect(routeSet, isNot(contains('auth_login')));
+      expect(routeSet, isNot(contains('auth_register')));
+      expect(routeSet, isNot(contains('auth_forgot_password')));
+      expect(routeSet, isNot(contains('auth_verify_email')));
+      expect(routeSet, isNot(contains('home_shell')));
+      expect(routeSet, isNot(contains('admin_observability')));
+      expect(routeSet, isNot(contains('admin_analytics')));
+      expect(routeSet, isNot(contains('onboarding_quick')));
+      expect(routeSet, isNot(contains('onboarding_chiffre_choc')));
+      expect(routeSet, isNot(contains('score_reveal')));
+      expect(routeSet, isNot(contains('scan_review')));
+      expect(routeSet, isNot(contains('scan_impact')));
+      expect(routeSet, isNot(contains('couple_accept_invitation')));
+      expect(routeSet, isNot(contains('coach_history')));
+      expect(routeSet, isNot(contains('coach_checkin')));
+      expect(routeSet, isNot(contains('coach_weekly_recap')));
+      expect(routeSet, isNot(contains('open_banking_transactions')));
+      expect(routeSet, isNot(contains('open_banking_consents')));
     });
 
     test('key B surfaces are routable from chat', () {

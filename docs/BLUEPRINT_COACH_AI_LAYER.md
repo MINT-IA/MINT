@@ -1,12 +1,13 @@
 # BLUEPRINT : MINT Coach AI Layer — Mission Document
 
 > **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
-> **Companions**: UX_REDESIGN_COACH.md (ce que l'utilisateur voit), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint), `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (couche d'orchestration chat → écran).
+> **Companions**: `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (couche orchestration), `MINT_UX_GRAAL_MASTERPLAN.md` (vision umbrella).
+> **Note statut (2026-03-21)**: Partiellement à jour. Les fichiers `coach_dashboard_screen.dart` et `coach_agir_screen.dart` référencés dans §CONVENTIONS ont été remplacés par `CoachChatScreen` + `MainNavigationShell`. Les services listés comme "NOUVEAUX" ont été implémentés. Voir `docs/DOC_STATUS_MATRIX.md` pour le détail.
 
-> **Objectif** : Transformer MINT d'une couche coach reactive en une couche coach plus proactive, narrative et utile, au service du plan.
-> **Principe** : Le LLM (BYOK) ne repond plus seulement aux questions. Il enrichit la narration, la personnalisation et l'orchestration du coach. Le coach n'est pas le produit: il sert le plan, les flows structures et les ecrans de preuve. Sans BYOK, l'app fonctionne exactement comme aujourd'hui (zero degradation).
+> **Objectif** : Le LLM (BYOK) enrichit la narration, la personnalisation et l'orchestration du coach. Le coach n'est pas le produit: il sert le plan, les flows structures et les ecrans de preuve. Sans BYOK, l'app fonctionne avec les templates statiques (zero degradation).
 > **Source de vérité** : partielle. Référence technique pour la couche coach IA, subordonnée au `MINT_UX_GRAAL_MASTERPLAN.md`.
 > **Ne couvre pas** : vision umbrella, navigation globale, design system, taxonomie écran par écran.
+> **Companions archivés** (ne plus référencer): `UX_REDESIGN_COACH.md`, `MINT_COACH_VIVANT_ROADMAP.md` — tous deux dans `docs/archive/`.
 
 ---
 
@@ -46,27 +47,31 @@ Le check se fait via `context.read<ByokProvider>().isConfigured`.
 - **Termes bannis** : `garanti`, `certain`, `assure`, `sans risque`, `optimal`, `meilleur`, `parfait`.
 - **Disclaimer obligatoire** : "Outil educatif — ne constitue pas un conseil financier. LSFin."
 
-### Fichiers existants a modifier (PAS de nouveaux fichiers sauf indication)
-| Fichier | Lignes | Role |
-|---------|--------|------|
-| `lib/services/coach_llm_service.dart` | ~400 | Orchestrateur LLM existant |
-| `lib/services/coaching_service.dart` | ~800 | 13 triggers coaching |
-| `lib/screens/coach/coach_dashboard_screen.dart` | ~3400 | Dashboard principal |
-| `lib/screens/coach/coach_agir_screen.dart` | ~1900 | Tab Agir |
-| `lib/screens/coach/coach_checkin_screen.dart` | ~1466 | Check-in mensuel |
-| `lib/widgets/coach/chiffre_choc_card.dart` | ~200 | Carte chiffre choc |
-| `lib/services/streak_service.dart` | ~259 | Badges et milestones |
-| `lib/app.dart` | ~400 | Router + app lifecycle |
-| `lib/screens/main_navigation_shell.dart` | ~200 | Shell + WidgetsBindingObserver |
-| `pubspec.yaml` | ~50 | Dependencies |
+### Fichiers clés actifs (état 2026-03-21)
+| Fichier | Role | Statut |
+|---------|------|--------|
+| `lib/services/coach_llm_service.dart` | Orchestrateur LLM | actif |
+| `lib/services/coach/coach_orchestrator.dart` | Orchestration coach | actif |
+| `lib/services/coach/context_injector_service.dart` | Injection contexte system prompt | actif |
+| `lib/services/coaching_service.dart` | Triggers coaching | actif |
+| `lib/screens/coach/coach_chat_screen.dart` | Interface chat principale | actif (remplace coach_dashboard_screen) |
+| `lib/screens/coach/coach_checkin_screen.dart` | Check-in mensuel | actif |
+| `lib/screens/coach/annual_refresh_screen.dart` | Check-up annuel | actif |
+| `lib/services/coach/proactive_trigger_service.dart` | 7 triggers proactifs | actif |
+| `lib/services/coach/weekly_recap_service.dart` | Récap hebdomadaire | actif |
+| `lib/services/voice/regional_voice_service.dart` | Flavor régional 26 cantons | actif |
+| `lib/services/coach_narrative_service.dart` | Narration coach | actif |
+| `lib/services/streak_service.dart` | Badges et milestones | actif |
+| `lib/services/gamification/milestone_v2_service.dart` | Milestones V2 | actif |
+| `lib/app.dart` | Router + app lifecycle | actif |
+| `lib/screens/main_navigation_shell.dart` | Shell 4 tabs | actif |
 
-### Nouveaux fichiers autorises
-| Fichier | Role |
-|---------|------|
-| `lib/services/coach_narrative_service.dart` | **NOUVEAU** — Service central Coach Layer |
-| `lib/services/milestone_detection_service.dart` | **NOUVEAU** — Detection de milestones |
-| `lib/services/notification_service.dart` | **NOUVEAU** — Local notifications |
-| `lib/widgets/coach/milestone_celebration_sheet.dart` | **NOUVEAU** — Bottom sheet celebration |
+### Fichiers supprimés ou remplacés (ne plus référencer)
+| Ancien fichier | Remplacé par |
+|---|---|
+| `lib/screens/coach/coach_dashboard_screen.dart` | `coach_chat_screen.dart` |
+| `lib/screens/coach/coach_agir_screen.dart` | absorbé dans `MainNavigationShell` |
+| `lib/services/milestone_detection_service.dart` | `gamification/milestone_v2_service.dart` |
 | `lib/screens/coach/annual_refresh_screen.dart` | **NOUVEAU** — Check-up annuel |
 | `test/services/coach_narrative_service_test.dart` | **NOUVEAU** — Tests |
 | `test/services/milestone_detection_service_test.dart` | **NOUVEAU** — Tests |

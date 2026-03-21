@@ -2,9 +2,9 @@
 // Primary budget display is now in PulseScreen via BudgetSnapshot.
 // This screen provides the detailed envelope editing.
 //
-// TODO(S53): When BudgetLivingEngine lands, import it here and use
-// BudgetSnapshot.present.monthlyFree for the hero number to guarantee
-// consistency with PulseScreen. See docs/BUDGET_VIVANT_ARCHITECTURE.md §8.
+// Hero number sourced from BudgetSnapshot.present.monthlyFree (via
+// BudgetLivingEngine) when a CoachProfile is available, ensuring
+// consistency with PulseScreen. Falls back to plan.available when not.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +12,10 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -46,6 +49,11 @@ class _BudgetScreenState extends State<BudgetScreen>
   late Animation<double> _staggerAnimation;
   bool _hasError = false;
 
+  /// BudgetSnapshot from BudgetLivingEngine — provides the authoritative
+  /// hero number (monthlyFree) consistent with PulseScreen.
+  /// Null when CoachProfile is unavailable (graceful degradation to plan.available).
+  BudgetSnapshot? _snapshot;
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +72,20 @@ class _BudgetScreenState extends State<BudgetScreen>
         _staggerController.forward();
       } catch (_) {
         if (mounted) setState(() => _hasError = true);
+      }
+      // Compute BudgetSnapshot from CoachProfile if available.
+      // This is non-blocking: BudgetScreen renders immediately via plan.available,
+      // and upgrades the hero number to monthlyFree once snapshot is ready.
+      try {
+        final profileProvider =
+            context.read<CoachProfileProvider>();
+        if (profileProvider.hasProfile) {
+          final snap =
+              BudgetLivingEngine.compute(profileProvider.profile!);
+          if (mounted) setState(() => _snapshot = snap);
+        }
+      } catch (_) {
+        // Graceful degradation: keep _snapshot null, fall back to plan.available.
       }
     });
   }
@@ -145,10 +167,11 @@ class _BudgetScreenState extends State<BudgetScreen>
             return const Center(child: CircularProgressIndicator());
           }
 
-          // TODO(S53): Replace plan.available with
-          // BudgetSnapshot.present.monthlyFree for hero consistency.
-          // See header comment for details.
-          final heroFree = plan.available;
+          // Hero number: BudgetSnapshot.present.monthlyFree when available,
+          // guaranteeing consistency with PulseScreen.
+          // Falls back to plan.available when snapshot is not yet computed.
+          final heroFree =
+              _snapshot?.present.monthlyFree ?? plan.available;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(

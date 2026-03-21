@@ -692,7 +692,7 @@ void main() {
       expect(trigger, isNotNull);
       expect(trigger!.type, ProactiveTriggerType.inactivityReturn);
       expect(trigger.params?['days'], '10');
-      expect(trigger.intentTag, '/pulse');
+      expect(trigger.intentTag, '/home');
     });
 
     // ── Helper: estimateGoalProgress unit tests ──────────────

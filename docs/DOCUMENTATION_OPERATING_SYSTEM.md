@@ -73,43 +73,56 @@ Lire:
 Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
-- `docs/NAVIGATION_GRAAL_V10.md`
+- `docs/NAVIGATION_GRAAL_V10.md` (synced with app.dart 2026-03-21)
 
 ### Tâche: coach AI / orchestration / mémoire
 Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
 - `docs/BLUEPRINT_COACH_AI_LAYER.md`
+- `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md`
 - `docs/VOICE_SYSTEM.md`
 
 ### Tâche: stratégie ou vision globale
 Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
+- `docs/ROADMAP_V2.md` (sprint status + actual codebase state)
 - puis au besoin `docs/VISION_UNIFIEE_V1.md` comme archive stratégique
+
+### Tâche: comprendre ce qui est implémenté vs planifié
+Lire:
+- `docs/ROADMAP_V2.md` — section "ACTUAL CODEBASE STATE"
+- `docs/DOC_STATUS_MATRIX.md` — statut de chaque document
+- `docs/SPRINT_TRACKER.md` — historique S0-S50
 
 ---
 
 ## 4. Statut des documents
 
 ### Documents maîtres
-- `CLAUDE.md`
-- `docs/MINT_UX_GRAAL_MASTERPLAN.md`
-- `docs/DOCUMENTATION_OPERATING_SYSTEM.md`
+- `CLAUDE.md` — synced 2026-03-21
+- `docs/MINT_UX_GRAAL_MASTERPLAN.md` — synced 2026-03-21
+- `docs/DOCUMENTATION_OPERATING_SYSTEM.md` — synced 2026-03-21
 
 ### Documents spécialisés de référence
-- `docs/DESIGN_SYSTEM.md`
-- `docs/VOICE_SYSTEM.md`
-- `docs/MINT_CAP_ENGINE_SPEC.md`
-- `docs/MINT_SCREEN_BOARD_101.md`
-- `docs/CAPENGINE_IMPLEMENTATION_CHECKLIST.md`
+- `docs/DESIGN_SYSTEM.md` — current
+- `docs/VOICE_SYSTEM.md` — current
+- `docs/MINT_CAP_ENGINE_SPEC.md` — current
+- `docs/MINT_SCREEN_BOARD_101.md` — current
+- `docs/CAPENGINE_IMPLEMENTATION_CHECKLIST.md` — current
+- `docs/ROADMAP_V2.md` — synced 2026-03-21 (status column added)
+- `docs/DOC_STATUS_MATRIX.md` — created 2026-03-21
 
 ### Documents spécialisés secondaires
-- `docs/NAVIGATION_GRAAL_V10.md`
-- `docs/BLUEPRINT_COACH_AI_LAYER.md`
+- `docs/NAVIGATION_GRAAL_V10.md` — synced 2026-03-21 (routes verified against app.dart)
+- `docs/BLUEPRINT_COACH_AI_LAYER.md` — partially outdated (references coach_dashboard_screen.dart which was replaced)
+- `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` — current (source of truth for RoutePlanner/ScreenRegistry)
 
 ### Documents historiques / de transition
-- `docs/VISION_UNIFIEE_V1.md`
+- `docs/VISION_UNIFIEE_V1.md` — archive stratégique, ne gouverne plus
+- `docs/SPRINT_TRACKER.md` — historique S0-S50, dernière entrée S50
+- `docs/archive/*` — archives, ne pas lire sauf investigation historique
 
 ---
 

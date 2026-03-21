@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -53,6 +55,7 @@ class PulseScreen extends StatefulWidget {
 class _PulseScreenState extends State<PulseScreen> {
   ProjectionResult? _cachedProjection;
   FinancialFitnessScore? _cachedFri;
+  BudgetSnapshot? _cachedSnapshot;
   CoachProfile? _lastProfile;
 
   /// CapEngine memory — loaded async on first build.
@@ -77,6 +80,7 @@ class _PulseScreenState extends State<PulseScreen> {
         _lastProfile = null;
         _cachedProjection = null;
         _cachedFri = null;
+        _cachedSnapshot = null;
         _cachedCap = null;
         // H1 fix: reset CapMemory on profile disappearance
         // so a new profile doesn't inherit stale cap history.
@@ -118,6 +122,14 @@ class _PulseScreenState extends State<PulseScreen> {
       );
     } catch (_) {
       _cachedFri = null;
+    }
+
+    // BudgetSnapshot — backbone for budget libre signal.
+    // Graceful degradation: if compute fails, falls back to legacy signal.
+    try {
+      _cachedSnapshot = BudgetLivingEngine.compute(profile);
+    } catch (_) {
+      _cachedSnapshot = null;
     }
 
     _recomputeCap(profile);
@@ -768,11 +780,11 @@ class _PulseScreenState extends State<PulseScreen> {
   Widget _buildSecondarySignals(CoachProfile profile, S l) {
     final signals = <Widget>[];
 
-    // Signal 1: Budget libre
-    final revenuNet = _computeRevenuNet(profile);
-    if (revenuNet > 0) {
-      final dep = profile.totalDepensesMensuelles;
-      final libre = revenuNet - dep;
+    // Signal 1: Budget libre — source of truth is BudgetSnapshot.present.monthlyFree.
+    // Falls back to legacy estimate when snapshot is unavailable.
+    final snapshot = _cachedSnapshot;
+    if (snapshot != null) {
+      final libre = snapshot.present.monthlyFree;
       signals.add(_SignalRow(
         label: l.pulseKeyFigBudgetLibre,
         value: libre >= 0
@@ -781,6 +793,21 @@ class _PulseScreenState extends State<PulseScreen> {
         color: libre >= 0 ? MintColors.success : MintColors.warning,
         onTap: () => context.push('/budget'),
       ));
+    } else {
+      // Legacy fallback: net income minus declared expenses.
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        final dep = profile.totalDepensesMensuelles;
+        final libre = revenuNet - dep;
+        signals.add(_SignalRow(
+          label: l.pulseKeyFigBudgetLibre,
+          value: libre >= 0
+              ? '+${formatChfWithPrefix(libre)}/mois'
+              : '${formatChfWithPrefix(libre)}/mois',
+          color: libre >= 0 ? MintColors.success : MintColors.warning,
+          onTap: () => context.push('/budget'),
+        ));
+      }
     }
 
     // Signal 2: Patrimoine

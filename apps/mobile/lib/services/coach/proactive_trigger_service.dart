@@ -286,7 +286,7 @@ class ProactiveTriggerService {
     return ProactiveTrigger(
       type: ProactiveTriggerType.weeklyRecapAvailable,
       messageKey: 'proactiveWeeklyRecap',
-      intentTag: '/recap',
+      intentTag: '/coach/weekly-recap',
       triggeredAt: now,
     );
   }
@@ -308,7 +308,7 @@ class ProactiveTriggerService {
           type: ProactiveTriggerType.goalMilestone,
           messageKey: 'proactiveGoalMilestone',
           params: {'progress': progress.toString()},
-          intentTag: '/coach',
+          intentTag: '/coach/chat',
           triggeredAt: now,
         );
       }
@@ -376,7 +376,7 @@ class ProactiveTriggerService {
       type: ProactiveTriggerType.inactivityReturn,
       messageKey: 'proactiveInactivityReturn',
       params: {'days': daysSince.toString()},
-      intentTag: '/pulse',
+      intentTag: '/home',
       triggeredAt: now,
     );
   }
@@ -431,7 +431,7 @@ class ProactiveTriggerService {
     return ProactiveTrigger(
       type: ProactiveTriggerType.newCapAvailable,
       messageKey: 'proactiveNewCap',
-      intentTag: '/pulse',
+      intentTag: '/home',
       triggeredAt: now,
     );
   }
