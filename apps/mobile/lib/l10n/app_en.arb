@@ -8457,5 +8457,27 @@
   "rcSuggestedPromptIndependant": "Self-employed: what do I need to rebuild?",
   "rcSuggestedPromptCouple": "Where does our couple pension fall short?",
   "rcSuggestedPromptFatca": "FATCA: what does it change for my 3a?",
-  "rcUnitPts": "pts"
+  "rcUnitPts": "pts",
+
+  "routeSuggestionCta": "Open",
+  "routeSuggestionPartialWarning": "Estimate\u00a0\u2014 incomplete data",
+  "routeSuggestionBlocked": "I need a bit more info to take you there",
+  "routeReturnAcknowledge": "Welcome back! If you adjusted any data, just tell me and I'll recalculate.",
+  "hypothesisEditorTitle": "Simulation assumptions",
+  "hypothesisEditorSubtitle": "Adjust the parameters to see the impact on projections.",
+
+  "lifecyclePhaseDemarrage": "Getting started",
+  "lifecyclePhaseDemarrageDesc": "First steps in working life: budget, 3a and good financial habits.",
+  "lifecyclePhaseConstruction": "Building",
+  "lifecyclePhaseConstructionDesc": "Career acceleration, savings, first home, family planning.",
+  "lifecyclePhaseAcceleration": "Accelerating",
+  "lifecyclePhaseAccelerationDesc": "Peak earning phase: LPP optimization, tax strategy and wealth growth.",
+  "lifecyclePhaseConsolidation": "Consolidating",
+  "lifecyclePhaseConsolidationDesc": "Retirement preparation, LPP buyback, early estate planning.",
+  "lifecyclePhaseTransition": "Transition",
+  "lifecyclePhaseTransitionDesc": "Pre-retirement decisions: pension vs. lump sum, withdrawal sequencing.",
+  "lifecyclePhaseRetraite": "Retirement",
+  "lifecyclePhaseRetraiteDesc": "Living in retirement: budget adjustment, asset drawdown.",
+  "lifecyclePhaseTransmission": "Estate planning",
+  "lifecyclePhaseTransmissionDesc": "Succession planning, donations and wealth transmission."
 }

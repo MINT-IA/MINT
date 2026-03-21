@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,8 +18,11 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/navigation/route_planner.dart';
+import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
+import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -397,14 +401,30 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             l: S.of(context)!)
         : <ResponseCard>[];
 
+    // S58: detect route_to_screen tool_use in streamed text.
+    final rawPayload = compliance.useFallback
+        ? null
+        : _parseRouteToolUse(finalText);
+    final resolvedPayload =
+        rawPayload != null ? _resolveRoutePayload(rawPayload) : null;
+    final slmDisplayText = rawPayload != null
+        ? finalText
+            .replaceAll(
+              RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
+              '',
+            )
+            .trim()
+        : finalText;
+
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
-        content: finalText,
+        content: slmDisplayText,
         timestamp: DateTime.now(),
         suggestedActions: suggestedActions,
         responseCards: cards,
         tier: ChatTier.slm,
+        routePayload: resolvedPayload,
       );
       _isStreaming = false;
     });
@@ -433,16 +453,33 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ? ResponseCardService.generateForChat(_profile!, text, l: l)
           : <ResponseCard>[];
 
+      // S58: detect route_to_screen tool_use in response message.
+      final rawPayload = _parseRouteToolUse(response.message);
+      final resolvedPayload =
+          rawPayload != null ? _resolveRoutePayload(rawPayload) : null;
+
+      // Strip the [ROUTE_TO_SCREEN:{...}] marker from the displayed text
+      // when a route payload was detected.
+      final displayMessage = rawPayload != null
+          ? response.message
+              .replaceAll(
+                RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
+                '',
+              )
+              .trim()
+          : response.message;
+
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: response.message,
+          content: displayMessage,
           timestamp: DateTime.now(),
           suggestedActions: response.suggestedActions,
           sources: response.sources,
           disclaimers: response.disclaimers,
           responseCards: cards,
           tier: tier,
+          routePayload: resolvedPayload,
         ));
         _isLoading = false;
       });
@@ -540,6 +577,89 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       canton: profile.canton,
       knownValues: knownValues,
     );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  ROUTE-TO-SCREEN ORCHESTRATION (S58)
+  // ════════════════════════════════════════════════════════════
+
+  /// Parses a `[ROUTE_TO_SCREEN:{...}]` marker embedded in a response text.
+  ///
+  /// When Claude (via BYOK) returns a structured tool_use block, the RAG
+  /// backend encodes it as `[ROUTE_TO_SCREEN:{"intent":"...","confidence":0.9,
+  /// "context_message":"..."}]` so the Flutter layer can parse it safely.
+  ///
+  /// Returns null if no marker is present (plain-text response).
+  RouteToolPayload? _parseRouteToolUse(String text) {
+    final markerStart = text.indexOf('[ROUTE_TO_SCREEN:');
+    if (markerStart == -1) return null;
+    final jsonStart = markerStart + '[ROUTE_TO_SCREEN:'.length;
+    final markerEnd = text.indexOf(']', jsonStart);
+    if (markerEnd == -1) return null;
+
+    try {
+      final raw = text.substring(jsonStart, markerEnd);
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      final intent = map['intent'] as String? ?? '';
+      final confidence = (map['confidence'] as num?)?.toDouble() ?? 0.0;
+      final contextMessage = map['context_message'] as String? ?? '';
+      if (intent.isEmpty) return null;
+      return RouteToolPayload(
+        intent: intent,
+        confidence: confidence,
+        contextMessage: contextMessage,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Resolves a [RouteToolPayload] through [RoutePlanner] and, when routable,
+  /// returns a new payload containing the resolved [RouteDecision].
+  ///
+  /// Returns null when the decision is [RouteAction.conversationOnly] or
+  /// [RouteAction.askFirst] — in those cases no card is shown.
+  RouteToolPayload? _resolveRoutePayload(RouteToolPayload raw) {
+    if (_profile == null) return null;
+    final planner = RoutePlanner(
+      registry: const MintScreenRegistry(),
+      profile: _profile!,
+    );
+    final decision = planner.plan(raw.intent, confidence: raw.confidence);
+    switch (decision.action) {
+      case RouteAction.openScreen:
+      case RouteAction.openWithWarning:
+        // Route is resolved — keep the payload (route is baked into decision).
+        // We embed the resolved route and isPartial flag back into a new
+        // payload by augmenting contextMessage with a special suffix the
+        // renderer can read.  Since RouteToolPayload is immutable we encode
+        // the extra data directly on the message.
+        return _ResolvedRoutePayload(
+          intent: raw.intent,
+          confidence: raw.confidence,
+          contextMessage: raw.contextMessage,
+          resolvedRoute: decision.route!,
+          isPartial: decision.action == RouteAction.openWithWarning,
+        );
+      case RouteAction.askFirst:
+      case RouteAction.conversationOnly:
+        return null;
+    }
+  }
+
+  /// Called when the user returns from a screen opened via [RouteSuggestionCard].
+  void _handleRouteReturn() {
+    if (!mounted) return;
+    final s = S.of(context)!;
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: s.routeReturnAcknowledge,
+        timestamp: DateTime.now(),
+        tier: ChatTier.fallback,
+      ));
+    });
+    _scrollToBottom();
   }
 
   List<String> _inferSuggestedActions(String userMessage) {
@@ -1005,6 +1125,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               child: ResponseCardStrip(cards: msg.responseCards),
             ),
           ],
+          // Route Suggestion Card — S58 route_to_screen tool_use
+          if (!isStreamingThis && msg.hasRoutePayload) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 8),
+              child: _buildRouteSuggestionCard(msg.routePayload!),
+            ),
+          ],
           // Suggested actions
           if (!isStreamingThis &&
               msg.suggestedActions != null &&
@@ -1087,6 +1215,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ).copyWith(fontWeight: FontWeight.w500),
         ),
       ],
+    );
+  }
+
+  /// Builds the [RouteSuggestionCard] for a message carrying a route payload.
+  ///
+  /// Casts [payload] to [_ResolvedRoutePayload] to get the route + isPartial
+  /// fields produced by [_resolveRoutePayload].
+  Widget _buildRouteSuggestionCard(RouteToolPayload payload) {
+    if (payload is! _ResolvedRoutePayload) {
+      return const SizedBox.shrink();
+    }
+    return RouteSuggestionCard(
+      contextMessage: payload.contextMessage,
+      route: payload.resolvedRoute,
+      isPartial: payload.isPartial,
+      onReturn: _handleRouteReturn,
     );
   }
 
@@ -1372,6 +1516,31 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       ),
     );
   }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  RESOLVED ROUTE PAYLOAD (S58)
+// ════════════════════════════════════════════════════════════════
+
+/// Internal subclass of [RouteToolPayload] that carries the result of
+/// [RoutePlanner.plan] — the resolved GoRouter [route] and [isPartial] flag.
+///
+/// Created by [_CoachChatScreenState._resolveRoutePayload] and consumed by
+/// [_CoachChatScreenState._buildRouteSuggestionCard].
+class _ResolvedRoutePayload extends RouteToolPayload {
+  /// The GoRouter route resolved by [RoutePlanner].
+  final String resolvedRoute;
+
+  /// Whether the screen opens in partial/estimation mode.
+  final bool isPartial;
+
+  const _ResolvedRoutePayload({
+    required super.intent,
+    required super.confidence,
+    required super.contextMessage,
+    required this.resolvedRoute,
+    required this.isPartial,
+  });
 }
 
 /// Isolated blinking cursor — manages its own animation lifecycle.

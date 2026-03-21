@@ -528,8 +528,8 @@ class CoachOrchestrator {
   }
 
   /// Safe chat fallback — honest message when no LLM is available.
-  // TODO(i18n): migrate hardcoded FR strings to S.of(context) — needs
-  // context parameter or a static localisation accessor (Phase 1.3).
+  // TODO(S57-i18n): migrate hardcoded FR strings — service has no BuildContext;
+  // requires static localisation accessor or caller-injected strings (Phase 1.3).
   static CoachResponse _chatFallback() {
     return const CoachResponse(
       message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'

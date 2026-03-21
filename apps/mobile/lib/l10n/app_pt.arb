@@ -8129,5 +8129,27 @@
   "rcSuggestedPromptIndependant": "Independente: o que preciso de reconstruir?",
   "rcSuggestedPromptCouple": "Onde falha a nossa previd\u00eancia de casal?",
   "rcSuggestedPromptFatca": "FATCA: o que muda para o meu 3a?",
-  "rcUnitPts": "pts"
+  "rcUnitPts": "pts",
+  "hypothesisEditorTitle": "Hipóteses de simulação",
+  "hypothesisEditorSubtitle": "Ajusta os parâmetros para ver o impacto nas projeções.",
+
+  "routeSuggestionCta": "Abrir",
+  "routeSuggestionPartialWarning": "Estimativa\u00a0\u2014 dados incompletos",
+  "routeSuggestionBlocked": "Preciso de mais informa\u00e7\u00f5es para te levar l\u00e1",
+  "routeReturnAcknowledge": "Bem-vindo de volta! Se ajustaste dados, diz-me e recalculo.",
+
+  "lifecyclePhaseDemarrage": "In\u00edcio",
+  "lifecyclePhaseDemarrageDesc": "Primeiros passos na vida profissional: or\u00e7amento, 3a e bons h\u00e1bitos financeiros.",
+  "lifecyclePhaseConstruction": "Constru\u00e7\u00e3o",
+  "lifecyclePhaseConstructionDesc": "Acelera\u00e7\u00e3o de carreira, poupan\u00e7a, primeira habita\u00e7\u00e3o, planeamento familiar.",
+  "lifecyclePhaseAcceleration": "Acelera\u00e7\u00e3o",
+  "lifecyclePhaseAccelerationDesc": "Fase de rendimentos elevados: otimiza\u00e7\u00e3o LPP, fiscalidade e crescimento patrimonial.",
+  "lifecyclePhaseConsolidation": "Consolida\u00e7\u00e3o",
+  "lifecyclePhaseConsolidationDesc": "Prepara\u00e7\u00e3o para a reforma, recompra LPP, in\u00edcio do planeamento sucessorial.",
+  "lifecyclePhaseTransition": "Transi\u00e7\u00e3o",
+  "lifecyclePhaseTransitionDesc": "Decis\u00f5es pr\u00e9-reforma: renda ou capital, sequ\u00eancia de levantamentos.",
+  "lifecyclePhaseRetraite": "Reforma",
+  "lifecyclePhaseRetraiteDesc": "Vida na reforma: adapta\u00e7\u00e3o do or\u00e7amento e gest\u00e3o do patrim\u00f3nio.",
+  "lifecyclePhaseTransmission": "Transmiss\u00e3o",
+  "lifecyclePhaseTransmissionDesc": "Planeamento sucessorial, doa\u00e7\u00f5es e transmiss\u00e3o do patrim\u00f3nio."
 }

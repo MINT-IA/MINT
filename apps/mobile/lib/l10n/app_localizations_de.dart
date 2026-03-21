@@ -18656,4 +18656,74 @@ class SDe extends S {
 
   @override
   String get rcUnitPts => 'Pkt.';
+
+  @override
+  String get routeSuggestionCta => 'Öffnen';
+
+  @override
+  String get routeSuggestionPartialWarning =>
+      'Schätzung — unvollständige Daten';
+
+  @override
+  String get routeSuggestionBlocked => 'Ich brauche noch ein paar Infos';
+
+  @override
+  String get routeReturnAcknowledge =>
+      'Willkommen zurück! Wenn du Daten angepasst hast, sag mir Bescheid und ich berechne neu.';
+
+  @override
+  String get hypothesisEditorTitle => 'Simulationsannahmen';
+
+  @override
+  String get hypothesisEditorSubtitle =>
+      'Passe die Parameter an, um den Einfluss auf die Projektionen zu sehen.';
+
+  @override
+  String get lifecyclePhaseDemarrage => 'Start';
+
+  @override
+  String get lifecyclePhaseDemarrageDesc =>
+      'Erste Schritte im Berufsleben: Budget, Säule 3a und gute Gewohnheiten.';
+
+  @override
+  String get lifecyclePhaseConstruction => 'Aufbau';
+
+  @override
+  String get lifecyclePhaseConstructionDesc =>
+      'Karrierebeschleunigung, Sparen, erste Immobilie, Familienplanung.';
+
+  @override
+  String get lifecyclePhaseAcceleration => 'Beschleunigung';
+
+  @override
+  String get lifecyclePhaseAccelerationDesc =>
+      'Einkommensphase: BVG-Optimierung, Steuerplanung und Vermögensaufbau.';
+
+  @override
+  String get lifecyclePhaseConsolidation => 'Konsolidierung';
+
+  @override
+  String get lifecyclePhaseConsolidationDesc =>
+      'Rentenvorbereitung, BVG-Einkauf, erste Nachlassplanung.';
+
+  @override
+  String get lifecyclePhaseTransition => 'Übergang';
+
+  @override
+  String get lifecyclePhaseTransitionDesc =>
+      'Vor-Rentenentscheide: Rente oder Kapital, Bezugsreihenfolge.';
+
+  @override
+  String get lifecyclePhaseRetraite => 'Rente';
+
+  @override
+  String get lifecyclePhaseRetraiteDesc =>
+      'Rentenphase: Budgetanpassung und Vermögensabbau.';
+
+  @override
+  String get lifecyclePhaseTransmission => 'Nachlass';
+
+  @override
+  String get lifecyclePhaseTransmissionDesc =>
+      'Nachlassplanung, Schenkungen und Vermögensübertragung.';
 }

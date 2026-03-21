@@ -146,7 +146,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
               foregroundColor: MintColors.white,
               icon: const Icon(Icons.add),
               label: Text(
-                l10n.conversationNew, // TODO: add to ARB files
+                l10n.conversationNew,
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
             )
@@ -180,13 +180,13 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md),
             Text(
-              l10n.conversationEmptyTitle, // TODO: add to ARB files
+              l10n.conversationEmptyTitle,
               style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              l10n.conversationEmptySubtitle, // TODO: add to ARB files
+              l10n.conversationEmptySubtitle,
               style: MintTextStyles.bodyMedium(),
               textAlign: TextAlign.center,
             ),
@@ -195,7 +195,7 @@ class _EmptyState extends StatelessWidget {
               onPressed: onNewConversation,
               icon: const Icon(Icons.add),
               label: Text(
-                l10n.conversationStartFirst, // TODO: add to ARB files
+                l10n.conversationStartFirst,
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
@@ -240,7 +240,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md),
             Text(
-              l10n.conversationErrorTitle, // TODO: add to ARB files
+              l10n.conversationErrorTitle,
               style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
             ),
@@ -257,7 +257,7 @@ class _ErrorState extends StatelessWidget {
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: Text(
-                l10n.conversationRetry, // TODO: add to ARB files
+                l10n.conversationRetry,
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
               ),
               style: OutlinedButton.styleFrom(

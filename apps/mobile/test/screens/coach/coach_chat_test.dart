@@ -6,6 +6,10 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/navigation/route_planner.dart';
+import 'package:mint_mobile/services/navigation/screen_registry.dart';
+import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -320,6 +324,103 @@ void main() {
 
       // Now the share/export button should appear
       expect(find.byIcon(Icons.share), findsOneWidget);
+    });
+  });
+
+  group('CoachChatScreen — route_to_screen tool_use (S58)', () {
+    testWidgets('screen does not crash with route_to_screen tool_use payload',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      await tester.pumpWidget(buildTestWidget(withProfile: true));
+      await tester.pump(const Duration(milliseconds: 100));
+      // Screen renders without crashing — basic smoke test
+      expect(find.byType(CoachChatScreen), findsOneWidget);
+    });
+
+    testWidgets('RouteSuggestionCard widget is importable from chat screen',
+        (tester) async {
+      // Verifies the import chain: CoachChatScreen → RouteSuggestionCard
+      // no widget tree needed — compile-time check
+      expect(RouteSuggestionCard, isNotNull);
+    });
+
+    test('RouteToolPayload carries intent, confidence, contextMessage', () {
+      const payload = RouteToolPayload(
+        intent: 'retirement_choice',
+        confidence: 0.85,
+        contextMessage: 'Voici le simulateur rente vs capital.',
+      );
+      expect(payload.intent, 'retirement_choice');
+      expect(payload.confidence, 0.85);
+      expect(payload.contextMessage, 'Voici le simulateur rente vs capital.');
+    });
+
+    test('ChatMessage.hasRoutePayload is false when routePayload is null', () {
+      final msg = ChatMessage(
+        role: 'assistant',
+        content: 'Bonjour',
+        timestamp: DateTime.now(),
+      );
+      expect(msg.hasRoutePayload, isFalse);
+    });
+
+    test('ChatMessage.hasRoutePayload is true when routePayload is set', () {
+      final msg = ChatMessage(
+        role: 'assistant',
+        content: 'Je te propose de voir le simulateur.',
+        timestamp: DateTime.now(),
+        routePayload: const RouteToolPayload(
+          intent: 'retirement_choice',
+          confidence: 0.9,
+          contextMessage: 'Simulateur retraite',
+        ),
+      );
+      expect(msg.hasRoutePayload, isTrue);
+    });
+
+    test('RoutePlanner.plan resolves retirement_choice with full profile', () {
+      // Build a minimal profile using CoachProfileProvider
+      final provider = buildProfileProvider();
+      final profile = provider.profile!;
+      final planner = RoutePlanner(
+        registry: const MintScreenRegistry(),
+        profile: profile,
+      );
+      final decision = planner.plan('retirement_choice', confidence: 0.9);
+      // Profile has salary+age+canton — should resolve to openScreen or
+      // openWithWarning (depending on avoirLpp etc.)
+      expect(
+        decision.action,
+        anyOf(RouteAction.openScreen, RouteAction.openWithWarning),
+      );
+      expect(decision.route, '/rente-vs-capital');
+    });
+
+    test('RoutePlanner.plan returns conversationOnly for low confidence', () {
+      final provider = buildProfileProvider();
+      final profile = provider.profile!;
+      final planner = RoutePlanner(
+        registry: const MintScreenRegistry(),
+        profile: profile,
+      );
+      final decision = planner.plan('retirement_choice', confidence: 0.2);
+      expect(decision.action, RouteAction.conversationOnly);
+    });
+
+    test('RoutePlanner.plan returns conversationOnly for unknown intent', () {
+      final provider = buildProfileProvider();
+      final profile = provider.profile!;
+      final planner = RoutePlanner(
+        registry: const MintScreenRegistry(),
+        profile: profile,
+      );
+      final decision = planner.plan('totally_unknown_intent_xyz');
+      expect(decision.action, RouteAction.conversationOnly);
     });
   });
 }

@@ -8427,5 +8427,27 @@
   "rcSuggestedPromptIndependant": "Selbst\u00e4ndig: was muss ich neu aufbauen?",
   "rcSuggestedPromptCouple": "Wo hinkt unsere Paarvorsorge?",
   "rcSuggestedPromptFatca": "FATCA: was \u00e4ndert das f\u00fcr meine S\u00e4ule 3a?",
-  "rcUnitPts": "Pkt."
+  "rcUnitPts": "Pkt.",
+
+  "routeSuggestionCta": "\u00d6ffnen",
+  "routeSuggestionPartialWarning": "Sch\u00e4tzung\u00a0\u2014 unvollst\u00e4ndige Daten",
+  "routeSuggestionBlocked": "Ich brauche noch ein paar Infos",
+  "routeReturnAcknowledge": "Willkommen zur\u00fcck! Wenn du Daten angepasst hast, sag mir Bescheid und ich berechne neu.",
+  "hypothesisEditorTitle": "Simulationsannahmen",
+  "hypothesisEditorSubtitle": "Passe die Parameter an, um den Einfluss auf die Projektionen zu sehen.",
+
+  "lifecyclePhaseDemarrage": "Start",
+  "lifecyclePhaseDemarrageDesc": "Erste Schritte im Berufsleben: Budget, S\u00e4ule 3a und gute Gewohnheiten.",
+  "lifecyclePhaseConstruction": "Aufbau",
+  "lifecyclePhaseConstructionDesc": "Karrierebeschleunigung, Sparen, erste Immobilie, Familienplanung.",
+  "lifecyclePhaseAcceleration": "Beschleunigung",
+  "lifecyclePhaseAccelerationDesc": "Einkommensphase: BVG-Optimierung, Steuerplanung und Verm\u00f6gensaufbau.",
+  "lifecyclePhaseConsolidation": "Konsolidierung",
+  "lifecyclePhaseConsolidationDesc": "Rentenvorbereitung, BVG-Einkauf, erste Nachlassplanung.",
+  "lifecyclePhaseTransition": "\u00dcbergang",
+  "lifecyclePhaseTransitionDesc": "Vor-Rentenentscheide: Rente oder Kapital, Bezugsreihenfolge.",
+  "lifecyclePhaseRetraite": "Rente",
+  "lifecyclePhaseRetraiteDesc": "Rentenphase: Budgetanpassung und Verm\u00f6gensabbau.",
+  "lifecyclePhaseTransmission": "Nachlass",
+  "lifecyclePhaseTransmissionDesc": "Nachlassplanung, Schenkungen und Verm\u00f6gens\u00fcbertragung."
 }

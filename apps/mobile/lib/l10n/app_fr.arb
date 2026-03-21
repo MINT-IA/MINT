@@ -8751,5 +8751,27 @@
   "rcSuggestedPromptIndependant": "Ind\u00e9pendant\u00a0: qu\u2019est-ce que je dois reconstruire\u00a0?",
   "rcSuggestedPromptCouple": "O\u00f9 notre pr\u00e9voyance de couple boite-t-elle\u00a0?",
   "rcSuggestedPromptFatca": "FATCA\u00a0: qu\u2019est-ce que \u00e7a change pour mon 3a\u00a0?",
-  "rcUnitPts": "pts"
+  "rcUnitPts": "pts",
+
+  "routeSuggestionCta": "Ouvrir",
+  "routeSuggestionPartialWarning": "Estimation\u00a0\u2014 donn\u00e9es incompl\u00e8tes",
+  "routeSuggestionBlocked": "Il me manque des infos pour t\u2019y emmener",
+  "routeReturnAcknowledge": "Tu es de retour\u00a0! Si tu as ajust\u00e9 des donn\u00e9es, je recalcule d\u00e8s que tu m\u2019en parles.",
+  "hypothesisEditorTitle": "Hypoth\u00e8ses de simulation",
+  "hypothesisEditorSubtitle": "Ajuste les param\u00e8tres pour voir l\u2019impact sur les trajectoires.",
+
+  "lifecyclePhaseDemarrage": "D\u00e9marrage",
+  "lifecyclePhaseDemarrageDesc": "Premiers pas dans la vie active\u00a0: budget, 3a et bonnes habitudes.",
+  "lifecyclePhaseConstruction": "Construction",
+  "lifecyclePhaseConstructionDesc": "Acc\u00e9l\u00e9ration de carri\u00e8re, \u00e9pargne, premier logement, projets de famille.",
+  "lifecyclePhaseAcceleration": "Acc\u00e9l\u00e9ration",
+  "lifecyclePhaseAccelerationDesc": "Phase de revenus \u00e9lev\u00e9s\u00a0: optimisation LPP, fiscalit\u00e9 et patrimoine.",
+  "lifecyclePhaseConsolidation": "Consolidation",
+  "lifecyclePhaseConsolidationDesc": "Pr\u00e9paration de la retraite, rachat LPP, d\u00e9but de planification successorale.",
+  "lifecyclePhaseTransition": "Transition",
+  "lifecyclePhaseTransitionDesc": "D\u00e9cisions pr\u00e9-retraite\u00a0: rente ou capital, s\u00e9quence de retraits.",
+  "lifecyclePhaseRetraite": "Retraite",
+  "lifecyclePhaseRetraiteDesc": "Mise en \u0153uvre de la retraite, adaptation du budget, gestion du patrimoine.",
+  "lifecyclePhaseTransmission": "Transmission",
+  "lifecyclePhaseTransmissionDesc": "Planification successorale, donations et transmission du patrimoine."
 }

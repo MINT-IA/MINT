@@ -8212,5 +8212,27 @@
   "rcSuggestedPromptIndependant": "Aut\u00f3nomo: \u00bfqu\u00e9 debo reconstruir?",
   "rcSuggestedPromptCouple": "\u00bfEn qu\u00e9 falla nuestra previsi\u00f3n de pareja?",
   "rcSuggestedPromptFatca": "FATCA: \u00bfqu\u00e9 cambia para mi 3a?",
-  "rcUnitPts": "pts"
+  "rcUnitPts": "pts",
+
+  "routeSuggestionCta": "Abrir",
+  "routeSuggestionPartialWarning": "Estimaci\u00f3n\u00a0\u2014 datos incompletos",
+  "routeSuggestionBlocked": "Me falta informaci\u00f3n para llevarte ah\u00ed",
+  "routeReturnAcknowledge": "\u00a1Has vuelto! Si has ajustado datos, cu\u00e9ntame y recalculo.",
+  "hypothesisEditorTitle": "Hip\u00f3tesis de simulaci\u00f3n",
+  "hypothesisEditorSubtitle": "Ajusta los par\u00e1metros para ver el impacto en las proyecciones.",
+
+  "lifecyclePhaseDemarrage": "Comienzo",
+  "lifecyclePhaseDemarrageDesc": "Primeros pasos en la vida laboral: presupuesto, 3a y buenos h\u00e1bitos.",
+  "lifecyclePhaseConstruction": "Construcci\u00f3n",
+  "lifecyclePhaseConstructionDesc": "Aceleraci\u00f3n profesional, ahorro, primera vivienda, planificaci\u00f3n familiar.",
+  "lifecyclePhaseAcceleration": "Aceleraci\u00f3n",
+  "lifecyclePhaseAccelerationDesc": "Fase de ingresos altos: optimizaci\u00f3n LPP, fiscalidad y crecimiento patrimonial.",
+  "lifecyclePhaseConsolidation": "Consolidaci\u00f3n",
+  "lifecyclePhaseConsolidationDesc": "Preparaci\u00f3n de la jubilaci\u00f3n, recompra LPP, inicio de planificaci\u00f3n sucesoria.",
+  "lifecyclePhaseTransition": "Transici\u00f3n",
+  "lifecyclePhaseTransitionDesc": "Decisiones pre-jubilaci\u00f3n: renta o capital, secuencia de retiros.",
+  "lifecyclePhaseRetraite": "Jubilaci\u00f3n",
+  "lifecyclePhaseRetraiteDesc": "Vida en jubilaci\u00f3n: adaptaci\u00f3n del presupuesto y gesti\u00f3n del patrimonio.",
+  "lifecyclePhaseTransmission": "Transmisi\u00f3n",
+  "lifecyclePhaseTransmissionDesc": "Planificaci\u00f3n sucesoria, donaciones y transmisi\u00f3n del patrimonio."
 }

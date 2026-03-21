@@ -8129,5 +8129,27 @@
   "rcSuggestedPromptIndependant": "Indipendente: cosa devo ricostruire?",
   "rcSuggestedPromptCouple": "Dove zoppica la nostra previdenza di coppia?",
   "rcSuggestedPromptFatca": "FATCA: cosa cambia per il mio 3a?",
-  "rcUnitPts": "pts"
+  "rcUnitPts": "pts",
+
+  "routeSuggestionCta": "Aprire",
+  "routeSuggestionPartialWarning": "Stima\u00a0\u2014 dati incompleti",
+  "routeSuggestionBlocked": "Mi mancano alcune informazioni per portarti l\u00ec",
+  "routeReturnAcknowledge": "Sei tornato! Se hai modificato dei dati, dimmelo e ricalcolo.",
+  "hypothesisEditorTitle": "Ipotesi di simulazione",
+  "hypothesisEditorSubtitle": "Regola i parametri per vedere l\u2019impatto sulle proiezioni.",
+
+  "lifecyclePhaseDemarrage": "Inizio",
+  "lifecyclePhaseDemarrageDesc": "Primi passi nella vita lavorativa: budget, 3a e buone abitudini finanziarie.",
+  "lifecyclePhaseConstruction": "Costruzione",
+  "lifecyclePhaseConstructionDesc": "Accelerazione della carriera, risparmio, prima casa, pianificazione familiare.",
+  "lifecyclePhaseAcceleration": "Accelerazione",
+  "lifecyclePhaseAccelerationDesc": "Fase di redditi elevati: ottimizzazione LPP, fiscalit\u00e0 e crescita patrimoniale.",
+  "lifecyclePhaseConsolidation": "Consolidamento",
+  "lifecyclePhaseConsolidationDesc": "Preparazione alla pensione, riscatto LPP, inizio della pianificazione successoria.",
+  "lifecyclePhaseTransition": "Transizione",
+  "lifecyclePhaseTransitionDesc": "Decisioni pre-pensione: rendita o capitale, sequenza dei prelievi.",
+  "lifecyclePhaseRetraite": "Pensione",
+  "lifecyclePhaseRetraiteDesc": "Vita in pensione: adattamento del budget e gestione del patrimonio.",
+  "lifecyclePhaseTransmission": "Trasmissione",
+  "lifecyclePhaseTransmissionDesc": "Pianificazione successoria, donazioni e trasmissione del patrimonio."
 }

@@ -100,6 +100,35 @@ enum ChatTier {
   none,
 }
 
+// ────────────────────────────────────────────────────────────
+//  ROUTE TOOL PAYLOAD — S58 route_to_screen tool_use
+// ────────────────────────────────────────────────────────────
+
+/// Payload from a `route_to_screen` tool_use block returned by Claude.
+///
+/// Produced by [_parseRouteToolUse] in CoachChatScreen when the LLM response
+/// contains a structured `[ROUTE_TO_SCREEN:{...}]` marker.
+///
+/// The [RoutePlanner] processes [intent] + [confidence] to produce a
+/// [RouteDecision]. The [contextMessage] is shown in the [RouteSuggestionCard].
+class RouteToolPayload {
+  /// The semantic intent tag (e.g. 'retirement_choice').
+  final String intent;
+
+  /// LLM confidence in the intent (0.0–1.0).
+  final double confidence;
+
+  /// The coach's narrative message explaining why this screen is relevant.
+  /// Shown verbatim in the RouteSuggestionCard.
+  final String contextMessage;
+
+  const RouteToolPayload({
+    required this.intent,
+    required this.confidence,
+    required this.contextMessage,
+  });
+}
+
 /// Message dans l'historique de conversation
 class ChatMessage {
   final String role; // 'user', 'assistant', 'system'
@@ -114,6 +143,12 @@ class ChatMessage {
   /// Affichees en strip horizontale scrollable dans le chat.
   final List<ResponseCard> responseCards;
 
+  /// Route suggestion payload from a `route_to_screen` tool_use block (S58).
+  ///
+  /// Non-null when the message carries a RouteSuggestionCard to render.
+  /// The card is rendered in CoachChatScreen._buildCoachBubble.
+  final RouteToolPayload? routePayload;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -123,11 +158,15 @@ class ChatMessage {
     this.disclaimers = const [],
     this.tier = ChatTier.none,
     this.responseCards = const [],
+    this.routePayload,
   });
 
   bool get isUser => role == 'user';
   bool get isAssistant => role == 'assistant';
   bool get isSystem => role == 'system';
+
+  /// Whether this message carries a route suggestion card.
+  bool get hasRoutePayload => routePayload != null;
 }
 
 /// Reponse du coach LLM

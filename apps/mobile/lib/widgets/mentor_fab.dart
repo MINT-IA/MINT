@@ -7,7 +7,6 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 ///
 /// Tapping opens a compact bottom sheet with 3 contextual quick actions
 /// instead of the old 5-button "Mentor Advisor" menu.
-// TODO: add Semantics for accessibility
 class MentorFAB extends StatelessWidget {
   const MentorFAB({super.key, this.currentTabIndex = 0});
 
@@ -15,11 +14,15 @@ class MentorFAB extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => _showCoachSheet(context),
-      backgroundColor: MintColors.primary,
-      elevation: 4,
-      child: const Icon(Icons.auto_awesome, color: MintColors.white, size: 22),
+    return Semantics(
+      label: 'Coach MINT',
+      button: true,
+      child: FloatingActionButton(
+        onPressed: () => _showCoachSheet(context),
+        backgroundColor: MintColors.primary,
+        elevation: 4,
+        child: const Icon(Icons.auto_awesome, color: MintColors.white, size: 22),
+      ),
     );
   }
 

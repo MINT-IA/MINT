@@ -18546,4 +18546,74 @@ class SEn extends S {
 
   @override
   String get rcUnitPts => 'pts';
+
+  @override
+  String get routeSuggestionCta => 'Open';
+
+  @override
+  String get routeSuggestionPartialWarning => 'Estimate — incomplete data';
+
+  @override
+  String get routeSuggestionBlocked =>
+      'I need a bit more info to take you there';
+
+  @override
+  String get routeReturnAcknowledge =>
+      'Welcome back! If you adjusted any data, just tell me and I\'ll recalculate.';
+
+  @override
+  String get hypothesisEditorTitle => 'Simulation assumptions';
+
+  @override
+  String get hypothesisEditorSubtitle =>
+      'Adjust the parameters to see the impact on projections.';
+
+  @override
+  String get lifecyclePhaseDemarrage => 'Getting started';
+
+  @override
+  String get lifecyclePhaseDemarrageDesc =>
+      'First steps in working life: budget, 3a and good financial habits.';
+
+  @override
+  String get lifecyclePhaseConstruction => 'Building';
+
+  @override
+  String get lifecyclePhaseConstructionDesc =>
+      'Career acceleration, savings, first home, family planning.';
+
+  @override
+  String get lifecyclePhaseAcceleration => 'Accelerating';
+
+  @override
+  String get lifecyclePhaseAccelerationDesc =>
+      'Peak earning phase: LPP optimization, tax strategy and wealth growth.';
+
+  @override
+  String get lifecyclePhaseConsolidation => 'Consolidating';
+
+  @override
+  String get lifecyclePhaseConsolidationDesc =>
+      'Retirement preparation, LPP buyback, early estate planning.';
+
+  @override
+  String get lifecyclePhaseTransition => 'Transition';
+
+  @override
+  String get lifecyclePhaseTransitionDesc =>
+      'Pre-retirement decisions: pension vs. lump sum, withdrawal sequencing.';
+
+  @override
+  String get lifecyclePhaseRetraite => 'Retirement';
+
+  @override
+  String get lifecyclePhaseRetraiteDesc =>
+      'Living in retirement: budget adjustment, asset drawdown.';
+
+  @override
+  String get lifecyclePhaseTransmission => 'Estate planning';
+
+  @override
+  String get lifecyclePhaseTransmissionDesc =>
+      'Succession planning, donations and wealth transmission.';
 }

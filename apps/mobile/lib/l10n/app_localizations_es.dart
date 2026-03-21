@@ -18637,4 +18637,73 @@ class SEs extends S {
 
   @override
   String get rcUnitPts => 'pts';
+
+  @override
+  String get routeSuggestionCta => 'Abrir';
+
+  @override
+  String get routeSuggestionPartialWarning => 'Estimación — datos incompletos';
+
+  @override
+  String get routeSuggestionBlocked => 'Me falta información para llevarte ahí';
+
+  @override
+  String get routeReturnAcknowledge =>
+      '¡Has vuelto! Si has ajustado datos, cuéntame y recalculo.';
+
+  @override
+  String get hypothesisEditorTitle => 'Hipótesis de simulación';
+
+  @override
+  String get hypothesisEditorSubtitle =>
+      'Ajusta los parámetros para ver el impacto en las proyecciones.';
+
+  @override
+  String get lifecyclePhaseDemarrage => 'Comienzo';
+
+  @override
+  String get lifecyclePhaseDemarrageDesc =>
+      'Primeros pasos en la vida laboral: presupuesto, 3a y buenos hábitos.';
+
+  @override
+  String get lifecyclePhaseConstruction => 'Construcción';
+
+  @override
+  String get lifecyclePhaseConstructionDesc =>
+      'Aceleración profesional, ahorro, primera vivienda, planificación familiar.';
+
+  @override
+  String get lifecyclePhaseAcceleration => 'Aceleración';
+
+  @override
+  String get lifecyclePhaseAccelerationDesc =>
+      'Fase de ingresos altos: optimización LPP, fiscalidad y crecimiento patrimonial.';
+
+  @override
+  String get lifecyclePhaseConsolidation => 'Consolidación';
+
+  @override
+  String get lifecyclePhaseConsolidationDesc =>
+      'Preparación de la jubilación, recompra LPP, inicio de planificación sucesoria.';
+
+  @override
+  String get lifecyclePhaseTransition => 'Transición';
+
+  @override
+  String get lifecyclePhaseTransitionDesc =>
+      'Decisiones pre-jubilación: renta o capital, secuencia de retiros.';
+
+  @override
+  String get lifecyclePhaseRetraite => 'Jubilación';
+
+  @override
+  String get lifecyclePhaseRetraiteDesc =>
+      'Vida en jubilación: adaptación del presupuesto y gestión del patrimonio.';
+
+  @override
+  String get lifecyclePhaseTransmission => 'Transmisión';
+
+  @override
+  String get lifecyclePhaseTransmissionDesc =>
+      'Planificación sucesoria, donaciones y transmisión del patrimonio.';
 }

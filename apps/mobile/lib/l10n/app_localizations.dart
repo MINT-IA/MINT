@@ -33005,6 +33005,126 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'pts'**
   String get rcUnitPts;
+
+  /// No description provided for @routeSuggestionCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir'**
+  String get routeSuggestionCta;
+
+  /// No description provided for @routeSuggestionPartialWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation — données incomplètes'**
+  String get routeSuggestionPartialWarning;
+
+  /// No description provided for @routeSuggestionBlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il me manque des infos pour t’y emmener'**
+  String get routeSuggestionBlocked;
+
+  /// No description provided for @routeReturnAcknowledge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es de retour ! Si tu as ajusté des données, je recalcule dès que tu m’en parles.'**
+  String get routeReturnAcknowledge;
+
+  /// No description provided for @hypothesisEditorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses de simulation'**
+  String get hypothesisEditorTitle;
+
+  /// No description provided for @hypothesisEditorSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajuste les paramètres pour voir l’impact sur les trajectoires.'**
+  String get hypothesisEditorSubtitle;
+
+  /// No description provided for @lifecyclePhaseDemarrage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrage'**
+  String get lifecyclePhaseDemarrage;
+
+  /// No description provided for @lifecyclePhaseDemarrageDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premiers pas dans la vie active : budget, 3a et bonnes habitudes.'**
+  String get lifecyclePhaseDemarrageDesc;
+
+  /// No description provided for @lifecyclePhaseConstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Construction'**
+  String get lifecyclePhaseConstruction;
+
+  /// No description provided for @lifecyclePhaseConstructionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accélération de carrière, épargne, premier logement, projets de famille.'**
+  String get lifecyclePhaseConstructionDesc;
+
+  /// No description provided for @lifecyclePhaseAcceleration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accélération'**
+  String get lifecyclePhaseAcceleration;
+
+  /// No description provided for @lifecyclePhaseAccelerationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Phase de revenus élevés : optimisation LPP, fiscalité et patrimoine.'**
+  String get lifecyclePhaseAccelerationDesc;
+
+  /// No description provided for @lifecyclePhaseConsolidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consolidation'**
+  String get lifecyclePhaseConsolidation;
+
+  /// No description provided for @lifecyclePhaseConsolidationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation de la retraite, rachat LPP, début de planification successorale.'**
+  String get lifecyclePhaseConsolidationDesc;
+
+  /// No description provided for @lifecyclePhaseTransition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transition'**
+  String get lifecyclePhaseTransition;
+
+  /// No description provided for @lifecyclePhaseTransitionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décisions pré-retraite : rente ou capital, séquence de retraits.'**
+  String get lifecyclePhaseTransitionDesc;
+
+  /// No description provided for @lifecyclePhaseRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite'**
+  String get lifecyclePhaseRetraite;
+
+  /// No description provided for @lifecyclePhaseRetraiteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise en œuvre de la retraite, adaptation du budget, gestion du patrimoine.'**
+  String get lifecyclePhaseRetraiteDesc;
+
+  /// No description provided for @lifecyclePhaseTransmission.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transmission'**
+  String get lifecyclePhaseTransmission;
+
+  /// No description provided for @lifecyclePhaseTransmissionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planification successorale, donations et transmission du patrimoine.'**
+  String get lifecyclePhaseTransmissionDesc;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
