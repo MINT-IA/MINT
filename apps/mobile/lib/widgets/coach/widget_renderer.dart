@@ -48,6 +48,8 @@ class WidgetRenderer {
         return _buildChoiceComparison(context, call.params);
       case 'show_pillar_breakdown':
         return _buildPillarBreakdown(context, call.params);
+      case 'show_budget_snapshot':
+        return _buildBudgetSnapshot(context, call.params);
       case 'ask_user_input':
         return _buildInputRequest(context, call.params, onInputSubmitted);
       default:
@@ -139,6 +141,61 @@ class WidgetRenderer {
       rightAmount: p3a > 0 ? p3a : total * 0.1,
       narrative: p['narrative'] as String?,
       onTap: () => context.push('/retraite'),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  BUDGET SNAPSHOT — show_budget_snapshot tool
+  // ────────────────────────────────────────────────────────────
+
+  static Widget _buildBudgetSnapshot(
+      BuildContext context, Map<String, dynamic> p) {
+    final presentFree = (p['present_free'] as num?)?.toDouble() ?? 0;
+    final retirementFree = (p['retirement_free'] as num?)?.toDouble();
+    final gap = (p['gap'] as num?)?.toDouble();
+    final narrative = p['narrative'] as String?;
+    final leverNow = p['lever_now'] as String?;
+    final leverLater = p['lever_later'] as String?;
+
+    // If retirement data exists, show present vs retirement comparison.
+    // Otherwise, show present free as a fact card.
+    if (retirementFree != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ChatComparisonCard(
+            title: 'Ton budget vivant',
+            leftLabel: 'Libre aujourd\u2019hui',
+            leftValue: 'CHF\u00a0${_fmt(presentFree)}/mois',
+            rightLabel: 'Libre retraite',
+            rightValue: 'CHF\u00a0${_fmt(retirementFree)}/mois',
+            leftAmount: presentFree,
+            rightAmount: retirementFree,
+            narrative: gap != null
+                ? '\u00c9cart\u00a0: CHF\u00a0${_fmt(gap.abs())}/mois'
+                : narrative,
+            onTap: () => context.push('/retraite'),
+          ),
+          if (leverNow != null || leverLater != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ChatFactCard(
+                eyebrow: 'Levier',
+                value: leverNow ?? leverLater ?? '',
+                description: leverLater != null && leverNow != null
+                    ? leverLater
+                    : narrative ?? '',
+              ),
+            ),
+        ],
+      );
+    }
+
+    return ChatFactCard(
+      eyebrow: 'Budget',
+      value: 'CHF\u00a0${_fmt(presentFree)}/mois',
+      description: narrative ?? 'Ton libre mensuel',
+      onTap: () => context.push('/budget'),
     );
   }
 

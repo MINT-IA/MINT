@@ -114,7 +114,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       // Greeting is now silent/minimal: "On commence par quoi ?"
-      expect(find.textContaining('On commence par quoi'), findsOneWidget);
+      expect(find.textContaining('commence par quoi'), findsOneWidget);
     });
 
     testWidgets('shows initial greeting with suggested prompts', (tester) async {

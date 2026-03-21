@@ -17,7 +17,6 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
@@ -26,7 +25,6 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
-import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -184,7 +182,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // SILENT greeting: no CapEngine, no score, no retirement mention.
     // The user guides the direction. Silence is premium.
-    const greeting = 'On commence par quoi\u00a0?';
+    final name = p.firstName;
+    final greeting = name != null && name.isNotEmpty
+        ? '$name, on commence par quoi\u00a0?'
+        : 'On commence par quoi\u00a0?';
 
     // Emotional suggestions based on age/situation + life event trigger
     final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
@@ -201,19 +202,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       content: greeting,
       timestamp: DateTime.now(),
       suggestedActions: suggestions,
-      tier: _currentTier(),
+      tier: ChatTier.none,
     ));
-  }
-
-  ChatTier _currentTier() {
-    if (FeatureFlags.slmPluginReady &&
-        FeatureFlags.enableSlmNarratives &&
-        !FeatureFlags.safeModeDegraded &&
-        SlmEngine.instance.isAvailable) {
-      return ChatTier.slm;
-    }
-    if (_isByokConfigured) return ChatTier.byok;
-    return ChatTier.fallback;
   }
 
   // ════════════════════════════════════════════════════════════

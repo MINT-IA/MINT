@@ -12667,7 +12667,7 @@ class SIt extends S {
 
   @override
   String get coachErrorConnection =>
-      'Errore di connessione. Verifica la tua connessione internet o la tua chiave API.';
+      'Nessuna connessione. Gli strumenti restano qui.';
 
   @override
   String get coachSuggestSimulate3a => 'Simulare un versamento 3a';
@@ -18346,4 +18346,13 @@ class SIt extends S {
 
   @override
   String get settingsAboutSubtitle => 'Versione, note legali, contatto';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Divario mensile da colmare';
+
+  @override
+  String get pulseLabelRetirementFree => 'Margine libero in pensione';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Margine libero mensile';
 }

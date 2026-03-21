@@ -261,4 +261,47 @@ COACH_TOOLS = [
             "required": ["completed_fields", "missing_fields"],
         },
     },
+    {
+        "name": "show_budget_snapshot",
+        "description": (
+            "Affiche le budget vivant complet: libre aujourd'hui, "
+            "libre retraite, gap, confiance et levier. "
+            "Utilise quand l'utilisateur demande ou j'en suis, "
+            "mon budget, ma situation, combien il me reste."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "present_free": {
+                    "type": "number",
+                    "description": "Libre mensuel actuel en CHF",
+                },
+                "retirement_free": {
+                    "type": "number",
+                    "description": "Libre mensuel retraite en CHF",
+                },
+                "gap": {
+                    "type": "number",
+                    "description": "Ecart mensuel en CHF",
+                },
+                "confidence": {
+                    "type": "integer",
+                    "description": "Score de confiance 0-100",
+                },
+                "lever_now": {
+                    "type": "string",
+                    "description": "Impact court terme du levier",
+                },
+                "lever_later": {
+                    "type": "string",
+                    "description": "Impact long terme du levier",
+                },
+                "narrative": {
+                    "type": "string",
+                    "description": "Phrase de synthese",
+                },
+            },
+            "required": ["present_free", "narrative"],
+        },
+    },
 ]

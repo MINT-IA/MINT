@@ -5996,7 +5996,7 @@
   "coachErrorInvalidKey": "A tua chave API parece inválida ou expirada. Verifica-a nas definições.",
   "coachErrorRateLimit": "Limite de pedidos atingido. Tenta novamente daqui a pouco.",
   "coachErrorGeneric": "Erro técnico. Tenta novamente mais tarde.",
-  "coachErrorConnection": "Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.",
+  "coachErrorConnection": "Sem conex\u00e3o. As ferramentas continuam aqui.",
   "coachSuggestSimulate3a": "Simular um depósito 3a",
   "coachSuggestView3a": "Ver as minhas contas 3a",
   "coachSuggestSimulateLpp": "Simular um resgate LPP",
@@ -7957,5 +7957,8 @@
   "settingsLangueTitle": "Idioma",
   "settingsLangueSubtitle": "Escolher o idioma da app",
   "settingsAboutTitle": "Sobre",
-  "settingsAboutSubtitle": "Vers\u00e3o, avisos legais, contacto"
+  "settingsAboutSubtitle": "Vers\u00e3o, avisos legais, contacto",
+  "pulseLabelMonthlyGap": "Lacuna mensal a preencher",
+  "pulseLabelRetirementFree": "Margem livre na reforma",
+  "pulseLabelMonthlyFree": "Margem livre mensal"
 }

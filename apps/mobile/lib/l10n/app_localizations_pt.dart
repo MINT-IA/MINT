@@ -12612,7 +12612,7 @@ class SPt extends S {
 
   @override
   String get coachErrorConnection =>
-      'Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.';
+      'Sem conexão. As ferramentas continuam aqui.';
 
   @override
   String get coachSuggestSimulate3a => 'Simular um depósito 3a';
@@ -18276,4 +18276,13 @@ class SPt extends S {
 
   @override
   String get settingsAboutSubtitle => 'Versão, avisos legais, contacto';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Lacuna mensal a preencher';
+
+  @override
+  String get pulseLabelRetirementFree => 'Margem livre na reforma';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Margem livre mensal';
 }

@@ -22435,7 +22435,7 @@ abstract class S {
   /// No description provided for @coachErrorConnection.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.'**
+  /// **'Pas de connexion. Les outils restent là.'**
   String get coachErrorConnection;
 
   /// No description provided for @coachSuggestSimulate3a.
@@ -32506,6 +32506,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Version, mentions légales, contact'**
   String get settingsAboutSubtitle;
+
+  /// No description provided for @pulseLabelMonthlyGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart mensuel à combler'**
+  String get pulseLabelMonthlyGap;
+
+  /// No description provided for @pulseLabelRetirementFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge libre à la retraite'**
+  String get pulseLabelRetirementFree;
+
+  /// No description provided for @pulseLabelMonthlyFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge libre mensuelle'**
+  String get pulseLabelMonthlyFree;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
