@@ -54,7 +54,7 @@ void main() {
     });
 
     test('all InsightType values are distinct', () {
-      final values = InsightType.values;
+      const values = InsightType.values;
       expect(values.toSet().length, equals(values.length));
       expect(values, containsAll([
         InsightType.goal,

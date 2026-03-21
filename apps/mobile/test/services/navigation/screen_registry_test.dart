@@ -270,7 +270,7 @@ void main() {
   // ── InMemoryScreenRegistry ────────────────────────────────────
 
   group('InMemoryScreenRegistry', () {
-    final registry = InMemoryScreenRegistry(const [
+    const registry = InMemoryScreenRegistry([
       ScreenEntry(
         route: '/retraite',
         intentTag: 'retirement_projection',

@@ -22,9 +22,9 @@ import 'package:mint_mobile/services/navigation/screen_registry.dart';
 /// Field keys use the canonical names from [ReadinessGate] / [MintScreenRegistry]:
 /// 'salaireBrut', 'avoirLpp', 'rachatMaximum', 'epargne3a', 'epargne'.
 InMemoryScreenRegistry _testRegistry() {
-  return InMemoryScreenRegistry([
+  return const InMemoryScreenRegistry([
     // B — Decision Canvas: requires salary + age
-    const ScreenEntry(
+    ScreenEntry(
       route: '/rente-vs-capital',
       intentTag: 'retirement_choice',
       behavior: ScreenBehavior.decisionCanvas,
@@ -33,14 +33,14 @@ InMemoryScreenRegistry _testRegistry() {
       prefillFromProfile: true,
     ),
     // B — Decision Canvas: requires canton + netIncome
-    const ScreenEntry(
+    ScreenEntry(
       route: '/fiscal',
       intentTag: 'cantonal_comparison',
       behavior: ScreenBehavior.decisionCanvas,
       requiredFields: ['canton', 'netIncome'],
     ),
     // B — Decision Canvas: requires salary + canton
-    const ScreenEntry(
+    ScreenEntry(
       route: '/mortgage/affordability',
       intentTag: 'housing_purchase',
       behavior: ScreenBehavior.decisionCanvas,
@@ -48,7 +48,7 @@ InMemoryScreenRegistry _testRegistry() {
       optionalFields: ['epargne'],
     ),
     // B — Decision Canvas: requires rachatMaximum (non-critical → partial)
-    const ScreenEntry(
+    ScreenEntry(
       route: '/lpp-deep/rachat',
       intentTag: 'lpp_rachat',
       behavior: ScreenBehavior.decisionCanvas,
@@ -56,7 +56,7 @@ InMemoryScreenRegistry _testRegistry() {
       optionalFields: ['avoirLpp'],
     ),
     // B — Decision Canvas: requires age + canton (for 3a)
-    const ScreenEntry(
+    ScreenEntry(
       route: '/3a-deep/staggered-withdrawal',
       intentTag: 'tax_optimization_3a',
       behavior: ScreenBehavior.decisionCanvas,
@@ -64,27 +64,27 @@ InMemoryScreenRegistry _testRegistry() {
       optionalFields: ['avoirLpp'],
     ),
     // C — Roadmap Flow: no required fields
-    const ScreenEntry(
+    ScreenEntry(
       route: '/naissance',
       intentTag: 'life_event_birth',
       behavior: ScreenBehavior.roadmapFlow,
     ),
     // C — Roadmap Flow: requires civilStatus (non-critical)
-    const ScreenEntry(
+    ScreenEntry(
       route: '/divorce',
       intentTag: 'life_event_divorce',
       behavior: ScreenBehavior.roadmapFlow,
       requiredFields: ['civilStatus'],
     ),
     // B — Decision Canvas: requires salary + employmentStatus
-    const ScreenEntry(
+    ScreenEntry(
       route: '/invalidite',
       intentTag: 'disability_gap',
       behavior: ScreenBehavior.decisionCanvas,
       requiredFields: ['salaireBrut', 'employmentStatus'],
     ),
     // B — budget: requires netIncome, fallback to onboarding
-    const ScreenEntry(
+    ScreenEntry(
       route: '/budget',
       intentTag: 'budget_overview',
       behavior: ScreenBehavior.decisionCanvas,
@@ -92,13 +92,13 @@ InMemoryScreenRegistry _testRegistry() {
       fallbackRoute: '/onboarding/quick-start',
     ),
     // A — Direct Answer: never opens a screen
-    const ScreenEntry(
+    ScreenEntry(
       route: '',
       intentTag: 'score_query',
       behavior: ScreenBehavior.directAnswer,
     ),
     // D — Capture: not routable from chat
-    const ScreenEntry(
+    ScreenEntry(
       route: '/documents',
       intentTag: 'document_scan',
       behavior: ScreenBehavior.captureUtility,

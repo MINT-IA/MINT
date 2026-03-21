@@ -20,7 +20,7 @@ void main() {
 
   group('ScreenReturn — construction', () {
     test('completed outcome with all fields', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/rente-vs-capital',
         outcome: ScreenOutcome.completed,
         updatedFields: {'prevoyance.avoirLppTotal': 70377.0},
@@ -36,7 +36,7 @@ void main() {
     });
 
     test('abandoned outcome with null optional fields', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/budget',
         outcome: ScreenOutcome.abandoned,
       );
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('changedInputs outcome', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/fiscal',
         outcome: ScreenOutcome.changedInputs,
         updatedFields: {'canton': 'GE', 'salaireBrutMensuel': 95000.0},
@@ -64,7 +64,7 @@ void main() {
 
   group('ScreenReturn — convenience constructors', () {
     test('ScreenReturn.completed sets correct outcome', () {
-      final r = ScreenReturn.completed(
+      const r = ScreenReturn.completed(
         route: '/3a-deep/staggered-withdrawal',
         updatedFields: {'prevoyance.avoir3aTotal': 32000.0},
         confidenceDelta: 0.1,
@@ -79,7 +79,7 @@ void main() {
     });
 
     test('ScreenReturn.abandoned sets correct outcome and all nulls', () {
-      final r = ScreenReturn.abandoned(route: '/divorce');
+      const r = ScreenReturn.abandoned(route: '/divorce');
 
       expect(r.outcome, ScreenOutcome.abandoned);
       expect(r.route, '/divorce');
@@ -89,7 +89,7 @@ void main() {
     });
 
     test('ScreenReturn.changedInputs sets correct outcome', () {
-      final r = ScreenReturn.changedInputs(
+      const r = ScreenReturn.changedInputs(
         route: '/budget',
         updatedFields: {'salaireBrutMensuel': 80000.0},
         confidenceDelta: 0.0,
@@ -102,12 +102,12 @@ void main() {
 
   group('ScreenReturn — computed properties', () {
     test('hasUpdates is false when updatedFields is null', () {
-      final r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.abandoned);
+      const r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.abandoned);
       expect(r.hasUpdates, isFalse);
     });
 
     test('hasUpdates is false when updatedFields is empty', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/budget',
         outcome: ScreenOutcome.completed,
         updatedFields: {},
@@ -116,7 +116,7 @@ void main() {
     });
 
     test('hasUpdates is true when updatedFields has entries', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/budget',
         outcome: ScreenOutcome.completed,
         updatedFields: {'canton': 'VS'},
@@ -125,12 +125,12 @@ void main() {
     });
 
     test('hasConfidenceDelta is false when confidenceDelta is null', () {
-      final r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
       expect(r.hasConfidenceDelta, isFalse);
     });
 
     test('hasConfidenceDelta is false when confidenceDelta is zero', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/budget',
         outcome: ScreenOutcome.completed,
         confidenceDelta: 0.0,
@@ -139,7 +139,7 @@ void main() {
     });
 
     test('hasConfidenceDelta is true for non-zero delta', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/budget',
         outcome: ScreenOutcome.completed,
         confidenceDelta: -0.1,
@@ -148,12 +148,12 @@ void main() {
     });
 
     test('hasNextCap is false when nextCapSuggestion is null', () {
-      final r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
       expect(r.hasNextCap, isFalse);
     });
 
     test('hasNextCap is false when nextCapSuggestion is empty string', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/budget',
         outcome: ScreenOutcome.completed,
         nextCapSuggestion: '',
@@ -162,7 +162,7 @@ void main() {
     });
 
     test('hasNextCap is true for non-empty suggestion', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/budget',
         outcome: ScreenOutcome.completed,
         nextCapSuggestion: 'objectif_3a',
@@ -201,7 +201,7 @@ void main() {
 
   group('ScreenReturn — toString', () {
     test('includes route and outcome', () {
-      final r = ScreenReturn(
+      const r = ScreenReturn(
         route: '/rente-vs-capital',
         outcome: ScreenOutcome.completed,
       );

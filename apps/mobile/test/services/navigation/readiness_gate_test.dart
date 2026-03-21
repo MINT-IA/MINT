@@ -168,7 +168,7 @@ void main() {
     });
 
     test('blocked() has level=blocked and both missing lists', () {
-      final r =
+      const r =
           ReadinessResult.blocked(['salaireBrut', 'age'], ['salaireBrut']);
       expect(r.level, ReadinessLevel.blocked);
       expect(r.missingFields, containsAll(['salaireBrut', 'age']));
@@ -307,7 +307,7 @@ void main() {
   group('Field: avoirLpp (non-critical)', () {
     test('avoirLpp missing → partial (not blocked)', () {
       // partialProfile has no LPP data
-      final entry = ScreenEntry(
+      const entry = ScreenEntry(
         route: '/rente-vs-capital',
         intentTag: 'retirement_choice',
         behavior: ScreenBehavior.decisionCanvas,
@@ -337,7 +337,7 @@ void main() {
 
     test('critical present, non-critical missing → partial', () {
       // partialProfile has salaireBrut + canton + age, but no avoirLpp
-      final entry = ScreenEntry(
+      const entry = ScreenEntry(
         route: '/rente-vs-capital',
         intentTag: 'retirement_choice',
         behavior: ScreenBehavior.decisionCanvas,
@@ -380,7 +380,7 @@ void main() {
     });
 
     test('rente-vs-capital (salary + age) → blocked (no salary)', () {
-      final entry = ScreenEntry(
+      const entry = ScreenEntry(
         route: '/rente-vs-capital',
         intentTag: 'retirement_choice',
         behavior: ScreenBehavior.decisionCanvas,
@@ -392,7 +392,7 @@ void main() {
     });
 
     test('tax_optimization_3a (age + canton) → ready', () {
-      final entry = ScreenEntry(
+      const entry = ScreenEntry(
         route: '/3a-deep/staggered-withdrawal',
         intentTag: 'tax_optimization_3a',
         behavior: ScreenBehavior.decisionCanvas,
