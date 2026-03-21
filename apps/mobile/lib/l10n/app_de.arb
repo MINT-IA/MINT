@@ -2619,7 +2619,7 @@
   "naissanceCongeEducational": "Die Schweiz hat den Vaterschaftsurlaub erst 2021 eingeführt. Mit 2 Wochen ist er einer der kürzesten in Europa. Der Mutterschaftsurlaub (14 Wochen) besteht seit 2005.",
   "naissanceCanton": "Kanton",
   "naissanceNbEnfants": "Anzahl Kinder",
-  "naissanceRanking26": "RANGLISTE 26 KANTONE",
+  "naissanceRanking26": "FAMILIENZULAGEN PRO KANTON",
   "naissanceBestCanton": "{canton} bietet eine der grosszügigsten Familienzulagen der Schweiz!",
   "@naissanceBestCanton": {
     "placeholders": {
@@ -9070,5 +9070,15 @@
   },
 
   "seasonalEventCta": "Mit dem Coach besprechen",
-  "communityChallengeCta": "Herausforderung annehmen"
+  "communityChallengeCta": "Herausforderung annehmen",
+
+  "dossierExpertSectionTitle": "Fachperson konsultieren",
+  "expertPrepareDossierCta": "Meine Unterlagen vorbereiten",
+  "dossierAgentSectionTitle": "Vorbereitete Dokumente",
+  "agentFormsTaxCta": "Steuererklärung vorbereiten",
+  "agentFormsTaxSubtitle": "Vorab ausgefüllt aus deinem Profil",
+  "agentFormsAvsCta": "AHV-Auszug anfordern",
+  "agentFormsAvsSubtitle": "Briefvorlage zum Versenden bereit",
+  "agentFormsLppCta": "BVG-Übertrag beantragen",
+  "agentFormsLppSubtitle": "Freizügigkeits-Übertragungsbrief"
 }

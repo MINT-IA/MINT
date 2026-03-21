@@ -2619,7 +2619,7 @@
   "naissanceCongeEducational": "A Suíça só introduziu a licença de paternidade em 2021. Com 2 semanas, continua a ser uma das mais curtas da Europa. A licença de maternidade (14 semanas) existe desde 2005.",
   "naissanceCanton": "Cantão",
   "naissanceNbEnfants": "Número de filhos",
-  "naissanceRanking26": "CLASSIFICAÇÃO 26 CANTÕES",
+  "naissanceRanking26": "SUBSÍDIOS POR CANTÃO",
   "naissanceBestCanton": "{canton} oferece um dos abonos de família mais vantajosos da Suíça!",
   "@naissanceBestCanton": {
     "placeholders": {
@@ -8772,5 +8772,15 @@
   },
 
   "seasonalEventCta": "Falar com o coach",
-  "communityChallengeCta": "Aceitar o desafio"
+  "communityChallengeCta": "Aceitar o desafio",
+
+  "dossierExpertSectionTitle": "Consultar um·a especialista",
+  "expertPrepareDossierCta": "Preparar o meu dossier",
+  "dossierAgentSectionTitle": "Documentos preparados",
+  "agentFormsTaxCta": "Preparar a minha declaração",
+  "agentFormsTaxSubtitle": "Pré-preenchido a partir do teu perfil",
+  "agentFormsAvsCta": "Solicitar o meu extrato AVS",
+  "agentFormsAvsSubtitle": "Modelo de carta pronto a enviar",
+  "agentFormsLppCta": "Solicitar transferência LPP",
+  "agentFormsLppSubtitle": "Carta de transferência de livre passagem"
 }

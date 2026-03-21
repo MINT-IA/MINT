@@ -2619,7 +2619,7 @@
   "naissanceCongeEducational": "Switzerland only introduced paternity leave in 2021. At 2 weeks, it remains one of the shortest in Europe. Maternity leave (14 weeks) has existed since 2005.",
   "naissanceCanton": "Canton",
   "naissanceNbEnfants": "Number of children",
-  "naissanceRanking26": "26 CANTONS RANKING",
+  "naissanceRanking26": "ALLOWANCES BY CANTON",
   "naissanceBestCanton": "{canton} offers some of the most generous family allowances in Switzerland!",
   "@naissanceBestCanton": {
     "placeholders": {
@@ -9092,5 +9092,15 @@
   },
 
   "seasonalEventCta": "Discuss with coach",
-  "communityChallengeCta": "Take up the challenge"
+  "communityChallengeCta": "Take up the challenge",
+
+  "dossierExpertSectionTitle": "Consult a specialist",
+  "expertPrepareDossierCta": "Prepare my dossier",
+  "dossierAgentSectionTitle": "Prepared documents",
+  "agentFormsTaxCta": "Prepare my tax return",
+  "agentFormsTaxSubtitle": "Pre-filled from your profile",
+  "agentFormsAvsCta": "Request my AVS extract",
+  "agentFormsAvsSubtitle": "Letter template ready to send",
+  "agentFormsLppCta": "Request LPP transfer",
+  "agentFormsLppSubtitle": "Vested benefits transfer letter"
 }

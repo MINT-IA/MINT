@@ -5649,7 +5649,7 @@ class SEn extends S {
   String get naissanceNbEnfants => 'Number of children';
 
   @override
-  String get naissanceRanking26 => '26 CANTONS RANKING';
+  String get naissanceRanking26 => 'ALLOWANCES BY CANTON';
 
   @override
   String naissanceBestCanton(String canton) {
@@ -20152,4 +20152,31 @@ class SEn extends S {
 
   @override
   String get communityChallengeCta => 'Take up the challenge';
+
+  @override
+  String get dossierExpertSectionTitle => 'Consult a specialist';
+
+  @override
+  String get expertPrepareDossierCta => 'Prepare my dossier';
+
+  @override
+  String get dossierAgentSectionTitle => 'Prepared documents';
+
+  @override
+  String get agentFormsTaxCta => 'Prepare my tax return';
+
+  @override
+  String get agentFormsTaxSubtitle => 'Pre-filled from your profile';
+
+  @override
+  String get agentFormsAvsCta => 'Request my AVS extract';
+
+  @override
+  String get agentFormsAvsSubtitle => 'Letter template ready to send';
+
+  @override
+  String get agentFormsLppCta => 'Request LPP transfer';
+
+  @override
+  String get agentFormsLppSubtitle => 'Vested benefits transfer letter';
 }

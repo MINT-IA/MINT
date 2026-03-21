@@ -879,6 +879,57 @@ class MintScreenRegistry extends ScreenRegistry {
     preferFromChat: false,
   );
 
+  // ── S65 — Expert Tier ────────────────────────────────────────
+
+  /// Opens the coach chat with a consult-specialist intent pre-loaded.
+  ///
+  /// Behavior E: no dedicated screen — the coach narrates and suggests
+  /// the relevant AdvisorSpecialization based on profile.
+  static const ScreenEntry _consultSpecialist = ScreenEntry(
+    route: '/coach/chat?prompt=specialist',
+    intentTag: 'consult_specialist',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['age', 'canton', 'salaireBrut'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  // ── S68 — Agent Autonome ─────────────────────────────────────
+
+  /// Agent autonome: coach walks the user through tax declaration prep.
+  static const ScreenEntry _prepareTaxForm = ScreenEntry(
+    route: '/coach/chat?prompt=tax_declaration',
+    intentTag: 'prepare_tax_form',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['salaireBrut', 'canton', 'employmentStatus'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  /// Agent autonome: coach generates the AVS extract request letter.
+  static const ScreenEntry _prepareAvsLetter = ScreenEntry(
+    route: '/coach/chat?prompt=avs_extract',
+    intentTag: 'prepare_avs_letter',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['age', 'canton'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  /// Agent autonome: coach generates the LPP transfer letter.
+  static const ScreenEntry _prepareLppTransfer = ScreenEntry(
+    route: '/coach/chat?prompt=lpp_transfer',
+    intentTag: 'prepare_lpp_transfer',
+    behavior: ScreenBehavior.conversationPure,
+    requiredFields: [],
+    optionalFields: ['avoirLpp'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
   // ════════════════════════════════════════════════════════════════
   //  MASTER LIST — all surfaces
   // ════════════════════════════════════════════════════════════════
@@ -964,6 +1015,12 @@ class MintScreenRegistry extends ScreenRegistry {
     _landing,
     _coachChat,
     _achievements,
+    // S65 — Expert Tier
+    _consultSpecialist,
+    // S68 — Agent Autonome
+    _prepareTaxForm,
+    _prepareAvsLetter,
+    _prepareLppTransfer,
   ];
 
   // ════════════════════════════════════════════════════════════════

@@ -9,12 +9,13 @@ import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
+import 'package:mint_mobile/services/voice/regional_voice_service.dart';
 
 // ────────────────────────────────────────────────────────────
-//  CONTEXT INJECTOR SERVICE TESTS — S58
+//  CONTEXT INJECTOR SERVICE TESTS — S58 / S61 regional voice
 // ────────────────────────────────────────────────────────────
 //
-// 10 tests covering:
+// 17 tests covering:
 //   - Full enriched context with profile + goals + conversations
 //   - No profile → lifecycle absent
 //   - Empty state → minimal delimiters
@@ -23,6 +24,7 @@ import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
 //   - Conversation history section present
 //   - EnrichedContext fields populated correctly
 //   - Edge cases: completed goals excluded, empty conversations
+//   - Regional voice injection: VS/GE/ZH/null canton
 // ────────────────────────────────────────────────────────────
 
 void main() {
@@ -453,6 +455,103 @@ void main() {
       expect(ctx.memoryBlock, contains('NUDGES ACTIFS'));
       // Route slug should appear in block
       expect(ctx.memoryBlock, contains('/pilier-3a'));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 14: Regional voice — Suisse romande (VS) profile
+    // ════════════════════════════════════════════════════════════
+
+    test('VS profile injects romande regional voice into memoryBlock',
+        () async {
+      // VS = Suisse romande → RegionalVoiceService returns romande flavor.
+      // The promptAddition is non-empty for romande → injected in memoryBlock.
+      final profile = makeProfile(birthYear: 1977, canton: 'VS');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      final flavor = RegionalVoiceService.forCanton('VS');
+      expect(flavor.region, equals(SwissRegion.romande));
+      expect(flavor.promptAddition, isNotEmpty);
+
+      // The memory block must embed the regional prompt addition.
+      expect(ctx.memoryBlock, contains(flavor.promptAddition));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 15: Regional voice — Deutschschweiz (ZH) profile
+    // ════════════════════════════════════════════════════════════
+
+    test('ZH profile injects deutschschweiz regional voice into memoryBlock',
+        () async {
+      final profile = makeProfile(birthYear: 1985, canton: 'ZH');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      final flavor = RegionalVoiceService.forCanton('ZH');
+      expect(flavor.region, equals(SwissRegion.deutschschweiz));
+      expect(flavor.promptAddition, isNotEmpty);
+      expect(ctx.memoryBlock, contains(flavor.promptAddition));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 16: Regional voice — Svizzera italiana (TI) profile
+    // ════════════════════════════════════════════════════════════
+
+    test('TI profile injects italiana regional voice into memoryBlock',
+        () async {
+      final profile = makeProfile(birthYear: 1990, canton: 'TI');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      final flavor = RegionalVoiceService.forCanton('TI');
+      expect(flavor.region, equals(SwissRegion.italiana));
+      expect(flavor.promptAddition, isNotEmpty);
+      expect(ctx.memoryBlock, contains(flavor.promptAddition));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 17: Regional voice — empty canton → no regional block
+    // ════════════════════════════════════════════════════════════
+
+    test('empty canton produces no regional flavor injection in memoryBlock',
+        () async {
+      // Empty canton → unknown region → promptAddition is empty → block omitted.
+      final profile = makeProfile(birthYear: 1985, canton: '');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      final flavor = RegionalVoiceService.forCanton('');
+      expect(flavor.region, equals(SwissRegion.unknown));
+      expect(flavor.promptAddition, isEmpty);
+
+      // None of the region-specific markers should appear.
+      expect(ctx.memoryBlock, isNot(contains('septante')));
+      expect(ctx.memoryBlock, isNot(contains('Bitzeli')));
+      expect(ctx.memoryBlock, isNot(contains('grotto')));
     });
   });
 }

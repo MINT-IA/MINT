@@ -3,9 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/benchmark/benchmark_comparison_service.dart';
 import 'package:mint_mobile/services/benchmark/benchmark_opt_in_service.dart';
+import 'package:mint_mobile/services/expert/advisor_specialization.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -165,6 +167,20 @@ class _DossierTabState extends State<DossierTab> {
                       : _BenchmarkOptInCard(onOptIn: _enableBenchmark),
                   const SizedBox(height: MintSpacing.xl),
                 ],
+
+                // ═══════════════════════════════════════
+                //  Consulter un·e spécialiste (S65)
+                // ═══════════════════════════════════════
+                _ExpertTierSection(provider: provider),
+
+                const SizedBox(height: MintSpacing.xl),
+
+                // ═══════════════════════════════════════
+                //  Documents préparés — Agent Autonome (S68)
+                // ═══════════════════════════════════════
+                const _AgentAutonomeSection(),
+
+                const SizedBox(height: MintSpacing.xl),
 
                 // ═══════════════════════════════════════
                 //  Réglages
@@ -396,6 +412,222 @@ class _BenchmarkInsightsCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Expert Tier Section (S65) ──────────────────────────────────────────────
+
+/// Shows the "Consulter un·e spécialiste" section.
+///
+/// Displays the suggested [AdvisorSpecialization] chips based on the user's
+/// profile (e.g. retirement if age > 55, divorce if civil status is divorced).
+/// The CTA routes to the coach chat with the `specialist` prompt pre-loaded.
+///
+/// Design: MintSurface blanc, section label above, chevron CTA below chips.
+class _ExpertTierSection extends StatelessWidget {
+  final CoachProfileProvider provider;
+
+  const _ExpertTierSection({required this.provider});
+
+  /// Derive up to 3 suggested specializations from the profile.
+  List<AdvisorSpecialization> _suggestedSpecs(BuildContext context) {
+    if (!provider.hasProfile) return [AdvisorSpecialization.retirement];
+    final profile = provider.profile!;
+    final age = DateTime.now().year - profile.birthYear;
+    final suggestions = <AdvisorSpecialization>[];
+
+    // Retirement priority for users approaching retirement age.
+    if (age >= 45) suggestions.add(AdvisorSpecialization.retirement);
+
+    // Divorce / separation situation.
+    if (profile.etatCivil == CoachCivilStatus.divorce) {
+      suggestions.add(AdvisorSpecialization.divorce);
+    }
+
+    // Tax optimization if LPP buyback potential.
+    if ((profile.prevoyance.lacuneRachatRestante) > 0) {
+      suggestions.add(AdvisorSpecialization.taxOptimization);
+    }
+
+    // Real estate if high equity or existing mortgage.
+    if (profile.patrimoine.immobilierEffectif > 0 ||
+        (profile.patrimoine.epargneLiquide + profile.patrimoine.investissements) >
+            100000) {
+      if (!suggestions.contains(AdvisorSpecialization.taxOptimization)) {
+        suggestions.add(AdvisorSpecialization.realEstate);
+      }
+    }
+
+    // Succession for users with patrimoine or children.
+    if (profile.patrimoine.totalPatrimoine > 200000 || profile.nombreEnfants > 0) {
+      if (suggestions.length < 3) suggestions.add(AdvisorSpecialization.succession);
+    }
+
+    // Self-employment specialization.
+    if (profile.employmentStatus == 'independant') {
+      suggestions.insert(0, AdvisorSpecialization.selfEmployment);
+    }
+
+    // Expat flag.
+    if (profile.archetype == FinancialArchetype.expatUs ||
+        profile.archetype == FinancialArchetype.expatEu ||
+        profile.archetype == FinancialArchetype.expatNonEu) {
+      if (suggestions.length < 3) suggestions.add(AdvisorSpecialization.expatriation);
+    }
+
+    if (suggestions.isEmpty) suggestions.add(AdvisorSpecialization.retirement);
+    return suggestions.take(3).toList();
+  }
+
+  String _specLabel(AdvisorSpecialization spec, S l) {
+    return switch (spec) {
+      AdvisorSpecialization.retirement => l.expertSpecRetirement,
+      AdvisorSpecialization.succession => l.expertSpecSuccession,
+      AdvisorSpecialization.expatriation => l.expertSpecExpatriation,
+      AdvisorSpecialization.divorce => l.expertSpecDivorce,
+      AdvisorSpecialization.selfEmployment => l.expertSpecSelfEmployment,
+      AdvisorSpecialization.realEstate => l.expertSpecRealEstate,
+      AdvisorSpecialization.taxOptimization => l.expertSpecTax,
+      AdvisorSpecialization.debtManagement => l.expertSpecDebt,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final specs = _suggestedSpecs(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: MintSpacing.xs,
+            bottom: MintSpacing.sm,
+          ),
+          child: Text(
+            l.dossierExpertSectionTitle,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+          ),
+        ),
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
+          padding: const EdgeInsets.all(MintSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.expertSubtitle,
+                style: MintTextStyles.bodySmall(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Wrap(
+                spacing: MintSpacing.xs,
+                runSpacing: MintSpacing.xs,
+                children: specs
+                    .map(
+                      (spec) => Chip(
+                        label: Text(
+                          _specLabel(spec, l),
+                          style: MintTextStyles.labelSmall(
+                            color: MintColors.textPrimary,
+                          ),
+                        ),
+                        backgroundColor:
+                            MintColors.primary.withValues(alpha: 0.08),
+                        side: BorderSide.none,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: MintSpacing.xs,
+                        ),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              Divider(
+                height: 1,
+                color: MintColors.textPrimary.withValues(alpha: 0.05),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              _DossierRow(
+                icon: Icons.person_search_outlined,
+                title: l.expertPrepareDossierCta,
+                subtitle: l.expertDisclaimer,
+                onTap: () => context.push('/coach/chat?prompt=specialist'),
+                showDivider: false,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Agent Autonome Section (S68) ───────────────────────────────────────────
+
+/// Shows the "Documents préparés" section.
+///
+/// Three rows — tax declaration, AVS extract letter, LPP transfer letter —
+/// each routing to the coach chat with the appropriate pre-loaded prompt.
+/// The coach generates the document via [FormPrefillService] /
+/// [LetterGenerationService] during the conversation.
+///
+/// No services are called here: wiring is purely navigational.
+/// Actual generation happens in the coach chat tool pipeline.
+class _AgentAutonomeSection extends StatelessWidget {
+  const _AgentAutonomeSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: MintSpacing.xs,
+            bottom: MintSpacing.sm,
+          ),
+          child: Text(
+            l.dossierAgentSectionTitle,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+          ),
+        ),
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+          child: Column(
+            children: [
+              _DossierRow(
+                icon: Icons.receipt_long_outlined,
+                title: l.agentFormsTaxCta,
+                subtitle: l.agentFormsTaxSubtitle,
+                onTap: () =>
+                    context.push('/coach/chat?prompt=tax_declaration'),
+              ),
+              _DossierRow(
+                icon: Icons.assignment_ind_outlined,
+                title: l.agentFormsAvsCta,
+                subtitle: l.agentFormsAvsSubtitle,
+                onTap: () => context.push('/coach/chat?prompt=avs_extract'),
+              ),
+              _DossierRow(
+                icon: Icons.send_outlined,
+                title: l.agentFormsLppCta,
+                subtitle: l.agentFormsLppSubtitle,
+                onTap: () => context.push('/coach/chat?prompt=lpp_transfer'),
+                showDivider: false,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

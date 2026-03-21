@@ -2619,7 +2619,7 @@
   "naissanceCongeEducational": "La Svizzera ha introdotto il congedo di paternità solo nel 2021. Con 2 settimane, resta uno dei più brevi d'Europa. Il congedo di maternità (14 settimane) esiste dal 2005.",
   "naissanceCanton": "Cantone",
   "naissanceNbEnfants": "Numero di figli",
-  "naissanceRanking26": "CLASSIFICA 26 CANTONI",
+  "naissanceRanking26": "ASSEGNI PER CANTONE",
   "naissanceBestCanton": "{canton} offre tra gli assegni familiari più vantaggiosi della Svizzera!",
   "@naissanceBestCanton": {
     "placeholders": {
@@ -8772,5 +8772,15 @@
   },
 
   "seasonalEventCta": "Parlarne con il coach",
-  "communityChallengeCta": "Accettare la sfida"
+  "communityChallengeCta": "Accettare la sfida",
+
+  "dossierExpertSectionTitle": "Consultare uno·a specialista",
+  "expertPrepareDossierCta": "Preparare il mio dossier",
+  "dossierAgentSectionTitle": "Documenti preparati",
+  "agentFormsTaxCta": "Preparare la mia dichiarazione",
+  "agentFormsTaxSubtitle": "Pre-compilato dal tuo profilo",
+  "agentFormsAvsCta": "Richiedere il mio estratto AVS",
+  "agentFormsAvsSubtitle": "Modello di lettera pronto per l'invio",
+  "agentFormsLppCta": "Richiedere il trasferimento LPP",
+  "agentFormsLppSubtitle": "Lettera di trasferimento del libero passaggio"
 }

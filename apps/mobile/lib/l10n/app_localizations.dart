@@ -10288,7 +10288,7 @@ abstract class S {
   /// No description provided for @naissanceRanking26.
   ///
   /// In fr, this message translates to:
-  /// **'CLASSEMENT 26 CANTONS'**
+  /// **'ALLOCATIONS PAR CANTON'**
   String get naissanceRanking26;
 
   /// No description provided for @naissanceBestCanton.
@@ -35787,6 +35787,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Relever le défi'**
   String get communityChallengeCta;
+
+  /// No description provided for @dossierExpertSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get dossierExpertSectionTitle;
+
+  /// No description provided for @expertPrepareDossierCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer mon dossier'**
+  String get expertPrepareDossierCta;
+
+  /// No description provided for @dossierAgentSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documents préparés'**
+  String get dossierAgentSectionTitle;
+
+  /// No description provided for @agentFormsTaxCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer ma déclaration'**
+  String get agentFormsTaxCta;
+
+  /// No description provided for @agentFormsTaxSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pré-remplissage depuis ton profil'**
+  String get agentFormsTaxSubtitle;
+
+  /// No description provided for @agentFormsAvsCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander mon extrait AVS'**
+  String get agentFormsAvsCta;
+
+  /// No description provided for @agentFormsAvsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre prêt à envoyer'**
+  String get agentFormsAvsSubtitle;
+
+  /// No description provided for @agentFormsLppCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander un transfert LPP'**
+  String get agentFormsLppCta;
+
+  /// No description provided for @agentFormsLppSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lettre de transfert de libre passage'**
+  String get agentFormsLppSubtitle;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

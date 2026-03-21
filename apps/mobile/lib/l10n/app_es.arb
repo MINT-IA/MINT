@@ -2619,7 +2619,7 @@
   "naissanceCongeEducational": "Suiza introdujo el permiso de paternidad recién en 2021. Con 2 semanas, sigue siendo uno de los más cortos de Europa. El permiso de maternidad (14 semanas) existe desde 2005.",
   "naissanceCanton": "Cantón",
   "naissanceNbEnfants": "Número de hijos",
-  "naissanceRanking26": "CLASIFICACIÓN 26 CANTONES",
+  "naissanceRanking26": "SUBSIDIOS POR CANTÓN",
   "naissanceBestCanton": "¡{canton} ofrece una de las asignaciones familiares más ventajosas de Suiza!",
   "@naissanceBestCanton": {
     "placeholders": {
@@ -8855,5 +8855,15 @@
   },
 
   "seasonalEventCta": "Hablar con el coach",
-  "communityChallengeCta": "Aceptar el reto"
+  "communityChallengeCta": "Aceptar el reto",
+
+  "dossierExpertSectionTitle": "Consultar a un·a especialista",
+  "expertPrepareDossierCta": "Preparar mi expediente",
+  "dossierAgentSectionTitle": "Documentos preparados",
+  "agentFormsTaxCta": "Preparar mi declaración",
+  "agentFormsTaxSubtitle": "Pre-relleno desde tu perfil",
+  "agentFormsAvsCta": "Solicitar mi extracto AVS",
+  "agentFormsAvsSubtitle": "Plantilla de carta lista para enviar",
+  "agentFormsLppCta": "Solicitar transferencia LPP",
+  "agentFormsLppSubtitle": "Carta de transferencia de libre paso"
 }

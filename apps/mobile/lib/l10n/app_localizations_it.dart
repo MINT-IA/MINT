@@ -5696,7 +5696,7 @@ class SIt extends S {
   String get naissanceNbEnfants => 'Numero di figli';
 
   @override
-  String get naissanceRanking26 => 'CLASSIFICA 26 CANTONI';
+  String get naissanceRanking26 => 'ASSEGNI PER CANTONE';
 
   @override
   String naissanceBestCanton(String canton) {
@@ -20271,4 +20271,32 @@ class SIt extends S {
 
   @override
   String get communityChallengeCta => 'Accettare la sfida';
+
+  @override
+  String get dossierExpertSectionTitle => 'Consultare uno·a specialista';
+
+  @override
+  String get expertPrepareDossierCta => 'Preparare il mio dossier';
+
+  @override
+  String get dossierAgentSectionTitle => 'Documenti preparati';
+
+  @override
+  String get agentFormsTaxCta => 'Preparare la mia dichiarazione';
+
+  @override
+  String get agentFormsTaxSubtitle => 'Pre-compilato dal tuo profilo';
+
+  @override
+  String get agentFormsAvsCta => 'Richiedere il mio estratto AVS';
+
+  @override
+  String get agentFormsAvsSubtitle => 'Modello di lettera pronto per l\'invio';
+
+  @override
+  String get agentFormsLppCta => 'Richiedere il trasferimento LPP';
+
+  @override
+  String get agentFormsLppSubtitle =>
+      'Lettera di trasferimento del libero passaggio';
 }

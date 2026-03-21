@@ -5673,7 +5673,7 @@ class SFr extends S {
   String get naissanceNbEnfants => 'Nombre d\'enfants';
 
   @override
-  String get naissanceRanking26 => 'CLASSEMENT 26 CANTONS';
+  String get naissanceRanking26 => 'ALLOCATIONS PAR CANTON';
 
   @override
   String naissanceBestCanton(String canton) {
@@ -20249,4 +20249,31 @@ class SFr extends S {
 
   @override
   String get communityChallengeCta => 'Relever le défi';
+
+  @override
+  String get dossierExpertSectionTitle => 'Consulter un·e spécialiste';
+
+  @override
+  String get expertPrepareDossierCta => 'Préparer mon dossier';
+
+  @override
+  String get dossierAgentSectionTitle => 'Documents préparés';
+
+  @override
+  String get agentFormsTaxCta => 'Préparer ma déclaration';
+
+  @override
+  String get agentFormsTaxSubtitle => 'Pré-remplissage depuis ton profil';
+
+  @override
+  String get agentFormsAvsCta => 'Demander mon extrait AVS';
+
+  @override
+  String get agentFormsAvsSubtitle => 'Modèle de lettre prêt à envoyer';
+
+  @override
+  String get agentFormsLppCta => 'Demander un transfert LPP';
+
+  @override
+  String get agentFormsLppSubtitle => 'Lettre de transfert de libre passage';
 }

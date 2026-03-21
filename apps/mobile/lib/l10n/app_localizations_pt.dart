@@ -5681,7 +5681,7 @@ class SPt extends S {
   String get naissanceNbEnfants => 'Número de filhos';
 
   @override
-  String get naissanceRanking26 => 'CLASSIFICAÇÃO 26 CANTÕES';
+  String get naissanceRanking26 => 'SUBSÍDIOS POR CANTÃO';
 
   @override
   String naissanceBestCanton(String canton) {
@@ -20198,4 +20198,32 @@ class SPt extends S {
 
   @override
   String get communityChallengeCta => 'Aceitar o desafio';
+
+  @override
+  String get dossierExpertSectionTitle => 'Consultar um·a especialista';
+
+  @override
+  String get expertPrepareDossierCta => 'Preparar o meu dossier';
+
+  @override
+  String get dossierAgentSectionTitle => 'Documentos preparados';
+
+  @override
+  String get agentFormsTaxCta => 'Preparar a minha declaração';
+
+  @override
+  String get agentFormsTaxSubtitle => 'Pré-preenchido a partir do teu perfil';
+
+  @override
+  String get agentFormsAvsCta => 'Solicitar o meu extrato AVS';
+
+  @override
+  String get agentFormsAvsSubtitle => 'Modelo de carta pronto a enviar';
+
+  @override
+  String get agentFormsLppCta => 'Solicitar transferência LPP';
+
+  @override
+  String get agentFormsLppSubtitle =>
+      'Carta de transferência de livre passagem';
 }

@@ -5688,7 +5688,7 @@ class SDe extends S {
   String get naissanceNbEnfants => 'Anzahl Kinder';
 
   @override
-  String get naissanceRanking26 => 'RANGLISTE 26 KANTONE';
+  String get naissanceRanking26 => 'FAMILIENZULAGEN PRO KANTON';
 
   @override
   String naissanceBestCanton(String canton) {
@@ -20272,4 +20272,31 @@ class SDe extends S {
 
   @override
   String get communityChallengeCta => 'Herausforderung annehmen';
+
+  @override
+  String get dossierExpertSectionTitle => 'Fachperson konsultieren';
+
+  @override
+  String get expertPrepareDossierCta => 'Meine Unterlagen vorbereiten';
+
+  @override
+  String get dossierAgentSectionTitle => 'Vorbereitete Dokumente';
+
+  @override
+  String get agentFormsTaxCta => 'Steuererklärung vorbereiten';
+
+  @override
+  String get agentFormsTaxSubtitle => 'Vorab ausgefüllt aus deinem Profil';
+
+  @override
+  String get agentFormsAvsCta => 'AHV-Auszug anfordern';
+
+  @override
+  String get agentFormsAvsSubtitle => 'Briefvorlage zum Versenden bereit';
+
+  @override
+  String get agentFormsLppCta => 'BVG-Übertrag beantragen';
+
+  @override
+  String get agentFormsLppSubtitle => 'Freizügigkeits-Übertragungsbrief';
 }

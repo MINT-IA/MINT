@@ -1,9 +1,16 @@
 // benchmark_opt_in_test.dart — S60
 //
-// Tests for BenchmarkOptInService:
+// 10 tests for BenchmarkOptInService:
 //   - Default is not opted in
 //   - Opt in persists
 //   - Opt out persists
+//   - Toggle preserves last value
+//   - Pre-seeded prefs respected
+//   - setOptIn never throws
+//   - isOptedIn is idempotent
+//   - opt-in/opt-out cycle
+//   - Compliance: service has no write/transfer side effects
+//   - PrefsKey is correct constant value
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,6 +83,29 @@ void main() {
         BenchmarkOptInService.setOptIn(false, prefs),
         completes,
       );
+    });
+
+    // ── 9. isOptedIn is idempotent (calling it twice gives same result) ───────
+    test('isOptedIn is idempotent — same prefs returns same result', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await BenchmarkOptInService.setOptIn(true, prefs);
+      final r1 = await BenchmarkOptInService.isOptedIn(prefs);
+      final r2 = await BenchmarkOptInService.isOptedIn(prefs);
+      expect(r1, equals(r2));
+      expect(r1, isTrue);
+    });
+
+    // ── 10. opt-in/opt-out cycle ends in correct state ────────────────────────
+    test('full opt-in / opt-out cycle ends opted-out', () async {
+      final prefs = await SharedPreferences.getInstance();
+      // Start opted out (default)
+      expect(await BenchmarkOptInService.isOptedIn(prefs), isFalse);
+      // Opt in
+      await BenchmarkOptInService.setOptIn(true, prefs);
+      expect(await BenchmarkOptInService.isOptedIn(prefs), isTrue);
+      // Opt out
+      await BenchmarkOptInService.setOptIn(false, prefs);
+      expect(await BenchmarkOptInService.isOptedIn(prefs), isFalse);
     });
   });
 }
