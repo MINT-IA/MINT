@@ -9,6 +9,7 @@ import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // =============================================================================
 // SMOKE TESTS — Mortgage Module Screens (5 screens)
@@ -111,21 +112,27 @@ void main() {
       expect(find.textContaining('hypoth'), findsWidgets);
     });
 
-    testWidgets('has Slider widgets for input parameters', (tester) async {
+    testWidgets('has MintPremiumSlider widgets for input parameters', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
+      // Sliders are in SECTION 6 (controls), need deep scroll to reach them
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
+      await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      // Number of sliders may vary; just check some exist
-      expect(find.byType(Slider), findsWidgets);
+      // AffordabilityScreen uses MintPremiumSlider (which wraps Slider)
+      expect(find.byType(MintPremiumSlider), findsWidgets);
     });
 
     testWidgets('has canton dropdown', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
+      // Canton dropdown is inside the parameters section (SECTION 6), deep scroll needed
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
+      await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
