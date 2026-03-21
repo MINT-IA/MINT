@@ -8782,5 +8782,131 @@
   "agentFormsAvsCta": "Richiedere il mio estratto AVS",
   "agentFormsAvsSubtitle": "Modello di lettera pronto per l'invio",
   "agentFormsLppCta": "Richiedere il trasferimento LPP",
-  "agentFormsLppSubtitle": "Lettera di trasferimento del libero passaggio"
+  "agentFormsLppSubtitle": "Lettera di trasferimento del libero passaggio",
+
+  "notifThreeATitle": "Scadenza 3a",
+  "notifThreeA92Days": "Restano 92 giorni per versare sul tuo 3a.",
+  "notifThreeA61Days": "Restano 61 giorni. Risparmio stimato: CHF {saving}.",
+  "@notifThreeA61Days": {
+    "placeholders": {
+      "saving": { "type": "String" }
+    }
+  },
+  "notifThreeALastMonth": "Ultimo mese per il tuo 3a. CHF {saving} di risparmio in gioco.",
+  "@notifThreeALastMonth": {
+    "placeholders": {
+      "saving": { "type": "String" }
+    }
+  },
+  "notifThreeA11Days": "11 giorni. Ultimo promemoria 3a.",
+  "notifNewYearTitle": "Nuovi limiti {year}",
+  "@notifNewYearTitle": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "notifNewYearBody": "Nuovi limiti {year}. Il tuo risparmio potenziale è cambiato.",
+  "@notifNewYearBody": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "notifCheckInTitle": "Check-in mensile",
+  "notifCheckInBody": "Il tuo check-in mensile è disponibile.",
+  "notifTaxTitle": "Dichiarazione fiscale",
+  "notifTax44Days": "Dichiarazione fiscale tra 44 giorni. Inizia a raccogliere i documenti.",
+  "notifTax16Days": "Dichiarazione fiscale tra 16 giorni. Inizia a compilarla.",
+  "notifTaxLastWeek": "Dichiarazione entro il 31 marzo. Ultima settimana.",
+  "notifFriTitle": "Punteggio di solidità",
+  "notifFriCheckIn": "Dal tuo ultimo check-in: {delta} punti.",
+  "@notifFriCheckIn": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "notifFriImproved": "La tua solidità è migliorata di {delta} punti.",
+  "@notifFriImproved": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "notifProfileUpdatedTitle": "Profilo aggiornato",
+  "notifProfileUpdatedBody": "Il tuo profilo è stato aggiornato. Nuove proiezioni disponibili.",
+  "notifOffTrackTitle": "Ti stai allontanando dal tuo piano",
+  "notifOffTrackBody": "Aderenza al {adherence}% su {total} azioni. Stima lineare (senza rendimento/fiscalità): ~CHF {impact}.",
+  "@notifOffTrackBody": {
+    "placeholders": {
+      "adherence": { "type": "String" },
+      "total": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+
+  "agentTaskTaxDeclarationTitle": "Pre-compilazione dichiarazione fiscale",
+  "agentTaskTaxDeclarationDesc": "Stima dei campi principali della tua dichiarazione fiscale basata sul tuo profilo MINT. Tutti gli importi sono approssimativi.",
+  "agentTaskThreeAFormTitle": "Pre-compilazione modulo 3a",
+  "agentTaskThreeAFormDesc": "Informazioni di base per un versamento al pilastro 3. Il limite è calcolato in base al tuo stato occupazionale.",
+  "agentTaskCaisseLetterTitle": "Lettera al fondo pensione",
+  "agentTaskCaisseLetterDesc": "Modello di lettera formale per richiedere un certificato LPP, conferma di riscatto e simulazione di pensionamento anticipato.",
+  "agentTaskFiscalDossierTitle": "Preparazione dossier fiscale",
+  "agentTaskFiscalDossierDesc": "Riepilogo educativo della tua situazione fiscale stimata con deduzioni possibili e domande per uno·a specialista.",
+  "agentTaskAvsExtractTitle": "Richiesta estratto AVS",
+  "agentTaskAvsExtractDesc": "Modello di lettera per richiedere un estratto del conto individuale (CI) alla tua cassa di compensazione AVS.",
+  "agentTaskLppCertificateTitle": "Richiesta certificato LPP",
+  "agentTaskLppCertificateDesc": "Modello di lettera per richiedere un certificato di previdenza professionale aggiornato al tuo fondo pensione.",
+  "agentTaskDisclaimer": "Questo strumento è puramente educativo e non costituisce consulenza finanziaria, fiscale o legale. Gli importi mostrati sono stime indicative. Consulta uno·a specialista qualificato·a prima di qualsiasi decisione. Conforme alla LSFin.",
+  "agentTaskValidationPromptDefault": "Verifica attentamente ogni informazione prima dell'uso. Tutti i campi sono stime da confermare.",
+  "agentTaskValidationPromptLetter": "Verifica le informazioni e completa i campi tra parentesi prima di inviare questa lettera.",
+  "agentTaskValidationPromptRequest": "Verifica le informazioni e completa i campi tra parentesi prima di inviare questa richiesta.",
+  "agentFieldRevenuBrutValue": "~{range}\u00a0CHF/anno",
+  "@agentFieldRevenuBrutValue": {
+    "placeholders": {
+      "range": { "type": "String" }
+    }
+  },
+  "agentFieldRachatLppValue": "~{range}\u00a0CHF",
+  "@agentFieldRachatLppValue": {
+    "placeholders": {
+      "range": { "type": "String" }
+    }
+  },
+  "agentFieldAnneRef": "Anno di riferimento",
+  "agentFieldCaissePension": "Fondo pensione",
+  "agentFieldAddressPerso": "Indirizzo personale",
+  "agentFieldAddresseCaisse": "Indirizzo fondo pensione",
+  "agentFieldNumeroPolice": "Numero di polizza",
+  "agentFieldNumeroAvs": "Numero AVS",
+  "agentFieldAddresseCaisseAvs": "Indirizzo cassa AVS",
+  "agentFiscalDossierRevenu": "Reddito lordo stimato",
+  "agentFiscalDossierPlafond3a": "Limite 3a applicabile",
+  "agentFiscalDossierRachat": "Riscatto LPP disponibile",
+  "agentFiscalDossierCapital3a": "Capitale 3a accumulato",
+
+  "proactiveLifecycleChange": "Sei appena entrato in una nuova fase della vita. Vediamo cosa cambia per te\u00a0?",
+  "proactiveWeeklyRecap": "Il tuo riepilogo settimanale \u00e8 pronto. Vuoi vederlo\u00a0?",
+  "proactiveGoalMilestone": "Il tuo obiettivo ha superato il {progress}\u00a0%. Bravo\u00a0!",
+  "@proactiveGoalMilestone": {
+    "placeholders": {
+      "progress": { "type": "String" }
+    }
+  },
+  "proactiveSeasonalReminder": "\u00c8 la stagione {event}. Un buon momento per\u2026",
+  "@proactiveSeasonalReminder": {
+    "placeholders": {
+      "event": { "type": "String" }
+    }
+  },
+  "proactiveInactivityReturn": "Bentornato\u00a0! Sono passati {days} giorni. Facciamo il punto\u00a0?",
+  "@proactiveInactivityReturn": {
+    "placeholders": {
+      "days": { "type": "String" }
+    }
+  },
+  "proactiveConfidenceUp": "La tua fiducia \u00e8 migliorata di {delta}\u00a0pts dall\u2019ultima volta.",
+  "@proactiveConfidenceUp": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "proactiveNewCap": "Ho una nuova priorit\u00e0 per te."
 }

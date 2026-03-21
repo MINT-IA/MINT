@@ -48,6 +48,7 @@ from app.api.v1.endpoints import (
     confidence,
     household,
     config,
+    knowledge,
 )
 
 api_router = APIRouter()
@@ -178,3 +179,4 @@ api_router.include_router(
 api_router.include_router(
     config.router, prefix="/config", tags=["Config"]
 )
+api_router.include_router(knowledge.router, tags=["Knowledge S67"])

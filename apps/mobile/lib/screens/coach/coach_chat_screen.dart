@@ -36,6 +36,7 @@ import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/voice_service.dart';
 import 'package:mint_mobile/services/llm/provider_health_service.dart';
+import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:mint_mobile/widgets/coach/voice_input_button.dart';
@@ -252,9 +253,43 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final name = p.firstName ?? s.coachFallbackName;
 
     final tier = _currentTier();
-    final String greeting;
 
-    if (tier == ChatTier.slm) {
+    // ── Proactive trigger evaluation ─────────────────────────────
+    // Check if the coach should initiate with a contextual message
+    // instead of the generic greeting. Graceful degradation on error.
+    String? proactiveMessage;
+    String? proactiveIntentTag;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final trigger = await ProactiveTriggerService.evaluate(
+        profile: p,
+        prefs: prefs,
+        now: DateTime.now(),
+      );
+      if (trigger != null && mounted) {
+        proactiveMessage = _resolveProactiveMessage(trigger, s);
+        proactiveIntentTag = trigger.intentTag;
+        // Store current phase and confidence as the new baseline.
+        await ProactiveTriggerService.storeCurrentPhase(p, prefs);
+        await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
+      } else if (trigger == null) {
+        // No trigger — still update baseline if not yet stored.
+        final hasPhase = prefs.getString('_proactive_stored_phase') != null;
+        if (!hasPhase) {
+          await ProactiveTriggerService.storeCurrentPhase(p, prefs);
+          await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
+        }
+      }
+    } catch (_) {
+      // Graceful degradation: greeting works without proactive trigger.
+    }
+
+    // ── Build greeting text ────────────────────────────────────────
+    final String greeting;
+    if (proactiveMessage != null && proactiveMessage.isNotEmpty) {
+      greeting = proactiveMessage;
+    } else if (tier == ChatTier.slm) {
       greeting = s.coachGreetingSlm(name);
     } else {
       final scoreSuffix = _buildGreetingScoreContext(p);
@@ -281,44 +316,60 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ];
     }
 
+    // If a proactive trigger was fired, prepend its intentTag as
+    // the first suggestion chip so the user can act on it directly.
+    if (proactiveIntentTag != null && proactiveIntentTag.isNotEmpty) {
+      // Remove duplicate if already present, then prepend.
+      suggestions.remove(proactiveIntentTag);
+      suggestions = [
+        proactiveIntentTag,
+        ...suggestions.take(3),
+      ];
+    }
+
     // Phase 2: prepend high-priority nudge chips so Claude can reinforce
     // timely topics. Nudges are loaded asynchronously; graceful degradation
     // if SharedPreferences or NudgeEngine fail.
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      if (!mounted) return;
-      final now = DateTime.now();
-      final dismissedIds = await NudgePersistence.getDismissedIds(
-        prefs,
-        now: now,
-      );
-      final lastActivity = await NudgePersistence.getLastActivityTime(prefs);
-      final nudges = NudgeEngine.evaluate(
-        profile: p,
-        now: now,
-        dismissedNudgeIds: dismissedIds,
-        lastActivityTime: lastActivity,
-      );
-      // Only surface high-priority nudges as chips (max 2).
-      final highPriorityNudges = nudges
-          .where((n) => n.priority == NudgePriority.high)
-          .take(2)
-          .toList();
-      if (highPriorityNudges.isNotEmpty && mounted) {
-        final nudgeLabels = highPriorityNudges
-            .map((n) => _resolveNudgeTitle(n, s, p))
-            .where((label) => label.isNotEmpty)
+    // Skip nudge chips when a proactive trigger is already surfaced to avoid
+    // information overload.
+    if (proactiveMessage == null) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        if (!mounted) return;
+        final now = DateTime.now();
+        final dismissedIds = await NudgePersistence.getDismissedIds(
+          prefs,
+          now: now,
+        );
+        final lastActivity =
+            await NudgePersistence.getLastActivityTime(prefs);
+        final nudges = NudgeEngine.evaluate(
+          profile: p,
+          now: now,
+          dismissedNudgeIds: dismissedIds,
+          lastActivityTime: lastActivity,
+        );
+        // Only surface high-priority nudges as chips (max 2).
+        final highPriorityNudges = nudges
+            .where((n) => n.priority == NudgePriority.high)
+            .take(2)
             .toList();
-        if (nudgeLabels.isNotEmpty) {
-          // Prepend nudge chips, keeping total chips at most 4.
-          suggestions = [
-            ...nudgeLabels,
-            ...suggestions.take(4 - nudgeLabels.length),
-          ];
+        if (highPriorityNudges.isNotEmpty && mounted) {
+          final nudgeLabels = highPriorityNudges
+              .map((n) => _resolveNudgeTitle(n, s, p))
+              .where((label) => label.isNotEmpty)
+              .toList();
+          if (nudgeLabels.isNotEmpty) {
+            // Prepend nudge chips, keeping total chips at most 4.
+            suggestions = [
+              ...nudgeLabels,
+              ...suggestions.take(4 - nudgeLabels.length),
+            ];
+          }
         }
+      } catch (_) {
+        // Graceful degradation: greeting works without nudge chips.
       }
-    } catch (_) {
-      // Graceful degradation: greeting works without nudge chips.
     }
 
     if (!mounted) return;
@@ -334,6 +385,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         tier: tier,
       ));
     });
+  }
+
+  /// Resolve a [ProactiveTrigger]'s ARB messageKey to a display string.
+  ///
+  /// Parameterised keys (e.g. proactiveGoalMilestone with {progress})
+  /// are resolved using [trigger.params]. Returns empty string on failure.
+  String _resolveProactiveMessage(ProactiveTrigger trigger, S s) {
+    try {
+      final p = trigger.params;
+      switch (trigger.messageKey) {
+        case 'proactiveLifecycleChange':
+          return s.proactiveLifecycleChange;
+        case 'proactiveWeeklyRecap':
+          return s.proactiveWeeklyRecap;
+        case 'proactiveGoalMilestone':
+          final progress = p?['progress'] ?? '50';
+          return s.proactiveGoalMilestone(progress);
+        case 'proactiveSeasonalReminder':
+          final event = p?['event'] ?? '';
+          return s.proactiveSeasonalReminder(event);
+        case 'proactiveInactivityReturn':
+          final days = p?['days'] ?? '7';
+          return s.proactiveInactivityReturn(days);
+        case 'proactiveConfidenceUp':
+          final delta = p?['delta'] ?? '5';
+          return s.proactiveConfidenceUp(delta);
+        case 'proactiveNewCap':
+          return s.proactiveNewCap;
+        default:
+          return '';
+      }
+    } catch (_) {
+      return '';
+    }
   }
 
   /// Resolve a nudge's [titleKey] ARB key to a display string.

@@ -16,6 +16,7 @@
 /// - All French, informal "tu"
 library;
 
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -122,17 +123,21 @@ class NotificationSchedulerService {
   ///
   /// [taxSaving3a] — estimated annual tax saving from 3a contributions (CHF).
   /// [today] — override for testing (defaults to DateTime.now()).
+  /// [l] — localizations instance; when provided all user-facing strings are
+  ///        i18n'd. When null (unit tests without BuildContext) falls back to
+  ///        hardcoded French strings.
   ///
   /// Returns a list of [ScheduledNotification] for:
-  ///   - Oct 1: 92 jours remaining for 3a
-  ///   - Nov 1: 61 jours remaining + saving amount
-  ///   - Dec 1: dernier mois + saving amount
-  ///   - Dec 20: 11 jours, dernier rappel
-  ///   - Jan 5: nouveaux plafonds
-  ///   - Monthly 1st: check-in mensuel
+  ///   - Oct 1: 92 days remaining for 3a
+  ///   - Nov 1: 61 days remaining + saving amount
+  ///   - Dec 1: last month + saving amount
+  ///   - Dec 20: 11 days, final reminder
+  ///   - Jan 5: new year limits
+  ///   - Monthly 1st: monthly check-in
   static List<ScheduledNotification> generateCalendarNotifications({
     required double taxSaving3a,
     DateTime? today,
+    S? l,
   }) {
     final now = today ?? DateTime.now();
     final year = now.year;
@@ -141,14 +146,14 @@ class NotificationSchedulerService {
 
     // ── 3a deadline reminders ─────────────────────────────────
 
-    // Oct 1 — 92 jours restants
+    // Oct 1 — 92 days remaining
     final oct1 = DateTime(year, 10, 1, 10, 0);
     if (oct1.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: 'Il reste 92 jours pour verser sur ton 3a.',
+        title: l?.notifThreeATitle ?? 'Deadline 3a',
+        body: l?.notifThreeA92Days ?? 'Il reste 92 jours pour verser sur ton 3a.',
         deeplink: '/pilier-3a',
         scheduledDate: oct1,
         personalNumber: savingStr,
@@ -156,14 +161,15 @@ class NotificationSchedulerService {
       ));
     }
 
-    // Nov 1 — 61 jours restants + saving
+    // Nov 1 — 61 days remaining + saving
     final nov1 = DateTime(year, 11, 1, 10, 0);
     if (nov1.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: 'Il reste 61 jours. Économie estimée : CHF $savingStr.',
+        title: l?.notifThreeATitle ?? 'Deadline 3a',
+        body: l?.notifThreeA61Days(savingStr) ??
+            'Il reste 61 jours. Économie estimée : CHF $savingStr.',
         deeplink: '/pilier-3a',
         scheduledDate: nov1,
         personalNumber: 'CHF $savingStr',
@@ -171,14 +177,15 @@ class NotificationSchedulerService {
       ));
     }
 
-    // Dec 1 — dernier mois + saving
+    // Dec 1 — last month + saving
     final dec1 = DateTime(year, 12, 1, 10, 0);
     if (dec1.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: 'Dernier mois pour ton 3a. CHF $savingStr d\'économie en jeu.',
+        title: l?.notifThreeATitle ?? 'Deadline 3a',
+        body: l?.notifThreeALastMonth(savingStr) ??
+            'Dernier mois pour ton 3a. CHF $savingStr d\'économie en jeu.',
         deeplink: '/pilier-3a',
         scheduledDate: dec1,
         personalNumber: 'CHF $savingStr',
@@ -186,14 +193,14 @@ class NotificationSchedulerService {
       ));
     }
 
-    // Dec 20 — 11 jours, dernier rappel
+    // Dec 20 — 11 days, final reminder
     final dec20 = DateTime(year, 12, 20, 10, 0);
     if (dec20.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: '11 jours. Dernier rappel 3a.',
+        title: l?.notifThreeATitle ?? 'Deadline 3a',
+        body: l?.notifThreeA11Days ?? '11 jours. Dernier rappel 3a.',
         deeplink: '/pilier-3a',
         scheduledDate: dec20,
         personalNumber: savingStr,
@@ -201,14 +208,16 @@ class NotificationSchedulerService {
       ));
     }
 
-    // Jan 5 next year — nouveaux plafonds
+    // Jan 5 next year — new year limits
     final jan5 = DateTime(year + 1, 1, 5, 10, 0);
     if (jan5.isAfter(now)) {
+      final nextYear = '${year + 1}';
       notifications.add(ScheduledNotification(
         category: NotificationCategory.newYearPlafonds,
         tier: NotificationTier.calendar,
-        title: 'Nouveaux plafonds ${year + 1}',
-        body:
+        title: l?.notifNewYearTitle(nextYear) ??
+            'Nouveaux plafonds ${year + 1}',
+        body: l?.notifNewYearBody(nextYear) ??
             'Nouveaux plafonds ${year + 1}. Ton économie potentielle a changé.',
         deeplink: '/pilier-3a',
         scheduledDate: jan5,
@@ -226,8 +235,8 @@ class NotificationSchedulerService {
         notifications.add(ScheduledNotification(
           category: NotificationCategory.monthlyCheckIn,
           tier: NotificationTier.calendar,
-          title: 'Check-in mensuel',
-          body: 'Ton check-in mensuel est disponible.',
+          title: l?.notifCheckInTitle ?? 'Check-in mensuel',
+          body: l?.notifCheckInBody ?? 'Ton check-in mensuel est disponible.',
           deeplink: '/coach/checkin',
           scheduledDate: first,
           personalNumber: monthName,
@@ -242,8 +251,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.monthlyCheckIn,
         tier: NotificationTier.calendar,
-        title: 'Check-in mensuel',
-        body: 'Ton check-in mensuel est disponible.',
+        title: l?.notifCheckInTitle ?? 'Check-in mensuel',
+        body: l?.notifCheckInBody ?? 'Ton check-in mensuel est disponible.',
         deeplink: '/coach/checkin',
         scheduledDate: jan1Next,
         personalNumber: 'janvier',
@@ -253,14 +262,14 @@ class NotificationSchedulerService {
 
     // ── Tax declaration reminders ─────────────────────────────
 
-    // Feb 15 — 44 jours avant le 31 mars
+    // Feb 15 — 44 days before March 31
     final feb15 = DateTime(year, 2, 15, 10, 0);
     if (feb15.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Declaration fiscale',
-        body:
+        title: l?.notifTaxTitle ?? 'Declaration fiscale',
+        body: l?.notifTax44Days ??
             'Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.',
         deeplink: '/home',
         scheduledDate: feb15,
@@ -269,14 +278,15 @@ class NotificationSchedulerService {
       ));
     }
 
-    // Mar 15 — 16 jours avant le 31 mars
+    // Mar 15 — 16 days before March 31
     final mar15 = DateTime(year, 3, 15, 10, 0);
     if (mar15.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Declaration fiscale',
-        body: 'Déclaration fiscale dans 16 jours. Commence à la remplir.',
+        title: l?.notifTaxTitle ?? 'Declaration fiscale',
+        body: l?.notifTax16Days ??
+            'Déclaration fiscale dans 16 jours. Commence à la remplir.',
         deeplink: '/home',
         scheduledDate: mar15,
         personalNumber: savingStr,
@@ -284,14 +294,15 @@ class NotificationSchedulerService {
       ));
     }
 
-    // Mar 25 — derniere semaine
+    // Mar 25 — last week
     final mar25 = DateTime(year, 3, 25, 10, 0);
     if (mar25.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Declaration fiscale',
-        body: 'Déclaration à rendre avant le 31 mars. Dernière semaine.',
+        title: l?.notifTaxTitle ?? 'Declaration fiscale',
+        body: l?.notifTaxLastWeek ??
+            'Déclaration à rendre avant le 31 mars. Dernière semaine.',
         deeplink: '/home',
         scheduledDate: mar25,
         personalNumber: savingStr,
@@ -310,6 +321,9 @@ class NotificationSchedulerService {
   /// [profileUpdated] — whether profile data was recently updated.
   /// [checkInCompleted] — whether a check-in was just completed.
   /// [today] — override for testing (defaults to DateTime.now()).
+  /// [l] — localizations instance; when provided all user-facing strings are
+  ///        i18n’d. When null (unit tests without BuildContext) falls back to
+  ///        hardcoded French strings.
   ///
   /// Returns event-driven notifications (immediate, not calendar-scheduled).
   static List<ScheduledNotification> generateEventNotifications({
@@ -318,23 +332,25 @@ class NotificationSchedulerService {
     bool checkInCompleted = false,
     PlanStatus? planStatus,
     DateTime? today,
+    S? l,
   }) {
     final now = today ?? DateTime.now();
     final notifications = <ScheduledNotification>[];
 
     // Check-in completed — show FRI delta
     if (checkInCompleted && friDelta != 0) {
-      final sign = friDelta > 0 ? '+' : '';
-      final deltaStr = '$sign${friDelta.toStringAsFixed(0)}';
+      final sign = friDelta > 0 ? "+" : "";
+      final deltaStr = sign + friDelta.toStringAsFixed(0);
       notifications.add(ScheduledNotification(
         category: NotificationCategory.friImprovement,
         tier: NotificationTier.event,
-        title: 'Score de solidité',
-        body: 'Depuis ton dernier check-in : $deltaStr points.',
-        deeplink: '/retraite',
+        title: l?.notifFriTitle ?? "Score de solidit\u00e9",
+        body: l?.notifFriCheckIn(deltaStr) ??
+            "Depuis ton dernier check-in\u00a0: $deltaStr points.",
+        deeplink: "/retraite",
         scheduledDate: now,
-        personalNumber: '$deltaStr points',
-        timeReference: 'dernier check-in',
+        personalNumber: "$deltaStr points",
+        timeReference: "dernier check-in",
       ));
     }
 
@@ -343,28 +359,30 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.profileUpdate,
         tier: NotificationTier.event,
-        title: 'Profil mis à jour',
-        body: 'Ton profil a été mis à jour. Nouvelles projections disponibles.',
-        deeplink: '/retraite',
+        title: l?.notifProfileUpdatedTitle ?? "Profil mis \u00e0 jour",
+        body: l?.notifProfileUpdatedBody ??
+            "Ton profil a \u00e9t\u00e9 mis \u00e0 jour. Nouvelles projections disponibles.",
+        deeplink: "/retraite",
         scheduledDate: now,
-        personalNumber: 'nouvelles projections',
-        timeReference: 'maintenant',
+        personalNumber: "nouvelles projections",
+        timeReference: "maintenant",
       ));
     }
 
     // FRI improved (without check-in context)
     if (!checkInCompleted && friDelta > 0) {
-      final deltaStr = '+${friDelta.toStringAsFixed(0)}';
+      final deltaStr = "+${friDelta.toStringAsFixed(0)}";
+      final deltaRaw = friDelta.toStringAsFixed(0);
       notifications.add(ScheduledNotification(
         category: NotificationCategory.friImprovement,
         tier: NotificationTier.event,
-        title: 'Score de solidité',
-        body:
-            'Ta solidité a progressé de ${friDelta.toStringAsFixed(0)} points.',
-        deeplink: '/retraite',
+        title: l?.notifFriTitle ?? "Score de solidit\u00e9",
+        body: l?.notifFriImproved(deltaRaw) ??
+            "Ta solidit\u00e9 a progress\u00e9 de $deltaRaw points.",
+        deeplink: "/retraite",
         scheduledDate: now,
-        personalNumber: '$deltaStr points',
-        timeReference: 'récemment',
+        personalNumber: "$deltaStr points",
+        timeReference: "r\u00e9cemment",
       ));
     }
 
@@ -374,18 +392,20 @@ class NotificationSchedulerService {
         planStatus.adherenceRate < 0.8) {
       final adherence = (planStatus.adherenceRate * 100).toStringAsFixed(0);
       final impact = _formatChf(planStatus.monthlyGapChf * 12);
+      final total = planStatus.totalActions.toString();
       final actionsBehind =
           (planStatus.totalActions - planStatus.completedActions).clamp(0, 999);
       notifications.add(ScheduledNotification(
         category: NotificationCategory.offTrack,
         tier: NotificationTier.event,
-        title: 'Tu t’eloignes de ton plan',
-        body: 'Adherence a $adherence% sur ${planStatus.totalActions} actions. '
-            'Indication lineaire (hors rendement/fiscalite): ~CHF $impact.',
-        deeplink: '/coach/checkin',
+        title: l?.notifOffTrackTitle ?? "Tu t’\u00e9loignes de ton plan",
+        body: l?.notifOffTrackBody(adherence, total, impact) ??
+            "Adh\u00e9rence \u00e0 $adherence% sur $total actions. "
+            "Indication lin\u00e9aire (hors rendement/fiscalit\u00e9)\u00a0: ~CHF $impact.",
+        deeplink: "/coach/checkin",
         scheduledDate: now,
-        personalNumber: '$adherence%',
-        timeReference: '$actionsBehind actions en retard',
+        personalNumber: "$adherence%",
+        timeReference: "$actionsBehind actions en retard",
       ));
     }
 

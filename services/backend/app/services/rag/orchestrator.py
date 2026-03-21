@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
+from app.services.rag.faq_service import FaqService
 from app.services.rag.guardrails import ComplianceGuardrails
 from app.services.rag.llm_client import LLMClient
 from app.services.rag.retriever import MintRetriever
@@ -76,6 +77,14 @@ class RAGOrchestrator:
             language=language,
         )
 
+        # Step 1b: FAQ fallback — if vector store returned few results, enrich with FAQs
+        faq_sources: list[dict] = []
+        if len(retrieved) < 2:
+            faq_results = FaqService.search(question)
+            for faq in faq_results[:3]:
+                retrieved.append({"text": faq.answer, "source": {}})
+                faq_sources.append({"type": "faq", "id": faq.id})
+
         # Step 2: Build context from chunks
         context_chunks = [r["text"] for r in retrieved if r.get("text")]
 
@@ -109,7 +118,7 @@ class RAGOrchestrator:
         # Step 6: Apply post-generation compliance filter
         filtered = self.guardrails.filter_response(response_text, language)
 
-        # Step 7: Build sources list
+        # Step 7: Build sources list (vector sources + FAQ sources)
         sources = []
         seen_sources = set()
         for r in retrieved:
@@ -118,6 +127,7 @@ class RAGOrchestrator:
             if source_key not in seen_sources:
                 seen_sources.add(source_key)
                 sources.append(source)
+        sources.extend(faq_sources)
 
         # Estimate token usage (rough approximation)
         tokens_used = self._estimate_tokens(

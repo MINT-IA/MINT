@@ -20276,4 +20276,215 @@ class SFr extends S {
 
   @override
   String get agentFormsLppSubtitle => 'Lettre de transfert de libre passage';
+
+  @override
+  String get notifThreeATitle => 'Deadline 3a';
+
+  @override
+  String get notifThreeA92Days => 'Il reste 92 jours pour verser sur ton 3a.';
+
+  @override
+  String notifThreeA61Days(String saving) {
+    return 'Il reste 61 jours. Économie estimée : CHF $saving.';
+  }
+
+  @override
+  String notifThreeALastMonth(String saving) {
+    return 'Dernier mois pour ton 3a. CHF $saving d\'économie en jeu.';
+  }
+
+  @override
+  String get notifThreeA11Days => '11 jours. Dernier rappel 3a.';
+
+  @override
+  String notifNewYearTitle(String year) {
+    return 'Nouveaux plafonds $year';
+  }
+
+  @override
+  String notifNewYearBody(String year) {
+    return 'Nouveaux plafonds $year. Ton économie potentielle a changé.';
+  }
+
+  @override
+  String get notifCheckInTitle => 'Check-in mensuel';
+
+  @override
+  String get notifCheckInBody => 'Ton check-in mensuel est disponible.';
+
+  @override
+  String get notifTaxTitle => 'Déclaration fiscale';
+
+  @override
+  String get notifTax44Days =>
+      'Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.';
+
+  @override
+  String get notifTax16Days =>
+      'Déclaration fiscale dans 16 jours. Commence à la remplir.';
+
+  @override
+  String get notifTaxLastWeek =>
+      'Déclaration à rendre avant le 31 mars. Dernière semaine.';
+
+  @override
+  String get notifFriTitle => 'Score de solidité';
+
+  @override
+  String notifFriCheckIn(String delta) {
+    return 'Depuis ton dernier check-in : $delta points.';
+  }
+
+  @override
+  String notifFriImproved(String delta) {
+    return 'Ta solidité a progressé de $delta points.';
+  }
+
+  @override
+  String get notifProfileUpdatedTitle => 'Profil mis à jour';
+
+  @override
+  String get notifProfileUpdatedBody =>
+      'Ton profil a été mis à jour. Nouvelles projections disponibles.';
+
+  @override
+  String get notifOffTrackTitle => 'Tu t\'éloignes de ton plan';
+
+  @override
+  String notifOffTrackBody(String adherence, String total, String impact) {
+    return 'Adhérence à $adherence% sur $total actions. Indication linéaire (hors rendement/fiscalité) : ~CHF $impact.';
+  }
+
+  @override
+  String get agentTaskTaxDeclarationTitle =>
+      'Pré-remplissage déclaration fiscale';
+
+  @override
+  String get agentTaskTaxDeclarationDesc =>
+      'Estimation des champs principaux de ta déclaration d\'impôts basée sur ton profil MINT. Tous les montants sont approximatifs.';
+
+  @override
+  String get agentTaskThreeAFormTitle => 'Pré-remplissage formulaire 3a';
+
+  @override
+  String get agentTaskThreeAFormDesc =>
+      'Informations de base pour un versement 3e pilier. Le plafond est calculé selon ton statut professionnel.';
+
+  @override
+  String get agentTaskCaisseLetterTitle => 'Lettre à la caisse de pension';
+
+  @override
+  String get agentTaskCaisseLetterDesc =>
+      'Modèle de lettre formelle pour demander un certificat LPP, une confirmation de rachat et une simulation de retraite anticipée.';
+
+  @override
+  String get agentTaskFiscalDossierTitle => 'Préparation dossier fiscal';
+
+  @override
+  String get agentTaskFiscalDossierDesc =>
+      'Résumé éducatif de ta situation fiscale estimée avec les déductions possibles et les questions à poser à un·e spécialiste.';
+
+  @override
+  String get agentTaskAvsExtractTitle => 'Demande d\'extrait AVS';
+
+  @override
+  String get agentTaskAvsExtractDesc =>
+      'Modèle de lettre pour demander un extrait de compte individuel (CI) auprès de ta caisse de compensation AVS.';
+
+  @override
+  String get agentTaskLppCertificateTitle => 'Demande certificat LPP';
+
+  @override
+  String get agentTaskLppCertificateDesc =>
+      'Modèle de lettre pour demander un certificat de prévoyance professionnelle actualisé à ta caisse de pension.';
+
+  @override
+  String get agentTaskDisclaimer =>
+      'Cet outil est purement éducatif et ne constitue pas un conseil financier, fiscal ou juridique. Les montants affichés sont des estimations indicatives. Consultez un·e spécialiste agréé·e avant toute décision. Conforme à la LSFin.';
+
+  @override
+  String get agentTaskValidationPromptDefault =>
+      'Vérifie attentivement chaque information avant toute utilisation. Tous les champs sont des estimations à confirmer.';
+
+  @override
+  String get agentTaskValidationPromptLetter =>
+      'Vérifie les informations et complète les champs entre crochets avant d\'envoyer cette lettre.';
+
+  @override
+  String get agentTaskValidationPromptRequest =>
+      'Vérifie les informations et complète les champs entre crochets avant d\'envoyer cette demande.';
+
+  @override
+  String agentFieldRevenuBrutValue(String range) {
+    return '~$range CHF/an';
+  }
+
+  @override
+  String agentFieldRachatLppValue(String range) {
+    return '~$range CHF';
+  }
+
+  @override
+  String get agentFieldAnneRef => 'Année de référence';
+
+  @override
+  String get agentFieldCaissePension => 'Caisse de pension';
+
+  @override
+  String get agentFieldAddressPerso => 'Adresse personnelle';
+
+  @override
+  String get agentFieldAddresseCaisse => 'Adresse de la caisse';
+
+  @override
+  String get agentFieldNumeroPolice => 'Numéro de police';
+
+  @override
+  String get agentFieldNumeroAvs => 'Numéro AVS';
+
+  @override
+  String get agentFieldAddresseCaisseAvs => 'Adresse de la caisse AVS';
+
+  @override
+  String get agentFiscalDossierRevenu => 'Revenu brut estimé';
+
+  @override
+  String get agentFiscalDossierPlafond3a => 'Plafond 3a applicable';
+
+  @override
+  String get agentFiscalDossierRachat => 'Rachat LPP disponible';
+
+  @override
+  String get agentFiscalDossierCapital3a => 'Capital 3a accumulé';
+
+  @override
+  String get proactiveLifecycleChange =>
+      'Tu viens d’entrer dans une nouvelle phase de vie. On regarde ce que ça change pour toi ?';
+
+  @override
+  String get proactiveWeeklyRecap =>
+      'Ton récap de la semaine est prêt. Tu veux le voir ?';
+
+  @override
+  String proactiveGoalMilestone(String progress) {
+    return 'Ton objectif a franchi les $progress %. Bien joué !';
+  }
+
+  @override
+  String proactiveSeasonalReminder(String event) {
+    return 'C’est la saison $event. Un bon moment pour…';
+  }
+
+  @override
+  String proactiveInactivityReturn(String days) {
+    return 'Content de te revoir ! Ça fait $days jours. On fait le point ?';
+  }
+
+  @override
+  String proactiveConfidenceUp(String delta) {
+    return 'Ta confiance a progressé de $delta pts depuis la dernière fois.';
+  }
+
+  @override
+  String get proactiveNewCap => 'J’ai une nouvelle priorité pour toi.';
 }

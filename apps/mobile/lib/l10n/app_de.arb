@@ -9080,5 +9080,131 @@
   "agentFormsAvsCta": "AHV-Auszug anfordern",
   "agentFormsAvsSubtitle": "Briefvorlage zum Versenden bereit",
   "agentFormsLppCta": "BVG-Übertrag beantragen",
-  "agentFormsLppSubtitle": "Freizügigkeits-Übertragungsbrief"
+  "agentFormsLppSubtitle": "Freizügigkeits-Übertragungsbrief",
+
+  "notifThreeATitle": "Säule 3a Frist",
+  "notifThreeA92Days": "Noch 92 Tage für deine Säule-3a-Einzahlung.",
+  "notifThreeA61Days": "Noch 61 Tage. Geschätzte Einsparung: CHF {saving}.",
+  "@notifThreeA61Days": {
+    "placeholders": {
+      "saving": { "type": "String" }
+    }
+  },
+  "notifThreeALastMonth": "Letzter Monat für deine Säule 3a. CHF {saving} Einsparung auf dem Spiel.",
+  "@notifThreeALastMonth": {
+    "placeholders": {
+      "saving": { "type": "String" }
+    }
+  },
+  "notifThreeA11Days": "11 Tage. Letzte Erinnerung Säule 3a.",
+  "notifNewYearTitle": "Neue Limits {year}",
+  "@notifNewYearTitle": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "notifNewYearBody": "Neue Limits {year}. Deine potenzielle Einsparung hat sich geändert.",
+  "@notifNewYearBody": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "notifCheckInTitle": "Monatlicher Check-in",
+  "notifCheckInBody": "Dein monatlicher Check-in ist verfügbar.",
+  "notifTaxTitle": "Steuererklärung",
+  "notifTax44Days": "Steuererklärung in 44 Tagen fällig. Dokumente zusammenstellen.",
+  "notifTax16Days": "Steuererklärung in 16 Tagen fällig. Jetzt ausfüllen.",
+  "notifTaxLastWeek": "Steuererklärung bis 31. März abgeben. Letzte Woche.",
+  "notifFriTitle": "Stabilitätsscore",
+  "notifFriCheckIn": "Seit deinem letzten Check-in: {delta} Punkte.",
+  "@notifFriCheckIn": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "notifFriImproved": "Deine Stabilität hat sich um {delta} Punkte verbessert.",
+  "@notifFriImproved": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "notifProfileUpdatedTitle": "Profil aktualisiert",
+  "notifProfileUpdatedBody": "Dein Profil wurde aktualisiert. Neue Projektionen verfügbar.",
+  "notifOffTrackTitle": "Du entfernst dich von deinem Plan",
+  "notifOffTrackBody": "Adhärenz bei {adherence}% über {total} Aktionen. Lineare Schätzung (ohne Rendite/Steuern): ~CHF {impact}.",
+  "@notifOffTrackBody": {
+    "placeholders": {
+      "adherence": { "type": "String" },
+      "total": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+
+  "agentTaskTaxDeclarationTitle": "Steuererklärung Vorausfüllung",
+  "agentTaskTaxDeclarationDesc": "Geschätzte Hauptfelder deiner Steuererklärung basierend auf deinem MINT-Profil. Alle Beträge sind ungefähr.",
+  "agentTaskThreeAFormTitle": "Säule 3a Formular Vorausfüllung",
+  "agentTaskThreeAFormDesc": "Grundangaben für eine Säule-3-Einzahlung. Das Limit wird nach deinem Beschäftigungsstatus berechnet.",
+  "agentTaskCaisseLetterTitle": "Brief an die Pensionskasse",
+  "agentTaskCaisseLetterDesc": "Formelle Briefvorlage zur Anforderung eines BVG-Zertifikats, Einkaufsbestätigung und Frühpensionierungssimulation.",
+  "agentTaskFiscalDossierTitle": "Steuerdossier Vorbereitung",
+  "agentTaskFiscalDossierDesc": "Bildungszusammenfassung deiner geschätzten Steuersituation mit möglichen Abzügen und Fragen an eine Fachperson.",
+  "agentTaskAvsExtractTitle": "AHV-Auszug Anforderung",
+  "agentTaskAvsExtractDesc": "Briefvorlage zur Anforderung eines Einzelkontoauszugs (IK) bei deiner AHV-Ausgleichskasse.",
+  "agentTaskLppCertificateTitle": "BVG-Zertifikat Anforderung",
+  "agentTaskLppCertificateDesc": "Briefvorlage zur Anforderung eines aktuellen beruflichen Vorsorgeausweises bei deiner Pensionskasse.",
+  "agentTaskDisclaimer": "Dieses Tool ist rein bildend und stellt keine Finanz-, Steuer- oder Rechtsberatung dar. Angezeigte Beträge sind Schätzungen. Konsultiere eine qualifizierte Fachperson vor jeder Entscheidung. Gemäss FIDLEG.",
+  "agentTaskValidationPromptDefault": "Prüfe jede Information sorgfältig vor der Verwendung. Alle Felder sind zu bestätigende Schätzungen.",
+  "agentTaskValidationPromptLetter": "Prüfe die Informationen und fülle die Felder in eckigen Klammern aus, bevor du diesen Brief sendest.",
+  "agentTaskValidationPromptRequest": "Prüfe die Informationen und fülle die Felder in eckigen Klammern aus, bevor du diese Anfrage sendest.",
+  "agentFieldRevenuBrutValue": "~{range}\u00a0CHF/Jahr",
+  "@agentFieldRevenuBrutValue": {
+    "placeholders": {
+      "range": { "type": "String" }
+    }
+  },
+  "agentFieldRachatLppValue": "~{range}\u00a0CHF",
+  "@agentFieldRachatLppValue": {
+    "placeholders": {
+      "range": { "type": "String" }
+    }
+  },
+  "agentFieldAnneRef": "Referenzjahr",
+  "agentFieldCaissePension": "Pensionskasse",
+  "agentFieldAddressPerso": "Persönliche Adresse",
+  "agentFieldAddresseCaisse": "Pensionskassenadresse",
+  "agentFieldNumeroPolice": "Policennummer",
+  "agentFieldNumeroAvs": "AHV-Nummer",
+  "agentFieldAddresseCaisseAvs": "AHV-Kassenadresse",
+  "agentFiscalDossierRevenu": "Geschätztes Bruttoeinkommen",
+  "agentFiscalDossierPlafond3a": "Anwendbares Säule-3a-Limit",
+  "agentFiscalDossierRachat": "Verfügbarer BVG-Einkauf",
+  "agentFiscalDossierCapital3a": "Angesammeltes Säule-3a-Kapital",
+
+  "proactiveLifecycleChange": "Du bist gerade in eine neue Lebensphase eingetreten. Sollen wir schauen, was das f\u00fcr dich \u00e4ndert?",
+  "proactiveWeeklyRecap": "Deine w\u00f6chentliche Zusammenfassung ist bereit. M\u00f6chtest du sie sehen\u00a0?",
+  "proactiveGoalMilestone": "Dein Ziel hat {progress}\u00a0% erreicht. Gut gemacht\u00a0!",
+  "@proactiveGoalMilestone": {
+    "placeholders": {
+      "progress": { "type": "String" }
+    }
+  },
+  "proactiveSeasonalReminder": "Es ist die Saison {event}. Ein guter Zeitpunkt\u2026",
+  "@proactiveSeasonalReminder": {
+    "placeholders": {
+      "event": { "type": "String" }
+    }
+  },
+  "proactiveInactivityReturn": "Sch\u00f6n, dich wiederzusehen\u00a0! Es sind {days} Tage vergangen. Machen wir den Punkt\u00a0?",
+  "@proactiveInactivityReturn": {
+    "placeholders": {
+      "days": { "type": "String" }
+    }
+  },
+  "proactiveConfidenceUp": "Dein Vertrauen ist seit dem letzten Mal um {delta}\u00a0Punkte gestiegen.",
+  "@proactiveConfidenceUp": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "proactiveNewCap": "Ich habe eine neue Priorit\u00e4t f\u00fcr dich."
 }

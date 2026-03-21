@@ -368,28 +368,77 @@ class ComplianceGuardrails:
 
         If profile_context contains a financial_summary, it is injected
         into the system prompt so the LLM can personalize its answers.
+
+        If profile_context contains a canton field, canton-specific tax
+        and housing data are injected so Claude is canton-aware.
         """
         base = self.SYSTEM_PROMPTS.get(language, self.SYSTEM_PROMPTS["fr"])
 
         if not profile_context:
             return base
 
+        extra_blocks: list[str] = []
+
+        # ── Canton-specific enrichment ──────────────────────────────────────
+        canton = profile_context.get("canton")
+        if canton:
+            try:
+                from app.services.rag.cantonal_knowledge import CantonalKnowledge
+
+                tax = CantonalKnowledge.tax_specifics(canton)
+                housing = CantonalKnowledge.housing_market(canton)
+
+                canton_lines: list[str] = [f"Canton de l'utilisateur: {canton.upper()}"]
+
+                if tax:
+                    canton_lines.append(
+                        f"Taux marginal cantonal+communal (approx.): {tax['marginal_rate_pct']}%"
+                    )
+                    canton_lines.append(
+                        f"Impôt sur la fortune (‰): {tax['wealth_tax_rate_permille']}"
+                    )
+                    if tax.get("notable_deductions"):
+                        deductions = ", ".join(tax["notable_deductions"])
+                        canton_lines.append(f"Déductions notables: {deductions}")
+                    canton_lines.append(f"Source fiscale: {tax['source']}")
+
+                if housing:
+                    canton_lines.append(
+                        f"Loyer médian 4p (CHF/mois): {housing['median_rent_4pce_chf']}"
+                    )
+                    canton_lines.append(
+                        f"Prix médian achat (CHF/m²): {housing['median_price_per_sqm_buy_chf']}"
+                    )
+                    canton_lines.append(
+                        f"Pression immobilière: {housing['market_pressure']}"
+                    )
+
+                if len(canton_lines) > 1:
+                    extra_blocks.append(
+                        "\n\n--- CONTEXTE CANTONAL ---\n"
+                        + "\n".join(canton_lines)
+                        + "\n--- FIN CONTEXTE CANTONAL ---\n\n"
+                        "Utilise ces données cantonales pour personnaliser tes réponses "
+                        "fiscales et immobilières. "
+                        "Données approximatives — sources officielles 2024/2025 (LSFin)."
+                    )
+            except ImportError:
+                pass
+
+        # ── Financial summary ────────────────────────────────────────────────
         summary = profile_context.get("financial_summary")
-        if not summary:
-            return base
+        if summary:
+            extra_blocks.append(
+                "\n\n--- PROFIL FINANCIER DE L'UTILISATEUR ---\n"
+                f"{summary}\n"
+                "--- FIN DU PROFIL ---\n\n"
+                "Utilise ces informations pour personnaliser tes réponses "
+                "à la situation spécifique de l'utilisateur. "
+                "Ne répète pas ces données textuellement, "
+                "mais adapte tes explications et exemples en conséquence."
+            )
 
-        # Inject the user's financial profile into the system prompt
-        profile_block = (
-            "\n\n--- PROFIL FINANCIER DE L'UTILISATEUR ---\n"
-            f"{summary}\n"
-            "--- FIN DU PROFIL ---\n\n"
-            "Utilise ces informations pour personnaliser tes réponses "
-            "à la situation spécifique de l'utilisateur. "
-            "Ne répète pas ces données textuellement, "
-            "mais adapte tes explications et exemples en conséquence."
-        )
-
-        return base + profile_block
+        return base + "".join(extra_blocks)
 
     def _get_replacement(self, term: str, language: str) -> str:
         """Get a softer replacement for a banned term."""

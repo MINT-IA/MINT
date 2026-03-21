@@ -35841,6 +35841,342 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Lettre de transfert de libre passage'**
   String get agentFormsLppSubtitle;
+
+  /// No description provided for @notifThreeATitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deadline 3a'**
+  String get notifThreeATitle;
+
+  /// No description provided for @notifThreeA92Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste 92 jours pour verser sur ton 3a.'**
+  String get notifThreeA92Days;
+
+  /// No description provided for @notifThreeA61Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste 61 jours. Économie estimée : CHF {saving}.'**
+  String notifThreeA61Days(String saving);
+
+  /// No description provided for @notifThreeALastMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier mois pour ton 3a. CHF {saving} d\'économie en jeu.'**
+  String notifThreeALastMonth(String saving);
+
+  /// No description provided for @notifThreeA11Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'11 jours. Dernier rappel 3a.'**
+  String get notifThreeA11Days;
+
+  /// No description provided for @notifNewYearTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux plafonds {year}'**
+  String notifNewYearTitle(String year);
+
+  /// No description provided for @notifNewYearBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux plafonds {year}. Ton économie potentielle a changé.'**
+  String notifNewYearBody(String year);
+
+  /// No description provided for @notifCheckInTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Check-in mensuel'**
+  String get notifCheckInTitle;
+
+  /// No description provided for @notifCheckInBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton check-in mensuel est disponible.'**
+  String get notifCheckInBody;
+
+  /// No description provided for @notifTaxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale'**
+  String get notifTaxTitle;
+
+  /// No description provided for @notifTax44Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.'**
+  String get notifTax44Days;
+
+  /// No description provided for @notifTax16Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale dans 16 jours. Commence à la remplir.'**
+  String get notifTax16Days;
+
+  /// No description provided for @notifTaxLastWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration à rendre avant le 31 mars. Dernière semaine.'**
+  String get notifTaxLastWeek;
+
+  /// No description provided for @notifFriTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score de solidité'**
+  String get notifFriTitle;
+
+  /// No description provided for @notifFriCheckIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis ton dernier check-in : {delta} points.'**
+  String notifFriCheckIn(String delta);
+
+  /// No description provided for @notifFriImproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta solidité a progressé de {delta} points.'**
+  String notifFriImproved(String delta);
+
+  /// No description provided for @notifProfileUpdatedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil mis à jour'**
+  String get notifProfileUpdatedTitle;
+
+  /// No description provided for @notifProfileUpdatedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil a été mis à jour. Nouvelles projections disponibles.'**
+  String get notifProfileUpdatedBody;
+
+  /// No description provided for @notifOffTrackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu t\'éloignes de ton plan'**
+  String get notifOffTrackTitle;
+
+  /// No description provided for @notifOffTrackBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adhérence à {adherence}% sur {total} actions. Indication linéaire (hors rendement/fiscalité) : ~CHF {impact}.'**
+  String notifOffTrackBody(String adherence, String total, String impact);
+
+  /// No description provided for @agentTaskTaxDeclarationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pré-remplissage déclaration fiscale'**
+  String get agentTaskTaxDeclarationTitle;
+
+  /// No description provided for @agentTaskTaxDeclarationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation des champs principaux de ta déclaration d\'impôts basée sur ton profil MINT. Tous les montants sont approximatifs.'**
+  String get agentTaskTaxDeclarationDesc;
+
+  /// No description provided for @agentTaskThreeAFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pré-remplissage formulaire 3a'**
+  String get agentTaskThreeAFormTitle;
+
+  /// No description provided for @agentTaskThreeAFormDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations de base pour un versement 3e pilier. Le plafond est calculé selon ton statut professionnel.'**
+  String get agentTaskThreeAFormDesc;
+
+  /// No description provided for @agentTaskCaisseLetterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lettre à la caisse de pension'**
+  String get agentTaskCaisseLetterTitle;
+
+  /// No description provided for @agentTaskCaisseLetterDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre formelle pour demander un certificat LPP, une confirmation de rachat et une simulation de retraite anticipée.'**
+  String get agentTaskCaisseLetterDesc;
+
+  /// No description provided for @agentTaskFiscalDossierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation dossier fiscal'**
+  String get agentTaskFiscalDossierTitle;
+
+  /// No description provided for @agentTaskFiscalDossierDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé éducatif de ta situation fiscale estimée avec les déductions possibles et les questions à poser à un·e spécialiste.'**
+  String get agentTaskFiscalDossierDesc;
+
+  /// No description provided for @agentTaskAvsExtractTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande d\'extrait AVS'**
+  String get agentTaskAvsExtractTitle;
+
+  /// No description provided for @agentTaskAvsExtractDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre pour demander un extrait de compte individuel (CI) auprès de ta caisse de compensation AVS.'**
+  String get agentTaskAvsExtractDesc;
+
+  /// No description provided for @agentTaskLppCertificateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande certificat LPP'**
+  String get agentTaskLppCertificateTitle;
+
+  /// No description provided for @agentTaskLppCertificateDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre pour demander un certificat de prévoyance professionnelle actualisé à ta caisse de pension.'**
+  String get agentTaskLppCertificateDesc;
+
+  /// No description provided for @agentTaskDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet outil est purement éducatif et ne constitue pas un conseil financier, fiscal ou juridique. Les montants affichés sont des estimations indicatives. Consultez un·e spécialiste agréé·e avant toute décision. Conforme à la LSFin.'**
+  String get agentTaskDisclaimer;
+
+  /// No description provided for @agentTaskValidationPromptDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie attentivement chaque information avant toute utilisation. Tous les champs sont des estimations à confirmer.'**
+  String get agentTaskValidationPromptDefault;
+
+  /// No description provided for @agentTaskValidationPromptLetter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie les informations et complète les champs entre crochets avant d\'envoyer cette lettre.'**
+  String get agentTaskValidationPromptLetter;
+
+  /// No description provided for @agentTaskValidationPromptRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie les informations et complète les champs entre crochets avant d\'envoyer cette demande.'**
+  String get agentTaskValidationPromptRequest;
+
+  /// No description provided for @agentFieldRevenuBrutValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'~{range} CHF/an'**
+  String agentFieldRevenuBrutValue(String range);
+
+  /// No description provided for @agentFieldRachatLppValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'~{range} CHF'**
+  String agentFieldRachatLppValue(String range);
+
+  /// No description provided for @agentFieldAnneRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année de référence'**
+  String get agentFieldAnneRef;
+
+  /// No description provided for @agentFieldCaissePension.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caisse de pension'**
+  String get agentFieldCaissePension;
+
+  /// No description provided for @agentFieldAddressPerso.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse personnelle'**
+  String get agentFieldAddressPerso;
+
+  /// No description provided for @agentFieldAddresseCaisse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse de la caisse'**
+  String get agentFieldAddresseCaisse;
+
+  /// No description provided for @agentFieldNumeroPolice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de police'**
+  String get agentFieldNumeroPolice;
+
+  /// No description provided for @agentFieldNumeroAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro AVS'**
+  String get agentFieldNumeroAvs;
+
+  /// No description provided for @agentFieldAddresseCaisseAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse de la caisse AVS'**
+  String get agentFieldAddresseCaisseAvs;
+
+  /// No description provided for @agentFiscalDossierRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut estimé'**
+  String get agentFiscalDossierRevenu;
+
+  /// No description provided for @agentFiscalDossierPlafond3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond 3a applicable'**
+  String get agentFiscalDossierPlafond3a;
+
+  /// No description provided for @agentFiscalDossierRachat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP disponible'**
+  String get agentFiscalDossierRachat;
+
+  /// No description provided for @agentFiscalDossierCapital3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a accumulé'**
+  String get agentFiscalDossierCapital3a;
+
+  /// No description provided for @proactiveLifecycleChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu viens d’entrer dans une nouvelle phase de vie. On regarde ce que ça change pour toi ?'**
+  String get proactiveLifecycleChange;
+
+  /// No description provided for @proactiveWeeklyRecap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap de la semaine est prêt. Tu veux le voir ?'**
+  String get proactiveWeeklyRecap;
+
+  /// No description provided for @proactiveGoalMilestone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton objectif a franchi les {progress} %. Bien joué !'**
+  String proactiveGoalMilestone(String progress);
+
+  /// No description provided for @proactiveSeasonalReminder.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est la saison {event}. Un bon moment pour…'**
+  String proactiveSeasonalReminder(String event);
+
+  /// No description provided for @proactiveInactivityReturn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Content de te revoir ! Ça fait {days} jours. On fait le point ?'**
+  String proactiveInactivityReturn(String days);
+
+  /// No description provided for @proactiveConfidenceUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta confiance a progressé de {delta} pts depuis la dernière fois.'**
+  String proactiveConfidenceUp(String delta);
+
+  /// No description provided for @proactiveNewCap.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai une nouvelle priorité pour toi.'**
+  String get proactiveNewCap;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -20299,4 +20299,214 @@ class SDe extends S {
 
   @override
   String get agentFormsLppSubtitle => 'Freizügigkeits-Übertragungsbrief';
+
+  @override
+  String get notifThreeATitle => 'Säule 3a Frist';
+
+  @override
+  String get notifThreeA92Days => 'Noch 92 Tage für deine Säule-3a-Einzahlung.';
+
+  @override
+  String notifThreeA61Days(String saving) {
+    return 'Noch 61 Tage. Geschätzte Einsparung: CHF $saving.';
+  }
+
+  @override
+  String notifThreeALastMonth(String saving) {
+    return 'Letzter Monat für deine Säule 3a. CHF $saving Einsparung auf dem Spiel.';
+  }
+
+  @override
+  String get notifThreeA11Days => '11 Tage. Letzte Erinnerung Säule 3a.';
+
+  @override
+  String notifNewYearTitle(String year) {
+    return 'Neue Limits $year';
+  }
+
+  @override
+  String notifNewYearBody(String year) {
+    return 'Neue Limits $year. Deine potenzielle Einsparung hat sich geändert.';
+  }
+
+  @override
+  String get notifCheckInTitle => 'Monatlicher Check-in';
+
+  @override
+  String get notifCheckInBody => 'Dein monatlicher Check-in ist verfügbar.';
+
+  @override
+  String get notifTaxTitle => 'Steuererklärung';
+
+  @override
+  String get notifTax44Days =>
+      'Steuererklärung in 44 Tagen fällig. Dokumente zusammenstellen.';
+
+  @override
+  String get notifTax16Days =>
+      'Steuererklärung in 16 Tagen fällig. Jetzt ausfüllen.';
+
+  @override
+  String get notifTaxLastWeek =>
+      'Steuererklärung bis 31. März abgeben. Letzte Woche.';
+
+  @override
+  String get notifFriTitle => 'Stabilitätsscore';
+
+  @override
+  String notifFriCheckIn(String delta) {
+    return 'Seit deinem letzten Check-in: $delta Punkte.';
+  }
+
+  @override
+  String notifFriImproved(String delta) {
+    return 'Deine Stabilität hat sich um $delta Punkte verbessert.';
+  }
+
+  @override
+  String get notifProfileUpdatedTitle => 'Profil aktualisiert';
+
+  @override
+  String get notifProfileUpdatedBody =>
+      'Dein Profil wurde aktualisiert. Neue Projektionen verfügbar.';
+
+  @override
+  String get notifOffTrackTitle => 'Du entfernst dich von deinem Plan';
+
+  @override
+  String notifOffTrackBody(String adherence, String total, String impact) {
+    return 'Adhärenz bei $adherence% über $total Aktionen. Lineare Schätzung (ohne Rendite/Steuern): ~CHF $impact.';
+  }
+
+  @override
+  String get agentTaskTaxDeclarationTitle => 'Steuererklärung Vorausfüllung';
+
+  @override
+  String get agentTaskTaxDeclarationDesc =>
+      'Geschätzte Hauptfelder deiner Steuererklärung basierend auf deinem MINT-Profil. Alle Beträge sind ungefähr.';
+
+  @override
+  String get agentTaskThreeAFormTitle => 'Säule 3a Formular Vorausfüllung';
+
+  @override
+  String get agentTaskThreeAFormDesc =>
+      'Grundangaben für eine Säule-3-Einzahlung. Das Limit wird nach deinem Beschäftigungsstatus berechnet.';
+
+  @override
+  String get agentTaskCaisseLetterTitle => 'Brief an die Pensionskasse';
+
+  @override
+  String get agentTaskCaisseLetterDesc =>
+      'Formelle Briefvorlage zur Anforderung eines BVG-Zertifikats, Einkaufsbestätigung und Frühpensionierungssimulation.';
+
+  @override
+  String get agentTaskFiscalDossierTitle => 'Steuerdossier Vorbereitung';
+
+  @override
+  String get agentTaskFiscalDossierDesc =>
+      'Bildungszusammenfassung deiner geschätzten Steuersituation mit möglichen Abzügen und Fragen an eine Fachperson.';
+
+  @override
+  String get agentTaskAvsExtractTitle => 'AHV-Auszug Anforderung';
+
+  @override
+  String get agentTaskAvsExtractDesc =>
+      'Briefvorlage zur Anforderung eines Einzelkontoauszugs (IK) bei deiner AHV-Ausgleichskasse.';
+
+  @override
+  String get agentTaskLppCertificateTitle => 'BVG-Zertifikat Anforderung';
+
+  @override
+  String get agentTaskLppCertificateDesc =>
+      'Briefvorlage zur Anforderung eines aktuellen beruflichen Vorsorgeausweises bei deiner Pensionskasse.';
+
+  @override
+  String get agentTaskDisclaimer =>
+      'Dieses Tool ist rein bildend und stellt keine Finanz-, Steuer- oder Rechtsberatung dar. Angezeigte Beträge sind Schätzungen. Konsultiere eine qualifizierte Fachperson vor jeder Entscheidung. Gemäss FIDLEG.';
+
+  @override
+  String get agentTaskValidationPromptDefault =>
+      'Prüfe jede Information sorgfältig vor der Verwendung. Alle Felder sind zu bestätigende Schätzungen.';
+
+  @override
+  String get agentTaskValidationPromptLetter =>
+      'Prüfe die Informationen und fülle die Felder in eckigen Klammern aus, bevor du diesen Brief sendest.';
+
+  @override
+  String get agentTaskValidationPromptRequest =>
+      'Prüfe die Informationen und fülle die Felder in eckigen Klammern aus, bevor du diese Anfrage sendest.';
+
+  @override
+  String agentFieldRevenuBrutValue(String range) {
+    return '~$range CHF/Jahr';
+  }
+
+  @override
+  String agentFieldRachatLppValue(String range) {
+    return '~$range CHF';
+  }
+
+  @override
+  String get agentFieldAnneRef => 'Referenzjahr';
+
+  @override
+  String get agentFieldCaissePension => 'Pensionskasse';
+
+  @override
+  String get agentFieldAddressPerso => 'Persönliche Adresse';
+
+  @override
+  String get agentFieldAddresseCaisse => 'Pensionskassenadresse';
+
+  @override
+  String get agentFieldNumeroPolice => 'Policennummer';
+
+  @override
+  String get agentFieldNumeroAvs => 'AHV-Nummer';
+
+  @override
+  String get agentFieldAddresseCaisseAvs => 'AHV-Kassenadresse';
+
+  @override
+  String get agentFiscalDossierRevenu => 'Geschätztes Bruttoeinkommen';
+
+  @override
+  String get agentFiscalDossierPlafond3a => 'Anwendbares Säule-3a-Limit';
+
+  @override
+  String get agentFiscalDossierRachat => 'Verfügbarer BVG-Einkauf';
+
+  @override
+  String get agentFiscalDossierCapital3a => 'Angesammeltes Säule-3a-Kapital';
+
+  @override
+  String get proactiveLifecycleChange =>
+      'Du bist gerade in eine neue Lebensphase eingetreten. Sollen wir schauen, was das für dich ändert?';
+
+  @override
+  String get proactiveWeeklyRecap =>
+      'Deine wöchentliche Zusammenfassung ist bereit. Möchtest du sie sehen ?';
+
+  @override
+  String proactiveGoalMilestone(String progress) {
+    return 'Dein Ziel hat $progress % erreicht. Gut gemacht !';
+  }
+
+  @override
+  String proactiveSeasonalReminder(String event) {
+    return 'Es ist die Saison $event. Ein guter Zeitpunkt…';
+  }
+
+  @override
+  String proactiveInactivityReturn(String days) {
+    return 'Schön, dich wiederzusehen ! Es sind $days Tage vergangen. Machen wir den Punkt ?';
+  }
+
+  @override
+  String proactiveConfidenceUp(String delta) {
+    return 'Dein Vertrauen ist seit dem letzten Mal um $delta Punkte gestiegen.';
+  }
+
+  @override
+  String get proactiveNewCap => 'Ich habe eine neue Priorität für dich.';
 }

@@ -9102,5 +9102,131 @@
   "agentFormsAvsCta": "Request my AVS extract",
   "agentFormsAvsSubtitle": "Letter template ready to send",
   "agentFormsLppCta": "Request LPP transfer",
-  "agentFormsLppSubtitle": "Vested benefits transfer letter"
+  "agentFormsLppSubtitle": "Vested benefits transfer letter",
+
+  "notifThreeATitle": "3a Deadline",
+  "notifThreeA92Days": "92 days left to contribute to your 3a.",
+  "notifThreeA61Days": "61 days left. Estimated savings: CHF {saving}.",
+  "@notifThreeA61Days": {
+    "placeholders": {
+      "saving": { "type": "String" }
+    }
+  },
+  "notifThreeALastMonth": "Last month for your 3a. CHF {saving} in savings at stake.",
+  "@notifThreeALastMonth": {
+    "placeholders": {
+      "saving": { "type": "String" }
+    }
+  },
+  "notifThreeA11Days": "11 days. Final 3a reminder.",
+  "notifNewYearTitle": "New limits {year}",
+  "@notifNewYearTitle": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "notifNewYearBody": "New limits {year}. Your potential savings have changed.",
+  "@notifNewYearBody": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "notifCheckInTitle": "Monthly check-in",
+  "notifCheckInBody": "Your monthly check-in is available.",
+  "notifTaxTitle": "Tax return",
+  "notifTax44Days": "Tax return due in 44 days. Start gathering your documents.",
+  "notifTax16Days": "Tax return due in 16 days. Start filling it in.",
+  "notifTaxLastWeek": "Tax return due before 31 March. Last week.",
+  "notifFriTitle": "Resilience score",
+  "notifFriCheckIn": "Since your last check-in: {delta} points.",
+  "@notifFriCheckIn": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "notifFriImproved": "Your resilience has improved by {delta} points.",
+  "@notifFriImproved": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "notifProfileUpdatedTitle": "Profile updated",
+  "notifProfileUpdatedBody": "Your profile has been updated. New projections available.",
+  "notifOffTrackTitle": "You are drifting from your plan",
+  "notifOffTrackBody": "Adherence at {adherence}% across {total} actions. Linear estimate (excl. returns/tax): ~CHF {impact}.",
+  "@notifOffTrackBody": {
+    "placeholders": {
+      "adherence": { "type": "String" },
+      "total": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+
+  "agentTaskTaxDeclarationTitle": "Tax return pre-fill",
+  "agentTaskTaxDeclarationDesc": "Estimated main fields of your tax return based on your MINT profile. All amounts are approximate.",
+  "agentTaskThreeAFormTitle": "3a contribution form pre-fill",
+  "agentTaskThreeAFormDesc": "Basic details for a pillar 3 contribution. The limit is calculated based on your employment status.",
+  "agentTaskCaisseLetterTitle": "Letter to pension fund",
+  "agentTaskCaisseLetterDesc": "Formal letter template to request an LPP certificate, buyback confirmation and early retirement simulation.",
+  "agentTaskFiscalDossierTitle": "Tax dossier preparation",
+  "agentTaskFiscalDossierDesc": "Educational summary of your estimated tax situation with possible deductions and questions to ask a specialist.",
+  "agentTaskAvsExtractTitle": "AVS extract request",
+  "agentTaskAvsExtractDesc": "Letter template to request an individual account extract (CI) from your AVS compensation fund.",
+  "agentTaskLppCertificateTitle": "LPP certificate request",
+  "agentTaskLppCertificateDesc": "Letter template to request an updated occupational pension certificate from your pension fund.",
+  "agentTaskDisclaimer": "This tool is purely educational and does not constitute financial, tax or legal advice. Amounts shown are indicative estimates. Consult a qualified specialist before any decision. In accordance with LSFin.",
+  "agentTaskValidationPromptDefault": "Check each piece of information carefully before use. All fields are estimates to be confirmed.",
+  "agentTaskValidationPromptLetter": "Check the information and complete the fields in brackets before sending this letter.",
+  "agentTaskValidationPromptRequest": "Check the information and complete the fields in brackets before sending this request.",
+  "agentFieldRevenuBrutValue": "~{range}\u00a0CHF/year",
+  "@agentFieldRevenuBrutValue": {
+    "placeholders": {
+      "range": { "type": "String" }
+    }
+  },
+  "agentFieldRachatLppValue": "~{range}\u00a0CHF",
+  "@agentFieldRachatLppValue": {
+    "placeholders": {
+      "range": { "type": "String" }
+    }
+  },
+  "agentFieldAnneRef": "Reference year",
+  "agentFieldCaissePension": "Pension fund",
+  "agentFieldAddressPerso": "Personal address",
+  "agentFieldAddresseCaisse": "Pension fund address",
+  "agentFieldNumeroPolice": "Policy number",
+  "agentFieldNumeroAvs": "AVS number",
+  "agentFieldAddresseCaisseAvs": "AVS fund address",
+  "agentFiscalDossierRevenu": "Estimated gross income",
+  "agentFiscalDossierPlafond3a": "Applicable 3a limit",
+  "agentFiscalDossierRachat": "Available LPP buyback",
+  "agentFiscalDossierCapital3a": "Accumulated 3a capital",
+
+  "proactiveLifecycleChange": "You have just entered a new life phase. Shall we look at what changes for you?",
+  "proactiveWeeklyRecap": "Your weekly recap is ready. Want to see it?",
+  "proactiveGoalMilestone": "Your goal has passed {progress}%. Well done!",
+  "@proactiveGoalMilestone": {
+    "placeholders": {
+      "progress": { "type": "String" }
+    }
+  },
+  "proactiveSeasonalReminder": "It's the {event} season. A good time to\u2026",
+  "@proactiveSeasonalReminder": {
+    "placeholders": {
+      "event": { "type": "String" }
+    }
+  },
+  "proactiveInactivityReturn": "Good to see you again! It's been {days} days. Shall we catch up?",
+  "@proactiveInactivityReturn": {
+    "placeholders": {
+      "days": { "type": "String" }
+    }
+  },
+  "proactiveConfidenceUp": "Your confidence score has improved by {delta} pts since last time.",
+  "@proactiveConfidenceUp": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "proactiveNewCap": "I have a new priority for you."
 }
