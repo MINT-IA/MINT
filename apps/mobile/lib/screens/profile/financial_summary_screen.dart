@@ -444,7 +444,7 @@ class FinancialSummaryScreen extends StatelessWidget {
               FilledButton(
                 onPressed: () {
                   _applyEdits(context, controllers);
-                  Navigator.of(ctx).pop();
+                  ctx.pop();
                 },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,

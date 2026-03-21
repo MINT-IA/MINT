@@ -3396,8 +3396,8 @@ class SFr extends S {
   String get coachExplore => 'Explorer';
 
   @override
-  String get coachDisclaimer =>
-      'Outil éducatif — les réponses ne constituent pas un conseil financier. LSFin.';
+  String get coachPulseDisclaimer =>
+      'Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.';
 
   @override
   String get eduTheme3aTitle => 'Le 3e pilier (3a)';
@@ -12630,22 +12630,22 @@ class SFr extends S {
 
   @override
   String coachGreetingSlm(String name) {
-    return 'Salut $name. Tes questions restent sur ton appareil — rien ne sort. Pose ta question, on regarde tes chiffres ensemble.';
+    return 'Salut $name. Tout reste sur ton appareil — rien ne sort. C\'est quoi ta question ?';
   }
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Salut $name. Pose ta question — je regarde tes chiffres et je te dis ce que j\'en pense.$scoreSuffix';
+    return 'Salut $name. Je regarde tes chiffres — dis-moi ce qui te trotte dans la tête.$scoreSuffix';
   }
 
   @override
   String coachScoreSuffix(int score) {
-    return ' En ce moment, tu es à $score/100.';
+    return ' Ton score : $score/100 — voyons où ça coince.';
   }
 
   @override
   String get coachComplianceError =>
-      'Je préfère rester net sur celle-ci. Reformule, ou passe par un outil plus direct.';
+      'Je préfère ne pas répondre à ça. Reformule ta question, ou utilise un simulateur pour un chiffre direct.';
 
   @override
   String get coachErrorInvalidKey =>
@@ -12663,34 +12663,34 @@ class SFr extends S {
       'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.';
 
   @override
-  String get coachSuggestSimulate3a => 'Simuler un versement 3a';
+  String get coachSuggestSimulate3a => 'Combien économiser avec le 3a ?';
 
   @override
-  String get coachSuggestView3a => 'Voir mes comptes 3a';
+  String get coachSuggestView3a => 'L\'état de mes comptes 3a';
 
   @override
-  String get coachSuggestSimulateLpp => 'Simuler un rachat LPP';
+  String get coachSuggestSimulateLpp => 'Chiffrer un rachat LPP';
 
   @override
-  String get coachSuggestUnderstandLpp => 'Comprendre mon rachat LPP';
+  String get coachSuggestUnderstandLpp => 'Comment fonctionne le rachat LPP ?';
 
   @override
-  String get coachSuggestTrajectory => 'Voir où j\'en suis';
+  String get coachSuggestTrajectory => 'Ma trajectoire vers la retraite';
 
   @override
-  String get coachSuggestScenarios => 'Explorer mes scénarios';
+  String get coachSuggestScenarios => 'Rente ou capital : lequel me convient ?';
 
   @override
-  String get coachSuggestDeductions => 'Où alléger mes impôts';
+  String get coachSuggestDeductions => 'Où réduire mes impôts cette année ?';
 
   @override
-  String get coachSuggestTaxImpact => 'Simuler l\'impact fiscal';
+  String get coachSuggestTaxImpact => 'Calculer l’économie fiscale';
 
   @override
-  String get coachSuggestFitness => 'Où j\'en suis';
+  String get coachSuggestFitness => 'Mon score financier en détail';
 
   @override
-  String get coachSuggestRetirement => 'Ma retraite, concrètement';
+  String get coachSuggestRetirement => 'À 65 ans, combien j’aurai ?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -12709,7 +12709,7 @@ class SFr extends S {
   String get coachTooltipSettings => 'Paramètres IA';
 
   @override
-  String get coachTooltipLifeEvent => 'Evenement de vie';
+  String get coachTooltipLifeEvent => 'Événement de vie';
 
   @override
   String get coachTierSlm => 'IA on-device';
@@ -12730,13 +12730,17 @@ class SFr extends S {
   String get coachBadgeFallback => 'Hors-ligne';
 
   @override
-  String get coachLoading => 'Je regarde ça...';
+  String get coachDisclaimer =>
+      'Outil éducatif — les réponses ne constituent pas un conseil financier (LSFin art. 3). Consulte un·e spécialiste pour les décisions importantes.';
+
+  @override
+  String get coachLoading => 'Je regarde tes chiffres…';
 
   @override
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'Pose ta question, ou ouvre un sujet';
+  String get coachInputHint => 'Une question sur tes finances ?';
 
   @override
   String get coachTitle => 'Coach MINT';
@@ -17980,4 +17984,214 @@ class SFr extends S {
   @override
   String get concubinageDecisionMatrixConclusionDesc =>
       'Le choix dépend de ta situation personnelle. Consulte un·e notaire pour une analyse complète.';
+
+  @override
+  String get mortgageJourneyTitle => 'Parcours achat immobilier';
+
+  @override
+  String get mortgageJourneySubtitle =>
+      '7 étapes pour passer de « est-ce que je peux ? » à « j\'ai signé ! »';
+
+  @override
+  String get mortgageJourneyPrevious => 'Précédent';
+
+  @override
+  String get mortgageJourneyNextStep => 'Étape suivante';
+
+  @override
+  String get mortgageJourneyComplete => '✅ Parcours complet !';
+
+  @override
+  String get clause3aTitle => 'La clause 3a oubliée';
+
+  @override
+  String get clause3aQuestion => 'As-tu déposé une clause bénéficiaire ?';
+
+  @override
+  String get clause3aStepsTitle => 'Comment déposer une clause en 5 minutes :';
+
+  @override
+  String clause3aFeedbackOk(String partner) {
+    return 'Bien ! Vérifie que la clause désigne bien $partner — et qu’elle est à jour après chaque événement de vie.';
+  }
+
+  @override
+  String get clause3aFeedbackNok =>
+      'Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.';
+
+  @override
+  String get fiscalSuperpowerTitle => 'Le super-pouvoir fiscal';
+
+  @override
+  String get fiscalSuperpowerSubtitle =>
+      'L’État te rend de l’argent pour avoir un enfant.';
+
+  @override
+  String get fiscalSuperpowerTaxBenefits => 'Tes avantages fiscaux';
+
+  @override
+  String get babyCostTitle => 'Le coût du bonheur';
+
+  @override
+  String get babyCostBreakdownTitle => 'Décomposition mensuelle';
+
+  @override
+  String get lifeEventSheetTitle => 'Il m’arrive quelque chose';
+
+  @override
+  String get lifeEventSheetSubtitle =>
+      'Choisis un événement pour voir l’impact financier';
+
+  @override
+  String get lifeEventSheetSectionFamille => 'Famille';
+
+  @override
+  String get lifeEventSheetSectionPro => 'Professionnel';
+
+  @override
+  String get lifeEventSheetSectionPatrimoine => 'Patrimoine';
+
+  @override
+  String get lifeEventSheetSectionMobilite => 'Mobilité';
+
+  @override
+  String get lifeEventSheetSectionSante => 'Santé';
+
+  @override
+  String get lifeEventSheetSectionCrise => 'Crise';
+
+  @override
+  String get lifeEventLabelMariage => 'Je me marie';
+
+  @override
+  String get lifeEventLabelDivorce => 'Je divorce';
+
+  @override
+  String get lifeEventLabelNaissance => 'J’attends un enfant';
+
+  @override
+  String get lifeEventLabelConcubinage => 'On vit ensemble';
+
+  @override
+  String get lifeEventLabelDeces => 'Décès d’un proche';
+
+  @override
+  String get lifeEventLabelPremierEmploi => 'Premier emploi';
+
+  @override
+  String get lifeEventLabelNouveauJob => 'Nouveau job';
+
+  @override
+  String get lifeEventLabelIndependant => 'Je me mets à mon compte';
+
+  @override
+  String get lifeEventLabelPerteEmploi => 'Perte d’emploi';
+
+  @override
+  String get lifeEventLabelRetraite => 'Je pars à la retraite';
+
+  @override
+  String get lifeEventLabelAchatImmo => 'Achat immobilier';
+
+  @override
+  String get lifeEventLabelVenteImmo => 'Vente immobilière';
+
+  @override
+  String get lifeEventLabelHeritage => 'Je reçois un héritage';
+
+  @override
+  String get lifeEventLabelDonation => 'Je veux donner à mes enfants';
+
+  @override
+  String get lifeEventLabelDemenagement => 'Déménagement de canton';
+
+  @override
+  String get lifeEventLabelExpatriation => 'Je pars à l’étranger';
+
+  @override
+  String get lifeEventLabelInvalidite => 'Suis-je bien couvert·e ?';
+
+  @override
+  String get lifeEventLabelDettes => 'J’ai des dettes';
+
+  @override
+  String get lifeEventPromptMariage =>
+      'Je me marie — quel impact sur mes impôts, mon AVS et ma prévoyance ?';
+
+  @override
+  String get lifeEventPromptDivorce =>
+      'Je divorce — que se passe-t-il avec la LPP et les impôts ?';
+
+  @override
+  String get lifeEventPromptNaissance =>
+      'J’attends un enfant — quelles aides et déductions sont disponibles ?';
+
+  @override
+  String get lifeEventPromptConcubinage =>
+      'On n’est pas mariés — comment se protéger en cas de pépin ?';
+
+  @override
+  String get lifeEventPromptDeces =>
+      'Décès d’un proche — quelles démarches financières dois-je faire ?';
+
+  @override
+  String get lifeEventPromptPremierEmploi =>
+      'C’est mon premier job — que dois-je savoir sur ma prévoyance et mes cotisations ?';
+
+  @override
+  String get lifeEventPromptNouveauJob =>
+      'Je change d’emploi — comment comparer les offres et gérer mon libre passage ?';
+
+  @override
+  String get lifeEventPromptIndependant =>
+      'Je me mets à mon compte — quelles options de prévoyance sans LPP ?';
+
+  @override
+  String get lifeEventPromptPerteEmploi =>
+      'J’ai perdu mon emploi — quelles sont mes indemnités et combien de temps ?';
+
+  @override
+  String get lifeEventPromptRetraite =>
+      'Quand puis-je partir à la retraite et combien vais-je toucher ?';
+
+  @override
+  String get lifeEventPromptAchatImmo =>
+      'Est-ce que je peux acheter un bien immobilier avec mes revenus et mon apport ?';
+
+  @override
+  String get lifeEventPromptVenteImmo =>
+      'Je vends mon bien — quel impôt sur le gain immobilier dois-je prévoir ?';
+
+  @override
+  String get lifeEventPromptHeritage =>
+      'Je reçois un héritage — quelles sont les conséquences fiscales ?';
+
+  @override
+  String get lifeEventPromptDonation =>
+      'Je veux donner à mes enfants — quel impact fiscal et quelles limites ?';
+
+  @override
+  String get lifeEventPromptDemenagement =>
+      'Je déménage de canton — quel impact fiscal dois-je anticiper ?';
+
+  @override
+  String get lifeEventPromptExpatriation =>
+      'Je pars à l’étranger — que faire de ma prévoyance AVS, LPP et 3a ?';
+
+  @override
+  String get lifeEventPromptInvalidite =>
+      'Suis-je bien couvert·e en cas d’invalidité ou d’accident ?';
+
+  @override
+  String get lifeEventPromptDettes =>
+      'J’ai des dettes — comment les gérer sans toucher à ma prévoyance ?';
+
+  @override
+  String compoundDisclaimerInflation(String inflation) {
+    return 'Hypothèses pédagogiques (inflation $inflation %). Les rendements passés ne garantissent pas les rendements futurs.';
+  }
+
+  @override
+  String get interactive3aDisclaimer =>
+      'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.';
 }

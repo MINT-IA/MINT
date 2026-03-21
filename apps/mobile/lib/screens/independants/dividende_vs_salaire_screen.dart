@@ -276,10 +276,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(height: MintSpacing.sm),
           Text(
             saving > 0
-                ? 'Le split adapté te fait économiser '
-                  '${IndependantsService.formatChf(saving)}/an '
-                  'par rapport à 100% salaire'
-                : 'Ajuste le split pour trouver une économie',
+                ? S.of(context)!.dividendeVsSalaireChiffreChocPositive(IndependantsService.formatChf(saving))
+                : S.of(context)!.dividendeVsSalaireChiffreChocNeutral,
             style: MintTextStyles.bodyMedium(color: saving > 0 ? MintColors.white.withValues(alpha: 0.9) : MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -308,15 +306,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Risque de requalification',
+                  S.of(context)!.dividendeVsSalaireRequalificationTitle,
                   style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
-                  'Si la part salaire est inférieure à ~60% du bénéfice, '
-                  'l\'administration fiscale peut requalifier une partie '
-                  'des dividendes en salaire (pratique cantonale variable). '
-                  'Cela entraîne des cotisations AVS rétroactives.',
+                  S.of(context)!.dividendeVsSalaireRequalificationBody,
                   style: MintTextStyles.bodySmall(color: MintColors.error.withValues(alpha: 0.8)),
                 ),
               ],
@@ -341,37 +336,37 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
       child: Column(
         children: [
           _buildResultRow(
-            'Part salaire',
+            S.of(context)!.dividendeVsSalairePartSalaireLabel,
             IndependantsService.formatChf(r.partSalaire),
-            subtitle: '${_partSalairePct.toInt()}% du bénéfice',
+            subtitle: S.of(context)!.dividendeVsSalairePctBenefice(_partSalairePct.toInt()),
           ),
           const SizedBox(height: 12),
           _buildResultRow(
-            'Part dividende',
+            S.of(context)!.dividendeVsSalairePartDividende,
             IndependantsService.formatChf(r.partDividende),
-            subtitle: '${(100 - _partSalairePct).toInt()}% du bénéfice',
+            subtitle: S.of(context)!.dividendeVsSalairePctBenefice((100 - _partSalairePct).toInt()),
           ),
           const Divider(height: 24),
           _buildResultRow(
-            'Charge sur salaire',
+            S.of(context)!.dividendeVsSalaireChargeSalaire,
             IndependantsService.formatChf(r.chargeSalaire),
             color: MintColors.error,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Charge sur dividende',
+            S.of(context)!.dividendeVsSalaireChargeDividende,
             IndependantsService.formatChf(r.chargeDividende),
             color: MintColors.info,
           ),
           const Divider(height: 24),
           _buildResultRow(
-            'Charge totale (split)',
+            S.of(context)!.dividendeVsSalaireChargeTotalSplit,
             IndependantsService.formatChf(r.chargeTotal),
             bold: true,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Charge si 100% salaire',
+            S.of(context)!.dividendeVsSalaireCharge100Salaire,
             IndependantsService.formatChf(r.chargeToutSalaire),
             color: MintColors.textMuted,
           ),
@@ -467,11 +462,11 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           // Legend
           Row(
             children: [
-              _buildChartLegend(MintColors.primary, 'Charge totale'),
+              _buildChartLegend(MintColors.primary, S.of(context)!.dividendeVsSalaireChargeTotale),
               const SizedBox(width: 16),
-              _buildChartLegend(MintColors.success, 'Split adapte'),
+              _buildChartLegend(MintColors.success, S.of(context)!.dividendeVsSalaireSplitAdapte),
               const SizedBox(width: 16),
-              _buildChartLegend(MintColors.info, 'Position actuelle'),
+              _buildChartLegend(MintColors.info, S.of(context)!.dividendeVsSalairePositionActuelle),
             ],
           ),
         ],
@@ -510,7 +505,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'À RETENIR',
+              S.of(context)!.dividendeVsSalaireARetenir,
               style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
             ),
           ],
@@ -518,24 +513,18 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'Impôt sur le bénéfice',
-          'Rappelle-toi que le bénéfice distribué en dividende est '
-          'imposé d\'abord au niveau de la société (impôt sur le bénéfice), '
-          'puis au niveau personnel (double imposition économique).',
+          S.of(context)!.dividendeVsSalaireEduImpotTitle,
+          S.of(context)!.dividendeVsSalaireEduImpotBody,
         ),
         _buildEduCard(
           Icons.people_outline,
-          'AVS uniquement sur le salaire',
-          'Les cotisations AVS (environ 12.5% au total) ne s\'appliquent '
-          'qu\'à la part salaire. Le dividende échappe aux charges sociales, '
-          'd\'où l\'intérêt d\'ajuster le split.',
+          S.of(context)!.dividendeVsSalaireEduAvsTitle,
+          S.of(context)!.dividendeVsSalaireEduAvsBody,
         ),
         _buildEduCard(
           Icons.gavel_outlined,
-          'Pratique cantonale',
-          'Les autorités fiscales surveillent les distributions excessives '
-          'de dividendes. Un salaire "conforme au marché" est attendu. '
-          'La limite varie selon les cantons.',
+          S.of(context)!.dividendeVsSalaireEduCantonalTitle,
+          S.of(context)!.dividendeVsSalaireEduCantonalBody,
         ),
       ],
     );

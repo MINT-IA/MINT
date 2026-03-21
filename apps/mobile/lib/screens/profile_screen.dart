@@ -738,11 +738,11 @@ class ProfileScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
+            onPressed: () => ctx.pop(false),
             child: Text(S.of(context)!.profileDeleteCancel),
           ),
           FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
+            onPressed: () => ctx.pop(true),
             style: FilledButton.styleFrom(backgroundColor: MintColors.error),
             child: Text(S.of(context)!.profileDeleteConfirm),
           ),

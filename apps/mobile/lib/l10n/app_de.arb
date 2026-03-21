@@ -1389,7 +1389,7 @@
   "coachVerse3a": "3a\neinzahlen",
   "coachSimBuyback": "Einkauf\nsimulieren",
   "coachExplore": "Entdecken",
-  "coachDisclaimer": "Paedagogische Schaetzungen — keine Finanzberatung. Vergangene Renditen sind kein Indikator fuer zukuenftige Renditen. Konsultiere eine Fachperson fuer einen personalisierten Plan. FIDLEG.",
+  "coachPulseDisclaimer": "Paedagogische Schaetzungen — keine Finanzberatung. Vergangene Renditen sind kein Indikator fuer zukuenftige Renditen. Konsultiere eine Fachperson fuer einen personalisierten Plan. FIDLEG.",
   "eduTheme3aTitle": "Die 3. Saeule (3a)",
   "eduTheme3aQuestion": "Was ist 3a und warum reden alle darueber?",
   "eduTheme3aAction": "Meine Steuerersparnis schaetzen",
@@ -5987,20 +5987,20 @@
   "disabilityStatLine1": "1 von 5 Personen",
   "disabilityStatLine2": "wird vor 65 betroffen sein",
 
-  "coachGreetingSlm": "Hallo {name}. Deine Fragen bleiben auf deinem Ger\u00e4t \u2014 nichts geht raus. Stell deine Frage, wir schauen uns deine Zahlen gemeinsam an.",
+  "coachGreetingSlm": "Hallo {name}. Alles bleibt auf deinem Ger\u00e4t \u2014 nichts geht raus. Was m\u00f6chtest du wissen\u00a0?",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Hallo {name}. Stell deine Frage \u2014 ich schaue mir deine Zahlen an und sage dir, was ich sehe.{scoreSuffix}",
+  "coachGreetingDefault": "Hallo {name}. Ich schaue mir deine Zahlen an \u2014 sag mir, was dich besch\u00e4ftigt.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
       "scoreSuffix": { "type": "String" }
     }
   },
-  "coachScoreSuffix": " Dein Fitness-Score ist {score}/100.",
+  "coachScoreSuffix": " Dein Score: {score}/100 \u2014 schauen wir, wo es hakt.",
   "@coachScoreSuffix": {
     "placeholders": {
       "score": { "type": "int" }
@@ -6011,16 +6011,16 @@
   "coachErrorRateLimit": "Anfragelimit erreicht. Versuche es in einem Moment erneut.",
   "coachErrorGeneric": "Technischer Fehler. Versuche es später erneut.",
   "coachErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
-  "coachSuggestSimulate3a": "Säule-3a-Einzahlung simulieren",
-  "coachSuggestView3a": "Meine 3a-Konten anzeigen",
-  "coachSuggestSimulateLpp": "BVG-Einkauf simulieren",
-  "coachSuggestUnderstandLpp": "BVG-Einkauf verstehen",
-  "coachSuggestTrajectory": "Meine Trajektorie anzeigen",
-  "coachSuggestScenarios": "Szenarien erkunden",
-  "coachSuggestDeductions": "Mögliche Steuerabzüge",
-  "coachSuggestTaxImpact": "Steuerliche Auswirkung simulieren",
-  "coachSuggestFitness": "Mein Fitness-Score",
-  "coachSuggestRetirement": "Meine Pensionierungs-Trajektorie",
+  "coachSuggestSimulate3a": "Wie viel spare ich mit S\u00e4ule 3a?",
+  "coachSuggestView3a": "Status meiner 3a-Konten",
+  "coachSuggestSimulateLpp": "BVG-Einkauf berechnen",
+  "coachSuggestUnderstandLpp": "Wie funktioniert der BVG-Einkauf?",
+  "coachSuggestTrajectory": "Mein Weg in die Pensionierung",
+  "coachSuggestScenarios": "Rente oder Kapital: was passt zu mir?",
+  "coachSuggestDeductions": "Wo Steuern sparen in diesem Jahr?",
+  "coachSuggestTaxImpact": "Steuerersparnis berechnen",
+  "coachSuggestFitness": "Mein Finanz-Score im Detail",
+  "coachSuggestRetirement": "Mit 65: wie viel werde ich haben?",
   "coachEmptyStateMessage": "Noch kein Profil. Drei Fragen, und wir reden.",
   "coachEmptyStateButton": "Diagnose starten",
   "coachTooltipHistory": "Verlauf",
@@ -6033,10 +6033,10 @@
   "coachBadgeSlm": "On-device",
   "coachBadgeByok": "Cloud",
   "coachBadgeFallback": "Offline",
-  "coachDisclaimer": "Bildungstool — die Antworten stellen keine Finanzberatung dar. FIDLEG.",
-  "coachLoading": "Nachdenken...",
+  "coachDisclaimer": "Bildungstool \u2014 die Antworten stellen keine Finanzberatung dar (FIDLEG Art.\u00a03). Konsultiere eine Fachperson f\u00fcr wichtige Entscheidungen.",
+  "coachLoading": "Ich schaue mir deine Zahlen an\u2026",
   "coachSources": "Quellen",
-  "coachInputHint": "Stelle deine Frage...",
+  "coachInputHint": "Eine Frage zu deinen Finanzen?",
   "coachTitle": "MINT Coach",
   "coachFallbackName": "Freund·in",
   "coachUserMessage": "Deine Nachricht",
@@ -8131,5 +8131,79 @@
   "concubinageDecisionMatrixColumnMarriage": "Ehe",
   "concubinageDecisionMatrixColumnConcubinage": "Konkubinat",
   "concubinageDecisionMatrixConclusionTitle": "Neutrale Schlussfolgerung",
-  "concubinageDecisionMatrixConclusionDesc": "Die Wahl h\u00e4ngt von deiner pers\u00f6nlichen Situation ab. Konsultiere einen Notar f\u00fcr eine vollst\u00e4ndige Analyse."
+  "concubinageDecisionMatrixConclusionDesc": "Die Wahl h\u00e4ngt von deiner pers\u00f6nlichen Situation ab. Konsultiere einen Notar f\u00fcr eine vollst\u00e4ndige Analyse.",
+  "mortgageJourneyTitle": "Wohneigentum-Reise",
+  "mortgageJourneySubtitle": "7 Schritte von \u201eKann ich mir das leisten?\u201c bis \u201eIch habe unterschrieben!\u201c",
+  "mortgageJourneyPrevious": "Zur\u00fcck",
+  "mortgageJourneyNextStep": "N\u00e4chster Schritt",
+  "mortgageJourneyComplete": "\u2705 Reise abgeschlossen!",
+  "clause3aTitle": "Die vergessene 3a-Klausel",
+  "clause3aQuestion": "Hast du eine Beg\u00fcnstigtenklausel hinterlegt?",
+  "clause3aStepsTitle": "So hinterlegst du eine Klausel in 5 Minuten:",
+  "clause3aFeedbackOk": "Gut! \u00dcberpr\u00fcfe, ob die Klausel {partner} nennt \u2014 und dass sie nach jedem Lebensereignis aktuell ist.",
+  "@clause3aFeedbackOk": {
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "clause3aFeedbackNok": "Priorit\u00e4re Ma\u00dfnahme: Hinterlege deine Beg\u00fcnstigtenklausel bei deiner 3a-Stiftung \u2014 in 5 Minuten.",
+  "fiscalSuperpowerTitle": "Die steuerliche Superkraft",
+  "fiscalSuperpowerSubtitle": "Der Staat gibt dir Geld zur\u00fcck, wenn du ein Kind hast.",
+  "fiscalSuperpowerTaxBenefits": "Deine Steuervorteile",
+  "babyCostTitle": "Die Kosten des Gl\u00fcks",
+  "babyCostBreakdownTitle": "Monatliche Aufschl\u00fcsselung",
+  "compoundDisclaimerInflation": "P\u00e4dagogische Annahmen (Inflation\u00a0{inflation}\u00a0%). Vergangene Renditen sind keine Garantie f\u00fcr zuk\u00fcnftige Ergebnisse.",
+  "@compoundDisclaimerInflation": {
+    "placeholders": {
+      "inflation": {"type": "String"}
+    }
+  },
+  "interactive3aDisclaimer": "P\u00e4dagogische Annahmen. Vergangene Renditen garantieren keine zuk\u00fcnftigen Renditen.",
+
+  "lifeEventSheetTitle": "Etwas passiert mir",
+  "lifeEventSheetSubtitle": "W\u00e4hle ein Ereignis, um die finanzielle Auswirkung zu sehen",
+  "lifeEventSheetSectionFamille": "Familie",
+  "lifeEventSheetSectionPro": "Beruflich",
+  "lifeEventSheetSectionPatrimoine": "Verm\u00f6gen",
+  "lifeEventSheetSectionMobilite": "Mobilit\u00e4t",
+  "lifeEventSheetSectionSante": "Gesundheit",
+  "lifeEventSheetSectionCrise": "Krise",
+  "lifeEventLabelMariage": "Ich heirate",
+  "lifeEventLabelDivorce": "Ich lasse mich scheiden",
+  "lifeEventLabelNaissance": "Ich erwarte ein Kind",
+  "lifeEventLabelConcubinage": "Wir leben zusammen",
+  "lifeEventLabelDeces": "Tod einer nahestehenden Person",
+  "lifeEventLabelPremierEmploi": "Erste Stelle",
+  "lifeEventLabelNouveauJob": "Neue Stelle",
+  "lifeEventLabelIndependant": "Ich mache mich selbst\u00e4ndig",
+  "lifeEventLabelPerteEmploi": "Stellenverlust",
+  "lifeEventLabelRetraite": "Ich gehe in Pension",
+  "lifeEventLabelAchatImmo": "Immobilienkauf",
+  "lifeEventLabelVenteImmo": "Immobilienverkauf",
+  "lifeEventLabelHeritage": "Ich erhalte ein Erbe",
+  "lifeEventLabelDonation": "Ich m\u00f6chte meinen Kindern etwas schenken",
+  "lifeEventLabelDemenagement": "Kantonswechsel",
+  "lifeEventLabelExpatriation": "Ich ziehe ins Ausland",
+  "lifeEventLabelInvalidite": "Bin ich gut versichert?",
+  "lifeEventLabelDettes": "Ich habe Schulden",
+  "lifeEventPromptMariage": "Ich heirate \u2014 welche Auswirkungen auf meine Steuern, AHV und Vorsorge?",
+  "lifeEventPromptDivorce": "Ich lasse mich scheiden \u2014 was passiert mit BVG und Steuern?",
+  "lifeEventPromptNaissance": "Ich erwarte ein Kind \u2014 welche Beihilfen und Abz\u00fcge stehen mir zu?",
+  "lifeEventPromptConcubinage": "Wir sind nicht verheiratet \u2014 wie sch\u00fctzen wir uns gegenseitig?",
+  "lifeEventPromptDeces": "Tod einer nahestehenden Person \u2014 welche finanziellen Schritte muss ich unternehmen?",
+  "lifeEventPromptPremierEmploi": "Es ist meine erste Stelle \u2014 was muss ich \u00fcber Vorsorge und Beitr\u00e4ge wissen?",
+  "lifeEventPromptNouveauJob": "Ich wechsle die Stelle \u2014 wie Angebote vergleichen und Freiz\u00fcgigkeitsguthaben verwalten?",
+  "lifeEventPromptIndependant": "Ich mache mich selbst\u00e4ndig \u2014 welche Vorsorgeoptionen ohne BVG?",
+  "lifeEventPromptPerteEmploi": "Ich habe meine Stelle verloren \u2014 welche ALV-Leistungen und wie lange?",
+  "lifeEventPromptRetraite": "Wann kann ich in Pension gehen und wie viel werde ich erhalten?",
+  "lifeEventPromptAchatImmo": "Kann ich mit meinem Einkommen und Eigenkapital eine Immobilie kaufen?",
+  "lifeEventPromptVenteImmo": "Ich verkaufe meine Immobilie \u2014 welche Grundstückgewinnsteuer erwarten mich?",
+  "lifeEventPromptHeritage": "Ich erhalte ein Erbe \u2014 welche steuerlichen Folgen hat das?",
+  "lifeEventPromptDonation": "Ich m\u00f6chte meinen Kindern etwas schenken \u2014 welche steuerlichen Auswirkungen?",
+  "lifeEventPromptDemenagement": "Ich wechsle den Kanton \u2014 welche steuerlichen Auswirkungen muss ich einplanen?",
+  "lifeEventPromptExpatriation": "Ich ziehe ins Ausland \u2014 was mache ich mit meiner AHV, BVG und S\u00e4ule 3a?",
+  "lifeEventPromptInvalidite": "Bin ich gut versichert im Falle einer Invalidit\u00e4t oder eines Unfalls?",
+  "lifeEventPromptDettes": "Ich habe Schulden \u2014 wie verwalte ich sie, ohne meine Vorsorge anzutasten?"
 }

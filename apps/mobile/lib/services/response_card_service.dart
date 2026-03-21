@@ -107,7 +107,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'libre_passage',
         title: 'Libre passage',
-        subtitle: 'Que faire de ton avoir de libre passage',
+        subtitle: 'Que faire de ton avoir de libre passage\u00a0?',
         route: '/libre-passage',
         sources: ['LPP art. 2', 'LFLP art. 4'],
       ));
@@ -118,7 +118,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'rente_vs_capital',
         title: 'Rente vs Capital',
-        subtitle: 'Quel choix te convient ?',
+        subtitle: 'Rente ou capital\u00a0: chiffrer les deux options',
         route: '/rente-vs-capital',
         sources: ['LPP art. 37', 'LIFD art. 22/38'],
       ));
@@ -138,7 +138,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'fiscal_comparator',
         title: 'Comparateur cantonal',
-        subtitle: 'Compare la charge fiscale entre cantons',
+        subtitle: 'Combien gagnerais-tu \u00e0 d\u00e9m\u00e9nager\u00a0?',
         route: '/fiscal',
         sources: ['LIFD art. 1', 'LHID'],
       ));
@@ -364,7 +364,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'job_comparison',
         title: 'Comparateur d\'offres',
-        subtitle: 'Compare deux offres d\'emploi (net + pr\u00e9voyance)',
+        subtitle: 'Net + pr\u00e9voyance\u00a0: quelle offre vaut vraiment plus\u00a0?',
         route: '/simulator/job-comparison',
         sources: ['CO art. 319ss'],
       ));
@@ -436,7 +436,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'budget',
         title: 'Budget',
-        subtitle: 'Ta marge mensuelle',
+        subtitle: 'Combien il te reste \u00e0 la fin du mois\u00a0?',
         route: '/budget',
         sources: [],
       ));
@@ -446,7 +446,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'debt_ratio',
         title: 'Ratio d\'endettement',
-        subtitle: 'Evaluer ta situation de dette',
+        subtitle: '\u00c0 partir de quel seuil les dettes deviennent dangereuses\u00a0?',
         route: '/debt/ratio',
         sources: ['CO art. 305ss'],
       ));
@@ -901,7 +901,7 @@ class ResponseCardService {
         unit: '',
         explanation: '',
       ),
-      cta: CardCta(label: 'Explorer →', route: route),
+      cta: CardCta(label: 'Voir le d\u00e9tail \u2192', route: route),
       disclaimer: _disclaimer,
       sources: sources,
       impactPoints: 10,

@@ -3398,8 +3398,8 @@ class SDe extends S {
   String get coachExplore => 'Entdecken';
 
   @override
-  String get coachDisclaimer =>
-      'Bildungstool — die Antworten stellen keine Finanzberatung dar. FIDLEG.';
+  String get coachPulseDisclaimer =>
+      'Paedagogische Schaetzungen — keine Finanzberatung. Vergangene Renditen sind kein Indikator fuer zukuenftige Renditen. Konsultiere eine Fachperson fuer einen personalisierten Plan. FIDLEG.';
 
   @override
   String get eduTheme3aTitle => 'Die 3. Saeule (3a)';
@@ -12645,17 +12645,17 @@ class SDe extends S {
 
   @override
   String coachGreetingSlm(String name) {
-    return 'Hallo $name. Deine Fragen bleiben auf deinem Gerät — nichts geht raus. Stell deine Frage, wir schauen uns deine Zahlen gemeinsam an.';
+    return 'Hallo $name. Alles bleibt auf deinem Gerät — nichts geht raus. Was möchtest du wissen ?';
   }
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Hallo $name. Stell deine Frage — ich schaue mir deine Zahlen an und sage dir, was ich sehe.$scoreSuffix';
+    return 'Hallo $name. Ich schaue mir deine Zahlen an — sag mir, was dich beschäftigt.$scoreSuffix';
   }
 
   @override
   String coachScoreSuffix(int score) {
-    return ' Dein Fitness-Score ist $score/100.';
+    return ' Dein Score: $score/100 — schauen wir, wo es hakt.';
   }
 
   @override
@@ -12679,34 +12679,34 @@ class SDe extends S {
       'Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.';
 
   @override
-  String get coachSuggestSimulate3a => 'Säule-3a-Einzahlung simulieren';
+  String get coachSuggestSimulate3a => 'Wie viel spare ich mit Säule 3a?';
 
   @override
-  String get coachSuggestView3a => 'Meine 3a-Konten anzeigen';
+  String get coachSuggestView3a => 'Status meiner 3a-Konten';
 
   @override
-  String get coachSuggestSimulateLpp => 'BVG-Einkauf simulieren';
+  String get coachSuggestSimulateLpp => 'BVG-Einkauf berechnen';
 
   @override
-  String get coachSuggestUnderstandLpp => 'BVG-Einkauf verstehen';
+  String get coachSuggestUnderstandLpp => 'Wie funktioniert der BVG-Einkauf?';
 
   @override
-  String get coachSuggestTrajectory => 'Meine Trajektorie anzeigen';
+  String get coachSuggestTrajectory => 'Mein Weg in die Pensionierung';
 
   @override
-  String get coachSuggestScenarios => 'Szenarien erkunden';
+  String get coachSuggestScenarios => 'Rente oder Kapital: was passt zu mir?';
 
   @override
-  String get coachSuggestDeductions => 'Mögliche Steuerabzüge';
+  String get coachSuggestDeductions => 'Wo Steuern sparen in diesem Jahr?';
 
   @override
-  String get coachSuggestTaxImpact => 'Steuerliche Auswirkung simulieren';
+  String get coachSuggestTaxImpact => 'Steuerersparnis berechnen';
 
   @override
-  String get coachSuggestFitness => 'Mein Fitness-Score';
+  String get coachSuggestFitness => 'Mein Finanz-Score im Detail';
 
   @override
-  String get coachSuggestRetirement => 'Meine Pensionierungs-Trajektorie';
+  String get coachSuggestRetirement => 'Mit 65: wie viel werde ich haben?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -12746,13 +12746,17 @@ class SDe extends S {
   String get coachBadgeFallback => 'Offline';
 
   @override
-  String get coachLoading => 'Nachdenken...';
+  String get coachDisclaimer =>
+      'Bildungstool — die Antworten stellen keine Finanzberatung dar (FIDLEG Art. 3). Konsultiere eine Fachperson für wichtige Entscheidungen.';
+
+  @override
+  String get coachLoading => 'Ich schaue mir deine Zahlen an…';
 
   @override
   String get coachSources => 'Quellen';
 
   @override
-  String get coachInputHint => 'Stelle deine Frage...';
+  String get coachInputHint => 'Eine Frage zu deinen Finanzen?';
 
   @override
   String get coachTitle => 'MINT Coach';
@@ -17999,4 +18003,216 @@ class SDe extends S {
   @override
   String get concubinageDecisionMatrixConclusionDesc =>
       'Die Wahl hängt von deiner persönlichen Situation ab. Konsultiere einen Notar für eine vollständige Analyse.';
+
+  @override
+  String get mortgageJourneyTitle => 'Wohneigentum-Reise';
+
+  @override
+  String get mortgageJourneySubtitle =>
+      '7 Schritte von „Kann ich mir das leisten?“ bis „Ich habe unterschrieben!“';
+
+  @override
+  String get mortgageJourneyPrevious => 'Zurück';
+
+  @override
+  String get mortgageJourneyNextStep => 'Nächster Schritt';
+
+  @override
+  String get mortgageJourneyComplete => '✅ Reise abgeschlossen!';
+
+  @override
+  String get clause3aTitle => 'Die vergessene 3a-Klausel';
+
+  @override
+  String get clause3aQuestion => 'Hast du eine Begünstigtenklausel hinterlegt?';
+
+  @override
+  String get clause3aStepsTitle =>
+      'So hinterlegst du eine Klausel in 5 Minuten:';
+
+  @override
+  String clause3aFeedbackOk(String partner) {
+    return 'Gut! Überprüfe, ob die Klausel $partner nennt — und dass sie nach jedem Lebensereignis aktuell ist.';
+  }
+
+  @override
+  String get clause3aFeedbackNok =>
+      'Prioritäre Maßnahme: Hinterlege deine Begünstigtenklausel bei deiner 3a-Stiftung — in 5 Minuten.';
+
+  @override
+  String get fiscalSuperpowerTitle => 'Die steuerliche Superkraft';
+
+  @override
+  String get fiscalSuperpowerSubtitle =>
+      'Der Staat gibt dir Geld zurück, wenn du ein Kind hast.';
+
+  @override
+  String get fiscalSuperpowerTaxBenefits => 'Deine Steuervorteile';
+
+  @override
+  String get babyCostTitle => 'Die Kosten des Glüks';
+
+  @override
+  String get babyCostBreakdownTitle => 'Monatliche Aufschlüsselung';
+
+  @override
+  String get lifeEventSheetTitle => 'Etwas passiert mir';
+
+  @override
+  String get lifeEventSheetSubtitle =>
+      'Wähle ein Ereignis, um die finanzielle Auswirkung zu sehen';
+
+  @override
+  String get lifeEventSheetSectionFamille => 'Familie';
+
+  @override
+  String get lifeEventSheetSectionPro => 'Beruflich';
+
+  @override
+  String get lifeEventSheetSectionPatrimoine => 'Vermögen';
+
+  @override
+  String get lifeEventSheetSectionMobilite => 'Mobilität';
+
+  @override
+  String get lifeEventSheetSectionSante => 'Gesundheit';
+
+  @override
+  String get lifeEventSheetSectionCrise => 'Krise';
+
+  @override
+  String get lifeEventLabelMariage => 'Ich heirate';
+
+  @override
+  String get lifeEventLabelDivorce => 'Ich lasse mich scheiden';
+
+  @override
+  String get lifeEventLabelNaissance => 'Ich erwarte ein Kind';
+
+  @override
+  String get lifeEventLabelConcubinage => 'Wir leben zusammen';
+
+  @override
+  String get lifeEventLabelDeces => 'Tod einer nahestehenden Person';
+
+  @override
+  String get lifeEventLabelPremierEmploi => 'Erste Stelle';
+
+  @override
+  String get lifeEventLabelNouveauJob => 'Neue Stelle';
+
+  @override
+  String get lifeEventLabelIndependant => 'Ich mache mich selbständig';
+
+  @override
+  String get lifeEventLabelPerteEmploi => 'Stellenverlust';
+
+  @override
+  String get lifeEventLabelRetraite => 'Ich gehe in Pension';
+
+  @override
+  String get lifeEventLabelAchatImmo => 'Immobilienkauf';
+
+  @override
+  String get lifeEventLabelVenteImmo => 'Immobilienverkauf';
+
+  @override
+  String get lifeEventLabelHeritage => 'Ich erhalte ein Erbe';
+
+  @override
+  String get lifeEventLabelDonation =>
+      'Ich möchte meinen Kindern etwas schenken';
+
+  @override
+  String get lifeEventLabelDemenagement => 'Kantonswechsel';
+
+  @override
+  String get lifeEventLabelExpatriation => 'Ich ziehe ins Ausland';
+
+  @override
+  String get lifeEventLabelInvalidite => 'Bin ich gut versichert?';
+
+  @override
+  String get lifeEventLabelDettes => 'Ich habe Schulden';
+
+  @override
+  String get lifeEventPromptMariage =>
+      'Ich heirate — welche Auswirkungen auf meine Steuern, AHV und Vorsorge?';
+
+  @override
+  String get lifeEventPromptDivorce =>
+      'Ich lasse mich scheiden — was passiert mit BVG und Steuern?';
+
+  @override
+  String get lifeEventPromptNaissance =>
+      'Ich erwarte ein Kind — welche Beihilfen und Abzüge stehen mir zu?';
+
+  @override
+  String get lifeEventPromptConcubinage =>
+      'Wir sind nicht verheiratet — wie schützen wir uns gegenseitig?';
+
+  @override
+  String get lifeEventPromptDeces =>
+      'Tod einer nahestehenden Person — welche finanziellen Schritte muss ich unternehmen?';
+
+  @override
+  String get lifeEventPromptPremierEmploi =>
+      'Es ist meine erste Stelle — was muss ich über Vorsorge und Beiträge wissen?';
+
+  @override
+  String get lifeEventPromptNouveauJob =>
+      'Ich wechsle die Stelle — wie Angebote vergleichen und Freizügigkeitsguthaben verwalten?';
+
+  @override
+  String get lifeEventPromptIndependant =>
+      'Ich mache mich selbständig — welche Vorsorgeoptionen ohne BVG?';
+
+  @override
+  String get lifeEventPromptPerteEmploi =>
+      'Ich habe meine Stelle verloren — welche ALV-Leistungen und wie lange?';
+
+  @override
+  String get lifeEventPromptRetraite =>
+      'Wann kann ich in Pension gehen und wie viel werde ich erhalten?';
+
+  @override
+  String get lifeEventPromptAchatImmo =>
+      'Kann ich mit meinem Einkommen und Eigenkapital eine Immobilie kaufen?';
+
+  @override
+  String get lifeEventPromptVenteImmo =>
+      'Ich verkaufe meine Immobilie — welche Grundstückgewinnsteuer erwarten mich?';
+
+  @override
+  String get lifeEventPromptHeritage =>
+      'Ich erhalte ein Erbe — welche steuerlichen Folgen hat das?';
+
+  @override
+  String get lifeEventPromptDonation =>
+      'Ich möchte meinen Kindern etwas schenken — welche steuerlichen Auswirkungen?';
+
+  @override
+  String get lifeEventPromptDemenagement =>
+      'Ich wechsle den Kanton — welche steuerlichen Auswirkungen muss ich einplanen?';
+
+  @override
+  String get lifeEventPromptExpatriation =>
+      'Ich ziehe ins Ausland — was mache ich mit meiner AHV, BVG und Säule 3a?';
+
+  @override
+  String get lifeEventPromptInvalidite =>
+      'Bin ich gut versichert im Falle einer Invalidität oder eines Unfalls?';
+
+  @override
+  String get lifeEventPromptDettes =>
+      'Ich habe Schulden — wie verwalte ich sie, ohne meine Vorsorge anzutasten?';
+
+  @override
+  String compoundDisclaimerInflation(String inflation) {
+    return 'Pädagogische Annahmen (Inflation $inflation %). Vergangene Renditen sind keine Garantie für zukünftige Ergebnisse.';
+  }
+
+  @override
+  String get interactive3aDisclaimer =>
+      'Pädagogische Annahmen. Vergangene Renditen garantieren keine zukünftigen Renditen.';
 }

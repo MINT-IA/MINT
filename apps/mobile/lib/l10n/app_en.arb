@@ -1389,7 +1389,7 @@
   "coachVerse3a": "Contribute\n3a",
   "coachSimBuyback": "Simulate\nbuyback",
   "coachExplore": "Explore",
-  "coachDisclaimer": "Educational estimates — not financial advice. Past returns do not predict future returns. Consult a specialist for a personalized plan. FinSA.",
+  "coachPulseDisclaimer": "Educational estimates — not financial advice. Past returns do not predict future returns. Consult a specialist for a personalized plan. FinSA.",
   "eduTheme3aTitle": "Pillar 3a",
   "eduTheme3aQuestion": "What is 3a and why does everyone talk about it?",
   "eduTheme3aAction": "Estimate my tax savings",
@@ -6016,20 +6016,20 @@
   "disabilityStatLine1": "1 in 5 people",
   "disabilityStatLine2": "will be affected before age 65",
 
-  "coachGreetingSlm": "Hi {name}. Your questions stay on your device \u2014 nothing leaves. Ask away, let's look at your numbers together.",
+  "coachGreetingSlm": "Hi {name}. Everything stays on your device \u2014 nothing leaves. What\u2019s on your mind\u00a0?",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Hi {name}. Ask your question \u2014 I'll look at your numbers and share what I see.{scoreSuffix}",
+  "coachGreetingDefault": "Hi {name}. I\u2019m looking at your numbers \u2014 tell me what\u2019s on your mind.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
       "scoreSuffix": { "type": "String" }
     }
   },
-  "coachScoreSuffix": " Your Fitness score is {score}/100.",
+  "coachScoreSuffix": " Your score: {score}/100 \u2014 let\u2019s see where it sticks.",
   "@coachScoreSuffix": {
     "placeholders": {
       "score": { "type": "int" }
@@ -6040,16 +6040,16 @@
   "coachErrorRateLimit": "Rate limit reached. Try again in a moment.",
   "coachErrorGeneric": "Technical error. Try again later.",
   "coachErrorConnection": "Connection error. Check your internet connection or API key.",
-  "coachSuggestSimulate3a": "Simulate a 3a contribution",
-  "coachSuggestView3a": "View my 3a accounts",
-  "coachSuggestSimulateLpp": "Simulate an LPP buyback",
-  "coachSuggestUnderstandLpp": "Understand LPP buyback",
-  "coachSuggestTrajectory": "View my trajectory",
-  "coachSuggestScenarios": "Explore scenarios",
-  "coachSuggestDeductions": "Possible tax deductions",
-  "coachSuggestTaxImpact": "Simulate tax impact",
-  "coachSuggestFitness": "My Fitness score",
-  "coachSuggestRetirement": "My retirement trajectory",
+  "coachSuggestSimulate3a": "How much can I save with pillar 3a?",
+  "coachSuggestView3a": "Status of my 3a accounts",
+  "coachSuggestSimulateLpp": "Calculate an LPP buyback",
+  "coachSuggestUnderstandLpp": "How does LPP buyback work?",
+  "coachSuggestTrajectory": "My trajectory to retirement",
+  "coachSuggestScenarios": "Pension or lump sum: which suits me?",
+  "coachSuggestDeductions": "Where to cut my taxes this year?",
+  "coachSuggestTaxImpact": "Calculate the tax saving",
+  "coachSuggestFitness": "My financial score in detail",
+  "coachSuggestRetirement": "At 65, how much will I have?",
   "coachEmptyStateMessage": "No profile yet. Three questions, and we're talking.",
   "coachEmptyStateButton": "Take my diagnosis",
   "coachTooltipHistory": "History",
@@ -6062,10 +6062,10 @@
   "coachBadgeSlm": "On-device",
   "coachBadgeByok": "Cloud",
   "coachBadgeFallback": "Offline",
-  "coachDisclaimer": "Educational tool — answers do not constitute financial advice. FinSA.",
-  "coachLoading": "Thinking...",
+  "coachDisclaimer": "Educational tool \u2014 answers do not constitute financial advice (FinSA art.\u00a03). Consult a specialist for important decisions.",
+  "coachLoading": "Looking at your numbers\u2026",
   "coachSources": "Sources",
-  "coachInputHint": "Ask your question...",
+  "coachInputHint": "A question about your finances?",
   "coachTitle": "MINT Coach",
   "coachFallbackName": "friend",
   "coachUserMessage": "Your message",
@@ -8161,5 +8161,79 @@
   "concubinageDecisionMatrixColumnMarriage": "Marriage",
   "concubinageDecisionMatrixColumnConcubinage": "Cohabitation",
   "concubinageDecisionMatrixConclusionTitle": "Neutral conclusion",
-  "concubinageDecisionMatrixConclusionDesc": "The choice depends on your personal situation. Consult a notary for a complete analysis."
+  "concubinageDecisionMatrixConclusionDesc": "The choice depends on your personal situation. Consult a notary for a complete analysis.",
+  "mortgageJourneyTitle": "Home buying journey",
+  "mortgageJourneySubtitle": "7 steps from \u201ccan I afford it?\u201d to \u201cI signed!\u201d",
+  "mortgageJourneyPrevious": "Previous",
+  "mortgageJourneyNextStep": "Next step",
+  "mortgageJourneyComplete": "\u2705 Journey complete!",
+  "clause3aTitle": "The forgotten 3a clause",
+  "clause3aQuestion": "Have you filed a beneficiary clause?",
+  "clause3aStepsTitle": "How to file a clause in 5 minutes:",
+  "clause3aFeedbackOk": "Great! Check that the clause names {partner} \u2014 and that it\u2019s up to date after each life event.",
+  "@clause3aFeedbackOk": {
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "clause3aFeedbackNok": "Priority action: file your beneficiary clause with your 3a foundation \u2014 in 5 minutes.",
+  "fiscalSuperpowerTitle": "The tax superpower",
+  "fiscalSuperpowerSubtitle": "The state gives you money back for having a child.",
+  "fiscalSuperpowerTaxBenefits": "Your tax benefits",
+  "babyCostTitle": "The cost of happiness",
+  "babyCostBreakdownTitle": "Monthly breakdown",
+  "compoundDisclaimerInflation": "Educational assumptions (inflation\u00a0{inflation}\u00a0%). Past performance does not guarantee future results.",
+  "@compoundDisclaimerInflation": {
+    "placeholders": {
+      "inflation": {"type": "String"}
+    }
+  },
+  "interactive3aDisclaimer": "Educational assumptions. Past performance does not guarantee future results.",
+
+  "lifeEventSheetTitle": "Something is happening to me",
+  "lifeEventSheetSubtitle": "Choose an event to see the financial impact",
+  "lifeEventSheetSectionFamille": "Family",
+  "lifeEventSheetSectionPro": "Professional",
+  "lifeEventSheetSectionPatrimoine": "Wealth",
+  "lifeEventSheetSectionMobilite": "Mobility",
+  "lifeEventSheetSectionSante": "Health",
+  "lifeEventSheetSectionCrise": "Crisis",
+  "lifeEventLabelMariage": "Getting married",
+  "lifeEventLabelDivorce": "Going through a divorce",
+  "lifeEventLabelNaissance": "Expecting a child",
+  "lifeEventLabelConcubinage": "Living together",
+  "lifeEventLabelDeces": "Death of a loved one",
+  "lifeEventLabelPremierEmploi": "First job",
+  "lifeEventLabelNouveauJob": "New job",
+  "lifeEventLabelIndependant": "Going self-employed",
+  "lifeEventLabelPerteEmploi": "Job loss",
+  "lifeEventLabelRetraite": "Retiring",
+  "lifeEventLabelAchatImmo": "Buying property",
+  "lifeEventLabelVenteImmo": "Selling property",
+  "lifeEventLabelHeritage": "Receiving an inheritance",
+  "lifeEventLabelDonation": "Giving to my children",
+  "lifeEventLabelDemenagement": "Moving cantons",
+  "lifeEventLabelExpatriation": "Moving abroad",
+  "lifeEventLabelInvalidite": "Am I well covered?",
+  "lifeEventLabelDettes": "I have debts",
+  "lifeEventPromptMariage": "Getting married \u2014 what impact on my taxes, AVS and pension?",
+  "lifeEventPromptDivorce": "Divorcing \u2014 what happens to my LPP and taxes?",
+  "lifeEventPromptNaissance": "Expecting a child \u2014 what benefits and deductions are available?",
+  "lifeEventPromptConcubinage": "We\u2019re not married \u2014 how do we protect each other if something goes wrong?",
+  "lifeEventPromptDeces": "Death of a loved one \u2014 what financial steps do I need to take?",
+  "lifeEventPromptPremierEmploi": "It\u2019s my first job \u2014 what do I need to know about my pension and contributions?",
+  "lifeEventPromptNouveauJob": "Changing jobs \u2014 how to compare offers and manage my vested benefits?",
+  "lifeEventPromptIndependant": "Going self-employed \u2014 what pension options without LPP?",
+  "lifeEventPromptPerteEmploi": "I\u2019ve lost my job \u2014 what unemployment benefits and for how long?",
+  "lifeEventPromptRetraite": "When can I retire and how much will I receive?",
+  "lifeEventPromptAchatImmo": "Can I buy property with my income and down payment?",
+  "lifeEventPromptVenteImmo": "Selling my property \u2014 what capital gains tax should I expect?",
+  "lifeEventPromptHeritage": "Receiving an inheritance \u2014 what are the tax consequences?",
+  "lifeEventPromptDonation": "Giving to my children \u2014 what tax impact and what limits?",
+  "lifeEventPromptDemenagement": "Moving cantons \u2014 what tax impact should I anticipate?",
+  "lifeEventPromptExpatriation": "Moving abroad \u2014 what to do with my AVS, LPP and 3a?",
+  "lifeEventPromptInvalidite": "Am I well covered in case of disability or accident?",
+  "lifeEventPromptDettes": "I have debts \u2014 how to manage them without touching my pension?"
 }

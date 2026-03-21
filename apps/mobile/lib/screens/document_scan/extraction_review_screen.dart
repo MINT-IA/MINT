@@ -435,8 +435,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
         actions: [
           TextButton(
-            // Navigator.pop is acceptable here — dismissing a showDialog
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () => ctx.pop(),
             child: Text(
               S.of(context)!.extractionReviewCancel,
               style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
@@ -456,8 +455,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                   }
                 });
               }
-              // Navigator.pop is acceptable here — dismissing a showDialog
-              Navigator.of(ctx).pop();
+              ctx.pop();
             },
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,

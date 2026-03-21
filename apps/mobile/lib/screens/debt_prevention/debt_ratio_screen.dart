@@ -530,7 +530,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? MintColors.primary
-                            : Colors.transparent,
+                            : MintColors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.center,
@@ -636,7 +636,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(ctx).viewInsets.bottom,

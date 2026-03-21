@@ -1389,7 +1389,7 @@
   "coachVerse3a": "Verser\n3a",
   "coachSimBuyback": "Simuler\nrachat",
   "coachExplore": "Explorer",
-  "coachDisclaimer": "Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.",
+  "coachPulseDisclaimer": "Estimativas educativas \u2014 n\u00e3o constitui aconselhamento financeiro. Os rendimentos passados n\u00e3o pressup\u00f5em rendimentos futuros. Consulta um especialista. LSFin.",
   "eduTheme3aTitle": "Le 3e pilier (3a)",
   "eduTheme3aQuestion": "C'est quoi le 3a et pourquoi tout le monde en parle ?",
   "eduTheme3aAction": "Estimer mon économie fiscale",
@@ -5973,20 +5973,20 @@
   "disabilityStatLine1": "1 em cada 5 pessoas",
   "disabilityStatLine2": "será afetada antes dos 65 anos",
 
-  "coachGreetingSlm": "Ol\u00e1 {name}. As tuas perguntas ficam no teu dispositivo \u2014 nada sai. Pergunta o que quiseres, vamos ver os teus n\u00fameros juntos.",
+  "coachGreetingSlm": "Ol\u00e1 {name}. Tudo fica no teu dispositivo \u2014 nada sai. O que queres saber\u00a0?",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Ol\u00e1 {name}. Faz a tua pergunta \u2014 vou ver os teus n\u00fameros e digo-te o que vejo.{scoreSuffix}",
+  "coachGreetingDefault": "Ol\u00e1 {name}. Estou a ver os teus n\u00fameros \u2014 diz-me o que te preocupa.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
       "scoreSuffix": { "type": "String" }
     }
   },
-  "coachScoreSuffix": " A tua pontuação Fitness é de {score}/100.",
+  "coachScoreSuffix": " A tua pontua\u00e7\u00e3o: {score}/100 \u2014 vamos ver onde falha.",
   "@coachScoreSuffix": {
     "placeholders": {
       "score": { "type": "int" }
@@ -5997,16 +5997,16 @@
   "coachErrorRateLimit": "Limite de pedidos atingido. Tenta novamente daqui a pouco.",
   "coachErrorGeneric": "Erro técnico. Tenta novamente mais tarde.",
   "coachErrorConnection": "Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.",
-  "coachSuggestSimulate3a": "Simular um depósito 3a",
-  "coachSuggestView3a": "Ver as minhas contas 3a",
-  "coachSuggestSimulateLpp": "Simular um resgate LPP",
-  "coachSuggestUnderstandLpp": "Compreender o resgate LPP",
-  "coachSuggestTrajectory": "Ver a minha trajetória",
-  "coachSuggestScenarios": "Explorar cenários",
-  "coachSuggestDeductions": "Deduções fiscais possíveis",
-  "coachSuggestTaxImpact": "Simular o impacto fiscal",
-  "coachSuggestFitness": "A minha pontuação Fitness",
-  "coachSuggestRetirement": "A minha trajetória de reforma",
+  "coachSuggestSimulate3a": "Quanto poupo com o pilar 3a?",
+  "coachSuggestView3a": "Estado das minhas contas 3a",
+  "coachSuggestSimulateLpp": "Calcular um resgate LPP",
+  "coachSuggestUnderstandLpp": "Como funciona o resgate LPP?",
+  "coachSuggestTrajectory": "A minha trajet\u00f3ria at\u00e9 \u00e0 reforma",
+  "coachSuggestScenarios": "Renda ou capital: o que me convém?",
+  "coachSuggestDeductions": "Onde reduzir impostos este ano?",
+  "coachSuggestTaxImpact": "Calcular a poupan\u00e7a fiscal",
+  "coachSuggestFitness": "A minha pontua\u00e7\u00e3o financeira em detalhe",
+  "coachSuggestRetirement": "Aos 65, quanto terei?",
   "coachEmptyStateMessage": "Ainda sem perfil. Tr\u00eas perguntas, e come\u00e7amos a conversar.",
   "coachEmptyStateButton": "Fazer o meu diagn\u00f3stico",
   "coachTooltipHistory": "Histórico",
@@ -6019,10 +6019,10 @@
   "coachBadgeSlm": "On-device",
   "coachBadgeByok": "Nuvem",
   "coachBadgeFallback": "Offline",
-  "coachDisclaimer": "Ferramenta educativa — as respostas não constituem aconselhamento financeiro. LSFin.",
-  "coachLoading": "A pensar...",
+  "coachDisclaimer": "Ferramenta educativa \u2014 as respostas n\u00e3o constituem aconselhamento financeiro (LSFin art.\u00a03). Consulta um especialista para decis\u00f5es importantes.",
+  "coachLoading": "A ver os teus n\u00fameros\u2026",
   "coachSources": "Fontes",
-  "coachInputHint": "Faz a tua pergunta...",
+  "coachInputHint": "Uma pergunta sobre as tuas finan\u00e7as?",
   "coachTitle": "Coach MINT",
   "coachFallbackName": "amigo/a",
   "coachUserMessage": "A tua mensagem",
@@ -7833,5 +7833,79 @@
   "concubinageDecisionMatrixColumnMarriage": "Casamento",
   "concubinageDecisionMatrixColumnConcubinage": "Concubinato",
   "concubinageDecisionMatrixConclusionTitle": "Conclus\u00e3o neutra",
-  "concubinageDecisionMatrixConclusionDesc": "A escolha depende da tua situa\u00e7\u00e3o pessoal. Consulta um not\u00e1rio para uma an\u00e1lise completa."
+  "concubinageDecisionMatrixConclusionDesc": "A escolha depende da tua situa\u00e7\u00e3o pessoal. Consulta um not\u00e1rio para uma an\u00e1lise completa.",
+  "mortgageJourneyTitle": "Percurso compra imobili\u00e1ria",
+  "mortgageJourneySubtitle": "7 passos de \u00abposso comprar?\u00bb a \u00abassinei!\u00bb",
+  "mortgageJourneyPrevious": "Anterior",
+  "mortgageJourneyNextStep": "Pr\u00f3ximo passo",
+  "mortgageJourneyComplete": "\u2705 Percurso completo!",
+  "clause3aTitle": "A cl\u00e1usula 3a esquecida",
+  "clause3aQuestion": "Depositaste uma cl\u00e1usula de benefici\u00e1rio?",
+  "clause3aStepsTitle": "Como depositar uma cl\u00e1usula em 5 minutos:",
+  "clause3aFeedbackOk": "Bem! Verifica que a cl\u00e1usula nomeia {partner} \u2014 e que est\u00e1 atualizada ap\u00f3s cada evento de vida.",
+  "@clause3aFeedbackOk": {
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "clause3aFeedbackNok": "A\u00e7\u00e3o priorit\u00e1ria: deposita a tua cl\u00e1usula de benefici\u00e1rio na tua funda\u00e7\u00e3o 3a \u2014 em 5 minutos.",
+  "fiscalSuperpowerTitle": "O superpoder fiscal",
+  "fiscalSuperpowerSubtitle": "O Estado devolve-te dinheiro por teres um filho.",
+  "fiscalSuperpowerTaxBenefits": "As tuas vantagens fiscais",
+  "babyCostTitle": "O custo da felicidade",
+  "babyCostBreakdownTitle": "Desdobramento mensal",
+  "compoundDisclaimerInflation": "Pressupostos pedag\u00f3gicos (infla\u00e7\u00e3o\u00a0{inflation}\u00a0%). O desempenho passado n\u00e3o garante resultados futuros.",
+  "@compoundDisclaimerInflation": {
+    "placeholders": {
+      "inflation": {"type": "String"}
+    }
+  },
+  "interactive3aDisclaimer": "Pressupostos pedag\u00f3gicos. O desempenho passado n\u00e3o garante rendimentos futuros.",
+
+  "lifeEventSheetTitle": "Est\u00e1-me a acontecer algo",
+  "lifeEventSheetSubtitle": "Escolhe um evento para ver o impacto financeiro",
+  "lifeEventSheetSectionFamille": "Fam\u00edlia",
+  "lifeEventSheetSectionPro": "Profissional",
+  "lifeEventSheetSectionPatrimoine": "Patrim\u00f3nio",
+  "lifeEventSheetSectionMobilite": "Mobilidade",
+  "lifeEventSheetSectionSante": "Sa\u00fade",
+  "lifeEventSheetSectionCrise": "Crise",
+  "lifeEventLabelMariage": "Vou casar",
+  "lifeEventLabelDivorce": "Vou divorciar",
+  "lifeEventLabelNaissance": "Estou \u00e0 espera de um filho",
+  "lifeEventLabelConcubinage": "Vivemos juntos",
+  "lifeEventLabelDeces": "Morte de uma pessoa pr\u00f3xima",
+  "lifeEventLabelPremierEmploi": "Primeiro emprego",
+  "lifeEventLabelNouveauJob": "Novo emprego",
+  "lifeEventLabelIndependant": "Fico independente",
+  "lifeEventLabelPerteEmploi": "Perda de emprego",
+  "lifeEventLabelRetraite": "Vou reformar-me",
+  "lifeEventLabelAchatImmo": "Compra imobili\u00e1ria",
+  "lifeEventLabelVenteImmo": "Venda imobili\u00e1ria",
+  "lifeEventLabelHeritage": "Recebo uma heran\u00e7a",
+  "lifeEventLabelDonation": "Quero dar aos meus filhos",
+  "lifeEventLabelDemenagement": "Mudan\u00e7a de cant\u00e3o",
+  "lifeEventLabelExpatriation": "Vou para o estrangeiro",
+  "lifeEventLabelInvalidite": "Estou bem coberto/a?",
+  "lifeEventLabelDettes": "Tenho d\u00edvidas",
+  "lifeEventPromptMariage": "Vou casar \u2014 que impacto nos meus impostos, AVS e previd\u00eancia?",
+  "lifeEventPromptDivorce": "Vou divorciar \u2014 o que acontece com o LPP e os impostos?",
+  "lifeEventPromptNaissance": "Estou \u00e0 espera de um filho \u2014 que apoios e dedu\u00e7\u00f5es est\u00e3o dispon\u00edveis?",
+  "lifeEventPromptConcubinage": "N\u00e3o somos casados \u2014 como nos proteger mutuamente?",
+  "lifeEventPromptDeces": "Morte de uma pessoa pr\u00f3xima \u2014 que dilig\u00eancias financeiras preciso de fazer?",
+  "lifeEventPromptPremierEmploi": "\u00c9 o meu primeiro emprego \u2014 o que preciso saber sobre a previd\u00eancia e as contribui\u00e7\u00f5es?",
+  "lifeEventPromptNouveauJob": "Mudo de emprego \u2014 como comparar ofertas e gerir o meu livre tr\u00e2nsito?",
+  "lifeEventPromptIndependant": "Fico independente \u2014 que op\u00e7\u00f5es de previd\u00eancia sem LPP?",
+  "lifeEventPromptPerteEmploi": "Perdi o emprego \u2014 que subs\u00eddios de desemprego e durante quanto tempo?",
+  "lifeEventPromptRetraite": "Quando me posso reformar e quanto receberei?",
+  "lifeEventPromptAchatImmo": "Posso comprar um im\u00f3vel com o meu rendimento e entrada?",
+  "lifeEventPromptVenteImmo": "Vendo o meu im\u00f3vel \u2014 que imposto sobre a mais-valia devo prever?",
+  "lifeEventPromptHeritage": "Recebo uma heran\u00e7a \u2014 quais s\u00e3o as consequ\u00eancias fiscais?",
+  "lifeEventPromptDonation": "Quero dar aos meus filhos \u2014 que impacto fiscal e que limites?",
+  "lifeEventPromptDemenagement": "Mudo de cant\u00e3o \u2014 que impacto fiscal devo antecipar?",
+  "lifeEventPromptExpatriation": "Vou para o estrangeiro \u2014 o que fa\u00e7o com o AVS, LPP e pilar 3a?",
+  "lifeEventPromptInvalidite": "Estou bem coberto/a em caso de invalidez ou acidente?",
+  "lifeEventPromptDettes": "Tenho d\u00edvidas \u2014 como geri-las sem tocar na minha previd\u00eancia?"
 }

@@ -118,7 +118,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.textContaining('Pose ta question'), findsWidgets);
+      expect(find.textContaining('question sur tes finances'), findsWidgets);
     });
 
     testWidgets('shows send button', (tester) async {

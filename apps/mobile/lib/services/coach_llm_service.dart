@@ -454,22 +454,25 @@ class CoachLlmService {
     };
   }
 
-  /// Infere les actions suggerees a partir du message utilisateur
+  /// Infere les actions suggerees a partir du message utilisateur.
+  ///
+  /// Utilise uniquement comme fallback service-layer (sans BuildContext).
+  /// Le CoachChatScreen utilise _inferSuggestedActions avec localizations.
   static List<String> _inferSuggestedActions(String userMessage) {
     final lower = userMessage.toLowerCase();
     if (lower.contains('3a')) {
-      return ['Simuler un versement 3a', 'Voir mes comptes 3a'];
+      return ['Combien \u00e9conomiser avec le 3a\u00a0?', 'L\u2019\u00e9tat de mes comptes 3a'];
     }
     if (lower.contains('lpp') || lower.contains('rachat')) {
-      return ['Simuler un rachat LPP', 'Comprendre le rachat LPP'];
+      return ['Chiffrer un rachat LPP', 'Comment fonctionne le rachat LPP\u00a0?'];
     }
     if (lower.contains('retraite')) {
-      return ['Voir ma trajectoire', 'Explorer les scenarios'];
+      return ['Ma trajectoire vers la retraite', 'Rente ou capital\u00a0: lequel me convient\u00a0?'];
     }
     if (lower.contains('impot') || lower.contains('fiscal')) {
-      return ['Deductions fiscales possibles', 'Simuler l\'impact fiscal'];
+      return ['O\u00f9 r\u00e9duire mes imp\u00f4ts cette ann\u00e9e\u00a0?', 'Calculer l\u2019\u00e9conomie fiscale'];
     }
-    return ['Mon score Fitness', 'Ma trajectoire retraite'];
+    return ['Mon score financier en d\u00e9tail', '\u00c0 65 ans, combien j\u2019aurai\u00a0?'];
   }
 
   /// Construit le system prompt avec le contexte utilisateur.
@@ -665,11 +668,11 @@ class CoachLlmService {
         'Pose ta question, je regarde ce que tes chiffres racontent.';
   }
 
-  /// Suggestions initiales
+  /// Suggestions initiales (fallback service-layer sans BuildContext).
   static List<String> get initialSuggestions => [
-        'Ma retraite, concrètement',
-        'Où alléger mes impôts',
-        'Simuler un versement 3a',
-        'Voir où j\'en suis',
+        '\u00c0 65 ans, combien j\u2019aurai\u00a0?',
+        'O\u00f9 r\u00e9duire mes imp\u00f4ts cette ann\u00e9e\u00a0?',
+        'Combien \u00e9conomiser avec le 3a\u00a0?',
+        'Mon score financier en d\u00e9tail',
       ];
 }

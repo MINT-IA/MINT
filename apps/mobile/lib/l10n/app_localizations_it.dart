@@ -3408,8 +3408,8 @@ class SIt extends S {
   String get coachExplore => 'Explorer';
 
   @override
-  String get coachDisclaimer =>
-      'Strumento educativo — le risposte non costituiscono consulenza finanziaria. LSFin.';
+  String get coachPulseDisclaimer =>
+      'Stime educative — non costituisce consulenza finanziaria. I rendimenti passati non sono indicativi di quelli futuri. Consulta un esperto. LSFin.';
 
   @override
   String get eduTheme3aTitle => 'Le 3e pilier (3a)';
@@ -12637,17 +12637,17 @@ class SIt extends S {
 
   @override
   String coachGreetingSlm(String name) {
-    return 'Ciao $name. Le tue domande restano sul tuo dispositivo — nulla esce. Chiedi pure, guardiamo i tuoi numeri insieme.';
+    return 'Ciao $name. Tutto resta sul tuo dispositivo — nulla esce. Cosa vorresti sapere ?';
   }
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Ciao $name. Fai la tua domanda — guardo i tuoi numeri e ti dico cosa vedo.$scoreSuffix';
+    return 'Ciao $name. Sto guardando i tuoi numeri — dimmi cosa ti preoccupa.$scoreSuffix';
   }
 
   @override
   String coachScoreSuffix(int score) {
-    return ' Il tuo punteggio Fitness è di $score/100.';
+    return ' Il tuo punteggio: $score/100 — vediamo dove si inceppa.';
   }
 
   @override
@@ -12670,34 +12670,34 @@ class SIt extends S {
       'Errore di connessione. Verifica la tua connessione internet o la tua chiave API.';
 
   @override
-  String get coachSuggestSimulate3a => 'Simulare un versamento 3a';
+  String get coachSuggestSimulate3a => 'Quanto risparmio con il pilastro 3a?';
 
   @override
-  String get coachSuggestView3a => 'Vedere i miei conti 3a';
+  String get coachSuggestView3a => 'Stato dei miei conti 3a';
 
   @override
-  String get coachSuggestSimulateLpp => 'Simulare un riscatto LPP';
+  String get coachSuggestSimulateLpp => 'Calcolare un riscatto LPP';
 
   @override
-  String get coachSuggestUnderstandLpp => 'Capire il riscatto LPP';
+  String get coachSuggestUnderstandLpp => 'Come funziona il riscatto LPP?';
 
   @override
-  String get coachSuggestTrajectory => 'Vedere la mia traiettoria';
+  String get coachSuggestTrajectory => 'La mia traiettoria verso la pensione';
 
   @override
-  String get coachSuggestScenarios => 'Esplorare gli scenari';
+  String get coachSuggestScenarios => 'Rendita o capitale: cosa mi conviene?';
 
   @override
-  String get coachSuggestDeductions => 'Deduzioni fiscali possibili';
+  String get coachSuggestDeductions => 'Dove ridurre le tasse quest’anno?';
 
   @override
-  String get coachSuggestTaxImpact => 'Simulare l\'impatto fiscale';
+  String get coachSuggestTaxImpact => 'Calcolare il risparmio fiscale';
 
   @override
-  String get coachSuggestFitness => 'Il mio punteggio Fitness';
+  String get coachSuggestFitness => 'Il mio punteggio finanziario in dettaglio';
 
   @override
-  String get coachSuggestRetirement => 'La mia traiettoria di pensionamento';
+  String get coachSuggestRetirement => 'A 65 anni, quanto avrò?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -12737,13 +12737,17 @@ class SIt extends S {
   String get coachBadgeFallback => 'Offline';
 
   @override
-  String get coachLoading => 'Sto pensando...';
+  String get coachDisclaimer =>
+      'Strumento educativo — le risposte non costituiscono consulenza finanziaria (LSFin art. 3). Consulta un esperto per le decisioni importanti.';
+
+  @override
+  String get coachLoading => 'Sto guardando i tuoi numeri…';
 
   @override
   String get coachSources => 'Fonti';
 
   @override
-  String get coachInputHint => 'Fai la tua domanda...';
+  String get coachInputHint => 'Una domanda sulle tue finanze?';
 
   @override
   String get coachTitle => 'Coach MINT';
@@ -17995,4 +17999,214 @@ class SIt extends S {
   @override
   String get concubinageDecisionMatrixConclusionDesc =>
       'La scelta dipende dalla tua situazione personale. Consulta un notaio per un’analisi completa.';
+
+  @override
+  String get mortgageJourneyTitle => 'Percorso acquisto immobiliare';
+
+  @override
+  String get mortgageJourneySubtitle =>
+      '7 passi da «posso acquistarlo?» a «ho firmato!»';
+
+  @override
+  String get mortgageJourneyPrevious => 'Precedente';
+
+  @override
+  String get mortgageJourneyNextStep => 'Passo successivo';
+
+  @override
+  String get mortgageJourneyComplete => '✅ Percorso completato!';
+
+  @override
+  String get clause3aTitle => 'La clausola 3a dimenticata';
+
+  @override
+  String get clause3aQuestion => 'Hai depositato una clausola beneficiario?';
+
+  @override
+  String get clause3aStepsTitle => 'Come depositare una clausola in 5 minuti:';
+
+  @override
+  String clause3aFeedbackOk(String partner) {
+    return 'Bene! Verifica che la clausola nomini $partner — e che sia aggiornata dopo ogni evento di vita.';
+  }
+
+  @override
+  String get clause3aFeedbackNok =>
+      'Azione prioritaria: deposita la tua clausola beneficiario presso la tua fondazione 3a — in 5 minuti.';
+
+  @override
+  String get fiscalSuperpowerTitle => 'Il superpotere fiscale';
+
+  @override
+  String get fiscalSuperpowerSubtitle =>
+      'Lo Stato ti rimborsa denaro per avere un figlio.';
+
+  @override
+  String get fiscalSuperpowerTaxBenefits => 'I tuoi vantaggi fiscali';
+
+  @override
+  String get babyCostTitle => 'Il costo della felicità';
+
+  @override
+  String get babyCostBreakdownTitle => 'Ripartizione mensile';
+
+  @override
+  String get lifeEventSheetTitle => 'Mi sta succedendo qualcosa';
+
+  @override
+  String get lifeEventSheetSubtitle =>
+      'Scegli un evento per vedere l’impatto finanziario';
+
+  @override
+  String get lifeEventSheetSectionFamille => 'Famiglia';
+
+  @override
+  String get lifeEventSheetSectionPro => 'Professionale';
+
+  @override
+  String get lifeEventSheetSectionPatrimoine => 'Patrimonio';
+
+  @override
+  String get lifeEventSheetSectionMobilite => 'Mobilità';
+
+  @override
+  String get lifeEventSheetSectionSante => 'Salute';
+
+  @override
+  String get lifeEventSheetSectionCrise => 'Crisi';
+
+  @override
+  String get lifeEventLabelMariage => 'Mi sposo';
+
+  @override
+  String get lifeEventLabelDivorce => 'Divorzio';
+
+  @override
+  String get lifeEventLabelNaissance => 'Aspetto un figlio';
+
+  @override
+  String get lifeEventLabelConcubinage => 'Viviamo insieme';
+
+  @override
+  String get lifeEventLabelDeces => 'Morte di una persona cara';
+
+  @override
+  String get lifeEventLabelPremierEmploi => 'Primo lavoro';
+
+  @override
+  String get lifeEventLabelNouveauJob => 'Nuovo lavoro';
+
+  @override
+  String get lifeEventLabelIndependant => 'Divento autonomo';
+
+  @override
+  String get lifeEventLabelPerteEmploi => 'Perdita del lavoro';
+
+  @override
+  String get lifeEventLabelRetraite => 'Vado in pensione';
+
+  @override
+  String get lifeEventLabelAchatImmo => 'Acquisto immobiliare';
+
+  @override
+  String get lifeEventLabelVenteImmo => 'Vendita immobiliare';
+
+  @override
+  String get lifeEventLabelHeritage => 'Ricevo un’eredità';
+
+  @override
+  String get lifeEventLabelDonation => 'Voglio donare ai miei figli';
+
+  @override
+  String get lifeEventLabelDemenagement => 'Cambio di cantone';
+
+  @override
+  String get lifeEventLabelExpatriation => 'Vado all’estero';
+
+  @override
+  String get lifeEventLabelInvalidite => 'Sono ben coperto/a?';
+
+  @override
+  String get lifeEventLabelDettes => 'Ho dei debiti';
+
+  @override
+  String get lifeEventPromptMariage =>
+      'Mi sposo — che impatto sulle mie tasse, AVS e previdenza?';
+
+  @override
+  String get lifeEventPromptDivorce =>
+      'Divorzio — cosa succede con LPP e tasse?';
+
+  @override
+  String get lifeEventPromptNaissance =>
+      'Aspetto un figlio — quali aiuti e deduzioni sono disponibili?';
+
+  @override
+  String get lifeEventPromptConcubinage =>
+      'Non siamo sposati — come proteggerci a vicenda?';
+
+  @override
+  String get lifeEventPromptDeces =>
+      'Morte di una persona cara — quali passi finanziari devo fare?';
+
+  @override
+  String get lifeEventPromptPremierEmploi =>
+      'È il mio primo lavoro — cosa devo sapere sulla previdenza e i contributi?';
+
+  @override
+  String get lifeEventPromptNouveauJob =>
+      'Cambio lavoro — come confrontare le offerte e gestire la mia libera uscita?';
+
+  @override
+  String get lifeEventPromptIndependant =>
+      'Divento autonomo — quali opzioni di previdenza senza LPP?';
+
+  @override
+  String get lifeEventPromptPerteEmploi =>
+      'Ho perso il lavoro — quali indennità di disoccupazione e per quanto tempo?';
+
+  @override
+  String get lifeEventPromptRetraite =>
+      'Quando posso andare in pensione e quanto riceverò?';
+
+  @override
+  String get lifeEventPromptAchatImmo =>
+      'Posso comprare un immobile con il mio reddito e il mio apporto?';
+
+  @override
+  String get lifeEventPromptVenteImmo =>
+      'Vendo il mio immobile — quale imposta sulla plusvalenza devo prevedere?';
+
+  @override
+  String get lifeEventPromptHeritage =>
+      'Ricevo un’eredità — quali sono le conseguenze fiscali?';
+
+  @override
+  String get lifeEventPromptDonation =>
+      'Voglio donare ai miei figli — quale impatto fiscale e quali limiti?';
+
+  @override
+  String get lifeEventPromptDemenagement =>
+      'Cambio cantone — quale impatto fiscale devo anticipare?';
+
+  @override
+  String get lifeEventPromptExpatriation =>
+      'Vado all’estero — cosa faccio con AVS, LPP e pilastro 3a?';
+
+  @override
+  String get lifeEventPromptInvalidite =>
+      'Sono ben coperto/a in caso di invalidità o infortunio?';
+
+  @override
+  String get lifeEventPromptDettes =>
+      'Ho dei debiti — come gestirli senza toccare la mia previdenza?';
+
+  @override
+  String compoundDisclaimerInflation(String inflation) {
+    return 'Ipotesi pedagogiche (inflazione $inflation %). I rendimenti passati non garantiscono risultati futuri.';
+  }
+
+  @override
+  String get interactive3aDisclaimer =>
+      'Ipotesi pedagogiche. I rendimenti passati non garantiscono rendimenti futuri.';
 }

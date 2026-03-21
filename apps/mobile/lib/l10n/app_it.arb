@@ -1389,7 +1389,7 @@
   "coachVerse3a": "Verser\n3a",
   "coachSimBuyback": "Simuler\nrachat",
   "coachExplore": "Explorer",
-  "coachDisclaimer": "Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.",
+  "coachPulseDisclaimer": "Stime educative \u2014 non costituisce consulenza finanziaria. I rendimenti passati non sono indicativi di quelli futuri. Consulta un esperto. LSFin.",
   "eduTheme3aTitle": "Le 3e pilier (3a)",
   "eduTheme3aQuestion": "C'est quoi le 3a et pourquoi tout le monde en parle ?",
   "eduTheme3aAction": "Estimer mon économie fiscale",
@@ -5973,20 +5973,20 @@
   "disabilityStatLine1": "1 persona su 5",
   "disabilityStatLine2": "sarà colpita prima dei 65 anni",
 
-  "coachGreetingSlm": "Ciao {name}. Le tue domande restano sul tuo dispositivo \u2014 nulla esce. Chiedi pure, guardiamo i tuoi numeri insieme.",
+  "coachGreetingSlm": "Ciao {name}. Tutto resta sul tuo dispositivo \u2014 nulla esce. Cosa vorresti sapere\u00a0?",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Ciao {name}. Fai la tua domanda \u2014 guardo i tuoi numeri e ti dico cosa vedo.{scoreSuffix}",
+  "coachGreetingDefault": "Ciao {name}. Sto guardando i tuoi numeri \u2014 dimmi cosa ti preoccupa.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
       "scoreSuffix": { "type": "String" }
     }
   },
-  "coachScoreSuffix": " Il tuo punteggio Fitness è di {score}/100.",
+  "coachScoreSuffix": " Il tuo punteggio: {score}/100 \u2014 vediamo dove si inceppa.",
   "@coachScoreSuffix": {
     "placeholders": {
       "score": { "type": "int" }
@@ -5997,16 +5997,16 @@
   "coachErrorRateLimit": "Limite di richieste raggiunto. Riprova tra un momento.",
   "coachErrorGeneric": "Errore tecnico. Riprova più tardi.",
   "coachErrorConnection": "Errore di connessione. Verifica la tua connessione internet o la tua chiave API.",
-  "coachSuggestSimulate3a": "Simulare un versamento 3a",
-  "coachSuggestView3a": "Vedere i miei conti 3a",
-  "coachSuggestSimulateLpp": "Simulare un riscatto LPP",
-  "coachSuggestUnderstandLpp": "Capire il riscatto LPP",
-  "coachSuggestTrajectory": "Vedere la mia traiettoria",
-  "coachSuggestScenarios": "Esplorare gli scenari",
-  "coachSuggestDeductions": "Deduzioni fiscali possibili",
-  "coachSuggestTaxImpact": "Simulare l'impatto fiscale",
-  "coachSuggestFitness": "Il mio punteggio Fitness",
-  "coachSuggestRetirement": "La mia traiettoria di pensionamento",
+  "coachSuggestSimulate3a": "Quanto risparmio con il pilastro 3a?",
+  "coachSuggestView3a": "Stato dei miei conti 3a",
+  "coachSuggestSimulateLpp": "Calcolare un riscatto LPP",
+  "coachSuggestUnderstandLpp": "Come funziona il riscatto LPP?",
+  "coachSuggestTrajectory": "La mia traiettoria verso la pensione",
+  "coachSuggestScenarios": "Rendita o capitale: cosa mi conviene?",
+  "coachSuggestDeductions": "Dove ridurre le tasse quest\u2019anno?",
+  "coachSuggestTaxImpact": "Calcolare il risparmio fiscale",
+  "coachSuggestFitness": "Il mio punteggio finanziario in dettaglio",
+  "coachSuggestRetirement": "A 65 anni, quanto avr\u00f2?",
   "coachEmptyStateMessage": "Ancora nessun profilo. Tre domande, e iniziamo a parlare.",
   "coachEmptyStateButton": "Fare la mia diagnosi",
   "coachTooltipHistory": "Cronologia",
@@ -6019,10 +6019,10 @@
   "coachBadgeSlm": "On-device",
   "coachBadgeByok": "Cloud",
   "coachBadgeFallback": "Offline",
-  "coachDisclaimer": "Strumento educativo — le risposte non costituiscono consulenza finanziaria. LSFin.",
-  "coachLoading": "Sto pensando...",
+  "coachDisclaimer": "Strumento educativo \u2014 le risposte non costituiscono consulenza finanziaria (LSFin art.\u00a03). Consulta un esperto per le decisioni importanti.",
+  "coachLoading": "Sto guardando i tuoi numeri\u2026",
   "coachSources": "Fonti",
-  "coachInputHint": "Fai la tua domanda...",
+  "coachInputHint": "Una domanda sulle tue finanze?",
   "coachTitle": "Coach MINT",
   "coachFallbackName": "amico/a",
   "coachUserMessage": "Il tuo messaggio",
@@ -7833,5 +7833,79 @@
   "concubinageDecisionMatrixColumnMarriage": "Matrimonio",
   "concubinageDecisionMatrixColumnConcubinage": "Concubinato",
   "concubinageDecisionMatrixConclusionTitle": "Conclusione neutra",
-  "concubinageDecisionMatrixConclusionDesc": "La scelta dipende dalla tua situazione personale. Consulta un notaio per un\u2019analisi completa."
+  "concubinageDecisionMatrixConclusionDesc": "La scelta dipende dalla tua situazione personale. Consulta un notaio per un\u2019analisi completa.",
+  "mortgageJourneyTitle": "Percorso acquisto immobiliare",
+  "mortgageJourneySubtitle": "7 passi da \u00abposso acquistarlo?\u00bb a \u00abho firmato!\u00bb",
+  "mortgageJourneyPrevious": "Precedente",
+  "mortgageJourneyNextStep": "Passo successivo",
+  "mortgageJourneyComplete": "\u2705 Percorso completato!",
+  "clause3aTitle": "La clausola 3a dimenticata",
+  "clause3aQuestion": "Hai depositato una clausola beneficiario?",
+  "clause3aStepsTitle": "Come depositare una clausola in 5 minuti:",
+  "clause3aFeedbackOk": "Bene! Verifica che la clausola nomini {partner} \u2014 e che sia aggiornata dopo ogni evento di vita.",
+  "@clause3aFeedbackOk": {
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "clause3aFeedbackNok": "Azione prioritaria: deposita la tua clausola beneficiario presso la tua fondazione 3a \u2014 in 5 minuti.",
+  "fiscalSuperpowerTitle": "Il superpotere fiscale",
+  "fiscalSuperpowerSubtitle": "Lo Stato ti rimborsa denaro per avere un figlio.",
+  "fiscalSuperpowerTaxBenefits": "I tuoi vantaggi fiscali",
+  "babyCostTitle": "Il costo della felicit\u00e0",
+  "babyCostBreakdownTitle": "Ripartizione mensile",
+  "compoundDisclaimerInflation": "Ipotesi pedagogiche (inflazione\u00a0{inflation}\u00a0%). I rendimenti passati non garantiscono risultati futuri.",
+  "@compoundDisclaimerInflation": {
+    "placeholders": {
+      "inflation": {"type": "String"}
+    }
+  },
+  "interactive3aDisclaimer": "Ipotesi pedagogiche. I rendimenti passati non garantiscono rendimenti futuri.",
+
+  "lifeEventSheetTitle": "Mi sta succedendo qualcosa",
+  "lifeEventSheetSubtitle": "Scegli un evento per vedere l\u2019impatto finanziario",
+  "lifeEventSheetSectionFamille": "Famiglia",
+  "lifeEventSheetSectionPro": "Professionale",
+  "lifeEventSheetSectionPatrimoine": "Patrimonio",
+  "lifeEventSheetSectionMobilite": "Mobilit\u00e0",
+  "lifeEventSheetSectionSante": "Salute",
+  "lifeEventSheetSectionCrise": "Crisi",
+  "lifeEventLabelMariage": "Mi sposo",
+  "lifeEventLabelDivorce": "Divorzio",
+  "lifeEventLabelNaissance": "Aspetto un figlio",
+  "lifeEventLabelConcubinage": "Viviamo insieme",
+  "lifeEventLabelDeces": "Morte di una persona cara",
+  "lifeEventLabelPremierEmploi": "Primo lavoro",
+  "lifeEventLabelNouveauJob": "Nuovo lavoro",
+  "lifeEventLabelIndependant": "Divento autonomo",
+  "lifeEventLabelPerteEmploi": "Perdita del lavoro",
+  "lifeEventLabelRetraite": "Vado in pensione",
+  "lifeEventLabelAchatImmo": "Acquisto immobiliare",
+  "lifeEventLabelVenteImmo": "Vendita immobiliare",
+  "lifeEventLabelHeritage": "Ricevo un\u2019eredit\u00e0",
+  "lifeEventLabelDonation": "Voglio donare ai miei figli",
+  "lifeEventLabelDemenagement": "Cambio di cantone",
+  "lifeEventLabelExpatriation": "Vado all\u2019estero",
+  "lifeEventLabelInvalidite": "Sono ben coperto/a?",
+  "lifeEventLabelDettes": "Ho dei debiti",
+  "lifeEventPromptMariage": "Mi sposo \u2014 che impatto sulle mie tasse, AVS e previdenza?",
+  "lifeEventPromptDivorce": "Divorzio \u2014 cosa succede con LPP e tasse?",
+  "lifeEventPromptNaissance": "Aspetto un figlio \u2014 quali aiuti e deduzioni sono disponibili?",
+  "lifeEventPromptConcubinage": "Non siamo sposati \u2014 come proteggerci a vicenda?",
+  "lifeEventPromptDeces": "Morte di una persona cara \u2014 quali passi finanziari devo fare?",
+  "lifeEventPromptPremierEmploi": "\u00c8 il mio primo lavoro \u2014 cosa devo sapere sulla previdenza e i contributi?",
+  "lifeEventPromptNouveauJob": "Cambio lavoro \u2014 come confrontare le offerte e gestire la mia libera uscita?",
+  "lifeEventPromptIndependant": "Divento autonomo \u2014 quali opzioni di previdenza senza LPP?",
+  "lifeEventPromptPerteEmploi": "Ho perso il lavoro \u2014 quali indennit\u00e0 di disoccupazione e per quanto tempo?",
+  "lifeEventPromptRetraite": "Quando posso andare in pensione e quanto ricever\u00f2?",
+  "lifeEventPromptAchatImmo": "Posso comprare un immobile con il mio reddito e il mio apporto?",
+  "lifeEventPromptVenteImmo": "Vendo il mio immobile \u2014 quale imposta sulla plusvalenza devo prevedere?",
+  "lifeEventPromptHeritage": "Ricevo un\u2019eredit\u00e0 \u2014 quali sono le conseguenze fiscali?",
+  "lifeEventPromptDonation": "Voglio donare ai miei figli \u2014 quale impatto fiscale e quali limiti?",
+  "lifeEventPromptDemenagement": "Cambio cantone \u2014 quale impatto fiscale devo anticipare?",
+  "lifeEventPromptExpatriation": "Vado all\u2019estero \u2014 cosa faccio con AVS, LPP e pilastro 3a?",
+  "lifeEventPromptInvalidite": "Sono ben coperto/a in caso di invalidit\u00e0 o infortunio?",
+  "lifeEventPromptDettes": "Ho dei debiti \u2014 come gestirli senza toccare la mia previdenza?"
 }

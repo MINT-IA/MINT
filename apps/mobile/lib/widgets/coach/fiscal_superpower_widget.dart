@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -59,6 +60,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
       label: 'Super-pouvoir fiscal enfant déduction LIFD',
       child: Container(
@@ -70,7 +72,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
@@ -78,7 +80,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
                 children: [
                   _buildChildrenSlider(),
                   const SizedBox(height: 16),
-                  _buildSuperpowerList(),
+                  _buildSuperpowerList(s),
                   const SizedBox(height: 16),
                   _buildTotalCallout(),
                   const SizedBox(height: 16),
@@ -92,7 +94,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -108,7 +110,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Le super-pouvoir fiscal',
+                  s.fiscalSuperpowerTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -116,7 +118,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            "L'État te rend de l'argent pour avoir un enfant.",
+            s.fiscalSuperpowerSubtitle,
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
@@ -160,12 +162,12 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
     );
   }
 
-  Widget _buildSuperpowerList() {
+  Widget _buildSuperpowerList(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tes avantages fiscaux',
+          s.fiscalSuperpowerTaxBenefits,
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),

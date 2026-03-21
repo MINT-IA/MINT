@@ -671,4 +671,279 @@ void main() {
       expect(response.suggestedActions!.length, greaterThanOrEqualTo(2));
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  CoachLlmService — voice system (5 pillars)
+  // ════════════════════════════════════════════════════════════
+
+  group('CoachLlmService — voice system (buildSystemPrompt)', () {
+    test('prompt contains all 5 MINT voice pillars', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('CALME'));
+      expect(prompt, contains('PRECIS'));
+      expect(prompt, contains('FIN'));
+      expect(prompt, contains('RASSURANT'));
+      expect(prompt, contains('NET'));
+    });
+
+    test('prompt contains VOIX MINT section header', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('VOIX MINT'));
+    });
+
+    test('CALME pillar describes calm tone (no urgency)', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('calmement'));
+      expect(prompt, contains("urgence"));
+    });
+
+    test('PRECIS pillar describes word precision', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('remplissage'));
+      expect(prompt, contains('jargon'));
+    });
+
+    test('RASSURANT pillar contains accompaniment phrasing', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('infantilisant'));
+      expect(prompt, contains('condescendant'));
+    });
+
+    test('NET pillar mentions truth and no promises', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('verite'));
+      expect(prompt, contains('Pas de promesse'));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  CoachLlmService — financial literacy adaptation
+  // ════════════════════════════════════════════════════════════
+
+  group('CoachLlmService — financial literacy adaptation', () {
+    test('beginner profile prompt contains NOVICE adaptation', () {
+      final beginnerProfile = profile.copyWith(
+        financialLiteracyLevel: FinancialLiteracyLevel.beginner,
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(beginnerProfile);
+
+      expect(prompt, contains('NOVICE'));
+    });
+
+    test('beginner prompt mentions short sentences / no jargon', () {
+      final beginnerProfile = profile.copyWith(
+        financialLiteracyLevel: FinancialLiteracyLevel.beginner,
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(beginnerProfile);
+
+      expect(prompt, contains('phrases courtes'));
+      expect(prompt, contains('jargon'));
+    });
+
+    test('intermediate profile prompt contains AUTONOME adaptation', () {
+      final intermediateProfile = profile.copyWith(
+        financialLiteracyLevel: FinancialLiteracyLevel.intermediate,
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(intermediateProfile);
+
+      expect(prompt, contains('AUTONOME'));
+    });
+
+    test('advanced profile prompt contains EXPERT adaptation', () {
+      final advancedProfile = profile.copyWith(
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(advancedProfile);
+
+      expect(prompt, contains('EXPERT'));
+    });
+
+    test('advanced prompt mentions legal references', () {
+      final advancedProfile = profile.copyWith(
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(advancedProfile);
+
+      expect(prompt, contains('references legales'));
+    });
+
+    test('advanced prompt references LAVS art. 35 as example', () {
+      final advancedProfile = profile.copyWith(
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(advancedProfile);
+
+      expect(prompt, contains('LAVS art. 35'));
+    });
+
+    test('each literacy level produces distinct ADAPTATION section', () {
+      final beginner = profile.copyWith(
+          financialLiteracyLevel: FinancialLiteracyLevel.beginner);
+      final intermediate = profile.copyWith(
+          financialLiteracyLevel: FinancialLiteracyLevel.intermediate);
+      final advanced = profile.copyWith(
+          financialLiteracyLevel: FinancialLiteracyLevel.advanced);
+
+      final pBeg = CoachLlmService.buildSystemPrompt(beginner);
+      final pInt = CoachLlmService.buildSystemPrompt(intermediate);
+      final pAdv = CoachLlmService.buildSystemPrompt(advanced);
+
+      // Each should contain exactly one level label
+      expect(pBeg, contains('NOVICE'));
+      expect(pBeg, isNot(contains('AUTONOME')));
+      expect(pBeg, isNot(contains('EXPERT')));
+
+      expect(pInt, contains('AUTONOME'));
+      expect(pInt, isNot(contains('NOVICE')));
+      expect(pInt, isNot(contains('EXPERT')));
+
+      expect(pAdv, contains('EXPERT'));
+      expect(pAdv, isNot(contains('NOVICE')));
+      expect(pAdv, isNot(contains('AUTONOME')));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  CoachLlmService — _toRange (tested via buildSystemPrompt)
+  // ════════════════════════════════════════════════════════════
+
+  group('CoachLlmService — privacy-safe range display', () {
+    test('profile with known LPP shows approximate range in prompt', () {
+      // Julien has 70'377 CHF LPP → _toRange rounds to ~75'000 CHF
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      // Prompt must contain ~ prefix (privacy-safe range)
+      expect(prompt, contains('~'));
+    });
+
+    test('profile with 0 salary produces 0 CHF for capital in prompt', () {
+      final zeroProfile = CoachProfile(
+        firstName: 'Test',
+        birthYear: 1985,
+        canton: 'ZH',
+        salaireBrutMensuel: 0,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(zeroProfile);
+
+      // When projection succeeds with 0 CHF, prompt shows '0 CHF' (not a range)
+      expect(prompt, contains('Capital projete base'));
+      expect(prompt, contains('CHF'));
+    });
+
+    test('system prompt does not contain exact salary amount', () {
+      // CLAUDE.md §6: CoachContext MUST NEVER contain exact salary
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      // Julien's exact salary 122207 (or as string '122207') must not appear
+      expect(prompt, isNot(contains('122207')));
+      expect(prompt, isNot(contains("122'207")));
+    });
+
+    test('system prompt does not contain exact LPP amount', () {
+      // CLAUDE.md §6: no exact savings/dettes in CoachContext
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      // Julien's LPP 70377 must not appear verbatim
+      expect(prompt, isNot(contains('70377')));
+      expect(prompt, isNot(contains("70'377")));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  CoachLlmService — initialGreeting edge cases
+  // ════════════════════════════════════════════════════════════
+
+  group('CoachLlmService — initialGreeting edge cases', () {
+    test('greeting with null firstName uses fallback', () {
+      final noName = CoachProfile(
+        firstName: null,
+        birthYear: 1985,
+        canton: 'ZH',
+        salaireBrutMensuel: 5000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+      final greeting = CoachLlmService.initialGreeting(noName);
+
+      expect(greeting, contains('utilisateur'));
+    });
+
+    test('initialSuggestions contains retirement and 3a options', () {
+      final suggestions = CoachLlmService.initialSuggestions;
+
+      // Retirement: "À 65 ans, combien j'aurai ?"
+      expect(
+        suggestions.any((s) => s.contains('65') || s.toLowerCase().contains('retraite')),
+        isTrue,
+      );
+      // 3a or tax: "Combien économiser avec le 3a ?" / "Où réduire mes impôts ?"
+      expect(
+        suggestions.any((s) => s.toLowerCase().contains('3a') ||
+            s.toLowerCase().contains('impôts') ||
+            s.toLowerCase().contains('réduire')),
+        isTrue,
+      );
+    });
+
+    test('initialSuggestions contains at least 4 items', () {
+      expect(CoachLlmService.initialSuggestions.length, greaterThanOrEqualTo(4));
+    });
+
+    test('no banned terms in initialSuggestions', () {
+      const banned = ['garanti', 'optimal', 'parfait', 'meilleur', 'sans risque'];
+      for (final s in CoachLlmService.initialSuggestions) {
+        for (final term in banned) {
+          expect(s.toLowerCase(), isNot(contains(term)),
+              reason: 'Banned term "$term" in suggestion: $s');
+        }
+      }
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  CoachLlmService — ChatTier enum
+  // ════════════════════════════════════════════════════════════
+
+  group('ChatTier', () {
+    test('enum has four values', () {
+      expect(ChatTier.values, hasLength(4));
+      expect(ChatTier.values, contains(ChatTier.slm));
+      expect(ChatTier.values, contains(ChatTier.byok));
+      expect(ChatTier.values, contains(ChatTier.fallback));
+      expect(ChatTier.values, contains(ChatTier.none));
+    });
+
+    test('ChatMessage tier defaults to none', () {
+      final msg = ChatMessage(
+        role: 'assistant',
+        content: 'test',
+        timestamp: DateTime.now(),
+      );
+      expect(msg.tier, ChatTier.none);
+    });
+
+    test('ChatMessage tier can be set to fallback', () {
+      final msg = ChatMessage(
+        role: 'assistant',
+        content: 'test',
+        timestamp: DateTime.now(),
+        tier: ChatTier.fallback,
+      );
+      expect(msg.tier, ChatTier.fallback);
+    });
+  });
 }

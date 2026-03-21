@@ -554,14 +554,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(ctx).pop(false),
+                      onPressed: () => ctx.pop(false),
                       child: Text(S.of(context)!.documentScanCancel),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: FilledButton(
-                      onPressed: () => Navigator.of(ctx).pop(true),
+                      onPressed: () => ctx.pop(true),
                       child: Text(S.of(context)!.documentScanAnalyze),
                     ),
                   ),
@@ -652,7 +652,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -664,7 +664,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _requestManualOcrText(
                       title: S.of(context)!.documentScanOcrTitle,
                       hint: S.of(context)!.documentScanOcrHint,
@@ -711,7 +711,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     context.go('/auth/register');
                   },
                   icon: const Icon(Icons.person_add_alt_1_outlined),
@@ -723,7 +723,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -772,7 +772,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () {
-                      Navigator.of(ctx).pop();
+                      ctx.pop();
                       _processImageViaVision(imageFile);
                     },
                     icon: const Icon(Icons.auto_awesome_outlined),
@@ -800,7 +800,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -812,7 +812,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _requestManualOcrText(
                       title: S.of(context)!.documentScanOcrTitle,
                       hint: S.of(context)!.documentScanOcrRetryHint,

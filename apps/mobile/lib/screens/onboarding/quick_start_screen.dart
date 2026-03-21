@@ -177,7 +177,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       backgroundColor: MintColors.white,
       appBar: AppBar(
         backgroundColor: MintColors.white,
-        surfaceTintColor: Colors.transparent,
+        surfaceTintColor: MintColors.transparent,
         elevation: 0,
         leading: BackButton(
           onPressed: () {

@@ -533,7 +533,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
             scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
             ),
             title: Text(
               S.of(context)!.toolsAllTools,
