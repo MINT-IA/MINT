@@ -20000,83 +20000,83 @@ class SIt extends S {
   String get expertMissingMensualites => 'Rate mensili debiti non indicate';
 
   @override
-  String get agentFormTitle => 'Formulaire pré-rempli';
+  String get agentFormTitle => 'Modulo pre-compilato';
 
   @override
   String get agentFormDisclaimer =>
-      'Vérifie chaque champ avant envoi. MINT ne soumet rien à ta place.';
+      'Verifica ogni campo prima di inviare. MINT non invia nulla per conto tuo.';
 
   @override
-  String get agentFormValidateAll => 'Je confirme avoir vérifié';
+  String get agentFormValidateAll => 'Confermo di aver verificato';
 
   @override
-  String get agentFormEstimated => 'Estimé — à confirmer';
+  String get agentFormEstimated => 'Stimato — da confermare';
 
   @override
-  String get agentLetterTitle => 'Lettre préparée';
+  String get agentLetterTitle => 'Lettera preparata';
 
   @override
   String get agentLetterDisclaimer =>
-      'Adapte et envoie toi-même. MINT ne transmet rien.';
+      'Adatta e invia tu stesso. MINT non trasmette nulla.';
 
   @override
-  String get agentLetterPensionSubject => 'Demande d\'extrait de prévoyance';
+  String get agentLetterPensionSubject => 'Richiesta estratto previdenziale';
 
   @override
   String get agentLetterTransferSubject =>
-      'Demande de transfert de libre passage';
+      'Richiesta di trasferimento libero passaggio';
 
   @override
-  String get agentLetterAvsSubject => 'Demande d\'extrait de compte AVS';
+  String get agentLetterAvsSubject => 'Richiesta estratto conto AVS';
 
   @override
-  String get agentLetterPlaceholderName => '[Ton nom complet]';
+  String get agentLetterPlaceholderName => '[Il tuo nome completo]';
 
   @override
-  String get agentLetterPlaceholderAddress => '[Ton adresse]';
+  String get agentLetterPlaceholderAddress => '[Il tuo indirizzo]';
 
   @override
-  String get agentLetterPlaceholderSsn => '[Ton numéro AVS]';
+  String get agentLetterPlaceholderSsn => '[Il tuo numero AVS]';
 
   @override
-  String get agentLetterPlaceholderDate => '[Date]';
+  String get agentLetterPlaceholderDate => '[Data]';
 
   @override
-  String get agentTaxFormTitle => 'Déclaration d\'impôt — pré-remplissage';
+  String get agentTaxFormTitle => 'Dichiarazione fiscale — pre-compilazione';
 
   @override
-  String get agent3aFormTitle => 'Attestation 3a';
+  String get agent3aFormTitle => 'Attestato 3o pilastro';
 
   @override
-  String get agentLppFormTitle => 'Formulaire de rachat LPP';
+  String get agentLppFormTitle => 'Modulo di riscatto LPP';
 
   @override
   String agentFieldSource(String source) {
-    return 'Source : $source';
+    return 'Fonte : $source';
   }
 
   @override
   String get agentValidationRequired =>
-      'Validation requise avant toute utilisation';
+      'Convalida richiesta prima di qualsiasi utilizzo';
 
   @override
   String get agentOutputDisclaimer =>
-      'Outil éducatif — ne constitue pas un conseil financier, fiscal ou juridique. Vérifie chaque information. Conforme à la LSFin.';
+      'Strumento educativo — non costituisce consulenza finanziaria, fiscale o giuridica. Verifica ogni informazione. Conforme LSFin.';
 
   @override
   String get agentNoAction =>
-      'MINT ne soumet, ne transmet et n\'exécute rien automatiquement.';
+      'MINT non invia, trasmette né esegue nulla automaticamente.';
 
   @override
-  String get agentSpecialistLabel => 'un·e spécialiste agréé·e';
+  String get agentSpecialistLabel => 'uno·a specialista abilitato·a';
 
   @override
-  String get agentLppBuybackTitle => 'Demande de rachat LPP';
+  String get agentLppBuybackTitle => 'Richiesta di riscatto LPP';
 
   @override
-  String get agentPensionFundSubject => 'Demande de certificat de prévoyance';
+  String get agentPensionFundSubject => 'Richiesta certificato previdenziale';
 
   @override
   String get agentLppTransferSubject =>
-      'Demande de transfert de prévoyance (libre passage)';
+      'Richiesta trasferimento previdenziale (libero passaggio)';
 }

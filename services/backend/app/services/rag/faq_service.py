@@ -268,12 +268,12 @@ _FAQ_DATA: list[FaqEntry] = [
         question="Puis-je verser le 3a rétroactivement pour les années passées?",
         answer=(
             "Depuis 2025, une nouvelle règlementation permet des versements rétroactifs "
-            "pour les années où le plafond n'a pas été atteint, sous certaines conditions "
+            "pour les années où le plafond n'a pas été atteint, selon des conditions précises "
             "(OPP3 art. 7 al. 1bis). "
             "Cette mesure est destinée principalement aux personnes ayant eu une interruption "
             "d'activité (maternité, maladie, etc.). "
             "Les montants rétroactifs sont également déductibles fiscalement pour l'année "
-            "de versement. Consulte les conditions auprès de ta fondation 3a."
+            "de versement. Consulte les modalités auprès de ta fondation 3a."
         ),
         category=KnowledgeCategory.PILLAR_3A,
         legal_refs=["OPP3 art. 7 al. 1bis (modif. 2025)"],
