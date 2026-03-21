@@ -6010,7 +6010,7 @@
   "coachErrorInvalidKey": "Dein API-Schlüssel scheint ungültig oder abgelaufen zu sein. Überprüfe ihn in den Einstellungen.",
   "coachErrorRateLimit": "Anfragelimit erreicht. Versuche es in einem Moment erneut.",
   "coachErrorGeneric": "Technischer Fehler. Versuche es später erneut.",
-  "coachErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
+  "coachErrorConnection": "Keine Verbindung. Die Tools sind weiterhin da.",
   "coachSuggestSimulate3a": "Säule-3a-Einzahlung simulieren",
   "coachSuggestView3a": "Meine 3a-Konten anzeigen",
   "coachSuggestSimulateLpp": "BVG-Einkauf simulieren",
@@ -8255,5 +8255,8 @@
   "settingsLangueTitle": "Sprache",
   "settingsLangueSubtitle": "App-Sprache w\u00e4hlen",
   "settingsAboutTitle": "\u00dcber",
-  "settingsAboutSubtitle": "Version, rechtliche Hinweise, Kontakt"
+  "settingsAboutSubtitle": "Version, rechtliche Hinweise, Kontakt",
+  "pulseLabelMonthlyGap": "Monatliche L\u00fccke zu schliessen",
+  "pulseLabelRetirementFree": "Freie Marge im Ruhestand",
+  "pulseLabelMonthlyFree": "Monatliche freie Marge"
 }

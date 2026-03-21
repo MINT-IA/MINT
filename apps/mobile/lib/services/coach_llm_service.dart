@@ -1,3 +1,4 @@
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -490,7 +491,10 @@ class CoachLlmService {
   /// which differ from PromptRegistry's CoachContext model.
   ///
   /// CRIT #6: wrapped in try-catch to prevent crash on incomplete profiles.
-  static String buildSystemPrompt(CoachProfile profile) {
+  static String buildSystemPrompt(
+    CoachProfile profile, {
+    BudgetSnapshot? budgetSnapshot,
+  }) {
     final firstName = profile.firstName ?? 'utilisateur';
     final age = profile.age;
     final canton = profile.canton;
@@ -615,6 +619,35 @@ class CoachLlmService {
         }
         buffer.writeln();
       }
+    }
+
+    // ── BUDGET VIVANT (from BudgetSnapshot) ──
+    if (budgetSnapshot != null) {
+      buffer.writeln();
+      buffer.writeln('BUDGET VIVANT :');
+      buffer.writeln(
+          '- Libre aujourd\'hui : CHF ${budgetSnapshot.present.monthlyFree.round()}/mois');
+      if (budgetSnapshot.retirement != null) {
+        buffer.writeln(
+            '- Libre retraite : CHF ${budgetSnapshot.retirement!.monthlyFree.round()}/mois');
+      }
+      if (budgetSnapshot.gap != null) {
+        buffer.writeln(
+            '- Ecart : CHF ${budgetSnapshot.gap!.monthlyGap.round()}/mois');
+      }
+      buffer.writeln('- Confiance : ${budgetSnapshot.confidenceScore}%');
+      if (budgetSnapshot.capImpact != null) {
+        if (budgetSnapshot.capImpact!.now != null) {
+          buffer.writeln(
+              '- Impact court terme : ${budgetSnapshot.capImpact!.now}');
+        }
+        if (budgetSnapshot.capImpact!.later != null) {
+          buffer.writeln(
+              '- Impact long terme : ${budgetSnapshot.capImpact!.later}');
+        }
+      }
+      buffer.writeln(
+          'Parle en CHF/mois de marge, pas en pourcentages abstraits.');
     }
 
     return buffer.toString();

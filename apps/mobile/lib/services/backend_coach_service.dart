@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 
@@ -60,6 +61,7 @@ class BackendCoachService {
     required String message,
     required CoachProfile profile,
     required List<Map<String, String>> history,
+    BudgetSnapshot? budgetSnapshot,
   }) async {
     try {
       // Load CapMemory for coach context
@@ -86,6 +88,13 @@ class BackendCoachService {
         'completedActions': capMemory.completedActions,
         'abandonedFlows': capMemory.abandonedFlows,
         'declaredGoals': capMemory.declaredGoals,
+        // BudgetSnapshot context (optional — null if engine not yet available)
+        if (budgetSnapshot != null) ...{
+          'presentFree': budgetSnapshot.present.monthlyFree,
+          'retirementFree': budgetSnapshot.retirement?.monthlyFree,
+          'gap': budgetSnapshot.gap?.monthlyGap,
+          'budgetConfidenceScore': budgetSnapshot.confidenceScore,
+        },
       };
 
       final response = await http

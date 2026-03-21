@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -66,6 +68,9 @@ class _PulseScreenState extends State<PulseScreen> {
   /// The current cap decision. Recomputed when profile changes.
   CapDecision? _cachedCap;
 
+  /// Unified BudgetSnapshot — replaces trio when BudgetLivingEngine is available.
+  BudgetSnapshot? _cachedSnapshot;
+
   /// Tracks when we last showed ActionSuccess to avoid repeat.
   DateTime? _lastSeenCompletedDate;
 
@@ -79,6 +84,7 @@ class _PulseScreenState extends State<PulseScreen> {
         _cachedProjection = null;
         _cachedFri = null;
         _cachedCap = null;
+        _cachedSnapshot = null;
         // H1 fix: reset CapMemory on profile disappearance
         // so a new profile doesn't inherit stale cap history.
         _capMemory = const CapMemory();
@@ -97,28 +103,51 @@ class _PulseScreenState extends State<PulseScreen> {
       CapMemoryStore.load().then((mem) {
         if (mounted) {
           setState(() => _capMemory = mem);
+          _recomputeSnapshot(profile);
           _recomputeCap(profile);
           _checkForCompletionFeedback(profile);
         }
       });
     }
 
-    try {
-      _cachedProjection = ForecasterService.project(profile: profile);
-    } catch (_) {
-      _cachedProjection = null;
-    }
+    // Try BudgetLivingEngine first (unified snapshot).
+    _recomputeSnapshot(profile);
 
-    try {
-      _cachedFri = FinancialFitnessService.calculate(
-        profile: profile,
-        previousScore: provider.previousScore,
-      );
-    } catch (_) {
-      _cachedFri = null;
+    // Legacy fallback: compute individually if snapshot unavailable.
+    if (_cachedSnapshot == null) {
+      try {
+        _cachedProjection = ForecasterService.project(profile: profile);
+      } catch (_) {
+        _cachedProjection = null;
+      }
+
+      try {
+        _cachedFri = FinancialFitnessService.calculate(
+          profile: profile,
+          previousScore: provider.previousScore,
+        );
+      } catch (_) {
+        _cachedFri = null;
+      }
     }
 
     _recomputeCap(profile);
+  }
+
+  /// Try to compute unified BudgetSnapshot via BudgetLivingEngine.
+  /// Falls back to null if the engine is not yet available (other agent
+  /// creating it) or if the profile is too incomplete.
+  void _recomputeSnapshot(CoachProfile profile) {
+    try {
+      _cachedSnapshot = BudgetLivingEngine.compute(
+        profile: profile,
+        now: DateTime.now(),
+        memory: _capMemory,
+      );
+    } catch (_) {
+      // Fallback: BudgetLivingEngine not available yet or profile incomplete.
+      _cachedSnapshot = null;
+    }
   }
 
   void _recomputeCap(CoachProfile profile) {
@@ -189,7 +218,8 @@ class _PulseScreenState extends State<PulseScreen> {
     }
 
     final profile = coachProvider.profile!;
-    final cap = _cachedCap;
+    // Prefer snapshot's cap (unified) over separately computed _cachedCap.
+    final cap = _cachedSnapshot?.cap ?? _cachedCap;
     final l = S.of(context)!;
 
     // Compute the dominant number
@@ -244,6 +274,10 @@ class _PulseScreenState extends State<PulseScreen> {
                     _buildCapNarrativeCard(context, cap, recentAction, l)
                   else
                     _buildFallbackAction(context),
+
+                  // ── 3b. CAP IMPACT (from BudgetSnapshot) ──
+                  if (_cachedSnapshot?.capImpact != null)
+                    _buildCapImpact(_cachedSnapshot!.capImpact!, l),
 
                   const SizedBox(height: MintSpacing.xl),
 
@@ -337,6 +371,51 @@ class _PulseScreenState extends State<PulseScreen> {
   // ── DOMINANT NUMBER ──
 
   _DominantNumber _computeDominantNumber(CoachProfile profile) {
+    // ── Snapshot-driven hero (goal-contextual) ──
+    final snap = _cachedSnapshot;
+    if (snap != null) {
+      final goalType = snap.activeGoal?.type;
+      switch (goalType) {
+        case GoalAType.retraite:
+          // Prefer gap if visible, else retirement free margin.
+          if (snap.gap != null) {
+            return _DominantNumber(
+              value: snap.gap!.monthlyGap,
+              format: (v) => '${formatChf(v)} CHF',
+              type: _NumberType.chf,
+            );
+          }
+          if (snap.retirement != null) {
+            return _DominantNumber(
+              value: snap.retirement!.monthlyFree,
+              format: (v) => '${formatChf(v)} CHF',
+              type: _NumberType.chf,
+            );
+          }
+        case GoalAType.debtFree:
+          return _DominantNumber(
+            value: snap.present.monthlyFree,
+            format: (v) => '${formatChf(v)} CHF',
+            type: _NumberType.chf,
+          );
+        case GoalAType.achatImmo:
+          // Use present free as proxy (capacity computed elsewhere).
+          return _DominantNumber(
+            value: snap.present.monthlyFree,
+            format: (v) => '${formatChf(v)} CHF',
+            type: _NumberType.chf,
+          );
+        default:
+          // No declared goal or custom — show present monthly free.
+          return _DominantNumber(
+            value: snap.present.monthlyFree,
+            format: (v) => '${formatChf(v)} CHF',
+            type: _NumberType.chf,
+          );
+      }
+    }
+
+    // ── Legacy path (no snapshot) ──
     if (_cachedProjection != null) {
       // Use tauxRemplacementBase from ForecasterService — single source of truth.
       // This divides household retirement income by household current income,
@@ -375,6 +454,25 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   String _computeDominantLabel(CoachProfile profile, S l) {
+    // ── Snapshot-driven label ──
+    final snap = _cachedSnapshot;
+    if (snap != null) {
+      final goalType = snap.activeGoal?.type;
+      switch (goalType) {
+        case GoalAType.retraite:
+          if (snap.gap != null) return l.pulseLabelMonthlyGap;
+          if (snap.retirement != null) return l.pulseLabelRetirementFree;
+          return l.pulseLabelMonthlyFree;
+        case GoalAType.debtFree:
+          return l.pulseLabelMonthlyFree;
+        case GoalAType.achatImmo:
+          return l.pulseLabelMonthlyFree;
+        default:
+          return l.pulseLabelMonthlyFree;
+      }
+    }
+
+    // ── Legacy path ──
     if (_cachedProjection != null) {
       final taux = _cachedProjection!.tauxRemplacementBase;
       if (taux > 0) {
@@ -395,6 +493,11 @@ class _PulseScreenState extends State<PulseScreen> {
       if (n.value >= friThresholdBon) return MintColors.success;
       if (n.value >= friThresholdAttention) return MintColors.warning;
       return MintColors.error;
+    }
+    // CHF values from snapshot: negative = warning/error.
+    if (n.type == _NumberType.chf && _cachedSnapshot != null) {
+      if (n.value < 0) return MintColors.warning;
+      if (n.value > 0) return MintColors.success;
     }
     return MintColors.textPrimary;
   }
@@ -467,12 +570,11 @@ class _PulseScreenState extends State<PulseScreen> {
 
   Widget _buildSecondarySignals(CoachProfile profile, S l) {
     final signals = <Widget>[];
+    final snap = _cachedSnapshot;
 
-    // Signal 1: Budget libre
-    final revenuNet = _computeRevenuNet(profile);
-    if (revenuNet > 0) {
-      final dep = profile.totalDepensesMensuelles;
-      final libre = revenuNet - dep;
+    // Signal 1: Budget libre (snapshot-aware)
+    if (snap != null) {
+      final libre = snap.present.monthlyFree;
       signals.add(MintSignalRow(
         label: l.pulseKeyFigBudgetLibre,
         value: libre >= 0
@@ -481,9 +583,24 @@ class _PulseScreenState extends State<PulseScreen> {
         valueColor: libre >= 0 ? MintColors.success : MintColors.warning,
         onTap: () => context.push('/budget'),
       ));
+    } else {
+      // Legacy fallback
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        final dep = profile.totalDepensesMensuelles;
+        final libre = revenuNet - dep;
+        signals.add(MintSignalRow(
+          label: l.pulseKeyFigBudgetLibre,
+          value: libre >= 0
+              ? '+${formatChfWithPrefix(libre)}/mois'
+              : '${formatChfWithPrefix(libre)}/mois',
+          valueColor: libre >= 0 ? MintColors.success : MintColors.warning,
+          onTap: () => context.push('/budget'),
+        ));
+      }
     }
 
-    // Signal 2: Patrimoine
+    // Signal 2: Patrimoine (unchanged — not in snapshot scope)
     final patrimoine = profile.patrimoine.totalPatrimoine +
         (profile.prevoyance.avoirLppTotal ?? 0) +
         profile.prevoyance.totalEpargne3a;
@@ -509,6 +626,67 @@ class _PulseScreenState extends State<PulseScreen> {
             ),
         ],
       ],
+    );
+  }
+
+  // ── CAP IMPACT (from BudgetSnapshot.capImpact) ──
+
+  Widget _buildCapImpact(BudgetCapImpact impact, S l) {
+    return Padding(
+      padding: const EdgeInsets.only(top: MintSpacing.sm),
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (impact.now != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.bolt_rounded,
+                      size: 16,
+                      color: MintColors.primary.withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        impact.now!,
+                        style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (impact.later != null)
+              Row(
+                children: [
+                  Icon(
+                    Icons.trending_up_rounded,
+                    size: 16,
+                    color: MintColors.success.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      impact.later!,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
     );
   }
 

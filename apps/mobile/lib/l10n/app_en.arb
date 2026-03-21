@@ -6039,7 +6039,7 @@
   "coachErrorInvalidKey": "Your API key seems invalid or expired. Check it in settings.",
   "coachErrorRateLimit": "Rate limit reached. Try again in a moment.",
   "coachErrorGeneric": "Technical error. Try again later.",
-  "coachErrorConnection": "Connection error. Check your internet connection or API key.",
+  "coachErrorConnection": "No connection. The tools are still here.",
   "coachSuggestSimulate3a": "Simulate a 3a contribution",
   "coachSuggestView3a": "View my 3a accounts",
   "coachSuggestSimulateLpp": "Simulate an LPP buyback",
@@ -8285,5 +8285,8 @@
   "settingsLangueTitle": "Language",
   "settingsLangueSubtitle": "Choose app language",
   "settingsAboutTitle": "About",
-  "settingsAboutSubtitle": "Version, legal notices, contact"
+  "settingsAboutSubtitle": "Version, legal notices, contact",
+  "pulseLabelMonthlyGap": "Monthly gap to close",
+  "pulseLabelRetirementFree": "Free margin at retirement",
+  "pulseLabelMonthlyFree": "Monthly free margin"
 }
