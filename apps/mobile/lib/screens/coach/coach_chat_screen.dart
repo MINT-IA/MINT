@@ -21,6 +21,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
@@ -255,18 +256,26 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final tier = _currentTier();
 
     // ── Proactive trigger evaluation ─────────────────────────────
-    // Check if the coach should initiate with a contextual message
-    // instead of the generic greeting. Graceful degradation on error.
+    // Read from MintStateProvider if available (avoids double evaluate() race).
+    // Falls back to direct evaluation if provider not wired yet.
     String? proactiveMessage;
     String? proactiveIntentTag;
     try {
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
-      final trigger = await ProactiveTriggerService.evaluate(
-        profile: p,
-        prefs: prefs,
-        now: DateTime.now(),
-      );
+      // Prefer MintStateProvider's pre-computed trigger to avoid race condition.
+      ProactiveTrigger? trigger;
+      try {
+        final stateProvider = context.read<MintStateProvider>();
+        trigger = stateProvider.state?.pendingTrigger;
+      } catch (_) {
+        // MintStateProvider not registered — fall back to direct evaluation.
+        trigger = await ProactiveTriggerService.evaluate(
+          profile: p,
+          prefs: prefs,
+          now: DateTime.now(),
+        );
+      }
       if (trigger != null && mounted) {
         proactiveMessage = _resolveProactiveMessage(trigger, s);
         proactiveIntentTag = trigger.intentTag;

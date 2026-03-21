@@ -164,39 +164,55 @@ class MintUserState {
 
   // ── copyWith ─────────────────────────────────────────────────────────────
 
+  /// Sentinel for distinguishing "not provided" from "explicitly set to null".
+  static const _undefined = Object();
+
   /// Return a copy with selected fields replaced.
   ///
-  /// Useful in tests and for partial state updates.
+  /// To reset a nullable field to null, pass `null` explicitly.
+  /// Uses sentinel pattern to distinguish "not provided" from "set to null".
   MintUserState copyWith({
     CoachProfile? profile,
     LifecyclePhase? lifecyclePhase,
     FinancialArchetype? archetype,
-    RetirementBudgetGap? budgetGap,
-    CapDecision? currentCap,
+    Object? budgetGap = _undefined,
+    Object? currentCap = _undefined,
     List<String>? capSequence,
-    String? activeGoalIntentTag,
+    Object? activeGoalIntentTag = _undefined,
     double? confidenceScore,
-    double? friScore,
-    double? replacementRate,
+    Object? friScore = _undefined,
+    Object? replacementRate = _undefined,
     CapMemory? capMemory,
     List<Nudge>? activeNudges,
-    ProactiveTrigger? pendingTrigger,
+    Object? pendingTrigger = _undefined,
     DateTime? computedAt,
   }) {
     return MintUserState(
       profile: profile ?? this.profile,
       lifecyclePhase: lifecyclePhase ?? this.lifecyclePhase,
       archetype: archetype ?? this.archetype,
-      budgetGap: budgetGap ?? this.budgetGap,
-      currentCap: currentCap ?? this.currentCap,
+      budgetGap: budgetGap == _undefined
+          ? this.budgetGap
+          : budgetGap as RetirementBudgetGap?,
+      currentCap: currentCap == _undefined
+          ? this.currentCap
+          : currentCap as CapDecision?,
       capSequence: capSequence ?? this.capSequence,
-      activeGoalIntentTag: activeGoalIntentTag ?? this.activeGoalIntentTag,
+      activeGoalIntentTag: activeGoalIntentTag == _undefined
+          ? this.activeGoalIntentTag
+          : activeGoalIntentTag as String?,
       confidenceScore: confidenceScore ?? this.confidenceScore,
-      friScore: friScore ?? this.friScore,
-      replacementRate: replacementRate ?? this.replacementRate,
+      friScore: friScore == _undefined
+          ? this.friScore
+          : friScore as double?,
+      replacementRate: replacementRate == _undefined
+          ? this.replacementRate
+          : replacementRate as double?,
       capMemory: capMemory ?? this.capMemory,
       activeNudges: activeNudges ?? this.activeNudges,
-      pendingTrigger: pendingTrigger ?? this.pendingTrigger,
+      pendingTrigger: pendingTrigger == _undefined
+          ? this.pendingTrigger
+          : pendingTrigger as ProactiveTrigger?,
       computedAt: computedAt ?? this.computedAt,
     );
   }
