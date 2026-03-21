@@ -12659,8 +12659,7 @@ class SFr extends S {
   String get coachErrorGeneric => 'Erreur technique. Réessaie plus tard.';
 
   @override
-  String get coachErrorConnection =>
-      'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.';
+  String get coachErrorConnection => 'Pas de connexion. Les outils restent là.';
 
   @override
   String get coachSuggestSimulate3a => 'Simuler un versement 3a';
@@ -18326,4 +18325,13 @@ class SFr extends S {
 
   @override
   String get settingsAboutSubtitle => 'Version, mentions légales, contact';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Écart mensuel à combler';
+
+  @override
+  String get pulseLabelRetirementFree => 'Marge libre à la retraite';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Marge libre mensuelle';
 }

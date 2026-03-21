@@ -12676,7 +12676,7 @@ class SDe extends S {
 
   @override
   String get coachErrorConnection =>
-      'Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.';
+      'Keine Verbindung. Die Tools sind weiterhin da.';
 
   @override
   String get coachSuggestSimulate3a => 'Säule-3a-Einzahlung simulieren';
@@ -18351,4 +18351,13 @@ class SDe extends S {
 
   @override
   String get settingsAboutSubtitle => 'Version, rechtliche Hinweise, Kontakt';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Monatliche Lücke zu schliessen';
+
+  @override
+  String get pulseLabelRetirementFree => 'Freie Marge im Ruhestand';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Monatliche freie Marge';
 }

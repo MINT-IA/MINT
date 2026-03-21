@@ -5996,7 +5996,7 @@
   "coachErrorInvalidKey": "Tu clave API parece inválida o caducada. Verifícala en los ajustes.",
   "coachErrorRateLimit": "Límite de solicitudes alcanzado. Inténtalo de nuevo en un momento.",
   "coachErrorGeneric": "Error técnico. Inténtalo más tarde.",
-  "coachErrorConnection": "Error de conexión. Verifica tu conexión a internet o tu clave API.",
+  "coachErrorConnection": "Sin conexi\u00f3n. Las herramientas siguen aqu\u00ed.",
   "coachSuggestSimulate3a": "Simular una aportación 3a",
   "coachSuggestView3a": "Ver mis cuentas 3a",
   "coachSuggestSimulateLpp": "Simular un rescate LPP",
@@ -8040,5 +8040,8 @@
   "settingsLangueTitle": "Idioma",
   "settingsLangueSubtitle": "Elegir el idioma de la app",
   "settingsAboutTitle": "Acerca de",
-  "settingsAboutSubtitle": "Versi\u00f3n, avisos legales, contacto"
+  "settingsAboutSubtitle": "Versi\u00f3n, avisos legales, contacto",
+  "pulseLabelMonthlyGap": "Brecha mensual a cubrir",
+  "pulseLabelRetirementFree": "Margen libre en la jubilaci\u00f3n",
+  "pulseLabelMonthlyFree": "Margen libre mensual"
 }

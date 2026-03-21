@@ -5996,7 +5996,7 @@
   "coachErrorInvalidKey": "La tua chiave API sembra non valida o scaduta. Verificala nelle impostazioni.",
   "coachErrorRateLimit": "Limite di richieste raggiunto. Riprova tra un momento.",
   "coachErrorGeneric": "Errore tecnico. Riprova più tardi.",
-  "coachErrorConnection": "Errore di connessione. Verifica la tua connessione internet o la tua chiave API.",
+  "coachErrorConnection": "Nessuna connessione. Gli strumenti restano qui.",
   "coachSuggestSimulate3a": "Simulare un versamento 3a",
   "coachSuggestView3a": "Vedere i miei conti 3a",
   "coachSuggestSimulateLpp": "Simulare un riscatto LPP",
@@ -7957,5 +7957,8 @@
   "settingsLangueTitle": "Lingua",
   "settingsLangueSubtitle": "Scegli la lingua dell\u2019app",
   "settingsAboutTitle": "Informazioni",
-  "settingsAboutSubtitle": "Versione, note legali, contatto"
+  "settingsAboutSubtitle": "Versione, note legali, contatto",
+  "pulseLabelMonthlyGap": "Divario mensile da colmare",
+  "pulseLabelRetirementFree": "Margine libero in pensione",
+  "pulseLabelMonthlyFree": "Margine libero mensile"
 }

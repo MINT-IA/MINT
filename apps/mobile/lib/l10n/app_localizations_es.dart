@@ -12662,7 +12662,7 @@ class SEs extends S {
 
   @override
   String get coachErrorConnection =>
-      'Error de conexión. Verifica tu conexión a internet o tu clave API.';
+      'Sin conexión. Las herramientas siguen aquí.';
 
   @override
   String get coachSuggestSimulate3a => 'Simular una aportación 3a';
@@ -18329,4 +18329,13 @@ class SEs extends S {
 
   @override
   String get settingsAboutSubtitle => 'Versión, avisos legales, contacto';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Brecha mensual a cubrir';
+
+  @override
+  String get pulseLabelRetirementFree => 'Margen libre en la jubilación';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Margen libre mensual';
 }

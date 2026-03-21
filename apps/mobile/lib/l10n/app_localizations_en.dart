@@ -12593,8 +12593,7 @@ class SEn extends S {
   String get coachErrorGeneric => 'Technical error. Try again later.';
 
   @override
-  String get coachErrorConnection =>
-      'Connection error. Check your internet connection or API key.';
+  String get coachErrorConnection => 'No connection. The tools are still here.';
 
   @override
   String get coachSuggestSimulate3a => 'Simulate a 3a contribution';
@@ -18241,4 +18240,13 @@ class SEn extends S {
 
   @override
   String get settingsAboutSubtitle => 'Version, legal notices, contact';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Monthly gap to close';
+
+  @override
+  String get pulseLabelRetirementFree => 'Free margin at retirement';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Monthly free margin';
 }
