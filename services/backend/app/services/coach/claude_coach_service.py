@@ -60,6 +60,10 @@ def build_system_prompt(
     avoir_lpp: Optional[float] = None,
     epargne_3a: Optional[float] = None,
     total_dettes: Optional[float] = None,
+    present_free: Optional[float] = None,
+    retirement_free: Optional[float] = None,
+    budget_gap: Optional[float] = None,
+    budget_confidence: Optional[int] = None,
     last_cap_served: Optional[str] = None,
     completed_actions: Optional[List[str]] = None,
     abandoned_flows: Optional[List[str]] = None,
@@ -152,6 +156,21 @@ def build_system_prompt(
         parts.append(f"- Objectifs declares : {', '.join(declared_goals)}")
     if last_cap_served:
         parts.append(f"- Dernier cap servi : {last_cap_served}")
+
+    # Budget vivant context — speak in CHF/mois
+    if present_free is not None:
+        parts.append("")
+        parts.append("BUDGET VIVANT :")
+        parts.append(f"- Libre aujourd'hui : CHF {present_free:,.0f}/mois")
+        if retirement_free is not None:
+            parts.append(f"- Libre retraite : CHF {retirement_free:,.0f}/mois")
+        if budget_gap is not None:
+            parts.append(f"- Ecart : CHF {budget_gap:,.0f}/mois")
+        if budget_confidence is not None:
+            parts.append(f"- Confiance budget : {budget_confidence}%")
+        parts.append(
+            "Parle en CHF/mois de marge, pas en pourcentages abstraits."
+        )
 
     # Missing fields detection — conversational profile collection
     missing = []

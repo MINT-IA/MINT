@@ -11,7 +11,9 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/services/backend_coach_service.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
@@ -398,10 +400,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           .map((m) => {'role': m.role, 'content': m.content})
           .toList();
 
+      // Compute BudgetSnapshot for coach context
+      BudgetSnapshot? snapshot;
+      try {
+        snapshot = BudgetLivingEngine.compute(
+          profile: _profile!,
+          now: DateTime.now(),
+        );
+      } catch (_) {}
+
       final response = await BackendCoachService.chat(
         message: text,
         profile: _profile!,
         history: history,
+        budgetSnapshot: snapshot,
       );
 
       if (response == null) return false;

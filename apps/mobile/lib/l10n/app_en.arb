@@ -8288,5 +8288,14 @@
   "settingsAboutSubtitle": "Version, legal notices, contact",
   "pulseLabelMonthlyGap": "Monthly gap to close",
   "pulseLabelRetirementFree": "Free margin at retirement",
-  "pulseLabelMonthlyFree": "Monthly free margin"
+  "pulseLabelMonthlyFree": "Monthly free margin",
+  "budgetSnapshotTitle": "Your living budget",
+  "budgetSnapshotPresentLabel": "Free today",
+  "budgetSnapshotRetirementLabel": "Free at retirement",
+  "budgetSnapshotGapLabel": "Gap",
+  "budgetSnapshotConfidenceLabel": "Reliability",
+  "budgetSnapshotConfidenceLow": "Add data to refine.",
+  "budgetSnapshotConfidenceOk": "Credible estimate.",
+  "budgetSnapshotLeverLabel": "Lever",
+  "budgetSnapshotFreeLabel": "Your monthly free"
 }

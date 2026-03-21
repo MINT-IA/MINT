@@ -8043,5 +8043,14 @@
   "settingsAboutSubtitle": "Versi\u00f3n, avisos legales, contacto",
   "pulseLabelMonthlyGap": "Brecha mensual a cubrir",
   "pulseLabelRetirementFree": "Margen libre en la jubilaci\u00f3n",
-  "pulseLabelMonthlyFree": "Margen libre mensual"
+  "pulseLabelMonthlyFree": "Margen libre mensual",
+  "budgetSnapshotTitle": "Tu presupuesto vivo",
+  "budgetSnapshotPresentLabel": "Libre hoy",
+  "budgetSnapshotRetirementLabel": "Libre en la jubilaci\u00f3n",
+  "budgetSnapshotGapLabel": "Brecha",
+  "budgetSnapshotConfidenceLabel": "Fiabilidad",
+  "budgetSnapshotConfidenceLow": "A\u00f1ade datos para afinar.",
+  "budgetSnapshotConfidenceOk": "Estimaci\u00f3n cre\u00edble.",
+  "budgetSnapshotLeverLabel": "Palanca",
+  "budgetSnapshotFreeLabel": "Tu libre mensual"
 }

@@ -18334,4 +18334,31 @@ class SFr extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Marge libre mensuelle';
+
+  @override
+  String get budgetSnapshotTitle => 'Ton budget vivant';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Libre aujourd’hui';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Libre retraite';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Écart';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Fiabilité';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Ajoute des données pour affiner.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Estimation crédible.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Levier';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'Ton libre mensuel';
 }

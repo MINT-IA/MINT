@@ -124,6 +124,10 @@ def coach_chat(request: CoachChatRequest) -> CoachChatResponse:
         completed_actions=request.completed_actions,
         abandoned_flows=request.abandoned_flows,
         declared_goals=request.declared_goals,
+        present_free=request.present_free,
+        retirement_free=request.retirement_free,
+        budget_gap=request.budget_gap,
+        budget_confidence=request.budget_confidence_score,
     )
 
     # Call Claude

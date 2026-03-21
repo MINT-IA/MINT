@@ -32524,6 +32524,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marge libre mensuelle'**
   String get pulseLabelMonthlyFree;
+
+  /// No description provided for @budgetSnapshotTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton budget vivant'**
+  String get budgetSnapshotTitle;
+
+  /// No description provided for @budgetSnapshotPresentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre aujourd’hui'**
+  String get budgetSnapshotPresentLabel;
+
+  /// No description provided for @budgetSnapshotRetirementLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre retraite'**
+  String get budgetSnapshotRetirementLabel;
+
+  /// No description provided for @budgetSnapshotGapLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart'**
+  String get budgetSnapshotGapLabel;
+
+  /// No description provided for @budgetSnapshotConfidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiabilité'**
+  String get budgetSnapshotConfidenceLabel;
+
+  /// No description provided for @budgetSnapshotConfidenceLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute des données pour affiner.'**
+  String get budgetSnapshotConfidenceLow;
+
+  /// No description provided for @budgetSnapshotConfidenceOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation crédible.'**
+  String get budgetSnapshotConfidenceOk;
+
+  /// No description provided for @budgetSnapshotLeverLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Levier'**
+  String get budgetSnapshotLeverLabel;
+
+  /// No description provided for @budgetSnapshotFreeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton libre mensuel'**
+  String get budgetSnapshotFreeLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

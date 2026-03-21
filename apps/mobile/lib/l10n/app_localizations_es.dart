@@ -18338,4 +18338,31 @@ class SEs extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Margen libre mensual';
+
+  @override
+  String get budgetSnapshotTitle => 'Tu presupuesto vivo';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Libre hoy';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Libre en la jubilación';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Brecha';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Fiabilidad';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Añade datos para afinar.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Estimación creíble.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Palanca';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'Tu libre mensual';
 }

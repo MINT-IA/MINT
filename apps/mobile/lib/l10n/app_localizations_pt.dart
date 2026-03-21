@@ -18285,4 +18285,31 @@ class SPt extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Margem livre mensal';
+
+  @override
+  String get budgetSnapshotTitle => 'O teu orçamento vivo';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Livre hoje';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Livre na reforma';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Lacuna';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Fiabilidade';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Adiciona dados para refinar.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Estimativa credível.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Alavanca';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'O teu livre mensal';
 }

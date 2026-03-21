@@ -18355,4 +18355,31 @@ class SIt extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Margine libero mensile';
+
+  @override
+  String get budgetSnapshotTitle => 'Il tuo budget vivente';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Libero oggi';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Libero in pensione';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Divario';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Affidabilità';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Aggiungi dati per affinare.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Stima credibile.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Leva';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'Il tuo libero mensile';
 }

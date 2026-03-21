@@ -7960,5 +7960,14 @@
   "settingsAboutSubtitle": "Vers\u00e3o, avisos legais, contacto",
   "pulseLabelMonthlyGap": "Lacuna mensal a preencher",
   "pulseLabelRetirementFree": "Margem livre na reforma",
-  "pulseLabelMonthlyFree": "Margem livre mensal"
+  "pulseLabelMonthlyFree": "Margem livre mensal",
+  "budgetSnapshotTitle": "O teu or\u00e7amento vivo",
+  "budgetSnapshotPresentLabel": "Livre hoje",
+  "budgetSnapshotRetirementLabel": "Livre na reforma",
+  "budgetSnapshotGapLabel": "Lacuna",
+  "budgetSnapshotConfidenceLabel": "Fiabilidade",
+  "budgetSnapshotConfidenceLow": "Adiciona dados para refinar.",
+  "budgetSnapshotConfidenceOk": "Estimativa cred\u00edvel.",
+  "budgetSnapshotLeverLabel": "Alavanca",
+  "budgetSnapshotFreeLabel": "O teu livre mensal"
 }

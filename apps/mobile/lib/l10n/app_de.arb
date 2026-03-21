@@ -8258,5 +8258,14 @@
   "settingsAboutSubtitle": "Version, rechtliche Hinweise, Kontakt",
   "pulseLabelMonthlyGap": "Monatliche L\u00fccke zu schliessen",
   "pulseLabelRetirementFree": "Freie Marge im Ruhestand",
-  "pulseLabelMonthlyFree": "Monatliche freie Marge"
+  "pulseLabelMonthlyFree": "Monatliche freie Marge",
+  "budgetSnapshotTitle": "Dein lebendiges Budget",
+  "budgetSnapshotPresentLabel": "Frei heute",
+  "budgetSnapshotRetirementLabel": "Frei im Ruhestand",
+  "budgetSnapshotGapLabel": "L\u00fccke",
+  "budgetSnapshotConfidenceLabel": "Zuverl\u00e4ssigkeit",
+  "budgetSnapshotConfidenceLow": "F\u00fcge Daten hinzu, um zu pr\u00e4zisieren.",
+  "budgetSnapshotConfidenceOk": "Glaubw\u00fcrdige Sch\u00e4tzung.",
+  "budgetSnapshotLeverLabel": "Hebel",
+  "budgetSnapshotFreeLabel": "Dein monatlich Frei"
 }

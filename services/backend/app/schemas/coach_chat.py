@@ -50,6 +50,12 @@ class CoachChatRequest(ChatBaseModel):
     epargne_3a: Optional[float] = None
     total_dettes: Optional[float] = None
 
+    # Budget snapshot context (for coach to speak in CHF/mois)
+    present_free: Optional[float] = None
+    retirement_free: Optional[float] = None
+    budget_gap: Optional[float] = None
+    budget_confidence_score: Optional[int] = None
+
     # CapMemory context (for coach memory)
     last_cap_served: Optional[str] = None
     completed_actions: List[str] = Field(default_factory=list)

@@ -494,10 +494,20 @@ class _PulseScreenState extends State<PulseScreen> {
       if (n.value >= friThresholdAttention) return MintColors.warning;
       return MintColors.error;
     }
-    // CHF values from snapshot: negative = warning/error.
+    // CHF values from snapshot
     if (n.type == _NumberType.chf && _cachedSnapshot != null) {
-      if (n.value < 0) return MintColors.warning;
-      if (n.value > 0) return MintColors.success;
+      // For gap: positive gap = losing margin = bad (warning)
+      // For libre/income: positive = good (success)
+      final isGapHero = _cachedSnapshot!.activeGoal?.type == GoalAType.retraite
+          && _cachedSnapshot!.gap != null;
+      if (isGapHero) {
+        // Gap: positive = loss, negative = surplus
+        if (n.value > 0) return MintColors.warning;
+        if (n.value <= 0) return MintColors.success;
+      } else {
+        if (n.value < 0) return MintColors.warning;
+        if (n.value > 0) return MintColors.success;
+      }
     }
     return MintColors.textPrimary;
   }

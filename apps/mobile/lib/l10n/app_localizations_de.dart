@@ -18360,4 +18360,32 @@ class SDe extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Monatliche freie Marge';
+
+  @override
+  String get budgetSnapshotTitle => 'Dein lebendiges Budget';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Frei heute';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Frei im Ruhestand';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Lücke';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Zuverlässigkeit';
+
+  @override
+  String get budgetSnapshotConfidenceLow =>
+      'Füge Daten hinzu, um zu präzisieren.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Glaubwürdige Schätzung.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Hebel';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'Dein monatlich Frei';
 }

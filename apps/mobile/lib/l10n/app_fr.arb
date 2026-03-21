@@ -8582,5 +8582,14 @@
   "settingsAboutSubtitle": "Version, mentions l\u00e9gales, contact",
   "pulseLabelMonthlyGap": "\u00c9cart mensuel \u00e0 combler",
   "pulseLabelRetirementFree": "Marge libre \u00e0 la retraite",
-  "pulseLabelMonthlyFree": "Marge libre mensuelle"
+  "pulseLabelMonthlyFree": "Marge libre mensuelle",
+  "budgetSnapshotTitle": "Ton budget vivant",
+  "budgetSnapshotPresentLabel": "Libre aujourd\u2019hui",
+  "budgetSnapshotRetirementLabel": "Libre retraite",
+  "budgetSnapshotGapLabel": "\u00c9cart",
+  "budgetSnapshotConfidenceLabel": "Fiabilit\u00e9",
+  "budgetSnapshotConfidenceLow": "Ajoute des donn\u00e9es pour affiner.",
+  "budgetSnapshotConfidenceOk": "Estimation cr\u00e9dible.",
+  "budgetSnapshotLeverLabel": "Levier",
+  "budgetSnapshotFreeLabel": "Ton libre mensuel"
 }

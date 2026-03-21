@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/backend_coach_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
@@ -153,34 +154,46 @@ class WidgetRenderer {
     final presentFree = (p['present_free'] as num?)?.toDouble() ?? 0;
     final retirementFree = (p['retirement_free'] as num?)?.toDouble();
     final gap = (p['gap'] as num?)?.toDouble();
+    final confidence = (p['confidence'] as num?)?.toInt();
     final narrative = p['narrative'] as String?;
     final leverNow = p['lever_now'] as String?;
     final leverLater = p['lever_later'] as String?;
 
-    // If retirement data exists, show present vs retirement comparison.
-    // Otherwise, show present free as a fact card.
+    final l = S.of(context);
+
     if (retirementFree != null) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ChatComparisonCard(
-            title: 'Ton budget vivant',
-            leftLabel: 'Libre aujourd\u2019hui',
+            title: l?.budgetSnapshotTitle ?? 'Ton budget vivant',
+            leftLabel: l?.budgetSnapshotPresentLabel ?? 'Libre aujourd\u2019hui',
             leftValue: 'CHF\u00a0${_fmt(presentFree)}/mois',
-            rightLabel: 'Libre retraite',
+            rightLabel: l?.budgetSnapshotRetirementLabel ?? 'Libre retraite',
             rightValue: 'CHF\u00a0${_fmt(retirementFree)}/mois',
             leftAmount: presentFree,
             rightAmount: retirementFree,
             narrative: gap != null
-                ? '\u00c9cart\u00a0: CHF\u00a0${_fmt(gap.abs())}/mois'
+                ? '${l?.budgetSnapshotGapLabel ?? "\u00c9cart"}\u00a0: CHF\u00a0${_fmt(gap.abs())}/mois'
                 : narrative,
             onTap: () => context.push('/retraite'),
           ),
+          if (confidence != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ChatFactCard(
+                eyebrow: l?.budgetSnapshotConfidenceLabel ?? 'Fiabilit\u00e9',
+                value: '$confidence\u00a0%',
+                description: confidence < 50
+                    ? (l?.budgetSnapshotConfidenceLow ?? 'Ajoute des donn\u00e9es pour affiner.')
+                    : (l?.budgetSnapshotConfidenceOk ?? 'Estimation cr\u00e9dible.'),
+              ),
+            ),
           if (leverNow != null || leverLater != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ChatFactCard(
-                eyebrow: 'Levier',
+                eyebrow: l?.budgetSnapshotLeverLabel ?? 'Levier',
                 value: leverNow ?? leverLater ?? '',
                 description: leverLater != null && leverNow != null
                     ? leverLater
@@ -194,7 +207,7 @@ class WidgetRenderer {
     return ChatFactCard(
       eyebrow: 'Budget',
       value: 'CHF\u00a0${_fmt(presentFree)}/mois',
-      description: narrative ?? 'Ton libre mensuel',
+      description: narrative ?? (l?.budgetSnapshotFreeLabel ?? 'Ton libre mensuel'),
       onTap: () => context.push('/budget'),
     );
   }

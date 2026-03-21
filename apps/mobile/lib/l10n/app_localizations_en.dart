@@ -18249,4 +18249,31 @@ class SEn extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Monthly free margin';
+
+  @override
+  String get budgetSnapshotTitle => 'Your living budget';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Free today';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Free at retirement';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Gap';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Reliability';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Add data to refine.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Credible estimate.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Lever';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'Your monthly free';
 }
