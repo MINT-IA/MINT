@@ -292,10 +292,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         prefs,
         now: now,
       );
+      final lastActivity = await NudgePersistence.getLastActivityTime(prefs);
       final nudges = NudgeEngine.evaluate(
         profile: p,
         now: now,
         dismissedNudgeIds: dismissedIds,
+        lastActivityTime: lastActivity,
       );
       // Only surface high-priority nudges as chips (max 2).
       final highPriorityNudges = nudges

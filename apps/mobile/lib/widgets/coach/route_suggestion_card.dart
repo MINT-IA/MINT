@@ -26,19 +26,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-
-// ════════════════════════════════════════════════════════════════
-//  SCREEN OUTCOME ENUM (ReturnContract V2)
-// ════════════════════════════════════════════════════════════════
-
-/// Outcome of a coach-suggested screen visit (ReturnContract V2).
-///
-/// - [completed]     — user spent ≥ 5 s on the screen without changing profile
-///                     data, or we cannot detect a data change.
-/// - [abandoned]     — user returned in < 5 s (quick bounce).
-/// - [changedInputs] — user returned after ≥ 5 s AND the profile hash changed,
-///                     indicating that new data was entered.
-enum ScreenOutcome { completed, abandoned, changedInputs }
+import 'package:mint_mobile/models/screen_return.dart' show ScreenOutcome;
+export 'package:mint_mobile/models/screen_return.dart' show ScreenOutcome;
 
 // ════════════════════════════════════════════════════════════════
 //  ROUTE SUGGESTION CARD

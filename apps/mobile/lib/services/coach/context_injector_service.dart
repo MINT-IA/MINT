@@ -160,10 +160,12 @@ class ContextInjectorService {
           sp,
           now: currentDate,
         );
+        final lastActivity = await NudgePersistence.getLastActivityTime(sp);
         final nudges = NudgeEngine.evaluate(
           profile: profile,
           now: currentDate,
           dismissedNudgeIds: dismissedIds,
+          lastActivityTime: lastActivity,
         );
         activeNudges = nudges.take(_maxNudgesInContext).toList();
         if (activeNudges.isNotEmpty) {
