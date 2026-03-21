@@ -327,6 +327,131 @@ void main() {
     });
   });
 
+  group('ReturnContract V2 — ScreenOutcome resolution', () {
+    test('ScreenOutcome enum has completed, abandoned, changedInputs values', () {
+      expect(ScreenOutcome.values, containsAll([
+        ScreenOutcome.completed,
+        ScreenOutcome.abandoned,
+        ScreenOutcome.changedInputs,
+      ]));
+    });
+
+    test('completed outcome has distinct identity from abandoned', () {
+      expect(ScreenOutcome.completed, isNot(ScreenOutcome.abandoned));
+    });
+
+    test('changedInputs outcome has distinct identity from completed', () {
+      expect(ScreenOutcome.changedInputs, isNot(ScreenOutcome.completed));
+    });
+
+    testWidgets('routeReturnCompleted i18n key resolves in French', (tester) async {
+      late String resolved;
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Builder(builder: (ctx) {
+          resolved = S.of(ctx)!.routeReturnCompleted;
+          return const SizedBox.shrink();
+        }),
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(resolved, isNotEmpty);
+      expect(resolved, isNot(contains('routeReturnCompleted')));
+    });
+
+    testWidgets('routeReturnAbandoned i18n key resolves in French', (tester) async {
+      late String resolved;
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Builder(builder: (ctx) {
+          resolved = S.of(ctx)!.routeReturnAbandoned;
+          return const SizedBox.shrink();
+        }),
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(resolved, isNotEmpty);
+      expect(resolved, isNot(contains('routeReturnAbandoned')));
+    });
+
+    testWidgets('routeReturnChanged i18n key resolves in French', (tester) async {
+      late String resolved;
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Builder(builder: (ctx) {
+          resolved = S.of(ctx)!.routeReturnChanged;
+          return const SizedBox.shrink();
+        }),
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(resolved, isNotEmpty);
+      expect(resolved, isNot(contains('routeReturnChanged')));
+    });
+
+    testWidgets('completed i18n string differs from abandoned string', (tester) async {
+      String completedMsg = '';
+      String abandonedMsg = '';
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Builder(builder: (ctx) {
+          completedMsg = S.of(ctx)!.routeReturnCompleted;
+          abandonedMsg = S.of(ctx)!.routeReturnAbandoned;
+          return const SizedBox.shrink();
+        }),
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(completedMsg, isNot(abandonedMsg));
+    });
+
+    testWidgets('changed i18n string differs from completed string', (tester) async {
+      String completedMsg = '';
+      String changedMsg = '';
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Builder(builder: (ctx) {
+          completedMsg = S.of(ctx)!.routeReturnCompleted;
+          changedMsg = S.of(ctx)!.routeReturnChanged;
+          return const SizedBox.shrink();
+        }),
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(changedMsg, isNot(completedMsg));
+    });
+  });
+
   group('CoachChatScreen — route_to_screen tool_use (S58)', () {
     testWidgets('screen does not crash with route_to_screen tool_use payload',
         (tester) async {

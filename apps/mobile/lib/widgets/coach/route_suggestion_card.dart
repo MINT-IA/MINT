@@ -11,6 +11,12 @@
 /// - All text via AppLocalizations (zero hardcoded strings).
 /// - MintColors, MintTextStyles, MintSpacing only — no hardcoded hex.
 ///
+/// ReturnContract V2 (S58):
+/// - [onReturn] receives a [ScreenOutcome] distinguishing completed /
+///   abandoned / changedInputs so the parent chat can react differently.
+/// - Outcome detection heuristic: time-on-screen < 5 s → abandoned;
+///   profile hash changed → changedInputs; otherwise → completed.
+///
 /// See docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §7
 library;
 
@@ -22,6 +28,19 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ════════════════════════════════════════════════════════════════
+//  SCREEN OUTCOME ENUM (ReturnContract V2)
+// ════════════════════════════════════════════════════════════════
+
+/// Outcome of a coach-suggested screen visit (ReturnContract V2).
+///
+/// - [completed]     — user spent ≥ 5 s on the screen without changing profile
+///                     data, or we cannot detect a data change.
+/// - [abandoned]     — user returned in < 5 s (quick bounce).
+/// - [changedInputs] — user returned after ≥ 5 s AND the profile hash changed,
+///                     indicating that new data was entered.
+enum ScreenOutcome { completed, abandoned, changedInputs }
+
+// ════════════════════════════════════════════════════════════════
 //  ROUTE SUGGESTION CARD
 // ════════════════════════════════════════════════════════════════
 
@@ -29,10 +48,14 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 /// screen.
 ///
 /// Parameters:
-/// - [contextMessage] — the coach's explanation from the LLM response.
-/// - [route]          — the GoRouter route to push on CTA tap.
-/// - [isPartial]      — when true, shows the "incomplete data" warning banner.
-/// - [onReturn]       — called after the user returns from the target screen.
+/// - [contextMessage]  — the coach's explanation from the LLM response.
+/// - [route]           — the GoRouter route to push on CTA tap.
+/// - [isPartial]       — when true, shows the "incomplete data" warning banner.
+/// - [onReturn]        — called after the user returns from the target screen,
+///                       with a [ScreenOutcome] value (ReturnContract V2).
+/// - [profileHashFn]   — optional function returning a hash/stamp of the
+///                       current profile state; used to detect [changedInputs].
+///                       Defaults to null (no change detection).
 ///
 /// Usage:
 /// ```dart
@@ -40,7 +63,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 ///   contextMessage: 'Voici ton simulateur rente vs capital.',
 ///   route: '/rente-vs-capital',
 ///   isPartial: true,
-///   onReturn: () { /* acknowledge return */ },
+///   onReturn: (outcome) { /* react to outcome */ },
+///   profileHashFn: () => profileProvider.profile.hashCode.toString(),
 /// )
 /// ```
 class RouteSuggestionCard extends StatelessWidget {
@@ -56,9 +80,16 @@ class RouteSuggestionCard extends StatelessWidget {
 
   /// Called after [context.push(route)] completes (i.e. user comes back).
   ///
-  /// The card calls [onReturn] in the `.then()` of the push so the parent
-  /// chat screen can add a coach acknowledgement message.
-  final VoidCallback? onReturn;
+  /// Receives a [ScreenOutcome] so the parent can react differently to
+  /// completed / abandoned / changedInputs (ReturnContract V2).
+  final void Function(ScreenOutcome outcome)? onReturn;
+
+  /// Optional function returning a snapshot of the current profile state.
+  ///
+  /// When provided, the card captures the value before navigation and
+  /// compares it on return to decide between [ScreenOutcome.completed] and
+  /// [ScreenOutcome.changedInputs].
+  final String Function()? profileHashFn;
 
   const RouteSuggestionCard({
     super.key,
@@ -66,6 +97,7 @@ class RouteSuggestionCard extends StatelessWidget {
     required this.route,
     this.isPartial = false,
     this.onReturn,
+    this.profileHashFn,
   });
 
   @override
@@ -122,10 +154,46 @@ class RouteSuggestionCard extends StatelessWidget {
   }
 
   Future<void> _navigateAndReturn(BuildContext context) async {
+    // Snapshot profile state and wall-clock time before navigation.
+    final hashBefore = profileHashFn?.call();
+    final entryTime = DateTime.now();
+
     await context.push(route);
-    if (context.mounted) {
-      onReturn?.call();
+
+    if (!context.mounted) return;
+
+    final elapsed = DateTime.now().difference(entryTime);
+    final hashAfter = profileHashFn?.call();
+
+    final outcome = resolveOutcome(
+      elapsed: elapsed,
+      hashBefore: hashBefore,
+      hashAfter: hashAfter,
+    );
+
+    onReturn?.call(outcome);
+  }
+
+  /// Determine the [ScreenOutcome] from elapsed time and profile hash delta.
+  ///
+  /// Rules (ReturnContract V2):
+  /// - < 5 s on screen → [ScreenOutcome.abandoned] (quick bounce)
+  /// - ≥ 5 s + profile hash changed → [ScreenOutcome.changedInputs]
+  /// - ≥ 5 s + no change (or no hash fn) → [ScreenOutcome.completed]
+  ///
+  /// Exposed as public static for unit-testing the resolution logic in
+  /// isolation (widget tests cannot advance `DateTime.now()`).
+  static ScreenOutcome resolveOutcome({
+    required Duration elapsed,
+    required String? hashBefore,
+    required String? hashAfter,
+  }) {
+    const abandonThreshold = Duration(seconds: 5);
+    if (elapsed < abandonThreshold) return ScreenOutcome.abandoned;
+    if (hashBefore != null && hashAfter != null && hashBefore != hashAfter) {
+      return ScreenOutcome.changedInputs;
     }
+    return ScreenOutcome.completed;
   }
 }
 

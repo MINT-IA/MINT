@@ -91,40 +91,30 @@ class LetterGenerationService {
     final effectiveNow = now ?? DateTime.now();
     final year = effectiveNow.year;
     final caisse =
-        profile.prevoyance.nomCaisse ?? '[Nom de la caisse de pension]';
+        profile.prevoyance.nomCaisse ?? l.agentLetterCaisseFallback;
     final placeholderName = l.agentLetterPlaceholderName;
     final placeholderAddress = l.agentLetterPlaceholderAddress;
     final placeholderDate = l.agentLetterPlaceholderDate;
     final subject = l.agentPensionFundSubject;
 
-    final body = '''$placeholderName
-$placeholderAddress
-[Code postal et ville]
+    final postalCity = l.agentLetterPostalCity;
+    final caisseAddress = l.agentLetterCaisseAddress;
+    final policeNumber = l.agentLetterPoliceNumber;
+    final dateFormatted =
+        '${effectiveNow.day}.${effectiveNow.month}.$year';
 
-$caisse
-[Adresse de la caisse]
-[Code postal et ville]
-
-$placeholderDate, le ${effectiveNow.day}.${effectiveNow.month}.$year
-
-Objet\u00a0: $subject
-
-Madame, Monsieur,
-
-Par la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle\u00a0:
-
-1. Certificat de prévoyance actualisé $year (avoir de vieillesse, prestations couvertes, taux de conversion applicable)
-
-2. Confirmation de ma capacité de rachat (montant maximal selon l'art.\u00a079b LPP)
-
-3. Simulation de retraite anticipée (projection de l'avoir et de la rente à\u00a063 et 64\u00a0ans, le cas échéant)
-
-Je vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d'information.
-
-Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
-
-$placeholderName
-[Numéro de police\u00a0: À compléter]''';
+    final body = l.agentLetterPensionFundBody(
+      placeholderName,
+      placeholderAddress,
+      postalCity,
+      caisse,
+      caisseAddress,
+      placeholderDate,
+      dateFormatted,
+      subject,
+      '$year',
+      policeNumber,
+    );
 
     return GeneratedLetter(
       type: 'pensionFundRequest',
@@ -134,9 +124,9 @@ $placeholderName
         placeholderName,
         placeholderAddress,
         placeholderDate,
-        '[Code postal et ville]',
-        '[Adresse de la caisse]',
-        '[Numéro de police\u00a0: À compléter]',
+        postalCity,
+        caisseAddress,
+        policeNumber,
       ],
       disclaimer: l.agentLetterDisclaimer,
     );
@@ -156,42 +146,29 @@ $placeholderName
     final effectiveNow = now ?? DateTime.now();
     final year = effectiveNow.year;
     final caisseSource =
-        profile.prevoyance.nomCaisse ?? '[Caisse de pension actuelle]';
+        profile.prevoyance.nomCaisse ?? l.agentLetterCaisseCurrentName;
     final placeholderName = l.agentLetterPlaceholderName;
     final placeholderAddress = l.agentLetterPlaceholderAddress;
     final placeholderDate = l.agentLetterPlaceholderDate;
     final subject = l.agentLetterTransferSubject;
 
-    final body = '''$placeholderName
-$placeholderAddress
-[Code postal et ville]
+    final postalCity = l.agentLetterPostalCity;
+    final caisseCurrentAddress = l.agentLetterCaisseCurrentAddress;
+    final toComplete = l.agentLetterToComplete;
+    final dateFormatted =
+        '${effectiveNow.day}.${effectiveNow.month}.$year';
 
-$caisseSource
-[Adresse de la caisse actuelle]
-[Code postal et ville]
-
-$placeholderDate, le ${effectiveNow.day}.${effectiveNow.month}.$year
-
-Objet\u00a0: $subject
-
-Madame, Monsieur,
-
-En raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.
-
-Montant à transférer\u00a0: la totalité de mon avoir de libre passage à la date de sortie.
-
-Etablissement de destination\u00a0:
-Nom\u00a0: [À compléter]
-IBAN ou numéro de compte\u00a0: [À compléter]
-Adresse\u00a0: [À compléter]
-
-Date de sortie\u00a0: [À compléter]
-
-Je vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.
-
-Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
-
-$placeholderName''';
+    final body = l.agentLetterLppTransferBody(
+      placeholderName,
+      placeholderAddress,
+      postalCity,
+      caisseSource,
+      caisseCurrentAddress,
+      placeholderDate,
+      dateFormatted,
+      subject,
+      toComplete,
+    );
 
     return GeneratedLetter(
       type: 'lppTransfer',
@@ -201,9 +178,9 @@ $placeholderName''';
         placeholderName,
         placeholderAddress,
         placeholderDate,
-        '[Caisse de pension actuelle]',
-        '[Adresse de la caisse actuelle]',
-        '[À compléter]',
+        l.agentLetterCaisseCurrentName,
+        caisseCurrentAddress,
+        toComplete,
       ],
       disclaimer: l.agentLetterDisclaimer,
     );
@@ -228,28 +205,23 @@ $placeholderName''';
     final placeholderDate = l.agentLetterPlaceholderDate;
     final subject = l.agentLetterAvsSubject;
 
-    final body = '''$placeholderName
-$placeholderSsn
-$placeholderAddress
-[Code postal et ville]
+    final postalCity = l.agentLetterPostalCity;
+    final avsOrg = l.agentLetterAvsOrg;
+    final avsAddress = l.agentLetterAvsAddress;
+    final dateFormatted =
+        '${effectiveNow.day}.${effectiveNow.month}.$year';
 
-Caisse de compensation AVS compétente
-[Adresse]
-[Code postal et ville]
-
-$placeholderDate, le ${effectiveNow.day}.${effectiveNow.month}.$year
-
-Objet\u00a0: $subject
-
-Madame, Monsieur,
-
-Je vous prie de bien vouloir m'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l'état de mes cotisations et d'identifier d'éventuelles lacunes.
-
-Je vous remercie par avance de votre diligence.
-
-Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
-
-$placeholderName''';
+    final body = l.agentLetterAvsExtractBody(
+      placeholderName,
+      placeholderSsn,
+      placeholderAddress,
+      postalCity,
+      avsOrg,
+      avsAddress,
+      placeholderDate,
+      dateFormatted,
+      subject,
+    );
 
     return GeneratedLetter(
       type: 'avsExtractRequest',
@@ -260,8 +232,8 @@ $placeholderName''';
         placeholderSsn,
         placeholderAddress,
         placeholderDate,
-        '[Adresse]',
-        '[Code postal et ville]',
+        avsAddress,
+        postalCity,
       ],
       disclaimer: l.agentLetterDisclaimer,
     );

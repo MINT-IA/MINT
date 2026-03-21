@@ -34,6 +34,13 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach/voice_service.dart';
+import 'package:mint_mobile/services/llm/provider_health_service.dart';
+import 'package:mint_mobile/services/nudge/nudge_engine.dart';
+import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
+import 'package:mint_mobile/widgets/coach/voice_input_button.dart';
+import 'package:mint_mobile/widgets/coach/voice_output_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -101,6 +108,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   bool _isResumingConversation = false;
 
+  // ── Voice (S63) ──────────────────────────────────────────────
+  /// Single VoiceService instance for this screen (stub backend by default —
+  /// degrades gracefully when no STT/TTS plugin is configured).
+  final VoiceService _voiceService = VoiceService();
+
+  /// Whether STT is available on this device.
+  bool _voiceSttAvailable = false;
+
+  /// Whether TTS is available on this device.
+  bool _voiceTtsAvailable = false;
+
+  // ── Provider health (S64) ────────────────────────────────────
+  /// Whether the primary provider circuit is open (temporarily unavailable).
+  bool _primaryCircuitOpen = false;
+
+  /// Whether all known providers are currently unhealthy.
+  bool _allProvidersDown = false;
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +135,47 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (widget.conversationId != null) {
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
+    }
+    // Voice (S63): probe availability async — does not block screen init.
+    _initVoiceAvailability();
+    // Provider health (S64): check circuit breaker state on mount.
+    _checkProviderHealth();
+  }
+
+  /// Probe STT / TTS availability — fires once on mount.
+  /// Updates state only if mounted; degrades gracefully on error.
+  Future<void> _initVoiceAvailability() async {
+    try {
+      final stt = await _voiceService.isAvailable();
+      final tts = await _voiceService.isTtsAvailable();
+      if (mounted) {
+        setState(() {
+          _voiceSttAvailable = stt;
+          _voiceTtsAvailable = tts;
+        });
+      }
+    } catch (_) {
+      // VoiceService stub — unavailable by default.
+    }
+  }
+
+  /// Check provider health circuits — informational only.
+  /// Failover logic itself lives in CoachOrchestrator.
+  Future<void> _checkProviderHealth() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final health = await ProviderHealthService.getHealth(prefs);
+      if (!mounted) return;
+      final allOpen = health.isNotEmpty &&
+          health.values.every((h) => h.circuitOpen);
+      final primaryOpen = health['claude']?.circuitOpen == true ||
+          health['openai']?.circuitOpen == true;
+      setState(() {
+        _primaryCircuitOpen = primaryOpen && !allOpen;
+        _allProvidersDown = allOpen;
+      });
+    } catch (_) {
+      // ProviderHealthService is optional — degrade silently.
     }
   }
 
@@ -162,6 +228,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _controller.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
+    _voiceService.dispose();
     super.dispose();
   }
 
@@ -177,11 +244,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   //  GREETING
   // ════════════════════════════════════════════════════════════
 
-  void _addInitialGreeting() {
+  Future<void> _addInitialGreeting() async {
     assert(_profile != null);
     final p = _profile!;
-    final name = p.firstName ?? S.of(context)!.coachFallbackName;
+    if (!mounted) return;
     final s = S.of(context)!;
+    final name = p.firstName ?? s.coachFallbackName;
 
     final tier = _currentTier();
     final String greeting;
@@ -195,10 +263,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Phase 1: personalized suggestions based on age/archetype
     final personalizedPrompts =
-        ResponseCardService.suggestedPrompts(p, l: S.of(context)!);
-    final List<String> suggestions;
+        ResponseCardService.suggestedPrompts(p, l: s);
+    List<String> suggestions;
     if (personalizedPrompts.isNotEmpty) {
-      suggestions = personalizedPrompts;
+      suggestions = List<String>.from(personalizedPrompts);
     } else {
       final tips = CoachingService.generateTips(
         profile: p.toCoachingProfile(),
@@ -213,15 +281,97 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ];
     }
 
+    // Phase 2: prepend high-priority nudge chips so Claude can reinforce
+    // timely topics. Nudges are loaded asynchronously; graceful degradation
+    // if SharedPreferences or NudgeEngine fail.
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final now = DateTime.now();
+      final dismissedIds = await NudgePersistence.getDismissedIds(
+        prefs,
+        now: now,
+      );
+      final nudges = NudgeEngine.evaluate(
+        profile: p,
+        now: now,
+        dismissedNudgeIds: dismissedIds,
+      );
+      // Only surface high-priority nudges as chips (max 2).
+      final highPriorityNudges = nudges
+          .where((n) => n.priority == NudgePriority.high)
+          .take(2)
+          .toList();
+      if (highPriorityNudges.isNotEmpty && mounted) {
+        final nudgeLabels = highPriorityNudges
+            .map((n) => _resolveNudgeTitle(n, s, p))
+            .where((label) => label.isNotEmpty)
+            .toList();
+        if (nudgeLabels.isNotEmpty) {
+          // Prepend nudge chips, keeping total chips at most 4.
+          suggestions = [
+            ...nudgeLabels,
+            ...suggestions.take(4 - nudgeLabels.length),
+          ];
+        }
+      }
+    } catch (_) {
+      // Graceful degradation: greeting works without nudge chips.
+    }
+
+    if (!mounted) return;
+
     // No response cards on greeting — they duplicate Pulse.
     // Cards appear only in response to user messages.
-    _messages.add(ChatMessage(
-      role: 'assistant',
-      content: greeting,
-      timestamp: DateTime.now(),
-      suggestedActions: suggestions,
-      tier: tier,
-    ));
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: greeting,
+        timestamp: DateTime.now(),
+        suggestedActions: suggestions,
+        tier: tier,
+      ));
+    });
+  }
+
+  /// Resolve a nudge's [titleKey] ARB key to a display string.
+  ///
+  /// Parameterised keys (e.g. nudgeBirthdayTitle with {age}) are resolved
+  /// using [profile] data. Returns an empty string if resolution fails.
+  String _resolveNudgeTitle(
+    Nudge nudge,
+    S s,
+    CoachProfile p,
+  ) {
+    try {
+      switch (nudge.titleKey) {
+        case 'nudgeSalaryTitle':
+          return s.nudgeSalaryTitle;
+        case 'nudgeTaxDeadlineTitle':
+          return s.nudgeTaxDeadlineTitle;
+        case 'nudge3aDeadlineTitle':
+          return s.nudge3aDeadlineTitle;
+        case 'nudgeBirthdayTitle':
+          final age = DateTime.now().year - p.birthYear;
+          return s.nudgeBirthdayTitle(age.toString());
+        case 'nudgeProfileTitle':
+          return s.nudgeProfileTitle;
+        case 'nudgeInactiveTitle':
+          return s.nudgeInactiveTitle;
+        case 'nudgeGoalProgressTitle':
+          return s.nudgeGoalProgressTitle;
+        case 'nudgeAnniversaryTitle':
+          return s.nudgeAnniversaryTitle;
+        case 'nudgeLppBuybackTitle':
+          return s.nudgeLppBuybackTitle;
+        case 'nudgeNewYearTitle':
+          return s.nudgeNewYearTitle;
+        default:
+          return '';
+      }
+    } catch (_) {
+      return '';
+    }
   }
 
   String _buildGreetingScoreContext(CoachProfile profile) {
@@ -689,40 +839,100 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   /// Called when the user returns from a screen opened via [RouteSuggestionCard].
-  void _handleRouteReturn() {
+  ///
+  /// ReturnContract V2: reacts differently per [ScreenOutcome] —
+  /// completed / abandoned / changedInputs each produce a distinct coach
+  /// message and a distinct CapMemory update.
+  void _handleRouteReturn(ScreenOutcome outcome) {
     if (!mounted) return;
     final s = S.of(context)!;
 
-    // Feed CapMemory: record the screen visit as a completed action (S58 ReturnContract).
-    // This closes the boucle vivante: screen visit → CapMemory update → Pulse refresh.
-    // We find the last routed intent from the most recent message with a routePayload.
+    // Resolve the last routed intent for CapMemory keying.
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
         .map((m) => m.routePayload!.intent)
         .firstOrNull;
-    if (lastRouted != null) {
-      CapMemoryStore.load().then((mem) async {
-        await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
-      }).catchError((_) {});
+
+    switch (outcome) {
+      case ScreenOutcome.completed:
+        // Mark action completed in CapMemory — closes the boucle vivante.
+        if (lastRouted != null) {
+          CapMemoryStore.load().then((mem) async {
+            await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
+          }).catchError((_) {});
+        }
+        // Save cross-session insight.
+        CoachMemoryService.saveInsight(CoachInsight(
+          id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
+          createdAt: DateTime.now(),
+          topic: 'screen_visit',
+          summary: 'Completed screen from coach suggestion',
+          type: InsightType.fact,
+        )).catchError((_) {});
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: s.routeReturnCompleted,
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+        });
+
+      case ScreenOutcome.abandoned:
+        // Record abandoned flow in CapMemory so engine avoids re-proposing too soon.
+        if (lastRouted != null) {
+          CapMemoryStore.load().then((mem) async {
+            await CapMemoryStore.markAbandoned(
+              mem,
+              'visited_$lastRouted',
+              frictionContext: 'flow_abandoned',
+            );
+          }).catchError((_) {});
+        }
+        // Save cross-session insight about abandonment.
+        CoachMemoryService.saveInsight(CoachInsight(
+          id: 'route_abandoned_${DateTime.now().millisecondsSinceEpoch}',
+          createdAt: DateTime.now(),
+          topic: 'screen_visit',
+          summary: 'Abandoned screen from coach suggestion',
+          type: InsightType.fact,
+        )).catchError((_) {});
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: s.routeReturnAbandoned,
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+        });
+
+      case ScreenOutcome.changedInputs:
+        // Acknowledge the profile update and trigger projection recompute.
+        if (lastRouted != null) {
+          CapMemoryStore.load().then((mem) async {
+            await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
+          }).catchError((_) {});
+        }
+        // Save cross-session insight about data update.
+        CoachMemoryService.saveInsight(CoachInsight(
+          id: 'route_changed_${DateTime.now().millisecondsSinceEpoch}',
+          createdAt: DateTime.now(),
+          topic: 'profile_update',
+          summary: 'User changed inputs on screen from coach suggestion',
+          type: InsightType.fact,
+        )).catchError((_) {});
+        // The profile provider already notified listeners when the user
+        // updated data on the target screen. No explicit refresh needed here.
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: s.routeReturnChanged,
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+        });
     }
 
-    // Save a cross-session insight about the screen visit (S58 AI Memory).
-    CoachMemoryService.saveInsight(CoachInsight(
-      id: 'route_visit_${DateTime.now().millisecondsSinceEpoch}',
-      createdAt: DateTime.now(),
-      topic: 'screen_visit',
-      summary: 'Visited a screen from coach suggestion',
-      type: InsightType.fact,
-    )).catchError((_) {});
-
-    setState(() {
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: s.routeReturnAcknowledge,
-        timestamp: DateTime.now(),
-        tier: ChatTier.fallback,
-      ));
-    });
     _scrollToBottom();
   }
 
@@ -979,6 +1189,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Widget _buildTierSubtitle(ChatTier tier) {
     final s = S.of(context)!;
+
+    // S64: circuit breaker status takes precedence over tier label.
+    if (_allProvidersDown) {
+      return Row(
+        children: [
+          Icon(Icons.cloud_off,
+              size: 12, color: MintColors.warning.withValues(alpha: 0.9)),
+          const SizedBox(width: MintSpacing.xs),
+          Text(
+            s.llmAllProvidersDown,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.warning.withValues(alpha: 0.9),
+            ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+          ),
+        ],
+      );
+    }
+
+    if (_primaryCircuitOpen) {
+      return Row(
+        children: [
+          Icon(Icons.warning_amber_outlined,
+              size: 12, color: MintColors.warning.withValues(alpha: 0.9)),
+          const SizedBox(width: MintSpacing.xs),
+          Text(
+            s.llmCircuitOpen,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.warning.withValues(alpha: 0.9),
+            ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+          ),
+        ],
+      );
+    }
+
     final String label;
     final IconData icon;
     switch (tier) {
@@ -1157,12 +1401,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               const SizedBox(width: MintSpacing.xxl),
             ],
           ),
-          // Tier badge
+          // Tier badge + optional TTS button (S63)
           if (!isStreamingThis && msg.tier != ChatTier.none) ...[
             const SizedBox(height: MintSpacing.xs),
             Padding(
               padding: const EdgeInsets.only(left: 40),
-              child: _buildTierBadge(msg.tier),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTierBadge(msg.tier),
+                  if (_voiceTtsAvailable && msg.content.isNotEmpty) ...[
+                    const SizedBox(width: MintSpacing.xs),
+                    VoiceOutputButton(
+                      voiceService: _voiceService,
+                      text: msg.content,
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
           // Sources
@@ -1295,6 +1551,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       route: payload.resolvedRoute,
       isPartial: payload.isPartial,
       onReturn: _handleRouteReturn,
+      profileHashFn: () {
+        final profile = context.read<CoachProfileProvider>().profile;
+        return profile?.hashCode.toString() ?? '';
+      },
     );
   }
 
@@ -1553,6 +1813,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   ),
                 ),
               ),
+              // Voice input button (S63) — shown only when STT is available.
+              if (_voiceSttAvailable) ...[
+                const SizedBox(width: MintSpacing.xs),
+                VoiceInputButton(
+                  voiceService: _voiceService,
+                  onTranscription: (transcript) {
+                    _controller.text = transcript;
+                    _focusNode.requestFocus();
+                  },
+                ),
+              ],
               const SizedBox(width: MintSpacing.sm),
               Semantics(
                 button: true,

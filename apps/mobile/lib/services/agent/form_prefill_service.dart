@@ -108,7 +108,8 @@ class FormPrefillService {
     required S l,
   }) {
     final revenuRange = _toRange(profile.revenuBrutAnnuel);
-    final canton = profile.canton.isNotEmpty ? profile.canton : '[canton]';
+    final canton =
+        profile.canton.isNotEmpty ? profile.canton : l.agentFormCantonFallback;
     final plafond3a = _plafond3a(profile);
     final rachatMax = profile.prevoyance.lacuneRachatRestante;
 
@@ -126,39 +127,39 @@ class FormPrefillService {
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Revenu brut estimé',
+          label: l.agentFormRevenuBrut,
           value: '~$revenuRange\u00a0CHF/an',
           isEstimated: true,
           source: l.agentFieldSource(sourceRef),
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Canton de domicile',
+          label: l.agentFormCanton,
           value: canton,
           isEstimated: false,
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Situation familiale',
-          value: _civilStatusLabel(profile.etatCivil),
+          label: l.agentFormSituationFamiliale,
+          value: _civilStatusLabel(profile.etatCivil, l),
           isEstimated: false,
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Nombre d\'enfants',
+          label: l.agentFormNbEnfants,
           value: '${profile.nombreEnfants}',
           isEstimated: false,
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Déduction 3a possible',
+          label: l.agentFormDeduction3a,
           value: '~${_formatAmount(plafond3a)}\u00a0CHF',
           isEstimated: true,
           source: l.agentFieldSource('OPP3 art.\u00a07'),
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Rachat LPP déductible estimé',
+          label: l.agentFormRachatLppDeductible,
           value: rachatMax > 0
               ? '~${_toRange(rachatMax)}\u00a0CHF'
               : '0\u00a0CHF',
@@ -167,8 +168,8 @@ class FormPrefillService {
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Statut professionnel',
-          value: _employmentStatusLabel(profile.employmentStatus),
+          label: l.agentFormStatutProfessionnel,
+          value: _employmentStatusLabel(profile.employmentStatus, l),
           isEstimated: false,
           userMustConfirm: true,
         ),
@@ -191,8 +192,8 @@ class FormPrefillService {
     final isIndependantSansLpp =
         profile.employmentStatus == 'independant' && !_hasLpp(profile);
     final typeContrat = isIndependantSansLpp
-        ? 'Indépendant·e sans LPP'
-        : 'Salarié·e avec LPP';
+        ? l.agentFormTypeContratIndependant
+        : l.agentFormTypeContratSalarie;
 
     return FormPrefill(
       formType: '3a',
@@ -205,27 +206,29 @@ class FormPrefillService {
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Nom du/de la bénéficiaire',
+          label: l.agentFormBeneficiaireNom,
           value: l.agentLetterPlaceholderName,
           isEstimated: false,
           userMustConfirm: true,
         ),
-        const FormField(
-          label: 'Numéro de compte 3a',
-          value: '[À compléter]',
+        FormField(
+          label: l.agentFormNumeroCompte3a,
+          value: l.agentFormToComplete,
           isEstimated: false,
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Montant versement annuel',
-          value:
-              '~${_formatAmount(plafond)}\u00a0CHF (plafond $year)',
+          label: l.agentFormMontantVersementLabel,
+          value: l.agentFormMontantVersement(
+            _formatAmount(plafond),
+            '$year',
+          ),
           isEstimated: true,
           source: l.agentFieldSource('OPP3 art.\u00a07'),
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Type de contrat',
+          label: l.agentFormTypeContrat,
           value: typeContrat,
           isEstimated: false,
           userMustConfirm: true,
@@ -247,7 +250,7 @@ class FormPrefillService {
     final rachatMax = profile.prevoyance.lacuneRachatRestante;
     final rachatEffectue = profile.prevoyance.rachatEffectue ?? 0.0;
     final caisse =
-        profile.prevoyance.nomCaisse ?? '[Nom de la caisse de pension]';
+        profile.prevoyance.nomCaisse ?? l.agentLetterCaisseFallback;
     final avoirTotal = profile.prevoyance.avoirLppTotal ?? 0.0;
 
     return FormPrefill(
@@ -261,37 +264,37 @@ class FormPrefillService {
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Nom du/de la titulaire',
+          label: l.agentFormTitulaireNom,
           value: l.agentLetterPlaceholderName,
           isEstimated: false,
           userMustConfirm: true,
         ),
-        const FormField(
-          label: 'Numéro de police',
-          value: '[À compléter]',
+        FormField(
+          label: l.agentFormNumeroPolice,
+          value: l.agentFormToComplete,
           isEstimated: false,
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Avoir LPP actuel',
+          label: l.agentFormAvoirLpp,
           value: avoirTotal > 0
               ? '~${_toRange(avoirTotal)}\u00a0CHF'
-              : '[À compléter]',
+              : l.agentFormToComplete,
           isEstimated: true,
           source: l.agentFieldSource('LPP art.\u00a015'),
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Rachat maximum disponible',
+          label: l.agentFormRachatMax,
           value: rachatMax > 0
               ? '~${_toRange(rachatMax)}\u00a0CHF'
-              : '[À compléter auprès de la caisse]',
+              : l.agentFormToCompleteAupres,
           isEstimated: rachatMax > 0,
           source: l.agentFieldSource('LPP art.\u00a079b'),
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Rachats déjà effectués',
+          label: l.agentFormRachatsDeja,
           value: rachatEffectue > 0
               ? '~${_toRange(rachatEffectue)}\u00a0CHF'
               : '0\u00a0CHF',
@@ -300,8 +303,8 @@ class FormPrefillService {
           userMustConfirm: true,
         ),
         FormField(
-          label: 'Montant du rachat souhaité',
-          value: '[À saisir — max ${_formatAmount(rachatMax)}\u00a0CHF]',
+          label: l.agentFormMontantRachatSouhaite,
+          value: l.agentFormToCompleteMax(_formatAmount(rachatMax)),
           isEstimated: false,
           userMustConfirm: true,
         ),
@@ -354,22 +357,22 @@ class FormPrefillService {
     return avoir > 0 || profile.prevoyance.nomCaisse != null;
   }
 
-  static String _civilStatusLabel(CoachCivilStatus status) {
+  static String _civilStatusLabel(CoachCivilStatus status, S l) {
     return switch (status) {
-      CoachCivilStatus.celibataire => 'Célibataire',
-      CoachCivilStatus.marie => 'Marié·e',
-      CoachCivilStatus.divorce => 'Divorcé·e',
-      CoachCivilStatus.veuf => 'Veuf·ve',
-      CoachCivilStatus.concubinage => 'Concubinage',
+      CoachCivilStatus.celibataire => l.agentFormCivilCelibataire,
+      CoachCivilStatus.marie => l.agentFormCivilMarie,
+      CoachCivilStatus.divorce => l.agentFormCivilDivorce,
+      CoachCivilStatus.veuf => l.agentFormCivilVeuf,
+      CoachCivilStatus.concubinage => l.agentFormCivilConcubinage,
     };
   }
 
-  static String _employmentStatusLabel(String status) {
+  static String _employmentStatusLabel(String status, S l) {
     return switch (status) {
-      'salarie' => 'Salarié·e',
-      'independant' => 'Indépendant·e',
-      'chomage' => 'En recherche d\'emploi',
-      'retraite' => 'Retraité·e',
+      'salarie' => l.agentFormEmplSalarie,
+      'independant' => l.agentFormEmplIndependant,
+      'chomage' => l.agentFormEmplChomage,
+      'retraite' => l.agentFormEmplRetraite,
       _ => status,
     };
   }

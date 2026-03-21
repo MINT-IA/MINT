@@ -8249,6 +8249,9 @@
   "routeSuggestionPartialWarning": "Estimaci\u00f3n\u00a0\u2014 datos incompletos",
   "routeSuggestionBlocked": "Me falta informaci\u00f3n para llevarte ah\u00ed",
   "routeReturnAcknowledge": "\u00a1Has vuelto! Si has ajustado datos, cu\u00e9ntame y recalculo.",
+  "routeReturnCompleted": "Anotado. Tus datos est\u00e1n al d\u00eda.",
+  "routeReturnAbandoned": "Sin problema\u00a0\u2014 volvemos cuando quieras.",
+  "routeReturnChanged": "Tus cifras han cambiado. Recalculo la trayectoria.",
   "hypothesisEditorTitle": "Hip\u00f3tesis de simulaci\u00f3n",
   "hypothesisEditorSubtitle": "Ajusta los par\u00e1metros para ver el impacto en las proyecciones.",
 
@@ -8742,5 +8745,115 @@
   "agentSpecialistLabel": "un especialista homologado",
   "agentLppBuybackTitle": "Solicitud de rescate LPP",
   "agentPensionFundSubject": "Solicitud de certificado de previsión",
-  "agentLppTransferSubject": "Solicitud de transferencia de previsión (libre paso)"
+  "agentLppTransferSubject": "Solicitud de transferencia de previsión (libre paso)",
+
+  "agentFormCantonFallback": "[cantón]",
+  "agentFormRevenuBrut": "Renta bruta estimada",
+  "agentFormCanton": "Cantón de residencia",
+  "agentFormSituationFamiliale": "Situación familiar",
+  "agentFormNbEnfants": "Número de hijos",
+  "agentFormDeduction3a": "Deducción 3a posible",
+  "agentFormRachatLppDeductible": "Rescate LPP deducible estimado",
+  "agentFormStatutProfessionnel": "Situación profesional",
+  "agentFormBeneficiaireNom": "Nombre del/de la beneficiario·a",
+  "agentFormNumeroCompte3a": "Número de cuenta 3a",
+  "agentFormMontantVersement": "~{plafond}\u00a0CHF (límite {year})",
+  "@agentFormMontantVersement": {
+    "placeholders": {
+      "plafond": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "agentFormMontantVersementLabel": "Importe del pago anual",
+  "agentFormTypeContrat": "Tipo de contrato",
+  "agentFormTypeContratSalarie": "Empleado·a con LPP",
+  "agentFormTypeContratIndependant": "Autónomo·a sin LPP",
+  "agentFormToComplete": "[Por completar]",
+  "agentFormTitulaireNom": "Nombre del/de la titular",
+  "agentFormNumeroPolice": "Número de póliza",
+  "agentFormAvoirLpp": "Haber LPP actual",
+  "agentFormRachatMax": "Rescate máximo disponible",
+  "agentFormRachatsDeja": "Rescates ya realizados",
+  "agentFormMontantRachatSouhaite": "Importe del rescate deseado",
+  "agentFormToCompleteAupres": "[Por completar con la caja]",
+  "agentFormToCompleteMax": "[A introducir — máx. {max}\u00a0CHF]",
+  "@agentFormToCompleteMax": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "agentFormCivilCelibataire": "Soltero·a",
+  "agentFormCivilMarie": "Casado·a",
+  "agentFormCivilDivorce": "Divorciado·a",
+  "agentFormCivilVeuf": "Viudo·a",
+  "agentFormCivilConcubinage": "Pareja de hecho",
+  "agentFormEmplSalarie": "Empleado·a",
+  "agentFormEmplIndependant": "Autónomo·a",
+  "agentFormEmplChomage": "En búsqueda de empleo",
+  "agentFormEmplRetraite": "Jubilado·a",
+
+  "agentLetterCaisseFallback": "[Nombre de la caja de pensiones]",
+  "agentLetterPostalCity": "[Código postal y ciudad]",
+  "agentLetterCaisseAddress": "[Dirección de la caja]",
+  "agentLetterPoliceNumber": "[Número de póliza\u00a0: Por completar]",
+  "agentLetterCaisseCurrentName": "[Caja de pensiones actual]",
+  "agentLetterCaisseCurrentAddress": "[Dirección de la caja actual]",
+  "agentLetterToComplete": "[Por completar]",
+  "agentLetterAvsOrg": "Caja de compensación AVS competente",
+  "agentLetterAvsAddress": "[Dirección]",
+
+  "agentLetterPensionFundBody": "{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, {dateFormatted}\n\nAsunto: {subject}\n\nEstimado/a Sr./Sra.,\n\nPor medio de la presente, me permito dirigirles las siguientes solicitudes en relación con mi expediente de previsión profesional:\n\n1. Certificado de previsión actualizado {year} (haber de vejez, prestaciones cubiertas, tasa de conversión aplicable)\n\n2. Confirmación de mi capacidad de rescate (importe máximo según el art.\u00a079b LPP)\n\n3. Simulación de jubilación anticipada (proyección del haber y de la renta a los 63 y 64 años, en su caso)\n\nLes agradezco de antemano su diligencia y quedo a su disposición para cualquier información adicional.\n\nAtentamente,\n\n{name}\n{policeNumber}",
+  "@agentLetterPensionFundBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "caisse": { "type": "String" },
+      "caisseAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" },
+      "year": { "type": "String" },
+      "policeNumber": { "type": "String" }
+    }
+  },
+
+  "agentLetterLppTransferBody": "{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, {dateFormatted}\n\nAsunto: {subject}\n\nEstimado/a Sr./Sra.,\n\nDebido a la terminación de mi relación laboral / mi salida de Suiza (tachar lo que no corresponda), les solicito que procedan a la transferencia de mi haber de libre paso.\n\nImporte a transferir: la totalidad del haber de libre paso a la fecha de salida.\n\nEntidad de destino:\nNombre: {toComplete}\nIBAN o número de cuenta: {toComplete}\nDirección: {toComplete}\n\nFecha de salida: {toComplete}\n\nLes agradezco su diligencia y les ruego que confirmen la correcta ejecución de esta transferencia.\n\nAtentamente,\n\n{name}",
+  "@agentLetterLppTransferBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "caisseSource": { "type": "String" },
+      "caisseCurrentAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" },
+      "toComplete": { "type": "String" }
+    }
+  },
+
+  "agentLetterAvsExtractBody": "{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, {dateFormatted}\n\nAsunto: {subject}\n\nEstimado/a Sr./Sra.,\n\nLes solicito que me remitan un extracto de mi cuenta individual AVS (CI) para verificar el estado de mis cotizaciones e identificar posibles lagunas.\n\nLes agradezco de antemano su diligencia.\n\nAtentamente,\n\n{name}",
+  "@agentLetterAvsExtractBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "ssn": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "avsOrg": { "type": "String" },
+      "avsAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" }
+    }
+  },
+
+  "seasonalEventCta": "Hablar con el coach",
+  "communityChallengeCta": "Aceptar el reto"
 }

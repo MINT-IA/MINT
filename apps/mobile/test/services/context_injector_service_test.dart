@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/coach/conversation_memory_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
+import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE TESTS — S58
@@ -374,6 +375,84 @@ void main() {
       expect(empty.contentAdaptation, isNull);
       expect(empty.conversationMemory.isEmpty, isTrue);
       expect(empty.activeGoalsCount, equals(0));
+      expect(empty.activeNudges, isEmpty);
+      expect(empty.relevantScreens, isEmpty);
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 11: relevantScreens populated for profile with lifecycle phase
+    // ════════════════════════════════════════════════════════════
+
+    test('relevantScreens populated for profile with known lifecycle phase',
+        () async {
+      // consolidation phase (age 49) should produce at least 1 screen hint
+      final julien = makeProfile(birthYear: 1977, canton: 'VS');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: julien,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.relevantScreens, isNotEmpty);
+      // All entries should prefer routing from chat
+      for (final entry in ctx.relevantScreens) {
+        expect(entry.preferFromChat, isTrue);
+      }
+      // At most 5 screens (maxScreensInContext)
+      expect(ctx.relevantScreens.length, lessThanOrEqualTo(5));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 12: SURFACES PERTINENTES block present in memoryBlock
+    // ════════════════════════════════════════════════════════════
+
+    test('memoryBlock contains SURFACES PERTINENTES when profile available',
+        () async {
+      final profile = makeProfile(birthYear: 1977, canton: 'VS');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.memoryBlock, contains('SURFACES PERTINENTES'));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 13: activeNudges and NUDGES ACTIFS block for December profile
+    // ════════════════════════════════════════════════════════════
+
+    test('activeNudges present for December — 3a deadline nudge fires',
+        () async {
+      // December 15 triggers the pillar3aDeadline nudge (high priority)
+      final december = DateTime(2026, 12, 15);
+      final profile = makeProfile(birthYear: 1982, canton: 'GE');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: december,
+      );
+
+      // 3a deadline is always high priority in December
+      expect(ctx.activeNudges, isNotEmpty);
+      expect(
+        ctx.activeNudges.any((n) => n.trigger == NudgeTrigger.pillar3aDeadline),
+        isTrue,
+      );
+
+      // memoryBlock should contain nudge section
+      expect(ctx.memoryBlock, contains('NUDGES ACTIFS'));
+      // Route slug should appear in block
+      expect(ctx.memoryBlock, contains('/pilier-3a'));
     });
   });
 }

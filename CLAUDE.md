@@ -209,6 +209,15 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - Voice: calme, précis, fin, rassurant, net. Jamais générique, jamais infantilisant.
 - Adapt by context (discovery/stress/victory), mastery level, and product moment — NOT by age.
 
+### Regional Swiss Voice Identity (NON-NEGOTIABLE)
+- **MINT must sound locally rooted** per the user's canton and linguistic region.
+- **Suisse Romande** (VD, GE, NE, JU, VS, FR): "septante/nonante", dry humor, pragmatic. VS = direct/montagnard, GE = cosmopolite, VD = détendu.
+- **Deutschschweiz** (ZH, BE, LU, ZG, AG, SG, etc.): "Znüni", savings culture, practical wisdom. ZH = urban/finance-savvy, BE = gemütlich, ZG = tax pride.
+- **Svizzera Italiana** (TI, GR partly): warm Mediterranean flair + Swiss rigor, family savings, grotto references, lake life.
+- **Implementation**: `RegionalVoiceService.forCanton()` → injects regional prompt into coach system prompt via `context_injector_service.dart`.
+- **Rule**: NEVER caricature. Always subtle — like an inside joke between locals. The kind of thing that makes someone smile and think "this app really knows my region."
+- **Backend**: `claude_coach_service.py` system prompt includes REGIONAL IDENTITY section guiding Claude's tone adaptation.
+
 ---
 
 ## 7. UX RULES

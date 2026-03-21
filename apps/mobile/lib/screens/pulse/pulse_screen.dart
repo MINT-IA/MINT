@@ -9,6 +9,8 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/gamification/community_challenge_service.dart';
+import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -286,6 +288,12 @@ class _PulseScreenState extends State<PulseScreen> {
                   const SizedBox(height: MintSpacing.xl),
                   _buildNudgeCard(_activeNudges.first, l),
                 ],
+
+                // ── 6. ÉVÉNEMENT SAISONNIER (S66) ──
+                ..._buildSeasonalEventCard(l),
+
+                // ── 7. DÉFI COMMUNAUTAIRE (S66) ──
+                ..._buildCommunityChallenge(l),
 
                 const SizedBox(height: MintSpacing.xxl),
 
@@ -583,6 +591,178 @@ class _PulseScreenState extends State<PulseScreen> {
         return l.nudgeNewYearBody(p['year'] ?? '');
       default: return key;
     }
+  }
+
+  // ── SEASONAL EVENT CARD (S66) ─────────────────────────────────
+
+  /// Returns a list with a spacing + card widget if an event is active,
+  /// or an empty list for clean spread-operator insertion.
+  List<Widget> _buildSeasonalEventCard(S l) {
+    final events = SeasonalEventService.activeEvents(now: DateTime.now());
+    if (events.isEmpty) return const [];
+
+    final event = events.first;
+    final String title;
+    final String description;
+
+    switch (event.titleKey) {
+      case 'seasonalTaxSeasonTitle':
+        title = l.seasonalTaxSeasonTitle;
+        description = l.seasonalTaxSeasonDesc;
+        break;
+      case 'seasonal3aCountdownTitle':
+        title = l.seasonal3aCountdownTitle;
+        description = l.seasonal3aCountdownDesc;
+        break;
+      case 'seasonalNewYearResolutionsTitle':
+        title = l.seasonalNewYearResolutionsTitle;
+        description = l.seasonalNewYearResolutionsDesc;
+        break;
+      case 'seasonalMidYearReviewTitle':
+        title = l.seasonalMidYearReviewTitle;
+        description = l.seasonalMidYearReviewDesc;
+        break;
+      case 'seasonalRetirementMonthTitle':
+        title = l.seasonalRetirementMonthTitle;
+        description = l.seasonalRetirementMonthDesc;
+        break;
+      default:
+        return const [];
+    }
+
+    return [
+      const SizedBox(height: MintSpacing.xl),
+      MintSurface(
+        tone: MintSurfaceTone.peche,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.event_outlined,
+                    size: 16, color: MintColors.textPrimary),
+                const SizedBox(width: MintSpacing.xs),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              description,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ),
+            ),
+            if (event.intentTag != null && event.intentTag!.isNotEmpty) ...[
+              const SizedBox(height: MintSpacing.sm),
+              GestureDetector(
+                onTap: () {
+                  context.push(
+                    '/coach/chat?prompt=${Uri.encodeComponent(event.intentTag!)}',
+                  );
+                },
+                child: Text(
+                  l.seasonalEventCta,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    ];
+  }
+
+  // ── COMMUNITY CHALLENGE CARD (S66) ───────────────────────────
+
+  /// Returns a list with a spacing + card widget for the current month's
+  /// community challenge, or an empty list if none found.
+  List<Widget> _buildCommunityChallenge(S l) {
+    final challenge = CommunityChallengeService.currentChallenge(
+      now: DateTime.now(),
+    );
+    if (challenge == null) return const [];
+
+    final String title;
+    final String description;
+
+    switch (challenge.titleKey) {
+      case 'communityChallenge01Title': title = l.communityChallenge01Title; description = l.communityChallenge01Desc; break;
+      case 'communityChallenge02Title': title = l.communityChallenge02Title; description = l.communityChallenge02Desc; break;
+      case 'communityChallenge03Title': title = l.communityChallenge03Title; description = l.communityChallenge03Desc; break;
+      case 'communityChallenge04Title': title = l.communityChallenge04Title; description = l.communityChallenge04Desc; break;
+      case 'communityChallenge05Title': title = l.communityChallenge05Title; description = l.communityChallenge05Desc; break;
+      case 'communityChallenge06Title': title = l.communityChallenge06Title; description = l.communityChallenge06Desc; break;
+      case 'communityChallenge07Title': title = l.communityChallenge07Title; description = l.communityChallenge07Desc; break;
+      case 'communityChallenge08Title': title = l.communityChallenge08Title; description = l.communityChallenge08Desc; break;
+      case 'communityChallenge09Title': title = l.communityChallenge09Title; description = l.communityChallenge09Desc; break;
+      case 'communityChallenge10Title': title = l.communityChallenge10Title; description = l.communityChallenge10Desc; break;
+      case 'communityChallenge11Title': title = l.communityChallenge11Title; description = l.communityChallenge11Desc; break;
+      case 'communityChallenge12Title': title = l.communityChallenge12Title; description = l.communityChallenge12Desc; break;
+      default: return const [];
+    }
+
+    return [
+      const SizedBox(height: MintSpacing.xl),
+      MintSurface(
+        tone: MintSurfaceTone.sauge,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.emoji_events_outlined,
+                    size: 16, color: MintColors.textPrimary),
+                const SizedBox(width: MintSpacing.xs),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              description,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            GestureDetector(
+              onTap: () {
+                final intent = challenge.intentTag;
+                final prompt = intent != null && intent.isNotEmpty
+                    ? intent
+                    : challenge.titleKey;
+                context.push(
+                  '/coach/chat?prompt=${Uri.encodeComponent(prompt)}',
+                );
+              },
+              child: Text(
+                l.communityChallengeCta,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 
   Widget _buildSecondarySignals(CoachProfile profile, S l) {

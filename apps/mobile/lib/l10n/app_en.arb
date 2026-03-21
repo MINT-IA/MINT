@@ -8494,6 +8494,9 @@
   "routeSuggestionPartialWarning": "Estimate\u00a0\u2014 incomplete data",
   "routeSuggestionBlocked": "I need a bit more info to take you there",
   "routeReturnAcknowledge": "Welcome back! If you adjusted any data, just tell me and I'll recalculate.",
+  "routeReturnCompleted": "Noted. Your data is up to date.",
+  "routeReturnAbandoned": "No worries\u00a0\u2014 we can come back to it whenever you like.",
+  "routeReturnChanged": "Your figures have changed. I'm recalculating the trajectory.",
   "hypothesisEditorTitle": "Simulation assumptions",
   "hypothesisEditorSubtitle": "Adjust the parameters to see the impact on projections.",
 
@@ -8979,5 +8982,115 @@
   "agentSpecialistLabel": "a qualified specialist",
   "agentLppBuybackTitle": "LPP Buyback Request",
   "agentPensionFundSubject": "Request for pension fund certificate",
-  "agentLppTransferSubject": "Request for pension transfer (vested benefits)"
+  "agentLppTransferSubject": "Request for pension transfer (vested benefits)",
+
+  "agentFormCantonFallback": "[canton]",
+  "agentFormRevenuBrut": "Estimated gross income",
+  "agentFormCanton": "Canton of residence",
+  "agentFormSituationFamiliale": "Family situation",
+  "agentFormNbEnfants": "Number of children",
+  "agentFormDeduction3a": "Possible 3a deduction",
+  "agentFormRachatLppDeductible": "Estimated deductible LPP buyback",
+  "agentFormStatutProfessionnel": "Professional status",
+  "agentFormBeneficiaireNom": "Beneficiary name",
+  "agentFormNumeroCompte3a": "3a account number",
+  "agentFormMontantVersement": "~{plafond}\u00a0CHF (ceiling {year})",
+  "@agentFormMontantVersement": {
+    "placeholders": {
+      "plafond": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "agentFormMontantVersementLabel": "Annual payment amount",
+  "agentFormTypeContrat": "Contract type",
+  "agentFormTypeContratSalarie": "Employee with LPP",
+  "agentFormTypeContratIndependant": "Self-employed without LPP",
+  "agentFormToComplete": "[To be completed]",
+  "agentFormTitulaireNom": "Account holder name",
+  "agentFormNumeroPolice": "Policy number",
+  "agentFormAvoirLpp": "Current LPP assets",
+  "agentFormRachatMax": "Maximum buyback available",
+  "agentFormRachatsDeja": "Buybacks already made",
+  "agentFormMontantRachatSouhaite": "Desired buyback amount",
+  "agentFormToCompleteAupres": "[To be completed with the fund]",
+  "agentFormToCompleteMax": "[To be entered — max {max}\u00a0CHF]",
+  "@agentFormToCompleteMax": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "agentFormCivilCelibataire": "Single",
+  "agentFormCivilMarie": "Married",
+  "agentFormCivilDivorce": "Divorced",
+  "agentFormCivilVeuf": "Widowed",
+  "agentFormCivilConcubinage": "Cohabiting",
+  "agentFormEmplSalarie": "Employee",
+  "agentFormEmplIndependant": "Self-employed",
+  "agentFormEmplChomage": "Job-seeking",
+  "agentFormEmplRetraite": "Retired",
+
+  "agentLetterCaisseFallback": "[Pension fund name]",
+  "agentLetterPostalCity": "[Postal code and city]",
+  "agentLetterCaisseAddress": "[Fund address]",
+  "agentLetterPoliceNumber": "[Policy number\u00a0: To be completed]",
+  "agentLetterCaisseCurrentName": "[Current pension fund]",
+  "agentLetterCaisseCurrentAddress": "[Current fund address]",
+  "agentLetterToComplete": "[To be completed]",
+  "agentLetterAvsOrg": "Competent AVS compensation office",
+  "agentLetterAvsAddress": "[Address]",
+
+  "agentLetterPensionFundBody": "{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, {dateFormatted}\n\nSubject: {subject}\n\nDear Sir/Madam,\n\nI hereby wish to submit the following requests regarding my occupational pension file:\n\n1. Updated pension certificate {year} (retirement assets, covered benefits, applicable conversion rate)\n\n2. Confirmation of my buyback capacity (maximum amount pursuant to Art.\u00a079b LPP)\n\n3. Early retirement simulation (projection of assets and pension at 63 and 64, if applicable)\n\nThank you in advance for your diligence. I remain at your disposal for any further information.\n\nYours faithfully,\n\n{name}\n{policeNumber}",
+  "@agentLetterPensionFundBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "caisse": { "type": "String" },
+      "caisseAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" },
+      "year": { "type": "String" },
+      "policeNumber": { "type": "String" }
+    }
+  },
+
+  "agentLetterLppTransferBody": "{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, {dateFormatted}\n\nSubject: {subject}\n\nDear Sir/Madam,\n\nDue to the termination of my employment / my departure from Switzerland (delete as applicable), I kindly request that you transfer my vested benefits.\n\nAmount to transfer: the full amount of my vested benefits at the date of departure.\n\nDestination institution:\nName: {toComplete}\nIBAN or account number: {toComplete}\nAddress: {toComplete}\n\nDeparture date: {toComplete}\n\nThank you for your diligence and please confirm the successful completion of this transfer.\n\nYours faithfully,\n\n{name}",
+  "@agentLetterLppTransferBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "caisseSource": { "type": "String" },
+      "caisseCurrentAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" },
+      "toComplete": { "type": "String" }
+    }
+  },
+
+  "agentLetterAvsExtractBody": "{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, {dateFormatted}\n\nSubject: {subject}\n\nDear Sir/Madam,\n\nI kindly request that you send me an extract of my individual AVS account (CI) in order to verify my contribution record and identify any gaps.\n\nThank you in advance for your diligence.\n\nYours faithfully,\n\n{name}",
+  "@agentLetterAvsExtractBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "ssn": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "avsOrg": { "type": "String" },
+      "avsAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" }
+    }
+  },
+
+  "seasonalEventCta": "Discuss with coach",
+  "communityChallengeCta": "Take up the challenge"
 }

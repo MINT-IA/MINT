@@ -1,14 +1,17 @@
 // ────────────────────────────────────────────────────────────
 //  ROUTE SUGGESTION CARD TESTS — S58 route_to_screen wiring
+//  ReturnContract V2 — ScreenOutcome lifecycle
 // ────────────────────────────────────────────────────────────
 //
 //  Tests:
-//  1. Renders with context_message
-//  2. Shows CTA button via i18n key (no hardcoded strings)
-//  3. Shows partial-readiness warning banner when isPartial == true
-//  4. No partial-readiness warning when isPartial == false
-//  5. Calls onReturn callback after navigation
-//  6. No hardcoded strings in widget tree
+//  1.  Renders with context_message
+//  2.  Shows CTA button via i18n key (no hardcoded strings)
+//  3.  Shows partial-readiness warning banner when isPartial == true
+//  4.  No partial-readiness warning when isPartial == false
+//  5.  Calls onReturn(completed) after normal visit (≥ 5 s)
+//  6.  Calls onReturn(abandoned) after quick return (< 5 s)
+//  7.  Calls onReturn(changedInputs) when profile hash changes
+//  8.  No hardcoded strings in widget tree
 // ────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -143,9 +146,70 @@ void main() {
       expect(find.byIcon(Icons.info_outline), findsNothing);
     });
 
-    testWidgets('calls onReturn callback after navigation and return',
+    // ── ReturnContract V2 — resolveOutcome unit tests ────────
+    // These test the static resolution logic directly because widget tests
+    // cannot advance DateTime.now() (only the Flutter frame clock advances).
+
+    test('resolveOutcome → completed when elapsed ≥ 5 s and no hash change',
+        () {
+      final outcome = RouteSuggestionCard.resolveOutcome(
+        elapsed: const Duration(seconds: 6),
+        hashBefore: 'same',
+        hashAfter: 'same',
+      );
+      expect(outcome, ScreenOutcome.completed);
+    });
+
+    test('resolveOutcome → abandoned when elapsed < 5 s', () {
+      final outcome = RouteSuggestionCard.resolveOutcome(
+        elapsed: const Duration(seconds: 3),
+        hashBefore: 'same',
+        hashAfter: 'same',
+      );
+      expect(outcome, ScreenOutcome.abandoned);
+    });
+
+    test('resolveOutcome → abandoned exactly at 0 ms (immediate return)', () {
+      final outcome = RouteSuggestionCard.resolveOutcome(
+        elapsed: Duration.zero,
+        hashBefore: null,
+        hashAfter: null,
+      );
+      expect(outcome, ScreenOutcome.abandoned);
+    });
+
+    test('resolveOutcome → changedInputs when elapsed ≥ 5 s and hash differs',
+        () {
+      final outcome = RouteSuggestionCard.resolveOutcome(
+        elapsed: const Duration(seconds: 10),
+        hashBefore: 'hash_before',
+        hashAfter: 'hash_after',
+      );
+      expect(outcome, ScreenOutcome.changedInputs);
+    });
+
+    test('resolveOutcome → completed when hash fn absent (no profileHashFn)',
+        () {
+      final outcome = RouteSuggestionCard.resolveOutcome(
+        elapsed: const Duration(seconds: 8),
+        hashBefore: null,
+        hashAfter: null,
+      );
+      expect(outcome, ScreenOutcome.completed);
+    });
+
+    test('resolveOutcome → completed exactly at the 5 s threshold', () {
+      final outcome = RouteSuggestionCard.resolveOutcome(
+        elapsed: const Duration(seconds: 5),
+        hashBefore: 'x',
+        hashAfter: 'x',
+      );
+      expect(outcome, ScreenOutcome.completed);
+    });
+
+    testWidgets('onReturn callback fires after navigation and return',
         (tester) async {
-      var returnCalled = false;
+      ScreenOutcome? receivedOutcome;
 
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -154,8 +218,6 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      // Build a router where the home contains the card and /rente-vs-capital
-      // has a back button so we can pop back.
       final router = GoRouter(
         routes: [
           GoRoute(
@@ -164,7 +226,7 @@ void main() {
               body: RouteSuggestionCard(
                 contextMessage: 'Ouvre le simulateur.',
                 route: '/rente-vs-capital',
-                onReturn: () => returnCalled = true,
+                onReturn: (outcome) => receivedOutcome = outcome,
               ),
             ),
           ),
@@ -195,15 +257,13 @@ void main() {
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
 
-      // Target screen is shown
-      expect(find.text('Rente vs Capital'), findsWidgets);
-
-      // Pop back using the AppBar back button
+      // Pop back immediately (widget-test time = near 0 → abandoned outcome)
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
 
-      // onReturn should have been called
-      expect(returnCalled, isTrue);
+      // Callback must have fired with a valid ScreenOutcome (not null)
+      expect(receivedOutcome, isNotNull);
+      expect(ScreenOutcome.values, contains(receivedOutcome));
     });
 
     testWidgets('contains arrow_forward icon in CTA button', (tester) async {

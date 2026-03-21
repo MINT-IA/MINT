@@ -18667,6 +18667,17 @@ class SEn extends S {
       'Welcome back! If you adjusted any data, just tell me and I\'ll recalculate.';
 
   @override
+  String get routeReturnCompleted => 'Noted. Your data is up to date.';
+
+  @override
+  String get routeReturnAbandoned =>
+      'No worries — we can come back to it whenever you like.';
+
+  @override
+  String get routeReturnChanged =>
+      'Your figures have changed. I\'m recalculating the trajectory.';
+
+  @override
   String get hypothesisEditorTitle => 'Simulation assumptions';
 
   @override
@@ -19962,4 +19973,183 @@ class SEn extends S {
   @override
   String get agentLppTransferSubject =>
       'Request for pension transfer (vested benefits)';
+
+  @override
+  String get agentFormCantonFallback => '[canton]';
+
+  @override
+  String get agentFormRevenuBrut => 'Estimated gross income';
+
+  @override
+  String get agentFormCanton => 'Canton of residence';
+
+  @override
+  String get agentFormSituationFamiliale => 'Family situation';
+
+  @override
+  String get agentFormNbEnfants => 'Number of children';
+
+  @override
+  String get agentFormDeduction3a => 'Possible 3a deduction';
+
+  @override
+  String get agentFormRachatLppDeductible => 'Estimated deductible LPP buyback';
+
+  @override
+  String get agentFormStatutProfessionnel => 'Professional status';
+
+  @override
+  String get agentFormBeneficiaireNom => 'Beneficiary name';
+
+  @override
+  String get agentFormNumeroCompte3a => '3a account number';
+
+  @override
+  String agentFormMontantVersement(String plafond, String year) {
+    return '~$plafond CHF (ceiling $year)';
+  }
+
+  @override
+  String get agentFormMontantVersementLabel => 'Annual payment amount';
+
+  @override
+  String get agentFormTypeContrat => 'Contract type';
+
+  @override
+  String get agentFormTypeContratSalarie => 'Employee with LPP';
+
+  @override
+  String get agentFormTypeContratIndependant => 'Self-employed without LPP';
+
+  @override
+  String get agentFormToComplete => '[To be completed]';
+
+  @override
+  String get agentFormTitulaireNom => 'Account holder name';
+
+  @override
+  String get agentFormNumeroPolice => 'Policy number';
+
+  @override
+  String get agentFormAvoirLpp => 'Current LPP assets';
+
+  @override
+  String get agentFormRachatMax => 'Maximum buyback available';
+
+  @override
+  String get agentFormRachatsDeja => 'Buybacks already made';
+
+  @override
+  String get agentFormMontantRachatSouhaite => 'Desired buyback amount';
+
+  @override
+  String get agentFormToCompleteAupres => '[To be completed with the fund]';
+
+  @override
+  String agentFormToCompleteMax(String max) {
+    return '[To be entered — max $max CHF]';
+  }
+
+  @override
+  String get agentFormCivilCelibataire => 'Single';
+
+  @override
+  String get agentFormCivilMarie => 'Married';
+
+  @override
+  String get agentFormCivilDivorce => 'Divorced';
+
+  @override
+  String get agentFormCivilVeuf => 'Widowed';
+
+  @override
+  String get agentFormCivilConcubinage => 'Cohabiting';
+
+  @override
+  String get agentFormEmplSalarie => 'Employee';
+
+  @override
+  String get agentFormEmplIndependant => 'Self-employed';
+
+  @override
+  String get agentFormEmplChomage => 'Job-seeking';
+
+  @override
+  String get agentFormEmplRetraite => 'Retired';
+
+  @override
+  String get agentLetterCaisseFallback => '[Pension fund name]';
+
+  @override
+  String get agentLetterPostalCity => '[Postal code and city]';
+
+  @override
+  String get agentLetterCaisseAddress => '[Fund address]';
+
+  @override
+  String get agentLetterPoliceNumber => '[Policy number : To be completed]';
+
+  @override
+  String get agentLetterCaisseCurrentName => '[Current pension fund]';
+
+  @override
+  String get agentLetterCaisseCurrentAddress => '[Current fund address]';
+
+  @override
+  String get agentLetterToComplete => '[To be completed]';
+
+  @override
+  String get agentLetterAvsOrg => 'Competent AVS compensation office';
+
+  @override
+  String get agentLetterAvsAddress => '[Address]';
+
+  @override
+  String agentLetterPensionFundBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
+    return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI hereby wish to submit the following requests regarding my occupational pension file:\n\n1. Updated pension certificate $year (retirement assets, covered benefits, applicable conversion rate)\n\n2. Confirmation of my buyback capacity (maximum amount pursuant to Art. 79b LPP)\n\n3. Early retirement simulation (projection of assets and pension at 63 and 64, if applicable)\n\nThank you in advance for your diligence. I remain at your disposal for any further information.\n\nYours faithfully,\n\n$name\n$policeNumber';
+  }
+
+  @override
+  String agentLetterLppTransferBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
+    return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nDue to the termination of my employment / my departure from Switzerland (delete as applicable), I kindly request that you transfer my vested benefits.\n\nAmount to transfer: the full amount of my vested benefits at the date of departure.\n\nDestination institution:\nName: $toComplete\nIBAN or account number: $toComplete\nAddress: $toComplete\n\nDeparture date: $toComplete\n\nThank you for your diligence and please confirm the successful completion of this transfer.\n\nYours faithfully,\n\n$name';
+  }
+
+  @override
+  String agentLetterAvsExtractBody(
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
+    return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI kindly request that you send me an extract of my individual AVS account (CI) in order to verify my contribution record and identify any gaps.\n\nThank you in advance for your diligence.\n\nYours faithfully,\n\n$name';
+  }
+
+  @override
+  String get seasonalEventCta => 'Discuss with coach';
+
+  @override
+  String get communityChallengeCta => 'Take up the challenge';
 }

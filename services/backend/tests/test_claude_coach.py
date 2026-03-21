@@ -281,3 +281,63 @@ class TestSystemPromptEdgeCases:
         )
         prompt = build_system_prompt(ctx=ctx)
         assert "70377" in prompt or "lpp_avoir" in prompt
+
+
+# ===========================================================================
+# TestLifecycleAwareness — lifecycle section in every prompt variant
+# ===========================================================================
+
+class TestLifecycleAwareness:
+    """Tests verifying the LIFECYCLE AWARENESS section is present and correct."""
+
+    def test_lifecycle_awareness_in_base_prompt(self, base_prompt):
+        """The base prompt must contain lifecycle awareness instructions."""
+        assert "LIFECYCLE AWARENESS" in base_prompt
+
+    def test_lifecycle_awareness_in_ctx_prompt(self, ctx_prompt):
+        """The context-enriched prompt must also contain lifecycle awareness."""
+        assert "LIFECYCLE AWARENESS" in ctx_prompt
+
+    def test_lifecycle_awareness_covers_consolidation_phase(self, base_prompt):
+        """The consolidation phase (primary MINT audience) must be mentioned."""
+        assert "consolidation" in base_prompt
+
+    def test_lifecycle_awareness_covers_demarrage_phase(self, base_prompt):
+        """The demarrage phase must be covered (secondary MINT audience)."""
+        assert "demarrage" in base_prompt
+
+    def test_lifecycle_awareness_covers_transition_phase(self, base_prompt):
+        """The transition phase must be covered (pre-retirement)."""
+        assert "transition" in base_prompt
+
+    def test_lifecycle_awareness_references_surfaces(self, base_prompt):
+        """Lifecycle section must mention SURFACES PERTINENTES for routing."""
+        lower = base_prompt.lower()
+        assert "surfaces pertinentes" in lower or "surfaces_pertinentes" in lower
+
+    def test_lifecycle_awareness_references_nudges(self, base_prompt):
+        """Lifecycle section must mention NUDGES ACTIFS for timely topics."""
+        lower = base_prompt.lower()
+        assert "nudges actifs" in lower or "nudges_actifs" in lower
+
+    def test_lifecycle_awareness_no_prescription(self, base_prompt):
+        """Lifecycle section must not instruct Claude to use prescriptive language.
+        'tu devrais' may appear in the TERMES INTERDITS list (as a negated example),
+        but must NOT appear inside the LIFECYCLE AWARENESS section itself."""
+        # Extract only the LIFECYCLE AWARENESS section
+        lifecycle_start = base_prompt.find("LIFECYCLE AWARENESS")
+        assert lifecycle_start != -1, "LIFECYCLE AWARENESS section not found"
+        # Find the next section header after it (ends at next uppercase block)
+        lifecycle_section = base_prompt[lifecycle_start:]
+        # The section ends before ROUTING RULES
+        routing_start = lifecycle_section.find("ROUTING RULES")
+        if routing_start != -1:
+            lifecycle_section = lifecycle_section[:routing_start]
+        lower_section = lifecycle_section.lower()
+        assert "tu devrais" not in lower_section
+        assert "il faut" not in lower_section
+
+    def test_lifecycle_phase_unknown_fallback(self, base_prompt):
+        """When phase is unknown, prompt must instruct neutral fallback."""
+        lower = base_prompt.lower()
+        assert "absent" in lower or "inconnu" in lower or "neutral" in lower or "unknown" in lower

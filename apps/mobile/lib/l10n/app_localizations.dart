@@ -33204,6 +33204,24 @@ abstract class S {
   /// **'Tu es de retour ! Si tu as ajusté des données, je recalcule dès que tu m’en parles.'**
   String get routeReturnAcknowledge;
 
+  /// No description provided for @routeReturnCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai noté. Tes données sont à jour.'**
+  String get routeReturnCompleted;
+
+  /// No description provided for @routeReturnAbandoned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de souci — on y reviendra quand tu veux.'**
+  String get routeReturnAbandoned;
+
+  /// No description provided for @routeReturnChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes chiffres ont changé. Je recalcule la trajectoire.'**
+  String get routeReturnChanged;
+
   /// No description provided for @hypothesisEditorTitle.
   ///
   /// In fr, this message translates to:
@@ -35459,6 +35477,316 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Demande de transfert de prévoyance (libre passage)'**
   String get agentLppTransferSubject;
+
+  /// No description provided for @agentFormCantonFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'[canton]'**
+  String get agentFormCantonFallback;
+
+  /// No description provided for @agentFormRevenuBrut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut estimé'**
+  String get agentFormRevenuBrut;
+
+  /// No description provided for @agentFormCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de domicile'**
+  String get agentFormCanton;
+
+  /// No description provided for @agentFormSituationFamiliale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation familiale'**
+  String get agentFormSituationFamiliale;
+
+  /// No description provided for @agentFormNbEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get agentFormNbEnfants;
+
+  /// No description provided for @agentFormDeduction3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déduction 3a possible'**
+  String get agentFormDeduction3a;
+
+  /// No description provided for @agentFormRachatLppDeductible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP déductible estimé'**
+  String get agentFormRachatLppDeductible;
+
+  /// No description provided for @agentFormStatutProfessionnel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut professionnel'**
+  String get agentFormStatutProfessionnel;
+
+  /// No description provided for @agentFormBeneficiaireNom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du/de la bénéficiaire'**
+  String get agentFormBeneficiaireNom;
+
+  /// No description provided for @agentFormNumeroCompte3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de compte 3a'**
+  String get agentFormNumeroCompte3a;
+
+  /// No description provided for @agentFormMontantVersement.
+  ///
+  /// In fr, this message translates to:
+  /// **'~{plafond} CHF (plafond {year})'**
+  String agentFormMontantVersement(String plafond, String year);
+
+  /// No description provided for @agentFormMontantVersementLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant versement annuel'**
+  String get agentFormMontantVersementLabel;
+
+  /// No description provided for @agentFormTypeContrat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de contrat'**
+  String get agentFormTypeContrat;
+
+  /// No description provided for @agentFormTypeContratSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e avec LPP'**
+  String get agentFormTypeContratSalarie;
+
+  /// No description provided for @agentFormTypeContratIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e sans LPP'**
+  String get agentFormTypeContratIndependant;
+
+  /// No description provided for @agentFormToComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À compléter]'**
+  String get agentFormToComplete;
+
+  /// No description provided for @agentFormTitulaireNom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du/de la titulaire'**
+  String get agentFormTitulaireNom;
+
+  /// No description provided for @agentFormNumeroPolice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de police'**
+  String get agentFormNumeroPolice;
+
+  /// No description provided for @agentFormAvoirLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP actuel'**
+  String get agentFormAvoirLpp;
+
+  /// No description provided for @agentFormRachatMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat maximum disponible'**
+  String get agentFormRachatMax;
+
+  /// No description provided for @agentFormRachatsDeja.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachats déjà effectués'**
+  String get agentFormRachatsDeja;
+
+  /// No description provided for @agentFormMontantRachatSouhaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant du rachat souhaité'**
+  String get agentFormMontantRachatSouhaite;
+
+  /// No description provided for @agentFormToCompleteAupres.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À compléter auprès de la caisse]'**
+  String get agentFormToCompleteAupres;
+
+  /// No description provided for @agentFormToCompleteMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À saisir — max {max} CHF]'**
+  String agentFormToCompleteMax(String max);
+
+  /// No description provided for @agentFormCivilCelibataire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célibataire'**
+  String get agentFormCivilCelibataire;
+
+  /// No description provided for @agentFormCivilMarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e'**
+  String get agentFormCivilMarie;
+
+  /// No description provided for @agentFormCivilDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorcé·e'**
+  String get agentFormCivilDivorce;
+
+  /// No description provided for @agentFormCivilVeuf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuf·ve'**
+  String get agentFormCivilVeuf;
+
+  /// No description provided for @agentFormCivilConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubinage'**
+  String get agentFormCivilConcubinage;
+
+  /// No description provided for @agentFormEmplSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e'**
+  String get agentFormEmplSalarie;
+
+  /// No description provided for @agentFormEmplIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e'**
+  String get agentFormEmplIndependant;
+
+  /// No description provided for @agentFormEmplChomage.
+  ///
+  /// In fr, this message translates to:
+  /// **'En recherche d\'emploi'**
+  String get agentFormEmplChomage;
+
+  /// No description provided for @agentFormEmplRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraité·e'**
+  String get agentFormEmplRetraite;
+
+  /// No description provided for @agentLetterCaisseFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Nom de la caisse de pension]'**
+  String get agentLetterCaisseFallback;
+
+  /// No description provided for @agentLetterPostalCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Code postal et ville]'**
+  String get agentLetterPostalCity;
+
+  /// No description provided for @agentLetterCaisseAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Adresse de la caisse]'**
+  String get agentLetterCaisseAddress;
+
+  /// No description provided for @agentLetterPoliceNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Numéro de police : À compléter]'**
+  String get agentLetterPoliceNumber;
+
+  /// No description provided for @agentLetterCaisseCurrentName.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Caisse de pension actuelle]'**
+  String get agentLetterCaisseCurrentName;
+
+  /// No description provided for @agentLetterCaisseCurrentAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Adresse de la caisse actuelle]'**
+  String get agentLetterCaisseCurrentAddress;
+
+  /// No description provided for @agentLetterToComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À compléter]'**
+  String get agentLetterToComplete;
+
+  /// No description provided for @agentLetterAvsOrg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caisse de compensation AVS compétente'**
+  String get agentLetterAvsOrg;
+
+  /// No description provided for @agentLetterAvsAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Adresse]'**
+  String get agentLetterAvsAddress;
+
+  /// No description provided for @agentLetterPensionFundBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé {year} (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}\n{policeNumber}'**
+  String agentLetterPensionFundBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber);
+
+  /// No description provided for @agentLetterLppTransferBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : {toComplete}\nIBAN ou numéro de compte : {toComplete}\nAdresse : {toComplete}\n\nDate de sortie : {toComplete}\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
+  String agentLetterLppTransferBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete);
+
+  /// No description provided for @agentLetterAvsExtractBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
+  String agentLetterAvsExtractBody(
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject);
+
+  /// No description provided for @seasonalEventCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'En parler au coach'**
+  String get seasonalEventCta;
+
+  /// No description provided for @communityChallengeCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relever le défi'**
+  String get communityChallengeCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -18771,6 +18771,17 @@ class SIt extends S {
       'Sei tornato! Se hai modificato dei dati, dimmelo e ricalcolo.';
 
   @override
+  String get routeReturnCompleted => 'Notato. I tuoi dati sono aggiornati.';
+
+  @override
+  String get routeReturnAbandoned =>
+      'Nessun problema — ci torneremo quando vuoi.';
+
+  @override
+  String get routeReturnChanged =>
+      'I tuoi numeri sono cambiati. Ricalcolo la traiettoria.';
+
+  @override
   String get hypothesisEditorTitle => 'Ipotesi di simulazione';
 
   @override
@@ -20079,4 +20090,185 @@ class SIt extends S {
   @override
   String get agentLppTransferSubject =>
       'Richiesta trasferimento previdenziale (libero passaggio)';
+
+  @override
+  String get agentFormCantonFallback => '[cantone]';
+
+  @override
+  String get agentFormRevenuBrut => 'Reddito lordo stimato';
+
+  @override
+  String get agentFormCanton => 'Cantone di residenza';
+
+  @override
+  String get agentFormSituationFamiliale => 'Situazione familiare';
+
+  @override
+  String get agentFormNbEnfants => 'Numero di figli';
+
+  @override
+  String get agentFormDeduction3a => 'Deduzione 3a possibile';
+
+  @override
+  String get agentFormRachatLppDeductible => 'Riscatto LPP deducibile stimato';
+
+  @override
+  String get agentFormStatutProfessionnel => 'Stato professionale';
+
+  @override
+  String get agentFormBeneficiaireNom => 'Nome del/della beneficiario·a';
+
+  @override
+  String get agentFormNumeroCompte3a => 'Numero conto 3a';
+
+  @override
+  String agentFormMontantVersement(String plafond, String year) {
+    return '~$plafond CHF (massimale $year)';
+  }
+
+  @override
+  String get agentFormMontantVersementLabel => 'Importo versamento annuale';
+
+  @override
+  String get agentFormTypeContrat => 'Tipo di contratto';
+
+  @override
+  String get agentFormTypeContratSalarie => 'Dipendente con LPP';
+
+  @override
+  String get agentFormTypeContratIndependant => 'Indipendente senza LPP';
+
+  @override
+  String get agentFormToComplete => '[Da completare]';
+
+  @override
+  String get agentFormTitulaireNom => 'Nome del/della titolare';
+
+  @override
+  String get agentFormNumeroPolice => 'Numero di polizza';
+
+  @override
+  String get agentFormAvoirLpp => 'Avere LPP attuale';
+
+  @override
+  String get agentFormRachatMax => 'Riscatto massimo disponibile';
+
+  @override
+  String get agentFormRachatsDeja => 'Riscatti già effettuati';
+
+  @override
+  String get agentFormMontantRachatSouhaite =>
+      'Importo del riscatto desiderato';
+
+  @override
+  String get agentFormToCompleteAupres => '[Da completare presso la cassa]';
+
+  @override
+  String agentFormToCompleteMax(String max) {
+    return '[Da inserire — max $max CHF]';
+  }
+
+  @override
+  String get agentFormCivilCelibataire => 'Celibe/Nubile';
+
+  @override
+  String get agentFormCivilMarie => 'Coniugato·a';
+
+  @override
+  String get agentFormCivilDivorce => 'Divorziato·a';
+
+  @override
+  String get agentFormCivilVeuf => 'Vedovo·a';
+
+  @override
+  String get agentFormCivilConcubinage => 'Convivenza';
+
+  @override
+  String get agentFormEmplSalarie => 'Dipendente';
+
+  @override
+  String get agentFormEmplIndependant => 'Indipendente';
+
+  @override
+  String get agentFormEmplChomage => 'In cerca di lavoro';
+
+  @override
+  String get agentFormEmplRetraite => 'Pensionato·a';
+
+  @override
+  String get agentLetterCaisseFallback => '[Nome della cassa pensioni]';
+
+  @override
+  String get agentLetterPostalCity => '[CAP e città]';
+
+  @override
+  String get agentLetterCaisseAddress => '[Indirizzo della cassa]';
+
+  @override
+  String get agentLetterPoliceNumber => '[Numero di polizza : Da completare]';
+
+  @override
+  String get agentLetterCaisseCurrentName => '[Cassa pensioni attuale]';
+
+  @override
+  String get agentLetterCaisseCurrentAddress =>
+      '[Indirizzo della cassa attuale]';
+
+  @override
+  String get agentLetterToComplete => '[Da completare]';
+
+  @override
+  String get agentLetterAvsOrg => 'Cassa di compensazione AVS competente';
+
+  @override
+  String get agentLetterAvsAddress => '[Indirizzo]';
+
+  @override
+  String agentLetterPensionFundBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
+    return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nOggetto: $subject\n\nEgregio/a Signore/Signora,\n\nCon la presente, mi permetto di sottoporLe le seguenti richieste relative alla mia previdenza professionale:\n\n1. Certificato di previdenza aggiornato $year (avere di vecchiaia, prestazioni coperte, aliquota di conversione applicabile)\n\n2. Conferma della mia capacità di riscatto (importo massimo ai sensi dell\'art. 79b LPP)\n\n3. Simulazione di pensionamento anticipato (proiezione dell\'avere e della rendita a 63 e 64 anni, se applicabile)\n\nLa ringrazio anticipatamente per la Sua diligenza e rimango a disposizione per qualsiasi informazione aggiuntiva.\n\nDistinti saluti,\n\n$name\n$policeNumber';
+  }
+
+  @override
+  String agentLetterLppTransferBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
+    return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nOggetto: $subject\n\nEgregio/a Signore/Signora,\n\nA seguito della cessazione del mio rapporto di lavoro / della mia partenza dalla Svizzera (depennare la voce non applicabile), La prego di procedere al trasferimento del mio avere di libero passaggio.\n\nImporto da trasferire: l\'intero avere di libero passaggio alla data di uscita.\n\nIstituto di destinazione:\nNome: $toComplete\nIBAN o numero di conto: $toComplete\nIndirizzo: $toComplete\n\nData di uscita: $toComplete\n\nLa ringrazio per la Sua diligenza e La prego di confermare la buona esecuzione di questo trasferimento.\n\nDistinti saluti,\n\n$name';
+  }
+
+  @override
+  String agentLetterAvsExtractBody(
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
+    return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nOggetto: $subject\n\nEgregio/a Signore/Signora,\n\nLa prego di volermi inviare un estratto del mio conto individuale AVS (CI) al fine di verificare lo stato dei miei contributi e identificare eventuali lacune.\n\nLa ringrazio anticipatamente per la Sua diligenza.\n\nDistinti saluti,\n\n$name';
+  }
+
+  @override
+  String get seasonalEventCta => 'Parlarne con il coach';
+
+  @override
+  String get communityChallengeCta => 'Accettare la sfida';
 }

@@ -8464,6 +8464,9 @@
   "routeSuggestionPartialWarning": "Sch\u00e4tzung\u00a0\u2014 unvollst\u00e4ndige Daten",
   "routeSuggestionBlocked": "Ich brauche noch ein paar Infos",
   "routeReturnAcknowledge": "Willkommen zur\u00fcck! Wenn du Daten angepasst hast, sag mir Bescheid und ich berechne neu.",
+  "routeReturnCompleted": "Notiert. Deine Daten sind aktuell.",
+  "routeReturnAbandoned": "Kein Problem\u00a0\u2014 wir kommen zur\u00fcck, wann du willst.",
+  "routeReturnChanged": "Deine Zahlen haben sich ge\u00e4ndert. Ich berechne die Trajektorie neu.",
   "hypothesisEditorTitle": "Simulationsannahmen",
   "hypothesisEditorSubtitle": "Passe die Parameter an, um den Einfluss auf die Projektionen zu sehen.",
 
@@ -8957,5 +8960,115 @@
   "agentSpecialistLabel": "eine zugelassene Fachperson",
   "agentLppBuybackTitle": "BVG-Einkauf Anfrage",
   "agentPensionFundSubject": "Anfrage für Pensionskassenzertifikat",
-  "agentLppTransferSubject": "Anfrage für Vorsorgeleistungsübertragung (Freizügigkeit)"
+  "agentLppTransferSubject": "Anfrage für Vorsorgeleistungsübertragung (Freizügigkeit)",
+
+  "agentFormCantonFallback": "[Kanton]",
+  "agentFormRevenuBrut": "Geschätztes Bruttoeinkommen",
+  "agentFormCanton": "Wohnkanton",
+  "agentFormSituationFamiliale": "Familiensituation",
+  "agentFormNbEnfants": "Anzahl Kinder",
+  "agentFormDeduction3a": "Möglicher 3a-Abzug",
+  "agentFormRachatLppDeductible": "Geschätzter abzugsfähiger BVG-Einkauf",
+  "agentFormStatutProfessionnel": "Beruflicher Status",
+  "agentFormBeneficiaireNom": "Name des/der Begünstigten",
+  "agentFormNumeroCompte3a": "3a-Kontonummer",
+  "agentFormMontantVersement": "~{plafond}\u00a0CHF (Limit {year})",
+  "@agentFormMontantVersement": {
+    "placeholders": {
+      "plafond": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "agentFormMontantVersementLabel": "Jährlicher Einzahlungsbetrag",
+  "agentFormTypeContrat": "Vertragsart",
+  "agentFormTypeContratSalarie": "Angestellte·r mit BVG",
+  "agentFormTypeContratIndependant": "Selbständige·r ohne BVG",
+  "agentFormToComplete": "[Auszufüllen]",
+  "agentFormTitulaireNom": "Name des/der Kontoinhabers·in",
+  "agentFormNumeroPolice": "Policennummer",
+  "agentFormAvoirLpp": "Aktuelles BVG-Guthaben",
+  "agentFormRachatMax": "Maximaler verfügbarer Einkauf",
+  "agentFormRachatsDeja": "Bereits getätigte Einkäufe",
+  "agentFormMontantRachatSouhaite": "Gewünschter Einkaufsbetrag",
+  "agentFormToCompleteAupres": "[Bei der Kasse auszufüllen]",
+  "agentFormToCompleteMax": "[Einzugeben — max. {max}\u00a0CHF]",
+  "@agentFormToCompleteMax": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "agentFormCivilCelibataire": "Ledig",
+  "agentFormCivilMarie": "Verheiratet",
+  "agentFormCivilDivorce": "Geschieden",
+  "agentFormCivilVeuf": "Verwitwet",
+  "agentFormCivilConcubinage": "Konkubinat",
+  "agentFormEmplSalarie": "Angestellte·r",
+  "agentFormEmplIndependant": "Selbständige·r",
+  "agentFormEmplChomage": "Stellensuchend",
+  "agentFormEmplRetraite": "Rentner·in",
+
+  "agentLetterCaisseFallback": "[Name der Pensionskasse]",
+  "agentLetterPostalCity": "[PLZ und Ort]",
+  "agentLetterCaisseAddress": "[Adresse der Kasse]",
+  "agentLetterPoliceNumber": "[Policennummer\u00a0: Auszufüllen]",
+  "agentLetterCaisseCurrentName": "[Aktuelle Pensionskasse]",
+  "agentLetterCaisseCurrentAddress": "[Adresse der aktuellen Kasse]",
+  "agentLetterToComplete": "[Auszufüllen]",
+  "agentLetterAvsOrg": "Zuständige AHV-Ausgleichskasse",
+  "agentLetterAvsAddress": "[Adresse]",
+
+  "agentLetterPensionFundBody": "{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, den {dateFormatted}\n\nBetreff: {subject}\n\nSehr geehrte Damen und Herren,\n\nhiermit erlaube ich mir, folgende Anfragen bezüglich meiner beruflichen Vorsorge zu stellen:\n\n1. Aktualisierter Vorsorgeausweis {year} (Altersguthaben, gedeckte Leistungen, anwendbarer Umwandlungssatz)\n\n2. Bestätigung meiner Einkaufskapazität (Maximalbetrag gemäss Art.\u00a079b BVG)\n\n3. Simulation Frühpensionierung (Projektion des Guthabens und der Rente mit 63 und 64 Jahren, falls zutreffend)\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt und stehe Ihnen für Rückfragen gerne zur Verfügung.\n\nMit freundlichen Grüssen\n\n{name}\n{policeNumber}",
+  "@agentLetterPensionFundBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "caisse": { "type": "String" },
+      "caisseAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" },
+      "year": { "type": "String" },
+      "policeNumber": { "type": "String" }
+    }
+  },
+
+  "agentLetterLppTransferBody": "{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, den {dateFormatted}\n\nBetreff: {subject}\n\nSehr geehrte Damen und Herren,\n\naufgrund der Beendigung meines Arbeitsverhältnisses / meines Wegzugs aus der Schweiz (Nichtzutreffendes streichen) bitte ich Sie, mein Freizügigkeitsguthaben zu übertragen.\n\nZu übertragender Betrag: das gesamte Freizügigkeitsguthaben per Austrittsdatum.\n\nZielinstitution:\nName: {toComplete}\nIBAN oder Kontonummer: {toComplete}\nAdresse: {toComplete}\n\nAustrittsdatum: {toComplete}\n\nIch danke Ihnen für Ihre Sorgfalt und bitte um eine Bestätigung der Ausführung.\n\nMit freundlichen Grüssen\n\n{name}",
+  "@agentLetterLppTransferBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "caisseSource": { "type": "String" },
+      "caisseCurrentAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" },
+      "toComplete": { "type": "String" }
+    }
+  },
+
+  "agentLetterAvsExtractBody": "{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, den {dateFormatted}\n\nBetreff: {subject}\n\nSehr geehrte Damen und Herren,\n\nbitte senden Sie mir einen Auszug meines individuellen AHV-Kontos (IK), um den Stand meiner Beiträge zu prüfen und eventuelle Lücken zu identifizieren.\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt.\n\nMit freundlichen Grüssen\n\n{name}",
+  "@agentLetterAvsExtractBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "ssn": { "type": "String" },
+      "address": { "type": "String" },
+      "postalCity": { "type": "String" },
+      "avsOrg": { "type": "String" },
+      "avsAddress": { "type": "String" },
+      "date": { "type": "String" },
+      "dateFormatted": { "type": "String" },
+      "subject": { "type": "String" }
+    }
+  },
+
+  "seasonalEventCta": "Mit dem Coach besprechen",
+  "communityChallengeCta": "Herausforderung annehmen"
 }
