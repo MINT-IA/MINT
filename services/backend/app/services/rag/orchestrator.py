@@ -40,6 +40,7 @@ class RAGOrchestrator:
         profile_context: Optional[dict] = None,
         language: str = "fr",
         n_results: int = 5,
+        tools: list[dict] | None = None,
     ) -> dict:
         """
         Execute the full RAG pipeline.
@@ -60,9 +61,12 @@ class RAGOrchestrator:
             profile_context: Optional profile data for personalization.
             language: Language code ("fr", "de", "en", "it").
             n_results: Number of context chunks to retrieve.
+            tools: Optional list of tool definitions (Anthropic format).
+                   When provided, Claude may return tool_use blocks alongside text.
 
         Returns:
             Dict with keys: answer, sources, disclaimers, tokens_used.
+            When tool_calls are present: also includes "tool_calls" key.
         """
         # Step 1: Retrieve relevant chunks
         retrieved = self.retriever.retrieve(
@@ -90,12 +94,22 @@ class RAGOrchestrator:
             system_prompt=system_prompt,
             user_message=question,
             context_chunks=context_chunks,
+            tools=tools,
         )
 
-        # Step 5: Apply post-generation compliance filter
-        filtered = self.guardrails.filter_response(raw_response, language)
+        # Step 5: Handle tool_use responses vs plain text
+        tool_calls = None
+        if isinstance(raw_response, dict):
+            # LLM returned structured response with tool calls
+            response_text = raw_response.get("text", "")
+            tool_calls = raw_response.get("tool_calls")
+        else:
+            response_text = raw_response
 
-        # Step 6: Build sources list
+        # Step 6: Apply post-generation compliance filter
+        filtered = self.guardrails.filter_response(response_text, language)
+
+        # Step 7: Build sources list
         sources = []
         seen_sources = set()
         for r in retrieved:
@@ -110,12 +124,15 @@ class RAGOrchestrator:
             system_prompt, question, context_chunks, filtered["text"]
         )
 
-        return {
+        result = {
             "answer": filtered["text"],
             "sources": sources,
             "disclaimers": filtered["disclaimers_added"],
             "tokens_used": tokens_used,
         }
+        if tool_calls:
+            result["tool_calls"] = tool_calls
+        return result
 
     async def query_vision(
         self,
