@@ -97,6 +97,7 @@ import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
 import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
+import 'package:mint_mobile/screens/coach/weekly_recap_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -314,6 +315,11 @@ final _router = GoRouter(
       path: '/coach/history',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConversationHistoryScreen(),
+    ),
+    GoRoute(
+      path: '/coach/weekly-recap',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const WeeklyRecapScreen(),
     ),
     GoRoute(
       path: '/succession',

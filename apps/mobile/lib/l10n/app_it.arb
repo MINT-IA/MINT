@@ -5534,6 +5534,37 @@
   "recapFhsUp": "Punteggio in aumento di +{delta} punti.",
   "recapFhsDown": "Punteggio in calo di {delta} punti.",
   "recapFhsStable": "Punteggio stabile questa settimana.",
+
+  "recapTitle": "Il tuo riepilogo settimanale",
+  "recapPeriod": "Dal {start} al {end}",
+  "@recapPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "recapBudgetTitle": "Budget",
+  "recapBudgetSaved": "Risparmiato questa settimana",
+  "recapBudgetRate": "Tasso di risparmio",
+  "recapActionsTitle": "Azioni completate",
+  "recapActionsNone": "Nessuna azione questa settimana",
+  "recapProgressTitle": "Progressi",
+  "recapProgressDelta": "{delta}\u00a0punti di fiducia",
+  "@recapProgressDelta": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "recapHighlightsTitle": "Punti salienti",
+  "recapNextFocusTitle": "La settimana prossima",
+  "recapEmpty": "Ancora nessun dato questa settimana",
+
   "@nudge3aMessage": {
     "placeholders": {
       "days": {
@@ -8151,5 +8182,175 @@
   "lifecyclePhaseRetraite": "Pensione",
   "lifecyclePhaseRetraiteDesc": "Vita in pensione: adattamento del budget e gestione del patrimonio.",
   "lifecyclePhaseTransmission": "Trasmissione",
-  "lifecyclePhaseTransmissionDesc": "Pianificazione successoria, donazioni e trasmissione del patrimonio."
+  "lifecyclePhaseTransmissionDesc": "Pianificazione successoria, donazioni e trasmissione del patrimonio.",
+  "nudgeSalaryTitle": "Giorno di paga\u00a0!",
+  "nudgeSalaryBody": "Hai pensato al tuo versamento sul pilastro 3a questo mese? Ogni mese conta per la tua previdenza.",
+  "nudgeTaxDeadlineTitle": "Dichiarazione fiscale",
+  "nudgeTaxDeadlineBody": "Verifica la scadenza per la dichiarazione fiscale nel tuo Cantone. Hai controllato le deduzioni del 3a e della LPP?",
+  "nudge3aDeadlineTitle": "Ultimo tratto per il tuo 3a",
+  "nudge3aDeadlineBody": "Mancano {days} giorno/i per versare fino a {limit}\u00a0CHF e ridurre le tasse del {year}.",
+  "nudgeBirthdayTitle": "Quest\u2019anno compi {age}\u00a0anni\u00a0!",
+  "nudgeBirthdayBody": "Una tappa che potrebbe segnare la tua pianificazione previdenziale. Hai simulato l\u2019impatto di quest\u2019anno?",
+  "nudgeProfileTitle": "Il tuo profilo merita di essere arricchito",
+  "nudgeProfileBody": "Pi\u00f9 completo \u00e8 il tuo profilo, pi\u00f9 rilevanti sono le analisi di MINT. Bastano pochi dati.",
+  "nudgeInactiveTitle": "\u00c8 passato un po\u2019 di tempo\u00a0!",
+  "nudgeInactiveBody": "La tua situazione finanziaria cambia ogni settimana. Prenditi 2\u00a0minuti per controllare il tuo pannello.",
+  "nudgeGoalProgressTitle": "Il tuo obiettivo avanza\u00a0!",
+  "nudgeGoalProgressBody": "Hai raggiunto il {progress}\u00a0% del tuo obiettivo. Continua cos\u00ec\u00a0!",
+  "nudgeAnniversaryTitle": "Gi\u00e0 1\u00a0anno insieme\u00a0!",
+  "nudgeAnniversaryBody": "Usi MINT da un anno. \u00c8 il momento ideale per aggiornare il profilo e misurare i tuoi progressi.",
+  "nudgeLppBuybackTitle": "Finestra di riscatto LPP",
+  "nudgeLppBuybackBody": "Si avvicina la fine del {year}: ultima occasione per un riscatto LPP deducibile.",
+  "nudgeNewYearTitle": "Nuovo anno, nuovo inizio\u00a0!",
+  "nudgeNewYearBody": "{year}: si apre un nuovo margine per il pilastro 3a. Buon momento per pianificare i versamenti.",
+  "@nudge3aDeadlineBody": {
+    "placeholders": {
+      "days": { "type": "String" },
+      "limit": { "type": "String" },
+      "year": { "type": "String" }
+    }
+  },
+  "@nudgeBirthdayTitle": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "@nudgeGoalProgressBody": {
+    "placeholders": {
+      "progress": { "type": "String" }
+    }
+  },
+  "@nudgeLppBuybackBody": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "@nudgeNewYearBody": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+
+  "challengeWeeklyTitle": "Sfida della settimana",
+  "challengeCompleted": "Sfida completata!",
+  "@challengeCompleted": {},
+  "challengeStreak": "{count} settimane consecutive",
+  "@challengeStreak": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "challengeBudget01Title": "Controlla le tue 3 spese maggiori della settimana",
+  "challengeBudget01Desc": "Immagina di sapere esattamente dove va ogni franco: apri il tuo budget e individua le 3 voci pi\u00f9 alte di questa settimana.",
+  "challengeBudget02Title": "Calcola il tuo tasso di risparmio mensile reale",
+  "challengeBudget02Desc": "Il tuo tasso di risparmio \u00e8 ci\u00f2 che resta dopo tutte le spese. Verifica se supera il 10\u00a0% del tuo reddito netto.",
+  "challengeBudget03Title": "Confronta il costo delle tue assicurazioni con un'offerta alternativa",
+  "challengeBudget03Desc": "I premi assicurativi possono variare del 30\u00a0% da un fornitore all'altro. Verifica se potresti risparmiare cambiando cassa.",
+  "challengeBudget04Title": "Analizza le spese fisse vs. variabili",
+  "challengeBudget04Desc": "Separa i costi fissi (affitto, assicurazioni) da quelli variabili (uscite, svago). \u00c8 la base per ottimizzare il tuo budget.",
+  "challengeBudget05Title": "Controlla il tuo rapporto di indebitamento",
+  "challengeBudget05Desc": "Il tuo rapporto di indebitamento non dovrebbe superare il 33\u00a0% del reddito lordo. Calcolalo per sapere dove sei.",
+  "challengeBudget06Title": "Simula il costo reale del tuo leasing",
+  "challengeBudget06Desc": "Un leasing \u00e8 pi\u00f9 della rata mensile: assicurazione, manutenzione, valore residuo. Calcola il costo totale.",
+  "challengeBudget07Title": "Valuta il tuo cuscinetto di sicurezza in mesi",
+  "challengeBudget07Desc": "Quanti mesi potresti reggere senza reddito? L'ideale sono 3-6 mesi di spese.",
+  "challengeBudget08Title": "Verifica se potresti ridurre il tuo credito al consumo",
+  "challengeBudget08Desc": "Un credito al consumo all'8-12\u00a0% \u00e8 molto costoso. Vedi se puoi accelerare il rimborso o consolidarlo.",
+
+  "challengeEpargne01Title": "Metti da parte CHF\u00a050 questa settimana",
+  "challengeEpargne01Desc": "Anche un piccolo importo conta: CHF\u00a050 a settimana sono CHF\u00a02'600 all'anno. La parte pi\u00f9 difficile \u00e8 iniziare.",
+  "challengeEpargne02Title": "Controlla il tuo saldo 3a rispetto al massimale",
+  "challengeEpargne02Desc": "Il massimale 3a per dipendenti \u00e8 di CHF\u00a07'258 all'anno. Controlla quanto hai gi\u00e0 versato quest'anno.",
+  "challengeEpargne03Title": "Simula un riscatto LPP di CHF\u00a05'000",
+  "challengeEpargne03Desc": "Un riscatto LPP \u00e8 deducibile dalle imposte. Simula l'impatto di un riscatto di CHF\u00a05'000 sulla tua previdenza e fiscalit\u00e0.",
+  "challengeEpargne04Title": "Verifica se puoi ancora versare al 3a quest'anno",
+  "challengeEpargne04Desc": "I versamenti 3a sono annuali: se non hai ancora raggiunto il massimo, potrebbe esserci ancora tempo.",
+  "challengeEpargne05Title": "Confronta i rendimenti dei tuoi conti 3a",
+  "challengeEpargne05Desc": "Non tutti i conti 3a sono uguali. Confronta i rendimenti dei tuoi conti con il simulatore.",
+  "challengeEpargne06Title": "Calcola il rendimento reale del tuo 3a dopo l'inflazione",
+  "challengeEpargne06Desc": "Un rendimento dell'1\u00a0% con un'inflazione dell'1,5\u00a0% \u00e8 un rendimento reale negativo. Verifica la tua situazione.",
+  "challengeEpargne07Title": "Simula un prelievo scaglionato dei tuoi conti 3a",
+  "challengeEpargne07Desc": "Prelevare il 3a in pi\u00f9 anni pu\u00f2 ridurre le imposte. Simula la strategia di prelievo scaglionato.",
+  "challengeEpargne08Title": "Verifica se puoi versare retroattivamente al 3a",
+  "challengeEpargne08Desc": "Dal 2025, puoi recuperare anni senza versamenti. Verifica se sei idoneo al 3a retroattivo.",
+  "challengeEpargne09Title": "Controlla il tuo conto di libero passaggio se hai cambiato datore",
+  "challengeEpargne09Desc": "Cambiando lavoro, il tuo capitale LPP viene trasferito su un conto di libero passaggio. Verifica che non sia stato dimenticato nulla.",
+
+  "challengePrevoyance01Title": "Richiedi il tuo estratto conto AVS",
+  "challengePrevoyance01Desc": "Il tuo estratto AVS mostra gli anni di contribuzione e la rendita stimata. Richiedilo gratuitamente su avs.ch.",
+  "challengePrevoyance02Title": "Controlla la tua copertura invalidit\u00e0",
+  "challengePrevoyance02Desc": "In caso di invalidit\u00e0, la tua rendita AI + LPP copre le spese? Verifica l'eventuale divario.",
+  "challengePrevoyance03Title": "Confronta rendita vs. capitale per il tuo LPP",
+  "challengePrevoyance03Desc": "Rendita vitalizia o capitale? Ogni opzione ha vantaggi fiscali e di flessibilit\u00e0. Confronta gli scenari.",
+  "challengePrevoyance04Title": "Consulta la tua proiezione pensionistica",
+  "challengePrevoyance04Desc": "Immagina la tua pensione: AVS + LPP + 3a \u2014 quanto avrai realmente? Verifica se sei sulla traiettoria giusta.",
+  "challengePrevoyance05Title": "Ottimizza la sequenza di decumulo",
+  "challengePrevoyance05Desc": "L'ordine in cui prelevi dai pilastri ha un impatto fiscale rilevante. Simula diverse sequenze.",
+  "challengePrevoyance06Title": "Controlla le tue lacune AVS",
+  "challengePrevoyance06Desc": "Ogni anno senza contributi AVS riduce la rendita. Verifica se hai lacune da colmare.",
+  "challengePrevoyance07Title": "Pianifica la tua successione",
+  "challengePrevoyance07Desc": "Chi eredita cosa nel diritto svizzero? Controlla le quote legittime e se \u00e8 necessario un testamento.",
+  "challengePrevoyance08Title": "Controlla la tua copertura in caso di disoccupazione",
+  "challengePrevoyance08Desc": "Perdere il lavoro \u00e8 stressante. Sapere quanto percepiresti e per quanto tempo pu\u00f2 rassicurarti. Simula la tua situazione.",
+  "challengePrevoyance09Title": "Controlla la copertura invalidit\u00e0 come autonomo",
+  "challengePrevoyance09Desc": "Come autonomo la tua copertura AI pu\u00f2 essere insufficiente. Verifica se sarebbe utile un'assicurazione indennit\u00e0 giornaliera integrativa.",
+
+  "challengeFiscalite01Title": "Stima il tuo risparmio fiscale 3a",
+  "challengeFiscalite01Desc": "Ogni franco versato nel 3a \u00e8 deducibile. Calcola quanto risparmi in imposte quest'anno.",
+  "challengeFiscalite02Title": "Verifica se un riscatto LPP sarebbe deducibile quest'anno",
+  "challengeFiscalite02Desc": "I riscatti LPP sono deducibili dal reddito imponibile. Verifica il potenziale di riscatto e il risparmio fiscale.",
+  "challengeFiscalite03Title": "Simula l'imposta su un prelievo di capitale",
+  "challengeFiscalite03Desc": "I prelievi di capitale (LPP/3a) sono tassati separatamente a un'aliquota ridotta. Simula l'imposta per diversi importi.",
+  "challengeFiscalite04Title": "Confronta stipendio vs. dividendo se sei autonomo",
+  "challengeFiscalite04Desc": "Il mix stipendio/dividendo dipende dal tuo reddito e cantone. Simula entrambi gli scenari.",
+  "challengeFiscalite05Title": "Controlla il valore locativo imputato del tuo immobile",
+  "challengeFiscalite05Desc": "Se sei proprietario, il valore locativo imputato viene aggiunto al reddito imponibile. Verifica se \u00e8 corretto.",
+  "challengeFiscalite06Title": "Calcola il tuo carico fiscale totale",
+  "challengeFiscalite06Desc": "Imposta federale + cantonale + comunale: calcola il tuo carico fiscale totale in percentuale del reddito.",
+  "challengeFiscalite07Title": "Verifica la tua conformit\u00e0 FATCA",
+  "challengeFiscalite07Desc": "Come cittadino statunitense, i tuoi conti svizzeri sono soggetti a FATCA. Verifica che la tua situazione sia in regola.",
+  "challengeFiscalite08Title": "Controlla la tua imposizione alla fonte",
+  "challengeFiscalite08Desc": "Come frontaliere, sei tassato alla fonte. Verifica che l'aliquota applicata corrisponda alla tua situazione.",
+
+  "challengePatrimoine01Title": "Calcola la tua capacit\u00e0 di finanziamento ipotecario",
+  "challengePatrimoine01Desc": "Con la regola del terzo, verifica quanto potresti prendere a prestito per un acquisto immobiliare.",
+  "challengePatrimoine02Title": "Simula SARON vs. tasso fisso per il tuo mutuo",
+  "challengePatrimoine02Desc": "SARON (variabile) o tasso fisso? Simula entrambi gli scenari su 10 anni per vedere la differenza.",
+  "challengePatrimoine03Title": "Confronta affitto vs. acquisto",
+  "challengePatrimoine03Desc": "Acquistare non \u00e8 sempre meglio che affittare. Confronta entrambe le opzioni su 20 anni con il simulatore.",
+  "challengePatrimoine04Title": "Simula un prelievo anticipato LPP per l'abitazione",
+  "challengePatrimoine04Desc": "Puoi usare il 2\u00b0 pilastro per finanziare la tua abitazione. Simula l'impatto sulla tua pensione.",
+  "challengePatrimoine05Title": "Consulta il tuo bilancio patrimoniale completo",
+  "challengePatrimoine05Desc": "Attivi, passivi, patrimonio netto: fai il punto sulla tua situazione finanziaria globale. Un momento importante per fare il punto.",
+  "challengePatrimoine06Title": "Controlla la tua allocazione annuale del risparmio",
+  "challengePatrimoine06Desc": "Tra 3a, riscatto LPP e ammortamento ipotecario, come distribuire il risparmio quest'anno? Ogni scelta ha un impatto fiscale diverso.",
+  "challengePatrimoine07Title": "Simula l'impatto dell'ammortamento ipotecario",
+  "challengePatrimoine07Desc": "Ammortamento diretto o indiretto tramite 3a? Simula entrambe le opzioni e il loro impatto fiscale.",
+  "challengePatrimoine08Title": "Simula l'effetto dell'interesse composto su 20 anni",
+  "challengePatrimoine08Desc": "Anche un piccolo rendimento crea un effetto valanga. Simula la crescita del tuo risparmio su 20 anni.",
+
+  "challengeEducation01Title": "Leggi l'articolo sulla 13\u00aa rendita AVS",
+  "challengeEducation01Desc": "Dal 2026, la 13\u00aa rendita AVS aumenta la rendita annuale. Scopri cosa cambia concretamente per te.",
+  "challengeEducation02Title": "Capisci la differenza tra tasso di conversione minimo e sovraobbligatorio",
+  "challengeEducation02Desc": "Il tasso di conversione LPP del 6,8\u00a0% si applica solo al minimo. La tua cassa pu\u00f2 avere un tasso diverso per la parte sovraobbligatoria.",
+  "challengeEducation03Title": "Scopri come funziona il 1\u00b0 pilastro",
+  "challengeEducation03Desc": "L'AVS \u00e8 un sistema a ripartizione: i lavoratori finanziano i pensionati. Capisci le basi della tua futura rendita.",
+  "challengeEducation04Title": "Capisci il sistema dei 3 pilastri",
+  "challengeEducation04Desc": "AVS + LPP + 3a: ogni pilastro ha il suo ruolo. Capisci come si integrano per la tua pensione.",
+  "challengeEducation05Title": "Esplora il concetto di tasso di sostituzione",
+  "challengeEducation05Desc": "Il tasso di sostituzione misura il rapporto tra la tua rendita e l'ultimo salario. L'obiettivo comune \u00e8 il 60-80\u00a0%.",
+  "challengeEducation06Title": "Capisci i bonus LPP per fascia d'et\u00e0",
+  "challengeEducation06Desc": "I bonus LPP aumentano con l'et\u00e0: 7\u00a0%, 10\u00a0%, 15\u00a0%, 18\u00a0%. Controlla in quale fascia sei.",
+  "challengeEducation07Title": "Scopri le conseguenze finanziarie della convivenza",
+  "challengeEducation07Desc": "In concubinato non hai gli stessi diritti successori di una coppia sposata. Controlla le protezioni necessarie.",
+  "challengeEducation08Title": "Capisci l'impatto del gender gap sulla pensione",
+  "challengeEducation08Desc": "Le donne ricevono in media il 37\u00a0% in meno di rendita. Capisci le cause e le possibili soluzioni.",
+
+  "challengeArchetypeEu01Title": "Controlla gli anni di contribuzione UE per l'AVS",
+  "challengeArchetypeEu01Desc": "Grazie agli accordi bilaterali, gli anni cotizzati nell'UE contano per la tua rendita AVS svizzera. Richiedi un certificato E205 per verificare la totalizzazione.",
+  "challengeArchetypeNonEu01Title": "Verifica se una convenzione di sicurezza sociale copre il tuo paese",
+  "challengeArchetypeNonEu01Desc": "Senza accordo bilaterale, i contributi esteri non contano per l'AVS. Verifica se il tuo paese di origine ha un accordo con la Svizzera.",
+  "challengeArchetypeReturning01Title": "Controlla il potenziale di riscatto LPP dopo il ritorno in Svizzera",
+  "challengeArchetypeReturning01Desc": "Tornato in Svizzera dopo un soggiorno all'estero? Potresti avere un importante potenziale di riscatto LPP, deducibile fiscalmente. Simula l'importo."
 }

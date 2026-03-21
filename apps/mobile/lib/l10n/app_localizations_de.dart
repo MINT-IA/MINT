@@ -11350,7 +11350,7 @@ class SDe extends S {
       'Deine erste Vergleichssimulation abschliessen';
 
   @override
-  String get nudgeSalaryTitle => 'Zahltag!';
+  String get nudgeSalaryTitle => 'Zahltag !';
 
   @override
   String get nudgeSalaryMessage =>
@@ -11386,14 +11386,14 @@ class SDe extends S {
 
   @override
   String nudgeBirthdayTitle(String age) {
-    return 'Du wirst dieses Jahr $age!';
+    return 'Du wirst dieses Jahr $age Jahre alt !';
   }
 
   @override
   String get nudgeBirthdayAction => 'Mein Dashboard ansehen';
 
   @override
-  String get nudgeAnniversaryTitle => 'Schon 1 Jahr zusammen!';
+  String get nudgeAnniversaryTitle => 'Schon 1 Jahr zusammen !';
 
   @override
   String get nudgeAnniversaryMessage =>
@@ -11512,6 +11512,46 @@ class SDe extends S {
 
   @override
   String get recapFhsStable => 'Score diese Woche stabil.';
+
+  @override
+  String get recapTitle => 'Deine Wochenzusammenfassung';
+
+  @override
+  String recapPeriod(String start, String end) {
+    return 'Von $start bis $end';
+  }
+
+  @override
+  String get recapBudgetTitle => 'Budget';
+
+  @override
+  String get recapBudgetSaved => 'Diese Woche gespart';
+
+  @override
+  String get recapBudgetRate => 'Sparquote';
+
+  @override
+  String get recapActionsTitle => 'Erledigte Aktionen';
+
+  @override
+  String get recapActionsNone => 'Keine Aktionen diese Woche';
+
+  @override
+  String get recapProgressTitle => 'Fortschritt';
+
+  @override
+  String recapProgressDelta(String delta) {
+    return '$delta Vertrauenspunkte';
+  }
+
+  @override
+  String get recapHighlightsTitle => 'Highlights';
+
+  @override
+  String get recapNextFocusTitle => 'Nächste Woche';
+
+  @override
+  String get recapEmpty => 'Noch keine Daten diese Woche';
 
   @override
   String get decesProcheTitre => 'Tod eines Angehörigen';
@@ -18637,6 +18677,71 @@ class SDe extends S {
       'Wie viel in die Säule 3a einzahlen dieses Jahr?';
 
   @override
+  String get nudgeSalaryBody =>
+      'Hast du an deine 3a-Einzahlung diesen Monat gedacht ? Jeder Monat zählt für deine Vorsorge.';
+
+  @override
+  String get nudgeTaxDeadlineTitle => 'Steuererklärung';
+
+  @override
+  String get nudgeTaxDeadlineBody =>
+      'Prüfe die Abgabefrist für die Steuererklärung in deinem Kanton. Hast du deine 3a- und BVG-Abzüge geprüft ?';
+
+  @override
+  String get nudge3aDeadlineTitle => 'Letzte Chance für deine 3a';
+
+  @override
+  String nudge3aDeadlineBody(String days, String limit, String year) {
+    return 'Noch $days Tag(e), um bis zu $limit CHF einzuzahlen und deine $year-Steuern zu senken.';
+  }
+
+  @override
+  String get nudgeBirthdayBody =>
+      'Ein Meilenstein, der deine Vorsorgeplanung prägen könnte. Hast du die Auswirkungen dieses Jahres simuliert ?';
+
+  @override
+  String get nudgeProfileTitle => 'Dein Profil verdient Ergänzungen';
+
+  @override
+  String get nudgeProfileBody =>
+      'Je vollständiger dein Profil, desto relevanter die Einblicke von MINT. Nur wenige Angaben nötig.';
+
+  @override
+  String get nudgeInactiveTitle => 'Es ist eine Weile her !';
+
+  @override
+  String get nudgeInactiveBody =>
+      'Deine finanzielle Situation ändert sich jede Woche. Nimm dir 2 Minuten für dein Dashboard.';
+
+  @override
+  String get nudgeGoalProgressTitle => 'Dein Ziel macht Fortschritte !';
+
+  @override
+  String nudgeGoalProgressBody(String progress) {
+    return 'Du hast $progress % deines Ziels erreicht. Mach weiter so !';
+  }
+
+  @override
+  String get nudgeAnniversaryBody =>
+      'Du nutzt MINT seit einem Jahr. Zeit, dein Profil zu aktualisieren und deine Fortschritte zu messen.';
+
+  @override
+  String get nudgeLppBuybackTitle => 'BVG-Einkaufsfenster';
+
+  @override
+  String nudgeLppBuybackBody(String year) {
+    return 'Das Ende von $year naht : letzte Chance für einen steuerlich abzugsfähigen BVG-Einkauf.';
+  }
+
+  @override
+  String get nudgeNewYearTitle => 'Neues Jahr, neuer Start !';
+
+  @override
+  String nudgeNewYearBody(String year) {
+    return '$year : ein neuer 3a-Rahmen öffnet sich. Jetzt Einzahlungen planen.';
+  }
+
+  @override
   String get rcSuggestedPromptCommencer3a =>
       'Warum jetzt mit Säule 3a beginnen?';
 
@@ -18726,4 +18831,423 @@ class SDe extends S {
   @override
   String get lifecyclePhaseTransmissionDesc =>
       'Nachlassplanung, Schenkungen und Vermögensübertragung.';
+
+  @override
+  String get challengeWeeklyTitle => 'Challenge der Woche';
+
+  @override
+  String get challengeCompleted => 'Challenge geschafft!';
+
+  @override
+  String challengeStreak(int count) {
+    return '$count Wochen in Folge';
+  }
+
+  @override
+  String get challengeBudget01Title =>
+      'Prüfe deine 3 grössten Ausgaben dieser Woche';
+
+  @override
+  String get challengeBudget01Desc =>
+      'Stell dir vor, du wüsstest genau, wohin jeder Franken geht: öffne dein Budget und finde die 3 höchsten Posten dieser Woche.';
+
+  @override
+  String get challengeBudget02Title =>
+      'Berechne deine reale monatliche Sparquote';
+
+  @override
+  String get challengeBudget02Desc =>
+      'Deine Sparquote ist das, was nach allen Ausgaben übrig bleibt. Prüfe, ob sie 10 % deines Nettoeinkommens übersteigt.';
+
+  @override
+  String get challengeBudget03Title =>
+      'Vergleiche deine Versicherungskosten mit einem alternativen Angebot';
+
+  @override
+  String get challengeBudget03Desc =>
+      'Versicherungsprämien können je nach Anbieter um 30 % variieren. Prüfe, ob du durch einen Wechsel sparen könntest.';
+
+  @override
+  String get challengeBudget04Title =>
+      'Analysiere deine fixen vs. variablen Ausgaben';
+
+  @override
+  String get challengeBudget04Desc =>
+      'Trenne fixe Kosten (Miete, Versicherungen) von variablen (Ausgänge, Freizeit). Das ist die Grundlage zur Budgetoptimierung.';
+
+  @override
+  String get challengeBudget05Title => 'Prüfe deine Schuldenquote';
+
+  @override
+  String get challengeBudget05Desc =>
+      'Deine Schuldenquote sollte 33 % des Bruttoeinkommens nicht übersteigen. Berechne sie, um deinen Stand zu kennen.';
+
+  @override
+  String get challengeBudget06Title =>
+      'Simuliere die tatsächlichen Kosten deines Leasings';
+
+  @override
+  String get challengeBudget06Desc =>
+      'Ein Leasing ist mehr als die monatliche Rate: Versicherung, Wartung, Restwert. Berechne die Gesamtkosten.';
+
+  @override
+  String get challengeBudget07Title =>
+      'Bewerte dein Sicherheitspolster in Monaten';
+
+  @override
+  String get challengeBudget07Desc =>
+      'Wie viele Monate könntest du ohne Einkommen auskommen? Das Ideal sind 3 bis 6 Monate Ausgaben.';
+
+  @override
+  String get challengeBudget08Title =>
+      'Prüfe, ob du deinen Konsumkredit reduzieren könntest';
+
+  @override
+  String get challengeBudget08Desc =>
+      'Ein Konsumkredit zu 8-12 % ist sehr teuer. Schau, ob du die Rückzahlung beschleunigen oder konsolidieren kannst.';
+
+  @override
+  String get challengeEpargne01Title => 'Lege diese Woche CHF 50 zurück';
+
+  @override
+  String get challengeEpargne01Desc =>
+      'Auch ein kleiner Betrag zählt: CHF 50 pro Woche sind CHF 2\'600 pro Jahr. Das Schwerste ist der Anfang.';
+
+  @override
+  String get challengeEpargne02Title => 'Prüfe dein 3a-Guthaben vs. Obergrenze';
+
+  @override
+  String get challengeEpargne02Desc =>
+      'Die 3a-Obergrenze für Angestellte beträgt CHF 7\'258 pro Jahr. Prüfe, wie viel du dieses Jahr bereits eingezahlt hast.';
+
+  @override
+  String get challengeEpargne03Title =>
+      'Simuliere einen BVG-Einkauf von CHF 5\'000';
+
+  @override
+  String get challengeEpargne03Desc =>
+      'Ein BVG-Einkauf ist steuerlich abzugsfähig. Simuliere die Auswirkung eines CHF 5\'000 Einkaufs auf deine Vorsorge und Steuern.';
+
+  @override
+  String get challengeEpargne04Title =>
+      'Prüfe, ob du dieses Jahr noch ins 3a einzahlen kannst';
+
+  @override
+  String get challengeEpargne04Desc =>
+      '3a-Beiträge sind jährlich: Falls du das Maximum noch nicht erreicht hast, könnte noch Zeit sein.';
+
+  @override
+  String get challengeEpargne05Title =>
+      'Vergleiche die Renditen deiner 3a-Konten';
+
+  @override
+  String get challengeEpargne05Desc =>
+      'Nicht alle 3a-Konten sind gleich. Vergleiche die Renditen deiner Konten mit dem Simulator.';
+
+  @override
+  String get challengeEpargne06Title =>
+      'Berechne die reale Rendite deines 3a nach Inflation';
+
+  @override
+  String get challengeEpargne06Desc =>
+      '1 % Rendite bei 1,5 % Inflation ergibt eine negative Realrendite. Überprüfe deine Situation.';
+
+  @override
+  String get challengeEpargne07Title =>
+      'Simuliere einen gestaffelten Bezug deiner 3a-Konten';
+
+  @override
+  String get challengeEpargne07Desc =>
+      'Den 3a über mehrere Jahre zu beziehen kann die Steuer senken. Simuliere die gestaffelte Bezugsstrategie.';
+
+  @override
+  String get challengeEpargne08Title =>
+      'Prüfe, ob du rückwirkend ins 3a einzahlen kannst';
+
+  @override
+  String get challengeEpargne08Desc =>
+      'Seit 2025 können Beitragsjahrelücken nachgeholt werden. Prüfe, ob du für den rückwirkenden 3a berechtigt bist.';
+
+  @override
+  String get challengeEpargne09Title =>
+      'Prüfe dein Freizügigkeitsguthaben bei Arbeitgeberwechsel';
+
+  @override
+  String get challengeEpargne09Desc =>
+      'Bei einem Arbeitgeberwechsel wird dein BVG-Kapital auf ein Freizügigkeitskonto übertragen. Prüfe, dass nichts vergessen wurde.';
+
+  @override
+  String get challengePrevoyance01Title => 'Bestelle deinen AHV-Kontoauszug';
+
+  @override
+  String get challengePrevoyance01Desc =>
+      'Dein AHV-Auszug zeigt deine Beitragsjahre und geschätzte Rente. Bestelle ihn kostenlos auf ahv.ch.';
+
+  @override
+  String get challengePrevoyance02Title => 'Prüfe deine Invaliditätsdeckung';
+
+  @override
+  String get challengePrevoyance02Desc =>
+      'Im Invaliditätsfall: Deckt deine IV- und BVG-Rente deine Ausgaben? Prüfe eine eventuelle Lücke.';
+
+  @override
+  String get challengePrevoyance03Title =>
+      'Vergleiche Rente vs. Kapital für dein BVG';
+
+  @override
+  String get challengePrevoyance03Desc =>
+      'Lebenslange Rente oder Kapital? Jede Option hat steuerliche und Flexibilitätsvorteile. Vergleiche die Szenarien.';
+
+  @override
+  String get challengePrevoyance04Title => 'Konsultiere deine Rentenprognose';
+
+  @override
+  String get challengePrevoyance04Desc =>
+      'Stell dir dein Rentenalter vor: AHV + BVG + 3a — wie viel wirst du wirklich haben? Prüfe, ob du auf Kurs bist.';
+
+  @override
+  String get challengePrevoyance05Title => 'Optimiere deine Bezugsreihenfolge';
+
+  @override
+  String get challengePrevoyance05Desc =>
+      'Die Reihenfolge, in der du Beiträge beziehst, hat grosse steuerliche Auswirkungen. Simuliere verschiedene Reihenfolgen.';
+
+  @override
+  String get challengePrevoyance06Title => 'Prüfe deine AHV-Beitragslücken';
+
+  @override
+  String get challengePrevoyance06Desc =>
+      'Jedes Jahr ohne AHV-Beiträge mindert deine Rente. Prüfe, ob du Lücken zu füllen hast.';
+
+  @override
+  String get challengePrevoyance07Title => 'Plane deine Nachlassregelung';
+
+  @override
+  String get challengePrevoyance07Desc =>
+      'Wer erbt was nach Schweizer Recht? Prüfe die Pflichtteile und ob ein Testament erforderlich ist.';
+
+  @override
+  String get challengePrevoyance08Title =>
+      'Prüfe deine Deckung bei Arbeitslosigkeit';
+
+  @override
+  String get challengePrevoyance08Desc =>
+      'Stellenverlust ist stressig. Zu wissen, wie viel du erhalten würdest und wie lange, kann beruhigen. Simuliere deine Situation.';
+
+  @override
+  String get challengePrevoyance09Title =>
+      'Prüfe deine Invaliditätsdeckung als Selbständige';
+
+  @override
+  String get challengePrevoyance09Desc =>
+      'Als Selbständige kann deine IV-Deckung unzureichend sein. Prüfe, ob eine ergänzende Taggeldversicherung sinnvoll wäre.';
+
+  @override
+  String get challengeFiscalite01Title => 'Schätze deine 3a-Steuerersparnis';
+
+  @override
+  String get challengeFiscalite01Desc =>
+      'Jeder ins 3a eingezahlte Franken ist abzugsfähig. Berechne, wie viel du dieses Jahr an Steuern sparst.';
+
+  @override
+  String get challengeFiscalite02Title =>
+      'Prüfe, ob ein BVG-Einkauf dieses Jahr abzugsfähig wäre';
+
+  @override
+  String get challengeFiscalite02Desc =>
+      'BVG-Einkäufe sind vom steuerbaren Einkommen abzugsfähig. Prüfe dein Einkaufspotenzial und die Steuerersparnis.';
+
+  @override
+  String get challengeFiscalite03Title =>
+      'Simuliere die Steuer auf einen Kapitalbezug';
+
+  @override
+  String get challengeFiscalite03Desc =>
+      'Kapitalleistungen (BVG/3a) werden getrennt zu einem reduzierten Satz besteuert. Simuliere die Steuer für verschiedene Beträge.';
+
+  @override
+  String get challengeFiscalite04Title =>
+      'Vergleiche Lohn vs. Dividende wenn du selbständig bist';
+
+  @override
+  String get challengeFiscalite04Desc =>
+      'Der ideale Lohn-Dividenden-Mix hängt von deinem Einkommen und Kanton ab. Simuliere beide Szenarien.';
+
+  @override
+  String get challengeFiscalite05Title =>
+      'Prüfe den Eigenmietwert deiner Liegenschaft';
+
+  @override
+  String get challengeFiscalite05Desc =>
+      'Als Eigentümer wird der Eigenmietwert deinem steuerbaren Einkommen zugerechnet. Prüfe, ob er korrekt ist.';
+
+  @override
+  String get challengeFiscalite06Title =>
+      'Berechne deine gesamte Steuerbelastung';
+
+  @override
+  String get challengeFiscalite06Desc =>
+      'Bundes- und Kantons- und Gemeindesteuer: Berechne deine Gesamtsteuerbelastung als Prozentsatz deines Einkommens.';
+
+  @override
+  String get challengeFiscalite07Title => 'Prüfe deine FATCA-Konformität';
+
+  @override
+  String get challengeFiscalite07Desc =>
+      'Als US-Bürger unterliegen deine Schweizer Konten FATCA. Prüfe, ob deine Situation in Ordnung ist.';
+
+  @override
+  String get challengeFiscalite08Title => 'Prüfe deine Quellensteuer';
+
+  @override
+  String get challengeFiscalite08Desc =>
+      'Als Grenzgänger wirst du an der Quelle besteuert. Prüfe, ob der angewendete Satz deiner Situation entspricht.';
+
+  @override
+  String get challengePatrimoine01Title =>
+      'Berechne deine hypothekarische Tragbarkeit';
+
+  @override
+  String get challengePatrimoine01Desc =>
+      'Mit der 1/3-Regel: Prüfe, wie viel du für einen Immobilienkauf leihen könntest.';
+
+  @override
+  String get challengePatrimoine02Title =>
+      'Simuliere SARON vs. Festhypothek für deine Hypothek';
+
+  @override
+  String get challengePatrimoine02Desc =>
+      'SARON (variabel) oder Festhypothek? Simuliere beide Szenarien über 10 Jahre, um den Unterschied zu sehen.';
+
+  @override
+  String get challengePatrimoine03Title => 'Vergleiche Mieten vs. Kaufen';
+
+  @override
+  String get challengePatrimoine03Desc =>
+      'Kaufen ist nicht immer besser als Mieten. Vergleiche beide Optionen über 20 Jahre mit dem Simulator.';
+
+  @override
+  String get challengePatrimoine04Title =>
+      'Simuliere einen WEF-Vorbezug für Wohneigentum';
+
+  @override
+  String get challengePatrimoine04Desc =>
+      'Du kannst deine 2. Säule zur Wohneigentumsförderung nutzen. Simuliere die Auswirkung auf deine Rente.';
+
+  @override
+  String get challengePatrimoine05Title =>
+      'Konsultiere deine vollständige Vermögensbilanz';
+
+  @override
+  String get challengePatrimoine05Desc =>
+      'Aktiven, Passiven, Nettovermögen: Mache eine Bestandsaufnahme deiner Gesamtsituation. Ein wichtiger Moment für Perspektive.';
+
+  @override
+  String get challengePatrimoine06Title =>
+      'Prüfe deine jährliche Sparallokation';
+
+  @override
+  String get challengePatrimoine06Desc =>
+      '3a, BVG-Einkauf und Hypothekaramortisation: Wie solltest du deine Ersparnisse dieses Jahr aufteilen? Jede Wahl hat einen anderen Steuereffekt.';
+
+  @override
+  String get challengePatrimoine07Title =>
+      'Simuliere die Auswirkung der Hypothekaramortisation';
+
+  @override
+  String get challengePatrimoine07Desc =>
+      'Direkt oder indirekt über 3a amortisieren? Simuliere beide Optionen und ihre steuerlichen Auswirkungen.';
+
+  @override
+  String get challengePatrimoine08Title =>
+      'Simuliere den Zinseszinseffekt über 20 Jahre';
+
+  @override
+  String get challengePatrimoine08Desc =>
+      'Auch eine kleine Rendite erzeugt einen Schneeballeffekt. Simuliere das Wachstum deiner Ersparnisse über 20 Jahre.';
+
+  @override
+  String get challengeEducation01Title => 'Lies den Artikel zur 13. AHV-Rente';
+
+  @override
+  String get challengeEducation01Desc =>
+      'Seit 2026 erhöht die 13. AHV-Rente deine jährliche Rente. Erfahre, was das konkret für dich bedeutet.';
+
+  @override
+  String get challengeEducation02Title =>
+      'Verstehe den Unterschied zwischen Mindest- und überobligatorischem Umwandlungssatz';
+
+  @override
+  String get challengeEducation02Desc =>
+      'Der BVG-Umwandlungssatz von 6,8 % gilt nur für das Obligatorium. Deine Kasse kann beim Überobligatorium einen anderen Satz haben.';
+
+  @override
+  String get challengeEducation03Title =>
+      'Entdecke, wie die 1. Säule funktioniert';
+
+  @override
+  String get challengeEducation03Desc =>
+      'Die AHV ist ein Umlageverfahren: Erwerbstätige finanzieren Rentner. Verstehe die Grundlagen deiner künftigen Rente.';
+
+  @override
+  String get challengeEducation04Title => 'Verstehe das 3-Säulen-System';
+
+  @override
+  String get challengeEducation04Desc =>
+      'AHV + BVG + 3a: Jede Säule hat ihre Rolle. Verstehe, wie sie sich für deine Rente ergänzen.';
+
+  @override
+  String get challengeEducation05Title => 'Erkunde das Konzept der Ersatzquote';
+
+  @override
+  String get challengeEducation05Desc =>
+      'Die Ersatzquote misst das Verhältnis zwischen deiner Rente und deinem letzten Lohn. Das gängige Ziel ist 60-80 %.';
+
+  @override
+  String get challengeEducation06Title =>
+      'Verstehe die BVG-Altersgutschriften nach Altersgruppe';
+
+  @override
+  String get challengeEducation06Desc =>
+      'BVG-Gutschriften nehmen mit dem Alter zu: 7 %, 10 %, 15 %, 18 %. Prüfe, in welcher Stufe du bist.';
+
+  @override
+  String get challengeEducation07Title =>
+      'Entdecke die finanziellen Folgen des Konkubinats';
+
+  @override
+  String get challengeEducation07Desc =>
+      'Im Konkubinat hast du nicht dieselben Erbrechte wie ein Ehepaar. Prüfe die notwendigen Absicherungen.';
+
+  @override
+  String get challengeEducation08Title =>
+      'Verstehe die Auswirkungen des Gender Gaps auf die Rente';
+
+  @override
+  String get challengeEducation08Desc =>
+      'Frauen erhalten im Durchschnitt 37 % weniger Rente. Verstehe die Ursachen und mögliche Lösungen.';
+
+  @override
+  String get challengeArchetypeEu01Title =>
+      'Prüfe deine EU-Beitragsjahre für die AHV';
+
+  @override
+  String get challengeArchetypeEu01Desc =>
+      'Dank bilateraler Abkommen zählen deine in der EU gezahlten Beiträge für deine Schweizer AHV-Rente. Fordere ein E205-Formular an.';
+
+  @override
+  String get challengeArchetypeNonEu01Title =>
+      'Prüfe, ob ein Sozialversicherungsabkommen dein Land abdeckt';
+
+  @override
+  String get challengeArchetypeNonEu01Desc =>
+      'Ohne bilaterales Abkommen zählen ausländische Beiträge nicht für die AHV. Prüfe, ob dein Heimatland ein Abkommen mit der Schweiz hat.';
+
+  @override
+  String get challengeArchetypeReturning01Title =>
+      'Prüfe dein BVG-Einkaufspotenzial nach Rückkehr in die Schweiz';
+
+  @override
+  String get challengeArchetypeReturning01Desc =>
+      'Zurück in der Schweiz nach einem Auslandsaufenthalt? Du könntest ein erhebliches, steuerlich abzugsfähiges BVG-Einkaufspotenzial haben. Simuliere den Betrag.';
 }

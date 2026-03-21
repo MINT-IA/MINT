@@ -11340,7 +11340,7 @@ class SIt extends S {
       'Completare la tua prima simulazione di confronto';
 
   @override
-  String get nudgeSalaryTitle => 'Giorno di paga!';
+  String get nudgeSalaryTitle => 'Giorno di paga !';
 
   @override
   String get nudgeSalaryMessage =>
@@ -11376,14 +11376,14 @@ class SIt extends S {
 
   @override
   String nudgeBirthdayTitle(String age) {
-    return 'Compi $age anni quest\'anno!';
+    return 'Quest’anno compi $age anni !';
   }
 
   @override
   String get nudgeBirthdayAction => 'Vedi la mia dashboard';
 
   @override
-  String get nudgeAnniversaryTitle => 'Già 1 anno insieme!';
+  String get nudgeAnniversaryTitle => 'Già 1 anno insieme !';
 
   @override
   String get nudgeAnniversaryMessage =>
@@ -11502,6 +11502,46 @@ class SIt extends S {
 
   @override
   String get recapFhsStable => 'Punteggio stabile questa settimana.';
+
+  @override
+  String get recapTitle => 'Il tuo riepilogo settimanale';
+
+  @override
+  String recapPeriod(String start, String end) {
+    return 'Dal $start al $end';
+  }
+
+  @override
+  String get recapBudgetTitle => 'Budget';
+
+  @override
+  String get recapBudgetSaved => 'Risparmiato questa settimana';
+
+  @override
+  String get recapBudgetRate => 'Tasso di risparmio';
+
+  @override
+  String get recapActionsTitle => 'Azioni completate';
+
+  @override
+  String get recapActionsNone => 'Nessuna azione questa settimana';
+
+  @override
+  String get recapProgressTitle => 'Progressi';
+
+  @override
+  String recapProgressDelta(String delta) {
+    return '$delta punti di fiducia';
+  }
+
+  @override
+  String get recapHighlightsTitle => 'Punti salienti';
+
+  @override
+  String get recapNextFocusTitle => 'La settimana prossima';
+
+  @override
+  String get recapEmpty => 'Ancora nessun dato questa settimana';
 
   @override
   String get decesProcheTitre => 'Decesso di un familiare';
@@ -18631,6 +18671,71 @@ class SIt extends S {
       'Quanto versare nel 3a quest’anno?';
 
   @override
+  String get nudgeSalaryBody =>
+      'Hai pensato al tuo versamento sul pilastro 3a questo mese? Ogni mese conta per la tua previdenza.';
+
+  @override
+  String get nudgeTaxDeadlineTitle => 'Dichiarazione fiscale';
+
+  @override
+  String get nudgeTaxDeadlineBody =>
+      'Verifica la scadenza per la dichiarazione fiscale nel tuo Cantone. Hai controllato le deduzioni del 3a e della LPP?';
+
+  @override
+  String get nudge3aDeadlineTitle => 'Ultimo tratto per il tuo 3a';
+
+  @override
+  String nudge3aDeadlineBody(String days, String limit, String year) {
+    return 'Mancano $days giorno/i per versare fino a $limit CHF e ridurre le tasse del $year.';
+  }
+
+  @override
+  String get nudgeBirthdayBody =>
+      'Una tappa che potrebbe segnare la tua pianificazione previdenziale. Hai simulato l’impatto di quest’anno?';
+
+  @override
+  String get nudgeProfileTitle => 'Il tuo profilo merita di essere arricchito';
+
+  @override
+  String get nudgeProfileBody =>
+      'Più completo è il tuo profilo, più rilevanti sono le analisi di MINT. Bastano pochi dati.';
+
+  @override
+  String get nudgeInactiveTitle => 'È passato un po’ di tempo !';
+
+  @override
+  String get nudgeInactiveBody =>
+      'La tua situazione finanziaria cambia ogni settimana. Prenditi 2 minuti per controllare il tuo pannello.';
+
+  @override
+  String get nudgeGoalProgressTitle => 'Il tuo obiettivo avanza !';
+
+  @override
+  String nudgeGoalProgressBody(String progress) {
+    return 'Hai raggiunto il $progress % del tuo obiettivo. Continua così !';
+  }
+
+  @override
+  String get nudgeAnniversaryBody =>
+      'Usi MINT da un anno. È il momento ideale per aggiornare il profilo e misurare i tuoi progressi.';
+
+  @override
+  String get nudgeLppBuybackTitle => 'Finestra di riscatto LPP';
+
+  @override
+  String nudgeLppBuybackBody(String year) {
+    return 'Si avvicina la fine del $year: ultima occasione per un riscatto LPP deducibile.';
+  }
+
+  @override
+  String get nudgeNewYearTitle => 'Nuovo anno, nuovo inizio !';
+
+  @override
+  String nudgeNewYearBody(String year) {
+    return '$year: si apre un nuovo margine per il pilastro 3a. Buon momento per pianificare i versamenti.';
+  }
+
+  @override
   String get rcSuggestedPromptCommencer3a => 'Perché iniziare il 3a ora?';
 
   @override
@@ -18720,4 +18825,427 @@ class SIt extends S {
   @override
   String get lifecyclePhaseTransmissionDesc =>
       'Pianificazione successoria, donazioni e trasmissione del patrimonio.';
+
+  @override
+  String get challengeWeeklyTitle => 'Sfida della settimana';
+
+  @override
+  String get challengeCompleted => 'Sfida completata!';
+
+  @override
+  String challengeStreak(int count) {
+    return '$count settimane consecutive';
+  }
+
+  @override
+  String get challengeBudget01Title =>
+      'Controlla le tue 3 spese maggiori della settimana';
+
+  @override
+  String get challengeBudget01Desc =>
+      'Immagina di sapere esattamente dove va ogni franco: apri il tuo budget e individua le 3 voci più alte di questa settimana.';
+
+  @override
+  String get challengeBudget02Title =>
+      'Calcola il tuo tasso di risparmio mensile reale';
+
+  @override
+  String get challengeBudget02Desc =>
+      'Il tuo tasso di risparmio è ciò che resta dopo tutte le spese. Verifica se supera il 10 % del tuo reddito netto.';
+
+  @override
+  String get challengeBudget03Title =>
+      'Confronta il costo delle tue assicurazioni con un\'offerta alternativa';
+
+  @override
+  String get challengeBudget03Desc =>
+      'I premi assicurativi possono variare del 30 % da un fornitore all\'altro. Verifica se potresti risparmiare cambiando cassa.';
+
+  @override
+  String get challengeBudget04Title => 'Analizza le spese fisse vs. variabili';
+
+  @override
+  String get challengeBudget04Desc =>
+      'Separa i costi fissi (affitto, assicurazioni) da quelli variabili (uscite, svago). È la base per ottimizzare il tuo budget.';
+
+  @override
+  String get challengeBudget05Title =>
+      'Controlla il tuo rapporto di indebitamento';
+
+  @override
+  String get challengeBudget05Desc =>
+      'Il tuo rapporto di indebitamento non dovrebbe superare il 33 % del reddito lordo. Calcolalo per sapere dove sei.';
+
+  @override
+  String get challengeBudget06Title => 'Simula il costo reale del tuo leasing';
+
+  @override
+  String get challengeBudget06Desc =>
+      'Un leasing è più della rata mensile: assicurazione, manutenzione, valore residuo. Calcola il costo totale.';
+
+  @override
+  String get challengeBudget07Title =>
+      'Valuta il tuo cuscinetto di sicurezza in mesi';
+
+  @override
+  String get challengeBudget07Desc =>
+      'Quanti mesi potresti reggere senza reddito? L\'ideale sono 3-6 mesi di spese.';
+
+  @override
+  String get challengeBudget08Title =>
+      'Verifica se potresti ridurre il tuo credito al consumo';
+
+  @override
+  String get challengeBudget08Desc =>
+      'Un credito al consumo all\'8-12 % è molto costoso. Vedi se puoi accelerare il rimborso o consolidarlo.';
+
+  @override
+  String get challengeEpargne01Title =>
+      'Metti da parte CHF 50 questa settimana';
+
+  @override
+  String get challengeEpargne01Desc =>
+      'Anche un piccolo importo conta: CHF 50 a settimana sono CHF 2\'600 all\'anno. La parte più difficile è iniziare.';
+
+  @override
+  String get challengeEpargne02Title =>
+      'Controlla il tuo saldo 3a rispetto al massimale';
+
+  @override
+  String get challengeEpargne02Desc =>
+      'Il massimale 3a per dipendenti è di CHF 7\'258 all\'anno. Controlla quanto hai già versato quest\'anno.';
+
+  @override
+  String get challengeEpargne03Title => 'Simula un riscatto LPP di CHF 5\'000';
+
+  @override
+  String get challengeEpargne03Desc =>
+      'Un riscatto LPP è deducibile dalle imposte. Simula l\'impatto di un riscatto di CHF 5\'000 sulla tua previdenza e fiscalità.';
+
+  @override
+  String get challengeEpargne04Title =>
+      'Verifica se puoi ancora versare al 3a quest\'anno';
+
+  @override
+  String get challengeEpargne04Desc =>
+      'I versamenti 3a sono annuali: se non hai ancora raggiunto il massimo, potrebbe esserci ancora tempo.';
+
+  @override
+  String get challengeEpargne05Title =>
+      'Confronta i rendimenti dei tuoi conti 3a';
+
+  @override
+  String get challengeEpargne05Desc =>
+      'Non tutti i conti 3a sono uguali. Confronta i rendimenti dei tuoi conti con il simulatore.';
+
+  @override
+  String get challengeEpargne06Title =>
+      'Calcola il rendimento reale del tuo 3a dopo l\'inflazione';
+
+  @override
+  String get challengeEpargne06Desc =>
+      'Un rendimento dell\'1 % con un\'inflazione dell\'1,5 % è un rendimento reale negativo. Verifica la tua situazione.';
+
+  @override
+  String get challengeEpargne07Title =>
+      'Simula un prelievo scaglionato dei tuoi conti 3a';
+
+  @override
+  String get challengeEpargne07Desc =>
+      'Prelevare il 3a in più anni può ridurre le imposte. Simula la strategia di prelievo scaglionato.';
+
+  @override
+  String get challengeEpargne08Title =>
+      'Verifica se puoi versare retroattivamente al 3a';
+
+  @override
+  String get challengeEpargne08Desc =>
+      'Dal 2025, puoi recuperare anni senza versamenti. Verifica se sei idoneo al 3a retroattivo.';
+
+  @override
+  String get challengeEpargne09Title =>
+      'Controlla il tuo conto di libero passaggio se hai cambiato datore';
+
+  @override
+  String get challengeEpargne09Desc =>
+      'Cambiando lavoro, il tuo capitale LPP viene trasferito su un conto di libero passaggio. Verifica che non sia stato dimenticato nulla.';
+
+  @override
+  String get challengePrevoyance01Title => 'Richiedi il tuo estratto conto AVS';
+
+  @override
+  String get challengePrevoyance01Desc =>
+      'Il tuo estratto AVS mostra gli anni di contribuzione e la rendita stimata. Richiedilo gratuitamente su avs.ch.';
+
+  @override
+  String get challengePrevoyance02Title =>
+      'Controlla la tua copertura invalidità';
+
+  @override
+  String get challengePrevoyance02Desc =>
+      'In caso di invalidità, la tua rendita AI + LPP copre le spese? Verifica l\'eventuale divario.';
+
+  @override
+  String get challengePrevoyance03Title =>
+      'Confronta rendita vs. capitale per il tuo LPP';
+
+  @override
+  String get challengePrevoyance03Desc =>
+      'Rendita vitalizia o capitale? Ogni opzione ha vantaggi fiscali e di flessibilità. Confronta gli scenari.';
+
+  @override
+  String get challengePrevoyance04Title =>
+      'Consulta la tua proiezione pensionistica';
+
+  @override
+  String get challengePrevoyance04Desc =>
+      'Immagina la tua pensione: AVS + LPP + 3a — quanto avrai realmente? Verifica se sei sulla traiettoria giusta.';
+
+  @override
+  String get challengePrevoyance05Title => 'Ottimizza la sequenza di decumulo';
+
+  @override
+  String get challengePrevoyance05Desc =>
+      'L\'ordine in cui prelevi dai pilastri ha un impatto fiscale rilevante. Simula diverse sequenze.';
+
+  @override
+  String get challengePrevoyance06Title => 'Controlla le tue lacune AVS';
+
+  @override
+  String get challengePrevoyance06Desc =>
+      'Ogni anno senza contributi AVS riduce la rendita. Verifica se hai lacune da colmare.';
+
+  @override
+  String get challengePrevoyance07Title => 'Pianifica la tua successione';
+
+  @override
+  String get challengePrevoyance07Desc =>
+      'Chi eredita cosa nel diritto svizzero? Controlla le quote legittime e se è necessario un testamento.';
+
+  @override
+  String get challengePrevoyance08Title =>
+      'Controlla la tua copertura in caso di disoccupazione';
+
+  @override
+  String get challengePrevoyance08Desc =>
+      'Perdere il lavoro è stressante. Sapere quanto percepiresti e per quanto tempo può rassicurarti. Simula la tua situazione.';
+
+  @override
+  String get challengePrevoyance09Title =>
+      'Controlla la copertura invalidità come autonomo';
+
+  @override
+  String get challengePrevoyance09Desc =>
+      'Come autonomo la tua copertura AI può essere insufficiente. Verifica se sarebbe utile un\'assicurazione indennità giornaliera integrativa.';
+
+  @override
+  String get challengeFiscalite01Title => 'Stima il tuo risparmio fiscale 3a';
+
+  @override
+  String get challengeFiscalite01Desc =>
+      'Ogni franco versato nel 3a è deducibile. Calcola quanto risparmi in imposte quest\'anno.';
+
+  @override
+  String get challengeFiscalite02Title =>
+      'Verifica se un riscatto LPP sarebbe deducibile quest\'anno';
+
+  @override
+  String get challengeFiscalite02Desc =>
+      'I riscatti LPP sono deducibili dal reddito imponibile. Verifica il potenziale di riscatto e il risparmio fiscale.';
+
+  @override
+  String get challengeFiscalite03Title =>
+      'Simula l\'imposta su un prelievo di capitale';
+
+  @override
+  String get challengeFiscalite03Desc =>
+      'I prelievi di capitale (LPP/3a) sono tassati separatamente a un\'aliquota ridotta. Simula l\'imposta per diversi importi.';
+
+  @override
+  String get challengeFiscalite04Title =>
+      'Confronta stipendio vs. dividendo se sei autonomo';
+
+  @override
+  String get challengeFiscalite04Desc =>
+      'Il mix stipendio/dividendo dipende dal tuo reddito e cantone. Simula entrambi gli scenari.';
+
+  @override
+  String get challengeFiscalite05Title =>
+      'Controlla il valore locativo imputato del tuo immobile';
+
+  @override
+  String get challengeFiscalite05Desc =>
+      'Se sei proprietario, il valore locativo imputato viene aggiunto al reddito imponibile. Verifica se è corretto.';
+
+  @override
+  String get challengeFiscalite06Title =>
+      'Calcola il tuo carico fiscale totale';
+
+  @override
+  String get challengeFiscalite06Desc =>
+      'Imposta federale + cantonale + comunale: calcola il tuo carico fiscale totale in percentuale del reddito.';
+
+  @override
+  String get challengeFiscalite07Title => 'Verifica la tua conformità FATCA';
+
+  @override
+  String get challengeFiscalite07Desc =>
+      'Come cittadino statunitense, i tuoi conti svizzeri sono soggetti a FATCA. Verifica che la tua situazione sia in regola.';
+
+  @override
+  String get challengeFiscalite08Title =>
+      'Controlla la tua imposizione alla fonte';
+
+  @override
+  String get challengeFiscalite08Desc =>
+      'Come frontaliere, sei tassato alla fonte. Verifica che l\'aliquota applicata corrisponda alla tua situazione.';
+
+  @override
+  String get challengePatrimoine01Title =>
+      'Calcola la tua capacità di finanziamento ipotecario';
+
+  @override
+  String get challengePatrimoine01Desc =>
+      'Con la regola del terzo, verifica quanto potresti prendere a prestito per un acquisto immobiliare.';
+
+  @override
+  String get challengePatrimoine02Title =>
+      'Simula SARON vs. tasso fisso per il tuo mutuo';
+
+  @override
+  String get challengePatrimoine02Desc =>
+      'SARON (variabile) o tasso fisso? Simula entrambi gli scenari su 10 anni per vedere la differenza.';
+
+  @override
+  String get challengePatrimoine03Title => 'Confronta affitto vs. acquisto';
+
+  @override
+  String get challengePatrimoine03Desc =>
+      'Acquistare non è sempre meglio che affittare. Confronta entrambe le opzioni su 20 anni con il simulatore.';
+
+  @override
+  String get challengePatrimoine04Title =>
+      'Simula un prelievo anticipato LPP per l\'abitazione';
+
+  @override
+  String get challengePatrimoine04Desc =>
+      'Puoi usare il 2° pilastro per finanziare la tua abitazione. Simula l\'impatto sulla tua pensione.';
+
+  @override
+  String get challengePatrimoine05Title =>
+      'Consulta il tuo bilancio patrimoniale completo';
+
+  @override
+  String get challengePatrimoine05Desc =>
+      'Attivi, passivi, patrimonio netto: fai il punto sulla tua situazione finanziaria globale. Un momento importante per fare il punto.';
+
+  @override
+  String get challengePatrimoine06Title =>
+      'Controlla la tua allocazione annuale del risparmio';
+
+  @override
+  String get challengePatrimoine06Desc =>
+      'Tra 3a, riscatto LPP e ammortamento ipotecario, come distribuire il risparmio quest\'anno? Ogni scelta ha un impatto fiscale diverso.';
+
+  @override
+  String get challengePatrimoine07Title =>
+      'Simula l\'impatto dell\'ammortamento ipotecario';
+
+  @override
+  String get challengePatrimoine07Desc =>
+      'Ammortamento diretto o indiretto tramite 3a? Simula entrambe le opzioni e il loro impatto fiscale.';
+
+  @override
+  String get challengePatrimoine08Title =>
+      'Simula l\'effetto dell\'interesse composto su 20 anni';
+
+  @override
+  String get challengePatrimoine08Desc =>
+      'Anche un piccolo rendimento crea un effetto valanga. Simula la crescita del tuo risparmio su 20 anni.';
+
+  @override
+  String get challengeEducation01Title =>
+      'Leggi l\'articolo sulla 13ª rendita AVS';
+
+  @override
+  String get challengeEducation01Desc =>
+      'Dal 2026, la 13ª rendita AVS aumenta la rendita annuale. Scopri cosa cambia concretamente per te.';
+
+  @override
+  String get challengeEducation02Title =>
+      'Capisci la differenza tra tasso di conversione minimo e sovraobbligatorio';
+
+  @override
+  String get challengeEducation02Desc =>
+      'Il tasso di conversione LPP del 6,8 % si applica solo al minimo. La tua cassa può avere un tasso diverso per la parte sovraobbligatoria.';
+
+  @override
+  String get challengeEducation03Title => 'Scopri come funziona il 1° pilastro';
+
+  @override
+  String get challengeEducation03Desc =>
+      'L\'AVS è un sistema a ripartizione: i lavoratori finanziano i pensionati. Capisci le basi della tua futura rendita.';
+
+  @override
+  String get challengeEducation04Title => 'Capisci il sistema dei 3 pilastri';
+
+  @override
+  String get challengeEducation04Desc =>
+      'AVS + LPP + 3a: ogni pilastro ha il suo ruolo. Capisci come si integrano per la tua pensione.';
+
+  @override
+  String get challengeEducation05Title =>
+      'Esplora il concetto di tasso di sostituzione';
+
+  @override
+  String get challengeEducation05Desc =>
+      'Il tasso di sostituzione misura il rapporto tra la tua rendita e l\'ultimo salario. L\'obiettivo comune è il 60-80 %.';
+
+  @override
+  String get challengeEducation06Title =>
+      'Capisci i bonus LPP per fascia d\'età';
+
+  @override
+  String get challengeEducation06Desc =>
+      'I bonus LPP aumentano con l\'età: 7 %, 10 %, 15 %, 18 %. Controlla in quale fascia sei.';
+
+  @override
+  String get challengeEducation07Title =>
+      'Scopri le conseguenze finanziarie della convivenza';
+
+  @override
+  String get challengeEducation07Desc =>
+      'In concubinato non hai gli stessi diritti successori di una coppia sposata. Controlla le protezioni necessarie.';
+
+  @override
+  String get challengeEducation08Title =>
+      'Capisci l\'impatto del gender gap sulla pensione';
+
+  @override
+  String get challengeEducation08Desc =>
+      'Le donne ricevono in media il 37 % in meno di rendita. Capisci le cause e le possibili soluzioni.';
+
+  @override
+  String get challengeArchetypeEu01Title =>
+      'Controlla gli anni di contribuzione UE per l\'AVS';
+
+  @override
+  String get challengeArchetypeEu01Desc =>
+      'Grazie agli accordi bilaterali, gli anni cotizzati nell\'UE contano per la tua rendita AVS svizzera. Richiedi un certificato E205 per verificare la totalizzazione.';
+
+  @override
+  String get challengeArchetypeNonEu01Title =>
+      'Verifica se una convenzione di sicurezza sociale copre il tuo paese';
+
+  @override
+  String get challengeArchetypeNonEu01Desc =>
+      'Senza accordo bilaterale, i contributi esteri non contano per l\'AVS. Verifica se il tuo paese di origine ha un accordo con la Svizzera.';
+
+  @override
+  String get challengeArchetypeReturning01Title =>
+      'Controlla il potenziale di riscatto LPP dopo il ritorno in Svizzera';
+
+  @override
+  String get challengeArchetypeReturning01Desc =>
+      'Tornato in Svizzera dopo un soggiorno all\'estero? Potresti avere un importante potenziale di riscatto LPP, deducibile fiscalmente. Simula l\'importo.';
 }

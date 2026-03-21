@@ -5534,6 +5534,37 @@
   "recapFhsUp": "Score um +{delta} Punkte gestiegen.",
   "recapFhsDown": "Score um {delta} Punkte gesunken.",
   "recapFhsStable": "Score diese Woche stabil.",
+
+  "recapTitle": "Deine Wochenzusammenfassung",
+  "recapPeriod": "Von {start} bis {end}",
+  "@recapPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "recapBudgetTitle": "Budget",
+  "recapBudgetSaved": "Diese Woche gespart",
+  "recapBudgetRate": "Sparquote",
+  "recapActionsTitle": "Erledigte Aktionen",
+  "recapActionsNone": "Keine Aktionen diese Woche",
+  "recapProgressTitle": "Fortschritt",
+  "recapProgressDelta": "{delta}\u00a0Vertrauenspunkte",
+  "@recapProgressDelta": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "recapHighlightsTitle": "Highlights",
+  "recapNextFocusTitle": "Nächste Woche",
+  "recapEmpty": "Noch keine Daten diese Woche",
+
   "@nudge3aMessage": {
     "placeholders": {
       "days": {
@@ -8449,5 +8480,175 @@
   "lifecyclePhaseRetraite": "Rente",
   "lifecyclePhaseRetraiteDesc": "Rentenphase: Budgetanpassung und Verm\u00f6gensabbau.",
   "lifecyclePhaseTransmission": "Nachlass",
-  "lifecyclePhaseTransmissionDesc": "Nachlassplanung, Schenkungen und Verm\u00f6gens\u00fcbertragung."
+  "lifecyclePhaseTransmissionDesc": "Nachlassplanung, Schenkungen und Verm\u00f6gens\u00fcbertragung.",
+  "nudgeSalaryTitle": "Zahltag\u00a0!",
+  "nudgeSalaryBody": "Hast du an deine 3a-Einzahlung diesen Monat gedacht\u00a0? Jeder Monat z\u00e4hlt f\u00fcr deine Vorsorge.",
+  "nudgeTaxDeadlineTitle": "Steuererkl\u00e4rung",
+  "nudgeTaxDeadlineBody": "Pr\u00fcfe die Abgabefrist f\u00fcr die Steuererkl\u00e4rung in deinem Kanton. Hast du deine 3a- und BVG-Abz\u00fcge gepr\u00fcft\u00a0?",
+  "nudge3aDeadlineTitle": "Letzte Chance f\u00fcr deine 3a",
+  "nudge3aDeadlineBody": "Noch {days} Tag(e), um bis zu {limit}\u00a0CHF einzuzahlen und deine {year}-Steuern zu senken.",
+  "nudgeBirthdayTitle": "Du wirst dieses Jahr {age}\u00a0Jahre alt\u00a0!",
+  "nudgeBirthdayBody": "Ein Meilenstein, der deine Vorsorgeplanung pr\u00e4gen k\u00f6nnte. Hast du die Auswirkungen dieses Jahres simuliert\u00a0?",
+  "nudgeProfileTitle": "Dein Profil verdient Erg\u00e4nzungen",
+  "nudgeProfileBody": "Je vollst\u00e4ndiger dein Profil, desto relevanter die Einblicke von MINT. Nur wenige Angaben n\u00f6tig.",
+  "nudgeInactiveTitle": "Es ist eine Weile her\u00a0!",
+  "nudgeInactiveBody": "Deine finanzielle Situation \u00e4ndert sich jede Woche. Nimm dir 2\u00a0Minuten f\u00fcr dein Dashboard.",
+  "nudgeGoalProgressTitle": "Dein Ziel macht Fortschritte\u00a0!",
+  "nudgeGoalProgressBody": "Du hast {progress}\u00a0% deines Ziels erreicht. Mach weiter so\u00a0!",
+  "nudgeAnniversaryTitle": "Schon 1\u00a0Jahr zusammen\u00a0!",
+  "nudgeAnniversaryBody": "Du nutzt MINT seit einem Jahr. Zeit, dein Profil zu aktualisieren und deine Fortschritte zu messen.",
+  "nudgeLppBuybackTitle": "BVG-Einkaufsfenster",
+  "nudgeLppBuybackBody": "Das Ende von {year} naht\u00a0: letzte Chance f\u00fcr einen steuerlich abzugsf\u00e4higen BVG-Einkauf.",
+  "nudgeNewYearTitle": "Neues Jahr, neuer Start\u00a0!",
+  "nudgeNewYearBody": "{year}\u00a0: ein neuer 3a-Rahmen \u00f6ffnet sich. Jetzt Einzahlungen planen.",
+  "@nudge3aDeadlineBody": {
+    "placeholders": {
+      "days": { "type": "String" },
+      "limit": { "type": "String" },
+      "year": { "type": "String" }
+    }
+  },
+  "@nudgeBirthdayTitle": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "@nudgeGoalProgressBody": {
+    "placeholders": {
+      "progress": { "type": "String" }
+    }
+  },
+  "@nudgeLppBuybackBody": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "@nudgeNewYearBody": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+
+  "challengeWeeklyTitle": "Challenge der Woche",
+  "challengeCompleted": "Challenge geschafft!",
+  "@challengeCompleted": {},
+  "challengeStreak": "{count} Wochen in Folge",
+  "@challengeStreak": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "challengeBudget01Title": "Pr\u00fcfe deine 3 gr\u00f6ssten Ausgaben dieser Woche",
+  "challengeBudget01Desc": "Stell dir vor, du w\u00fcsstest genau, wohin jeder Franken geht: \u00f6ffne dein Budget und finde die 3 h\u00f6chsten Posten dieser Woche.",
+  "challengeBudget02Title": "Berechne deine reale monatliche Sparquote",
+  "challengeBudget02Desc": "Deine Sparquote ist das, was nach allen Ausgaben \u00fcbrig bleibt. Pr\u00fcfe, ob sie 10\u00a0% deines Nettoeinkommens \u00fcbersteigt.",
+  "challengeBudget03Title": "Vergleiche deine Versicherungskosten mit einem alternativen Angebot",
+  "challengeBudget03Desc": "Versicherungspr\u00e4mien k\u00f6nnen je nach Anbieter um 30\u00a0% variieren. Pr\u00fcfe, ob du durch einen Wechsel sparen k\u00f6nntest.",
+  "challengeBudget04Title": "Analysiere deine fixen vs. variablen Ausgaben",
+  "challengeBudget04Desc": "Trenne fixe Kosten (Miete, Versicherungen) von variablen (Ausg\u00e4nge, Freizeit). Das ist die Grundlage zur Budgetoptimierung.",
+  "challengeBudget05Title": "Pr\u00fcfe deine Schuldenquote",
+  "challengeBudget05Desc": "Deine Schuldenquote sollte 33\u00a0% des Bruttoeinkommens nicht \u00fcbersteigen. Berechne sie, um deinen Stand zu kennen.",
+  "challengeBudget06Title": "Simuliere die tats\u00e4chlichen Kosten deines Leasings",
+  "challengeBudget06Desc": "Ein Leasing ist mehr als die monatliche Rate: Versicherung, Wartung, Restwert. Berechne die Gesamtkosten.",
+  "challengeBudget07Title": "Bewerte dein Sicherheitspolster in Monaten",
+  "challengeBudget07Desc": "Wie viele Monate k\u00f6nntest du ohne Einkommen auskommen? Das Ideal sind 3 bis 6 Monate Ausgaben.",
+  "challengeBudget08Title": "Pr\u00fcfe, ob du deinen Konsumkredit reduzieren k\u00f6nntest",
+  "challengeBudget08Desc": "Ein Konsumkredit zu 8-12\u00a0% ist sehr teuer. Schau, ob du die R\u00fcckzahlung beschleunigen oder konsolidieren kannst.",
+
+  "challengeEpargne01Title": "Lege diese Woche CHF\u00a050 zur\u00fcck",
+  "challengeEpargne01Desc": "Auch ein kleiner Betrag z\u00e4hlt: CHF\u00a050 pro Woche sind CHF\u00a02'600 pro Jahr. Das Schwerste ist der Anfang.",
+  "challengeEpargne02Title": "Pr\u00fcfe dein 3a-Guthaben vs. Obergrenze",
+  "challengeEpargne02Desc": "Die 3a-Obergrenze f\u00fcr Angestellte betr\u00e4gt CHF\u00a07'258 pro Jahr. Pr\u00fcfe, wie viel du dieses Jahr bereits eingezahlt hast.",
+  "challengeEpargne03Title": "Simuliere einen BVG-Einkauf von CHF\u00a05'000",
+  "challengeEpargne03Desc": "Ein BVG-Einkauf ist steuerlich abzugsf\u00e4hig. Simuliere die Auswirkung eines CHF\u00a05'000 Einkaufs auf deine Vorsorge und Steuern.",
+  "challengeEpargne04Title": "Pr\u00fcfe, ob du dieses Jahr noch ins 3a einzahlen kannst",
+  "challengeEpargne04Desc": "3a-Beitr\u00e4ge sind j\u00e4hrlich: Falls du das Maximum noch nicht erreicht hast, k\u00f6nnte noch Zeit sein.",
+  "challengeEpargne05Title": "Vergleiche die Renditen deiner 3a-Konten",
+  "challengeEpargne05Desc": "Nicht alle 3a-Konten sind gleich. Vergleiche die Renditen deiner Konten mit dem Simulator.",
+  "challengeEpargne06Title": "Berechne die reale Rendite deines 3a nach Inflation",
+  "challengeEpargne06Desc": "1\u00a0% Rendite bei 1,5\u00a0% Inflation ergibt eine negative Realrendite. \u00dcberpr\u00fcfe deine Situation.",
+  "challengeEpargne07Title": "Simuliere einen gestaffelten Bezug deiner 3a-Konten",
+  "challengeEpargne07Desc": "Den 3a \u00fcber mehrere Jahre zu beziehen kann die Steuer senken. Simuliere die gestaffelte Bezugsstrategie.",
+  "challengeEpargne08Title": "Pr\u00fcfe, ob du r\u00fcckwirkend ins 3a einzahlen kannst",
+  "challengeEpargne08Desc": "Seit 2025 k\u00f6nnen Beitragsjahrel\u00fccken nachgeholt werden. Pr\u00fcfe, ob du f\u00fcr den r\u00fcckwirkenden 3a berechtigt bist.",
+  "challengeEpargne09Title": "Pr\u00fcfe dein Freiz\u00fcgigkeitsguthaben bei Arbeitgeberwechsel",
+  "challengeEpargne09Desc": "Bei einem Arbeitgeberwechsel wird dein BVG-Kapital auf ein Freiz\u00fcgigkeitskonto \u00fcbertragen. Pr\u00fcfe, dass nichts vergessen wurde.",
+
+  "challengePrevoyance01Title": "Bestelle deinen AHV-Kontoauszug",
+  "challengePrevoyance01Desc": "Dein AHV-Auszug zeigt deine Beitragsjahre und gesch\u00e4tzte Rente. Bestelle ihn kostenlos auf ahv.ch.",
+  "challengePrevoyance02Title": "Pr\u00fcfe deine Invalidit\u00e4tsdeckung",
+  "challengePrevoyance02Desc": "Im Invalidit\u00e4tsfall: Deckt deine IV- und BVG-Rente deine Ausgaben? Pr\u00fcfe eine eventuelle L\u00fccke.",
+  "challengePrevoyance03Title": "Vergleiche Rente vs. Kapital f\u00fcr dein BVG",
+  "challengePrevoyance03Desc": "Lebenslange Rente oder Kapital? Jede Option hat steuerliche und Flexibilit\u00e4tsvorteile. Vergleiche die Szenarien.",
+  "challengePrevoyance04Title": "Konsultiere deine Rentenprognose",
+  "challengePrevoyance04Desc": "Stell dir dein Rentenalter vor: AHV + BVG + 3a \u2014 wie viel wirst du wirklich haben? Pr\u00fcfe, ob du auf Kurs bist.",
+  "challengePrevoyance05Title": "Optimiere deine Bezugsreihenfolge",
+  "challengePrevoyance05Desc": "Die Reihenfolge, in der du Beitr\u00e4ge beziehst, hat grosse steuerliche Auswirkungen. Simuliere verschiedene Reihenfolgen.",
+  "challengePrevoyance06Title": "Pr\u00fcfe deine AHV-Beitragsl\u00fccken",
+  "challengePrevoyance06Desc": "Jedes Jahr ohne AHV-Beitr\u00e4ge mindert deine Rente. Pr\u00fcfe, ob du L\u00fccken zu f\u00fcllen hast.",
+  "challengePrevoyance07Title": "Plane deine Nachlassregelung",
+  "challengePrevoyance07Desc": "Wer erbt was nach Schweizer Recht? Pr\u00fcfe die Pflichtteile und ob ein Testament erforderlich ist.",
+  "challengePrevoyance08Title": "Pr\u00fcfe deine Deckung bei Arbeitslosigkeit",
+  "challengePrevoyance08Desc": "Stellenverlust ist stressig. Zu wissen, wie viel du erhalten w\u00fcrdest und wie lange, kann beruhigen. Simuliere deine Situation.",
+  "challengePrevoyance09Title": "Pr\u00fcfe deine Invalidit\u00e4tsdeckung als Selbst\u00e4ndige",
+  "challengePrevoyance09Desc": "Als Selbst\u00e4ndige kann deine IV-Deckung unzureichend sein. Pr\u00fcfe, ob eine erg\u00e4nzende Taggeldversicherung sinnvoll w\u00e4re.",
+
+  "challengeFiscalite01Title": "Sch\u00e4tze deine 3a-Steuerersparnis",
+  "challengeFiscalite01Desc": "Jeder ins 3a eingezahlte Franken ist abzugsf\u00e4hig. Berechne, wie viel du dieses Jahr an Steuern sparst.",
+  "challengeFiscalite02Title": "Pr\u00fcfe, ob ein BVG-Einkauf dieses Jahr abzugsf\u00e4hig w\u00e4re",
+  "challengeFiscalite02Desc": "BVG-Eink\u00e4ufe sind vom steuerbaren Einkommen abzugsf\u00e4hig. Pr\u00fcfe dein Einkaufspotenzial und die Steuerersparnis.",
+  "challengeFiscalite03Title": "Simuliere die Steuer auf einen Kapitalbezug",
+  "challengeFiscalite03Desc": "Kapitalleistungen (BVG/3a) werden getrennt zu einem reduzierten Satz besteuert. Simuliere die Steuer f\u00fcr verschiedene Betr\u00e4ge.",
+  "challengeFiscalite04Title": "Vergleiche Lohn vs. Dividende wenn du selbst\u00e4ndig bist",
+  "challengeFiscalite04Desc": "Der ideale Lohn-Dividenden-Mix h\u00e4ngt von deinem Einkommen und Kanton ab. Simuliere beide Szenarien.",
+  "challengeFiscalite05Title": "Pr\u00fcfe den Eigenmietwert deiner Liegenschaft",
+  "challengeFiscalite05Desc": "Als Eigent\u00fcmer wird der Eigenmietwert deinem steuerbaren Einkommen zugerechnet. Pr\u00fcfe, ob er korrekt ist.",
+  "challengeFiscalite06Title": "Berechne deine gesamte Steuerbelastung",
+  "challengeFiscalite06Desc": "Bundes- und Kantons- und Gemeindesteuer: Berechne deine Gesamtsteuerbelastung als Prozentsatz deines Einkommens.",
+  "challengeFiscalite07Title": "Pr\u00fcfe deine FATCA-Konformit\u00e4t",
+  "challengeFiscalite07Desc": "Als US-B\u00fcrger unterliegen deine Schweizer Konten FATCA. Pr\u00fcfe, ob deine Situation in Ordnung ist.",
+  "challengeFiscalite08Title": "Pr\u00fcfe deine Quellensteuer",
+  "challengeFiscalite08Desc": "Als Grenzg\u00e4nger wirst du an der Quelle besteuert. Pr\u00fcfe, ob der angewendete Satz deiner Situation entspricht.",
+
+  "challengePatrimoine01Title": "Berechne deine hypothekarische Tragbarkeit",
+  "challengePatrimoine01Desc": "Mit der 1/3-Regel: Pr\u00fcfe, wie viel du f\u00fcr einen Immobilienkauf leihen k\u00f6nntest.",
+  "challengePatrimoine02Title": "Simuliere SARON vs. Festhypothek f\u00fcr deine Hypothek",
+  "challengePatrimoine02Desc": "SARON (variabel) oder Festhypothek? Simuliere beide Szenarien \u00fcber 10 Jahre, um den Unterschied zu sehen.",
+  "challengePatrimoine03Title": "Vergleiche Mieten vs. Kaufen",
+  "challengePatrimoine03Desc": "Kaufen ist nicht immer besser als Mieten. Vergleiche beide Optionen \u00fcber 20 Jahre mit dem Simulator.",
+  "challengePatrimoine04Title": "Simuliere einen WEF-Vorbezug f\u00fcr Wohneigentum",
+  "challengePatrimoine04Desc": "Du kannst deine 2. S\u00e4ule zur Wohneigentumsf\u00f6rderung nutzen. Simuliere die Auswirkung auf deine Rente.",
+  "challengePatrimoine05Title": "Konsultiere deine vollst\u00e4ndige Verm\u00f6gensbilanz",
+  "challengePatrimoine05Desc": "Aktiven, Passiven, Nettoverm\u00f6gen: Mache eine Bestandsaufnahme deiner Gesamtsituation. Ein wichtiger Moment f\u00fcr Perspektive.",
+  "challengePatrimoine06Title": "Pr\u00fcfe deine j\u00e4hrliche Sparallokation",
+  "challengePatrimoine06Desc": "3a, BVG-Einkauf und Hypothekaramortisation: Wie solltest du deine Ersparnisse dieses Jahr aufteilen? Jede Wahl hat einen anderen Steuereffekt.",
+  "challengePatrimoine07Title": "Simuliere die Auswirkung der Hypothekaramortisation",
+  "challengePatrimoine07Desc": "Direkt oder indirekt \u00fcber 3a amortisieren? Simuliere beide Optionen und ihre steuerlichen Auswirkungen.",
+  "challengePatrimoine08Title": "Simuliere den Zinseszinseffekt \u00fcber 20 Jahre",
+  "challengePatrimoine08Desc": "Auch eine kleine Rendite erzeugt einen Schneeballeffekt. Simuliere das Wachstum deiner Ersparnisse \u00fcber 20 Jahre.",
+
+  "challengeEducation01Title": "Lies den Artikel zur 13. AHV-Rente",
+  "challengeEducation01Desc": "Seit 2026 erh\u00f6ht die 13. AHV-Rente deine j\u00e4hrliche Rente. Erfahre, was das konkret f\u00fcr dich bedeutet.",
+  "challengeEducation02Title": "Verstehe den Unterschied zwischen Mindest- und \u00fcberobligatorischem Umwandlungssatz",
+  "challengeEducation02Desc": "Der BVG-Umwandlungssatz von 6,8\u00a0% gilt nur f\u00fcr das Obligatorium. Deine Kasse kann beim \u00dcberobligatorium einen anderen Satz haben.",
+  "challengeEducation03Title": "Entdecke, wie die 1. S\u00e4ule funktioniert",
+  "challengeEducation03Desc": "Die AHV ist ein Umlageverfahren: Erwerbst\u00e4tige finanzieren Rentner. Verstehe die Grundlagen deiner k\u00fcnftigen Rente.",
+  "challengeEducation04Title": "Verstehe das 3-S\u00e4ulen-System",
+  "challengeEducation04Desc": "AHV + BVG + 3a: Jede S\u00e4ule hat ihre Rolle. Verstehe, wie sie sich f\u00fcr deine Rente erg\u00e4nzen.",
+  "challengeEducation05Title": "Erkunde das Konzept der Ersatzquote",
+  "challengeEducation05Desc": "Die Ersatzquote misst das Verh\u00e4ltnis zwischen deiner Rente und deinem letzten Lohn. Das g\u00e4ngige Ziel ist 60-80\u00a0%.",
+  "challengeEducation06Title": "Verstehe die BVG-Altersgutschriften nach Altersgruppe",
+  "challengeEducation06Desc": "BVG-Gutschriften nehmen mit dem Alter zu: 7\u00a0%, 10\u00a0%, 15\u00a0%, 18\u00a0%. Pr\u00fcfe, in welcher Stufe du bist.",
+  "challengeEducation07Title": "Entdecke die finanziellen Folgen des Konkubinats",
+  "challengeEducation07Desc": "Im Konkubinat hast du nicht dieselben Erbrechte wie ein Ehepaar. Pr\u00fcfe die notwendigen Absicherungen.",
+  "challengeEducation08Title": "Verstehe die Auswirkungen des Gender Gaps auf die Rente",
+  "challengeEducation08Desc": "Frauen erhalten im Durchschnitt 37\u00a0% weniger Rente. Verstehe die Ursachen und m\u00f6gliche L\u00f6sungen.",
+
+  "challengeArchetypeEu01Title": "Pr\u00fcfe deine EU-Beitragsjahre f\u00fcr die AHV",
+  "challengeArchetypeEu01Desc": "Dank bilateraler Abkommen z\u00e4hlen deine in der EU gezahlten Beitr\u00e4ge f\u00fcr deine Schweizer AHV-Rente. Fordere ein E205-Formular an.",
+  "challengeArchetypeNonEu01Title": "Pr\u00fcfe, ob ein Sozialversicherungsabkommen dein Land abdeckt",
+  "challengeArchetypeNonEu01Desc": "Ohne bilaterales Abkommen z\u00e4hlen ausl\u00e4ndische Beitr\u00e4ge nicht f\u00fcr die AHV. Pr\u00fcfe, ob dein Heimatland ein Abkommen mit der Schweiz hat.",
+  "challengeArchetypeReturning01Title": "Pr\u00fcfe dein BVG-Einkaufspotenzial nach R\u00fcckkehr in die Schweiz",
+  "challengeArchetypeReturning01Desc": "Zur\u00fcck in der Schweiz nach einem Auslandsaufenthalt? Du k\u00f6nntest ein erhebliches, steuerlich abzugsf\u00e4higes BVG-Einkaufspotenzial haben. Simuliere den Betrag."
 }

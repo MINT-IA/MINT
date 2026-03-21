@@ -20482,6 +20482,78 @@ abstract class S {
   /// **'Score stable cette semaine.'**
   String get recapFhsStable;
 
+  /// No description provided for @recapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap de la semaine'**
+  String get recapTitle;
+
+  /// No description provided for @recapPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Du {start} au {end}'**
+  String recapPeriod(String start, String end);
+
+  /// No description provided for @recapBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget'**
+  String get recapBudgetTitle;
+
+  /// No description provided for @recapBudgetSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargné cette semaine'**
+  String get recapBudgetSaved;
+
+  /// No description provided for @recapBudgetRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux d\'épargne'**
+  String get recapBudgetRate;
+
+  /// No description provided for @recapActionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions réalisées'**
+  String get recapActionsTitle;
+
+  /// No description provided for @recapActionsNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune action cette semaine'**
+  String get recapActionsNone;
+
+  /// No description provided for @recapProgressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression'**
+  String get recapProgressTitle;
+
+  /// No description provided for @recapProgressDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'{delta} pts de confiance'**
+  String recapProgressDelta(String delta);
+
+  /// No description provided for @recapHighlightsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points marquants'**
+  String get recapHighlightsTitle;
+
+  /// No description provided for @recapNextFocusTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La semaine prochaine'**
+  String get recapNextFocusTitle;
+
+  /// No description provided for @recapEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de données cette semaine'**
+  String get recapEmpty;
+
   /// No description provided for @decesProcheTitre.
   ///
   /// In fr, this message translates to:
@@ -32970,6 +33042,108 @@ abstract class S {
   /// **'Combien verser en 3a cette année ?'**
   String get rcSuggestedPromptVersement3a;
 
+  /// No description provided for @nudgeSalaryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu pensé à ton virement 3a ce mois-ci ? Chaque mois compte pour ta prévoyance.'**
+  String get nudgeSalaryBody;
+
+  /// No description provided for @nudgeTaxDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale'**
+  String get nudgeTaxDeadlineTitle;
+
+  /// No description provided for @nudgeTaxDeadlineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie la date limite de déclaration fiscale dans ton canton. As-tu pensé à tes déductions 3a et LPP ?'**
+  String get nudgeTaxDeadlineBody;
+
+  /// No description provided for @nudge3aDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière ligne droite pour ton 3a'**
+  String get nudge3aDeadlineTitle;
+
+  /// No description provided for @nudge3aDeadlineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste {days} jour(s) pour verser jusqu\'à {limit} CHF et réduire tes impôts {year}.'**
+  String nudge3aDeadlineBody(String days, String limit, String year);
+
+  /// No description provided for @nudgeBirthdayBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une étape qui peut marquer un tournant pour ta prévoyance. As-tu simulé l’impact de cette année ?'**
+  String get nudgeBirthdayBody;
+
+  /// No description provided for @nudgeProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil mérite d’être enrichi'**
+  String get nudgeProfileTitle;
+
+  /// No description provided for @nudgeProfileBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus ton profil est complet, plus MINT peut t’offrir des insights pertinents. Quelques informations suffisent.'**
+  String get nudgeProfileBody;
+
+  /// No description provided for @nudgeInactiveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça fait un moment !'**
+  String get nudgeInactiveTitle;
+
+  /// No description provided for @nudgeInactiveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation financière évolue chaque semaine. Prends 2 minutes pour vérifier ton tableau de bord.'**
+  String get nudgeInactiveBody;
+
+  /// No description provided for @nudgeGoalProgressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton objectif avance !'**
+  String get nudgeGoalProgressTitle;
+
+  /// No description provided for @nudgeGoalProgressBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as atteint {progress} % de ton objectif. Continue sur cette lancée.'**
+  String nudgeGoalProgressBody(String progress);
+
+  /// No description provided for @nudgeAnniversaryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu utilises MINT depuis un an. C’est le moment idéal pour actualiser ton profil et mesurer tes progrès.'**
+  String get nudgeAnniversaryBody;
+
+  /// No description provided for @nudgeLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fenêtre de rachat LPP'**
+  String get nudgeLppBuybackTitle;
+
+  /// No description provided for @nudgeLppBuybackBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La fin d’année {year} approche : c’est le dernier moment pour effectuer un rachat LPP déductible.'**
+  String nudgeLppBuybackBody(String year);
+
+  /// No description provided for @nudgeNewYearTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle année, nouveau départ !'**
+  String get nudgeNewYearTitle;
+
+  /// No description provided for @nudgeNewYearBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{year} : une nouvelle enveloppe 3a s’ouvre. C’est le bon moment pour planifier tes versements.'**
+  String nudgeNewYearBody(String year);
+
   /// No description provided for @rcSuggestedPromptCommencer3a.
   ///
   /// In fr, this message translates to:
@@ -33125,6 +33299,660 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Planification successorale, donations et transmission du patrimoine.'**
   String get lifecyclePhaseTransmissionDesc;
+
+  /// No description provided for @challengeWeeklyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi de la semaine'**
+  String get challengeWeeklyTitle;
+
+  /// No description provided for @challengeCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi réussi !'**
+  String get challengeCompleted;
+
+  /// No description provided for @challengeStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} semaines consécutives'**
+  String challengeStreak(int count);
+
+  /// No description provided for @challengeBudget01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie tes 3 plus grosses dépenses de la semaine'**
+  String get challengeBudget01Title;
+
+  /// No description provided for @challengeBudget01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imagine savoir exactement où part chaque franc : ouvre ton budget et repère les 3 postes les plus élevés cette semaine. Tu pourrais être surpris·e.'**
+  String get challengeBudget01Desc;
+
+  /// No description provided for @challengeBudget02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ton taux d’épargne mensuel réel'**
+  String get challengeBudget02Title;
+
+  /// No description provided for @challengeBudget02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton taux d’épargne, c’est ce qui reste après toutes les dépenses. Vérifie s’il dépasse 10 % de ton revenu net.'**
+  String get challengeBudget02Desc;
+
+  /// No description provided for @challengeBudget03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare le coût de tes assurances avec une offre alternative'**
+  String get challengeBudget03Title;
+
+  /// No description provided for @challengeBudget03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les primes d’assurance peuvent varier de 30 % d’un assureur à l’autre. Vérifie si tu pourrais économiser en changeant de caisse.'**
+  String get challengeBudget03Desc;
+
+  /// No description provided for @challengeBudget04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse tes frais fixes vs variables'**
+  String get challengeBudget04Title;
+
+  /// No description provided for @challengeBudget04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare tes charges fixes (loyer, assurances) et variables (sorties, loisirs). C’est la base pour optimiser ton budget.'**
+  String get challengeBudget04Desc;
+
+  /// No description provided for @challengeBudget05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton ratio d’endettement'**
+  String get challengeBudget05Title;
+
+  /// No description provided for @challengeBudget05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton ratio d’endettement ne devrait pas dépasser 33 % de ton revenu brut. Calcule-le pour savoir où tu en es.'**
+  String get challengeBudget05Desc;
+
+  /// No description provided for @challengeBudget06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule le coût réel de ton leasing'**
+  String get challengeBudget06Title;
+
+  /// No description provided for @challengeBudget06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un leasing, c’est plus que la mensualité : assurance, entretien, valeur résiduelle. Calcule le coût total.'**
+  String get challengeBudget06Desc;
+
+  /// No description provided for @challengeBudget07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évalue ton matelas de sécurité en mois'**
+  String get challengeBudget07Title;
+
+  /// No description provided for @challengeBudget07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien de mois pourrais-tu tenir sans revenu ? C’est une question importante pour ta tranquillité d’esprit. L’idéal est 3 à 6 mois de charges.'**
+  String get challengeBudget07Desc;
+
+  /// No description provided for @challengeBudget08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si tu pourrais réduire ton crédit à la consommation'**
+  String get challengeBudget08Title;
+
+  /// No description provided for @challengeBudget08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un crédit conso à 8-12 % est très coûteux. Regarde si tu peux accélérer le remboursement ou le consolider.'**
+  String get challengeBudget08Desc;
+
+  /// No description provided for @challengeEpargne01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mets de côté CHF 50 cette semaine'**
+  String get challengeEpargne01Title;
+
+  /// No description provided for @challengeEpargne01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même un petit montant compte : CHF 50 par semaine, c’est CHF 2’600 par an. Le plus dur, c’est de commencer.'**
+  String get challengeEpargne01Desc;
+
+  /// No description provided for @challengeEpargne02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton solde 3a et compare au plafond'**
+  String get challengeEpargne02Title;
+
+  /// No description provided for @challengeEpargne02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le plafond 3a salarié est de CHF 7’258 par an. Vérifie combien tu as déjà versé cette année.'**
+  String get challengeEpargne02Desc;
+
+  /// No description provided for @challengeEpargne03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un rachat LPP de CHF 5’000'**
+  String get challengeEpargne03Title;
+
+  /// No description provided for @challengeEpargne03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rachat LPP est déductible des impôts. Simule l’impact d’un rachat de CHF 5’000 sur ta prévoyance et ta fiscalité.'**
+  String get challengeEpargne03Desc;
+
+  /// No description provided for @challengeEpargne04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si tu peux encore verser au 3a cette année'**
+  String get challengeEpargne04Title;
+
+  /// No description provided for @challengeEpargne04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le versement 3a est annuel : si tu n’as pas encore versé le maximum, il reste peut-être du temps.'**
+  String get challengeEpargne04Desc;
+
+  /// No description provided for @challengeEpargne05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les rendements de tes comptes 3a'**
+  String get challengeEpargne05Title;
+
+  /// No description provided for @challengeEpargne05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les comptes 3a ne se valent pas. Compare le rendement de tes comptes avec le simulateur.'**
+  String get challengeEpargne05Desc;
+
+  /// No description provided for @challengeEpargne06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule le rendement réel de ton 3a après inflation'**
+  String get challengeEpargne06Title;
+
+  /// No description provided for @challengeEpargne06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rendement de 1 % avec une inflation de 1,5 %, c’est un rendement réel négatif. Vérifie ta situation.'**
+  String get challengeEpargne06Desc;
+
+  /// No description provided for @challengeEpargne07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un retrait échelonné de tes comptes 3a'**
+  String get challengeEpargne07Title;
+
+  /// No description provided for @challengeEpargne07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer tes 3a sur plusieurs années peut réduire l’impôt. Simule la stratégie de retrait échelonné.'**
+  String get challengeEpargne07Desc;
+
+  /// No description provided for @challengeEpargne08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si tu peux cotiser rétroactivement au 3a'**
+  String get challengeEpargne08Title;
+
+  /// No description provided for @challengeEpargne08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis 2025, tu peux rattraper des années sans versement. Vérifie si tu es éligible au 3a rétroactif.'**
+  String get challengeEpargne08Desc;
+
+  /// No description provided for @challengeEpargne09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton libre passage si tu as changé d’employeur'**
+  String get challengeEpargne09Title;
+
+  /// No description provided for @challengeEpargne09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lors d’un changement d’emploi, ton capital LPP est transféré sur un compte de libre passage. Vérifie que rien n’a été oublié.'**
+  String get challengeEpargne09Desc;
+
+  /// No description provided for @challengePrevoyance01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande ton extrait de compte AVS'**
+  String get challengePrevoyance01Title;
+
+  /// No description provided for @challengePrevoyance01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton extrait AVS montre tes années de cotisation et ta rente estimée. Demande-le gratuitement sur lavs.ch.'**
+  String get challengePrevoyance01Desc;
+
+  /// No description provided for @challengePrevoyance02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta couverture invalidité'**
+  String get challengePrevoyance02Title;
+
+  /// No description provided for @challengePrevoyance02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas d’invalidité, ta rente AI + LPP couvre-t-elle tes charges ? Vérifie le gap éventuel.'**
+  String get challengePrevoyance02Desc;
+
+  /// No description provided for @challengePrevoyance03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare rente vs capital pour ta LPP'**
+  String get challengePrevoyance03Title;
+
+  /// No description provided for @challengePrevoyance03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente à vie ou capital ? Chaque option a ses avantages fiscaux et de flexibilité. Compare les scénarios.'**
+  String get challengePrevoyance03Desc;
+
+  /// No description provided for @challengePrevoyance04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte ta projection retraite'**
+  String get challengePrevoyance04Title;
+
+  /// No description provided for @challengePrevoyance04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imagine ta vie à la retraite : AVS + LPP + 3a, combien auras-tu réellement ? Vérifie si tu es sur la bonne trajectoire. Chaque année compte.'**
+  String get challengePrevoyance04Desc;
+
+  /// No description provided for @challengePrevoyance05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimise ta séquence de décaissement'**
+  String get challengePrevoyance05Title;
+
+  /// No description provided for @challengePrevoyance05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ordre dans lequel tu retires tes piliers a un impact fiscal majeur. Simule différentes séquences.'**
+  String get challengePrevoyance05Desc;
+
+  /// No description provided for @challengePrevoyance06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie tes lacunes AVS'**
+  String get challengePrevoyance06Title;
+
+  /// No description provided for @challengePrevoyance06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année sans cotisation AVS réduit ta rente : l’impact peut être important sur le long terme. Vérifie si tu as des lacunes à combler.'**
+  String get challengePrevoyance06Desc;
+
+  /// No description provided for @challengePrevoyance07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifie ta succession'**
+  String get challengePrevoyance07Title;
+
+  /// No description provided for @challengePrevoyance07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui hérite de quoi en droit suisse ? Vérifie les parts réservataires et si un testament est nécessaire.'**
+  String get challengePrevoyance07Desc;
+
+  /// No description provided for @challengePrevoyance08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta couverture en cas de chômage'**
+  String get challengePrevoyance08Title;
+
+  /// No description provided for @challengePrevoyance08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perdre son emploi, c’est stressant. Savoir combien tu toucherais et pendant combien de temps peut te rassurer. Simule ta situation.'**
+  String get challengePrevoyance08Desc;
+
+  /// No description provided for @challengePrevoyance09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie la couverture invalidité de ton activité indépendante'**
+  String get challengePrevoyance09Title;
+
+  /// No description provided for @challengePrevoyance09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant qu’indépendant·e, ta couverture AI peut être insuffisante. Vérifie si une IJM complémentaire serait utile.'**
+  String get challengePrevoyance09Desc;
+
+  /// No description provided for @challengeFiscalite01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estime ton économie fiscale 3a'**
+  String get challengeFiscalite01Title;
+
+  /// No description provided for @challengeFiscalite01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque franc versé en 3a est déductible. Calcule combien tu économises en impôts cette année.'**
+  String get challengeFiscalite01Desc;
+
+  /// No description provided for @challengeFiscalite02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si un rachat LPP serait déductible cette année'**
+  String get challengeFiscalite02Title;
+
+  /// No description provided for @challengeFiscalite02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les rachats LPP sont déductibles du revenu imposable. Vérifie ton potentiel de rachat et l’économie fiscale.'**
+  String get challengeFiscalite02Desc;
+
+  /// No description provided for @challengeFiscalite03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule l’impôt sur un retrait de capital'**
+  String get challengeFiscalite03Title;
+
+  /// No description provided for @challengeFiscalite03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le retrait de capital (LPP/3a) est taxé séparément à un taux réduit. Simule l’impôt pour différents montants.'**
+  String get challengeFiscalite03Desc;
+
+  /// No description provided for @challengeFiscalite04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare salaire vs dividende si tu es indépendant·e'**
+  String get challengeFiscalite04Title;
+
+  /// No description provided for @challengeFiscalite04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mix salaire/dividende adapté à ta situation dépend de ton revenu et de ton canton. Simule les deux scénarios.'**
+  String get challengeFiscalite04Desc;
+
+  /// No description provided for @challengeFiscalite05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie la valeur locative imputée de ton bien'**
+  String get challengeFiscalite05Title;
+
+  /// No description provided for @challengeFiscalite05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu es propriétaire, la valeur locative est ajoutée à ton revenu imposable. Vérifie si elle est correcte.'**
+  String get challengeFiscalite05Desc;
+
+  /// No description provided for @challengeFiscalite06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ta charge fiscale globale'**
+  String get challengeFiscalite06Title;
+
+  /// No description provided for @challengeFiscalite06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt fédéral + cantonal + communal : calcule ta charge fiscale totale en pourcentage de ton revenu.'**
+  String get challengeFiscalite06Desc;
+
+  /// No description provided for @challengeFiscalite07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta conformité FATCA'**
+  String get challengeFiscalite07Title;
+
+  /// No description provided for @challengeFiscalite07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant que citoyen·ne US, tes comptes suisses sont soumis à FATCA. Vérifie que ta situation est en ordre.'**
+  String get challengeFiscalite07Desc;
+
+  /// No description provided for @challengeFiscalite08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton imposition à la source'**
+  String get challengeFiscalite08Title;
+
+  /// No description provided for @challengeFiscalite08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant que frontalier·ère, tu es imposé·e à la source. Vérifie que le taux appliqué correspond à ta situation.'**
+  String get challengeFiscalite08Desc;
+
+  /// No description provided for @challengePatrimoine01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ta capacité d’emprunt hypothécaire'**
+  String get challengePatrimoine01Title;
+
+  /// No description provided for @challengePatrimoine01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec la règle des 1/3, vérifie combien tu pourrais emprunter pour un achat immobilier.'**
+  String get challengePatrimoine01Desc;
+
+  /// No description provided for @challengePatrimoine02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule SARON vs taux fixe pour ton hypothèque'**
+  String get challengePatrimoine02Title;
+
+  /// No description provided for @challengePatrimoine02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'SARON (variable) ou taux fixe ? Simule les deux scénarios sur 10 ans pour voir la différence.'**
+  String get challengePatrimoine02Desc;
+
+  /// No description provided for @challengePatrimoine03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare location vs propriété'**
+  String get challengePatrimoine03Title;
+
+  /// No description provided for @challengePatrimoine03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter n’est pas toujours mieux que louer. Compare les deux options sur 20 ans avec le simulateur.'**
+  String get challengePatrimoine03Desc;
+
+  /// No description provided for @challengePatrimoine04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un EPL (retrait anticipé LPP pour ton logement)'**
+  String get challengePatrimoine04Title;
+
+  /// No description provided for @challengePatrimoine04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux utiliser ton 2e pilier pour financer ton logement. Simule l’impact sur ta retraite.'**
+  String get challengePatrimoine04Desc;
+
+  /// No description provided for @challengePatrimoine05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte ton bilan patrimonial complet'**
+  String get challengePatrimoine05Title;
+
+  /// No description provided for @challengePatrimoine05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actifs, passifs, patrimoine net : fais le point sur ta situation financière globale. C’est un moment important pour prendre du recul.'**
+  String get challengePatrimoine05Desc;
+
+  /// No description provided for @challengePatrimoine06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton allocation annuelle d’épargne'**
+  String get challengePatrimoine06Title;
+
+  /// No description provided for @challengePatrimoine06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre 3a, rachat LPP et amortissement hypothécaire, comment répartir ton épargne cette année ? Chaque choix a un impact fiscal différent.'**
+  String get challengePatrimoine06Desc;
+
+  /// No description provided for @challengePatrimoine07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule l’impact d’un amortissement hypothécaire'**
+  String get challengePatrimoine07Title;
+
+  /// No description provided for @challengePatrimoine07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortir directement ou indirectement via le 3a ? Simule les deux options et leur impact fiscal.'**
+  String get challengePatrimoine07Desc;
+
+  /// No description provided for @challengePatrimoine08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule l’effet des intérêts composés sur 20 ans'**
+  String get challengePatrimoine08Title;
+
+  /// No description provided for @challengePatrimoine08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même un petit rendement crée un effet boule de neige. Simule la croissance de ton épargne sur 20 ans.'**
+  String get challengePatrimoine08Desc;
+
+  /// No description provided for @challengeEducation01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lis l’article sur la 13e rente AVS'**
+  String get challengeEducation01Title;
+
+  /// No description provided for @challengeEducation01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis 2026, la 13e rente AVS augmente ta rente annuelle. Découvre ce que ça change concrètement pour toi.'**
+  String get challengeEducation01Desc;
+
+  /// No description provided for @challengeEducation02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends la différence entre taux de conversion min et surobligatoire'**
+  String get challengeEducation02Title;
+
+  /// No description provided for @challengeEducation02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de conversion LPP de 6,8 % ne s’applique qu’au minimum. Ta caisse peut avoir un taux différent pour le surobligatoire.'**
+  String get challengeEducation02Desc;
+
+  /// No description provided for @challengeEducation03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre comment fonctionne le 1er pilier'**
+  String get challengeEducation03Title;
+
+  /// No description provided for @challengeEducation03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’AVS est un système par répartition : les actifs financent les retraités. Comprends les bases de ta future rente.'**
+  String get challengeEducation03Desc;
+
+  /// No description provided for @challengeEducation04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends le système des 3 piliers'**
+  String get challengeEducation04Title;
+
+  /// No description provided for @challengeEducation04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS + LPP + 3a : chaque pilier a son rôle. Comprends comment ils se complètent pour ta retraite.'**
+  String get challengeEducation04Desc;
+
+  /// No description provided for @challengeEducation05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explore le concept de taux de remplacement'**
+  String get challengeEducation05Title;
+
+  /// No description provided for @challengeEducation05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de remplacement mesure le rapport entre ta rente et ton dernier salaire. L’objectif courant est 60-80 %.'**
+  String get challengeEducation05Desc;
+
+  /// No description provided for @challengeEducation06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends les bonifications LPP par tranche d’âge'**
+  String get challengeEducation06Title;
+
+  /// No description provided for @challengeEducation06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les bonifications LPP augmentent avec l’âge : 7 %, 10 %, 15 %, 18 %. Vérifie dans quelle tranche tu es.'**
+  String get challengeEducation06Desc;
+
+  /// No description provided for @challengeEducation07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre les conséquences financières du concubinage'**
+  String get challengeEducation07Title;
+
+  /// No description provided for @challengeEducation07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage, tu n’as pas les mêmes droits successoraux qu’un·e marié·e. Vérifie les protections nécessaires.'**
+  String get challengeEducation07Desc;
+
+  /// No description provided for @challengeEducation08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends l’impact du gender gap sur la retraite'**
+  String get challengeEducation08Title;
+
+  /// No description provided for @challengeEducation08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les femmes touchent en moyenne 37 % de rente en moins. Comprends les causes et les solutions possibles.'**
+  String get challengeEducation08Desc;
+
+  /// No description provided for @challengeArchetypeEu01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie tes années de cotisation EU pour l’AVS'**
+  String get challengeArchetypeEu01Title;
+
+  /// No description provided for @challengeArchetypeEu01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Grâce aux accords bilatéraux, tes années cotisées dans l’UE comptent pour ta rente AVS suisse. Demande une attestation E205 pour vérifier la totalisation.'**
+  String get challengeArchetypeEu01Desc;
+
+  /// No description provided for @challengeArchetypeNonEu01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si une convention de sécurité sociale couvre ton pays'**
+  String get challengeArchetypeNonEu01Title;
+
+  /// No description provided for @challengeArchetypeNonEu01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans convention bilatérale, tes cotisations étrangères ne comptent pas pour l’AVS. Vérifie si ton pays d’origine a un accord avec la Suisse.'**
+  String get challengeArchetypeNonEu01Desc;
+
+  /// No description provided for @challengeArchetypeReturning01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton potentiel de rachat LPP après ton retour en Suisse'**
+  String get challengeArchetypeReturning01Title;
+
+  /// No description provided for @challengeArchetypeReturning01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'De retour en Suisse après un séjour à l’étranger ? Tu pourrais avoir un potentiel de rachat LPP important, déductible fiscalement. Simule le montant.'**
+  String get challengeArchetypeReturning01Desc;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
