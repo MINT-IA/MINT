@@ -176,6 +176,8 @@ def build_system_prompt(
     missing = []
     if not age:
         missing.append("age")
+    if first_name == 'utilisateur' or not first_name:
+        missing.append("name")
     if not salary_annual:
         missing.append("salary")
     if not canton:

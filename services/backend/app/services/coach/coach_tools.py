@@ -218,7 +218,7 @@ COACH_TOOLS = [
                 "field": {
                     "type": "string",
                     "enum": [
-                        "age", "salary", "canton", "civil_status",
+                        "name", "age", "salary", "canton", "civil_status",
                         "employment_status", "children", "lpp_certificate",
                     ],
                     "description": "Le champ a demander",
