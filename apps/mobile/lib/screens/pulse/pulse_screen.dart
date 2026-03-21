@@ -186,11 +186,13 @@ class _PulseScreenState extends State<PulseScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final dismissed = await NudgePersistence.getDismissedIds(prefs);
+      final lastActivity = await NudgePersistence.getLastActivityTime(prefs);
       await NudgePersistence.recordActivity(prefs, now: DateTime.now());
       final nudges = NudgeEngine.evaluate(
         profile: profile,
         now: DateTime.now(),
         dismissedNudgeIds: dismissed,
+        lastActivityTime: lastActivity,
       );
       if (mounted && nudges != _activeNudges) {
         setState(() => _activeNudges = nudges);
@@ -530,8 +532,8 @@ class _PulseScreenState extends State<PulseScreen> {
             const SizedBox(height: MintSpacing.sm),
             GestureDetector(
               onTap: () {
-                // Route to the relevant screen via coach with the intent tag.
-                context.push('/coach', extra: {'prompt': nudge.intentTag});
+                // Route to coach chat with the intent tag as initial prompt.
+                context.push('/coach/chat?prompt=${Uri.encodeComponent(nudge.intentTag)}');
               },
               child: Text(
                 l.routeSuggestionCta,
@@ -547,25 +549,40 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   /// Resolve a nudge ARB key to its localized text.
+  /// Handles both simple getters and parameterized methods.
   /// Falls back to the key name if not found.
   String _resolveNudgeText(String key, Map<String, String>? params, S l) {
-    // Nudge keys are defined as getter-style in the generated localizations.
-    // We use a static map for the known keys to avoid reflection.
-    // This is the pragmatic approach for a finite set of nudge keys.
-    final map = <String, String>{
-      'nudgeSalaryTitle': l.nudgeSalaryTitle,
-      'nudgeSalaryBody': l.nudgeSalaryBody,
-      'nudgeTaxDeadlineTitle': l.nudgeTaxDeadlineTitle,
-      'nudgeTaxDeadlineBody': l.nudgeTaxDeadlineBody,
-      'nudgeProfileTitle': l.nudgeProfileTitle,
-      'nudgeProfileBody': l.nudgeProfileBody,
-      'nudgeInactiveTitle': l.nudgeInactiveTitle,
-      'nudgeInactiveBody': l.nudgeInactiveBody,
-      'nudgeGoalProgressTitle': l.nudgeGoalProgressTitle,
-      'nudgeNewYearTitle': l.nudgeNewYearTitle,
-      'nudgeLppBuybackTitle': l.nudgeLppBuybackTitle,
-    };
-    return map[key] ?? key;
+    final p = params ?? {};
+    switch (key) {
+      // Simple getters
+      case 'nudgeSalaryTitle': return l.nudgeSalaryTitle;
+      case 'nudgeSalaryBody': return l.nudgeSalaryBody;
+      case 'nudgeTaxDeadlineTitle': return l.nudgeTaxDeadlineTitle;
+      case 'nudgeTaxDeadlineBody': return l.nudgeTaxDeadlineBody;
+      case 'nudge3aDeadlineTitle': return l.nudge3aDeadlineTitle;
+      case 'nudgeProfileTitle': return l.nudgeProfileTitle;
+      case 'nudgeProfileBody': return l.nudgeProfileBody;
+      case 'nudgeInactiveTitle': return l.nudgeInactiveTitle;
+      case 'nudgeInactiveBody': return l.nudgeInactiveBody;
+      case 'nudgeGoalProgressTitle': return l.nudgeGoalProgressTitle;
+      case 'nudgeAnniversaryTitle': return l.nudgeAnniversaryTitle;
+      case 'nudgeAnniversaryBody': return l.nudgeAnniversaryBody;
+      case 'nudgeLppBuybackTitle': return l.nudgeLppBuybackTitle;
+      case 'nudgeNewYearTitle': return l.nudgeNewYearTitle;
+      // Parameterized methods
+      case 'nudgeBirthdayTitle': return l.nudgeBirthdayTitle(p['age'] ?? '');
+      case 'nudgeBirthdayBody': return l.nudgeBirthdayBody;
+      case 'nudge3aDeadlineBody':
+        return l.nudge3aDeadlineBody(
+          p['days'] ?? '', p['limit'] ?? '', p['year'] ?? '');
+      case 'nudgeGoalProgressBody':
+        return l.nudgeGoalProgressBody(p['progress'] ?? '');
+      case 'nudgeLppBuybackBody':
+        return l.nudgeLppBuybackBody(p['year'] ?? '');
+      case 'nudgeNewYearBody':
+        return l.nudgeNewYearBody(p['year'] ?? '');
+      default: return key;
+    }
   }
 
   Widget _buildSecondarySignals(CoachProfile profile, S l) {

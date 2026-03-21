@@ -34661,6 +34661,804 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tes données LPP'**
   String get rcLppLabel;
+
+  /// No description provided for @expertTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get expertTitle;
+
+  /// No description provided for @expertSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT prépare ton dossier pour un rendez-vous efficace'**
+  String get expertSubtitle;
+
+  /// No description provided for @expertDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT facilite la mise en relation — ne remplace pas un conseil personnalisé (LSFin art. 3)'**
+  String get expertDisclaimer;
+
+  /// No description provided for @expertSpecRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite'**
+  String get expertSpecRetirement;
+
+  /// No description provided for @expertSpecSuccession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succession'**
+  String get expertSpecSuccession;
+
+  /// No description provided for @expertSpecExpatriation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expatriation'**
+  String get expertSpecExpatriation;
+
+  /// No description provided for @expertSpecDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorce'**
+  String get expertSpecDivorce;
+
+  /// No description provided for @expertSpecSelfEmployment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e'**
+  String get expertSpecSelfEmployment;
+
+  /// No description provided for @expertSpecRealEstate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Immobilier'**
+  String get expertSpecRealEstate;
+
+  /// No description provided for @expertSpecTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get expertSpecTax;
+
+  /// No description provided for @expertSpecDebt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion de dettes'**
+  String get expertSpecDebt;
+
+  /// No description provided for @expertDossierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton dossier préparé'**
+  String get expertDossierTitle;
+
+  /// No description provided for @expertDossierIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil incomplet — {count} données manquantes'**
+  String expertDossierIncomplete(int count);
+
+  /// No description provided for @expertRequestSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander un rendez-vous'**
+  String get expertRequestSession;
+
+  /// No description provided for @expertSessionRequested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée'**
+  String get expertSessionRequested;
+
+  /// No description provided for @expertMissingData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée estimée — à confirmer avec le·la spécialiste'**
+  String get expertMissingData;
+
+  /// No description provided for @expertDossierSectionSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation personnelle'**
+  String get expertDossierSectionSituation;
+
+  /// No description provided for @expertDossierSectionPrevoyance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance'**
+  String get expertDossierSectionPrevoyance;
+
+  /// No description provided for @expertDossierSectionPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine'**
+  String get expertDossierSectionPatrimoine;
+
+  /// No description provided for @expertDossierSectionFinancement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Financement'**
+  String get expertDossierSectionFinancement;
+
+  /// No description provided for @expertDossierSectionDeductions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions fiscales'**
+  String get expertDossierSectionDeductions;
+
+  /// No description provided for @expertDossierSectionBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget & dettes'**
+  String get expertDossierSectionBudget;
+
+  /// No description provided for @expertItemAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get expertItemAge;
+
+  /// No description provided for @expertItemSalaryRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut annuel'**
+  String get expertItemSalaryRange;
+
+  /// No description provided for @expertItemCoupleStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation familiale'**
+  String get expertItemCoupleStatus;
+
+  /// No description provided for @expertItemConjointAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge du·de la conjoint·e'**
+  String get expertItemConjointAge;
+
+  /// No description provided for @expertItemLppBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get expertItemLppBalance;
+
+  /// No description provided for @expertItem3aStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a'**
+  String get expertItem3aStatus;
+
+  /// No description provided for @expertItem3aBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a'**
+  String get expertItem3aBalance;
+
+  /// No description provided for @expertItemLppBuybackPotential.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP possible'**
+  String get expertItemLppBuybackPotential;
+
+  /// No description provided for @expertItemAvsYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années AVS cotisées'**
+  String get expertItemAvsYears;
+
+  /// No description provided for @expertItemReplacementRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplacement estimé'**
+  String get expertItemReplacementRate;
+
+  /// No description provided for @expertItemFamilyStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation civile'**
+  String get expertItemFamilyStatus;
+
+  /// No description provided for @expertItemChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfants'**
+  String get expertItemChildren;
+
+  /// No description provided for @expertItemPatrimoineRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine estimé'**
+  String get expertItemPatrimoineRange;
+
+  /// No description provided for @expertItemPropertyStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement'**
+  String get expertItemPropertyStatus;
+
+  /// No description provided for @expertItemPropertyValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur immobilière'**
+  String get expertItemPropertyValue;
+
+  /// No description provided for @expertItemNationality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nationalité'**
+  String get expertItemNationality;
+
+  /// No description provided for @expertItemArchetype.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil fiscal'**
+  String get expertItemArchetype;
+
+  /// No description provided for @expertItemYearsInCh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années en Suisse'**
+  String get expertItemYearsInCh;
+
+  /// No description provided for @expertItemResidencePermit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis de séjour'**
+  String get expertItemResidencePermit;
+
+  /// No description provided for @expertItemAvsStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut AVS'**
+  String get expertItemAvsStatus;
+
+  /// No description provided for @expertItemAvsGaps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacunes AVS'**
+  String get expertItemAvsGaps;
+
+  /// No description provided for @expertItemCivilStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut civil'**
+  String get expertItemCivilStatus;
+
+  /// No description provided for @expertItemConjointLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP conjoint·e'**
+  String get expertItemConjointLpp;
+
+  /// No description provided for @expertItemEmploymentStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut professionnel'**
+  String get expertItemEmploymentStatus;
+
+  /// No description provided for @expertItemLppCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture LPP'**
+  String get expertItemLppCoverage;
+
+  /// No description provided for @expertItemCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get expertItemCanton;
+
+  /// No description provided for @expertItemCurrentHousing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement actuel'**
+  String get expertItemCurrentHousing;
+
+  /// No description provided for @expertItemEquityEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds propres disponibles'**
+  String get expertItemEquityEstimate;
+
+  /// No description provided for @expertItemLppEpl.
+  ///
+  /// In fr, this message translates to:
+  /// **'EPL LPP possible'**
+  String get expertItemLppEpl;
+
+  /// No description provided for @expertItemMortgageBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque en cours'**
+  String get expertItemMortgageBalance;
+
+  /// No description provided for @expertItemDebtRatio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio d\'endettement'**
+  String get expertItemDebtRatio;
+
+  /// No description provided for @expertItemChargesVsIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges vs revenu'**
+  String get expertItemChargesVsIncome;
+
+  /// No description provided for @expertItemDebtType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Types de dettes'**
+  String get expertItemDebtType;
+
+  /// No description provided for @expertValueUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get expertValueUnknown;
+
+  /// No description provided for @expertValueNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun·e'**
+  String get expertValueNone;
+
+  /// No description provided for @expertValueOwner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Propriétaire'**
+  String get expertValueOwner;
+
+  /// No description provided for @expertValueTenant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Locataire'**
+  String get expertValueTenant;
+
+  /// No description provided for @expertValueSingle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célibataire'**
+  String get expertValueSingle;
+
+  /// No description provided for @expertValueMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e'**
+  String get expertValueMarried;
+
+  /// No description provided for @expertValueDivorced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorcé·e'**
+  String get expertValueDivorced;
+
+  /// No description provided for @expertValueWidowed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuf·ve'**
+  String get expertValueWidowed;
+
+  /// No description provided for @expertValueConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage'**
+  String get expertValueConcubinage;
+
+  /// No description provided for @expertValue3aActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get expertValue3aActive;
+
+  /// No description provided for @expertValue3aInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inactif'**
+  String get expertValue3aInactive;
+
+  /// No description provided for @expertValueLppYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couvert·e'**
+  String get expertValueLppYes;
+
+  /// No description provided for @expertValueLppNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non couvert·e'**
+  String get expertValueLppNo;
+
+  /// No description provided for @expertValueLppEplPossible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Possible (à vérifier)'**
+  String get expertValueLppEplPossible;
+
+  /// No description provided for @expertValueDebtNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de dettes'**
+  String get expertValueDebtNone;
+
+  /// No description provided for @expertValueDebtLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible (< 50 % du revenu annuel)'**
+  String get expertValueDebtLow;
+
+  /// No description provided for @expertValueDebtMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modéré (50–100 % du revenu annuel)'**
+  String get expertValueDebtMedium;
+
+  /// No description provided for @expertValueDebtHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élevé (> 100 % du revenu annuel)'**
+  String get expertValueDebtHigh;
+
+  /// No description provided for @expertValueChargesNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune charge de dette'**
+  String get expertValueChargesNone;
+
+  /// No description provided for @expertValueSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e'**
+  String get expertValueSalarie;
+
+  /// No description provided for @expertValueIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e'**
+  String get expertValueIndependant;
+
+  /// No description provided for @expertValueChomage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au chômage'**
+  String get expertValueChomage;
+
+  /// No description provided for @expertValueRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraité·e'**
+  String get expertValueRetraite;
+
+  /// No description provided for @expertDebtTypeConso.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit conso'**
+  String get expertDebtTypeConso;
+
+  /// No description provided for @expertDebtTypeLeasing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Leasing'**
+  String get expertDebtTypeLeasing;
+
+  /// No description provided for @expertDebtTypeHypo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque'**
+  String get expertDebtTypeHypo;
+
+  /// No description provided for @expertDebtTypeAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres dettes'**
+  String get expertDebtTypeAutre;
+
+  /// No description provided for @expertArchetypeSwissNative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résident·e suisse'**
+  String get expertArchetypeSwissNative;
+
+  /// No description provided for @expertArchetypeExpatEu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expat EU/AELE'**
+  String get expertArchetypeExpatEu;
+
+  /// No description provided for @expertArchetypeExpatNonEu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expat hors EU'**
+  String get expertArchetypeExpatNonEu;
+
+  /// No description provided for @expertArchetypeExpatUs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résident·e US (FATCA)'**
+  String get expertArchetypeExpatUs;
+
+  /// No description provided for @expertArchetypeIndepWithLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e avec LPP'**
+  String get expertArchetypeIndepWithLpp;
+
+  /// No description provided for @expertArchetypeIndepNoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e sans LPP'**
+  String get expertArchetypeIndepNoLpp;
+
+  /// No description provided for @expertArchetypeCrossBorder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frontalier·ère'**
+  String get expertArchetypeCrossBorder;
+
+  /// No description provided for @expertArchetypeReturningSwiss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suisse de retour'**
+  String get expertArchetypeReturningSwiss;
+
+  /// No description provided for @expertMissingLppBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP non renseigné'**
+  String get expertMissingLppBalance;
+
+  /// No description provided for @expertMissingAvsYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années AVS non renseignées'**
+  String get expertMissingAvsYears;
+
+  /// No description provided for @expertMissingLppBuyback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacune de rachat LPP inconnue'**
+  String get expertMissingLppBuyback;
+
+  /// No description provided for @expertMissing3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a non renseigné'**
+  String get expertMissing3a;
+
+  /// No description provided for @expertMissingConjoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données conjoint·e manquantes'**
+  String get expertMissingConjoint;
+
+  /// No description provided for @expertMissingPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine non renseigné'**
+  String get expertMissingPatrimoine;
+
+  /// No description provided for @expertMissingHousing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation logement inconnue'**
+  String get expertMissingHousing;
+
+  /// No description provided for @expertMissingChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants non renseigné'**
+  String get expertMissingChildren;
+
+  /// No description provided for @expertMissingNationality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nationalité non renseignée'**
+  String get expertMissingNationality;
+
+  /// No description provided for @expertMissingArrivalAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge d\'arrivée en Suisse non renseigné'**
+  String get expertMissingArrivalAge;
+
+  /// No description provided for @expertMissingPermit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis de séjour non renseigné'**
+  String get expertMissingPermit;
+
+  /// No description provided for @expertMissingConjointLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP conjoint·e non renseignée'**
+  String get expertMissingConjointLpp;
+
+  /// No description provided for @expertMissingIndependantStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut indépendant non confirmé'**
+  String get expertMissingIndependantStatus;
+
+  /// No description provided for @expertMissingLppCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture LPP non renseignée'**
+  String get expertMissingLppCoverage;
+
+  /// No description provided for @expertMissingCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton non renseigné'**
+  String get expertMissingCanton;
+
+  /// No description provided for @expertMissingEquity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds propres non renseignés'**
+  String get expertMissingEquity;
+
+  /// No description provided for @expertMissingHousingStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut logement non renseigné'**
+  String get expertMissingHousingStatus;
+
+  /// No description provided for @expertMissingDebtDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail des dettes manquant'**
+  String get expertMissingDebtDetail;
+
+  /// No description provided for @expertMissingMensualites.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensualités de dettes non renseignées'**
+  String get expertMissingMensualites;
+
+  /// No description provided for @agentFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formulaire pré-rempli'**
+  String get agentFormTitle;
+
+  /// No description provided for @agentFormDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie chaque champ avant envoi. MINT ne soumet rien à ta place.'**
+  String get agentFormDisclaimer;
+
+  /// No description provided for @agentFormValidateAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme avoir vérifié'**
+  String get agentFormValidateAll;
+
+  /// No description provided for @agentFormEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé — à confirmer'**
+  String get agentFormEstimated;
+
+  /// No description provided for @agentLetterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lettre préparée'**
+  String get agentLetterTitle;
+
+  /// No description provided for @agentLetterDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adapte et envoie toi-même. MINT ne transmet rien.'**
+  String get agentLetterDisclaimer;
+
+  /// No description provided for @agentLetterPensionSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande d\'extrait de prévoyance'**
+  String get agentLetterPensionSubject;
+
+  /// No description provided for @agentLetterTransferSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de transfert de libre passage'**
+  String get agentLetterTransferSubject;
+
+  /// No description provided for @agentLetterAvsSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande d\'extrait de compte AVS'**
+  String get agentLetterAvsSubject;
+
+  /// No description provided for @agentLetterPlaceholderName.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Ton nom complet]'**
+  String get agentLetterPlaceholderName;
+
+  /// No description provided for @agentLetterPlaceholderAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Ton adresse]'**
+  String get agentLetterPlaceholderAddress;
+
+  /// No description provided for @agentLetterPlaceholderSsn.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Ton numéro AVS]'**
+  String get agentLetterPlaceholderSsn;
+
+  /// No description provided for @agentLetterPlaceholderDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Date]'**
+  String get agentLetterPlaceholderDate;
+
+  /// No description provided for @agentTaxFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration d\'impôt — pré-remplissage'**
+  String get agentTaxFormTitle;
+
+  /// No description provided for @agent3aFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation 3a'**
+  String get agent3aFormTitle;
+
+  /// No description provided for @agentLppFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formulaire de rachat LPP'**
+  String get agentLppFormTitle;
+
+  /// No description provided for @agentFieldSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : {source}'**
+  String agentFieldSource(String source);
+
+  /// No description provided for @agentValidationRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation requise avant toute utilisation'**
+  String get agentValidationRequired;
+
+  /// No description provided for @agentOutputDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier, fiscal ou juridique. Vérifie chaque information. Conforme à la LSFin.'**
+  String get agentOutputDisclaimer;
+
+  /// No description provided for @agentNoAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne soumet, ne transmet et n\'exécute rien automatiquement.'**
+  String get agentNoAction;
+
+  /// No description provided for @agentSpecialistLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'un·e spécialiste agréé·e'**
+  String get agentSpecialistLabel;
+
+  /// No description provided for @agentLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de rachat LPP'**
+  String get agentLppBuybackTitle;
+
+  /// No description provided for @agentPensionFundSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de certificat de prévoyance'**
+  String get agentPensionFundSubject;
+
+  /// No description provided for @agentLppTransferSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de transfert de prévoyance (libre passage)'**
+  String get agentLppTransferSubject;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

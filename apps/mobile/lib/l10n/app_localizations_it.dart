@@ -19664,4 +19664,419 @@ class SIt extends S {
 
   @override
   String get rcLppLabel => 'I tuoi dati LPP';
+
+  @override
+  String get expertTitle => 'Consultare uno·a specialista';
+
+  @override
+  String get expertSubtitle =>
+      'MINT prepara il tuo dossier per un appuntamento efficiente';
+
+  @override
+  String get expertDisclaimer =>
+      'MINT facilita la messa in contatto — non sostituisce una consulenza personalizzata (LSFin art. 3)';
+
+  @override
+  String get expertSpecRetirement => 'Pensione';
+
+  @override
+  String get expertSpecSuccession => 'Successione';
+
+  @override
+  String get expertSpecExpatriation => 'Espatrio';
+
+  @override
+  String get expertSpecDivorce => 'Divorzio';
+
+  @override
+  String get expertSpecSelfEmployment => 'Indipendente';
+
+  @override
+  String get expertSpecRealEstate => 'Immobiliare';
+
+  @override
+  String get expertSpecTax => 'Fiscalità';
+
+  @override
+  String get expertSpecDebt => 'Gestione debiti';
+
+  @override
+  String get expertDossierTitle => 'Il tuo dossier preparato';
+
+  @override
+  String expertDossierIncomplete(int count) {
+    return 'Profilo incompleto — $count dati mancanti';
+  }
+
+  @override
+  String get expertRequestSession => 'Richiedere un appuntamento';
+
+  @override
+  String get expertSessionRequested => 'Richiesta inviata';
+
+  @override
+  String get expertMissingData =>
+      'Valore stimato — da confermare con lo·la specialista';
+
+  @override
+  String get expertDossierSectionSituation => 'Situazione personale';
+
+  @override
+  String get expertDossierSectionPrevoyance => 'Previdenza';
+
+  @override
+  String get expertDossierSectionPatrimoine => 'Patrimonio';
+
+  @override
+  String get expertDossierSectionFinancement => 'Finanziamento';
+
+  @override
+  String get expertDossierSectionDeductions => 'Deduzioni fiscali';
+
+  @override
+  String get expertDossierSectionBudget => 'Budget e debiti';
+
+  @override
+  String get expertItemAge => 'Età';
+
+  @override
+  String get expertItemSalaryRange => 'Reddito lordo annuo';
+
+  @override
+  String get expertItemCoupleStatus => 'Situazione familiare';
+
+  @override
+  String get expertItemConjointAge => 'Età del·della coniuge';
+
+  @override
+  String get expertItemLppBalance => 'Avere LPP';
+
+  @override
+  String get expertItem3aStatus => 'Pilastro 3a';
+
+  @override
+  String get expertItem3aBalance => 'Capitale 3a';
+
+  @override
+  String get expertItemLppBuybackPotential => 'Riscatto LPP possibile';
+
+  @override
+  String get expertItemAvsYears => 'Anni di contribuzione AVS';
+
+  @override
+  String get expertItemReplacementRate => 'Tasso di sostituzione stimato';
+
+  @override
+  String get expertItemFamilyStatus => 'Stato civile';
+
+  @override
+  String get expertItemChildren => 'Figli';
+
+  @override
+  String get expertItemPatrimoineRange => 'Patrimonio stimato';
+
+  @override
+  String get expertItemPropertyStatus => 'Abitazione';
+
+  @override
+  String get expertItemPropertyValue => 'Valore immobiliare';
+
+  @override
+  String get expertItemNationality => 'Nazionalità';
+
+  @override
+  String get expertItemArchetype => 'Profilo fiscale';
+
+  @override
+  String get expertItemYearsInCh => 'Anni in Svizzera';
+
+  @override
+  String get expertItemResidencePermit => 'Permesso di dimora';
+
+  @override
+  String get expertItemAvsStatus => 'Stato AVS';
+
+  @override
+  String get expertItemAvsGaps => 'Lacune AVS';
+
+  @override
+  String get expertItemCivilStatus => 'Stato civile';
+
+  @override
+  String get expertItemConjointLpp => 'LPP del·della coniuge';
+
+  @override
+  String get expertItemEmploymentStatus => 'Stato professionale';
+
+  @override
+  String get expertItemLppCoverage => 'Copertura LPP';
+
+  @override
+  String get expertItemCanton => 'Cantone';
+
+  @override
+  String get expertItemCurrentHousing => 'Abitazione attuale';
+
+  @override
+  String get expertItemEquityEstimate => 'Fondi propri disponibili';
+
+  @override
+  String get expertItemLppEpl => 'EPL possibile';
+
+  @override
+  String get expertItemMortgageBalance => 'Ipoteca in corso';
+
+  @override
+  String get expertItemDebtRatio => 'Rapporto di indebitamento';
+
+  @override
+  String get expertItemChargesVsIncome => 'Oneri vs reddito';
+
+  @override
+  String get expertItemDebtType => 'Tipi di debito';
+
+  @override
+  String get expertValueUnknown => 'Non indicato';
+
+  @override
+  String get expertValueNone => 'Nessuno·a';
+
+  @override
+  String get expertValueOwner => 'Proprietario·a';
+
+  @override
+  String get expertValueTenant => 'Inquilino·a';
+
+  @override
+  String get expertValueSingle => 'Celibe/Nubile';
+
+  @override
+  String get expertValueMarried => 'Coniugato·a';
+
+  @override
+  String get expertValueDivorced => 'Divorziato·a';
+
+  @override
+  String get expertValueWidowed => 'Vedovo·a';
+
+  @override
+  String get expertValueConcubinage => 'Convivente';
+
+  @override
+  String get expertValue3aActive => 'Attivo';
+
+  @override
+  String get expertValue3aInactive => 'Inattivo';
+
+  @override
+  String get expertValueLppYes => 'Coperto·a';
+
+  @override
+  String get expertValueLppNo => 'Non coperto·a';
+
+  @override
+  String get expertValueLppEplPossible => 'Possibile (da verificare)';
+
+  @override
+  String get expertValueDebtNone => 'Nessun debito';
+
+  @override
+  String get expertValueDebtLow => 'Basso (< 50 % del reddito annuo)';
+
+  @override
+  String get expertValueDebtMedium => 'Moderato (50–100 % del reddito annuo)';
+
+  @override
+  String get expertValueDebtHigh => 'Alto (> 100 % del reddito annuo)';
+
+  @override
+  String get expertValueChargesNone => 'Nessun onere debitorio';
+
+  @override
+  String get expertValueSalarie => 'Dipendente';
+
+  @override
+  String get expertValueIndependant => 'Indipendente';
+
+  @override
+  String get expertValueChomage => 'Disoccupato·a';
+
+  @override
+  String get expertValueRetraite => 'Pensionato·a';
+
+  @override
+  String get expertDebtTypeConso => 'Credito al consumo';
+
+  @override
+  String get expertDebtTypeLeasing => 'Leasing';
+
+  @override
+  String get expertDebtTypeHypo => 'Ipoteca';
+
+  @override
+  String get expertDebtTypeAutre => 'Altri debiti';
+
+  @override
+  String get expertArchetypeSwissNative => 'Residente svizzero·a';
+
+  @override
+  String get expertArchetypeExpatEu => 'Expat UE/AELS';
+
+  @override
+  String get expertArchetypeExpatNonEu => 'Expat non-UE';
+
+  @override
+  String get expertArchetypeExpatUs => 'Residente US (FATCA)';
+
+  @override
+  String get expertArchetypeIndepWithLpp => 'Indipendente con LPP';
+
+  @override
+  String get expertArchetypeIndepNoLpp => 'Indipendente senza LPP';
+
+  @override
+  String get expertArchetypeCrossBorder => 'Lavoratore·rice frontaliero·a';
+
+  @override
+  String get expertArchetypeReturningSwiss => 'Svizzero·a di ritorno';
+
+  @override
+  String get expertMissingLppBalance => 'Avere LPP non indicato';
+
+  @override
+  String get expertMissingAvsYears => 'Anni AVS non indicati';
+
+  @override
+  String get expertMissingLppBuyback => 'Lacuna riscatto LPP sconosciuta';
+
+  @override
+  String get expertMissing3a => 'Capitale 3a non indicato';
+
+  @override
+  String get expertMissingConjoint => 'Dati coniuge mancanti';
+
+  @override
+  String get expertMissingPatrimoine => 'Patrimonio non indicato';
+
+  @override
+  String get expertMissingHousing => 'Situazione abitativa sconosciuta';
+
+  @override
+  String get expertMissingChildren => 'Numero di figli non indicato';
+
+  @override
+  String get expertMissingNationality => 'Nazionalità non indicata';
+
+  @override
+  String get expertMissingArrivalAge =>
+      'Età di arrivo in Svizzera non indicata';
+
+  @override
+  String get expertMissingPermit => 'Permesso di dimora non indicato';
+
+  @override
+  String get expertMissingConjointLpp => 'LPP del·della coniuge non indicata';
+
+  @override
+  String get expertMissingIndependantStatus =>
+      'Stato indipendente non confermato';
+
+  @override
+  String get expertMissingLppCoverage => 'Copertura LPP non indicata';
+
+  @override
+  String get expertMissingCanton => 'Cantone non indicato';
+
+  @override
+  String get expertMissingEquity => 'Fondi propri non indicati';
+
+  @override
+  String get expertMissingHousingStatus => 'Stato abitativo non indicato';
+
+  @override
+  String get expertMissingDebtDetail => 'Dettaglio debiti mancante';
+
+  @override
+  String get expertMissingMensualites => 'Rate mensili debiti non indicate';
+
+  @override
+  String get agentFormTitle => 'Formulaire pré-rempli';
+
+  @override
+  String get agentFormDisclaimer =>
+      'Vérifie chaque champ avant envoi. MINT ne soumet rien à ta place.';
+
+  @override
+  String get agentFormValidateAll => 'Je confirme avoir vérifié';
+
+  @override
+  String get agentFormEstimated => 'Estimé — à confirmer';
+
+  @override
+  String get agentLetterTitle => 'Lettre préparée';
+
+  @override
+  String get agentLetterDisclaimer =>
+      'Adapte et envoie toi-même. MINT ne transmet rien.';
+
+  @override
+  String get agentLetterPensionSubject => 'Demande d\'extrait de prévoyance';
+
+  @override
+  String get agentLetterTransferSubject =>
+      'Demande de transfert de libre passage';
+
+  @override
+  String get agentLetterAvsSubject => 'Demande d\'extrait de compte AVS';
+
+  @override
+  String get agentLetterPlaceholderName => '[Ton nom complet]';
+
+  @override
+  String get agentLetterPlaceholderAddress => '[Ton adresse]';
+
+  @override
+  String get agentLetterPlaceholderSsn => '[Ton numéro AVS]';
+
+  @override
+  String get agentLetterPlaceholderDate => '[Date]';
+
+  @override
+  String get agentTaxFormTitle => 'Déclaration d\'impôt — pré-remplissage';
+
+  @override
+  String get agent3aFormTitle => 'Attestation 3a';
+
+  @override
+  String get agentLppFormTitle => 'Formulaire de rachat LPP';
+
+  @override
+  String agentFieldSource(String source) {
+    return 'Source : $source';
+  }
+
+  @override
+  String get agentValidationRequired =>
+      'Validation requise avant toute utilisation';
+
+  @override
+  String get agentOutputDisclaimer =>
+      'Outil éducatif — ne constitue pas un conseil financier, fiscal ou juridique. Vérifie chaque information. Conforme à la LSFin.';
+
+  @override
+  String get agentNoAction =>
+      'MINT ne soumet, ne transmet et n\'exécute rien automatiquement.';
+
+  @override
+  String get agentSpecialistLabel => 'un·e spécialiste agréé·e';
+
+  @override
+  String get agentLppBuybackTitle => 'Demande de rachat LPP';
+
+  @override
+  String get agentPensionFundSubject => 'Demande de certificat de prévoyance';
+
+  @override
+  String get agentLppTransferSubject =>
+      'Demande de transfert de prévoyance (libre passage)';
 }
