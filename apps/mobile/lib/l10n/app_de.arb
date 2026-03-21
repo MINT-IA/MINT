@@ -8205,5 +8205,227 @@
   "lifeEventPromptDemenagement": "Ich wechsle den Kanton \u2014 welche steuerlichen Auswirkungen muss ich einplanen?",
   "lifeEventPromptExpatriation": "Ich ziehe ins Ausland \u2014 was mache ich mit meiner AHV, BVG und S\u00e4ule 3a?",
   "lifeEventPromptInvalidite": "Bin ich gut versichert im Falle einer Invalidit\u00e4t oder eines Unfalls?",
-  "lifeEventPromptDettes": "Ich habe Schulden \u2014 wie verwalte ich sie, ohne meine Vorsorge anzutasten?"
+  "lifeEventPromptDettes": "Ich habe Schulden \u2014 wie verwalte ich sie, ohne meine Vorsorge anzutasten?",
+  "milestoneContinueBtn": "Weiter",
+  "slmAutoPromptTitle": "KI-Coach auf deinem Ger\u00e4t",
+  "slmAutoPromptBody": "MINT kann ein KI-Modell direkt auf dein Telefon installieren f\u00fcr personalisierte Beratung \u2014 100\u00a0% privat, keine Daten verlassen dein Ger\u00e4t.",
+  "slmAutoInstalledMsg": "KI-Coach installiert\u00a0! Deine Beratung wird personalisiert.",
+  "slmInstallBtn": "KI-Coach installieren",
+  "slmLaterBtn": "Sp\u00e4ter",
+
+  "rcDisclaimer": "P\u00e4dagogisches Tool \u2014 stellt keine Finanzberatung dar (FIDLEG Art.\u00a03).",
+
+  "rcPillar3aTitle": "S\u00e4ule-3a-Einzahlung {year}",
+  "@rcPillar3aTitle": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "rcPillar3aSubtitle": "Gesch\u00e4tzte Steuereinsparung",
+  "rcPillar3aExplanation": "Gesch\u00e4tzte Steuereinsparung bei Einzahlung des H\u00f6chstbetrags von {plafond}\u00a0CHF",
+  "@rcPillar3aExplanation": {
+    "placeholders": {
+      "plafond": { "type": "String" }
+    }
+  },
+  "rcPillar3aCtaLabel": "Meine S\u00e4ule 3a simulieren",
+
+  "rcLppBuybackTitle": "BVG-Einkauf",
+  "rcLppBuybackSubtitle": "Verf\u00fcgbares Einkaufspotenzial",
+  "rcLppBuybackExplanation": "Einkauf m\u00f6glich. Gesch\u00e4tzte Steuereinsparung von {taxSaving}\u00a0CHF auf {rachatSimule}\u00a0CHF",
+  "@rcLppBuybackExplanation": {
+    "placeholders": {
+      "taxSaving": { "type": "String" },
+      "rachatSimule": { "type": "String" }
+    }
+  },
+  "rcLppBuybackCtaLabel": "Einkauf simulieren",
+
+  "rcReplacementRateTitle": "Ersatzquote",
+  "rcReplacementRateSubtitle": "Projektion im Alter {age}",
+  "@rcReplacementRateSubtitle": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "rcReplacementRateExplanation": "Gesch\u00e4tztes Renteneinkommen: {totalMonthly}\u00a0CHF/Monat vs {currentMonthly}\u00a0CHF/Monat heute",
+  "@rcReplacementRateExplanation": {
+    "placeholders": {
+      "totalMonthly": { "type": "String" },
+      "currentMonthly": { "type": "String" }
+    }
+  },
+  "rcReplacementRateCtaLabel": "Meine Szenarien erkunden",
+  "rcReplacementRateAlerte": "Quote unter dem empfohlenen Schwellenwert von 60\u00a0%. Optionen erkunden.",
+
+  "rcAvsGapTitle": "AHV-L\u00fccke",
+  "rcAvsGapSubtitle": "{lacunes} fehlende Beitragsjahre",
+  "@rcAvsGapSubtitle": {
+    "placeholders": {
+      "lacunes": { "type": "String" }
+    }
+  },
+  "rcAvsGapExplanation": "Gesch\u00e4tzte Rentenk\u00fcrzung durch L\u00fccken",
+  "rcAvsGapCtaLabel": "Meinen AHV-Auszug ansehen",
+
+  "rcCoupleAlertTitle": "Sichtbarkeitsunterschied Paar",
+  "rcCoupleAlertSubtitle": "{name} bei {score}\u00a0%",
+  "@rcCoupleAlertSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "score": { "type": "String" }
+    }
+  },
+  "rcCoupleAlertExplanation": "Unterschied von {gap} Punkten zwischen euren Profilen. Angleichen verbessert die Paarprojektion.",
+  "@rcCoupleAlertExplanation": {
+    "placeholders": {
+      "gap": { "type": "String" }
+    }
+  },
+  "rcCoupleAlertCtaLabel": "Paarprofil erg\u00e4nzen",
+
+  "rcIndependantTitle": "Selbst\u00e4ndigenvorsorge",
+  "rcIndependantSubtitle": "Ohne BVG ist deine S\u00e4ule 3a deine Hauptvorsorge",
+  "rcIndependantExplanation": "S\u00e4ule-3a-H\u00f6chstbetrag ohne BVG: {max3a}\u00a0CHF/Jahr. Aktuelles 3a-Kapital: {current3a}\u00a0CHF",
+  "@rcIndependantExplanation": {
+    "placeholders": {
+      "max3a": { "type": "String" },
+      "current3a": { "type": "String" }
+    }
+  },
+  "rcIndependantCtaLabel": "Meine Optionen erkunden",
+
+  "rcTaxOptTitle": "Steueroptimierung",
+  "rcTaxOptSubtitle": "Gesch\u00e4tzte verf\u00fcgbare Abz\u00fcge",
+  "rcTaxOptExplanation": "Gesch\u00e4tzte Steuereinsparung \u00fcber S\u00e4ule 3a ({plafond3a}\u00a0CHF) + BVG-Einkauf",
+  "@rcTaxOptExplanation": {
+    "placeholders": {
+      "plafond3a": { "type": "String" }
+    }
+  },
+  "rcTaxOptCtaLabel": "Meine Abz\u00fcge entdecken",
+
+  "rcPatrimoineTitle": "Verm\u00f6gen",
+  "rcPatrimoineSubtitleLow": "Unzureichendes Sicherheitspolster",
+  "rcPatrimoineSubtitleOk": "\u00dcbersicht",
+  "rcPatrimoineExplanationLow": "Fl\u00fcssige Ersparnisse ({epargne}\u00a0CHF) unter 3 Monaten Ausgaben ({coussinMin}\u00a0CHF)",
+  "@rcPatrimoineExplanationLow": {
+    "placeholders": {
+      "epargne": { "type": "String" },
+      "coussinMin": { "type": "String" }
+    }
+  },
+  "rcPatrimoineExplanationOk": "Ersparnisse {epargne}\u00a0CHF + Anlagen {investissements}\u00a0CHF",
+  "@rcPatrimoineExplanationOk": {
+    "placeholders": {
+      "epargne": { "type": "String" },
+      "investissements": { "type": "String" }
+    }
+  },
+  "rcPatrimoineCtaLabelLow": "Mein Budget analysieren",
+  "rcPatrimoineCtaLabelOk": "Mein Verm\u00f6gen ansehen",
+  "rcPatrimoineAlerte": "Empfohlenes Sicherheitspolster: {coussinMin}\u00a0CHF (3 Monate Ausgaben)",
+  "@rcPatrimoineAlerte": {
+    "placeholders": {
+      "coussinMin": { "type": "String" }
+    }
+  },
+
+  "rcMortgageTitle": "Hypothek",
+  "rcMortgageSubtitle": "Belehnungsgrad: {ltv}\u00a0%",
+  "@rcMortgageSubtitle": {
+    "placeholders": {
+      "ltv": { "type": "String" }
+    }
+  },
+  "rcMortgageExplanation": "Hypothekensaldo. Immobilienwert: {propertyValue}\u00a0CHF",
+  "@rcMortgageExplanation": {
+    "placeholders": {
+      "propertyValue": { "type": "String" }
+    }
+  },
+  "rcMortgageCtaLabel": "Tragbarkeit simulieren",
+
+  "rcCtaDetail": "Details anzeigen \u2192",
+
+  "rcLibrePassageTitle": "Freiz\u00fcgigkeit",
+  "rcLibrePassageSubtitle": "Was tun mit deinem Freiz\u00fcgigkeitsguthaben?",
+  "rcRenteVsCapitalTitle": "Rente vs. Kapital",
+  "rcRenteVsCapitalSubtitle": "Rente oder Kapital: beide Optionen berechnen",
+  "rcFiscalComparatorTitle": "Kantonsvergleich",
+  "rcFiscalComparatorSubtitle": "Wie viel w\u00fcrdest du durch einen Umzug gewinnen?",
+  "rcStaggeredWithdrawalTitle": "Gestaffelter 3a-Bezug",
+  "rcStaggeredWithdrawalSubtitle": "Bez\u00fcge staffeln zur Steueroptimierung",
+  "rcRealReturn3aTitle": "Reale 3a-Rendite",
+  "rcRealReturn3aSubtitle": "Rendite nach Geb\u00fchren, Inflation und Steuer",
+  "rcComparator3aTitle": "3a-Vergleich",
+  "rcComparator3aSubtitle": "3a-Anbieter vergleichen",
+  "rcRentVsBuyTitle": "Mieten oder kaufen",
+  "rcRentVsBuySubtitle": "Beide Szenarien langfristig vergleichen",
+  "rcAmortizationTitle": "Amortisation",
+  "rcAmortizationSubtitle": "Direkt vs. indirekt \u2014 steuerliche Auswirkung",
+  "rcImputedRentalTitle": "Eigenmietwert",
+  "rcImputedRentalSubtitle": "Besteuerung des Wohneigentums verstehen",
+  "rcSaronVsFixedTitle": "SARON vs. Festhypothek",
+  "rcSaronVsFixedSubtitle": "Welche Hypothekenart w\u00e4hlen",
+  "rcEplTitle": "WEF-Vorbezug",
+  "rcEplSubtitle": "2. S\u00e4ule f\u00fcr Wohneigentum nutzen",
+  "rcHousingSaleTitle": "Immobilienverkauf",
+  "rcHousingSaleSubtitle": "Grundst\u00fcckgewinnsteuer + Reinvestition",
+  "rcMariageTitle": "Auswirkung der Heirat",
+  "rcMariageSubtitle": "Steuern, AHV, BVG, Erbschaft",
+  "rcDivorceTitle": "Scheidungssimulator",
+  "rcDivorceSubtitle": "BVG-Teilung, Unterhalt, Steuern",
+  "rcNaissanceTitle": "Auswirkung eines Kindes",
+  "rcNaissanceSubtitle": "Zulagen, Abz\u00fcge, Budget",
+  "rcConcubinageTitle": "Konkubinatsschutz",
+  "rcConcubinageSubtitle": "Rechte, Risiken und L\u00f6sungen",
+  "rcSuccessionTitle": "Erbschaft",
+  "rcSuccessionSubtitle": "Verm\u00f6genstransfer simulieren",
+  "rcDonationTitle": "Schenkung",
+  "rcDonationSubtitle": "Steuerliche Auswirkung einer Schenkung",
+  "rcUnemploymentTitle": "Stellenverlust",
+  "rcUnemploymentSubtitle": "Taggelder, Dauer, Schritte",
+  "rcFirstJobTitle": "Erste Stelle",
+  "rcFirstJobSubtitle": "Alles vom Start an verstehen",
+  "rcExpatriationTitle": "Auswanderung",
+  "rcExpatriationSubtitle": "Auswirkung auf AHV, BVG, S\u00e4ule 3a und Steuern",
+  "rcFrontalierTitle": "Grenzg\u00e4nger",
+  "rcFrontalierSubtitle": "Quellensteuer und Besonderheiten",
+  "rcJobComparisonTitle": "Stellenangebotsvergleich",
+  "rcJobComparisonSubtitle": "Netto + Vorsorge: welches Angebot ist wirklich mehr wert?",
+  "rcDividendeVsSalaireTitle": "Dividende vs. Lohn",
+  "rcDividendeVsSalaireSubtitle": "Verg\u00fctung in GmbH/AG optimieren",
+  "rcLamalFranchiseTitle": "KVG-Franchise",
+  "rcLamalFranchiseSubtitle": "Welche Franchise w\u00e4hlen?",
+  "rcCoverageCheckTitle": "Deckungspr\u00fcfung",
+  "rcCoverageCheckSubtitle": "Versicherungsdeckung pr\u00fcfen",
+  "rcDisabilityTitle": "Invalidit\u00e4t \u2014 Einkommensl\u00fccke",
+  "rcDisabilitySubtitle": "L\u00fccke zwischen aktuellem Einkommen und IV/BVG-Renten",
+  "rcGenderGapTitle": "Gender-Gap",
+  "rcGenderGapSubtitle": "Auswirkung von Teilzeit auf die Rente",
+  "rcBudgetTitle": "Budget",
+  "rcBudgetSubtitle": "Wie viel bleibt am Monatsende?",
+  "rcDebtRatioTitle": "Schuldenquote",
+  "rcDebtRatioSubtitle": "Ab welchem Schwellenwert werden Schulden gef\u00e4hrlich?",
+  "rcCompoundInterestTitle": "Zinseszins",
+  "rcCompoundInterestSubtitle": "Wachstum deiner Ersparnisse simulieren",
+  "rcLeasingTitle": "Leasing-Simulator",
+  "rcLeasingSubtitle": "Tats\u00e4chliche Kosten eines Auto-Leasings",
+  "rcConsumerCreditTitle": "Konsumkredit",
+  "rcConsumerCreditSubtitle": "Gesamtkosten eines Konsumkredits",
+  "rcAllocationAnnuelleTitle": "J\u00e4hrliche Zuteilung",
+  "rcAllocationAnnuelleSubtitle": "Wo deine Ersparnisse dieses Jahr anlegen",
+
+  "rcSuggestedPrompt50PlusRetirement": "Ab wann ist die Rente tragbar?",
+  "rcSuggestedPromptRenteOuCapital": "Rente oder Kapital: was gibt mir mehr Spielraum?",
+  "rcSuggestedPromptRachatLpp": "Was bringt ein BVG-Einkauf in meinem Fall?",
+  "rcSuggestedPromptAllegerImpots": "Wo kann ich meine Steuern dieses Jahr senken?",
+  "rcSuggestedPromptVersement3a": "Wie viel in die S\u00e4ule 3a einzahlen dieses Jahr?",
+  "rcSuggestedPromptCommencer3a": "Warum jetzt mit S\u00e4ule 3a beginnen?",
+  "rcSuggestedPrompt2ePilier": "Was macht die 2. S\u00e4ule konkret?",
+  "rcSuggestedPromptIndependant": "Selbst\u00e4ndig: was muss ich neu aufbauen?",
+  "rcSuggestedPromptCouple": "Wo hinkt unsere Paarvorsorge?",
+  "rcSuggestedPromptFatca": "FATCA: was \u00e4ndert das f\u00fcr meine S\u00e4ule 3a?",
+  "rcUnitPts": "Pkt."
 }

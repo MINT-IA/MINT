@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -128,7 +129,7 @@ class LifeEventSheet extends StatelessWidget {
             label: event.label,
             button: true,
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(event.prompt),
+              onTap: () => context.pop(event.prompt),
               borderRadius: BorderRadius.circular(12),
               child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -153,7 +154,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     category: 'conversion',
                     screenName: 'coach_paywall',
                   );
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
                 child: Container(
                   padding: const EdgeInsets.all(4),
@@ -449,7 +450,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
               },
               screenName: 'coach_paywall',
             );
-            Navigator.of(context).pop();
+            context.pop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -495,7 +496,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
         if (context.mounted) {
           final isCoach = provider.isCoach;
           if (isCoach) {
-            Navigator.of(context).pop();
+            context.pop();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Abonnement restaure avec succes !')),
             );

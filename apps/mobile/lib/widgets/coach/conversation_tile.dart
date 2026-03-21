@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -48,11 +49,11 @@ class ConversationTile extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
+                onPressed: () => ctx.pop(false),
                 child: Text(l10n.conversationDeleteCancel), // TODO: add to ARB files
               ),
               TextButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
+                onPressed: () => ctx.pop(true),
                 style: TextButton.styleFrom(
                   foregroundColor: MintColors.error,
                 ),

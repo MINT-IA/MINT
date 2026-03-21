@@ -116,6 +116,7 @@ class _PulseScreenState extends State<PulseScreen> {
       final cap = CapEngine.compute(
         profile: profile,
         now: DateTime.now(),
+        l: S.of(context)!,
         memory: _capMemory,
       );
       _cachedCap = cap;
@@ -155,6 +156,7 @@ class _PulseScreenState extends State<PulseScreen> {
       final nextCap = CapEngine.compute(
         profile: profile,
         now: DateTime.now(),
+        l: S.of(context)!,
         memory: _capMemory,
       );
 

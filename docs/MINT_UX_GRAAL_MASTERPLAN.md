@@ -3,7 +3,7 @@
 > Statut: document maître produit / UX / visual / voice
 > Horizon: 2026-2027
 > Portée: 109 surfaces actives MINT (`105 *_screen.dart` + `4` shell/tabs)
-> Compagnons détaillés: `DESIGN_SYSTEM.md`, `NAVIGATION_GRAAL_V10.md`, `VOICE_SYSTEM.md`, `BLUEPRINT_COACH_AI_LAYER.md`
+> Compagnons détaillés: `DESIGN_SYSTEM.md`, `NAVIGATION_GRAAL_V10.md`, `VOICE_SYSTEM.md`, `BLUEPRINT_COACH_AI_LAYER.md`, `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md`
 > Lire aussi: `DOCUMENTATION_OPERATING_SYSTEM.md`
 
 ---
@@ -175,6 +175,10 @@ Ce qu'il faut rendre explicite:
 - `Conversation Plan`
 - `Action Success`
 - `Plan Memory`
+- `RoutePlanner`
+- `ScreenRegistry`
+- `ReadinessGate`
+- `ReturnContract`
 
 ### Objet central à construire
 
@@ -229,6 +233,39 @@ Règle couple:
 - dans les sujets où le ménage change réellement la décision, le couple n'est pas un simple mode d'affichage;
 - le couple devient une unité de décision à part entière.
 - les caps peuvent donc être individuels ou ménage, selon l'impact réel sur AVS, LPP, fiscalité, logement et succession.
+
+### Orchestration chat-to-screen
+
+> Spec complète : `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (source de vérité pour cette couche).
+
+Le coach peut ouvrir des surfaces MINT depuis le chat. Ce routage ne doit pas être ad hoc.
+
+**Formule d'orchestration** :
+```text
+message utilisateur
+  → IntentResolver (LLM)
+  → RoutePlanner (readiness check)
+  → meilleure surface (ou réponse inline)
+  → ReturnContract
+  → boucle vivante
+```
+
+**5 composants de la couche** :
+- `RoutePlanner` — décide quelle action prendre selon l'intention et la readiness. Implémenté comme tool Claude `route_to_screen`.
+- `ScreenRegistry` — carte officielle des 109 surfaces avec `intentTag`, `behavior`, `requiredFields`, `fallbackRoute`.
+- `ReadinessGate` — vérifie si les données utilisateur suffisent avant d'ouvrir une surface (3 niveaux : Ready / Partial / Blocked).
+- `ReturnContract` — contrat de retour standardisé quand l'utilisateur revient d'un écran vers le coach. Nourrit `CapMemory`.
+
+**5 comportements de surface** (chaque surface appartient à exactement l'un d'eux) :
+- `A` — Direct Answer : réponse inline dans le chat (widget, fait, comparaison rapide)
+- `B` — Decision Canvas : ouvrir un écran de simulation/arbitrage
+- `C` — Roadmap Flow : ouvrir un parcours de vie
+- `D` — Capture / Utility : donnée manquante ou document à fournir
+- `E` — Conversation pure : pas de surface, texte + éventuellement un fait éducatif
+
+**Principe fondamental** : le LLM décide de l'intention, le code décide du routage. Le LLM ne retourne jamais un `context.push('/route')` brut.
+
+**Plan d'implémentation** : Phase 1 `ScreenRegistry + ReadinessGate` (S57) → Phase 2 `RoutePlanner + route_to_screen + ReturnContract` (S58).
 
 ---
 

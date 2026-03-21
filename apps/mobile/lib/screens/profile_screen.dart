@@ -101,8 +101,8 @@ class ProfileScreen extends StatelessWidget {
                   // ══════════════════════════════════════════
                   //  SECTION: Compte
                   // ══════════════════════════════════════════
-                  // Settings (Langue, BYOK, SLM, Consent) are now in
-                  // SettingsSheet, accessible via ⚙️ in the Dossier tab.
+                  // Settings (Langue, BYOK, SLM, Consent) are accessible
+                  // as rows in the Réglages section of the Dossier tab.
 
                   // Account (if logged in)
                   if (authProvider.isLoggedIn) ...[

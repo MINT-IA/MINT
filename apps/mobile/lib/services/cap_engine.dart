@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
@@ -36,6 +37,7 @@ class CapEngine {
   static CapDecision compute({
     required CoachProfile profile,
     required DateTime now,
+    required S l,
     CapMemory memory = const CapMemory(),
   }) {
     final candidates = <CapDecision>[];
@@ -153,8 +155,9 @@ class CapEngine {
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
     if (daysToYearEnd <= 90 && daysToYearEnd >= 0) {
-      final cards3a = ResponseCardService.generateForPulse(profile, limit: 5)
-          .where((c) => c.type == ResponseCardType.pillar3a)
+      final cards3a =
+          ResponseCardService.generateForPulse(profile, l: l, limit: 5)
+              .where((c) => c.type == ResponseCardType.pillar3a)
           .toList();
       if (cards3a.isNotEmpty) {
         final card = cards3a.first;
@@ -248,7 +251,7 @@ class CapEngine {
     // ── 7. Replacement rate warning (45+) ──
     if (profile.age >= 45 && profile.salaireBrutMensuel > 0) {
       final rateCards =
-          ResponseCardService.generateForPulse(profile, limit: 5)
+          ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.replacementRate)
               .toList();
       if (rateCards.isNotEmpty) {
@@ -366,7 +369,7 @@ class CapEngine {
     // ── 12. Fallback: best ResponseCard → Cap ──
     if (candidates.isEmpty) {
       final cards =
-          ResponseCardService.generateForPulse(profile, limit: 1);
+          ResponseCardService.generateForPulse(profile, l: l, limit: 1);
       if (cards.isNotEmpty) {
         final card = cards.first;
         candidates.add(_fromResponseCard(card, confidence.score, memory, now));

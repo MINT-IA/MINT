@@ -7907,5 +7907,227 @@
   "lifeEventPromptDemenagement": "Cambio cantone \u2014 quale impatto fiscale devo anticipare?",
   "lifeEventPromptExpatriation": "Vado all\u2019estero \u2014 cosa faccio con AVS, LPP e pilastro 3a?",
   "lifeEventPromptInvalidite": "Sono ben coperto/a in caso di invalidit\u00e0 o infortunio?",
-  "lifeEventPromptDettes": "Ho dei debiti \u2014 come gestirli senza toccare la mia previdenza?"
+  "lifeEventPromptDettes": "Ho dei debiti \u2014 come gestirli senza toccare la mia previdenza?",
+  "milestoneContinueBtn": "Continua",
+  "slmAutoPromptTitle": "Coach IA sul tuo dispositivo",
+  "slmAutoPromptBody": "MINT pu\u00f2 installare un modello IA direttamente sul tuo telefono per consigli personalizzati \u2014 100\u00a0% privato, nessun dato lascia il tuo dispositivo.",
+  "slmAutoInstalledMsg": "Coach IA installato\u00a0! I tuoi consigli saranno personalizzati.",
+  "slmInstallBtn": "Installa coach IA",
+  "slmLaterBtn": "Pi\u00f9 tardi",
+
+  "rcDisclaimer": "Strumento educativo \u2014 non costituisce consulenza finanziaria (LSFin art.\u00a03).",
+
+  "rcPillar3aTitle": "Versamento 3a {year}",
+  "@rcPillar3aTitle": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "rcPillar3aSubtitle": "Risparmio fiscale stimato",
+  "rcPillar3aExplanation": "Risparmio fiscale stimato versando il massimale di {plafond}\u00a0CHF",
+  "@rcPillar3aExplanation": {
+    "placeholders": {
+      "plafond": { "type": "String" }
+    }
+  },
+  "rcPillar3aCtaLabel": "Simula il mio 3a",
+
+  "rcLppBuybackTitle": "Riscatto LPP",
+  "rcLppBuybackSubtitle": "Potenziale di riscatto disponibile",
+  "rcLppBuybackExplanation": "Riscatto possibile. Risparmio fiscale stimato di {taxSaving}\u00a0CHF su {rachatSimule}\u00a0CHF",
+  "@rcLppBuybackExplanation": {
+    "placeholders": {
+      "taxSaving": { "type": "String" },
+      "rachatSimule": { "type": "String" }
+    }
+  },
+  "rcLppBuybackCtaLabel": "Simula un riscatto",
+
+  "rcReplacementRateTitle": "Tasso di sostituzione",
+  "rcReplacementRateSubtitle": "Proiezione a {age}\u00a0anni",
+  "@rcReplacementRateSubtitle": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "rcReplacementRateExplanation": "Reddito stimato alla pensione: {totalMonthly}\u00a0CHF/mese vs {currentMonthly}\u00a0CHF/mese attualmente",
+  "@rcReplacementRateExplanation": {
+    "placeholders": {
+      "totalMonthly": { "type": "String" },
+      "currentMonthly": { "type": "String" }
+    }
+  },
+  "rcReplacementRateCtaLabel": "Esplora i miei scenari",
+  "rcReplacementRateAlerte": "Tasso inferiore alla soglia raccomandata del 60\u00a0%. Esplora le opzioni.",
+
+  "rcAvsGapTitle": "Lacuna AVS",
+  "rcAvsGapSubtitle": "{lacunes} anni di contribuzione mancanti",
+  "@rcAvsGapSubtitle": {
+    "placeholders": {
+      "lacunes": { "type": "String" }
+    }
+  },
+  "rcAvsGapExplanation": "Riduzione stimata della tua rendita AVS annuale per le lacune",
+  "rcAvsGapCtaLabel": "Vedi il mio estratto AVS",
+
+  "rcCoupleAlertTitle": "Divario di visibilit\u00e0 di coppia",
+  "rcCoupleAlertSubtitle": "{name} al {score}\u00a0%",
+  "@rcCoupleAlertSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "score": { "type": "String" }
+    }
+  },
+  "rcCoupleAlertExplanation": "Divario di {gap} punti tra i due profili. Equilibrarli migliora la proiezione di coppia.",
+  "@rcCoupleAlertExplanation": {
+    "placeholders": {
+      "gap": { "type": "String" }
+    }
+  },
+  "rcCoupleAlertCtaLabel": "Arricchisci il profilo di coppia",
+
+  "rcIndependantTitle": "Previdenza indipendente",
+  "rcIndependantSubtitle": "Senza LPP, il tuo 3a \u00e8 la tua previdenza principale",
+  "rcIndependantExplanation": "Massimale 3a senza LPP: {max3a}\u00a0CHF/anno. Capitale 3a attuale: {current3a}\u00a0CHF",
+  "@rcIndependantExplanation": {
+    "placeholders": {
+      "max3a": { "type": "String" },
+      "current3a": { "type": "String" }
+    }
+  },
+  "rcIndependantCtaLabel": "Esplora le mie opzioni",
+
+  "rcTaxOptTitle": "Ottimizzazione fiscale",
+  "rcTaxOptSubtitle": "Deduzioni stimate disponibili",
+  "rcTaxOptExplanation": "Risparmio fiscale stimato tramite 3a ({plafond3a}\u00a0CHF) + riscatto LPP",
+  "@rcTaxOptExplanation": {
+    "placeholders": {
+      "plafond3a": { "type": "String" }
+    }
+  },
+  "rcTaxOptCtaLabel": "Scopri le mie deduzioni",
+
+  "rcPatrimoineTitle": "Patrimonio",
+  "rcPatrimoineSubtitleLow": "Cuscinetto di sicurezza insufficiente",
+  "rcPatrimoineSubtitleOk": "Panoramica",
+  "rcPatrimoineExplanationLow": "Risparmio liquido ({epargne}\u00a0CHF) inferiore a 3 mesi di spese ({coussinMin}\u00a0CHF)",
+  "@rcPatrimoineExplanationLow": {
+    "placeholders": {
+      "epargne": { "type": "String" },
+      "coussinMin": { "type": "String" }
+    }
+  },
+  "rcPatrimoineExplanationOk": "Risparmio {epargne}\u00a0CHF + investimenti {investissements}\u00a0CHF",
+  "@rcPatrimoineExplanationOk": {
+    "placeholders": {
+      "epargne": { "type": "String" },
+      "investissements": { "type": "String" }
+    }
+  },
+  "rcPatrimoineCtaLabelLow": "Analizza il mio budget",
+  "rcPatrimoineCtaLabelOk": "Vedi il mio patrimonio",
+  "rcPatrimoineAlerte": "Cuscinetto di sicurezza raccomandato: {coussinMin}\u00a0CHF (3 mesi di spese)",
+  "@rcPatrimoineAlerte": {
+    "placeholders": {
+      "coussinMin": { "type": "String" }
+    }
+  },
+
+  "rcMortgageTitle": "Ipoteca",
+  "rcMortgageSubtitle": "Rapporto LTV: {ltv}\u00a0%",
+  "@rcMortgageSubtitle": {
+    "placeholders": {
+      "ltv": { "type": "String" }
+    }
+  },
+  "rcMortgageExplanation": "Saldo ipotecario. Valore immobile: {propertyValue}\u00a0CHF",
+  "@rcMortgageExplanation": {
+    "placeholders": {
+      "propertyValue": { "type": "String" }
+    }
+  },
+  "rcMortgageCtaLabel": "Simula la capacit\u00e0",
+
+  "rcCtaDetail": "Vedi i dettagli \u2192",
+
+  "rcLibrePassageTitle": "Libero passaggio",
+  "rcLibrePassageSubtitle": "Cosa fare con il tuo avere di libero passaggio?",
+  "rcRenteVsCapitalTitle": "Rendita vs Capitale",
+  "rcRenteVsCapitalSubtitle": "Rendita o capitale: calcolare entrambe le opzioni",
+  "rcFiscalComparatorTitle": "Comparatore cantonale",
+  "rcFiscalComparatorSubtitle": "Quanto guadagneresti trasferendoti?",
+  "rcStaggeredWithdrawalTitle": "Prelievo 3a scaglionato",
+  "rcStaggeredWithdrawalSubtitle": "Scaglionare i prelievi per ridurre le tasse",
+  "rcRealReturn3aTitle": "Rendimento reale 3a",
+  "rcRealReturn3aSubtitle": "Rendimento al netto di commissioni, inflazione e tasse",
+  "rcComparator3aTitle": "Comparatore 3a",
+  "rcComparator3aSubtitle": "Confronta i fornitori di 3a",
+  "rcRentVsBuyTitle": "Affittare o comprare",
+  "rcRentVsBuySubtitle": "Confronta entrambi gli scenari a lungo termine",
+  "rcAmortizationTitle": "Ammortamento",
+  "rcAmortizationSubtitle": "Diretto vs indiretto \u2014 impatto fiscale",
+  "rcImputedRentalTitle": "Valore locativo",
+  "rcImputedRentalSubtitle": "Capire la tassazione dell\u2019abitazione",
+  "rcSaronVsFixedTitle": "SARON vs tasso fisso",
+  "rcSaronVsFixedSubtitle": "Quale tipo di ipoteca scegliere",
+  "rcEplTitle": "Prelievo EPL",
+  "rcEplSubtitle": "Usare il 2\u00b0 pilastro per l\u2019immobiliare",
+  "rcHousingSaleTitle": "Vendita immobiliare",
+  "rcHousingSaleSubtitle": "Imposta sul guadagno immobiliare + reinvestimento",
+  "rcMariageTitle": "Impatto del matrimonio",
+  "rcMariageSubtitle": "Tasse, AVS, LPP, successione",
+  "rcDivorceTitle": "Simulatore divorzio",
+  "rcDivorceSubtitle": "Divisione LPP, pensione, tasse",
+  "rcNaissanceTitle": "Impatto di una nascita",
+  "rcNaissanceSubtitle": "Assegni, deduzioni, budget",
+  "rcConcubinageTitle": "Protezione convivenza",
+  "rcConcubinageSubtitle": "Diritti, rischi e soluzioni",
+  "rcSuccessionTitle": "Successione",
+  "rcSuccessionSubtitle": "Simulare la trasmissione del patrimonio",
+  "rcDonationTitle": "Donazione",
+  "rcDonationSubtitle": "Impatto fiscale di una donazione",
+  "rcUnemploymentTitle": "Perdita del lavoro",
+  "rcUnemploymentSubtitle": "Indennit\u00e0, durata, procedure",
+  "rcFirstJobTitle": "Primo impiego",
+  "rcFirstJobSubtitle": "Capire tutto fin dall\u2019inizio",
+  "rcExpatriationTitle": "Espatrio",
+  "rcExpatriationSubtitle": "Impatto su AVS, LPP, 3a e tasse",
+  "rcFrontalierTitle": "Frontaliero",
+  "rcFrontalierSubtitle": "Imposta alla fonte e particolarit\u00e0",
+  "rcJobComparisonTitle": "Comparatore di offerte",
+  "rcJobComparisonSubtitle": "Netto + previdenza: quale offerta vale davvero di pi\u00f9?",
+  "rcDividendeVsSalaireTitle": "Dividendo vs Salario",
+  "rcDividendeVsSalaireSubtitle": "Ottimizzare la remunerazione in Sagl/SA",
+  "rcLamalFranchiseTitle": "Franchigia LAMal",
+  "rcLamalFranchiseSubtitle": "Quale franchigia scegliere?",
+  "rcCoverageCheckTitle": "Verifica copertura",
+  "rcCoverageCheckSubtitle": "Verificare le tue coperture",
+  "rcDisabilityTitle": "Invalidit\u00e0 \u2014 lacuna di reddito",
+  "rcDisabilitySubtitle": "Gap tra reddito attuale e rendite AI/LPP",
+  "rcGenderGapTitle": "Divario di genere",
+  "rcGenderGapSubtitle": "Impatto del part-time sulla pensione",
+  "rcBudgetTitle": "Budget",
+  "rcBudgetSubtitle": "Quanto ti rimane a fine mese?",
+  "rcDebtRatioTitle": "Rapporto di indebitamento",
+  "rcDebtRatioSubtitle": "Da quale soglia i debiti diventano pericolosi?",
+  "rcCompoundInterestTitle": "Interesse composto",
+  "rcCompoundInterestSubtitle": "Simulare la crescita dei risparmi",
+  "rcLeasingTitle": "Simulatore leasing",
+  "rcLeasingSubtitle": "Costo reale di un leasing auto",
+  "rcConsumerCreditTitle": "Credito al consumo",
+  "rcConsumerCreditSubtitle": "Costo totale di un credito al consumo",
+  "rcAllocationAnnuelleTitle": "Allocazione annuale",
+  "rcAllocationAnnuelleSubtitle": "Dove investire i risparmi quest\u2019anno",
+
+  "rcSuggestedPrompt50PlusRetirement": "Quando la pensione diventa sostenibile?",
+  "rcSuggestedPromptRenteOuCapital": "Rendita o capitale: cosa mi d\u00e0 pi\u00f9 libert\u00e0?",
+  "rcSuggestedPromptRachatLpp": "Quanto vale un riscatto LPP nel mio caso?",
+  "rcSuggestedPromptAllegerImpots": "Dove ridurre le tasse quest\u2019anno?",
+  "rcSuggestedPromptVersement3a": "Quanto versare nel 3a quest\u2019anno?",
+  "rcSuggestedPromptCommencer3a": "Perch\u00e9 iniziare il 3a ora?",
+  "rcSuggestedPrompt2ePilier": "Cosa fa concretamente il 2\u00b0 pilastro?",
+  "rcSuggestedPromptIndependant": "Indipendente: cosa devo ricostruire?",
+  "rcSuggestedPromptCouple": "Dove zoppica la nostra previdenza di coppia?",
+  "rcSuggestedPromptFatca": "FATCA: cosa cambia per il mio 3a?",
+  "rcUnitPts": "pts"
 }

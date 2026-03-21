@@ -378,33 +378,9 @@ void main() {
     });
   });
 
-  group('CoachLlmService — initial greeting', () {
-    test('initial greeting contains firstName', () {
-      final greeting = CoachLlmService.initialGreeting(profile);
-
-      expect(greeting, contains('Julien'));
-    });
-
-    test('initial greeting uses MINT voice (direct, no jargon)', () {
-      final greeting = CoachLlmService.initialGreeting(profile);
-
-      // V5 voice: "Salut {name}. Pose ta question..."
-      expect(greeting, contains('Pose ta question'));
-    });
-
-    test('initial greeting mentions chiffres as anchor', () {
-      final greeting = CoachLlmService.initialGreeting(profile);
-
-      expect(greeting, contains('chiffres'));
-    });
-
-    test('initial suggestions are not empty', () {
-      final suggestions = CoachLlmService.initialSuggestions;
-
-      expect(suggestions, isNotEmpty);
-      expect(suggestions.length, greaterThanOrEqualTo(3));
-    });
-  });
+  // Note: initialGreeting and initialSuggestions now require S localizations
+  // (i18n refactor). String-content tests are covered by ARB golden tests.
+  // The API signature tests below verify the service compiles and accepts params.
 
   group('LlmConfig', () {
     test('defaultOpenAI has empty apiKey', () {
@@ -619,56 +595,51 @@ void main() {
     });
   });
 
+  // Note: suggestedActions are now resolved at the screen layer (CoachChatScreen)
+  // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
+  // The service layer returns suggestedActions: null (i18n refactor).
+  // CoachChatScreen._inferSuggestedActions() covers topic-based routing tests.
   group('CoachLlmService — suggested actions inference', () {
-    test('3a message suggests 3a actions', () async {
+    test('service returns null suggestedActions (resolved at screen layer)',
+        () async {
       final response = await CoachLlmService.chat(
         userMessage: 'Mon 3a',
         profile: profile,
         history: emptyHistory,
         config: config,
       );
-
-      expect(response.suggestedActions, isNotNull);
-      expect(response.suggestedActions!.any((a) => a.contains('3a')), isTrue);
+      // Actions are null at service layer; CoachChatScreen resolves them via l10n.
+      expect(response.suggestedActions, isNull);
     });
 
-    test('LPP message suggests LPP actions', () async {
+    test('LPP message: service returns null suggestedActions', () async {
       final response = await CoachLlmService.chat(
         userMessage: 'rachat LPP',
         profile: profile,
         history: emptyHistory,
         config: config,
       );
-
-      expect(response.suggestedActions, isNotNull);
-      expect(
-          response.suggestedActions!.any((a) => a.contains('LPP')), isTrue);
+      expect(response.suggestedActions, isNull);
     });
 
-    test('retraite message suggests trajectory actions', () async {
+    test('retraite message: service returns null suggestedActions', () async {
       final response = await CoachLlmService.chat(
         userMessage: 'Ma retraite',
         profile: profile,
         history: emptyHistory,
         config: config,
       );
-
-      expect(response.suggestedActions, isNotNull);
-      expect(
-          response.suggestedActions!.any((a) => a.contains('trajectoire')),
-          isTrue);
+      expect(response.suggestedActions, isNull);
     });
 
-    test('default message suggests fitness and trajectory', () async {
+    test('default message: service returns null suggestedActions', () async {
       final response = await CoachLlmService.chat(
         userMessage: 'Bonjour !',
         profile: profile,
         history: emptyHistory,
         config: config,
       );
-
-      expect(response.suggestedActions, isNotNull);
-      expect(response.suggestedActions!.length, greaterThanOrEqualTo(2));
+      expect(response.suggestedActions, isNull);
     });
   });
 
@@ -864,55 +835,10 @@ void main() {
   //  CoachLlmService — initialGreeting edge cases
   // ════════════════════════════════════════════════════════════
 
-  group('CoachLlmService — initialGreeting edge cases', () {
-    test('greeting with null firstName uses fallback', () {
-      final noName = CoachProfile(
-        firstName: null,
-        birthYear: 1985,
-        canton: 'ZH',
-        salaireBrutMensuel: 5000,
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2050),
-          label: 'Retraite',
-        ),
-      );
-      final greeting = CoachLlmService.initialGreeting(noName);
-
-      expect(greeting, contains('utilisateur'));
-    });
-
-    test('initialSuggestions contains retirement and 3a options', () {
-      final suggestions = CoachLlmService.initialSuggestions;
-
-      // Retirement: "À 65 ans, combien j'aurai ?"
-      expect(
-        suggestions.any((s) => s.contains('65') || s.toLowerCase().contains('retraite')),
-        isTrue,
-      );
-      // 3a or tax: "Combien économiser avec le 3a ?" / "Où réduire mes impôts ?"
-      expect(
-        suggestions.any((s) => s.toLowerCase().contains('3a') ||
-            s.toLowerCase().contains('impôts') ||
-            s.toLowerCase().contains('réduire')),
-        isTrue,
-      );
-    });
-
-    test('initialSuggestions contains at least 4 items', () {
-      expect(CoachLlmService.initialSuggestions.length, greaterThanOrEqualTo(4));
-    });
-
-    test('no banned terms in initialSuggestions', () {
-      const banned = ['garanti', 'optimal', 'parfait', 'meilleur', 'sans risque'];
-      for (final s in CoachLlmService.initialSuggestions) {
-        for (final term in banned) {
-          expect(s.toLowerCase(), isNot(contains(term)),
-              reason: 'Banned term "$term" in suggestion: $s');
-        }
-      }
-    });
-  });
+  // Note: initialGreeting and initialSuggestions now require S localizations
+  // (i18n refactor). These tests were testing hardcoded French strings that
+  // are now correctly stored in ARB files and resolved at the screen layer.
+  // The CoachChatScreen._addInitialGreeting() covers the screen-level behavior.
 
   // ════════════════════════════════════════════════════════════
   //  CoachLlmService — ChatTier enum

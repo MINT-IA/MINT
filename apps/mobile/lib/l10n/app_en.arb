@@ -8235,5 +8235,227 @@
   "lifeEventPromptDemenagement": "Moving cantons \u2014 what tax impact should I anticipate?",
   "lifeEventPromptExpatriation": "Moving abroad \u2014 what to do with my AVS, LPP and 3a?",
   "lifeEventPromptInvalidite": "Am I well covered in case of disability or accident?",
-  "lifeEventPromptDettes": "I have debts \u2014 how to manage them without touching my pension?"
+  "lifeEventPromptDettes": "I have debts \u2014 how to manage them without touching my pension?",
+  "milestoneContinueBtn": "Continue",
+  "slmAutoPromptTitle": "On-device AI Coach",
+  "slmAutoPromptBody": "MINT can install an AI model directly on your phone for personalised advice \u2014 100\u00a0% private, no data leaves your device.",
+  "slmAutoInstalledMsg": "AI Coach installed\u00a0! Your advice will be personalised.",
+  "slmInstallBtn": "Install AI Coach",
+  "slmLaterBtn": "Later",
+
+  "rcDisclaimer": "Educational tool \u2014 does not constitute financial advice (FinSA art.\u00a03).",
+
+  "rcPillar3aTitle": "3a contribution {year}",
+  "@rcPillar3aTitle": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "rcPillar3aSubtitle": "Estimated tax saving",
+  "rcPillar3aExplanation": "Estimated tax saving if you contribute the cap of {plafond}\u00a0CHF",
+  "@rcPillar3aExplanation": {
+    "placeholders": {
+      "plafond": { "type": "String" }
+    }
+  },
+  "rcPillar3aCtaLabel": "Simulate my 3a",
+
+  "rcLppBuybackTitle": "LPP buyback",
+  "rcLppBuybackSubtitle": "Available buyback potential",
+  "rcLppBuybackExplanation": "Buyback available. Estimated tax saving of {taxSaving}\u00a0CHF on {rachatSimule}\u00a0CHF",
+  "@rcLppBuybackExplanation": {
+    "placeholders": {
+      "taxSaving": { "type": "String" },
+      "rachatSimule": { "type": "String" }
+    }
+  },
+  "rcLppBuybackCtaLabel": "Simulate a buyback",
+
+  "rcReplacementRateTitle": "Replacement rate",
+  "rcReplacementRateSubtitle": "Projection at age {age}",
+  "@rcReplacementRateSubtitle": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "rcReplacementRateExplanation": "Estimated retirement income: {totalMonthly}\u00a0CHF/month vs {currentMonthly}\u00a0CHF/month today",
+  "@rcReplacementRateExplanation": {
+    "placeholders": {
+      "totalMonthly": { "type": "String" },
+      "currentMonthly": { "type": "String" }
+    }
+  },
+  "rcReplacementRateCtaLabel": "Explore my scenarios",
+  "rcReplacementRateAlerte": "Rate below the recommended 60\u00a0% threshold. Explore your options.",
+
+  "rcAvsGapTitle": "AVS gap",
+  "rcAvsGapSubtitle": "{lacunes} missing contribution years",
+  "@rcAvsGapSubtitle": {
+    "placeholders": {
+      "lacunes": { "type": "String" }
+    }
+  },
+  "rcAvsGapExplanation": "Estimated reduction in your annual AVS pension due to gaps",
+  "rcAvsGapCtaLabel": "View my AVS extract",
+
+  "rcCoupleAlertTitle": "Couple visibility gap",
+  "rcCoupleAlertSubtitle": "{name} at {score}\u00a0%",
+  "@rcCoupleAlertSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "score": { "type": "String" }
+    }
+  },
+  "rcCoupleAlertExplanation": "Gap of {gap} points between your two profiles. Balancing them improves the couple projection.",
+  "@rcCoupleAlertExplanation": {
+    "placeholders": {
+      "gap": { "type": "String" }
+    }
+  },
+  "rcCoupleAlertCtaLabel": "Enrich the couple profile",
+
+  "rcIndependantTitle": "Self-employed pension",
+  "rcIndependantSubtitle": "Without LPP, your 3a is your main pension",
+  "rcIndependantExplanation": "3a cap without LPP: {max3a}\u00a0CHF/yr. Current 3a capital: {current3a}\u00a0CHF",
+  "@rcIndependantExplanation": {
+    "placeholders": {
+      "max3a": { "type": "String" },
+      "current3a": { "type": "String" }
+    }
+  },
+  "rcIndependantCtaLabel": "Explore my options",
+
+  "rcTaxOptTitle": "Tax optimisation",
+  "rcTaxOptSubtitle": "Estimated available deductions",
+  "rcTaxOptExplanation": "Estimated tax saving via 3a ({plafond3a}\u00a0CHF) + LPP buyback",
+  "@rcTaxOptExplanation": {
+    "placeholders": {
+      "plafond3a": { "type": "String" }
+    }
+  },
+  "rcTaxOptCtaLabel": "Discover my deductions",
+
+  "rcPatrimoineTitle": "Wealth",
+  "rcPatrimoineSubtitleLow": "Insufficient safety cushion",
+  "rcPatrimoineSubtitleOk": "Overview",
+  "rcPatrimoineExplanationLow": "Liquid savings ({epargne}\u00a0CHF) below 3 months of expenses ({coussinMin}\u00a0CHF)",
+  "@rcPatrimoineExplanationLow": {
+    "placeholders": {
+      "epargne": { "type": "String" },
+      "coussinMin": { "type": "String" }
+    }
+  },
+  "rcPatrimoineExplanationOk": "Savings {epargne}\u00a0CHF + investments {investissements}\u00a0CHF",
+  "@rcPatrimoineExplanationOk": {
+    "placeholders": {
+      "epargne": { "type": "String" },
+      "investissements": { "type": "String" }
+    }
+  },
+  "rcPatrimoineCtaLabelLow": "Analyse my budget",
+  "rcPatrimoineCtaLabelOk": "View my wealth",
+  "rcPatrimoineAlerte": "Recommended safety cushion: {coussinMin}\u00a0CHF (3 months of expenses)",
+  "@rcPatrimoineAlerte": {
+    "placeholders": {
+      "coussinMin": { "type": "String" }
+    }
+  },
+
+  "rcMortgageTitle": "Mortgage",
+  "rcMortgageSubtitle": "LTV ratio: {ltv}\u00a0%",
+  "@rcMortgageSubtitle": {
+    "placeholders": {
+      "ltv": { "type": "String" }
+    }
+  },
+  "rcMortgageExplanation": "Mortgage balance. Property value: {propertyValue}\u00a0CHF",
+  "@rcMortgageExplanation": {
+    "placeholders": {
+      "propertyValue": { "type": "String" }
+    }
+  },
+  "rcMortgageCtaLabel": "Simulate affordability",
+
+  "rcCtaDetail": "See details \u2192",
+
+  "rcLibrePassageTitle": "Vested benefits",
+  "rcLibrePassageSubtitle": "What to do with your vested benefits account?",
+  "rcRenteVsCapitalTitle": "Pension vs Lump sum",
+  "rcRenteVsCapitalSubtitle": "Pension or lump sum: quantify both options",
+  "rcFiscalComparatorTitle": "Canton comparator",
+  "rcFiscalComparatorSubtitle": "How much would you gain by moving?",
+  "rcStaggeredWithdrawalTitle": "Staggered 3a withdrawal",
+  "rcStaggeredWithdrawalSubtitle": "Spread withdrawals to reduce tax",
+  "rcRealReturn3aTitle": "Real 3a return",
+  "rcRealReturn3aSubtitle": "Return after fees, inflation and tax",
+  "rcComparator3aTitle": "3a comparator",
+  "rcComparator3aSubtitle": "Compare 3a providers",
+  "rcRentVsBuyTitle": "Rent or buy",
+  "rcRentVsBuySubtitle": "Compare both scenarios over the long term",
+  "rcAmortizationTitle": "Amortisation",
+  "rcAmortizationSubtitle": "Direct vs indirect \u2014 what tax impact",
+  "rcImputedRentalTitle": "Imputed rental value",
+  "rcImputedRentalSubtitle": "Understanding housing taxation",
+  "rcSaronVsFixedTitle": "SARON vs fixed rate",
+  "rcSaronVsFixedSubtitle": "Which type of mortgage to choose",
+  "rcEplTitle": "EPL withdrawal",
+  "rcEplSubtitle": "Use your 2nd pillar for real estate",
+  "rcHousingSaleTitle": "Property sale",
+  "rcHousingSaleSubtitle": "Capital gains tax + reinvestment",
+  "rcMariageTitle": "Impact of marriage",
+  "rcMariageSubtitle": "Tax, AVS, LPP, succession",
+  "rcDivorceTitle": "Divorce simulator",
+  "rcDivorceSubtitle": "LPP split, alimony, taxes",
+  "rcNaissanceTitle": "Impact of a new child",
+  "rcNaissanceSubtitle": "Allowances, deductions, budget",
+  "rcConcubinageTitle": "Cohabitation protection",
+  "rcConcubinageSubtitle": "Rights, risks and solutions",
+  "rcSuccessionTitle": "Succession",
+  "rcSuccessionSubtitle": "Simulate wealth transfer",
+  "rcDonationTitle": "Gift",
+  "rcDonationSubtitle": "Tax impact of a gift",
+  "rcUnemploymentTitle": "Job loss",
+  "rcUnemploymentSubtitle": "Benefits, duration, steps",
+  "rcFirstJobTitle": "First job",
+  "rcFirstJobSubtitle": "Understand everything from the start",
+  "rcExpatriationTitle": "Expatriation",
+  "rcExpatriationSubtitle": "Impact on AVS, LPP, 3a and taxes",
+  "rcFrontalierTitle": "Cross-border worker",
+  "rcFrontalierSubtitle": "Withholding tax and specifics",
+  "rcJobComparisonTitle": "Job offer comparator",
+  "rcJobComparisonSubtitle": "Net + pension: which offer is really worth more?",
+  "rcDividendeVsSalaireTitle": "Dividend vs Salary",
+  "rcDividendeVsSalaireSubtitle": "Optimise remuneration in GmbH/AG",
+  "rcLamalFranchiseTitle": "LAMal deductible",
+  "rcLamalFranchiseSubtitle": "Which deductible to choose?",
+  "rcCoverageCheckTitle": "Coverage check",
+  "rcCoverageCheckSubtitle": "Verify your coverage",
+  "rcDisabilityTitle": "Disability \u2014 income gap",
+  "rcDisabilitySubtitle": "Gap between current income and AI/LPP benefits",
+  "rcGenderGapTitle": "Gender gap",
+  "rcGenderGapSubtitle": "Impact of part-time work on retirement",
+  "rcBudgetTitle": "Budget",
+  "rcBudgetSubtitle": "How much is left at the end of the month?",
+  "rcDebtRatioTitle": "Debt ratio",
+  "rcDebtRatioSubtitle": "At what threshold does debt become dangerous?",
+  "rcCompoundInterestTitle": "Compound interest",
+  "rcCompoundInterestSubtitle": "Simulate the growth of your savings",
+  "rcLeasingTitle": "Leasing simulator",
+  "rcLeasingSubtitle": "True cost of a car lease",
+  "rcConsumerCreditTitle": "Consumer credit",
+  "rcConsumerCreditSubtitle": "Total cost of a consumer loan",
+  "rcAllocationAnnuelleTitle": "Annual allocation",
+  "rcAllocationAnnuelleSubtitle": "Where to put your savings this year",
+
+  "rcSuggestedPrompt50PlusRetirement": "When does retirement become viable?",
+  "rcSuggestedPromptRenteOuCapital": "Pension or lump sum: which gives me more freedom?",
+  "rcSuggestedPromptRachatLpp": "What is an LPP buyback worth in my case?",
+  "rcSuggestedPromptAllegerImpots": "Where can I reduce my taxes this year?",
+  "rcSuggestedPromptVersement3a": "How much should I contribute to 3a this year?",
+  "rcSuggestedPromptCommencer3a": "Why start 3a now?",
+  "rcSuggestedPrompt2ePilier": "What does the 2nd pillar actually do?",
+  "rcSuggestedPromptIndependant": "Self-employed: what do I need to rebuild?",
+  "rcSuggestedPromptCouple": "Where does our couple pension fall short?",
+  "rcSuggestedPromptFatca": "FATCA: what does it change for my 3a?",
+  "rcUnitPts": "pts"
 }

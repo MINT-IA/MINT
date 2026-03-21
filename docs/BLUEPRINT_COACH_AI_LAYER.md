@@ -1,7 +1,7 @@
 # BLUEPRINT : MINT Coach AI Layer — Mission Document
 
 > **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
-> **Companions**: UX_REDESIGN_COACH.md (ce que l'utilisateur voit), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint).
+> **Companions**: UX_REDESIGN_COACH.md (ce que l'utilisateur voit), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint), `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (couche d'orchestration chat → écran).
 
 > **Objectif** : Transformer MINT d'une couche coach reactive en une couche coach plus proactive, narrative et utile, au service du plan.
 > **Principe** : Le LLM (BYOK) ne repond plus seulement aux questions. Il enrichit la narration, la personnalisation et l'orchestration du coach. Le coach n'est pas le produit: il sert le plan, les flows structures et les ecrans de preuve. Sans BYOK, l'app fonctionne exactement comme aujourd'hui (zero degradation).
@@ -20,6 +20,10 @@ CoachNarrativeService (NOUVEAU)
 ├── Cache: SharedPreferences, 24h TTL, cle = "coach_narrative_{yyyy-MM-dd}"
 └── Guardrails: Compliance filter + disclaimers (existants dans coach_llm_service.dart)
 ```
+
+**Tools Claude disponibles** (déclarés dans `coach_tools.py`) :
+- `show_score_gauge`, `show_budget_snapshot`, `ask_user_input`, `show_fact_card` — tools existants
+- `route_to_screen` — **NOUVEAU (S58)** : décide si et comment ouvrir un écran depuis le chat. Voir `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` §6 pour la spec complète.
 
 **Principe dual obligatoire** : CHAQUE feature doit fonctionner en 2 modes :
 - **Mode BYOK** : texte genere par LLM (personnalise, narratif, emotionnel)
@@ -66,6 +70,10 @@ Le check se fait via `context.read<ByokProvider>().isConfigured`.
 | `lib/screens/coach/annual_refresh_screen.dart` | **NOUVEAU** — Check-up annuel |
 | `test/services/coach_narrative_service_test.dart` | **NOUVEAU** — Tests |
 | `test/services/milestone_detection_service_test.dart` | **NOUVEAU** — Tests |
+| `lib/services/navigation/screen_registry.dart` | **NOUVEAU (S57)** — Registre des 109 surfaces avec intentTag, behavior, requiredFields |
+| `lib/services/navigation/readiness_gate.dart` | **NOUVEAU (S57)** — Vérification readiness avant ouverture d'écran |
+| `lib/services/navigation/route_planner.dart` | **NOUVEAU (S58)** — Planner de routage chat → écran |
+| `lib/models/screen_return.dart` | **NOUVEAU (S58)** — Contrat de retour écran → coach |
 
 ---
 
@@ -716,6 +724,40 @@ Text(tip.message)
 // APRES :
 Text(tip.narrativeMessage ?? tip.message)
 ```
+
+---
+
+## TACHE Tx — RoutePlanner + ReturnContract (S57-S58)
+
+> Spec complète : `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (source de vérité pour l'implémentation détaillée).
+
+### Objectif
+
+Implémenter la couche d'orchestration entre le chat Coach et les 109 surfaces MINT. Remplacer le routage ad hoc actuel (mots-clés hardcodés, `context.push` dispersés) par une couche déterministe et testable.
+
+### Phase S57 — ScreenRegistry + ReadinessGate
+
+**Fichiers** :
+- `lib/services/navigation/screen_registry.dart` — `const Map` des 109 surfaces, chaque entrée déclare `route`, `intentTag`, `behavior` (A/B/C/D/E), `requiredFields`, `fallbackRoute`, `preferFromChat`, `prefillFromProfile`.
+- `lib/services/navigation/readiness_gate.dart` — fonction pure qui retourne `ReadinessLevel.ready / partial / blocked` selon le profil et les `requiredFields` de la surface.
+
+**Tests requis** :
+1. Chaque surface a un `intentTag` unique
+2. Toutes les routes déclarées existent dans `app.dart`
+3. `readiness` correcte pour chaque niveau (ready / partial / blocked) sur les 10 surfaces top
+
+### Phase S58 — RoutePlanner + tool `route_to_screen` + ReturnContract
+
+**Fichiers** :
+- `lib/services/navigation/route_planner.dart` — orchestre `ScreenRegistry` + `ReadinessGate` → retourne `RouteDecision` (openScreen / openWithWarning / askFirst / conversationOnly).
+- `lib/models/screen_return.dart` — modèle `ScreenReturn` avec `route`, `outcome` (completed / abandoned / changedInputs), `updatedFields`, `confidenceDelta`, `nextCapSuggestion`.
+- `services/backend/app/api/v1/endpoints/coach_tools.py` — ajouter le tool `route_to_screen` avec `intent` + `confidence`.
+
+**Règles non-négociables** :
+- Le LLM retourne un `intent`, jamais un `context.push('/route')` brut.
+- `Explorer` reste autonome — l'orchestration ne remplace pas la navigation directe.
+- Fallback sans LLM : `ScreenRegistry + ReadinessGate` fonctionnent seuls si Claude est indisponible.
+- Le contrat de retour nourrit `CapMemory.markCompleted / markAbandoned`.
 
 ---
 

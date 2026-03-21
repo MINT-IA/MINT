@@ -18142,4 +18142,445 @@ class SPt extends S {
   @override
   String get interactive3aDisclaimer =>
       'Pressupostos pedagógicos. O desempenho passado não garante rendimentos futuros.';
+
+  @override
+  String get milestoneContinueBtn => 'Continuar';
+
+  @override
+  String get slmAutoPromptTitle => 'Coach IA no teu dispositivo';
+
+  @override
+  String get slmAutoPromptBody =>
+      'O MINT pode instalar um modelo de IA diretamente no teu telefone para conselhos personalizados — 100 % privado, nenhum dado sai do teu dispositivo.';
+
+  @override
+  String get slmAutoInstalledMsg =>
+      'Coach IA instalado ! Os teus conselhos serão personalizados.';
+
+  @override
+  String get slmInstallBtn => 'Instalar coach IA';
+
+  @override
+  String get slmLaterBtn => 'Mais tarde';
+
+  @override
+  String get rcDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin art. 3).';
+
+  @override
+  String rcPillar3aTitle(String year) {
+    return 'Contribuição 3a $year';
+  }
+
+  @override
+  String get rcPillar3aSubtitle => 'Poupança fiscal estimada';
+
+  @override
+  String rcPillar3aExplanation(String plafond) {
+    return 'Poupança fiscal estimada ao contribuir com o máximo de $plafond CHF';
+  }
+
+  @override
+  String get rcPillar3aCtaLabel => 'Simular o meu 3a';
+
+  @override
+  String get rcLppBuybackTitle => 'Recompra LPP';
+
+  @override
+  String get rcLppBuybackSubtitle => 'Potencial de recompra disponível';
+
+  @override
+  String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
+    return 'Recompra possível. Poupança fiscal estimada de $taxSaving CHF em $rachatSimule CHF';
+  }
+
+  @override
+  String get rcLppBuybackCtaLabel => 'Simular uma recompra';
+
+  @override
+  String get rcReplacementRateTitle => 'Taxa de substituição';
+
+  @override
+  String rcReplacementRateSubtitle(String age) {
+    return 'Projeção aos $age anos';
+  }
+
+  @override
+  String rcReplacementRateExplanation(
+      String totalMonthly, String currentMonthly) {
+    return 'Rendimento estimado na reforma: $totalMonthly CHF/mês vs $currentMonthly CHF/mês atualmente';
+  }
+
+  @override
+  String get rcReplacementRateCtaLabel => 'Explorar os meus cenários';
+
+  @override
+  String get rcReplacementRateAlerte =>
+      'Taxa abaixo do limiar recomendado de 60 %. Explora as opções.';
+
+  @override
+  String get rcAvsGapTitle => 'Lacuna AVS';
+
+  @override
+  String rcAvsGapSubtitle(String lacunes) {
+    return '$lacunes anos de contribuição em falta';
+  }
+
+  @override
+  String get rcAvsGapExplanation =>
+      'Redução estimada da tua pensão AVS anual devido a lacunas';
+
+  @override
+  String get rcAvsGapCtaLabel => 'Ver o meu extrato AVS';
+
+  @override
+  String get rcCoupleAlertTitle => 'Diferença de visibilidade do casal';
+
+  @override
+  String rcCoupleAlertSubtitle(String name, String score) {
+    return '$name em $score %';
+  }
+
+  @override
+  String rcCoupleAlertExplanation(String gap) {
+    return 'Diferença de $gap pontos entre os dois perfis. Equilibrá-los melhora a projeção do casal.';
+  }
+
+  @override
+  String get rcCoupleAlertCtaLabel => 'Enriquecer o perfil do casal';
+
+  @override
+  String get rcIndependantTitle => 'Previdência independente';
+
+  @override
+  String get rcIndependantSubtitle =>
+      'Sem LPP, o teu 3a é a tua previdência principal';
+
+  @override
+  String rcIndependantExplanation(String max3a, String current3a) {
+    return 'Limite 3a sem LPP: $max3a CHF/ano. Capital 3a atual: $current3a CHF';
+  }
+
+  @override
+  String get rcIndependantCtaLabel => 'Explorar as minhas opções';
+
+  @override
+  String get rcTaxOptTitle => 'Otimização fiscal';
+
+  @override
+  String get rcTaxOptSubtitle => 'Deduções estimadas disponíveis';
+
+  @override
+  String rcTaxOptExplanation(String plafond3a) {
+    return 'Poupança fiscal estimada via 3a ($plafond3a CHF) + recompra LPP';
+  }
+
+  @override
+  String get rcTaxOptCtaLabel => 'Descobrir as minhas deduções';
+
+  @override
+  String get rcPatrimoineTitle => 'Património';
+
+  @override
+  String get rcPatrimoineSubtitleLow => 'Almofada de segurança insuficiente';
+
+  @override
+  String get rcPatrimoineSubtitleOk => 'Visão geral';
+
+  @override
+  String rcPatrimoineExplanationLow(String epargne, String coussinMin) {
+    return 'Poupança líquida ($epargne CHF) abaixo de 3 meses de despesas ($coussinMin CHF)';
+  }
+
+  @override
+  String rcPatrimoineExplanationOk(String epargne, String investissements) {
+    return 'Poupança $epargne CHF + investimentos $investissements CHF';
+  }
+
+  @override
+  String get rcPatrimoineCtaLabelLow => 'Analisar o meu orçamento';
+
+  @override
+  String get rcPatrimoineCtaLabelOk => 'Ver o meu património';
+
+  @override
+  String rcPatrimoineAlerte(String coussinMin) {
+    return 'Almofada de segurança recomendada: $coussinMin CHF (3 meses de despesas)';
+  }
+
+  @override
+  String get rcMortgageTitle => 'Hipoteca';
+
+  @override
+  String rcMortgageSubtitle(String ltv) {
+    return 'Rácio LTV: $ltv %';
+  }
+
+  @override
+  String rcMortgageExplanation(String propertyValue) {
+    return 'Saldo hipotecário. Valor do imóvel: $propertyValue CHF';
+  }
+
+  @override
+  String get rcMortgageCtaLabel => 'Simular capacidade';
+
+  @override
+  String get rcCtaDetail => 'Ver detalhes →';
+
+  @override
+  String get rcLibrePassageTitle => 'Livre passagem';
+
+  @override
+  String get rcLibrePassageSubtitle =>
+      'O que fazer com o teu capital de livre passagem?';
+
+  @override
+  String get rcRenteVsCapitalTitle => 'Renda vs Capital';
+
+  @override
+  String get rcRenteVsCapitalSubtitle =>
+      'Renda ou capital: calcular ambas as opções';
+
+  @override
+  String get rcFiscalComparatorTitle => 'Comparador cantonal';
+
+  @override
+  String get rcFiscalComparatorSubtitle =>
+      'Quanto ganharías mudando de cantão?';
+
+  @override
+  String get rcStaggeredWithdrawalTitle => 'Levantamento 3a escalonado';
+
+  @override
+  String get rcStaggeredWithdrawalSubtitle =>
+      'Escalonar os levantamentos para reduzir impostos';
+
+  @override
+  String get rcRealReturn3aTitle => 'Rendimento real 3a';
+
+  @override
+  String get rcRealReturn3aSubtitle =>
+      'Rendimento após comissões, inflação e impostos';
+
+  @override
+  String get rcComparator3aTitle => 'Comparador 3a';
+
+  @override
+  String get rcComparator3aSubtitle => 'Comparar os prestadores de 3a';
+
+  @override
+  String get rcRentVsBuyTitle => 'Arrendar ou comprar';
+
+  @override
+  String get rcRentVsBuySubtitle => 'Comparar ambos os cenários a longo prazo';
+
+  @override
+  String get rcAmortizationTitle => 'Amortização';
+
+  @override
+  String get rcAmortizationSubtitle => 'Direta vs indireta — impacto fiscal';
+
+  @override
+  String get rcImputedRentalTitle => 'Valor locativo imputado';
+
+  @override
+  String get rcImputedRentalSubtitle => 'Compreender a tributação da habitação';
+
+  @override
+  String get rcSaronVsFixedTitle => 'SARON vs taxa fixa';
+
+  @override
+  String get rcSaronVsFixedSubtitle => 'Qual tipo de hipoteca escolher';
+
+  @override
+  String get rcEplTitle => 'Levantamento EPL';
+
+  @override
+  String get rcEplSubtitle => 'Usar o 2.º pilar para imóveis';
+
+  @override
+  String get rcHousingSaleTitle => 'Venda imobiliária';
+
+  @override
+  String get rcHousingSaleSubtitle =>
+      'Imposto sobre ganhos imobiliários + reinvestimento';
+
+  @override
+  String get rcMariageTitle => 'Impacto do casamento';
+
+  @override
+  String get rcMariageSubtitle => 'Impostos, AVS, LPP, sucessão';
+
+  @override
+  String get rcDivorceTitle => 'Simulador de divórcio';
+
+  @override
+  String get rcDivorceSubtitle => 'Divisão LPP, pensão, impostos';
+
+  @override
+  String get rcNaissanceTitle => 'Impacto de um nascimento';
+
+  @override
+  String get rcNaissanceSubtitle => 'Abonos, deduções, orçamento';
+
+  @override
+  String get rcConcubinageTitle => 'Proteção da união de facto';
+
+  @override
+  String get rcConcubinageSubtitle => 'Direitos, riscos e soluções';
+
+  @override
+  String get rcSuccessionTitle => 'Sucessão';
+
+  @override
+  String get rcSuccessionSubtitle => 'Simular a transferência de património';
+
+  @override
+  String get rcDonationTitle => 'Doação';
+
+  @override
+  String get rcDonationSubtitle => 'Impacto fiscal de uma doação';
+
+  @override
+  String get rcUnemploymentTitle => 'Perda de emprego';
+
+  @override
+  String get rcUnemploymentSubtitle => 'Subsídios, duração, diligências';
+
+  @override
+  String get rcFirstJobTitle => 'Primeiro emprego';
+
+  @override
+  String get rcFirstJobSubtitle => 'Compreender tudo desde o início';
+
+  @override
+  String get rcExpatriationTitle => 'Expatriação';
+
+  @override
+  String get rcExpatriationSubtitle => 'Impacto no AVS, LPP, 3a e impostos';
+
+  @override
+  String get rcFrontalierTitle => 'Trabalhador fronteiriço';
+
+  @override
+  String get rcFrontalierSubtitle => 'Imposto na fonte e particularidades';
+
+  @override
+  String get rcJobComparisonTitle => 'Comparador de ofertas';
+
+  @override
+  String get rcJobComparisonSubtitle =>
+      'Líquido + previdência: qual oferta vale realmente mais?';
+
+  @override
+  String get rcDividendeVsSalaireTitle => 'Dividendo vs Salário';
+
+  @override
+  String get rcDividendeVsSalaireSubtitle =>
+      'Otimizar a remuneração em SARL/SA';
+
+  @override
+  String get rcLamalFranchiseTitle => 'Franquia LAMal';
+
+  @override
+  String get rcLamalFranchiseSubtitle => 'Que franquia escolher?';
+
+  @override
+  String get rcCoverageCheckTitle => 'Verificação de cobertura';
+
+  @override
+  String get rcCoverageCheckSubtitle => 'Verificar as tuas coberturas';
+
+  @override
+  String get rcDisabilityTitle => 'Invalidez — lacuna de rendimento';
+
+  @override
+  String get rcDisabilitySubtitle =>
+      'Gap entre rendimento atual e rendas AI/LPP';
+
+  @override
+  String get rcGenderGapTitle => 'Diferença de género';
+
+  @override
+  String get rcGenderGapSubtitle => 'Impacto do part-time na reforma';
+
+  @override
+  String get rcBudgetTitle => 'Orçamento';
+
+  @override
+  String get rcBudgetSubtitle => 'Quanto te sobra no fim do mês?';
+
+  @override
+  String get rcDebtRatioTitle => 'Rácio de endividamento';
+
+  @override
+  String get rcDebtRatioSubtitle =>
+      'A partir de que limiar as dívidas se tornam perigosas?';
+
+  @override
+  String get rcCompoundInterestTitle => 'Juro composto';
+
+  @override
+  String get rcCompoundInterestSubtitle =>
+      'Simular o crescimento das poupanças';
+
+  @override
+  String get rcLeasingTitle => 'Simulador de leasing';
+
+  @override
+  String get rcLeasingSubtitle => 'Custo real de um leasing de automóvel';
+
+  @override
+  String get rcConsumerCreditTitle => 'Crédito ao consumo';
+
+  @override
+  String get rcConsumerCreditSubtitle => 'Custo total de um crédito ao consumo';
+
+  @override
+  String get rcAllocationAnnuelleTitle => 'Alocação anual';
+
+  @override
+  String get rcAllocationAnnuelleSubtitle =>
+      'Onde colocar as poupanças este ano';
+
+  @override
+  String get rcSuggestedPrompt50PlusRetirement =>
+      'Quando a reforma se torna viável?';
+
+  @override
+  String get rcSuggestedPromptRenteOuCapital =>
+      'Renda ou capital: o que me dá mais liberdade?';
+
+  @override
+  String get rcSuggestedPromptRachatLpp =>
+      'Quanto vale uma recompra LPP no meu caso?';
+
+  @override
+  String get rcSuggestedPromptAllegerImpots =>
+      'Onde reduzir os meus impostos este ano?';
+
+  @override
+  String get rcSuggestedPromptVersement3a =>
+      'Quanto contribuir para o 3a este ano?';
+
+  @override
+  String get rcSuggestedPromptCommencer3a => 'Porquê começar o 3a agora?';
+
+  @override
+  String get rcSuggestedPrompt2ePilier =>
+      'O que faz concretamente o 2.º pilar?';
+
+  @override
+  String get rcSuggestedPromptIndependant =>
+      'Independente: o que preciso de reconstruir?';
+
+  @override
+  String get rcSuggestedPromptCouple =>
+      'Onde falha a nossa previdência de casal?';
+
+  @override
+  String get rcSuggestedPromptFatca => 'FATCA: o que muda para o meu 3a?';
+
+  @override
+  String get rcUnitPts => 'pts';
 }

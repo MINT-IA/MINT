@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -187,11 +188,11 @@ class CoachLlmService {
     // return it directly.
     // The mock path is used as the final fallback by CoachOrchestrator itself,
     // but we check here to add suggested actions via _inferSuggestedActions.
+    // Note: suggestedActions are resolved at the screen layer (CoachChatScreen)
+    // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
     return CoachResponse(
       message: orchestratorResponse.message,
-      suggestedActions: orchestratorResponse.wasFiltered
-          ? null
-          : _inferSuggestedActions(userMessage),
+      suggestedActions: null,
       disclaimer: orchestratorResponse.disclaimer,
       sources: orchestratorResponse.sources,
       disclaimers: orchestratorResponse.disclaimers,
@@ -272,10 +273,11 @@ class CoachLlmService {
     final isFallback = result.useFallback;
     final message = isFallback ? _safeChatFallback() : result.sanitizedText;
 
+    // Note: suggestedActions are resolved at the screen layer (CoachChatScreen)
+    // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
     return CoachResponse(
       message: message,
-      // HIGH fix: clear sources/actions when using fallback.
-      suggestedActions: isFallback ? null : _inferSuggestedActions(userMessage),
+      suggestedActions: null,
       disclaimer: _disclaimer,
       sources: isFallback ? const [] : ragResponse.sources,
       disclaimers: isFallback ? const [] : ragResponse.disclaimers,
@@ -456,23 +458,22 @@ class CoachLlmService {
 
   /// Infere les actions suggerees a partir du message utilisateur.
   ///
-  /// Utilise uniquement comme fallback service-layer (sans BuildContext).
-  /// Le CoachChatScreen utilise _inferSuggestedActions avec localizations.
-  static List<String> _inferSuggestedActions(String userMessage) {
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static List<String> inferSuggestedActions(String userMessage, S l) {
     final lower = userMessage.toLowerCase();
     if (lower.contains('3a')) {
-      return ['Combien \u00e9conomiser avec le 3a\u00a0?', 'L\u2019\u00e9tat de mes comptes 3a'];
+      return [l.coachSuggestSimulate3a, l.coachSuggestView3a];
     }
     if (lower.contains('lpp') || lower.contains('rachat')) {
-      return ['Chiffrer un rachat LPP', 'Comment fonctionne le rachat LPP\u00a0?'];
+      return [l.coachSuggestSimulateLpp, l.coachSuggestUnderstandLpp];
     }
     if (lower.contains('retraite')) {
-      return ['Ma trajectoire vers la retraite', 'Rente ou capital\u00a0: lequel me convient\u00a0?'];
+      return [l.coachSuggestTrajectory, l.coachSuggestScenarios];
     }
     if (lower.contains('impot') || lower.contains('fiscal')) {
-      return ['O\u00f9 r\u00e9duire mes imp\u00f4ts cette ann\u00e9e\u00a0?', 'Calculer l\u2019\u00e9conomie fiscale'];
+      return [l.coachSuggestDeductions, l.coachSuggestTaxImpact];
     }
-    return ['Mon score financier en d\u00e9tail', '\u00c0 65 ans, combien j\u2019aurai\u00a0?'];
+    return [l.coachSuggestFitness, l.coachSuggestRetirement];
   }
 
   /// Construit le system prompt avec le contexte utilisateur.
@@ -661,18 +662,21 @@ class CoachLlmService {
         '_${ComplianceGuard.standardDisclaimer}_';
   }
 
-  /// Message d'accueil initial du coach
-  static String initialGreeting(CoachProfile profile) {
-    final firstName = profile.firstName ?? 'utilisateur';
-    return 'Salut $firstName. '
-        'Pose ta question, je regarde ce que tes chiffres racontent.';
+  /// Message d'accueil initial du coach.
+  ///
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static String initialGreeting(CoachProfile profile, S l) {
+    final firstName = profile.firstName ?? l.coachFallbackName;
+    return l.coachGreetingDefault(firstName, '');
   }
 
-  /// Suggestions initiales (fallback service-layer sans BuildContext).
-  static List<String> get initialSuggestions => [
-        '\u00c0 65 ans, combien j\u2019aurai\u00a0?',
-        'O\u00f9 r\u00e9duire mes imp\u00f4ts cette ann\u00e9e\u00a0?',
-        'Combien \u00e9conomiser avec le 3a\u00a0?',
-        'Mon score financier en d\u00e9tail',
+  /// Suggestions initiales.
+  ///
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static List<String> initialSuggestions(S l) => [
+        l.coachSuggestRetirement,
+        l.coachSuggestDeductions,
+        l.coachSuggestSimulate3a,
+        l.coachSuggestFitness,
       ];
 }

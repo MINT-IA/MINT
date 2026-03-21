@@ -187,7 +187,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     // Phase 1: personalized suggestions based on age/archetype
-    final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
+    final personalizedPrompts =
+        ResponseCardService.suggestedPrompts(p, l: S.of(context)!);
     final List<String> suggestions;
     if (personalizedPrompts.isNotEmpty) {
       suggestions = personalizedPrompts;
@@ -392,7 +393,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
-        ? ResponseCardService.generateForChat(_profile!, userMessage)
+        ? ResponseCardService.generateForChat(_profile!, userMessage,
+            l: S.of(context)!)
         : <ResponseCard>[];
 
     setState(() {
@@ -412,6 +414,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Handle standard (non-streaming) response via orchestrator.
   Future<void> _handleStandardResponse(String text,
       {String? memoryBlock}) async {
+    // Capture localizations before async gap (use_build_context_synchronously)
+    final l = S.of(context)!;
     try {
       final config = _buildConfig();
       final response = await CoachLlmService.chat(
@@ -426,7 +430,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text)
+          ? ResponseCardService.generateForChat(_profile!, text, l: l)
           : <ResponseCard>[];
 
       setState(() {

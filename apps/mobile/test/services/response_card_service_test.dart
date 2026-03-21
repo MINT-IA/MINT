@@ -1,8 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
+
+/// French localizations instance for tests (no BuildContext needed).
+final _l = SFr();
 
 // ────────────────────────────────────────────────────────────────
 //  RESPONSE CARD SERVICE — Unit Tests
@@ -182,7 +186,7 @@ void main() {
   group('ResponseCardService.generateForPulse', () {
     test('empty profile returns empty cards', () {
       final profile = _makeProfile();
-      final cards = ResponseCardService.generateForPulse(profile);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l);
       expect(cards, isEmpty);
     });
 
@@ -192,7 +196,7 @@ void main() {
         canton: 'VD',
         birthYear: 1980,
       );
-      final cards = ResponseCardService.generateForPulse(profile, limit: 10);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final types = cards.map((c) => c.type).toSet();
       expect(types, contains(ResponseCardType.pillar3a));
@@ -200,7 +204,7 @@ void main() {
 
     test('3a card has 31.12 deadline', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
-      final cards = ResponseCardService.generateForPulse(profile, limit: 10);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final card3a =
           cards.firstWhere((c) => c.type == ResponseCardType.pillar3a);
@@ -211,7 +215,7 @@ void main() {
 
     test('3a card sources reference OPP3 and LIFD', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
-      final cards = ResponseCardService.generateForPulse(profile, limit: 10);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final card3a =
           cards.firstWhere((c) => c.type == ResponseCardType.pillar3a);
@@ -228,7 +232,7 @@ void main() {
           rachatMaximum: 200000,
         ),
       );
-      final cards = ResponseCardService.generateForPulse(profile, limit: 10);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final types = cards.map((c) => c.type).toSet();
       expect(types, contains(ResponseCardType.lppBuyback));
@@ -239,8 +243,8 @@ void main() {
       final old = _makeProfile(salaire: 8000, canton: 'VD', birthYear: 1975);
 
       final youngCards =
-          ResponseCardService.generateForPulse(young, limit: 10);
-      final oldCards = ResponseCardService.generateForPulse(old, limit: 10);
+          ResponseCardService.generateForPulse(young, l: _l, limit: 10);
+      final oldCards = ResponseCardService.generateForPulse(old, l: _l, limit: 10);
 
       expect(
           youngCards.any((c) => c.type == ResponseCardType.replacementRate),
@@ -257,7 +261,7 @@ void main() {
         birthYear: 1980,
         arrivalAge: 30,
       );
-      final cards = ResponseCardService.generateForPulse(expat, limit: 10);
+      final cards = ResponseCardService.generateForPulse(expat, l: _l, limit: 10);
 
       final types = cards.map((c) => c.type).toSet();
       expect(types, contains(ResponseCardType.avsGap));
@@ -265,7 +269,7 @@ void main() {
 
     test('AVS gap card NOT for Swiss native (no arrivalAge)', () {
       final swiss = _makeProfile(salaire: 8000, canton: 'VD');
-      final cards = ResponseCardService.generateForPulse(swiss, limit: 10);
+      final cards = ResponseCardService.generateForPulse(swiss, l: _l, limit: 10);
 
       expect(cards.any((c) => c.type == ResponseCardType.avsGap), isFalse);
     });
@@ -276,7 +280,7 @@ void main() {
         canton: 'VD',
         employmentStatus: 'independant',
       );
-      final cards = ResponseCardService.generateForPulse(indep, limit: 10);
+      final cards = ResponseCardService.generateForPulse(indep, l: _l, limit: 10);
 
       expect(
           cards.any((c) => c.type == ResponseCardType.independant), isTrue);
@@ -289,7 +293,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
-      final cards = ResponseCardService.generateForPulse(indep, limit: 10);
+      final cards = ResponseCardService.generateForPulse(indep, l: _l, limit: 10);
 
       expect(
           cards.any((c) => c.type == ResponseCardType.independant), isFalse);
@@ -306,7 +310,7 @@ void main() {
           rachatMaximum: 200000,
         ),
       );
-      final cards = ResponseCardService.generateForPulse(profile, limit: 2);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 2);
       expect(cards.length, lessThanOrEqualTo(2));
     });
 
@@ -320,7 +324,7 @@ void main() {
           rachatMaximum: 200000,
         ),
       );
-      final cards = ResponseCardService.generateForPulse(profile, limit: 10);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       for (var i = 1; i < cards.length; i++) {
         final prev = cards[i - 1];
@@ -344,7 +348,7 @@ void main() {
         birthYear: 1974,
         prevoyance: const PrevoyanceProfile(rachatMaximum: 100000),
       );
-      final cards = ResponseCardService.generateForPulse(profile, limit: 10);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       for (final card in cards) {
         expect(card.disclaimer, contains('LSFin'),
@@ -360,7 +364,7 @@ void main() {
         canton: 'VD',
         birthYear: 1974,
       );
-      final cards = ResponseCardService.generateForPulse(profile, limit: 10);
+      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       for (final card in cards) {
         expect(card.cta.route, startsWith('/'),
@@ -391,6 +395,7 @@ void main() {
 
       final cards = ResponseCardService.generateForPulse(
         profile,
+        l: _l,
         limit: 10,
         visibilityScore: coupleScore,
       );
@@ -418,6 +423,7 @@ void main() {
 
       final cards = ResponseCardService.generateForPulse(
         profile,
+        l: _l,
         limit: 10,
         visibilityScore: coupleScore,
       );
@@ -436,11 +442,11 @@ void main() {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
 
       final cards3a =
-          ResponseCardService.generateForChat(profile, 'Mon 3a cette annee');
+          ResponseCardService.generateForChat(profile, 'Mon 3a cette annee', l: _l);
       expect(cards3a.any((c) => c.type == ResponseCardType.pillar3a), isTrue);
 
       final cardsLpp =
-          ResponseCardService.generateForChat(profile, 'Rachat LPP');
+          ResponseCardService.generateForChat(profile, 'Rachat LPP', l: _l);
       // LPP only shows if rachatMax > 0, so may be empty
       expect(cardsLpp.length, lessThanOrEqualTo(2));
     });
@@ -453,14 +459,15 @@ void main() {
         prevoyance: const PrevoyanceProfile(rachatMaximum: 100000),
       );
       final cards = ResponseCardService.generateForChat(
-          profile, 'retraite rente lpp 3a impot');
+          profile, 'retraite rente lpp 3a impot',
+          l: _l);
       expect(cards.length, lessThanOrEqualTo(2));
     });
 
     test('returns empty for unrelated message', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
       final cards =
-          ResponseCardService.generateForChat(profile, 'Bonjour comment ca va');
+          ResponseCardService.generateForChat(profile, 'Bonjour comment ca va', l: _l);
       expect(cards, isEmpty);
     });
   });
@@ -476,7 +483,7 @@ void main() {
         canton: 'VD',
         birthYear: 1974, // age 52
       );
-      final prompts = ResponseCardService.suggestedPrompts(profile);
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
       expect(prompts, isNotEmpty);
       expect(prompts.length, lessThanOrEqualTo(3));
@@ -489,7 +496,7 @@ void main() {
         canton: 'ZH',
         birthYear: 2000, // age 26
       );
-      final prompts = ResponseCardService.suggestedPrompts(profile);
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
       expect(prompts, isNotEmpty);
       expect(prompts.first, contains('3a'));
@@ -501,7 +508,7 @@ void main() {
         canton: 'GE',
         birthYear: 1986, // age 40
       );
-      final prompts = ResponseCardService.suggestedPrompts(profile);
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
       expect(prompts, isNotEmpty);
       expect(prompts.first, contains('imp\u00f4ts'));
@@ -516,7 +523,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
-      final prompts = ResponseCardService.suggestedPrompts(profile);
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
       expect(prompts.any((p) => p.toLowerCase().contains('ind\u00e9pendant')), isTrue);
     });
@@ -530,7 +537,7 @@ void main() {
         etatCivil: CoachCivilStatus.marie,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
-      final prompts = ResponseCardService.suggestedPrompts(profile);
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
       expect(prompts.any((p) => p.contains('couple')), isTrue);
     });
@@ -543,7 +550,7 @@ void main() {
         employmentStatus: 'independant',
         etatCivil: CoachCivilStatus.marie,
       );
-      final prompts = ResponseCardService.suggestedPrompts(profile);
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
       expect(prompts.length, lessThanOrEqualTo(3));
     });
 
@@ -568,7 +575,7 @@ void main() {
       ];
 
       for (final profile in profiles) {
-        final prompts = ResponseCardService.suggestedPrompts(profile);
+        final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
         for (final prompt in prompts) {
           final lower = prompt.toLowerCase();
           for (final term in banned) {

@@ -32236,6 +32236,775 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.'**
   String get interactive3aDisclaimer;
+
+  /// No description provided for @milestoneContinueBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get milestoneContinueBtn;
+
+  /// No description provided for @slmAutoPromptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA sur ton appareil'**
+  String get slmAutoPromptTitle;
+
+  /// No description provided for @slmAutoPromptBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT peut installer un modèle d’IA directement sur ton téléphone pour des conseils personnalisés — 100 % privé, aucune donnée ne quitte ton appareil.'**
+  String get slmAutoPromptBody;
+
+  /// No description provided for @slmAutoInstalledMsg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA installé ! Tes conseils seront personnalisés.'**
+  String get slmAutoInstalledMsg;
+
+  /// No description provided for @slmInstallBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installer le coach IA'**
+  String get slmInstallBtn;
+
+  /// No description provided for @slmLaterBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get slmLaterBtn;
+
+  /// No description provided for @rcDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin art. 3).'**
+  String get rcDisclaimer;
+
+  /// No description provided for @rcPillar3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement 3a {year}'**
+  String rcPillar3aTitle(String year);
+
+  /// No description provided for @rcPillar3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie fiscale estimée'**
+  String get rcPillar3aSubtitle;
+
+  /// No description provided for @rcPillar3aExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie d’impôt estimée si tu verses le plafond de {plafond} CHF'**
+  String rcPillar3aExplanation(String plafond);
+
+  /// No description provided for @rcPillar3aCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler mon 3a'**
+  String get rcPillar3aCtaLabel;
+
+  /// No description provided for @rcLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP'**
+  String get rcLppBuybackTitle;
+
+  /// No description provided for @rcLppBuybackSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Potentiel de rachat disponible'**
+  String get rcLppBuybackSubtitle;
+
+  /// No description provided for @rcLppBuybackExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat possible. Économie fiscale estimée de {taxSaving} CHF sur {rachatSimule} CHF'**
+  String rcLppBuybackExplanation(String taxSaving, String rachatSimule);
+
+  /// No description provided for @rcLppBuybackCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler un rachat'**
+  String get rcLppBuybackCtaLabel;
+
+  /// No description provided for @rcReplacementRateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplacement'**
+  String get rcReplacementRateTitle;
+
+  /// No description provided for @rcReplacementRateSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection à {age} ans'**
+  String rcReplacementRateSubtitle(String age);
+
+  /// No description provided for @rcReplacementRateExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu estimé à la retraite : {totalMonthly} CHF/mois vs {currentMonthly} CHF/mois actuellement'**
+  String rcReplacementRateExplanation(
+      String totalMonthly, String currentMonthly);
+
+  /// No description provided for @rcReplacementRateCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer mes scénarios'**
+  String get rcReplacementRateCtaLabel;
+
+  /// No description provided for @rcReplacementRateAlerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux inférieur au seuil recommandé de 60 %. Explore les options.'**
+  String get rcReplacementRateAlerte;
+
+  /// No description provided for @rcAvsGapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacune AVS'**
+  String get rcAvsGapTitle;
+
+  /// No description provided for @rcAvsGapSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{lacunes} années de cotisation manquantes'**
+  String rcAvsGapSubtitle(String lacunes);
+
+  /// No description provided for @rcAvsGapExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduction estimée de ta rente AVS annuelle due aux lacunes'**
+  String get rcAvsGapExplanation;
+
+  /// No description provided for @rcAvsGapCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon extrait AVS'**
+  String get rcAvsGapCtaLabel;
+
+  /// No description provided for @rcCoupleAlertTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart de visibilité couple'**
+  String get rcCoupleAlertTitle;
+
+  /// No description provided for @rcCoupleAlertSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} à {score} %'**
+  String rcCoupleAlertSubtitle(String name, String score);
+
+  /// No description provided for @rcCoupleAlertExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart de {gap} points entre vos deux profils. Équilibrer améliore la projection couple.'**
+  String rcCoupleAlertExplanation(String gap);
+
+  /// No description provided for @rcCoupleAlertCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enrichir le profil couple'**
+  String get rcCoupleAlertCtaLabel;
+
+  /// No description provided for @rcIndependantTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance indépendant'**
+  String get rcIndependantTitle;
+
+  /// No description provided for @rcIndependantSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans LPP, ton 3a est ta prévoyance principale'**
+  String get rcIndependantSubtitle;
+
+  /// No description provided for @rcIndependantExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond 3a sans LPP : {max3a} CHF/an. Capital 3a actuel : {current3a} CHF'**
+  String rcIndependantExplanation(String max3a, String current3a);
+
+  /// No description provided for @rcIndependantCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer mes options'**
+  String get rcIndependantCtaLabel;
+
+  /// No description provided for @rcTaxOptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation fiscale'**
+  String get rcTaxOptTitle;
+
+  /// No description provided for @rcTaxOptSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions estimées disponibles'**
+  String get rcTaxOptSubtitle;
+
+  /// No description provided for @rcTaxOptExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie d’impôt estimée via 3a ({plafond3a} CHF) + rachat LPP'**
+  String rcTaxOptExplanation(String plafond3a);
+
+  /// No description provided for @rcTaxOptCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir mes déductions'**
+  String get rcTaxOptCtaLabel;
+
+  /// No description provided for @rcPatrimoineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine'**
+  String get rcPatrimoineTitle;
+
+  /// No description provided for @rcPatrimoineSubtitleLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coussin de sécurité insuffisant'**
+  String get rcPatrimoineSubtitleLow;
+
+  /// No description provided for @rcPatrimoineSubtitleOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue d’ensemble'**
+  String get rcPatrimoineSubtitleOk;
+
+  /// No description provided for @rcPatrimoineExplanationLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne liquide ({epargne} CHF) inférieure à 3 mois de charges ({coussinMin} CHF)'**
+  String rcPatrimoineExplanationLow(String epargne, String coussinMin);
+
+  /// No description provided for @rcPatrimoineExplanationOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne {epargne} CHF + investissements {investissements} CHF'**
+  String rcPatrimoineExplanationOk(String epargne, String investissements);
+
+  /// No description provided for @rcPatrimoineCtaLabelLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser mon budget'**
+  String get rcPatrimoineCtaLabelLow;
+
+  /// No description provided for @rcPatrimoineCtaLabelOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon patrimoine'**
+  String get rcPatrimoineCtaLabelOk;
+
+  /// No description provided for @rcPatrimoineAlerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coussin de sécurité recommandé : {coussinMin} CHF (3 mois de charges)'**
+  String rcPatrimoineAlerte(String coussinMin);
+
+  /// No description provided for @rcMortgageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque'**
+  String get rcMortgageTitle;
+
+  /// No description provided for @rcMortgageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio LTV : {ltv} %'**
+  String rcMortgageSubtitle(String ltv);
+
+  /// No description provided for @rcMortgageExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde hypothécaire. Valeur du bien : {propertyValue} CHF'**
+  String rcMortgageExplanation(String propertyValue);
+
+  /// No description provided for @rcMortgageCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler la capacité'**
+  String get rcMortgageCtaLabel;
+
+  /// No description provided for @rcCtaDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le détail →'**
+  String get rcCtaDetail;
+
+  /// No description provided for @rcLibrePassageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre passage'**
+  String get rcLibrePassageTitle;
+
+  /// No description provided for @rcLibrePassageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que faire de ton avoir de libre passage ?'**
+  String get rcLibrePassageSubtitle;
+
+  /// No description provided for @rcRenteVsCapitalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente vs Capital'**
+  String get rcRenteVsCapitalTitle;
+
+  /// No description provided for @rcRenteVsCapitalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital : chiffrer les deux options'**
+  String get rcRenteVsCapitalSubtitle;
+
+  /// No description provided for @rcFiscalComparatorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparateur cantonal'**
+  String get rcFiscalComparatorTitle;
+
+  /// No description provided for @rcFiscalComparatorSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien gagnerais-tu à déménager ?'**
+  String get rcFiscalComparatorSubtitle;
+
+  /// No description provided for @rcStaggeredWithdrawalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait 3a échelonné'**
+  String get rcStaggeredWithdrawalTitle;
+
+  /// No description provided for @rcStaggeredWithdrawalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étaler les retraits pour réduire l’impôt'**
+  String get rcStaggeredWithdrawalSubtitle;
+
+  /// No description provided for @rcRealReturn3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement réel 3a'**
+  String get rcRealReturn3aTitle;
+
+  /// No description provided for @rcRealReturn3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement après frais, inflation et fiscal'**
+  String get rcRealReturn3aSubtitle;
+
+  /// No description provided for @rcComparator3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparateur 3a'**
+  String get rcComparator3aTitle;
+
+  /// No description provided for @rcComparator3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les prestataires 3a'**
+  String get rcComparator3aSubtitle;
+
+  /// No description provided for @rcRentVsBuyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Louer ou acheter'**
+  String get rcRentVsBuyTitle;
+
+  /// No description provided for @rcRentVsBuySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les deux scénarios sur le long terme'**
+  String get rcRentVsBuySubtitle;
+
+  /// No description provided for @rcAmortizationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortissement'**
+  String get rcAmortizationTitle;
+
+  /// No description provided for @rcAmortizationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct vs indirect — quel impact fiscal'**
+  String get rcAmortizationSubtitle;
+
+  /// No description provided for @rcImputedRentalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur locative'**
+  String get rcImputedRentalTitle;
+
+  /// No description provided for @rcImputedRentalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre l’imposition du logement'**
+  String get rcImputedRentalSubtitle;
+
+  /// No description provided for @rcSaronVsFixedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'SARON vs taux fixe'**
+  String get rcSaronVsFixedTitle;
+
+  /// No description provided for @rcSaronVsFixedSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel type d’hypothèque choisir'**
+  String get rcSaronVsFixedSubtitle;
+
+  /// No description provided for @rcEplTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait EPL'**
+  String get rcEplTitle;
+
+  /// No description provided for @rcEplSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser ton 2e pilier pour l’immobilier'**
+  String get rcEplSubtitle;
+
+  /// No description provided for @rcHousingSaleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vente immobilière'**
+  String get rcHousingSaleTitle;
+
+  /// No description provided for @rcHousingSaleSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt sur le gain immobilier + remploi'**
+  String get rcHousingSaleSubtitle;
+
+  /// No description provided for @rcMariageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact du mariage'**
+  String get rcMariageTitle;
+
+  /// No description provided for @rcMariageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôts, AVS, LPP, succession'**
+  String get rcMariageSubtitle;
+
+  /// No description provided for @rcDivorceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulateur divorce'**
+  String get rcDivorceTitle;
+
+  /// No description provided for @rcDivorceSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage LPP, pension, impôts'**
+  String get rcDivorceSubtitle;
+
+  /// No description provided for @rcNaissanceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact d’une naissance'**
+  String get rcNaissanceTitle;
+
+  /// No description provided for @rcNaissanceSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allocations, déductions, budget'**
+  String get rcNaissanceSubtitle;
+
+  /// No description provided for @rcConcubinageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection concubinage'**
+  String get rcConcubinageTitle;
+
+  /// No description provided for @rcConcubinageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Droits, risques et solutions'**
+  String get rcConcubinageSubtitle;
+
+  /// No description provided for @rcSuccessionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succession'**
+  String get rcSuccessionTitle;
+
+  /// No description provided for @rcSuccessionSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler la transmission du patrimoine'**
+  String get rcSuccessionSubtitle;
+
+  /// No description provided for @rcDonationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donation'**
+  String get rcDonationTitle;
+
+  /// No description provided for @rcDonationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact fiscal d’une donation'**
+  String get rcDonationSubtitle;
+
+  /// No description provided for @rcUnemploymentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte d’emploi'**
+  String get rcUnemploymentTitle;
+
+  /// No description provided for @rcUnemploymentSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indemnités, durée, démarches'**
+  String get rcUnemploymentSubtitle;
+
+  /// No description provided for @rcFirstJobTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier emploi'**
+  String get rcFirstJobTitle;
+
+  /// No description provided for @rcFirstJobSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout comprendre dès le départ'**
+  String get rcFirstJobSubtitle;
+
+  /// No description provided for @rcExpatriationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expatriation'**
+  String get rcExpatriationTitle;
+
+  /// No description provided for @rcExpatriationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact sur AVS, LPP, 3a et impôts'**
+  String get rcExpatriationSubtitle;
+
+  /// No description provided for @rcFrontalierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frontalier'**
+  String get rcFrontalierTitle;
+
+  /// No description provided for @rcFrontalierSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt source et particularités'**
+  String get rcFrontalierSubtitle;
+
+  /// No description provided for @rcJobComparisonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparateur d’offres'**
+  String get rcJobComparisonTitle;
+
+  /// No description provided for @rcJobComparisonSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net + prévoyance : quelle offre vaut vraiment plus ?'**
+  String get rcJobComparisonSubtitle;
+
+  /// No description provided for @rcDividendeVsSalaireTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dividende vs Salaire'**
+  String get rcDividendeVsSalaireTitle;
+
+  /// No description provided for @rcDividendeVsSalaireSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser la rémunération en SARL/SA'**
+  String get rcDividendeVsSalaireSubtitle;
+
+  /// No description provided for @rcLamalFranchiseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Franchise LAMal'**
+  String get rcLamalFranchiseTitle;
+
+  /// No description provided for @rcLamalFranchiseSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle franchise choisir ?'**
+  String get rcLamalFranchiseSubtitle;
+
+  /// No description provided for @rcCoverageCheckTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Check de couverture'**
+  String get rcCoverageCheckTitle;
+
+  /// No description provided for @rcCoverageCheckSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier tes couvertures'**
+  String get rcCoverageCheckSubtitle;
+
+  /// No description provided for @rcDisabilityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invalidité — lacune de revenu'**
+  String get rcDisabilityTitle;
+
+  /// No description provided for @rcDisabilitySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gap entre revenu actuel et rentes AI/LPP'**
+  String get rcDisabilitySubtitle;
+
+  /// No description provided for @rcGenderGapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart femmes/hommes'**
+  String get rcGenderGapTitle;
+
+  /// No description provided for @rcGenderGapSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact du temps partiel sur la retraite'**
+  String get rcGenderGapSubtitle;
+
+  /// No description provided for @rcBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget'**
+  String get rcBudgetTitle;
+
+  /// No description provided for @rcBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien il te reste à la fin du mois ?'**
+  String get rcBudgetSubtitle;
+
+  /// No description provided for @rcDebtRatioTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio d’endettement'**
+  String get rcDebtRatioTitle;
+
+  /// No description provided for @rcDebtRatioSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À partir de quel seuil les dettes deviennent dangereuses ?'**
+  String get rcDebtRatioSubtitle;
+
+  /// No description provided for @rcCompoundInterestTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêts composés'**
+  String get rcCompoundInterestTitle;
+
+  /// No description provided for @rcCompoundInterestSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler la croissance de ton épargne'**
+  String get rcCompoundInterestSubtitle;
+
+  /// No description provided for @rcLeasingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulateur leasing'**
+  String get rcLeasingTitle;
+
+  /// No description provided for @rcLeasingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coût réel d’un leasing auto'**
+  String get rcLeasingSubtitle;
+
+  /// No description provided for @rcConsumerCreditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit consommation'**
+  String get rcConsumerCreditTitle;
+
+  /// No description provided for @rcConsumerCreditSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coût total d’un crédit conso'**
+  String get rcConsumerCreditSubtitle;
+
+  /// No description provided for @rcAllocationAnnuelleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allocation annuelle'**
+  String get rcAllocationAnnuelleTitle;
+
+  /// No description provided for @rcAllocationAnnuelleSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où placer ton épargne cette année'**
+  String get rcAllocationAnnuelleSubtitle;
+
+  /// No description provided for @rcSuggestedPrompt50PlusRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand la retraite devient-elle tenable ?'**
+  String get rcSuggestedPrompt50PlusRetirement;
+
+  /// No description provided for @rcSuggestedPromptRenteOuCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital : qu’est-ce qui me laisse le plus d’air ?'**
+  String get rcSuggestedPromptRenteOuCapital;
+
+  /// No description provided for @rcSuggestedPromptRachatLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que vaut un rachat LPP dans mon cas ?'**
+  String get rcSuggestedPromptRachatLpp;
+
+  /// No description provided for @rcSuggestedPromptAllegerImpots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où alléger mes impôts cette année ?'**
+  String get rcSuggestedPromptAllegerImpots;
+
+  /// No description provided for @rcSuggestedPromptVersement3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien verser en 3a cette année ?'**
+  String get rcSuggestedPromptVersement3a;
+
+  /// No description provided for @rcSuggestedPromptCommencer3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi commencer le 3a maintenant ?'**
+  String get rcSuggestedPromptCommencer3a;
+
+  /// No description provided for @rcSuggestedPrompt2ePilier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le 2e pilier, concrètement, ça fait quoi ?'**
+  String get rcSuggestedPrompt2ePilier;
+
+  /// No description provided for @rcSuggestedPromptIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant : qu’est-ce que je dois reconstruire ?'**
+  String get rcSuggestedPromptIndependant;
+
+  /// No description provided for @rcSuggestedPromptCouple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où notre prévoyance de couple boite-t-elle ?'**
+  String get rcSuggestedPromptCouple;
+
+  /// No description provided for @rcSuggestedPromptFatca.
+  ///
+  /// In fr, this message translates to:
+  /// **'FATCA : qu’est-ce que ça change pour mon 3a ?'**
+  String get rcSuggestedPromptFatca;
+
+  /// No description provided for @rcUnitPts.
+  ///
+  /// In fr, this message translates to:
+  /// **'pts'**
+  String get rcUnitPts;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

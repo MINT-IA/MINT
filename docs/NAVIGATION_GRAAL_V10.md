@@ -3,7 +3,7 @@
 > Statut : cible produit / UX / information architecture
 > Horizon : 2026-2027
 > Portée : mobile app MINT
-> Compagnons : `docs/UX_V2_COACH_CONVERSATIONNEL.md`, `docs/DESIGN_SYSTEM.md`, `docs/BLUEPRINT_COACH_AI_LAYER.md`
+> Compagnons : `docs/UX_V2_COACH_CONVERSATIONNEL.md`, `docs/DESIGN_SYSTEM.md`, `docs/BLUEPRINT_COACH_AI_LAYER.md`, `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md`
 > Révision : cette version intègre un audit contradictoire sur iOS patterns, profondeur Explore, ordre de migration et capacité réelle du coach à orchestrer.
 > Source de vérité : partielle. Référence détaillée pour la navigation et les routes, subordonnée au `MINT_UX_GRAAL_MASTERPLAN.md` pour la vision produit.
 > Ne couvre pas : design system détaillé, voix, templates maîtres, hiérarchie documentaire.
@@ -53,7 +53,7 @@ Capture = entrée de données à fort effet
 
 ## 3. Principe d'architecture cible
 
-L'architecture cible doit suivre 6 règles :
+L'architecture cible doit suivre 7 règles :
 
 1. **4 destinations top-level maximum**.
 2. **Pas de FAB global persistant cross-platform**.
@@ -61,6 +61,7 @@ L'architecture cible doit suivre 6 règles :
 4. **Explore doit être complet sans passer par le coach**.
 5. **Les taxonomies internes disparaissent de la navigation visible**.
 6. **Chaque écran appartient à une classe claire : destination, flow, tool, alias**.
+7. **Le chat ne route pas directement — il passe par le RoutePlanner**. Le LLM retourne une intention, le `RoutePlanner` consulte le `ScreenRegistry` et le `ReadinessGate` pour décider de l'action. Jamais de `context.push('/route')` brut depuis le LLM.
 
 ---
 
@@ -500,6 +501,28 @@ Une capacité interne ouverte contextuellement.
 
 ### Alias legacy
 Une route de compatibilité, invisible dans le langage produit.
+
+---
+
+## ScreenRegistry
+
+> Spec complète et exemples d'entrées : `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` §4 (source de vérité).
+
+Le `ScreenRegistry` est la carte officielle de toutes les surfaces MINT, exprimée en Dart comme une `const Map`. Il est la pièce centrale de la couche d'orchestration chat-to-screen.
+
+### Rôle
+
+- Fournir à chaque surface un `intentTag` sémantique (pour le matching LLM), un `behavior` (A/B/C/D/E), les `requiredFields` du profil, un `fallbackRoute` si la readiness échoue, et un flag `preferFromChat`.
+- Permettre au `RoutePlanner` de prendre une décision déterministe sans hardcoder de routes dans le LLM.
+- Être la source de vérité pour les tests d'intégration : chaque route déclarée dans `app.dart` doit avoir une entrée dans le registre.
+
+### Fichier cible
+
+`lib/services/navigation/screen_registry.dart` — implémenté en S57.
+
+### Règle
+
+Le `ScreenRegistry` ne remplace pas `app.dart`. Il le complète avec la sémantique d'intention. Les routes canoniques et les deep links restent définis dans `app.dart`.
 
 ---
 
