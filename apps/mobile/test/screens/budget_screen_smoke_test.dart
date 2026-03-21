@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 
 void main() {
   setUp(() {
@@ -47,9 +48,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100)); // allow async storage calls
     await tester.pump(const Duration(seconds: 2)); // advance animations
 
-    // 4. Verify Header
-    expect(find.text('Disponible ce mois'), findsOneWidget);
-    // 5000 - 1500 = 3500 (may appear in header + spending meter)
+    // 4. Verify Header — MintHeroNumber shows the available amount
+    // The hero number shows "CHF\u00a03500" and caption is budgetChiffreChocCaption
+    expect(find.byType(MintHeroNumber), findsOneWidget);
+    // 5000 - 1500 = 3500 (may appear in hero + breakdown + spending meter)
     expect(find.textContaining('3500'), findsWidgets);
 
     // 5. Verify Sliders presence (since style is envelopes3)

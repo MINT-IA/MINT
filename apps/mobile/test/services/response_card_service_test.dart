@@ -483,7 +483,7 @@ void main() {
       expect(prompts.first, contains('retraite'));
     });
 
-    test('young user sees 3a-first prompts', () {
+    test('young user sees emotional first-steps prompts', () {
       final profile = _makeProfile(
         salaire: 5000,
         canton: 'ZH',
@@ -492,10 +492,11 @@ void main() {
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
       expect(prompts, isNotEmpty);
-      expect(prompts.first, contains('3a'));
+      // Emotional prompt for <30: "Je comprends rien à ma fiche de salaire"
+      expect(prompts.first, contains('fiche de salaire'));
     });
 
-    test('35-49 sees tax-first prompts', () {
+    test('40-54 sees retirement-worry prompts', () {
       final profile = _makeProfile(
         salaire: 7000,
         canton: 'GE',
@@ -504,10 +505,11 @@ void main() {
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
       expect(prompts, isNotEmpty);
-      expect(prompts.first, contains('imp\u00f4ts'));
+      // Emotional prompt for 40-54: "Est-ce que ça va aller pour la retraite ?"
+      expect(prompts.first, contains('retraite'));
     });
 
-    test('independant sees prevoyance prompt', () {
+    test('independant sees safety-net prompt', () {
       // Give avoirLppTotal so 'Simuler un rachat LPP' doesn't take a slot
       final profile = _makeProfile(
         salaire: 6000,
@@ -518,10 +520,11 @@ void main() {
       );
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
-      expect(prompts.any((p) => p.toLowerCase().contains('ind\u00e9pendant')), isTrue);
+      // Emotional prompt: "Je me lance seul, mon filet tient ?"
+      expect(prompts.any((p) => p.contains('filet')), isTrue);
     });
 
-    test('couple sees coordination prompt', () {
+    test('couple user gets standard age prompts (couple prompt in pool)', () {
       // Give avoirLppTotal so 'Simuler un rachat LPP' doesn't take a slot
       final profile = _makeProfile(
         salaire: 8000,
@@ -532,7 +535,12 @@ void main() {
       );
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
-      expect(prompts.any((p) => p.contains('couple')), isTrue);
+      // Couple prompt ("À deux, on optimise quoi ?") is added to the pool
+      // but take(3) returns the top-priority age-driven prompts.
+      // For age 46 (>= 40): retirement-first prompts dominate.
+      expect(prompts, isNotEmpty);
+      expect(prompts.length, lessThanOrEqualTo(3));
+      expect(prompts.first, contains('retraite'));
     });
 
     test('max 3 prompts', () {
