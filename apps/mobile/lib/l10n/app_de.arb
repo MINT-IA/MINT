@@ -8650,5 +8650,163 @@
   "challengeArchetypeNonEu01Title": "Pr\u00fcfe, ob ein Sozialversicherungsabkommen dein Land abdeckt",
   "challengeArchetypeNonEu01Desc": "Ohne bilaterales Abkommen z\u00e4hlen ausl\u00e4ndische Beitr\u00e4ge nicht f\u00fcr die AHV. Pr\u00fcfe, ob dein Heimatland ein Abkommen mit der Schweiz hat.",
   "challengeArchetypeReturning01Title": "Pr\u00fcfe dein BVG-Einkaufspotenzial nach R\u00fcckkehr in die Schweiz",
-  "challengeArchetypeReturning01Desc": "Zur\u00fcck in der Schweiz nach einem Auslandsaufenthalt? Du k\u00f6nntest ein erhebliches, steuerlich abzugsf\u00e4higes BVG-Einkaufspotenzial haben. Simuliere den Betrag."
+  "challengeArchetypeReturning01Desc": "Zur\u00fcck in der Schweiz nach einem Auslandsaufenthalt? Du k\u00f6nntest ein erhebliches, steuerlich abzugsf\u00e4higes BVG-Einkaufspotenzial haben. Simuliere den Betrag.",
+
+  "voiceMicLabel": "Zum Mikrofon sprechen",
+  "voiceMicListening": "Ich h\u00f6re\u2026",
+  "voiceMicProcessing": "Verarbeitung\u2026",
+  "voiceSpeakerLabel": "Antwort anh\u00f6ren",
+  "voiceSpeakerStop": "Vorlesen stoppen",
+  "voiceUnavailable": "Sprachfunktionen auf diesem Ger\u00e4t nicht verf\u00fcgbar",
+  "voicePermissionNeeded": "Mikrofon-Zugriff erlauben, um die Stimme zu nutzen",
+  "voiceNoSpeech": "Ich habe nichts geh\u00f6rt. Bitte nochmal versuchen.",
+  "voiceError": "Sprachfehler. Bitte Tastatur verwenden.",
+
+  "benchmarkTitle": "Ähnliche Profile in deinem Kanton",
+  "benchmarkSubtitle": "Aggregierte und anonymisierte Daten (BFS)",
+  "benchmarkOptInTitle": "Kantonale Vergleiche aktivieren",
+  "benchmarkOptInBody": "Vergleiche deine Situation mit den Medianen deines Kantons. Anonymisierte Daten, kein Ranking.",
+  "benchmarkOptInButton": "Aktivieren",
+  "benchmarkOptOutButton": "Deaktivieren",
+  "benchmarkDisclaimer": "Aggregierte BFS-Daten — Bildungswerkzeug, kein Ranking. Stellt keine Beratung dar (FIDLEG Art.\u00a03).",
+  "benchmarkInsightIncome": "Das mittlere Einkommen im Kanton {canton} beträgt CHF\u00a0{amount}/Jahr",
+  "@benchmarkInsightIncome": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "benchmarkInsightSavings": "Ein ähnliches Profil spart etwa {rate}% seines Einkommens",
+  "@benchmarkInsightSavings": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "benchmarkInsightTax": "Die Steuerbelastung in {canton} ist {level} im Vergleich zum Schweizer Durchschnitt",
+  "@benchmarkInsightTax": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "level": { "type": "String" }
+    }
+  },
+  "benchmarkInsightHousing": "Die mittlere Miete für eine 4-Zimmer-Wohnung beträgt CHF\u00a0{amount}/Monat",
+  "@benchmarkInsightHousing": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "benchmarkInsight3a": "Etwa {rate}% der Erwerbstätigen zahlen in die Säule 3a ein",
+  "@benchmarkInsight3a": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "benchmarkInsightLpp": "Die BVG-Deckungsrate beträgt {rate}%",
+  "@benchmarkInsightLpp": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "benchmarkTaxLevelBelow": "niedriger",
+  "benchmarkTaxLevelAverage": "vergleichbar",
+  "benchmarkTaxLevelAbove": "höher",
+  "benchmarkNoDataCanton": "Keine Daten für diesen Kanton verfügbar",
+
+  "llmFailoverActive": "Automatisches Failover aktiviert",
+  "llmProviderClaude": "Claude (Anthropic)",
+  "llmProviderOpenai": "GPT-4o (OpenAI)",
+  "llmProviderMistral": "Mistral",
+  "llmProviderLocal": "Lokales Modell",
+  "llmCircuitOpen": "Dienst vorübergehend nicht verfügbar",
+  "llmAllProvidersDown": "Alle KI-Dienste sind nicht verfügbar. Offline-Modus aktiviert.",
+  "llmQualityGood": "Antwortqualität: gut",
+  "llmQualityDegraded": "Antwortqualität: eingeschränkt",
+
+  "gamificationCommunityTitle": "Monatliche Herausforderung",
+  "gamificationSeasonalTitle": "Saisonale Ereignisse",
+  "gamificationMilestonesTitle": "Deine Erfolge",
+  "gamificationOptInPrompt": "An Gemeinschaftsherausforderungen teilnehmen",
+
+  "communityChallenge01Title": "Bereite deine Steuererklärung vor",
+  "communityChallenge01Desc": "Januar ist der richtige Zeitpunkt, um Steuerunterlagen zu sammeln. Erkundige dich bei deinem Kanton nach der Frist und den erforderlichen Dokumenten.",
+  "communityChallenge02Title": "Identifiziere deine Steuerabzüge",
+  "communityChallenge02Desc": "Berufskosten, Hypothekarzinsen, Spenden\u00a0: liste alle Abzüge auf, auf die du Anspruch hast, bevor du deine Erklärung einreichst.",
+  "communityChallenge03Title": "Prüfe deine 3a-Einzahlung vor der Frist",
+  "communityChallenge03Desc": "Einige Kantone erlauben es, die 3a-Einzahlung des Vorjahres bis März zu ergänzen. Prüfe die Regeln deines Kantons.",
+  "communityChallenge04Title": "Schau dir deinen BVG-Vorsorgeausweis an",
+  "communityChallenge04Desc": "Dein jährlicher BVG-Ausweis ist da. Nimm dir 10 Minuten, um dein Guthaben, den Umwandlungssatz und das Einkaufspotenzial zu verstehen.",
+  "communityChallenge05Title": "Simuliere einen BVG-Einkauf",
+  "communityChallenge05Desc": "Ein BVG-Einkauf verbessert deine Rente UND senkt deine Steuern. Berechne, wie viel du einkaufen könntest und die steuerliche Auswirkung in deinem Kanton.",
+  "communityChallenge06Title": "Mache deine Halbjahresbilanz",
+  "communityChallenge06Desc": "6 Monate sind vergangen\u00a0: überprüfe deine Finanzziele, prüfe ob du auf Kurs bist und passe wenn nötig an.",
+  "communityChallenge07Title": "Setze dein Sommersparziel",
+  "communityChallenge07Desc": "Der Sommer kann dein Budget belasten. Setze ein Sparziel für Juli und verfolge deinen Fortschritt bis Ende August.",
+  "communityChallenge08Title": "Baue deinen Notfallfonds auf oder stärke ihn",
+  "communityChallenge08Desc": "Ein Notfallfonds von 3 bis 6 Monaten fixer Ausgaben schützt dich vor Unvorhergesehenem. Prüfe deinen Stand und plane fehlende Einzahlungen.",
+  "communityChallenge09Title": "Plane deine Herbst-3a-Einzahlung",
+  "communityChallenge09Desc": "September ist ideal, um die nächste 3a-Zahlung zu planen. Verteilte Einzahlungen reduzieren den Stress der Dezember-Frist.",
+  "communityChallenge10Title": "Feiere den Vorsorge-Monat",
+  "communityChallenge10Desc": "Oktober ist der offizielle Vorsorge-Monat in der Schweiz. Schau dir deine Rentenprojektion an und identifiziere eine konkrete Massnahme.",
+  "communityChallenge11Title": "Plane deine letzten Jahresend-Optimierungen",
+  "communityChallenge11Desc": "Noch wenige Wochen bis zum Jahresende: 3a-Einzahlung, Spende, Spesenabrechnung. Identifiziere, was du noch bis 31. Dezember tun kannst.",
+  "communityChallenge12Title": "Zahle dein 3a vor dem 31. Dezember ein",
+  "communityChallenge12Desc": "Die 3a-Frist naht. Zahle bis CHF 7\u2019258 (Angestellte mit BVG) vor dem 31. Dezember ein, um den Steuerabzug dieses Jahres zu nutzen.",
+
+  "seasonalTaxSeasonTitle": "Steuersaison",
+  "seasonalTaxSeasonDesc": "Februar–März: Zeit, deine Steuererklärung vorzubereiten. Sammle Belege und identifiziere deine Abzüge.",
+  "seasonal3aCountdownTitle": "3. Säule Countdown",
+  "seasonal3aCountdownDesc": "Die Frist vom 31. Dezember für 3a-Einzahlungen naht. Prüfe dein Guthaben und plane deine Einzahlung für den maximalen Steuerabzug.",
+  "seasonalNewYearResolutionsTitle": "Finanzielle Vorsätze",
+  "seasonalNewYearResolutionsDesc": "Neues Jahr, neue Finanzziele. Definiere 1 oder 2 konkrete Massnahmen, die du dieses Jahr umsetzen wirst.",
+  "seasonalMidYearReviewTitle": "Halbjahresbilanz",
+  "seasonalMidYearReviewDesc": "Die 6-Monats-Marke ist erreicht. Prüfe deinen Fortschritt zu deinen Zielen und passe bei Bedarf an.",
+  "seasonalRetirementMonthTitle": "Vorsorge-Monat",
+  "seasonalRetirementMonthDesc": "Oktober ist der nationale Vorsorge-Monat in der Schweiz. Zeit, deine Rentenprojektion und deinen Ersatzquoten zu prüfen.",
+
+  "milestoneEngagementFirstWeekTitle": "Erste Woche",
+  "milestoneEngagementFirstWeekDesc": "Du nutzt MINT seit 7 Tagen. Gewohnheiten aufzubauen beginnt hier.",
+  "milestoneEngagementOneMonthTitle": "Ein treuer Monat",
+  "milestoneEngagementOneMonthDesc": "30 Tage mit MINT. Deine finanzielle Neugier zeigt sich.",
+  "milestoneEngagementCitoyenTitle": "MINT-Bürger",
+  "milestoneEngagementCitoyenDesc": "90 Tage: du gehörst zu den Menschen, die ihre finanzielle Zukunft selbst in die Hand nehmen.",
+  "milestoneEngagementFideleTitle": "6 Monate treu",
+  "milestoneEngagementFideleDesc": "180 Tage Finanzübersicht. Deine Regelmässigkeit schafft ein klares Bild deiner Situation.",
+  "milestoneEngagementVeteranTitle": "MINT-Veteran",
+  "milestoneEngagementVeteranDesc": "365 Tage mit MINT. Ein volles Jahr Finanzbewusstsein.",
+  "milestoneKnowledgeCurieuxTitle": "Neugierig",
+  "milestoneKnowledgeCurieuxDesc": "Du hast 5 Finanzkonzepte erkundet. Wissen ist der Ausgangspunkt jeder fundierten Entscheidung.",
+  "milestoneKnowledgeEclaireTitle": "Informiert",
+  "milestoneKnowledgeEclaireDesc": "20 Einblicke gelesen. Du baust ein solides Verständnis des Schweizer Finanzsystems auf.",
+  "milestoneKnowledgeExpertTitle": "Experte",
+  "milestoneKnowledgeExpertDesc": "50 Konzepte erkundet. Du beherrschst die Grundlagen der Schweizer Vorsorge.",
+  "milestoneKnowledgeStrategisteTitle": "Stratege",
+  "milestoneKnowledgeStrategisteDesc": "100 Einblicke. Du hast eine strategische Langzeitperspektive auf deine Finanzen.",
+  "milestoneKnowledgeMaitreTitle": "Meister",
+  "milestoneKnowledgeMaitreDesc": "200 Konzepte gelesen. Deine Finanzkompetenz ist ein echter Vorteil für deine Lebensentscheidungen.",
+  "milestoneActionPremierPasTitle": "Erster Schritt",
+  "milestoneActionPremierPasDesc": "Du hast deine erste konkrete Finanzaktion durchgeführt. Jede grosse Veränderung beginnt mit einem ersten Schritt.",
+  "milestoneActionActeurTitle": "Handelnder",
+  "milestoneActionActeurDesc": "5 Finanzaktionen abgeschlossen. Du wechselst vom Denken zum Handeln.",
+  "milestoneActionMaitreDestinTitle": "Meister deines Schicksals",
+  "milestoneActionMaitreDestinDesc": "20 konkrete Aktionen. Du steuerst deine Finanzsituation aktiv.",
+  "milestoneActionBatisseurTitle": "Erbauer",
+  "milestoneActionBatisseurDesc": "50 Finanzaktionen. Du baust geduldig eine solide Basis auf.",
+  "milestoneActionArchitecteTitle": "Architekt",
+  "milestoneActionArchitecteDesc": "100 Aktionen. Du bist der Architekt deiner finanziellen Freiheit.",
+  "milestoneConsistencyFlammeNaissanteTitle": "Aufkeimende Flamme",
+  "milestoneConsistencyFlammeNaissanteDesc": "2 aufeinanderfolgende Wochen. Deine Regelmässigkeit nimmt Gestalt an.",
+  "milestoneConsistencyFlammeViveTitle": "Lebendige Flamme",
+  "milestoneConsistencyFlammeViveDesc": "4 Wochen ohne Unterbrechung. Deine finanzielle Disziplin ist in Gang.",
+  "milestoneConsistencyFlammeEtermelleTitle": "Ewige Flamme",
+  "milestoneConsistencyFlammeEtermelleDesc": "12 aufeinanderfolgende Wochen. Deine Konstanz ist zur Gewohnheit geworden.",
+  "milestoneConsistencyConfianceTitle": "Vertrauenswürdiges Profil",
+  "milestoneConsistencyConfianceDesc": "Dein Profil hat einen Vertrauenswert von 70\u00a0% erreicht. Deine Daten ermöglichen zuverlässige Berechnungen.",
+  "milestoneConsistencyChallengesTitle": "6 Herausforderungen absolviert",
+  "milestoneConsistencyChallengesDesc": "Du hast 6 monatliche Herausforderungen abgeschlossen. Sechs Monate konkretes finanzielles Engagement.",
+  "rcSalaryLabel": "Dein Einkommen",
+  "rcAgeLabel": "Dein Alter",
+  "rcCantonLabel": "Dein Kanton",
+  "rcCivilStatusLabel": "Dein Zivilstand",
+  "rcEmploymentStatusLabel": "Dein Berufsstatus",
+  "rcLppLabel": "Deine BVG-Daten"
 }

@@ -12192,7 +12192,7 @@ class SFr extends S {
   String get benchmarkAppBarTitle => 'Repères cantonaux';
 
   @override
-  String get benchmarkOptInTitle => 'Activer les repères cantonaux';
+  String get benchmarkOptInTitle => 'Activer les comparaisons cantonales';
 
   @override
   String get benchmarkOptInSubtitle =>
@@ -19229,4 +19229,417 @@ class SFr extends S {
   @override
   String get challengeArchetypeReturning01Desc =>
       'De retour en Suisse après un séjour à l’étranger ? Tu pourrais avoir un potentiel de rachat LPP important, déductible fiscalement. Simule le montant.';
+
+  @override
+  String get voiceMicLabel => 'Parler au micro';
+
+  @override
+  String get voiceMicListening => 'J’écoute…';
+
+  @override
+  String get voiceMicProcessing => 'Traitement…';
+
+  @override
+  String get voiceSpeakerLabel => 'Écouter la réponse';
+
+  @override
+  String get voiceSpeakerStop => 'Arrêter la lecture';
+
+  @override
+  String get voiceUnavailable =>
+      'Fonctions vocales non disponibles sur cet appareil';
+
+  @override
+  String get voicePermissionNeeded => 'Autorise le micro pour utiliser la voix';
+
+  @override
+  String get voiceNoSpeech => 'Je n’ai rien entendu. Réessaie.';
+
+  @override
+  String get voiceError => 'Erreur vocale. Utilise le clavier.';
+
+  @override
+  String get benchmarkTitle => 'Profils similaires dans ton canton';
+
+  @override
+  String get benchmarkSubtitle => 'Données agrégées et anonymisées (OFS)';
+
+  @override
+  String get benchmarkOptInBody =>
+      'Compare ta situation aux médianes de ton canton. Données anonymisées, jamais de classement.';
+
+  @override
+  String get benchmarkOptInButton => 'Activer';
+
+  @override
+  String get benchmarkOptOutButton => 'Désactiver';
+
+  @override
+  String get benchmarkDisclaimer =>
+      'Données agrégées OFS — outil éducatif, pas un classement. Ne constitue pas un conseil (LSFin art. 3).';
+
+  @override
+  String benchmarkInsightIncome(String canton, String amount) {
+    return 'Le revenu médian dans le canton de $canton est de CHF $amount/an';
+  }
+
+  @override
+  String benchmarkInsightSavings(String rate) {
+    return 'Un profil similaire épargne environ $rate% de son revenu';
+  }
+
+  @override
+  String benchmarkInsightTax(String canton, String level) {
+    return 'La charge fiscale dans $canton est $level par rapport à la moyenne suisse';
+  }
+
+  @override
+  String benchmarkInsightHousing(String amount) {
+    return 'Le loyer médian pour un 4 pièces est de CHF $amount/mois';
+  }
+
+  @override
+  String benchmarkInsight3a(String rate) {
+    return 'Environ $rate% des actifs versent dans le 3a';
+  }
+
+  @override
+  String benchmarkInsightLpp(String rate) {
+    return 'Le taux de couverture LPP est de $rate%';
+  }
+
+  @override
+  String get benchmarkTaxLevelBelow => 'inférieure';
+
+  @override
+  String get benchmarkTaxLevelAverage => 'comparable';
+
+  @override
+  String get benchmarkTaxLevelAbove => 'supérieure';
+
+  @override
+  String get benchmarkNoDataCanton => 'Données non disponibles pour ce canton';
+
+  @override
+  String get llmFailoverActive => 'Basculement automatique activé';
+
+  @override
+  String get llmProviderClaude => 'Claude (Anthropic)';
+
+  @override
+  String get llmProviderOpenai => 'GPT-4o (OpenAI)';
+
+  @override
+  String get llmProviderMistral => 'Mistral';
+
+  @override
+  String get llmProviderLocal => 'Modèle local';
+
+  @override
+  String get llmCircuitOpen => 'Service temporairement indisponible';
+
+  @override
+  String get llmAllProvidersDown =>
+      'Tous les services IA sont indisponibles. Mode hors-ligne activé.';
+
+  @override
+  String get llmQualityGood => 'Qualité de réponse : bonne';
+
+  @override
+  String get llmQualityDegraded => 'Qualité de réponse : dégradée';
+
+  @override
+  String get gamificationCommunityTitle => 'Défi du mois';
+
+  @override
+  String get gamificationSeasonalTitle => 'Événements saisonniers';
+
+  @override
+  String get gamificationMilestonesTitle => 'Tes accomplissements';
+
+  @override
+  String get gamificationOptInPrompt => 'Participer aux défis communautaires';
+
+  @override
+  String get communityChallenge01Title => 'Prépare ta déclaration d’impôts';
+
+  @override
+  String get communityChallenge01Desc =>
+      'Janvier est le bon moment pour rassembler tes documents fiscaux. Contacte ton canton pour connaître la date limite et les pièces requises.';
+
+  @override
+  String get communityChallenge02Title => 'Identifie tes déductions fiscales';
+
+  @override
+  String get communityChallenge02Desc =>
+      'Frais professionnels, intérêts hypothécaires, dons : répertorie toutes les déductions auxquelles tu as droit avant de soumettre ta déclaration.';
+
+  @override
+  String get communityChallenge03Title =>
+      'Vérifie ton versement 3a avant la deadline';
+
+  @override
+  String get communityChallenge03Desc =>
+      'Certains cantons permettent de compléter le versement 3a de l’année précédente jusqu’en mars. Vérifie les règles de ton canton.';
+
+  @override
+  String get communityChallenge04Title =>
+      'Consulte ton certificat de prévoyance LPP';
+
+  @override
+  String get communityChallenge04Desc =>
+      'Ton certificat annuel LPP est arrivé. Prends 10 minutes pour comprendre ton avoir, ton taux de conversion et ton potentiel de rachat.';
+
+  @override
+  String get communityChallenge05Title => 'Simule un rachat LPP';
+
+  @override
+  String get communityChallenge05Desc =>
+      'Un rachat LPP améliore ta retraite ET réduit tes impôts. Calcule combien tu pourrais racheter et l’impact fiscal dans ton canton.';
+
+  @override
+  String get communityChallenge06Title => 'Fais ton bilan mi-annuel';
+
+  @override
+  String get communityChallenge06Desc =>
+      '6 mois se sont écoulés : révise tes objectifs financiers, vérifie si tu es sur la bonne trajectoire et ajuste si nécessaire.';
+
+  @override
+  String get communityChallenge07Title =>
+      'Définis ton objectif d’épargne estivale';
+
+  @override
+  String get communityChallenge07Desc =>
+      'L’été peut impacter ton budget. Définis un objectif d’épargne pour juillet et suis ta progression jusqu’à fin août.';
+
+  @override
+  String get communityChallenge08Title =>
+      'Constitue ou renforce ton fonds d’urgence';
+
+  @override
+  String get communityChallenge08Desc =>
+      'Un fonds d’urgence de 3 à 6 mois de charges fixes te protège des aléas. Vérifie où tu en es et planifie les versements manquants.';
+
+  @override
+  String get communityChallenge09Title =>
+      'Programme ton versement 3a d’automne';
+
+  @override
+  String get communityChallenge09Desc =>
+      'Septembre est idéal pour programmer ton prochain versement 3a. Étaler les versements sur l’année réduit le stress de la deadline de décembre.';
+
+  @override
+  String get communityChallenge10Title => 'Célèbre le mois de la prévoyance';
+
+  @override
+  String get communityChallenge10Desc =>
+      'Octobre est le mois officiel de la prévoyance en Suisse. Consulte ta projection de retraite et identifie une action concrète pour améliorer ta situation.';
+
+  @override
+  String get communityChallenge11Title =>
+      'Planifie tes dernières optimisations de fin d’année';
+
+  @override
+  String get communityChallenge11Desc =>
+      'Il reste quelques semaines pour agir : versement 3a, don à une association, déclaration de frais. Identifie ce que tu peux encore faire avant le 31 décembre.';
+
+  @override
+  String get communityChallenge12Title => 'Verse ton 3a avant le 31 décembre';
+
+  @override
+  String get communityChallenge12Desc =>
+      'La deadline 3a approche. Verse jusqu’à CHF 7’258 (salarié avec LPP) avant le 31 décembre pour bénéficier de la déduction fiscale de cette année.';
+
+  @override
+  String get seasonalTaxSeasonTitle => 'Saison des impôts';
+
+  @override
+  String get seasonalTaxSeasonDesc =>
+      'Février-mars : c’est le moment de préparer ta déclaration d’impôts. Rassemble tes justificatifs et identifie tes déductions.';
+
+  @override
+  String get seasonal3aCountdownTitle => 'Compte à rebours 3e pilier';
+
+  @override
+  String get seasonal3aCountdownDesc =>
+      'La deadline du 31 décembre approche pour les versements 3a. Vérifie ton solde et planifie ton versement pour maximiser ta déduction fiscale.';
+
+  @override
+  String get seasonalNewYearResolutionsTitle => 'Résolutions financières';
+
+  @override
+  String get seasonalNewYearResolutionsDesc =>
+      'Nouvelle année, nouveaux objectifs financiers. Définis 1 ou 2 actions concrètes que tu vas mettre en place cette année.';
+
+  @override
+  String get seasonalMidYearReviewTitle => 'Revue mi-annuelle';
+
+  @override
+  String get seasonalMidYearReviewDesc =>
+      'Le cap des 6 mois est atteint. Prends un moment pour vérifier ta progression vers tes objectifs et ajuster si nécessaire.';
+
+  @override
+  String get seasonalRetirementMonthTitle => 'Mois de la prévoyance';
+
+  @override
+  String get seasonalRetirementMonthDesc =>
+      'Octobre est le mois national de la prévoyance en Suisse. C’est le moment de vérifier ta projection de retraite et ton taux de remplacement.';
+
+  @override
+  String get milestoneEngagementFirstWeekTitle => 'Première semaine';
+
+  @override
+  String get milestoneEngagementFirstWeekDesc =>
+      'Tu utilises MINT depuis 7 jours. Construire des habitudes, ça commence ici.';
+
+  @override
+  String get milestoneEngagementOneMonthTitle => 'Un mois fidèle';
+
+  @override
+  String get milestoneEngagementOneMonthDesc =>
+      '30 jours avec MINT. Ta curiosité financière est au rendez-vous.';
+
+  @override
+  String get milestoneEngagementCitoyenTitle => 'Citoyen MINT';
+
+  @override
+  String get milestoneEngagementCitoyenDesc =>
+      '90 jours : tu fais partie des personnes qui prennent leur avenir financier en main.';
+
+  @override
+  String get milestoneEngagementFideleTitle => 'Fidèle 6 mois';
+
+  @override
+  String get milestoneEngagementFideleDesc =>
+      '180 jours de suivi financier. Ta régularité construit une vision claire de ta situation.';
+
+  @override
+  String get milestoneEngagementVeteranTitle => 'Vétéran MINT';
+
+  @override
+  String get milestoneEngagementVeteranDesc =>
+      '365 jours avec MINT. Une année complète de conscience financière.';
+
+  @override
+  String get milestoneKnowledgeCurieuxTitle => 'Curieux';
+
+  @override
+  String get milestoneKnowledgeCurieuxDesc =>
+      'Tu as exploré 5 concepts financiers. La connaissance, c’est le point de départ de toute décision éclairée.';
+
+  @override
+  String get milestoneKnowledgeEclaireTitle => 'Éclairé';
+
+  @override
+  String get milestoneKnowledgeEclaireDesc =>
+      '20 insights parcourus. Tu construis une vision solide du système financier suisse.';
+
+  @override
+  String get milestoneKnowledgeExpertTitle => 'Expert';
+
+  @override
+  String get milestoneKnowledgeExpertDesc =>
+      '50 concepts explorés. Tu maîtrises les fondamentaux de la prévoyance suisse.';
+
+  @override
+  String get milestoneKnowledgeStrategisteTitle => 'Stratège';
+
+  @override
+  String get milestoneKnowledgeStrategisteDesc =>
+      '100 insights. Tu as une vision stratégique de tes finances sur le long terme.';
+
+  @override
+  String get milestoneKnowledgeMaitreTitle => 'Maître';
+
+  @override
+  String get milestoneKnowledgeMaitreDesc =>
+      '200 concepts parcourus. Ta culture financière est un atout concret pour tes décisions de vie.';
+
+  @override
+  String get milestoneActionPremierPasTitle => 'Premier pas';
+
+  @override
+  String get milestoneActionPremierPasDesc =>
+      'Tu as effectué ta première action financière concrète. Chaque grand changement commence par une première étape.';
+
+  @override
+  String get milestoneActionActeurTitle => 'Acteur';
+
+  @override
+  String get milestoneActionActeurDesc =>
+      '5 actions financières réalisées. Tu passes de la réflexion à l’action.';
+
+  @override
+  String get milestoneActionMaitreDestinTitle => 'Maître de son destin';
+
+  @override
+  String get milestoneActionMaitreDestinDesc =>
+      '20 actions concrètes. Tu pilotes activement ta situation financière.';
+
+  @override
+  String get milestoneActionBatisseurTitle => 'Bâtisseur';
+
+  @override
+  String get milestoneActionBatisseurDesc =>
+      '50 actions financières. Tu construis patiemment une situation solide.';
+
+  @override
+  String get milestoneActionArchitecteTitle => 'Architecte';
+
+  @override
+  String get milestoneActionArchitecteDesc =>
+      '100 actions. Tu es l’architecte de ta liberté financière.';
+
+  @override
+  String get milestoneConsistencyFlammeNaissanteTitle => 'Flamme naissante';
+
+  @override
+  String get milestoneConsistencyFlammeNaissanteDesc =>
+      '2 semaines consécutives. Ta régularité prend forme.';
+
+  @override
+  String get milestoneConsistencyFlammeViveTitle => 'Flamme vive';
+
+  @override
+  String get milestoneConsistencyFlammeViveDesc =>
+      '4 semaines sans interruption. Ta discipline financière est en marche.';
+
+  @override
+  String get milestoneConsistencyFlammeEtermelleTitle => 'Flamme éternelle';
+
+  @override
+  String get milestoneConsistencyFlammeEtermelleDesc =>
+      '12 semaines consécutives. Ta constance est devenue une habitude.';
+
+  @override
+  String get milestoneConsistencyConfianceTitle => 'Profil de confiance';
+
+  @override
+  String get milestoneConsistencyConfianceDesc =>
+      'Ton profil a atteint un score de confiance de 70 %. Tes données permettent des calculs fiables.';
+
+  @override
+  String get milestoneConsistencyChallengesTitle => '6 défis accomplis';
+
+  @override
+  String get milestoneConsistencyChallengesDesc =>
+      'Tu as relevé 6 défis du mois. Six mois d’engagement financier concret.';
+
+  @override
+  String get rcSalaryLabel => 'Ton revenu';
+
+  @override
+  String get rcAgeLabel => 'Ton âge';
+
+  @override
+  String get rcCantonLabel => 'Ton canton';
+
+  @override
+  String get rcCivilStatusLabel => 'Ta situation civile';
+
+  @override
+  String get rcEmploymentStatusLabel => 'Ton statut professionnel';
+
+  @override
+  String get rcLppLabel => 'Tes données LPP';
 }

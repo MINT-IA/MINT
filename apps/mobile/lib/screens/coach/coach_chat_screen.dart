@@ -21,6 +21,9 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
@@ -642,16 +645,36 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           isPartial: decision.action == RouteAction.openWithWarning,
         );
       case RouteAction.askFirst:
-        // Missing critical data — add a coach message asking for it.
-        // The user answers, profile updates, and the next message can re-route.
+        // Missing critical data — add a coach message naming the specific fields.
+        // The user provides the data, profile updates, re-ask triggers re-route.
         if (mounted) {
           final l = S.of(context)!;
+          final missing = decision.missingFields ?? [];
+          // Map field keys to human-readable labels.
+          final fieldLabels = {
+            'salaireBrut': l.rcSalaryLabel,
+            'age': l.rcAgeLabel,
+            'canton': l.rcCantonLabel,
+            'civilStatus': l.rcCivilStatusLabel,
+            'employmentStatus': l.rcEmploymentStatusLabel,
+            'netIncome': l.rcSalaryLabel,
+            'avoirLpp': l.rcLppLabel,
+            'rachatMaximum': l.rcLppLabel,
+          };
+          final missingLabels = missing
+              .map((f) => fieldLabels[f] ?? f)
+              .toSet() // deduplicate
+              .join(', ');
+          final message = missing.isNotEmpty
+              ? '${l.routeSuggestionBlocked}\n$missingLabels'
+              : l.routeSuggestionBlocked;
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
             setState(() {
               _messages.add(ChatMessage(
                 role: 'assistant',
-                content: l.routeSuggestionBlocked,
+                content: message,
                 timestamp: DateTime.now(),
                 tier: ChatTier.fallback,
               ));
@@ -669,6 +692,29 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   void _handleRouteReturn() {
     if (!mounted) return;
     final s = S.of(context)!;
+
+    // Feed CapMemory: record the screen visit as a completed action (S58 ReturnContract).
+    // This closes the boucle vivante: screen visit → CapMemory update → Pulse refresh.
+    // We find the last routed intent from the most recent message with a routePayload.
+    final lastRouted = _messages.reversed
+        .where((m) => m.hasRoutePayload)
+        .map((m) => m.routePayload!.intent)
+        .firstOrNull;
+    if (lastRouted != null) {
+      CapMemoryStore.load().then((mem) async {
+        await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
+      }).catchError((_) {});
+    }
+
+    // Save a cross-session insight about the screen visit (S58 AI Memory).
+    CoachMemoryService.saveInsight(CoachInsight(
+      id: 'route_visit_${DateTime.now().millisecondsSinceEpoch}',
+      createdAt: DateTime.now(),
+      topic: 'screen_visit',
+      summary: 'Visited a screen from coach suggestion',
+      type: InsightType.fact,
+    )).catchError((_) {});
+
     setState(() {
       _messages.add(ChatMessage(
         role: 'assistant',

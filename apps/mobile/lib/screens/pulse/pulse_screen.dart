@@ -17,6 +17,10 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/services/nudge/nudge_engine.dart';
+import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────
 //  AUJOURD'HUI — V5 "Plan-first"
@@ -59,6 +63,9 @@ class _PulseScreenState extends State<PulseScreen> {
   /// Tracks when we last showed ActionSuccess to avoid repeat.
   DateTime? _lastSeenCompletedDate;
 
+  /// Active nudges from NudgeEngine (S61 — JITAI proactive nudges).
+  List<Nudge> _activeNudges = const [];
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -92,6 +99,9 @@ class _PulseScreenState extends State<PulseScreen> {
         }
       });
     }
+
+    // Evaluate JITAI nudges (S61) — async, non-blocking.
+    _evaluateNudges(profile);
 
     try {
       _cachedProjection = ForecasterService.project(profile: profile);
@@ -168,6 +178,26 @@ class _PulseScreenState extends State<PulseScreen> {
         ),
       );
     });
+  }
+
+  /// Evaluate JITAI nudges for the current profile (S61).
+  /// Runs async — dismissed nudge IDs come from SharedPreferences.
+  Future<void> _evaluateNudges(CoachProfile profile) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final dismissed = await NudgePersistence.getDismissedIds(prefs);
+      await NudgePersistence.recordActivity(prefs, now: DateTime.now());
+      final nudges = NudgeEngine.evaluate(
+        profile: profile,
+        now: DateTime.now(),
+        dismissedNudgeIds: dismissed,
+      );
+      if (mounted && nudges != _activeNudges) {
+        setState(() => _activeNudges = nudges);
+      }
+    } catch (_) {
+      // Graceful degradation: Pulse works without nudges.
+    }
   }
 
   // ── BUILD ──
@@ -248,6 +278,12 @@ class _PulseScreenState extends State<PulseScreen> {
 
                 // ── 4. DEUX SIGNAUX SECONDAIRES ──
                 _buildSecondarySignals(profile, l),
+
+                // ── 5. NUDGE PROACTIF (S61 — JITAI) ──
+                if (_activeNudges.isNotEmpty) ...[
+                  const SizedBox(height: MintSpacing.xl),
+                  _buildNudgeCard(_activeNudges.first, l),
+                ],
 
                 const SizedBox(height: MintSpacing.xxl),
 
@@ -438,6 +474,99 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   // ── SECONDARY SIGNALS (max 2) ──
+
+  /// Build a nudge card for a JITAI proactive nudge (S61).
+  Widget _buildNudgeCard(Nudge nudge, S l) {
+    // Resolve i18n title and body from ARB keys via the nudge's titleKey/bodyKey.
+    // Since ARB keys are resolved at compile time, we use a lookup approach.
+    final title = _resolveNudgeText(nudge.titleKey, nudge.params, l);
+    final body = _resolveNudgeText(nudge.bodyKey, nudge.params, l);
+
+    return MintSurface(
+      tone: MintSurfaceTone.sauge,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.lightbulb_outline,
+                  size: 18, color: MintColors.primary),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  title,
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+              // Dismiss button
+              GestureDetector(
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await NudgePersistence.dismiss(nudge.id, nudge.trigger, prefs);
+                  if (mounted) {
+                    setState(() {
+                      _activeNudges = _activeNudges
+                          .where((n) => n.id != nudge.id)
+                          .toList();
+                    });
+                  }
+                },
+                child: const Icon(Icons.close,
+                    size: 16, color: MintColors.textMuted),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            body,
+            style: MintTextStyles.bodySmall(
+              color: MintColors.textSecondary,
+            ),
+          ),
+          if (nudge.intentTag.isNotEmpty) ...[
+            const SizedBox(height: MintSpacing.sm),
+            GestureDetector(
+              onTap: () {
+                // Route to the relevant screen via coach with the intent tag.
+                context.push('/coach', extra: {'prompt': nudge.intentTag});
+              },
+              child: Text(
+                l.routeSuggestionCta,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Resolve a nudge ARB key to its localized text.
+  /// Falls back to the key name if not found.
+  String _resolveNudgeText(String key, Map<String, String>? params, S l) {
+    // Nudge keys are defined as getter-style in the generated localizations.
+    // We use a static map for the known keys to avoid reflection.
+    // This is the pragmatic approach for a finite set of nudge keys.
+    final map = <String, String>{
+      'nudgeSalaryTitle': l.nudgeSalaryTitle,
+      'nudgeSalaryBody': l.nudgeSalaryBody,
+      'nudgeTaxDeadlineTitle': l.nudgeTaxDeadlineTitle,
+      'nudgeTaxDeadlineBody': l.nudgeTaxDeadlineBody,
+      'nudgeProfileTitle': l.nudgeProfileTitle,
+      'nudgeProfileBody': l.nudgeProfileBody,
+      'nudgeInactiveTitle': l.nudgeInactiveTitle,
+      'nudgeInactiveBody': l.nudgeInactiveBody,
+      'nudgeGoalProgressTitle': l.nudgeGoalProgressTitle,
+      'nudgeNewYearTitle': l.nudgeNewYearTitle,
+      'nudgeLppBuybackTitle': l.nudgeLppBuybackTitle,
+    };
+    return map[key] ?? key;
+  }
 
   Widget _buildSecondarySignals(CoachProfile profile, S l) {
     final signals = <Widget>[];

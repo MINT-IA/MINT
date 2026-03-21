@@ -8352,5 +8352,163 @@
   "challengeArchetypeNonEu01Title": "Verifica se uma conven\u00e7\u00e3o de seguran\u00e7a social abrange o teu pa\u00eds",
   "challengeArchetypeNonEu01Desc": "Sem acordo bilateral, as tuas contribui\u00e7\u00f5es estrangeiras n\u00e3o contam para o AVS. Verifica se o teu pa\u00eds de origem tem um acordo com a Su\u00ed\u00e7a.",
   "challengeArchetypeReturning01Title": "Verifica o teu potencial de recompra LPP ap\u00f3s regressar \u00e0 Su\u00ed\u00e7a",
-  "challengeArchetypeReturning01Desc": "De volta \u00e0 Su\u00ed\u00e7a ap\u00f3s uma estadia no estrangeiro? Podes ter um potencial de recompra LPP importante, dedut\u00edvel fiscalmente. Simula o montante."
+  "challengeArchetypeReturning01Desc": "De volta \u00e0 Su\u00ed\u00e7a ap\u00f3s uma estadia no estrangeiro? Podes ter um potencial de recompra LPP importante, dedut\u00edvel fiscalmente. Simula o montante.",
+
+  "voiceMicLabel": "Falar ao microfone",
+  "voiceMicListening": "A ouvir\u2026",
+  "voiceMicProcessing": "A processar\u2026",
+  "voiceSpeakerLabel": "Ouvir a resposta",
+  "voiceSpeakerStop": "Parar a leitura",
+  "voiceUnavailable": "Fun\u00e7\u00f5es de voz n\u00e3o dispon\u00edveis neste dispositivo",
+  "voicePermissionNeeded": "Permite o acesso ao microfone para usar a voz",
+  "voiceNoSpeech": "N\u00e3o ouvi nada. Tenta de novo.",
+  "voiceError": "Erro de voz. Usa o teclado.",
+
+  "benchmarkTitle": "Perfis semelhantes no teu cantão",
+  "benchmarkSubtitle": "Dados agregados e anonimizados (OFS)",
+  "benchmarkOptInTitle": "Ativar comparações cantonais",
+  "benchmarkOptInBody": "Compara a tua situação com as medianas do teu cantão. Dados anonimizados, nunca um ranking.",
+  "benchmarkOptInButton": "Ativar",
+  "benchmarkOptOutButton": "Desativar",
+  "benchmarkDisclaimer": "Dados agregados OFS — ferramenta educativa, não um ranking. Não constitui aconselhamento (LSFin art.\u00a03).",
+  "benchmarkInsightIncome": "O rendimento mediano no cantão de {canton} é de CHF\u00a0{amount}/ano",
+  "@benchmarkInsightIncome": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "benchmarkInsightSavings": "Um perfil semelhante poupa cerca de {rate}% do seu rendimento",
+  "@benchmarkInsightSavings": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "benchmarkInsightTax": "A carga fiscal em {canton} é {level} em relação à média suíça",
+  "@benchmarkInsightTax": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "level": { "type": "String" }
+    }
+  },
+  "benchmarkInsightHousing": "A renda mediana para um apartamento de 4 quartos é CHF\u00a0{amount}/mês",
+  "@benchmarkInsightHousing": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "benchmarkInsight3a": "Cerca de {rate}% dos trabalhadores contribuem para o 3.º pilar",
+  "@benchmarkInsight3a": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "benchmarkInsightLpp": "A taxa de cobertura LPP é de {rate}%",
+  "@benchmarkInsightLpp": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "benchmarkTaxLevelBelow": "inferior",
+  "benchmarkTaxLevelAverage": "comparável",
+  "benchmarkTaxLevelAbove": "superior",
+  "benchmarkNoDataCanton": "Dados não disponíveis para este cantão",
+
+  "llmFailoverActive": "Failover automático ativado",
+  "llmProviderClaude": "Claude (Anthropic)",
+  "llmProviderOpenai": "GPT-4o (OpenAI)",
+  "llmProviderMistral": "Mistral",
+  "llmProviderLocal": "Modelo local",
+  "llmCircuitOpen": "Serviço temporariamente indisponível",
+  "llmAllProvidersDown": "Todos os serviços de IA estão indisponíveis. Modo offline ativado.",
+  "llmQualityGood": "Qualidade da resposta: boa",
+  "llmQualityDegraded": "Qualidade da resposta: degradada",
+
+  "gamificationCommunityTitle": "Desafio do mês",
+  "gamificationSeasonalTitle": "Eventos sazonais",
+  "gamificationMilestonesTitle": "As tuas conquistas",
+  "gamificationOptInPrompt": "Participar nos desafios da comunidade",
+
+  "communityChallenge01Title": "Prepara a tua declaração de impostos",
+  "communityChallenge01Desc": "Janeiro é o momento certo para reunir os teus documentos fiscais. Contacta o teu cantão para saber o prazo e os documentos necessários.",
+  "communityChallenge02Title": "Identifica as tuas deduções fiscais",
+  "communityChallenge02Desc": "Despesas profissionais, juros hipotecários, doações\u00a0: lista todas as deduções a que tens direito antes de submeter a tua declaração.",
+  "communityChallenge03Title": "Verifica a tua contribuição para o 3.º pilar antes do prazo",
+  "communityChallenge03Desc": "Alguns cantões permitem completar a contribuição do ano anterior para o pilar 3a até março. Verifica as regras do teu cantão.",
+  "communityChallenge04Title": "Consulta o teu certificado de previdência LPP",
+  "communityChallenge04Desc": "O teu certificado anual LPP chegou. Dedica 10 minutos a compreender o teu capital, a taxa de conversão e o potencial de recompra.",
+  "communityChallenge05Title": "Simula uma recompra LPP",
+  "communityChallenge05Desc": "Uma recompra LPP melhora a tua reforma E reduz os teus impostos. Calcula quanto poderias recomprar e o impacto fiscal no teu cantão.",
+  "communityChallenge06Title": "Faz a tua revisão semestral",
+  "communityChallenge06Desc": "Passaram 6 meses\u00a0: revê os teus objetivos financeiros, verifica se estás no caminho certo e ajusta se necessário.",
+  "communityChallenge07Title": "Define o teu objetivo de poupança estival",
+  "communityChallenge07Desc": "O verão pode afetar o teu orçamento. Define um objetivo de poupança para julho e acompanha o teu progresso até ao final de agosto.",
+  "communityChallenge08Title": "Constitui ou reforça o teu fundo de emergência",
+  "communityChallenge08Desc": "Um fundo de emergência de 3 a 6 meses de despesas fixas protege-te dos imprevistos. Verifica onde estás e planeia as contribuições em falta.",
+  "communityChallenge09Title": "Programa a tua contribuição de outono para o 3.º pilar",
+  "communityChallenge09Desc": "Setembro é ideal para programar a próxima contribuição para o pilar 3a. Distribuir as contribuições ao longo do ano reduz o stress do prazo de dezembro.",
+  "communityChallenge10Title": "Celebra o mês da previdência",
+  "communityChallenge10Desc": "Outubro é o mês oficial da previdência na Suíça. Consulta a tua projeção de reforma e identifica uma ação concreta para melhorar a tua situação.",
+  "communityChallenge11Title": "Planeia as tuas últimas otimizações de fim de ano",
+  "communityChallenge11Desc": "Restam poucas semanas para agir: contribuição 3a, doação, declaração de despesas. Identifica o que ainda podes fazer antes de 31 de dezembro.",
+  "communityChallenge12Title": "Faz a tua contribuição para o 3.º pilar antes de 31 de dezembro",
+  "communityChallenge12Desc": "O prazo do 3a aproxima-se. Contribui até CHF 7\u2019258 (trabalhador por conta de outrem com LPP) antes de 31 de dezembro para beneficiar da dedução fiscal deste ano.",
+
+  "seasonalTaxSeasonTitle": "Época fiscal",
+  "seasonalTaxSeasonDesc": "Fevereiro–março: é o momento de preparar a tua declaração de impostos. Reúne os teus justificativos e identifica as tuas deduções.",
+  "seasonal3aCountdownTitle": "Contagem decrescente 3.º pilar",
+  "seasonal3aCountdownDesc": "O prazo de 31 de dezembro para contribuições ao pilar 3a está a aproximar-se. Verifica o teu saldo e planeia a contribuição para maximizar a dedução fiscal.",
+  "seasonalNewYearResolutionsTitle": "Resoluções financeiras",
+  "seasonalNewYearResolutionsDesc": "Novo ano, novos objetivos financeiros. Define 1 ou 2 ações concretas que vais implementar este ano.",
+  "seasonalMidYearReviewTitle": "Revisão semestral",
+  "seasonalMidYearReviewDesc": "Atingiste a marca dos 6 meses. Toma um momento para verificar o teu progresso em direção aos objetivos e ajustar se necessário.",
+  "seasonalRetirementMonthTitle": "Mês da previdência",
+  "seasonalRetirementMonthDesc": "Outubro é o mês nacional da previdência na Suíça. É o momento de verificar a tua projeção de reforma e a tua taxa de substituição.",
+
+  "milestoneEngagementFirstWeekTitle": "Primeira semana",
+  "milestoneEngagementFirstWeekDesc": "Usas o MINT há 7 dias. Construir hábitos começa aqui.",
+  "milestoneEngagementOneMonthTitle": "Um mês fiel",
+  "milestoneEngagementOneMonthDesc": "30 dias com MINT. A tua curiosidade financeira está presente.",
+  "milestoneEngagementCitoyenTitle": "Cidadão MINT",
+  "milestoneEngagementCitoyenDesc": "90 dias: fazes parte das pessoas que tomam o seu futuro financeiro nas próprias mãos.",
+  "milestoneEngagementFideleTitle": "Fiel 6 meses",
+  "milestoneEngagementFideleDesc": "180 dias de acompanhamento financeiro. A tua regularidade constrói uma visão clara da tua situação.",
+  "milestoneEngagementVeteranTitle": "Veterano MINT",
+  "milestoneEngagementVeteranDesc": "365 dias com MINT. Um ano completo de consciência financeira.",
+  "milestoneKnowledgeCurieuxTitle": "Curioso",
+  "milestoneKnowledgeCurieuxDesc": "Exploraste 5 conceitos financeiros. O conhecimento é o ponto de partida de cada decisão informada.",
+  "milestoneKnowledgeEclaireTitle": "Informado",
+  "milestoneKnowledgeEclaireDesc": "20 conceitos lidos. Estás a construir uma sólida compreensão do sistema financeiro suíço.",
+  "milestoneKnowledgeExpertTitle": "Especialista",
+  "milestoneKnowledgeExpertDesc": "50 conceitos explorados. Dominas os fundamentos da previdência suíça.",
+  "milestoneKnowledgeStrategisteTitle": "Estratega",
+  "milestoneKnowledgeStrategisteDesc": "100 conceitos. Tens uma visão estratégica a longo prazo das tuas finanças.",
+  "milestoneKnowledgeMaitreTitle": "Mestre",
+  "milestoneKnowledgeMaitreDesc": "200 conceitos lidos. A tua cultura financeira é um ativo concreto para as tuas decisões de vida.",
+  "milestoneActionPremierPasTitle": "Primeiro passo",
+  "milestoneActionPremierPasDesc": "Realizaste a tua primeira ação financeira concreta. Cada grande mudança começa por um primeiro passo.",
+  "milestoneActionActeurTitle": "Ator",
+  "milestoneActionActeurDesc": "5 ações financeiras realizadas. Passas da reflexão à ação.",
+  "milestoneActionMaitreDestinTitle": "Dono do teu destino",
+  "milestoneActionMaitreDestinDesc": "20 ações concretas. Geres ativamente a tua situação financeira.",
+  "milestoneActionBatisseurTitle": "Construtor",
+  "milestoneActionBatisseurDesc": "50 ações financeiras. Constróis pacientemente uma base sólida.",
+  "milestoneActionArchitecteTitle": "Arquiteto",
+  "milestoneActionArchitecteDesc": "100 ações. És o arquiteto da tua liberdade financeira.",
+  "milestoneConsistencyFlammeNaissanteTitle": "Chama nascente",
+  "milestoneConsistencyFlammeNaissanteDesc": "2 semanas consecutivas. A tua regularidade está a tomar forma.",
+  "milestoneConsistencyFlammeViveTitle": "Chama viva",
+  "milestoneConsistencyFlammeViveDesc": "4 semanas sem interrupção. A tua disciplina financeira está em marcha.",
+  "milestoneConsistencyFlammeEtermelleTitle": "Chama eterna",
+  "milestoneConsistencyFlammeEtermelleDesc": "12 semanas consecutivas. A tua constância tornou-se um hábito.",
+  "milestoneConsistencyConfianceTitle": "Perfil de confiança",
+  "milestoneConsistencyConfianceDesc": "O teu perfil atingiu um nível de confiança de 70\u00a0%. Os teus dados permitem cálculos fiáveis.",
+  "milestoneConsistencyChallengesTitle": "6 desafios concluídos",
+  "milestoneConsistencyChallengesDesc": "Completaste 6 desafios mensais. Seis meses de compromisso financeiro concreto.",
+  "rcSalaryLabel": "O teu rendimento",
+  "rcAgeLabel": "A tua idade",
+  "rcCantonLabel": "O teu cantão",
+  "rcCivilStatusLabel": "O teu estado civil",
+  "rcEmploymentStatusLabel": "O teu estatuto profissional",
+  "rcLppLabel": "Os teus dados LPP"
 }

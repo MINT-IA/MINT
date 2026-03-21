@@ -21631,7 +21631,7 @@ abstract class S {
   /// No description provided for @benchmarkOptInTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Activer les repères cantonaux'**
+  /// **'Activer les comparaisons cantonales'**
   String get benchmarkOptInTitle;
 
   /// No description provided for @benchmarkOptInSubtitle.
@@ -33953,6 +33953,714 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'De retour en Suisse après un séjour à l’étranger ? Tu pourrais avoir un potentiel de rachat LPP important, déductible fiscalement. Simule le montant.'**
   String get challengeArchetypeReturning01Desc;
+
+  /// No description provided for @voiceMicLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parler au micro'**
+  String get voiceMicLabel;
+
+  /// No description provided for @voiceMicListening.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’écoute…'**
+  String get voiceMicListening;
+
+  /// No description provided for @voiceMicProcessing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement…'**
+  String get voiceMicProcessing;
+
+  /// No description provided for @voiceSpeakerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écouter la réponse'**
+  String get voiceSpeakerLabel;
+
+  /// No description provided for @voiceSpeakerStop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter la lecture'**
+  String get voiceSpeakerStop;
+
+  /// No description provided for @voiceUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctions vocales non disponibles sur cet appareil'**
+  String get voiceUnavailable;
+
+  /// No description provided for @voicePermissionNeeded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorise le micro pour utiliser la voix'**
+  String get voicePermissionNeeded;
+
+  /// No description provided for @voiceNoSpeech.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n’ai rien entendu. Réessaie.'**
+  String get voiceNoSpeech;
+
+  /// No description provided for @voiceError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur vocale. Utilise le clavier.'**
+  String get voiceError;
+
+  /// No description provided for @benchmarkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profils similaires dans ton canton'**
+  String get benchmarkTitle;
+
+  /// No description provided for @benchmarkSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données agrégées et anonymisées (OFS)'**
+  String get benchmarkSubtitle;
+
+  /// No description provided for @benchmarkOptInBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare ta situation aux médianes de ton canton. Données anonymisées, jamais de classement.'**
+  String get benchmarkOptInBody;
+
+  /// No description provided for @benchmarkOptInButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer'**
+  String get benchmarkOptInButton;
+
+  /// No description provided for @benchmarkOptOutButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver'**
+  String get benchmarkOptOutButton;
+
+  /// No description provided for @benchmarkDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données agrégées OFS — outil éducatif, pas un classement. Ne constitue pas un conseil (LSFin art. 3).'**
+  String get benchmarkDisclaimer;
+
+  /// No description provided for @benchmarkInsightIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le revenu médian dans le canton de {canton} est de CHF {amount}/an'**
+  String benchmarkInsightIncome(String canton, String amount);
+
+  /// No description provided for @benchmarkInsightSavings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un profil similaire épargne environ {rate}% de son revenu'**
+  String benchmarkInsightSavings(String rate);
+
+  /// No description provided for @benchmarkInsightTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'La charge fiscale dans {canton} est {level} par rapport à la moyenne suisse'**
+  String benchmarkInsightTax(String canton, String level);
+
+  /// No description provided for @benchmarkInsightHousing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le loyer médian pour un 4 pièces est de CHF {amount}/mois'**
+  String benchmarkInsightHousing(String amount);
+
+  /// No description provided for @benchmarkInsight3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Environ {rate}% des actifs versent dans le 3a'**
+  String benchmarkInsight3a(String rate);
+
+  /// No description provided for @benchmarkInsightLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de couverture LPP est de {rate}%'**
+  String benchmarkInsightLpp(String rate);
+
+  /// No description provided for @benchmarkTaxLevelBelow.
+  ///
+  /// In fr, this message translates to:
+  /// **'inférieure'**
+  String get benchmarkTaxLevelBelow;
+
+  /// No description provided for @benchmarkTaxLevelAverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'comparable'**
+  String get benchmarkTaxLevelAverage;
+
+  /// No description provided for @benchmarkTaxLevelAbove.
+  ///
+  /// In fr, this message translates to:
+  /// **'supérieure'**
+  String get benchmarkTaxLevelAbove;
+
+  /// No description provided for @benchmarkNoDataCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données non disponibles pour ce canton'**
+  String get benchmarkNoDataCanton;
+
+  /// No description provided for @llmFailoverActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basculement automatique activé'**
+  String get llmFailoverActive;
+
+  /// No description provided for @llmProviderClaude.
+  ///
+  /// In fr, this message translates to:
+  /// **'Claude (Anthropic)'**
+  String get llmProviderClaude;
+
+  /// No description provided for @llmProviderOpenai.
+  ///
+  /// In fr, this message translates to:
+  /// **'GPT-4o (OpenAI)'**
+  String get llmProviderOpenai;
+
+  /// No description provided for @llmProviderMistral.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mistral'**
+  String get llmProviderMistral;
+
+  /// No description provided for @llmProviderLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle local'**
+  String get llmProviderLocal;
+
+  /// No description provided for @llmCircuitOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service temporairement indisponible'**
+  String get llmCircuitOpen;
+
+  /// No description provided for @llmAllProvidersDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les services IA sont indisponibles. Mode hors-ligne activé.'**
+  String get llmAllProvidersDown;
+
+  /// No description provided for @llmQualityGood.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité de réponse : bonne'**
+  String get llmQualityGood;
+
+  /// No description provided for @llmQualityDegraded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité de réponse : dégradée'**
+  String get llmQualityDegraded;
+
+  /// No description provided for @gamificationCommunityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi du mois'**
+  String get gamificationCommunityTitle;
+
+  /// No description provided for @gamificationSeasonalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements saisonniers'**
+  String get gamificationSeasonalTitle;
+
+  /// No description provided for @gamificationMilestonesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes accomplissements'**
+  String get gamificationMilestonesTitle;
+
+  /// No description provided for @gamificationOptInPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participer aux défis communautaires'**
+  String get gamificationOptInPrompt;
+
+  /// No description provided for @communityChallenge01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prépare ta déclaration d’impôts'**
+  String get communityChallenge01Title;
+
+  /// No description provided for @communityChallenge01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Janvier est le bon moment pour rassembler tes documents fiscaux. Contacte ton canton pour connaître la date limite et les pièces requises.'**
+  String get communityChallenge01Desc;
+
+  /// No description provided for @communityChallenge02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifie tes déductions fiscales'**
+  String get communityChallenge02Title;
+
+  /// No description provided for @communityChallenge02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais professionnels, intérêts hypothécaires, dons : répertorie toutes les déductions auxquelles tu as droit avant de soumettre ta déclaration.'**
+  String get communityChallenge02Desc;
+
+  /// No description provided for @communityChallenge03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton versement 3a avant la deadline'**
+  String get communityChallenge03Title;
+
+  /// No description provided for @communityChallenge03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certains cantons permettent de compléter le versement 3a de l’année précédente jusqu’en mars. Vérifie les règles de ton canton.'**
+  String get communityChallenge03Desc;
+
+  /// No description provided for @communityChallenge04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte ton certificat de prévoyance LPP'**
+  String get communityChallenge04Title;
+
+  /// No description provided for @communityChallenge04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton certificat annuel LPP est arrivé. Prends 10 minutes pour comprendre ton avoir, ton taux de conversion et ton potentiel de rachat.'**
+  String get communityChallenge04Desc;
+
+  /// No description provided for @communityChallenge05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un rachat LPP'**
+  String get communityChallenge05Title;
+
+  /// No description provided for @communityChallenge05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rachat LPP améliore ta retraite ET réduit tes impôts. Calcule combien tu pourrais racheter et l’impact fiscal dans ton canton.'**
+  String get communityChallenge05Desc;
+
+  /// No description provided for @communityChallenge06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais ton bilan mi-annuel'**
+  String get communityChallenge06Title;
+
+  /// No description provided for @communityChallenge06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'6 mois se sont écoulés : révise tes objectifs financiers, vérifie si tu es sur la bonne trajectoire et ajuste si nécessaire.'**
+  String get communityChallenge06Desc;
+
+  /// No description provided for @communityChallenge07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définis ton objectif d’épargne estivale'**
+  String get communityChallenge07Title;
+
+  /// No description provided for @communityChallenge07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’été peut impacter ton budget. Définis un objectif d’épargne pour juillet et suis ta progression jusqu’à fin août.'**
+  String get communityChallenge07Desc;
+
+  /// No description provided for @communityChallenge08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Constitue ou renforce ton fonds d’urgence'**
+  String get communityChallenge08Title;
+
+  /// No description provided for @communityChallenge08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un fonds d’urgence de 3 à 6 mois de charges fixes te protège des aléas. Vérifie où tu en es et planifie les versements manquants.'**
+  String get communityChallenge08Desc;
+
+  /// No description provided for @communityChallenge09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programme ton versement 3a d’automne'**
+  String get communityChallenge09Title;
+
+  /// No description provided for @communityChallenge09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Septembre est idéal pour programmer ton prochain versement 3a. Étaler les versements sur l’année réduit le stress de la deadline de décembre.'**
+  String get communityChallenge09Desc;
+
+  /// No description provided for @communityChallenge10Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célèbre le mois de la prévoyance'**
+  String get communityChallenge10Title;
+
+  /// No description provided for @communityChallenge10Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Octobre est le mois officiel de la prévoyance en Suisse. Consulte ta projection de retraite et identifie une action concrète pour améliorer ta situation.'**
+  String get communityChallenge10Desc;
+
+  /// No description provided for @communityChallenge11Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifie tes dernières optimisations de fin d’année'**
+  String get communityChallenge11Title;
+
+  /// No description provided for @communityChallenge11Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste quelques semaines pour agir : versement 3a, don à une association, déclaration de frais. Identifie ce que tu peux encore faire avant le 31 décembre.'**
+  String get communityChallenge11Desc;
+
+  /// No description provided for @communityChallenge12Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verse ton 3a avant le 31 décembre'**
+  String get communityChallenge12Title;
+
+  /// No description provided for @communityChallenge12Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La deadline 3a approche. Verse jusqu’à CHF 7’258 (salarié avec LPP) avant le 31 décembre pour bénéficier de la déduction fiscale de cette année.'**
+  String get communityChallenge12Desc;
+
+  /// No description provided for @seasonalTaxSeasonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saison des impôts'**
+  String get seasonalTaxSeasonTitle;
+
+  /// No description provided for @seasonalTaxSeasonDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Février-mars : c’est le moment de préparer ta déclaration d’impôts. Rassemble tes justificatifs et identifie tes déductions.'**
+  String get seasonalTaxSeasonDesc;
+
+  /// No description provided for @seasonal3aCountdownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte à rebours 3e pilier'**
+  String get seasonal3aCountdownTitle;
+
+  /// No description provided for @seasonal3aCountdownDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La deadline du 31 décembre approche pour les versements 3a. Vérifie ton solde et planifie ton versement pour maximiser ta déduction fiscale.'**
+  String get seasonal3aCountdownDesc;
+
+  /// No description provided for @seasonalNewYearResolutionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résolutions financières'**
+  String get seasonalNewYearResolutionsTitle;
+
+  /// No description provided for @seasonalNewYearResolutionsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle année, nouveaux objectifs financiers. Définis 1 ou 2 actions concrètes que tu vas mettre en place cette année.'**
+  String get seasonalNewYearResolutionsDesc;
+
+  /// No description provided for @seasonalMidYearReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revue mi-annuelle'**
+  String get seasonalMidYearReviewTitle;
+
+  /// No description provided for @seasonalMidYearReviewDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le cap des 6 mois est atteint. Prends un moment pour vérifier ta progression vers tes objectifs et ajuster si nécessaire.'**
+  String get seasonalMidYearReviewDesc;
+
+  /// No description provided for @seasonalRetirementMonthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois de la prévoyance'**
+  String get seasonalRetirementMonthTitle;
+
+  /// No description provided for @seasonalRetirementMonthDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Octobre est le mois national de la prévoyance en Suisse. C’est le moment de vérifier ta projection de retraite et ton taux de remplacement.'**
+  String get seasonalRetirementMonthDesc;
+
+  /// No description provided for @milestoneEngagementFirstWeekTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Première semaine'**
+  String get milestoneEngagementFirstWeekTitle;
+
+  /// No description provided for @milestoneEngagementFirstWeekDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu utilises MINT depuis 7 jours. Construire des habitudes, ça commence ici.'**
+  String get milestoneEngagementFirstWeekDesc;
+
+  /// No description provided for @milestoneEngagementOneMonthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un mois fidèle'**
+  String get milestoneEngagementOneMonthTitle;
+
+  /// No description provided for @milestoneEngagementOneMonthDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'30 jours avec MINT. Ta curiosité financière est au rendez-vous.'**
+  String get milestoneEngagementOneMonthDesc;
+
+  /// No description provided for @milestoneEngagementCitoyenTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Citoyen MINT'**
+  String get milestoneEngagementCitoyenTitle;
+
+  /// No description provided for @milestoneEngagementCitoyenDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'90 jours : tu fais partie des personnes qui prennent leur avenir financier en main.'**
+  String get milestoneEngagementCitoyenDesc;
+
+  /// No description provided for @milestoneEngagementFideleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fidèle 6 mois'**
+  String get milestoneEngagementFideleTitle;
+
+  /// No description provided for @milestoneEngagementFideleDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'180 jours de suivi financier. Ta régularité construit une vision claire de ta situation.'**
+  String get milestoneEngagementFideleDesc;
+
+  /// No description provided for @milestoneEngagementVeteranTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vétéran MINT'**
+  String get milestoneEngagementVeteranTitle;
+
+  /// No description provided for @milestoneEngagementVeteranDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'365 jours avec MINT. Une année complète de conscience financière.'**
+  String get milestoneEngagementVeteranDesc;
+
+  /// No description provided for @milestoneKnowledgeCurieuxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Curieux'**
+  String get milestoneKnowledgeCurieuxTitle;
+
+  /// No description provided for @milestoneKnowledgeCurieuxDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as exploré 5 concepts financiers. La connaissance, c’est le point de départ de toute décision éclairée.'**
+  String get milestoneKnowledgeCurieuxDesc;
+
+  /// No description provided for @milestoneKnowledgeEclaireTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éclairé'**
+  String get milestoneKnowledgeEclaireTitle;
+
+  /// No description provided for @milestoneKnowledgeEclaireDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'20 insights parcourus. Tu construis une vision solide du système financier suisse.'**
+  String get milestoneKnowledgeEclaireDesc;
+
+  /// No description provided for @milestoneKnowledgeExpertTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expert'**
+  String get milestoneKnowledgeExpertTitle;
+
+  /// No description provided for @milestoneKnowledgeExpertDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'50 concepts explorés. Tu maîtrises les fondamentaux de la prévoyance suisse.'**
+  String get milestoneKnowledgeExpertDesc;
+
+  /// No description provided for @milestoneKnowledgeStrategisteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stratège'**
+  String get milestoneKnowledgeStrategisteTitle;
+
+  /// No description provided for @milestoneKnowledgeStrategisteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 insights. Tu as une vision stratégique de tes finances sur le long terme.'**
+  String get milestoneKnowledgeStrategisteDesc;
+
+  /// No description provided for @milestoneKnowledgeMaitreTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maître'**
+  String get milestoneKnowledgeMaitreTitle;
+
+  /// No description provided for @milestoneKnowledgeMaitreDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'200 concepts parcourus. Ta culture financière est un atout concret pour tes décisions de vie.'**
+  String get milestoneKnowledgeMaitreDesc;
+
+  /// No description provided for @milestoneActionPremierPasTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier pas'**
+  String get milestoneActionPremierPasTitle;
+
+  /// No description provided for @milestoneActionPremierPasDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as effectué ta première action financière concrète. Chaque grand changement commence par une première étape.'**
+  String get milestoneActionPremierPasDesc;
+
+  /// No description provided for @milestoneActionActeurTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acteur'**
+  String get milestoneActionActeurTitle;
+
+  /// No description provided for @milestoneActionActeurDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'5 actions financières réalisées. Tu passes de la réflexion à l’action.'**
+  String get milestoneActionActeurDesc;
+
+  /// No description provided for @milestoneActionMaitreDestinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maître de son destin'**
+  String get milestoneActionMaitreDestinTitle;
+
+  /// No description provided for @milestoneActionMaitreDestinDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'20 actions concrètes. Tu pilotes activement ta situation financière.'**
+  String get milestoneActionMaitreDestinDesc;
+
+  /// No description provided for @milestoneActionBatisseurTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bâtisseur'**
+  String get milestoneActionBatisseurTitle;
+
+  /// No description provided for @milestoneActionBatisseurDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'50 actions financières. Tu construis patiemment une situation solide.'**
+  String get milestoneActionBatisseurDesc;
+
+  /// No description provided for @milestoneActionArchitecteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Architecte'**
+  String get milestoneActionArchitecteTitle;
+
+  /// No description provided for @milestoneActionArchitecteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 actions. Tu es l’architecte de ta liberté financière.'**
+  String get milestoneActionArchitecteDesc;
+
+  /// No description provided for @milestoneConsistencyFlammeNaissanteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flamme naissante'**
+  String get milestoneConsistencyFlammeNaissanteTitle;
+
+  /// No description provided for @milestoneConsistencyFlammeNaissanteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'2 semaines consécutives. Ta régularité prend forme.'**
+  String get milestoneConsistencyFlammeNaissanteDesc;
+
+  /// No description provided for @milestoneConsistencyFlammeViveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flamme vive'**
+  String get milestoneConsistencyFlammeViveTitle;
+
+  /// No description provided for @milestoneConsistencyFlammeViveDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'4 semaines sans interruption. Ta discipline financière est en marche.'**
+  String get milestoneConsistencyFlammeViveDesc;
+
+  /// No description provided for @milestoneConsistencyFlammeEtermelleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flamme éternelle'**
+  String get milestoneConsistencyFlammeEtermelleTitle;
+
+  /// No description provided for @milestoneConsistencyFlammeEtermelleDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'12 semaines consécutives. Ta constance est devenue une habitude.'**
+  String get milestoneConsistencyFlammeEtermelleDesc;
+
+  /// No description provided for @milestoneConsistencyConfianceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil de confiance'**
+  String get milestoneConsistencyConfianceTitle;
+
+  /// No description provided for @milestoneConsistencyConfianceDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil a atteint un score de confiance de 70 %. Tes données permettent des calculs fiables.'**
+  String get milestoneConsistencyConfianceDesc;
+
+  /// No description provided for @milestoneConsistencyChallengesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'6 défis accomplis'**
+  String get milestoneConsistencyChallengesTitle;
+
+  /// No description provided for @milestoneConsistencyChallengesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as relevé 6 défis du mois. Six mois d’engagement financier concret.'**
+  String get milestoneConsistencyChallengesDesc;
+
+  /// No description provided for @rcSalaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu'**
+  String get rcSalaryLabel;
+
+  /// No description provided for @rcAgeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton âge'**
+  String get rcAgeLabel;
+
+  /// No description provided for @rcCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton'**
+  String get rcCantonLabel;
+
+  /// No description provided for @rcCivilStatusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation civile'**
+  String get rcCivilStatusLabel;
+
+  /// No description provided for @rcEmploymentStatusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton statut professionnel'**
+  String get rcEmploymentStatusLabel;
+
+  /// No description provided for @rcLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données LPP'**
+  String get rcLppLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
