@@ -4,6 +4,7 @@ import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 import 'package:mint_mobile/services/content_adapter_service.dart';
 import 'package:mint_mobile/services/coach/conversation_memory_service.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
+import 'package:mint_mobile/services/memory/memory_context_builder.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE — S58 / AI Memory
@@ -114,11 +115,21 @@ class ContextInjectorService {
       lifecycleBlock = adaptation.coachSystemPromptAddition;
     }
 
+    // Load cross-session insights from the new CoachMemoryService (S58).
+    // These complement the conversation memory with structured topic insights.
+    String crossSessionBlock = '';
+    try {
+      crossSessionBlock = await MemoryContextBuilder.buildContext(prefs: sp);
+    } catch (_) {
+      // Graceful degradation: old memory still works without new insights.
+    }
+
     // Build the complete memory block
     final memoryBlock = _buildMemoryBlock(
       lifecycleBlock: lifecycleBlock,
       memory: memory,
       goalsSummary: goalsSummary,
+      crossSessionBlock: crossSessionBlock,
     );
 
     return EnrichedContext(
@@ -137,6 +148,7 @@ class ContextInjectorService {
     required String lifecycleBlock,
     required ConversationMemory memory,
     required String goalsSummary,
+    String crossSessionBlock = '',
   }) {
     final parts = <String>[];
 
@@ -167,6 +179,12 @@ class ContextInjectorService {
     if (goalsSummary.isNotEmpty) {
       parts.add('');
       parts.add(goalsSummary);
+    }
+
+    // Cross-session insights (CoachMemoryService S58)
+    if (crossSessionBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(crossSessionBlock);
     }
 
     parts.add('--- FIN MÉMOIRE ---');

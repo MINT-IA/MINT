@@ -642,6 +642,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           isPartial: decision.action == RouteAction.openWithWarning,
         );
       case RouteAction.askFirst:
+        // Missing critical data — add a coach message asking for it.
+        // The user answers, profile updates, and the next message can re-route.
+        if (mounted) {
+          final l = S.of(context)!;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() {
+              _messages.add(ChatMessage(
+                role: 'assistant',
+                content: l.routeSuggestionBlocked,
+                timestamp: DateTime.now(),
+                tier: ChatTier.fallback,
+              ));
+            });
+            _scrollToBottom();
+          });
+        }
+        return null;
       case RouteAction.conversationOnly:
         return null;
     }
