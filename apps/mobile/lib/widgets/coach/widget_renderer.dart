@@ -229,6 +229,12 @@ class WidgetRenderer {
     final message = p['message'] as String?;
 
     switch (field) {
+      case 'name':
+        // Name is collected via normal text input, not a picker.
+        // Claude asks "Au fait, comment tu t'appelles?" and the user types.
+        // The _handleInputSubmitted callback handles profile update.
+        return null;
+
       case 'age':
         return ChatAgePicker(
           label: message,

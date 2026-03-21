@@ -18382,4 +18382,78 @@ class SIt extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Il tuo libero mensile';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Capire la mia busta paga';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Lordo, netto, deduzioni: tutto chiaro';
+
+  @override
+  String get lightningMenuPayslipAction => 'Spiegami la mia busta paga';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'Cosa sono i 3 pilastri?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'Il sistema svizzero in 2 minuti';
+
+  @override
+  String get lightningMenuThreePillarsAction =>
+      'Cosa sono i 3 pilastri svizzeri?';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Scansiona un documento';
+
+  @override
+  String get lightningMenuScanDocSubtitle =>
+      'Certificato LPP, busta paga, imposte';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'Il mio primo budget';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Sapere dove vanno i tuoi soldi ogni mese';
+
+  @override
+  String get lightningMenuFirstBudgetAction => 'Aiutami a fare il mio budget';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Dove alleggerire le imposte';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Deduzioni e leve fiscali';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'Come pagare meno imposte?';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Completare il profilo';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'Più preciso sei, più MINT è accurato';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'Riscattare il LPP';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'Una leva fiscale spesso sottovalutata';
+
+  @override
+  String get lightningMenuLppBuybackAction => 'Vale la pena un riscatto LPP?';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'Il mio budget vivente';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'Il tuo equilibrio questo mese, aggiornato';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'A che punto sono?';
 }

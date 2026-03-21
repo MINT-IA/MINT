@@ -18388,4 +18388,79 @@ class SDe extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Dein monatlich Frei';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Meine Lohnabrechnung verstehen';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Brutto, Netto, Abzüge: alles klar';
+
+  @override
+  String get lightningMenuPayslipAction => 'Erklär mir meine Lohnabrechnung';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'Was sind die 3 Säulen?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'Das Schweizer System in 2 Minuten';
+
+  @override
+  String get lightningMenuThreePillarsAction =>
+      'Was sind die 3 Schweizer Säulen?';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Dokument scannen';
+
+  @override
+  String get lightningMenuScanDocSubtitle =>
+      'BVG-Ausweis, Lohnabrechnung, Steuern';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'Mein erstes Budget';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Wissen, wohin dein Geld jeden Monat geht';
+
+  @override
+  String get lightningMenuFirstBudgetAction =>
+      'Hilf mir, mein Budget zu erstellen';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Wo Steuern senken';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Abzüge und Steuerhebel';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'Wie weniger Steuern zahlen?';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Profil vervollständigen';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'Je genauer deine Daten, desto besser MINT';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'BVG-Einkauf';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'Ein oft unterschätzter Steuerhebel';
+
+  @override
+  String get lightningMenuLppBuybackAction => 'Lohnt sich ein BVG-Einkauf?';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'Mein lebendes Budget';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'Dein Gleichgewicht diesen Monat, aktualisiert';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'Wo stehe ich?';
 }

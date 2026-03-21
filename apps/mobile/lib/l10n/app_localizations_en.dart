@@ -18276,4 +18276,76 @@ class SEn extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Your monthly free';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Understand my payslip';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Gross, net, deductions: everything explained';
+
+  @override
+  String get lightningMenuPayslipAction => 'Explain my payslip to me';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'What are the 3 pillars?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'The Swiss system in 2 minutes';
+
+  @override
+  String get lightningMenuThreePillarsAction => 'What are the 3 Swiss pillars?';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Scan a document';
+
+  @override
+  String get lightningMenuScanDocSubtitle => 'LPP certificate, payslip, taxes';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'My first budget';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Know where your money goes each month';
+
+  @override
+  String get lightningMenuFirstBudgetAction => 'Help me set up my budget';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Where to reduce my taxes';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Deductions and tax levers';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'How to pay less taxes?';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Complete my profile';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'The more you add, the more accurate MINT gets';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'Buy back LPP';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'An often underestimated tax lever';
+
+  @override
+  String get lightningMenuLppBuybackAction => 'Is an LPP buyback worth it?';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'My living budget';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'Your balance this month, updated';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'Where do I stand?';
 }

@@ -18361,4 +18361,79 @@ class SFr extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Ton libre mensuel';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Comprendre ma fiche de salaire';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Salaire brut, net, déductions : tout s’éclaire';
+
+  @override
+  String get lightningMenuPayslipAction => 'Explique-moi ma fiche de salaire';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'C’est quoi les 3 piliers ?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'Le système suisse en 2 minutes';
+
+  @override
+  String get lightningMenuThreePillarsAction =>
+      'C’est quoi les 3 piliers suisses ?';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Scanner un document';
+
+  @override
+  String get lightningMenuScanDocSubtitle =>
+      'Certificat LPP, fiche de salaire, impôts';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'Mon premier budget';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Savoir où va ton argent chaque mois';
+
+  @override
+  String get lightningMenuFirstBudgetAction => 'Aide-moi à faire mon budget';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Où alléger mes impôts';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Déductions et leviers fiscaux';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'Comment payer moins d’impôts ?';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Compléter mon profil';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'Plus tu précises, plus MINT est juste';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'Racheter du LPP';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'Un levier fiscal souvent sous-estimé';
+
+  @override
+  String get lightningMenuLppBuybackAction =>
+      'Un rachat LPP, ça vaut le coup ?';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'Mon budget vivant';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'Ton équilibre ce mois, mis à jour';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'Où j’en suis ?';
 }

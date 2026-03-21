@@ -32578,6 +32578,138 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ton libre mensuel'**
   String get budgetSnapshotFreeLabel;
+
+  /// No description provided for @lightningMenuPayslipTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre ma fiche de salaire'**
+  String get lightningMenuPayslipTitle;
+
+  /// No description provided for @lightningMenuPayslipSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut, net, déductions : tout s’éclaire'**
+  String get lightningMenuPayslipSubtitle;
+
+  /// No description provided for @lightningMenuPayslipAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi ma fiche de salaire'**
+  String get lightningMenuPayslipAction;
+
+  /// No description provided for @lightningMenuThreePillarsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est quoi les 3 piliers ?'**
+  String get lightningMenuThreePillarsTitle;
+
+  /// No description provided for @lightningMenuThreePillarsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le système suisse en 2 minutes'**
+  String get lightningMenuThreePillarsSubtitle;
+
+  /// No description provided for @lightningMenuThreePillarsAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est quoi les 3 piliers suisses ?'**
+  String get lightningMenuThreePillarsAction;
+
+  /// No description provided for @lightningMenuScanDocTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un document'**
+  String get lightningMenuScanDocTitle;
+
+  /// No description provided for @lightningMenuScanDocSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat LPP, fiche de salaire, impôts'**
+  String get lightningMenuScanDocSubtitle;
+
+  /// No description provided for @lightningMenuFirstBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon premier budget'**
+  String get lightningMenuFirstBudgetTitle;
+
+  /// No description provided for @lightningMenuFirstBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Savoir où va ton argent chaque mois'**
+  String get lightningMenuFirstBudgetSubtitle;
+
+  /// No description provided for @lightningMenuFirstBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide-moi à faire mon budget'**
+  String get lightningMenuFirstBudgetAction;
+
+  /// No description provided for @lightningMenuTaxReliefTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où alléger mes impôts'**
+  String get lightningMenuTaxReliefTitle;
+
+  /// No description provided for @lightningMenuTaxReliefSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions et leviers fiscaux'**
+  String get lightningMenuTaxReliefSubtitle;
+
+  /// No description provided for @lightningMenuTaxReliefAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment payer moins d’impôts ?'**
+  String get lightningMenuTaxReliefAction;
+
+  /// No description provided for @lightningMenuCompleteProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mon profil'**
+  String get lightningMenuCompleteProfileTitle;
+
+  /// No description provided for @lightningMenuCompleteProfileSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tu précises, plus MINT est juste'**
+  String get lightningMenuCompleteProfileSubtitle;
+
+  /// No description provided for @lightningMenuLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Racheter du LPP'**
+  String get lightningMenuLppBuybackTitle;
+
+  /// No description provided for @lightningMenuLppBuybackSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un levier fiscal souvent sous-estimé'**
+  String get lightningMenuLppBuybackSubtitle;
+
+  /// No description provided for @lightningMenuLppBuybackAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rachat LPP, ça vaut le coup ?'**
+  String get lightningMenuLppBuybackAction;
+
+  /// No description provided for @lightningMenuLivingBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget vivant'**
+  String get lightningMenuLivingBudgetTitle;
+
+  /// No description provided for @lightningMenuLivingBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton équilibre ce mois, mis à jour'**
+  String get lightningMenuLivingBudgetSubtitle;
+
+  /// No description provided for @lightningMenuLivingBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où j’en suis ?'**
+  String get lightningMenuLivingBudgetAction;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

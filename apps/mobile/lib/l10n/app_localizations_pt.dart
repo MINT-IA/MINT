@@ -18312,4 +18312,79 @@ class SPt extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'O teu livre mensal';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Compreender o meu recibo de salário';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Bruto, líquido, deduções: tudo claro';
+
+  @override
+  String get lightningMenuPayslipAction => 'Explica-me o meu recibo de salário';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'O que são os 3 pilares?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'O sistema suíço em 2 minutos';
+
+  @override
+  String get lightningMenuThreePillarsAction =>
+      'O que são os 3 pilares suíços?';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Digitalizar um documento';
+
+  @override
+  String get lightningMenuScanDocSubtitle =>
+      'Certificado LPP, recibo, impostos';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'O meu primeiro orçamento';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Saber para onde vai o teu dinheiro cada mês';
+
+  @override
+  String get lightningMenuFirstBudgetAction =>
+      'Ajuda-me a fazer o meu orçamento';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Onde reduzir impostos';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Deduções e alavancas fiscais';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'Como pagar menos impostos?';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Completar o perfil';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'Quanto mais preciso, mais justo é o MINT';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'Resgatar LPP';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'Uma alavanca fiscal muitas vezes subestimada';
+
+  @override
+  String get lightningMenuLppBuybackAction => 'Vale a pena um resgate LPP?';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'O meu orçamento vivo';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'O teu equilíbrio este mês, atualizado';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'Onde estou?';
 }

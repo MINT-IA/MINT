@@ -14,6 +14,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/services/backend_coach_service.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
@@ -102,6 +103,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Once answered, the picker is replaced by the user's response text.
   final Set<int> _answeredInputIndices = {};
 
+  /// CapMemory for Lightning Menu — loaded once at init.
+  CapMemory _capMemory = const CapMemory();
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +116,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
     }
+    _loadCapMemory();
+  }
+
+  /// Load CapMemory for Lightning Menu stage awareness.
+  Future<void> _loadCapMemory() async {
+    final mem = await CapMemoryStore.load();
+    if (mounted) setState(() => _capMemory = mem);
   }
 
   /// Load an existing conversation from persistent storage.
@@ -219,7 +230,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => LightningMenu(
         profile: _profile,
+        capMemory: _capMemory,
         onSendMessage: _sendMessage,
+        onNavigate: (route) {
+          if (mounted) context.push(route);
+        },
       ),
     );
   }

@@ -296,6 +296,26 @@ class _DecisionsSection extends StatelessWidget {
 //  4. NEXT STEP SECTION
 // ════════════════════════════════════════════════════════════════
 
+/// Map raw cap IDs to human-readable French labels.
+String _humanizeCapId(String capId) {
+  return switch (capId) {
+    'replacement_rate' || 'rc_replacement_rate' => 'Ton taux de remplacement',
+    'pillar_3a' => 'Versement 3a',
+    'lpp_buyback' => 'Rachat LPP',
+    'debt_correct' => 'R\u00e9duire ta dette',
+    'budget_deficit' => 'Retrouver de la marge',
+    'coverage_check' => 'V\u00e9rifier ta couverture',
+    'disability_gap' => 'Ton filet invalidit\u00e9',
+    'indep_no_lpp' => 'LPP volontaire',
+    'couple_3a' => '3a \u00e0 deux',
+    'couple_lpp_buyback' => 'Rachat LPP conjoint\u00b7e',
+    'couple_avs_cap' => 'AVS couple',
+    'fallback_enrich' => 'Compl\u00e9ter ton profil',
+    _ => capId.replaceAll('_', ' ').replaceFirstMapped(
+        RegExp(r'^.'), (m) => m[0]!.toUpperCase()),
+  };
+}
+
 class _NextStepSection extends StatelessWidget {
   final CapMemory capMemory;
   final S s;
@@ -313,7 +333,7 @@ class _NextStepSection extends StatelessWidget {
         ),
         const SizedBox(height: MintSpacing.md),
         MintNarrativeCard(
-          headline: capMemory.lastCapServed ?? '',
+          headline: _humanizeCapId(capMemory.lastCapServed ?? ''),
           body: s.trajectoryNextStepBody,
           tone: MintSurfaceTone.bleu,
         ),
