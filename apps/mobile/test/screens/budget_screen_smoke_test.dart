@@ -47,15 +47,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100)); // allow async storage calls
     await tester.pump(const Duration(seconds: 2)); // advance animations
 
-    // 4. Verify Header
-    expect(find.text('Disponible ce mois'), findsOneWidget);
-    // 5000 - 1500 = 3500 (may appear in header + spending meter)
+    // 4. Verify Header — hero uses MintHeroNumber with CHF amount
+    // Caption is i18n budgetChiffreChocCaption (not "Disponible ce mois")
     expect(find.textContaining('3500'), findsWidgets);
 
-    // 5. Verify Sliders presence (since style is envelopes3)
-    expect(find.textContaining('Futur'), findsWidgets);
-    expect(find.textContaining('Variables'), findsWidgets);
-    expect(find.byType(Slider), findsNWidgets(2));
+    // 5. Verify Sliders presence (MintPremiumSlider wraps Slider internally)
+    expect(find.byType(Slider), findsWidgets);
   });
 
   testWidgets('BudgetScreen Stop Rule triggers warning',

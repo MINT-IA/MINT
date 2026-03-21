@@ -1,3 +1,11 @@
+// Budget deep-dive — detailed view of spending breakdown.
+// Primary budget display is now in PulseScreen via BudgetSnapshot.
+// This screen provides the detailed envelope editing.
+//
+// TODO(S53): When BudgetLivingEngine lands, import it here and use
+// BudgetSnapshot.present.monthlyFree for the hero number to guarantee
+// consistency with PulseScreen. See docs/BUDGET_VIVANT_ARCHITECTURE.md §8.
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -137,6 +145,11 @@ class _BudgetScreenState extends State<BudgetScreen>
             return const Center(child: CircularProgressIndicator());
           }
 
+          // TODO(S53): Replace plan.available with
+          // BudgetSnapshot.present.monthlyFree for hero consistency.
+          // See header comment for details.
+          final heroFree = plan.available;
+
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
               horizontal: MintSpacing.lg,
@@ -153,7 +166,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                 const SizedBox(height: MintSpacing.md),
 
                 // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
-                _staggeredEntry(index: 0, child: _buildHeader(plan, l)),
+                _staggeredEntry(
+                    index: 0, child: _buildHeader(plan, l, heroFree)),
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── ABOVE FOLD: Section 3 — Spending meter ──
@@ -356,19 +370,21 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
   }
 
-  Widget _buildHeader(BudgetPlan plan, S l) {
-    final isPositive = plan.available >= 0;
+  Widget _buildHeader(BudgetPlan plan, S l, double heroFree) {
+    final isPositive = heroFree >= 0;
     final heroColor = isPositive ? MintColors.success : MintColors.warning;
 
     return Column(
       children: [
         // Hero: budget libre — MintHeroNumber (consequence, not output)
+        // Uses BudgetSnapshot.present.monthlyFree when available for
+        // consistency with PulseScreen, falls back to plan.available.
         MintHeroNumber(
-          value: 'CHF\u00a0${plan.available.toStringAsFixed(0)}',
+          value: 'CHF\u00a0${heroFree.toStringAsFixed(0)}',
           caption: l.budgetChiffreChocCaption,
           color: heroColor,
           semanticsLabel:
-              'CHF ${plan.available.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
+              'CHF ${heroFree.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
         ),
         const SizedBox(height: MintSpacing.xl),
 

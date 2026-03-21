@@ -112,21 +112,34 @@ void main() {
     });
 
     testWidgets('has Slider widgets for input parameters', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      // Scroll further to reveal parameters section (MintPremiumSlider wraps Slider)
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
       await tester.pump();
 
-      // Number of sliders may vary; just check some exist
       expect(find.byType(Slider), findsWidgets);
     });
 
     testWidgets('has canton dropdown', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      // Scroll further to reveal canton dropdown
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
       await tester.pump();
 
       expect(find.byType(DropdownButton<String>), findsOneWidget);

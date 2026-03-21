@@ -18,6 +18,9 @@ import 'package:mint_mobile/widgets/profile/dettes_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/futur_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/enrichment_cta.dart';
 
+// NOTE: This screen is a deep-dive view. Primary display is now in PulseScreen
+// via BudgetSnapshot. Keep for /profile/bilan deep link and ProfileScreen access.
+
 /// Écran "Mon aperçu" — Le Gap + 3 Tiroirs
 ///
 /// Architecture Option B : stock pur (patrimoine + dettes + projection retraite).
@@ -33,7 +36,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     final profile = coachProvider.profile;
 
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -53,30 +56,17 @@ class FinancialSummaryScreen extends StatelessWidget {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 80,
-      backgroundColor: MintColors.primary,
+      backgroundColor: MintColors.porcelaine,
+      surfaceTintColor: MintColors.porcelaine,
+      elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 14),
-        title: Text(
-          S.of(context)!.financialSummaryTitle,
-          style: MintTextStyles.bodySmall(color: MintColors.white)
-              .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+      title: Text(
+        S.of(context)!.financialSummaryTitle,
+        style: MintTextStyles.titleMedium(
+          color: MintColors.textPrimary,
         ),
       ),
     );

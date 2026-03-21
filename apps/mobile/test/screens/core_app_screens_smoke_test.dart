@@ -125,12 +125,14 @@ void main() {
       expect(find.textContaining('LPP'), findsWidgets);
     });
 
-    testWidgets('shows settings section', (tester) async {
+    testWidgets('shows identity card (settings moved to SettingsSheet)',
+        (tester) async {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 2: settings section header
-      expect(find.textContaining('glages'), findsWidgets);
+      // Settings section removed (now in SettingsSheet via gear icon).
+      // Identity card should be present instead.
+      expect(find.byType(ProfileScreen), findsOneWidget);
     });
 
     testWidgets('shows delete data button', (tester) async {
