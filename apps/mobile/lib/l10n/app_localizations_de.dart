@@ -20756,4 +20756,59 @@ class SDe extends S {
   String pulseGoalChip(String goal) {
     return 'Ziel: $goal';
   }
+
+  @override
+  String get dossierProfileSection => 'Mein Profil';
+
+  @override
+  String get dossierPlanSection => 'Mein Plan';
+
+  @override
+  String get dossierDataSection => 'Meine Daten';
+
+  @override
+  String get dossierConfidenceLabel => 'Zuverlässigkeit der Akte';
+
+  @override
+  String get dossierCompleteCta => 'Profil vervollständigen';
+
+  @override
+  String get dossierChooseGoalCta => 'Ziel auswählen';
+
+  @override
+  String get dossierScanLppCta => 'BVG-Ausweis scannen';
+
+  @override
+  String get dossierDataRevenu => 'Einkommen';
+
+  @override
+  String get dossierDataLpp => '2. Säule';
+
+  @override
+  String get dossierData3a => '3. Säule';
+
+  @override
+  String get dossierDataBudget => 'Monatliche Marge';
+
+  @override
+  String get dossierDataUnknown => 'Nicht angegeben';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total Schritte';
+  }
+
+  @override
+  String get dossierPlanChangeGoal => 'Ziel ändern';
+
+  @override
+  String get dossierPlanCurrentStep => 'Aktueller Schritt';
+
+  @override
+  String get dossierPlanNextStep => 'Nächster Schritt';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
 }

@@ -9298,5 +9298,33 @@
         "type": "String"
       }
     }
+  },
+  "dossierProfileSection": "Mein Profil",
+  "dossierPlanSection": "Mein Plan",
+  "dossierDataSection": "Meine Daten",
+  "dossierConfidenceLabel": "Zuverl\u00e4ssigkeit der Akte",
+  "dossierCompleteCta": "Profil vervollst\u00e4ndigen",
+  "dossierChooseGoalCta": "Ziel ausw\u00e4hlen",
+  "dossierScanLppCta": "BVG-Ausweis scannen",
+  "dossierDataRevenu": "Einkommen",
+  "dossierDataLpp": "2. S\u00e4ule",
+  "dossierData3a": "3. S\u00e4ule",
+  "dossierDataBudget": "Monatliche Marge",
+  "dossierDataUnknown": "Nicht angegeben",
+  "dossierPlanProgress": "{done}\u00a0/\u00a0{total} Schritte",
+  "@dossierPlanProgress": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "dossierPlanChangeGoal": "Ziel \u00e4ndern",
+  "dossierPlanCurrentStep": "Aktueller Schritt",
+  "dossierPlanNextStep": "N\u00e4chster Schritt",
+  "dossierConfidencePct": "{pct}\u00a0%",
+  "@dossierConfidencePct": {
+    "placeholders": {
+      "pct": {"type": "int"}
+    }
   }
 }

@@ -65,12 +65,6 @@ class MintUserState {
   /// Today's highest-priority cap. Always computed when profile is present.
   final CapDecision? currentCap;
 
-  /// Ordered IDs of the next caps in queue (after [currentCap]).
-  ///
-  /// Used by the Plan / CapSequence layer to show "what comes next".
-  /// Empty list if no additional caps are ready.
-  final List<String> capSequence;
-
   /// Full CapSequence plan for the user's active goal.
   ///
   /// Built by [CapSequenceEngine] when a goal is selected via
@@ -136,7 +130,6 @@ class MintUserState {
     this.budgetGap,
     this.budgetSnapshot,
     this.currentCap,
-    this.capSequence = const [],
     this.capSequencePlan,
     this.activeGoalIntentTag,
     required this.confidenceScore,
@@ -209,7 +202,6 @@ class MintUserState {
     Object? budgetGap = _undefined,
     Object? budgetSnapshot = _undefined,
     Object? currentCap = _undefined,
-    List<String>? capSequence,
     Object? capSequencePlan = _undefined,
     Object? activeGoalIntentTag = _undefined,
     double? confidenceScore,
@@ -233,7 +225,6 @@ class MintUserState {
       currentCap: currentCap == _undefined
           ? this.currentCap
           : currentCap as CapDecision?,
-      capSequence: capSequence ?? this.capSequence,
       capSequencePlan: capSequencePlan == _undefined
           ? this.capSequencePlan
           : capSequencePlan as CapSequence?,

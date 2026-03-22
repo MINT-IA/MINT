@@ -9320,5 +9320,33 @@
         "type": "String"
       }
     }
+  },
+  "dossierProfileSection": "My profile",
+  "dossierPlanSection": "My plan",
+  "dossierDataSection": "My data",
+  "dossierConfidenceLabel": "File reliability",
+  "dossierCompleteCta": "Complete my profile",
+  "dossierChooseGoalCta": "Choose a goal",
+  "dossierScanLppCta": "Scan my LPP certificate",
+  "dossierDataRevenu": "Income",
+  "dossierDataLpp": "2nd pillar",
+  "dossierData3a": "3rd pillar",
+  "dossierDataBudget": "Monthly margin",
+  "dossierDataUnknown": "Not provided",
+  "dossierPlanProgress": "{done}\u00a0/\u00a0{total} steps",
+  "@dossierPlanProgress": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "dossierPlanChangeGoal": "Change goal",
+  "dossierPlanCurrentStep": "Current step",
+  "dossierPlanNextStep": "Next step",
+  "dossierConfidencePct": "{pct}\u00a0%",
+  "@dossierConfidencePct": {
+    "placeholders": {
+      "pct": {"type": "int"}
+    }
   }
 }

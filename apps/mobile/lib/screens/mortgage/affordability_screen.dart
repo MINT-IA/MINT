@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
@@ -34,6 +35,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('mortgage');
+    ScreenCompletionTracker.markCompleted('affordability');
   }
 
   double _revenuBrut = 120000;

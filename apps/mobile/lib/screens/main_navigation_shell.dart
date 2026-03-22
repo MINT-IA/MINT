@@ -22,6 +22,13 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 /// - DOSSIER     : Mes données (profil + documents + couple + réglages)
 ///
 /// Pas de FAB global — Capture est contextuel (bottom sheet depuis Aujourd'hui/Coach).
+///
+/// Deep-link support via query param:
+///   /home?tab=0  → Aujourd'hui
+///   /home?tab=1  → Coach
+///   /home?tab=2  → Explorer
+///   /home?tab=3  → Dossier
+/// Convenience aliases: /app/today, /app/coach, /app/explore, /app/dossier
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
 
@@ -34,6 +41,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   int _currentIndex = 0;
   final AnalyticsService _analytics = AnalyticsService();
   bool _budgetLoaded = false;
+  bool _tabIndexResolved = false;
 
   /// Timestamp when the app was last paused (backgrounded).
   DateTime? _lastPauseTime;
@@ -111,6 +119,27 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    // Resolve the initial tab from the ?tab= query parameter (deep-link support).
+    // Only runs once — subsequent route changes within the shell do NOT reset the tab.
+    // GoRouterState.of() throws a StateError when no GoRouter is present (e.g. in
+    // tests that use plain MaterialApp(home:)); we catch that and keep the default.
+    if (!_tabIndexResolved) {
+      _tabIndexResolved = true;
+      try {
+        final rawTab =
+            GoRouterState.of(context).uri.queryParameters['tab'];
+        if (rawTab != null) {
+          final tabIndex = int.tryParse(rawTab) ?? 0;
+          if (tabIndex >= 0 && tabIndex < _tabs.length) {
+            _currentIndex = tabIndex;
+          }
+        }
+      } catch (_) {
+        // No GoRouter in tree — keep default tab 0.
+      }
+    }
+
     if (!_budgetLoaded) {
       _budgetLoaded = true;
       final budgetProvider = context.read<BudgetProvider>();

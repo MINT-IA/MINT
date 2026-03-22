@@ -20,6 +20,7 @@ import 'package:mint_mobile/widgets/precision/field_help_tooltip.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 /// Rente vs Capital arbitrage screen — the "a-ha" moment.
 ///
@@ -304,6 +305,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       );
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
+      ScreenCompletionTracker.markCompleted('rente_vs_capital');
       return;
     } catch (_) {
       try {
@@ -327,6 +329,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         );
         if (!mounted || requestId != _requestCounter) return;
         setState(() => _result = fallback);
+        ScreenCompletionTracker.markCompleted('rente_vs_capital');
       } catch (_) {
         if (!mounted || requestId != _requestCounter) return;
         setState(() => _hasError = true);

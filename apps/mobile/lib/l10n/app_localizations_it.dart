@@ -20760,4 +20760,59 @@ class SIt extends S {
   String pulseGoalChip(String goal) {
     return 'Obiettivo: $goal';
   }
+
+  @override
+  String get dossierProfileSection => 'Il mio profilo';
+
+  @override
+  String get dossierPlanSection => 'Il mio piano';
+
+  @override
+  String get dossierDataSection => 'I miei dati';
+
+  @override
+  String get dossierConfidenceLabel => 'Affidabilità del fascicolo';
+
+  @override
+  String get dossierCompleteCta => 'Completare il profilo';
+
+  @override
+  String get dossierChooseGoalCta => 'Scegliere un obiettivo';
+
+  @override
+  String get dossierScanLppCta => 'Scansionare il certificato LPP';
+
+  @override
+  String get dossierDataRevenu => 'Reddito';
+
+  @override
+  String get dossierDataLpp => '2° pilastro';
+
+  @override
+  String get dossierData3a => '3° pilastro';
+
+  @override
+  String get dossierDataBudget => 'Margine mensile';
+
+  @override
+  String get dossierDataUnknown => 'Non indicato';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total fasi';
+  }
+
+  @override
+  String get dossierPlanChangeGoal => 'Cambiare obiettivo';
+
+  @override
+  String get dossierPlanCurrentStep => 'Fase attuale';
+
+  @override
+  String get dossierPlanNextStep => 'Prossima fase';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
 }

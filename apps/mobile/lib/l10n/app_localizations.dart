@@ -36621,6 +36621,108 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Objectif : {goal}'**
   String pulseGoalChip(String goal);
+
+  /// No description provided for @dossierProfileSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon profil'**
+  String get dossierProfileSection;
+
+  /// No description provided for @dossierPlanSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan'**
+  String get dossierPlanSection;
+
+  /// No description provided for @dossierDataSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes données'**
+  String get dossierDataSection;
+
+  /// No description provided for @dossierConfidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiabilité du dossier'**
+  String get dossierConfidenceLabel;
+
+  /// No description provided for @dossierCompleteCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mon profil'**
+  String get dossierCompleteCta;
+
+  /// No description provided for @dossierChooseGoalCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un objectif'**
+  String get dossierChooseGoalCta;
+
+  /// No description provided for @dossierScanLppCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner mon certificat LPP'**
+  String get dossierScanLppCta;
+
+  /// No description provided for @dossierDataRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu'**
+  String get dossierDataRevenu;
+
+  /// No description provided for @dossierDataLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier'**
+  String get dossierDataLpp;
+
+  /// No description provided for @dossierData3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier'**
+  String get dossierData3a;
+
+  /// No description provided for @dossierDataBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge mensuelle'**
+  String get dossierDataBudget;
+
+  /// No description provided for @dossierDataUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get dossierDataUnknown;
+
+  /// No description provided for @dossierPlanProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} / {total} étapes'**
+  String dossierPlanProgress(int done, int total);
+
+  /// No description provided for @dossierPlanChangeGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer d’objectif'**
+  String get dossierPlanChangeGoal;
+
+  /// No description provided for @dossierPlanCurrentStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape en cours'**
+  String get dossierPlanCurrentStep;
+
+  /// No description provided for @dossierPlanNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape'**
+  String get dossierPlanNextStep;
+
+  /// No description provided for @dossierConfidencePct.
+  ///
+  /// In fr, this message translates to:
+  /// **'{pct} %'**
+  String dossierConfidencePct(int pct);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

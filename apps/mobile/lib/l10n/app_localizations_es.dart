@@ -20732,4 +20732,59 @@ class SEs extends S {
   String pulseGoalChip(String goal) {
     return 'Objetivo: $goal';
   }
+
+  @override
+  String get dossierProfileSection => 'Mi perfil';
+
+  @override
+  String get dossierPlanSection => 'Mi plan';
+
+  @override
+  String get dossierDataSection => 'Mis datos';
+
+  @override
+  String get dossierConfidenceLabel => 'Fiabilidad del expediente';
+
+  @override
+  String get dossierCompleteCta => 'Completar mi perfil';
+
+  @override
+  String get dossierChooseGoalCta => 'Elegir un objetivo';
+
+  @override
+  String get dossierScanLppCta => 'Escanear mi certificado LPP';
+
+  @override
+  String get dossierDataRevenu => 'Ingresos';
+
+  @override
+  String get dossierDataLpp => '2º pilar';
+
+  @override
+  String get dossierData3a => '3º pilar';
+
+  @override
+  String get dossierDataBudget => 'Margen mensual';
+
+  @override
+  String get dossierDataUnknown => 'No indicado';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total pasos';
+  }
+
+  @override
+  String get dossierPlanChangeGoal => 'Cambiar objetivo';
+
+  @override
+  String get dossierPlanCurrentStep => 'Paso actual';
+
+  @override
+  String get dossierPlanNextStep => 'Próximo paso';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
 }

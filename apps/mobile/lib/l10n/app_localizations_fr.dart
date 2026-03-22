@@ -20733,4 +20733,59 @@ class SFr extends S {
   String pulseGoalChip(String goal) {
     return 'Objectif : $goal';
   }
+
+  @override
+  String get dossierProfileSection => 'Mon profil';
+
+  @override
+  String get dossierPlanSection => 'Mon plan';
+
+  @override
+  String get dossierDataSection => 'Mes données';
+
+  @override
+  String get dossierConfidenceLabel => 'Fiabilité du dossier';
+
+  @override
+  String get dossierCompleteCta => 'Compléter mon profil';
+
+  @override
+  String get dossierChooseGoalCta => 'Choisir un objectif';
+
+  @override
+  String get dossierScanLppCta => 'Scanner mon certificat LPP';
+
+  @override
+  String get dossierDataRevenu => 'Revenu';
+
+  @override
+  String get dossierDataLpp => '2e pilier';
+
+  @override
+  String get dossierData3a => '3e pilier';
+
+  @override
+  String get dossierDataBudget => 'Marge mensuelle';
+
+  @override
+  String get dossierDataUnknown => 'Non renseigné';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total étapes';
+  }
+
+  @override
+  String get dossierPlanChangeGoal => 'Changer d’objectif';
+
+  @override
+  String get dossierPlanCurrentStep => 'Étape en cours';
+
+  @override
+  String get dossierPlanNextStep => 'Prochaine étape';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
 }

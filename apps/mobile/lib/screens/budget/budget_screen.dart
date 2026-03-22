@@ -31,6 +31,7 @@ import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -71,6 +72,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       try {
         context.read<BudgetProvider>().setInputs(widget.inputs);
         _staggerController.forward();
+        ScreenCompletionTracker.markCompleted('budget');
       } catch (_) {
         if (mounted) setState(() => _hasError = true);
       }

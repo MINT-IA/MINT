@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -81,6 +82,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('lpp_deep');
+    ScreenCompletionTracker.markCompleted('rachat_echelonne');
     _heroController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),

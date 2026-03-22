@@ -19,6 +19,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -85,6 +86,12 @@ Future<void> _pumpCard(
 // ────────────────────────────────────────────────────────────
 
 void main() {
+  setUp(() {
+    // ScreenCompletionTracker uses SharedPreferences — initialise mock store
+    // so that widget tests do not hit the platform channel.
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('RouteSuggestionCard', () {
     testWidgets('renders with context_message', (tester) async {
       await _pumpCard(
@@ -260,6 +267,8 @@ void main() {
       // Pop back immediately (widget-test time = near 0 → abandoned outcome)
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
+      // Allow ScreenCompletionTracker async lookup to complete.
+      await tester.pump(const Duration(milliseconds: 50));
 
       // Callback must have fired with a valid ScreenOutcome (not null)
       expect(receivedOutcome, isNotNull);

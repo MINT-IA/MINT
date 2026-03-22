@@ -9000,5 +9000,33 @@
         "type": "String"
       }
     }
+  },
+  "dossierProfileSection": "Il mio profilo",
+  "dossierPlanSection": "Il mio piano",
+  "dossierDataSection": "I miei dati",
+  "dossierConfidenceLabel": "Affidabilit\u00e0 del fascicolo",
+  "dossierCompleteCta": "Completare il profilo",
+  "dossierChooseGoalCta": "Scegliere un obiettivo",
+  "dossierScanLppCta": "Scansionare il certificato LPP",
+  "dossierDataRevenu": "Reddito",
+  "dossierDataLpp": "2\u00b0 pilastro",
+  "dossierData3a": "3\u00b0 pilastro",
+  "dossierDataBudget": "Margine mensile",
+  "dossierDataUnknown": "Non indicato",
+  "dossierPlanProgress": "{done}\u00a0/\u00a0{total} fasi",
+  "@dossierPlanProgress": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "dossierPlanChangeGoal": "Cambiare obiettivo",
+  "dossierPlanCurrentStep": "Fase attuale",
+  "dossierPlanNextStep": "Prossima fase",
+  "dossierConfidencePct": "{pct}\u00a0%",
+  "@dossierConfidencePct": {
+    "placeholders": {
+      "pct": {"type": "int"}
+    }
   }
 }

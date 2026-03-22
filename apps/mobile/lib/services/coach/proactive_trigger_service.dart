@@ -301,6 +301,7 @@ class ProactiveTriggerService {
     if (goals.isEmpty) return null;
 
     // Evaluate milestone progress for each goal; surface the highest.
+    // No CapSequence access at this layer — temporal fallback used.
     for (final goal in goals) {
       final progress = estimateGoalProgress(goal, now);
       if (goalMilestoneThresholds.contains(progress)) {
@@ -450,10 +451,31 @@ class ProactiveTriggerService {
   /// Returns a milestone threshold (50 or 100) if reached,
   /// or 0 if below the first threshold.
   ///
-  /// Logic:
+  /// When [sequenceProgress] is provided (0.0–100.0 from a CapSequence),
+  /// it is used as the authoritative signal — this reflects actual user
+  /// progress through the plan rather than elapsed time.
+  ///
+  /// When [sequenceProgress] is null, falls back to temporal estimation:
   ///   - With target date: elapsed / total duration × 100, clamped to 100.
   ///   - Without target date: 50% at 45 days old, 100% at 90 days old.
-  static int estimateGoalProgress(UserGoal goal, DateTime now) {
+  ///
+  /// Callers with access to CapSequence (e.g. ProactiveTriggerService callers
+  /// that read MintUserState) should pass [sequenceProgress] for accurate
+  /// milestone detection. Internal callers without CapMemory access use the
+  /// temporal fallback automatically.
+  static int estimateGoalProgress(
+    UserGoal goal,
+    DateTime now, {
+    double? sequenceProgress,
+  }) {
+    // Prefer real CapSequence progress when available.
+    if (sequenceProgress != null) {
+      final pct = sequenceProgress.round().clamp(0, 100);
+      if (pct >= 100) return 100;
+      if (pct >= 50) return 50;
+      return 0;
+    }
+    // Temporal proxy fallback (no CapSequence signal available).
     if (goal.targetDate != null) {
       final total = goal.targetDate!.difference(goal.createdAt).inDays;
       if (total <= 0) return 100;

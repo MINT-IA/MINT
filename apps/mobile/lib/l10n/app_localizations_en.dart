@@ -20634,4 +20634,59 @@ class SEn extends S {
   String pulseGoalChip(String goal) {
     return 'Goal: $goal';
   }
+
+  @override
+  String get dossierProfileSection => 'My profile';
+
+  @override
+  String get dossierPlanSection => 'My plan';
+
+  @override
+  String get dossierDataSection => 'My data';
+
+  @override
+  String get dossierConfidenceLabel => 'File reliability';
+
+  @override
+  String get dossierCompleteCta => 'Complete my profile';
+
+  @override
+  String get dossierChooseGoalCta => 'Choose a goal';
+
+  @override
+  String get dossierScanLppCta => 'Scan my LPP certificate';
+
+  @override
+  String get dossierDataRevenu => 'Income';
+
+  @override
+  String get dossierDataLpp => '2nd pillar';
+
+  @override
+  String get dossierData3a => '3rd pillar';
+
+  @override
+  String get dossierDataBudget => 'Monthly margin';
+
+  @override
+  String get dossierDataUnknown => 'Not provided';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total steps';
+  }
+
+  @override
+  String get dossierPlanChangeGoal => 'Change goal';
+
+  @override
+  String get dossierPlanCurrentStep => 'Current step';
+
+  @override
+  String get dossierPlanNextStep => 'Next step';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
 }

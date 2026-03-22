@@ -132,6 +132,9 @@ class _PulseScreenState extends State<PulseScreen> {
   void _recomputeCap(CoachProfile profile) {
     try {
       final l = S.of(context)!;
+      // ARCH NOTE: CapEngine computed locally for i18n labels (requires BuildContext).
+      // Cap ID is identical to MintUserState.currentCap — only labels differ.
+      // See mint_state_engine.dart SFr() comment for architectural context.
       final cap = CapEngine.compute(
         profile: profile,
         now: DateTime.now(),
@@ -424,6 +427,12 @@ class _PulseScreenState extends State<PulseScreen> {
     }
 
     // ── Housing goal: show purchasing capacity ──
+    // ARCH NOTE: AffordabilityCalculator is called locally here because
+    // housing affordability capacity is not yet part of MintUserState.
+    // It is computed from profile fields synchronously (no async required)
+    // and requires FINMA mortgage rules (MortgageService / AffordabilityCalculator).
+    // Future: add affordabilityCapacity to MintUserState when housing goal
+    // becomes a first-class state dimension in MintStateEngine.
     if (goal == _ActiveGoal.housing) {
       final revenuBrut = profile.salaireBrutMensuel * 12;
       if (revenuBrut > 0) {
@@ -1123,6 +1132,13 @@ class _PulseScreenState extends State<PulseScreen> {
 
   // ── HELPERS ──
 
+  /// Compute monthly net income from gross salary.
+  ///
+  /// ARCH NOTE: This method is used only as a fallback when
+  /// [MintUserState.budgetSnapshot] is null (e.g. MintStateProvider not yet
+  /// computed, or profile lacking sufficient data for BudgetLivingEngine).
+  /// Primary source of truth is [MintUserState.budgetSnapshot.present.monthlyNet].
+  /// See: BudgetLivingEngine.compute() and MintStateEngine step 6e.
   double _computeRevenuNet(CoachProfile profile) {
     if (profile.salaireBrutMensuel <= 0) return 0.0;
     return NetIncomeBreakdown.compute(

@@ -14,6 +14,7 @@ import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL COMPARATOR SCREEN — Sprint S20 / 26 cantons
@@ -168,6 +169,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         communeMultiplier: communeMultiplier,
       );
     });
+    ScreenCompletionTracker.markCompleted('fiscal_comparator');
   }
 
   // ════════════════════════════════════════════════════════════

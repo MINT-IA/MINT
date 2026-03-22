@@ -10,7 +10,6 @@ import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show NavigationShellState;
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
@@ -153,8 +152,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
         screenName: '/onboarding/quick');
 
     if (mounted) {
-      context.go('/home');
-      NavigationShellState.switchTab(0);
+      context.go('/home?tab=0');
     }
   }
 

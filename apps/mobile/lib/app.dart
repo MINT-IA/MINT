@@ -205,6 +205,13 @@ final _router = GoRouter(
       builder: (context, state) => const MainNavigationShell(),
     ),
 
+    // ── Tab deep-link aliases (non-chat-routable, behavior E) ────
+    // /home?tab=N is the canonical form; these are convenience aliases.
+    GoRoute(path: '/app/today',   redirect: (_, __) => '/home?tab=0'),
+    GoRoute(path: '/app/coach',   redirect: (_, __) => '/home?tab=1'),
+    GoRoute(path: '/app/explore', redirect: (_, __) => '/home?tab=2'),
+    GoRoute(path: '/app/dossier', redirect: (_, __) => '/home?tab=3'),
+
     // ── EXPLORER HUBS (7 thematic hubs) ──────────────────────
     GoRoute(
       path: '/explore/retraite',

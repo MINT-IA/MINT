@@ -9617,5 +9617,33 @@
         "type": "String"
       }
     }
+  },
+  "dossierProfileSection": "Mon profil",
+  "dossierPlanSection": "Mon plan",
+  "dossierDataSection": "Mes donn\u00e9es",
+  "dossierConfidenceLabel": "Fiabilit\u00e9 du dossier",
+  "dossierCompleteCta": "Compl\u00e9ter mon profil",
+  "dossierChooseGoalCta": "Choisir un objectif",
+  "dossierScanLppCta": "Scanner mon certificat LPP",
+  "dossierDataRevenu": "Revenu",
+  "dossierDataLpp": "2e pilier",
+  "dossierData3a": "3e pilier",
+  "dossierDataBudget": "Marge mensuelle",
+  "dossierDataUnknown": "Non renseign\u00e9",
+  "dossierPlanProgress": "{done}\u00a0/\u00a0{total} \u00e9tapes",
+  "@dossierPlanProgress": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "dossierPlanChangeGoal": "Changer d\u2019objectif",
+  "dossierPlanCurrentStep": "\u00c9tape en cours",
+  "dossierPlanNextStep": "Prochaine \u00e9tape",
+  "dossierConfidencePct": "{pct}\u00a0%",
+  "@dossierConfidencePct": {
+    "placeholders": {
+      "pct": {"type": "int"}
+    }
   }
 }

@@ -9000,5 +9000,33 @@
         "type": "String"
       }
     }
+  },
+  "dossierProfileSection": "O meu perfil",
+  "dossierPlanSection": "O meu plano",
+  "dossierDataSection": "Os meus dados",
+  "dossierConfidenceLabel": "Fiabilidade do dossier",
+  "dossierCompleteCta": "Completar o meu perfil",
+  "dossierChooseGoalCta": "Escolher um objetivo",
+  "dossierScanLppCta": "Digitalizar o meu certificado LPP",
+  "dossierDataRevenu": "Rendimento",
+  "dossierDataLpp": "2.\u00ba pilar",
+  "dossierData3a": "3.\u00ba pilar",
+  "dossierDataBudget": "Margem mensal",
+  "dossierDataUnknown": "N\u00e3o indicado",
+  "dossierPlanProgress": "{done}\u00a0/\u00a0{total} etapas",
+  "@dossierPlanProgress": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "dossierPlanChangeGoal": "Mudar objetivo",
+  "dossierPlanCurrentStep": "Etapa atual",
+  "dossierPlanNextStep": "Pr\u00f3xima etapa",
+  "dossierConfidencePct": "{pct}\u00a0%",
+  "@dossierConfidencePct": {
+    "placeholders": {
+      "pct": {"type": "int"}
+    }
   }
 }

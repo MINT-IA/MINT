@@ -25,6 +25,16 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 //  where {Goal} = Retirement | Budget | Housing
 //  and {NN} = 01..10
 //
+//  ARCH NOTE — intentTag values in CapStep:
+//  The [CapStep.intentTag] field stores GoRouter route strings (e.g.
+//  '/pilier-3a', '/rente-vs-capital'), NOT ScreenRegistry intent tags
+//  (e.g. 'simulator_3a', 'retirement_choice'). This is intentional:
+//  CapSequenceCard uses `context.go(step.intentTag!)` for direct navigation,
+//  which requires the GoRouter route path. ScreenRegistry intent tags are used
+//  by the CoachOrchestrator / RoutePlanner layer only. The field name is
+//  misleading — a future refactor should rename it to `route` and add a
+//  separate optional `intentTag` for coach routing context if needed.
+//
 //  Spec: docs/MINT_CAP_ENGINE_SPEC.md §14
 // ────────────────────────────────────────────────────────────────
 

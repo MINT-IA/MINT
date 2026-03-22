@@ -23,6 +23,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -147,18 +148,38 @@ class RouteSuggestionCard extends StatelessWidget {
     final hashBefore = profileHashFn?.call();
     final entryTime = DateTime.now();
 
-    await context.push(route);
+    // Derive a screen ID from the route by stripping leading slash and
+    // replacing non-alphanumeric characters with underscores.
+    final screenId =
+        route.replaceAll(RegExp(r'^/'), '').replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+
+    // Navigate — context.push awaited synchronously. Any async work involving
+    // ScreenCompletionTracker happens after the mounted check below so that
+    // context is never accessed across an async gap.
+    await context.push(route); // ignore: use_build_context_synchronously — guarded by mounted check immediately below
 
     if (!context.mounted) return;
 
     final elapsed = DateTime.now().difference(entryTime);
     final hashAfter = profileHashFn?.call();
 
-    final outcome = resolveOutcome(
+    // Resolve heuristic outcome first.
+    ScreenOutcome outcome = resolveOutcome(
       elapsed: elapsed,
       hashBefore: hashBefore,
       hashAfter: hashAfter,
     );
+
+    // Enrich: if the screen explicitly reported a completion via
+    // ScreenCompletionTracker, prefer that signal over the heuristic —
+    // but only when the heuristic did not already detect changedInputs
+    // (explicit input changes take priority over a generic "completed").
+    if (outcome != ScreenOutcome.changedInputs) {
+      final tracked = await ScreenCompletionTracker.lastOutcome(screenId);
+      if (tracked != null) {
+        outcome = tracked;
+      }
+    }
 
     onReturn?.call(outcome);
   }

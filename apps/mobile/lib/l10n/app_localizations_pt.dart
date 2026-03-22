@@ -20684,4 +20684,59 @@ class SPt extends S {
   String pulseGoalChip(String goal) {
     return 'Objetivo: $goal';
   }
+
+  @override
+  String get dossierProfileSection => 'O meu perfil';
+
+  @override
+  String get dossierPlanSection => 'O meu plano';
+
+  @override
+  String get dossierDataSection => 'Os meus dados';
+
+  @override
+  String get dossierConfidenceLabel => 'Fiabilidade do dossier';
+
+  @override
+  String get dossierCompleteCta => 'Completar o meu perfil';
+
+  @override
+  String get dossierChooseGoalCta => 'Escolher um objetivo';
+
+  @override
+  String get dossierScanLppCta => 'Digitalizar o meu certificado LPP';
+
+  @override
+  String get dossierDataRevenu => 'Rendimento';
+
+  @override
+  String get dossierDataLpp => '2.º pilar';
+
+  @override
+  String get dossierData3a => '3.º pilar';
+
+  @override
+  String get dossierDataBudget => 'Margem mensal';
+
+  @override
+  String get dossierDataUnknown => 'Não indicado';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total etapas';
+  }
+
+  @override
+  String get dossierPlanChangeGoal => 'Mudar objetivo';
+
+  @override
+  String get dossierPlanCurrentStep => 'Etapa atual';
+
+  @override
+  String get dossierPlanNextStep => 'Próxima etapa';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
 }

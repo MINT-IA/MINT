@@ -27,6 +27,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -73,6 +74,8 @@ void main() {
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+        ChangeNotifierProvider<MintStateProvider>(
+            create: (_) => MintStateProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),

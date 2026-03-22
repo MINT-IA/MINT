@@ -64,7 +64,6 @@ MintUserState _stateWithGap() => MintUserState(
       archetype: FinancialArchetype.swissNative,
       budgetGap: _sampleGap(),
       currentCap: _sampleCap(),
-      capSequence: const ['debt_correct', 'avs_buyback'],
       activeGoalIntentTag: 'retraite',
       confidenceScore: 72.0,
       friScore: 58.0,
@@ -110,7 +109,7 @@ void main() {
       expect(state.replacementRate, isNull);
       expect(state.pendingTrigger, isNull);
       expect(state.activeGoalIntentTag, isNull);
-      expect(state.capSequence, isEmpty);
+      expect(state.capSequencePlan, isNull);
       expect(state.activeNudges, isEmpty);
     });
 
@@ -250,10 +249,11 @@ void main() {
       expect(state.friScore, 75.0);
     });
 
-    test('copyWith preserves capSequence', () {
+    test('copyWith preserves capSequencePlan', () {
       final original = _stateWithGap();
       final copy = original.copyWith(confidenceScore: 55.0);
-      expect(copy.capSequence, ['debt_correct', 'avs_buyback']);
+      // capSequencePlan is null when not explicitly set — preserved across copy.
+      expect(copy.capSequencePlan, original.capSequencePlan);
     });
 
     test('copyWith can set budgetSnapshot', () {

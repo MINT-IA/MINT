@@ -16,6 +16,10 @@ router = APIRouter()
 
 
 @router.get("/knowledge/status")
+# TODO(security): Add auth guard when moving to production.
+# Currently returns only aggregate public stats (no user data, no PII).
+# Low risk as-is, but should require at minimum an API key header before
+# exposing to external consumers in a production environment.
 def knowledge_status() -> dict:
     """Return the status of the RAG knowledge base.
 

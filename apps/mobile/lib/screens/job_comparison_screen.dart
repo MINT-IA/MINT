@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -115,6 +116,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       );
       _checklistState = List.filled(_result!.checklist.length, false);
     });
+    ScreenCompletionTracker.markCompleted('job_comparison');
 
     // Smooth scroll to results
     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -247,7 +247,6 @@ class MintStateEngine {
       budgetGap: budgetGap,
       budgetSnapshot: budgetSnapshot,
       currentCap: currentCap,
-      capSequence: const [],
       capSequencePlan: capSequencePlan,
       activeGoalIntentTag: activeGoalIntentTag,
       confidenceScore: confidenceScore,
