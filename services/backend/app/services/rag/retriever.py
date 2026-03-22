@@ -3,6 +3,11 @@ RAG retriever for MINT knowledge base.
 
 Enriches queries with profile context and retrieves relevant
 knowledge chunks from the vector store.
+
+Retrieval priority chain:
+    1. HybridSearchService (pgvector on Railway PostgreSQL) — production
+    2. MintVectorStore (ChromaDB) — dev/CI fallback
+    3. Empty results — FaqService handles ultimate fallback in orchestrator
 """
 
 from __future__ import annotations
@@ -18,14 +23,17 @@ logger = logging.getLogger(__name__)
 class MintRetriever:
     """Retrieve relevant knowledge for user queries."""
 
-    def __init__(self, vector_store: MintVectorStore):
+    def __init__(self, vector_store: MintVectorStore, hybrid_search=None):
         """
         Initialize the retriever.
 
         Args:
-            vector_store: The MintVectorStore to query.
+            vector_store: The MintVectorStore (ChromaDB) for dev/CI.
+            hybrid_search: Optional HybridSearchService (pgvector) for production.
+                When provided and available, takes priority over ChromaDB.
         """
         self.vector_store = vector_store
+        self._hybrid = hybrid_search
 
     def retrieve(
         self,
@@ -52,6 +60,48 @@ class MintRetriever:
         Returns:
             List of result dicts with keys: id, text, metadata, distance, source.
         """
+        # Priority 1: HybridSearchService (pgvector — production)
+        if self._hybrid:
+            try:
+                import asyncio
+                # HybridSearchService.search is async; call from sync context
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # Already in async context — use await directly not possible
+                    # from sync method.  Use a thread-safe future.
+                    import concurrent.futures
+                    with concurrent.futures.ThreadPoolExecutor() as pool:
+                        hybrid_results = pool.submit(
+                            asyncio.run, self._hybrid.search(query, n_results=n_results)
+                        ).result(timeout=10)
+                else:
+                    hybrid_results = loop.run_until_complete(
+                        self._hybrid.search(query, n_results=n_results)
+                    )
+
+                if hybrid_results:
+                    formatted = []
+                    for r in hybrid_results:
+                        formatted.append({
+                            "id": r.doc_id,
+                            "text": r.content,
+                            "metadata": r.metadata,
+                            "distance": 1.0 - r.score,
+                            "source": {
+                                "title": r.title,
+                                "file": r.metadata.get("source", ""),
+                                "section": "",
+                            },
+                        })
+                    logger.info(
+                        "retriever used pgvector: %d results for %r",
+                        len(formatted), query[:40],
+                    )
+                    return formatted
+            except Exception as exc:
+                logger.warning("pgvector retrieval failed, falling back to ChromaDB: %s", exc)
+
+        # Priority 2: ChromaDB (dev/CI fallback)
         # Enrich the query with profile context
         enriched_query = self._enrich_query(query, profile_context)
 

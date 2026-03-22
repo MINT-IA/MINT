@@ -21,15 +21,17 @@ logger = logging.getLogger(__name__)
 class RAGOrchestrator:
     """Orchestrate the full RAG pipeline."""
 
-    def __init__(self, vector_store: MintVectorStore):
+    def __init__(self, vector_store: MintVectorStore, hybrid_search=None):
         """
         Initialize the orchestrator.
 
         Args:
-            vector_store: The MintVectorStore for retrieval.
+            vector_store: The MintVectorStore (ChromaDB) for dev/CI retrieval.
+            hybrid_search: Optional HybridSearchService (pgvector) for production.
+                When provided, the retriever uses pgvector first, ChromaDB as fallback.
         """
         self.vector_store = vector_store
-        self.retriever = MintRetriever(vector_store)
+        self.retriever = MintRetriever(vector_store, hybrid_search=hybrid_search)
         self.guardrails = ComplianceGuardrails()
 
     async def query(

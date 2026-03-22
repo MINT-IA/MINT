@@ -90,8 +90,28 @@ async def _get_vector_store():
     return _vector_store
 
 
+def _get_hybrid_search():
+    """Create a HybridSearchService if DATABASE_URL is configured.
+
+    Returns None in dev/CI environments without PostgreSQL.
+    """
+    db_url = os.environ.get("DATABASE_URL", "")
+    if not db_url or "sqlite" in db_url:
+        return None
+    try:
+        from app.services.rag.hybrid_search_service import HybridSearchService
+        return HybridSearchService(db_url=db_url)
+    except ImportError:
+        logger.info("HybridSearchService not available -- using ChromaDB only")
+        return None
+
+
 async def _get_orchestrator():
-    """Get or create the singleton RAG orchestrator instance (async-safe)."""
+    """Get or create the singleton RAG orchestrator instance (async-safe).
+
+    In production (DATABASE_URL set to PostgreSQL), creates a HybridSearchService
+    that uses pgvector for retrieval. In dev/CI, uses ChromaDB only.
+    """
     global _orchestrator
     if _orchestrator is not None:
         return _orchestrator
@@ -102,7 +122,12 @@ async def _get_orchestrator():
             from app.services.rag.orchestrator import RAGOrchestrator
 
             vs = await _get_vector_store()
-            _orchestrator = RAGOrchestrator(vector_store=vs)
+            hybrid = _get_hybrid_search()
+            _orchestrator = RAGOrchestrator(vector_store=vs, hybrid_search=hybrid)
+            if hybrid:
+                logger.info("RAG orchestrator initialized with pgvector (hybrid search)")
+            else:
+                logger.info("RAG orchestrator initialized with ChromaDB only (dev/CI)")
         except ImportError:
             raise HTTPException(
                 status_code=503,
