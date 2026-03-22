@@ -51,10 +51,13 @@ class CoachChatRequest(CoachChatBaseModel):
         max_length=2000,
         description="Message de l'utilisateur au coach.",
     )
-    api_key: str = Field(
-        ...,
-        min_length=1,
-        description="Cle API LLM de l'utilisateur (BYOK — jamais stockee par MINT).",
+    api_key: Optional[str] = Field(
+        None,
+        description=(
+            "Cle API LLM de l'utilisateur (BYOK). Optionnel en beta: "
+            "quand absent, le serveur utilise sa propre cle ANTHROPIC_API_KEY. "
+            "Jamais stockee, jamais loggee par MINT."
+        ),
     )
     provider: str = Field(
         default="claude",

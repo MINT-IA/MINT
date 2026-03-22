@@ -686,6 +686,24 @@ async def coach_chat(
     safe_profile = _sanitize_profile_context(body.profile_context)
 
     # ------------------------------------------------------------------
+    # Step 0.5: Resolve API key — BYOK or server-side default
+    # For beta (100 users): use the server-side ANTHROPIC_API_KEY when
+    # the user hasn't configured their own BYOK key.
+    # The key is NEVER logged, stored, or returned to the client.
+    # ------------------------------------------------------------------
+    effective_api_key = body.api_key
+    if not effective_api_key or not effective_api_key.strip():
+        server_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if server_key:
+            effective_api_key = server_key
+            logger.info("coach_chat using server-side API key (beta mode)")
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Aucune clé API configurée. Configure ta clé dans les réglages.",
+            )
+
+    # ------------------------------------------------------------------
     # Step 1: Build CoachContext from sanitized profile_context
     # ------------------------------------------------------------------
     coach_ctx = _build_coach_context_from_profile(safe_profile)
@@ -742,7 +760,7 @@ async def coach_chat(
         loop_result = await _run_agent_loop(
             orchestrator=orchestrator,
             question=body.message,
-            api_key=body.api_key,
+            api_key=effective_api_key,
             provider=body.provider,
             model=body.model,
             profile_context=safe_profile,
@@ -762,7 +780,33 @@ async def coach_chat(
         )
 
     # ------------------------------------------------------------------
-    # Step 5: Build structured response
+    # Step 5: Production monitoring
+    # Log conversation metrics for observability and launch readiness.
+    # ------------------------------------------------------------------
+    tool_calls_out = loop_result["tool_calls"] or []
+    tool_names = [t.get("name", "?") for t in tool_calls_out] if tool_calls_out else []
+    logger.info(
+        "coach_chat_metrics "
+        "tokens=%d "
+        "tools_count=%d "
+        "tools=%s "
+        "reasoning_fact=%s "
+        "provider=%s "
+        "answer_len=%d "
+        "sources=%d "
+        "disclaimers=%d",
+        loop_result["tokens_used"],
+        len(tool_names),
+        ",".join(tool_names) if tool_names else "none",
+        reasoning_output.fact_tag or "none",
+        body.provider,
+        len(loop_result["answer"]),
+        len(loop_result["sources"]),
+        len(loop_result["disclaimers"]),
+    )
+
+    # ------------------------------------------------------------------
+    # Step 6: Build structured response
     # The orchestrator already ran ComplianceGuard (guardrails.filter_response)
     # on each iteration.  Only non-internal tool_calls are returned.
     # ------------------------------------------------------------------

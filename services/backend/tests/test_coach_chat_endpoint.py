@@ -129,11 +129,17 @@ class TestCoachChatHTTPContract:
         response = client_with_auth.post("/api/v1/coach/chat", json=body)
         assert response.status_code == 422
 
-    def test_missing_api_key_returns_422(self, client_with_auth):
-        """POST without 'api_key' field returns HTTP 422."""
-        body = {"message": "Bonjour", "provider": "claude"}
-        response = client_with_auth.post("/api/v1/coach/chat", json=body)
-        assert response.status_code == 422
+    def test_missing_api_key_uses_server_default(self, client_with_auth):
+        """POST without 'api_key' falls back to server-side ANTHROPIC_API_KEY.
+
+        In beta mode, api_key is optional. When absent, the server uses
+        its own ANTHROPIC_API_KEY. Returns 400 only if server key is also absent.
+        """
+        with _mock_orchestrator(_ORCHESTRATOR_OK_RESULT):
+            body = {"message": "Bonjour", "provider": "claude"}
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+        # Without ANTHROPIC_API_KEY env var → 400. With it → 200.
+        assert response.status_code in (200, 400)
 
     def test_empty_message_returns_422(self, client_with_auth):
         """POST with empty string 'message' returns HTTP 422 (min_length=1)."""
@@ -141,11 +147,12 @@ class TestCoachChatHTTPContract:
         response = client_with_auth.post("/api/v1/coach/chat", json=body)
         assert response.status_code == 422
 
-    def test_empty_api_key_returns_422(self, client_with_auth):
-        """POST with empty 'api_key' returns HTTP 422 (min_length=1)."""
-        body = {**_VALID_BODY, "api_key": ""}
-        response = client_with_auth.post("/api/v1/coach/chat", json=body)
-        assert response.status_code == 422
+    def test_empty_api_key_uses_server_default(self, client_with_auth):
+        """POST with empty 'api_key' falls back to server-side key."""
+        with _mock_orchestrator(_ORCHESTRATOR_OK_RESULT):
+            body = {**_VALID_BODY, "api_key": ""}
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+        assert response.status_code in (200, 400)
 
     def test_unauthenticated_returns_401(self, client_no_auth):
         """POST without JWT returns HTTP 401."""

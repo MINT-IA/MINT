@@ -174,6 +174,34 @@ final _router = GoRouter(
       return '/auth/register?redirect=${Uri.encodeComponent(path)}';
     }
 
+    // Routes that REQUIRE a completed profile (financial screens)
+    // An authenticated user without a profile sees empty/broken screens.
+    // Redirect to quick onboarding so they complete the 3-question wizard first.
+    const profileRequiredPrefixes = [
+      '/home',        // main tabs (Pulse, Coach, Explorer, Dossier)
+      '/coach',       // coach chat
+      '/retraite',    // retirement dashboard
+      '/rente-vs-capital',
+      '/budget',
+      '/fiscal',
+      '/3a',
+      '/lpp',
+      '/mortgage',
+      '/scan',
+    ];
+    final requiresProfile = profileRequiredPrefixes.any(
+      (p) => path.startsWith(p),
+    );
+    if (requiresProfile && isLoggedIn) {
+      final hasProfile = context.read<CoachProfileProvider>().hasProfile;
+      if (!hasProfile) {
+        // Skip if already on the onboarding flow
+        if (!path.startsWith('/onboarding')) {
+          return '/onboarding/quick';
+        }
+      }
+    }
+
     return null; // No redirect needed
   },
   routes: [
