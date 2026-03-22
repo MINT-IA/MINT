@@ -37047,6 +37047,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Fiscalité'**
   String get dossierDataFiscalite;
+
+  /// No description provided for @pulseRetirementIncomeEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite estimée (minimum LPP)'**
+  String get pulseRetirementIncomeEstimated;
+
+  /// No description provided for @dossierScanLppPrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanne ton certificat pour des projections plus précises'**
+  String get dossierScanLppPrecision;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

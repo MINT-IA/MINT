@@ -9470,5 +9470,7 @@
   "pulseCapImpact": "Lever identified",
   "dossierAddConjointCta": "Add my partner",
   "dossierDataAvs": "1st pillar",
-  "dossierDataFiscalite": "Taxation"
+  "dossierDataFiscalite": "Taxation",
+  "pulseRetirementIncomeEstimated": "Retirement estimated (LPP minimum)",
+  "dossierScanLppPrecision": "Scan your certificate for more accurate projections"
 }

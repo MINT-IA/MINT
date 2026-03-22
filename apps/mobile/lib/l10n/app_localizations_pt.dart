@@ -20934,4 +20934,12 @@ class SPt extends S {
 
   @override
   String get dossierDataFiscalite => 'Fiscalidade';
+
+  @override
+  String get pulseRetirementIncomeEstimated =>
+      'Aposentadoria estimada (mínimo LPP)';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Digitalize o certificado para projeções mais precisas';
 }

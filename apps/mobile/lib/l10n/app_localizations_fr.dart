@@ -20984,4 +20984,11 @@ class SFr extends S {
 
   @override
   String get dossierDataFiscalite => 'Fiscalité';
+
+  @override
+  String get pulseRetirementIncomeEstimated => 'Retraite estimée (minimum LPP)';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Scanne ton certificat pour des projections plus précises';
 }

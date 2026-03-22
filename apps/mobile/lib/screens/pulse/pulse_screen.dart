@@ -1022,11 +1022,16 @@ class _PulseScreenState extends State<PulseScreen> {
     if (snapshot != null && snapshot.hasFullGap) {
       final retirementNet = snapshot.retirement!.monthlyNet;
       final rate = snapshot.gap!.replacementRate;
+      final isEstimated = profile.prevoyance.isLppEstimated;
       signals.add(_SignalRow(
-        label: l.pulseRetirementIncome,
+        label: isEstimated
+            ? l.pulseRetirementIncomeEstimated
+            : l.pulseRetirementIncome,
         value: l.pulseAmountPerMonth(formatChfWithPrefix(retirementNet)),
         color: rate >= 80 ? MintColors.success : MintColors.warning,
-        onTap: () => context.push('/retirement'),
+        onTap: () => isEstimated
+            ? context.push('/scan')
+            : context.push('/retirement'),
       ));
     }
 

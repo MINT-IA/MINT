@@ -20886,4 +20886,12 @@ class SEn extends S {
 
   @override
   String get dossierDataFiscalite => 'Taxation';
+
+  @override
+  String get pulseRetirementIncomeEstimated =>
+      'Retirement estimated (LPP minimum)';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Scan your certificate for more accurate projections';
 }

@@ -9767,5 +9767,7 @@
   "pulseCapImpact": "Levier identifié",
   "dossierAddConjointCta": "Ajouter mon\u00b7ma conjoint\u00b7e",
   "dossierDataAvs": "1er pilier",
-  "dossierDataFiscalite": "Fiscalit\u00e9"
+  "dossierDataFiscalite": "Fiscalit\u00e9",
+  "pulseRetirementIncomeEstimated": "Retraite estimée (minimum LPP)",
+  "dossierScanLppPrecision": "Scanne ton certificat pour des projections plus précises"
 }

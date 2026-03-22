@@ -278,6 +278,13 @@ class ContextInjectorService {
       lines.add('Charges fixes\u00a0: CHF\u00a0${snap.present.monthlyCharges.round()}/mois');
 
       if (snap.hasFullGap) {
+        final isEstimated = profile?.prevoyance.isLppEstimated ?? true;
+        if (isEstimated) {
+          lines.add('ATTENTION\u00a0: Les projections retraite ci-dessous sont bas\u00e9es sur '
+              'les minimums l\u00e9gaux LPP (pas le plan de caisse r\u00e9el). '
+              'Le taux r\u00e9el pourrait \u00eatre significativement plus \u00e9lev\u00e9. '
+              'Propose \u00e0 l\'utilisateur de scanner son certificat LPP pour des chiffres pr\u00e9cis.');
+        }
         lines.add('Revenu retraite estim\u00e9\u00a0: CHF\u00a0${snap.retirement!.monthlyNet.round()}/mois');
         lines.add('Taux de remplacement\u00a0: ${snap.gap!.replacementRate.round()}\u00a0%');
         lines.add('\u00c9cart mensuel\u00a0: CHF\u00a0${snap.gap!.monthlyGap.round()}/mois');

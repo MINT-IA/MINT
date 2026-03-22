@@ -719,8 +719,16 @@ class _DataSection extends StatelessWidget {
                   icon: Icons.account_balance_outlined,
                   label: l.dossierDataLpp,
                   value: lppStr,
-                  onTap: () =>
-                      _pushAndRecompute(context, '/data-block/lpp'),
+                  // Show scan CTA when LPP is known but from estimation (not certificate)
+                  cta: (profile?.prevoyance.isLppEstimated ?? false)
+                      ? l.dossierScanLppPrecision
+                      : null,
+                  onTap: () => (profile?.prevoyance.isLppEstimated ?? false)
+                      ? _pushAndRecompute(
+                          context, '/scan',
+                          extra: DocumentType.lppCertificate,
+                        )
+                      : _pushAndRecompute(context, '/data-block/lpp'),
                 )
               : _DataRow(
                   icon: Icons.account_balance_outlined,

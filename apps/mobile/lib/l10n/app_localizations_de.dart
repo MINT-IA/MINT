@@ -21008,4 +21008,11 @@ class SDe extends S {
 
   @override
   String get dossierDataFiscalite => 'Steuern';
+
+  @override
+  String get pulseRetirementIncomeEstimated => 'Rente geschätzt (BVG-Minimum)';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Scanne dein Vorsorgeausweis für genauere Projektionen';
 }

@@ -20983,4 +20983,12 @@ class SEs extends S {
 
   @override
   String get dossierDataFiscalite => 'Fiscalidad';
+
+  @override
+  String get pulseRetirementIncomeEstimated =>
+      'Jubilación estimada (mínimo LPP)';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Escanea tu certificado para proyecciones más precisas';
 }

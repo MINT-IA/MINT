@@ -21012,4 +21012,11 @@ class SIt extends S {
 
   @override
   String get dossierDataFiscalite => 'Fiscalità';
+
+  @override
+  String get pulseRetirementIncomeEstimated => 'Pensione stimata (minimo LPP)';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Scansiona il certificato per proiezioni più precise';
 }

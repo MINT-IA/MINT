@@ -9448,5 +9448,7 @@
   "pulseCapImpact": "Identifizierter Hebel",
   "dossierAddConjointCta": "Partner\u00b7in hinzuf\u00fcgen",
   "dossierDataAvs": "1. S\u00e4ule",
-  "dossierDataFiscalite": "Steuern"
+  "dossierDataFiscalite": "Steuern",
+  "pulseRetirementIncomeEstimated": "Rente geschätzt (BVG-Minimum)",
+  "dossierScanLppPrecision": "Scanne dein Vorsorgeausweis für genauere Projektionen"
 }
