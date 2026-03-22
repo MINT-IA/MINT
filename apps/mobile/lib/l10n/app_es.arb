@@ -8999,5 +8999,89 @@
   "pulseLabelPurchasingCapacity": "Capacidad de compra estimada",
 
   "dossierToolsSection": "Herramientas",
-  "dossierToolsCta": "Ver todas las herramientas"
+  "dossierToolsCta": "Ver todas las herramientas",
+
+  "capSequenceProgress": "{completed}/{total}\u00a0pasos",
+  "@capSequenceProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "capSequenceComplete": "\u00a1Plan completado!",
+  "capSequenceCurrentStep": "Pr\u00f3ximo paso",
+
+  "capStepRetirement01Title": "Conocer tu salario bruto",
+  "capStepRetirement01Desc": "La base de todos los c\u00e1lculos de jubilaci\u00f3n.",
+  "capStepRetirement02Title": "Estimar tu renta AVS",
+  "capStepRetirement02Desc": "Tus a\u00f1os cotizados determinan el 1er pilar.",
+  "capStepRetirement03Title": "Verificar tu capital LPP",
+  "capStepRetirement03Desc": "El certificado LPP revela tu capital del 2\u00ba pilar.",
+  "capStepRetirement04Title": "Calcular tu tasa de reemplazo",
+  "capStepRetirement04Desc": "Cu\u00e1nto de tu salario recibir\u00e1s al jubilarte.",
+  "capStepRetirement05Title": "Simular una aportaci\u00f3n 3a",
+  "capStepRetirement05Desc": "Deducir hasta CHF\u00a07.258 y reforzar tu jubilaci\u00f3n.",
+  "capStepRetirement06Title": "Evaluar una recompra LPP",
+  "capStepRetirement06Desc": "Cubrir lagunas y reducir impuestos.",
+  "capStepRetirement07Title": "Comparar renta vs capital",
+  "capStepRetirement07Desc": "\u00bfRenta mensual o retiro de capital?",
+  "capStepRetirement08Title": "Planificar el retiro",
+  "capStepRetirement08Desc": "El orden de retiro impacta tu factura fiscal.",
+  "capStepRetirement09Title": "Optimizar fiscalmente",
+  "capStepRetirement09Desc": "3a, recompra, timing: reducir la imposici\u00f3n del capital.",
+  "capStepRetirement10Title": "Consultar a un especialista",
+  "capStepRetirement10Desc": "Una revisi\u00f3n experta de tu situaci\u00f3n completa.",
+
+  "capStepBudget01Title": "Conocer tus ingresos",
+  "capStepBudget01Desc": "El punto de partida de cualquier an\u00e1lisis presupuestario.",
+  "capStepBudget02Title": "Listar tus gastos fijos",
+  "capStepBudget02Desc": "Alquiler, seguro de salud, transporte: lo inevitable.",
+  "capStepBudget03Title": "Calcular tu margen libre",
+  "capStepBudget03Desc": "Lo que queda tras los gastos \u2014 tu campo de juego.",
+  "capStepBudget04Title": "Identificar ahorros posibles",
+  "capStepBudget04Desc": "Peque\u00f1os ajustes, gran impacto mensual.",
+  "capStepBudget05Title": "Construir un fondo de emergencia",
+  "capStepBudget05Desc": "3 meses de gastos l\u00edquidos: tu red de seguridad.",
+  "capStepBudget06Title": "Planificar el 3a",
+  "capStepBudget06Desc": "Cada franco aportado reduce impuestos y prepara la jubilaci\u00f3n.",
+
+  "capStepHousing01Title": "Conocer tus ingresos",
+  "capStepHousing01Desc": "La base del c\u00e1lculo de capacidad de compra.",
+  "capStepHousing02Title": "Evaluar tus fondos propios",
+  "capStepHousing02Desc": "Ahorros, 3a y LPP: reunir el aporte necesario.",
+  "capStepHousing03Title": "Calcular tu capacidad de compra",
+  "capStepHousing03Desc": "\u00bfHasta qu\u00e9 precio puedes comprar?",
+  "capStepHousing04Title": "Simular la hipoteca",
+  "capStepHousing04Desc": "Cuota mensual, amortizaci\u00f3n, tasa te\u00f3rica.",
+  "capStepHousing05Title": "Evaluar el EPL (2\u00ba pilar)",
+  "capStepHousing05Desc": "Retiro anticipado LPP para financiar el aporte.",
+  "capStepHousing06Title": "Comparar alquiler vs compra",
+  "capStepHousing06Desc": "El c\u00e1lculo que va m\u00e1s all\u00e1 de las intuiciones.",
+  "capStepHousing07Title": "Consultar a un especialista",
+  "capStepHousing07Desc": "Notario, intermediario, asesor: cu\u00e1ndo involucrar a qui\u00e9n.",
+  "goalSelectorTitle": "\u00bfCu\u00e1l es tu objetivo principal?",
+  "goalSelectorAuto": "Dejar que MINT decida",
+  "goalSelectorAutoDesc": "MINT se adapta autom\u00e1ticamente seg\u00fan tu perfil",
+  "goalRetirementTitle": "Mi jubilaci\u00f3n",
+  "goalRetirementDesc": "Planificar la transici\u00f3n a la jubilaci\u00f3n",
+  "goalBudgetTitle": "Mi presupuesto",
+  "goalBudgetDesc": "Controlar mis gastos y ahorrar",
+  "goalHousingTitle": "Comprar una vivienda",
+  "goalHousingDesc": "Evaluar mi capacidad y planificar la compra",
+  "goalTaxTitle": "Pagar menos impuestos",
+  "goalTaxDesc": "Optimizar mis deducciones (3a, rescate LPP)",
+  "goalDebtTitle": "Gestionar mis deudas",
+  "goalDebtDesc": "Recuperar margen y reembolsar",
+  "goalBirthTitle": "Preparar un nacimiento",
+  "goalBirthDesc": "Anticipar los costes y adaptar el presupuesto",
+  "goalIndependentTitle": "Hacerse aut\u00f3nomo/a",
+  "goalIndependentDesc": "Previsi\u00f3n, fiscalidad y cobertura",
+  "pulseGoalChip": "Objetivo: {goal}",
+  "@pulseGoalChip": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  }
 }

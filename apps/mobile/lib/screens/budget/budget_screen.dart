@@ -15,6 +15,7 @@ import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -73,12 +74,22 @@ class _BudgetScreenState extends State<BudgetScreen>
       } catch (_) {
         if (mounted) setState(() => _hasError = true);
       }
-      // Compute BudgetSnapshot from CoachProfile if available.
-      // This is non-blocking: BudgetScreen renders immediately via plan.available,
-      // and upgrades the hero number to monthlyFree once snapshot is ready.
+      // Resolve BudgetSnapshot — prefer the pre-computed value from
+      // MintStateProvider (single computation source) to avoid duplicating
+      // BudgetLivingEngine.compute(). Fall back to direct computation only
+      // when MintStateProvider is not in the widget tree (e.g. tests).
       try {
-        final profileProvider =
-            context.read<CoachProfileProvider>();
+        final mintSnap =
+            context.read<MintStateProvider>().state?.budgetSnapshot;
+        if (mintSnap != null) {
+          if (mounted) setState(() => _snapshot = mintSnap);
+          return;
+        }
+      } catch (_) {
+        // MintStateProvider not in tree — fall through to direct computation.
+      }
+      try {
+        final profileProvider = context.read<CoachProfileProvider>();
         if (profileProvider.hasProfile) {
           final snap =
               BudgetLivingEngine.compute(profileProvider.profile!);

@@ -5,7 +5,9 @@
 /// into a single [MintUserState] snapshot.
 ///
 /// Design principles:
-///   - Pure async factory: no singleton state, no side effects beyond reads.
+///   - Pure async factory: no singleton state.
+///   - Side effects: ProactiveTriggerService.evaluate() writes a cooldown
+///     timestamp to SharedPreferences. All other calls are read-only.
 ///   - Services called defensively: one failure does not abort the whole state.
 ///   - CapEngine requires `S` (l10n); labels are intentionally left empty
 ///     strings here — the engine uses them only for CTA labels which are
@@ -23,11 +25,14 @@ library;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -86,8 +91,12 @@ class MintStateEngine {
     // ── 4. Cap decision ────────────────────────────────────────────────────
     // CapEngine requires an S (l10n) instance for CTA labels.
     // We use the French fallback so the engine runs without BuildContext.
-    // Callers that have a BuildContext should call CapEngine.compute directly
-    // with the real S for fully localised labels.
+    // Architectural limitation: CapEngine labels use French fallback when
+    // computed without BuildContext (service layer). Screen-layer CapEngine
+    // calls use proper i18n via the real S instance.
+    // CapEngine labels here are used only for internal matching/sorting
+    // (capId, tier comparisons), NOT for direct display — so French fallback
+    // is acceptable. Screen consumers re-call CapEngine with BuildContext.
     CapDecision? currentCap;
     final frenchL10n = SFr();
     try {
@@ -102,13 +111,28 @@ class MintStateEngine {
     }
 
     // ── 5. Active goal intent tag ──────────────────────────────────────────
-    final activeGoalIntentTag =
-        capMemory.declaredGoals.isNotEmpty ? capMemory.declaredGoals.first : null;
+    // Priority: explicit GoalSelectionService selection > CapMemory declaredGoals.
+    String? activeGoalIntentTag;
+    try {
+      final explicitGoal = await GoalSelectionService.getSelectedGoal(prefs);
+      if (explicitGoal != null) {
+        activeGoalIntentTag = explicitGoal;
+      } else {
+        activeGoalIntentTag = capMemory.declaredGoals.isNotEmpty
+            ? capMemory.declaredGoals.first
+            : null;
+      }
+    } catch (_) {
+      activeGoalIntentTag = capMemory.declaredGoals.isNotEmpty
+          ? capMemory.declaredGoals.first
+          : null;
+    }
 
     // ── 6. Projections (conditional on confidence) ─────────────────────────
     double? friScore;
     double? replacementRate;
     RetirementBudgetGap? budgetGap;
+    BudgetSnapshot? budgetSnapshot;
 
     if (confidenceScore >= _kMinConfidenceForProjections) {
       // 6a. Forecaster projection (for FRI)
@@ -144,6 +168,17 @@ class MintStateEngine {
         replacementRate ??= retirementResult.tauxRemplacement;
       } catch (_) {
         budgetGap = null;
+      }
+
+      // 6d. BudgetSnapshot — single computation, consumed by PulseScreen,
+      // BudgetScreen, and any widget displaying budget/gap figures.
+      // BudgetLivingEngine.compute already calls RetirementProjectionService
+      // internally; wrapping here is safe because it has its own try/catch
+      // and always returns a gracefully degraded snapshot on failure.
+      try {
+        budgetSnapshot = BudgetLivingEngine.compute(profile);
+      } catch (_) {
+        budgetSnapshot = null;
       }
     }
 
@@ -186,6 +221,7 @@ class MintStateEngine {
       lifecyclePhase: lifecyclePhase,
       archetype: profile.archetype,
       budgetGap: budgetGap,
+      budgetSnapshot: budgetSnapshot,
       currentCap: currentCap,
       capSequence: const [], // Phase 2: CapSequence service not yet wired
       activeGoalIntentTag: activeGoalIntentTag,

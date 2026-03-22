@@ -96,6 +96,10 @@ void main() {
         expect(state.hasProjections, isFalse);
         expect(state.friScore, isNull);
         expect(state.replacementRate, isNull);
+        // BudgetSnapshot also requires confidence >= 30
+        expect(state.budgetSnapshot, isNull);
+        expect(state.hasBudgetSnapshot, isFalse);
+        expect(state.monthlyFree, isNull);
       }
     });
 
@@ -216,6 +220,53 @@ void main() {
         final hasAnyProjection = state.replacementRate != null ||
             state.budgetGap != null;
         expect(hasAnyProjection, isTrue);
+      }
+    });
+
+    test('Julien budgetSnapshot is populated (single computation source)',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      final state = await MintStateEngine.compute(
+        profile: julien,
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+      // Julien has salary + age → BudgetLivingEngine should produce a snapshot.
+      expect(state.budgetSnapshot, isNotNull);
+    });
+
+    test('Julien hasBudgetSnapshot is true', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final state = await MintStateEngine.compute(
+        profile: julien,
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+      expect(state.hasBudgetSnapshot, isTrue);
+    });
+
+    test('Julien monthlyFree is non-null and finite', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final state = await MintStateEngine.compute(
+        profile: julien,
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+      expect(state.monthlyFree, isNotNull);
+      expect(state.monthlyFree!.isFinite, isTrue);
+    });
+
+    test('Julien budgetSnapshot present budget has positive net income',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      final state = await MintStateEngine.compute(
+        profile: julien,
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+      final snap = state.budgetSnapshot;
+      if (snap != null) {
+        expect(snap.present.monthlyNet, greaterThan(0));
       }
     });
   });

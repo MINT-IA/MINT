@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
@@ -32,6 +33,18 @@ RetirementBudgetGap _sampleGap() => const RetirementBudgetGap(
       soldeMensuel: -500,
       tauxRemplacement: 65.0,
       alertes: [],
+    );
+
+BudgetSnapshot _sampleSnapshot() => const BudgetSnapshot(
+      present: PresentBudget(
+        monthlyNet: 7500,
+        monthlyCharges: 3000,
+        monthlySavings: 604,
+        monthlyFree: 3896,
+      ),
+      stage: BudgetStage.fullGapVisible,
+      capImpacts: [],
+      confidenceScore: 72.0,
     );
 
 CapDecision _sampleCap() => const CapDecision(
@@ -241,6 +254,77 @@ void main() {
       final original = _stateWithGap();
       final copy = original.copyWith(confidenceScore: 55.0);
       expect(copy.capSequence, ['debt_correct', 'avs_buyback']);
+    });
+
+    test('copyWith can set budgetSnapshot', () {
+      final snap = _sampleSnapshot();
+      final state = _stateNoProjections().copyWith(budgetSnapshot: snap);
+      expect(state.budgetSnapshot, isNotNull);
+      expect(state.budgetSnapshot!.present.monthlyFree, 3896.0);
+    });
+
+    test('copyWith can clear budgetSnapshot to null', () {
+      final snap = _sampleSnapshot();
+      final stateWithSnap = _stateNoProjections().copyWith(budgetSnapshot: snap);
+      final cleared = stateWithSnap.copyWith(budgetSnapshot: null);
+      expect(cleared.budgetSnapshot, isNull);
+    });
+
+    test('copyWith without budgetSnapshot argument preserves existing', () {
+      final snap = _sampleSnapshot();
+      final original = _stateNoProjections().copyWith(budgetSnapshot: snap);
+      final copy = original.copyWith(confidenceScore: 25.0);
+      expect(copy.budgetSnapshot, isNotNull);
+    });
+  });
+
+  group('MintUserState — budgetSnapshot field', () {
+    test('budgetSnapshot is null when not provided', () {
+      final state = _stateNoProjections();
+      expect(state.budgetSnapshot, isNull);
+    });
+
+    test('hasBudgetSnapshot is false when budgetSnapshot is null', () {
+      final state = _stateNoProjections();
+      expect(state.hasBudgetSnapshot, isFalse);
+    });
+
+    test('hasBudgetSnapshot is true when budgetSnapshot is set', () {
+      final snap = _sampleSnapshot();
+      final state = _stateNoProjections().copyWith(budgetSnapshot: snap);
+      expect(state.hasBudgetSnapshot, isTrue);
+    });
+
+    test('monthlyFree is null when budgetSnapshot is null', () {
+      expect(_stateNoProjections().monthlyFree, isNull);
+    });
+
+    test('monthlyFree returns present.monthlyFree when snapshot is set', () {
+      final snap = _sampleSnapshot();
+      final state = _stateNoProjections().copyWith(budgetSnapshot: snap);
+      expect(state.monthlyFree, 3896.0);
+    });
+
+    test('budgetSnapshot stores all present budget fields correctly', () {
+      final snap = _sampleSnapshot();
+      final state = _stateNoProjections().copyWith(budgetSnapshot: snap);
+      expect(state.budgetSnapshot!.present.monthlyNet, 7500.0);
+      expect(state.budgetSnapshot!.present.monthlyCharges, 3000.0);
+      expect(state.budgetSnapshot!.present.monthlySavings, 604.0);
+      expect(state.budgetSnapshot!.confidenceScore, 72.0);
+      expect(state.budgetSnapshot!.stage, BudgetStage.fullGapVisible);
+    });
+
+    test('budgetSnapshot is independent of budgetGap field', () {
+      // budgetSnapshot and budgetGap can be set independently
+      final snap = _sampleSnapshot();
+      final stateWithBoth = _stateWithGap().copyWith(budgetSnapshot: snap);
+      expect(stateWithBoth.budgetGap, isNotNull);
+      expect(stateWithBoth.budgetSnapshot, isNotNull);
+
+      final stateWithSnapOnly = _stateNoProjections().copyWith(budgetSnapshot: snap);
+      expect(stateWithSnapOnly.budgetGap, isNull);
+      expect(stateWithSnapOnly.budgetSnapshot, isNotNull);
     });
   });
 }

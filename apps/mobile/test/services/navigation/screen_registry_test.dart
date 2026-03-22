@@ -48,8 +48,19 @@ void main() {
       }
     });
 
-    test('total entry count covers all registered surfaces (= 111)', () {
-      expect(MintScreenRegistry.entries.length, equals(111));
+    test('total entry count covers all registered surfaces (= 109)', () {
+      expect(MintScreenRegistry.entries.length, equals(109));
+    });
+
+    test('all routes are unique (no duplicate routes)', () {
+      final routes = MintScreenRegistry.entries
+          .map((e) => e.route)
+          .where((r) => r.isNotEmpty)
+          .toList();
+      final uniqueRoutes = routes.toSet();
+      expect(routes.length, uniqueRoutes.length,
+          reason: 'Duplicate routes found: '
+              '${routes.where((r) => routes.indexOf(r) != routes.lastIndexOf(r)).toSet()}');
     });
   });
 

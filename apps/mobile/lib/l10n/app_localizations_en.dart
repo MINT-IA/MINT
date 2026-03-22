@@ -20409,4 +20409,229 @@ class SEn extends S {
 
   @override
   String get pulseLabelPurchasingCapacity => 'Estimated purchasing capacity';
+
+  @override
+  String capSequenceProgress(int completed, int total) {
+    return '$completed/$total steps';
+  }
+
+  @override
+  String get capSequenceComplete => 'Plan complete!';
+
+  @override
+  String get capSequenceCurrentStep => 'Next step';
+
+  @override
+  String get capStepRetirement01Title => 'Know your gross salary';
+
+  @override
+  String get capStepRetirement01Desc =>
+      'The basis for all retirement calculations.';
+
+  @override
+  String get capStepRetirement02Title => 'Estimate your AVS pension';
+
+  @override
+  String get capStepRetirement02Desc =>
+      'Your contribution years determine your 1st pillar.';
+
+  @override
+  String get capStepRetirement03Title => 'Check your LPP assets';
+
+  @override
+  String get capStepRetirement03Desc =>
+      'The LPP certificate reveals your 2nd pillar capital.';
+
+  @override
+  String get capStepRetirement04Title => 'Calculate your replacement rate';
+
+  @override
+  String get capStepRetirement04Desc =>
+      'How much of your salary will you receive at retirement.';
+
+  @override
+  String get capStepRetirement05Title => 'Simulate a 3a contribution';
+
+  @override
+  String get capStepRetirement05Desc =>
+      'Deduct up to CHF 7,258 and boost your retirement.';
+
+  @override
+  String get capStepRetirement06Title => 'Evaluate an LPP buyback';
+
+  @override
+  String get capStepRetirement06Desc => 'Fill gaps and reduce your taxes.';
+
+  @override
+  String get capStepRetirement07Title => 'Compare pension vs capital';
+
+  @override
+  String get capStepRetirement07Desc =>
+      'Monthly pension or capital withdrawal?';
+
+  @override
+  String get capStepRetirement08Title => 'Plan your drawdown';
+
+  @override
+  String get capStepRetirement08Desc =>
+      'Withdrawal order impacts your tax bill.';
+
+  @override
+  String get capStepRetirement09Title => 'Optimise tax';
+
+  @override
+  String get capStepRetirement09Desc =>
+      '3a, buyback, timing: reduce capital taxation.';
+
+  @override
+  String get capStepRetirement10Title => 'Consult a specialist';
+
+  @override
+  String get capStepRetirement10Desc =>
+      'Expert review of your complete situation.';
+
+  @override
+  String get capStepBudget01Title => 'Know your income';
+
+  @override
+  String get capStepBudget01Desc => 'The starting point of any budget review.';
+
+  @override
+  String get capStepBudget02Title => 'List your fixed expenses';
+
+  @override
+  String get capStepBudget02Desc =>
+      'Rent, health insurance, transport: the unavoidables.';
+
+  @override
+  String get capStepBudget03Title => 'Calculate your free margin';
+
+  @override
+  String get capStepBudget03Desc =>
+      'What remains after expenses — your real playground.';
+
+  @override
+  String get capStepBudget04Title => 'Identify possible savings';
+
+  @override
+  String get capStepBudget04Desc => 'Small adjustments, big monthly impact.';
+
+  @override
+  String get capStepBudget05Title => 'Build a precautionary savings';
+
+  @override
+  String get capStepBudget05Desc =>
+      '3 months of liquid expenses: your safety net.';
+
+  @override
+  String get capStepBudget06Title => 'Plan your 3a';
+
+  @override
+  String get capStepBudget06Desc =>
+      'Every franc contributed reduces taxes and prepares retirement.';
+
+  @override
+  String get capStepHousing01Title => 'Know your income';
+
+  @override
+  String get capStepHousing01Desc =>
+      'The basis for the purchasing capacity calculation.';
+
+  @override
+  String get capStepHousing02Title => 'Evaluate your own funds';
+
+  @override
+  String get capStepHousing02Desc =>
+      'Savings, 3a and LPP: assembling the required down payment.';
+
+  @override
+  String get capStepHousing03Title => 'Calculate your purchasing capacity';
+
+  @override
+  String get capStepHousing03Desc => 'Up to what price can you buy?';
+
+  @override
+  String get capStepHousing04Title => 'Simulate the mortgage';
+
+  @override
+  String get capStepHousing04Desc =>
+      'Monthly payment, amortisation, theoretical rate.';
+
+  @override
+  String get capStepHousing05Title => 'Evaluate EPL (2nd pillar)';
+
+  @override
+  String get capStepHousing05Desc =>
+      'Early LPP withdrawal to finance the down payment.';
+
+  @override
+  String get capStepHousing06Title => 'Compare renting vs buying';
+
+  @override
+  String get capStepHousing06Desc =>
+      'The calculation that goes beyond intuitions.';
+
+  @override
+  String get capStepHousing07Title => 'Consult a specialist';
+
+  @override
+  String get capStepHousing07Desc =>
+      'Notary, broker, advisor: when to involve whom.';
+
+  @override
+  String get goalSelectorTitle => 'What is your main goal?';
+
+  @override
+  String get goalSelectorAuto => 'Let MINT decide';
+
+  @override
+  String get goalSelectorAutoDesc =>
+      'MINT adapts automatically based on your profile';
+
+  @override
+  String get goalRetirementTitle => 'My retirement';
+
+  @override
+  String get goalRetirementDesc => 'Plan the transition to retirement';
+
+  @override
+  String get goalBudgetTitle => 'My budget';
+
+  @override
+  String get goalBudgetDesc => 'Control my spending and save';
+
+  @override
+  String get goalHousingTitle => 'Buy a home';
+
+  @override
+  String get goalHousingDesc => 'Assess my capacity and plan the purchase';
+
+  @override
+  String get goalTaxTitle => 'Pay less tax';
+
+  @override
+  String get goalTaxDesc => 'Optimise my deductions (3a, LPP buyback)';
+
+  @override
+  String get goalDebtTitle => 'Manage my debt';
+
+  @override
+  String get goalDebtDesc => 'Regain margin and repay';
+
+  @override
+  String get goalBirthTitle => 'Prepare for a birth';
+
+  @override
+  String get goalBirthDesc => 'Anticipate costs and adapt the budget';
+
+  @override
+  String get goalIndependentTitle => 'Become self-employed';
+
+  @override
+  String get goalIndependentDesc => 'Pension, tax and coverage';
+
+  @override
+  String pulseGoalChip(String goal) {
+    return 'Goal: $goal';
+  }
 }

@@ -141,6 +141,15 @@ class ReadinessGate {
       case 'conjoint':
         return profile.conjoint;
 
+      // Depenses
+      case 'totalCharges':
+      case 'totalMensuel':
+        return profile.depenses.totalMensuel > 0
+            ? profile.depenses.totalMensuel
+            : null;
+      case 'loyer':
+        return profile.depenses.loyer > 0 ? profile.depenses.loyer : null;
+
       // Other profile fields (non-blocking extras)
       case 'riskTolerance':
         return profile.riskTolerance;

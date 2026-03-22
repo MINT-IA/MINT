@@ -36219,6 +36219,408 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Capacité d’achat estimée'**
   String get pulseLabelPurchasingCapacity;
+
+  /// No description provided for @capSequenceProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed}/{total} étapes'**
+  String capSequenceProgress(int completed, int total);
+
+  /// No description provided for @capSequenceComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan complété !'**
+  String get capSequenceComplete;
+
+  /// No description provided for @capSequenceCurrentStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape'**
+  String get capSequenceCurrentStep;
+
+  /// No description provided for @capStepRetirement01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connaître ton salaire brut'**
+  String get capStepRetirement01Title;
+
+  /// No description provided for @capStepRetirement01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La base de tous les calculs de retraite.'**
+  String get capStepRetirement01Desc;
+
+  /// No description provided for @capStepRetirement02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimer ta rente AVS'**
+  String get capStepRetirement02Title;
+
+  /// No description provided for @capStepRetirement02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes années cotisées déterminent ton 1er pilier.'**
+  String get capStepRetirement02Desc;
+
+  /// No description provided for @capStepRetirement03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier ton avoir LPP'**
+  String get capStepRetirement03Title;
+
+  /// No description provided for @capStepRetirement03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le certificat LPP révèle ton capital 2e pilier.'**
+  String get capStepRetirement03Desc;
+
+  /// No description provided for @capStepRetirement04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer ton taux de remplacement'**
+  String get capStepRetirement04Title;
+
+  /// No description provided for @capStepRetirement04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien de ton salaire tu toucheras à la retraite.'**
+  String get capStepRetirement04Desc;
+
+  /// No description provided for @capStepRetirement05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler un versement 3a'**
+  String get capStepRetirement05Title;
+
+  /// No description provided for @capStepRetirement05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déduire jusqu’à 7’258 CHF et booster ta retraite.'**
+  String get capStepRetirement05Desc;
+
+  /// No description provided for @capStepRetirement06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer un rachat LPP'**
+  String get capStepRetirement06Title;
+
+  /// No description provided for @capStepRetirement06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combler les lacunes et réduire tes impôts.'**
+  String get capStepRetirement06Desc;
+
+  /// No description provided for @capStepRetirement07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer rente vs capital'**
+  String get capStepRetirement07Title;
+
+  /// No description provided for @capStepRetirement07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toucher une rente mensuelle ou retirer le capital ?'**
+  String get capStepRetirement07Desc;
+
+  /// No description provided for @capStepRetirement08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifier le décaissement'**
+  String get capStepRetirement08Title;
+
+  /// No description provided for @capStepRetirement08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ordre de retrait impacte ta fiscalité.'**
+  String get capStepRetirement08Desc;
+
+  /// No description provided for @capStepRetirement09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser fiscalement'**
+  String get capStepRetirement09Title;
+
+  /// No description provided for @capStepRetirement09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a, rachat, timing : réduire l’imposition du capital.'**
+  String get capStepRetirement09Desc;
+
+  /// No description provided for @capStepRetirement10Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get capStepRetirement10Title;
+
+  /// No description provided for @capStepRetirement10Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un regard expert sur ta situation complète.'**
+  String get capStepRetirement10Desc;
+
+  /// No description provided for @capStepBudget01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connaître tes revenus'**
+  String get capStepBudget01Title;
+
+  /// No description provided for @capStepBudget01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le point de départ de tout bilan budgétaire.'**
+  String get capStepBudget01Desc;
+
+  /// No description provided for @capStepBudget02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lister tes charges fixes'**
+  String get capStepBudget02Title;
+
+  /// No description provided for @capStepBudget02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer, assurance maladie, transports : les inévitables.'**
+  String get capStepBudget02Desc;
+
+  /// No description provided for @capStepBudget03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer ta marge libre'**
+  String get capStepBudget03Title;
+
+  /// No description provided for @capStepBudget03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui reste après les charges — ton vrai terrain de jeu.'**
+  String get capStepBudget03Desc;
+
+  /// No description provided for @capStepBudget04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifier les économies possibles'**
+  String get capStepBudget04Title;
+
+  /// No description provided for @capStepBudget04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Petits ajustements, grand impact mensuel.'**
+  String get capStepBudget04Desc;
+
+  /// No description provided for @capStepBudget05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Construire une épargne de précaution'**
+  String get capStepBudget05Title;
+
+  /// No description provided for @capStepBudget05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'3 mois de charges liquides : ton filet de sécurité.'**
+  String get capStepBudget05Desc;
+
+  /// No description provided for @capStepBudget06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifier le 3a'**
+  String get capStepBudget06Title;
+
+  /// No description provided for @capStepBudget06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque franc versé réduit tes impôts et prépare la retraite.'**
+  String get capStepBudget06Desc;
+
+  /// No description provided for @capStepHousing01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connaître tes revenus'**
+  String get capStepHousing01Title;
+
+  /// No description provided for @capStepHousing01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La base du calcul de capacité d’achat.'**
+  String get capStepHousing01Desc;
+
+  /// No description provided for @capStepHousing02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer tes fonds propres'**
+  String get capStepHousing02Title;
+
+  /// No description provided for @capStepHousing02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne, 3a et LPP : assembler l’apport nécessaire.'**
+  String get capStepHousing02Desc;
+
+  /// No description provided for @capStepHousing03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer ta capacité d’achat'**
+  String get capStepHousing03Title;
+
+  /// No description provided for @capStepHousing03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jusqu’à quel prix peux-tu acheter ?'**
+  String get capStepHousing03Desc;
+
+  /// No description provided for @capStepHousing04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler l’hypothèque'**
+  String get capStepHousing04Title;
+
+  /// No description provided for @capStepHousing04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge mensuelle, amortissement, taux théorique.'**
+  String get capStepHousing04Desc;
+
+  /// No description provided for @capStepHousing05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer l’EPL (2e pilier)'**
+  String get capStepHousing05Title;
+
+  /// No description provided for @capStepHousing05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait anticipé LPP pour financer l’apport.'**
+  String get capStepHousing05Desc;
+
+  /// No description provided for @capStepHousing06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer location vs achat'**
+  String get capStepHousing06Title;
+
+  /// No description provided for @capStepHousing06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le calcul qui dépasse les intuitions.'**
+  String get capStepHousing06Desc;
+
+  /// No description provided for @capStepHousing07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get capStepHousing07Title;
+
+  /// No description provided for @capStepHousing07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notaire, courtier, conseiller : quand impliquer qui.'**
+  String get capStepHousing07Desc;
+
+  /// No description provided for @goalSelectorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel est ton objectif principal ?'**
+  String get goalSelectorTitle;
+
+  /// No description provided for @goalSelectorAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Laisser MINT décider'**
+  String get goalSelectorAuto;
+
+  /// No description provided for @goalSelectorAutoDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT adapte automatiquement selon ton profil'**
+  String get goalSelectorAutoDesc;
+
+  /// No description provided for @goalRetirementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma retraite'**
+  String get goalRetirementTitle;
+
+  /// No description provided for @goalRetirementDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifier la transition vers la retraite'**
+  String get goalRetirementDesc;
+
+  /// No description provided for @goalBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget'**
+  String get goalBudgetTitle;
+
+  /// No description provided for @goalBudgetDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtriser mes dépenses et épargner'**
+  String get goalBudgetDesc;
+
+  /// No description provided for @goalHousingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter un logement'**
+  String get goalHousingTitle;
+
+  /// No description provided for @goalHousingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer ma capacité et planifier l’achat'**
+  String get goalHousingDesc;
+
+  /// No description provided for @goalTaxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payer moins d’impôts'**
+  String get goalTaxTitle;
+
+  /// No description provided for @goalTaxDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser mes déductions (3a, rachat LPP)'**
+  String get goalTaxDesc;
+
+  /// No description provided for @goalDebtTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mes dettes'**
+  String get goalDebtTitle;
+
+  /// No description provided for @goalDebtDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouver de la marge et rembourser'**
+  String get goalDebtDesc;
+
+  /// No description provided for @goalBirthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer une naissance'**
+  String get goalBirthTitle;
+
+  /// No description provided for @goalBirthDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anticiper les coûts et adapter le budget'**
+  String get goalBirthDesc;
+
+  /// No description provided for @goalIndependentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Devenir indépendant·e'**
+  String get goalIndependentTitle;
+
+  /// No description provided for @goalIndependentDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance, fiscalité et couverture'**
+  String get goalIndependentDesc;
+
+  /// No description provided for @pulseGoalChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif : {goal}'**
+  String pulseGoalChip(String goal);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

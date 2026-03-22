@@ -8,7 +8,11 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
 // ────────────────────────────────────────────────────────────────
@@ -20,7 +24,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Widget buildPulseScreen({CoachProfileProvider? coachProvider}) {
+  Widget buildPulseScreen({
+    CoachProfileProvider? coachProvider,
+    MintStateProvider? mintStateProvider,
+  }) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<CoachProfileProvider>(
@@ -28,6 +35,9 @@ void main() {
         ),
         ChangeNotifierProvider<ByokProvider>(
           create: (_) => ByokProvider(),
+        ),
+        ChangeNotifierProvider<MintStateProvider>(
+          create: (_) => mintStateProvider ?? MintStateProvider(),
         ),
       ],
       child: const MaterialApp(
@@ -42,6 +52,29 @@ void main() {
         home: Scaffold(body: PulseScreen()),
       ),
     );
+  }
+
+  /// Build a [MintStateProvider] pre-seeded with a [MintUserState] so widget
+  /// tests can verify state-driven rendering without running MintStateEngine.
+  MintStateProvider buildMintStateProvider({
+    required CoachProfile profile,
+    double? replacementRate,
+    double? friScore,
+  }) {
+    final provider = MintStateProvider();
+    final state = MintUserState(
+      profile: profile,
+      lifecyclePhase: LifecyclePhase.consolidation,
+      archetype: profile.archetype,
+      confidenceScore: 70.0,
+      replacementRate: replacementRate,
+      friScore: friScore,
+      capMemory: const CapMemory(),
+      computedAt: DateTime(2026, 3, 22),
+    );
+    // Inject state via the internal setter exposed by the test helper.
+    provider.injectStateForTest(state);
+    return provider;
   }
 
   CoachProfileProvider buildProfileProvider({
@@ -209,17 +242,26 @@ void main() {
   group('PulseScreen — goal-centric dominant number', () {
     testWidgets('retirement goal shows replacement rate label',
         (tester) async {
-      final provider = buildProfileProvider(
+      final coachProvider = buildProfileProvider(
         firstName: 'Julien',
         birthYear: 1977,
         canton: 'VS',
         salaire: 9078,
       );
-      // Default goal from buildProfileProvider is 'retraite'
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      // Seed MintStateProvider with replacementRate so the label renders.
+      // The old code derived this from ForecasterService.project() —
+      // V6 reads it exclusively from MintStateProvider.
+      final mintProvider = buildMintStateProvider(
+        profile: coachProvider.profile!,
+        replacementRate: 65.5,
+      );
+      await tester.pumpWidget(buildPulseScreen(
+        coachProvider: coachProvider,
+        mintStateProvider: mintProvider,
+      ));
       await tester.pump(const Duration(seconds: 2));
 
-      // V6: with retirement goal, label = pulseLabelReplacementRate
+      // V6: with retirement goal + replacementRate, label = pulseLabelReplacementRate
       // "Part de train de vie conservée"
       expect(
         find.textContaining('train de vie'),

@@ -17,6 +17,7 @@
 ///   - [ProactiveTriggerService]    → pendingTrigger
 library;
 
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -49,6 +50,14 @@ class MintUserState {
   /// Retirement budget gap (A vs B). Null until profile has enough data for
   /// a meaningful projection (see [hasProjections]).
   final RetirementBudgetGap? budgetGap;
+
+  /// Full budget snapshot — present + retirement + gap + cap impacts.
+  ///
+  /// Computed once by [MintStateEngine] via [BudgetLivingEngine.compute].
+  /// Single source of truth consumed by PulseScreen, BudgetScreen, and
+  /// any widget displaying budget/gap figures. Null when profile lacks
+  /// sufficient data (e.g. no salary).
+  final BudgetSnapshot? budgetSnapshot;
 
   // ── Plan ─────────────────────────────────────────────────────────────────
 
@@ -113,6 +122,7 @@ class MintUserState {
     required this.lifecyclePhase,
     required this.archetype,
     this.budgetGap,
+    this.budgetSnapshot,
     this.currentCap,
     this.capSequence = const [],
     this.activeGoalIntentTag,
@@ -126,6 +136,14 @@ class MintUserState {
   });
 
   // ── Derived flags ─────────────────────────────────────────────────────────
+
+  /// True when a full [BudgetSnapshot] has been computed.
+  bool get hasBudgetSnapshot => budgetSnapshot != null;
+
+  /// Convenience: monthly free margin from [BudgetSnapshot.present.monthlyFree].
+  ///
+  /// Null when [budgetSnapshot] is null (no salary or degraded computation).
+  double? get monthlyFree => budgetSnapshot?.present.monthlyFree;
 
   /// True when a budget gap projection is available.
   ///
@@ -176,6 +194,7 @@ class MintUserState {
     LifecyclePhase? lifecyclePhase,
     FinancialArchetype? archetype,
     Object? budgetGap = _undefined,
+    Object? budgetSnapshot = _undefined,
     Object? currentCap = _undefined,
     List<String>? capSequence,
     Object? activeGoalIntentTag = _undefined,
@@ -194,6 +213,9 @@ class MintUserState {
       budgetGap: budgetGap == _undefined
           ? this.budgetGap
           : budgetGap as RetirementBudgetGap?,
+      budgetSnapshot: budgetSnapshot == _undefined
+          ? this.budgetSnapshot
+          : budgetSnapshot as BudgetSnapshot?,
       currentCap: currentCap == _undefined
           ? this.currentCap
           : currentCap as CapDecision?,

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
-import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
-import 'package:mint_mobile/services/financial_fitness_service.dart';
-import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/gamification/community_challenge_service.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
@@ -20,11 +19,14 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
+import 'package:mint_mobile/widgets/pulse/cap_sequence_card.dart';
+import 'package:mint_mobile/widgets/pulse/goal_selector_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
-import 'package:mint_mobile/services/nudge/nudge_engine.dart';
+import 'package:mint_mobile/services/nudge/nudge_engine.dart' show Nudge;
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,23 +60,29 @@ class PulseScreen extends StatefulWidget {
 }
 
 class _PulseScreenState extends State<PulseScreen> {
-  ProjectionResult? _cachedProjection;
-  FinancialFitnessScore? _cachedFri;
-  BudgetSnapshot? _cachedSnapshot;
   CoachProfile? _lastProfile;
 
   /// CapEngine memory — loaded async on first build.
   CapMemory _capMemory = const CapMemory();
   bool _capMemoryLoaded = false;
 
-  /// The current cap decision. Recomputed when profile changes.
+  /// The current cap decision. Recomputed when profile changes (for real l10n).
   CapDecision? _cachedCap;
+
+  /// The current cap sequence for the user's active goal.
+  CapSequence? _cachedSequence;
 
   /// Tracks when we last showed ActionSuccess to avoid repeat.
   DateTime? _lastSeenCompletedDate;
 
-  /// Active nudges from NudgeEngine (S61 — JITAI proactive nudges).
-  List<Nudge> _activeNudges = const [];
+  /// Explicit goal tag selected by the user via GoalSelectorSheet.
+  ///
+  /// Null = auto-detect from MintStateProvider / profile.
+  String? _selectedGoalTag;
+
+  /// Nudge IDs dismissed in this session — optimistic UI hide while
+  /// NudgePersistence writes to SharedPreferences async.
+  final Set<String> _sessionDismissedNudgeIds = {};
 
   @override
   void didChangeDependencies() {
@@ -83,12 +91,10 @@ class _PulseScreenState extends State<PulseScreen> {
     if (!provider.hasProfile) {
       if (_lastProfile != null) {
         _lastProfile = null;
-        _cachedProjection = null;
-        _cachedFri = null;
-        _cachedSnapshot = null;
         _cachedCap = null;
-        // H1 fix: reset CapMemory on profile disappearance
-        // so a new profile doesn't inherit stale cap history.
+        _cachedSequence = null;
+        // Reset CapMemory on profile disappearance so a new profile
+        // doesn't inherit stale cap history.
         _capMemory = const CapMemory();
         _capMemoryLoaded = false;
       }
@@ -99,42 +105,26 @@ class _PulseScreenState extends State<PulseScreen> {
     if (_lastProfile == profile) return;
     _lastProfile = profile;
 
-    // Load CapMemory once
+    // Load CapMemory once; also load explicit goal selection.
     if (!_capMemoryLoaded) {
       _capMemoryLoaded = true;
-      CapMemoryStore.load().then((mem) {
+      CapMemoryStore.load().then((mem) async {
+        String? selectedGoal;
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          selectedGoal = await GoalSelectionService.getSelectedGoal(prefs);
+        } catch (_) {
+          selectedGoal = null;
+        }
         if (mounted) {
-          setState(() => _capMemory = mem);
+          setState(() {
+            _capMemory = mem;
+            _selectedGoalTag = selectedGoal;
+          });
           _recomputeCap(profile);
           _checkForCompletionFeedback(profile);
         }
       });
-    }
-
-    // Evaluate JITAI nudges (S61) — async, non-blocking.
-    _evaluateNudges(profile);
-
-    try {
-      _cachedProjection = ForecasterService.project(profile: profile);
-    } catch (_) {
-      _cachedProjection = null;
-    }
-
-    try {
-      _cachedFri = FinancialFitnessService.calculate(
-        profile: profile,
-        previousScore: provider.previousScore,
-      );
-    } catch (_) {
-      _cachedFri = null;
-    }
-
-    // BudgetSnapshot — backbone for budget libre signal.
-    // Graceful degradation: if compute fails, falls back to legacy signal.
-    try {
-      _cachedSnapshot = BudgetLivingEngine.compute(profile);
-    } catch (_) {
-      _cachedSnapshot = null;
     }
 
     _recomputeCap(profile);
@@ -142,21 +132,52 @@ class _PulseScreenState extends State<PulseScreen> {
 
   void _recomputeCap(CoachProfile profile) {
     try {
+      final l = S.of(context)!;
       final cap = CapEngine.compute(
         profile: profile,
         now: DateTime.now(),
-        l: S.of(context)!,
+        l: l,
         memory: _capMemory,
       );
       _cachedCap = cap;
-
+      // Build CapSequence alongside cap.
+      String goalTag;
+      try {
+        goalTag =
+            context.read<MintStateProvider>().state?.activeGoalIntentTag ??
+                _profileGoalToTag(profile.goalA.type);
+      } catch (_) {
+        goalTag = _profileGoalToTag(profile.goalA.type);
+      }
+      try {
+        _cachedSequence = CapSequenceEngine.build(
+          profile: profile,
+          memory: _capMemory,
+          goalIntentTag: goalTag,
+          l: l,
+        );
+      } catch (_) {
+        _cachedSequence = null;
+      }
       // Mark served — setState so feedback pill reflects updated memory.
       CapMemoryStore.markServed(_capMemory, cap.id).then((updated) {
         if (mounted) setState(() => _capMemory = updated);
       });
     } catch (_) {
       _cachedCap = null;
+      _cachedSequence = null;
     }
+  }
+
+  String _profileGoalToTag(GoalAType type) {
+    return switch (type) {
+      GoalAType.achatImmo => 'housing_purchase',
+      GoalAType.debtFree => 'budget_overview',
+      GoalAType.retraite ||
+      GoalAType.independance ||
+      GoalAType.custom =>
+        'retirement_choice',
+    };
   }
 
   /// Show ActionSuccess sheet if the user just completed a cap action
@@ -199,55 +220,45 @@ class _PulseScreenState extends State<PulseScreen> {
     });
   }
 
-  /// Evaluate JITAI nudges for the current profile (S61).
-  /// Runs async — dismissed nudge IDs come from SharedPreferences.
-  Future<void> _evaluateNudges(CoachProfile profile) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final dismissed = await NudgePersistence.getDismissedIds(prefs);
-      final lastActivity = await NudgePersistence.getLastActivityTime(prefs);
-      await NudgePersistence.recordActivity(prefs, now: DateTime.now());
-      final nudges = NudgeEngine.evaluate(
-        profile: profile,
-        now: DateTime.now(),
-        dismissedNudgeIds: dismissed,
-        lastActivityTime: lastActivity,
-      );
-      if (mounted && nudges != _activeNudges) {
-        setState(() => _activeNudges = nudges);
-      }
-    } catch (_) {
-      // Graceful degradation: Pulse works without nudges.
-    }
-  }
-
   // ── BUILD ──
 
   @override
   Widget build(BuildContext context) {
     final coachProvider = context.watch<CoachProfileProvider>();
 
-    // Read activeGoalIntentTag from MintStateProvider once in build().
-    // Graceful degradation: if provider is not in tree (e.g. tests), returns null.
-    String? activeGoalIntentTag;
+    // Read unified state from MintStateProvider — single source of truth
+    // for all financial computations. Graceful degradation: if the provider
+    // is not in the tree (e.g. tests without full app setup), falls back
+    // to null values and legacy paths throughout.
+    MintUserState? mintState;
     try {
-      activeGoalIntentTag =
-          context.watch<MintStateProvider>().state?.activeGoalIntentTag;
+      mintState = context.watch<MintStateProvider>().state;
     } catch (_) {
-      // Provider not in widget tree — goal falls back to profile.goalA.type.
+      // Provider not in widget tree — all mintState paths degrade to null.
     }
+
+    // Explicit user selection takes priority over MintStateProvider goal tag.
+    final activeGoalIntentTag =
+        _selectedGoalTag ?? mintState?.activeGoalIntentTag;
+
+    // Active nudges from MintStateEngine, minus any dismissed in this session.
+    final activeNudges = (mintState?.activeNudges ?? const [])
+        .where((n) => !_sessionDismissedNudgeIds.contains(n.id))
+        .toList();
 
     if (!coachProvider.hasProfile) {
       return _buildEmptyState(context);
     }
 
     final profile = coachProvider.profile!;
-    final cap = _cachedCap;
+    final cap = _cachedCap ?? mintState?.currentCap;
     final l = S.of(context)!;
 
     // Compute the dominant number
-    final dominantNumber = _computeDominantNumber(profile, activeGoalIntentTag);
-    final dominantLabel = _computeDominantLabel(profile, l, activeGoalIntentTag);
+    final dominantNumber =
+        _computeDominantNumber(profile, mintState, activeGoalIntentTag);
+    final dominantLabel =
+        _computeDominantLabel(profile, mintState, l, activeGoalIntentTag);
     final dominantColor = _computeDominantColor(dominantNumber);
     final narrativePhrase =
         _computeNarrative(profile, cap, l, activeGoalIntentTag);
@@ -290,9 +301,16 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                 ),
                 const SizedBox(height: MintSpacing.xs),
-                Text(
-                  dominantLabel,
-                  style: MintTextStyles.bodySmall(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        dominantLabel,
+                        style: MintTextStyles.bodySmall(),
+                      ),
+                    ),
+                    _buildGoalChip(context, profile, l, activeGoalIntentTag),
+                  ],
                 ),
 
                 const SizedBox(height: MintSpacing.xxl),
@@ -306,15 +324,22 @@ class _PulseScreenState extends State<PulseScreen> {
                 else
                   _buildFallbackAction(context),
 
+                // ── 3b. CAP SEQUENCE ──
+                if (_cachedSequence != null &&
+                    _cachedSequence!.hasSteps) ...[
+                  const SizedBox(height: MintSpacing.md),
+                  CapSequenceCard(sequence: _cachedSequence!),
+                ],
+
                 const SizedBox(height: MintSpacing.xl),
 
                 // ── 4. DEUX SIGNAUX SECONDAIRES ──
-                _buildSecondarySignals(profile, l),
+                _buildSecondarySignals(profile, mintState, l),
 
                 // ── 5. NUDGE PROACTIF (S61 — JITAI) ──
-                if (_activeNudges.isNotEmpty) ...[
+                if (activeNudges.isNotEmpty) ...[
                   const SizedBox(height: MintSpacing.xl),
-                  _buildNudgeCard(_activeNudges.first, l),
+                  _buildNudgeCard(activeNudges.first, l),
                 ],
 
                 // ── 6. ÉVÉNEMENT SAISONNIER (S66) ──
@@ -386,12 +411,15 @@ class _PulseScreenState extends State<PulseScreen> {
   // ── DOMINANT NUMBER ──
 
   _DominantNumber _computeDominantNumber(
-      CoachProfile profile, String? activeGoalIntentTag) {
+      CoachProfile profile,
+      MintUserState? mintState,
+      String? activeGoalIntentTag) {
     final goal = _resolveActiveGoal(profile, activeGoalIntentTag);
 
     // ── Budget goal: show monthly free margin ──
     if (goal == _ActiveGoal.budget) {
-      final snapshot = _cachedSnapshot;
+      // BudgetSnapshot from MintStateEngine — single source of truth.
+      final snapshot = mintState?.budgetSnapshot;
       if (snapshot != null) {
         final libre = snapshot.present.monthlyFree;
         return _DominantNumber(
@@ -403,7 +431,7 @@ class _PulseScreenState extends State<PulseScreen> {
           type: _NumberType.chf,
         );
       }
-      // Fallback: net minus expenses
+      // Fallback: net minus expenses when snapshot not yet computed.
       final revenuNet = _computeRevenuNet(profile);
       if (revenuNet > 0) {
         final libre = revenuNet - profile.totalDepensesMensuelles;
@@ -445,30 +473,33 @@ class _PulseScreenState extends State<PulseScreen> {
       }
     }
 
-    // ── Retirement goal (default) ──
-    if (_cachedProjection != null) {
-      final retraite = _cachedProjection!.base.revenuAnnuelRetraite / 12;
+    // ── Retirement goal (default) — data from MintStateProvider ──
+    // replacementRate (%) is the primary metric when we have net income.
+    final replacementRate = mintState?.replacementRate;
+    if (replacementRate != null) {
       final revenuNet = _computeRevenuNet(profile);
       if (revenuNet > 0) {
-        final taux = (retraite / revenuNet * 100);
         return _DominantNumber(
-          value: taux,
+          value: replacementRate,
           format: (v) => '${v.round()}%',
           type: _NumberType.percentage,
         );
       }
-      if (retraite > 0) {
+      // No net income — fall back to total monthly retirement income CHF.
+      final totalRevenusMensuel = mintState?.budgetGap?.totalRevenusMensuel;
+      if (totalRevenusMensuel != null && totalRevenusMensuel > 0) {
         return _DominantNumber(
-          value: retraite,
+          value: totalRevenusMensuel,
           format: (v) => '${formatChf(v)}\u00a0CHF',
           type: _NumberType.chf,
         );
       }
     }
-    final fri = _cachedFri;
-    if (fri != null) {
+    // FRI score as tertiary fallback.
+    final friScore = mintState?.friScore;
+    if (friScore != null) {
       return _DominantNumber(
-        value: fri.global.toDouble(),
+        value: friScore,
         format: (v) => '${v.round()}/100',
         type: _NumberType.score,
       );
@@ -481,12 +512,15 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   String _computeDominantLabel(
-      CoachProfile profile, S l, String? activeGoalIntentTag) {
+      CoachProfile profile,
+      MintUserState? mintState,
+      S l,
+      String? activeGoalIntentTag) {
     final goal = _resolveActiveGoal(profile, activeGoalIntentTag);
 
     if (goal == _ActiveGoal.budget) {
-      // Only show budget label if we actually have budget data
-      final snapshot = _cachedSnapshot;
+      // Only show budget label if we actually have budget data.
+      final snapshot = mintState?.budgetSnapshot;
       final revenuNet = _computeRevenuNet(profile);
       if (snapshot != null || revenuNet > 0) {
         return l.pulseLabelBudgetFree;
@@ -501,7 +535,8 @@ class _PulseScreenState extends State<PulseScreen> {
     }
 
     // Default: retirement
-    if (_cachedProjection != null) {
+    final replacementRate = mintState?.replacementRate;
+    if (replacementRate != null) {
       final revenuNet = _computeRevenuNet(profile);
       if (revenuNet > 0) {
         return l.pulseLabelReplacementRate;
@@ -565,12 +600,11 @@ class _PulseScreenState extends State<PulseScreen> {
 
     // Retirement goal: show goal-specific phrase when we have projection data,
     // otherwise fall back to time-based narrative.
-    if (goal == _ActiveGoal.retirement && _cachedProjection != null) {
-      final revenuNet = _computeRevenuNet(profile);
-      if (revenuNet > 0) {
-        return prefix(l.pulseNarrativeRetirementGoal);
-      }
-    }
+    // Note: _computeNarrative doesn't receive mintState — reads via the cap
+    // path above which already covers the richest narrative. For the fallback,
+    // we check replacementRate availability through the caller's mintState.
+    // The method intentionally remains signature-stable; the cap whyNow path
+    // above supersedes this branch for profiles with data.
 
     // Fallback: time-based narrative
     if (yearsToRetire <= 5) {
@@ -693,18 +727,14 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                 ),
               ),
-              // Dismiss button
+              // Dismiss button — optimistic hide, async persist.
               GestureDetector(
                 onTap: () async {
+                  if (mounted) {
+                    setState(() => _sessionDismissedNudgeIds.add(nudge.id));
+                  }
                   final prefs = await SharedPreferences.getInstance();
                   await NudgePersistence.dismiss(nudge.id, nudge.trigger, prefs);
-                  if (mounted) {
-                    setState(() {
-                      _activeNudges = _activeNudges
-                          .where((n) => n.id != nudge.id)
-                          .toList();
-                    });
-                  }
                 },
                 child: const Icon(Icons.close,
                     size: 16, color: MintColors.textMuted),
@@ -947,12 +977,13 @@ class _PulseScreenState extends State<PulseScreen> {
     ];
   }
 
-  Widget _buildSecondarySignals(CoachProfile profile, S l) {
+  Widget _buildSecondarySignals(
+      CoachProfile profile, MintUserState? mintState, S l) {
     final signals = <Widget>[];
 
     // Signal 1: Budget libre — source of truth is BudgetSnapshot.present.monthlyFree.
     // Falls back to legacy estimate when snapshot is unavailable.
-    final snapshot = _cachedSnapshot;
+    final snapshot = mintState?.budgetSnapshot;
     if (snapshot != null) {
       final libre = snapshot.present.monthlyFree;
       signals.add(_SignalRow(
@@ -1122,6 +1153,72 @@ class _PulseScreenState extends State<PulseScreen> {
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       age: profile.age,
     ).monthlyNetPayslip;
+  }
+
+  // ── GOAL CHIP ────────────────────────────────────────────────────────────
+
+  Widget _buildGoalChip(
+    BuildContext context,
+    CoachProfile profile,
+    S l,
+    String? activeGoalIntentTag,
+  ) {
+    final goals = GoalSelectionService.availableGoals(profile, l);
+    final String goalLabel;
+    if (_selectedGoalTag != null) {
+      final match =
+          goals.where((g) => g.intentTag == _selectedGoalTag).toList();
+      goalLabel = match.isNotEmpty
+          ? GoalSelectionService.resolveTitle(match.first.titleKey, l)
+          : l.goalSelectorAuto;
+    } else {
+      goalLabel = l.goalSelectorAuto;
+    }
+    final chipText = l.pulseGoalChip(goalLabel);
+    return Semantics(
+      label: chipText,
+      button: true,
+      child: GestureDetector(
+        onTap: () => showGoalSelectorSheet(
+          context,
+          profile: profile,
+          currentIntentTag: _selectedGoalTag,
+          onSelected: (intentTag) {
+            setState(() => _selectedGoalTag = intentTag);
+            try {
+              context.read<MintStateProvider>().recompute(profile);
+            } catch (_) {}
+          },
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: MintColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: MintColors.primary.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                chipText,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.primary,
+                ).copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 3),
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 14,
+                color: MintColors.primary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

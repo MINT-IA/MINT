@@ -39,6 +39,12 @@ class MintStateProvider extends ChangeNotifier {
   bool _pendingRecompute = false;
   CoachProfile? _pendingProfile;
 
+  /// Last profile used for a full recomputation.
+  ///
+  /// Guards against redundant work when [ChangeNotifierProxyProvider] calls
+  /// [recompute] on every rebuild even if the profile has not changed.
+  CoachProfile? _lastProfile;
+
   /// The latest unified user state. Null until first [recompute] completes.
   MintUserState? get state => _state;
 
@@ -54,7 +60,13 @@ class MintStateProvider extends ChangeNotifier {
   /// will run immediately after the current one completes.
   ///
   /// Safe to call on every profile update — rapid calls collapse to one.
+  /// Calls with a profile identical to the last computed profile are no-ops.
   Future<void> recompute(CoachProfile profile) async {
+    // Guard: skip if profile is identical to the last full computation.
+    // This prevents redundant work when ChangeNotifierProxyProvider rebuilds
+    // without a real profile change.
+    if (profile == _lastProfile) return;
+
     if (_isRecomputing) {
       // Queue the latest profile — discard any previous pending call.
       _pendingRecompute = true;
@@ -63,6 +75,7 @@ class MintStateProvider extends ChangeNotifier {
     }
 
     _isRecomputing = true;
+    _lastProfile = profile;
     try {
       final prefs = await SharedPreferences.getInstance();
       final newState = await MintStateEngine.compute(
@@ -91,6 +104,17 @@ class MintStateProvider extends ChangeNotifier {
     _state = null;
     _pendingRecompute = false;
     _pendingProfile = null;
+    _lastProfile = null;
+    notifyListeners();
+  }
+
+  /// Inject a pre-built state for widget tests.
+  ///
+  /// Allows tests to seed [MintUserState] without running the full
+  /// [MintStateEngine] pipeline. Production code must never call this.
+  @visibleForTesting
+  void injectStateForTest(MintUserState state) {
+    _state = state;
     notifyListeners();
   }
 }

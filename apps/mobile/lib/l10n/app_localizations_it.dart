@@ -20531,4 +20531,233 @@ class SIt extends S {
 
   @override
   String get pulseLabelPurchasingCapacity => 'Capacità d’acquisto stimata';
+
+  @override
+  String capSequenceProgress(int completed, int total) {
+    return '$completed/$total fasi';
+  }
+
+  @override
+  String get capSequenceComplete => 'Piano completato!';
+
+  @override
+  String get capSequenceCurrentStep => 'Prossima fase';
+
+  @override
+  String get capStepRetirement01Title => 'Conoscere il tuo stipendio lordo';
+
+  @override
+  String get capStepRetirement01Desc =>
+      'La base di tutti i calcoli pensionistici.';
+
+  @override
+  String get capStepRetirement02Title => 'Stimare la tua rendita AVS';
+
+  @override
+  String get capStepRetirement02Desc =>
+      'Gli anni di contribuzione determinano il 1° pilastro.';
+
+  @override
+  String get capStepRetirement03Title => 'Verificare il tuo avere LPP';
+
+  @override
+  String get capStepRetirement03Desc =>
+      'Il certificato LPP rivela il tuo capitale del 2° pilastro.';
+
+  @override
+  String get capStepRetirement04Title =>
+      'Calcolare il tuo tasso di sostituzione';
+
+  @override
+  String get capStepRetirement04Desc =>
+      'Quanta parte del salario riceverai alla pensione.';
+
+  @override
+  String get capStepRetirement05Title => 'Simulare un versamento 3a';
+
+  @override
+  String get capStepRetirement05Desc =>
+      'Dedurre fino a CHF 7\'258 e rafforzare la pensione.';
+
+  @override
+  String get capStepRetirement06Title => 'Valutare un riscatto LPP';
+
+  @override
+  String get capStepRetirement06Desc =>
+      'Colmare le lacune e ridurre le imposte.';
+
+  @override
+  String get capStepRetirement07Title => 'Confrontare rendita vs capitale';
+
+  @override
+  String get capStepRetirement07Desc =>
+      'Rendita mensile o prelievo del capitale?';
+
+  @override
+  String get capStepRetirement08Title => 'Pianificare il prelievo';
+
+  @override
+  String get capStepRetirement08Desc =>
+      'L’ordine di prelievo influisce sulle imposte.';
+
+  @override
+  String get capStepRetirement09Title => 'Ottimizzare fiscalmente';
+
+  @override
+  String get capStepRetirement09Desc =>
+      '3a, riscatto, timing: ridurre l’imposizione del capitale.';
+
+  @override
+  String get capStepRetirement10Title => 'Consultare uno specialista';
+
+  @override
+  String get capStepRetirement10Desc =>
+      'Revisione esperta della tua situazione complessiva.';
+
+  @override
+  String get capStepBudget01Title => 'Conoscere i tuoi redditi';
+
+  @override
+  String get capStepBudget01Desc =>
+      'Il punto di partenza di qualsiasi analisi del budget.';
+
+  @override
+  String get capStepBudget02Title => 'Elencare le spese fisse';
+
+  @override
+  String get capStepBudget02Desc =>
+      'Affitto, assicurazione malattia, trasporti: gli inevitabili.';
+
+  @override
+  String get capStepBudget03Title => 'Calcolare il margine libero';
+
+  @override
+  String get capStepBudget03Desc =>
+      'Ciò che resta dopo le spese — il tuo spazio di manovra.';
+
+  @override
+  String get capStepBudget04Title => 'Identificare i risparmi possibili';
+
+  @override
+  String get capStepBudget04Desc =>
+      'Piccoli aggiustamenti, grande impatto mensile.';
+
+  @override
+  String get capStepBudget05Title => 'Costruire un risparmio di precauzione';
+
+  @override
+  String get capStepBudget05Desc =>
+      '3 mesi di spese liquide: la tua rete di sicurezza.';
+
+  @override
+  String get capStepBudget06Title => 'Pianificare il 3a';
+
+  @override
+  String get capStepBudget06Desc =>
+      'Ogni franco versato riduce le imposte e prepara la pensione.';
+
+  @override
+  String get capStepHousing01Title => 'Conoscere i tuoi redditi';
+
+  @override
+  String get capStepHousing01Desc =>
+      'La base del calcolo della capacità d’acquisto.';
+
+  @override
+  String get capStepHousing02Title => 'Valutare i fondi propri';
+
+  @override
+  String get capStepHousing02Desc =>
+      'Risparmio, 3a e LPP: assemblare l’apporto necessario.';
+
+  @override
+  String get capStepHousing03Title => 'Calcolare la capacità d’acquisto';
+
+  @override
+  String get capStepHousing03Desc => 'Fino a quale prezzo puoi comprare?';
+
+  @override
+  String get capStepHousing04Title => 'Simulare il mutuo';
+
+  @override
+  String get capStepHousing04Desc =>
+      'Rata mensile, ammortamento, tasso teorico.';
+
+  @override
+  String get capStepHousing05Title => 'Valutare il prelievo anticipato LPP';
+
+  @override
+  String get capStepHousing05Desc =>
+      'Prelievo anticipato LPP per finanziare l’apporto.';
+
+  @override
+  String get capStepHousing06Title => 'Confrontare affitto vs acquisto';
+
+  @override
+  String get capStepHousing06Desc => 'Il calcolo che va oltre le intuizioni.';
+
+  @override
+  String get capStepHousing07Title => 'Consultare uno specialista';
+
+  @override
+  String get capStepHousing07Desc =>
+      'Notaio, intermediario, consulente: quando coinvolgere chi.';
+
+  @override
+  String get goalSelectorTitle => 'Qual è il tuo obiettivo principale?';
+
+  @override
+  String get goalSelectorAuto => 'Lascia decidere a MINT';
+
+  @override
+  String get goalSelectorAutoDesc =>
+      'MINT si adatta automaticamente al tuo profilo';
+
+  @override
+  String get goalRetirementTitle => 'La mia pensione';
+
+  @override
+  String get goalRetirementDesc => 'Pianificare la transizione alla pensione';
+
+  @override
+  String get goalBudgetTitle => 'Il mio budget';
+
+  @override
+  String get goalBudgetDesc => 'Controllare le spese e risparmiare';
+
+  @override
+  String get goalHousingTitle => 'Acquistare un immobile';
+
+  @override
+  String get goalHousingDesc =>
+      'Valutare la mia capacità e pianificare l’acquisto';
+
+  @override
+  String get goalTaxTitle => 'Pagare meno tasse';
+
+  @override
+  String get goalTaxDesc => 'Ottimizzare le deduzioni (3a, riscatto LPP)';
+
+  @override
+  String get goalDebtTitle => 'Gestire i debiti';
+
+  @override
+  String get goalDebtDesc => 'Recuperare margine e rimborsare';
+
+  @override
+  String get goalBirthTitle => 'Prepararsi a una nascita';
+
+  @override
+  String get goalBirthDesc => 'Anticipare i costi e adattare il budget';
+
+  @override
+  String get goalIndependentTitle => 'Diventare indipendente';
+
+  @override
+  String get goalIndependentDesc => 'Previdenza, fiscalità e copertura';
+
+  @override
+  String pulseGoalChip(String goal) {
+    return 'Obiettivo: $goal';
+  }
 }

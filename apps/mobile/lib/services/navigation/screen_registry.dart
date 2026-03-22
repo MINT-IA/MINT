@@ -345,16 +345,6 @@ class MintScreenRegistry extends ScreenRegistry {
   // Resolved inline in the chat; these entries inform the RoutePlanner
   // that no screen needs to be opened.
 
-  static const ScreenEntry _scoreGauge = ScreenEntry(
-    route: '/confidence',
-    intentTag: 'score_confidence',
-    behavior: ScreenBehavior.directAnswer,
-    requiredFields: [],
-    optionalFields: ['salaireBrut', 'age', 'canton'],
-    preferFromChat: true,
-    prefillFromProfile: false,
-  );
-
   static const ScreenEntry _budgetOverview = ScreenEntry(
     route: '/budget',
     intentTag: 'budget_overview',
@@ -1056,16 +1046,6 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  static const ScreenEntry _profileBilan = ScreenEntry(
-    route: '/profile/bilan',
-    intentTag: 'profile_bilan',
-    behavior: ScreenBehavior.captureUtility,
-    requiredFields: [],
-    optionalFields: ['salaireBrut', 'age', 'canton'],
-    preferFromChat: true,
-    prefillFromProfile: true,
-  );
-
   static const ScreenEntry _scanReview = ScreenEntry(
     route: '/scan/review',
     intentTag: 'scan_review',
@@ -1494,7 +1474,6 @@ class MintScreenRegistry extends ScreenRegistry {
   // static final because some entries use customGate (non-const function refs)
   static final List<ScreenEntry> entries = [
     // A — Direct Answer
-    _scoreGauge,
     _budgetOverview,
     _cantonalBenchmark,
     // B — Decision Canvas
@@ -1565,7 +1544,6 @@ class MintScreenRegistry extends ScreenRegistry {
     _consent,
     _byokSettings,
     _slmSettings,
-    _profileBilan,
     _scanReview,
     _scanImpact,
     _documentDetail,

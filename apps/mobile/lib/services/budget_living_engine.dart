@@ -66,6 +66,7 @@ class BudgetLivingEngine {
     try {
       final retirementResult = RetirementProjectionService.project(
         profile: profile,
+        retirementAgeUser: profile.targetRetirementAge ?? 65,
       );
       retirementBudget = _wrapRetirementResult(retirementResult, profile);
       gap = _computeGap(present, retirementBudget);
@@ -160,17 +161,20 @@ class BudgetLivingEngine {
     savings += profile.totalLppBuybackMensuel;
 
     // Conjoint 3a (if applicable)
+    // Use canContribute3a from conjoint's prevoyance profile (FATCA-aware).
+    // Default to false (safer: assume no contribution unless explicitly declared).
+    // 3a eligibility requires LPP coverage (canContribute3a), not a salary
+    // threshold — lppSeuilEntree is an LPP access threshold, not a 3a one.
     final conj = profile.conjoint;
     if (conj != null &&
-        (conj.salaireBrutMensuel ?? 0) > lppSeuilEntree / 12 &&
-        (conj.prevoyance?.canContribute3a ?? true)) {
-      // Avoid double-counting if already in plannedContributions
-      final conjFirstName = conj.firstName?.toLowerCase() ?? '';
-      final hasPartner3a = profile.plannedContributions.any((c) =>
-          c.category == '3a' &&
-          conjFirstName.isNotEmpty &&
-          c.id.toLowerCase().contains(conjFirstName));
-      if (!hasPartner3a) {
+        (conj.salaireBrutMensuel ?? 0) > 0 &&
+        (conj.prevoyance?.canContribute3a ?? false)) {
+      // Avoid double-counting: if there are already >= 2 planned 3a entries,
+      // the conjoint's contribution is likely already tracked explicitly.
+      // A single 3a entry belongs to the main user; we add the conjoint estimate.
+      final planned3aCount =
+          profile.plannedContributions.where((c) => c.category == '3a').length;
+      if (planned3aCount < 2) {
         savings += pilier3aPlafondAvecLpp / 12;
       }
     }

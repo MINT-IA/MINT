@@ -9214,5 +9214,89 @@
   "pulseNarrativeHousingGoal": "deine gesch\u00e4tzte Kaufkraft:",
   "pulseNarrativeRetirementGoal": "deine Ersatzquote:",
   "pulseLabelBudgetFree": "Freies Budget diesen Monat",
-  "pulseLabelPurchasingCapacity": "Gesch\u00e4tzte Kaufkraft"
+  "pulseLabelPurchasingCapacity": "Gesch\u00e4tzte Kaufkraft",
+
+  "capSequenceProgress": "{completed}/{total}\u00a0Schritte",
+  "@capSequenceProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "capSequenceComplete": "Plan abgeschlossen!",
+  "capSequenceCurrentStep": "N\u00e4chster Schritt",
+
+  "capStepRetirement01Title": "Bruttogehalt kennen",
+  "capStepRetirement01Desc": "Die Grundlage aller Rentenberechnungen.",
+  "capStepRetirement02Title": "AHV-Rente sch\u00e4tzen",
+  "capStepRetirement02Desc": "Deine Beitragsjahre bestimmen die 1. S\u00e4ule.",
+  "capStepRetirement03Title": "BVG-Guthaben pr\u00fcfen",
+  "capStepRetirement03Desc": "Das BVG-Zertifikat zeigt dein 2.-S\u00e4ule-Kapital.",
+  "capStepRetirement04Title": "Ersatzquote berechnen",
+  "capStepRetirement04Desc": "Wie viel vom Gehalt du in der Rente erhaltst.",
+  "capStepRetirement05Title": "S\u00e4ule-3a-Einzahlung simulieren",
+  "capStepRetirement05Desc": "Bis zu CHF\u00a07'258 abziehen und die Rente st\u00e4rken.",
+  "capStepRetirement06Title": "BVG-Einkauf pr\u00fcfen",
+  "capStepRetirement06Desc": "L\u00fccken schliessen und Steuern reduzieren.",
+  "capStepRetirement07Title": "Rente vs. Kapital vergleichen",
+  "capStepRetirement07Desc": "Monatliche Rente oder Kapitalbezug?",
+  "capStepRetirement08Title": "Entnahme planen",
+  "capStepRetirement08Desc": "Die Reihenfolge der Entnahme beeinflusst die Steuern.",
+  "capStepRetirement09Title": "Steuerlich optimieren",
+  "capStepRetirement09Desc": "3a, Einkauf, Timing: Kapitalbesteuerung reduzieren.",
+  "capStepRetirement10Title": "Fachperson konsultieren",
+  "capStepRetirement10Desc": "Expertenblick auf deine Gesamtsituation.",
+
+  "capStepBudget01Title": "Einkommen kennen",
+  "capStepBudget01Desc": "Ausgangspunkt jeder Budgetanalyse.",
+  "capStepBudget02Title": "Fixkosten auflisten",
+  "capStepBudget02Desc": "Miete, Krankenkasse, Transport: die Unvermeidlichen.",
+  "capStepBudget03Title": "Freie Marge berechnen",
+  "capStepBudget03Desc": "Was nach Ausgaben bleibt \u2014 dein Spielraum.",
+  "capStepBudget04Title": "Einsparm\u00f6glichkeiten identifizieren",
+  "capStepBudget04Desc": "Kleine Anpassungen, grosse monatliche Wirkung.",
+  "capStepBudget05Title": "Notgroschen aufbauen",
+  "capStepBudget05Desc": "3 Monate liquide Ausgaben: dein Sicherheitsnetz.",
+  "capStepBudget06Title": "S\u00e4ule 3a planen",
+  "capStepBudget06Desc": "Jeder eingezahlte Franken reduziert Steuern und sichert die Rente.",
+
+  "capStepHousing01Title": "Einkommen kennen",
+  "capStepHousing01Desc": "Grundlage der Kaufkraftberechnung.",
+  "capStepHousing02Title": "Eigenmittel einsch\u00e4tzen",
+  "capStepHousing02Desc": "Ersparnisse, 3a und BVG: die n\u00f6tige Anzahlung zusammenstellen.",
+  "capStepHousing03Title": "Kaufkraft berechnen",
+  "capStepHousing03Desc": "Bis zu welchem Preis kannst du kaufen?",
+  "capStepHousing04Title": "Hypothek simulieren",
+  "capStepHousing04Desc": "Monatsrate, Amortisation, theoretischer Zinssatz.",
+  "capStepHousing05Title": "Vorbezug BVG (WEF) pr\u00fcfen",
+  "capStepHousing05Desc": "Fr\u00fchzeitiger BVG-Bezug zur Finanzierung der Anzahlung.",
+  "capStepHousing06Title": "Mieten vs. Kaufen vergleichen",
+  "capStepHousing06Desc": "Die Rechnung, die \u00fcber Intuitionen hinausgeht.",
+  "capStepHousing07Title": "Fachperson konsultieren",
+  "capStepHousing07Desc": "Notar, Makler, Berater: wer wann einbezogen werden sollte.",
+  "goalSelectorTitle": "Was ist dein Hauptziel\u00a0?",
+  "goalSelectorAuto": "MINT entscheiden lassen",
+  "goalSelectorAutoDesc": "MINT passt sich automatisch an dein Profil an",
+  "goalRetirementTitle": "Meine Rente",
+  "goalRetirementDesc": "Den \u00dcbergang in die Rente planen",
+  "goalBudgetTitle": "Mein Budget",
+  "goalBudgetDesc": "Ausgaben kontrollieren und sparen",
+  "goalHousingTitle": "Eine Immobilie kaufen",
+  "goalHousingDesc": "Meine Kaufkraft einsch\u00e4tzen und den Kauf planen",
+  "goalTaxTitle": "Weniger Steuern zahlen",
+  "goalTaxDesc": "Meine Abz\u00fcge optimieren (S\u00e4ule\u00a03a, BVG-Einkauf)",
+  "goalDebtTitle": "Schulden managen",
+  "goalDebtDesc": "Spielraum zur\u00fcckgewinnen und zur\u00fcckzahlen",
+  "goalBirthTitle": "Eine Geburt vorbereiten",
+  "goalBirthDesc": "Kosten antizipieren und Budget anpassen",
+  "goalIndependentTitle": "Selbst\u00e4ndig werden",
+  "goalIndependentDesc": "Vorsorge, Steuern und Absicherung",
+  "pulseGoalChip": "Ziel: {goal}",
+  "@pulseGoalChip": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  }
 }

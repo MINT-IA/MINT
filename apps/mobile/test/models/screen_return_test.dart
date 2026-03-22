@@ -197,6 +197,99 @@ void main() {
       const r2 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.abandoned);
       expect(r1, isNot(equals(r2)));
     });
+
+    test('same updatedFields content are equal', () {
+      const r1 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'VS', 'salaireBrut': 122207.0},
+      );
+      const r2 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'VS', 'salaireBrut': 122207.0},
+      );
+      expect(r1, equals(r2));
+    });
+
+    test('different updatedFields values are not equal', () {
+      const r1 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'VS'},
+      );
+      const r2 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'GE'},
+      );
+      expect(r1, isNot(equals(r2)));
+    });
+
+    test('different updatedFields keys are not equal', () {
+      const r1 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'VS'},
+      );
+      const r2 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'salaireBrut': 'VS'},
+      );
+      expect(r1, isNot(equals(r2)));
+    });
+
+    test('null updatedFields vs non-null updatedFields are not equal', () {
+      const r1 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+      );
+      const r2 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'VS'},
+      );
+      expect(r1, isNot(equals(r2)));
+    });
+
+    test('both null updatedFields are equal', () {
+      const r1 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r2 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      expect(r1, equals(r2));
+    });
+
+    test('hashCode is consistent with equality for same updatedFields', () {
+      const r1 = ScreenReturn(
+        route: '/rente-vs-capital',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'prevoyance.avoirLppTotal': 70377.0},
+        confidenceDelta: 0.15,
+      );
+      const r2 = ScreenReturn(
+        route: '/rente-vs-capital',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'prevoyance.avoirLppTotal': 70377.0},
+        confidenceDelta: 0.15,
+      );
+      expect(r1 == r2, isTrue);
+      expect(r1.hashCode, equals(r2.hashCode));
+    });
+
+    test('hashCode differs when updatedFields differ', () {
+      const r1 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'VS'},
+      );
+      const r2 = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+        updatedFields: {'canton': 'ZH'},
+      );
+      // Not strictly guaranteed by contract, but highly expected for these distinct values.
+      expect(r1 == r2, isFalse);
+    });
   });
 
   group('ScreenReturn — toString', () {

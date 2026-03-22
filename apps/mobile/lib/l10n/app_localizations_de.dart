@@ -20530,4 +20530,230 @@ class SDe extends S {
 
   @override
   String get pulseLabelPurchasingCapacity => 'Geschätzte Kaufkraft';
+
+  @override
+  String capSequenceProgress(int completed, int total) {
+    return '$completed/$total Schritte';
+  }
+
+  @override
+  String get capSequenceComplete => 'Plan abgeschlossen!';
+
+  @override
+  String get capSequenceCurrentStep => 'Nächster Schritt';
+
+  @override
+  String get capStepRetirement01Title => 'Bruttogehalt kennen';
+
+  @override
+  String get capStepRetirement01Desc =>
+      'Die Grundlage aller Rentenberechnungen.';
+
+  @override
+  String get capStepRetirement02Title => 'AHV-Rente schätzen';
+
+  @override
+  String get capStepRetirement02Desc =>
+      'Deine Beitragsjahre bestimmen die 1. Säule.';
+
+  @override
+  String get capStepRetirement03Title => 'BVG-Guthaben prüfen';
+
+  @override
+  String get capStepRetirement03Desc =>
+      'Das BVG-Zertifikat zeigt dein 2.-Säule-Kapital.';
+
+  @override
+  String get capStepRetirement04Title => 'Ersatzquote berechnen';
+
+  @override
+  String get capStepRetirement04Desc =>
+      'Wie viel vom Gehalt du in der Rente erhaltst.';
+
+  @override
+  String get capStepRetirement05Title => 'Säule-3a-Einzahlung simulieren';
+
+  @override
+  String get capStepRetirement05Desc =>
+      'Bis zu CHF 7\'258 abziehen und die Rente stärken.';
+
+  @override
+  String get capStepRetirement06Title => 'BVG-Einkauf prüfen';
+
+  @override
+  String get capStepRetirement06Desc =>
+      'Lücken schliessen und Steuern reduzieren.';
+
+  @override
+  String get capStepRetirement07Title => 'Rente vs. Kapital vergleichen';
+
+  @override
+  String get capStepRetirement07Desc => 'Monatliche Rente oder Kapitalbezug?';
+
+  @override
+  String get capStepRetirement08Title => 'Entnahme planen';
+
+  @override
+  String get capStepRetirement08Desc =>
+      'Die Reihenfolge der Entnahme beeinflusst die Steuern.';
+
+  @override
+  String get capStepRetirement09Title => 'Steuerlich optimieren';
+
+  @override
+  String get capStepRetirement09Desc =>
+      '3a, Einkauf, Timing: Kapitalbesteuerung reduzieren.';
+
+  @override
+  String get capStepRetirement10Title => 'Fachperson konsultieren';
+
+  @override
+  String get capStepRetirement10Desc =>
+      'Expertenblick auf deine Gesamtsituation.';
+
+  @override
+  String get capStepBudget01Title => 'Einkommen kennen';
+
+  @override
+  String get capStepBudget01Desc => 'Ausgangspunkt jeder Budgetanalyse.';
+
+  @override
+  String get capStepBudget02Title => 'Fixkosten auflisten';
+
+  @override
+  String get capStepBudget02Desc =>
+      'Miete, Krankenkasse, Transport: die Unvermeidlichen.';
+
+  @override
+  String get capStepBudget03Title => 'Freie Marge berechnen';
+
+  @override
+  String get capStepBudget03Desc =>
+      'Was nach Ausgaben bleibt — dein Spielraum.';
+
+  @override
+  String get capStepBudget04Title => 'Einsparmöglichkeiten identifizieren';
+
+  @override
+  String get capStepBudget04Desc =>
+      'Kleine Anpassungen, grosse monatliche Wirkung.';
+
+  @override
+  String get capStepBudget05Title => 'Notgroschen aufbauen';
+
+  @override
+  String get capStepBudget05Desc =>
+      '3 Monate liquide Ausgaben: dein Sicherheitsnetz.';
+
+  @override
+  String get capStepBudget06Title => 'Säule 3a planen';
+
+  @override
+  String get capStepBudget06Desc =>
+      'Jeder eingezahlte Franken reduziert Steuern und sichert die Rente.';
+
+  @override
+  String get capStepHousing01Title => 'Einkommen kennen';
+
+  @override
+  String get capStepHousing01Desc => 'Grundlage der Kaufkraftberechnung.';
+
+  @override
+  String get capStepHousing02Title => 'Eigenmittel einschätzen';
+
+  @override
+  String get capStepHousing02Desc =>
+      'Ersparnisse, 3a und BVG: die nötige Anzahlung zusammenstellen.';
+
+  @override
+  String get capStepHousing03Title => 'Kaufkraft berechnen';
+
+  @override
+  String get capStepHousing03Desc => 'Bis zu welchem Preis kannst du kaufen?';
+
+  @override
+  String get capStepHousing04Title => 'Hypothek simulieren';
+
+  @override
+  String get capStepHousing04Desc =>
+      'Monatsrate, Amortisation, theoretischer Zinssatz.';
+
+  @override
+  String get capStepHousing05Title => 'Vorbezug BVG (WEF) prüfen';
+
+  @override
+  String get capStepHousing05Desc =>
+      'Frühzeitiger BVG-Bezug zur Finanzierung der Anzahlung.';
+
+  @override
+  String get capStepHousing06Title => 'Mieten vs. Kaufen vergleichen';
+
+  @override
+  String get capStepHousing06Desc =>
+      'Die Rechnung, die über Intuitionen hinausgeht.';
+
+  @override
+  String get capStepHousing07Title => 'Fachperson konsultieren';
+
+  @override
+  String get capStepHousing07Desc =>
+      'Notar, Makler, Berater: wer wann einbezogen werden sollte.';
+
+  @override
+  String get goalSelectorTitle => 'Was ist dein Hauptziel ?';
+
+  @override
+  String get goalSelectorAuto => 'MINT entscheiden lassen';
+
+  @override
+  String get goalSelectorAutoDesc =>
+      'MINT passt sich automatisch an dein Profil an';
+
+  @override
+  String get goalRetirementTitle => 'Meine Rente';
+
+  @override
+  String get goalRetirementDesc => 'Den Übergang in die Rente planen';
+
+  @override
+  String get goalBudgetTitle => 'Mein Budget';
+
+  @override
+  String get goalBudgetDesc => 'Ausgaben kontrollieren und sparen';
+
+  @override
+  String get goalHousingTitle => 'Eine Immobilie kaufen';
+
+  @override
+  String get goalHousingDesc =>
+      'Meine Kaufkraft einschätzen und den Kauf planen';
+
+  @override
+  String get goalTaxTitle => 'Weniger Steuern zahlen';
+
+  @override
+  String get goalTaxDesc => 'Meine Abzüge optimieren (Säule 3a, BVG-Einkauf)';
+
+  @override
+  String get goalDebtTitle => 'Schulden managen';
+
+  @override
+  String get goalDebtDesc => 'Spielraum zurückgewinnen und zurückzahlen';
+
+  @override
+  String get goalBirthTitle => 'Eine Geburt vorbereiten';
+
+  @override
+  String get goalBirthDesc => 'Kosten antizipieren und Budget anpassen';
+
+  @override
+  String get goalIndependentTitle => 'Selbständig werden';
+
+  @override
+  String get goalIndependentDesc => 'Vorsorge, Steuern und Absicherung';
+
+  @override
+  String pulseGoalChip(String goal) {
+    return 'Ziel: $goal';
+  }
 }

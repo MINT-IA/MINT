@@ -9236,5 +9236,89 @@
   "pulseNarrativeHousingGoal": "your estimated purchasing capacity:",
   "pulseNarrativeRetirementGoal": "your replacement rate:",
   "pulseLabelBudgetFree": "Free budget this month",
-  "pulseLabelPurchasingCapacity": "Estimated purchasing capacity"
+  "pulseLabelPurchasingCapacity": "Estimated purchasing capacity",
+
+  "capSequenceProgress": "{completed}/{total}\u00a0steps",
+  "@capSequenceProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "capSequenceComplete": "Plan complete!",
+  "capSequenceCurrentStep": "Next step",
+
+  "capStepRetirement01Title": "Know your gross salary",
+  "capStepRetirement01Desc": "The basis for all retirement calculations.",
+  "capStepRetirement02Title": "Estimate your AVS pension",
+  "capStepRetirement02Desc": "Your contribution years determine your 1st pillar.",
+  "capStepRetirement03Title": "Check your LPP assets",
+  "capStepRetirement03Desc": "The LPP certificate reveals your 2nd pillar capital.",
+  "capStepRetirement04Title": "Calculate your replacement rate",
+  "capStepRetirement04Desc": "How much of your salary will you receive at retirement.",
+  "capStepRetirement05Title": "Simulate a 3a contribution",
+  "capStepRetirement05Desc": "Deduct up to CHF\u00a07,258 and boost your retirement.",
+  "capStepRetirement06Title": "Evaluate an LPP buyback",
+  "capStepRetirement06Desc": "Fill gaps and reduce your taxes.",
+  "capStepRetirement07Title": "Compare pension vs capital",
+  "capStepRetirement07Desc": "Monthly pension or capital withdrawal?",
+  "capStepRetirement08Title": "Plan your drawdown",
+  "capStepRetirement08Desc": "Withdrawal order impacts your tax bill.",
+  "capStepRetirement09Title": "Optimise tax",
+  "capStepRetirement09Desc": "3a, buyback, timing: reduce capital taxation.",
+  "capStepRetirement10Title": "Consult a specialist",
+  "capStepRetirement10Desc": "Expert review of your complete situation.",
+
+  "capStepBudget01Title": "Know your income",
+  "capStepBudget01Desc": "The starting point of any budget review.",
+  "capStepBudget02Title": "List your fixed expenses",
+  "capStepBudget02Desc": "Rent, health insurance, transport: the unavoidables.",
+  "capStepBudget03Title": "Calculate your free margin",
+  "capStepBudget03Desc": "What remains after expenses \u2014 your real playground.",
+  "capStepBudget04Title": "Identify possible savings",
+  "capStepBudget04Desc": "Small adjustments, big monthly impact.",
+  "capStepBudget05Title": "Build a precautionary savings",
+  "capStepBudget05Desc": "3 months of liquid expenses: your safety net.",
+  "capStepBudget06Title": "Plan your 3a",
+  "capStepBudget06Desc": "Every franc contributed reduces taxes and prepares retirement.",
+
+  "capStepHousing01Title": "Know your income",
+  "capStepHousing01Desc": "The basis for the purchasing capacity calculation.",
+  "capStepHousing02Title": "Evaluate your own funds",
+  "capStepHousing02Desc": "Savings, 3a and LPP: assembling the required down payment.",
+  "capStepHousing03Title": "Calculate your purchasing capacity",
+  "capStepHousing03Desc": "Up to what price can you buy?",
+  "capStepHousing04Title": "Simulate the mortgage",
+  "capStepHousing04Desc": "Monthly payment, amortisation, theoretical rate.",
+  "capStepHousing05Title": "Evaluate EPL (2nd pillar)",
+  "capStepHousing05Desc": "Early LPP withdrawal to finance the down payment.",
+  "capStepHousing06Title": "Compare renting vs buying",
+  "capStepHousing06Desc": "The calculation that goes beyond intuitions.",
+  "capStepHousing07Title": "Consult a specialist",
+  "capStepHousing07Desc": "Notary, broker, advisor: when to involve whom.",
+  "goalSelectorTitle": "What is your main goal?",
+  "goalSelectorAuto": "Let MINT decide",
+  "goalSelectorAutoDesc": "MINT adapts automatically based on your profile",
+  "goalRetirementTitle": "My retirement",
+  "goalRetirementDesc": "Plan the transition to retirement",
+  "goalBudgetTitle": "My budget",
+  "goalBudgetDesc": "Control my spending and save",
+  "goalHousingTitle": "Buy a home",
+  "goalHousingDesc": "Assess my capacity and plan the purchase",
+  "goalTaxTitle": "Pay less tax",
+  "goalTaxDesc": "Optimise my deductions (3a, LPP buyback)",
+  "goalDebtTitle": "Manage my debt",
+  "goalDebtDesc": "Regain margin and repay",
+  "goalBirthTitle": "Prepare for a birth",
+  "goalBirthDesc": "Anticipate costs and adapt the budget",
+  "goalIndependentTitle": "Become self-employed",
+  "goalIndependentDesc": "Pension, tax and coverage",
+  "pulseGoalChip": "Goal: {goal}",
+  "@pulseGoalChip": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  }
 }

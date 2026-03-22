@@ -8916,5 +8916,89 @@
   "pulseLabelPurchasingCapacity": "Capacidade de compra estimada",
 
   "dossierToolsSection": "Ferramentas",
-  "dossierToolsCta": "Ver todas as ferramentas"
+  "dossierToolsCta": "Ver todas as ferramentas",
+
+  "capSequenceProgress": "{completed}/{total}\u00a0passos",
+  "@capSequenceProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "capSequenceComplete": "Plano conclu\u00eddo!",
+  "capSequenceCurrentStep": "Pr\u00f3ximo passo",
+
+  "capStepRetirement01Title": "Conhecer o teu sal\u00e1rio bruto",
+  "capStepRetirement01Desc": "A base de todos os c\u00e1lculos de reforma.",
+  "capStepRetirement02Title": "Estimar a tua renda AVS",
+  "capStepRetirement02Desc": "Os teus anos contribu\u00eddos determinam o 1.\u00ba pilar.",
+  "capStepRetirement03Title": "Verificar o teu capital LPP",
+  "capStepRetirement03Desc": "O certificado LPP revela o teu capital do 2.\u00ba pilar.",
+  "capStepRetirement04Title": "Calcular a tua taxa de substitui\u00e7\u00e3o",
+  "capStepRetirement04Desc": "Quanto do teu sal\u00e1rio receberes na reforma.",
+  "capStepRetirement05Title": "Simular uma contribui\u00e7\u00e3o 3a",
+  "capStepRetirement05Desc": "Deduzir at\u00e9 CHF\u00a07.258 e refor\u00e7ar a reforma.",
+  "capStepRetirement06Title": "Avaliar uma recompra LPP",
+  "capStepRetirement06Desc": "Cobrir lacunas e reduzir impostos.",
+  "capStepRetirement07Title": "Comparar renda vs capital",
+  "capStepRetirement07Desc": "Renda mensal ou levantamento do capital?",
+  "capStepRetirement08Title": "Planear o levantamento",
+  "capStepRetirement08Desc": "A ordem de levantamento afeta a fatura fiscal.",
+  "capStepRetirement09Title": "Otimizar fiscalmente",
+  "capStepRetirement09Desc": "3a, recompra, timing: reduzir a tributa\u00e7\u00e3o do capital.",
+  "capStepRetirement10Title": "Consultar um\u00b7a especialista",
+  "capStepRetirement10Desc": "Revis\u00e3o especializada da tua situa\u00e7\u00e3o completa.",
+
+  "capStepBudget01Title": "Conhecer os teus rendimentos",
+  "capStepBudget01Desc": "O ponto de partida de qualquer an\u00e1lise or\u00e7amental.",
+  "capStepBudget02Title": "Listar as tuas despesas fixas",
+  "capStepBudget02Desc": "Renda, seguro de sa\u00fade, transportes: os inevit\u00e1veis.",
+  "capStepBudget03Title": "Calcular a tua margem livre",
+  "capStepBudget03Desc": "O que sobra ap\u00f3s as despesas \u2014 o teu espa\u00e7o de manobra.",
+  "capStepBudget04Title": "Identificar poupan\u00e7as poss\u00edveis",
+  "capStepBudget04Desc": "Pequenos ajustes, grande impacto mensal.",
+  "capStepBudget05Title": "Construir uma poupan\u00e7a de precau\u00e7\u00e3o",
+  "capStepBudget05Desc": "3 meses de despesas l\u00edquidas: a tua rede de seguran\u00e7a.",
+  "capStepBudget06Title": "Planear o 3a",
+  "capStepBudget06Desc": "Cada franco depositado reduz impostos e prepara a reforma.",
+
+  "capStepHousing01Title": "Conhecer os teus rendimentos",
+  "capStepHousing01Desc": "A base do c\u00e1lculo da capacidade de compra.",
+  "capStepHousing02Title": "Avaliar os teus fundos pr\u00f3prios",
+  "capStepHousing02Desc": "Poupan\u00e7as, 3a e LPP: reunir o aporte necess\u00e1rio.",
+  "capStepHousing03Title": "Calcular a tua capacidade de compra",
+  "capStepHousing03Desc": "At\u00e9 que pre\u00e7o podes comprar?",
+  "capStepHousing04Title": "Simular a hipoteca",
+  "capStepHousing04Desc": "Prestação mensal, amortiza\u00e7\u00e3o, taxa te\u00f3rica.",
+  "capStepHousing05Title": "Avaliar o EPL (2.\u00ba pilar)",
+  "capStepHousing05Desc": "Levantamento antecipado LPP para financiar o aporte.",
+  "capStepHousing06Title": "Comparar arrendamento vs compra",
+  "capStepHousing06Desc": "O c\u00e1lculo que vai al\u00e9m das intui\u00e7\u00f5es.",
+  "capStepHousing07Title": "Consultar um\u00b7a especialista",
+  "capStepHousing07Desc": "Not\u00e1rio, corretor, consultor: quando envolver quem.",
+  "goalSelectorTitle": "Qual \u00e9 o teu objetivo principal?",
+  "goalSelectorAuto": "Deixar o MINT decidir",
+  "goalSelectorAutoDesc": "O MINT adapta-se automaticamente ao teu perfil",
+  "goalRetirementTitle": "A minha reforma",
+  "goalRetirementDesc": "Planear a transi\u00e7\u00e3o para a reforma",
+  "goalBudgetTitle": "O meu or\u00e7amento",
+  "goalBudgetDesc": "Controlar as despesas e poupar",
+  "goalHousingTitle": "Comprar um im\u00f3vel",
+  "goalHousingDesc": "Avaliar a minha capacidade e planear a compra",
+  "goalTaxTitle": "Pagar menos impostos",
+  "goalTaxDesc": "Otimizar as dedu\u00e7\u00f5es (3a, resgate LPP)",
+  "goalDebtTitle": "Gerir as d\u00edvidas",
+  "goalDebtDesc": "Recuperar margem e reembolsar",
+  "goalBirthTitle": "Preparar um nascimento",
+  "goalBirthDesc": "Antecipar os custos e adaptar o or\u00e7amento",
+  "goalIndependentTitle": "Tornar-me independente",
+  "goalIndependentDesc": "Previd\u00eancia, fiscalidade e cobertura",
+  "pulseGoalChip": "Objetivo: {goal}",
+  "@pulseGoalChip": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -98,7 +98,7 @@ class TestFaqFallback:
                     )
                 ]
 
-                result = asyncio.get_event_loop().run_until_complete(
+                result = asyncio.run(
                     orchestrator.query(
                         question="Quel est le montant AVS?",
                         api_key="sk-test",
@@ -145,7 +145,7 @@ class TestFaqFallback:
                     )
                 ]
 
-                result = asyncio.get_event_loop().run_until_complete(
+                result = asyncio.run(
                     orchestrator.query(
                         question="Taux conversion LPP?",
                         api_key="sk-test",
@@ -179,7 +179,7 @@ class TestFaqFallback:
             instance.generate = fake_generate
 
             with mock.patch("app.services.rag.faq_service.FaqService.search") as mock_search:
-                asyncio.get_event_loop().run_until_complete(
+                asyncio.run(
                     orchestrator.query(
                         question="LPP question?",
                         api_key="sk-test",
@@ -223,7 +223,7 @@ class TestFaqFallback:
                 "app.services.rag.faq_service.FaqService.search",
                 return_value=many_faqs,
             ):
-                result = asyncio.get_event_loop().run_until_complete(
+                result = asyncio.run(
                     orchestrator.query(
                         question="Question générique?",
                         api_key="sk-test",
@@ -254,7 +254,7 @@ class TestFaqFallback:
                 "app.services.rag.faq_service.FaqService.search",
                 return_value=[],
             ):
-                result = asyncio.get_event_loop().run_until_complete(
+                result = asyncio.run(
                     orchestrator.query(
                         question="Question sans FAQ?",
                         api_key="sk-test",

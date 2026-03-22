@@ -136,11 +136,19 @@ class ScreenReturn {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ScreenReturn &&
-        other.route == route &&
+    if (other is! ScreenReturn) return false;
+    return other.route == route &&
         other.outcome == outcome &&
         other.confidenceDelta == confidenceDelta &&
-        other.nextCapSuggestion == nextCapSuggestion;
+        other.nextCapSuggestion == nextCapSuggestion &&
+        _mapEquals(other.updatedFields, updatedFields);
+  }
+
+  static bool _mapEquals(Map<String, dynamic>? a, Map<String, dynamic>? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    return a.entries.every((e) => b[e.key] == e.value);
   }
 
   @override
@@ -149,5 +157,11 @@ class ScreenReturn {
         outcome,
         confidenceDelta,
         nextCapSuggestion,
+        updatedFields == null
+            ? null
+            : Object.hashAll(
+                updatedFields!.entries
+                    .map((e) => Object.hash(e.key, e.value)),
+              ),
       );
 }
