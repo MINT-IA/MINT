@@ -123,8 +123,12 @@ class PrecomputedInsight {
   // ── Staleness ────────────────────────────────────────────────
 
   /// Whether this insight is older than [_kStaleDuration].
-  bool get isStale =>
-      DateTime.now().difference(computedAt) > _kStaleDuration;
+  ///
+  /// Pass [now] to override [DateTime.now] for deterministic tests.
+  bool isStale([DateTime? now]) {
+    final reference = now ?? DateTime.now();
+    return reference.difference(computedAt) > _kStaleDuration;
+  }
 
   // ── i18n resolution ──────────────────────────────────────────
 
@@ -266,8 +270,11 @@ class PrecomputedInsightsService {
   ///   - Cache JSON is malformed.
   ///
   /// Called at greeting time — instant, no heavy I/O.
+  ///
+  /// Pass [now] to override [DateTime.now] for deterministic tests.
   static Future<PrecomputedInsight?> getCachedInsight({
     required SharedPreferences prefs,
+    DateTime? now,
   }) async {
     try {
       final raw = prefs.getString(_kInsightCacheKey);
@@ -276,7 +283,7 @@ class PrecomputedInsightsService {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       final insight = PrecomputedInsight.fromJson(json);
 
-      if (insight.isStale) return null;
+      if (insight.isStale(now)) return null;
 
       return insight;
     } catch (_) {

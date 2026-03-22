@@ -219,7 +219,7 @@ def _detect_deficit(profile: dict) -> Optional[ReasoningOutput]:
     return None
 
 
-def _detect_3a_deadline(profile: dict) -> Optional[ReasoningOutput]:
+def _detect_3a_deadline(profile: dict, today: Optional[datetime.date] = None) -> Optional[ReasoningOutput]:
     """Detect the year-end 3a contribution deadline in December.
 
     Triggers when:
@@ -232,7 +232,7 @@ def _detect_3a_deadline(profile: dict) -> Optional[ReasoningOutput]:
     Returns:
         ReasoningOutput if the 3a deadline is approaching, None otherwise.
     """
-    today = datetime.date.today()
+    today = today or datetime.date.today()
     year_end = datetime.date(today.year, 12, 31)
     days_remaining = (year_end - today).days
 
@@ -412,7 +412,7 @@ def _detect_rachat_opportunity(profile: dict) -> Optional[ReasoningOutput]:
     )
 
 
-def _detect_3a_not_maxed(profile: dict) -> Optional[ReasoningOutput]:
+def _detect_3a_not_maxed(profile: dict, today: Optional[datetime.date] = None) -> Optional[ReasoningOutput]:
     """Detect when 3a contributions are below the annual ceiling outside December.
 
     This is a lower-priority fact surfaced when no higher-priority fact applies.
@@ -425,7 +425,7 @@ def _detect_3a_not_maxed(profile: dict) -> Optional[ReasoningOutput]:
         ReasoningOutput if 3a is not maxed and not December, None otherwise.
     """
     # Don't double-fire with the December deadline detector
-    today = datetime.date.today()
+    today = today or datetime.date.today()
     year_end = datetime.date(today.year, 12, 31)
     days_remaining = (year_end - today).days
     if days_remaining <= _DECEMBER_DEADLINE_DAYS:
@@ -528,6 +528,7 @@ class StructuredReasoningService:
         user_message: str,
         profile_context: Optional[dict],
         memory_block: Optional[str] = None,
+        today: Optional[datetime.date] = None,
     ) -> ReasoningOutput:
         """Extract structured financial reasoning from user context.
 
@@ -553,6 +554,7 @@ class StructuredReasoningService:
             return _null_output()
 
         profile = profile_context  # alias for brevity
+        effective_today = today or datetime.date.today()
 
         # Priority 1: Deficit / low liquidity
         result = _detect_deficit(profile)
@@ -560,7 +562,7 @@ class StructuredReasoningService:
             return result
 
         # Priority 2: December 3a deadline
-        result = _detect_3a_deadline(profile)
+        result = _detect_3a_deadline(profile, effective_today)
         if result is not None:
             return result
 
@@ -575,7 +577,7 @@ class StructuredReasoningService:
             return result
 
         # Priority 5: 3a not maxed (lower priority, outside December)
-        result = _detect_3a_not_maxed(profile)
+        result = _detect_3a_not_maxed(profile, effective_today)
         if result is not None:
             return result
 

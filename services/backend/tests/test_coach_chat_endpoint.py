@@ -299,7 +299,14 @@ class TestCoachChatOrchestratorWiring:
         mock_orch.query.assert_called_once()
         call_kwargs = mock_orch.query.call_args.kwargs
         assert "tools" in call_kwargs
-        assert call_kwargs["tools"] == COACH_TOOLS
+        # Tools are stripped of internal metadata (category, access_level)
+        # before being sent to the LLM API.
+        tools_sent = call_kwargs["tools"]
+        assert len(tools_sent) == len(COACH_TOOLS)
+        for tool in tools_sent:
+            assert "category" not in tool
+            assert "access_level" not in tool
+            assert "name" in tool
 
     def test_message_forwarded_as_question(self, client_with_auth):
         """The user 'message' must be forwarded to orchestrator as 'question'."""

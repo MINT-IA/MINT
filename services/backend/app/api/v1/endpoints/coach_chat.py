@@ -255,6 +255,13 @@ async def coach_chat(
     # Build profile context dict for retriever personalization (language, canton)
     retriever_ctx = body.profile_context or {}
 
+    # Strip internal metadata (category, access_level) before sending to LLM.
+    # The Anthropic API ignores unknown fields but this keeps the payload clean.
+    stripped_tools = [
+        {k: v for k, v in t.items() if k not in ("category", "access_level")}
+        for t in COACH_TOOLS
+    ]
+
     try:
         result = await orchestrator.query(
             question=body.message,
@@ -263,7 +270,7 @@ async def coach_chat(
             model=body.model,
             profile_context=retriever_ctx,
             language=body.language,
-            tools=COACH_TOOLS,
+            tools=stripped_tools,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -277,20 +284,19 @@ async def coach_chat(
         )
 
     # ------------------------------------------------------------------
-    # Step 4: Intercept internal tool calls (retrieve_memories).
-    # When the LLM returns a retrieve_memories tool_use block:
-    #   a) Search the memory_block locally (_handle_retrieve_memories).
-    #   b) Strip the internal tool from tool_calls before returning to Flutter.
-    # This keeps the interaction transparent to the mobile client.
+    # Step 4: Agent loop — intercept internal tool calls.
+    # When the LLM returns retrieve_memories, execute it locally and
+    # append the result to the answer text (simple inline enrichment).
+    # A full multi-turn loop (re-call LLM with tool_result) would require
+    # conversation state management — this is the pragmatic V1.
     # ------------------------------------------------------------------
     raw_tool_calls = result.get("tool_calls") or []
     flutter_tool_calls = []
+    memory_enrichment = ""
 
     for tool_call in raw_tool_calls:
         tool_name = tool_call.get("name", "")
         if tool_name in INTERNAL_TOOL_NAMES:
-            # Handle retrieve_memories: log the search, result is discarded here
-            # (in a future multi-turn loop this would be fed back to the LLM).
             if tool_name == "retrieve_memories":
                 tool_input = tool_call.get("input", {})
                 topic = tool_input.get("topic", "")
@@ -300,14 +306,22 @@ async def coach_chat(
                     memory_block=body.memory_block,
                     max_results=max_results,
                 )
+                # Enrich the answer with the memory lookup result.
+                # The LLM asked for memory — we provide it inline.
+                if memory_result and "Pas de mémoire" not in memory_result:
+                    memory_enrichment = memory_result
                 logger.debug(
                     "retrieve_memories(topic=%r) → %d chars",
                     topic,
                     len(memory_result),
                 )
-            # Internal tools are never forwarded to Flutter
         else:
             flutter_tool_calls.append(tool_call)
+
+    # If the LLM asked for memory, prepend the retrieved context to the answer.
+    answer = result.get("answer", "")
+    if memory_enrichment:
+        answer = answer + "\n\n" + memory_enrichment
 
     # ------------------------------------------------------------------
     # Step 5: Build structured response
@@ -315,7 +329,7 @@ async def coach_chat(
     # Only non-internal tool_calls are returned to Flutter.
     # ------------------------------------------------------------------
     return CoachChatResponse(
-        message=result.get("answer", ""),
+        message=answer,
         tool_calls=flutter_tool_calls if flutter_tool_calls else None,
         sources=result.get("sources", []),
         disclaimers=result.get("disclaimers", []),

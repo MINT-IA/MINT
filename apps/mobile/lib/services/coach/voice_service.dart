@@ -166,6 +166,14 @@ class VoiceService {
   /// [_applyMode].
   final VoiceStateMachine _machine = VoiceStateMachine();
 
+  /// Cancellation generation counter.
+  ///
+  /// Incremented whenever [stopListening], [stopSpeaking], or [_forceIdle]
+  /// is called. In-flight listen/speak coroutines compare their captured
+  /// generation to [_generation] before applying further state transitions —
+  /// if different, the operation was cancelled and they exit silently.
+  int _generation = 0;
+
   /// Whether [dispose] has been called. Prevents setting state on a disposed
   /// notifier (e.g. from the error-recovery timer).
   bool _disposed = false;
@@ -191,8 +199,13 @@ class VoiceService {
 
   /// Force both the state machine and the public notifier back to idle.
   ///
+  /// Increments [_generation] so any in-flight coroutine that captured the
+  /// old generation will detect cancellation and exit without applying further
+  /// state transitions.
+  ///
   /// Used for error recovery and cancellation — always succeeds.
   void _forceIdle() {
+    _generation++;
     _machine.forceIdle();
     _setState(VoiceState.idle);
   }
@@ -243,17 +256,24 @@ class VoiceService {
     }
 
     _applyMode(VoiceMode.listening);
+    // Capture generation before the async gap. If stopListening() fires while
+    // the backend awaits, _generation is incremented and the coroutine exits.
+    final gen = _generation;
     try {
       final result = await _backend.listen(
         maxDuration: maxDuration ?? const Duration(seconds: 30),
         silenceTimeout: config.silenceTimeout,
         locale: locale,
       );
+      // Cancelled while waiting — do not apply further transitions.
+      if (gen != _generation) return result;
       _applyMode(VoiceMode.processing);
       // In a real implementation, post-processing (punctuation, etc.) goes here.
       _applyMode(VoiceMode.idle);
       return result;
     } catch (e) {
+      // If already force-idled by cancellation, do not double-set error.
+      if (gen != _generation) rethrow;
       _setState(VoiceState.error);
       // Auto-recover to idle so next call works.
       Future.delayed(
@@ -288,6 +308,8 @@ class VoiceService {
     }
 
     _applyMode(VoiceMode.speaking);
+    // Capture generation before the async gap.
+    final gen = _generation;
     try {
       await _backend.speak(
         text,
@@ -295,8 +317,10 @@ class VoiceService {
         rate: config.speechRate,
         pitch: config.pitch,
       );
+      if (gen != _generation) return; // cancelled by stopSpeaking()
       _applyMode(VoiceMode.idle);
     } catch (e) {
+      if (gen != _generation) rethrow;
       _setState(VoiceState.error);
       Future.delayed(
           const Duration(milliseconds: 500), _forceIdle);
