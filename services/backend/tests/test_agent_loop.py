@@ -72,8 +72,8 @@ def _make_mock_orchestrator(*results: dict) -> MagicMock:
 
 
 def _run(coro):
-    """Run a coroutine synchronously (no pytest-asyncio required)."""
-    return asyncio.get_event_loop().run_until_complete(coro)
+    """Run a coroutine synchronously (Python 3.10+ compatible)."""
+    return asyncio.run(coro)
 
 
 _BASE_KWARGS = {
