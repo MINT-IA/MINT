@@ -364,12 +364,20 @@ class CoachOrchestrator {
             provider: providerStr,
             model: config.model,
             profileContext: {
-              'firstName': ctx.firstName,
-              'age': ctx.age.toString(),
+              'first_name': ctx.firstName,
+              'age': ctx.age,
               'canton': ctx.canton,
               'archetype': ctx.archetype,
-              'friTotal': ctx.friTotal.toStringAsFixed(0),
-              'replacementRatio': ctx.replacementRatio.toStringAsFixed(0),
+              'fri_total': ctx.friTotal,
+              'replacement_ratio': ctx.replacementRatio > 0
+                  ? ctx.replacementRatio / 100.0
+                  : null,
+              'confidence_score': ctx.confidenceScore > 0
+                  ? ctx.confidenceScore
+                  : null,
+              // Spread knownValues for data lookup tools
+              ...ctx.knownValues.map((k, v) =>
+                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
             },
           )
           .timeout(_byokTimeout);
@@ -470,12 +478,20 @@ class CoachOrchestrator {
             provider: providerStr,
             model: config.model,
             profileContext: {
-              'firstName': ctx.firstName,
-              'age': ctx.age.toString(),
+              'first_name': ctx.firstName,
+              'age': ctx.age,
               'canton': ctx.canton,
               'archetype': ctx.archetype,
-              'friTotal': ctx.friTotal.toStringAsFixed(0),
-              'replacementRatio': ctx.replacementRatio.toStringAsFixed(0),
+              'fri_total': ctx.friTotal,
+              'replacement_ratio': ctx.replacementRatio > 0
+                  ? ctx.replacementRatio / 100.0
+                  : null,
+              'confidence_score': ctx.confidenceScore > 0
+                  ? ctx.confidenceScore
+                  : null,
+              // Spread knownValues for data lookup tools
+              ...ctx.knownValues.map((k, v) =>
+                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
             },
             // Pass tools so Claude can return route_to_screen tool_use blocks.
             tools: providerStr == 'claude' ? _coachTools : null,

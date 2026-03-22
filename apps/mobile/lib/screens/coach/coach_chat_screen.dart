@@ -928,12 +928,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   CoachContext _buildCoachContext(CoachProfile profile) {
     final knownValues = <String, double>{};
 
+    // FRI score
     try {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
     } catch (_) {}
 
+    // Retirement projection
     try {
       final proj = ForecasterService.project(
         profile: profile,
@@ -944,6 +946,46 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
     } catch (_) {}
+
+    // Enrich with MintUserState data for backend data lookup tools
+    // (get_budget_status, get_retirement_projection, get_cross_pillar_analysis, get_cap_status)
+    try {
+      final mintState = context.read<MintStateProvider>().state;
+      if (mintState != null) {
+        // Budget fields (consumed by get_budget_status)
+        final snap = mintState.budgetSnapshot;
+        if (snap != null) {
+          final net = snap.present.monthlyNet;
+          if (net.isFinite && net > 0) knownValues['monthly_income'] = net;
+          final charges = snap.present.monthlyCharges;
+          if (charges.isFinite && charges > 0) knownValues['monthly_expenses'] = charges;
+        }
+
+        // Retirement fields (consumed by get_retirement_projection)
+        final rate = mintState.replacementRate;
+        if (rate != null && rate.isFinite && rate > 0) {
+          knownValues['replacement_ratio'] = rate / 100.0; // backend expects 0-1
+        }
+
+        // LPP capital
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) knownValues['lpp_capital'] = lpp;
+
+        // LPP buyback max (consumed by get_cross_pillar_analysis)
+        final rachat = profile.prevoyance.lacuneRachatRestante;
+        if (rachat > 0) knownValues['lpp_buyback_max'] = rachat;
+
+        // 3a contribution (consumed by get_cross_pillar_analysis)
+        final mensuel3a = profile.total3aMensuel;
+        if (mensuel3a > 0) knownValues['annual_3a_contribution'] = mensuel3a * 12;
+
+        // Confidence score
+        final conf = mintState.confidenceScore;
+        if (conf.isFinite && conf > 0) knownValues['confidence_score'] = conf;
+      }
+    } catch (_) {
+      // Graceful: if MintStateProvider is not available, knownValues stays as-is.
+    }
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',

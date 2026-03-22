@@ -208,6 +208,7 @@ class CoachLlmService {
     required List<ChatMessage> history,
     required LlmConfig config,
     String? memoryBlock,
+    Map<String, dynamic>? enrichedContext,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
@@ -264,6 +265,7 @@ class CoachLlmService {
     required CoachProfile profile,
     required LlmConfig config,
     required List<ChatMessage> history,
+    Map<String, dynamic>? enrichedContext,
   }) async {
     final ragService = RagService();
     final String provider;
@@ -278,7 +280,10 @@ class CoachLlmService {
         provider = 'openai';
         break;
     }
-    final profileContext = _buildProfileContext(profile);
+    final profileContext = {
+      ..._buildProfileContext(profile),
+      if (enrichedContext != null) ...enrichedContext,
+    };
 
     // Injecter le contexte conversationnel dans la question
     final augmentedQuestion = _buildConversationContext(history, userMessage);
