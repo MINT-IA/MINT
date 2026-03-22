@@ -37017,6 +37017,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Scénario salaire : {label}'**
   String firstJobScenarioSemantics(String label);
+
+  /// No description provided for @pulseRetirementIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu retraite estimé'**
+  String get pulseRetirementIncome;
+
+  /// No description provided for @pulseCapImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Levier identifié'**
+  String get pulseCapImpact;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

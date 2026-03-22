@@ -9465,5 +9465,7 @@
     "placeholders": {
       "label": {"type": "String"}
     }
-  }
+  },
+  "pulseRetirementIncome": "Estimated retirement income",
+  "pulseCapImpact": "Lever identified"
 }

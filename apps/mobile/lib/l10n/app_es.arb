@@ -9228,5 +9228,7 @@
     "placeholders": {
       "label": {"type": "String"}
     }
-  }
+  },
+  "pulseRetirementIncome": "Ingreso jubilación estimado",
+  "pulseCapImpact": "Palanca identificada"
 }

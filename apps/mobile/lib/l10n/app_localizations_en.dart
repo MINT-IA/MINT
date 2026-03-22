@@ -20871,4 +20871,10 @@ class SEn extends S {
   String firstJobScenarioSemantics(String label) {
     return 'Salary scenario: $label';
   }
+
+  @override
+  String get pulseRetirementIncome => 'Estimated retirement income';
+
+  @override
+  String get pulseCapImpact => 'Lever identified';
 }

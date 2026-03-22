@@ -9762,5 +9762,7 @@
     "placeholders": {
       "label": {"type": "String"}
     }
-  }
+  },
+  "pulseRetirementIncome": "Revenu retraite estimé",
+  "pulseCapImpact": "Levier identifié"
 }

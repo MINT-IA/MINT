@@ -20919,4 +20919,10 @@ class SPt extends S {
   String firstJobScenarioSemantics(String label) {
     return 'Cenário salarial: $label';
   }
+
+  @override
+  String get pulseRetirementIncome => 'Rendimento aposentadoria estimado';
+
+  @override
+  String get pulseCapImpact => 'Alavanca identificada';
 }

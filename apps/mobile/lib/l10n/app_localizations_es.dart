@@ -20968,4 +20968,10 @@ class SEs extends S {
   String firstJobScenarioSemantics(String label) {
     return 'Escenario salarial: $label';
   }
+
+  @override
+  String get pulseRetirementIncome => 'Ingreso jubilación estimado';
+
+  @override
+  String get pulseCapImpact => 'Palanca identificada';
 }

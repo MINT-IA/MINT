@@ -9145,5 +9145,7 @@
     "placeholders": {
       "label": {"type": "String"}
     }
-  }
+  },
+  "pulseRetirementIncome": "Rendimento aposentadoria estimado",
+  "pulseCapImpact": "Alavanca identificada"
 }

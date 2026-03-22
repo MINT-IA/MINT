@@ -1018,7 +1018,30 @@ class _PulseScreenState extends State<PulseScreen> {
       }
     }
 
-    // Signal 2: Patrimoine
+    // Signal 2: Retirement income — ONLY when fullGapVisible
+    if (snapshot != null && snapshot.hasFullGap) {
+      final retirementNet = snapshot.retirement!.monthlyNet;
+      final rate = snapshot.gap!.replacementRate;
+      signals.add(_SignalRow(
+        label: l.pulseRetirementIncome,
+        value: l.pulseAmountPerMonth(formatChfWithPrefix(retirementNet)),
+        color: rate >= 80 ? MintColors.success : MintColors.warning,
+        onTap: () => context.push('/retirement'),
+      ));
+    }
+
+    // Signal 3: Top cap impact — ONLY when capImpacts is non-empty
+    if (snapshot != null && snapshot.capImpacts.isNotEmpty) {
+      final topCap = snapshot.capImpacts.first;
+      signals.add(_SignalRow(
+        label: l.pulseCapImpact,
+        value: l.pulseAmountPerMonth('+${formatChfWithPrefix(topCap.monthlyDelta)}'),
+        color: MintColors.accent,
+        onTap: () => context.push('/coach/chat'),
+      ));
+    }
+
+    // Signal 4: Patrimoine
     final patrimoine = profile.patrimoine.totalPatrimoine +
         (profile.prevoyance.avoirLppTotal ?? 0) +
         profile.prevoyance.totalEpargne3a;
@@ -1033,11 +1056,13 @@ class _PulseScreenState extends State<PulseScreen> {
 
     if (signals.isEmpty) return const SizedBox.shrink();
 
+    // Show up to 3 signals (budget libre + retirement + cap impact or patrimoine)
+    const maxSignals = 3;
     return Column(
       children: [
-        for (int i = 0; i < signals.length && i < 2; i++) ...[
+        for (int i = 0; i < signals.length && i < maxSignals; i++) ...[
           signals[i],
-          if (i < signals.length - 1 && i < 1)
+          if (i < signals.length - 1 && i < maxSignals - 1)
             Divider(
               color: MintColors.border.withValues(alpha: 0.5),
               height: 1,

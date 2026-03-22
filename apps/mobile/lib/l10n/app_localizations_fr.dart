@@ -20969,4 +20969,10 @@ class SFr extends S {
   String firstJobScenarioSemantics(String label) {
     return 'Scénario salaire : $label';
   }
+
+  @override
+  String get pulseRetirementIncome => 'Revenu retraite estimé';
+
+  @override
+  String get pulseCapImpact => 'Levier identifié';
 }

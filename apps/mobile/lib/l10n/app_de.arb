@@ -9443,5 +9443,7 @@
     "placeholders": {
       "label": {"type": "String"}
     }
-  }
+  },
+  "pulseRetirementIncome": "Geschätztes Renteneinkommen",
+  "pulseCapImpact": "Identifizierter Hebel"
 }

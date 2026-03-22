@@ -20997,4 +20997,10 @@ class SIt extends S {
   String firstJobScenarioSemantics(String label) {
     return 'Scenario stipendio: $label';
   }
+
+  @override
+  String get pulseRetirementIncome => 'Reddito pensione stimato';
+
+  @override
+  String get pulseCapImpact => 'Leva identificata';
 }

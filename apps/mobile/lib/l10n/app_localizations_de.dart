@@ -20993,4 +20993,10 @@ class SDe extends S {
   String firstJobScenarioSemantics(String label) {
     return 'Lohnszenario: $label';
   }
+
+  @override
+  String get pulseRetirementIncome => 'Geschätztes Renteneinkommen';
+
+  @override
+  String get pulseCapImpact => 'Identifizierter Hebel';
 }

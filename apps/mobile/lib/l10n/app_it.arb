@@ -9145,5 +9145,7 @@
     "placeholders": {
       "label": {"type": "String"}
     }
-  }
+  },
+  "pulseRetirementIncome": "Reddito pensione stimato",
+  "pulseCapImpact": "Leva identificata"
 }
