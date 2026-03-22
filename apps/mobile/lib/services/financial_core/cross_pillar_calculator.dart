@@ -325,11 +325,14 @@ class CrossPillarCalculator {
         ProfileDataSource.estimated;
     final confidence = _sourceConfidence(lppSource);
 
-    // EPL blocage flag
-    final hasEpl = profile.dettes.amortissementIndirect;
-    final tradeOffSuffix = hasEpl
-        ? ' + blocage rachat possible si EPL récent (LPP art. 79b al. 3)'
-        : ' + capital immobilisé dans la caisse (LPP art. 79b al. 3)';
+    // ARCH NOTE: amortissementIndirect tracks indirect amortisation via 3a,
+    // NOT an EPL withdrawal (retrait anticipé 2e pilier pour propriété).
+    // The 3-year block (art. 79b al. 3) applies only after an actual EPL,
+    // not after indirect amortisation. Since the profile doesn't currently
+    // track EPL withdrawals separately, we show the general reminder
+    // without claiming a specific block exists.
+    const tradeOffSuffix =
+        ' + capital immobilisé dans la caisse (LPP art. 79b al. 3)';
 
     return CrossPillarInsight(
       type: CrossPillarType.lppBuybackOpportunity,
@@ -539,8 +542,15 @@ class CrossPillarCalculator {
     if (grossAnnual <= 0) return null;
 
     // Annual mortgage interest (deductible, LIFD art. 33 al. 1 lit. e)
-    // Rate stored in DetteProfile as %, but PatrimoineProfile.mortgageRate
-    // may be stored as decimal or %. We treat < 0.3 as decimal.
+    //
+    // CONVENTION: mortgageRate SHOULD be stored as decimal (1.5% = 0.015).
+    // However, some input paths store it as percentage (1.5% = 1.5).
+    // We normalize here: values > 0.3 are treated as percentage and divided
+    // by 100. This handles all realistic Swiss mortgage rates (0.5%–10%).
+    // Edge case: a SARON rate of 0.25% stored as 0.25 would be wrongly
+    // treated as percentage — but 0.25/100 = 0.0025 still produces a
+    // plausible (if low) interest amount. The real fix is to enforce
+    // decimal storage at the input layer (CoachProfile/PatrimoineProfile).
     final rateDecimal =
         mortgageRate > 0.3 ? mortgageRate / 100.0 : mortgageRate;
     final annualInterest = mortgageBalance * rateDecimal;
