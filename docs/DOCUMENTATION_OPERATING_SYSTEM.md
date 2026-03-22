@@ -67,55 +67,62 @@ Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
 - `docs/MINT_CAP_ENGINE_SPEC.md`
+- `docs/CAPENGINE_IMPLEMENTATION_CHECKLIST.md`
 
 ### Tâche: navigation / routes / IA de navigation
 Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
-- `docs/NAVIGATION_GRAAL_V10.md`
+- `docs/NAVIGATION_GRAAL_V10.md` (synced with app.dart 2026-03-21)
 
 ### Tâche: coach AI / orchestration / mémoire
 Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
 - `docs/BLUEPRINT_COACH_AI_LAYER.md`
+- `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md`
 - `docs/VOICE_SYSTEM.md`
 
 ### Tâche: stratégie ou vision globale
 Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
-- `docs/ROADMAP_V2.md`
-- `docs/TOP_10_SWISS_CORE_JOURNEYS.md`
+- `docs/ROADMAP_V2.md` (sprint status + actual codebase state)
+- puis au besoin `docs/VISION_UNIFIEE_V1.md` comme archive stratégique
+
+### Tâche: comprendre ce qui est implémenté vs planifié
+Lire:
+- `docs/ROADMAP_V2.md` — section "ACTUAL CODEBASE STATE"
+- `docs/DOC_STATUS_MATRIX.md` — statut de chaque document
+- `docs/SPRINT_TRACKER.md` — historique S0-S50
 
 ---
 
-## 4. Statut des documents (13 actifs)
+## 4. Statut des documents
 
-### Documents maîtres (lire en premier)
-- `CLAUDE.md` — règles, constantes, compliance
-- `docs/MINT_UX_GRAAL_MASTERPLAN.md` — vision produit umbrella
-- `docs/DOCUMENTATION_OPERATING_SYSTEM.md` — cet index
-
-### Documents stratégiques
-- `docs/ROADMAP_V2.md` — séquence des sprints, phases, KPIs
-- `docs/TOP_10_SWISS_CORE_JOURNEYS.md` — parcours coeur, état actuel, gaps
-- `docs/S53_GATE_CLOSER_AGENT_PROMPT.md` — prompt opérable pour agents d'exécution
+### Documents maîtres
+- `CLAUDE.md` — synced 2026-03-21
+- `docs/MINT_UX_GRAAL_MASTERPLAN.md` — synced 2026-03-21
+- `docs/DOCUMENTATION_OPERATING_SYSTEM.md` — synced 2026-03-21
 
 ### Documents spécialisés de référence
-- `docs/DESIGN_SYSTEM.md` — tokens, composants, catégories d'écrans
-- `docs/VOICE_SYSTEM.md` — voix MINT, ton, microcopy, 50 avant/après
-- `docs/MINT_CAP_ENGINE_SPEC.md` — CapEngine, scoring, séquences, clause d'honnêteté
-- `docs/MINT_SCREEN_BOARD_101.md` — board des 101 écrans, template par écran
+- `docs/DESIGN_SYSTEM.md` — current
+- `docs/VOICE_SYSTEM.md` — current
+- `docs/MINT_CAP_ENGINE_SPEC.md` — current
+- `docs/MINT_SCREEN_BOARD_101.md` — current
+- `docs/CAPENGINE_IMPLEMENTATION_CHECKLIST.md` — current
+- `docs/ROADMAP_V2.md` — synced 2026-03-21 (status column added)
+- `docs/DOC_STATUS_MATRIX.md` — created 2026-03-21
 
 ### Documents spécialisés secondaires
-- `docs/NAVIGATION_GRAAL_V10.md` — routes, hubs, shell 4 tabs
-- `docs/BLUEPRINT_COACH_AI_LAYER.md` — coach AI, mémoire, orchestration
-- `docs/CICD_ARCHITECTURE.md` — pipeline CI/CD, Railway, TestFlight
-- `docs/DATA_ACQUISITION_STRATEGY.md` — OCR, Open Banking, enrichment
+- `docs/NAVIGATION_GRAAL_V10.md` — synced 2026-03-21 (routes verified against app.dart)
+- `docs/BLUEPRINT_COACH_AI_LAYER.md` — partially outdated (references coach_dashboard_screen.dart which was replaced)
+- `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` — current (source of truth for RoutePlanner/ScreenRegistry)
 
-### Archivés (docs/archive/)
-66 documents historiques. Utiles pour comprendre les décisions passées, mais ne gouvernent plus.
+### Documents historiques / de transition
+- `docs/VISION_UNIFIEE_V1.md` — archive stratégique, ne gouverne plus
+- `docs/SPRINT_TRACKER.md` — historique S0-S50, dernière entrée S50
+- `docs/archive/*` — archives, ne pas lire sauf investigation historique
 
 ---
 

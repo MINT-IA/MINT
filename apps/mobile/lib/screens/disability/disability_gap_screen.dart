@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — ÉCRAN PRINCIPAL INVALIDITÉ
@@ -38,6 +39,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     super.didChangeDependencies();
     if (_seededFromProfile) return;
     _seededFromProfile = true;
+    ScreenCompletionTracker.markCompleted('disability_gap');
     final profile = context.read<CoachProfileProvider>().profile;
     if (profile == null) return;
     setState(() {

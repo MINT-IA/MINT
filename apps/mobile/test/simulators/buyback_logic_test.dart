@@ -36,7 +36,7 @@ void main() {
       // YES! Staggering buybacks IS usually better because you deduct against the highest marginal rate every year,
       // instead of using the deduction against lower brackets in a single year.
 
-      print('Delta: ${result.delta}');
+      // Delta should be positive (staggered > single buyback)
       expect(result.delta, greaterThan(0),
           reason: 'Delta should be positive (Staggered > Single)');
     });

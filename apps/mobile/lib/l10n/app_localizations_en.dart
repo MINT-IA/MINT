@@ -3165,7 +3165,7 @@ class SEn extends S {
       'Educational simulation for informational purposes only. The exact withdrawable amount depends on your pension fund regulations. Tax varies by canton and personal situation. Legal basis: Art. 30c BVG, OEPL.';
 
   @override
-  String get exploreTitle => 'EXPLORE';
+  String get exploreTitle => 'Explore';
 
   @override
   String get explorePillarComprendreTitle => 'I want to understand';
@@ -3291,7 +3291,7 @@ class SEn extends S {
   String get exploreLearnFiscal => 'Swiss Taxation 101';
 
   @override
-  String get coachWelcome => 'Your numbers are ready';
+  String get coachWelcome => 'Welcome to MINT';
 
   @override
   String coachHello(String firstName) {
@@ -3318,10 +3318,10 @@ class SEn extends S {
 
   @override
   String get coachCompletePrompt =>
-      'Complete your diagnostic to see your score';
+      'Complete your diagnostic to discover your score';
 
   @override
-  String get coachDiscoverScore => 'See my score — 10 min';
+  String get coachDiscoverScore => 'Discover my score — 10 min';
 
   @override
   String get coachTrajectory => 'Your trajectory';
@@ -3379,8 +3379,8 @@ class SEn extends S {
   String get coachExplore => 'Explore';
 
   @override
-  String get coachDisclaimer =>
-      'Educational tool — answers do not constitute financial advice. FinSA.';
+  String get coachPulseDisclaimer =>
+      'Educational estimates — not financial advice. Past returns do not predict future returns. Consult a specialist for a personalized plan. FinSA.';
 
   @override
   String get eduTheme3aTitle => 'Pillar 3a';
@@ -3502,7 +3502,7 @@ class SEn extends S {
 
   @override
   String get eduHubSubtitle =>
-      'Pick a topic. The essentials in plain terms, one concrete action at the end.';
+      'Don\'t panic. Pick a topic, we\'ll explain the essentials and give you a simple action.';
 
   @override
   String get eduHubReadQuiz => 'Read + quiz • 2 min';
@@ -3607,11 +3607,11 @@ class SEn extends S {
   String get trajectoryTauxRemplacement => 'Estimated replacement rate: ';
 
   @override
-  String get trajectoryEmpty => 'No projection yet';
+  String get trajectoryEmpty => 'No projection available yet';
 
   @override
   String get trajectoryEmptySub =>
-      'Scan your pension certificate and everything lights up.';
+      'Complete your profile to see your trajectory';
 
   @override
   String get trajectoryDisclaimer =>
@@ -5649,7 +5649,7 @@ class SEn extends S {
   String get naissanceNbEnfants => 'Number of children';
 
   @override
-  String get naissanceRanking26 => '26 CANTONS RANKING';
+  String get naissanceRanking26 => 'ALLOWANCES BY CANTON';
 
   @override
   String naissanceBestCanton(String canton) {
@@ -8804,7 +8804,7 @@ class SEn extends S {
       'Scan your certificate to confirm';
 
   @override
-  String get pulseTitle => 'Pulse';
+  String get pulseTitle => 'Today';
 
   @override
   String pulseGreeting(String name) {
@@ -8817,7 +8817,7 @@ class SEn extends S {
   }
 
   @override
-  String get pulseWelcome => 'Welcome to MINT';
+  String get pulseWelcome => 'Let’s see where you stand.';
 
   @override
   String get pulseEmptyTitle => 'Start by filling in your profile!';
@@ -8894,6 +8894,11 @@ class SEn extends S {
 
   @override
   String get pulseKeyFigPatrimoine => 'Net worth';
+
+  @override
+  String pulseAmountPerMonth(String amount) {
+    return '$amount/mo';
+  }
 
   @override
   String pulseCoupleRetraite(String montant) {
@@ -9717,7 +9722,7 @@ class SEn extends S {
   String get drawerCeQueTuAurasSubtitle => 'Projected retirement income';
 
   @override
-  String get shellWelcomeBack => 'Welcome back! Your data is up to date.';
+  String get shellWelcomeBack => 'Back. Your numbers are up to date.';
 
   @override
   String get shellRecommendationsUpdated => 'Recommendations updated';
@@ -11440,6 +11445,46 @@ class SEn extends S {
   String get recapFhsStable => 'Score stable this week.';
 
   @override
+  String get recapTitle => 'Your weekly recap';
+
+  @override
+  String recapPeriod(String start, String end) {
+    return 'From $start to $end';
+  }
+
+  @override
+  String get recapBudgetTitle => 'Budget';
+
+  @override
+  String get recapBudgetSaved => 'Saved this week';
+
+  @override
+  String get recapBudgetRate => 'Savings rate';
+
+  @override
+  String get recapActionsTitle => 'Completed actions';
+
+  @override
+  String get recapActionsNone => 'No actions this week';
+
+  @override
+  String get recapProgressTitle => 'Progress';
+
+  @override
+  String recapProgressDelta(String delta) {
+    return '$delta confidence pts';
+  }
+
+  @override
+  String get recapHighlightsTitle => 'Highlights';
+
+  @override
+  String get recapNextFocusTitle => 'Next week';
+
+  @override
+  String get recapEmpty => 'No data yet this week';
+
+  @override
   String get decesProcheTitre => 'Death of a relative';
 
   @override
@@ -12088,7 +12133,7 @@ class SEn extends S {
   String get benchmarkAppBarTitle => 'Cantonal benchmarks';
 
   @override
-  String get benchmarkOptInTitle => 'Enable cantonal benchmarks';
+  String get benchmarkOptInTitle => 'Enable cantonal comparisons';
 
   @override
   String get benchmarkOptInSubtitle =>
@@ -12139,9 +12184,6 @@ class SEn extends S {
 
   @override
   String get tabPulse => 'Pulse';
-
-  @override
-  String get tabMint => 'Mint';
 
   @override
   String get authGateDocScanTitle => 'Secure your documents';
@@ -12564,17 +12606,17 @@ class SEn extends S {
 
   @override
   String coachGreetingSlm(String name) {
-    return 'Hi $name. Your questions stay on your device — nothing leaves. Ask away, let\'s look at your numbers together.';
+    return 'Hi $name. Everything stays on your device — nothing leaves. What’s on your mind ?';
   }
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Hi $name. Ask your question — I\'ll look at your numbers and share what I see.$scoreSuffix';
+    return 'Hi $name. I’m looking at your numbers — tell me what’s on your mind.$scoreSuffix';
   }
 
   @override
   String coachScoreSuffix(int score) {
-    return ' Your Fitness score is $score/100.';
+    return ' Your score: $score/100 — let’s see where it sticks.';
   }
 
   @override
@@ -12593,37 +12635,38 @@ class SEn extends S {
   String get coachErrorGeneric => 'Technical error. Try again later.';
 
   @override
-  String get coachErrorConnection => 'No connection. The tools are still here.';
+  String get coachErrorConnection =>
+      'Connection error. Check your internet connection or API key.';
 
   @override
-  String get coachSuggestSimulate3a => 'Simulate a 3a contribution';
+  String get coachSuggestSimulate3a => 'How much can I save with pillar 3a?';
 
   @override
-  String get coachSuggestView3a => 'View my 3a accounts';
+  String get coachSuggestView3a => 'Status of my 3a accounts';
 
   @override
-  String get coachSuggestSimulateLpp => 'Simulate an LPP buyback';
+  String get coachSuggestSimulateLpp => 'Calculate an LPP buyback';
 
   @override
-  String get coachSuggestUnderstandLpp => 'Understand LPP buyback';
+  String get coachSuggestUnderstandLpp => 'How does LPP buyback work?';
 
   @override
-  String get coachSuggestTrajectory => 'View my trajectory';
+  String get coachSuggestTrajectory => 'My trajectory to retirement';
 
   @override
-  String get coachSuggestScenarios => 'Explore scenarios';
+  String get coachSuggestScenarios => 'Pension or lump sum: which suits me?';
 
   @override
-  String get coachSuggestDeductions => 'Possible tax deductions';
+  String get coachSuggestDeductions => 'Where to cut my taxes this year?';
 
   @override
-  String get coachSuggestTaxImpact => 'Simulate tax impact';
+  String get coachSuggestTaxImpact => 'Calculate the tax saving';
 
   @override
-  String get coachSuggestFitness => 'My Fitness score';
+  String get coachSuggestFitness => 'My financial score in detail';
 
   @override
-  String get coachSuggestRetirement => 'My retirement trajectory';
+  String get coachSuggestRetirement => 'At 65, how much will I have?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -12663,13 +12706,17 @@ class SEn extends S {
   String get coachBadgeFallback => 'Offline';
 
   @override
-  String get coachLoading => 'Thinking...';
+  String get coachDisclaimer =>
+      'Educational tool — answers do not constitute financial advice (FinSA art. 3). Consult a specialist for important decisions.';
+
+  @override
+  String get coachLoading => 'Looking at your numbers…';
 
   @override
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'Ask your question...';
+  String get coachInputHint => 'A question about your finances?';
 
   @override
   String get coachTitle => 'MINT Coach';
@@ -12759,7 +12806,7 @@ class SEn extends S {
   }
 
   @override
-  String get tabCoach => 'Coach';
+  String get tabMint => 'Mint';
 
   @override
   String get pulseNarrativeRetirementClose =>
@@ -13191,10 +13238,10 @@ class SEn extends S {
   }
 
   @override
-  String get quickStartTitle => 'Three numbers, a first truth.';
+  String get quickStartTitle => 'Three questions, one first number.';
 
   @override
-  String get quickStartSubtitle => 'The rest will come later.';
+  String get quickStartSubtitle => 'The rest is up to you, when you\'re ready.';
 
   @override
   String get quickStartFirstName => 'Your first name';
@@ -13249,10 +13296,10 @@ class SEn extends S {
 
   @override
   String get quickStartDisclaimer =>
-      'Educational estimate based on your age, income and canton.';
+      'Educational estimate. Not financial advice (FinSA).';
 
   @override
-  String get quickStartCta => 'See what changes';
+  String get quickStartCta => 'See my overview';
 
   @override
   String get quickStartSectionIdentity => 'Identity & Household';
@@ -13270,28 +13317,6 @@ class SEn extends S {
   String quickStartSectionGuidance(String label) {
     return 'Section: $label — update your information below.';
   }
-
-  @override
-  String quickStartNarrative(String pct) {
-    return 'You keep ~$pct % of your standard of living.';
-  }
-
-  @override
-  String get quickStartNarrativeLow =>
-      'A first ballpark figure, to be refined.';
-
-  @override
-  String get quickStartCtaSecondary => 'I\'ll add more details later';
-
-  @override
-  String get quickStartConfidenceMsg =>
-      'Without an LPP certificate, this is a rough estimate.';
-
-  @override
-  String get quickStartHeroSecondaryLabel => 'today';
-
-  @override
-  String get quickStartHeroLabel => 'at retirement';
 
   @override
   String profileCompletionHint(int pct, String missing) {
@@ -17918,434 +17943,3023 @@ class SEn extends S {
       'The choice depends on your personal situation. Consult a notary for a complete analysis.';
 
   @override
-  String get landingHiddenAmount => 'CHF ····';
+  String get mortgageJourneyTitle => 'Home buying journey';
 
   @override
-  String get landingHiddenSubtitle => 'Your first number in 30 seconds';
+  String get mortgageJourneySubtitle =>
+      '7 steps from “can I afford it?” to “I signed!”';
 
   @override
-  String get renteVsCapitalV2Title => 'Annuity or lump sum.';
+  String get mortgageJourneyPrevious => 'Previous';
 
   @override
-  String get renteVsCapitalV2Subtitle => 'Same money. Two different lives.';
+  String get mortgageJourneyNextStep => 'Next step';
 
   @override
-  String get renteVsCapitalChoiceRenteSubtitle => 'More stable, less flexible';
+  String get mortgageJourneyComplete => '✅ Journey complete!';
 
   @override
-  String get renteVsCapitalChoiceCapitalSubtitle =>
-      'More freedom, more responsibility';
+  String get clause3aTitle => 'The forgotten 3a clause';
 
   @override
-  String get renteVsCapitalChoiceMixteSubtitle => 'A balance to build';
+  String get clause3aQuestion => 'Have you filed a beneficiary clause?';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow =>
-      'If you choose the annuity';
+  String get clause3aStepsTitle => 'How to file a clause in 5 minutes:';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'If you choose the lump sum';
-
-  @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'If you choose the mixed option';
-
-  @override
-  String get renteVsCapitalConsequenceRenteNarrative =>
-      'A fixed income every month, regardless of markets. In exchange, your capital is no longer yours.';
-
-  @override
-  String get renteVsCapitalConsequenceCapitalNarrative =>
-      'You manage your money freely, but it can run out. Every year counts.';
-
-  @override
-  String get renteVsCapitalConsequenceMixteNarrative =>
-      'The mandatory part as annuity for security, the supplementary part as lump sum for flexibility.';
-
-  @override
-  String get renteVsCapitalConsequenceMixteRenteLabel => 'Annuity (mandatory)';
-
-  @override
-  String get renteVsCapitalConsequenceMixteCapitalLabel =>
-      'Lump sum (supplementary)';
-
-  @override
-  String get renteVsCapitalSignalRevenu => 'Monthly income';
-
-  @override
-  String get renteVsCapitalSignalFiscalite => 'Cumulative taxation';
-
-  @override
-  String get renteVsCapitalSignalTransmission => 'Inheritance';
-
-  @override
-  String get renteVsCapitalConfidenceNoticeLow =>
-      'Without LPP certificate, this remains a rough estimate.';
-
-  @override
-  String get renteVsCapitalConfidenceNoticeHigh =>
-      'Complete data — reliable results.';
-
-  @override
-  String get renteVsCapitalConfidenceCta => 'Refine my data';
-
-  @override
-  String get renteVsCapitalFastEstimateTitle => 'Make a first estimate';
-
-  @override
-  String get renteVsCapitalCtaCompare => 'Compare for me';
-
-  @override
-  String get renteVsCapitalAdvancedDisclosure => 'I have my LPP certificate';
-
-  @override
-  String get renteVsCapitalPerMonthForLife => '/month, for life';
-
-  @override
-  String get renteVsCapitalNetAfterTax => 'net after tax';
-
-  @override
-  String get renteVsCapitalTransmissionRenteMarried => '60% to spouse';
-
-  @override
-  String get renteVsCapitalTransmissionRenteSingle => 'Nothing to heirs';
-
-  @override
-  String get renteVsCapitalTransmissionCapitalValue => '100% to heirs';
-
-  @override
-  String get quickStartAgeTitle => 'How old are you?';
-
-  @override
-  String get quickStartAgeSubtitle => 'Let’s start here.';
-
-  @override
-  String get quickStartRevenueTitle => 'Your gross annual income?';
-
-  @override
-  String get quickStartRevenueSubtitle => 'Even a rough figure is fine.';
-
-  @override
-  String get quickStartCantonTitle => 'Where do you live?';
-
-  @override
-  String get quickStartCantonSubtitle => 'Your canton changes a lot.';
-
-  @override
-  String get quickStartNext => 'Next';
-
-  @override
-  String get quickStartResultConfidence =>
-      'Estimate based on 3 inputs. The coach will refine.';
-
-  @override
-  String get quickStartCtaCoach => 'Talk to the coach';
-
-  @override
-  String get quickStartCtaExplore => 'Explore first';
-
-  @override
-  String get lightningMenuTitle => 'What do you want to explore?';
-
-  @override
-  String get lightningMenuSubtitle => 'MINT calculates, you decide.';
-
-  @override
-  String get lightningMenuRetirementTitle => 'My retirement overview';
-
-  @override
-  String get lightningMenuRetirementSubtitle =>
-      'How much you\'ll keep at retirement';
-
-  @override
-  String get lightningMenuRetirementAction => 'How much at retirement?';
-
-  @override
-  String get lightningMenuBudgetTitle => 'My budget';
-
-  @override
-  String get lightningMenuBudgetSubtitle => 'Where your money goes this month';
-
-  @override
-  String get lightningMenuBudgetAction => 'My budget this month';
-
-  @override
-  String get lightningMenuRenteCapitalTitle => 'Annuity or capital?';
-
-  @override
-  String get lightningMenuRenteCapitalSubtitle => 'Compare both scenarios';
-
-  @override
-  String get lightningMenuRenteCapitalAction => 'Annuity or capital?';
-
-  @override
-  String get lightningMenuScoreTitle => 'My fitness score';
-
-  @override
-  String get lightningMenuScoreSubtitle => 'Your financial health at a glance';
-
-  @override
-  String get lightningMenuScoreAction => 'My financial score';
-
-  @override
-  String get lightningMenuCoupleTitle => 'Our situation as a couple';
-
-  @override
-  String get lightningMenuCoupleSubtitle => 'Pension and assets together';
-
-  @override
-  String get lightningMenuCoupleAction => 'Our couple pension plan';
-
-  @override
-  String get lightningMenuDebtTitle => 'Get out of debt';
-
-  @override
-  String get lightningMenuDebtSubtitle => 'A plan to reduce your charges';
-
-  @override
-  String get lightningMenuDebtAction => 'How to reduce my debt?';
-
-  @override
-  String get lightningMenuIndependantTitle => 'My safety net';
-
-  @override
-  String get lightningMenuIndependantSubtitle =>
-      'Coverage and protection as self-employed';
-
-  @override
-  String get lightningMenuIndependantAction => 'My self-employed coverage';
-
-  @override
-  String get lightningMenuRetirementPrepTitle => 'Prepare my retirement';
-
-  @override
-  String get lightningMenuRetirementPrepSubtitle =>
-      'The last years count double';
-
-  @override
-  String get lightningMenuRetirementPrepAction => 'My retirement plan';
-
-  @override
-  String get trajectoryGoalSectionTitle => 'Your goal';
-
-  @override
-  String get trajectoryGoalRetraite => 'Retirement at 65';
-
-  @override
-  String get trajectoryGoalAchatImmo => 'Real estate purchase';
-
-  @override
-  String get trajectoryGoalIndependance => 'Financial independence';
-
-  @override
-  String get trajectoryGoalDebtFree => 'Debt freedom';
-
-  @override
-  String trajectoryGoalHorizon(int years) {
-    return 'Horizon: $years years';
+  String clause3aFeedbackOk(String partner) {
+    return 'Great! Check that the clause names $partner — and that it’s up to date after each life event.';
   }
 
   @override
-  String trajectoryGoalTarget(String amount) {
-    return 'Target: $amount';
+  String get clause3aFeedbackNok =>
+      'Priority action: file your beneficiary clause with your 3a foundation — in 5 minutes.';
+
+  @override
+  String get fiscalSuperpowerTitle => 'The tax superpower';
+
+  @override
+  String get fiscalSuperpowerSubtitle =>
+      'The state gives you money back for having a child.';
+
+  @override
+  String get fiscalSuperpowerTaxBenefits => 'Your tax benefits';
+
+  @override
+  String get babyCostTitle => 'The cost of happiness';
+
+  @override
+  String get babyCostBreakdownTitle => 'Monthly breakdown';
+
+  @override
+  String get lifeEventSheetTitle => 'Something is happening to me';
+
+  @override
+  String get lifeEventSheetSubtitle =>
+      'Choose an event to see the financial impact';
+
+  @override
+  String get lifeEventSheetSectionFamille => 'Family';
+
+  @override
+  String get lifeEventSheetSectionPro => 'Professional';
+
+  @override
+  String get lifeEventSheetSectionPatrimoine => 'Wealth';
+
+  @override
+  String get lifeEventSheetSectionMobilite => 'Mobility';
+
+  @override
+  String get lifeEventSheetSectionSante => 'Health';
+
+  @override
+  String get lifeEventSheetSectionCrise => 'Crisis';
+
+  @override
+  String get lifeEventLabelMariage => 'Getting married';
+
+  @override
+  String get lifeEventLabelDivorce => 'Going through a divorce';
+
+  @override
+  String get lifeEventLabelNaissance => 'Expecting a child';
+
+  @override
+  String get lifeEventLabelConcubinage => 'Living together';
+
+  @override
+  String get lifeEventLabelDeces => 'Death of a loved one';
+
+  @override
+  String get lifeEventLabelPremierEmploi => 'First job';
+
+  @override
+  String get lifeEventLabelNouveauJob => 'New job';
+
+  @override
+  String get lifeEventLabelIndependant => 'Going self-employed';
+
+  @override
+  String get lifeEventLabelPerteEmploi => 'Job loss';
+
+  @override
+  String get lifeEventLabelRetraite => 'Retiring';
+
+  @override
+  String get lifeEventLabelAchatImmo => 'Buying property';
+
+  @override
+  String get lifeEventLabelVenteImmo => 'Selling property';
+
+  @override
+  String get lifeEventLabelHeritage => 'Receiving an inheritance';
+
+  @override
+  String get lifeEventLabelDonation => 'Giving to my children';
+
+  @override
+  String get lifeEventLabelDemenagement => 'Moving cantons';
+
+  @override
+  String get lifeEventLabelExpatriation => 'Moving abroad';
+
+  @override
+  String get lifeEventLabelInvalidite => 'Am I well covered?';
+
+  @override
+  String get lifeEventLabelDettes => 'I have debts';
+
+  @override
+  String get lifeEventPromptMariage =>
+      'Getting married — what impact on my taxes, AVS and pension?';
+
+  @override
+  String get lifeEventPromptDivorce =>
+      'Divorcing — what happens to my LPP and taxes?';
+
+  @override
+  String get lifeEventPromptNaissance =>
+      'Expecting a child — what benefits and deductions are available?';
+
+  @override
+  String get lifeEventPromptConcubinage =>
+      'We’re not married — how do we protect each other if something goes wrong?';
+
+  @override
+  String get lifeEventPromptDeces =>
+      'Death of a loved one — what financial steps do I need to take?';
+
+  @override
+  String get lifeEventPromptPremierEmploi =>
+      'It’s my first job — what do I need to know about my pension and contributions?';
+
+  @override
+  String get lifeEventPromptNouveauJob =>
+      'Changing jobs — how to compare offers and manage my vested benefits?';
+
+  @override
+  String get lifeEventPromptIndependant =>
+      'Going self-employed — what pension options without LPP?';
+
+  @override
+  String get lifeEventPromptPerteEmploi =>
+      'I’ve lost my job — what unemployment benefits and for how long?';
+
+  @override
+  String get lifeEventPromptRetraite =>
+      'When can I retire and how much will I receive?';
+
+  @override
+  String get lifeEventPromptAchatImmo =>
+      'Can I buy property with my income and down payment?';
+
+  @override
+  String get lifeEventPromptVenteImmo =>
+      'Selling my property — what capital gains tax should I expect?';
+
+  @override
+  String get lifeEventPromptHeritage =>
+      'Receiving an inheritance — what are the tax consequences?';
+
+  @override
+  String get lifeEventPromptDonation =>
+      'Giving to my children — what tax impact and what limits?';
+
+  @override
+  String get lifeEventPromptDemenagement =>
+      'Moving cantons — what tax impact should I anticipate?';
+
+  @override
+  String get lifeEventPromptExpatriation =>
+      'Moving abroad — what to do with my AVS, LPP and 3a?';
+
+  @override
+  String get lifeEventPromptInvalidite =>
+      'Am I well covered in case of disability or accident?';
+
+  @override
+  String get lifeEventPromptDettes =>
+      'I have debts — how to manage them without touching my pension?';
+
+  @override
+  String compoundDisclaimerInflation(String inflation) {
+    return 'Educational assumptions (inflation $inflation %). Past performance does not guarantee future results.';
   }
 
   @override
-  String get trajectoryKnownSectionTitle => 'What MINT knows';
+  String get interactive3aDisclaimer =>
+      'Educational assumptions. Past performance does not guarantee future results.';
 
   @override
-  String get trajectoryFieldAge => 'Age';
+  String get milestoneContinueBtn => 'Continue';
 
   @override
-  String get trajectoryFieldAgeUnit => 'years';
+  String get slmAutoPromptTitle => 'On-device AI Coach';
 
   @override
-  String get trajectoryFieldRevenu => 'Gross income';
+  String get slmAutoPromptBody =>
+      'MINT can install an AI model directly on your phone for personalised advice — 100 % private, no data leaves your device.';
 
   @override
-  String get trajectoryFieldCanton => 'Canton';
+  String get slmAutoInstalledMsg =>
+      'AI Coach installed ! Your advice will be personalised.';
 
   @override
-  String get trajectoryFieldLpp => 'LPP balance';
+  String get slmInstallBtn => 'Install AI Coach';
 
   @override
-  String get trajectoryField3a => '3a savings';
+  String get slmLaterBtn => 'Later';
 
   @override
-  String get trajectoryFieldConjoint => 'Partner';
+  String get rcDisclaimer =>
+      'Educational tool — does not constitute financial advice (FinSA art. 3).';
 
   @override
-  String get trajectoryFieldIncomplete => 'To complete';
+  String rcPillar3aTitle(String year) {
+    return '3a contribution $year';
+  }
 
   @override
-  String get trajectoryFieldConjointYes => 'Yes';
+  String get rcPillar3aSubtitle => 'Estimated tax saving';
 
   @override
-  String get trajectoryFieldConjointNo => 'Not specified';
+  String rcPillar3aExplanation(String plafond) {
+    return 'Estimated tax saving if you contribute the cap of $plafond CHF';
+  }
 
   @override
-  String get trajectoryDecisionsSectionTitle => 'Your decisions';
+  String get rcPillar3aCtaLabel => 'Simulate my 3a';
 
   @override
-  String get trajectoryNextStepSectionTitle => 'Next step';
+  String get rcLppBuybackTitle => 'LPP buyback';
 
   @override
-  String get trajectoryNextStepBody =>
-      'The coach guides you towards this action.';
+  String get rcLppBuybackSubtitle => 'Available buyback potential';
 
   @override
-  String get trajectoryConfidenceSectionTitle => 'Confidence';
+  String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
+    return 'Buyback available. Estimated tax saving of $taxSaving CHF on $rachatSimule CHF';
+  }
 
   @override
-  String get trajectoryConfidenceLowMessage =>
-      'Your data is still partial — each additional piece of information refines your trajectory.';
+  String get rcLppBuybackCtaLabel => 'Simulate a buyback';
 
   @override
-  String get trajectoryConfidenceHighMessage =>
-      'Well-documented profile — your projections are reliable.';
+  String get rcReplacementRateTitle => 'Replacement rate';
 
   @override
-  String get trajectoryConfidenceCta => 'Improve precision';
+  String rcReplacementRateSubtitle(String age) {
+    return 'Projection at age $age';
+  }
 
   @override
-  String get settingsSheetTitle => 'Settings';
+  String rcReplacementRateExplanation(
+      String totalMonthly, String currentMonthly) {
+    return 'Estimated retirement income: $totalMonthly CHF/month vs $currentMonthly CHF/month today';
+  }
 
   @override
-  String get settingsConsentsTitle => 'Consents';
+  String get rcReplacementRateCtaLabel => 'Explore my scenarios';
 
   @override
-  String get settingsConsentsSubtitle => 'Privacy and data sharing';
+  String get rcReplacementRateAlerte =>
+      'Rate below the recommended 60 % threshold. Explore your options.';
 
   @override
-  String get settingsSlmTitle => 'On-device AI';
+  String get rcAvsGapTitle => 'AVS gap';
 
   @override
-  String get settingsSlmSubtitle => 'Runs on your device, even offline';
+  String rcAvsGapSubtitle(String lacunes) {
+    return '$lacunes missing contribution years';
+  }
 
   @override
-  String get settingsByokTitle => 'Personal AI key';
+  String get rcAvsGapExplanation =>
+      'Estimated reduction in your annual AVS pension due to gaps';
 
   @override
-  String get settingsByokSubtitle => 'Connect your own AI model';
+  String get rcAvsGapCtaLabel => 'View my AVS extract';
 
   @override
-  String get settingsLangueTitle => 'Language';
+  String get rcCoupleAlertTitle => 'Couple visibility gap';
 
   @override
-  String get settingsLangueSubtitle => 'Choose app language';
+  String rcCoupleAlertSubtitle(String name, String score) {
+    return '$name at $score %';
+  }
 
   @override
-  String get settingsAboutTitle => 'About';
+  String rcCoupleAlertExplanation(String gap) {
+    return 'Gap of $gap points between your two profiles. Balancing them improves the couple projection.';
+  }
 
   @override
-  String get settingsAboutSubtitle => 'Version, legal notices, contact';
+  String get rcCoupleAlertCtaLabel => 'Enrich the couple profile';
 
   @override
-  String get pulseLabelMonthlyGap => 'Monthly gap to close';
+  String get rcIndependantTitle => 'Self-employed pension';
 
   @override
-  String get pulseLabelRetirementFree => 'Free margin at retirement';
+  String get rcIndependantSubtitle =>
+      'Without LPP, your 3a is your main pension';
 
   @override
-  String get pulseLabelMonthlyFree => 'Monthly free margin';
+  String rcIndependantExplanation(String max3a, String current3a) {
+    return '3a cap without LPP: $max3a CHF/yr. Current 3a capital: $current3a CHF';
+  }
 
   @override
-  String get budgetSnapshotTitle => 'Your living budget';
+  String get rcIndependantCtaLabel => 'Explore my options';
 
   @override
-  String get budgetSnapshotPresentLabel => 'Free today';
+  String get rcTaxOptTitle => 'Tax optimisation';
 
   @override
-  String get budgetSnapshotRetirementLabel => 'Free at retirement';
+  String get rcTaxOptSubtitle => 'Estimated available deductions';
 
   @override
-  String get budgetSnapshotGapLabel => 'Gap';
+  String rcTaxOptExplanation(String plafond3a) {
+    return 'Estimated tax saving via 3a ($plafond3a CHF) + LPP buyback';
+  }
 
   @override
-  String get budgetSnapshotConfidenceLabel => 'Reliability';
+  String get rcTaxOptCtaLabel => 'Discover my deductions';
 
   @override
-  String get budgetSnapshotConfidenceLow => 'Add data to refine.';
+  String get rcPatrimoineTitle => 'Wealth';
 
   @override
-  String get budgetSnapshotConfidenceOk => 'Credible estimate.';
+  String get rcPatrimoineSubtitleLow => 'Insufficient safety cushion';
 
   @override
-  String get budgetSnapshotLeverLabel => 'Lever';
+  String get rcPatrimoineSubtitleOk => 'Overview';
 
   @override
-  String get budgetSnapshotFreeLabel => 'Your monthly free';
+  String rcPatrimoineExplanationLow(String epargne, String coussinMin) {
+    return 'Liquid savings ($epargne CHF) below 3 months of expenses ($coussinMin CHF)';
+  }
 
   @override
-  String get lightningMenuPayslipTitle => 'Understand my payslip';
+  String rcPatrimoineExplanationOk(String epargne, String investissements) {
+    return 'Savings $epargne CHF + investments $investissements CHF';
+  }
 
   @override
-  String get lightningMenuPayslipSubtitle =>
-      'Gross, net, deductions: everything explained';
+  String get rcPatrimoineCtaLabelLow => 'Analyse my budget';
 
   @override
-  String get lightningMenuPayslipAction => 'Explain my payslip to me';
+  String get rcPatrimoineCtaLabelOk => 'View my wealth';
 
   @override
-  String get lightningMenuThreePillarsTitle => 'What are the 3 pillars?';
+  String rcPatrimoineAlerte(String coussinMin) {
+    return 'Recommended safety cushion: $coussinMin CHF (3 months of expenses)';
+  }
 
   @override
-  String get lightningMenuThreePillarsSubtitle =>
-      'The Swiss system in 2 minutes';
+  String get rcMortgageTitle => 'Mortgage';
 
   @override
-  String get lightningMenuThreePillarsAction => 'What are the 3 Swiss pillars?';
+  String rcMortgageSubtitle(String ltv) {
+    return 'LTV ratio: $ltv %';
+  }
 
   @override
-  String get lightningMenuScanDocTitle => 'Scan a document';
+  String rcMortgageExplanation(String propertyValue) {
+    return 'Mortgage balance. Property value: $propertyValue CHF';
+  }
 
   @override
-  String get lightningMenuScanDocSubtitle => 'LPP certificate, payslip, taxes';
+  String get rcMortgageCtaLabel => 'Simulate affordability';
 
   @override
-  String get lightningMenuFirstBudgetTitle => 'My first budget';
+  String get rcCtaDetail => 'See details →';
 
   @override
-  String get lightningMenuFirstBudgetSubtitle =>
-      'Know where your money goes each month';
+  String get rcLibrePassageTitle => 'Vested benefits';
 
   @override
-  String get lightningMenuFirstBudgetAction => 'Help me set up my budget';
+  String get rcLibrePassageSubtitle =>
+      'What to do with your vested benefits account?';
 
   @override
-  String get lightningMenuTaxReliefTitle => 'Where to reduce my taxes';
+  String get rcRenteVsCapitalTitle => 'Pension vs Lump sum';
 
   @override
-  String get lightningMenuTaxReliefSubtitle => 'Deductions and tax levers';
+  String get rcRenteVsCapitalSubtitle =>
+      'Pension or lump sum: quantify both options';
 
   @override
-  String get lightningMenuTaxReliefAction => 'How to pay less taxes?';
+  String get rcFiscalComparatorTitle => 'Canton comparator';
 
   @override
-  String get lightningMenuCompleteProfileTitle => 'Complete my profile';
+  String get rcFiscalComparatorSubtitle => 'How much would you gain by moving?';
 
   @override
-  String get lightningMenuCompleteProfileSubtitle =>
-      'The more you add, the more accurate MINT gets';
+  String get rcStaggeredWithdrawalTitle => 'Staggered 3a withdrawal';
 
   @override
-  String get lightningMenuLppBuybackTitle => 'Buy back LPP';
+  String get rcStaggeredWithdrawalSubtitle =>
+      'Spread withdrawals to reduce tax';
 
   @override
-  String get lightningMenuLppBuybackSubtitle =>
-      'An often underestimated tax lever';
+  String get rcRealReturn3aTitle => 'Real 3a return';
 
   @override
-  String get lightningMenuLppBuybackAction => 'Is an LPP buyback worth it?';
+  String get rcRealReturn3aSubtitle => 'Return after fees, inflation and tax';
 
   @override
-  String get lightningMenuLivingBudgetTitle => 'My living budget';
+  String get rcComparator3aTitle => '3a comparator';
 
   @override
-  String get lightningMenuLivingBudgetSubtitle =>
-      'Your balance this month, updated';
+  String get rcComparator3aSubtitle => 'Compare 3a providers';
 
   @override
-  String get lightningMenuLivingBudgetAction => 'Where do I stand?';
+  String get rcRentVsBuyTitle => 'Rent or buy';
+
+  @override
+  String get rcRentVsBuySubtitle => 'Compare both scenarios over the long term';
+
+  @override
+  String get rcAmortizationTitle => 'Amortisation';
+
+  @override
+  String get rcAmortizationSubtitle => 'Direct vs indirect — what tax impact';
+
+  @override
+  String get rcImputedRentalTitle => 'Imputed rental value';
+
+  @override
+  String get rcImputedRentalSubtitle => 'Understanding housing taxation';
+
+  @override
+  String get rcSaronVsFixedTitle => 'SARON vs fixed rate';
+
+  @override
+  String get rcSaronVsFixedSubtitle => 'Which type of mortgage to choose';
+
+  @override
+  String get rcEplTitle => 'EPL withdrawal';
+
+  @override
+  String get rcEplSubtitle => 'Use your 2nd pillar for real estate';
+
+  @override
+  String get rcHousingSaleTitle => 'Property sale';
+
+  @override
+  String get rcHousingSaleSubtitle => 'Capital gains tax + reinvestment';
+
+  @override
+  String get rcMariageTitle => 'Impact of marriage';
+
+  @override
+  String get rcMariageSubtitle => 'Tax, AVS, LPP, succession';
+
+  @override
+  String get rcDivorceTitle => 'Divorce simulator';
+
+  @override
+  String get rcDivorceSubtitle => 'LPP split, alimony, taxes';
+
+  @override
+  String get rcNaissanceTitle => 'Impact of a new child';
+
+  @override
+  String get rcNaissanceSubtitle => 'Allowances, deductions, budget';
+
+  @override
+  String get rcConcubinageTitle => 'Cohabitation protection';
+
+  @override
+  String get rcConcubinageSubtitle => 'Rights, risks and solutions';
+
+  @override
+  String get rcSuccessionTitle => 'Succession';
+
+  @override
+  String get rcSuccessionSubtitle => 'Simulate wealth transfer';
+
+  @override
+  String get rcDonationTitle => 'Gift';
+
+  @override
+  String get rcDonationSubtitle => 'Tax impact of a gift';
+
+  @override
+  String get rcUnemploymentTitle => 'Job loss';
+
+  @override
+  String get rcUnemploymentSubtitle => 'Benefits, duration, steps';
+
+  @override
+  String get rcFirstJobTitle => 'First job';
+
+  @override
+  String get rcFirstJobSubtitle => 'Understand everything from the start';
+
+  @override
+  String get rcExpatriationTitle => 'Expatriation';
+
+  @override
+  String get rcExpatriationSubtitle => 'Impact on AVS, LPP, 3a and taxes';
+
+  @override
+  String get rcFrontalierTitle => 'Cross-border worker';
+
+  @override
+  String get rcFrontalierSubtitle => 'Withholding tax and specifics';
+
+  @override
+  String get rcJobComparisonTitle => 'Job offer comparator';
+
+  @override
+  String get rcJobComparisonSubtitle =>
+      'Net + pension: which offer is really worth more?';
+
+  @override
+  String get rcDividendeVsSalaireTitle => 'Dividend vs Salary';
+
+  @override
+  String get rcDividendeVsSalaireSubtitle => 'Optimise remuneration in GmbH/AG';
+
+  @override
+  String get rcLamalFranchiseTitle => 'LAMal deductible';
+
+  @override
+  String get rcLamalFranchiseSubtitle => 'Which deductible to choose?';
+
+  @override
+  String get rcCoverageCheckTitle => 'Coverage check';
+
+  @override
+  String get rcCoverageCheckSubtitle => 'Verify your coverage';
+
+  @override
+  String get rcDisabilityTitle => 'Disability — income gap';
+
+  @override
+  String get rcDisabilitySubtitle =>
+      'Gap between current income and AI/LPP benefits';
+
+  @override
+  String get rcGenderGapTitle => 'Gender gap';
+
+  @override
+  String get rcGenderGapSubtitle => 'Impact of part-time work on retirement';
+
+  @override
+  String get rcBudgetTitle => 'Budget';
+
+  @override
+  String get rcBudgetSubtitle => 'How much is left at the end of the month?';
+
+  @override
+  String get rcDebtRatioTitle => 'Debt ratio';
+
+  @override
+  String get rcDebtRatioSubtitle =>
+      'At what threshold does debt become dangerous?';
+
+  @override
+  String get rcCompoundInterestTitle => 'Compound interest';
+
+  @override
+  String get rcCompoundInterestSubtitle =>
+      'Simulate the growth of your savings';
+
+  @override
+  String get rcLeasingTitle => 'Leasing simulator';
+
+  @override
+  String get rcLeasingSubtitle => 'True cost of a car lease';
+
+  @override
+  String get rcConsumerCreditTitle => 'Consumer credit';
+
+  @override
+  String get rcConsumerCreditSubtitle => 'Total cost of a consumer loan';
+
+  @override
+  String get rcAllocationAnnuelleTitle => 'Annual allocation';
+
+  @override
+  String get rcAllocationAnnuelleSubtitle =>
+      'Where to put your savings this year';
+
+  @override
+  String get rcSuggestedPrompt50PlusRetirement =>
+      'When does retirement become viable?';
+
+  @override
+  String get rcSuggestedPromptRenteOuCapital =>
+      'Pension or lump sum: which gives me more freedom?';
+
+  @override
+  String get rcSuggestedPromptRachatLpp =>
+      'What is an LPP buyback worth in my case?';
+
+  @override
+  String get rcSuggestedPromptAllegerImpots =>
+      'Where can I reduce my taxes this year?';
+
+  @override
+  String get rcSuggestedPromptVersement3a =>
+      'How much should I contribute to 3a this year?';
+
+  @override
+  String get nudgeSalaryBody =>
+      'Have you thought about your 3a transfer this month? Every month counts for your retirement savings.';
+
+  @override
+  String get nudgeTaxDeadlineTitle => 'Tax filing deadline';
+
+  @override
+  String get nudgeTaxDeadlineBody =>
+      'Check the tax filing deadline in your canton. Have you reviewed your 3a and LPP deductions?';
+
+  @override
+  String get nudge3aDeadlineTitle => 'Final stretch for your 3a';
+
+  @override
+  String nudge3aDeadlineBody(String days, String limit, String year) {
+    return '$days day(s) left to contribute up to $limit CHF and reduce your $year taxes.';
+  }
+
+  @override
+  String get nudgeBirthdayBody =>
+      'A milestone that could shape your retirement planning. Have you simulated the impact of this year?';
+
+  @override
+  String get nudgeProfileTitle => 'Your profile deserves to be enriched';
+
+  @override
+  String get nudgeProfileBody =>
+      'The more complete your profile, the more relevant insights MINT can offer. Just a few details needed.';
+
+  @override
+  String get nudgeInactiveTitle => 'It has been a while!';
+
+  @override
+  String get nudgeInactiveBody =>
+      'Your financial situation evolves every week. Take 2 minutes to check your dashboard.';
+
+  @override
+  String get nudgeGoalProgressTitle => 'Your goal is progressing!';
+
+  @override
+  String nudgeGoalProgressBody(String progress) {
+    return 'You have reached $progress% of your goal. Keep going!';
+  }
+
+  @override
+  String get nudgeAnniversaryBody =>
+      'You have been using MINT for a year. It is the perfect time to update your profile and measure your progress.';
+
+  @override
+  String get nudgeLppBuybackTitle => 'LPP buyback window';
+
+  @override
+  String nudgeLppBuybackBody(String year) {
+    return 'The end of $year is approaching: this is the last chance to make a tax-deductible LPP buyback.';
+  }
+
+  @override
+  String get nudgeNewYearTitle => 'New year, fresh start!';
+
+  @override
+  String nudgeNewYearBody(String year) {
+    return '$year: a new 3a envelope opens. A good time to plan your contributions.';
+  }
+
+  @override
+  String get rcSuggestedPromptCommencer3a => 'Why start 3a now?';
+
+  @override
+  String get rcSuggestedPrompt2ePilier =>
+      'What does the 2nd pillar actually do?';
+
+  @override
+  String get rcSuggestedPromptIndependant =>
+      'Self-employed: what do I need to rebuild?';
+
+  @override
+  String get rcSuggestedPromptCouple =>
+      'Where does our couple pension fall short?';
+
+  @override
+  String get rcSuggestedPromptFatca => 'FATCA: what does it change for my 3a?';
+
+  @override
+  String get rcUnitPts => 'pts';
+
+  @override
+  String get routeSuggestionCta => 'Open';
+
+  @override
+  String get routeSuggestionPartialWarning => 'Estimate — incomplete data';
+
+  @override
+  String get routeSuggestionBlocked =>
+      'I need a bit more info to take you there';
+
+  @override
+  String get routeReturnAcknowledge =>
+      'Welcome back! If you adjusted any data, just tell me and I\'ll recalculate.';
+
+  @override
+  String get routeReturnCompleted => 'Noted. Your data is up to date.';
+
+  @override
+  String get routeReturnAbandoned =>
+      'No worries — we can come back to it whenever you like.';
+
+  @override
+  String get routeReturnChanged =>
+      'Your figures have changed. I\'m recalculating the trajectory.';
+
+  @override
+  String get hypothesisEditorTitle => 'Simulation assumptions';
+
+  @override
+  String get hypothesisEditorSubtitle =>
+      'Adjust the parameters to see the impact on projections.';
+
+  @override
+  String get lifecyclePhaseDemarrage => 'Getting started';
+
+  @override
+  String get lifecyclePhaseDemarrageDesc =>
+      'First steps in working life: budget, 3a and good financial habits.';
+
+  @override
+  String get lifecyclePhaseConstruction => 'Building';
+
+  @override
+  String get lifecyclePhaseConstructionDesc =>
+      'Career acceleration, savings, first home, family planning.';
+
+  @override
+  String get lifecyclePhaseAcceleration => 'Accelerating';
+
+  @override
+  String get lifecyclePhaseAccelerationDesc =>
+      'Peak earning phase: LPP optimization, tax strategy and wealth growth.';
+
+  @override
+  String get lifecyclePhaseConsolidation => 'Consolidating';
+
+  @override
+  String get lifecyclePhaseConsolidationDesc =>
+      'Retirement preparation, LPP buyback, early estate planning.';
+
+  @override
+  String get lifecyclePhaseTransition => 'Transition';
+
+  @override
+  String get lifecyclePhaseTransitionDesc =>
+      'Pre-retirement decisions: pension vs. lump sum, withdrawal sequencing.';
+
+  @override
+  String get lifecyclePhaseRetraite => 'Retirement';
+
+  @override
+  String get lifecyclePhaseRetraiteDesc =>
+      'Living in retirement: budget adjustment, asset drawdown.';
+
+  @override
+  String get lifecyclePhaseTransmission => 'Estate planning';
+
+  @override
+  String get lifecyclePhaseTransmissionDesc =>
+      'Succession planning, donations and wealth transmission.';
+
+  @override
+  String get challengeWeeklyTitle => 'Challenge of the week';
+
+  @override
+  String get challengeCompleted => 'Challenge completed!';
+
+  @override
+  String challengeStreak(int count) {
+    return '$count consecutive weeks';
+  }
+
+  @override
+  String get challengeBudget01Title =>
+      'Check your 3 biggest expenses this week';
+
+  @override
+  String get challengeBudget01Desc =>
+      'Imagine knowing exactly where every franc goes: open your budget and spot the 3 highest categories this week. You might be surprised.';
+
+  @override
+  String get challengeBudget02Title =>
+      'Calculate your real monthly savings rate';
+
+  @override
+  String get challengeBudget02Desc =>
+      'Your savings rate is what\'s left after all expenses. Check whether it exceeds 10% of your net income.';
+
+  @override
+  String get challengeBudget03Title =>
+      'Compare your insurance costs with an alternative offer';
+
+  @override
+  String get challengeBudget03Desc =>
+      'Insurance premiums can vary by 30% between providers. Check whether you could save by switching.';
+
+  @override
+  String get challengeBudget04Title =>
+      'Analyse your fixed vs variable expenses';
+
+  @override
+  String get challengeBudget04Desc =>
+      'Separate fixed costs (rent, insurance) from variable ones (outings, leisure). This is the foundation for optimising your budget.';
+
+  @override
+  String get challengeBudget05Title => 'Check your debt ratio';
+
+  @override
+  String get challengeBudget05Desc =>
+      'Your debt ratio should not exceed 33% of gross income. Calculate it to see where you stand.';
+
+  @override
+  String get challengeBudget06Title => 'Simulate the real cost of your lease';
+
+  @override
+  String get challengeBudget06Desc =>
+      'A lease is more than the monthly payment: insurance, maintenance, residual value. Calculate the total cost.';
+
+  @override
+  String get challengeBudget07Title => 'Evaluate your emergency fund in months';
+
+  @override
+  String get challengeBudget07Desc =>
+      'How many months could you last without income? The ideal is 3 to 6 months of expenses.';
+
+  @override
+  String get challengeBudget08Title =>
+      'Check whether you could reduce your consumer credit';
+
+  @override
+  String get challengeBudget08Desc =>
+      'Consumer credit at 8-12% is very expensive. See if you can accelerate repayment or consolidate it.';
+
+  @override
+  String get challengeEpargne01Title => 'Set aside CHF 50 this week';
+
+  @override
+  String get challengeEpargne01Desc =>
+      'Even a small amount counts: CHF 50 per week is CHF 2,600 per year. The hardest part is starting.';
+
+  @override
+  String get challengeEpargne02Title => 'Check your 3a balance vs the ceiling';
+
+  @override
+  String get challengeEpargne02Desc =>
+      'The 3a ceiling for employees is CHF 7,258 per year. Check how much you have already contributed this year.';
+
+  @override
+  String get challengeEpargne03Title => 'Simulate an LPP buyback of CHF 5,000';
+
+  @override
+  String get challengeEpargne03Desc =>
+      'An LPP buyback is tax-deductible. Simulate the impact of a CHF 5,000 buyback on your pension and taxes.';
+
+  @override
+  String get challengeEpargne04Title =>
+      'Check whether you can still contribute to 3a this year';
+
+  @override
+  String get challengeEpargne04Desc =>
+      '3a contributions are annual: if you haven\'t reached the maximum yet, there may still be time.';
+
+  @override
+  String get challengeEpargne05Title =>
+      'Compare the returns on your 3a accounts';
+
+  @override
+  String get challengeEpargne05Desc =>
+      'Not all 3a accounts are equal. Compare your account returns with the simulator.';
+
+  @override
+  String get challengeEpargne06Title =>
+      'Calculate the real return on your 3a after inflation';
+
+  @override
+  String get challengeEpargne06Desc =>
+      'A 1% return with 1.5% inflation is a negative real return. Check your situation.';
+
+  @override
+  String get challengeEpargne07Title =>
+      'Simulate a staggered withdrawal from your 3a accounts';
+
+  @override
+  String get challengeEpargne07Desc =>
+      'Withdrawing your 3a over several years can reduce tax. Simulate the staggered withdrawal strategy.';
+
+  @override
+  String get challengeEpargne08Title =>
+      'Check whether you can contribute retroactively to 3a';
+
+  @override
+  String get challengeEpargne08Desc =>
+      'Since 2025, you can make up years without contributions. Check whether you are eligible for retroactive 3a.';
+
+  @override
+  String get challengeEpargne09Title =>
+      'Check your vested benefits if you changed employer';
+
+  @override
+  String get challengeEpargne09Desc =>
+      'When changing jobs, your LPP capital is transferred to a vested benefits account. Check that nothing was forgotten.';
+
+  @override
+  String get challengePrevoyance01Title => 'Request your AVS account extract';
+
+  @override
+  String get challengePrevoyance01Desc =>
+      'Your AVS extract shows your contribution years and estimated pension. Request it for free at lavs.ch.';
+
+  @override
+  String get challengePrevoyance02Title => 'Check your disability coverage';
+
+  @override
+  String get challengePrevoyance02Desc =>
+      'In case of disability, does your AI + LPP pension cover your expenses? Check the potential gap.';
+
+  @override
+  String get challengePrevoyance03Title =>
+      'Compare pension vs lump sum for your LPP';
+
+  @override
+  String get challengePrevoyance03Desc =>
+      'Lifetime pension or lump sum? Each option has its tax and flexibility advantages. Compare the scenarios.';
+
+  @override
+  String get challengePrevoyance04Title => 'Check your retirement projection';
+
+  @override
+  String get challengePrevoyance04Desc =>
+      'Imagine your retirement: AVS + LPP + 3a — how much will you really have? Check whether you\'re on the right track. Every year counts.';
+
+  @override
+  String get challengePrevoyance05Title =>
+      'Optimise your decumulation sequence';
+
+  @override
+  String get challengePrevoyance05Desc =>
+      'The order in which you withdraw from your pillars has a major tax impact. Simulate different sequences.';
+
+  @override
+  String get challengePrevoyance06Title => 'Check your AVS gaps';
+
+  @override
+  String get challengePrevoyance06Desc =>
+      'Each year without AVS contributions reduces your pension — the impact can be significant over the long term. Check for any gaps to fill.';
+
+  @override
+  String get challengePrevoyance07Title => 'Plan your succession';
+
+  @override
+  String get challengePrevoyance07Desc =>
+      'Who inherits what under Swiss law? Check the reserved shares and whether a will is needed.';
+
+  @override
+  String get challengePrevoyance08Title => 'Check your unemployment coverage';
+
+  @override
+  String get challengePrevoyance08Desc =>
+      'Losing your job is stressful. Knowing how much you would receive and for how long can reassure you. Simulate your situation.';
+
+  @override
+  String get challengePrevoyance09Title =>
+      'Check your disability coverage as self-employed';
+
+  @override
+  String get challengePrevoyance09Desc =>
+      'As self-employed, your AI coverage may be insufficient. Check whether a supplementary daily allowance insurance would be useful.';
+
+  @override
+  String get challengeFiscalite01Title => 'Estimate your 3a tax saving';
+
+  @override
+  String get challengeFiscalite01Desc =>
+      'Every franc contributed to 3a is deductible. Calculate how much you save in taxes this year.';
+
+  @override
+  String get challengeFiscalite02Title =>
+      'Check whether an LPP buyback would be deductible this year';
+
+  @override
+  String get challengeFiscalite02Desc =>
+      'LPP buybacks are deductible from taxable income. Check your buyback potential and the tax saving.';
+
+  @override
+  String get challengeFiscalite03Title =>
+      'Simulate the tax on a capital withdrawal';
+
+  @override
+  String get challengeFiscalite03Desc =>
+      'Capital withdrawals (LPP/3a) are taxed separately at a reduced rate. Simulate the tax for different amounts.';
+
+  @override
+  String get challengeFiscalite04Title =>
+      'Compare salary vs dividend if you are self-employed';
+
+  @override
+  String get challengeFiscalite04Desc =>
+      'The salary/dividend mix for your situation depends on your income and canton. Simulate both scenarios.';
+
+  @override
+  String get challengeFiscalite05Title =>
+      'Check the imputed rental value of your property';
+
+  @override
+  String get challengeFiscalite05Desc =>
+      'If you own property, the imputed rental value is added to your taxable income. Check whether it is correct.';
+
+  @override
+  String get challengeFiscalite06Title => 'Calculate your total tax burden';
+
+  @override
+  String get challengeFiscalite06Desc =>
+      'Federal + cantonal + communal tax: calculate your total tax burden as a percentage of your income.';
+
+  @override
+  String get challengeFiscalite07Title => 'Check your FATCA compliance';
+
+  @override
+  String get challengeFiscalite07Desc =>
+      'As a US citizen, your Swiss accounts are subject to FATCA. Check that your situation is in order.';
+
+  @override
+  String get challengeFiscalite08Title => 'Check your withholding tax';
+
+  @override
+  String get challengeFiscalite08Desc =>
+      'As a cross-border commuter, you are taxed at source. Check that the rate applied matches your situation.';
+
+  @override
+  String get challengePatrimoine01Title =>
+      'Calculate your mortgage borrowing capacity';
+
+  @override
+  String get challengePatrimoine01Desc =>
+      'Using the 1/3 rule, check how much you could borrow for a property purchase.';
+
+  @override
+  String get challengePatrimoine02Title =>
+      'Simulate SARON vs fixed rate for your mortgage';
+
+  @override
+  String get challengePatrimoine02Desc =>
+      'SARON (variable) or fixed rate? Simulate both scenarios over 10 years to see the difference.';
+
+  @override
+  String get challengePatrimoine03Title => 'Compare renting vs owning';
+
+  @override
+  String get challengePatrimoine03Desc =>
+      'Buying is not always better than renting. Compare both options over 20 years with the simulator.';
+
+  @override
+  String get challengePatrimoine04Title =>
+      'Simulate an EPL (early LPP withdrawal for housing)';
+
+  @override
+  String get challengePatrimoine04Desc =>
+      'You can use your 2nd pillar to finance your home. Simulate the impact on your retirement.';
+
+  @override
+  String get challengePatrimoine05Title =>
+      'Review your complete wealth balance sheet';
+
+  @override
+  String get challengePatrimoine05Desc =>
+      'Assets, liabilities, net worth: take stock of your overall financial situation. An important moment for perspective.';
+
+  @override
+  String get challengePatrimoine06Title =>
+      'Check your annual savings allocation';
+
+  @override
+  String get challengePatrimoine06Desc =>
+      'Between 3a, LPP buyback and mortgage amortisation, how should you distribute your savings this year? Each choice has a different tax impact.';
+
+  @override
+  String get challengePatrimoine07Title =>
+      'Simulate the impact of mortgage amortisation';
+
+  @override
+  String get challengePatrimoine07Desc =>
+      'Amortise directly or indirectly via 3a? Simulate both options and their tax impact.';
+
+  @override
+  String get challengePatrimoine08Title =>
+      'Simulate the effect of compound interest over 20 years';
+
+  @override
+  String get challengePatrimoine08Desc =>
+      'Even a small return creates a snowball effect. Simulate the growth of your savings over 20 years.';
+
+  @override
+  String get challengeEducation01Title =>
+      'Read the article on the 13th AVS pension';
+
+  @override
+  String get challengeEducation01Desc =>
+      'Since 2026, the 13th AVS pension increases your annual pension. Discover what this means concretely for you.';
+
+  @override
+  String get challengeEducation02Title =>
+      'Understand the difference between minimum and supra-mandatory conversion rates';
+
+  @override
+  String get challengeEducation02Desc =>
+      'The LPP conversion rate of 6.8% only applies to the minimum. Your fund may have a different rate for the supra-mandatory portion.';
+
+  @override
+  String get challengeEducation03Title => 'Discover how the 1st pillar works';
+
+  @override
+  String get challengeEducation03Desc =>
+      'The AVS is a pay-as-you-go system: working people fund retirees. Understand the basics of your future pension.';
+
+  @override
+  String get challengeEducation04Title => 'Understand the 3-pillar system';
+
+  @override
+  String get challengeEducation04Desc =>
+      'AVS + LPP + 3a: each pillar has its role. Understand how they complement each other for your retirement.';
+
+  @override
+  String get challengeEducation05Title =>
+      'Explore the concept of replacement rate';
+
+  @override
+  String get challengeEducation05Desc =>
+      'The replacement rate measures the ratio between your pension and your last salary. The common target is 60-80%.';
+
+  @override
+  String get challengeEducation06Title =>
+      'Understand LPP contributions by age bracket';
+
+  @override
+  String get challengeEducation06Desc =>
+      'LPP contributions increase with age: 7%, 10%, 15%, 18%. Check which bracket you are in.';
+
+  @override
+  String get challengeEducation07Title =>
+      'Discover the financial consequences of cohabitation';
+
+  @override
+  String get challengeEducation07Desc =>
+      'In cohabitation, you do not have the same inheritance rights as a married person. Check the necessary protections.';
+
+  @override
+  String get challengeEducation08Title =>
+      'Understand the impact of the gender gap on retirement';
+
+  @override
+  String get challengeEducation08Desc =>
+      'Women receive on average 37% less pension. Understand the causes and possible solutions.';
+
+  @override
+  String get challengeArchetypeEu01Title =>
+      'Check your EU contribution years for AVS';
+
+  @override
+  String get challengeArchetypeEu01Desc =>
+      'Thanks to bilateral agreements, your years contributed in the EU count towards your Swiss AVS pension. Request an E205 certificate to verify the totalisation.';
+
+  @override
+  String get challengeArchetypeNonEu01Title =>
+      'Check whether a social security convention covers your country';
+
+  @override
+  String get challengeArchetypeNonEu01Desc =>
+      'Without a bilateral agreement, your foreign contributions do not count for AVS. Check whether your home country has an agreement with Switzerland.';
+
+  @override
+  String get challengeArchetypeReturning01Title =>
+      'Check your LPP buyback potential after returning to Switzerland';
+
+  @override
+  String get challengeArchetypeReturning01Desc =>
+      'Back in Switzerland after a stay abroad? You may have significant LPP buyback potential, tax-deductible. Simulate the amount.';
+
+  @override
+  String get voiceMicLabel => 'Speak to microphone';
+
+  @override
+  String get voiceMicListening => 'Listening…';
+
+  @override
+  String get voiceMicProcessing => 'Processing…';
+
+  @override
+  String get voiceSpeakerLabel => 'Listen to response';
+
+  @override
+  String get voiceSpeakerStop => 'Stop reading';
+
+  @override
+  String get voiceUnavailable => 'Voice features not available on this device';
+
+  @override
+  String get voicePermissionNeeded => 'Allow microphone access to use voice';
+
+  @override
+  String get voiceNoSpeech => 'I didn’t hear anything. Try again.';
+
+  @override
+  String get voiceError => 'Voice error. Use the keyboard.';
+
+  @override
+  String get benchmarkTitle => 'Similar profiles in your canton';
+
+  @override
+  String get benchmarkSubtitle => 'Aggregated and anonymised data (FSO)';
+
+  @override
+  String get benchmarkOptInBody =>
+      'Compare your situation to your canton\'s medians. Anonymised data, never a ranking.';
+
+  @override
+  String get benchmarkOptInButton => 'Enable';
+
+  @override
+  String get benchmarkOptOutButton => 'Disable';
+
+  @override
+  String get benchmarkDisclaimer =>
+      'Aggregated FSO data — educational tool, not a ranking. Does not constitute advice (FinSA art. 3).';
+
+  @override
+  String benchmarkInsightIncome(String canton, String amount) {
+    return 'The median income in the canton of $canton is CHF $amount/year';
+  }
+
+  @override
+  String benchmarkInsightSavings(String rate) {
+    return 'A similar profile saves around $rate% of their income';
+  }
+
+  @override
+  String benchmarkInsightTax(String canton, String level) {
+    return 'The tax burden in $canton is $level compared to the Swiss average';
+  }
+
+  @override
+  String benchmarkInsightHousing(String amount) {
+    return 'The median rent for a 4-room flat is CHF $amount/month';
+  }
+
+  @override
+  String benchmarkInsight3a(String rate) {
+    return 'Around $rate% of workers contribute to pillar 3a';
+  }
+
+  @override
+  String benchmarkInsightLpp(String rate) {
+    return 'The LPP coverage rate is $rate%';
+  }
+
+  @override
+  String get benchmarkTaxLevelBelow => 'lower';
+
+  @override
+  String get benchmarkTaxLevelAverage => 'comparable';
+
+  @override
+  String get benchmarkTaxLevelAbove => 'higher';
+
+  @override
+  String get benchmarkNoDataCanton => 'Data not available for this canton';
+
+  @override
+  String get llmFailoverActive => 'Automatic failover enabled';
+
+  @override
+  String get llmProviderClaude => 'Claude (Anthropic)';
+
+  @override
+  String get llmProviderOpenai => 'GPT-4o (OpenAI)';
+
+  @override
+  String get llmProviderMistral => 'Mistral';
+
+  @override
+  String get llmProviderLocal => 'Local model';
+
+  @override
+  String get llmCircuitOpen => 'Service temporarily unavailable';
+
+  @override
+  String get llmAllProvidersDown =>
+      'All AI services are unavailable. Offline mode activated.';
+
+  @override
+  String get llmQualityGood => 'Response quality: good';
+
+  @override
+  String get llmQualityDegraded => 'Response quality: degraded';
+
+  @override
+  String get gamificationCommunityTitle => 'Monthly challenge';
+
+  @override
+  String get gamificationSeasonalTitle => 'Seasonal events';
+
+  @override
+  String get gamificationMilestonesTitle => 'Your achievements';
+
+  @override
+  String get gamificationOptInPrompt => 'Join community challenges';
+
+  @override
+  String get communityChallenge01Title => 'Prepare your tax return';
+
+  @override
+  String get communityChallenge01Desc =>
+      'January is the right time to gather your tax documents. Contact your canton to find out the deadline and required documents.';
+
+  @override
+  String get communityChallenge02Title => 'Identify your tax deductions';
+
+  @override
+  String get communityChallenge02Desc =>
+      'Professional expenses, mortgage interest, donations: list all the deductions you’re entitled to before submitting your return.';
+
+  @override
+  String get communityChallenge03Title =>
+      'Check your pillar 3a contribution before the deadline';
+
+  @override
+  String get communityChallenge03Desc =>
+      'Some cantons allow you to complete the previous year’s pillar 3a contribution until March. Check your canton’s rules.';
+
+  @override
+  String get communityChallenge04Title => 'Review your LPP pension certificate';
+
+  @override
+  String get communityChallenge04Desc =>
+      'Your annual LPP certificate has arrived. Take 10 minutes to understand your assets, conversion rate and buyback potential.';
+
+  @override
+  String get communityChallenge05Title => 'Simulate an LPP buyback';
+
+  @override
+  String get communityChallenge05Desc =>
+      'An LPP buyback improves your retirement AND reduces your taxes. Calculate how much you could buy back and the tax impact in your canton.';
+
+  @override
+  String get communityChallenge06Title => 'Do your mid-year review';
+
+  @override
+  String get communityChallenge06Desc =>
+      '6 months have passed: review your financial goals, check if you’re on track and adjust if necessary.';
+
+  @override
+  String get communityChallenge07Title => 'Set your summer savings goal';
+
+  @override
+  String get communityChallenge07Desc =>
+      'Summer can impact your budget. Set a savings goal for July and track your progress until end of August.';
+
+  @override
+  String get communityChallenge08Title =>
+      'Build or strengthen your emergency fund';
+
+  @override
+  String get communityChallenge08Desc =>
+      'An emergency fund of 3 to 6 months of fixed expenses protects you from the unexpected. Check where you stand and plan the missing contributions.';
+
+  @override
+  String get communityChallenge09Title =>
+      'Schedule your autumn pillar 3a contribution';
+
+  @override
+  String get communityChallenge09Desc =>
+      'September is ideal for scheduling your next pillar 3a payment. Spreading contributions throughout the year reduces December deadline stress.';
+
+  @override
+  String get communityChallenge10Title => 'Celebrate retirement planning month';
+
+  @override
+  String get communityChallenge10Desc =>
+      'October is Switzerland’s official retirement planning month. Check your retirement projection and identify one concrete action to improve your situation.';
+
+  @override
+  String get communityChallenge11Title => 'Plan your year-end optimisations';
+
+  @override
+  String get communityChallenge11Desc =>
+      'A few weeks remain to act: pillar 3a contribution, charitable donation, expense declaration. Identify what you can still do before 31 December.';
+
+  @override
+  String get communityChallenge12Title =>
+      'Make your pillar 3a contribution before 31 December';
+
+  @override
+  String get communityChallenge12Desc =>
+      'The 3a deadline is approaching. Contribute up to CHF 7’258 (employed with LPP) before 31 December to benefit from this year’s tax deduction.';
+
+  @override
+  String get seasonalTaxSeasonTitle => 'Tax season';
+
+  @override
+  String get seasonalTaxSeasonDesc =>
+      'February–March: time to prepare your tax return. Gather your receipts and identify your deductions.';
+
+  @override
+  String get seasonal3aCountdownTitle => 'Pillar 3a countdown';
+
+  @override
+  String get seasonal3aCountdownDesc =>
+      'The 31 December deadline for pillar 3a contributions is approaching. Check your balance and plan your contribution to maximise your tax deduction.';
+
+  @override
+  String get seasonalNewYearResolutionsTitle => 'Financial resolutions';
+
+  @override
+  String get seasonalNewYearResolutionsDesc =>
+      'New year, new financial goals. Define 1 or 2 concrete actions you will take this year.';
+
+  @override
+  String get seasonalMidYearReviewTitle => 'Mid-year review';
+
+  @override
+  String get seasonalMidYearReviewDesc =>
+      'The 6-month mark has been reached. Take a moment to check your progress towards your goals and adjust if necessary.';
+
+  @override
+  String get seasonalRetirementMonthTitle => 'Retirement planning month';
+
+  @override
+  String get seasonalRetirementMonthDesc =>
+      'October is Switzerland’s national retirement planning month. Time to check your retirement projection and your replacement rate.';
+
+  @override
+  String get milestoneEngagementFirstWeekTitle => 'First week';
+
+  @override
+  String get milestoneEngagementFirstWeekDesc =>
+      'You’ve been using MINT for 7 days. Building habits starts here.';
+
+  @override
+  String get milestoneEngagementOneMonthTitle => 'One loyal month';
+
+  @override
+  String get milestoneEngagementOneMonthDesc =>
+      '30 days with MINT. Your financial curiosity is showing.';
+
+  @override
+  String get milestoneEngagementCitoyenTitle => 'MINT citizen';
+
+  @override
+  String get milestoneEngagementCitoyenDesc =>
+      '90 days: you’re among the people taking their financial future into their own hands.';
+
+  @override
+  String get milestoneEngagementFideleTitle => 'Loyal 6 months';
+
+  @override
+  String get milestoneEngagementFideleDesc =>
+      '180 days of financial tracking. Your consistency is building a clear picture of your situation.';
+
+  @override
+  String get milestoneEngagementVeteranTitle => 'MINT veteran';
+
+  @override
+  String get milestoneEngagementVeteranDesc =>
+      '365 days with MINT. A full year of financial awareness.';
+
+  @override
+  String get milestoneKnowledgeCurieuxTitle => 'Curious';
+
+  @override
+  String get milestoneKnowledgeCurieuxDesc =>
+      'You’ve explored 5 financial concepts. Knowledge is the starting point of every informed decision.';
+
+  @override
+  String get milestoneKnowledgeEclaireTitle => 'Informed';
+
+  @override
+  String get milestoneKnowledgeEclaireDesc =>
+      '20 insights read. You’re building a solid understanding of the Swiss financial system.';
+
+  @override
+  String get milestoneKnowledgeExpertTitle => 'Expert';
+
+  @override
+  String get milestoneKnowledgeExpertDesc =>
+      '50 concepts explored. You have a firm grasp of Swiss retirement fundamentals.';
+
+  @override
+  String get milestoneKnowledgeStrategisteTitle => 'Strategist';
+
+  @override
+  String get milestoneKnowledgeStrategisteDesc =>
+      '100 insights. You have a strategic long-term view of your finances.';
+
+  @override
+  String get milestoneKnowledgeMaitreTitle => 'Master';
+
+  @override
+  String get milestoneKnowledgeMaitreDesc =>
+      '200 concepts read. Your financial literacy is a real asset for your life decisions.';
+
+  @override
+  String get milestoneActionPremierPasTitle => 'First step';
+
+  @override
+  String get milestoneActionPremierPasDesc =>
+      'You’ve taken your first concrete financial action. Every big change starts with a first step.';
+
+  @override
+  String get milestoneActionActeurTitle => 'Actor';
+
+  @override
+  String get milestoneActionActeurDesc =>
+      '5 financial actions completed. You’re moving from thinking to doing.';
+
+  @override
+  String get milestoneActionMaitreDestinTitle => 'Master of your destiny';
+
+  @override
+  String get milestoneActionMaitreDestinDesc =>
+      '20 concrete actions. You’re actively managing your financial situation.';
+
+  @override
+  String get milestoneActionBatisseurTitle => 'Builder';
+
+  @override
+  String get milestoneActionBatisseurDesc =>
+      '50 financial actions. You’re patiently building a solid foundation.';
+
+  @override
+  String get milestoneActionArchitecteTitle => 'Architect';
+
+  @override
+  String get milestoneActionArchitecteDesc =>
+      '100 actions. You’re the architect of your financial freedom.';
+
+  @override
+  String get milestoneConsistencyFlammeNaissanteTitle => 'Rising flame';
+
+  @override
+  String get milestoneConsistencyFlammeNaissanteDesc =>
+      '2 consecutive weeks. Your consistency is taking shape.';
+
+  @override
+  String get milestoneConsistencyFlammeViveTitle => 'Living flame';
+
+  @override
+  String get milestoneConsistencyFlammeViveDesc =>
+      '4 weeks without interruption. Your financial discipline is underway.';
+
+  @override
+  String get milestoneConsistencyFlammeEtermelleTitle => 'Eternal flame';
+
+  @override
+  String get milestoneConsistencyFlammeEtermelleDesc =>
+      '12 consecutive weeks. Your consistency has become a habit.';
+
+  @override
+  String get milestoneConsistencyConfianceTitle => 'Trusted profile';
+
+  @override
+  String get milestoneConsistencyConfianceDesc =>
+      'Your profile has reached a confidence score of 70%. Your data enables reliable calculations.';
+
+  @override
+  String get milestoneConsistencyChallengesTitle => '6 challenges completed';
+
+  @override
+  String get milestoneConsistencyChallengesDesc =>
+      'You’ve completed 6 monthly challenges. Six months of concrete financial engagement.';
+
+  @override
+  String get rcSalaryLabel => 'Your income';
+
+  @override
+  String get rcAgeLabel => 'Your age';
+
+  @override
+  String get rcCantonLabel => 'Your canton';
+
+  @override
+  String get rcCivilStatusLabel => 'Your civil status';
+
+  @override
+  String get rcEmploymentStatusLabel => 'Your employment status';
+
+  @override
+  String get rcLppLabel => 'Your LPP data';
+
+  @override
+  String get expertTitle => 'Consult a specialist';
+
+  @override
+  String get expertSubtitle =>
+      'MINT prepares your dossier for an efficient appointment';
+
+  @override
+  String get expertDisclaimer =>
+      'MINT facilitates the connection — does not replace personalised advice (LSFin art. 3)';
+
+  @override
+  String get expertSpecRetirement => 'Retirement';
+
+  @override
+  String get expertSpecSuccession => 'Succession';
+
+  @override
+  String get expertSpecExpatriation => 'Expatriation';
+
+  @override
+  String get expertSpecDivorce => 'Divorce';
+
+  @override
+  String get expertSpecSelfEmployment => 'Self-employed';
+
+  @override
+  String get expertSpecRealEstate => 'Real estate';
+
+  @override
+  String get expertSpecTax => 'Taxation';
+
+  @override
+  String get expertSpecDebt => 'Debt management';
+
+  @override
+  String get expertDossierTitle => 'Your prepared dossier';
+
+  @override
+  String expertDossierIncomplete(int count) {
+    return 'Incomplete profile — $count data points missing';
+  }
+
+  @override
+  String get expertRequestSession => 'Request an appointment';
+
+  @override
+  String get expertSessionRequested => 'Request sent';
+
+  @override
+  String get expertMissingData =>
+      'Estimated value — to be confirmed with the specialist';
+
+  @override
+  String get expertDossierSectionSituation => 'Personal situation';
+
+  @override
+  String get expertDossierSectionPrevoyance => 'Pension provision';
+
+  @override
+  String get expertDossierSectionPatrimoine => 'Assets';
+
+  @override
+  String get expertDossierSectionFinancement => 'Financing';
+
+  @override
+  String get expertDossierSectionDeductions => 'Tax deductions';
+
+  @override
+  String get expertDossierSectionBudget => 'Budget & debts';
+
+  @override
+  String get expertItemAge => 'Age';
+
+  @override
+  String get expertItemSalaryRange => 'Gross annual income';
+
+  @override
+  String get expertItemCoupleStatus => 'Family situation';
+
+  @override
+  String get expertItemConjointAge => 'Partner\'s age';
+
+  @override
+  String get expertItemLppBalance => 'LPP balance';
+
+  @override
+  String get expertItem3aStatus => 'Pillar 3a';
+
+  @override
+  String get expertItem3aBalance => '3a capital';
+
+  @override
+  String get expertItemLppBuybackPotential => 'Possible LPP buyback';
+
+  @override
+  String get expertItemAvsYears => 'AVS contribution years';
+
+  @override
+  String get expertItemReplacementRate => 'Estimated replacement rate';
+
+  @override
+  String get expertItemFamilyStatus => 'Civil status';
+
+  @override
+  String get expertItemChildren => 'Children';
+
+  @override
+  String get expertItemPatrimoineRange => 'Estimated assets';
+
+  @override
+  String get expertItemPropertyStatus => 'Housing';
+
+  @override
+  String get expertItemPropertyValue => 'Property value';
+
+  @override
+  String get expertItemNationality => 'Nationality';
+
+  @override
+  String get expertItemArchetype => 'Tax profile';
+
+  @override
+  String get expertItemYearsInCh => 'Years in Switzerland';
+
+  @override
+  String get expertItemResidencePermit => 'Residence permit';
+
+  @override
+  String get expertItemAvsStatus => 'AVS status';
+
+  @override
+  String get expertItemAvsGaps => 'AVS gaps';
+
+  @override
+  String get expertItemCivilStatus => 'Civil status';
+
+  @override
+  String get expertItemConjointLpp => 'Partner\'s LPP';
+
+  @override
+  String get expertItemEmploymentStatus => 'Employment status';
+
+  @override
+  String get expertItemLppCoverage => 'LPP coverage';
+
+  @override
+  String get expertItemCanton => 'Canton';
+
+  @override
+  String get expertItemCurrentHousing => 'Current housing';
+
+  @override
+  String get expertItemEquityEstimate => 'Available equity';
+
+  @override
+  String get expertItemLppEpl => 'EPL possible';
+
+  @override
+  String get expertItemMortgageBalance => 'Outstanding mortgage';
+
+  @override
+  String get expertItemDebtRatio => 'Debt ratio';
+
+  @override
+  String get expertItemChargesVsIncome => 'Charges vs income';
+
+  @override
+  String get expertItemDebtType => 'Debt types';
+
+  @override
+  String get expertValueUnknown => 'Not provided';
+
+  @override
+  String get expertValueNone => 'None';
+
+  @override
+  String get expertValueOwner => 'Owner';
+
+  @override
+  String get expertValueTenant => 'Tenant';
+
+  @override
+  String get expertValueSingle => 'Single';
+
+  @override
+  String get expertValueMarried => 'Married';
+
+  @override
+  String get expertValueDivorced => 'Divorced';
+
+  @override
+  String get expertValueWidowed => 'Widowed';
+
+  @override
+  String get expertValueConcubinage => 'Cohabiting';
+
+  @override
+  String get expertValue3aActive => 'Active';
+
+  @override
+  String get expertValue3aInactive => 'Inactive';
+
+  @override
+  String get expertValueLppYes => 'Covered';
+
+  @override
+  String get expertValueLppNo => 'Not covered';
+
+  @override
+  String get expertValueLppEplPossible => 'Possible (to be verified)';
+
+  @override
+  String get expertValueDebtNone => 'No debts';
+
+  @override
+  String get expertValueDebtLow => 'Low (< 50 % of annual income)';
+
+  @override
+  String get expertValueDebtMedium => 'Moderate (50–100 % of annual income)';
+
+  @override
+  String get expertValueDebtHigh => 'High (> 100 % of annual income)';
+
+  @override
+  String get expertValueChargesNone => 'No debt charges';
+
+  @override
+  String get expertValueSalarie => 'Employee';
+
+  @override
+  String get expertValueIndependant => 'Self-employed';
+
+  @override
+  String get expertValueChomage => 'Unemployed';
+
+  @override
+  String get expertValueRetraite => 'Retired';
+
+  @override
+  String get expertDebtTypeConso => 'Consumer credit';
+
+  @override
+  String get expertDebtTypeLeasing => 'Leasing';
+
+  @override
+  String get expertDebtTypeHypo => 'Mortgage';
+
+  @override
+  String get expertDebtTypeAutre => 'Other debts';
+
+  @override
+  String get expertArchetypeSwissNative => 'Swiss resident';
+
+  @override
+  String get expertArchetypeExpatEu => 'EU/EFTA expat';
+
+  @override
+  String get expertArchetypeExpatNonEu => 'Non-EU expat';
+
+  @override
+  String get expertArchetypeExpatUs => 'US resident (FATCA)';
+
+  @override
+  String get expertArchetypeIndepWithLpp => 'Self-employed with LPP';
+
+  @override
+  String get expertArchetypeIndepNoLpp => 'Self-employed without LPP';
+
+  @override
+  String get expertArchetypeCrossBorder => 'Cross-border worker';
+
+  @override
+  String get expertArchetypeReturningSwiss => 'Returning Swiss';
+
+  @override
+  String get expertMissingLppBalance => 'LPP balance not provided';
+
+  @override
+  String get expertMissingAvsYears => 'AVS contribution years not provided';
+
+  @override
+  String get expertMissingLppBuyback => 'LPP buyback gap unknown';
+
+  @override
+  String get expertMissing3a => '3a capital not provided';
+
+  @override
+  String get expertMissingConjoint => 'Partner data missing';
+
+  @override
+  String get expertMissingPatrimoine => 'Assets not provided';
+
+  @override
+  String get expertMissingHousing => 'Housing situation unknown';
+
+  @override
+  String get expertMissingChildren => 'Number of children not provided';
+
+  @override
+  String get expertMissingNationality => 'Nationality not provided';
+
+  @override
+  String get expertMissingArrivalAge =>
+      'Age on arrival in Switzerland not provided';
+
+  @override
+  String get expertMissingPermit => 'Residence permit not provided';
+
+  @override
+  String get expertMissingConjointLpp => 'Partner LPP not provided';
+
+  @override
+  String get expertMissingIndependantStatus =>
+      'Self-employed status not confirmed';
+
+  @override
+  String get expertMissingLppCoverage => 'LPP coverage not provided';
+
+  @override
+  String get expertMissingCanton => 'Canton not provided';
+
+  @override
+  String get expertMissingEquity => 'Equity not provided';
+
+  @override
+  String get expertMissingHousingStatus => 'Housing status not provided';
+
+  @override
+  String get expertMissingDebtDetail => 'Debt detail missing';
+
+  @override
+  String get expertMissingMensualites => 'Monthly debt payments not provided';
+
+  @override
+  String get agentFormTitle => 'Pre-filled Form';
+
+  @override
+  String get agentFormDisclaimer =>
+      'Check each field before sending. MINT does not submit anything on your behalf.';
+
+  @override
+  String get agentFormValidateAll => 'I confirm I have reviewed';
+
+  @override
+  String get agentFormEstimated => 'Estimated — to confirm';
+
+  @override
+  String get agentLetterTitle => 'Prepared Letter';
+
+  @override
+  String get agentLetterDisclaimer =>
+      'Adapt and send yourself. MINT does not transmit anything.';
+
+  @override
+  String get agentLetterPensionSubject => 'Request for pension fund extract';
+
+  @override
+  String get agentLetterTransferSubject =>
+      'Request for vested benefits transfer';
+
+  @override
+  String get agentLetterAvsSubject =>
+      'Request for AVS individual account extract';
+
+  @override
+  String get agentLetterPlaceholderName => '[Your full name]';
+
+  @override
+  String get agentLetterPlaceholderAddress => '[Your address]';
+
+  @override
+  String get agentLetterPlaceholderSsn => '[Your AVS number]';
+
+  @override
+  String get agentLetterPlaceholderDate => '[Date]';
+
+  @override
+  String get agentTaxFormTitle => 'Tax Return — Pre-filling';
+
+  @override
+  String get agent3aFormTitle => 'Pillar 3a Certificate';
+
+  @override
+  String get agentLppFormTitle => 'LPP Buyback Form';
+
+  @override
+  String agentFieldSource(String source) {
+    return 'Source : $source';
+  }
+
+  @override
+  String get agentValidationRequired => 'Validation required before any use';
+
+  @override
+  String get agentOutputDisclaimer =>
+      'Educational tool — does not constitute financial, tax or legal advice. Verify each piece of information. Compliant with LSFin.';
+
+  @override
+  String get agentNoAction =>
+      'MINT does not automatically submit, transmit or execute anything.';
+
+  @override
+  String get agentSpecialistLabel => 'a qualified specialist';
+
+  @override
+  String get agentLppBuybackTitle => 'LPP Buyback Request';
+
+  @override
+  String get agentPensionFundSubject => 'Request for pension fund certificate';
+
+  @override
+  String get agentLppTransferSubject =>
+      'Request for pension transfer (vested benefits)';
+
+  @override
+  String get agentFormCantonFallback => '[canton]';
+
+  @override
+  String get agentFormRevenuBrut => 'Estimated gross income';
+
+  @override
+  String get agentFormCanton => 'Canton of residence';
+
+  @override
+  String get agentFormSituationFamiliale => 'Family situation';
+
+  @override
+  String get agentFormNbEnfants => 'Number of children';
+
+  @override
+  String get agentFormDeduction3a => 'Possible 3a deduction';
+
+  @override
+  String get agentFormRachatLppDeductible => 'Estimated deductible LPP buyback';
+
+  @override
+  String get agentFormStatutProfessionnel => 'Professional status';
+
+  @override
+  String get agentFormBeneficiaireNom => 'Beneficiary name';
+
+  @override
+  String get agentFormNumeroCompte3a => '3a account number';
+
+  @override
+  String agentFormMontantVersement(String plafond, String year) {
+    return '~$plafond CHF (ceiling $year)';
+  }
+
+  @override
+  String get agentFormMontantVersementLabel => 'Annual payment amount';
+
+  @override
+  String get agentFormTypeContrat => 'Contract type';
+
+  @override
+  String get agentFormTypeContratSalarie => 'Employee with LPP';
+
+  @override
+  String get agentFormTypeContratIndependant => 'Self-employed without LPP';
+
+  @override
+  String get agentFormToComplete => '[To be completed]';
+
+  @override
+  String get agentFormTitulaireNom => 'Account holder name';
+
+  @override
+  String get agentFormNumeroPolice => 'Policy number';
+
+  @override
+  String get agentFormAvoirLpp => 'Current LPP assets';
+
+  @override
+  String get agentFormRachatMax => 'Maximum buyback available';
+
+  @override
+  String get agentFormRachatsDeja => 'Buybacks already made';
+
+  @override
+  String get agentFormMontantRachatSouhaite => 'Desired buyback amount';
+
+  @override
+  String get agentFormToCompleteAupres => '[To be completed with the fund]';
+
+  @override
+  String agentFormToCompleteMax(String max) {
+    return '[To be entered — max $max CHF]';
+  }
+
+  @override
+  String get agentFormCivilCelibataire => 'Single';
+
+  @override
+  String get agentFormCivilMarie => 'Married';
+
+  @override
+  String get agentFormCivilDivorce => 'Divorced';
+
+  @override
+  String get agentFormCivilVeuf => 'Widowed';
+
+  @override
+  String get agentFormCivilConcubinage => 'Cohabiting';
+
+  @override
+  String get agentFormEmplSalarie => 'Employee';
+
+  @override
+  String get agentFormEmplIndependant => 'Self-employed';
+
+  @override
+  String get agentFormEmplChomage => 'Job-seeking';
+
+  @override
+  String get agentFormEmplRetraite => 'Retired';
+
+  @override
+  String get agentLetterCaisseFallback => '[Pension fund name]';
+
+  @override
+  String get agentLetterPostalCity => '[Postal code and city]';
+
+  @override
+  String get agentLetterCaisseAddress => '[Fund address]';
+
+  @override
+  String get agentLetterPoliceNumber => '[Policy number : To be completed]';
+
+  @override
+  String get agentLetterCaisseCurrentName => '[Current pension fund]';
+
+  @override
+  String get agentLetterCaisseCurrentAddress => '[Current fund address]';
+
+  @override
+  String get agentLetterToComplete => '[To be completed]';
+
+  @override
+  String get agentLetterAvsOrg => 'Competent AVS compensation office';
+
+  @override
+  String get agentLetterAvsAddress => '[Address]';
+
+  @override
+  String agentLetterPensionFundBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
+    return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI hereby wish to submit the following requests regarding my occupational pension file:\n\n1. Updated pension certificate $year (retirement assets, covered benefits, applicable conversion rate)\n\n2. Confirmation of my buyback capacity (maximum amount pursuant to Art. 79b LPP)\n\n3. Early retirement simulation (projection of assets and pension at 63 and 64, if applicable)\n\nThank you in advance for your diligence. I remain at your disposal for any further information.\n\nYours faithfully,\n\n$name\n$policeNumber';
+  }
+
+  @override
+  String agentLetterLppTransferBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
+    return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nDue to the termination of my employment / my departure from Switzerland (delete as applicable), I kindly request that you transfer my vested benefits.\n\nAmount to transfer: the full amount of my vested benefits at the date of departure.\n\nDestination institution:\nName: $toComplete\nIBAN or account number: $toComplete\nAddress: $toComplete\n\nDeparture date: $toComplete\n\nThank you for your diligence and please confirm the successful completion of this transfer.\n\nYours faithfully,\n\n$name';
+  }
+
+  @override
+  String agentLetterAvsExtractBody(
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
+    return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI kindly request that you send me an extract of my individual AVS account (CI) in order to verify my contribution record and identify any gaps.\n\nThank you in advance for your diligence.\n\nYours faithfully,\n\n$name';
+  }
+
+  @override
+  String get seasonalEventCta => 'Discuss with coach';
+
+  @override
+  String get communityChallengeCta => 'Take up the challenge';
+
+  @override
+  String get dossierExpertSectionTitle => 'Consult a specialist';
+
+  @override
+  String get expertPrepareDossierCta => 'Prepare my dossier';
+
+  @override
+  String get dossierAgentSectionTitle => 'Prepared documents';
+
+  @override
+  String get agentFormsTaxCta => 'Prepare my tax return';
+
+  @override
+  String get agentFormsTaxSubtitle => 'Pre-filled from your profile';
+
+  @override
+  String get agentFormsAvsCta => 'Request my AVS extract';
+
+  @override
+  String get agentFormsAvsSubtitle => 'Letter template ready to send';
+
+  @override
+  String get agentFormsLppCta => 'Request LPP transfer';
+
+  @override
+  String get agentFormsLppSubtitle => 'Vested benefits transfer letter';
+
+  @override
+  String get notifThreeATitle => '3a Deadline';
+
+  @override
+  String get notifThreeA92Days => '92 days left to contribute to your 3a.';
+
+  @override
+  String notifThreeA61Days(String saving) {
+    return '61 days left. Estimated savings: CHF $saving.';
+  }
+
+  @override
+  String notifThreeALastMonth(String saving) {
+    return 'Last month for your 3a. CHF $saving in savings at stake.';
+  }
+
+  @override
+  String get notifThreeA11Days => '11 days. Final 3a reminder.';
+
+  @override
+  String notifNewYearTitle(String year) {
+    return 'New limits $year';
+  }
+
+  @override
+  String notifNewYearBody(String year) {
+    return 'New limits $year. Your potential savings have changed.';
+  }
+
+  @override
+  String get notifCheckInTitle => 'Monthly check-in';
+
+  @override
+  String get notifCheckInBody => 'Your monthly check-in is available.';
+
+  @override
+  String get notifTaxTitle => 'Tax return';
+
+  @override
+  String get notifTax44Days =>
+      'Tax return due in 44 days. Start gathering your documents.';
+
+  @override
+  String get notifTax16Days =>
+      'Tax return due in 16 days. Start filling it in.';
+
+  @override
+  String get notifTaxLastWeek => 'Tax return due before 31 March. Last week.';
+
+  @override
+  String get notifFriTitle => 'Resilience score';
+
+  @override
+  String notifFriCheckIn(String delta) {
+    return 'Since your last check-in: $delta points.';
+  }
+
+  @override
+  String notifFriImproved(String delta) {
+    return 'Your resilience has improved by $delta points.';
+  }
+
+  @override
+  String get notifProfileUpdatedTitle => 'Profile updated';
+
+  @override
+  String get notifProfileUpdatedBody =>
+      'Your profile has been updated. New projections available.';
+
+  @override
+  String get notifOffTrackTitle => 'You are drifting from your plan';
+
+  @override
+  String notifOffTrackBody(String adherence, String total, String impact) {
+    return 'Adherence at $adherence% across $total actions. Linear estimate (excl. returns/tax): ~CHF $impact.';
+  }
+
+  @override
+  String get agentTaskTaxDeclarationTitle => 'Tax return pre-fill';
+
+  @override
+  String get agentTaskTaxDeclarationDesc =>
+      'Estimated main fields of your tax return based on your MINT profile. All amounts are approximate.';
+
+  @override
+  String get agentTaskThreeAFormTitle => '3a contribution form pre-fill';
+
+  @override
+  String get agentTaskThreeAFormDesc =>
+      'Basic details for a pillar 3 contribution. The limit is calculated based on your employment status.';
+
+  @override
+  String get agentTaskCaisseLetterTitle => 'Letter to pension fund';
+
+  @override
+  String get agentTaskCaisseLetterDesc =>
+      'Formal letter template to request an LPP certificate, buyback confirmation and early retirement simulation.';
+
+  @override
+  String get agentTaskFiscalDossierTitle => 'Tax dossier preparation';
+
+  @override
+  String get agentTaskFiscalDossierDesc =>
+      'Educational summary of your estimated tax situation with possible deductions and questions to ask a specialist.';
+
+  @override
+  String get agentTaskAvsExtractTitle => 'AVS extract request';
+
+  @override
+  String get agentTaskAvsExtractDesc =>
+      'Letter template to request an individual account extract (CI) from your AVS compensation fund.';
+
+  @override
+  String get agentTaskLppCertificateTitle => 'LPP certificate request';
+
+  @override
+  String get agentTaskLppCertificateDesc =>
+      'Letter template to request an updated occupational pension certificate from your pension fund.';
+
+  @override
+  String get agentTaskDisclaimer =>
+      'This tool is purely educational and does not constitute financial, tax or legal advice. Amounts shown are indicative estimates. Consult a qualified specialist before any decision. In accordance with LSFin.';
+
+  @override
+  String get agentTaskValidationPromptDefault =>
+      'Check each piece of information carefully before use. All fields are estimates to be confirmed.';
+
+  @override
+  String get agentTaskValidationPromptLetter =>
+      'Check the information and complete the fields in brackets before sending this letter.';
+
+  @override
+  String get agentTaskValidationPromptRequest =>
+      'Check the information and complete the fields in brackets before sending this request.';
+
+  @override
+  String agentFieldRevenuBrutValue(String range) {
+    return '~$range CHF/year';
+  }
+
+  @override
+  String agentFieldRachatLppValue(String range) {
+    return '~$range CHF';
+  }
+
+  @override
+  String get agentFieldAnneRef => 'Reference year';
+
+  @override
+  String get agentFieldCaissePension => 'Pension fund';
+
+  @override
+  String get agentFieldAddressPerso => 'Personal address';
+
+  @override
+  String get agentFieldAddresseCaisse => 'Pension fund address';
+
+  @override
+  String get agentFieldNumeroPolice => 'Policy number';
+
+  @override
+  String get agentFieldNumeroAvs => 'AVS number';
+
+  @override
+  String get agentFieldAddresseCaisseAvs => 'AVS fund address';
+
+  @override
+  String get agentFiscalDossierRevenu => 'Estimated gross income';
+
+  @override
+  String get agentFiscalDossierPlafond3a => 'Applicable 3a limit';
+
+  @override
+  String get agentFiscalDossierRachat => 'Available LPP buyback';
+
+  @override
+  String get agentFiscalDossierCapital3a => 'Accumulated 3a capital';
+
+  @override
+  String get proactiveLifecycleChange =>
+      'You have just entered a new life phase. Shall we look at what changes for you?';
+
+  @override
+  String get proactiveWeeklyRecap =>
+      'Your weekly recap is ready. Want to see it?';
+
+  @override
+  String proactiveGoalMilestone(String progress) {
+    return 'Your goal has passed $progress%. Well done!';
+  }
+
+  @override
+  String proactiveSeasonalReminder(String event) {
+    return 'It\'s the $event season. A good time to…';
+  }
+
+  @override
+  String proactiveInactivityReturn(String days) {
+    return 'Good to see you again! It\'s been $days days. Shall we catch up?';
+  }
+
+  @override
+  String proactiveConfidenceUp(String delta) {
+    return 'Your confidence score has improved by $delta pts since last time.';
+  }
+
+  @override
+  String get proactiveNewCap => 'I have a new priority for you.';
+
+  @override
+  String get dossierToolsSection => 'Tools';
+
+  @override
+  String get dossierToolsCta => 'See all tools';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'your monthly free budget:';
+
+  @override
+  String get pulseNarrativeHousingGoal => 'your estimated purchasing capacity:';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'your replacement rate:';
+
+  @override
+  String get pulseLabelBudgetFree => 'Free budget this month';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Estimated purchasing capacity';
+
+  @override
+  String capSequenceProgress(int completed, int total) {
+    return '$completed/$total steps';
+  }
+
+  @override
+  String get capSequenceComplete => 'Plan complete!';
+
+  @override
+  String get capSequenceCurrentStep => 'Next step';
+
+  @override
+  String get capStepRetirement01Title => 'Know your gross salary';
+
+  @override
+  String get capStepRetirement01Desc =>
+      'The basis for all retirement calculations.';
+
+  @override
+  String get capStepRetirement02Title => 'Estimate your AVS pension';
+
+  @override
+  String get capStepRetirement02Desc =>
+      'Your contribution years determine your 1st pillar.';
+
+  @override
+  String get capStepRetirement03Title => 'Check your LPP assets';
+
+  @override
+  String get capStepRetirement03Desc =>
+      'The LPP certificate reveals your 2nd pillar capital.';
+
+  @override
+  String get capStepRetirement04Title => 'Calculate your replacement rate';
+
+  @override
+  String get capStepRetirement04Desc =>
+      'How much of your salary will you receive at retirement.';
+
+  @override
+  String get capStepRetirement05Title => 'Simulate a 3a contribution';
+
+  @override
+  String get capStepRetirement05Desc =>
+      'Deduct up to CHF 7,258 and boost your retirement.';
+
+  @override
+  String get capStepRetirement06Title => 'Evaluate an LPP buyback';
+
+  @override
+  String get capStepRetirement06Desc => 'Fill gaps and reduce your taxes.';
+
+  @override
+  String get capStepRetirement07Title => 'Compare pension vs capital';
+
+  @override
+  String get capStepRetirement07Desc =>
+      'Monthly pension or capital withdrawal?';
+
+  @override
+  String get capStepRetirement08Title => 'Plan your drawdown';
+
+  @override
+  String get capStepRetirement08Desc =>
+      'Withdrawal order impacts your tax bill.';
+
+  @override
+  String get capStepRetirement09Title => 'Optimise tax';
+
+  @override
+  String get capStepRetirement09Desc =>
+      '3a, buyback, timing: reduce capital taxation.';
+
+  @override
+  String get capStepRetirement10Title => 'Consult a specialist';
+
+  @override
+  String get capStepRetirement10Desc =>
+      'Expert review of your complete situation.';
+
+  @override
+  String get capStepBudget01Title => 'Know your income';
+
+  @override
+  String get capStepBudget01Desc => 'The starting point of any budget review.';
+
+  @override
+  String get capStepBudget02Title => 'List your fixed expenses';
+
+  @override
+  String get capStepBudget02Desc =>
+      'Rent, health insurance, transport: the unavoidables.';
+
+  @override
+  String get capStepBudget03Title => 'Calculate your free margin';
+
+  @override
+  String get capStepBudget03Desc =>
+      'What remains after expenses — your real playground.';
+
+  @override
+  String get capStepBudget04Title => 'Identify possible savings';
+
+  @override
+  String get capStepBudget04Desc => 'Small adjustments, big monthly impact.';
+
+  @override
+  String get capStepBudget05Title => 'Build a precautionary savings';
+
+  @override
+  String get capStepBudget05Desc =>
+      '3 months of liquid expenses: your safety net.';
+
+  @override
+  String get capStepBudget06Title => 'Plan your 3a';
+
+  @override
+  String get capStepBudget06Desc =>
+      'Every franc contributed reduces taxes and prepares retirement.';
+
+  @override
+  String get capStepHousing01Title => 'Know your income';
+
+  @override
+  String get capStepHousing01Desc =>
+      'The basis for the purchasing capacity calculation.';
+
+  @override
+  String get capStepHousing02Title => 'Evaluate your own funds';
+
+  @override
+  String get capStepHousing02Desc =>
+      'Savings, 3a and LPP: assembling the required down payment.';
+
+  @override
+  String get capStepHousing03Title => 'Calculate your purchasing capacity';
+
+  @override
+  String get capStepHousing03Desc => 'Up to what price can you buy?';
+
+  @override
+  String get capStepHousing04Title => 'Simulate the mortgage';
+
+  @override
+  String get capStepHousing04Desc =>
+      'Monthly payment, amortisation, theoretical rate.';
+
+  @override
+  String get capStepHousing05Title => 'Evaluate EPL (2nd pillar)';
+
+  @override
+  String get capStepHousing05Desc =>
+      'Early LPP withdrawal to finance the down payment.';
+
+  @override
+  String get capStepHousing06Title => 'Compare renting vs buying';
+
+  @override
+  String get capStepHousing06Desc =>
+      'The calculation that goes beyond intuitions.';
+
+  @override
+  String get capStepHousing07Title => 'Consult a specialist';
+
+  @override
+  String get capStepHousing07Desc =>
+      'Notary, broker, advisor: when to involve whom.';
+
+  @override
+  String get goalSelectorTitle => 'What is your main goal?';
+
+  @override
+  String get goalSelectorAuto => 'Let MINT decide';
+
+  @override
+  String get goalSelectorAutoDesc =>
+      'MINT adapts automatically based on your profile';
+
+  @override
+  String get goalRetirementTitle => 'My retirement';
+
+  @override
+  String get goalRetirementDesc => 'Plan the transition to retirement';
+
+  @override
+  String get goalBudgetTitle => 'My budget';
+
+  @override
+  String get goalBudgetDesc => 'Control my spending and save';
+
+  @override
+  String get goalHousingTitle => 'Buy a home';
+
+  @override
+  String get goalHousingDesc => 'Assess my capacity and plan the purchase';
+
+  @override
+  String get goalTaxTitle => 'Pay less tax';
+
+  @override
+  String get goalTaxDesc => 'Optimise my deductions (3a, LPP buyback)';
+
+  @override
+  String get goalDebtTitle => 'Manage my debt';
+
+  @override
+  String get goalDebtDesc => 'Regain margin and repay';
+
+  @override
+  String get goalBirthTitle => 'Prepare for a birth';
+
+  @override
+  String get goalBirthDesc => 'Anticipate costs and adapt the budget';
+
+  @override
+  String get goalIndependentTitle => 'Become self-employed';
+
+  @override
+  String get goalIndependentDesc => 'Pension, tax and coverage';
+
+  @override
+  String pulseGoalChip(String goal) {
+    return 'Goal: $goal';
+  }
+
+  @override
+  String get dossierProfileSection => 'My profile';
+
+  @override
+  String get dossierPlanSection => 'My plan';
+
+  @override
+  String get dossierDataSection => 'My data';
+
+  @override
+  String get dossierConfidenceLabel => 'File reliability';
+
+  @override
+  String get dossierCompleteCta => 'Complete my profile';
+
+  @override
+  String get dossierChooseGoalCta => 'Choose a goal';
+
+  @override
+  String get dossierScanLppCta => 'Scan my LPP certificate';
+
+  @override
+  String get dossierDataRevenu => 'Income';
+
+  @override
+  String get dossierDataLpp => '2nd pillar';
+
+  @override
+  String get dossierData3a => '3rd pillar';
+
+  @override
+  String get dossierDataBudget => 'Monthly margin';
+
+  @override
+  String get dossierDataUnknown => 'Not provided';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total steps';
+  }
+
+  @override
+  String get dossierPlanChangeGoal => 'Change goal';
+
+  @override
+  String get dossierPlanCurrentStep => 'Current step';
+
+  @override
+  String get dossierPlanNextStep => 'Next step';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
+
+  @override
+  String memoryRefTopic(int days, String topic) {
+    return '$days days ago, you talked to me about $topic.';
+  }
+
+  @override
+  String memoryRefGoal(String goal) {
+    return 'You had set yourself the goal: $goal. Shall we check in?';
+  }
+
+  @override
+  String memoryRefScreenVisit(String screen) {
+    return 'Last time, you used $screen.';
+  }
+
+  @override
+  String get memoryRefRecentInsights =>
+      'What I remember from our conversations:';
+
+  @override
+  String openerBudgetDeficit(String deficit) {
+    return 'CHF $deficit/month deficit. Shall we look at where it’s getting tight?';
+  }
+
+  @override
+  String opener3aDeadline(String days, String plafond) {
+    return '$days days left to contribute up to $plafond CHF to your 3a.';
+  }
+
+  @override
+  String openerGapWarning(String rate, String gap) {
+    return 'Your replacement rate: $rate %. At retirement, you would be missing CHF $gap/month.';
+  }
+
+  @override
+  String openerSavingsOpportunity(String plafond) {
+    return 'Your 3a: CHF 0 this year. $plafond CHF in potential tax savings at stake.';
+  }
+
+  @override
+  String openerProgressCelebration(String delta) {
+    return 'Your reliability improved by $delta points. Your numbers are more accurate.';
+  }
+
+  @override
+  String openerPlanProgress(String n, String total, String next) {
+    return 'Step $n/$total completed. Next: $next.';
+  }
+
+  @override
+  String get semanticsBackButton => 'Back';
+
+  @override
+  String get semanticsDecrement => 'Decrease';
+
+  @override
+  String get semanticsIncrement => 'Increase';
+
+  @override
+  String get frontalierDisclaimer =>
+      'Simplified estimates for educational purposes — does not constitute fiscal or legal advice. Amounts depend on many factors (deductions, municipality, assets, international agreements, etc.). Consult a tax specialist for a personalised analysis. LSFin.';
+
+  @override
+  String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
+
+  @override
+  String get firstJobPayslipAvsExplanation =>
+      'Employee contribution: 5.3% of gross salary. Your employer also pays 5.3% on top.';
+
+  @override
+  String get firstJobPayslipLppLabel => 'LPP (2nd pillar)';
+
+  @override
+  String get firstJobPayslipLppExplanation =>
+      'Mandatory retirement savings from age 25. The exact rate depends on your pension fund and age.';
+
+  @override
+  String get firstJobPayslipImpotLabel => 'Withholding tax (estimate)';
+
+  @override
+  String get firstJobPayslipImpotExplanation =>
+      'Deducted directly from salary if you are taxed at source. Rate varies by canton, status and income.';
+
+  @override
+  String get firstJobChecklistDeadline1 => 'Before leaving';
+
+  @override
+  String get firstJobChecklistAction1 =>
+      'Request your LPP certificate from your current employer.';
+
+  @override
+  String get firstJobChecklistConsequence1 =>
+      'Without the certificate, you cannot verify that the transferred amount is correct.';
+
+  @override
+  String get firstJobChecklistDeadline2 => '30 days';
+
+  @override
+  String get firstJobChecklistAction2 =>
+      'Check that your LPP savings have been transferred to your new employer\'s pension fund.';
+
+  @override
+  String get firstJobChecklistConsequence2 =>
+      'Without transfer, your capital goes to the supplementary foundation at a rate of 0.05%.';
+
+  @override
+  String get firstJobChecklistDeadline3 => '1 month';
+
+  @override
+  String get firstJobChecklistAction3 =>
+      'Inform your LAMal health insurer of the employer change if you had group coverage.';
+
+  @override
+  String get firstJobChecklistDeadline4 => 'From first pay';
+
+  @override
+  String get firstJobChecklistAction4 =>
+      'Continue your pillar 3a contributions — any interruption costs you tax deductions.';
+
+  @override
+  String get firstJobBudgetBesoins => 'Needs';
+
+  @override
+  String get firstJobBudgetLoyer => 'Rent';
+
+  @override
+  String get firstJobBudgetTransport => 'Transport';
+
+  @override
+  String get firstJobBudgetAlimentation => 'Food';
+
+  @override
+  String get firstJobBudgetEnvies => 'Wants';
+
+  @override
+  String get firstJobBudgetLoisirs => 'Leisure';
+
+  @override
+  String get firstJobBudgetRestaurants => 'Restaurants';
+
+  @override
+  String get firstJobBudgetVoyages => 'Travel';
+
+  @override
+  String get firstJobBudgetShopping => 'Shopping';
+
+  @override
+  String get firstJobBudgetEpargne => 'Savings & 3a';
+
+  @override
+  String get firstJobBudgetPilier3a => 'Pillar 3a';
+
+  @override
+  String get firstJobBudgetEpargneCourt => 'Savings';
+
+  @override
+  String get firstJobBudgetFondsUrgence => 'Emergency fund';
+
+  @override
+  String firstJobBudgetChiffreChoc(String annual, String future) {
+    return 'If you save $annual CHF/year from now, you will have ~$future CHF at 65.';
+  }
+
+  @override
+  String get firstJobScenarioMySalary => 'My salary';
+
+  @override
+  String get firstJobScenarioDefault => 'Default';
+
+  @override
+  String get firstJobScenarioMedianCH => 'CH median';
+
+  @override
+  String get firstJobScenarioBoosted => '+20%';
+
+  @override
+  String firstJobScenarioSemantics(String label) {
+    return 'Salary scenario: $label';
+  }
+
+  @override
+  String get pulseRetirementIncome => 'Estimated retirement income';
+
+  @override
+  String get pulseCapImpact => 'Lever identified';
+
+  @override
+  String get dossierAddConjointCta => 'Add my partner';
+
+  @override
+  String get dossierDataAvs => '1st pillar';
+
+  @override
+  String get dossierDataFiscalite => 'Taxation';
+
+  @override
+  String get pulseRetirementIncomeEstimated =>
+      'Retirement estimated (LPP minimum)';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Scan your certificate for more accurate projections';
+
+  @override
+  String get pulsePlanTitle => 'My plan';
+
+  @override
+  String pulsePlanProgress(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String pulsePlanNextStep(String stepName) {
+    return 'Next step: $stepName';
+  }
+
+  @override
+  String get dossierCoachingTitle => 'Coaching';
+
+  @override
+  String get dossierCoachingSubtitle => 'Reminder and suggestion frequency';
+
+  @override
+  String get coachingSheetSubtitle => 'Choose how proactively MINT coaches you';
+
+  @override
+  String get coachingIntensityDiscret => 'Quiet';
+
+  @override
+  String get coachingIntensityCalme => 'Calm';
+
+  @override
+  String get coachingIntensityEquilibre => 'Balanced';
+
+  @override
+  String get coachingIntensityAttentif => 'Attentive';
+
+  @override
+  String get coachingIntensityProactif => 'Proactive';
+
+  @override
+  String get coachingDescDiscret =>
+      'MINT stays out of the way. Rare reminders, only critical deadlines.';
+
+  @override
+  String get coachingDescCalme =>
+      'MINT checks in occasionally. One reminder every 3 days max.';
+
+  @override
+  String get coachingDescEquilibre =>
+      'MINT guides you daily. One reminder per day, contextual suggestions.';
+
+  @override
+  String get coachingDescAttentif =>
+      'MINT pays attention every session. Frequent suggestions and rich memory.';
+
+  @override
+  String get coachingDescProactif =>
+      'MINT actively coaches you. Reminders every visit, complete memory.';
+
+  @override
+  String coachingEngagementStats(Object engaged, Object total) {
+    return '$engaged interactions out of $total suggestions';
+  }
+
+  @override
+  String get landingHiddenAmount => 'Hidden amount';
+
+  @override
+  String get landingHiddenSubtitle => 'Create an account to see your numbers';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/locale_helper.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -77,7 +78,7 @@ class LanguageSelectorSheet extends StatelessWidget {
                 flag: MintLocales.flagOf(code),
                 name: MintLocales.nameOf(code),
                 isSelected: isSelected,
-                onTap: () => Navigator.of(context).pop(locale),
+                onTap: () => context.pop(locale),
               );
             }),
           ],

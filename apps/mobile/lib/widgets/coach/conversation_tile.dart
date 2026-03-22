@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -41,22 +42,22 @@ class ConversationTile extends StatelessWidget {
           context: context,
           builder: (ctx) => AlertDialog(
             title: Text(
-              l10n.conversationDeleteTitle, // TODO: add to ARB files
+              l10n.conversationDeleteTitle,
             ),
             content: Text(
-              l10n.conversationDeleteConfirm, // TODO: add to ARB files
+              l10n.conversationDeleteConfirm,
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(l10n.conversationDeleteCancel), // TODO: add to ARB files
+                onPressed: () => ctx.pop(false),
+                child: Text(l10n.conversationDeleteCancel),
               ),
               TextButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
+                onPressed: () => ctx.pop(true),
                 style: TextButton.styleFrom(
                   foregroundColor: MintColors.error,
                 ),
-                child: Text(l10n.conversationDeleteAction), // TODO: add to ARB files
+                child: Text(l10n.conversationDeleteAction),
               ),
             ],
           ),
@@ -198,16 +199,13 @@ class ConversationTile extends StatelessWidget {
   /// Month name (short) — localized via i18n.
   String _monthName(BuildContext context, int month) {
     final l10n = S.of(context)!;
-    // TODO: add month keys to ARB files
     const monthKeys = [
       '', // index 0 unused
       'jan', 'fév', 'mars', 'avr', 'mai', 'juin',
       'juil', 'août', 'sept', 'oct', 'nov', 'déc',
     ];
-    // Fallback to hardcoded French abbreviations until ARB keys exist.
-    // Once ARB keys are added, replace with l10n.monthShortX calls.
     try {
-      return l10n.conversationMonth(month.toString()); // TODO: add to ARB files
+      return l10n.conversationMonth(month.toString());
     } catch (_) {
       return monthKeys[month];
     }

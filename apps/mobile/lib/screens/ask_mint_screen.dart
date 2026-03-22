@@ -1,3 +1,6 @@
+// DEPRECATED (S52): AskMintScreen is superseded by CoachChatScreen.
+// Route /ask-mint now redirects to /coach/chat in app.dart.
+// This file is kept for backwards compatibility only — do not add features here.
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';

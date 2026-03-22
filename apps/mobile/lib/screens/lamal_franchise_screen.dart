@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LAMAL FRANCHISE OPTIMISER SCREEN — Sprint S13 / Chantier 7
@@ -45,6 +46,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         isChild: _isChild,
       );
     });
+    ScreenCompletionTracker.markCompleted('lamal_franchise');
   }
 
   // ── Build ──────────────────────────────────────────────────

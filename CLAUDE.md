@@ -125,9 +125,7 @@ feature/* ──PR──> dev ──PR──> staging ──PR──> main
 
 **Pillar 3a**: Salarié LPP: **7'258 CHF/an** | Indépendant sans LPP: **20% revenu net, max 36'288 CHF/an**
 
-**LPP**: Seuil d'accès: **22'680** (art. 7) | Coordination: **26'460** (art. 8) | Min coordonné: **3'780** | Conversion minimale obligatoire: **6.8%** (art. 14, part obligatoire uniquement) | Bonif.: 7% (25-34), 10% (35-44), 15% (45-54), 18% (55-65) | EPL min: **20'000** (OPP2 art. 5) | EPL blocage: **3 ans** (art. 79b al. 3)
-
-**Règle LPP**: Ne jamais appliquer implicitement `6.8%` à tout le capital LPP. Distinguer la part obligatoire et la part surobligatoire ou enveloppante. Sans certificat LPP, les projections détaillées restent des fourchettes indicatives.
+**LPP**: Seuil d'accès: **22'680** (art. 7) | Coordination: **26'460** (art. 8) | Min coordonné: **3'780** | Conversion: **6.8%** (art. 14) | Bonif.: 7% (25-34), 10% (35-44), 15% (45-54), 18% (55-65) | EPL min: **20'000** (OPP2 art. 5) | EPL blocage: **3 ans** (art. 79b al. 3)
 
 **AVS**: Taux total: **10.60%** (5.30+5.30) | Rente max: **30'240 CHF/an** | Cotisation min indép.: **530 CHF/an**
 
@@ -211,6 +209,15 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - Voice: calme, précis, fin, rassurant, net. Jamais générique, jamais infantilisant.
 - Adapt by context (discovery/stress/victory), mastery level, and product moment — NOT by age.
 
+### Regional Swiss Voice Identity (NON-NEGOTIABLE)
+- **MINT must sound locally rooted** per the user's canton and linguistic region.
+- **Suisse Romande** (VD, GE, NE, JU, VS, FR): "septante/nonante", dry humor, pragmatic. VS = direct/montagnard, GE = cosmopolite, VD = détendu.
+- **Deutschschweiz** (ZH, BE, LU, ZG, AG, SG, etc.): "Znüni", savings culture, practical wisdom. ZH = urban/finance-savvy, BE = gemütlich, ZG = tax pride.
+- **Svizzera Italiana** (TI, GR partly): warm Mediterranean flair + Swiss rigor, family savings, grotto references, lake life.
+- **Implementation**: `RegionalVoiceService.forCanton()` → injects regional prompt into coach system prompt via `context_injector_service.dart`.
+- **Rule**: NEVER caricature. Always subtle — like an inside joke between locals. The kind of thing that makes someone smile and think "this app really knows my region."
+- **Backend**: `claude_coach_service.py` system prompt includes REGIONAL IDENTITY section guiding Claude's tone adaptation.
+
 ---
 
 ## 7. UX RULES
@@ -234,7 +241,7 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 
 ### Navigation Architecture (target — S52+)
 - **Full spec**: `docs/NAVIGATION_GRAAL_V10.md`
-- **Philosophy**: Plan-first, coach-orchestrated. AI-as-layer, NOT chatbot-first.
+- **Philosophy**: Coach-first, UI-assisted. AI-as-layer, NOT chatbot-first.
 - **Shell**: 4 tabs — Aujourd'hui | Coach | Explorer | Dossier
 - **Capture**: Contextual bottom sheet (scan, import, add data) — NOT a global FAB
 - **Explorer**: 7 hubs (Retraite, Famille, Travail & Statut, Logement, Fiscalité, Patrimoine & Succession, Santé & Protection)
@@ -273,11 +280,13 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 | Nationalité | CH | US (FATCA) |
 | Archetype | swiss_native | expat_us |
 | Caisse LPP | **CPE** (rémun. 5%) | **HOTELA** |
+| Salaire assuré LPP | **91'967 CHF** (CPE Plan Maxi) | standard coordonné |
+| Bonif. vieillesse caisse | **24%** (CPE Plan Maxi, part vieillesse) | standard légal |
 | Avoir LPP | **70'377 CHF** | **19'620 CHF** |
 | Rachat max LPP | **539'414 CHF** | **52'949 CHF** |
 | LPP projeté 65 | 677'847 (rente ~33'892/an) | ~153'000 |
 | 3a capital | 32'000 | 14'000 |
-| AVS couple | 2'500 CHF/mois |
+| AVS couple (marié, cap 150%) | **3'780 CHF/mois** (LAVS art. 35) |
 | Taux remplacement | **65.5%** (~8'505 vs 12'978 net/mois) |
 
 ---
@@ -351,9 +360,9 @@ If code contradicts 1-9: fix the code OR write an ADR.
 
 | Phase | Sprints | Focus | Key Features |
 |-------|---------|-------|-------------|
-| 1 "Le Plan Vivant" | S51-S56 | MINT priorise | Chat AI (done), CapEngine+UX (done), Gate Closer (done), Plan du jour, Top 10 irréprochables, Coach contextuel |
-| 2 "Le Compagnon" | S57-S62 | MINT s'adapte | Lifecycle Engine, OB-ready architecture, Weekly Recap, cantonal benchmarks, JITAI nudges, caps ménage avancés |
-| 3 "L'Expert" | S63-S68 | MINT indispensable | Voice AI sobre (FR+DE), multi-LLM, Expert tier (human advisors), mise en scène premium |
+| 1 "Le Conversationnel" | S51-S56 | MINT parle | Chat AI, 3a rétroactif, 13e rente AVS, Financial Health Score, streaks+milestones, RAG v1 |
+| 2 "Le Compagnon" | S57-S62 | MINT s'adapte | Lifecycle Engine (7 phases), AI memory, Weekly Recap, cantonal benchmarks, JITAI nudges |
+| 3 "L'Expert" | S63-S68 | MINT indispensable | Voice AI, multi-LLM, Expert tier (human advisors), advanced gamification |
 | 4 "La Référence" | S69+ | Standard suisse | Institutional APIs, B2B caisses+RH, Open Finance, expansion DACH |
 
 **Execution method**: All sprints use autoresearch dev skills (`visions/MINT_Autoresearch_Dev_Agents.md`).
@@ -365,21 +374,24 @@ If code contradicts 1-9: fix the code OR write an ADR.
 | Document | Purpose |
 |----------|---------|
 | `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
-| `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy (13 active docs) |
-| `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
-| `docs/ROADMAP_V2.md` | Strategic roadmap V2.1 (post-S53, 4 phases) |
-| `docs/TOP_10_SWISS_CORE_JOURNEYS.md` | 10+1 parcours coeur, état actuel, gaps, séquence retraite |
-| `docs/MINT_CAP_ENGINE_SPEC.md` | CapEngine: scoring, séquences V2, clause d'honnêteté |
-| `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories |
-| `docs/VOICE_SYSTEM.md` | Brand voice, tone by context, microcopy, 50 avant/après |
-| `docs/S53_GATE_CLOSER_AGENT_PROMPT.md` | Prompt opérable pour agents d'exécution |
-| `docs/MINT_SCREEN_BOARD_101.md` | Board des 101 écrans, template par écran |
-| `docs/NAVIGATION_GRAAL_V10.md` | Routes, hubs, shell 4 tabs |
-| `docs/BLUEPRINT_COACH_AI_LAYER.md` | Coach AI, mémoire, orchestration |
-| `docs/CICD_ARCHITECTURE.md` | Pipeline CI/CD, Railway, TestFlight |
-| `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, Open Banking, enrichment |
+| `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy |
 | `SOT.md` | Data contracts: Profile, SessionReport, EnhancedConfidence |
 | `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
-| `visions/` | Product vision, compliance vision, benchmark, autoresearch agents |
+| `DefinitionOfDone.md` | Sprint completion criteria |
+| `docs/ROADMAP_V2.md` | Strategic roadmap V2 (benchmark-driven, 4 phases) |
+| `docs/VISION_UNIFIEE_V1.md` | Historical strategic vision; useful principles, obsolete IA |
+| `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
+| `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
+| `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
+| `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
+| `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |
+| `docs/VOICE_SYSTEM.md` | Editorial system: brand voice, tone by context, microcopy, 50 avant/après |
+| `docs/NAVIGATION_GRAAL_V10.md` | Detailed target IA; subordinate to masterplan for product direction |
+| `docs/BLUEPRINT_COACH_AI_LAYER.md` | Coach AI implementation blueprint; subordinate to masterplan |
+| `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
+| `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
+| `visions/MINT_Autoresearch_Dev_Agents.md` | 10 dev agents (build) — sprint execution method |
+| `visions/MINT_Autoresearch_Agents.md` | 10 veille agents (post-launch) |
+| `visions/vision_product.md` | Core promise, acquisition strategy |
+| `visions/vision_compliance.md` | LSFin, FINMA, nLPD framework |
 | `legal/DISCLAIMER.md` | User-facing educational disclaimer |
-| `docs/archive/` | 66 documents historiques (ne gouvernent plus) |

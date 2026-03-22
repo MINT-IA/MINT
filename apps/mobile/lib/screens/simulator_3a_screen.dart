@@ -15,7 +15,8 @@ import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -86,6 +87,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         annualReturn: _annualReturn,
       );
     });
+    final screenReturn = ScreenReturn.completed(
+      route: '/simulator-3a',
+      updatedFields: {'simulated3aAmount': _annualContribution},
+      confidenceDelta: 0.02,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'simulator_3a',
+      screenReturn,
+    );
   }
 
   @override
@@ -238,14 +248,42 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return MintPremiumSlider(
-      label: label,
-      value: value,
-      min: min,
-      max: max,
-      divisions: divisions,
-      formatValue: format,
-      onChanged: onChanged,
+    return Semantics(
+      label: '$label: ${format(value)}',
+      slider: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label.isNotEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(child: Text(label, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary))),
+                Text(
+                  format(value),
+                  style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          const SizedBox(height: MintSpacing.sm),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.border,
+              thumbColor: MintColors.primary,
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

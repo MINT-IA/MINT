@@ -5,6 +5,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 /// Ecran de simulation du retrait 3a echelonne multi-comptes.
 ///
@@ -36,6 +38,25 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         ageRetraitDebut: _ageRetraitDebut,
         ageRetraitFin: _ageRetraitFin,
       );
+
+  @override
+  void initState() {
+    super.initState();
+    _emitScreenReturn();
+  }
+
+  void _emitScreenReturn() {
+    final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';
+    final screenReturn = ScreenReturn.changedInputs(
+      route: '/3a-deep/staggered-withdrawal',
+      updatedFields: {'staggeredPlan': plan},
+      confidenceDelta: 0.03,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'staggered_withdrawal',
+      screenReturn,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +209,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) => setState(() => _avoirTotal = v)),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) => setState(() => _nbComptes = v.round())),
+          _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) { setState(() => _nbComptes = v.round()); _emitScreenReturn(); }),
           const SizedBox(height: MintSpacing.sm + 4),
 
           _buildCantonDropdown(l),
@@ -197,10 +218,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) => setState(() => _revenuImposable = v)),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 60, max: 65, divisions: 5, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) => setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; })),
+          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 60, max: 65, divisions: 5, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) { setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; }); _emitScreenReturn(); }),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 65, divisions: (65 - _ageRetraitDebut).clamp(1, 6), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) => setState(() => _ageRetraitFin = v.round())),
+          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 65, divisions: (65 - _ageRetraitDebut).clamp(1, 6), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) { setState(() => _ageRetraitFin = v.round()); _emitScreenReturn(); }),
         ],
       ),
     );

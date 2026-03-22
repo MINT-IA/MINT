@@ -313,6 +313,23 @@ class PrevoyanceProfile {
         .clamp(0, double.infinity);
   }
 
+  /// True when LPP data comes from a scanned certificate (not estimated).
+  ///
+  /// Checks for caisse-specific fields that only exist on real certificates:
+  /// salaireAssure, avoirLppObligatoire, or tauxConversionSuroblig.
+  /// When false, LPP projections use legal minimums and should display
+  /// a precision warning (taux de remplacement may be significantly higher).
+  bool get isLppFromCertificate =>
+      salaireAssure != null ||
+      avoirLppObligatoire != null ||
+      tauxConversionSuroblig != null;
+
+  /// True when LPP data exists but is estimated (not from certificate).
+  /// This is the condition where MINT should show "estimation basée sur
+  /// les minimums LPP" and prompt for certificate scan.
+  bool get isLppEstimated =>
+      avoirLppTotal != null && avoirLppTotal! > 0 && !isLppFromCertificate;
+
   /// Rendement moyen pondere des comptes 3a.
   /// Si aucun compte, retourne 0.02 (hypothese conservative).
   double get rendementMoyen3a {

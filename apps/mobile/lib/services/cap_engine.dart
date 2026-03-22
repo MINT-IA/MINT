@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
@@ -36,6 +37,7 @@ class CapEngine {
   static CapDecision compute({
     required CoachProfile profile,
     required DateTime now,
+    required S l,
     CapMemory memory = const CapMemory(),
   }) {
     final candidates = <CapDecision>[];
@@ -54,9 +56,9 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('complete_${top.category}', memory, now),
         ),
-        headline: 'Confiance ${confidence.score.round()}\u00a0% — ${top.label}',
-        whyNow: 'Sans cette donnée, ta projection reste indicative. '
-            '${top.action} affinerait de +${top.impact}\u00a0pts.',
+        headline: 'Il manque une pièce',
+        whyNow: '${top.label} — sans cette donnée, '
+            'ta projection reste floue.',
         ctaLabel: top.action,
         ctaMode: CtaMode.capture,
         captureType: top.category,
@@ -81,7 +83,8 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('debt_correct', memory, now),
         ),
-        headline: 'CHF\u00a0${_formatChfRound(profile.dettes.totalDettes)} de dette',
+        headline: 'Ta dette pèse',
+        // Reframing rule: never show bad number alone — show the lever.
         whyNow: 'Rembourser le taux le plus élevé d\u2019abord '
             'libère de la marge chaque mois.',
         ctaLabel: 'Voir mon plan',
@@ -152,8 +155,9 @@ class CapEngine {
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
     if (daysToYearEnd <= 90 && daysToYearEnd >= 0) {
-      final cards3a = ResponseCardService.generateForPulse(profile, limit: 5)
-          .where((c) => c.type == ResponseCardType.pillar3a)
+      final cards3a =
+          ResponseCardService.generateForPulse(profile, l: l, limit: 5)
+              .where((c) => c.type == ResponseCardType.pillar3a)
           .toList();
       if (cards3a.isNotEmpty) {
         final card = cards3a.first;
@@ -167,9 +171,9 @@ class CapEngine {
             readiness: 1.0,
             recency: _recencyModifier('pillar_3a', memory, now),
           ),
-          headline: '3a\u00a0: déduction fiscale avant le 31\u00a0déc.',
-          whyNow: 'Un versement 3a cette année réduit '
-              'directement ton impôt et renforce ta retraite.',
+          headline: 'Cette année compte encore',
+          whyNow: 'Un versement 3a peut encore alléger '
+              'tes impôts et renforcer ta retraite.',
           ctaLabel: 'Simuler mon 3a',
           ctaMode: CtaMode.route,
           ctaRoute: '/pilier-3a',
@@ -196,9 +200,9 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('lpp_buyback', memory, now),
         ),
-        headline: 'Rachat LPP\u00a0: jusqu\u2019à ${_formatChfRound(rachatMax)} de déduction',
-        whyNow: 'Ce montant est déductible de ton revenu imposable. '
-            'L\u2019effet sur ta retraite et tes impôts est immédiat.',
+        headline: 'Rachat LPP disponible',
+        whyNow: 'Tu peux racheter jusqu\u2019à '
+            '${_formatChfRound(rachatMax)} et déduire de tes impôts.',
         ctaLabel: 'Simuler un rachat',
         ctaMode: CtaMode.route,
         ctaRoute: '/rachat-lpp',
@@ -229,9 +233,10 @@ class CapEngine {
             readiness: 1.0,
             recency: _recencyModifier('budget_deficit', memory, now),
           ),
-          headline: 'Budget\u00a0: CHF\u00a0${_formatChfRound(libre.abs())}/mois à retrouver',
-          whyNow: 'Ton budget est en tension. '
-              'Ajuster un poste de dépense redonne de la marge.',
+          // Reframing: show the margin to recover, not just the red.
+          headline: 'Ta marge à retrouver',
+          whyNow: 'Ton budget serre. '
+              'Ajuster une enveloppe peut redonner de l\u2019air.',
           ctaLabel: 'Ajuster mon budget',
           ctaMode: CtaMode.route,
           ctaRoute: '/budget',
@@ -246,7 +251,7 @@ class CapEngine {
     // ── 7. Replacement rate warning (45+) ──
     if (profile.age >= 45 && profile.salaireBrutMensuel > 0) {
       final rateCards =
-          ResponseCardService.generateForPulse(profile, limit: 5)
+          ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.replacementRate)
               .toList();
       if (rateCards.isNotEmpty) {
@@ -263,13 +268,13 @@ class CapEngine {
               readiness: 1.0,
               recency: _recencyModifier('replacement_rate', memory, now),
             ),
-            headline: '${rate.round()}\u00a0% de remplacement — les leviers existent',
+            headline: 'Ta retraite pince encore',
             whyNow:
-                'Un rachat LPP ou un versement 3a '
-                'change le calcul. Explore tes options.',
-            ctaLabel: 'Voir mes leviers retraite',
+                '${rate.round()}\u00a0% de taux de remplacement. '
+                'Un rachat ou un 3a change la trajectoire.',
+            ctaLabel: 'Explorer mes scénarios',
             ctaMode: CtaMode.route,
-            ctaRoute: '/explore/retraite',
+            ctaRoute: '/rente-vs-capital',
             coachPrompt: 'Mon taux de remplacement est de ${rate.round()}%. '
                 'Aide-moi à arbitrer entre 3a et rachat LPP.',
             expectedImpact: '+4 à +7 pts',
@@ -344,6 +349,14 @@ class CapEngine {
       );
     }
 
+    // ── 9c. Top 10 Core Journeys — Tier 1 urgency caps ──
+    // Life-disruption situations always outrank tax optimization or 3a.
+    // Adds new urgency caps AND boosts existing aligned candidates.
+    candidates.addAll(
+      _top10UrgencyCaps(profile, confidence.score, memory, now),
+    );
+    _applyTop10UrgencyBoost(candidates, profile, memory, now);
+
     // ── 10. Goal alignment boost ──
     // If the user declared a GoalA, boost candidates that align with it.
     _applyGoalBoost(candidates, profile.goalA);
@@ -364,7 +377,7 @@ class CapEngine {
     // ── 12. Fallback: best ResponseCard → Cap ──
     if (candidates.isEmpty) {
       final cards =
-          ResponseCardService.generateForPulse(profile, limit: 1);
+          ResponseCardService.generateForPulse(profile, l: l, limit: 1);
       if (cards.isNotEmpty) {
         final card = cards.first;
         candidates.add(_fromResponseCard(card, confidence.score, memory, now));
@@ -377,9 +390,8 @@ class CapEngine {
         id: 'fallback_enrich',
         kind: CapKind.complete,
         priorityScore: 1.0,
-        headline: 'Confiance ${confidence.score.round()}\u00a0% — enrichis ton profil',
-        whyNow: 'Chaque donnée ajoutée affine tes projections '
-            'et révèle des leviers concrets.',
+        headline: 'Complète ton profil',
+        whyNow: 'Plus MINT te connaît, plus les leviers sont précis.',
         ctaLabel: 'Enrichir',
         ctaMode: CtaMode.capture,
         captureType: 'profile',
@@ -425,6 +437,210 @@ class CapEngine {
       isHonestyCap: winner.isHonestyCap,
       acquiredAssets: winner.acquiredAssets,
     );
+  }
+
+  // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────
+  //
+  //  Tier 1 = life disruption. These situations ALWAYS outrank
+  //  tax optimisation, 3a contributions, or LPP buyback.
+  //
+  //  Tier 1 signals (from docs/TOP_10_SWISS_CORE_JOURNEYS.md):
+  //  - Chômage / perte d'emploi  → employmentStatus == 'chomage'
+  //  - Invalidité / accident      → familyChange == 'disability'
+  //  - Dette / budget sous tension→ spending > net income
+  //                                 OR familyChange == 'debtCrisis'
+  //  - Divorce                    → etatCivil == divorce
+  //                                 OR familyChange == 'divorce'
+  //
+  //  Spec: docs/TOP_10_SWISS_CORE_JOURNEYS.md §2 (parcours 3, 4, 8, 11)
+
+  /// Returns a boost multiplier (0–100) for the current profile
+  /// based on Top 10 Core Journey urgency tier.
+  ///
+  /// - 100 → Tier 1 highest (chômage, immediate income disruption)
+  /// - 90  → Tier 1 high (debt crisis, spending > net)
+  /// - 80  → Tier 1 medium (divorce, LPP split + housing)
+  /// - 70  → Tier 1 low (disability life event)
+  /// - 0   → No Tier 1 signal
+  static int _top10UrgencyBoost(CoachProfile profile, CapMemory memory) {
+    // Chômage: immediate income disruption, highest urgency
+    if (profile.employmentStatus == 'chomage') { return 100; }
+
+    // Debt crisis: spending exceeds net income OR debtCrisis life event
+    if (_hasDebtCrisis(profile)) { return 90; }
+
+    // Divorce: LPP split, alimony, housing urgency
+    if (profile.etatCivil == CoachCivilStatus.divorce ||
+        profile.familyChange == 'divorce') { return 80; }
+
+    // Disability life event declared
+    if (profile.familyChange == 'disability') { return 70; }
+
+    return 0;
+  }
+
+  /// True when the profile shows a debt crisis signal:
+  /// - monthly spending exceeds estimated net income, OR
+  /// - user declared debtCrisis as current life event.
+  static bool _hasDebtCrisis(CoachProfile profile) {
+    if (profile.familyChange == 'debtCrisis') return true;
+
+    // Budget crisis: total expenses > net income
+    if (profile.totalDepensesMensuelles > 0 &&
+        profile.salaireBrutMensuel > 0) {
+      final netMensuel = NetIncomeBreakdown.compute(
+        grossSalary: profile.salaireBrutMensuel * 12,
+        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+        age: profile.age,
+      ).monthlyNetPayslip;
+      if (profile.totalDepensesMensuelles > netMensuel) return true;
+    }
+
+    return false;
+  }
+
+  /// Generate Tier 1 urgency caps not covered by the general heuristic.
+  ///
+  /// Currently adds:
+  /// - **chomage_urgency**: fires when [profile.employmentStatus] == 'chomage'.
+  ///   The general heuristic only fires a `jobLoss` life event cap when
+  ///   [profile.familyChange] == 'jobLoss'. Persistent chômage status has
+  ///   no dedicated cap today.
+  /// - **divorce_urgency**: fires when civil status is divorce.
+  ///   The life event cap fires on [profile.familyChange] == 'divorce'
+  ///   during the transition; this cap covers the ongoing status.
+  static List<CapDecision> _top10UrgencyCaps(
+    CoachProfile profile,
+    double confidenceScore,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final caps = <CapDecision>[];
+
+    // ── Chômage: secure the next 90 days ──
+    // employmentStatus == 'chomage' is a persistent state; the general
+    // life event cap only fires for the one-time familyChange event.
+    // This cap surfaces whenever chômage is the active employment status.
+    if (profile.employmentStatus == 'chomage') {
+      caps.add(CapDecision(
+        id: 'chomage_urgency',
+        kind: CapKind.secure,
+        priorityScore: _score(
+          impact: 1.0,
+          urgency: 1.0,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('chomage_urgency', memory, now),
+        ),
+        headline: 'Sécuriser les 90 prochains jours',
+        whyNow: 'En chômage, trois urgences à poser\u00a0: '
+            'tes droits AC, l\u2019impact sur ta LPP '
+            'et ton budget à ajuster.',
+        ctaLabel: 'Voir mes droits',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/unemployment',
+        coachPrompt: 'Je suis en situation de chômage. '
+            'Aide-moi à comprendre mes droits AC, '
+            'ce qui se passe avec ma LPP '
+            'et comment adapter mon budget maintenant.',
+        expectedImpact: 'stabilisation immédiate',
+        sourceCards: const ['unemployment'],
+      ));
+    }
+
+    // ── Divorce: LPP split, alimony, housing ──
+    // Civil status divorce is a persistent condition; the life event
+    // 'divorce' cap fires only when familyChange is set (during transition).
+    // This cap covers users whose etatCivil is already divorce.
+    final isDivorced = profile.etatCivil == CoachCivilStatus.divorce;
+    final hasDivorceEvent = profile.familyChange == 'divorce';
+    if (isDivorced && !hasDivorceEvent) {
+      // hasDivorceEvent == true means _tryLifeEventCap already handles it.
+      caps.add(CapDecision(
+        id: 'divorce_urgency',
+        kind: CapKind.secure,
+        priorityScore: _score(
+          impact: 0.85,
+          urgency: 0.85,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('divorce_urgency', memory, now),
+        ),
+        headline: 'Divorce\u00a0: clarifier ce qui change',
+        whyNow: 'Partage LPP, pension alimentaire, logement\u00a0— '
+            'les impacts financiers méritent un point clair.',
+        ctaLabel: 'Simuler l\u2019impact',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/divorce',
+        coachPrompt: 'Je suis divorcé\u00b7e. '
+            'Aide-moi à clarifier l\u2019impact sur ma LPP, '
+            'mes impôts et mon budget.',
+        expectedImpact: 'clarification LPP + impôts',
+        sourceCards: const ['divorce'],
+      ));
+    }
+
+    return caps;
+  }
+
+  /// Boost existing candidates whose content aligns with the active
+  /// Tier 1 Core Journey urgency.
+  ///
+  /// Multiplies [priorityScore] by `(1 + boost / 100)` — e.g. boost 100
+  /// doubles the score, boost 90 adds 90\u00a0%, ensuring Tier 1 caps
+  /// outrank all tax/optimization caps regardless of their base score.
+  static void _applyTop10UrgencyBoost(
+    List<CapDecision> candidates,
+    CoachProfile profile,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final boost = _top10UrgencyBoost(profile, memory);
+    if (boost == 0) return;
+
+    // Cap IDs that align with each Tier 1 scenario.
+    final Set<String> alignedIds = {};
+
+    if (profile.employmentStatus == 'chomage') {
+      alignedIds.addAll(const {'chomage_urgency', 'debt_correct', 'budget_deficit'});
+    }
+    if (_hasDebtCrisis(profile)) {
+      alignedIds.addAll(const {'debt_correct', 'budget_deficit', 'honesty_no_lever'});
+    }
+    if (profile.etatCivil == CoachCivilStatus.divorce ||
+        profile.familyChange == 'divorce') {
+      alignedIds.addAll(const {'divorce_urgency', 'life_event_divorce'});
+    }
+    if (profile.familyChange == 'disability') {
+      alignedIds.addAll(const {'disability_gap', 'coverage_check', 'life_event_disability'});
+    }
+
+    if (alignedIds.isEmpty) return;
+
+    final multiplier = 1.0 + boost / 100.0;
+    for (int i = 0; i < candidates.length; i++) {
+      final cap = candidates[i];
+      if (!alignedIds.contains(cap.id)) continue;
+      candidates[i] = CapDecision(
+        id: cap.id,
+        kind: cap.kind,
+        priorityScore: cap.priorityScore * multiplier,
+        headline: cap.headline,
+        whyNow: cap.whyNow,
+        ctaLabel: cap.ctaLabel,
+        ctaMode: cap.ctaMode,
+        ctaRoute: cap.ctaRoute,
+        coachPrompt: cap.coachPrompt,
+        captureType: cap.captureType,
+        expectedImpact: cap.expectedImpact,
+        confidenceLabel: cap.confidenceLabel,
+        blockingData: cap.blockingData,
+        supportingSignals: cap.supportingSignals,
+        sourceCards: cap.sourceCards,
+        isHonestyCap: cap.isHonestyCap,
+        acquiredAssets: cap.acquiredAssets,
+      );
+    }
   }
 
   // ── LIFE EVENT ───────────────────────────────────────────
@@ -557,7 +773,7 @@ class CapEngine {
           headline: 'Départ de Suisse',
           whyNow: 'Libre passage, AVS, 3a — ce qui te suit, ce qui reste.',
           ctaLabel: 'Voir les conséquences',
-          route: '/expatriation',
+          route: '/expat',
         ),
       'debtCrisis' => const _LifeEventMapping(
           headline: 'Situation de dette',
@@ -737,7 +953,7 @@ class CapEngine {
             'L\u2019écart peut atteindre ~10\u2019000\u00a0CHF/an.',
         ctaLabel: 'Voir l\u2019impact AVS',
         ctaMode: CtaMode.route,
-        ctaRoute: '/retraite',
+        ctaRoute: '/rente-vs-capital',
         coachPrompt: 'Nous sommes mariés et nous travaillons tous les deux. '
             'Aide-nous à comprendre l\u2019impact du plafonnement AVS '
             'à 150\u00a0% sur notre retraite.',

@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 
 Widget _wrap(Widget child) {
-  return MaterialApp(
-    home: Scaffold(body: child),
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => Scaffold(body: child),
+      ),
+    ],
   );
+  return MaterialApp.router(routerConfig: router);
 }
 
 /// Sets test viewport to phone size to avoid bottom sheet overflow.

@@ -364,12 +364,20 @@ class CoachOrchestrator {
             provider: providerStr,
             model: config.model,
             profileContext: {
-              'firstName': ctx.firstName,
-              'age': ctx.age.toString(),
+              'first_name': ctx.firstName,
+              'age': ctx.age,
               'canton': ctx.canton,
               'archetype': ctx.archetype,
-              'friTotal': ctx.friTotal.toStringAsFixed(0),
-              'replacementRatio': ctx.replacementRatio.toStringAsFixed(0),
+              'fri_total': ctx.friTotal,
+              'replacement_ratio': ctx.replacementRatio > 0
+                  ? ctx.replacementRatio / 100.0
+                  : null,
+              'confidence_score': ctx.confidenceScore > 0
+                  ? ctx.confidenceScore
+                  : null,
+              // Spread knownValues for data lookup tools
+              ...ctx.knownValues.map((k, v) =>
+                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
             },
           )
           .timeout(_byokTimeout);
@@ -415,6 +423,35 @@ class CoachOrchestrator {
   //  INTERNAL — BYOK tier (chat)
   // ══════════════════════════════════════════════════════════════
 
+  /// Coach tools in Anthropic format for route_to_screen.
+  /// Passed to the backend so Claude can return tool_use blocks.
+  static const List<Map<String, dynamic>> _coachTools = [
+    {
+      'name': 'route_to_screen',
+      'description':
+          'Route the user to a specific MINT screen. The Flutter app verifies '
+              'readiness before opening. Use when the question maps to a feature screen.',
+      'input_schema': {
+        'type': 'object',
+        'properties': {
+          'intent': {
+            'type': 'string',
+            'description': 'Intent tag from ScreenRegistry.',
+          },
+          'confidence': {
+            'type': 'number',
+            'description': 'Confidence 0.0-1.0.',
+          },
+          'context_message': {
+            'type': 'string',
+            'description': 'Educational message explaining relevance.',
+          },
+        },
+        'required': ['intent', 'confidence', 'context_message'],
+      },
+    },
+  ];
+
   /// Attempt BYOK RAG for a chat response.
   static Future<CoachResponse?> _tryByokChat({
     required String userMessage,
@@ -441,13 +478,23 @@ class CoachOrchestrator {
             provider: providerStr,
             model: config.model,
             profileContext: {
-              'firstName': ctx.firstName,
-              'age': ctx.age.toString(),
+              'first_name': ctx.firstName,
+              'age': ctx.age,
               'canton': ctx.canton,
               'archetype': ctx.archetype,
-              'friTotal': ctx.friTotal.toStringAsFixed(0),
-              'replacementRatio': ctx.replacementRatio.toStringAsFixed(0),
+              'fri_total': ctx.friTotal,
+              'replacement_ratio': ctx.replacementRatio > 0
+                  ? ctx.replacementRatio / 100.0
+                  : null,
+              'confidence_score': ctx.confidenceScore > 0
+                  ? ctx.confidenceScore
+                  : null,
+              // Spread knownValues for data lookup tools
+              ...ctx.knownValues.map((k, v) =>
+                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
             },
+            // Pass tools so Claude can return route_to_screen tool_use blocks.
+            tools: providerStr == 'claude' ? _coachTools : null,
           )
           .timeout(_byokTimeout);
     } on TimeoutException {
@@ -471,9 +518,22 @@ class CoachOrchestrator {
 
     if (compliance.useFallback) return null;
 
-    final text = compliance.sanitizedText.isNotEmpty
+    var text = compliance.sanitizedText.isNotEmpty
         ? compliance.sanitizedText
         : ragResponse.answer;
+
+    // Transform tool_calls into [ROUTE_TO_SCREEN:{...}] markers that
+    // coach_chat_screen._parseRouteToolUse() can detect and resolve.
+    if (ragResponse.hasToolCalls) {
+      for (final toolCall in ragResponse.toolCalls) {
+        if (toolCall.name == 'route_to_screen') {
+          final markerJson = '{"intent":"${toolCall.input['intent']}",'
+              '"confidence":${toolCall.input['confidence']},'
+              '"context_message":"${_escapeJson(toolCall.input['context_message'] as String? ?? '')}"}';
+          text = '$text\n[ROUTE_TO_SCREEN:$markerJson]';
+        }
+      }
+    }
 
     return CoachResponse(
       message: text,
@@ -483,6 +543,10 @@ class CoachOrchestrator {
       wasFiltered: !compliance.isCompliant,
     );
   }
+
+  /// Escape a string for safe JSON embedding.
+  static String _escapeJson(String s) =>
+      s.replaceAll('"', r'\"').replaceAll('\n', r'\n');
 
   // ══════════════════════════════════════════════════════════════
   //  INTERNAL — FallbackTemplates tier
@@ -528,8 +592,8 @@ class CoachOrchestrator {
   }
 
   /// Safe chat fallback — honest message when no LLM is available.
-  // TODO(i18n): migrate hardcoded FR strings to S.of(context) — needs
-  // context parameter or a static localisation accessor (Phase 1.3).
+  // TODO(S57-i18n): migrate hardcoded FR strings — service has no BuildContext;
+  // requires static localisation accessor or caller-injected strings (Phase 1.3).
   static CoachResponse _chatFallback() {
     return const CoachResponse(
       message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'

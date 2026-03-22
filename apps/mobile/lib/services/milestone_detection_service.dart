@@ -490,7 +490,7 @@ class MilestoneDetectionService {
         type: MilestoneType.friAbove50,
         celebrationText:
             'Score de solidite : ${curFri.toStringAsFixed(0)}/100. '
-            'Au-dessus de la mediane.',
+            'Tu progresses — seuil de 50 franchi.',
         concreteValue: '${curFri.toStringAsFixed(0)}/100',
         detectedAt: detectedAt,
       ));
@@ -501,7 +501,7 @@ class MilestoneDetectionService {
         type: MilestoneType.friAbove70,
         celebrationText:
             'Score de solidite : ${curFri.toStringAsFixed(0)}/100. '
-            'Au-dessus du seuil de 70.',
+            'Seuil de 70 atteint — bonne trajectoire.',
         concreteValue: '${curFri.toStringAsFixed(0)}/100',
         detectedAt: detectedAt,
       ));

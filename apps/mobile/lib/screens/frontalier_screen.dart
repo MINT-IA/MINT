@@ -125,7 +125,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       elevation: 0,
       scrolledUnderElevation: 0.5,
       leading: Semantics(
-        label: 'Retour',
+        label: S.of(context)!.semanticsBackButton,
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
@@ -1375,7 +1375,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       children: [
         Semantics(
-          label: 'Diminuer',
+          label: S.of(context)!.semanticsDecrement,
           button: true,
           child: IconButton(
             onPressed: value > minVal
@@ -1397,7 +1397,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
         ),
         Semantics(
-          label: 'Augmenter',
+          label: S.of(context)!.semanticsIncrement,
           button: true,
           child: IconButton(
             onPressed: value < maxVal
@@ -1472,7 +1472,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
-              ExpatService.disclaimer,
+              S.of(context)!.frontalierDisclaimer,
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),

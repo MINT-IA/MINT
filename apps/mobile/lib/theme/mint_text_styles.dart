@@ -20,6 +20,17 @@ class MintTextStyles {
 
   // ── Display (dominant numbers) ──
 
+  /// The signature hero number for MintCountUp / Pulse (56pt).
+  /// Used exclusively in Revelation 5 temps — the single dominant number
+  /// that anchors an entire screen. Tighter height for visual impact.
+  static TextStyle displayHero({Color? color}) => GoogleFonts.montserrat(
+        fontSize: 56,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -1.5,
+        height: 1.0,
+        color: color ?? MintColors.textPrimary,
+      );
+
   /// The ONE dominant number on Hero screens (48pt).
   /// Example: "4'416 CHF/mois", "63%", "52.8%"
   static TextStyle displayLarge({Color? color}) => GoogleFonts.montserrat(

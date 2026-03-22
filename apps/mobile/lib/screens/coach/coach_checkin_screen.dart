@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -477,7 +478,7 @@ Reponds uniquement avec le texte final.
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () => context.pop(),
       ),
       title: Text(
         s.checkinTitle(_currentMonthLabel).toUpperCase(),
@@ -904,7 +905,7 @@ Reponds uniquement avec le texte final.
                           isAutomatic: isAutomatic,
                         );
 
-                        Navigator.of(ctx).pop();
+                        ctx.pop();
                         _addContribution(contribution);
                       },
                       style: ElevatedButton.styleFrom(
@@ -1143,7 +1144,7 @@ Reponds uniquement avec le texte final.
         width: double.infinity,
         height: 56,
         child: ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
           style: ElevatedButton.styleFrom(
             backgroundColor: MintColors.primary,
             foregroundColor: MintColors.white,

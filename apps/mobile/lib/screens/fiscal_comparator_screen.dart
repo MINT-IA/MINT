@@ -14,7 +14,7 @@ import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL COMPARATOR SCREEN — Sprint S20 / 26 cantons
@@ -169,6 +169,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         communeMultiplier: communeMultiplier,
       );
     });
+    ScreenCompletionTracker.markCompleted('fiscal_comparator');
   }
 
   // ════════════════════════════════════════════════════════════
@@ -271,17 +272,49 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Revenue slider
-          MintPremiumSlider(
-            label: S.of(context)!.fiscalGrossAnnualIncome,
-            value: _revenuBrut,
-            min: 30000,
-            max: 500000,
-            divisions: 94,
-            formatValue: (v) => FiscalService.formatChf(v),
-            onChanged: (v) {
-              _revenuBrut = (v / 5000).round() * 5000.0;
-              _recalculate();
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  S.of(context)!.fiscalGrossAnnualIncome,
+                  style: MintTextStyles.titleMedium(),
+                ),
+              ),
+              Text(
+                FiscalService.formatChf(_revenuBrut),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.border,
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
+              trackHeight: 6,
+            ),
+            child: Slider(
+              value: _revenuBrut,
+              min: 30000,
+              max: 500000,
+              divisions: 94,
+              onChanged: (v) {
+                _revenuBrut = (v / 5000).round() * 5000.0;
+                _recalculate();
+              },
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("CHF\u00A030'000",
+                  style: MintTextStyles.labelSmall()),
+              Text("CHF\u00A0500'000",
+                  style: MintTextStyles.labelSmall()),
+            ],
           ),
           const SizedBox(height: 20),
 

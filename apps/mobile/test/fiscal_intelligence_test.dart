@@ -40,17 +40,16 @@ void main() {
     });
 
     test('findBetterNeighbor Zug (Low Tax)', () {
-      final result = FiscalIntelligenceService.findBetterNeighbor(
-        currentCanton: 'ZG',
-        netMonthlyIncome: 10000,
-        civilStatus: 'single',
-        age: 30,
+      // ZG is already one of the cheapest cantons — neighbors are unlikely to save >500 CHF
+      expect(
+        () => FiscalIntelligenceService.findBetterNeighbor(
+          currentCanton: 'ZG',
+          netMonthlyIncome: 10000,
+          civilStatus: 'single',
+          age: 30,
+        ),
+        returnsNormally,
       );
-
-      // Probably null or very low savings as ZG is cheap
-      // neighbors: ZH (expensive), LU (cheap but > ZG usually), SZ (cheap), AG (medium)
-      // SZ might be cheaper in some cases, but likely result is null or low
-      print('ZG Neighbor Result: $result');
     });
   });
 }

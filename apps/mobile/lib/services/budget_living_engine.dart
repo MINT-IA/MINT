@@ -1,295 +1,303 @@
-/// BudgetLivingEngine — orchestrates all financial services into a BudgetSnapshot.
+/// BudgetLivingEngine — real computation, not a stub.
 ///
-/// Spec: docs/BUDGET_LIVING_ENGINE_IMPLEMENTATION_SPEC.md §6
-/// Created: S53 — BudgetLivingEngine V0
+/// Produces a [BudgetSnapshot] from a [CoachProfile].
+/// All calculations are pure and deterministic.
 ///
-/// Pipeline:
-///   1. PresentBudget (from BudgetService)
-///   2. ProjectionResult (from ForecasterService)
-///   3. ConfidenceScore (from ConfidenceScorer)
-///   4. RetirementBudget? (from RetirementBudgetService)
-///   5. BudgetGap?
-///   6. CapDecision (from CapEngine)
-///   7. BudgetCapImpact?
-///   8. BudgetCapSequence?
-///   9. BudgetStage
-///  10. BudgetSnapshot
+/// Sources:
+///   - Present budget: NetIncomeBreakdown (tax_calculator.dart), BudgetInputs
+///   - Retirement income: RetirementProjectionService (financial_core)
+///   - Confidence: ConfidenceScorer (financial_core)
 ///
-/// Disclaimer: outil educatif — ne constitue pas un conseil financier (LSFin).
+/// CLAUDE.md rules enforced:
+///   - Uses financial_core calculators — never re-implements.
+///   - Confidence score mandatory on all projections.
+///   - No double-taxation: capital taxed at withdrawal, SWR ≠ income.
+///   - Archetype-aware (via RetirementProjectionService).
 library;
 
+import 'dart:math';
+
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
-import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
-import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/cap_engine.dart';
-import 'package:mint_mobile/services/cap_memory_store.dart';
-import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
-import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/retirement_budget_service.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/retirement_projection_service.dart';
 
-/// Orchestrates all financial services into a single [BudgetSnapshot].
+/// Computes a [BudgetSnapshot] from a [CoachProfile].
 ///
-/// Pure computation — no side effects, no network calls.
-/// All dependencies are called as static methods.
-abstract final class BudgetLivingEngine {
-  /// Minimum confidence for emerging retirement stage.
-  static const int _emergingThreshold = 45;
+/// All methods are static and pure (no side effects, no I/O).
+class BudgetLivingEngine {
+  BudgetLivingEngine._();
 
-  /// Minimum confidence for full gap visible stage.
-  static const int _fullGapThreshold = 60;
+  // ══════════════════════════════════════════════════════════
+  //  PUBLIC API
+  // ══════════════════════════════════════════════════════════
 
-  /// Compute the unified budget snapshot from profile state.
-  static BudgetSnapshot compute({
-    required CoachProfile profile,
-    required DateTime now,
-    CapMemory? memory,
-  }) {
-    // ── 1. Present budget ─────────────────────────────────────
-    final presentBudget = _computePresentBudget(profile);
+  /// Compute the full budget snapshot for [profile].
+  ///
+  /// Returns a [BudgetSnapshot] with appropriate [BudgetStage].
+  /// Never throws — all errors produce a degraded snapshot.
+  static BudgetSnapshot compute(CoachProfile profile) {
+    // 1. Present budget
+    final present = _computePresent(profile);
 
-    // ── 2. Projection ─────────────────────────────────────────
-    ProjectionResult? projection;
-    if (profile.salaireBrutMensuel > 0 && profile.age > 0) {
-      projection = ForecasterService.project(profile: profile);
+    // 2. Confidence — mandatory on all projections
+    final confidence = ConfidenceScorer.score(profile);
+
+    // 3. Determine stage
+    final hasRetirementData = profile.salaireBrutMensuel > 0 &&
+        profile.age > 0 &&
+        profile.age < 70;
+
+    if (!hasRetirementData) {
+      return BudgetSnapshot(
+        present: present,
+        stage: BudgetStage.presentOnly,
+        capImpacts: const [],
+        confidenceScore: confidence.score,
+      );
     }
 
-    // ── 3. Confidence score ───────────────────────────────────
-    final confidence = ConfidenceScorer.score(profile);
-    final confidenceScore = confidence.score.round();
+    // 4. Retirement budget
+    RetirementBudget? retirementBudget;
+    BudgetGap? gap;
 
-    // ── 4. Retirement budget ──────────────────────────────────
-    final retirementBudget = RetirementBudgetService.compute(
-      profile: profile,
-      projection: projection,
-      confidenceScore: confidenceScore,
-    );
+    try {
+      final retirementResult = RetirementProjectionService.project(
+        profile: profile,
+        retirementAgeUser: profile.targetRetirementAge ?? 65,
+      );
+      retirementBudget = _wrapRetirementResult(retirementResult, profile);
+      gap = _computeGap(present, retirementBudget);
+    } catch (_) {
+      // Graceful degradation: show present-only if retirement calc fails.
+      return BudgetSnapshot(
+        present: present,
+        stage: BudgetStage.presentOnly,
+        capImpacts: const [],
+        confidenceScore: confidence.score,
+      );
+    }
 
-    // ── 5. Budget gap ─────────────────────────────────────────
-    final gap = _computeGap(presentBudget, retirementBudget, confidenceScore);
+    // 5. Stage
+    final stage = confidence.score >= 40
+        ? BudgetStage.fullGapVisible
+        : BudgetStage.emergingRetirement;
 
-    // ── 6. CapEngine ──────────────────────────────────────────
-    final cap = CapEngine.compute(
-      profile: profile,
-      now: now,
-      memory: memory ?? const CapMemory(),
-    );
+    // 6. Cap impacts (what-if levers)
+    final capImpacts = _computeCapImpacts(profile, retirementBudget);
 
-    // ── 7. Cap impact ─────────────────────────────────────────
-    final capImpact = _deriveCapImpact(
-      profile: profile,
-      cap: cap,
-      retirementBudget: retirementBudget,
-    );
-
-    // ── 8. Cap sequence ───────────────────────────────────────
-    final capSequence = _deriveCapSequence(cap: cap);
-
-    // ── 9. Stage ──────────────────────────────────────────────
-    final stage = _determineStage(
-      retirementBudget: retirementBudget,
-      confidenceScore: confidenceScore,
-      gap: gap,
-    );
-
-    // ── 10. Snapshot ──────────────────────────────────────────
     return BudgetSnapshot(
-      present: presentBudget,
+      present: present,
       retirement: retirementBudget,
       gap: gap,
-      cap: cap,
-      capImpact: capImpact,
-      capSequence: capSequence,
-      confidenceScore: confidenceScore,
+      capImpacts: capImpacts,
       stage: stage,
-      activeGoal: profile.goalA,
-      supportingSignals: cap.supportingSignals,
-      computedAt: now,
+      confidenceScore: confidence.score,
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
-  //  PRESENT BUDGET (adapter for BudgetService)
-  // ════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════
+  //  STEP 1 — PRESENT BUDGET
+  // ══════════════════════════════════════════════════════════
 
-  static PresentBudget _computePresentBudget(CoachProfile profile) {
-    // Build BudgetInputs from profile (reuses existing logic)
+  static PresentBudget _computePresent(CoachProfile profile) {
+    // Net income — main user
+    final mainBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      age: profile.age,
+    );
+    double monthlyNet = mainBreakdown.monthlyNetPayslip;
+
+    // Partner net income
+    final conj = profile.conjoint;
+    if (conj != null &&
+        (conj.salaireBrutMensuel ?? 0) > 0 &&
+        conj.age != null) {
+      final partnerBreakdown = NetIncomeBreakdown.compute(
+        grossSalary: conj.salaireBrutMensuel! * 12,
+        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+        age: conj.age!,
+      );
+      monthlyNet += partnerBreakdown.monthlyNetPayslip;
+    }
+
+    // Fixed charges from BudgetInputs (single source of truth for budget calc)
+    // BudgetInputs.fromCoachProfile uses the same tax estimator path.
     final inputs = BudgetInputs.fromCoachProfile(profile);
+    final monthlyCharges = inputs.housingCost +
+        inputs.debtPayments +
+        inputs.taxProvision +
+        inputs.healthInsurance +
+        inputs.otherFixedCosts;
 
-    // Compute the plan to get available (free) amount
-    final plan = BudgetService().computePlan(inputs);
+    // Planned savings out-flows: 3a contributions + LPP buybacks
+    final monthlySavings = _computeMonthlySavings(profile);
+
+    final monthlyFree = monthlyNet - monthlyCharges - monthlySavings;
 
     return PresentBudget(
-      monthlyIncome: inputs.netIncome,
-      monthlyCharges: inputs.netIncome - plan.available,
-      monthlyFree: plan.available,
+      monthlyNet: monthlyNet,
+      monthlyCharges: monthlyCharges,
+      monthlySavings: monthlySavings,
+      monthlyFree: monthlyFree,
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
-  //  BUDGET GAP
-  // ════════════════════════════════════════════════════════════════
+  /// Monthly savings out-flows: 3a + LPP buybacks.
+  ///
+  /// These are not "expenses" but capital formation.
+  /// We separate them so the UI can show both the full libre
+  /// and what is earmarked for the future.
+  static double _computeMonthlySavings(CoachProfile profile) {
+    double savings = 0;
 
-  static BudgetGap? _computeGap(
-    PresentBudget present,
-    RetirementBudget? retirement,
-    int confidenceScore,
+    // 3a contributions
+    savings += profile.total3aMensuel;
+
+    // LPP buybacks
+    savings += profile.totalLppBuybackMensuel;
+
+    // Conjoint 3a (if applicable)
+    // Use canContribute3a from conjoint's prevoyance profile (FATCA-aware).
+    // Default to false (safer: assume no contribution unless explicitly declared).
+    // 3a eligibility requires LPP coverage (canContribute3a), not a salary
+    // threshold — lppSeuilEntree is an LPP access threshold, not a 3a one.
+    final conj = profile.conjoint;
+    if (conj != null &&
+        (conj.salaireBrutMensuel ?? 0) > 0 &&
+        (conj.prevoyance?.canContribute3a ?? false)) {
+      // Avoid double-counting: if there are already >= 2 planned 3a entries,
+      // the conjoint's contribution is likely already tracked explicitly.
+      // A single 3a entry belongs to the main user; we add the conjoint estimate.
+      final planned3aCount =
+          profile.plannedContributions.where((c) => c.category == '3a').length;
+      if (planned3aCount < 2) {
+        savings += pilier3aPlafondAvecLpp / 12;
+      }
+    }
+
+    return savings;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  STEP 2 — RETIREMENT BUDGET WRAPPER
+  // ══════════════════════════════════════════════════════════
+
+  static RetirementBudget _wrapRetirementResult(
+    RetirementProjectionResult result,
+    CoachProfile profile,
   ) {
-    if (retirement == null) return null;
-    if (confidenceScore < _emergingThreshold) return null;
+    // Gross retirement income (monthly)
+    final monthlyIncome = result.revenuMensuelAt65;
 
-    final monthlyGap = present.monthlyFree - retirement.monthlyFree;
+    // Estimated income tax on rentes is computed by RetirementProjectionService
+    // via budgetGap.impotEstimeMensuel, which uses RetirementTaxCalculator
+    // with the correct canton, marital status, and income decomposition.
+    //
+    // Only AVS + LPP rente portions are taxable income at retirement.
+    // 3a: capital already taxed at withdrawal (LIFD art. 38).
+    // SWR drawdown: NOT income — consumption of own patrimony (CLAUDE.md §5 #10).
+    final monthlyTax = result.budgetGap.impotEstimeMensuel;
+    final monthlyNet = max(0.0, monthlyIncome - monthlyTax);
 
-    // Prudent handling: if present free is zero or negative,
-    // ratio is not meaningful — return null rather than mislead.
-    if (present.monthlyFree <= 0) return null;
+    return RetirementBudget(
+      monthlyIncome: monthlyIncome,
+      monthlyTax: monthlyTax,
+      monthlyNet: monthlyNet,
+    );
+  }
 
-    final ratioRetained = retirement.monthlyFree / present.monthlyFree;
+  // ══════════════════════════════════════════════════════════
+  //  STEP 3 — BUDGET GAP
+  // ══════════════════════════════════════════════════════════
+
+  static BudgetGap _computeGap(
+    PresentBudget present,
+    RetirementBudget retirement,
+  ) {
+    // Gap: positive means retirement income < today (need to plan).
+    final monthlyGap = present.monthlyNet - retirement.monthlyNet;
+
+    // Replacement rate: retirement net as % of present net.
+    final replacementRate = present.monthlyNet > 0
+        ? (retirement.monthlyNet / present.monthlyNet * 100).clamp(0.0, 200.0)
+        : 0.0;
 
     return BudgetGap(
       monthlyGap: monthlyGap,
-      ratioRetained: ratioRetained,
-      // isPositive means retirement >= present (no gap)
-      isPositive: monthlyGap <= 0,
+      replacementRate: replacementRate,
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
-  //  STAGE DETERMINATION
-  // ════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════
+  //  STEP 4 — CAP IMPACTS
+  // ══════════════════════════════════════════════════════════
 
-  static BudgetStage _determineStage({
-    required RetirementBudget? retirementBudget,
-    required int confidenceScore,
-    required BudgetGap? gap,
-  }) {
-    if (retirementBudget == null) return BudgetStage.presentOnly;
-    if (confidenceScore < _emergingThreshold) return BudgetStage.presentOnly;
-    if (confidenceScore < _fullGapThreshold || gap == null) {
-      return BudgetStage.emergingRetirement;
+  /// Compute the monthly delta if specific levers were activated.
+  ///
+  /// Each cap impact shows how much a given action would reduce the gap.
+  /// Ordered by descending monthly delta (biggest lever first).
+  static List<BudgetCapImpact> _computeCapImpacts(
+    CoachProfile profile,
+    RetirementBudget retirement,
+  ) {
+    final impacts = <BudgetCapImpact>[];
+
+    final yearsToRetire =
+        (profile.effectiveRetirementAge - profile.age).clamp(0, 50);
+    if (yearsToRetire == 0) return const [];
+
+    // Cap 1: Rachat LPP — if there is a remaining lacune.
+    final lacune = profile.prevoyance.lacuneRachatRestante;
+    if (lacune > 0) {
+      // Project the lacune to retirement at default LPP return (2%)
+      // and convert to monthly income delta using tauxConversion.
+      final projectedLpp = lacune * pow(1.02, yearsToRetire);
+      final convRate = LppCalculator.adjustedConversionRate(
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: profile.effectiveRetirementAge,
+      );
+      final monthlyDelta = (projectedLpp * convRate) / 12;
+      if (monthlyDelta > 0) {
+        impacts.add(BudgetCapImpact(
+          capId: 'rachat_lpp',
+          monthlyDelta: monthlyDelta,
+        ));
+      }
     }
-    return BudgetStage.fullGapVisible;
+
+    // Cap 2: 3a max — if not already maxing out.
+    final current3aMensuel = profile.total3aMensuel;
+    const plafondMensuel = pilier3aPlafondAvecLpp / 12;
+    final has3aGap = current3aMensuel < plafondMensuel * 0.95;
+    if (has3aGap) {
+      final additional3aMonthly = plafondMensuel - current3aMensuel;
+      // Project additional monthly 3a to retirement at 4.5% average return
+      // then annualise over 20 years (same as ForecasterService).
+      final additional3aCapital =
+          additional3aMonthly * 12 * _annuityFactor(0.045, yearsToRetire);
+      final monthly3aDelta = (additional3aCapital * 0.8) /
+          20 /
+          12; // 0.8 factor for capital withdrawal tax
+      if (monthly3aDelta > 0) {
+        impacts.add(BudgetCapImpact(
+          capId: '3a_max',
+          monthlyDelta: monthly3aDelta,
+        ));
+      }
+    }
+
+    // Sort by descending delta (biggest lever first)
+    impacts.sort((a, b) => b.monthlyDelta.compareTo(a.monthlyDelta));
+    return impacts;
   }
 
-  // ════════════════════════════════════════════════════════════════
-  //  CAP IMPACT DERIVATION
-  // ════════════════════════════════════════════════════════════════
-
-  static BudgetCapImpact? _deriveCapImpact({
-    required CoachProfile profile,
-    required CapDecision cap,
-    required RetirementBudget? retirementBudget,
-  }) {
-    switch (cap.id) {
-      case 'pillar_3a':
-      case 'couple_3a':
-        // 3a: fiscal deduction this year + retirement income boost
-        final marginalRate = _estimateMarginalRate(profile);
-        const maxDeduction = 7258.0; // pilier3aPlafondAvecLpp
-        final taxSaving = (maxDeduction * marginalRate).round();
-        return BudgetCapImpact(
-          now: '~CHF\u00a0$taxSaving d\u2019imp\u00f4t en moins cette ann\u00e9e',
-          later: retirementBudget != null
-              ? '\u00e9cart retraite r\u00e9duit'
-              : null,
-        );
-
-      case 'lpp_buyback':
-      case 'couple_lpp_buyback':
-        // LPP buyback: fiscal deduction + retirement rente boost
-        final marginalRate = _estimateMarginalRate(profile);
-        final rachat = profile.prevoyance.rachatMaximum ?? 0;
-        // Suggest a reasonable annual buyback (capped at 50k for readability)
-        final suggestedAmount = rachat.clamp(0.0, 50000.0);
-        final taxSaving = (suggestedAmount * marginalRate).round();
-        return BudgetCapImpact(
-          now: '~CHF\u00a0$taxSaving de d\u00e9duction fiscale',
-          later: '\u00e9cart retraite r\u00e9duit',
-        );
-
-      case 'budget_deficit':
-        return const BudgetCapImpact(
-          now: 'marge mensuelle \u00e0 retrouver',
-          later: '\u00e9quilibre budg\u00e9taire',
-        );
-
-      case 'replacement_rate':
-        return const BudgetCapImpact(
-          now: 'leviers 3a ou rachat LPP',
-          later: '+4 \u00e0 +7 pts de taux de remplacement',
-        );
-
-      default:
-        // Unknown cap — return null rather than a weak message
-        return null;
-    }
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  CAP SEQUENCE DERIVATION
-  // ════════════════════════════════════════════════════════════════
-
-  static BudgetCapSequence? _deriveCapSequence({
-    required CapDecision cap,
-  }) {
-    switch (cap.id) {
-      case 'lpp_buyback':
-      case 'couple_lpp_buyback':
-        return const BudgetCapSequence(
-          title: 'Rachats LPP \u00e9chelonn\u00e9s',
-          steps: [
-            BudgetCapSequenceStep(
-              label: 'Cette ann\u00e9e',
-              effect: 'd\u00e9duction fiscale imm\u00e9diate',
-            ),
-            BudgetCapSequenceStep(
-              label: 'Ann\u00e9e suivante',
-              effect: 'nouveau rachat selon ton TMI',
-            ),
-            BudgetCapSequenceStep(
-              label: '\u00c0 la retraite',
-              effect: '\u00e9cart r\u00e9duit',
-            ),
-          ],
-        );
-
-      case 'pillar_3a':
-      case 'couple_3a':
-        return const BudgetCapSequence(
-          title: 'Versements 3a r\u00e9guliers',
-          steps: [
-            BudgetCapSequenceStep(
-              label: 'Cette ann\u00e9e',
-              effect: 'd\u00e9duction fiscale',
-            ),
-            BudgetCapSequenceStep(
-              label: 'Chaque ann\u00e9e',
-              effect: 'effet cumul\u00e9 + rendement',
-            ),
-            BudgetCapSequenceStep(
-              label: '\u00c0 la retraite',
-              effect: 'capital compl\u00e9mentaire',
-            ),
-          ],
-        );
-
-      default:
-        return null;
-    }
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  HELPERS
-  // ════════════════════════════════════════════════════════════════
-
-  /// Estimate marginal tax rate from profile (simplified V1).
-  /// Uses a rough heuristic: 25% default, 30% for high earners.
-  /// A precise TMI requires the tax declaration (data source: certificate).
-  static double _estimateMarginalRate(CoachProfile profile) {
-    final annualGross = profile.salaireBrutMensuel * 12;
-    if (annualGross > 150000) return 0.30;
-    if (annualGross > 80000) return 0.25;
-    return 0.20;
+  /// Annuity accumulation factor: ((1+r)^n - 1) / r
+  static double _annuityFactor(double rate, int years) {
+    if (rate == 0 || years == 0) return years.toDouble();
+    return (pow(1 + rate, years) - 1) / rate;
   }
 }

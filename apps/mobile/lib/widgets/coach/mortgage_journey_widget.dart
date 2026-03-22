@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -111,6 +112,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
       label: 'Parcours fléché achat immobilier 7 étapes hypothèque fonds propres FINMA LPP',
       child: Container(
@@ -122,7 +124,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
@@ -132,7 +134,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   const SizedBox(height: 20),
                   _buildActiveStepDetail(),
                   const SizedBox(height: 16),
-                  _buildNavigation(),
+                  _buildNavigation(s),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -144,7 +146,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -160,7 +162,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Parcours achat immobilier',
+                  s.mortgageJourneyTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -180,7 +182,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            '7 étapes pour passer de "est-ce que je peux ?" à "j\'ai signé !".',
+            s.mortgageJourneySubtitle,
             style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
@@ -306,7 +308,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
     );
   }
 
-  Widget _buildNavigation() {
+  Widget _buildNavigation(S s) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -314,7 +316,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           TextButton.icon(
             onPressed: () => setState(() => _activeStep--),
             icon: const Icon(Icons.arrow_back_rounded, size: 16),
-            label: const Text('Précédent'),
+            label: Text(s.mortgageJourneyPrevious),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.textSecondary,
               padding:
@@ -326,7 +328,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
         if (_activeStep < _kSteps.length - 1)
           ElevatedButton.icon(
             onPressed: () => setState(() => _activeStep++),
-            icon: const Text('Étape suivante'),
+            icon: Text(s.mortgageJourneyNextStep),
             label: const Icon(Icons.arrow_forward_rounded, size: 16),
             style: ElevatedButton.styleFrom(
               backgroundColor: MintColors.primary,
@@ -344,7 +346,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              '✅ Parcours complet !',
+              s.mortgageJourneyComplete,
               style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
             ),
           ),

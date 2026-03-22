@@ -17,31 +17,22 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/precision/field_help_tooltip.dart';
-import 'package:mint_mobile/widgets/premium/mint_choice_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
-/// Rente vs Capital arbitrage screen V2 — Decision Canvas.
+/// Rente vs Capital arbitrage screen — the "a-ha" moment.
 ///
-/// V2 layout (spec §5.3):
-///   1. Decision hero: "Rente ou capital." + subtitle
-///   2. 3 MintChoiceCard: Rente / Capital / Mixte
-///   3. Consequence comparison: MintResultHeroCard for selected option
-///   4. 3 MintSignalRow: Revenu / Fiscalite / Transmission
-///   5. MintConfidenceNotice (if no certificate)
-///   6. Fast estimate inputs (age, retirement, salary)
-///   7. CTA pill: "Comparer pour moi"
-///   8. Advanced disclosure: "J'ai mon certificat LPP"
-///   9. Explorer bloc (chart + life expectancy)
-///  10. Affiner bloc (hypotheses + impact + tornado)
-///  11. Disclaimer
+/// 4-bloc layout for neophytes:
+///   A. Accroche (chiffre-choc + hero CHF/mois + micro-légendes)
+///   B. Explorer (slider espérance de vie + trajectory chart fused)
+///   C. Comprendre (3 educational before/after cards)
+///   D. Affiner (hypotheses + impact cards + tornado in ExpansionTile)
 ///
 /// NEVER ranks options. Side-by-side comparison only.
-/// All text via i18n. No banned terms.
+/// All text in French, informal "tu". No banned terms.
 class RenteVsCapitalScreen extends StatefulWidget {
   const RenteVsCapitalScreen({super.key});
 
@@ -50,41 +41,36 @@ class RenteVsCapitalScreen extends StatefulWidget {
 }
 
 enum _InputMode { estimate, certificate }
-enum _OutcomeMode { rente, capital, mixte }
 
 class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
-  // -- V2 state --
-  _OutcomeMode _selectedOutcome = _OutcomeMode.rente;
-  bool _advancedExpanded = false;
-
-  // -- Input mode --
+  // ── Input mode ──
   _InputMode _inputMode = _InputMode.estimate;
 
-  // -- Estimate mode controllers --
+  // ── Estimate mode controllers ──
   final _ageCtrl = TextEditingController(text: '50');
   final _ageRetraiteSlider = ValueNotifier<double>(65);
   final _salaryCtrl = TextEditingController(text: '100000');
   final _lppTotalCtrl = TextEditingController(text: '350000');
 
-  // -- Certificate mode controllers --
+  // ── Certificate mode controllers ──
   final _capitalObligCtrl = TextEditingController(text: '500000');
   final _capitalSurobCtrl = TextEditingController(text: '150000');
   final _renteCtrl = TextEditingController(text: '37000');
   final _tcObligCtrl = TextEditingController(text: '6.8');
   final _tcSurobCtrl = TextEditingController(text: '5.0');
 
-  // -- Shared inputs --
+  // ── Shared inputs ──
   String _canton = 'VD';
   bool _isMarried = false;
 
-  // -- Hypothesis sliders --
+  // ── Hypothesis sliders ──
   Map<String, double> _hypotheses = {
     'rendement': 3.0,
     'swr': 4.0,
     'inflation': 2.0,
   };
 
-  // -- Life expectancy slider --
+  // ── Life expectancy slider ──
   double _lifeExpectancy = 85;
 
   bool _isLoading = false;
@@ -92,12 +78,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   int _requestCounter = 0;
   ArbitrageResult? _result;
 
-  // -- CoachProfile auto-fill --
+  // ── CoachProfile auto-fill ──
   bool _didAutoFill = false;
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
 
-  // -- New fields --
+  // ── New fields ──
   double? _avsRenteMensuelle;
   final _rachatAnnuelCtrl = TextEditingController(text: '0');
   final _rachatMaxCtrl = TextEditingController(text: '0');
@@ -167,7 +153,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final married = profile.etatCivil == CoachCivilStatus.marie;
     _isMarried = married;
 
-    // LPP oblig/surob split
+    // LPP oblig/surob split — use direct values if available, else 70/30 will be used
     final lppOblig = profile.prevoyance.avoirLppObligatoire;
     final lppSurob = profile.prevoyance.avoirLppSurobligatoire;
     if (lppOblig != null && lppOblig > 0) {
@@ -187,14 +173,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       apply(_tcSurobCtrl, (tcSurobProfile * 100).toStringAsFixed(1), 'prevoyance.tauxConversionSuroblig');
     }
 
-    // AVS estimated monthly rente
+    // AVS estimated monthly rente — used for display only (not engine input)
     final avsRente = profile.prevoyance.renteAVSEstimeeMensuelle;
     if (avsRente != null && avsRente > 0) {
       _avsRenteMensuelle = avsRente;
       changed = true;
     }
 
-    // Retirement age from profile
+    // Retirement age from profile if available
     final retirementAge = profile.targetRetirementAge;
     if (retirementAge != null && retirementAge >= 58 && retirementAge <= 70) {
       _ageRetraiteSlider.value = retirementAge.toDouble();
@@ -247,6 +233,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     double? salary;
 
     if (_inputMode == _InputMode.estimate) {
+      // Estimate mode: use LPP total with 70/30 split as starting point
       final lppTotal =
           double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000;
       capitalOblig = lppTotal * 0.7;
@@ -257,6 +244,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       currentAge = int.tryParse(_ageCtrl.text);
       salary = double.tryParse(_salaryCtrl.text.replaceAll("'", ''));
     } else {
+      // Certificate mode: direct values
       capitalOblig =
           double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 500000;
       capitalSurob =
@@ -269,7 +257,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       salary = null;
     }
 
-    // Rachat LPP: add future value of annual buybacks
+    // Rachat LPP: add future value of annual buybacks to current LPP
+    // FV annuity = annualBuyback × ((1+r)^n - 1) / r  (LPP growth rate 1.25%)
     final rachatAnnuel = double.tryParse(_rachatAnnuelCtrl.text.replaceAll("'", '')) ?? 0;
     if (rachatAnnuel > 0 && currentAge != null) {
       final yearsToRetirement = math.max(0, _ageRetraite - currentAge);
@@ -286,6 +275,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ? (double.tryParse(_eplAmountCtrl.text.replaceAll("'", '')) ?? 0)
         : 0.0;
     if (eplAmount > 0) {
+      // EPL reduces proportionally from oblig/surob
       final ratio = capitalOblig / math.max(1, capitalOblig + capitalSurob);
       capitalOblig = math.max(0, capitalOblig - eplAmount * ratio);
       capitalSurob = math.max(0, capitalSurob - eplAmount * (1 - ratio));
@@ -316,6 +306,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       );
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
+      _emitScreenReturn(result);
       return;
     } catch (_) {
       try {
@@ -339,6 +330,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         );
         if (!mounted || requestId != _requestCounter) return;
         setState(() => _result = fallback);
+        _emitScreenReturn(fallback);
       } catch (_) {
         if (!mounted || requestId != _requestCounter) return;
         setState(() => _hasError = true);
@@ -348,6 +340,21 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _emitScreenReturn(ArbitrageResult result) {
+    final mode = _inputMode == _InputMode.certificate
+        ? 'certificate'
+        : 'estimate';
+    final screenReturn = ScreenReturn.completed(
+      route: '/rente-vs-capital',
+      updatedFields: {'retirementMode': mode},
+      confidenceDelta: 0.02,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'rente_vs_capital',
+      screenReturn,
+    );
   }
 
   int get _ageRetraite => _ageRetraiteSlider.value.round();
@@ -378,9 +385,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     }).toList();
   }
 
-  // =====================================================================
-  //  BUILD — V2 DECISION CANVAS
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  BUILD — 4 BLOCS
+  // ═══════════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
@@ -389,41 +396,33 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         : _optionsAsAgeTrajectories(_result!.options);
 
     return Scaffold(
-      backgroundColor: MintColors.porcelaine,
       body: CustomScrollView(
         slivers: [
-          // -- SliverAppBar --
+          // ── SliverAppBar (white standard — Simulator screen) ──
           SliverAppBar(
             pinned: true,
-            backgroundColor: MintColors.porcelaine,
+            backgroundColor: MintColors.white,
             foregroundColor: MintColors.textPrimary,
-            surfaceTintColor: MintColors.porcelaine,
+            surfaceTintColor: MintColors.white,
             title: Text(
               S.of(context)!.renteVsCapitalAppBarTitle,
               style: MintTextStyles.headlineMedium(),
             ),
           ),
 
-          // -- Content --
+          // ── Content ──
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+            padding: const EdgeInsets.all(MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                const SizedBox(height: MintSpacing.md),
+                // ── Hero intro (why this matters) ──
+                _buildHeroIntro(),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ====================================================
-                //  BLOC 1 — DECISION HERO
-                // ====================================================
-                _buildDecisionHero(),
-                const SizedBox(height: MintSpacing.xl),
+                // ── Inputs (2 modes) ──
+                _buildInputSection(),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ====================================================
-                //  BLOC 2 — CHOICE CARDS
-                // ====================================================
-                _buildChoiceCards(),
-                const SizedBox(height: MintSpacing.xl),
-
-                // -- Loading / Error --
                 if (_isLoading && _result == null)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: MintSpacing.lg),
@@ -431,68 +430,72 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   ),
 
                 if (_hasError && _result == null)
-                  _buildErrorBanner(),
+                  Container(
+                    padding: const EdgeInsets.all(MintSpacing.md),
+                    margin: const EdgeInsets.only(bottom: MintSpacing.md),
+                    decoration: BoxDecoration(
+                      color: MintColors.error.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                        const SizedBox(width: MintSpacing.sm),
+                        Expanded(child: Text(
+                          S.of(context)!.renteVsCapitalErrorRetry,
+                          style: MintTextStyles.bodySmall(color: MintColors.error),
+                        )),
+                      ],
+                    ),
+                  ),
 
                 if (_result != null) ...[
-                  // ====================================================
-                  //  BLOC 3 — CONSEQUENCE COMPARISON
-                  // ====================================================
-                  _buildConsequenceHero(),
+                  // ── Confidence banner ──
+                  IndicatifBanner(
+                    confidenceScore: _result!.confidenceScore,
+                    topEnrichmentCategory: 'lpp',
+                  ),
+
+                  if (_hasEstimatedValues && _inputMode == _InputMode.estimate)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+                      child: SmartDefaultIndicator(
+                        source: S.of(context)!.renteVsCapitalProfileAutoFill,
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
+
+                  // ══════════════════════════════════════════════
+                  //  BLOC A — ACCROCHE
+                  //  Chiffre-choc + Hero CHF/mois + micro-légendes
+                  // ══════════════════════════════════════════════
+                  _buildChiffreChocAccroche(),
+                  const SizedBox(height: MintSpacing.md),
+                  _buildHeroMonthly(),
                   const SizedBox(height: MintSpacing.lg),
 
-                  // ====================================================
-                  //  BLOC 4 — SIGNAL ROWS (comparison)
-                  // ====================================================
-                  _buildSignalRows(),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ====================================================
-                  //  BLOC 5 — CONFIDENCE NOTICE
-                  // ====================================================
-                  _buildConfidenceNotice(),
-                  const SizedBox(height: MintSpacing.xl),
-                ],
-
-                // ====================================================
-                //  BLOC 6 — FAST ESTIMATE INPUTS
-                // ====================================================
-                _buildFastEstimateSection(),
-                const SizedBox(height: MintSpacing.lg),
-
-                // ====================================================
-                //  BLOC 7 — CTA PILL
-                // ====================================================
-                _buildCtaPill(),
-                const SizedBox(height: MintSpacing.xl),
-
-                // ====================================================
-                //  BLOC 8 — ADVANCED DISCLOSURE
-                // ====================================================
-                _buildAdvancedDisclosure(),
-                const SizedBox(height: MintSpacing.xl),
-
-                if (_result != null) ...[
-                  // ====================================================
-                  //  BLOC 9 — EXPLORER (chart + life expectancy)
-                  // ====================================================
-                  _buildExplorerBloc(chartOptions),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ====================================================
-                  //  BLOC 10 — EDUCATIONAL CARDS
-                  // ====================================================
+                  // ══════════════════════════════════════════════
+                  //  BLOC C — COMPRENDRE
+                  //  3 cartes éducatives (fiscalité, inflation, transmission)
+                  // ══════════════════════════════════════════════
                   _buildEducationalCards(),
                   const SizedBox(height: MintSpacing.lg),
 
-                  // ====================================================
-                  //  BLOC 11 — AFFINER (hypotheses + impact + tornado)
-                  // ====================================================
+                  // ══════════════════════════════════════════════
+                  //  BLOC B — EXPLORER
+                  //  Slider espérance + chart trajectoire (fused)
+                  // ══════════════════════════════════════════════
+                  _buildExplorerBloc(chartOptions),
+                  const SizedBox(height: MintSpacing.lg),
+
+                  // ══════════════════════════════════════════════
+                  //  BLOC D — AFFINER
+                  //  Hypothèses + impact cards + tornado (ExpansionTile)
+                  // ══════════════════════════════════════════════
                   _buildAffinerBloc(),
                   const SizedBox(height: MintSpacing.lg),
 
-                  // ====================================================
-                  //  BLOC 12 — DISCLAIMER
-                  // ====================================================
+                  // ── Disclaimer ──
                   _buildDisclaimerCard(),
                   const SizedBox(height: MintSpacing.xl),
                 ],
@@ -504,317 +507,236 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     );
   }
 
-  // =====================================================================
-  //  BLOC 1 — DECISION HERO
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  HERO INTRO — pourquoi tu devrais t'en soucier
+  // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildDecisionHero() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          S.of(context)!.renteVsCapitalV2Title,
-          style: MintTextStyles.displayMedium().copyWith(
-            fontSize: 32,
-            height: 1.1,
-          ),
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        Text(
-          S.of(context)!.renteVsCapitalV2Subtitle,
-          style: MintTextStyles.bodyLarge(color: MintColors.textSecondary)
-              .copyWith(fontSize: 17, height: 1.4),
-        ),
-      ],
-    );
-  }
-
-  // =====================================================================
-  //  BLOC 2 — CHOICE CARDS
-  // =====================================================================
-
-  Widget _buildChoiceCards() {
-    return Column(
-      children: [
-        MintChoiceCard(
-          title: S.of(context)!.renteVsCapitalRenteLabel,
-          subtitle: S.of(context)!.renteVsCapitalChoiceRenteSubtitle,
-          selected: _selectedOutcome == _OutcomeMode.rente,
-          selectedColor: MintColors.saugeClaire,
-          onTap: () => setState(() => _selectedOutcome = _OutcomeMode.rente),
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        MintChoiceCard(
-          title: S.of(context)!.renteVsCapitalCapitalLabel,
-          subtitle: S.of(context)!.renteVsCapitalChoiceCapitalSubtitle,
-          selected: _selectedOutcome == _OutcomeMode.capital,
-          selectedColor: MintColors.pecheDouce,
-          onTap: () => setState(() => _selectedOutcome = _OutcomeMode.capital),
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        MintChoiceCard(
-          title: S.of(context)!.renteVsCapitalMixteLabel,
-          subtitle: S.of(context)!.renteVsCapitalChoiceMixteSubtitle,
-          selected: _selectedOutcome == _OutcomeMode.mixte,
-          selectedColor: MintColors.bleuAir,
-          onTap: () => setState(() => _selectedOutcome = _OutcomeMode.mixte),
-        ),
-      ],
-    );
-  }
-
-  // =====================================================================
-  //  BLOC 3 — CONSEQUENCE HERO (adapts to selected outcome)
-  // =====================================================================
-
-  Widget _buildConsequenceHero() {
-    final r = _result!;
-
-    // Compute total capital from inputs for net-after-tax display
-    final capitalTotal = _inputMode == _InputMode.estimate
-        ? (double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000)
-        : (double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 500000) +
-          (double.tryParse(_capitalSurobCtrl.text.replaceAll("'", '')) ?? 150000);
-    final capitalNet = r.isProjected ? r.capitalProjecte - r.impotRetraitCapital : capitalTotal - r.impotRetraitCapital;
-
-    // For mixte: estimate surobligatoire portion (30% of total in estimate mode)
-    final capitalSurob = _inputMode == _InputMode.estimate
-        ? capitalTotal * 0.3
-        : (double.tryParse(_capitalSurobCtrl.text.replaceAll("'", '')) ?? 150000);
-    final surobNet = capitalSurob - (capitalTotal > 0 ? r.impotRetraitCapital * capitalSurob / capitalTotal : 0);
-
-    switch (_selectedOutcome) {
-      case _OutcomeMode.rente:
-        return MintResultHeroCard(
-          eyebrow: S.of(context)!.renteVsCapitalConsequenceRenteEyebrow,
-          primaryValue: formatChfWithPrefix(r.renteNetMensuelle),
-          primaryLabel: S.of(context)!.renteVsCapitalPerMonthForLife,
-          narrative: S.of(context)!.renteVsCapitalConsequenceRenteNarrative,
-          accentColor: MintColors.textPrimary,
-          tone: MintSurfaceTone.sauge,
-        );
-      case _OutcomeMode.capital:
-        return MintResultHeroCard(
-          eyebrow: S.of(context)!.renteVsCapitalConsequenceCapitalEyebrow,
-          primaryValue: formatChfWithPrefix(capitalNet),
-          primaryLabel: S.of(context)!.renteVsCapitalNetAfterTax,
-          secondaryValue: formatChfWithPrefix(r.capitalRetraitMensuel),
-          secondaryLabel: S.of(context)!.renteVsCapitalPerMonth,
-          narrative: S.of(context)!.renteVsCapitalConsequenceCapitalNarrative,
-          accentColor: MintColors.textPrimary,
-          tone: MintSurfaceTone.peche,
-        );
-      case _OutcomeMode.mixte:
-        return MintResultHeroCard(
-          eyebrow: S.of(context)!.renteVsCapitalConsequenceMixteEyebrow,
-          primaryValue: formatChfWithPrefix(r.renteNetMensuelle),
-          primaryLabel: S.of(context)!.renteVsCapitalConsequenceMixteRenteLabel,
-          secondaryValue: formatChfWithPrefix(surobNet),
-          secondaryLabel: S.of(context)!.renteVsCapitalConsequenceMixteCapitalLabel,
-          narrative: S.of(context)!.renteVsCapitalConsequenceMixteNarrative,
-          accentColor: MintColors.textPrimary,
-          tone: MintSurfaceTone.bleu,
-        );
-    }
-  }
-
-  // =====================================================================
-  //  BLOC 4 — SIGNAL ROWS
-  // =====================================================================
-
-  Widget _buildSignalRows() {
-    final r = _result!;
-    final renteMois = r.renteNetMensuelle;
-    final capitalMois = r.capitalRetraitMensuel;
-
-    // Revenu mensuel
-    final revenuValue = _selectedOutcome == _OutcomeMode.rente
-        ? formatChfWithPrefix(renteMois)
-        : _selectedOutcome == _OutcomeMode.capital
-            ? formatChfWithPrefix(capitalMois)
-            : '${formatChfWithPrefix(renteMois)} + ${formatChfWithPrefix(capitalMois)}';
-
-    // Fiscalite
-    final fiscalValue = _selectedOutcome == _OutcomeMode.rente
-        ? '~${formatChfWithPrefix(r.impotCumulRente)}'
-        : _selectedOutcome == _OutcomeMode.capital
-            ? '~${formatChfWithPrefix(r.impotRetraitCapital)}'
-            : '~${formatChfWithPrefix(r.impotCumulRente * 0.7 + r.impotRetraitCapital * 0.3)}';
-
-    // Transmission
-    final transmissionValue = _selectedOutcome == _OutcomeMode.capital
-        ? S.of(context)!.renteVsCapitalTransmissionCapitalValue
-        : _isMarried
-            ? S.of(context)!.renteVsCapitalTransmissionRenteMarried
-            : S.of(context)!.renteVsCapitalTransmissionRenteSingle;
-
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.symmetric(
-        horizontal: MintSpacing.lg,
-        vertical: MintSpacing.sm,
+  Widget _buildHeroIntro() {
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.info.withAlpha(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.info.withAlpha(30)),
       ),
-      child: Column(
-        children: [
-          MintSignalRow(
-            label: S.of(context)!.renteVsCapitalSignalRevenu,
-            value: revenuValue,
-          ),
-          Divider(
-            color: MintColors.border.withValues(alpha: 0.2),
-            height: 1,
-          ),
-          MintSignalRow(
-            label: S.of(context)!.renteVsCapitalSignalFiscalite,
-            value: fiscalValue,
-          ),
-          Divider(
-            color: MintColors.border.withValues(alpha: 0.2),
-            height: 1,
-          ),
-          MintSignalRow(
-            label: S.of(context)!.renteVsCapitalSignalTransmission,
-            value: transmissionValue,
-          ),
-          // AVS complement if available
-          if (_avsRenteMensuelle != null && _avsRenteMensuelle! > 0) ...[
-            Divider(
-              color: MintColors.border.withValues(alpha: 0.2),
-              height: 1,
-            ),
-            MintSignalRow(
-              label: 'AVS',
-              value: S.of(context)!.renteVsCapitalAvsAmount(
-                formatChf(_avsRenteMensuelle!),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // =====================================================================
-  //  BLOC 5 — CONFIDENCE NOTICE
-  // =====================================================================
-
-  Widget _buildConfidenceNotice() {
-    final r = _result!;
-    final confidence = r.confidenceScore.round();
-    final isLow = confidence < 50 || _hasEstimatedValues;
-
-    return MintConfidenceNotice(
-      percent: confidence,
-      message: isLow
-          ? S.of(context)!.renteVsCapitalConfidenceNoticeLow
-          : S.of(context)!.renteVsCapitalConfidenceNoticeHigh,
-      ctaLabel: isLow ? S.of(context)!.renteVsCapitalConfidenceCta : null,
-      onTap: isLow
-          ? () => setState(() => _advancedExpanded = true)
-          : null,
-    );
-  }
-
-  // =====================================================================
-  //  BLOC 6 — FAST ESTIMATE INPUTS
-  // =====================================================================
-
-  Widget _buildFastEstimateSection() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.renteVsCapitalFastEstimateTitle,
-            style: MintTextStyles.titleMedium(),
-          ),
-          const SizedBox(height: MintSpacing.md),
-
-          // Age
-          _buildLabeledField(
-            controller: _ageCtrl,
-            label: S.of(context)!.renteVsCapitalAge,
-            fieldName: 'age',
+            S.of(context)!.renteVsCapitalIntro,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
           const SizedBox(height: MintSpacing.sm),
-
-          // Retirement age slider
-          _buildRetirementAgeSlider(),
-          const SizedBox(height: MintSpacing.sm),
-
-          // Salary
-          _buildLabeledField(
-            controller: _salaryCtrl,
-            label: S.of(context)!.renteVsCapitalSalary,
-            fieldName: 'salaire_brut',
+          _introPuce(
+            S.of(context)!.renteVsCapitalRenteLabel,
+            S.of(context)!.renteVsCapitalRenteExplanation,
+          ),
+          _introPuce(
+            S.of(context)!.renteVsCapitalCapitalLabel,
+            S.of(context)!.renteVsCapitalCapitalExplanation,
+          ),
+          _introPuce(
+            S.of(context)!.renteVsCapitalMixteLabel,
+            S.of(context)!.renteVsCapitalMixteExplanation,
           ),
         ],
       ),
     );
   }
 
-  // =====================================================================
-  //  BLOC 7 — CTA PILL
-  // =====================================================================
-
-  Widget _buildCtaPill() {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: _recalculate,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: MintColors.primary,
-          foregroundColor: MintColors.white,
-          shape: const StadiumBorder(),
-          elevation: 0,
-          textStyle: MintTextStyles.titleMedium(color: MintColors.white)
-              .copyWith(fontWeight: FontWeight.w700),
+  Widget _introPuce(String term, String explanation) {
+    return Padding(
+      padding: const EdgeInsets.only(top: MintSpacing.xs),
+      child: Semantics(
+        label: term,
+        button: true,
+        child: InkWell(
+        onTap: () => _showExplanation(term, explanation),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
+              Text(
+                term,
+                style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                  decorationColor: MintColors.info.withAlpha(60),
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Text(S.of(context)!.renteVsCapitalCtaCompare),
+      ),
       ),
     );
   }
 
-  // =====================================================================
-  //  BLOC 8 — ADVANCED DISCLOSURE
-  // =====================================================================
-
-  Widget _buildAdvancedDisclosure() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: EdgeInsets.zero,
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: _advancedExpanded,
-          onExpansionChanged: (v) => setState(() {
-            _advancedExpanded = v;
-            if (v) _inputMode = _InputMode.certificate;
-          }),
-          tilePadding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.lg,
-            vertical: MintSpacing.xs,
-          ),
-          childrenPadding: const EdgeInsets.fromLTRB(
-            MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg,
-          ),
-          title: Text(
-            S.of(context)!.renteVsCapitalAdvancedDisclosure,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
+  void _showExplanation(String term, String text) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: MintColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // LPP total
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.lg),
+            Text(
+              term,
+              style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              text,
+              style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
+                fontSize: 15, height: 1.6,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  INPUTS — 2 modes via SegmentedButton
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildInputSection() {
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Mode selector
+          Semantics(
+            label: S.of(context)!.renteVsCapitalEstimateMode,
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<_InputMode>(
+                segments: [
+                  ButtonSegment(
+                    value: _InputMode.estimate,
+                    label: Text(S.of(context)!.renteVsCapitalEstimateMode),
+                    icon: const Icon(Icons.auto_fix_high, size: 16),
+                  ),
+                  ButtonSegment(
+                    value: _InputMode.certificate,
+                    label: Text(S.of(context)!.renteVsCapitalCertificateMode),
+                    icon: const Icon(Icons.description_outlined, size: 16),
+                  ),
+                ],
+                selected: {_inputMode},
+                onSelectionChanged: (v) {
+                  setState(() => _inputMode = v.first);
+                  _recalculate();
+                },
+                style: ButtonStyle(
+                  textStyle: WidgetStatePropertyAll(
+                    MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.w600, fontSize: 12),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.md),
+
+          if (_inputMode == _InputMode.estimate) ...[
+            _buildLabeledField(
+              controller: _ageCtrl,
+              label: S.of(context)!.renteVsCapitalAge,
+              fieldName: 'age',
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            // Retirement age slider
+            _buildRetirementAgeSlider(),
+            const SizedBox(height: MintSpacing.sm),
+            _buildLabeledField(
+              controller: _salaryCtrl,
+              label: S.of(context)!.renteVsCapitalSalary,
+              fieldName: 'salaire_brut',
+            ),
+            const SizedBox(height: MintSpacing.sm),
             _buildLabeledField(
               controller: _lppTotalCtrl,
               label: S.of(context)!.renteVsCapitalLppTotal,
               fieldName: 'lpp_total',
             ),
             const SizedBox(height: MintSpacing.sm),
-
-            // Certificate mode fields
+            // Rachat LPP
+            _buildRachatSection(),
+            const SizedBox(height: MintSpacing.sm),
+            // EPL
+            _buildEplSection(),
+            // Auto-computed readout
+            if (_result != null && _result!.isProjected) ...[
+              const SizedBox(height: MintSpacing.sm),
+              Container(
+                padding: const EdgeInsets.all(MintSpacing.sm),
+                decoration: BoxDecoration(
+                  color: MintColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.of(context)!.renteVsCapitalEstimatedCapital(
+                        _ageRetraite,
+                        formatChf(_result!.capitalProjecte),
+                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      S.of(context)!.renteVsCapitalEstimatedRente(
+                        formatChf(_result!.renteNetMensuelle * 12),
+                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Row(
+                      children: [
+                        SmartDefaultIndicator(
+                          source: S.of(context)!.renteVsCapitalProjectionSource,
+                          confidence: _result!.confidenceScore / 100,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ] else ...[
+            // Certificate mode
             _buildLabeledField(
               controller: _capitalObligCtrl,
               label: S.of(context)!.renteVsCapitalLppOblig,
@@ -852,123 +774,140 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: MintSpacing.md),
-
-            // Rachat LPP
-            _buildRachatSection(),
-            const SizedBox(height: MintSpacing.sm),
-
-            // EPL
-            _buildEplSection(),
-            const SizedBox(height: MintSpacing.md),
-
-            // Canton + Married
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            // Confidence gratification
+            if (_result != null)
+              Padding(
+                padding: const EdgeInsets.only(top: MintSpacing.sm),
+                child: Container(
+                  padding: const EdgeInsets.all(MintSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: MintColors.success.withAlpha(15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: MintColors.success.withAlpha(40)),
+                  ),
+                  child: Row(
                     children: [
-                      Text(S.of(context)!.renteVsCapitalCanton, style: _labelStyle),
-                      const SizedBox(height: MintSpacing.xs),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-                        decoration: BoxDecoration(
-                          color: MintColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: DropdownButton<String>(
-                          value: _canton,
-                          isExpanded: true,
-                          underline: const SizedBox.shrink(),
-                          items: sortedCantonCodes.map((code) {
-                            final name = cantonFullNames[code] ?? code;
-                            return DropdownMenuItem(
-                              value: code,
-                              child: Text('$code - $name',
-                                  style: MintTextStyles.bodyMedium()),
-                            );
-                          }).toList(),
-                          onChanged: (v) {
-                            if (v != null) { _canton = v; _recalculate(); }
-                          },
+                      const Icon(Icons.check_circle_outline,
+                          size: 20, color: MintColors.success),
+                      const SizedBox(width: MintSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          S.of(context)!.renteVsCapitalMaxPrecision,
+                          style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: MintSpacing.md),
-                Column(
+              ),
+          ],
+
+          const SizedBox(height: MintSpacing.md),
+          // Canton + Married
+          Row(
+            children: [
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(S.of(context)!.renteVsCapitalMarried, style: _labelStyle),
+                    Text(S.of(context)!.renteVsCapitalCanton, style: _labelStyle),
                     const SizedBox(height: MintSpacing.xs),
-                    Semantics(
-                      label: S.of(context)!.renteVsCapitalMarried,
-                      toggled: _isMarried,
-                      child: Switch(
-                        value: _isMarried,
-                        activeTrackColor: MintColors.primary,
-                        onChanged: (v) { _isMarried = v; _recalculate(); },
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                      decoration: BoxDecoration(
+                        color: MintColors.surface,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: DropdownButton<String>(
+                        value: _canton,
+                        isExpanded: true,
+                        underline: const SizedBox.shrink(),
+                        items: sortedCantonCodes.map((code) {
+                          final name = cantonFullNames[code] ?? code;
+                          return DropdownMenuItem(
+                            value: code,
+                            child: Text('$code - $name',
+                                style: MintTextStyles.bodyMedium()),
+                          );
+                        }).toList(),
+                        onChanged: (v) {
+                          if (v != null) { _canton = v; _recalculate(); }
+                        },
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =====================================================================
-  //  ERROR BANNER
-  // =====================================================================
-
-  Widget _buildErrorBanner() {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      margin: const EdgeInsets.only(bottom: MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: MintColors.error, size: 20),
-          const SizedBox(width: MintSpacing.sm),
-          Expanded(child: Text(
-            S.of(context)!.renteVsCapitalErrorRetry,
-            style: MintTextStyles.bodySmall(color: MintColors.error),
-          )),
+              ),
+              const SizedBox(width: MintSpacing.md),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(S.of(context)!.renteVsCapitalMarried, style: _labelStyle),
+                  const SizedBox(height: MintSpacing.xs),
+                  Semantics(
+                    label: S.of(context)!.renteVsCapitalMarried,
+                    toggled: _isMarried,
+                    child: Switch(
+                      value: _isMarried,
+                      activeTrackColor: MintColors.primary,
+                      onChanged: (v) { _isMarried = v; _recalculate(); },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  // =====================================================================
-  //  RETIREMENT AGE SLIDER
-  // =====================================================================
-
   Widget _buildRetirementAgeSlider() {
-    return MintPremiumSlider(
-      label: S.of(context)!.renteVsCapitalRetirementAge,
-      value: _ageRetraiteSlider.value,
-      min: 58,
-      max: 70,
-      divisions: 12,
-      formatValue: (v) => S.of(context)!.renteVsCapitalAgeYears(v.round()),
-      onChanged: (v) {
-        _ageRetraiteSlider.value = v;
-        _recalculate();
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(S.of(context)!.renteVsCapitalRetirementAge, style: _labelStyle),
+            const Spacer(),
+            ValueListenableBuilder<double>(
+              valueListenable: _ageRetraiteSlider,
+              builder: (_, v, __) => Text(
+                S.of(context)!.renteVsCapitalAgeYears(v.round()),
+                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        Semantics(
+          label: S.of(context)!.renteVsCapitalRetirementAge,
+          slider: true,
+          child: SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withAlpha(30),
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+            ),
+            child: Slider(
+              value: _ageRetraiteSlider.value,
+              min: 58, max: 70, divisions: 12,
+              onChanged: (v) {
+                _ageRetraiteSlider.value = v;
+                _recalculate();
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
-
-  // =====================================================================
-  //  LABELED FIELD
-  // =====================================================================
 
   Widget _buildLabeledField({
     required TextEditingController controller,
@@ -1016,28 +955,294 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     );
   }
 
-  // =====================================================================
-  //  EXPLORER BLOC (slider + chart fused)
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOC A — ACCROCHE
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Chiffre-choc en haut — pourquoi cette decision compte.
+  Widget _buildChiffreChocAccroche() {
+    final r = _result!;
+    // Build a punchy one-liner from the engine's chiffreChoc
+    final taxDelta = (r.impotCumulRente - r.impotRetraitCapital).abs();
+    final epuiseAge = r.capitalEpuiseAge;
+
+    // Dynamic accroche that adapts to the user's numbers
+    String accroche;
+    if (taxDelta > 10000 && epuiseAge != null) {
+      accroche = S.of(context)!.renteVsCapitalAccrocheTaxEpuise(
+        formatChf(taxDelta), epuiseAge,
+      );
+    } else if (taxDelta > 10000) {
+      accroche = S.of(context)!.renteVsCapitalAccrocheTax(
+        formatChf(taxDelta),
+      );
+    } else if (epuiseAge != null) {
+      accroche = S.of(context)!.renteVsCapitalAccrocheEpuise(epuiseAge);
+    } else {
+      accroche = r.chiffreChoc;
+    }
+
+    return Semantics(
+      label: accroche,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 14),
+        decoration: BoxDecoration(
+          color: MintColors.info.withAlpha(12),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.info.withAlpha(30)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Text(
+                accroche,
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Hero CHF/mois — side-by-side with micro-légendes.
+  Widget _buildHeroMonthly() {
+    final r = _result!;
+    final renteMois = r.renteNetMensuelle;
+    final capitalMois = r.capitalRetraitMensuel;
+    final delta = (capitalMois - renteMois).abs();
+    final capitalDuration = r.capitalEpuiseAge != null
+        ? '~${r.capitalEpuiseAge! - _ageRetraite} ans'
+        : '30+ ans';
+    final swr = (_hypotheses['swr'] ?? 4.0);
+    final rendement = (_hypotheses['rendement'] ?? 3.0);
+
+    final higherIsCapital = capitalMois > renteMois;
+    final synthese = higherIsCapital
+        ? S.of(context)!.renteVsCapitalSyntheseCapitalHigher(formatChf(delta))
+        : S.of(context)!.renteVsCapitalSyntheseRenteHigher(formatChf(delta));
+
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+        boxShadow: [
+          BoxShadow(
+            color: MintColors.primary.withAlpha(8),
+            blurRadius: 20, offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Rente column ──
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(S.of(context)!.renteVsCapitalHeroRente,
+                      style: MintTextStyles.labelSmall(color: MintColors.retirementAvs).copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      formatChf(renteMois),
+                      style: MintTextStyles.displayMedium().copyWith(
+                        fontSize: 26,
+                      ),
+                    ),
+                    Text(S.of(context)!.renteVsCapitalPerMonth,
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: MintColors.retirementAvs.withAlpha(15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(S.of(context)!.renteVsCapitalForLife,
+                        style: MintTextStyles.labelSmall(color: MintColors.retirementAvs).copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.sm),
+                    // ── Micro-légende ──
+                    Text(
+                      S.of(context)!.renteVsCapitalMicroRente,
+                      style: MintTextStyles.micro(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              // Divider
+              Container(width: 1, height: 100, color: MintColors.lightBorder),
+              // ── Capital column ──
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(S.of(context)!.renteVsCapitalHeroCapital,
+                      style: MintTextStyles.labelSmall(color: MintColors.retirementLpp).copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      formatChf(capitalMois),
+                      style: MintTextStyles.displayMedium().copyWith(
+                        fontSize: 26,
+                      ),
+                    ),
+                    Text(S.of(context)!.renteVsCapitalPerMonth,
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: MintColors.retirementLpp.withAlpha(15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(S.of(context)!.renteVsCapitalDuration(capitalDuration),
+                        style: MintTextStyles.labelSmall(color: MintColors.retirementLpp).copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.sm),
+                    // ── Micro-légende ──
+                    Text(
+                      S.of(context)!.renteVsCapitalMicroCapital(
+                        swr.toStringAsFixed(0),
+                        rendement.toStringAsFixed(0),
+                      ),
+                      style: MintTextStyles.micro(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.md),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(MintSpacing.sm),
+            decoration: BoxDecoration(
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              synthese,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          // AVS complement if available
+          if (_avsRenteMensuelle != null && _avsRenteMensuelle! > 0) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: MintColors.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: MintColors.lightBorder),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
+                  const SizedBox(width: MintSpacing.sm),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+                          fontSize: 12,
+                        ),
+                        children: [
+                          TextSpan(text: S.of(context)!.renteVsCapitalAvsEstimated),
+                          TextSpan(
+                            text: S.of(context)!.renteVsCapitalAvsAmount(
+                              formatChf(_avsRenteMensuelle!),
+                            ),
+                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(
+                              fontSize: 12, fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          TextSpan(text: S.of(context)!.renteVsCapitalAvsSupplementary),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOC B — EXPLORER (slider + chart fused)
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _buildExplorerBloc(List<TrajectoireOption> chartOptions) {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Slider: "Et si je vis jusqu'a..."
-          MintPremiumSlider(
+          // ── Slider: "Et si je vis jusqu'a..." ──
+          Text(
+            S.of(context)!.renteVsCapitalLifeExpectancy,
+            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Semantics(
             label: S.of(context)!.renteVsCapitalLifeExpectancy,
-            value: _lifeExpectancy,
-            min: 70,
-            max: 100,
-            divisions: 30,
-            formatValue: (v) => S.of(context)!.renteVsCapitalAgeYears(v.round()),
-            onChanged: (v) {
-              setState(() => _lifeExpectancy = v);
-              _recalculate();
-            },
+            slider: true,
+            child: SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: MintColors.primary,
+                inactiveTrackColor: MintColors.textMuted.withAlpha(40),
+                thumbColor: MintColors.primary,
+                overlayColor: MintColors.primary.withAlpha(30),
+                trackHeight: 6,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+                showValueIndicator: ShowValueIndicator.onDrag,
+              ),
+              child: Slider(
+                value: _lifeExpectancy,
+                min: 70, max: 100, divisions: 30,
+                label: S.of(context)!.renteVsCapitalAgeYears(_lifeExpectancy.round()),
+                onChanged: (v) {
+                  setState(() => _lifeExpectancy = v);
+                  _recalculate();
+                },
+              ),
+            ),
           ),
           _buildDeltaAtAge(_lifeExpectancy.round()),
           const SizedBox(height: MintSpacing.xs),
@@ -1048,7 +1253,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
           const SizedBox(height: MintSpacing.lg),
 
-          // Chart
+          // ── Chart: capital restant vs revenus cumules de la rente ──
           Text(
             S.of(context)!.renteVsCapitalChartTitle,
             style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
@@ -1085,6 +1290,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     if (yearIndex >= renteOption.trajectory.length ||
         yearIndex >= capitalOption.trajectory.length) {
+      // Should not happen now that horizon is dynamic, but safety fallback
       return Text(
         S.of(context)!.renteVsCapitalBeyondHorizon(age),
         style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
@@ -1137,9 +1343,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     );
   }
 
-  // =====================================================================
-  //  EDUCATIONAL CARDS (3 before/after)
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOC C — COMPRENDRE (3 educational before/after cards)
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _buildEducationalCards() {
     final r = _result!;
@@ -1239,8 +1445,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     required String rightDetail,
     required String bottomText,
   }) {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1320,9 +1531,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     );
   }
 
-  // =====================================================================
-  //  AFFINER BLOC (hypotheses + impact cards + tornado)
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOC D — AFFINER (hypothèses + impact cards + tornado)
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _buildAffinerBloc() {
     return Column(
@@ -1341,7 +1552,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
 
-        // Hypothesis sliders
+        // ── Hypothesis sliders (vulgarized labels) ──
         HypothesisEditorWidget(
           hypotheses: [
             HypothesisConfig(
@@ -1368,11 +1579,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ),
         const SizedBox(height: MintSpacing.lg),
 
-        // Impact cards
+        // ── Impact cards (simplified sensitivity) ──
         _buildImpactCards(),
         const SizedBox(height: MintSpacing.sm),
 
-        // Tornado in ExpansionTile
+        // ── Tornado in ExpansionTile ──
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
           childrenPadding: const EdgeInsets.only(bottom: MintSpacing.sm),
@@ -1384,21 +1595,23 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
 
-        // Hypotheses detail
+        // ── Hypothèses détaillées ──
         _buildHypothesesSection(),
       ],
     );
   }
 
-  // =====================================================================
-  //  IMPACT CARDS
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  IMPACT CARDS (simplified sensitivity)
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _buildImpactCards() {
     if (_result == null) return const SizedBox.shrink();
     final variables = _result!.tornadoVariables;
     if (variables.isEmpty) return const SizedBox.shrink();
 
+    // Filter out variables with negligible or zero swing — showing "+0" is
+    // worse than not showing the row at all (misleads the user).
     final top = variables.where((v) => v.swing > 50).take(4).toList();
     if (top.isEmpty) return const SizedBox.shrink();
     final maxSwing = top.first.swing;
@@ -1431,8 +1644,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final lowDelta = v.lowValue - v.baseValue;
     final highDelta = v.highValue - v.baseValue;
 
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1499,9 +1717,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     );
   }
 
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  CONFIDENCE BANNER
+  // ═══════════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════════
   //  HYPOTHESES EXPANDABLE
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _buildHypothesesSection() {
     if (_result == null) return const SizedBox.shrink();
@@ -1535,14 +1757,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     );
   }
 
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
   //  DISCLAIMER CARD
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _buildDisclaimerCard() {
     if (_result == null) return const SizedBox.shrink();
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1574,9 +1801,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     );
   }
 
-  // =====================================================================
-  //  RACHAT SECTION
-  // =====================================================================
+  // ═══════════════════════════════════════════════════════════════
+  //  FORMATTING HELPERS
+  // ═══════════════════════════════════════════════════════════════
+
+  static final _labelStyle = MintTextStyles.bodySmall(color: MintColors.textSecondary);
 
   Widget _buildRachatSection() {
     final maxRachat = double.tryParse(_rachatMaxCtrl.text.replaceAll("'", '')) ?? 0;
@@ -1625,10 +1854,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       ],
     );
   }
-
-  // =====================================================================
-  //  EPL SECTION
-  // =====================================================================
 
   Widget _buildEplSection() {
     return Column(
@@ -1687,12 +1912,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       ],
     );
   }
-
-  // =====================================================================
-  //  FORMATTING HELPERS
-  // =====================================================================
-
-  static final _labelStyle = MintTextStyles.bodySmall(color: MintColors.textSecondary);
 
   static String _formatDelta(double delta) {
     final abs = delta.abs();

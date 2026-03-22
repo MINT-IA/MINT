@@ -33,7 +33,6 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
-import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -97,6 +96,7 @@ import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
 import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
+import 'package:mint_mobile/screens/coach/weekly_recap_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -117,6 +117,7 @@ import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart'
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
@@ -173,6 +174,34 @@ final _router = GoRouter(
       return '/auth/register?redirect=${Uri.encodeComponent(path)}';
     }
 
+    // Routes that REQUIRE a completed profile (financial screens)
+    // An authenticated user without a profile sees empty/broken screens.
+    // Redirect to quick onboarding so they complete the 3-question wizard first.
+    const profileRequiredPrefixes = [
+      '/home',        // main tabs (Pulse, Coach, Explorer, Dossier)
+      '/coach',       // coach chat
+      '/retraite',    // retirement dashboard
+      '/rente-vs-capital',
+      '/budget',
+      '/fiscal',
+      '/3a',
+      '/lpp',
+      '/mortgage',
+      '/scan',
+    ];
+    final requiresProfile = profileRequiredPrefixes.any(
+      (p) => path.startsWith(p),
+    );
+    if (requiresProfile && isLoggedIn) {
+      final hasProfile = context.read<CoachProfileProvider>().hasProfile;
+      if (!hasProfile) {
+        // Skip if already on the onboarding flow
+        if (!path.startsWith('/onboarding')) {
+          return '/onboarding/quick';
+        }
+      }
+    }
+
     return null; // No redirect needed
   },
   routes: [
@@ -203,6 +232,13 @@ final _router = GoRouter(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
     ),
+
+    // ── Tab deep-link aliases (non-chat-routable, behavior E) ────
+    // /home?tab=N is the canonical form; these are convenience aliases.
+    GoRoute(path: '/app/today',   redirect: (_, __) => '/home?tab=0'),
+    GoRoute(path: '/app/coach',   redirect: (_, __) => '/home?tab=1'),
+    GoRoute(path: '/app/explore', redirect: (_, __) => '/home?tab=2'),
+    GoRoute(path: '/app/dossier', redirect: (_, __) => '/home?tab=3'),
 
     // ── EXPLORER HUBS (7 thematic hubs) ──────────────────────
     GoRoute(
@@ -314,6 +350,11 @@ final _router = GoRouter(
       path: '/coach/history',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConversationHistoryScreen(),
+    ),
+    GoRoute(
+      path: '/coach/weekly-recap',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const WeeklyRecapScreen(),
     ),
     GoRoute(
       path: '/succession',
@@ -747,10 +788,10 @@ final _router = GoRouter(
       builder: (context, state) => const AchievementsScreen(),
     ),
 
-    // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
+    // ── WEEKLY RECAP ─────────────────────────────────────────────
     GoRoute(
       path: '/weekly-recap',
-      redirect: (_, __) => '/home',
+      redirect: (_, __) => '/coach/weekly-recap',
     ),
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
@@ -761,10 +802,11 @@ final _router = GoRouter(
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
+    // DEPRECATED: /ask-mint consolidated into /coach/chat (S52 surface dedup).
+    // AskMintScreen kept for backwards compat but entry point redirects.
     GoRoute(
       path: '/ask-mint',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AskMintScreen(),
+      redirect: (_, __) => '/coach/chat',
     ),
     GoRoute(
       path: '/tools',
@@ -951,6 +993,18 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.init();
           return provider;
         }),
+        // MintStateProvider — unified user state.
+        // Recomputes whenever CoachProfileProvider emits a new profile.
+        ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
+          create: (_) => MintStateProvider(),
+          update: (_, coachProvider, mintState) {
+            final provider = mintState ?? MintStateProvider();
+            if (coachProvider.profile != null) {
+              provider.recompute(coachProvider.profile!);
+            }
+            return provider;
+          },
+        ),
       ],
       child: Builder(
         builder: (context) {

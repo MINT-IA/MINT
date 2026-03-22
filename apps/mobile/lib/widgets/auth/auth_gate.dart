@@ -231,7 +231,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    context.pop();
                     context.push(
                       '/auth/register?redirect=${Uri.encodeComponent(currentRoute)}',
                     );
@@ -258,7 +258,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    context.pop();
                     context.push(
                       '/auth/login?redirect=${Uri.encodeComponent(currentRoute)}',
                     );

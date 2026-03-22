@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -186,7 +187,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () {
-                      Navigator.of(ctx).pop();
+                      ctx.pop();
                       onPrecise?.call();
                     },
                     icon: const Icon(Icons.edit_outlined, size: 16),

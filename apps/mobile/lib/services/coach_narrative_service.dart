@@ -814,7 +814,7 @@ class CoachNarrativeService {
     buffer.writeln(
         '- Score Financial Fitness : $scoreValue/100 (tendance : $trendText)');
     buffer.writeln(
-        '- Revenu brut annuel : CHF ${profile.revenuBrutAnnuel.toStringAsFixed(0)}');
+        '- Revenu brut annuel : CHF ~${_salaryRange(profile.revenuBrutAnnuel)} (estimation arrondie, confidentiel)');
     buffer.writeln(
         '- 3a : ${montant3a.toStringAsFixed(0)}/${plafond3a.toStringAsFixed(0)} CHF (nombre comptes : $nombre3a)');
     buffer.writeln(
@@ -1145,7 +1145,7 @@ class CoachNarrativeService {
 
     if (profile.salaireBrutMensuel > 0) {
       parts.add(
-          'Salaire brut : ${profile.salaireBrutMensuel.toStringAsFixed(0)} CHF/mois');
+          'Revenu brut : CHF ~${_salaryRange(profile.salaireBrutMensuel * 12)}/an (estimation arrondie)');
     }
 
     final prev = profile.prevoyance;
@@ -1260,6 +1260,22 @@ class CoachNarrativeService {
       isLlmGenerated: narrative.isLlmGenerated,
       generatedAt: narrative.generatedAt,
     );
+  }
+
+  /// Convert annual salary to a 25k-wide range bracket (privacy — CLAUDE.md §7).
+  ///
+  /// NEVER exposes exact salary in any LLM context. Used wherever salary
+  /// would otherwise be injected verbatim into a system prompt.
+  static String _salaryRange(double annualSalary) {
+    if (annualSalary <= 0) return '0';
+    if (annualSalary < 50000) return '<50k';
+    if (annualSalary < 75000) return '50–75k';
+    if (annualSalary < 100000) return '75–100k';
+    if (annualSalary < 125000) return '100–125k';
+    if (annualSalary < 150000) return '125–150k';
+    if (annualSalary < 200000) return '150–200k';
+    if (annualSalary < 300000) return '200–300k';
+    return '>300k';
   }
 
   /// Filtre les termes bannis d'un texte.

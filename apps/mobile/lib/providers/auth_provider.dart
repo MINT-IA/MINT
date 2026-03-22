@@ -276,10 +276,16 @@ class AuthProvider extends ChangeNotifier {
           existingOwner.isNotEmpty &&
           existingOwner != currentUserId) {
         // Different user's data — do NOT overwrite ownership.
-        debugPrint(
-          '[AuthProvider] Local data belongs to $existingOwner, '
-          'skipping migration for $currentUserId.',
-        );
+        // PRIVACY: never log raw user IDs — redact to first 4 chars only.
+        if (kDebugMode) {
+          final ownerTag = existingOwner.length > 4
+              ? '${existingOwner.substring(0, 4)}…'
+              : '****';
+          debugPrint(
+            '[AuthProvider] Local data belongs to different user ($ownerTag), '
+            'skipping migration.',
+          );
+        }
         return;
       }
 
@@ -291,7 +297,7 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
-      debugPrint('[AuthProvider] Local data migration failed: $e');
+      if (kDebugMode) debugPrint('[AuthProvider] Local data migration failed: $e');
     }
   }
 

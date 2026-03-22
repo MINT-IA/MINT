@@ -1,84 +1,142 @@
 """
-Pydantic v2 schemas for the Coach Chat module (Sprint S56).
+Pydantic v2 schemas for the Coach Chat endpoint (Sprint S56+).
 
-POST /api/v1/coach/chat — Conversational AI with Claude proxy.
+POST /api/v1/coach/chat — dedicated coach chat with tools + system prompt + RAG.
+
+API convention: camelCase field names via alias_generator, ConfigDict.
+
+Compliance:
+    - LSFin art. 3 (information financiere)
+    - LPD art. 6 (protection des donnees)
+    - FINMA circular 2008/21
 
 Sources:
-    - LSFin art. 3 (information financiere educative)
-    - LPD art. 6 (protection des donnees)
+    - docs/BLUEPRINT_COACH_AI_LAYER.md
+    - docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §6
 """
 
-from typing import List, Optional
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 
-class ChatBaseModel(BaseModel):
+# ===========================================================================
+# Base config — camelCase aliases for mobile interop
+# ===========================================================================
+
+
+class CoachChatBaseModel(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
 
-class ChatMessage(ChatBaseModel):
-    """A single message in the conversation."""
-    role: str = Field(..., description="'user' or 'assistant'")
-    content: str = Field(..., description="Message text")
+# ===========================================================================
+# Request schema
+# ===========================================================================
 
 
-class CoachChatRequest(ChatBaseModel):
-    """Request to the coach chat endpoint."""
-    message: str = Field(..., min_length=1, max_length=2000,
-                         description="User's message")
-    conversation_history: List[ChatMessage] = Field(
+class CoachChatRequest(CoachChatBaseModel):
+    """Requete de chat coach.
+
+    Combines BYOK LLM access with user profile context for personalized,
+    tool-aware, RAG-enriched responses.
+
+    Privacy: profile_context and memory_block MUST NOT contain IBAN, full name,
+    NPA, employer, or any directly identifying information.
+    """
+
+    message: str = Field(
+        ...,
+        min_length=1,
+        max_length=2000,
+        description="Message de l'utilisateur au coach.",
+    )
+    api_key: Optional[str] = Field(
+        None,
+        description=(
+            "Cle API LLM de l'utilisateur (BYOK). Optionnel en beta: "
+            "quand absent, le serveur utilise sa propre cle ANTHROPIC_API_KEY. "
+            "Jamais stockee, jamais loggee par MINT."
+        ),
+    )
+    provider: str = Field(
+        default="claude",
+        description="Fournisseur LLM: 'claude', 'openai', 'mistral'.",
+    )
+    model: Optional[str] = Field(
+        None,
+        description="Modele LLM specifique (utilise le defaut du provider si absent).",
+    )
+    profile_context: Optional[dict[str, Any]] = Field(
+        None,
+        description=(
+            "Contexte profil agrege (non identifiant). "
+            "Cles autorisees: age, canton, archetype, fri_total, fri_delta, "
+            "replacement_ratio, months_liquidity, tax_saving_potential, "
+            "confidence_score, fiscal_season, upcoming_event, check_in_streak, "
+            "primary_focus. Jamais: IBAN, nom complet, NPA, employeur."
+        ),
+    )
+    memory_block: Optional[str] = Field(
+        None,
+        max_length=8000,
+        description=(
+            "Bloc memoire serialise (CapMemory format). Contient le cycle de vie, "
+            "les nudges actifs, la couleur regionale, et le plan en cours. "
+            "Injecte dans le system prompt pour la personnalisation contextuelle."
+        ),
+    )
+    # conversation_history: removed — not consumed by the endpoint.
+    # History management is client-side (Flutter) via the memory_block.
+    # Re-add when multi-turn server-side context is implemented.
+    language: str = Field(
+        default="fr",
+        description="Langue de la reponse: 'fr', 'de', 'en', 'it'.",
+    )
+
+
+# ===========================================================================
+# Response schema
+# ===========================================================================
+
+
+class CoachChatResponse(CoachChatBaseModel):
+    """Reponse du coach chat.
+
+    Contient le texte genere + les appels d'outils eventuels +
+    les sources RAG + les disclaimers de conformite.
+
+    Sources:
+        - LSFin art. 3 (information financiere)
+        - LPD art. 6 (protection des donnees)
+    """
+
+    message: str = Field(
+        ...,
+        description="Reponse textuelle du coach (validee par ComplianceGuard).",
+    )
+    tool_calls: Optional[list[dict[str, Any]]] = Field(
+        None,
+        description=(
+            "Appels d'outils retournes par le LLM (format Anthropic tool_use). "
+            "Chaque element: {name: str, input: dict}. "
+            "Le client Flutter execute l'action correspondante."
+        ),
+    )
+    sources: list[dict[str, Any]] = Field(
         default_factory=list,
-        description="Previous messages for context (max 20)",
+        description="Sources de la base de connaissance utilisees (RAG retrieval).",
     )
-
-    # Profile context (injected into system prompt, never sent to LLM as user data)
-    first_name: Optional[str] = None
-    age: Optional[int] = None
-    canton: Optional[str] = None
-    salary_annual: Optional[float] = None
-    civil_status: Optional[str] = None
-    archetype: Optional[str] = None
-    financial_literacy_level: Optional[str] = "intermediate"
-
-    # Financial context
-    fri_total: Optional[int] = None
-    replacement_ratio: Optional[float] = None
-    confidence_score: Optional[float] = None
-    avoir_lpp: Optional[float] = None
-    epargne_3a: Optional[float] = None
-    total_dettes: Optional[float] = None
-
-    # Budget snapshot context (for coach to speak in CHF/mois)
-    present_free: Optional[float] = None
-    retirement_free: Optional[float] = None
-    budget_gap: Optional[float] = None
-    budget_confidence_score: Optional[int] = None
-
-    # CapMemory context (for coach memory)
-    last_cap_served: Optional[str] = None
-    completed_actions: List[str] = Field(default_factory=list)
-    abandoned_flows: List[str] = Field(default_factory=list)
-    declared_goals: List[str] = Field(default_factory=list)
-
-
-class WidgetCall(ChatBaseModel):
-    """A tool call from Claude requesting a rich widget display."""
-    tool: str = Field(..., description="Widget name (e.g. show_retirement_comparison)")
-    params: dict = Field(default_factory=dict, description="Widget parameters from Claude")
-
-
-class CoachChatResponse(ChatBaseModel):
-    """Response from the coach chat endpoint."""
-    reply: str = Field(..., description="Coach's response text")
-    widget: Optional[WidgetCall] = Field(
-        default=None,
-        description="Rich widget to display inline (chosen by Claude via tool calling)",
+    disclaimers: list[str] = Field(
+        default_factory=list,
+        description="Disclaimers de conformite ajoutes par ComplianceGuard.",
     )
-    disclaimer: str = Field(
-        default="Outil educatif. Ne constitue pas un conseil financier (LSFin).",
+    tokens_used: int = Field(
+        default=0,
+        ge=0,
+        description="Estimation de l'utilisation de tokens pour la requete.",
     )
-    used_model: str = Field(default="", description="Model used for generation")
-    tokens_used: int = Field(default=0, description="Total tokens consumed")
-    remaining_quota: int = Field(default=-1, description="Remaining daily quota (-1=unlimited)")
+    system_prompt_used: bool = Field(
+        default=True,
+        description="Indique si le system prompt coach a ete applique.",
+    )

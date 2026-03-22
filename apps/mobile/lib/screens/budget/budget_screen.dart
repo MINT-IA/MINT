@@ -1,10 +1,22 @@
+// Budget deep-dive — detailed view of spending breakdown.
+// Primary budget display is now in PulseScreen via BudgetSnapshot.
+// This screen provides the detailed envelope editing.
+//
+// Hero number sourced from BudgetSnapshot.present.monthlyFree (via
+// BudgetLivingEngine) when a CoachProfile is available, ensuring
+// consistency with PulseScreen. Falls back to plan.available when not.
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -19,6 +31,8 @@ import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -38,6 +52,11 @@ class _BudgetScreenState extends State<BudgetScreen>
   late Animation<double> _staggerAnimation;
   bool _hasError = false;
 
+  /// BudgetSnapshot from BudgetLivingEngine — provides the authoritative
+  /// hero number (monthlyFree) consistent with PulseScreen.
+  /// Null when CoachProfile is unavailable (graceful degradation to plan.available).
+  BudgetSnapshot? _snapshot;
+
   @override
   void initState() {
     super.initState();
@@ -54,8 +73,38 @@ class _BudgetScreenState extends State<BudgetScreen>
       try {
         context.read<BudgetProvider>().setInputs(widget.inputs);
         _staggerController.forward();
+        _emitScreenReturn({
+          'netIncome': widget.inputs.netIncome,
+          'housingCost': widget.inputs.housingCost,
+          'healthInsurance': widget.inputs.healthInsurance,
+          'taxProvision': widget.inputs.taxProvision,
+        });
       } catch (_) {
         if (mounted) setState(() => _hasError = true);
+      }
+      // Resolve BudgetSnapshot — prefer the pre-computed value from
+      // MintStateProvider (single computation source) to avoid duplicating
+      // BudgetLivingEngine.compute(). Fall back to direct computation only
+      // when MintStateProvider is not in the widget tree (e.g. tests).
+      try {
+        final mintSnap =
+            context.read<MintStateProvider>().state?.budgetSnapshot;
+        if (mintSnap != null) {
+          if (mounted) setState(() => _snapshot = mintSnap);
+          return;
+        }
+      } catch (_) {
+        // MintStateProvider not in tree — fall through to direct computation.
+      }
+      try {
+        final profileProvider = context.read<CoachProfileProvider>();
+        if (profileProvider.hasProfile) {
+          final snap =
+              BudgetLivingEngine.compute(profileProvider.profile!);
+          if (mounted) setState(() => _snapshot = snap);
+        }
+      } catch (_) {
+        // Graceful degradation: keep _snapshot null, fall back to plan.available.
       }
     });
   }
@@ -64,6 +113,15 @@ class _BudgetScreenState extends State<BudgetScreen>
   void dispose() {
     _staggerController.dispose();
     super.dispose();
+  }
+
+  void _emitScreenReturn(Map<String, dynamic> updatedFields) {
+    final screenReturn = ScreenReturn.changedInputs(
+      route: '/budget',
+      updatedFields: updatedFields,
+      confidenceDelta: 0.05,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('budget', screenReturn);
   }
 
   Widget _staggeredEntry({required int index, required Widget child}) {
@@ -137,6 +195,12 @@ class _BudgetScreenState extends State<BudgetScreen>
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Hero number: BudgetSnapshot.present.monthlyFree when available,
+          // guaranteeing consistency with PulseScreen.
+          // Falls back to plan.available when snapshot is not yet computed.
+          final heroFree =
+              _snapshot?.present.monthlyFree ?? plan.available;
+
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
               horizontal: MintSpacing.lg,
@@ -153,7 +217,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                 const SizedBox(height: MintSpacing.md),
 
                 // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
-                _staggeredEntry(index: 0, child: _buildHeader(plan, l)),
+                _staggeredEntry(
+                    index: 0, child: _buildHeader(plan, l, heroFree)),
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── ABOVE FOLD: Section 3 — Spending meter ──
@@ -356,19 +421,21 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
   }
 
-  Widget _buildHeader(BudgetPlan plan, S l) {
-    final isPositive = plan.available >= 0;
+  Widget _buildHeader(BudgetPlan plan, S l, double heroFree) {
+    final isPositive = heroFree >= 0;
     final heroColor = isPositive ? MintColors.success : MintColors.warning;
 
     return Column(
       children: [
         // Hero: budget libre — MintHeroNumber (consequence, not output)
+        // Uses BudgetSnapshot.present.monthlyFree when available for
+        // consistency with PulseScreen, falls back to plan.available.
         MintHeroNumber(
-          value: 'CHF\u00a0${plan.available.toStringAsFixed(0)}',
+          value: 'CHF\u00a0${heroFree.toStringAsFixed(0)}',
           caption: l.budgetChiffreChocCaption,
           color: heroColor,
           semanticsLabel:
-              'CHF ${plan.available.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
+              'CHF ${heroFree.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
         ),
         const SizedBox(height: MintSpacing.xl),
 
@@ -574,6 +641,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           activeColor: MintColors.info,
           onChanged: (val) {
             provider.updateOverride('future', val);
+            _emitScreenReturn({'budgetFuture': val});
           },
         ),
         const SizedBox(height: MintSpacing.lg),
@@ -586,6 +654,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           activeColor: MintColors.success,
           onChanged: (val) {
             provider.updateOverride('variables', val);
+            _emitScreenReturn({'budgetVariables': val});
           },
         ),
       ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'dart:math' as math;
 
 /// Scénario de simulation (prudence/central/stress)
@@ -64,6 +65,7 @@ class CompoundInterestChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final scenarios = SimulationScenario.all.map((scenario) {
       final futureValue = _calculateFutureValue(monthlyAmount, scenario.rate, years);
       final totalContributions = monthlyAmount * years * 12;
@@ -116,7 +118,7 @@ class CompoundInterestChart extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Hypothèses pédagogiques (inflation $inflation%). Les rendements passés ne garantissent pas les rendements futurs.',
+                    l.compoundDisclaimerInflation(inflation.toStringAsFixed(1)),
                     style: const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),

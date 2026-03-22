@@ -19,6 +19,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 
 // ════════════════════════════════════════════════════════════════
@@ -411,15 +412,23 @@ class AutonomousAgentService {
   /// Duration after which unvalidated tasks expire.
   static const Duration expirationDuration = Duration(days: 30);
 
-  static const String _defaultDisclaimer =
+  static const String _defaultDisclaimerFr =
       'Cet outil est purement éducatif et ne constitue pas un conseil '
       'financier, fiscal ou juridique. Les montants affichés sont des '
       'estimations indicatives. Consultez un·e spécialiste agréé·e '
       'avant toute décision. Conforme à\u00a0la LSFin.';
 
-  static const String _defaultValidationPrompt =
+  static const String _defaultValidationPromptFr =
       'Vérifie attentivement chaque information avant toute utilisation. '
       'Tous les champs sont des estimations à\u00a0confirmer.';
+
+  static const String _letterValidationPromptFr =
+      "Vérifie les informations et complète les champs entre crochets "
+      "avant d'envoyer cette lettre.";
+
+  static const String _requestValidationPromptFr =
+      "Vérifie les informations et complète les champs entre crochets "
+      "avant d'envoyer cette demande.";
 
   // ─────────────────────────────────────────────────────────────
   //  PUBLIC API
@@ -429,12 +438,16 @@ class AutonomousAgentService {
   ///
   /// If [isSafeMode] is true, optimization tasks (3a, fiscal dossier)
   /// are blocked — priority is debt reduction.
+  /// [l] — localizations instance; when provided all user-facing strings are
+  ///        i18n'd. When null (unit tests without BuildContext) falls back to
+  ///        hardcoded French strings.
   static Future<AgentTask> generateTask({
     required AgentTaskType type,
     required CoachProfile profile,
     DateTime? now,
     SharedPreferences? prefs,
     bool isSafeMode = false,
+    S? l,
   }) async {
     final effectiveNow = now ?? DateTime.now();
     final id =
@@ -442,17 +455,17 @@ class AutonomousAgentService {
 
     final task = switch (type) {
       AgentTaskType.taxDeclarationPreFill =>
-        _generateTaxDeclaration(id, profile, effectiveNow),
+        _generateTaxDeclaration(id, profile, effectiveNow, l),
       AgentTaskType.threeAFormPreFill =>
-        _generateThreeAForm(id, profile, effectiveNow),
+        _generateThreeAForm(id, profile, effectiveNow, l),
       AgentTaskType.caisseLetterGeneration =>
-        _generateCaisseLetter(id, profile, effectiveNow),
+        _generateCaisseLetter(id, profile, effectiveNow, l),
       AgentTaskType.fiscalDossierPrep =>
-        _generateFiscalDossier(id, profile, effectiveNow),
+        _generateFiscalDossier(id, profile, effectiveNow, l),
       AgentTaskType.avsExtractRequest =>
-        _generateAvsExtractRequest(id, profile, effectiveNow),
+        _generateAvsExtractRequest(id, profile, effectiveNow, l),
       AgentTaskType.lppCertificateRequest =>
-        _generateLppCertificateRequest(id, profile, effectiveNow),
+        _generateLppCertificateRequest(id, profile, effectiveNow, l),
     };
 
     // Safety gate — block if violations detected
@@ -584,26 +597,34 @@ class AutonomousAgentService {
     String id,
     CoachProfile profile,
     DateTime now,
+    S? l,
   ) {
     final revenuBrut = profile.revenuBrutAnnuel;
     final revenuRange = _toRange(revenuBrut);
-    final canton = profile.canton.isNotEmpty ? profile.canton : '[canton]';
-    final civilStatus = _civilStatusLabel(profile.etatCivil);
+    final canton = profile.canton.isNotEmpty
+        ? profile.canton
+        : (l?.agentFormCantonFallback ?? '[canton]');
+    final civilStatus = _civilStatusLabel(profile.etatCivil, l);
 
     final deduction3a = _plafond3a(profile);
     final rachatLpp = profile.prevoyance.lacuneRachatRestante;
     final rachatRange = rachatLpp > 0 ? _toRange(rachatLpp) : '0';
 
     final fields = <String, String>{
-      'Revenu brut estimé': '~$revenuRange\u00a0CHF/an',
-      'Canton de domicile': canton,
-      'Situation familiale': civilStatus,
-      'Nombre d\'enfants': '${profile.nombreEnfants}',
-      'Déduction 3a possible':
+      l?.agentFormRevenuBrut ?? 'Revenu brut estimé':
+          l?.agentFieldRevenuBrutValue(revenuRange) ??
+              '~$revenuRange\u00a0CHF/an',
+      l?.agentFormCanton ?? 'Canton de domicile': canton,
+      l?.agentFormSituationFamiliale ?? 'Situation familiale': civilStatus,
+      l?.agentFormNbEnfants ?? "Nombre d'enfants":
+          '${profile.nombreEnfants}',
+      l?.agentFormDeduction3a ?? 'Déduction 3a possible':
           '~${_formatAmount(deduction3a)}\u00a0CHF',
-      'Rachat LPP déductible estimé': '~$rachatRange\u00a0CHF',
-      'Statut professionnel':
-          _employmentStatusLabel(profile.employmentStatus),
+      l?.agentFormRachatLppDeductible ?? 'Rachat LPP déductible estimé':
+          l?.agentFieldRachatLppValue(rachatRange) ??
+              '~$rachatRange\u00a0CHF',
+      l?.agentFormStatutProfessionnel ?? 'Statut professionnel':
+          _employmentStatusLabel(profile.employmentStatus, l),
     };
 
     return AgentTask(
@@ -611,20 +632,22 @@ class AutonomousAgentService {
       type: AgentTaskType.taxDeclarationPreFill,
       status: AgentTaskStatus.pendingValidation,
       createdAt: now,
-      title: 'Pré-remplissage déclaration fiscale',
-      description:
-          'Estimation des champs principaux de ta déclaration d\'impôts '
-          'basée sur ton profil MINT. Tous les montants sont approximatifs.',
+      title: l?.agentTaskTaxDeclarationTitle ??
+          'Pré-remplissage déclaration fiscale',
+      description: l?.agentTaskTaxDeclarationDesc ??
+          "Estimation des champs principaux de ta déclaration d'impôts "
+              'basée sur ton profil MINT. Tous les montants sont approximatifs.',
       preFilledFields: fields,
       fieldsNeedingReview: fields.keys.toList(),
-      disclaimer: _defaultDisclaimer,
+      disclaimer: l?.agentTaskDisclaimer ?? _defaultDisclaimerFr,
       sources: [
         'LIFD art.\u00a021-33 (revenu imposable)',
         'LIFD art.\u00a033 (déductions)',
         'OPP3 art.\u00a07 (plafond 3a)',
         'LPP art.\u00a079b (rachat)',
       ],
-      validationPrompt: _defaultValidationPrompt,
+      validationPrompt:
+          l?.agentTaskValidationPromptDefault ?? _defaultValidationPromptFr,
     );
   }
 
@@ -632,17 +655,23 @@ class AutonomousAgentService {
     String id,
     CoachProfile profile,
     DateTime now,
+    S? l,
   ) {
     final plafond = _plafond3a(profile);
+    final isIndependantSansLpp =
+        profile.employmentStatus == 'independant' && !_hasLpp(profile);
+    final typeContrat = isIndependantSansLpp
+        ? (l?.agentFormTypeContratIndependant ?? 'Indépendant·e sans LPP')
+        : (l?.agentFormTypeContratSalarie ?? 'Salarié·e avec LPP');
+
     final fields = <String, String>{
-      'Nom du/de la bénéficiaire': '[À compléter]',
-      'Numéro de compte 3a': '[À compléter]',
-      'Montant versement annuel':
+      l?.agentFormBeneficiaireNom ?? 'Nom du/de la bénéficiaire':
+          l?.agentFormToComplete ?? '[À compléter]',
+      l?.agentFormNumeroCompte3a ?? 'Numéro de compte 3a':
+          l?.agentFormToComplete ?? '[À compléter]',
+      l?.agentFormMontantVersementLabel ?? 'Montant versement annuel':
           '~${_formatAmount(plafond)}\u00a0CHF (plafond applicable)',
-      'Type de contrat': profile.employmentStatus == 'independant' &&
-              !_hasLpp(profile)
-          ? 'Indépendant·e sans LPP'
-          : 'Salarié·e avec LPP',
+      l?.agentFormTypeContrat ?? 'Type de contrat': typeContrat,
     };
 
     return AgentTask(
@@ -650,18 +679,19 @@ class AutonomousAgentService {
       type: AgentTaskType.threeAFormPreFill,
       status: AgentTaskStatus.pendingValidation,
       createdAt: now,
-      title: 'Pré-remplissage formulaire 3a',
-      description:
+      title: l?.agentTaskThreeAFormTitle ?? 'Pré-remplissage formulaire 3a',
+      description: l?.agentTaskThreeAFormDesc ??
           'Informations de base pour un versement 3e\u00a0pilier. '
-          'Le plafond est calculé selon ton statut professionnel.',
+              'Le plafond est calculé selon ton statut professionnel.',
       preFilledFields: fields,
       fieldsNeedingReview: fields.keys.toList(),
-      disclaimer: _defaultDisclaimer,
+      disclaimer: l?.agentTaskDisclaimer ?? _defaultDisclaimerFr,
       sources: [
         'OPP3 art.\u00a07 (plafond 3a)',
-        'LPP art.\u00a07 (seuil d\'accès)',
+        "LPP art.\u00a07 (seuil d'accès)",
       ],
-      validationPrompt: _defaultValidationPrompt,
+      validationPrompt:
+          l?.agentTaskValidationPromptDefault ?? _defaultValidationPromptFr,
     );
   }
 
@@ -669,6 +699,7 @@ class AutonomousAgentService {
     String id,
     CoachProfile profile,
     DateTime now,
+    S? l,
   ) {
     final caisse =
         profile.prevoyance.nomCaisse ?? '[Nom de la caisse de pension]';
@@ -706,8 +737,8 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
 [Numéro de police\u00a0: À compléter]''';
 
     final fields = <String, String>{
-      'Caisse de pension': caisse,
-      'Année de référence': '$year',
+      l?.agentFieldCaissePension ?? 'Caisse de pension': caisse,
+      l?.agentFieldAnneRef ?? 'Année de référence': '$year',
     };
 
     return AgentTask(
@@ -715,27 +746,26 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
       type: AgentTaskType.caisseLetterGeneration,
       status: AgentTaskStatus.pendingValidation,
       createdAt: now,
-      title: 'Lettre à la caisse de pension',
-      description:
+      title: l?.agentTaskCaisseLetterTitle ?? 'Lettre à la caisse de pension',
+      description: l?.agentTaskCaisseLetterDesc ??
           'Modèle de lettre formelle pour demander un certificat LPP, '
-          'une confirmation de rachat et une simulation de retraite anticipée.',
+              'une confirmation de rachat et une simulation de retraite anticipée.',
       preFilledFields: fields,
       fieldsNeedingReview: [
         ...fields.keys,
-        'Adresse personnelle',
-        'Adresse de la caisse',
-        'Numéro de police',
+        l?.agentFieldAddressPerso ?? 'Adresse personnelle',
+        l?.agentFieldAddresseCaisse ?? 'Adresse de la caisse',
+        l?.agentFieldNumeroPolice ?? 'Numéro de police',
       ],
       generatedDocument: letter,
-      disclaimer: _defaultDisclaimer,
+      disclaimer: l?.agentTaskDisclaimer ?? _defaultDisclaimerFr,
       sources: [
         'LPP art.\u00a079b (rachat)',
         'LPP art.\u00a013 (retraite anticipée)',
         'LPP art.\u00a014 (taux de conversion)',
       ],
       validationPrompt:
-          'Vérifie les informations et complète les champs entre crochets '
-          'avant d\'envoyer cette lettre.',
+          l?.agentTaskValidationPromptLetter ?? _letterValidationPromptFr,
     );
   }
 
@@ -743,6 +773,7 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
     String id,
     CoachProfile profile,
     DateTime now,
+    S? l,
   ) {
     final revenuRange = _toRange(profile.revenuBrutAnnuel);
     final canton = profile.canton.isNotEmpty ? profile.canton : '[canton]';
@@ -759,7 +790,7 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
 1. SITUATION FISCALE ESTIMÉE
    • Revenu brut annuel\u00a0: ~$revenuRange\u00a0CHF
    • Canton\u00a0: $canton
-   • Situation familiale\u00a0: ${_civilStatusLabel(profile.etatCivil)}
+   • Situation familiale\u00a0: ${_civilStatusLabel(profile.etatCivil, l)}
    • Enfants\u00a0: ${profile.nombreEnfants}
 
 2. DÉDUCTIONS POSSIBLES
@@ -785,12 +816,15 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
 ═══════════════════════════════════════════''';
 
     final fields = <String, String>{
-      'Revenu brut estimé': '~$revenuRange\u00a0CHF/an',
-      'Canton': canton,
-      'Plafond 3a applicable':
+      l?.agentFiscalDossierRevenu ?? 'Revenu brut estimé':
+          l?.agentFieldRevenuBrutValue(revenuRange) ??
+              '~$revenuRange\u00a0CHF/an',
+      l?.agentFormCanton ?? 'Canton': canton,
+      l?.agentFiscalDossierPlafond3a ?? 'Plafond 3a applicable':
           '~${_formatAmount(plafond3a)}\u00a0CHF',
-      'Rachat LPP disponible': '~${_formatAmount(rachat)}\u00a0CHF',
-      'Capital 3a accumulé':
+      l?.agentFiscalDossierRachat ?? 'Rachat LPP disponible':
+          '~${_formatAmount(rachat)}\u00a0CHF',
+      l?.agentFiscalDossierCapital3a ?? 'Capital 3a accumulé':
           '~${_formatAmount(epargne3a)}\u00a0CHF',
     };
 
@@ -799,14 +833,15 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
       type: AgentTaskType.fiscalDossierPrep,
       status: AgentTaskStatus.pendingValidation,
       createdAt: now,
-      title: 'Préparation dossier fiscal',
-      description:
+      title:
+          l?.agentTaskFiscalDossierTitle ?? 'Préparation dossier fiscal',
+      description: l?.agentTaskFiscalDossierDesc ??
           'Résumé éducatif de ta situation fiscale estimée avec les '
-          'déductions possibles et les questions à poser à un·e spécialiste.',
+              "déductions possibles et les questions à poser à un·e spécialiste.",
       preFilledFields: fields,
       fieldsNeedingReview: fields.keys.toList(),
       generatedDocument: dossier,
-      disclaimer: _defaultDisclaimer,
+      disclaimer: l?.agentTaskDisclaimer ?? _defaultDisclaimerFr,
       sources: [
         'LIFD art.\u00a021-33 (revenu imposable)',
         'LIFD art.\u00a022 (rente LPP)',
@@ -815,7 +850,8 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
         'OPP3 art.\u00a07 (plafond 3a)',
         'LPP art.\u00a079b (rachat)',
       ],
-      validationPrompt: _defaultValidationPrompt,
+      validationPrompt:
+          l?.agentTaskValidationPromptDefault ?? _defaultValidationPromptFr,
     );
   }
 
@@ -823,6 +859,7 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
     String id,
     CoachProfile profile,
     DateTime now,
+    S? l,
   ) {
     final year = now.year;
 
@@ -850,10 +887,12 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
 
 [Votre signature]''';
 
+    final canton = profile.canton.isNotEmpty
+        ? profile.canton
+        : (l?.agentFormCantonFallback ?? '[canton]');
     final fields = <String, String>{
-      'Canton de domicile':
-          profile.canton.isNotEmpty ? profile.canton : '[canton]',
-      'Année de référence': '$year',
+      l?.agentFormCanton ?? 'Canton de domicile': canton,
+      l?.agentFieldAnneRef ?? 'Année de référence': '$year',
     };
 
     return AgentTask(
@@ -861,26 +900,25 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
       type: AgentTaskType.avsExtractRequest,
       status: AgentTaskStatus.pendingValidation,
       createdAt: now,
-      title: 'Demande d\'extrait AVS',
-      description:
+      title: l?.agentTaskAvsExtractTitle ?? "Demande d'extrait AVS",
+      description: l?.agentTaskAvsExtractDesc ??
           'Modèle de lettre pour demander un extrait de compte individuel '
-          '(CI) auprès de ta caisse de compensation AVS.',
+              '(CI) auprès de ta caisse de compensation AVS.',
       preFilledFields: fields,
       fieldsNeedingReview: [
         ...fields.keys,
-        'Numéro AVS',
-        'Adresse personnelle',
-        'Adresse de la caisse AVS',
+        l?.agentFieldNumeroAvs ?? 'Numéro AVS',
+        l?.agentFieldAddressPerso ?? 'Adresse personnelle',
+        l?.agentFieldAddresseCaisseAvs ?? 'Adresse de la caisse AVS',
       ],
       generatedDocument: letter,
-      disclaimer: _defaultDisclaimer,
+      disclaimer: l?.agentTaskDisclaimer ?? _defaultDisclaimerFr,
       sources: [
         'LAVS art.\u00a030ter (compte individuel)',
         'RAVS art.\u00a0139 (extrait CI)',
       ],
       validationPrompt:
-          'Vérifie les informations et complète les champs entre crochets '
-          'avant d\'envoyer cette demande.',
+          l?.agentTaskValidationPromptRequest ?? _requestValidationPromptFr,
     );
   }
 
@@ -888,6 +926,7 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
     String id,
     CoachProfile profile,
     DateTime now,
+    S? l,
   ) {
     final caisse =
         profile.prevoyance.nomCaisse ?? '[Nom de la caisse de pension]';
@@ -923,8 +962,8 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
 [Numéro de police\u00a0: À compléter]''';
 
     final fields = <String, String>{
-      'Caisse de pension': caisse,
-      'Année de référence': '$year',
+      l?.agentFieldCaissePension ?? 'Caisse de pension': caisse,
+      l?.agentFieldAnneRef ?? 'Année de référence': '$year',
     };
 
     return AgentTask(
@@ -932,26 +971,25 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
       type: AgentTaskType.lppCertificateRequest,
       status: AgentTaskStatus.pendingValidation,
       createdAt: now,
-      title: 'Demande certificat LPP',
-      description:
+      title: l?.agentTaskLppCertificateTitle ?? 'Demande certificat LPP',
+      description: l?.agentTaskLppCertificateDesc ??
           'Modèle de lettre pour demander un certificat de prévoyance '
-          'professionnelle actualisé à ta caisse de pension.',
+              'professionnelle actualisé à ta caisse de pension.',
       preFilledFields: fields,
       fieldsNeedingReview: [
         ...fields.keys,
-        'Adresse personnelle',
-        'Adresse de la caisse',
-        'Numéro de police',
+        l?.agentFieldAddressPerso ?? 'Adresse personnelle',
+        l?.agentFieldAddresseCaisse ?? 'Adresse de la caisse',
+        l?.agentFieldNumeroPolice ?? 'Numéro de police',
       ],
       generatedDocument: letter,
-      disclaimer: _defaultDisclaimer,
+      disclaimer: l?.agentTaskDisclaimer ?? _defaultDisclaimerFr,
       sources: [
-        'LPP art.\u00a086b (obligation d\'informer)',
+        "LPP art.\u00a086b (obligation d'informer)",
         'OPP2 art.\u00a0148 (certificat de prévoyance)',
       ],
       validationPrompt:
-          'Vérifie les informations et complète les champs entre crochets '
-          'avant d\'envoyer cette demande.',
+          l?.agentTaskValidationPromptRequest ?? _requestValidationPromptFr,
     );
   }
 
@@ -999,22 +1037,28 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
     return avoir > 0 || profile.prevoyance.nomCaisse != null;
   }
 
-  static String _civilStatusLabel(CoachCivilStatus status) {
+  static String _civilStatusLabel(
+    CoachCivilStatus status,
+    S? l,
+  ) {
     return switch (status) {
-      CoachCivilStatus.celibataire => 'Célibataire',
-      CoachCivilStatus.marie => 'Marié·e',
-      CoachCivilStatus.divorce => 'Divorcé·e',
-      CoachCivilStatus.veuf => 'Veuf·ve',
-      CoachCivilStatus.concubinage => 'Concubinage',
+      CoachCivilStatus.celibataire =>
+        l?.agentFormCivilCelibataire ?? 'Célibataire',
+      CoachCivilStatus.marie => l?.agentFormCivilMarie ?? 'Marié·e',
+      CoachCivilStatus.divorce => l?.agentFormCivilDivorce ?? 'Divorcé·e',
+      CoachCivilStatus.veuf => l?.agentFormCivilVeuf ?? 'Veuf·ve',
+      CoachCivilStatus.concubinage =>
+        l?.agentFormCivilConcubinage ?? 'Concubinage',
     };
   }
 
-  static String _employmentStatusLabel(String status) {
+  static String _employmentStatusLabel(String status, S? l) {
     return switch (status) {
-      'salarie' => 'Salarié·e',
-      'independant' => 'Indépendant·e',
-      'chomage' => 'En recherche d\'emploi',
-      'retraite' => 'Retraité·e',
+      'salarie' => l?.agentFormEmplSalarie ?? 'Salarié·e',
+      'independant' => l?.agentFormEmplIndependant ?? 'Indépendant·e',
+      'chomage' =>
+        l?.agentFormEmplChomage ?? "En recherche d'emploi",
+      'retraite' => l?.agentFormEmplRetraite ?? 'Retraité·e',
       _ => status,
     };
   }

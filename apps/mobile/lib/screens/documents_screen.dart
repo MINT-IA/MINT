@@ -685,7 +685,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                context.pop();
                 CoachPaywallSheet.show(context);
               },
               style: FilledButton.styleFrom(

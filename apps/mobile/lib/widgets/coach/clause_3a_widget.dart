@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -45,6 +46,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final partner = widget.partnerName ?? 'ton·ta partenaire';
 
     return Semantics(
@@ -58,7 +60,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
@@ -68,11 +70,11 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                   const SizedBox(height: 20),
                   _buildChiffreChoc(partner),
                   const SizedBox(height: 16),
-                  _buildClauseQuestion(),
+                  _buildClauseQuestion(s),
                   const SizedBox(height: 12),
-                  _buildFeedback(partner),
+                  _buildFeedback(s, partner),
                   const SizedBox(height: 16),
-                  _buildSteps(),
+                  _buildSteps(s),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -84,7 +86,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -100,7 +102,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'La clause 3a oubliée',
+                  s.clause3aTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
@@ -163,12 +165,12 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildClauseQuestion() {
+  Widget _buildClauseQuestion(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'As-tu déposé une clause bénéficiaire ?',
+          s.clause3aQuestion,
           style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
@@ -206,7 +208,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildFeedback(String partner) {
+  Widget _buildFeedback(S s, String partner) {
     if (_hasClause) {
       return Container(
         padding: const EdgeInsets.all(12),
@@ -220,7 +222,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Bien ! Vérifie que la clause désigne bien $partner — et qu\'elle est à jour après chaque événement de vie.',
+                s.clause3aFeedbackOk(partner),
                 style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
               ),
             ),
@@ -240,7 +242,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.',
+                s.clause3aFeedbackNok,
                 style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w600, height: 1.4),
               ),
             ),
@@ -250,7 +252,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     }
   }
 
-  Widget _buildSteps() {
+  Widget _buildSteps(S s) {
     final steps = [
       'Contacte ta fondation 3a (banque ou assurance)',
       'Demande le formulaire "clause bénéficiaire"',
@@ -269,7 +271,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Comment déposer une clause en 5 minutes :',
+            s.clause3aStepsTitle,
             style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),

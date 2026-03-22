@@ -3,9 +3,6 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
-
-// TODO: add Semantics for accessibility
-
 /// Two-level focus selector for Pulse hero adaptation.
 ///
 /// Level 1: 4 universal intentions (Comprendre, Protéger, Optimiser, Naviguer)
@@ -108,13 +105,17 @@ class _FocusSelectorState extends State<FocusSelector> {
 
   Widget _buildGridTile(_FocusCategory cat) {
     final isExpanded = _expandedCategory == cat.key;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _expandedCategory = isExpanded ? null : cat.key;
-        });
-      },
-      child: AnimatedContainer(
+    return Semantics(
+      label: '${cat.label} — ${cat.subtitle}',
+      button: true,
+      selected: isExpanded,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _expandedCategory = isExpanded ? null : cat.key;
+          });
+        },
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -160,6 +161,7 @@ class _FocusSelectorState extends State<FocusSelector> {
           ],
         ),
       ),
+    ),
     );
   }
 

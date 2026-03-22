@@ -1,4 +1,4 @@
-import 'package:mint_mobile/models/budget_snapshot.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -100,6 +100,35 @@ enum ChatTier {
   none,
 }
 
+// ────────────────────────────────────────────────────────────
+//  ROUTE TOOL PAYLOAD — S58 route_to_screen tool_use
+// ────────────────────────────────────────────────────────────
+
+/// Payload from a `route_to_screen` tool_use block returned by Claude.
+///
+/// Produced by [_parseRouteToolUse] in CoachChatScreen when the LLM response
+/// contains a structured `[ROUTE_TO_SCREEN:{...}]` marker.
+///
+/// The [RoutePlanner] processes [intent] + [confidence] to produce a
+/// [RouteDecision]. The [contextMessage] is shown in the [RouteSuggestionCard].
+class RouteToolPayload {
+  /// The semantic intent tag (e.g. 'retirement_choice').
+  final String intent;
+
+  /// LLM confidence in the intent (0.0–1.0).
+  final double confidence;
+
+  /// The coach's narrative message explaining why this screen is relevant.
+  /// Shown verbatim in the RouteSuggestionCard.
+  final String contextMessage;
+
+  const RouteToolPayload({
+    required this.intent,
+    required this.confidence,
+    required this.contextMessage,
+  });
+}
+
 /// Message dans l'historique de conversation
 class ChatMessage {
   final String role; // 'user', 'assistant', 'system'
@@ -114,14 +143,11 @@ class ChatMessage {
   /// Affichees en strip horizontale scrollable dans le chat.
   final List<ResponseCard> responseCards;
 
-  /// Original user message that triggered this assistant response (S56).
-  /// Used to build rich inline widgets at render time.
-  /// Null for user/system messages and greeting.
-  final String? userQuery;
-
-  /// Rich widget chosen by Claude via tool calling (S56).
-  /// Rendered inline in the chat below the text response.
-  final Map<String, dynamic>? widgetCall;
+  /// Route suggestion payload from a `route_to_screen` tool_use block (S58).
+  ///
+  /// Non-null when the message carries a RouteSuggestionCard to render.
+  /// The card is rendered in CoachChatScreen._buildCoachBubble.
+  final RouteToolPayload? routePayload;
 
   const ChatMessage({
     required this.role,
@@ -132,13 +158,15 @@ class ChatMessage {
     this.disclaimers = const [],
     this.tier = ChatTier.none,
     this.responseCards = const [],
-    this.userQuery,
-    this.widgetCall,
+    this.routePayload,
   });
 
   bool get isUser => role == 'user';
   bool get isAssistant => role == 'assistant';
   bool get isSystem => role == 'system';
+
+  /// Whether this message carries a route suggestion card.
+  bool get hasRoutePayload => routePayload != null;
 }
 
 /// Reponse du coach LLM
@@ -180,6 +208,7 @@ class CoachLlmService {
     required List<ChatMessage> history,
     required LlmConfig config,
     String? memoryBlock,
+    Map<String, dynamic>? enrichedContext,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
@@ -199,11 +228,11 @@ class CoachLlmService {
     // return it directly.
     // The mock path is used as the final fallback by CoachOrchestrator itself,
     // but we check here to add suggested actions via _inferSuggestedActions.
+    // Note: suggestedActions are resolved at the screen layer (CoachChatScreen)
+    // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
     return CoachResponse(
       message: orchestratorResponse.message,
-      suggestedActions: orchestratorResponse.wasFiltered
-          ? null
-          : _inferSuggestedActions(userMessage),
+      suggestedActions: null,
       disclaimer: orchestratorResponse.disclaimer,
       sources: orchestratorResponse.sources,
       disclaimers: orchestratorResponse.disclaimers,
@@ -236,6 +265,7 @@ class CoachLlmService {
     required CoachProfile profile,
     required LlmConfig config,
     required List<ChatMessage> history,
+    Map<String, dynamic>? enrichedContext,
   }) async {
     final ragService = RagService();
     final String provider;
@@ -250,7 +280,10 @@ class CoachLlmService {
         provider = 'openai';
         break;
     }
-    final profileContext = _buildProfileContext(profile);
+    final profileContext = {
+      ..._buildProfileContext(profile),
+      if (enrichedContext != null) ...enrichedContext,
+    };
 
     // Injecter le contexte conversationnel dans la question
     final augmentedQuestion = _buildConversationContext(history, userMessage);
@@ -284,10 +317,11 @@ class CoachLlmService {
     final isFallback = result.useFallback;
     final message = isFallback ? _safeChatFallback() : result.sanitizedText;
 
+    // Note: suggestedActions are resolved at the screen layer (CoachChatScreen)
+    // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
     return CoachResponse(
       message: message,
-      // HIGH fix: clear sources/actions when using fallback.
-      suggestedActions: isFallback ? null : _inferSuggestedActions(userMessage),
+      suggestedActions: null,
       disclaimer: _disclaimer,
       sources: isFallback ? const [] : ragResponse.sources,
       disclaimers: isFallback ? const [] : ragResponse.disclaimers,
@@ -466,22 +500,24 @@ class CoachLlmService {
     };
   }
 
-  /// Infere les actions suggerees a partir du message utilisateur
-  static List<String> _inferSuggestedActions(String userMessage) {
+  /// Infere les actions suggerees a partir du message utilisateur.
+  ///
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static List<String> inferSuggestedActions(String userMessage, S l) {
     final lower = userMessage.toLowerCase();
     if (lower.contains('3a')) {
-      return ['Simuler un versement 3a', 'Voir mes comptes 3a'];
+      return [l.coachSuggestSimulate3a, l.coachSuggestView3a];
     }
     if (lower.contains('lpp') || lower.contains('rachat')) {
-      return ['Simuler un rachat LPP', 'Comprendre le rachat LPP'];
+      return [l.coachSuggestSimulateLpp, l.coachSuggestUnderstandLpp];
     }
     if (lower.contains('retraite')) {
-      return ['Voir ma trajectoire', 'Explorer les scenarios'];
+      return [l.coachSuggestTrajectory, l.coachSuggestScenarios];
     }
     if (lower.contains('impot') || lower.contains('fiscal')) {
-      return ['Deductions fiscales possibles', 'Simuler l\'impact fiscal'];
+      return [l.coachSuggestDeductions, l.coachSuggestTaxImpact];
     }
-    return ['Mon score Fitness', 'Ma trajectoire retraite'];
+    return [l.coachSuggestFitness, l.coachSuggestRetirement];
   }
 
   /// Construit le system prompt avec le contexte utilisateur.
@@ -491,10 +527,7 @@ class CoachLlmService {
   /// which differ from PromptRegistry's CoachContext model.
   ///
   /// CRIT #6: wrapped in try-catch to prevent crash on incomplete profiles.
-  static String buildSystemPrompt(
-    CoachProfile profile, {
-    BudgetSnapshot? budgetSnapshot,
-  }) {
+  static String buildSystemPrompt(CoachProfile profile) {
     final firstName = profile.firstName ?? 'utilisateur';
     final age = profile.age;
     final canton = profile.canton;
@@ -621,35 +654,6 @@ class CoachLlmService {
       }
     }
 
-    // ── BUDGET VIVANT (from BudgetSnapshot) ──
-    if (budgetSnapshot != null) {
-      buffer.writeln();
-      buffer.writeln('BUDGET VIVANT :');
-      buffer.writeln(
-          '- Libre aujourd\'hui : CHF ${budgetSnapshot.present.monthlyFree.round()}/mois');
-      if (budgetSnapshot.retirement != null) {
-        buffer.writeln(
-            '- Libre retraite : CHF ${budgetSnapshot.retirement!.monthlyFree.round()}/mois');
-      }
-      if (budgetSnapshot.gap != null) {
-        buffer.writeln(
-            '- Ecart : CHF ${budgetSnapshot.gap!.monthlyGap.round()}/mois');
-      }
-      buffer.writeln('- Confiance : ${budgetSnapshot.confidenceScore}%');
-      if (budgetSnapshot.capImpact != null) {
-        if (budgetSnapshot.capImpact!.now != null) {
-          buffer.writeln(
-              '- Impact court terme : ${budgetSnapshot.capImpact!.now}');
-        }
-        if (budgetSnapshot.capImpact!.later != null) {
-          buffer.writeln(
-              '- Impact long terme : ${budgetSnapshot.capImpact!.later}');
-        }
-      }
-      buffer.writeln(
-          'Parle en CHF/mois de marge, pas en pourcentages abstraits.');
-    }
-
     return buffer.toString();
   }
 
@@ -702,18 +706,21 @@ class CoachLlmService {
         '_${ComplianceGuard.standardDisclaimer}_';
   }
 
-  /// Message d'accueil initial du coach
-  static String initialGreeting(CoachProfile profile) {
-    final firstName = profile.firstName ?? 'utilisateur';
-    return 'Salut $firstName. '
-        'Pose ta question, je regarde ce que tes chiffres racontent.';
+  /// Message d'accueil initial du coach.
+  ///
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static String initialGreeting(CoachProfile profile, S l) {
+    final firstName = profile.firstName ?? l.coachFallbackName;
+    return l.coachGreetingDefault(firstName, '');
   }
 
-  /// Suggestions initiales
-  static List<String> get initialSuggestions => [
-        'Ma retraite, concrètement',
-        'Où alléger mes impôts',
-        'Simuler un versement 3a',
-        'Voir où j\'en suis',
+  /// Suggestions initiales.
+  ///
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static List<String> initialSuggestions(S l) => [
+        l.coachSuggestRetirement,
+        l.coachSuggestDeductions,
+        l.coachSuggestSimulate3a,
+        l.coachSuggestFitness,
       ];
 }

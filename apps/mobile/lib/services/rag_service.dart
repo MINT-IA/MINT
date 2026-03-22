@@ -3,18 +3,38 @@ import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 
 /// Response from the RAG query endpoint
+/// A tool call returned by the LLM (e.g. route_to_screen).
+class RagToolCall {
+  final String name;
+  final Map<String, dynamic> input;
+
+  const RagToolCall({required this.name, required this.input});
+
+  factory RagToolCall.fromJson(Map<String, dynamic> json) {
+    return RagToolCall(
+      name: json['name'] as String? ?? '',
+      input: (json['input'] as Map<String, dynamic>?) ?? {},
+    );
+  }
+}
+
 class RagResponse {
   final String answer;
   final List<RagSource> sources;
   final List<String> disclaimers;
   final int tokensUsed;
+  final List<RagToolCall> toolCalls;
 
   const RagResponse({
     required this.answer,
     required this.sources,
     required this.disclaimers,
     required this.tokensUsed,
+    this.toolCalls = const [],
   });
+
+  /// Whether the LLM returned tool_use blocks alongside text.
+  bool get hasToolCalls => toolCalls.isNotEmpty;
 
   factory RagResponse.fromJson(Map<String, dynamic> json) {
     return RagResponse(
@@ -28,6 +48,10 @@ class RagResponse {
               .toList() ??
           [],
       tokensUsed: json['tokens_used'] as int? ?? 0,
+      toolCalls: (json['tool_calls'] as List<dynamic>?)
+              ?.map((t) => RagToolCall.fromJson(t as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -161,6 +185,7 @@ class RagService {
     String? model,
     Map<String, dynamic>? profileContext,
     String language = 'fr',
+    List<Map<String, dynamic>>? tools,
   }) async {
     final uri = Uri.parse('$baseUrl/rag/query');
 
@@ -173,6 +198,7 @@ class RagService {
 
     if (model != null) body['model'] = model;
     if (profileContext != null) body['profile_context'] = profileContext;
+    if (tools != null) body['tools'] = tools;
 
     final response = await http
         .post(

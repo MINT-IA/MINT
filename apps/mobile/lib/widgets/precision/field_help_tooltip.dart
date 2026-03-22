@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -152,7 +153,7 @@ class FieldHelpTooltip extends StatelessWidget {
                           width: double.infinity,
                           child: OutlinedButton(
                             onPressed: () {
-                              Navigator.of(ctx).pop();
+                              ctx.pop();
                               onUseEstimate?.call();
                             },
                             style: OutlinedButton.styleFrom(

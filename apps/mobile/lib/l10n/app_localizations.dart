@@ -5870,7 +5870,7 @@ abstract class S {
   /// No description provided for @exploreTitle.
   ///
   /// In fr, this message translates to:
-  /// **'EXPLORER'**
+  /// **'Explorer'**
   String get exploreTitle;
 
   /// No description provided for @explorePillarComprendreTitle.
@@ -6116,7 +6116,7 @@ abstract class S {
   /// No description provided for @coachWelcome.
   ///
   /// In fr, this message translates to:
-  /// **'Tes chiffres sont là'**
+  /// **'Bienvenue sur MINT'**
   String get coachWelcome;
 
   /// No description provided for @coachHello.
@@ -6164,13 +6164,13 @@ abstract class S {
   /// No description provided for @coachCompletePrompt.
   ///
   /// In fr, this message translates to:
-  /// **'Complète ton diagnostic pour voir ton score'**
+  /// **'Complète ton diagnostic pour découvrir ton score'**
   String get coachCompletePrompt;
 
   /// No description provided for @coachDiscoverScore.
   ///
   /// In fr, this message translates to:
-  /// **'Voir mon score — 10 min'**
+  /// **'Découvrir mon score — 10 min'**
   String get coachDiscoverScore;
 
   /// No description provided for @coachTrajectory.
@@ -6275,11 +6275,11 @@ abstract class S {
   /// **'Explorer'**
   String get coachExplore;
 
-  /// No description provided for @coachDisclaimer.
+  /// No description provided for @coachPulseDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Outil éducatif — les réponses ne constituent pas un conseil financier. LSFin.'**
-  String get coachDisclaimer;
+  /// **'Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.'**
+  String get coachPulseDisclaimer;
 
   /// No description provided for @eduTheme3aTitle.
   ///
@@ -6506,7 +6506,7 @@ abstract class S {
   /// No description provided for @eduHubSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Choisis un sujet. L\'essentiel en clair, une action concrète à la fin.'**
+  /// **'Pas de panique. Choisis un sujet, on t\'explique l\'essentiel et on te donne une action simple.'**
   String get eduHubSubtitle;
 
   /// No description provided for @eduHubReadQuiz.
@@ -6674,13 +6674,13 @@ abstract class S {
   /// No description provided for @trajectoryEmpty.
   ///
   /// In fr, this message translates to:
-  /// **'Pas encore de projection'**
+  /// **'Pas encore de projection disponible'**
   String get trajectoryEmpty;
 
   /// No description provided for @trajectoryEmptySub.
   ///
   /// In fr, this message translates to:
-  /// **'Un scan de certificat LPP, et tout s\'éclaire.'**
+  /// **'Complète ton profil pour voir ta trajectoire'**
   String get trajectoryEmptySub;
 
   /// No description provided for @trajectoryDisclaimer.
@@ -10288,7 +10288,7 @@ abstract class S {
   /// No description provided for @naissanceRanking26.
   ///
   /// In fr, this message translates to:
-  /// **'CLASSEMENT 26 CANTONS'**
+  /// **'ALLOCATIONS PAR CANTON'**
   String get naissanceRanking26;
 
   /// No description provided for @naissanceBestCanton.
@@ -15935,7 +15935,7 @@ abstract class S {
   /// No description provided for @pulseTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pulse'**
+  /// **'Aujourd’hui'**
   String get pulseTitle;
 
   /// No description provided for @pulseGreeting.
@@ -15953,7 +15953,7 @@ abstract class S {
   /// No description provided for @pulseWelcome.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue sur MINT'**
+  /// **'On regarde où tu en es.'**
   String get pulseWelcome;
 
   /// No description provided for @pulseEmptyTitle.
@@ -16093,6 +16093,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Patrimoine'**
   String get pulseKeyFigPatrimoine;
+
+  /// No description provided for @pulseAmountPerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount}/mois'**
+  String pulseAmountPerMonth(String amount);
 
   /// No description provided for @pulseCoupleRetraite.
   ///
@@ -17555,7 +17561,7 @@ abstract class S {
   /// No description provided for @shellWelcomeBack.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue ! Tes données sont à jour.'**
+  /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
 
   /// No description provided for @shellRecommendationsUpdated.
@@ -20482,6 +20488,78 @@ abstract class S {
   /// **'Score stable cette semaine.'**
   String get recapFhsStable;
 
+  /// No description provided for @recapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap de la semaine'**
+  String get recapTitle;
+
+  /// No description provided for @recapPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Du {start} au {end}'**
+  String recapPeriod(String start, String end);
+
+  /// No description provided for @recapBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget'**
+  String get recapBudgetTitle;
+
+  /// No description provided for @recapBudgetSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargné cette semaine'**
+  String get recapBudgetSaved;
+
+  /// No description provided for @recapBudgetRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux d\'épargne'**
+  String get recapBudgetRate;
+
+  /// No description provided for @recapActionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions réalisées'**
+  String get recapActionsTitle;
+
+  /// No description provided for @recapActionsNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune action cette semaine'**
+  String get recapActionsNone;
+
+  /// No description provided for @recapProgressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression'**
+  String get recapProgressTitle;
+
+  /// No description provided for @recapProgressDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'{delta} pts de confiance'**
+  String recapProgressDelta(String delta);
+
+  /// No description provided for @recapHighlightsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points marquants'**
+  String get recapHighlightsTitle;
+
+  /// No description provided for @recapNextFocusTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La semaine prochaine'**
+  String get recapNextFocusTitle;
+
+  /// No description provided for @recapEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de données cette semaine'**
+  String get recapEmpty;
+
   /// No description provided for @decesProcheTitre.
   ///
   /// In fr, this message translates to:
@@ -21559,7 +21637,7 @@ abstract class S {
   /// No description provided for @benchmarkOptInTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Activer les repères cantonaux'**
+  /// **'Activer les comparaisons cantonales'**
   String get benchmarkOptInTitle;
 
   /// No description provided for @benchmarkOptInSubtitle.
@@ -21633,12 +21711,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Pulse'**
   String get tabPulse;
-
-  /// No description provided for @tabMint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mint'**
-  String get tabMint;
 
   /// No description provided for @authGateDocScanTitle.
   ///
@@ -22393,25 +22465,25 @@ abstract class S {
   /// No description provided for @coachGreetingSlm.
   ///
   /// In fr, this message translates to:
-  /// **'Salut {name}. Tes questions restent sur ton appareil — rien ne sort. Pose ta question, on regarde tes chiffres ensemble.'**
+  /// **'Salut {name}. Tout reste sur ton appareil — rien ne sort. C\'est quoi ta question ?'**
   String coachGreetingSlm(String name);
 
   /// No description provided for @coachGreetingDefault.
   ///
   /// In fr, this message translates to:
-  /// **'Salut {name}. Pose ta question — je regarde tes chiffres et je te dis ce que j\'en pense.{scoreSuffix}'**
+  /// **'Salut {name}. Je regarde tes chiffres — dis-moi ce qui te trotte dans la tête.{scoreSuffix}'**
   String coachGreetingDefault(String name, String scoreSuffix);
 
   /// No description provided for @coachScoreSuffix.
   ///
   /// In fr, this message translates to:
-  /// **' En ce moment, tu es à {score}/100.'**
+  /// **' Ton score : {score}/100 — voyons où ça coince.'**
   String coachScoreSuffix(int score);
 
   /// No description provided for @coachComplianceError.
   ///
   /// In fr, this message translates to:
-  /// **'Je préfère rester net sur celle-ci. Reformule, ou passe par un outil plus direct.'**
+  /// **'Je préfère ne pas répondre à ça. Reformule ta question, ou utilise un simulateur pour un chiffre direct.'**
   String get coachComplianceError;
 
   /// No description provided for @coachErrorInvalidKey.
@@ -22435,67 +22507,67 @@ abstract class S {
   /// No description provided for @coachErrorConnection.
   ///
   /// In fr, this message translates to:
-  /// **'Pas de connexion. Les outils restent là.'**
+  /// **'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.'**
   String get coachErrorConnection;
 
   /// No description provided for @coachSuggestSimulate3a.
   ///
   /// In fr, this message translates to:
-  /// **'Simuler un versement 3a'**
+  /// **'Combien économiser avec le 3a ?'**
   String get coachSuggestSimulate3a;
 
   /// No description provided for @coachSuggestView3a.
   ///
   /// In fr, this message translates to:
-  /// **'Voir mes comptes 3a'**
+  /// **'L\'état de mes comptes 3a'**
   String get coachSuggestView3a;
 
   /// No description provided for @coachSuggestSimulateLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Simuler un rachat LPP'**
+  /// **'Chiffrer un rachat LPP'**
   String get coachSuggestSimulateLpp;
 
   /// No description provided for @coachSuggestUnderstandLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Comprendre mon rachat LPP'**
+  /// **'Comment fonctionne le rachat LPP ?'**
   String get coachSuggestUnderstandLpp;
 
   /// No description provided for @coachSuggestTrajectory.
   ///
   /// In fr, this message translates to:
-  /// **'Voir où j\'en suis'**
+  /// **'Ma trajectoire vers la retraite'**
   String get coachSuggestTrajectory;
 
   /// No description provided for @coachSuggestScenarios.
   ///
   /// In fr, this message translates to:
-  /// **'Explorer mes scénarios'**
+  /// **'Rente ou capital : lequel me convient ?'**
   String get coachSuggestScenarios;
 
   /// No description provided for @coachSuggestDeductions.
   ///
   /// In fr, this message translates to:
-  /// **'Où alléger mes impôts'**
+  /// **'Où réduire mes impôts cette année ?'**
   String get coachSuggestDeductions;
 
   /// No description provided for @coachSuggestTaxImpact.
   ///
   /// In fr, this message translates to:
-  /// **'Simuler l\'impact fiscal'**
+  /// **'Calculer l’économie fiscale'**
   String get coachSuggestTaxImpact;
 
   /// No description provided for @coachSuggestFitness.
   ///
   /// In fr, this message translates to:
-  /// **'Où j\'en suis'**
+  /// **'Mon score financier en détail'**
   String get coachSuggestFitness;
 
   /// No description provided for @coachSuggestRetirement.
   ///
   /// In fr, this message translates to:
-  /// **'Ma retraite, concrètement'**
+  /// **'À 65 ans, combien j’aurai ?'**
   String get coachSuggestRetirement;
 
   /// No description provided for @coachEmptyStateMessage.
@@ -22531,7 +22603,7 @@ abstract class S {
   /// No description provided for @coachTooltipLifeEvent.
   ///
   /// In fr, this message translates to:
-  /// **'Evenement de vie'**
+  /// **'Événement de vie'**
   String get coachTooltipLifeEvent;
 
   /// No description provided for @coachTierSlm.
@@ -22570,10 +22642,16 @@ abstract class S {
   /// **'Hors-ligne'**
   String get coachBadgeFallback;
 
+  /// No description provided for @coachDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — les réponses ne constituent pas un conseil financier (LSFin art. 3). Consulte un·e spécialiste pour les décisions importantes.'**
+  String get coachDisclaimer;
+
   /// No description provided for @coachLoading.
   ///
   /// In fr, this message translates to:
-  /// **'Je regarde ça...'**
+  /// **'Je regarde tes chiffres…'**
   String get coachLoading;
 
   /// No description provided for @coachSources.
@@ -22585,7 +22663,7 @@ abstract class S {
   /// No description provided for @coachInputHint.
   ///
   /// In fr, this message translates to:
-  /// **'Pose ta question, ou ouvre un sujet'**
+  /// **'Une question sur tes finances ?'**
   String get coachInputHint;
 
   /// No description provided for @coachTitle.
@@ -22733,11 +22811,11 @@ abstract class S {
   /// **'Ton 2e pilier est plafonné : seuls CHF {lppUtilise} sur {lppTotal} sont comptés (max 10 % du prix, règle ASB).'**
   String affordabilityInsightLppCap(String lppUtilise, String lppTotal);
 
-  /// No description provided for @tabCoach.
+  /// No description provided for @tabMint.
   ///
   /// In fr, this message translates to:
-  /// **'Coach'**
-  String get tabCoach;
+  /// **'Mint'**
+  String get tabMint;
 
   /// No description provided for @pulseNarrativeRetirementClose.
   ///
@@ -23516,13 +23594,13 @@ abstract class S {
   /// No description provided for @quickStartTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Trois chiffres, une première vérité.'**
+  /// **'Trois questions, un premier chiffre.'**
   String get quickStartTitle;
 
   /// No description provided for @quickStartSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'La suite viendra après.'**
+  /// **'Le reste, c\'est toi qui décides quand.'**
   String get quickStartSubtitle;
 
   /// No description provided for @quickStartFirstName.
@@ -23618,13 +23696,13 @@ abstract class S {
   /// No description provided for @quickStartDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Estimation éducative basée sur ton âge, ton revenu et ton canton.'**
+  /// **'Estimation éducative. Pas un conseil financier (LSFin).'**
   String get quickStartDisclaimer;
 
   /// No description provided for @quickStartCta.
   ///
   /// In fr, this message translates to:
-  /// **'Voir ce qui change'**
+  /// **'Voir mon aperçu'**
   String get quickStartCta;
 
   /// No description provided for @quickStartSectionIdentity.
@@ -23656,42 +23734,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Section : {label} — mets à jour tes informations ci-dessous.'**
   String quickStartSectionGuidance(String label);
-
-  /// No description provided for @quickStartNarrative.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu gardes ~{pct} % de ton niveau de vie.'**
-  String quickStartNarrative(String pct);
-
-  /// No description provided for @quickStartNarrativeLow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Premier ordre de grandeur, à préciser.'**
-  String get quickStartNarrativeLow;
-
-  /// No description provided for @quickStartCtaSecondary.
-  ///
-  /// In fr, this message translates to:
-  /// **'J’ajouterai plus de détails plus tard'**
-  String get quickStartCtaSecondary;
-
-  /// No description provided for @quickStartConfidenceMsg.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sans certificat LPP, on reste sur une estimation large.'**
-  String get quickStartConfidenceMsg;
-
-  /// No description provided for @quickStartHeroSecondaryLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'aujourd’hui'**
-  String get quickStartHeroSecondaryLabel;
-
-  /// No description provided for @quickStartHeroLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'à la retraite'**
-  String get quickStartHeroLabel;
 
   /// Profile completion with missing sections hint. Tone: factual, inviting.
   ///
@@ -31901,815 +31943,5236 @@ abstract class S {
   /// **'Le choix dépend de ta situation personnelle. Consulte un·e notaire pour une analyse complète.'**
   String get concubinageDecisionMatrixConclusionDesc;
 
+  /// No description provided for @mortgageJourneyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours achat immobilier'**
+  String get mortgageJourneyTitle;
+
+  /// No description provided for @mortgageJourneySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 étapes pour passer de « est-ce que je peux ? » à « j\'ai signé ! »'**
+  String get mortgageJourneySubtitle;
+
+  /// No description provided for @mortgageJourneyPrevious.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précédent'**
+  String get mortgageJourneyPrevious;
+
+  /// No description provided for @mortgageJourneyNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape suivante'**
+  String get mortgageJourneyNextStep;
+
+  /// No description provided for @mortgageJourneyComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'✅ Parcours complet !'**
+  String get mortgageJourneyComplete;
+
+  /// No description provided for @clause3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La clause 3a oubliée'**
+  String get clause3aTitle;
+
+  /// No description provided for @clause3aQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu déposé une clause bénéficiaire ?'**
+  String get clause3aQuestion;
+
+  /// No description provided for @clause3aStepsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment déposer une clause en 5 minutes :'**
+  String get clause3aStepsTitle;
+
+  /// No description provided for @clause3aFeedbackOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien ! Vérifie que la clause désigne bien {partner} — et qu’elle est à jour après chaque événement de vie.'**
+  String clause3aFeedbackOk(String partner);
+
+  /// No description provided for @clause3aFeedbackNok.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.'**
+  String get clause3aFeedbackNok;
+
+  /// No description provided for @fiscalSuperpowerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le super-pouvoir fiscal'**
+  String get fiscalSuperpowerTitle;
+
+  /// No description provided for @fiscalSuperpowerSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’État te rend de l’argent pour avoir un enfant.'**
+  String get fiscalSuperpowerSubtitle;
+
+  /// No description provided for @fiscalSuperpowerTaxBenefits.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes avantages fiscaux'**
+  String get fiscalSuperpowerTaxBenefits;
+
+  /// No description provided for @babyCostTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le coût du bonheur'**
+  String get babyCostTitle;
+
+  /// No description provided for @babyCostBreakdownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décomposition mensuelle'**
+  String get babyCostBreakdownTitle;
+
+  /// No description provided for @lifeEventSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il m’arrive quelque chose'**
+  String get lifeEventSheetTitle;
+
+  /// No description provided for @lifeEventSheetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis un événement pour voir l’impact financier'**
+  String get lifeEventSheetSubtitle;
+
+  /// No description provided for @lifeEventSheetSectionFamille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Famille'**
+  String get lifeEventSheetSectionFamille;
+
+  /// No description provided for @lifeEventSheetSectionPro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Professionnel'**
+  String get lifeEventSheetSectionPro;
+
+  /// No description provided for @lifeEventSheetSectionPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine'**
+  String get lifeEventSheetSectionPatrimoine;
+
+  /// No description provided for @lifeEventSheetSectionMobilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mobilité'**
+  String get lifeEventSheetSectionMobilite;
+
+  /// No description provided for @lifeEventSheetSectionSante.
+  ///
+  /// In fr, this message translates to:
+  /// **'Santé'**
+  String get lifeEventSheetSectionSante;
+
+  /// No description provided for @lifeEventSheetSectionCrise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crise'**
+  String get lifeEventSheetSectionCrise;
+
+  /// No description provided for @lifeEventLabelMariage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je me marie'**
+  String get lifeEventLabelMariage;
+
+  /// No description provided for @lifeEventLabelDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je divorce'**
+  String get lifeEventLabelDivorce;
+
+  /// No description provided for @lifeEventLabelNaissance.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’attends un enfant'**
+  String get lifeEventLabelNaissance;
+
+  /// No description provided for @lifeEventLabelConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'On vit ensemble'**
+  String get lifeEventLabelConcubinage;
+
+  /// No description provided for @lifeEventLabelDeces.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décès d’un proche'**
+  String get lifeEventLabelDeces;
+
+  /// No description provided for @lifeEventLabelPremierEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier emploi'**
+  String get lifeEventLabelPremierEmploi;
+
+  /// No description provided for @lifeEventLabelNouveauJob.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau job'**
+  String get lifeEventLabelNouveauJob;
+
+  /// No description provided for @lifeEventLabelIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je me mets à mon compte'**
+  String get lifeEventLabelIndependant;
+
+  /// No description provided for @lifeEventLabelPerteEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte d’emploi'**
+  String get lifeEventLabelPerteEmploi;
+
+  /// No description provided for @lifeEventLabelRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je pars à la retraite'**
+  String get lifeEventLabelRetraite;
+
+  /// No description provided for @lifeEventLabelAchatImmo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat immobilier'**
+  String get lifeEventLabelAchatImmo;
+
+  /// No description provided for @lifeEventLabelVenteImmo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vente immobilière'**
+  String get lifeEventLabelVenteImmo;
+
+  /// No description provided for @lifeEventLabelHeritage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je reçois un héritage'**
+  String get lifeEventLabelHeritage;
+
+  /// No description provided for @lifeEventLabelDonation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux donner à mes enfants'**
+  String get lifeEventLabelDonation;
+
+  /// No description provided for @lifeEventLabelDemenagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déménagement de canton'**
+  String get lifeEventLabelDemenagement;
+
+  /// No description provided for @lifeEventLabelExpatriation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je pars à l’étranger'**
+  String get lifeEventLabelExpatriation;
+
+  /// No description provided for @lifeEventLabelInvalidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suis-je bien couvert·e ?'**
+  String get lifeEventLabelInvalidite;
+
+  /// No description provided for @lifeEventLabelDettes.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai des dettes'**
+  String get lifeEventLabelDettes;
+
+  /// No description provided for @lifeEventPromptMariage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je me marie — quel impact sur mes impôts, mon AVS et ma prévoyance ?'**
+  String get lifeEventPromptMariage;
+
+  /// No description provided for @lifeEventPromptDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je divorce — que se passe-t-il avec la LPP et les impôts ?'**
+  String get lifeEventPromptDivorce;
+
+  /// No description provided for @lifeEventPromptNaissance.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’attends un enfant — quelles aides et déductions sont disponibles ?'**
+  String get lifeEventPromptNaissance;
+
+  /// No description provided for @lifeEventPromptConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'On n’est pas mariés — comment se protéger en cas de pépin ?'**
+  String get lifeEventPromptConcubinage;
+
+  /// No description provided for @lifeEventPromptDeces.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décès d’un proche — quelles démarches financières dois-je faire ?'**
+  String get lifeEventPromptDeces;
+
+  /// No description provided for @lifeEventPromptPremierEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est mon premier job — que dois-je savoir sur ma prévoyance et mes cotisations ?'**
+  String get lifeEventPromptPremierEmploi;
+
+  /// No description provided for @lifeEventPromptNouveauJob.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je change d’emploi — comment comparer les offres et gérer mon libre passage ?'**
+  String get lifeEventPromptNouveauJob;
+
+  /// No description provided for @lifeEventPromptIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je me mets à mon compte — quelles options de prévoyance sans LPP ?'**
+  String get lifeEventPromptIndependant;
+
+  /// No description provided for @lifeEventPromptPerteEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai perdu mon emploi — quelles sont mes indemnités et combien de temps ?'**
+  String get lifeEventPromptPerteEmploi;
+
+  /// No description provided for @lifeEventPromptRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand puis-je partir à la retraite et combien vais-je toucher ?'**
+  String get lifeEventPromptRetraite;
+
+  /// No description provided for @lifeEventPromptAchatImmo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Est-ce que je peux acheter un bien immobilier avec mes revenus et mon apport ?'**
+  String get lifeEventPromptAchatImmo;
+
+  /// No description provided for @lifeEventPromptVenteImmo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je vends mon bien — quel impôt sur le gain immobilier dois-je prévoir ?'**
+  String get lifeEventPromptVenteImmo;
+
+  /// No description provided for @lifeEventPromptHeritage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je reçois un héritage — quelles sont les conséquences fiscales ?'**
+  String get lifeEventPromptHeritage;
+
+  /// No description provided for @lifeEventPromptDonation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux donner à mes enfants — quel impact fiscal et quelles limites ?'**
+  String get lifeEventPromptDonation;
+
+  /// No description provided for @lifeEventPromptDemenagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je déménage de canton — quel impact fiscal dois-je anticiper ?'**
+  String get lifeEventPromptDemenagement;
+
+  /// No description provided for @lifeEventPromptExpatriation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je pars à l’étranger — que faire de ma prévoyance AVS, LPP et 3a ?'**
+  String get lifeEventPromptExpatriation;
+
+  /// No description provided for @lifeEventPromptInvalidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suis-je bien couvert·e en cas d’invalidité ou d’accident ?'**
+  String get lifeEventPromptInvalidite;
+
+  /// No description provided for @lifeEventPromptDettes.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai des dettes — comment les gérer sans toucher à ma prévoyance ?'**
+  String get lifeEventPromptDettes;
+
+  /// No description provided for @compoundDisclaimerInflation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne garantissent pas les rendements futurs.'**
+  String compoundDisclaimerInflation(String inflation);
+
+  /// No description provided for @interactive3aDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.'**
+  String get interactive3aDisclaimer;
+
+  /// No description provided for @milestoneContinueBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get milestoneContinueBtn;
+
+  /// No description provided for @slmAutoPromptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA sur ton appareil'**
+  String get slmAutoPromptTitle;
+
+  /// No description provided for @slmAutoPromptBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT peut installer un modèle d’IA directement sur ton téléphone pour des conseils personnalisés — 100 % privé, aucune donnée ne quitte ton appareil.'**
+  String get slmAutoPromptBody;
+
+  /// No description provided for @slmAutoInstalledMsg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA installé ! Tes conseils seront personnalisés.'**
+  String get slmAutoInstalledMsg;
+
+  /// No description provided for @slmInstallBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installer le coach IA'**
+  String get slmInstallBtn;
+
+  /// No description provided for @slmLaterBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get slmLaterBtn;
+
+  /// No description provided for @rcDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin art. 3).'**
+  String get rcDisclaimer;
+
+  /// No description provided for @rcPillar3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement 3a {year}'**
+  String rcPillar3aTitle(String year);
+
+  /// No description provided for @rcPillar3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie fiscale estimée'**
+  String get rcPillar3aSubtitle;
+
+  /// No description provided for @rcPillar3aExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie d’impôt estimée si tu verses le plafond de {plafond} CHF'**
+  String rcPillar3aExplanation(String plafond);
+
+  /// No description provided for @rcPillar3aCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler mon 3a'**
+  String get rcPillar3aCtaLabel;
+
+  /// No description provided for @rcLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP'**
+  String get rcLppBuybackTitle;
+
+  /// No description provided for @rcLppBuybackSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Potentiel de rachat disponible'**
+  String get rcLppBuybackSubtitle;
+
+  /// No description provided for @rcLppBuybackExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat possible. Économie fiscale estimée de {taxSaving} CHF sur {rachatSimule} CHF'**
+  String rcLppBuybackExplanation(String taxSaving, String rachatSimule);
+
+  /// No description provided for @rcLppBuybackCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler un rachat'**
+  String get rcLppBuybackCtaLabel;
+
+  /// No description provided for @rcReplacementRateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplacement'**
+  String get rcReplacementRateTitle;
+
+  /// No description provided for @rcReplacementRateSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection à {age} ans'**
+  String rcReplacementRateSubtitle(String age);
+
+  /// No description provided for @rcReplacementRateExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu estimé à la retraite : {totalMonthly} CHF/mois vs {currentMonthly} CHF/mois actuellement'**
+  String rcReplacementRateExplanation(
+      String totalMonthly, String currentMonthly);
+
+  /// No description provided for @rcReplacementRateCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer mes scénarios'**
+  String get rcReplacementRateCtaLabel;
+
+  /// No description provided for @rcReplacementRateAlerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux inférieur au seuil recommandé de 60 %. Explore les options.'**
+  String get rcReplacementRateAlerte;
+
+  /// No description provided for @rcAvsGapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacune AVS'**
+  String get rcAvsGapTitle;
+
+  /// No description provided for @rcAvsGapSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{lacunes} années de cotisation manquantes'**
+  String rcAvsGapSubtitle(String lacunes);
+
+  /// No description provided for @rcAvsGapExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduction estimée de ta rente AVS annuelle due aux lacunes'**
+  String get rcAvsGapExplanation;
+
+  /// No description provided for @rcAvsGapCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon extrait AVS'**
+  String get rcAvsGapCtaLabel;
+
+  /// No description provided for @rcCoupleAlertTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart de visibilité couple'**
+  String get rcCoupleAlertTitle;
+
+  /// No description provided for @rcCoupleAlertSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} à {score} %'**
+  String rcCoupleAlertSubtitle(String name, String score);
+
+  /// No description provided for @rcCoupleAlertExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart de {gap} points entre vos deux profils. Équilibrer améliore la projection couple.'**
+  String rcCoupleAlertExplanation(String gap);
+
+  /// No description provided for @rcCoupleAlertCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enrichir le profil couple'**
+  String get rcCoupleAlertCtaLabel;
+
+  /// No description provided for @rcIndependantTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance indépendant'**
+  String get rcIndependantTitle;
+
+  /// No description provided for @rcIndependantSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans LPP, ton 3a est ta prévoyance principale'**
+  String get rcIndependantSubtitle;
+
+  /// No description provided for @rcIndependantExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond 3a sans LPP : {max3a} CHF/an. Capital 3a actuel : {current3a} CHF'**
+  String rcIndependantExplanation(String max3a, String current3a);
+
+  /// No description provided for @rcIndependantCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer mes options'**
+  String get rcIndependantCtaLabel;
+
+  /// No description provided for @rcTaxOptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation fiscale'**
+  String get rcTaxOptTitle;
+
+  /// No description provided for @rcTaxOptSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions estimées disponibles'**
+  String get rcTaxOptSubtitle;
+
+  /// No description provided for @rcTaxOptExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie d’impôt estimée via 3a ({plafond3a} CHF) + rachat LPP'**
+  String rcTaxOptExplanation(String plafond3a);
+
+  /// No description provided for @rcTaxOptCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir mes déductions'**
+  String get rcTaxOptCtaLabel;
+
+  /// No description provided for @rcPatrimoineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine'**
+  String get rcPatrimoineTitle;
+
+  /// No description provided for @rcPatrimoineSubtitleLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coussin de sécurité insuffisant'**
+  String get rcPatrimoineSubtitleLow;
+
+  /// No description provided for @rcPatrimoineSubtitleOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue d’ensemble'**
+  String get rcPatrimoineSubtitleOk;
+
+  /// No description provided for @rcPatrimoineExplanationLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne liquide ({epargne} CHF) inférieure à 3 mois de charges ({coussinMin} CHF)'**
+  String rcPatrimoineExplanationLow(String epargne, String coussinMin);
+
+  /// No description provided for @rcPatrimoineExplanationOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne {epargne} CHF + investissements {investissements} CHF'**
+  String rcPatrimoineExplanationOk(String epargne, String investissements);
+
+  /// No description provided for @rcPatrimoineCtaLabelLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser mon budget'**
+  String get rcPatrimoineCtaLabelLow;
+
+  /// No description provided for @rcPatrimoineCtaLabelOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon patrimoine'**
+  String get rcPatrimoineCtaLabelOk;
+
+  /// No description provided for @rcPatrimoineAlerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coussin de sécurité recommandé : {coussinMin} CHF (3 mois de charges)'**
+  String rcPatrimoineAlerte(String coussinMin);
+
+  /// No description provided for @rcMortgageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque'**
+  String get rcMortgageTitle;
+
+  /// No description provided for @rcMortgageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio LTV : {ltv} %'**
+  String rcMortgageSubtitle(String ltv);
+
+  /// No description provided for @rcMortgageExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde hypothécaire. Valeur du bien : {propertyValue} CHF'**
+  String rcMortgageExplanation(String propertyValue);
+
+  /// No description provided for @rcMortgageCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler la capacité'**
+  String get rcMortgageCtaLabel;
+
+  /// No description provided for @rcCtaDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le détail →'**
+  String get rcCtaDetail;
+
+  /// No description provided for @rcLibrePassageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre passage'**
+  String get rcLibrePassageTitle;
+
+  /// No description provided for @rcLibrePassageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que faire de ton avoir de libre passage ?'**
+  String get rcLibrePassageSubtitle;
+
+  /// No description provided for @rcRenteVsCapitalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente vs Capital'**
+  String get rcRenteVsCapitalTitle;
+
+  /// No description provided for @rcRenteVsCapitalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital : chiffrer les deux options'**
+  String get rcRenteVsCapitalSubtitle;
+
+  /// No description provided for @rcFiscalComparatorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparateur cantonal'**
+  String get rcFiscalComparatorTitle;
+
+  /// No description provided for @rcFiscalComparatorSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien gagnerais-tu à déménager ?'**
+  String get rcFiscalComparatorSubtitle;
+
+  /// No description provided for @rcStaggeredWithdrawalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait 3a échelonné'**
+  String get rcStaggeredWithdrawalTitle;
+
+  /// No description provided for @rcStaggeredWithdrawalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étaler les retraits pour réduire l’impôt'**
+  String get rcStaggeredWithdrawalSubtitle;
+
+  /// No description provided for @rcRealReturn3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement réel 3a'**
+  String get rcRealReturn3aTitle;
+
+  /// No description provided for @rcRealReturn3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement après frais, inflation et fiscal'**
+  String get rcRealReturn3aSubtitle;
+
+  /// No description provided for @rcComparator3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparateur 3a'**
+  String get rcComparator3aTitle;
+
+  /// No description provided for @rcComparator3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les prestataires 3a'**
+  String get rcComparator3aSubtitle;
+
+  /// No description provided for @rcRentVsBuyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Louer ou acheter'**
+  String get rcRentVsBuyTitle;
+
+  /// No description provided for @rcRentVsBuySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les deux scénarios sur le long terme'**
+  String get rcRentVsBuySubtitle;
+
+  /// No description provided for @rcAmortizationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortissement'**
+  String get rcAmortizationTitle;
+
+  /// No description provided for @rcAmortizationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct vs indirect — quel impact fiscal'**
+  String get rcAmortizationSubtitle;
+
+  /// No description provided for @rcImputedRentalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur locative'**
+  String get rcImputedRentalTitle;
+
+  /// No description provided for @rcImputedRentalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre l’imposition du logement'**
+  String get rcImputedRentalSubtitle;
+
+  /// No description provided for @rcSaronVsFixedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'SARON vs taux fixe'**
+  String get rcSaronVsFixedTitle;
+
+  /// No description provided for @rcSaronVsFixedSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel type d’hypothèque choisir'**
+  String get rcSaronVsFixedSubtitle;
+
+  /// No description provided for @rcEplTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait EPL'**
+  String get rcEplTitle;
+
+  /// No description provided for @rcEplSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser ton 2e pilier pour l’immobilier'**
+  String get rcEplSubtitle;
+
+  /// No description provided for @rcHousingSaleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vente immobilière'**
+  String get rcHousingSaleTitle;
+
+  /// No description provided for @rcHousingSaleSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt sur le gain immobilier + remploi'**
+  String get rcHousingSaleSubtitle;
+
+  /// No description provided for @rcMariageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact du mariage'**
+  String get rcMariageTitle;
+
+  /// No description provided for @rcMariageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôts, AVS, LPP, succession'**
+  String get rcMariageSubtitle;
+
+  /// No description provided for @rcDivorceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulateur divorce'**
+  String get rcDivorceTitle;
+
+  /// No description provided for @rcDivorceSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage LPP, pension, impôts'**
+  String get rcDivorceSubtitle;
+
+  /// No description provided for @rcNaissanceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact d’une naissance'**
+  String get rcNaissanceTitle;
+
+  /// No description provided for @rcNaissanceSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allocations, déductions, budget'**
+  String get rcNaissanceSubtitle;
+
+  /// No description provided for @rcConcubinageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection concubinage'**
+  String get rcConcubinageTitle;
+
+  /// No description provided for @rcConcubinageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Droits, risques et solutions'**
+  String get rcConcubinageSubtitle;
+
+  /// No description provided for @rcSuccessionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succession'**
+  String get rcSuccessionTitle;
+
+  /// No description provided for @rcSuccessionSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler la transmission du patrimoine'**
+  String get rcSuccessionSubtitle;
+
+  /// No description provided for @rcDonationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donation'**
+  String get rcDonationTitle;
+
+  /// No description provided for @rcDonationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact fiscal d’une donation'**
+  String get rcDonationSubtitle;
+
+  /// No description provided for @rcUnemploymentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte d’emploi'**
+  String get rcUnemploymentTitle;
+
+  /// No description provided for @rcUnemploymentSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indemnités, durée, démarches'**
+  String get rcUnemploymentSubtitle;
+
+  /// No description provided for @rcFirstJobTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier emploi'**
+  String get rcFirstJobTitle;
+
+  /// No description provided for @rcFirstJobSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout comprendre dès le départ'**
+  String get rcFirstJobSubtitle;
+
+  /// No description provided for @rcExpatriationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expatriation'**
+  String get rcExpatriationTitle;
+
+  /// No description provided for @rcExpatriationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact sur AVS, LPP, 3a et impôts'**
+  String get rcExpatriationSubtitle;
+
+  /// No description provided for @rcFrontalierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frontalier'**
+  String get rcFrontalierTitle;
+
+  /// No description provided for @rcFrontalierSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt source et particularités'**
+  String get rcFrontalierSubtitle;
+
+  /// No description provided for @rcJobComparisonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparateur d’offres'**
+  String get rcJobComparisonTitle;
+
+  /// No description provided for @rcJobComparisonSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net + prévoyance : quelle offre vaut vraiment plus ?'**
+  String get rcJobComparisonSubtitle;
+
+  /// No description provided for @rcDividendeVsSalaireTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dividende vs Salaire'**
+  String get rcDividendeVsSalaireTitle;
+
+  /// No description provided for @rcDividendeVsSalaireSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser la rémunération en SARL/SA'**
+  String get rcDividendeVsSalaireSubtitle;
+
+  /// No description provided for @rcLamalFranchiseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Franchise LAMal'**
+  String get rcLamalFranchiseTitle;
+
+  /// No description provided for @rcLamalFranchiseSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle franchise choisir ?'**
+  String get rcLamalFranchiseSubtitle;
+
+  /// No description provided for @rcCoverageCheckTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Check de couverture'**
+  String get rcCoverageCheckTitle;
+
+  /// No description provided for @rcCoverageCheckSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier tes couvertures'**
+  String get rcCoverageCheckSubtitle;
+
+  /// No description provided for @rcDisabilityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invalidité — lacune de revenu'**
+  String get rcDisabilityTitle;
+
+  /// No description provided for @rcDisabilitySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gap entre revenu actuel et rentes AI/LPP'**
+  String get rcDisabilitySubtitle;
+
+  /// No description provided for @rcGenderGapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart femmes/hommes'**
+  String get rcGenderGapTitle;
+
+  /// No description provided for @rcGenderGapSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact du temps partiel sur la retraite'**
+  String get rcGenderGapSubtitle;
+
+  /// No description provided for @rcBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget'**
+  String get rcBudgetTitle;
+
+  /// No description provided for @rcBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien il te reste à la fin du mois ?'**
+  String get rcBudgetSubtitle;
+
+  /// No description provided for @rcDebtRatioTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio d’endettement'**
+  String get rcDebtRatioTitle;
+
+  /// No description provided for @rcDebtRatioSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À partir de quel seuil les dettes deviennent dangereuses ?'**
+  String get rcDebtRatioSubtitle;
+
+  /// No description provided for @rcCompoundInterestTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêts composés'**
+  String get rcCompoundInterestTitle;
+
+  /// No description provided for @rcCompoundInterestSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler la croissance de ton épargne'**
+  String get rcCompoundInterestSubtitle;
+
+  /// No description provided for @rcLeasingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulateur leasing'**
+  String get rcLeasingTitle;
+
+  /// No description provided for @rcLeasingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coût réel d’un leasing auto'**
+  String get rcLeasingSubtitle;
+
+  /// No description provided for @rcConsumerCreditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit consommation'**
+  String get rcConsumerCreditTitle;
+
+  /// No description provided for @rcConsumerCreditSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coût total d’un crédit conso'**
+  String get rcConsumerCreditSubtitle;
+
+  /// No description provided for @rcAllocationAnnuelleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allocation annuelle'**
+  String get rcAllocationAnnuelleTitle;
+
+  /// No description provided for @rcAllocationAnnuelleSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où placer ton épargne cette année'**
+  String get rcAllocationAnnuelleSubtitle;
+
+  /// No description provided for @rcSuggestedPrompt50PlusRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand la retraite devient-elle tenable ?'**
+  String get rcSuggestedPrompt50PlusRetirement;
+
+  /// No description provided for @rcSuggestedPromptRenteOuCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital : qu’est-ce qui me laisse le plus d’air ?'**
+  String get rcSuggestedPromptRenteOuCapital;
+
+  /// No description provided for @rcSuggestedPromptRachatLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que vaut un rachat LPP dans mon cas ?'**
+  String get rcSuggestedPromptRachatLpp;
+
+  /// No description provided for @rcSuggestedPromptAllegerImpots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où alléger mes impôts cette année ?'**
+  String get rcSuggestedPromptAllegerImpots;
+
+  /// No description provided for @rcSuggestedPromptVersement3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien verser en 3a cette année ?'**
+  String get rcSuggestedPromptVersement3a;
+
+  /// No description provided for @nudgeSalaryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu pensé à ton virement 3a ce mois-ci ? Chaque mois compte pour ta prévoyance.'**
+  String get nudgeSalaryBody;
+
+  /// No description provided for @nudgeTaxDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale'**
+  String get nudgeTaxDeadlineTitle;
+
+  /// No description provided for @nudgeTaxDeadlineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie la date limite de déclaration fiscale dans ton canton. As-tu pensé à tes déductions 3a et LPP ?'**
+  String get nudgeTaxDeadlineBody;
+
+  /// No description provided for @nudge3aDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière ligne droite pour ton 3a'**
+  String get nudge3aDeadlineTitle;
+
+  /// No description provided for @nudge3aDeadlineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste {days} jour(s) pour verser jusqu\'à {limit} CHF et réduire tes impôts {year}.'**
+  String nudge3aDeadlineBody(String days, String limit, String year);
+
+  /// No description provided for @nudgeBirthdayBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une étape qui peut marquer un tournant pour ta prévoyance. As-tu simulé l’impact de cette année ?'**
+  String get nudgeBirthdayBody;
+
+  /// No description provided for @nudgeProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil mérite d’être enrichi'**
+  String get nudgeProfileTitle;
+
+  /// No description provided for @nudgeProfileBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus ton profil est complet, plus MINT peut t’offrir des insights pertinents. Quelques informations suffisent.'**
+  String get nudgeProfileBody;
+
+  /// No description provided for @nudgeInactiveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça fait un moment !'**
+  String get nudgeInactiveTitle;
+
+  /// No description provided for @nudgeInactiveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation financière évolue chaque semaine. Prends 2 minutes pour vérifier ton tableau de bord.'**
+  String get nudgeInactiveBody;
+
+  /// No description provided for @nudgeGoalProgressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton objectif avance !'**
+  String get nudgeGoalProgressTitle;
+
+  /// No description provided for @nudgeGoalProgressBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as atteint {progress} % de ton objectif. Continue sur cette lancée.'**
+  String nudgeGoalProgressBody(String progress);
+
+  /// No description provided for @nudgeAnniversaryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu utilises MINT depuis un an. C’est le moment idéal pour actualiser ton profil et mesurer tes progrès.'**
+  String get nudgeAnniversaryBody;
+
+  /// No description provided for @nudgeLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fenêtre de rachat LPP'**
+  String get nudgeLppBuybackTitle;
+
+  /// No description provided for @nudgeLppBuybackBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La fin d’année {year} approche : c’est le dernier moment pour effectuer un rachat LPP déductible.'**
+  String nudgeLppBuybackBody(String year);
+
+  /// No description provided for @nudgeNewYearTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle année, nouveau départ !'**
+  String get nudgeNewYearTitle;
+
+  /// No description provided for @nudgeNewYearBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{year} : une nouvelle enveloppe 3a s’ouvre. C’est le bon moment pour planifier tes versements.'**
+  String nudgeNewYearBody(String year);
+
+  /// No description provided for @rcSuggestedPromptCommencer3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi commencer le 3a maintenant ?'**
+  String get rcSuggestedPromptCommencer3a;
+
+  /// No description provided for @rcSuggestedPrompt2ePilier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le 2e pilier, concrètement, ça fait quoi ?'**
+  String get rcSuggestedPrompt2ePilier;
+
+  /// No description provided for @rcSuggestedPromptIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant : qu’est-ce que je dois reconstruire ?'**
+  String get rcSuggestedPromptIndependant;
+
+  /// No description provided for @rcSuggestedPromptCouple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où notre prévoyance de couple boite-t-elle ?'**
+  String get rcSuggestedPromptCouple;
+
+  /// No description provided for @rcSuggestedPromptFatca.
+  ///
+  /// In fr, this message translates to:
+  /// **'FATCA : qu’est-ce que ça change pour mon 3a ?'**
+  String get rcSuggestedPromptFatca;
+
+  /// No description provided for @rcUnitPts.
+  ///
+  /// In fr, this message translates to:
+  /// **'pts'**
+  String get rcUnitPts;
+
+  /// No description provided for @routeSuggestionCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir'**
+  String get routeSuggestionCta;
+
+  /// No description provided for @routeSuggestionPartialWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation — données incomplètes'**
+  String get routeSuggestionPartialWarning;
+
+  /// No description provided for @routeSuggestionBlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il me manque des infos pour t’y emmener'**
+  String get routeSuggestionBlocked;
+
+  /// No description provided for @routeReturnAcknowledge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es de retour ! Si tu as ajusté des données, je recalcule dès que tu m’en parles.'**
+  String get routeReturnAcknowledge;
+
+  /// No description provided for @routeReturnCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai noté. Tes données sont à jour.'**
+  String get routeReturnCompleted;
+
+  /// No description provided for @routeReturnAbandoned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de souci — on y reviendra quand tu veux.'**
+  String get routeReturnAbandoned;
+
+  /// No description provided for @routeReturnChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes chiffres ont changé. Je recalcule la trajectoire.'**
+  String get routeReturnChanged;
+
+  /// No description provided for @hypothesisEditorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses de simulation'**
+  String get hypothesisEditorTitle;
+
+  /// No description provided for @hypothesisEditorSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajuste les paramètres pour voir l’impact sur les trajectoires.'**
+  String get hypothesisEditorSubtitle;
+
+  /// No description provided for @lifecyclePhaseDemarrage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrage'**
+  String get lifecyclePhaseDemarrage;
+
+  /// No description provided for @lifecyclePhaseDemarrageDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premiers pas dans la vie active : budget, 3a et bonnes habitudes.'**
+  String get lifecyclePhaseDemarrageDesc;
+
+  /// No description provided for @lifecyclePhaseConstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Construction'**
+  String get lifecyclePhaseConstruction;
+
+  /// No description provided for @lifecyclePhaseConstructionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accélération de carrière, épargne, premier logement, projets de famille.'**
+  String get lifecyclePhaseConstructionDesc;
+
+  /// No description provided for @lifecyclePhaseAcceleration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accélération'**
+  String get lifecyclePhaseAcceleration;
+
+  /// No description provided for @lifecyclePhaseAccelerationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Phase de revenus élevés : optimisation LPP, fiscalité et patrimoine.'**
+  String get lifecyclePhaseAccelerationDesc;
+
+  /// No description provided for @lifecyclePhaseConsolidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consolidation'**
+  String get lifecyclePhaseConsolidation;
+
+  /// No description provided for @lifecyclePhaseConsolidationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation de la retraite, rachat LPP, début de planification successorale.'**
+  String get lifecyclePhaseConsolidationDesc;
+
+  /// No description provided for @lifecyclePhaseTransition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transition'**
+  String get lifecyclePhaseTransition;
+
+  /// No description provided for @lifecyclePhaseTransitionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décisions pré-retraite : rente ou capital, séquence de retraits.'**
+  String get lifecyclePhaseTransitionDesc;
+
+  /// No description provided for @lifecyclePhaseRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite'**
+  String get lifecyclePhaseRetraite;
+
+  /// No description provided for @lifecyclePhaseRetraiteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise en œuvre de la retraite, adaptation du budget, gestion du patrimoine.'**
+  String get lifecyclePhaseRetraiteDesc;
+
+  /// No description provided for @lifecyclePhaseTransmission.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transmission'**
+  String get lifecyclePhaseTransmission;
+
+  /// No description provided for @lifecyclePhaseTransmissionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planification successorale, donations et transmission du patrimoine.'**
+  String get lifecyclePhaseTransmissionDesc;
+
+  /// No description provided for @challengeWeeklyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi de la semaine'**
+  String get challengeWeeklyTitle;
+
+  /// No description provided for @challengeCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi réussi !'**
+  String get challengeCompleted;
+
+  /// No description provided for @challengeStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} semaines consécutives'**
+  String challengeStreak(int count);
+
+  /// No description provided for @challengeBudget01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie tes 3 plus grosses dépenses de la semaine'**
+  String get challengeBudget01Title;
+
+  /// No description provided for @challengeBudget01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imagine savoir exactement où part chaque franc : ouvre ton budget et repère les 3 postes les plus élevés cette semaine. Tu pourrais être surpris·e.'**
+  String get challengeBudget01Desc;
+
+  /// No description provided for @challengeBudget02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ton taux d’épargne mensuel réel'**
+  String get challengeBudget02Title;
+
+  /// No description provided for @challengeBudget02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton taux d’épargne, c’est ce qui reste après toutes les dépenses. Vérifie s’il dépasse 10 % de ton revenu net.'**
+  String get challengeBudget02Desc;
+
+  /// No description provided for @challengeBudget03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare le coût de tes assurances avec une offre alternative'**
+  String get challengeBudget03Title;
+
+  /// No description provided for @challengeBudget03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les primes d’assurance peuvent varier de 30 % d’un assureur à l’autre. Vérifie si tu pourrais économiser en changeant de caisse.'**
+  String get challengeBudget03Desc;
+
+  /// No description provided for @challengeBudget04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse tes frais fixes vs variables'**
+  String get challengeBudget04Title;
+
+  /// No description provided for @challengeBudget04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare tes charges fixes (loyer, assurances) et variables (sorties, loisirs). C’est la base pour optimiser ton budget.'**
+  String get challengeBudget04Desc;
+
+  /// No description provided for @challengeBudget05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton ratio d’endettement'**
+  String get challengeBudget05Title;
+
+  /// No description provided for @challengeBudget05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton ratio d’endettement ne devrait pas dépasser 33 % de ton revenu brut. Calcule-le pour savoir où tu en es.'**
+  String get challengeBudget05Desc;
+
+  /// No description provided for @challengeBudget06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule le coût réel de ton leasing'**
+  String get challengeBudget06Title;
+
+  /// No description provided for @challengeBudget06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un leasing, c’est plus que la mensualité : assurance, entretien, valeur résiduelle. Calcule le coût total.'**
+  String get challengeBudget06Desc;
+
+  /// No description provided for @challengeBudget07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évalue ton matelas de sécurité en mois'**
+  String get challengeBudget07Title;
+
+  /// No description provided for @challengeBudget07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien de mois pourrais-tu tenir sans revenu ? C’est une question importante pour ta tranquillité d’esprit. L’idéal est 3 à 6 mois de charges.'**
+  String get challengeBudget07Desc;
+
+  /// No description provided for @challengeBudget08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si tu pourrais réduire ton crédit à la consommation'**
+  String get challengeBudget08Title;
+
+  /// No description provided for @challengeBudget08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un crédit conso à 8-12 % est très coûteux. Regarde si tu peux accélérer le remboursement ou le consolider.'**
+  String get challengeBudget08Desc;
+
+  /// No description provided for @challengeEpargne01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mets de côté CHF 50 cette semaine'**
+  String get challengeEpargne01Title;
+
+  /// No description provided for @challengeEpargne01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même un petit montant compte : CHF 50 par semaine, c’est CHF 2’600 par an. Le plus dur, c’est de commencer.'**
+  String get challengeEpargne01Desc;
+
+  /// No description provided for @challengeEpargne02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton solde 3a et compare au plafond'**
+  String get challengeEpargne02Title;
+
+  /// No description provided for @challengeEpargne02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le plafond 3a salarié est de CHF 7’258 par an. Vérifie combien tu as déjà versé cette année.'**
+  String get challengeEpargne02Desc;
+
+  /// No description provided for @challengeEpargne03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un rachat LPP de CHF 5’000'**
+  String get challengeEpargne03Title;
+
+  /// No description provided for @challengeEpargne03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rachat LPP est déductible des impôts. Simule l’impact d’un rachat de CHF 5’000 sur ta prévoyance et ta fiscalité.'**
+  String get challengeEpargne03Desc;
+
+  /// No description provided for @challengeEpargne04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si tu peux encore verser au 3a cette année'**
+  String get challengeEpargne04Title;
+
+  /// No description provided for @challengeEpargne04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le versement 3a est annuel : si tu n’as pas encore versé le maximum, il reste peut-être du temps.'**
+  String get challengeEpargne04Desc;
+
+  /// No description provided for @challengeEpargne05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les rendements de tes comptes 3a'**
+  String get challengeEpargne05Title;
+
+  /// No description provided for @challengeEpargne05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les comptes 3a ne se valent pas. Compare le rendement de tes comptes avec le simulateur.'**
+  String get challengeEpargne05Desc;
+
+  /// No description provided for @challengeEpargne06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule le rendement réel de ton 3a après inflation'**
+  String get challengeEpargne06Title;
+
+  /// No description provided for @challengeEpargne06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rendement de 1 % avec une inflation de 1,5 %, c’est un rendement réel négatif. Vérifie ta situation.'**
+  String get challengeEpargne06Desc;
+
+  /// No description provided for @challengeEpargne07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un retrait échelonné de tes comptes 3a'**
+  String get challengeEpargne07Title;
+
+  /// No description provided for @challengeEpargne07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer tes 3a sur plusieurs années peut réduire l’impôt. Simule la stratégie de retrait échelonné.'**
+  String get challengeEpargne07Desc;
+
+  /// No description provided for @challengeEpargne08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si tu peux cotiser rétroactivement au 3a'**
+  String get challengeEpargne08Title;
+
+  /// No description provided for @challengeEpargne08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis 2025, tu peux rattraper des années sans versement. Vérifie si tu es éligible au 3a rétroactif.'**
+  String get challengeEpargne08Desc;
+
+  /// No description provided for @challengeEpargne09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton libre passage si tu as changé d’employeur'**
+  String get challengeEpargne09Title;
+
+  /// No description provided for @challengeEpargne09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lors d’un changement d’emploi, ton capital LPP est transféré sur un compte de libre passage. Vérifie que rien n’a été oublié.'**
+  String get challengeEpargne09Desc;
+
+  /// No description provided for @challengePrevoyance01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande ton extrait de compte AVS'**
+  String get challengePrevoyance01Title;
+
+  /// No description provided for @challengePrevoyance01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton extrait AVS montre tes années de cotisation et ta rente estimée. Demande-le gratuitement sur lavs.ch.'**
+  String get challengePrevoyance01Desc;
+
+  /// No description provided for @challengePrevoyance02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta couverture invalidité'**
+  String get challengePrevoyance02Title;
+
+  /// No description provided for @challengePrevoyance02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas d’invalidité, ta rente AI + LPP couvre-t-elle tes charges ? Vérifie le gap éventuel.'**
+  String get challengePrevoyance02Desc;
+
+  /// No description provided for @challengePrevoyance03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare rente vs capital pour ta LPP'**
+  String get challengePrevoyance03Title;
+
+  /// No description provided for @challengePrevoyance03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente à vie ou capital ? Chaque option a ses avantages fiscaux et de flexibilité. Compare les scénarios.'**
+  String get challengePrevoyance03Desc;
+
+  /// No description provided for @challengePrevoyance04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte ta projection retraite'**
+  String get challengePrevoyance04Title;
+
+  /// No description provided for @challengePrevoyance04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imagine ta vie à la retraite : AVS + LPP + 3a, combien auras-tu réellement ? Vérifie si tu es sur la bonne trajectoire. Chaque année compte.'**
+  String get challengePrevoyance04Desc;
+
+  /// No description provided for @challengePrevoyance05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimise ta séquence de décaissement'**
+  String get challengePrevoyance05Title;
+
+  /// No description provided for @challengePrevoyance05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ordre dans lequel tu retires tes piliers a un impact fiscal majeur. Simule différentes séquences.'**
+  String get challengePrevoyance05Desc;
+
+  /// No description provided for @challengePrevoyance06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie tes lacunes AVS'**
+  String get challengePrevoyance06Title;
+
+  /// No description provided for @challengePrevoyance06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année sans cotisation AVS réduit ta rente : l’impact peut être important sur le long terme. Vérifie si tu as des lacunes à combler.'**
+  String get challengePrevoyance06Desc;
+
+  /// No description provided for @challengePrevoyance07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifie ta succession'**
+  String get challengePrevoyance07Title;
+
+  /// No description provided for @challengePrevoyance07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui hérite de quoi en droit suisse ? Vérifie les parts réservataires et si un testament est nécessaire.'**
+  String get challengePrevoyance07Desc;
+
+  /// No description provided for @challengePrevoyance08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta couverture en cas de chômage'**
+  String get challengePrevoyance08Title;
+
+  /// No description provided for @challengePrevoyance08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perdre son emploi, c’est stressant. Savoir combien tu toucherais et pendant combien de temps peut te rassurer. Simule ta situation.'**
+  String get challengePrevoyance08Desc;
+
+  /// No description provided for @challengePrevoyance09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie la couverture invalidité de ton activité indépendante'**
+  String get challengePrevoyance09Title;
+
+  /// No description provided for @challengePrevoyance09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant qu’indépendant·e, ta couverture AI peut être insuffisante. Vérifie si une IJM complémentaire serait utile.'**
+  String get challengePrevoyance09Desc;
+
+  /// No description provided for @challengeFiscalite01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estime ton économie fiscale 3a'**
+  String get challengeFiscalite01Title;
+
+  /// No description provided for @challengeFiscalite01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque franc versé en 3a est déductible. Calcule combien tu économises en impôts cette année.'**
+  String get challengeFiscalite01Desc;
+
+  /// No description provided for @challengeFiscalite02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si un rachat LPP serait déductible cette année'**
+  String get challengeFiscalite02Title;
+
+  /// No description provided for @challengeFiscalite02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les rachats LPP sont déductibles du revenu imposable. Vérifie ton potentiel de rachat et l’économie fiscale.'**
+  String get challengeFiscalite02Desc;
+
+  /// No description provided for @challengeFiscalite03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule l’impôt sur un retrait de capital'**
+  String get challengeFiscalite03Title;
+
+  /// No description provided for @challengeFiscalite03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le retrait de capital (LPP/3a) est taxé séparément à un taux réduit. Simule l’impôt pour différents montants.'**
+  String get challengeFiscalite03Desc;
+
+  /// No description provided for @challengeFiscalite04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare salaire vs dividende si tu es indépendant·e'**
+  String get challengeFiscalite04Title;
+
+  /// No description provided for @challengeFiscalite04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mix salaire/dividende adapté à ta situation dépend de ton revenu et de ton canton. Simule les deux scénarios.'**
+  String get challengeFiscalite04Desc;
+
+  /// No description provided for @challengeFiscalite05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie la valeur locative imputée de ton bien'**
+  String get challengeFiscalite05Title;
+
+  /// No description provided for @challengeFiscalite05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu es propriétaire, la valeur locative est ajoutée à ton revenu imposable. Vérifie si elle est correcte.'**
+  String get challengeFiscalite05Desc;
+
+  /// No description provided for @challengeFiscalite06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ta charge fiscale globale'**
+  String get challengeFiscalite06Title;
+
+  /// No description provided for @challengeFiscalite06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt fédéral + cantonal + communal : calcule ta charge fiscale totale en pourcentage de ton revenu.'**
+  String get challengeFiscalite06Desc;
+
+  /// No description provided for @challengeFiscalite07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta conformité FATCA'**
+  String get challengeFiscalite07Title;
+
+  /// No description provided for @challengeFiscalite07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant que citoyen·ne US, tes comptes suisses sont soumis à FATCA. Vérifie que ta situation est en ordre.'**
+  String get challengeFiscalite07Desc;
+
+  /// No description provided for @challengeFiscalite08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton imposition à la source'**
+  String get challengeFiscalite08Title;
+
+  /// No description provided for @challengeFiscalite08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant que frontalier·ère, tu es imposé·e à la source. Vérifie que le taux appliqué correspond à ta situation.'**
+  String get challengeFiscalite08Desc;
+
+  /// No description provided for @challengePatrimoine01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ta capacité d’emprunt hypothécaire'**
+  String get challengePatrimoine01Title;
+
+  /// No description provided for @challengePatrimoine01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec la règle des 1/3, vérifie combien tu pourrais emprunter pour un achat immobilier.'**
+  String get challengePatrimoine01Desc;
+
+  /// No description provided for @challengePatrimoine02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule SARON vs taux fixe pour ton hypothèque'**
+  String get challengePatrimoine02Title;
+
+  /// No description provided for @challengePatrimoine02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'SARON (variable) ou taux fixe ? Simule les deux scénarios sur 10 ans pour voir la différence.'**
+  String get challengePatrimoine02Desc;
+
+  /// No description provided for @challengePatrimoine03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare location vs propriété'**
+  String get challengePatrimoine03Title;
+
+  /// No description provided for @challengePatrimoine03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter n’est pas toujours mieux que louer. Compare les deux options sur 20 ans avec le simulateur.'**
+  String get challengePatrimoine03Desc;
+
+  /// No description provided for @challengePatrimoine04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un EPL (retrait anticipé LPP pour ton logement)'**
+  String get challengePatrimoine04Title;
+
+  /// No description provided for @challengePatrimoine04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux utiliser ton 2e pilier pour financer ton logement. Simule l’impact sur ta retraite.'**
+  String get challengePatrimoine04Desc;
+
+  /// No description provided for @challengePatrimoine05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte ton bilan patrimonial complet'**
+  String get challengePatrimoine05Title;
+
+  /// No description provided for @challengePatrimoine05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actifs, passifs, patrimoine net : fais le point sur ta situation financière globale. C’est un moment important pour prendre du recul.'**
+  String get challengePatrimoine05Desc;
+
+  /// No description provided for @challengePatrimoine06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton allocation annuelle d’épargne'**
+  String get challengePatrimoine06Title;
+
+  /// No description provided for @challengePatrimoine06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre 3a, rachat LPP et amortissement hypothécaire, comment répartir ton épargne cette année ? Chaque choix a un impact fiscal différent.'**
+  String get challengePatrimoine06Desc;
+
+  /// No description provided for @challengePatrimoine07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule l’impact d’un amortissement hypothécaire'**
+  String get challengePatrimoine07Title;
+
+  /// No description provided for @challengePatrimoine07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortir directement ou indirectement via le 3a ? Simule les deux options et leur impact fiscal.'**
+  String get challengePatrimoine07Desc;
+
+  /// No description provided for @challengePatrimoine08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule l’effet des intérêts composés sur 20 ans'**
+  String get challengePatrimoine08Title;
+
+  /// No description provided for @challengePatrimoine08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même un petit rendement crée un effet boule de neige. Simule la croissance de ton épargne sur 20 ans.'**
+  String get challengePatrimoine08Desc;
+
+  /// No description provided for @challengeEducation01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lis l’article sur la 13e rente AVS'**
+  String get challengeEducation01Title;
+
+  /// No description provided for @challengeEducation01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis 2026, la 13e rente AVS augmente ta rente annuelle. Découvre ce que ça change concrètement pour toi.'**
+  String get challengeEducation01Desc;
+
+  /// No description provided for @challengeEducation02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends la différence entre taux de conversion min et surobligatoire'**
+  String get challengeEducation02Title;
+
+  /// No description provided for @challengeEducation02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de conversion LPP de 6,8 % ne s’applique qu’au minimum. Ta caisse peut avoir un taux différent pour le surobligatoire.'**
+  String get challengeEducation02Desc;
+
+  /// No description provided for @challengeEducation03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre comment fonctionne le 1er pilier'**
+  String get challengeEducation03Title;
+
+  /// No description provided for @challengeEducation03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’AVS est un système par répartition : les actifs financent les retraités. Comprends les bases de ta future rente.'**
+  String get challengeEducation03Desc;
+
+  /// No description provided for @challengeEducation04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends le système des 3 piliers'**
+  String get challengeEducation04Title;
+
+  /// No description provided for @challengeEducation04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS + LPP + 3a : chaque pilier a son rôle. Comprends comment ils se complètent pour ta retraite.'**
+  String get challengeEducation04Desc;
+
+  /// No description provided for @challengeEducation05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explore le concept de taux de remplacement'**
+  String get challengeEducation05Title;
+
+  /// No description provided for @challengeEducation05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de remplacement mesure le rapport entre ta rente et ton dernier salaire. L’objectif courant est 60-80 %.'**
+  String get challengeEducation05Desc;
+
+  /// No description provided for @challengeEducation06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends les bonifications LPP par tranche d’âge'**
+  String get challengeEducation06Title;
+
+  /// No description provided for @challengeEducation06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les bonifications LPP augmentent avec l’âge : 7 %, 10 %, 15 %, 18 %. Vérifie dans quelle tranche tu es.'**
+  String get challengeEducation06Desc;
+
+  /// No description provided for @challengeEducation07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre les conséquences financières du concubinage'**
+  String get challengeEducation07Title;
+
+  /// No description provided for @challengeEducation07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage, tu n’as pas les mêmes droits successoraux qu’un·e marié·e. Vérifie les protections nécessaires.'**
+  String get challengeEducation07Desc;
+
+  /// No description provided for @challengeEducation08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprends l’impact du gender gap sur la retraite'**
+  String get challengeEducation08Title;
+
+  /// No description provided for @challengeEducation08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les femmes touchent en moyenne 37 % de rente en moins. Comprends les causes et les solutions possibles.'**
+  String get challengeEducation08Desc;
+
+  /// No description provided for @challengeArchetypeEu01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie tes années de cotisation EU pour l’AVS'**
+  String get challengeArchetypeEu01Title;
+
+  /// No description provided for @challengeArchetypeEu01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Grâce aux accords bilatéraux, tes années cotisées dans l’UE comptent pour ta rente AVS suisse. Demande une attestation E205 pour vérifier la totalisation.'**
+  String get challengeArchetypeEu01Desc;
+
+  /// No description provided for @challengeArchetypeNonEu01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si une convention de sécurité sociale couvre ton pays'**
+  String get challengeArchetypeNonEu01Title;
+
+  /// No description provided for @challengeArchetypeNonEu01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans convention bilatérale, tes cotisations étrangères ne comptent pas pour l’AVS. Vérifie si ton pays d’origine a un accord avec la Suisse.'**
+  String get challengeArchetypeNonEu01Desc;
+
+  /// No description provided for @challengeArchetypeReturning01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton potentiel de rachat LPP après ton retour en Suisse'**
+  String get challengeArchetypeReturning01Title;
+
+  /// No description provided for @challengeArchetypeReturning01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'De retour en Suisse après un séjour à l’étranger ? Tu pourrais avoir un potentiel de rachat LPP important, déductible fiscalement. Simule le montant.'**
+  String get challengeArchetypeReturning01Desc;
+
+  /// No description provided for @voiceMicLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parler au micro'**
+  String get voiceMicLabel;
+
+  /// No description provided for @voiceMicListening.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’écoute…'**
+  String get voiceMicListening;
+
+  /// No description provided for @voiceMicProcessing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement…'**
+  String get voiceMicProcessing;
+
+  /// No description provided for @voiceSpeakerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écouter la réponse'**
+  String get voiceSpeakerLabel;
+
+  /// No description provided for @voiceSpeakerStop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter la lecture'**
+  String get voiceSpeakerStop;
+
+  /// No description provided for @voiceUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctions vocales non disponibles sur cet appareil'**
+  String get voiceUnavailable;
+
+  /// No description provided for @voicePermissionNeeded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorise le micro pour utiliser la voix'**
+  String get voicePermissionNeeded;
+
+  /// No description provided for @voiceNoSpeech.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n’ai rien entendu. Réessaie.'**
+  String get voiceNoSpeech;
+
+  /// No description provided for @voiceError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur vocale. Utilise le clavier.'**
+  String get voiceError;
+
+  /// No description provided for @benchmarkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profils similaires dans ton canton'**
+  String get benchmarkTitle;
+
+  /// No description provided for @benchmarkSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données agrégées et anonymisées (OFS)'**
+  String get benchmarkSubtitle;
+
+  /// No description provided for @benchmarkOptInBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare ta situation aux médianes de ton canton. Données anonymisées, jamais de classement.'**
+  String get benchmarkOptInBody;
+
+  /// No description provided for @benchmarkOptInButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer'**
+  String get benchmarkOptInButton;
+
+  /// No description provided for @benchmarkOptOutButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver'**
+  String get benchmarkOptOutButton;
+
+  /// No description provided for @benchmarkDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données agrégées OFS — outil éducatif, pas un classement. Ne constitue pas un conseil (LSFin art. 3).'**
+  String get benchmarkDisclaimer;
+
+  /// No description provided for @benchmarkInsightIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le revenu médian dans le canton de {canton} est de CHF {amount}/an'**
+  String benchmarkInsightIncome(String canton, String amount);
+
+  /// No description provided for @benchmarkInsightSavings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un profil similaire épargne environ {rate}% de son revenu'**
+  String benchmarkInsightSavings(String rate);
+
+  /// No description provided for @benchmarkInsightTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'La charge fiscale dans {canton} est {level} par rapport à la moyenne suisse'**
+  String benchmarkInsightTax(String canton, String level);
+
+  /// No description provided for @benchmarkInsightHousing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le loyer médian pour un 4 pièces est de CHF {amount}/mois'**
+  String benchmarkInsightHousing(String amount);
+
+  /// No description provided for @benchmarkInsight3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Environ {rate}% des actifs versent dans le 3a'**
+  String benchmarkInsight3a(String rate);
+
+  /// No description provided for @benchmarkInsightLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de couverture LPP est de {rate}%'**
+  String benchmarkInsightLpp(String rate);
+
+  /// No description provided for @benchmarkTaxLevelBelow.
+  ///
+  /// In fr, this message translates to:
+  /// **'inférieure'**
+  String get benchmarkTaxLevelBelow;
+
+  /// No description provided for @benchmarkTaxLevelAverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'comparable'**
+  String get benchmarkTaxLevelAverage;
+
+  /// No description provided for @benchmarkTaxLevelAbove.
+  ///
+  /// In fr, this message translates to:
+  /// **'supérieure'**
+  String get benchmarkTaxLevelAbove;
+
+  /// No description provided for @benchmarkNoDataCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données non disponibles pour ce canton'**
+  String get benchmarkNoDataCanton;
+
+  /// No description provided for @llmFailoverActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basculement automatique activé'**
+  String get llmFailoverActive;
+
+  /// No description provided for @llmProviderClaude.
+  ///
+  /// In fr, this message translates to:
+  /// **'Claude (Anthropic)'**
+  String get llmProviderClaude;
+
+  /// No description provided for @llmProviderOpenai.
+  ///
+  /// In fr, this message translates to:
+  /// **'GPT-4o (OpenAI)'**
+  String get llmProviderOpenai;
+
+  /// No description provided for @llmProviderMistral.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mistral'**
+  String get llmProviderMistral;
+
+  /// No description provided for @llmProviderLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle local'**
+  String get llmProviderLocal;
+
+  /// No description provided for @llmCircuitOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service temporairement indisponible'**
+  String get llmCircuitOpen;
+
+  /// No description provided for @llmAllProvidersDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les services IA sont indisponibles. Mode hors-ligne activé.'**
+  String get llmAllProvidersDown;
+
+  /// No description provided for @llmQualityGood.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité de réponse : bonne'**
+  String get llmQualityGood;
+
+  /// No description provided for @llmQualityDegraded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité de réponse : dégradée'**
+  String get llmQualityDegraded;
+
+  /// No description provided for @gamificationCommunityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi du mois'**
+  String get gamificationCommunityTitle;
+
+  /// No description provided for @gamificationSeasonalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements saisonniers'**
+  String get gamificationSeasonalTitle;
+
+  /// No description provided for @gamificationMilestonesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes accomplissements'**
+  String get gamificationMilestonesTitle;
+
+  /// No description provided for @gamificationOptInPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participer aux défis communautaires'**
+  String get gamificationOptInPrompt;
+
+  /// No description provided for @communityChallenge01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prépare ta déclaration d’impôts'**
+  String get communityChallenge01Title;
+
+  /// No description provided for @communityChallenge01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Janvier est le bon moment pour rassembler tes documents fiscaux. Contacte ton canton pour connaître la date limite et les pièces requises.'**
+  String get communityChallenge01Desc;
+
+  /// No description provided for @communityChallenge02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifie tes déductions fiscales'**
+  String get communityChallenge02Title;
+
+  /// No description provided for @communityChallenge02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais professionnels, intérêts hypothécaires, dons : répertorie toutes les déductions auxquelles tu as droit avant de soumettre ta déclaration.'**
+  String get communityChallenge02Desc;
+
+  /// No description provided for @communityChallenge03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton versement 3a avant la deadline'**
+  String get communityChallenge03Title;
+
+  /// No description provided for @communityChallenge03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certains cantons permettent de compléter le versement 3a de l’année précédente jusqu’en mars. Vérifie les règles de ton canton.'**
+  String get communityChallenge03Desc;
+
+  /// No description provided for @communityChallenge04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte ton certificat de prévoyance LPP'**
+  String get communityChallenge04Title;
+
+  /// No description provided for @communityChallenge04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton certificat annuel LPP est arrivé. Prends 10 minutes pour comprendre ton avoir, ton taux de conversion et ton potentiel de rachat.'**
+  String get communityChallenge04Desc;
+
+  /// No description provided for @communityChallenge05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule un rachat LPP'**
+  String get communityChallenge05Title;
+
+  /// No description provided for @communityChallenge05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rachat LPP améliore ta retraite ET réduit tes impôts. Calcule combien tu pourrais racheter et l’impact fiscal dans ton canton.'**
+  String get communityChallenge05Desc;
+
+  /// No description provided for @communityChallenge06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais ton bilan mi-annuel'**
+  String get communityChallenge06Title;
+
+  /// No description provided for @communityChallenge06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'6 mois se sont écoulés : révise tes objectifs financiers, vérifie si tu es sur la bonne trajectoire et ajuste si nécessaire.'**
+  String get communityChallenge06Desc;
+
+  /// No description provided for @communityChallenge07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définis ton objectif d’épargne estivale'**
+  String get communityChallenge07Title;
+
+  /// No description provided for @communityChallenge07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’été peut impacter ton budget. Définis un objectif d’épargne pour juillet et suis ta progression jusqu’à fin août.'**
+  String get communityChallenge07Desc;
+
+  /// No description provided for @communityChallenge08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Constitue ou renforce ton fonds d’urgence'**
+  String get communityChallenge08Title;
+
+  /// No description provided for @communityChallenge08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un fonds d’urgence de 3 à 6 mois de charges fixes te protège des aléas. Vérifie où tu en es et planifie les versements manquants.'**
+  String get communityChallenge08Desc;
+
+  /// No description provided for @communityChallenge09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programme ton versement 3a d’automne'**
+  String get communityChallenge09Title;
+
+  /// No description provided for @communityChallenge09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Septembre est idéal pour programmer ton prochain versement 3a. Étaler les versements sur l’année réduit le stress de la deadline de décembre.'**
+  String get communityChallenge09Desc;
+
+  /// No description provided for @communityChallenge10Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célèbre le mois de la prévoyance'**
+  String get communityChallenge10Title;
+
+  /// No description provided for @communityChallenge10Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Octobre est le mois officiel de la prévoyance en Suisse. Consulte ta projection de retraite et identifie une action concrète pour améliorer ta situation.'**
+  String get communityChallenge10Desc;
+
+  /// No description provided for @communityChallenge11Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifie tes dernières optimisations de fin d’année'**
+  String get communityChallenge11Title;
+
+  /// No description provided for @communityChallenge11Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste quelques semaines pour agir : versement 3a, don à une association, déclaration de frais. Identifie ce que tu peux encore faire avant le 31 décembre.'**
+  String get communityChallenge11Desc;
+
+  /// No description provided for @communityChallenge12Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verse ton 3a avant le 31 décembre'**
+  String get communityChallenge12Title;
+
+  /// No description provided for @communityChallenge12Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La deadline 3a approche. Verse jusqu’à CHF 7’258 (salarié avec LPP) avant le 31 décembre pour bénéficier de la déduction fiscale de cette année.'**
+  String get communityChallenge12Desc;
+
+  /// No description provided for @seasonalTaxSeasonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saison des impôts'**
+  String get seasonalTaxSeasonTitle;
+
+  /// No description provided for @seasonalTaxSeasonDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Février-mars : c’est le moment de préparer ta déclaration d’impôts. Rassemble tes justificatifs et identifie tes déductions.'**
+  String get seasonalTaxSeasonDesc;
+
+  /// No description provided for @seasonal3aCountdownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte à rebours 3e pilier'**
+  String get seasonal3aCountdownTitle;
+
+  /// No description provided for @seasonal3aCountdownDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La deadline du 31 décembre approche pour les versements 3a. Vérifie ton solde et planifie ton versement pour maximiser ta déduction fiscale.'**
+  String get seasonal3aCountdownDesc;
+
+  /// No description provided for @seasonalNewYearResolutionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résolutions financières'**
+  String get seasonalNewYearResolutionsTitle;
+
+  /// No description provided for @seasonalNewYearResolutionsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle année, nouveaux objectifs financiers. Définis 1 ou 2 actions concrètes que tu vas mettre en place cette année.'**
+  String get seasonalNewYearResolutionsDesc;
+
+  /// No description provided for @seasonalMidYearReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revue mi-annuelle'**
+  String get seasonalMidYearReviewTitle;
+
+  /// No description provided for @seasonalMidYearReviewDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le cap des 6 mois est atteint. Prends un moment pour vérifier ta progression vers tes objectifs et ajuster si nécessaire.'**
+  String get seasonalMidYearReviewDesc;
+
+  /// No description provided for @seasonalRetirementMonthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois de la prévoyance'**
+  String get seasonalRetirementMonthTitle;
+
+  /// No description provided for @seasonalRetirementMonthDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Octobre est le mois national de la prévoyance en Suisse. C’est le moment de vérifier ta projection de retraite et ton taux de remplacement.'**
+  String get seasonalRetirementMonthDesc;
+
+  /// No description provided for @milestoneEngagementFirstWeekTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Première semaine'**
+  String get milestoneEngagementFirstWeekTitle;
+
+  /// No description provided for @milestoneEngagementFirstWeekDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu utilises MINT depuis 7 jours. Construire des habitudes, ça commence ici.'**
+  String get milestoneEngagementFirstWeekDesc;
+
+  /// No description provided for @milestoneEngagementOneMonthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un mois fidèle'**
+  String get milestoneEngagementOneMonthTitle;
+
+  /// No description provided for @milestoneEngagementOneMonthDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'30 jours avec MINT. Ta curiosité financière est au rendez-vous.'**
+  String get milestoneEngagementOneMonthDesc;
+
+  /// No description provided for @milestoneEngagementCitoyenTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Citoyen MINT'**
+  String get milestoneEngagementCitoyenTitle;
+
+  /// No description provided for @milestoneEngagementCitoyenDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'90 jours : tu fais partie des personnes qui prennent leur avenir financier en main.'**
+  String get milestoneEngagementCitoyenDesc;
+
+  /// No description provided for @milestoneEngagementFideleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fidèle 6 mois'**
+  String get milestoneEngagementFideleTitle;
+
+  /// No description provided for @milestoneEngagementFideleDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'180 jours de suivi financier. Ta régularité construit une vision claire de ta situation.'**
+  String get milestoneEngagementFideleDesc;
+
+  /// No description provided for @milestoneEngagementVeteranTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vétéran MINT'**
+  String get milestoneEngagementVeteranTitle;
+
+  /// No description provided for @milestoneEngagementVeteranDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'365 jours avec MINT. Une année complète de conscience financière.'**
+  String get milestoneEngagementVeteranDesc;
+
+  /// No description provided for @milestoneKnowledgeCurieuxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Curieux'**
+  String get milestoneKnowledgeCurieuxTitle;
+
+  /// No description provided for @milestoneKnowledgeCurieuxDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as exploré 5 concepts financiers. La connaissance, c’est le point de départ de toute décision éclairée.'**
+  String get milestoneKnowledgeCurieuxDesc;
+
+  /// No description provided for @milestoneKnowledgeEclaireTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éclairé'**
+  String get milestoneKnowledgeEclaireTitle;
+
+  /// No description provided for @milestoneKnowledgeEclaireDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'20 insights parcourus. Tu construis une vision solide du système financier suisse.'**
+  String get milestoneKnowledgeEclaireDesc;
+
+  /// No description provided for @milestoneKnowledgeExpertTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expert'**
+  String get milestoneKnowledgeExpertTitle;
+
+  /// No description provided for @milestoneKnowledgeExpertDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'50 concepts explorés. Tu maîtrises les fondamentaux de la prévoyance suisse.'**
+  String get milestoneKnowledgeExpertDesc;
+
+  /// No description provided for @milestoneKnowledgeStrategisteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stratège'**
+  String get milestoneKnowledgeStrategisteTitle;
+
+  /// No description provided for @milestoneKnowledgeStrategisteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 insights. Tu as une vision stratégique de tes finances sur le long terme.'**
+  String get milestoneKnowledgeStrategisteDesc;
+
+  /// No description provided for @milestoneKnowledgeMaitreTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maître'**
+  String get milestoneKnowledgeMaitreTitle;
+
+  /// No description provided for @milestoneKnowledgeMaitreDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'200 concepts parcourus. Ta culture financière est un atout concret pour tes décisions de vie.'**
+  String get milestoneKnowledgeMaitreDesc;
+
+  /// No description provided for @milestoneActionPremierPasTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier pas'**
+  String get milestoneActionPremierPasTitle;
+
+  /// No description provided for @milestoneActionPremierPasDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as effectué ta première action financière concrète. Chaque grand changement commence par une première étape.'**
+  String get milestoneActionPremierPasDesc;
+
+  /// No description provided for @milestoneActionActeurTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acteur'**
+  String get milestoneActionActeurTitle;
+
+  /// No description provided for @milestoneActionActeurDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'5 actions financières réalisées. Tu passes de la réflexion à l’action.'**
+  String get milestoneActionActeurDesc;
+
+  /// No description provided for @milestoneActionMaitreDestinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maître de son destin'**
+  String get milestoneActionMaitreDestinTitle;
+
+  /// No description provided for @milestoneActionMaitreDestinDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'20 actions concrètes. Tu pilotes activement ta situation financière.'**
+  String get milestoneActionMaitreDestinDesc;
+
+  /// No description provided for @milestoneActionBatisseurTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bâtisseur'**
+  String get milestoneActionBatisseurTitle;
+
+  /// No description provided for @milestoneActionBatisseurDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'50 actions financières. Tu construis patiemment une situation solide.'**
+  String get milestoneActionBatisseurDesc;
+
+  /// No description provided for @milestoneActionArchitecteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Architecte'**
+  String get milestoneActionArchitecteTitle;
+
+  /// No description provided for @milestoneActionArchitecteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 actions. Tu es l’architecte de ta liberté financière.'**
+  String get milestoneActionArchitecteDesc;
+
+  /// No description provided for @milestoneConsistencyFlammeNaissanteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flamme naissante'**
+  String get milestoneConsistencyFlammeNaissanteTitle;
+
+  /// No description provided for @milestoneConsistencyFlammeNaissanteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'2 semaines consécutives. Ta régularité prend forme.'**
+  String get milestoneConsistencyFlammeNaissanteDesc;
+
+  /// No description provided for @milestoneConsistencyFlammeViveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flamme vive'**
+  String get milestoneConsistencyFlammeViveTitle;
+
+  /// No description provided for @milestoneConsistencyFlammeViveDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'4 semaines sans interruption. Ta discipline financière est en marche.'**
+  String get milestoneConsistencyFlammeViveDesc;
+
+  /// No description provided for @milestoneConsistencyFlammeEtermelleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flamme éternelle'**
+  String get milestoneConsistencyFlammeEtermelleTitle;
+
+  /// No description provided for @milestoneConsistencyFlammeEtermelleDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'12 semaines consécutives. Ta constance est devenue une habitude.'**
+  String get milestoneConsistencyFlammeEtermelleDesc;
+
+  /// No description provided for @milestoneConsistencyConfianceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil de confiance'**
+  String get milestoneConsistencyConfianceTitle;
+
+  /// No description provided for @milestoneConsistencyConfianceDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil a atteint un score de confiance de 70 %. Tes données permettent des calculs fiables.'**
+  String get milestoneConsistencyConfianceDesc;
+
+  /// No description provided for @milestoneConsistencyChallengesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'6 défis accomplis'**
+  String get milestoneConsistencyChallengesTitle;
+
+  /// No description provided for @milestoneConsistencyChallengesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as relevé 6 défis du mois. Six mois d’engagement financier concret.'**
+  String get milestoneConsistencyChallengesDesc;
+
+  /// No description provided for @rcSalaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu'**
+  String get rcSalaryLabel;
+
+  /// No description provided for @rcAgeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton âge'**
+  String get rcAgeLabel;
+
+  /// No description provided for @rcCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton'**
+  String get rcCantonLabel;
+
+  /// No description provided for @rcCivilStatusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation civile'**
+  String get rcCivilStatusLabel;
+
+  /// No description provided for @rcEmploymentStatusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton statut professionnel'**
+  String get rcEmploymentStatusLabel;
+
+  /// No description provided for @rcLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données LPP'**
+  String get rcLppLabel;
+
+  /// No description provided for @expertTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get expertTitle;
+
+  /// No description provided for @expertSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT prépare ton dossier pour un rendez-vous efficace'**
+  String get expertSubtitle;
+
+  /// No description provided for @expertDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT facilite la mise en relation — ne remplace pas un conseil personnalisé (LSFin art. 3)'**
+  String get expertDisclaimer;
+
+  /// No description provided for @expertSpecRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite'**
+  String get expertSpecRetirement;
+
+  /// No description provided for @expertSpecSuccession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succession'**
+  String get expertSpecSuccession;
+
+  /// No description provided for @expertSpecExpatriation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expatriation'**
+  String get expertSpecExpatriation;
+
+  /// No description provided for @expertSpecDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorce'**
+  String get expertSpecDivorce;
+
+  /// No description provided for @expertSpecSelfEmployment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e'**
+  String get expertSpecSelfEmployment;
+
+  /// No description provided for @expertSpecRealEstate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Immobilier'**
+  String get expertSpecRealEstate;
+
+  /// No description provided for @expertSpecTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get expertSpecTax;
+
+  /// No description provided for @expertSpecDebt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion de dettes'**
+  String get expertSpecDebt;
+
+  /// No description provided for @expertDossierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton dossier préparé'**
+  String get expertDossierTitle;
+
+  /// No description provided for @expertDossierIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil incomplet — {count} données manquantes'**
+  String expertDossierIncomplete(int count);
+
+  /// No description provided for @expertRequestSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander un rendez-vous'**
+  String get expertRequestSession;
+
+  /// No description provided for @expertSessionRequested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée'**
+  String get expertSessionRequested;
+
+  /// No description provided for @expertMissingData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée estimée — à confirmer avec le·la spécialiste'**
+  String get expertMissingData;
+
+  /// No description provided for @expertDossierSectionSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation personnelle'**
+  String get expertDossierSectionSituation;
+
+  /// No description provided for @expertDossierSectionPrevoyance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance'**
+  String get expertDossierSectionPrevoyance;
+
+  /// No description provided for @expertDossierSectionPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine'**
+  String get expertDossierSectionPatrimoine;
+
+  /// No description provided for @expertDossierSectionFinancement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Financement'**
+  String get expertDossierSectionFinancement;
+
+  /// No description provided for @expertDossierSectionDeductions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions fiscales'**
+  String get expertDossierSectionDeductions;
+
+  /// No description provided for @expertDossierSectionBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget & dettes'**
+  String get expertDossierSectionBudget;
+
+  /// No description provided for @expertItemAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get expertItemAge;
+
+  /// No description provided for @expertItemSalaryRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut annuel'**
+  String get expertItemSalaryRange;
+
+  /// No description provided for @expertItemCoupleStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation familiale'**
+  String get expertItemCoupleStatus;
+
+  /// No description provided for @expertItemConjointAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge du·de la conjoint·e'**
+  String get expertItemConjointAge;
+
+  /// No description provided for @expertItemLppBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get expertItemLppBalance;
+
+  /// No description provided for @expertItem3aStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a'**
+  String get expertItem3aStatus;
+
+  /// No description provided for @expertItem3aBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a'**
+  String get expertItem3aBalance;
+
+  /// No description provided for @expertItemLppBuybackPotential.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP possible'**
+  String get expertItemLppBuybackPotential;
+
+  /// No description provided for @expertItemAvsYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années AVS cotisées'**
+  String get expertItemAvsYears;
+
+  /// No description provided for @expertItemReplacementRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplacement estimé'**
+  String get expertItemReplacementRate;
+
+  /// No description provided for @expertItemFamilyStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation civile'**
+  String get expertItemFamilyStatus;
+
+  /// No description provided for @expertItemChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfants'**
+  String get expertItemChildren;
+
+  /// No description provided for @expertItemPatrimoineRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine estimé'**
+  String get expertItemPatrimoineRange;
+
+  /// No description provided for @expertItemPropertyStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement'**
+  String get expertItemPropertyStatus;
+
+  /// No description provided for @expertItemPropertyValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur immobilière'**
+  String get expertItemPropertyValue;
+
+  /// No description provided for @expertItemNationality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nationalité'**
+  String get expertItemNationality;
+
+  /// No description provided for @expertItemArchetype.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil fiscal'**
+  String get expertItemArchetype;
+
+  /// No description provided for @expertItemYearsInCh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années en Suisse'**
+  String get expertItemYearsInCh;
+
+  /// No description provided for @expertItemResidencePermit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis de séjour'**
+  String get expertItemResidencePermit;
+
+  /// No description provided for @expertItemAvsStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut AVS'**
+  String get expertItemAvsStatus;
+
+  /// No description provided for @expertItemAvsGaps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacunes AVS'**
+  String get expertItemAvsGaps;
+
+  /// No description provided for @expertItemCivilStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut civil'**
+  String get expertItemCivilStatus;
+
+  /// No description provided for @expertItemConjointLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP conjoint·e'**
+  String get expertItemConjointLpp;
+
+  /// No description provided for @expertItemEmploymentStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut professionnel'**
+  String get expertItemEmploymentStatus;
+
+  /// No description provided for @expertItemLppCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture LPP'**
+  String get expertItemLppCoverage;
+
+  /// No description provided for @expertItemCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get expertItemCanton;
+
+  /// No description provided for @expertItemCurrentHousing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement actuel'**
+  String get expertItemCurrentHousing;
+
+  /// No description provided for @expertItemEquityEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds propres disponibles'**
+  String get expertItemEquityEstimate;
+
+  /// No description provided for @expertItemLppEpl.
+  ///
+  /// In fr, this message translates to:
+  /// **'EPL LPP possible'**
+  String get expertItemLppEpl;
+
+  /// No description provided for @expertItemMortgageBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque en cours'**
+  String get expertItemMortgageBalance;
+
+  /// No description provided for @expertItemDebtRatio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio d\'endettement'**
+  String get expertItemDebtRatio;
+
+  /// No description provided for @expertItemChargesVsIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges vs revenu'**
+  String get expertItemChargesVsIncome;
+
+  /// No description provided for @expertItemDebtType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Types de dettes'**
+  String get expertItemDebtType;
+
+  /// No description provided for @expertValueUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get expertValueUnknown;
+
+  /// No description provided for @expertValueNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun·e'**
+  String get expertValueNone;
+
+  /// No description provided for @expertValueOwner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Propriétaire'**
+  String get expertValueOwner;
+
+  /// No description provided for @expertValueTenant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Locataire'**
+  String get expertValueTenant;
+
+  /// No description provided for @expertValueSingle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célibataire'**
+  String get expertValueSingle;
+
+  /// No description provided for @expertValueMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e'**
+  String get expertValueMarried;
+
+  /// No description provided for @expertValueDivorced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorcé·e'**
+  String get expertValueDivorced;
+
+  /// No description provided for @expertValueWidowed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuf·ve'**
+  String get expertValueWidowed;
+
+  /// No description provided for @expertValueConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage'**
+  String get expertValueConcubinage;
+
+  /// No description provided for @expertValue3aActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get expertValue3aActive;
+
+  /// No description provided for @expertValue3aInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inactif'**
+  String get expertValue3aInactive;
+
+  /// No description provided for @expertValueLppYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couvert·e'**
+  String get expertValueLppYes;
+
+  /// No description provided for @expertValueLppNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non couvert·e'**
+  String get expertValueLppNo;
+
+  /// No description provided for @expertValueLppEplPossible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Possible (à vérifier)'**
+  String get expertValueLppEplPossible;
+
+  /// No description provided for @expertValueDebtNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de dettes'**
+  String get expertValueDebtNone;
+
+  /// No description provided for @expertValueDebtLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible (< 50 % du revenu annuel)'**
+  String get expertValueDebtLow;
+
+  /// No description provided for @expertValueDebtMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modéré (50–100 % du revenu annuel)'**
+  String get expertValueDebtMedium;
+
+  /// No description provided for @expertValueDebtHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élevé (> 100 % du revenu annuel)'**
+  String get expertValueDebtHigh;
+
+  /// No description provided for @expertValueChargesNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune charge de dette'**
+  String get expertValueChargesNone;
+
+  /// No description provided for @expertValueSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e'**
+  String get expertValueSalarie;
+
+  /// No description provided for @expertValueIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e'**
+  String get expertValueIndependant;
+
+  /// No description provided for @expertValueChomage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au chômage'**
+  String get expertValueChomage;
+
+  /// No description provided for @expertValueRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraité·e'**
+  String get expertValueRetraite;
+
+  /// No description provided for @expertDebtTypeConso.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit conso'**
+  String get expertDebtTypeConso;
+
+  /// No description provided for @expertDebtTypeLeasing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Leasing'**
+  String get expertDebtTypeLeasing;
+
+  /// No description provided for @expertDebtTypeHypo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque'**
+  String get expertDebtTypeHypo;
+
+  /// No description provided for @expertDebtTypeAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres dettes'**
+  String get expertDebtTypeAutre;
+
+  /// No description provided for @expertArchetypeSwissNative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résident·e suisse'**
+  String get expertArchetypeSwissNative;
+
+  /// No description provided for @expertArchetypeExpatEu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expat EU/AELE'**
+  String get expertArchetypeExpatEu;
+
+  /// No description provided for @expertArchetypeExpatNonEu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expat hors EU'**
+  String get expertArchetypeExpatNonEu;
+
+  /// No description provided for @expertArchetypeExpatUs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résident·e US (FATCA)'**
+  String get expertArchetypeExpatUs;
+
+  /// No description provided for @expertArchetypeIndepWithLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e avec LPP'**
+  String get expertArchetypeIndepWithLpp;
+
+  /// No description provided for @expertArchetypeIndepNoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e sans LPP'**
+  String get expertArchetypeIndepNoLpp;
+
+  /// No description provided for @expertArchetypeCrossBorder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frontalier·ère'**
+  String get expertArchetypeCrossBorder;
+
+  /// No description provided for @expertArchetypeReturningSwiss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suisse de retour'**
+  String get expertArchetypeReturningSwiss;
+
+  /// No description provided for @expertMissingLppBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP non renseigné'**
+  String get expertMissingLppBalance;
+
+  /// No description provided for @expertMissingAvsYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années AVS non renseignées'**
+  String get expertMissingAvsYears;
+
+  /// No description provided for @expertMissingLppBuyback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacune de rachat LPP inconnue'**
+  String get expertMissingLppBuyback;
+
+  /// No description provided for @expertMissing3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a non renseigné'**
+  String get expertMissing3a;
+
+  /// No description provided for @expertMissingConjoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données conjoint·e manquantes'**
+  String get expertMissingConjoint;
+
+  /// No description provided for @expertMissingPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine non renseigné'**
+  String get expertMissingPatrimoine;
+
+  /// No description provided for @expertMissingHousing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation logement inconnue'**
+  String get expertMissingHousing;
+
+  /// No description provided for @expertMissingChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants non renseigné'**
+  String get expertMissingChildren;
+
+  /// No description provided for @expertMissingNationality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nationalité non renseignée'**
+  String get expertMissingNationality;
+
+  /// No description provided for @expertMissingArrivalAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge d\'arrivée en Suisse non renseigné'**
+  String get expertMissingArrivalAge;
+
+  /// No description provided for @expertMissingPermit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis de séjour non renseigné'**
+  String get expertMissingPermit;
+
+  /// No description provided for @expertMissingConjointLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP conjoint·e non renseignée'**
+  String get expertMissingConjointLpp;
+
+  /// No description provided for @expertMissingIndependantStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut indépendant non confirmé'**
+  String get expertMissingIndependantStatus;
+
+  /// No description provided for @expertMissingLppCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture LPP non renseignée'**
+  String get expertMissingLppCoverage;
+
+  /// No description provided for @expertMissingCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton non renseigné'**
+  String get expertMissingCanton;
+
+  /// No description provided for @expertMissingEquity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds propres non renseignés'**
+  String get expertMissingEquity;
+
+  /// No description provided for @expertMissingHousingStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut logement non renseigné'**
+  String get expertMissingHousingStatus;
+
+  /// No description provided for @expertMissingDebtDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail des dettes manquant'**
+  String get expertMissingDebtDetail;
+
+  /// No description provided for @expertMissingMensualites.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensualités de dettes non renseignées'**
+  String get expertMissingMensualites;
+
+  /// No description provided for @agentFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formulaire pré-rempli'**
+  String get agentFormTitle;
+
+  /// No description provided for @agentFormDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie chaque champ avant envoi. MINT ne soumet rien à ta place.'**
+  String get agentFormDisclaimer;
+
+  /// No description provided for @agentFormValidateAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme avoir vérifié'**
+  String get agentFormValidateAll;
+
+  /// No description provided for @agentFormEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé — à confirmer'**
+  String get agentFormEstimated;
+
+  /// No description provided for @agentLetterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lettre préparée'**
+  String get agentLetterTitle;
+
+  /// No description provided for @agentLetterDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adapte et envoie toi-même. MINT ne transmet rien.'**
+  String get agentLetterDisclaimer;
+
+  /// No description provided for @agentLetterPensionSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande d\'extrait de prévoyance'**
+  String get agentLetterPensionSubject;
+
+  /// No description provided for @agentLetterTransferSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de transfert de libre passage'**
+  String get agentLetterTransferSubject;
+
+  /// No description provided for @agentLetterAvsSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande d\'extrait de compte AVS'**
+  String get agentLetterAvsSubject;
+
+  /// No description provided for @agentLetterPlaceholderName.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Ton nom complet]'**
+  String get agentLetterPlaceholderName;
+
+  /// No description provided for @agentLetterPlaceholderAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Ton adresse]'**
+  String get agentLetterPlaceholderAddress;
+
+  /// No description provided for @agentLetterPlaceholderSsn.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Ton numéro AVS]'**
+  String get agentLetterPlaceholderSsn;
+
+  /// No description provided for @agentLetterPlaceholderDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Date]'**
+  String get agentLetterPlaceholderDate;
+
+  /// No description provided for @agentTaxFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration d\'impôt — pré-remplissage'**
+  String get agentTaxFormTitle;
+
+  /// No description provided for @agent3aFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation 3a'**
+  String get agent3aFormTitle;
+
+  /// No description provided for @agentLppFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formulaire de rachat LPP'**
+  String get agentLppFormTitle;
+
+  /// No description provided for @agentFieldSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : {source}'**
+  String agentFieldSource(String source);
+
+  /// No description provided for @agentValidationRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation requise avant toute utilisation'**
+  String get agentValidationRequired;
+
+  /// No description provided for @agentOutputDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier, fiscal ou juridique. Vérifie chaque information. Conforme à la LSFin.'**
+  String get agentOutputDisclaimer;
+
+  /// No description provided for @agentNoAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne soumet, ne transmet et n\'exécute rien automatiquement.'**
+  String get agentNoAction;
+
+  /// No description provided for @agentSpecialistLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'un·e spécialiste agréé·e'**
+  String get agentSpecialistLabel;
+
+  /// No description provided for @agentLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de rachat LPP'**
+  String get agentLppBuybackTitle;
+
+  /// No description provided for @agentPensionFundSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de certificat de prévoyance'**
+  String get agentPensionFundSubject;
+
+  /// No description provided for @agentLppTransferSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de transfert de prévoyance (libre passage)'**
+  String get agentLppTransferSubject;
+
+  /// No description provided for @agentFormCantonFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'[canton]'**
+  String get agentFormCantonFallback;
+
+  /// No description provided for @agentFormRevenuBrut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut estimé'**
+  String get agentFormRevenuBrut;
+
+  /// No description provided for @agentFormCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de domicile'**
+  String get agentFormCanton;
+
+  /// No description provided for @agentFormSituationFamiliale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation familiale'**
+  String get agentFormSituationFamiliale;
+
+  /// No description provided for @agentFormNbEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get agentFormNbEnfants;
+
+  /// No description provided for @agentFormDeduction3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déduction 3a possible'**
+  String get agentFormDeduction3a;
+
+  /// No description provided for @agentFormRachatLppDeductible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP déductible estimé'**
+  String get agentFormRachatLppDeductible;
+
+  /// No description provided for @agentFormStatutProfessionnel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut professionnel'**
+  String get agentFormStatutProfessionnel;
+
+  /// No description provided for @agentFormBeneficiaireNom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du/de la bénéficiaire'**
+  String get agentFormBeneficiaireNom;
+
+  /// No description provided for @agentFormNumeroCompte3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de compte 3a'**
+  String get agentFormNumeroCompte3a;
+
+  /// No description provided for @agentFormMontantVersement.
+  ///
+  /// In fr, this message translates to:
+  /// **'~{plafond} CHF (plafond {year})'**
+  String agentFormMontantVersement(String plafond, String year);
+
+  /// No description provided for @agentFormMontantVersementLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant versement annuel'**
+  String get agentFormMontantVersementLabel;
+
+  /// No description provided for @agentFormTypeContrat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de contrat'**
+  String get agentFormTypeContrat;
+
+  /// No description provided for @agentFormTypeContratSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e avec LPP'**
+  String get agentFormTypeContratSalarie;
+
+  /// No description provided for @agentFormTypeContratIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e sans LPP'**
+  String get agentFormTypeContratIndependant;
+
+  /// No description provided for @agentFormToComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À compléter]'**
+  String get agentFormToComplete;
+
+  /// No description provided for @agentFormTitulaireNom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du/de la titulaire'**
+  String get agentFormTitulaireNom;
+
+  /// No description provided for @agentFormNumeroPolice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de police'**
+  String get agentFormNumeroPolice;
+
+  /// No description provided for @agentFormAvoirLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP actuel'**
+  String get agentFormAvoirLpp;
+
+  /// No description provided for @agentFormRachatMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat maximum disponible'**
+  String get agentFormRachatMax;
+
+  /// No description provided for @agentFormRachatsDeja.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachats déjà effectués'**
+  String get agentFormRachatsDeja;
+
+  /// No description provided for @agentFormMontantRachatSouhaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant du rachat souhaité'**
+  String get agentFormMontantRachatSouhaite;
+
+  /// No description provided for @agentFormToCompleteAupres.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À compléter auprès de la caisse]'**
+  String get agentFormToCompleteAupres;
+
+  /// No description provided for @agentFormToCompleteMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À saisir — max {max} CHF]'**
+  String agentFormToCompleteMax(String max);
+
+  /// No description provided for @agentFormCivilCelibataire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célibataire'**
+  String get agentFormCivilCelibataire;
+
+  /// No description provided for @agentFormCivilMarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e'**
+  String get agentFormCivilMarie;
+
+  /// No description provided for @agentFormCivilDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorcé·e'**
+  String get agentFormCivilDivorce;
+
+  /// No description provided for @agentFormCivilVeuf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuf·ve'**
+  String get agentFormCivilVeuf;
+
+  /// No description provided for @agentFormCivilConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubinage'**
+  String get agentFormCivilConcubinage;
+
+  /// No description provided for @agentFormEmplSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e'**
+  String get agentFormEmplSalarie;
+
+  /// No description provided for @agentFormEmplIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e'**
+  String get agentFormEmplIndependant;
+
+  /// No description provided for @agentFormEmplChomage.
+  ///
+  /// In fr, this message translates to:
+  /// **'En recherche d\'emploi'**
+  String get agentFormEmplChomage;
+
+  /// No description provided for @agentFormEmplRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraité·e'**
+  String get agentFormEmplRetraite;
+
+  /// No description provided for @agentLetterCaisseFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Nom de la caisse de pension]'**
+  String get agentLetterCaisseFallback;
+
+  /// No description provided for @agentLetterPostalCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Code postal et ville]'**
+  String get agentLetterPostalCity;
+
+  /// No description provided for @agentLetterCaisseAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Adresse de la caisse]'**
+  String get agentLetterCaisseAddress;
+
+  /// No description provided for @agentLetterPoliceNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Numéro de police : À compléter]'**
+  String get agentLetterPoliceNumber;
+
+  /// No description provided for @agentLetterCaisseCurrentName.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Caisse de pension actuelle]'**
+  String get agentLetterCaisseCurrentName;
+
+  /// No description provided for @agentLetterCaisseCurrentAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Adresse de la caisse actuelle]'**
+  String get agentLetterCaisseCurrentAddress;
+
+  /// No description provided for @agentLetterToComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'[À compléter]'**
+  String get agentLetterToComplete;
+
+  /// No description provided for @agentLetterAvsOrg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caisse de compensation AVS compétente'**
+  String get agentLetterAvsOrg;
+
+  /// No description provided for @agentLetterAvsAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'[Adresse]'**
+  String get agentLetterAvsAddress;
+
+  /// No description provided for @agentLetterPensionFundBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé {year} (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}\n{policeNumber}'**
+  String agentLetterPensionFundBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber);
+
+  /// No description provided for @agentLetterLppTransferBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : {toComplete}\nIBAN ou numéro de compte : {toComplete}\nAdresse : {toComplete}\n\nDate de sortie : {toComplete}\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
+  String agentLetterLppTransferBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete);
+
+  /// No description provided for @agentLetterAvsExtractBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
+  String agentLetterAvsExtractBody(
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject);
+
+  /// No description provided for @seasonalEventCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'En parler au coach'**
+  String get seasonalEventCta;
+
+  /// No description provided for @communityChallengeCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relever le défi'**
+  String get communityChallengeCta;
+
+  /// No description provided for @dossierExpertSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get dossierExpertSectionTitle;
+
+  /// No description provided for @expertPrepareDossierCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer mon dossier'**
+  String get expertPrepareDossierCta;
+
+  /// No description provided for @dossierAgentSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documents préparés'**
+  String get dossierAgentSectionTitle;
+
+  /// No description provided for @agentFormsTaxCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer ma déclaration'**
+  String get agentFormsTaxCta;
+
+  /// No description provided for @agentFormsTaxSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pré-remplissage depuis ton profil'**
+  String get agentFormsTaxSubtitle;
+
+  /// No description provided for @agentFormsAvsCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander mon extrait AVS'**
+  String get agentFormsAvsCta;
+
+  /// No description provided for @agentFormsAvsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre prêt à envoyer'**
+  String get agentFormsAvsSubtitle;
+
+  /// No description provided for @agentFormsLppCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander un transfert LPP'**
+  String get agentFormsLppCta;
+
+  /// No description provided for @agentFormsLppSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lettre de transfert de libre passage'**
+  String get agentFormsLppSubtitle;
+
+  /// No description provided for @notifThreeATitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deadline 3a'**
+  String get notifThreeATitle;
+
+  /// No description provided for @notifThreeA92Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste 92 jours pour verser sur ton 3a.'**
+  String get notifThreeA92Days;
+
+  /// No description provided for @notifThreeA61Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste 61 jours. Économie estimée : CHF {saving}.'**
+  String notifThreeA61Days(String saving);
+
+  /// No description provided for @notifThreeALastMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier mois pour ton 3a. CHF {saving} d\'économie en jeu.'**
+  String notifThreeALastMonth(String saving);
+
+  /// No description provided for @notifThreeA11Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'11 jours. Dernier rappel 3a.'**
+  String get notifThreeA11Days;
+
+  /// No description provided for @notifNewYearTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux plafonds {year}'**
+  String notifNewYearTitle(String year);
+
+  /// No description provided for @notifNewYearBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux plafonds {year}. Ton économie potentielle a changé.'**
+  String notifNewYearBody(String year);
+
+  /// No description provided for @notifCheckInTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Check-in mensuel'**
+  String get notifCheckInTitle;
+
+  /// No description provided for @notifCheckInBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton check-in mensuel est disponible.'**
+  String get notifCheckInBody;
+
+  /// No description provided for @notifTaxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale'**
+  String get notifTaxTitle;
+
+  /// No description provided for @notifTax44Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.'**
+  String get notifTax44Days;
+
+  /// No description provided for @notifTax16Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale dans 16 jours. Commence à la remplir.'**
+  String get notifTax16Days;
+
+  /// No description provided for @notifTaxLastWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration à rendre avant le 31 mars. Dernière semaine.'**
+  String get notifTaxLastWeek;
+
+  /// No description provided for @notifFriTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score de solidité'**
+  String get notifFriTitle;
+
+  /// No description provided for @notifFriCheckIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis ton dernier check-in : {delta} points.'**
+  String notifFriCheckIn(String delta);
+
+  /// No description provided for @notifFriImproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta solidité a progressé de {delta} points.'**
+  String notifFriImproved(String delta);
+
+  /// No description provided for @notifProfileUpdatedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil mis à jour'**
+  String get notifProfileUpdatedTitle;
+
+  /// No description provided for @notifProfileUpdatedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil a été mis à jour. Nouvelles projections disponibles.'**
+  String get notifProfileUpdatedBody;
+
+  /// No description provided for @notifOffTrackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu t\'éloignes de ton plan'**
+  String get notifOffTrackTitle;
+
+  /// No description provided for @notifOffTrackBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adhérence à {adherence}% sur {total} actions. Indication linéaire (hors rendement/fiscalité) : ~CHF {impact}.'**
+  String notifOffTrackBody(String adherence, String total, String impact);
+
+  /// No description provided for @agentTaskTaxDeclarationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pré-remplissage déclaration fiscale'**
+  String get agentTaskTaxDeclarationTitle;
+
+  /// No description provided for @agentTaskTaxDeclarationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation des champs principaux de ta déclaration d\'impôts basée sur ton profil MINT. Tous les montants sont approximatifs.'**
+  String get agentTaskTaxDeclarationDesc;
+
+  /// No description provided for @agentTaskThreeAFormTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pré-remplissage formulaire 3a'**
+  String get agentTaskThreeAFormTitle;
+
+  /// No description provided for @agentTaskThreeAFormDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations de base pour un versement 3e pilier. Le plafond est calculé selon ton statut professionnel.'**
+  String get agentTaskThreeAFormDesc;
+
+  /// No description provided for @agentTaskCaisseLetterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lettre à la caisse de pension'**
+  String get agentTaskCaisseLetterTitle;
+
+  /// No description provided for @agentTaskCaisseLetterDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre formelle pour demander un certificat LPP, une confirmation de rachat et une simulation de retraite anticipée.'**
+  String get agentTaskCaisseLetterDesc;
+
+  /// No description provided for @agentTaskFiscalDossierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation dossier fiscal'**
+  String get agentTaskFiscalDossierTitle;
+
+  /// No description provided for @agentTaskFiscalDossierDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé éducatif de ta situation fiscale estimée avec les déductions possibles et les questions à poser à un·e spécialiste.'**
+  String get agentTaskFiscalDossierDesc;
+
+  /// No description provided for @agentTaskAvsExtractTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande d\'extrait AVS'**
+  String get agentTaskAvsExtractTitle;
+
+  /// No description provided for @agentTaskAvsExtractDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre pour demander un extrait de compte individuel (CI) auprès de ta caisse de compensation AVS.'**
+  String get agentTaskAvsExtractDesc;
+
+  /// No description provided for @agentTaskLppCertificateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande certificat LPP'**
+  String get agentTaskLppCertificateTitle;
+
+  /// No description provided for @agentTaskLppCertificateDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de lettre pour demander un certificat de prévoyance professionnelle actualisé à ta caisse de pension.'**
+  String get agentTaskLppCertificateDesc;
+
+  /// No description provided for @agentTaskDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet outil est purement éducatif et ne constitue pas un conseil financier, fiscal ou juridique. Les montants affichés sont des estimations indicatives. Consultez un·e spécialiste agréé·e avant toute décision. Conforme à la LSFin.'**
+  String get agentTaskDisclaimer;
+
+  /// No description provided for @agentTaskValidationPromptDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie attentivement chaque information avant toute utilisation. Tous les champs sont des estimations à confirmer.'**
+  String get agentTaskValidationPromptDefault;
+
+  /// No description provided for @agentTaskValidationPromptLetter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie les informations et complète les champs entre crochets avant d\'envoyer cette lettre.'**
+  String get agentTaskValidationPromptLetter;
+
+  /// No description provided for @agentTaskValidationPromptRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie les informations et complète les champs entre crochets avant d\'envoyer cette demande.'**
+  String get agentTaskValidationPromptRequest;
+
+  /// No description provided for @agentFieldRevenuBrutValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'~{range} CHF/an'**
+  String agentFieldRevenuBrutValue(String range);
+
+  /// No description provided for @agentFieldRachatLppValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'~{range} CHF'**
+  String agentFieldRachatLppValue(String range);
+
+  /// No description provided for @agentFieldAnneRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année de référence'**
+  String get agentFieldAnneRef;
+
+  /// No description provided for @agentFieldCaissePension.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caisse de pension'**
+  String get agentFieldCaissePension;
+
+  /// No description provided for @agentFieldAddressPerso.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse personnelle'**
+  String get agentFieldAddressPerso;
+
+  /// No description provided for @agentFieldAddresseCaisse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse de la caisse'**
+  String get agentFieldAddresseCaisse;
+
+  /// No description provided for @agentFieldNumeroPolice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de police'**
+  String get agentFieldNumeroPolice;
+
+  /// No description provided for @agentFieldNumeroAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro AVS'**
+  String get agentFieldNumeroAvs;
+
+  /// No description provided for @agentFieldAddresseCaisseAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse de la caisse AVS'**
+  String get agentFieldAddresseCaisseAvs;
+
+  /// No description provided for @agentFiscalDossierRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut estimé'**
+  String get agentFiscalDossierRevenu;
+
+  /// No description provided for @agentFiscalDossierPlafond3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond 3a applicable'**
+  String get agentFiscalDossierPlafond3a;
+
+  /// No description provided for @agentFiscalDossierRachat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP disponible'**
+  String get agentFiscalDossierRachat;
+
+  /// No description provided for @agentFiscalDossierCapital3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a accumulé'**
+  String get agentFiscalDossierCapital3a;
+
+  /// No description provided for @proactiveLifecycleChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu viens d’entrer dans une nouvelle phase de vie. On regarde ce que ça change pour toi ?'**
+  String get proactiveLifecycleChange;
+
+  /// No description provided for @proactiveWeeklyRecap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap de la semaine est prêt. Tu veux le voir ?'**
+  String get proactiveWeeklyRecap;
+
+  /// No description provided for @proactiveGoalMilestone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton objectif a franchi les {progress} %. Bien joué !'**
+  String proactiveGoalMilestone(String progress);
+
+  /// No description provided for @proactiveSeasonalReminder.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est la saison {event}. Un bon moment pour…'**
+  String proactiveSeasonalReminder(String event);
+
+  /// No description provided for @proactiveInactivityReturn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Content de te revoir ! Ça fait {days} jours. On fait le point ?'**
+  String proactiveInactivityReturn(String days);
+
+  /// No description provided for @proactiveConfidenceUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta confiance a progressé de {delta} pts depuis la dernière fois.'**
+  String proactiveConfidenceUp(String delta);
+
+  /// No description provided for @proactiveNewCap.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai une nouvelle priorité pour toi.'**
+  String get proactiveNewCap;
+
+  /// No description provided for @dossierToolsSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils'**
+  String get dossierToolsSection;
+
+  /// No description provided for @dossierToolsCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tous les outils'**
+  String get dossierToolsCta;
+
+  /// No description provided for @pulseNarrativeBudgetGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'ta marge mensuelle :'**
+  String get pulseNarrativeBudgetGoal;
+
+  /// No description provided for @pulseNarrativeHousingGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'ta capacité d’achat estimée :'**
+  String get pulseNarrativeHousingGoal;
+
+  /// No description provided for @pulseNarrativeRetirementGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'ton taux de remplacement :'**
+  String get pulseNarrativeRetirementGoal;
+
+  /// No description provided for @pulseLabelBudgetFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge libre ce mois-ci'**
+  String get pulseLabelBudgetFree;
+
+  /// No description provided for @pulseLabelPurchasingCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capacité d’achat estimée'**
+  String get pulseLabelPurchasingCapacity;
+
+  /// No description provided for @capSequenceProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed}/{total} étapes'**
+  String capSequenceProgress(int completed, int total);
+
+  /// No description provided for @capSequenceComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan complété !'**
+  String get capSequenceComplete;
+
+  /// No description provided for @capSequenceCurrentStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape'**
+  String get capSequenceCurrentStep;
+
+  /// No description provided for @capStepRetirement01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connaître ton salaire brut'**
+  String get capStepRetirement01Title;
+
+  /// No description provided for @capStepRetirement01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La base de tous les calculs de retraite.'**
+  String get capStepRetirement01Desc;
+
+  /// No description provided for @capStepRetirement02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimer ta rente AVS'**
+  String get capStepRetirement02Title;
+
+  /// No description provided for @capStepRetirement02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes années cotisées déterminent ton 1er pilier.'**
+  String get capStepRetirement02Desc;
+
+  /// No description provided for @capStepRetirement03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier ton avoir LPP'**
+  String get capStepRetirement03Title;
+
+  /// No description provided for @capStepRetirement03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le certificat LPP révèle ton capital 2e pilier.'**
+  String get capStepRetirement03Desc;
+
+  /// No description provided for @capStepRetirement04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer ton taux de remplacement'**
+  String get capStepRetirement04Title;
+
+  /// No description provided for @capStepRetirement04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien de ton salaire tu toucheras à la retraite.'**
+  String get capStepRetirement04Desc;
+
+  /// No description provided for @capStepRetirement05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler un versement 3a'**
+  String get capStepRetirement05Title;
+
+  /// No description provided for @capStepRetirement05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déduire jusqu’à 7’258 CHF et booster ta retraite.'**
+  String get capStepRetirement05Desc;
+
+  /// No description provided for @capStepRetirement06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer un rachat LPP'**
+  String get capStepRetirement06Title;
+
+  /// No description provided for @capStepRetirement06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combler les lacunes et réduire tes impôts.'**
+  String get capStepRetirement06Desc;
+
+  /// No description provided for @capStepRetirement07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer rente vs capital'**
+  String get capStepRetirement07Title;
+
+  /// No description provided for @capStepRetirement07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toucher une rente mensuelle ou retirer le capital ?'**
+  String get capStepRetirement07Desc;
+
+  /// No description provided for @capStepRetirement08Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifier le décaissement'**
+  String get capStepRetirement08Title;
+
+  /// No description provided for @capStepRetirement08Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ordre de retrait impacte ta fiscalité.'**
+  String get capStepRetirement08Desc;
+
+  /// No description provided for @capStepRetirement09Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser fiscalement'**
+  String get capStepRetirement09Title;
+
+  /// No description provided for @capStepRetirement09Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a, rachat, timing : réduire l’imposition du capital.'**
+  String get capStepRetirement09Desc;
+
+  /// No description provided for @capStepRetirement10Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get capStepRetirement10Title;
+
+  /// No description provided for @capStepRetirement10Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un regard expert sur ta situation complète.'**
+  String get capStepRetirement10Desc;
+
+  /// No description provided for @capStepBudget01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connaître tes revenus'**
+  String get capStepBudget01Title;
+
+  /// No description provided for @capStepBudget01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le point de départ de tout bilan budgétaire.'**
+  String get capStepBudget01Desc;
+
+  /// No description provided for @capStepBudget02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lister tes charges fixes'**
+  String get capStepBudget02Title;
+
+  /// No description provided for @capStepBudget02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer, assurance maladie, transports : les inévitables.'**
+  String get capStepBudget02Desc;
+
+  /// No description provided for @capStepBudget03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer ta marge libre'**
+  String get capStepBudget03Title;
+
+  /// No description provided for @capStepBudget03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui reste après les charges — ton vrai terrain de jeu.'**
+  String get capStepBudget03Desc;
+
+  /// No description provided for @capStepBudget04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifier les économies possibles'**
+  String get capStepBudget04Title;
+
+  /// No description provided for @capStepBudget04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Petits ajustements, grand impact mensuel.'**
+  String get capStepBudget04Desc;
+
+  /// No description provided for @capStepBudget05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Construire une épargne de précaution'**
+  String get capStepBudget05Title;
+
+  /// No description provided for @capStepBudget05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'3 mois de charges liquides : ton filet de sécurité.'**
+  String get capStepBudget05Desc;
+
+  /// No description provided for @capStepBudget06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifier le 3a'**
+  String get capStepBudget06Title;
+
+  /// No description provided for @capStepBudget06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque franc versé réduit tes impôts et prépare la retraite.'**
+  String get capStepBudget06Desc;
+
+  /// No description provided for @capStepHousing01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connaître tes revenus'**
+  String get capStepHousing01Title;
+
+  /// No description provided for @capStepHousing01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La base du calcul de capacité d’achat.'**
+  String get capStepHousing01Desc;
+
+  /// No description provided for @capStepHousing02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer tes fonds propres'**
+  String get capStepHousing02Title;
+
+  /// No description provided for @capStepHousing02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne, 3a et LPP : assembler l’apport nécessaire.'**
+  String get capStepHousing02Desc;
+
+  /// No description provided for @capStepHousing03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer ta capacité d’achat'**
+  String get capStepHousing03Title;
+
+  /// No description provided for @capStepHousing03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jusqu’à quel prix peux-tu acheter ?'**
+  String get capStepHousing03Desc;
+
+  /// No description provided for @capStepHousing04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler l’hypothèque'**
+  String get capStepHousing04Title;
+
+  /// No description provided for @capStepHousing04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge mensuelle, amortissement, taux théorique.'**
+  String get capStepHousing04Desc;
+
+  /// No description provided for @capStepHousing05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer l’EPL (2e pilier)'**
+  String get capStepHousing05Title;
+
+  /// No description provided for @capStepHousing05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait anticipé LPP pour financer l’apport.'**
+  String get capStepHousing05Desc;
+
+  /// No description provided for @capStepHousing06Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer location vs achat'**
+  String get capStepHousing06Title;
+
+  /// No description provided for @capStepHousing06Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le calcul qui dépasse les intuitions.'**
+  String get capStepHousing06Desc;
+
+  /// No description provided for @capStepHousing07Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get capStepHousing07Title;
+
+  /// No description provided for @capStepHousing07Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notaire, courtier, conseiller : quand impliquer qui.'**
+  String get capStepHousing07Desc;
+
+  /// No description provided for @goalSelectorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel est ton objectif principal ?'**
+  String get goalSelectorTitle;
+
+  /// No description provided for @goalSelectorAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Laisser MINT décider'**
+  String get goalSelectorAuto;
+
+  /// No description provided for @goalSelectorAutoDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT adapte automatiquement selon ton profil'**
+  String get goalSelectorAutoDesc;
+
+  /// No description provided for @goalRetirementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma retraite'**
+  String get goalRetirementTitle;
+
+  /// No description provided for @goalRetirementDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifier la transition vers la retraite'**
+  String get goalRetirementDesc;
+
+  /// No description provided for @goalBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget'**
+  String get goalBudgetTitle;
+
+  /// No description provided for @goalBudgetDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtriser mes dépenses et épargner'**
+  String get goalBudgetDesc;
+
+  /// No description provided for @goalHousingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter un logement'**
+  String get goalHousingTitle;
+
+  /// No description provided for @goalHousingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer ma capacité et planifier l’achat'**
+  String get goalHousingDesc;
+
+  /// No description provided for @goalTaxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payer moins d’impôts'**
+  String get goalTaxTitle;
+
+  /// No description provided for @goalTaxDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser mes déductions (3a, rachat LPP)'**
+  String get goalTaxDesc;
+
+  /// No description provided for @goalDebtTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mes dettes'**
+  String get goalDebtTitle;
+
+  /// No description provided for @goalDebtDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouver de la marge et rembourser'**
+  String get goalDebtDesc;
+
+  /// No description provided for @goalBirthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer une naissance'**
+  String get goalBirthTitle;
+
+  /// No description provided for @goalBirthDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anticiper les coûts et adapter le budget'**
+  String get goalBirthDesc;
+
+  /// No description provided for @goalIndependentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Devenir indépendant·e'**
+  String get goalIndependentTitle;
+
+  /// No description provided for @goalIndependentDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance, fiscalité et couverture'**
+  String get goalIndependentDesc;
+
+  /// No description provided for @pulseGoalChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif : {goal}'**
+  String pulseGoalChip(String goal);
+
+  /// No description provided for @dossierProfileSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon profil'**
+  String get dossierProfileSection;
+
+  /// No description provided for @dossierPlanSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan'**
+  String get dossierPlanSection;
+
+  /// No description provided for @dossierDataSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes données'**
+  String get dossierDataSection;
+
+  /// No description provided for @dossierConfidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiabilité du dossier'**
+  String get dossierConfidenceLabel;
+
+  /// No description provided for @dossierCompleteCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mon profil'**
+  String get dossierCompleteCta;
+
+  /// No description provided for @dossierChooseGoalCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un objectif'**
+  String get dossierChooseGoalCta;
+
+  /// No description provided for @dossierScanLppCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner mon certificat LPP'**
+  String get dossierScanLppCta;
+
+  /// No description provided for @dossierDataRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu'**
+  String get dossierDataRevenu;
+
+  /// No description provided for @dossierDataLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier'**
+  String get dossierDataLpp;
+
+  /// No description provided for @dossierData3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier'**
+  String get dossierData3a;
+
+  /// No description provided for @dossierDataBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge mensuelle'**
+  String get dossierDataBudget;
+
+  /// No description provided for @dossierDataUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get dossierDataUnknown;
+
+  /// No description provided for @dossierPlanProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} / {total} étapes'**
+  String dossierPlanProgress(int done, int total);
+
+  /// No description provided for @dossierPlanChangeGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer d’objectif'**
+  String get dossierPlanChangeGoal;
+
+  /// No description provided for @dossierPlanCurrentStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape en cours'**
+  String get dossierPlanCurrentStep;
+
+  /// No description provided for @dossierPlanNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape'**
+  String get dossierPlanNextStep;
+
+  /// No description provided for @dossierConfidencePct.
+  ///
+  /// In fr, this message translates to:
+  /// **'{pct} %'**
+  String dossierConfidencePct(int pct);
+
+  /// No description provided for @memoryRefTopic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {days} jours, tu m’avais parlé de {topic}.'**
+  String memoryRefTopic(int days, String topic);
+
+  /// No description provided for @memoryRefGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu t’étais fixé l’objectif : {goal}. On fait le point ?'**
+  String memoryRefGoal(String goal);
+
+  /// No description provided for @memoryRefScreenVisit.
+  ///
+  /// In fr, this message translates to:
+  /// **'La dernière fois, tu avais utilisé {screen}.'**
+  String memoryRefScreenVisit(String screen);
+
+  /// No description provided for @memoryRefRecentInsights.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que je retiens de nos échanges :'**
+  String get memoryRefRecentInsights;
+
+  /// No description provided for @openerBudgetDeficit.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {deficit}/mois de déficit. On regarde où ça coince ?'**
+  String openerBudgetDeficit(String deficit);
+
+  /// No description provided for @opener3aDeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste {days} jours pour verser jusqu’à {plafond} CHF dans ton 3a.'**
+  String opener3aDeadline(String days, String plafond);
+
+  /// No description provided for @openerGapWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton taux de remplacement : {rate} %. À la retraite, il te manquerait CHF {gap}/mois.'**
+  String openerGapWarning(String rate, String gap);
+
+  /// No description provided for @openerSavingsOpportunity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton 3a : CHF 0 cette année. {plafond} CHF d’économie d’impôt en jeu.'**
+  String openerSavingsOpportunity(String plafond);
+
+  /// No description provided for @openerProgressCelebration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta fiabilité a gagné {delta} points. Tes chiffres sont plus précis.'**
+  String openerProgressCelebration(String delta);
+
+  /// No description provided for @openerPlanProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {n}/{total} validée. Prochaine : {next}.'**
+  String openerPlanProgress(String n, String total, String next);
+
+  /// No description provided for @semanticsBackButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get semanticsBackButton;
+
+  /// No description provided for @semanticsDecrement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer'**
+  String get semanticsDecrement;
+
+  /// No description provided for @semanticsIncrement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter'**
+  String get semanticsIncrement;
+
+  /// No description provided for @frontalierDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée. LSFin.'**
+  String get frontalierDisclaimer;
+
+  /// No description provided for @firstJobPayslipAvsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS/AI/APG'**
+  String get firstJobPayslipAvsLabel;
+
+  /// No description provided for @firstJobPayslipAvsExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation salarié·e : 5.3% du brut. Ton employeur paie aussi 5.3% en plus.'**
+  String get firstJobPayslipAvsExplanation;
+
+  /// No description provided for @firstJobPayslipLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP (2e pilier)'**
+  String get firstJobPayslipLppLabel;
+
+  /// No description provided for @firstJobPayslipLppExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne vieillesse obligatoire dès 25 ans. Le taux exact dépend de ta caisse et ton âge.'**
+  String get firstJobPayslipLppExplanation;
+
+  /// No description provided for @firstJobPayslipImpotLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt à la source (estimation)'**
+  String get firstJobPayslipImpotLabel;
+
+  /// No description provided for @firstJobPayslipImpotExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.'**
+  String get firstJobPayslipImpotExplanation;
+
+  /// No description provided for @firstJobChecklistDeadline1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant de quitter'**
+  String get firstJobChecklistDeadline1;
+
+  /// No description provided for @firstJobChecklistAction1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande ton certificat LPP à ton employeur actuel.'**
+  String get firstJobChecklistAction1;
+
+  /// No description provided for @firstJobChecklistConsequence1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans certificat, tu ne peux pas vérifier que le montant transféré est correct.'**
+  String get firstJobChecklistConsequence1;
+
+  /// No description provided for @firstJobChecklistDeadline2.
+  ///
+  /// In fr, this message translates to:
+  /// **'30 jours'**
+  String get firstJobChecklistDeadline2;
+
+  /// No description provided for @firstJobChecklistAction2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie que ton avoir LPP a été transféré à la caisse de ton nouvel employeur.'**
+  String get firstJobChecklistAction2;
+
+  /// No description provided for @firstJobChecklistConsequence2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05%.'**
+  String get firstJobChecklistConsequence2;
+
+  /// No description provided for @firstJobChecklistDeadline3.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 mois'**
+  String get firstJobChecklistDeadline3;
+
+  /// No description provided for @firstJobChecklistAction3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informe ton assurance-maladie LAMal du changement d\'employeur si tu bénéficiais d\'une couverture collective.'**
+  String get firstJobChecklistAction3;
+
+  /// No description provided for @firstJobChecklistDeadline4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dès le premier salaire'**
+  String get firstJobChecklistDeadline4;
+
+  /// No description provided for @firstJobChecklistAction4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continue tes versements au pilier 3a — l\'interruption te coûte des déductions fiscales.'**
+  String get firstJobChecklistAction4;
+
+  /// No description provided for @firstJobBudgetBesoins.
+  ///
+  /// In fr, this message translates to:
+  /// **'Besoins'**
+  String get firstJobBudgetBesoins;
+
+  /// No description provided for @firstJobBudgetLoyer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer'**
+  String get firstJobBudgetLoyer;
+
+  /// No description provided for @firstJobBudgetTransport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transport'**
+  String get firstJobBudgetTransport;
+
+  /// No description provided for @firstJobBudgetAlimentation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alimentation'**
+  String get firstJobBudgetAlimentation;
+
+  /// No description provided for @firstJobBudgetEnvies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envies'**
+  String get firstJobBudgetEnvies;
+
+  /// No description provided for @firstJobBudgetLoisirs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loisirs'**
+  String get firstJobBudgetLoisirs;
+
+  /// No description provided for @firstJobBudgetRestaurants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurants'**
+  String get firstJobBudgetRestaurants;
+
+  /// No description provided for @firstJobBudgetVoyages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voyages'**
+  String get firstJobBudgetVoyages;
+
+  /// No description provided for @firstJobBudgetShopping.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shopping'**
+  String get firstJobBudgetShopping;
+
+  /// No description provided for @firstJobBudgetEpargne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne & 3a'**
+  String get firstJobBudgetEpargne;
+
+  /// No description provided for @firstJobBudgetPilier3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a'**
+  String get firstJobBudgetPilier3a;
+
+  /// No description provided for @firstJobBudgetEpargneCourt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne'**
+  String get firstJobBudgetEpargneCourt;
+
+  /// No description provided for @firstJobBudgetFondsUrgence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds d\'urgence'**
+  String get firstJobBudgetFondsUrgence;
+
+  /// No description provided for @firstJobBudgetChiffreChoc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu épargnes {annual} CHF/an dès maintenant, tu auras ~{future} CHF à 65 ans.'**
+  String firstJobBudgetChiffreChoc(String annual, String future);
+
+  /// No description provided for @firstJobScenarioMySalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon salaire'**
+  String get firstJobScenarioMySalary;
+
+  /// No description provided for @firstJobScenarioDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défaut'**
+  String get firstJobScenarioDefault;
+
+  /// No description provided for @firstJobScenarioMedianCH.
+  ///
+  /// In fr, this message translates to:
+  /// **'Médian CH'**
+  String get firstJobScenarioMedianCH;
+
+  /// No description provided for @firstJobScenarioBoosted.
+  ///
+  /// In fr, this message translates to:
+  /// **'+20%'**
+  String get firstJobScenarioBoosted;
+
+  /// No description provided for @firstJobScenarioSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scénario salaire : {label}'**
+  String firstJobScenarioSemantics(String label);
+
+  /// No description provided for @pulseRetirementIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu retraite estimé'**
+  String get pulseRetirementIncome;
+
+  /// No description provided for @pulseCapImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Levier identifié'**
+  String get pulseCapImpact;
+
+  /// No description provided for @dossierAddConjointCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter mon·ma conjoint·e'**
+  String get dossierAddConjointCta;
+
+  /// No description provided for @dossierDataAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'1er pilier'**
+  String get dossierDataAvs;
+
+  /// No description provided for @dossierDataFiscalite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get dossierDataFiscalite;
+
+  /// No description provided for @pulseRetirementIncomeEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite estimée (minimum LPP)'**
+  String get pulseRetirementIncomeEstimated;
+
+  /// No description provided for @dossierScanLppPrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanne ton certificat pour des projections plus précises'**
+  String get dossierScanLppPrecision;
+
+  /// No description provided for @pulsePlanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan'**
+  String get pulsePlanTitle;
+
+  /// No description provided for @pulsePlanProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed}/{total}'**
+  String pulsePlanProgress(int completed, int total);
+
+  /// No description provided for @pulsePlanNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape : {stepName}'**
+  String pulsePlanNextStep(String stepName);
+
+  /// No description provided for @dossierCoachingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accompagnement'**
+  String get dossierCoachingTitle;
+
+  /// No description provided for @dossierCoachingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence des rappels et suggestions'**
+  String get dossierCoachingSubtitle;
+
+  /// No description provided for @coachingSheetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis à quel rythme MINT t\'accompagne'**
+  String get coachingSheetSubtitle;
+
+  /// No description provided for @coachingIntensityDiscret.
+  ///
+  /// In fr, this message translates to:
+  /// **'Discret'**
+  String get coachingIntensityDiscret;
+
+  /// No description provided for @coachingIntensityCalme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calme'**
+  String get coachingIntensityCalme;
+
+  /// No description provided for @coachingIntensityEquilibre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équilibré'**
+  String get coachingIntensityEquilibre;
+
+  /// No description provided for @coachingIntensityAttentif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attentif'**
+  String get coachingIntensityAttentif;
+
+  /// No description provided for @coachingIntensityProactif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proactif'**
+  String get coachingIntensityProactif;
+
+  /// No description provided for @coachingDescDiscret.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT te laisse tranquille. Rappels rares, uniquement les échéances critiques.'**
+  String get coachingDescDiscret;
+
+  /// No description provided for @coachingDescCalme.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT intervient de temps en temps. Un rappel tous les 3 jours maximum.'**
+  String get coachingDescCalme;
+
+  /// No description provided for @coachingDescEquilibre.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT te guide au quotidien. Un rappel par jour, des suggestions contextuelles.'**
+  String get coachingDescEquilibre;
+
+  /// No description provided for @coachingDescAttentif.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT est attentif à chaque session. Suggestions fréquentes et mémoire riche.'**
+  String get coachingDescAttentif;
+
+  /// No description provided for @coachingDescProactif.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT t\'accompagne activement. Rappels à chaque visite, mémoire complète.'**
+  String get coachingDescProactif;
+
+  /// No description provided for @coachingEngagementStats.
+  ///
+  /// In fr, this message translates to:
+  /// **'{engaged} interactions sur {total} suggestions'**
+  String coachingEngagementStats(Object engaged, Object total);
+
   /// No description provided for @landingHiddenAmount.
   ///
   /// In fr, this message translates to:
-  /// **'CHF ····'**
+  /// **'Montant masqué'**
   String get landingHiddenAmount;
 
   /// No description provided for @landingHiddenSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ton premier chiffre en 30 secondes'**
+  /// **'Créez un compte pour voir vos chiffres'**
   String get landingHiddenSubtitle;
-
-  /// No description provided for @renteVsCapitalV2Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rente ou capital.'**
-  String get renteVsCapitalV2Title;
-
-  /// No description provided for @renteVsCapitalV2Subtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le même argent. Deux vies différentes.'**
-  String get renteVsCapitalV2Subtitle;
-
-  /// No description provided for @renteVsCapitalChoiceRenteSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Plus stable, moins flexible'**
-  String get renteVsCapitalChoiceRenteSubtitle;
-
-  /// No description provided for @renteVsCapitalChoiceCapitalSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Plus libre, plus exigeant'**
-  String get renteVsCapitalChoiceCapitalSubtitle;
-
-  /// No description provided for @renteVsCapitalChoiceMixteSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Un équilibre à construire'**
-  String get renteVsCapitalChoiceMixteSubtitle;
-
-  /// No description provided for @renteVsCapitalConsequenceRenteEyebrow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si tu choisis la rente'**
-  String get renteVsCapitalConsequenceRenteEyebrow;
-
-  /// No description provided for @renteVsCapitalConsequenceCapitalEyebrow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si tu choisis le capital'**
-  String get renteVsCapitalConsequenceCapitalEyebrow;
-
-  /// No description provided for @renteVsCapitalConsequenceMixteEyebrow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si tu choisis le mixte'**
-  String get renteVsCapitalConsequenceMixteEyebrow;
-
-  /// No description provided for @renteVsCapitalConsequenceRenteNarrative.
-  ///
-  /// In fr, this message translates to:
-  /// **'Un revenu fixe chaque mois, sans te soucier des marchés. En échange, ton capital ne t’appartient plus.'**
-  String get renteVsCapitalConsequenceRenteNarrative;
-
-  /// No description provided for @renteVsCapitalConsequenceCapitalNarrative.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu gères ton argent librement, mais il peut s’épuiser. Chaque année compte.'**
-  String get renteVsCapitalConsequenceCapitalNarrative;
-
-  /// No description provided for @renteVsCapitalConsequenceMixteNarrative.
-  ///
-  /// In fr, this message translates to:
-  /// **'La partie obligatoire en rente pour la sécurité, le surobligatoire en capital pour la flexibilité.'**
-  String get renteVsCapitalConsequenceMixteNarrative;
-
-  /// No description provided for @renteVsCapitalConsequenceMixteRenteLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rente (obligatoire)'**
-  String get renteVsCapitalConsequenceMixteRenteLabel;
-
-  /// No description provided for @renteVsCapitalConsequenceMixteCapitalLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Capital (surobligatoire)'**
-  String get renteVsCapitalConsequenceMixteCapitalLabel;
-
-  /// No description provided for @renteVsCapitalSignalRevenu.
-  ///
-  /// In fr, this message translates to:
-  /// **'Revenu mensuel'**
-  String get renteVsCapitalSignalRevenu;
-
-  /// No description provided for @renteVsCapitalSignalFiscalite.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fiscalité cumulée'**
-  String get renteVsCapitalSignalFiscalite;
-
-  /// No description provided for @renteVsCapitalSignalTransmission.
-  ///
-  /// In fr, this message translates to:
-  /// **'Transmission'**
-  String get renteVsCapitalSignalTransmission;
-
-  /// No description provided for @renteVsCapitalConfidenceNoticeLow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sans certificat LPP, on reste sur une estimation large.'**
-  String get renteVsCapitalConfidenceNoticeLow;
-
-  /// No description provided for @renteVsCapitalConfidenceNoticeHigh.
-  ///
-  /// In fr, this message translates to:
-  /// **'Données complètes — résultats fiables.'**
-  String get renteVsCapitalConfidenceNoticeHigh;
-
-  /// No description provided for @renteVsCapitalConfidenceCta.
-  ///
-  /// In fr, this message translates to:
-  /// **'Préciser mes données'**
-  String get renteVsCapitalConfidenceCta;
-
-  /// No description provided for @renteVsCapitalFastEstimateTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Faire une première estimation'**
-  String get renteVsCapitalFastEstimateTitle;
-
-  /// No description provided for @renteVsCapitalCtaCompare.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comparer pour moi'**
-  String get renteVsCapitalCtaCompare;
-
-  /// No description provided for @renteVsCapitalAdvancedDisclosure.
-  ///
-  /// In fr, this message translates to:
-  /// **'J’ai mon certificat LPP'**
-  String get renteVsCapitalAdvancedDisclosure;
-
-  /// No description provided for @renteVsCapitalPerMonthForLife.
-  ///
-  /// In fr, this message translates to:
-  /// **'/mois, à vie'**
-  String get renteVsCapitalPerMonthForLife;
-
-  /// No description provided for @renteVsCapitalNetAfterTax.
-  ///
-  /// In fr, this message translates to:
-  /// **'net d’impôt'**
-  String get renteVsCapitalNetAfterTax;
-
-  /// No description provided for @renteVsCapitalTransmissionRenteMarried.
-  ///
-  /// In fr, this message translates to:
-  /// **'60 % au conjoint'**
-  String get renteVsCapitalTransmissionRenteMarried;
-
-  /// No description provided for @renteVsCapitalTransmissionRenteSingle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rien aux héritiers'**
-  String get renteVsCapitalTransmissionRenteSingle;
-
-  /// No description provided for @renteVsCapitalTransmissionCapitalValue.
-  ///
-  /// In fr, this message translates to:
-  /// **'100 % aux héritiers'**
-  String get renteVsCapitalTransmissionCapitalValue;
-
-  /// No description provided for @quickStartAgeTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Quel âge as-tu ?'**
-  String get quickStartAgeTitle;
-
-  /// No description provided for @quickStartAgeSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'On commence par là.'**
-  String get quickStartAgeSubtitle;
-
-  /// No description provided for @quickStartRevenueTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton revenu brut annuel ?'**
-  String get quickStartRevenueTitle;
-
-  /// No description provided for @quickStartRevenueSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Même approximatif, ça suffit.'**
-  String get quickStartRevenueSubtitle;
-
-  /// No description provided for @quickStartCantonTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu vis où ?'**
-  String get quickStartCantonTitle;
-
-  /// No description provided for @quickStartCantonSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton canton change beaucoup de choses.'**
-  String get quickStartCantonSubtitle;
-
-  /// No description provided for @quickStartNext.
-  ///
-  /// In fr, this message translates to:
-  /// **'Suivant'**
-  String get quickStartNext;
-
-  /// No description provided for @quickStartResultConfidence.
-  ///
-  /// In fr, this message translates to:
-  /// **'Estimation basée sur 3 infos. Le coach affinera.'**
-  String get quickStartResultConfidence;
-
-  /// No description provided for @quickStartCtaCoach.
-  ///
-  /// In fr, this message translates to:
-  /// **'Parler au coach'**
-  String get quickStartCtaCoach;
-
-  /// No description provided for @quickStartCtaExplore.
-  ///
-  /// In fr, this message translates to:
-  /// **'Explorer d’abord'**
-  String get quickStartCtaExplore;
-
-  /// No description provided for @lightningMenuTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Que veux-tu explorer ?'**
-  String get lightningMenuTitle;
-
-  /// No description provided for @lightningMenuSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'MINT calcule, tu décides.'**
-  String get lightningMenuSubtitle;
-
-  /// No description provided for @lightningMenuRetirementTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon aperçu retraite'**
-  String get lightningMenuRetirementTitle;
-
-  /// No description provided for @lightningMenuRetirementSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Combien tu garderas à la retraite'**
-  String get lightningMenuRetirementSubtitle;
-
-  /// No description provided for @lightningMenuRetirementAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Combien à la retraite ?'**
-  String get lightningMenuRetirementAction;
-
-  /// No description provided for @lightningMenuBudgetTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon budget'**
-  String get lightningMenuBudgetTitle;
-
-  /// No description provided for @lightningMenuBudgetSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Où part ton argent ce mois'**
-  String get lightningMenuBudgetSubtitle;
-
-  /// No description provided for @lightningMenuBudgetAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon budget ce mois'**
-  String get lightningMenuBudgetAction;
-
-  /// No description provided for @lightningMenuRenteCapitalTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rente ou capital ?'**
-  String get lightningMenuRenteCapitalTitle;
-
-  /// No description provided for @lightningMenuRenteCapitalSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comparer les deux scénarios'**
-  String get lightningMenuRenteCapitalSubtitle;
-
-  /// No description provided for @lightningMenuRenteCapitalAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rente ou capital ?'**
-  String get lightningMenuRenteCapitalAction;
-
-  /// No description provided for @lightningMenuScoreTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon score fitness'**
-  String get lightningMenuScoreTitle;
-
-  /// No description provided for @lightningMenuScoreSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ta santé financière en un coup d’œil'**
-  String get lightningMenuScoreSubtitle;
-
-  /// No description provided for @lightningMenuScoreAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon score financier'**
-  String get lightningMenuScoreAction;
-
-  /// No description provided for @lightningMenuCoupleTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notre situation à deux'**
-  String get lightningMenuCoupleTitle;
-
-  /// No description provided for @lightningMenuCoupleSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prévoyance et patrimoine en couple'**
-  String get lightningMenuCoupleSubtitle;
-
-  /// No description provided for @lightningMenuCoupleAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notre prévoyance couple'**
-  String get lightningMenuCoupleAction;
-
-  /// No description provided for @lightningMenuDebtTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sortir de la dette'**
-  String get lightningMenuDebtTitle;
-
-  /// No description provided for @lightningMenuDebtSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Un plan pour réduire tes charges'**
-  String get lightningMenuDebtSubtitle;
-
-  /// No description provided for @lightningMenuDebtAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comment réduire ma dette ?'**
-  String get lightningMenuDebtAction;
-
-  /// No description provided for @lightningMenuIndependantTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon filet indépendant'**
-  String get lightningMenuIndependantTitle;
-
-  /// No description provided for @lightningMenuIndependantSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Couverture et protection en solo'**
-  String get lightningMenuIndependantSubtitle;
-
-  /// No description provided for @lightningMenuIndependantAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ma couverture indépendant'**
-  String get lightningMenuIndependantAction;
-
-  /// No description provided for @lightningMenuRetirementPrepTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Préparer ma retraite'**
-  String get lightningMenuRetirementPrepTitle;
-
-  /// No description provided for @lightningMenuRetirementPrepSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Les dernières années comptent double'**
-  String get lightningMenuRetirementPrepSubtitle;
-
-  /// No description provided for @lightningMenuRetirementPrepAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon plan retraite'**
-  String get lightningMenuRetirementPrepAction;
-
-  /// No description provided for @trajectoryGoalSectionTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton objectif'**
-  String get trajectoryGoalSectionTitle;
-
-  /// No description provided for @trajectoryGoalRetraite.
-  ///
-  /// In fr, this message translates to:
-  /// **'Retraite à 65 ans'**
-  String get trajectoryGoalRetraite;
-
-  /// No description provided for @trajectoryGoalAchatImmo.
-  ///
-  /// In fr, this message translates to:
-  /// **'Achat immobilier'**
-  String get trajectoryGoalAchatImmo;
-
-  /// No description provided for @trajectoryGoalIndependance.
-  ///
-  /// In fr, this message translates to:
-  /// **'Indépendance financière'**
-  String get trajectoryGoalIndependance;
-
-  /// No description provided for @trajectoryGoalDebtFree.
-  ///
-  /// In fr, this message translates to:
-  /// **'Libération des dettes'**
-  String get trajectoryGoalDebtFree;
-
-  /// No description provided for @trajectoryGoalHorizon.
-  ///
-  /// In fr, this message translates to:
-  /// **'Horizon : {years} ans'**
-  String trajectoryGoalHorizon(int years);
-
-  /// No description provided for @trajectoryGoalTarget.
-  ///
-  /// In fr, this message translates to:
-  /// **'Cible : {amount}'**
-  String trajectoryGoalTarget(String amount);
-
-  /// No description provided for @trajectoryKnownSectionTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ce que MINT sait'**
-  String get trajectoryKnownSectionTitle;
-
-  /// No description provided for @trajectoryFieldAge.
-  ///
-  /// In fr, this message translates to:
-  /// **'Âge'**
-  String get trajectoryFieldAge;
-
-  /// No description provided for @trajectoryFieldAgeUnit.
-  ///
-  /// In fr, this message translates to:
-  /// **'ans'**
-  String get trajectoryFieldAgeUnit;
-
-  /// No description provided for @trajectoryFieldRevenu.
-  ///
-  /// In fr, this message translates to:
-  /// **'Revenu brut'**
-  String get trajectoryFieldRevenu;
-
-  /// No description provided for @trajectoryFieldCanton.
-  ///
-  /// In fr, this message translates to:
-  /// **'Canton'**
-  String get trajectoryFieldCanton;
-
-  /// No description provided for @trajectoryFieldLpp.
-  ///
-  /// In fr, this message translates to:
-  /// **'Avoir LPP'**
-  String get trajectoryFieldLpp;
-
-  /// No description provided for @trajectoryField3a.
-  ///
-  /// In fr, this message translates to:
-  /// **'Épargne 3a'**
-  String get trajectoryField3a;
-
-  /// No description provided for @trajectoryFieldConjoint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Conjoint·e'**
-  String get trajectoryFieldConjoint;
-
-  /// No description provided for @trajectoryFieldIncomplete.
-  ///
-  /// In fr, this message translates to:
-  /// **'À compléter'**
-  String get trajectoryFieldIncomplete;
-
-  /// No description provided for @trajectoryFieldConjointYes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Oui'**
-  String get trajectoryFieldConjointYes;
-
-  /// No description provided for @trajectoryFieldConjointNo.
-  ///
-  /// In fr, this message translates to:
-  /// **'Non renseigné'**
-  String get trajectoryFieldConjointNo;
-
-  /// No description provided for @trajectoryDecisionsSectionTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tes décisions'**
-  String get trajectoryDecisionsSectionTitle;
-
-  /// No description provided for @trajectoryNextStepSectionTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prochaine étape'**
-  String get trajectoryNextStepSectionTitle;
-
-  /// No description provided for @trajectoryNextStepBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le coach t’accompagne vers cette action.'**
-  String get trajectoryNextStepBody;
-
-  /// No description provided for @trajectoryConfidenceSectionTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Confiance'**
-  String get trajectoryConfidenceSectionTitle;
-
-  /// No description provided for @trajectoryConfidenceLowMessage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tes données sont encore parcellaires — chaque info supplémentaire affine ta trajectoire.'**
-  String get trajectoryConfidenceLowMessage;
-
-  /// No description provided for @trajectoryConfidenceHighMessage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Profil bien renseigné — tes projections sont fiables.'**
-  String get trajectoryConfidenceHighMessage;
-
-  /// No description provided for @trajectoryConfidenceCta.
-  ///
-  /// In fr, this message translates to:
-  /// **'Améliorer la précision'**
-  String get trajectoryConfidenceCta;
-
-  /// No description provided for @settingsSheetTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Réglages'**
-  String get settingsSheetTitle;
-
-  /// No description provided for @settingsConsentsTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Consentements'**
-  String get settingsConsentsTitle;
-
-  /// No description provided for @settingsConsentsSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vie privée et partage de données'**
-  String get settingsConsentsSubtitle;
-
-  /// No description provided for @settingsSlmTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'IA embarquée'**
-  String get settingsSlmTitle;
-
-  /// No description provided for @settingsSlmSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tourne sur ton appareil, même hors ligne'**
-  String get settingsSlmSubtitle;
-
-  /// No description provided for @settingsByokTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Clé IA perso'**
-  String get settingsByokTitle;
-
-  /// No description provided for @settingsByokSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Branche ton propre modèle IA'**
-  String get settingsByokSubtitle;
-
-  /// No description provided for @settingsLangueTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Langue'**
-  String get settingsLangueTitle;
-
-  /// No description provided for @settingsLangueSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Choisir la langue de l’app'**
-  String get settingsLangueSubtitle;
-
-  /// No description provided for @settingsAboutTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'À propos'**
-  String get settingsAboutTitle;
-
-  /// No description provided for @settingsAboutSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Version, mentions légales, contact'**
-  String get settingsAboutSubtitle;
-
-  /// No description provided for @pulseLabelMonthlyGap.
-  ///
-  /// In fr, this message translates to:
-  /// **'Écart mensuel à combler'**
-  String get pulseLabelMonthlyGap;
-
-  /// No description provided for @pulseLabelRetirementFree.
-  ///
-  /// In fr, this message translates to:
-  /// **'Marge libre à la retraite'**
-  String get pulseLabelRetirementFree;
-
-  /// No description provided for @pulseLabelMonthlyFree.
-  ///
-  /// In fr, this message translates to:
-  /// **'Marge libre mensuelle'**
-  String get pulseLabelMonthlyFree;
-
-  /// No description provided for @budgetSnapshotTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton budget vivant'**
-  String get budgetSnapshotTitle;
-
-  /// No description provided for @budgetSnapshotPresentLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Libre aujourd’hui'**
-  String get budgetSnapshotPresentLabel;
-
-  /// No description provided for @budgetSnapshotRetirementLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Libre retraite'**
-  String get budgetSnapshotRetirementLabel;
-
-  /// No description provided for @budgetSnapshotGapLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Écart'**
-  String get budgetSnapshotGapLabel;
-
-  /// No description provided for @budgetSnapshotConfidenceLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fiabilité'**
-  String get budgetSnapshotConfidenceLabel;
-
-  /// No description provided for @budgetSnapshotConfidenceLow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ajoute des données pour affiner.'**
-  String get budgetSnapshotConfidenceLow;
-
-  /// No description provided for @budgetSnapshotConfidenceOk.
-  ///
-  /// In fr, this message translates to:
-  /// **'Estimation crédible.'**
-  String get budgetSnapshotConfidenceOk;
-
-  /// No description provided for @budgetSnapshotLeverLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Levier'**
-  String get budgetSnapshotLeverLabel;
-
-  /// No description provided for @budgetSnapshotFreeLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton libre mensuel'**
-  String get budgetSnapshotFreeLabel;
-
-  /// No description provided for @lightningMenuPayslipTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comprendre ma fiche de salaire'**
-  String get lightningMenuPayslipTitle;
-
-  /// No description provided for @lightningMenuPayslipSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Salaire brut, net, déductions : tout s’éclaire'**
-  String get lightningMenuPayslipSubtitle;
-
-  /// No description provided for @lightningMenuPayslipAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Explique-moi ma fiche de salaire'**
-  String get lightningMenuPayslipAction;
-
-  /// No description provided for @lightningMenuThreePillarsTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'C’est quoi les 3 piliers ?'**
-  String get lightningMenuThreePillarsTitle;
-
-  /// No description provided for @lightningMenuThreePillarsSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le système suisse en 2 minutes'**
-  String get lightningMenuThreePillarsSubtitle;
-
-  /// No description provided for @lightningMenuThreePillarsAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'C’est quoi les 3 piliers suisses ?'**
-  String get lightningMenuThreePillarsAction;
-
-  /// No description provided for @lightningMenuScanDocTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Scanner un document'**
-  String get lightningMenuScanDocTitle;
-
-  /// No description provided for @lightningMenuScanDocSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Certificat LPP, fiche de salaire, impôts'**
-  String get lightningMenuScanDocSubtitle;
-
-  /// No description provided for @lightningMenuFirstBudgetTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon premier budget'**
-  String get lightningMenuFirstBudgetTitle;
-
-  /// No description provided for @lightningMenuFirstBudgetSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Savoir où va ton argent chaque mois'**
-  String get lightningMenuFirstBudgetSubtitle;
-
-  /// No description provided for @lightningMenuFirstBudgetAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aide-moi à faire mon budget'**
-  String get lightningMenuFirstBudgetAction;
-
-  /// No description provided for @lightningMenuTaxReliefTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Où alléger mes impôts'**
-  String get lightningMenuTaxReliefTitle;
-
-  /// No description provided for @lightningMenuTaxReliefSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Déductions et leviers fiscaux'**
-  String get lightningMenuTaxReliefSubtitle;
-
-  /// No description provided for @lightningMenuTaxReliefAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comment payer moins d’impôts ?'**
-  String get lightningMenuTaxReliefAction;
-
-  /// No description provided for @lightningMenuCompleteProfileTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Compléter mon profil'**
-  String get lightningMenuCompleteProfileTitle;
-
-  /// No description provided for @lightningMenuCompleteProfileSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Plus tu précises, plus MINT est juste'**
-  String get lightningMenuCompleteProfileSubtitle;
-
-  /// No description provided for @lightningMenuLppBuybackTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Racheter du LPP'**
-  String get lightningMenuLppBuybackTitle;
-
-  /// No description provided for @lightningMenuLppBuybackSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Un levier fiscal souvent sous-estimé'**
-  String get lightningMenuLppBuybackSubtitle;
-
-  /// No description provided for @lightningMenuLppBuybackAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Un rachat LPP, ça vaut le coup ?'**
-  String get lightningMenuLppBuybackAction;
-
-  /// No description provided for @lightningMenuLivingBudgetTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mon budget vivant'**
-  String get lightningMenuLivingBudgetTitle;
-
-  /// No description provided for @lightningMenuLivingBudgetSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton équilibre ce mois, mis à jour'**
-  String get lightningMenuLivingBudgetSubtitle;
-
-  /// No description provided for @lightningMenuLivingBudgetAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Où j’en suis ?'**
-  String get lightningMenuLivingBudgetAction;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

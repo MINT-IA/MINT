@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/privacy_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -110,7 +111,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () => ctx.pop(),
             child: Text(l10n.consentClose),
           ),
         ],

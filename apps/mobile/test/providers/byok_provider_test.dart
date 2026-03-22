@@ -20,6 +20,7 @@ class FakeRagService extends RagService {
     String? model,
     Map<String, dynamic>? profileContext,
     String language = 'fr',
+    List<Map<String, dynamic>>? tools,
   }) async {
     if (shouldThrowRagApiException) {
       throw RagApiException(
