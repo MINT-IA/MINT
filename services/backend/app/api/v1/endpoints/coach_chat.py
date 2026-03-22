@@ -202,6 +202,8 @@ _PROFILE_SAFE_FIELDS = {
     "data_source",
     # Fields consumed by RAG retriever for personalization:
     "civil_status", "employment_status",
+    # Couple optimization (pre-computed by Flutter CoupleOptimizer):
+    "couple_optimization",
 }
 
 
@@ -357,6 +359,9 @@ def _execute_internal_tool(
     if name == "get_cap_status":
         return _format_cap_status(ctx)
 
+    if name == "get_couple_optimization":
+        return _format_couple_optimization(ctx)
+
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
     return f"Outil interne '{name}' non reconnu."
@@ -499,6 +504,63 @@ def _format_cap_status(ctx: dict) -> str:
         lines.append(f"- Objectif actif : {active_goal}")
     if seq_completed is not None and seq_total is not None:
         lines.append(f"- Progression : {seq_completed}/{seq_total} étapes")
+
+    return "\n".join(lines)
+
+
+def _format_couple_optimization(ctx: dict) -> str:
+    """Format couple optimization data from profile_context."""
+    # Couple data comes pre-computed from Flutter's CoupleOptimizer
+    couple = ctx.get("couple_optimization")
+    if not couple or not isinstance(couple, dict):
+        is_couple = ctx.get("civil_status") in ("marie", "concubinage")
+        if not is_couple:
+            return "L'utilisateur n'est pas en couple — analyse couple non applicable."
+        return (
+            "Données couple non disponibles. L'utilisateur est en couple mais "
+            "les données du conjoint ne sont pas renseignées. "
+            "Propose d'ajouter le profil du conjoint pour une analyse couple."
+        )
+
+    lines = ["Optimisation couple :"]
+
+    # LPP buyback order
+    lpp = couple.get("lpp_buyback")
+    if lpp:
+        winner = lpp.get("winner", "?")
+        delta = lpp.get("saving_delta", 0)
+        reason = lpp.get("reason", "")
+        lines.append(f"- Rachat LPP : {winner} en premier ({reason})")
+        if delta > 0:
+            lines.append(f"  Économie différentielle : {_fmt_chf(delta)}")
+        lines.append(f"  Note : {lpp.get('trade_off', '')}")
+
+    # 3a contribution order
+    p3a = couple.get("pillar_3a")
+    if p3a:
+        winner = p3a.get("winner", "?")
+        reason = p3a.get("reason", "")
+        lines.append(f"- 3a : {winner} en premier ({reason})")
+        lines.append(f"  Note : {p3a.get('trade_off', '')}")
+
+    # AVS couple cap
+    avs = couple.get("avs_cap")
+    if avs:
+        if avs.get("cap_applied"):
+            reduction = avs.get("monthly_reduction", 0)
+            lines.append(f"- AVS couple : plafonnement appliqué (LAVS art. 35)")
+            lines.append(f"  Réduction mensuelle : {_fmt_chf(reduction)}")
+        else:
+            lines.append("- AVS couple : pas de plafonnement (revenus sous le seuil)")
+
+    # Marriage penalty
+    mp = couple.get("marriage_penalty")
+    if mp:
+        delta = mp.get("annual_delta", 0)
+        if mp.get("has_penalty"):
+            lines.append(f"- Pénalité mariage : {_fmt_chf(abs(delta))}/an de surcharge")
+        else:
+            lines.append(f"- Bonus mariage : {_fmt_chf(abs(delta))}/an d'avantage")
 
     return "\n".join(lines)
 

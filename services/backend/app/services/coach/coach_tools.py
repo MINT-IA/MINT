@@ -60,6 +60,7 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "get_retirement_projection",
     "get_cross_pillar_analysis",
     "get_cap_status",
+    "get_couple_optimization",
 ]
 
 # ---------------------------------------------------------------------------
@@ -489,6 +490,24 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "and next recommended step. Use when you need to know what the user "
             "should focus on next or their progress toward their financial goal. "
             "Returns structured data as text. This tool is handled internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+        },
+    },
+    {
+        "name": "get_couple_optimization",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Get couple-level financial optimization analysis. Compares scenarios "
+            "for the user and their partner: who should buy back LPP first, who "
+            "should contribute to 3a first (FATCA-aware), AVS couple cap impact, "
+            "and marriage penalty analysis. Use when the user is in a couple and "
+            "asks about joint financial decisions, partner coordination, or "
+            "marriage impact. This tool is handled internally."
         ),
         "input_schema": {
             "type": "object",
