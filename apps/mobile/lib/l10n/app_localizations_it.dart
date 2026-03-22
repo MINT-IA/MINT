@@ -21090,4 +21090,19 @@ class SIt extends S {
   @override
   String get landingHiddenSubtitle =>
       'Crea un account per vedere i tuoi numeri';
+
+  @override
+  String get friBarTitle => 'Resilienza finanziaria';
+
+  @override
+  String get friBarLiquidity => 'Liquidità';
+
+  @override
+  String get friBarFlexibility => 'Flessibilità';
+
+  @override
+  String get friBarResilience => 'Resilienza';
+
+  @override
+  String get friBarStability => 'Stabilità';
 }

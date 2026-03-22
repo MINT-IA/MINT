@@ -21011,4 +21011,19 @@ class SPt extends S {
 
   @override
   String get landingHiddenSubtitle => 'Crie uma conta para ver seus números';
+
+  @override
+  String get friBarTitle => 'Resiliência financeira';
+
+  @override
+  String get friBarLiquidity => 'Liquidez';
+
+  @override
+  String get friBarFlexibility => 'Flexibilidade';
+
+  @override
+  String get friBarResilience => 'Resiliência';
+
+  @override
+  String get friBarStability => 'Estabilidade';
 }

@@ -21061,4 +21061,19 @@ class SEs extends S {
 
   @override
   String get landingHiddenSubtitle => 'Crea una cuenta para ver tus números';
+
+  @override
+  String get friBarTitle => 'Resiliencia financiera';
+
+  @override
+  String get friBarLiquidity => 'Liquidez';
+
+  @override
+  String get friBarFlexibility => 'Flexibilidad';
+
+  @override
+  String get friBarResilience => 'Resiliencia';
+
+  @override
+  String get friBarStability => 'Estabilidad';
 }

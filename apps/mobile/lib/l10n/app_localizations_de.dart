@@ -21085,4 +21085,19 @@ class SDe extends S {
   @override
   String get landingHiddenSubtitle =>
       'Erstelle ein Konto, um deine Zahlen zu sehen';
+
+  @override
+  String get friBarTitle => 'Finanzielle Resilienz';
+
+  @override
+  String get friBarLiquidity => 'Liquidität';
+
+  @override
+  String get friBarFlexibility => 'Flexibilität';
+
+  @override
+  String get friBarResilience => 'Resilienz';
+
+  @override
+  String get friBarStability => 'Stabilität';
 }

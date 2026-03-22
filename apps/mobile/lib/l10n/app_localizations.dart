@@ -37173,6 +37173,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Créez un compte pour voir vos chiffres'**
   String get landingHiddenSubtitle;
+
+  /// No description provided for @friBarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résilience financière'**
+  String get friBarTitle;
+
+  /// No description provided for @friBarLiquidity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liquidité'**
+  String get friBarLiquidity;
+
+  /// No description provided for @friBarFlexibility.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flexibilité'**
+  String get friBarFlexibility;
+
+  /// No description provided for @friBarResilience.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résilience'**
+  String get friBarResilience;
+
+  /// No description provided for @friBarStability.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stabilité'**
+  String get friBarStability;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

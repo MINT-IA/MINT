@@ -10128,5 +10128,10 @@
   "coachingDescProactif": "MINT te acompaña activamente. Recordatorios en cada visita, memoria completa.",
   "coachingEngagementStats": "{engaged} interacciones de {total} sugerencias",
   "landingHiddenAmount": "Monto oculto",
-  "landingHiddenSubtitle": "Crea una cuenta para ver tus números"
+  "landingHiddenSubtitle": "Crea una cuenta para ver tus números",
+  "friBarTitle": "Resiliencia financiera",
+  "friBarLiquidity": "Liquidez",
+  "friBarFlexibility": "Flexibilidad",
+  "friBarResilience": "Resiliencia",
+  "friBarStability": "Estabilidad"
 }

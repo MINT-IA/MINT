@@ -21060,4 +21060,19 @@ class SFr extends S {
 
   @override
   String get landingHiddenSubtitle => 'Créez un compte pour voir vos chiffres';
+
+  @override
+  String get friBarTitle => 'Résilience financière';
+
+  @override
+  String get friBarLiquidity => 'Liquidité';
+
+  @override
+  String get friBarFlexibility => 'Flexibilité';
+
+  @override
+  String get friBarResilience => 'Résilience';
+
+  @override
+  String get friBarStability => 'Stabilité';
 }

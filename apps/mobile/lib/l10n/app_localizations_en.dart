@@ -20962,4 +20962,19 @@ class SEn extends S {
 
   @override
   String get landingHiddenSubtitle => 'Create an account to see your numbers';
+
+  @override
+  String get friBarTitle => 'Financial resilience';
+
+  @override
+  String get friBarLiquidity => 'Liquidity';
+
+  @override
+  String get friBarFlexibility => 'Flexibility';
+
+  @override
+  String get friBarResilience => 'Resilience';
+
+  @override
+  String get friBarStability => 'Stability';
 }

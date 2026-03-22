@@ -10128,5 +10128,10 @@
   "coachingDescProactif": "MINT actively coaches you. Reminders every visit, complete memory.",
   "coachingEngagementStats": "{engaged} interactions out of {total} suggestions",
   "landingHiddenAmount": "Hidden amount",
-  "landingHiddenSubtitle": "Create an account to see your numbers"
+  "landingHiddenSubtitle": "Create an account to see your numbers",
+  "friBarTitle": "Financial resilience",
+  "friBarLiquidity": "Liquidity",
+  "friBarFlexibility": "Flexibility",
+  "friBarResilience": "Resilience",
+  "friBarStability": "Stability"
 }
