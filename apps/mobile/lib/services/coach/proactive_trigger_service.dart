@@ -35,6 +35,7 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
+import 'package:mint_mobile/models/coaching_preference.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  MODELS
@@ -136,6 +137,9 @@ class ProactiveTriggerService {
   /// Called when the user opens the Coach tab.
   /// Returns a [ProactiveTrigger] if conditions are met, null otherwise.
   ///
+  /// Respects [CoachingPreference.intensity] for cooldown duration
+  /// and [CoachingPreference.triggerEngagement] for per-type suppression.
+  ///
   /// [profile] — current user CoachProfile.
   /// [prefs]   — injectable SharedPreferences for testing.
   /// [now]     — override for deterministic testing.
@@ -145,9 +149,12 @@ class ProactiveTriggerService {
     DateTime? now,
   }) async {
     final currentDate = now ?? DateTime.now();
+    final coachingPref = CoachingPreference.load(prefs);
 
-    // ── Cooldown: max 1 trigger per calendar day ──────────
-    if (_isCoolingDown(prefs, currentDate)) return null;
+    // ── Cooldown: respects user's coaching intensity preference ──
+    if (_isCoolingDown(prefs, currentDate, coachingPref.cooldownDays)) {
+      return null;
+    }
 
     // ── Evaluate in priority order ────────────────────────
     ProactiveTrigger? trigger;
@@ -159,6 +166,14 @@ class ProactiveTriggerService {
     trigger ??= _checkInactivityReturn(prefs, profile, currentDate);
     trigger ??= _checkConfidenceImproved(prefs, profile, currentDate);
     trigger ??= await _checkNewCapAvailable(prefs, currentDate);
+
+    // ── Per-type engagement suppression ─────────────────────
+    // If the user has consistently ignored this trigger type,
+    // suppress it (unless in max-proactive mode).
+    if (trigger != null &&
+        coachingPref.isTriggerSuppressed(trigger.type.name)) {
+      trigger = null;
+    }
 
     if (trigger != null) {
       // Persist trigger date to enforce cooldown.
@@ -217,15 +232,25 @@ class ProactiveTriggerService {
 
   // ── Cooldown ──────────────────────────────────────────────
 
-  /// Returns true if a trigger was already fired today (same calendar day).
-  static bool _isCoolingDown(SharedPreferences prefs, DateTime now) {
+  /// Returns true if a trigger was fired within the cooldown period.
+  ///
+  /// [cooldownDays] — from [CoachingPreference.cooldownDays]:
+  ///   - 0 = no cooldown (can fire every session)
+  ///   - 1 = once per day (default behavior)
+  ///   - 3 = once every 3 days
+  ///   - 7 = once per week
+  static bool _isCoolingDown(
+    SharedPreferences prefs,
+    DateTime now, [
+    int cooldownDays = 1,
+  ]) {
+    if (cooldownDays <= 0) return false; // intensity 4-5: no cooldown
     final raw = prefs.getString(_keyLastTriggerDate);
     if (raw == null) return false;
     try {
       final last = DateTime.parse(raw);
-      return last.year == now.year &&
-          last.month == now.month &&
-          last.day == now.day;
+      final daysSince = now.difference(last).inDays;
+      return daysSince < cooldownDays;
     } catch (_) {
       return false;
     }

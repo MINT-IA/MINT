@@ -8,6 +8,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/models/coaching_preference.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -98,6 +99,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   CoachProfile? _profile;
   bool _hasProfile = false;
+
+  /// Proactive greeting engagement tracking (P3.5 Coaching Adaptatif).
+  /// When a proactive greeting is shown, we track whether the user engages
+  /// (sends a message within 60s) or ignores it (sends unrelated or waits).
+  String? _proactiveTriggerType;
+  DateTime? _proactiveGreetingShownAt;
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
   bool _isStreaming = false;
@@ -302,6 +309,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (trigger != null && mounted) {
         proactiveMessage = _resolveProactiveMessage(trigger, s);
         proactiveIntentTag = trigger.intentTag;
+        // Track for engagement measurement (P3.5 Coaching Adaptatif)
+        _proactiveTriggerType = trigger.type.name;
+        _proactiveGreetingShownAt = DateTime.now();
         // Store current phase and confidence as the new baseline.
         await ProactiveTriggerService.storeCurrentPhase(p, prefs);
         await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
@@ -603,8 +613,34 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
   }
 
+  /// P3.5 Coaching Adaptatif: record whether the user engaged with
+  /// the proactive greeting (responded within 60s) or ignored it.
+  void _trackProactiveEngagement() {
+    if (_proactiveTriggerType == null || _proactiveGreetingShownAt == null) {
+      return;
+    }
+    final elapsed = DateTime.now().difference(_proactiveGreetingShownAt!);
+    final engaged = elapsed.inSeconds <= 60;
+
+    SharedPreferences.getInstance().then((prefs) {
+      var pref = CoachingPreference.load(prefs);
+      pref = engaged
+          ? pref.recordEngagement(_proactiveTriggerType!)
+          : pref.recordDismissal(_proactiveTriggerType!);
+      pref.save(prefs);
+    });
+
+    // Clear — only track once per proactive greeting
+    _proactiveTriggerType = null;
+    _proactiveGreetingShownAt = null;
+  }
+
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+
+    // P3.5 Coaching Adaptatif: track proactive greeting engagement.
+    // If user sends a message within 60s of a proactive greeting = engaged.
+    _trackProactiveEngagement();
 
     setState(() {
       _messages.add(ChatMessage(

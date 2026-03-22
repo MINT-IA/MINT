@@ -20,6 +20,7 @@ import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/voice/regional_voice_service.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/models/coaching_preference.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE — S58 / AI Memory
@@ -174,8 +175,10 @@ class ContextInjectorService {
     try {
       final recentInsights = await CoachMemoryService.getInsights(prefs: sp);
       if (recentInsights.isNotEmpty) {
+        final coachingPref = CoachingPreference.load(sp);
         recentInsightsBlock = _buildRecentInsightsBlock(
           recentInsights,
+          maxDepth: coachingPref.maxRecallDepth,
           now: currentDate,
         );
       }
@@ -522,8 +525,9 @@ class ContextInjectorService {
   static String _buildRecentInsightsBlock(
     List<CoachInsight> insights, {
     required DateTime now,
+    int maxDepth = 3,
   }) {
-    final top = insights.take(3).toList();
+    final top = insights.take(maxDepth).toList();
     if (top.isEmpty) return '';
 
     final lines = <String>['MÉMOIRE RÉCENTE\u00a0:'];
