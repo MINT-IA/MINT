@@ -46,6 +46,7 @@ from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import build_system_prompt
 from app.services.coach.coach_context_builder import build_coach_context
 from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES, get_llm_tools
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.coach.structured_reasoning import StructuredReasoningService
 
 logger = logging.getLogger(__name__)
@@ -422,7 +423,7 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
 
     lines = ["Analyse inter-piliers :"]
     if annual_3a is not None:
-        ceiling = 7258.0
+        ceiling = PILIER_3A_PLAFOND_AVEC_LPP
         remaining = max(0, ceiling - float(annual_3a))
         lines.append(f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}")
         if remaining > 0:
@@ -675,6 +676,15 @@ async def coach_chat(
     system_prompt = _build_system_prompt_with_memory(coach_ctx, body.memory_block)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
+
+    # P3-B readiness metric: track system prompt size for multi-agent trigger.
+    # When tokens_est > 3500 regularly, activate domain-specific prompt routing.
+    prompt_len = len(system_prompt)
+    logger.info(
+        "system_prompt_length chars=%d tokens_est=%d",
+        prompt_len,
+        prompt_len // 4,
+    )
 
     # ------------------------------------------------------------------
     # Step 3: Get RAG orchestrator

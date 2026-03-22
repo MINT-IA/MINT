@@ -16,9 +16,12 @@ Sprint S67 — RAG v2 Knowledge Pipeline.
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 from app.services.rag.knowledge_catalog import KnowledgeCategory
 
@@ -1056,6 +1059,19 @@ class FaqService:
                 scored.append((score, faq))
 
         scored.sort(key=lambda x: x[0], reverse=True)
+
+        # P3-A readiness metric: track recall quality for vector store trigger.
+        # When top_score / n_terms < 0.5 on > 20% of queries, migrate to vector.
+        n_terms = max(len(terms), 1)
+        top_score = scored[0][0] / n_terms if scored else 0.0
+        logger.info(
+            "faq_search query=%r results=%d top_score=%.2f n_terms=%d",
+            query[:50],
+            len(scored),
+            top_score,
+            n_terms,
+        )
+
         return [faq for _, faq in scored]
 
     @staticmethod

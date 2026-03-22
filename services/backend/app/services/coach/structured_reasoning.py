@@ -36,13 +36,15 @@ import datetime
 from dataclasses import dataclass, field
 from typing import Optional
 
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Constants (2025/2026 — mirrored from CLAUDE.md §5)
+# Constants (sourced from social_insurance.py — single source of truth)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # 3a annual ceiling — salarié·e affiliated to LPP (OPP3 art. 7)
-_3A_CEILING_SALARIED: float = 7_258.0
+_3A_CEILING_SALARIED: float = PILIER_3A_PLAFOND_AVEC_LPP
 
 # Replacement rate threshold below which a gap warning is raised
 _REPLACEMENT_RATE_GAP_THRESHOLD: float = 0.60
@@ -84,6 +86,10 @@ class ReasoningOutput:
         confidence: Confidence in the fact, 0.0–1.0. Reflects data completeness.
         suggested_action: What the user could do (educational, conditional language).
         intent_tag: ScreenRegistry intent tag for routing (if applicable).
+        domain: Financial domain classification for P3-B prompt routing.
+            One of: "budget", "retraite", "fiscalite", "logement", "famille",
+            "travail", None. Used by the future PromptSelector to choose
+            domain-specific system prompt blocks and tool subsets.
         reasoning_trace: Internal explanation of why this fact was selected.
             Never shown to the user directly.
         supporting_data: Dict of CHF amounts, percentages, and dates that back
@@ -99,8 +105,10 @@ class ReasoningOutput:
     intent_tag: Optional[str]
     reasoning_trace: str
     supporting_data: dict
+    # Fields with defaults must come after fields without defaults (dataclass rule)
     disclaimer: str = _DISCLAIMER
     sources: list = field(default_factory=list)
+    domain: Optional[str] = None
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.confidence <= 1.0:
@@ -168,6 +176,7 @@ def _detect_deficit(profile: dict) -> Optional[ReasoningOutput]:
             confidence = 0.75 if profile.get("data_source") == "user_input" else 0.55
             return ReasoningOutput(
                 fact_tag="deficit",
+            domain="budget",
                 fact_label=(
                     f"Déficit mensuel estimé de CHF {abs(deficit):,.0f}"
                 ),
@@ -195,6 +204,7 @@ def _detect_deficit(profile: dict) -> Optional[ReasoningOutput]:
         confidence = 0.60
         return ReasoningOutput(
             fact_tag="deficit",
+            domain="budget",
             fact_label=(
                 f"Réserve de liquidités insuffisante : "
                 f"{months_liquidity:.1f} mois de charges"
@@ -259,6 +269,7 @@ def _detect_3a_deadline(profile: dict, today: Optional[datetime.date] = None) ->
 
     return ReasoningOutput(
         fact_tag="3a_deadline",
+            domain="fiscalite",
         fact_label=(
             f"Délai de versement 3a : {days_remaining} jours restants "
             f"(plafond {ceiling:,.0f} CHF/an)"
@@ -332,6 +343,7 @@ def _detect_gap_warning(profile: dict) -> Optional[ReasoningOutput]:
 
     return ReasoningOutput(
         fact_tag="gap_warning",
+            domain="retraite",
         fact_label=(
             f"Taux de remplacement estimé : {replacement_ratio * 100:.0f}% "
             f"(seuil indicatif : {_REPLACEMENT_RATE_GAP_THRESHOLD * 100:.0f}%)"
@@ -388,6 +400,7 @@ def _detect_rachat_opportunity(profile: dict) -> Optional[ReasoningOutput]:
 
     return ReasoningOutput(
         fact_tag="rachat_opportunity",
+            domain="retraite",
         fact_label=(
             f"Rachat LPP possible jusqu'à CHF {lpp_buyback_max:,.0f} "
             f"(économie fiscale estimée : CHF {tax_saving_potential:,.0f})"
@@ -446,6 +459,7 @@ def _detect_3a_not_maxed(profile: dict, today: Optional[datetime.date] = None) -
 
     return ReasoningOutput(
         fact_tag="3a_not_maxed",
+            domain="fiscalite",
         fact_label=(
             f"Pilier 3a non maximisé : {annual_3a_contribution:,.0f} CHF versés "
             f"sur {ceiling:,.0f} CHF (plafond 2025/2026)"
