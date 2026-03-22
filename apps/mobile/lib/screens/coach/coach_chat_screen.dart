@@ -625,6 +625,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final enrichedContext = await ContextInjectorService.buildContext(
         profile: _profile,
         now: DateTime.now(),
+        mintState: context.read<MintStateProvider>().state,
       ).timeout(const Duration(seconds: 2));
       if (enrichedContext.memoryBlock.isNotEmpty) {
         memoryBlock = enrichedContext.memoryBlock;

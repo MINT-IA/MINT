@@ -19,6 +19,7 @@ import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/voice/regional_voice_service.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE — S58 / AI Memory
@@ -121,6 +122,7 @@ class ContextInjectorService {
     CoachProfile? profile,
     SharedPreferences? prefs,
     DateTime? now,
+    MintUserState? mintState,
   }) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
     final currentDate = now ?? DateTime.now();
@@ -264,6 +266,30 @@ class ContextInjectorService {
       }
     }
 
+    // ── Budget Vivant ─────────────────────────────────────────
+    // Inject the BudgetSnapshot into the memory block so Claude can
+    // reason about the user's real numbers (margin, retirement gap,
+    // cap impacts in CHF/month).
+    String budgetBlock = '';
+    if (mintState?.budgetSnapshot != null) {
+      final snap = mintState!.budgetSnapshot!;
+      final lines = <String>['BUDGET VIVANT\u00a0:'];
+      lines.add('Marge libre\u00a0: CHF\u00a0${snap.present.monthlyFree.round()}/mois');
+      lines.add('Charges fixes\u00a0: CHF\u00a0${snap.present.monthlyCharges.round()}/mois');
+
+      if (snap.hasFullGap) {
+        lines.add('Revenu retraite estim\u00e9\u00a0: CHF\u00a0${snap.retirement!.monthlyNet.round()}/mois');
+        lines.add('Taux de remplacement\u00a0: ${snap.gap!.replacementRate.round()}\u00a0%');
+        lines.add('\u00c9cart mensuel\u00a0: CHF\u00a0${snap.gap!.monthlyGap.round()}/mois');
+      }
+      if (snap.capImpacts.isNotEmpty) {
+        for (final cap in snap.capImpacts.take(2)) {
+          lines.add('Levier\u00a0: ${cap.capId} \u2192 +CHF\u00a0${cap.monthlyDelta.round()}/mois');
+        }
+      }
+      budgetBlock = lines.join('\n');
+    }
+
     // Build the complete memory block
     final memoryBlock = _buildMemoryBlock(
       lifecycleBlock: lifecycleBlock,
@@ -275,6 +301,7 @@ class ContextInjectorService {
       regionalBlock: regionalBlock,
       planBlock: planBlock,
       recentInsightsBlock: recentInsightsBlock,
+      budgetBlock: budgetBlock,
     );
 
     return EnrichedContext(
@@ -537,6 +564,7 @@ class ContextInjectorService {
     String regionalBlock = '',
     String planBlock = '',
     String recentInsightsBlock = '',
+    String budgetBlock = '',
   }) {
     final parts = <String>[];
 
@@ -572,6 +600,12 @@ class ContextInjectorService {
     if (planBlock.isNotEmpty) {
       parts.add('');
       parts.add(planBlock);
+    }
+
+    // Budget Vivant — present, retirement, gap, levers
+    if (budgetBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(budgetBlock);
     }
 
     // Relevant screens for this phase (route_to_screen hints)
