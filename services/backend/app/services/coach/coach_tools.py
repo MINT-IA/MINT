@@ -56,6 +56,10 @@ class ToolCategory(str, Enum):
 
 INTERNAL_TOOL_NAMES: list[str] = [
     "retrieve_memories",
+    "get_budget_status",
+    "get_retirement_projection",
+    "get_cross_pillar_analysis",
+    "get_cap_status",
 ]
 
 # ---------------------------------------------------------------------------
@@ -420,6 +424,76 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
             },
             "required": ["topic", "summary", "type"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # DATA LOOKUP TOOLS — INTERNAL: read pre-computed data from profile_context
+    # These tools let the LLM READ the user's financial calculations
+    # (budget, retirement, cross-pillar, cap) so it can reason about them.
+    # Executed by the backend agent loop, never forwarded to Flutter.
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "get_budget_status",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Get the user's current budget status including monthly free margin, "
+            "savings rate, and budget stage. Use when you need to reason about "
+            "the user's financial situation, remaining budget, or spending capacity. "
+            "Returns structured data as text. This tool is handled internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+        },
+    },
+    {
+        "name": "get_retirement_projection",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Get the user's retirement projection including replacement rate, "
+            "projected gap, and pillar breakdown. Use when the user asks about "
+            "retirement income, pension, or how much they will receive. "
+            "Returns structured data as text. This tool is handled internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+        },
+    },
+    {
+        "name": "get_cross_pillar_analysis",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Get cross-pillar optimization insights: 3a gap, LPP buyback potential, "
+            "tax optimization, and coordination between pillars. Use when the user "
+            "asks about optimizing their financial situation across pillars. "
+            "Returns structured data as text. This tool is handled internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+        },
+    },
+    {
+        "name": "get_cap_status",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Get the user's current Cap du jour (priority action), sequence progress, "
+            "and next recommended step. Use when you need to know what the user "
+            "should focus on next or their progress toward their financial goal. "
+            "Returns structured data as text. This tool is handled internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
         },
     },
 ]

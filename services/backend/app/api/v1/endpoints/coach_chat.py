@@ -283,6 +283,7 @@ MAX_AGENT_LOOP_TOKENS = 8000
 def _execute_internal_tool(
     tool_call: dict,
     memory_block: Optional[str],
+    profile_context: Optional[dict] = None,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -293,12 +294,14 @@ def _execute_internal_tool(
     Args:
         tool_call: Dict with "name" and "input" keys (Anthropic format).
         memory_block: The serialized memory block from the request.
+        profile_context: Sanitized profile data (for data lookup tools).
 
     Returns:
         Plain-text result string for the tool.
     """
     name = tool_call.get("name", "")
     tool_input = tool_call.get("input", {})
+    ctx = profile_context or {}
 
     if name == "retrieve_memories":
         return _handle_retrieve_memories(
@@ -307,9 +310,162 @@ def _execute_internal_tool(
             max_results=tool_input.get("max_results", 3),
         )
 
+    if name == "get_budget_status":
+        return _format_budget_status(ctx)
+
+    if name == "get_retirement_projection":
+        return _format_retirement_projection(ctx)
+
+    if name == "get_cross_pillar_analysis":
+        return _format_cross_pillar_analysis(ctx)
+
+    if name == "get_cap_status":
+        return _format_cap_status(ctx)
+
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
     return f"Outil interne '{name}' non reconnu."
+
+
+# ---------------------------------------------------------------------------
+# Data lookup formatters — read pre-computed data from profile_context
+# ---------------------------------------------------------------------------
+
+
+def _fmt_chf(value) -> str:
+    """Format a numeric value as CHF with Swiss apostrophe separator."""
+    if value is None:
+        return "non disponible"
+    try:
+        v = float(value)
+        if v >= 1000:
+            return f"CHF {v:,.0f}".replace(",", "'")
+        return f"CHF {v:.0f}"
+    except (ValueError, TypeError):
+        return "non disponible"
+
+
+def _fmt_pct(value) -> str:
+    """Format a ratio (0-1) or percentage (0-100) as %."""
+    if value is None:
+        return "non disponible"
+    try:
+        v = float(value)
+        if v <= 1.0:
+            return f"{v * 100:.0f}\u00a0%"
+        return f"{v:.0f}\u00a0%"
+    except (ValueError, TypeError):
+        return "non disponible"
+
+
+def _format_budget_status(ctx: dict) -> str:
+    """Format budget data from profile_context as readable text."""
+    monthly_income = ctx.get("monthly_income")
+    monthly_expenses = ctx.get("monthly_expenses")
+    months_liquidity = ctx.get("months_liquidity")
+
+    if monthly_income is None and monthly_expenses is None:
+        return "Données budgétaires non disponibles dans le profil."
+
+    lines = ["Budget actuel :"]
+    if monthly_income is not None:
+        lines.append(f"- Revenu net mensuel : {_fmt_chf(monthly_income)}")
+    if monthly_expenses is not None:
+        lines.append(f"- Charges mensuelles : {_fmt_chf(monthly_expenses)}")
+    if monthly_income is not None and monthly_expenses is not None:
+        margin = float(monthly_income) - float(monthly_expenses)
+        lines.append(f"- Marge libre : {_fmt_chf(margin)}")
+    if months_liquidity is not None:
+        lines.append(f"- Réserve de liquidités : {float(months_liquidity):.1f} mois")
+
+    return "\n".join(lines)
+
+
+def _format_retirement_projection(ctx: dict) -> str:
+    """Format retirement projection data as readable text."""
+    replacement_ratio = ctx.get("replacement_ratio")
+    monthly_income = ctx.get("monthly_income")
+    monthly_retirement = ctx.get("monthly_retirement_income")
+    lpp_capital = ctx.get("lpp_capital")
+    avs_rente = ctx.get("avs_rente")
+
+    if replacement_ratio is None and lpp_capital is None:
+        return "Données de projection retraite non disponibles dans le profil."
+
+    lines = ["Projection retraite :"]
+    if replacement_ratio is not None:
+        lines.append(f"- Taux de remplacement estimé : {_fmt_pct(replacement_ratio)}")
+    if monthly_income is not None:
+        lines.append(f"- Revenu actuel : {_fmt_chf(monthly_income)}/mois")
+    if monthly_retirement is not None:
+        lines.append(f"- Revenu retraite projeté : {_fmt_chf(monthly_retirement)}/mois")
+    if monthly_income is not None and replacement_ratio is not None:
+        gap = float(monthly_income) * (1 - float(replacement_ratio))
+        lines.append(f"- Écart mensuel estimé : {_fmt_chf(gap)}")
+    if avs_rente is not None:
+        lines.append(f"- Rente AVS estimée : {_fmt_chf(avs_rente)}/an")
+    if lpp_capital is not None:
+        lines.append(f"- Avoir LPP actuel : {_fmt_chf(lpp_capital)}")
+
+    return "\n".join(lines)
+
+
+def _format_cross_pillar_analysis(ctx: dict) -> str:
+    """Format cross-pillar optimization insights as readable text."""
+    annual_3a = ctx.get("annual_3a_contribution")
+    lpp_buyback = ctx.get("lpp_buyback_max")
+    tax_saving = ctx.get("tax_saving_potential")
+    lpp_capital = ctx.get("lpp_capital")
+
+    if annual_3a is None and lpp_buyback is None and tax_saving is None:
+        return "Données d'analyse inter-piliers non disponibles dans le profil."
+
+    lines = ["Analyse inter-piliers :"]
+    if annual_3a is not None:
+        ceiling = 7258.0
+        remaining = max(0, ceiling - float(annual_3a))
+        lines.append(f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}")
+        if remaining > 0:
+            lines.append(f"- 3a restant à verser : {_fmt_chf(remaining)}")
+    if lpp_buyback is not None and float(lpp_buyback) > 0:
+        lines.append(f"- Rachat LPP possible : jusqu'à {_fmt_chf(lpp_buyback)}")
+    if lpp_capital is not None:
+        lines.append(f"- Avoir LPP actuel : {_fmt_chf(lpp_capital)}")
+    if tax_saving is not None and float(tax_saving) > 0:
+        lines.append(f"- Économie fiscale potentielle : {_fmt_chf(tax_saving)}")
+
+    return "\n".join(lines)
+
+
+def _format_cap_status(ctx: dict) -> str:
+    """Format current Cap (priority action) as readable text."""
+    # Cap data comes from CapEngine on the Flutter side.
+    # These fields are injected into profile_context by Flutter.
+    cap_headline = ctx.get("cap_headline")
+    cap_why_now = ctx.get("cap_why_now")
+    cap_cta = ctx.get("cap_cta")
+    cap_impact = ctx.get("cap_expected_impact")
+    seq_completed = ctx.get("sequence_completed")
+    seq_total = ctx.get("sequence_total")
+    active_goal = ctx.get("active_goal")
+
+    if cap_headline is None:
+        return "Aucun Cap du jour calculé. Le profil manque peut-être de données."
+
+    lines = ["Cap du jour :"]
+    lines.append(f"- Priorité : {cap_headline}")
+    if cap_why_now:
+        lines.append(f"- Pourquoi maintenant : {cap_why_now}")
+    if cap_cta:
+        lines.append(f"- Action suggérée : {cap_cta}")
+    if cap_impact:
+        lines.append(f"- Impact attendu : {cap_impact}")
+    if active_goal:
+        lines.append(f"- Objectif actif : {active_goal}")
+    if seq_completed is not None and seq_total is not None:
+        lines.append(f"- Progression : {seq_completed}/{seq_total} étapes")
+
+    return "\n".join(lines)
 
 
 async def _run_agent_loop(
@@ -405,7 +561,7 @@ async def _run_agent_loop(
         # Execute internal tools and collect results
         tool_results: list = []
         for call in internal_calls:
-            result_text = _execute_internal_tool(call, memory_block)
+            result_text = _execute_internal_tool(call, memory_block, profile_context)
             tool_results.append(
                 f"[{call.get('name', 'unknown')}] {result_text}"
             )
