@@ -19,6 +19,7 @@ library;
 
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
@@ -69,6 +70,17 @@ class MintUserState {
   /// Used by the Plan / CapSequence layer to show "what comes next".
   /// Empty list if no additional caps are ready.
   final List<String> capSequence;
+
+  /// Full CapSequence plan for the user's active goal.
+  ///
+  /// Built by [CapSequenceEngine] when a goal is selected via
+  /// [GoalSelectionService] or [CapMemory.declaredGoals].
+  /// Null when no goal is selected or the sequence is empty.
+  ///
+  /// Consumed by:
+  ///   - [CapSequenceCard] on the Pulse screen (visual progress)
+  ///   - [ContextInjectorService] for coach AI plan-awareness
+  final CapSequence? capSequencePlan;
 
   /// User's declared goal intent tag from [CapMemory.declaredGoals].
   ///
@@ -125,6 +137,7 @@ class MintUserState {
     this.budgetSnapshot,
     this.currentCap,
     this.capSequence = const [],
+    this.capSequencePlan,
     this.activeGoalIntentTag,
     required this.confidenceScore,
     this.friScore,
@@ -197,6 +210,7 @@ class MintUserState {
     Object? budgetSnapshot = _undefined,
     Object? currentCap = _undefined,
     List<String>? capSequence,
+    Object? capSequencePlan = _undefined,
     Object? activeGoalIntentTag = _undefined,
     double? confidenceScore,
     Object? friScore = _undefined,
@@ -220,6 +234,9 @@ class MintUserState {
           ? this.currentCap
           : currentCap as CapDecision?,
       capSequence: capSequence ?? this.capSequence,
+      capSequencePlan: capSequencePlan == _undefined
+          ? this.capSequencePlan
+          : capSequencePlan as CapSequence?,
       activeGoalIntentTag: activeGoalIntentTag == _undefined
           ? this.activeGoalIntentTag
           : activeGoalIntentTag as String?,

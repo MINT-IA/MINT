@@ -9,7 +9,6 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
-import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/gamification/community_challenge_service.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
@@ -140,22 +139,11 @@ class _PulseScreenState extends State<PulseScreen> {
         memory: _capMemory,
       );
       _cachedCap = cap;
-      // Build CapSequence alongside cap.
-      String goalTag;
+      // Read CapSequence from unified state (MintStateProvider).
+      // MintStateEngine now computes capSequencePlan when a goal is selected.
       try {
-        goalTag =
-            context.read<MintStateProvider>().state?.activeGoalIntentTag ??
-                _profileGoalToTag(profile.goalA.type);
-      } catch (_) {
-        goalTag = _profileGoalToTag(profile.goalA.type);
-      }
-      try {
-        _cachedSequence = CapSequenceEngine.build(
-          profile: profile,
-          memory: _capMemory,
-          goalIntentTag: goalTag,
-          l: l,
-        );
+        _cachedSequence =
+            context.read<MintStateProvider>().state?.capSequencePlan;
       } catch (_) {
         _cachedSequence = null;
       }
@@ -167,17 +155,6 @@ class _PulseScreenState extends State<PulseScreen> {
       _cachedCap = null;
       _cachedSequence = null;
     }
-  }
-
-  String _profileGoalToTag(GoalAType type) {
-    return switch (type) {
-      GoalAType.achatImmo => 'housing_purchase',
-      GoalAType.debtFree => 'budget_overview',
-      GoalAType.retraite ||
-      GoalAType.independance ||
-      GoalAType.custom =>
-        'retirement_choice',
-    };
   }
 
   /// Show ActionSuccess sheet if the user just completed a cap action
@@ -1186,7 +1163,7 @@ class _PulseScreenState extends State<PulseScreen> {
           onSelected: (intentTag) {
             setState(() => _selectedGoalTag = intentTag);
             try {
-              context.read<MintStateProvider>().recompute(profile);
+              context.read<MintStateProvider>().forceRecompute(profile);
             } catch (_) {}
           },
         ),

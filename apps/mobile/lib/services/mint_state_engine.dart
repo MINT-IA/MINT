@@ -27,11 +27,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -128,6 +130,27 @@ class MintStateEngine {
           : null;
     }
 
+    // ── 5b. CapSequence plan ───────────────────────────────────────────────
+    // Build the full multi-step plan when a goal is selected.
+    // Uses French fallback (service layer) — same pattern as CapEngine above.
+    // The widget layer re-resolves labels with a real BuildContext.
+    CapSequence? capSequencePlan;
+    if (activeGoalIntentTag != null) {
+      try {
+        final sequence = CapSequenceEngine.build(
+          profile: profile,
+          memory: capMemory,
+          goalIntentTag: activeGoalIntentTag,
+          l: frenchL10n,
+        );
+        if (sequence.steps.isNotEmpty) {
+          capSequencePlan = sequence;
+        }
+      } catch (_) {
+        capSequencePlan = null;
+      }
+    }
+
     // ── 6. Projections (conditional on confidence) ─────────────────────────
     double? friScore;
     double? replacementRate;
@@ -170,16 +193,17 @@ class MintStateEngine {
         budgetGap = null;
       }
 
-      // 6d. BudgetSnapshot — single computation, consumed by PulseScreen,
-      // BudgetScreen, and any widget displaying budget/gap figures.
-      // BudgetLivingEngine.compute already calls RetirementProjectionService
-      // internally; wrapping here is safe because it has its own try/catch
-      // and always returns a gracefully degraded snapshot on failure.
-      try {
-        budgetSnapshot = BudgetLivingEngine.compute(profile);
-      } catch (_) {
-        budgetSnapshot = null;
-      }
+    }
+
+    // 6e. BudgetSnapshot — ALWAYS computed, even with low confidence.
+    // Present-day budget (monthlyNet, monthlyCharges, monthlyFree) doesn't
+    // require retirement projections. BudgetLivingEngine handles graceful
+    // degradation: returns BudgetStage.presentOnly when data is insufficient
+    // for retirement projections.
+    try {
+      budgetSnapshot = BudgetLivingEngine.compute(profile);
+    } catch (_) {
+      budgetSnapshot = null;
     }
 
     // ── 7. Active nudges ───────────────────────────────────────────────────
@@ -223,7 +247,8 @@ class MintStateEngine {
       budgetGap: budgetGap,
       budgetSnapshot: budgetSnapshot,
       currentCap: currentCap,
-      capSequence: const [], // Phase 2: CapSequence service not yet wired
+      capSequence: const [],
+      capSequencePlan: capSequencePlan,
       activeGoalIntentTag: activeGoalIntentTag,
       confidenceScore: confidenceScore,
       friScore: friScore,

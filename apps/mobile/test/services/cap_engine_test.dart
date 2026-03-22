@@ -1102,4 +1102,106 @@ void main() {
       }
     });
   });
+
+  // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────
+
+  group('CapEngine — Top 10 Core Journeys: Tier 1 urgency', () {
+    test('Julien en chômage → cap shifts to unemployment-related', () {
+      // Julien (golden profile) with employmentStatus switched to chomage.
+      // Despite having 539k LPP buyback opportunity (strong optimize cap),
+      // the chômage urgency must override it.
+      final julienChomage = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 0, // no income while unemployed
+        employmentStatus: 'chomage',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70377,
+          rachatMaximum: 539414,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042),
+          label: 'Retraite',
+        ),
+      );
+
+      final cap = CapEngine.compute(profile: julienChomage, now: now, l: _l);
+
+      // Must be the chômage urgency cap — not LPP buyback or 3a
+      expect(cap.id, 'chomage_urgency');
+      expect(cap.kind, CapKind.secure);
+      expect(cap.ctaRoute, '/unemployment');
+      // Must not be alarmist
+      final allText = '${cap.headline} ${cap.whyNow} ${cap.ctaLabel}';
+      expect(allText, isNot(contains('danger')));
+      expect(allText, isNot(contains('catastrophe')));
+    });
+
+    test('profile with debt crisis → cap shifts to debt management', () {
+      // Profile where the user declared a debtCrisis life event AND has
+      // real debt — the strongest Tier 1 signal short of chomage.
+      // Despite having 80k LPP buyback opportunity (strong optimize cap),
+      // the debt crisis urgency must boost debt_correct above it.
+      final debtCrisisProfile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 6000,
+        employmentStatus: 'salarie',
+        familyChange: 'debtCrisis', // explicit life event signal
+        dettes: const DetteProfile(creditConsommation: 25000),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 30000,
+          rachatMaximum: 80000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final cap = CapEngine.compute(
+          profile: debtCrisisProfile, now: now, l: _l);
+
+      // debt_correct (kind: correct, ctaRoute: /debt/repayment) must win
+      // because _hasDebtCrisis detects debtCrisis life event and boosts it
+      expect(cap.id, 'debt_correct');
+      expect(cap.kind, CapKind.correct);
+      // Must never show a pure optimize cap (3a / LPP) as winner
+      expect(cap.id, isNot('lpp_buyback'));
+      expect(cap.id, isNot('pillar_3a'));
+    });
+
+    test('normal Julien salarié → no urgency boost, normal heuristic', () {
+      // Standard Julien: salarié, no debt crisis, no chomage, no divorce.
+      // Urgency boost must be 0 → normal heuristic runs unchanged.
+      final julien = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 122207 / 12,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70377,
+          rachatMaximum: 539414,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042),
+          label: 'Retraite',
+        ),
+      );
+
+      final cap = CapEngine.compute(profile: julien, now: now, l: _l);
+
+      // No Tier 1 urgency cap should win
+      expect(cap.id, isNot('chomage_urgency'));
+      expect(cap.id, isNot('divorce_urgency'));
+      // Normal heuristic: optimize or prepare cap expected
+      expect(
+        [CapKind.optimize, CapKind.prepare, CapKind.complete],
+        contains(cap.kind),
+      );
+    });
+  });
 }

@@ -341,3 +341,54 @@ class TestLifecycleAwareness:
         """When phase is unknown, prompt must instruct neutral fallback."""
         lower = base_prompt.lower()
         assert "absent" in lower or "inconnu" in lower or "neutral" in lower or "unknown" in lower
+
+
+# ===========================================================================
+# TestPlanAwareness — PLAN AWARENESS section in every prompt variant
+# ===========================================================================
+
+class TestPlanAwareness:
+    """Tests verifying the PLAN AWARENESS section is present and correct."""
+
+    def test_plan_awareness_in_base_prompt(self, base_prompt):
+        """The base prompt must contain the PLAN AWARENESS section."""
+        assert "PLAN AWARENESS" in base_prompt
+
+    def test_plan_awareness_in_ctx_prompt(self, ctx_prompt):
+        """The context-enriched prompt must also contain PLAN AWARENESS."""
+        assert "PLAN AWARENESS" in ctx_prompt
+
+    def test_plan_awareness_references_plan_en_cours(self, base_prompt):
+        """The section must reference the PLAN EN COURS memory key."""
+        assert "PLAN EN COURS" in base_prompt
+
+    def test_plan_awareness_mentions_step_reference(self, base_prompt):
+        """The section must show an example of a step reference."""
+        lower = base_prompt.lower()
+        assert "étape" in lower or "etape" in lower
+
+    def test_plan_awareness_no_pressure(self, base_prompt):
+        """The section must not pressure the user — plan is a guide."""
+        lower = base_prompt.lower()
+        assert "guide" in lower or "jamais" in lower or "never" in lower
+
+    def test_plan_awareness_mentions_celebration(self, base_prompt):
+        """The section must acknowledge step completion positively."""
+        lower = base_prompt.lower()
+        assert "validée" in lower or "validee" in lower or "joué" in lower or "joue" in lower
+
+    def test_plan_awareness_conditional_on_presence(self, base_prompt):
+        """Plan awareness must be conditional — only when PLAN EN COURS present."""
+        # The section must instruct Claude NOT to mention plan if not present.
+        lower = base_prompt.lower()
+        assert "si" in lower or "if" in lower or "absent" in lower or "no plan" in lower
+
+    def test_plan_awareness_all_prompts_contain_section(self):
+        """Every prompt variant must include PLAN AWARENESS."""
+        prompts = [
+            build_system_prompt(ctx=None),
+            build_system_prompt(ctx=CoachContext(first_name="Test")),
+            build_system_prompt(ctx=CoachContext(first_name="Julien", age=49, canton="VS")),
+        ]
+        for p in prompts:
+            assert "PLAN AWARENESS" in p, "PLAN AWARENESS missing from system prompt variant"

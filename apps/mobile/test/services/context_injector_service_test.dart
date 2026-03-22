@@ -553,5 +553,157 @@ void main() {
       expect(ctx.memoryBlock, isNot(contains('Bitzeli')));
       expect(ctx.memoryBlock, isNot(contains('grotto')));
     });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 18: PLAN EN COURS block injected when goal is selected
+    // ════════════════════════════════════════════════════════════
+
+    test('memoryBlock contains PLAN EN COURS when goal is selected', () async {
+      // Profile with salary so step 1 (ret_01_salary) completes immediately.
+      final profile = makeProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 10000,
+      );
+      SharedPreferences.setMockInitialValues({
+        'goal_selection_selected_intent_tag': 'retirement_choice',
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.memoryBlock, contains('PLAN EN COURS'));
+      expect(ctx.memoryBlock, contains('retirement_choice'));
+      // Progress marker always present
+      expect(ctx.memoryBlock, contains('Progression'));
+      // capSequencePlan populated
+      expect(ctx.capSequencePlan, isNotNull);
+      expect(ctx.capSequencePlan!.totalCount, equals(10));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 19: PLAN EN COURS absent when no goal selected
+    // ════════════════════════════════════════════════════════════
+
+    test('memoryBlock has no PLAN EN COURS when no goal selected', () async {
+      final profile = makeProfile(birthYear: 1982, canton: 'GE');
+      // No goal_selection_selected_intent_tag key
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.memoryBlock, isNot(contains('PLAN EN COURS')));
+      expect(ctx.capSequencePlan, isNull);
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 20: PLAN EN COURS current step title is in French
+    // ════════════════════════════════════════════════════════════
+
+    test('PLAN EN COURS block contains French step title', () async {
+      // Profile without salary so step 1 is current.
+      final profile = makeProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 0,
+      );
+      SharedPreferences.setMockInitialValues({
+        'goal_selection_selected_intent_tag': 'retirement_choice',
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      // The French title for capStepRetirement01Title
+      expect(ctx.memoryBlock, contains('Connaître ton salaire brut'));
+      expect(ctx.memoryBlock, contains('Étape actuelle'));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 21: Budget plan (6 steps) injected for budget_overview goal
+    // ════════════════════════════════════════════════════════════
+
+    test('PLAN EN COURS with budget_overview goal shows 6-step sequence',
+        () async {
+      final profile = makeProfile(birthYear: 1990, canton: 'ZH', salaire: 0);
+      SharedPreferences.setMockInitialValues({
+        'goal_selection_selected_intent_tag': 'budget_overview',
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.capSequencePlan, isNotNull);
+      expect(ctx.capSequencePlan!.goalId, equals('budget_overview'));
+      expect(ctx.capSequencePlan!.totalCount, equals(6));
+      expect(ctx.memoryBlock, contains('budget_overview'));
+      expect(ctx.memoryBlock, contains('6'));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 22: capSequencePlan null for unknown goal tag
+    // ════════════════════════════════════════════════════════════
+
+    test('capSequencePlan is null for unknown goal tag', () async {
+      final profile = makeProfile(birthYear: 1985, canton: 'BE');
+      SharedPreferences.setMockInitialValues({
+        'goal_selection_selected_intent_tag': 'unknown_goal_tag_xyz',
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      // Unknown goal tag → empty sequence → null capSequencePlan
+      expect(ctx.capSequencePlan, isNull);
+      expect(ctx.memoryBlock, isNot(contains('PLAN EN COURS')));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 23: PLAN EN COURS contains Prochaine étape when step 1 complete
+    // ════════════════════════════════════════════════════════════
+
+    test('PLAN EN COURS includes Prochaine étape when step 1 complete',
+        () async {
+      // Profile with salary → step 1 (salary) is completed → step 2 becomes current.
+      // Step 3 (LPP) becomes the next upcoming step.
+      final profile = makeProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 10000,
+      );
+      SharedPreferences.setMockInitialValues({
+        'goal_selection_selected_intent_tag': 'retirement_choice',
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.memoryBlock, contains('Prochaine étape'));
+    });
   });
 }

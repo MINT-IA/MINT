@@ -61,11 +61,22 @@ class MintStateProvider extends ChangeNotifier {
   ///
   /// Safe to call on every profile update — rapid calls collapse to one.
   /// Calls with a profile identical to the last computed profile are no-ops.
+  /// Use [forceRecompute] when non-profile state changed (e.g. goal selection).
   Future<void> recompute(CoachProfile profile) async {
     // Guard: skip if profile is identical to the last full computation.
     // This prevents redundant work when ChangeNotifierProxyProvider rebuilds
     // without a real profile change.
     if (profile == _lastProfile) return;
+    return _doRecompute(profile);
+  }
+
+  /// Force recompute even if profile hasn't changed.
+  /// Use when non-profile state changed (goal selection, cap completion, etc.).
+  Future<void> forceRecompute(CoachProfile profile) async {
+    return _doRecompute(profile);
+  }
+
+  Future<void> _doRecompute(CoachProfile profile) async {
 
     if (_isRecomputing) {
       // Queue the latest profile — discard any previous pending call.

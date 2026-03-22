@@ -349,6 +349,14 @@ class CapEngine {
       );
     }
 
+    // ── 9c. Top 10 Core Journeys — Tier 1 urgency caps ──
+    // Life-disruption situations always outrank tax optimization or 3a.
+    // Adds new urgency caps AND boosts existing aligned candidates.
+    candidates.addAll(
+      _top10UrgencyCaps(profile, confidence.score, memory, now),
+    );
+    _applyTop10UrgencyBoost(candidates, profile, memory, now);
+
     // ── 10. Goal alignment boost ──
     // If the user declared a GoalA, boost candidates that align with it.
     _applyGoalBoost(candidates, profile.goalA);
@@ -429,6 +437,210 @@ class CapEngine {
       isHonestyCap: winner.isHonestyCap,
       acquiredAssets: winner.acquiredAssets,
     );
+  }
+
+  // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────
+  //
+  //  Tier 1 = life disruption. These situations ALWAYS outrank
+  //  tax optimisation, 3a contributions, or LPP buyback.
+  //
+  //  Tier 1 signals (from docs/TOP_10_SWISS_CORE_JOURNEYS.md):
+  //  - Chômage / perte d'emploi  → employmentStatus == 'chomage'
+  //  - Invalidité / accident      → familyChange == 'disability'
+  //  - Dette / budget sous tension→ spending > net income
+  //                                 OR familyChange == 'debtCrisis'
+  //  - Divorce                    → etatCivil == divorce
+  //                                 OR familyChange == 'divorce'
+  //
+  //  Spec: docs/TOP_10_SWISS_CORE_JOURNEYS.md §2 (parcours 3, 4, 8, 11)
+
+  /// Returns a boost multiplier (0–100) for the current profile
+  /// based on Top 10 Core Journey urgency tier.
+  ///
+  /// - 100 → Tier 1 highest (chômage, immediate income disruption)
+  /// - 90  → Tier 1 high (debt crisis, spending > net)
+  /// - 80  → Tier 1 medium (divorce, LPP split + housing)
+  /// - 70  → Tier 1 low (disability life event)
+  /// - 0   → No Tier 1 signal
+  static int _top10UrgencyBoost(CoachProfile profile, CapMemory memory) {
+    // Chômage: immediate income disruption, highest urgency
+    if (profile.employmentStatus == 'chomage') { return 100; }
+
+    // Debt crisis: spending exceeds net income OR debtCrisis life event
+    if (_hasDebtCrisis(profile)) { return 90; }
+
+    // Divorce: LPP split, alimony, housing urgency
+    if (profile.etatCivil == CoachCivilStatus.divorce ||
+        profile.familyChange == 'divorce') { return 80; }
+
+    // Disability life event declared
+    if (profile.familyChange == 'disability') { return 70; }
+
+    return 0;
+  }
+
+  /// True when the profile shows a debt crisis signal:
+  /// - monthly spending exceeds estimated net income, OR
+  /// - user declared debtCrisis as current life event.
+  static bool _hasDebtCrisis(CoachProfile profile) {
+    if (profile.familyChange == 'debtCrisis') return true;
+
+    // Budget crisis: total expenses > net income
+    if (profile.totalDepensesMensuelles > 0 &&
+        profile.salaireBrutMensuel > 0) {
+      final netMensuel = NetIncomeBreakdown.compute(
+        grossSalary: profile.salaireBrutMensuel * 12,
+        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+        age: profile.age,
+      ).monthlyNetPayslip;
+      if (profile.totalDepensesMensuelles > netMensuel) return true;
+    }
+
+    return false;
+  }
+
+  /// Generate Tier 1 urgency caps not covered by the general heuristic.
+  ///
+  /// Currently adds:
+  /// - **chomage_urgency**: fires when [profile.employmentStatus] == 'chomage'.
+  ///   The general heuristic only fires a `jobLoss` life event cap when
+  ///   [profile.familyChange] == 'jobLoss'. Persistent chômage status has
+  ///   no dedicated cap today.
+  /// - **divorce_urgency**: fires when civil status is divorce.
+  ///   The life event cap fires on [profile.familyChange] == 'divorce'
+  ///   during the transition; this cap covers the ongoing status.
+  static List<CapDecision> _top10UrgencyCaps(
+    CoachProfile profile,
+    double confidenceScore,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final caps = <CapDecision>[];
+
+    // ── Chômage: secure the next 90 days ──
+    // employmentStatus == 'chomage' is a persistent state; the general
+    // life event cap only fires for the one-time familyChange event.
+    // This cap surfaces whenever chômage is the active employment status.
+    if (profile.employmentStatus == 'chomage') {
+      caps.add(CapDecision(
+        id: 'chomage_urgency',
+        kind: CapKind.secure,
+        priorityScore: _score(
+          impact: 1.0,
+          urgency: 1.0,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('chomage_urgency', memory, now),
+        ),
+        headline: 'Sécuriser les 90 prochains jours',
+        whyNow: 'En chômage, trois urgences à poser\u00a0: '
+            'tes droits AC, l\u2019impact sur ta LPP '
+            'et ton budget à ajuster.',
+        ctaLabel: 'Voir mes droits',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/unemployment',
+        coachPrompt: 'Je suis en situation de chômage. '
+            'Aide-moi à comprendre mes droits AC, '
+            'ce qui se passe avec ma LPP '
+            'et comment adapter mon budget maintenant.',
+        expectedImpact: 'stabilisation immédiate',
+        sourceCards: const ['unemployment'],
+      ));
+    }
+
+    // ── Divorce: LPP split, alimony, housing ──
+    // Civil status divorce is a persistent condition; the life event
+    // 'divorce' cap fires only when familyChange is set (during transition).
+    // This cap covers users whose etatCivil is already divorce.
+    final isDivorced = profile.etatCivil == CoachCivilStatus.divorce;
+    final hasDivorceEvent = profile.familyChange == 'divorce';
+    if (isDivorced && !hasDivorceEvent) {
+      // hasDivorceEvent == true means _tryLifeEventCap already handles it.
+      caps.add(CapDecision(
+        id: 'divorce_urgency',
+        kind: CapKind.secure,
+        priorityScore: _score(
+          impact: 0.85,
+          urgency: 0.85,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('divorce_urgency', memory, now),
+        ),
+        headline: 'Divorce\u00a0: clarifier ce qui change',
+        whyNow: 'Partage LPP, pension alimentaire, logement\u00a0— '
+            'les impacts financiers méritent un point clair.',
+        ctaLabel: 'Simuler l\u2019impact',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/divorce',
+        coachPrompt: 'Je suis divorcé\u00b7e. '
+            'Aide-moi à clarifier l\u2019impact sur ma LPP, '
+            'mes impôts et mon budget.',
+        expectedImpact: 'clarification LPP + impôts',
+        sourceCards: const ['divorce'],
+      ));
+    }
+
+    return caps;
+  }
+
+  /// Boost existing candidates whose content aligns with the active
+  /// Tier 1 Core Journey urgency.
+  ///
+  /// Multiplies [priorityScore] by `(1 + boost / 100)` — e.g. boost 100
+  /// doubles the score, boost 90 adds 90\u00a0%, ensuring Tier 1 caps
+  /// outrank all tax/optimization caps regardless of their base score.
+  static void _applyTop10UrgencyBoost(
+    List<CapDecision> candidates,
+    CoachProfile profile,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final boost = _top10UrgencyBoost(profile, memory);
+    if (boost == 0) return;
+
+    // Cap IDs that align with each Tier 1 scenario.
+    final Set<String> alignedIds = {};
+
+    if (profile.employmentStatus == 'chomage') {
+      alignedIds.addAll(const {'chomage_urgency', 'debt_correct', 'budget_deficit'});
+    }
+    if (_hasDebtCrisis(profile)) {
+      alignedIds.addAll(const {'debt_correct', 'budget_deficit', 'honesty_no_lever'});
+    }
+    if (profile.etatCivil == CoachCivilStatus.divorce ||
+        profile.familyChange == 'divorce') {
+      alignedIds.addAll(const {'divorce_urgency', 'life_event_divorce'});
+    }
+    if (profile.familyChange == 'disability') {
+      alignedIds.addAll(const {'disability_gap', 'coverage_check', 'life_event_disability'});
+    }
+
+    if (alignedIds.isEmpty) return;
+
+    final multiplier = 1.0 + boost / 100.0;
+    for (int i = 0; i < candidates.length; i++) {
+      final cap = candidates[i];
+      if (!alignedIds.contains(cap.id)) continue;
+      candidates[i] = CapDecision(
+        id: cap.id,
+        kind: cap.kind,
+        priorityScore: cap.priorityScore * multiplier,
+        headline: cap.headline,
+        whyNow: cap.whyNow,
+        ctaLabel: cap.ctaLabel,
+        ctaMode: cap.ctaMode,
+        ctaRoute: cap.ctaRoute,
+        coachPrompt: cap.coachPrompt,
+        captureType: cap.captureType,
+        expectedImpact: cap.expectedImpact,
+        confidenceLabel: cap.confidenceLabel,
+        blockingData: cap.blockingData,
+        supportingSignals: cap.supportingSignals,
+        sourceCards: cap.sourceCards,
+        isHonestyCap: cap.isHonestyCap,
+        acquiredAssets: cap.acquiredAssets,
+      );
+    }
   }
 
   // ── LIFE EVENT ───────────────────────────────────────────

@@ -110,6 +110,19 @@ urgency — only mention them when contextually relevant.
 educational tone appropriate for all ages.
 """
 
+_PLAN_AWARENESS = """\
+PLAN AWARENESS:
+- The user's plan progress is in the memory block (PLAN EN COURS section).
+- The format is: "PLAN EN COURS : <goal> (<completed>/<total> étapes)".
+- Reference the current step naturally when relevant: \
+"Tu en es à l'étape 3 — vérifions ton avoir LPP."
+- Suggest the next step when contextually appropriate, not systematically.
+- Celebrate completed steps with warmth: "Bien joué — étape validée !"
+- Never pressure the user to advance: the plan is a guide, not a requirement.
+- If no PLAN EN COURS section is present, do not mention the plan.
+- Use the step count as a subtle anchor: "Tu as déjà clarifié 2 étapes sur 10."
+"""
+
 _BASE_SYSTEM_PROMPT = """\
 Tu es le coach financier de MINT, une application d'éducation financière suisse.
 
@@ -141,6 +154,7 @@ de la LSFin. Pour une analyse adaptée à ta situation, consulte un·e spéciali
 
 {regional_identity}
 {lifecycle_awareness}
+{plan_awareness}
 {routing_rules}
 """
 
@@ -160,6 +174,7 @@ def build_system_prompt(ctx: Optional[CoachContext] = None) -> str:
         banned_terms=_BANNED_TERMS_REMINDER,
         regional_identity=_REGIONAL_IDENTITY,
         lifecycle_awareness=_LIFECYCLE_AWARENESS,
+        plan_awareness=_PLAN_AWARENESS,
         routing_rules=_TOOL_ROUTING_RULES,
     )
 

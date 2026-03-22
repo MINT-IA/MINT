@@ -1,5 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
+import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/cap_sequence_engine.dart';
+import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart'
@@ -25,12 +30,14 @@ import 'package:mint_mobile/services/voice/regional_voice_service.dart';
 //   2. Conversation memory (S58) — past topics, continuity
 //   3. User goals (S58) — declared objectives, deadlines
 //   4. Profile context (existing) — financial data, archetype
+//   5. Plan / CapSequence — active multi-step plan progress
 //
 // The injected block follows this format:
 //   --- MÉMOIRE MINT ---
 //   [Lifecycle context]
 //   [Conversation memory]
 //   [User goals]
+//   [Plan / CapSequence]
 //   --- FIN MÉMOIRE ---
 //
 // Privacy rules:
@@ -68,6 +75,12 @@ class EnrichedContext {
   /// Used to hint Claude about what surfaces to route to.
   final List<ScreenEntry> relevantScreens;
 
+  /// The user's active CapSequence plan, if a goal is selected.
+  ///
+  /// Null when no goal is selected or when the sequence is empty.
+  /// Injected into the memory block as PLAN EN COURS.
+  final CapSequence? capSequencePlan;
+
   const EnrichedContext({
     required this.memoryBlock,
     this.lifecyclePhase,
@@ -76,6 +89,7 @@ class EnrichedContext {
     required this.activeGoalsCount,
     this.activeNudges = const [],
     this.relevantScreens = const [],
+    this.capSequencePlan,
   });
 
   /// Empty context (no profile).
@@ -204,6 +218,34 @@ class ContextInjectorService {
       }
     }
 
+    // ── Plan / CapSequence ────────────────────────────────────
+    // Inject the user's active multi-step plan so Claude is plan-aware.
+    // Uses GoalSelectionService + CapSequenceEngine (pure functions).
+    // Graceful degradation: coach works without plan context.
+    CapSequence? capSequencePlan;
+    String planBlock = '';
+    if (profile != null) {
+      try {
+        final goalTag = await GoalSelectionService.getSelectedGoal(sp);
+        if (goalTag != null) {
+          final capMemory = await CapMemoryStore.load();
+          final frL10n = SFr();
+          final sequence = CapSequenceEngine.build(
+            profile: profile,
+            memory: capMemory,
+            goalIntentTag: goalTag,
+            l: frL10n,
+          );
+          if (sequence.steps.isNotEmpty) {
+            capSequencePlan = sequence;
+            planBlock = _buildPlanBlock(sequence, goalTag);
+          }
+        }
+      } catch (_) {
+        // Graceful degradation: coach works without plan context.
+      }
+    }
+
     // Build the complete memory block
     final memoryBlock = _buildMemoryBlock(
       lifecycleBlock: lifecycleBlock,
@@ -213,6 +255,7 @@ class ContextInjectorService {
       nudgesBlock: nudgesBlock,
       screensBlock: screensBlock,
       regionalBlock: regionalBlock,
+      planBlock: planBlock,
     );
 
     return EnrichedContext(
@@ -223,6 +266,7 @@ class ContextInjectorService {
       activeGoalsCount: activeGoals.length,
       activeNudges: activeNudges,
       relevantScreens: relevantScreens,
+      capSequencePlan: capSequencePlan,
     );
   }
 
@@ -318,6 +362,100 @@ class ContextInjectorService {
     return lines.join('\n');
   }
 
+  /// Build the PLAN EN COURS block for a CapSequence.
+  ///
+  /// Resolves ARB title keys using the French fallback (service layer context).
+  /// Format:
+  ///   PLAN EN COURS : <goalId> (<completed>/<total> étapes)
+  ///   Étape actuelle : <currentStep title>
+  ///   Prochaine étape : <nextStep title>
+  ///   Progression : <percent>%
+  static String _buildPlanBlock(CapSequence sequence, String goalTag) {
+    final frL10n = SFr();
+    final lines = <String>[
+      'PLAN EN COURS\u00a0: $goalTag'
+          ' (${sequence.completedCount}/${sequence.totalCount}'
+          ' \u00e9tapes)',
+    ];
+
+    final current = sequence.currentStep;
+    if (current != null) {
+      final title = _resolveStepTitle(current.titleKey, frL10n);
+      lines.add('\u00c9tape actuelle\u00a0: $title');
+    }
+
+    final next = sequence.nextStep;
+    if (next != null) {
+      final title = _resolveStepTitle(next.titleKey, frL10n);
+      lines.add('Prochaine \u00e9tape\u00a0: $title');
+    }
+
+    final pct = (sequence.progressPercent * 100).round();
+    lines.add('Progression\u00a0: $pct\u00a0%');
+
+    return lines.join('\n');
+  }
+
+  /// Resolve an ARB title key to its French localised string.
+  ///
+  /// Falls through to the raw key when no match is found so there is
+  /// always a non-empty label in the plan block.
+  static String _resolveStepTitle(String titleKey, SFr l) {
+    switch (titleKey) {
+      // Retirement steps
+      case 'capStepRetirement01Title':
+        return l.capStepRetirement01Title;
+      case 'capStepRetirement02Title':
+        return l.capStepRetirement02Title;
+      case 'capStepRetirement03Title':
+        return l.capStepRetirement03Title;
+      case 'capStepRetirement04Title':
+        return l.capStepRetirement04Title;
+      case 'capStepRetirement05Title':
+        return l.capStepRetirement05Title;
+      case 'capStepRetirement06Title':
+        return l.capStepRetirement06Title;
+      case 'capStepRetirement07Title':
+        return l.capStepRetirement07Title;
+      case 'capStepRetirement08Title':
+        return l.capStepRetirement08Title;
+      case 'capStepRetirement09Title':
+        return l.capStepRetirement09Title;
+      case 'capStepRetirement10Title':
+        return l.capStepRetirement10Title;
+      // Budget steps
+      case 'capStepBudget01Title':
+        return l.capStepBudget01Title;
+      case 'capStepBudget02Title':
+        return l.capStepBudget02Title;
+      case 'capStepBudget03Title':
+        return l.capStepBudget03Title;
+      case 'capStepBudget04Title':
+        return l.capStepBudget04Title;
+      case 'capStepBudget05Title':
+        return l.capStepBudget05Title;
+      case 'capStepBudget06Title':
+        return l.capStepBudget06Title;
+      // Housing steps
+      case 'capStepHousing01Title':
+        return l.capStepHousing01Title;
+      case 'capStepHousing02Title':
+        return l.capStepHousing02Title;
+      case 'capStepHousing03Title':
+        return l.capStepHousing03Title;
+      case 'capStepHousing04Title':
+        return l.capStepHousing04Title;
+      case 'capStepHousing05Title':
+        return l.capStepHousing05Title;
+      case 'capStepHousing06Title':
+        return l.capStepHousing06Title;
+      case 'capStepHousing07Title':
+        return l.capStepHousing07Title;
+      default:
+        return titleKey;
+    }
+  }
+
   /// Build the formatted memory block for system prompt injection.
   ///
   /// Pure function — deterministic, no side effects.
@@ -329,6 +467,7 @@ class ContextInjectorService {
     String nudgesBlock = '',
     String screensBlock = '',
     String regionalBlock = '',
+    String planBlock = '',
   }) {
     final parts = <String>[];
 
@@ -358,6 +497,12 @@ class ContextInjectorService {
     if (nudgesBlock.isNotEmpty) {
       parts.add('');
       parts.add(nudgesBlock);
+    }
+
+    // Plan / CapSequence — user's active multi-step plan
+    if (planBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(planBlock);
     }
 
     // Relevant screens for this phase (route_to_screen hints)
