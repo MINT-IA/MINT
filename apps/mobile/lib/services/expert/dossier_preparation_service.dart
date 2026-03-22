@@ -19,6 +19,7 @@ library;
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/expert/advisor_specialization.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  DATA MODELS
@@ -786,7 +787,10 @@ class DossierPreparationService {
     // LPP estimate: avoir / 1.5 years to go factor (rough band)
     final lppAnnual = (profile.prevoyance.avoirLppTotal ?? 0) *
         (profile.prevoyance.tauxConversion);
-    final avsAnnual = (profile.prevoyance.renteAVSEstimeeMensuelle ?? 2000) * 12;
+    // Use AvsCalculator.annualRente to include the 13th rente (2026+).
+    final avsAnnual = AvsCalculator.annualRente(
+      profile.prevoyance.renteAVSEstimeeMensuelle ?? 2000,
+    );
     final totalAnnual = lppAnnual + avsAnnual;
     final rate = totalAnnual / annualRevenu;
     if (rate < 0.50) return '< 50\u00a0%';
