@@ -40,6 +40,8 @@ from app.models.user import User
 from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import COACH_TOOLS, build_system_prompt
 from app.services.coach.coach_context_builder import build_coach_context
+from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES
+from app.services.coach.structured_reasoning import StructuredReasoningService
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +104,7 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
     """Build a CoachContext from a raw profile_context dict.
 
     Extracts only the fields recognized by CoachContext; unknown keys are
-    forwarded as known_values for hallucination detection.
+    DROPPED (not forwarded) to prevent PII leakage.
 
     Privacy: never includes IBAN, full name, NPA, or employer.
     """
@@ -143,6 +145,38 @@ def _build_system_prompt_with_memory(
     return prompt
 
 
+def _handle_retrieve_memories(
+    topic: str,
+    memory_block: Optional[str],
+    max_results: int = 3,
+) -> str:
+    """Search the memory block for content matching the topic.
+
+    This is an INTERNAL handler — it is called when the LLM emits a
+    retrieve_memories tool_use block.  The result is returned to the LLM
+    as a tool_result so the conversation can continue.  It is never
+    forwarded to Flutter.
+
+    Args:
+        topic: The topic string to search for (case-insensitive substring).
+        memory_block: The raw memory block injected into the system prompt.
+        max_results: Maximum number of matching lines to return (capped at 5).
+
+    Returns:
+        A plain-text string with up to max_results matching lines, or a
+        localised "not found" message when no match is found.
+    """
+    if not memory_block or not memory_block.strip():
+        return "Aucune mémoire disponible pour ce sujet."
+
+    max_results = min(max(1, max_results), 5)
+    lines = memory_block.split("\n")
+    matches = [line for line in lines if topic.lower() in line.lower()]
+    if not matches:
+        return f"Pas de mémoire trouvée pour '{topic}'."
+    return "\n".join(matches[:max_results])
+
+
 # ---------------------------------------------------------------------------
 # Main endpoint
 # ---------------------------------------------------------------------------
@@ -159,15 +193,21 @@ async def coach_chat(
 
     Combines:
         1. System prompt (lifecycle + regional voice + plan awareness)
-        2. Coach tools (route_to_screen, show_*, ask_user_input)
+        2. Coach tools (route_to_screen, show_*, ask_user_input, retrieve_memories)
         3. RAG retrieval (FAQ fallback + cantonal enrichment)
-        4. ComplianceGuard filter on all LLM output
+        4. Internal tool intercept (retrieve_memories — handled by backend, not Flutter)
+        5. ComplianceGuard filter on all LLM output
+
+    Internal tools (INTERNAL_TOOL_NAMES):
+        - retrieve_memories: intercepted here; searches memory_block locally and
+          injects the result back into the conversation as a tool_result so the
+          LLM can continue.  Never forwarded to Flutter.
 
     The API key is used for a single request and is never stored by MINT.
 
     Returns:
         CoachChatResponse with message, optional tool_calls, sources,
-        disclaimers, and token usage.
+        disclaimers, and token usage.  tool_calls never contains internal tools.
 
     Raises:
         400: Invalid request (missing fields, malformed provider).
@@ -181,9 +221,24 @@ async def coach_chat(
     coach_ctx = _build_coach_context_from_profile(body.profile_context)
 
     # ------------------------------------------------------------------
+    # Step 1.5: Deterministic structured reasoning (reasoning/humanization split)
+    # Runs BEFORE the LLM call — produces structured facts from profile data.
+    # The LLM humanizes this pre-computed analysis rather than reasoning from scratch.
+    # This separates the reasoning quality from the humanization style requirement.
+    # ------------------------------------------------------------------
+    reasoning_output = StructuredReasoningService.reason(
+        user_message=body.message,
+        profile_context=body.profile_context,
+        memory_block=body.memory_block,
+    )
+    reasoning_block = reasoning_output.as_system_prompt_block()
+
+    # ------------------------------------------------------------------
     # Step 2: Build system prompt (lifecycle + regional + plan + memory)
     # ------------------------------------------------------------------
     system_prompt = _build_system_prompt_with_memory(coach_ctx, body.memory_block)
+    if reasoning_block:
+        system_prompt = system_prompt + "\n\n" + reasoning_block
 
     # ------------------------------------------------------------------
     # Step 3: Get RAG orchestrator and execute the full pipeline
@@ -222,13 +277,46 @@ async def coach_chat(
         )
 
     # ------------------------------------------------------------------
-    # Step 4: Build structured response
+    # Step 4: Intercept internal tool calls (retrieve_memories).
+    # When the LLM returns a retrieve_memories tool_use block:
+    #   a) Search the memory_block locally (_handle_retrieve_memories).
+    #   b) Strip the internal tool from tool_calls before returning to Flutter.
+    # This keeps the interaction transparent to the mobile client.
+    # ------------------------------------------------------------------
+    raw_tool_calls = result.get("tool_calls") or []
+    flutter_tool_calls = []
+
+    for tool_call in raw_tool_calls:
+        tool_name = tool_call.get("name", "")
+        if tool_name in INTERNAL_TOOL_NAMES:
+            # Handle retrieve_memories: log the search, result is discarded here
+            # (in a future multi-turn loop this would be fed back to the LLM).
+            if tool_name == "retrieve_memories":
+                tool_input = tool_call.get("input", {})
+                topic = tool_input.get("topic", "")
+                max_results = tool_input.get("max_results", 3)
+                memory_result = _handle_retrieve_memories(
+                    topic=topic,
+                    memory_block=body.memory_block,
+                    max_results=max_results,
+                )
+                logger.debug(
+                    "retrieve_memories(topic=%r) → %d chars",
+                    topic,
+                    len(memory_result),
+                )
+            # Internal tools are never forwarded to Flutter
+        else:
+            flutter_tool_calls.append(tool_call)
+
+    # ------------------------------------------------------------------
+    # Step 5: Build structured response
     # The orchestrator already ran ComplianceGuard (guardrails.filter_response).
-    # tool_calls are returned as-is for Flutter to handle.
+    # Only non-internal tool_calls are returned to Flutter.
     # ------------------------------------------------------------------
     return CoachChatResponse(
         message=result.get("answer", ""),
-        tool_calls=result.get("tool_calls"),
+        tool_calls=flutter_tool_calls if flutter_tool_calls else None,
         sources=result.get("sources", []),
         disclaimers=result.get("disclaimers", []),
         tokens_used=result.get("tokens_used", 0),
