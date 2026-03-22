@@ -37059,6 +37059,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Scanne ton certificat pour des projections plus précises'**
   String get dossierScanLppPrecision;
+
+  /// No description provided for @pulsePlanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan'**
+  String get pulsePlanTitle;
+
+  /// No description provided for @pulsePlanProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed}/{total}'**
+  String pulsePlanProgress(int completed, int total);
+
+  /// No description provided for @pulsePlanNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape : {stepName}'**
+  String pulsePlanNextStep(String stepName);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

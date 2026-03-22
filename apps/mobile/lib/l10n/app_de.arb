@@ -9450,5 +9450,19 @@
   "dossierDataAvs": "1. S\u00e4ule",
   "dossierDataFiscalite": "Steuern",
   "pulseRetirementIncomeEstimated": "Rente geschätzt (BVG-Minimum)",
-  "dossierScanLppPrecision": "Scanne dein Vorsorgeausweis für genauere Projektionen"
+  "dossierScanLppPrecision": "Scanne dein Vorsorgeausweis für genauere Projektionen",
+  "pulsePlanTitle": "Mein Plan",
+  "pulsePlanProgress": "{completed}/{total}",
+  "@pulsePlanProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "pulsePlanNextStep": "N\u00e4chster\u00a0Schritt:\u00a0{stepName}",
+  "@pulsePlanNextStep": {
+    "placeholders": {
+      "stepName": { "type": "String" }
+    }
+  }
 }

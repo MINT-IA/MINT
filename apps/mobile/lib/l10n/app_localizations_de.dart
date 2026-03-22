@@ -21015,4 +21015,17 @@ class SDe extends S {
   @override
   String get dossierScanLppPrecision =>
       'Scanne dein Vorsorgeausweis für genauere Projektionen';
+
+  @override
+  String get pulsePlanTitle => 'Mein Plan';
+
+  @override
+  String pulsePlanProgress(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String pulsePlanNextStep(String stepName) {
+    return 'Nächster Schritt: $stepName';
+  }
 }

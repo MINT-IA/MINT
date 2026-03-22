@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
+import 'package:mint_mobile/services/cap_step_title_resolver.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/gamification/community_challenge_service.dart';
@@ -304,6 +305,16 @@ class _PulseScreenState extends State<PulseScreen> {
                   const SizedBox(height: MintSpacing.md),
                   CapSequenceCard(sequence: _cachedSequence!),
                 ],
+
+                // ── 3c. PLAN PROGRESS (compact CapSequence strip) ──
+                if (mintState?.capSequencePlan != null &&
+                    mintState!.capSequencePlan!.totalCount > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: MintSpacing.lg),
+                    child: _PlanProgressSection(
+                      sequence: mintState.capSequencePlan!,
+                    ),
+                  ),
 
                 const SizedBox(height: MintSpacing.xl),
 
@@ -1260,6 +1271,107 @@ class _PulseScreenState extends State<PulseScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── PLAN PROGRESS SECTION (compact CapSequence strip) ──
+//
+//  Minimal, calm progress indicator — Swiss-watch simplicity.
+//
+//  Layout:
+//    ┌──────────────────────────────────────┐
+//    │  Mon plan                      3/10  │
+//    │  [═══════░░░░░░░░░░░░░░░░░░░] 30%   │
+//    │  Prochaine étape : Vérifier AVS      │
+//    └──────────────────────────────────────┘
+//
+//  Tap → coach chat with current step as prompt.
+//  ONLY rendered when capSequencePlan != null && totalCount > 0.
+
+class _PlanProgressSection extends StatelessWidget {
+  final CapSequence sequence;
+
+  const _PlanProgressSection({required this.sequence});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final currentStep = sequence.currentStep;
+    final stepTitle = currentStep != null
+        ? resolveCapStepTitle(currentStep.titleKey, l) ?? currentStep.titleKey
+        : null;
+
+    return Semantics(
+      label: '${l.pulsePlanTitle}\u00a0: '
+          '${l.pulsePlanProgress(sequence.completedCount, sequence.totalCount)}',
+      button: currentStep != null,
+      child: GestureDetector(
+        onTap: currentStep != null
+            ? () {
+                final prompt = stepTitle ?? currentStep.titleKey;
+                context.push(
+                  '/coach/chat?prompt=${Uri.encodeComponent(prompt)}',
+                );
+              }
+            : null,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Header: "Mon plan" + "3/10" ──
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l.pulsePlanTitle,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  l.pulsePlanProgress(
+                    sequence.completedCount,
+                    sequence.totalCount,
+                  ),
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: MintSpacing.xs),
+
+            // ── Thin progress bar (3px, rounded) ──
+            ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: sequence.progressPercent,
+                backgroundColor: MintColors.lightBorder,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  MintColors.primary,
+                ),
+                minHeight: 3,
+              ),
+            ),
+
+            // ── Next step label ──
+            if (stepTitle != null) ...[
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                l.pulsePlanNextStep(stepTitle),
+                style: MintTextStyles.bodySmall(
+                  color: MintColors.textMuted,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
         ),
       ),
     );

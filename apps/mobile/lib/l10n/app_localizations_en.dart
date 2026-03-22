@@ -20894,4 +20894,17 @@ class SEn extends S {
   @override
   String get dossierScanLppPrecision =>
       'Scan your certificate for more accurate projections';
+
+  @override
+  String get pulsePlanTitle => 'My plan';
+
+  @override
+  String pulsePlanProgress(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String pulsePlanNextStep(String stepName) {
+    return 'Next step: $stepName';
+  }
 }

@@ -9769,5 +9769,19 @@
   "dossierDataAvs": "1er pilier",
   "dossierDataFiscalite": "Fiscalit\u00e9",
   "pulseRetirementIncomeEstimated": "Retraite estimée (minimum LPP)",
-  "dossierScanLppPrecision": "Scanne ton certificat pour des projections plus précises"
+  "dossierScanLppPrecision": "Scanne ton certificat pour des projections plus précises",
+  "pulsePlanTitle": "Mon plan",
+  "pulsePlanProgress": "{completed}/{total}",
+  "@pulsePlanProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "pulsePlanNextStep": "Prochaine\u00a0\u00e9tape\u00a0: {stepName}",
+  "@pulsePlanNextStep": {
+    "placeholders": {
+      "stepName": { "type": "String" }
+    }
+  }
 }

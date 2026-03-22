@@ -20991,4 +20991,17 @@ class SFr extends S {
   @override
   String get dossierScanLppPrecision =>
       'Scanne ton certificat pour des projections plus précises';
+
+  @override
+  String get pulsePlanTitle => 'Mon plan';
+
+  @override
+  String pulsePlanProgress(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String pulsePlanNextStep(String stepName) {
+    return 'Prochaine étape : $stepName';
+  }
 }

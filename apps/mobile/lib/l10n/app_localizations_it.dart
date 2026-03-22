@@ -21019,4 +21019,17 @@ class SIt extends S {
   @override
   String get dossierScanLppPrecision =>
       'Scansiona il certificato per proiezioni più precise';
+
+  @override
+  String get pulsePlanTitle => 'Il mio piano';
+
+  @override
+  String pulsePlanProgress(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String pulsePlanNextStep(String stepName) {
+    return 'Prossimo passo: $stepName';
+  }
 }

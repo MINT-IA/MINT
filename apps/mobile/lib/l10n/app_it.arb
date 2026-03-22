@@ -9152,5 +9152,19 @@
   "dossierDataAvs": "1\u00b0 pilastro",
   "dossierDataFiscalite": "Fiscalit\u00e0",
   "pulseRetirementIncomeEstimated": "Pensione stimata (minimo LPP)",
-  "dossierScanLppPrecision": "Scansiona il certificato per proiezioni più precise"
+  "dossierScanLppPrecision": "Scansiona il certificato per proiezioni più precise",
+  "pulsePlanTitle": "Il mio piano",
+  "pulsePlanProgress": "{completed}/{total}",
+  "@pulsePlanProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "pulsePlanNextStep": "Prossimo\u00a0passo:\u00a0{stepName}",
+  "@pulsePlanNextStep": {
+    "placeholders": {
+      "stepName": { "type": "String" }
+    }
+  }
 }

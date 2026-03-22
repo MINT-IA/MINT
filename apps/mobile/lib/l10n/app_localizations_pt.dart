@@ -20942,4 +20942,17 @@ class SPt extends S {
   @override
   String get dossierScanLppPrecision =>
       'Digitalize o certificado para projeções mais precisas';
+
+  @override
+  String get pulsePlanTitle => 'Meu plano';
+
+  @override
+  String pulsePlanProgress(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String pulsePlanNextStep(String stepName) {
+    return 'Próximo passo: $stepName';
+  }
 }
