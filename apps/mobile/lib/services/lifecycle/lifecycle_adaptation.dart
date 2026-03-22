@@ -68,9 +68,11 @@ const Map<LifecyclePhase, LifecycleAdaptation> lifecycleAdaptations = {
       'first_job',
       'payslip_explainer',
     ],
-    toneGuidance: 'Encourageant et simple. C\u00e9l\u00e8bre chaque petit progr\u00e8s. '
-        '\u00c9vite le jargon — explique avec des analogies du quotidien. '
-        'Phrases courtes. Un concept \u00e0 la fois.',
+    toneGuidance: 'Tu peux être direct et concret. Cite les montants exacts. '
+        'Pas de précautions oratoires. '
+        'Exemples\u00a0: "CHF\u00a085 d\'Uber Eats. Un mardi." '
+        '"Ton 3a\u00a0: zéro. L\'État te remercie." '
+        'Pas de "petit clin d\'œil" — la donnée EST le ton.',
     complexityLevel: 0.3,
   ),
   LifecyclePhase.construction: LifecycleAdaptation(
@@ -87,9 +89,9 @@ const Map<LifecyclePhase, LifecycleAdaptation> lifecycleAdaptations = {
       'patrimoine_overview',
       'life_event_marriage',
     ],
-    toneGuidance: 'Motivant et concret. L\u2019utilisateur b\u00e2tit son avenir — '
-        'propose des \u00e9tapes actionnables. Vocabulaire financier standard '
-        'avec explications br\u00e8ves.',
+    toneGuidance: 'Direct et factuel. Cite les CHF. '
+        'Compare avec des repères concrets ("ça fait 2x ta moyenne mensuelle"). '
+        'Tu peux utiliser des expressions régionales si le canton le permet.',
     complexityLevel: 0.5,
   ),
   LifecyclePhase.acceleration: LifecycleAdaptation(
@@ -107,9 +109,9 @@ const Map<LifecyclePhase, LifecycleAdaptation> lifecycleAdaptations = {
       'retirement_projection',
       'monte_carlo',
     ],
-    toneGuidance: 'Strat\u00e9gique et orient\u00e9 action. L\u2019utilisateur est en phase '
-        'd\u2019optimisation — propose des leviers concrets. Utilise le '
-        'vocabulaire financier complet avec calculs \u00e0 l\u2019appui.',
+    toneGuidance: 'Précis et stratégique. Cite les montants, les pourcentages, les délais. '
+        'Pas d\'humour gratuit — la clarté suffit. '
+        'Vocabulaire financier complet avec calculs à l\'appui.',
     complexityLevel: 0.75,
   ),
   LifecyclePhase.consolidation: LifecycleAdaptation(
@@ -129,9 +131,9 @@ const Map<LifecyclePhase, LifecycleAdaptation> lifecycleAdaptations = {
       'tax_optimizer',
       'succession',
     ],
-    toneGuidance: 'Rassurant et pr\u00e9cis. L\u2019utilisateur s\u00e9curise sa position — '
-        'pr\u00e9sente les sc\u00e9narios de fa\u00e7on ordonn\u00e9e (bas/moyen/haut). '
-        'Insiste sur ce qui est sous contr\u00f4le. Ton m\u00e9thodique.',
+    toneGuidance: 'Rassurant et précis. '
+        'Chaque chiffre accompagné de contexte ("c\'est dans la norme" / "attention, c\'est en dessous"). '
+        'Ton calme. Présente les scénarios de façon ordonnée (bas/moyen/haut).',
     complexityLevel: 0.85,
   ),
   LifecyclePhase.transition: LifecycleAdaptation(
@@ -149,9 +151,9 @@ const Map<LifecyclePhase, LifecycleAdaptation> lifecycleAdaptations = {
       'lpp_deep',
       'tax_optimizer',
     ],
-    toneGuidance: 'Calme et structur\u00e9. L\u2019utilisateur approche d\u2019une d\u00e9cision '
-        'irr\u00e9versible — pr\u00e9sente chaque option clairement avec ses '
-        'implications \u00e0 long terme. \u00c9vite l\u2019urgence artificielle.',
+    toneGuidance: 'Calme et structuré. '
+        'Présente les options une par une. Pas de pression. '
+        'Chaque décision est posée. Évite l\'urgence artificielle.',
     complexityLevel: 0.9,
   ),
   LifecyclePhase.retraite: LifecycleAdaptation(
@@ -168,9 +170,9 @@ const Map<LifecyclePhase, LifecycleAdaptation> lifecycleAdaptations = {
       'lamal_optimizer',
       'succession',
     ],
-    toneGuidance: 'S\u00e9r\u00e8ne et de soutien. L\u2019utilisateur vit sa retraite — '
-        'pr\u00e9sente les montants mensuels (pas annuels). Phrases courtes. '
-        'Actions imm\u00e9diates et concr\u00e8tes. Pas de jargon.',
+    toneGuidance: 'Serein. Langage clair, phrases courtes. '
+        'Pas de jargon. Utilise les montants mensuels (jamais annuels). '
+        'Respecte le rythme de l\'utilisateur.',
     complexityLevel: 0.5,
   ),
   LifecyclePhase.transmission: LifecycleAdaptation(
@@ -186,9 +188,9 @@ const Map<LifecyclePhase, LifecycleAdaptation> lifecycleAdaptations = {
       'donation_simulator',
       'advance_directive',
     ],
-    toneGuidance: 'Sage et respectueux. L\u2019utilisateur pr\u00e9pare sa transmission — '
-        'ton digne, sans euphémismes excessifs. Clarté sur les d\u00e9marches '
-        'l\u00e9gales. Un sujet \u00e0 la fois.',
+    toneGuidance: 'Respectueux et factuel. '
+        'La succession est un sujet sensible — précision maximale, ton digne. '
+        'Clarté sur les démarches légales. Un sujet à la fois.',
     complexityLevel: 0.4,
   ),
 };

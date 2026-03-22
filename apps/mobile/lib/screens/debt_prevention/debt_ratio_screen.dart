@@ -400,21 +400,17 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           Row(
             children: [
               Icon(icon, color: color, size: 16),
-              const SizedBox(width: 6),
+              const SizedBox(width: MintSpacing.xs + 2),
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                    letterSpacing: 0.3,
-                  ),
+                  style: MintTextStyles.labelSmall(color: color)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           // Tappable value — opens keyboard input
           GestureDetector(
             onTap: () => _showValueEditor(
@@ -434,7 +430,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           // Stepper buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -494,7 +490,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     required ValueChanged<int> onChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -505,14 +501,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-              letterSpacing: 0.3,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.primary)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           Container(
             decoration: BoxDecoration(
               color: MintColors.surface,
@@ -526,7 +518,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     onTap: () => onChanged(i),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: MintSpacing.sm + 2),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? MintColors.primary
@@ -536,13 +529,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         options[i],
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.bodySmall(
                           color: isSelected
                               ? MintColors.white
                               : MintColors.textMuted,
-                        ),
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -563,7 +554,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     required ValueChanged<int> onChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -574,14 +565,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-              letterSpacing: 0.3,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.primary)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: options.map((opt) {
@@ -602,13 +589,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   alignment: Alignment.center,
                   child: Text(
                     display,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.bodySmall(
                       color: isSelected
                           ? MintColors.white
                           : MintColors.textMuted,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               );
@@ -689,15 +674,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.xs),
               Text(
                 S.of(context)!.debtRatioMinMaxDisplay(formatChf(min), formatChf(max)),
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: MintSpacing.lg),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -715,17 +697,15 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm + 6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
                     S.of(context)!.debtRatioValidate,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.white)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
