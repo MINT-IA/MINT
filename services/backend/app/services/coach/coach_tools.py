@@ -452,15 +452,15 @@ def get_read_only_tools() -> list[dict[str, Any]]:
 def get_llm_tools() -> list[dict[str, Any]]:
     """Return COACH_TOOLS cleaned for the Anthropic API.
 
-    Strips backend-only fields (category, access_level) that the
-    LLM API does not understand.  These fields are used by
-    get_tools_by_category() and get_read_only_tools() for
-    backend access control only.
+    Uses an ALLOWLIST of fields required by the Anthropic tool-use API
+    (name, description, input_schema).  Any backend-only field (category,
+    access_level, or future additions) is automatically excluded.
 
     Always use this function when passing tools to orchestrator.query().
     Never pass COACH_TOOLS raw to the LLM.
     """
+    _LLM_ALLOWED_FIELDS = {"name", "description", "input_schema"}
     return [
-        {k: v for k, v in tool.items() if k not in ("category", "access_level")}
+        {k: v for k, v in tool.items() if k in _LLM_ALLOWED_FIELDS}
         for tool in COACH_TOOLS
     ]

@@ -42,6 +42,7 @@ class RAGOrchestrator:
         language: str = "fr",
         n_results: int = 5,
         tools: list[dict] | None = None,
+        system_prompt: Optional[str] = None,
     ) -> dict:
         """
         Execute the full RAG pipeline.
@@ -50,7 +51,7 @@ class RAGOrchestrator:
             1. Retrieve relevant chunks from the vector store.
             2. Build context from chunks.
             3. Create LLM client with BYOK key.
-            4. Generate response with guardrails system prompt.
+            4. Generate response with system prompt + compliance filter.
             5. Apply post-generation compliance filter.
             6. Return answer with sources and disclaimers.
 
@@ -64,6 +65,11 @@ class RAGOrchestrator:
             n_results: Number of context chunks to retrieve.
             tools: Optional list of tool definitions (Anthropic format).
                    When provided, Claude may return tool_use blocks alongside text.
+            system_prompt: Optional override for the system prompt.  When
+                   provided, this is used INSTEAD of the generic guardrails
+                   prompt.  The caller is responsible for including compliance
+                   rules in the override prompt (coach_chat.py does this via
+                   build_system_prompt which embeds compliance directives).
 
         Returns:
             Dict with keys: answer, sources, disclaimers, tokens_used.
@@ -95,10 +101,15 @@ class RAGOrchestrator:
             model=model,
         )
 
-        # Step 4: Generate response with guardrails system prompt
-        system_prompt = self.guardrails.build_system_prompt(
-            language, profile_context=profile_context
-        )
+        # Step 4: Generate response with system prompt
+        # Use the caller-provided system prompt if available (e.g., the coach
+        # endpoint builds a rich prompt with lifecycle, regional voice, plan
+        # awareness, and structured reasoning).  Fall back to the generic
+        # guardrails prompt for other callers (e.g., RAG-only queries).
+        if not system_prompt:
+            system_prompt = self.guardrails.build_system_prompt(
+                language, profile_context=profile_context
+            )
         raw_response = await llm_client.generate(
             system_prompt=system_prompt,
             user_message=question,
