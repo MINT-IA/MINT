@@ -1,31 +1,34 @@
-/// Platform voice backend — Sprint S63.
+/// Platform voice backend — Sprint S63 (STT activated P1-B).
 ///
 /// Implements [VoiceBackend] using Flutter platform channels to probe
-/// native TTS/STT availability WITHOUT adding pubspec dependencies.
+/// native TTS/STT availability with graceful degradation.
 ///
 /// Strategy:
-///   STT  — always returns false until `speech_to_text` plugin is added.
+///   STT  — uses `speech_to_text` plugin. Probes channel for availability.
+///           Returns [VoiceResult] with final transcript (no streaming).
 ///           Catches [MissingPluginException] so the app never crashes.
 ///   TTS  — probes `flutter_tts` channel; degrades gracefully on missing plugin.
 ///          Returns false when the channel is absent (web, desktop, no plugin).
 ///
 /// Graceful degradation contract:
-///   - isSttAvailable()  → always false (no plugin)
+///   - isSttAvailable()  → true only when speech_to_text channel responds
 ///   - isTtsAvailable()  → true only when platform channel responds positively
-///   - listen()          → throws [UnsupportedError] (STT unavailable)
-///   - speak()           → throws [UnsupportedError] (TTS unavailable)
-///   - cancelListening() → no-op
+///   - listen()          → transcribes speech via speech_to_text plugin
+///   - speak()           → speaks text via flutter_tts plugin
+///   - cancelListening() → stops listening via speech_to_text plugin
 ///   - stopSpeaking()    → no-op (or invokes stop channel if TTS was probed)
 ///
 /// Compliance: no PII ever passes through this layer directly.
 /// Privacy: this backend holds no user state.
 ///
-/// References: Flutter platform channels docs, flutter_tts package API.
+/// References: Flutter platform channels docs, flutter_tts package API,
+///             speech_to_text package API.
 library;
 
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import 'package:mint_mobile/services/coach/voice_service.dart';
 
@@ -58,7 +61,7 @@ class PlatformVoiceBackend implements VoiceBackend {
   /// Cached TTS availability — null means not yet probed.
   bool? _ttsAvailable;
 
-  /// Cached STT availability — always false (no plugin).
+  /// Cached STT availability — null means not yet probed.
   bool? _sttAvailable;
 
   // ── Platform channels ─────────────────────────────────────
@@ -69,12 +72,21 @@ class PlatformVoiceBackend implements VoiceBackend {
   /// Method channel for STT probing (speech_to_text).
   static const _sttChannel = MethodChannel(_kSpeechToTextChannel);
 
+  // ── STT plugin instance ────────────────────────────────────
+
+  /// Lazy-initialized speech_to_text instance.
+  stt.SpeechToText? _speech;
+
+  /// Whether the speech_to_text plugin has been initialized.
+  bool _speechInitialized = false;
+
   // ── Availability ──────────────────────────────────────────
 
-  /// STT is not available — returns false until `speech_to_text` is added.
+  /// STT availability — probes `speech_to_text` channel.
   ///
-  /// Probes the platform channel so the result is honest and future-proof.
-  /// If the channel responds, STT is considered available.
+  /// Returns true only when the platform channel responds without error.
+  /// Catches [MissingPluginException] (plugin not installed) and [PlatformException]
+  /// (mic permission denied or engine unavailable), returning false in both cases.
   @override
   Future<bool> isSttAvailable() async {
     if (_sttAvailable != null) return _sttAvailable!;
@@ -96,24 +108,91 @@ class PlatformVoiceBackend implements VoiceBackend {
 
   // ── STT ───────────────────────────────────────────────────
 
-  /// Start listening — not available without `speech_to_text` plugin.
+  /// Start listening — uses `speech_to_text` plugin for transcription.
   ///
-  /// Always throws [UnsupportedError] describing how to enable STT.
+  /// Waits for the final result (no streaming). Returns [VoiceResult] with
+  /// the transcript text, confidence score, and locale.
+  ///
+  /// Throws [UnsupportedError] when STT is not available on this device.
+  /// Throws [PlatformException] on engine error (caller should catch).
   @override
   Future<VoiceResult> listen({
     Duration maxDuration = const Duration(seconds: 30),
     int silenceTimeout = 3,
     String locale = 'fr-CH',
   }) async {
-    throw UnsupportedError(
-      'La reconnaissance vocale n\'est pas disponible sur cet appareil. '
-      'Ajoutez le plugin speech_to_text pour l\'activer.',
-    );
+    if (!await isSttAvailable()) {
+      throw UnsupportedError(
+        'La reconnaissance vocale n\'est pas disponible sur cet appareil.',
+      );
+    }
+
+    try {
+      final speech = await _ensureSpeechInit();
+      final completer = Completer<VoiceResult>();
+      final stopwatch = Stopwatch()..start();
+
+      speech.listen(
+        onResult: (result) {
+          // Only return when the speech engine confirms this is the final result.
+          if (result.finalResult && !completer.isCompleted) {
+            stopwatch.stop();
+            completer.complete(VoiceResult(
+              transcript: result.recognizedWords,
+              confidence: result.confidence,
+              duration: stopwatch.elapsed,
+              locale: locale,
+            ));
+          }
+        },
+        listenFor: maxDuration,
+        pauseFor: Duration(seconds: silenceTimeout),
+        localeId: locale,
+        listenOptions: stt.SpeechListenOptions(
+          cancelOnError: true,
+          partialResults: false,
+          listenMode: stt.ListenMode.confirmation,
+        ),
+      );
+
+      // Timeout guard — if the plugin never fires a final result, return empty.
+      final timeout = maxDuration + const Duration(seconds: 2);
+      return completer.future.timeout(
+        timeout,
+        onTimeout: () {
+          stopwatch.stop();
+          speech.stop();
+          return VoiceResult(
+            transcript: '',
+            confidence: 0.0,
+            duration: stopwatch.elapsed,
+            locale: locale,
+          );
+        },
+      );
+    } on MissingPluginException {
+      _sttAvailable = false;
+      throw UnsupportedError(
+        'La reconnaissance vocale n\'est pas disponible sur cet appareil.',
+      );
+    } on PlatformException {
+      rethrow;
+    }
   }
 
-  /// Cancel listening — no-op (STT unavailable).
+  /// Cancel an in-progress listen — stops the speech_to_text plugin.
   @override
-  Future<void> cancelListening() async {}
+  Future<void> cancelListening() async {
+    if (_speechInitialized && _speech != null) {
+      try {
+        await _speech!.cancel();
+      } on MissingPluginException {
+        _sttAvailable = false;
+      } on PlatformException {
+        // Engine error during cancel — swallow silently.
+      }
+    }
+  }
 
   // ── TTS ───────────────────────────────────────────────────
 
@@ -207,9 +286,30 @@ class PlatformVoiceBackend implements VoiceBackend {
     }
   }
 
+  /// Initialize the speech_to_text instance if not already done.
+  ///
+  /// Returns the initialized [stt.SpeechToText] instance.
+  /// Throws if initialization fails.
+  Future<stt.SpeechToText> _ensureSpeechInit() async {
+    if (_speechInitialized && _speech != null) return _speech!;
+    _speech = stt.SpeechToText();
+    final available = await _speech!.initialize();
+    if (!available) {
+      _speech = null;
+      _sttAvailable = false;
+      throw UnsupportedError(
+        'La reconnaissance vocale n\'est pas disponible sur cet appareil.',
+      );
+    }
+    _speechInitialized = true;
+    return _speech!;
+  }
+
   /// Reset cached availability — useful for testing or after permission change.
   void resetCache() {
     _ttsAvailable = null;
     _sttAvailable = null;
+    _speechInitialized = false;
+    _speech = null;
   }
 }

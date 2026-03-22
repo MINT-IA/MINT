@@ -1,20 +1,19 @@
-/// PlatformVoiceBackend tests — Sprint S63.
+/// PlatformVoiceBackend tests — Sprint S63 (P1-B STT).
 ///
 /// 10 tests covering:
-///   - STT always returns false (no speech_to_text plugin)
+///   - STT returns false when channel is absent (graceful degradation)
+///   - STT returns true when speech_to_text channel responds
 ///   - Capabilities detection does not crash
 ///   - Graceful degradation on missing plugin (MissingPluginException)
-///   - listen() throws UnsupportedError
-///   - cancelListening() is a no-op (no throw)
+///   - listen() throws UnsupportedError when STT unavailable
+///   - cancelListening() is a no-op when STT not initialized (no throw)
 ///   - stopSpeaking() is a no-op when TTS is unavailable
 ///   - resetCache() clears cached availability
 ///   - isTtsAvailable() caches result on repeated calls
-///   - isSttAvailable() caches result on repeated calls
 ///   - speak() throws UnsupportedError when TTS unavailable
 ///
-/// Note: flutter_tts and speech_to_text are NOT in pubspec.yaml.
-/// All channel calls will throw MissingPluginException in the test
-/// environment — which the backend must handle gracefully.
+/// Note: In test environment, channel calls throw MissingPluginException
+/// unless a mock handler is registered — the backend handles this gracefully.
 library;
 
 import 'package:flutter/services.dart';
@@ -146,7 +145,7 @@ void main() {
       _removeMock('plugin.csdcorp.com/speech_recognition');
     });
 
-    test('listen() always throws UnsupportedError', () async {
+    test('listen() throws UnsupportedError when STT unavailable', () async {
       final backend = PlatformVoiceBackend();
       expect(
         () => backend.listen(),
