@@ -118,9 +118,8 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
     }
 
     kwargs = {k: v for k, v in profile_context.items() if k in _KNOWN_FIELDS and v is not None}
-    extra = {k: v for k, v in profile_context.items() if k not in _KNOWN_FIELDS and v is not None}
-    if extra:
-        kwargs["known_values"] = extra
+    # Privacy: unknown fields are DROPPED, not forwarded.
+    # This prevents PII leakage if Flutter sends unexpected fields (e.g. employer).
 
     try:
         return build_coach_context(**kwargs)

@@ -8941,6 +8941,11 @@ class SFr extends S {
   String get pulseKeyFigPatrimoine => 'Patrimoine';
 
   @override
+  String pulseAmountPerMonth(String amount) {
+    return '$amount/mois';
+  }
+
+  @override
   String pulseCoupleRetraite(String montant) {
     return 'Retraite couple : $montant';
   }
@@ -12245,9 +12250,6 @@ class SFr extends S {
   String get tabPulse => 'Pulse';
 
   @override
-  String get tabMint => 'MINT';
-
-  @override
   String get authGateDocScanTitle => 'Sécurise tes documents';
 
   @override
@@ -12869,6 +12871,9 @@ class SFr extends S {
   String affordabilityInsightLppCap(String lppUtilise, String lppTotal) {
     return 'Ton 2e pilier est plafonné : seuls CHF $lppUtilise sur $lppTotal sont comptés (max 10 % du prix, règle ASB).';
   }
+
+  @override
+  String get tabMint => 'Mint';
 
   @override
   String get pulseNarrativeRetirementClose =>
@@ -20832,5 +20837,130 @@ class SFr extends S {
   @override
   String openerPlanProgress(String n, String total, String next) {
     return 'Étape $n/$total validée. Prochaine : $next.';
+  }
+
+  @override
+  String get semanticsBackButton => 'Retour';
+
+  @override
+  String get semanticsDecrement => 'Diminuer';
+
+  @override
+  String get semanticsIncrement => 'Augmenter';
+
+  @override
+  String get frontalierDisclaimer =>
+      'Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée. LSFin.';
+
+  @override
+  String get firstJobPayslipAvsExplanation =>
+      'Cotisation salarié·e : 5.3% du brut. Ton employeur paie aussi 5.3% en plus.';
+
+  @override
+  String get firstJobPayslipLppExplanation =>
+      'Épargne vieillesse obligatoire dès 25 ans. Le taux exact dépend de ta caisse et ton âge.';
+
+  @override
+  String get firstJobPayslipImpotLabel => 'Impôt à la source (estimation)';
+
+  @override
+  String get firstJobPayslipImpotExplanation =>
+      'Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.';
+
+  @override
+  String get firstJobChecklistDeadline1 => 'Avant de quitter';
+
+  @override
+  String get firstJobChecklistAction1 =>
+      'Demande ton certificat LPP à ton employeur actuel.';
+
+  @override
+  String get firstJobChecklistConsequence1 =>
+      'Sans certificat, tu ne peux pas vérifier que le montant transféré est correct.';
+
+  @override
+  String get firstJobChecklistDeadline2 => '30 jours';
+
+  @override
+  String get firstJobChecklistAction2 =>
+      'Vérifie que ton avoir LPP a été transféré à la caisse de ton nouvel employeur.';
+
+  @override
+  String get firstJobChecklistConsequence2 =>
+      'Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05%.';
+
+  @override
+  String get firstJobChecklistDeadline3 => '1 mois';
+
+  @override
+  String get firstJobChecklistAction3 =>
+      'Informe ton assurance-maladie LAMal du changement d\'employeur si tu bénéficiais d\'une couverture collective.';
+
+  @override
+  String get firstJobChecklistDeadline4 => 'Dès le premier salaire';
+
+  @override
+  String get firstJobChecklistAction4 =>
+      'Continue tes versements au pilier 3a — l\'interruption te coûte des déductions fiscales.';
+
+  @override
+  String get firstJobBudgetBesoins => 'Besoins';
+
+  @override
+  String get firstJobBudgetLoyer => 'Loyer';
+
+  @override
+  String get firstJobBudgetTransport => 'Transport';
+
+  @override
+  String get firstJobBudgetAlimentation => 'Alimentation';
+
+  @override
+  String get firstJobBudgetEnvies => 'Envies';
+
+  @override
+  String get firstJobBudgetLoisirs => 'Loisirs';
+
+  @override
+  String get firstJobBudgetRestaurants => 'Restaurants';
+
+  @override
+  String get firstJobBudgetVoyages => 'Voyages';
+
+  @override
+  String get firstJobBudgetShopping => 'Shopping';
+
+  @override
+  String get firstJobBudgetEpargne => 'Épargne & 3a';
+
+  @override
+  String get firstJobBudgetPilier3a => 'Pilier 3a';
+
+  @override
+  String get firstJobBudgetEpargneCourt => 'Épargne';
+
+  @override
+  String get firstJobBudgetFondsUrgence => 'Fonds d\'urgence';
+
+  @override
+  String firstJobBudgetChiffreChoc(String annual, String future) {
+    return 'Si tu épargnes $annual CHF/an dès maintenant, tu auras ~$future CHF à 65 ans.';
+  }
+
+  @override
+  String get firstJobScenarioMySalary => 'Mon salaire';
+
+  @override
+  String get firstJobScenarioDefault => 'Défaut';
+
+  @override
+  String get firstJobScenarioMedianCH => 'Médian CH';
+
+  @override
+  String get firstJobScenarioBoosted => '+20%';
+
+  @override
+  String firstJobScenarioSemantics(String label) {
+    return 'Scénario salaire : $label';
   }
 }

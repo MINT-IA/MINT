@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show PulseScreen, NavigationShellState;
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
@@ -278,12 +279,13 @@ class _NavItem extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  style: MintTextStyles.labelSmall(
                     color: isActive
                         ? MintColors.primary
                         : MintColors.textSecondary,
+                  ).copyWith(
+                    fontSize: 10,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ],

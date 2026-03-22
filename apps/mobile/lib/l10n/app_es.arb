@@ -4192,6 +4192,14 @@
   },
   "pulseKeyFigBudgetLibre": "Presupuesto libre",
   "pulseKeyFigPatrimoine": "Patrimonio",
+  "pulseAmountPerMonth": "{amount}/mes",
+  "@pulseAmountPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseCoupleRetraite": "Jubilación pareja: {montant}",
   "@pulseCoupleRetraite": {
     "placeholders": {
@@ -5855,7 +5863,6 @@
   "benchmarkBelowRange": "Tu situación está por debajo del rango típico.",
   "benchmarkTypicalRange": "Rango típico: {low} – {high}",
   "tabPulse": "Pulse",
-  "tabMint": "Mint",
   "authGateDocScanTitle": "Protege tus documentos",
   "authGateDocScanMessage": "Tus certificados contienen datos sensibles. Crea una cuenta para protegerlos con cifrado de extremo a extremo.",
   "authGateSalaryTitle": "Protege tus datos financieros",
@@ -6106,7 +6113,7 @@
       "lppTotal": {"type": "String"}
     }
   },
-  "tabMint": "MINT",
+  "tabMint": "Mint",
   "pulseNarrativeRetirementClose": "tu jubilación se acerca. Aquí está tu situación.",
   "pulseNarrativeYearsToAct": "tienes {yearsToRetire} años para actuar. Cada año cuenta.",
   "@pulseNarrativeYearsToAct": {"placeholders": {"yearsToRetire": {"type": "int"}}},
@@ -9170,6 +9177,54 @@
       "n": {"type": "String"},
       "total": {"type": "String"},
       "next": {"type": "String"}
+    }
+  },
+  "semanticsBackButton": "Volver",
+  "semanticsDecrement": "Disminuir",
+  "semanticsIncrement": "Aumentar",
+  "frontalierDisclaimer": "Estimaciones simplificadas con fines educativos — no constituye asesoramiento fiscal o jurídico. Los importes dependen de muchos factores. Consulta un especialista fiscal para un análisis personalizado. LSFin.",
+  "firstJobPayslipAvsExplanation": "Cotización del empleado: 5.3% del salario bruto. Tu empleador también paga 5.3% adicional.",
+  "firstJobPayslipLppExplanation": "Ahorro para la jubilación obligatorio desde los 25 años. La tasa exacta depende de tu fondo y edad.",
+  "firstJobPayslipImpotLabel": "Impuesto en la fuente (estimación)",
+  "firstJobPayslipImpotExplanation": "Deducido directamente del salario si pagas impuestos en la fuente. La tasa varía según cantón, estado civil e ingresos.",
+  "firstJobChecklistDeadline1": "Antes de salir",
+  "firstJobChecklistAction1": "Solicita tu certificado LPP a tu empleador actual.",
+  "firstJobChecklistConsequence1": "Sin certificado, no puedes verificar que el importe transferido es correcto.",
+  "firstJobChecklistDeadline2": "30 días",
+  "firstJobChecklistAction2": "Verifica que tu capital LPP se haya transferido al fondo de tu nuevo empleador.",
+  "firstJobChecklistConsequence2": "Sin transferencia, tu capital va a la fundación supletoria a una tasa del 0.05%.",
+  "firstJobChecklistDeadline3": "1 mes",
+  "firstJobChecklistAction3": "Informa a tu seguro de salud LAMal del cambio de empleador si tenías cobertura colectiva.",
+  "firstJobChecklistDeadline4": "Desde el primer sueldo",
+  "firstJobChecklistAction4": "Continúa tus aportaciones al pilar 3a — la interrupción te cuesta deducciones fiscales.",
+  "firstJobBudgetBesoins": "Necesidades",
+  "firstJobBudgetLoyer": "Alquiler",
+  "firstJobBudgetTransport": "Transporte",
+  "firstJobBudgetAlimentation": "Alimentación",
+  "firstJobBudgetEnvies": "Deseos",
+  "firstJobBudgetLoisirs": "Ocio",
+  "firstJobBudgetRestaurants": "Restaurantes",
+  "firstJobBudgetVoyages": "Viajes",
+  "firstJobBudgetShopping": "Compras",
+  "firstJobBudgetEpargne": "Ahorro & 3a",
+  "firstJobBudgetPilier3a": "Pilar 3a",
+  "firstJobBudgetEpargneCourt": "Ahorros",
+  "firstJobBudgetFondsUrgence": "Fondo de emergencia",
+  "firstJobBudgetChiffreChoc": "Si ahorras {annual} CHF/año desde ahora, tendrás ~{future} CHF a los 65.",
+  "@firstJobBudgetChiffreChoc": {
+    "placeholders": {
+      "annual": {"type": "String"},
+      "future": {"type": "String"}
+    }
+  },
+  "firstJobScenarioMySalary": "Mi salario",
+  "firstJobScenarioDefault": "Por defecto",
+  "firstJobScenarioMedianCH": "Mediana CH",
+  "firstJobScenarioBoosted": "+20%",
+  "firstJobScenarioSemantics": "Escenario salarial: {label}",
+  "@firstJobScenarioSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
     }
   }
 }

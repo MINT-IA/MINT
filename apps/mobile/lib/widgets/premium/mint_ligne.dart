@@ -82,21 +82,23 @@ class _MintLigneState extends State<MintLigne>
   Widget build(BuildContext context) {
     final lineColor = widget.color ?? MintColors.ardoise.withValues(alpha: 0.15);
 
-    return AnimatedBuilder(
-      animation: _widthFraction,
-      builder: (context, _) {
-        return SizedBox(
-          width: widget.width,
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: _widthFraction.value,
-            child: Container(
-              height: widget.thickness,
-              color: lineColor,
+    return ExcludeSemantics(
+      child: AnimatedBuilder(
+        animation: _widthFraction,
+        builder: (context, _) {
+          return SizedBox(
+            width: widget.width,
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: _widthFraction.value,
+              child: Container(
+                height: widget.thickness,
+                color: lineColor,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

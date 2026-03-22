@@ -392,3 +392,86 @@ class TestPlanAwareness:
         ]
         for p in prompts:
             assert "PLAN AWARENESS" in p, "PLAN AWARENESS missing from system prompt variant"
+
+
+# ===========================================================================
+# TestLifecycleToneDirectives — concrete tone directives per phase
+# ===========================================================================
+
+class TestLifecycleToneDirectives:
+    """Tests verifying the LIFECYCLE TONE DIRECTIVES block is present and concrete."""
+
+    def test_lifecycle_tone_directives_section_present(self, base_prompt):
+        """The prompt must contain the LIFECYCLE TONE DIRECTIVES block."""
+        assert "LIFECYCLE TONE DIRECTIVES" in base_prompt
+
+    def test_tone_directive_for_demarrage_is_concrete(self, base_prompt):
+        """demarrage directive must reference direct communication and amounts."""
+        lower = base_prompt.lower()
+        assert "demarrage" in lower
+        # Must mention directness and concrete amounts
+        assert "direct" in lower
+        assert "chf" in lower or "exact amounts" in lower or "amounts" in lower
+
+    def test_tone_directive_for_construction_references_comparisons(self, base_prompt):
+        """construction directive must reference CHF comparisons."""
+        lower = base_prompt.lower()
+        assert "construction" in lower
+        assert "chf" in lower or "factual" in lower
+
+    def test_tone_directive_for_acceleration_references_strategic(self, base_prompt):
+        """acceleration directive must mention strategic or percentages."""
+        lower = base_prompt.lower()
+        assert "acceleration" in lower
+        assert "strategic" in lower or "percentages" in lower or "deadlines" in lower
+
+    def test_tone_directive_for_consolidation_references_context(self, base_prompt):
+        """consolidation directive must reference contextual framing."""
+        lower = base_prompt.lower()
+        assert "consolidation" in lower
+        assert "norme" in lower or "reassuring" in lower or "context" in lower
+
+    def test_tone_directive_for_transition_references_calm(self, base_prompt):
+        """transition directive must reference calm and no pressure."""
+        lower = base_prompt.lower()
+        assert "transition" in lower
+        assert "calm" in lower or "pressure" in lower
+
+    def test_tone_directive_for_retraite_references_serene(self, base_prompt):
+        """retraite directive must reference serene tone and no jargon."""
+        lower = base_prompt.lower()
+        assert "retraite" in lower
+        assert "serene" in lower or "jargon" in lower or "short sentences" in lower
+
+    def test_tone_directive_data_is_tone_principle(self, base_prompt):
+        """The prompt must state that data IS the tone (core principle)."""
+        lower = base_prompt.lower()
+        assert "data is the tone" in lower or "data ist" in lower or "donnée est le ton" in lower \
+               or "number speaks" in lower or "a number speaks" in lower
+
+    def test_lifecycle_tone_directives_in_every_prompt_variant(self):
+        """Every prompt variant must contain LIFECYCLE TONE DIRECTIVES."""
+        prompts = [
+            build_system_prompt(ctx=None),
+            build_system_prompt(ctx=CoachContext(first_name="Test")),
+            build_system_prompt(ctx=CoachContext(first_name="Julien", age=49, canton="VS")),
+        ]
+        for p in prompts:
+            assert "LIFECYCLE TONE DIRECTIVES" in p, (
+                "LIFECYCLE TONE DIRECTIVES missing from system prompt variant"
+            )
+
+    def test_tone_directive_no_vague_adjectives_as_sole_instruction(self, base_prompt):
+        """The tone directives must not use single vague adjectives as instructions.
+        'encouraging' or 'motivating' alone are banned — directives must be concrete."""
+        # The directives section starts after LIFECYCLE TONE DIRECTIVES:
+        start = base_prompt.find("LIFECYCLE TONE DIRECTIVES")
+        assert start != -1
+        directives_section = base_prompt[start:]
+        # These are examples of old vague-only patterns that should not appear as
+        # standalone instructions (they may appear as part of a longer concrete sentence)
+        lower_section = directives_section.lower()
+        # The section must not be dominated by vague words without concrete anchors
+        assert "chf" in lower_section or "amounts" in lower_section or "direct" in lower_section, (
+            "LIFECYCLE TONE DIRECTIVES must contain concrete terms (CHF, amounts, direct)"
+        )

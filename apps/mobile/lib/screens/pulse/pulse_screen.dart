@@ -264,32 +264,23 @@ class _PulseScreenState extends State<PulseScreen> {
               children: [
                 const SizedBox(height: MintSpacing.xxl),
 
-                // ── 1. PHRASE PERSONNALISÉE ──
-                Text(
-                  narrativePhrase,
-                  style: MintTextStyles.bodyLarge(
-                    color: MintColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.lg),
-
-                // ── 2. CHIFFRE DOMINANT (Revelation 5 temps) ──
+                // ── 1+2. REVELATION 5 TEMPS ──
+                // Setup text (narrative) → silence → count-up → ligne → context
+                // All orchestrated by MintCountUp as a single sequence.
                 MintCountUp(
                   value: dominantNumber.value.abs(),
                   prefix: _dominantPrefix(dominantNumber),
                   suffix: _dominantSuffix(dominantNumber),
+                  setupText: narrativePhrase,
                   contextText: dominantLabel,
                   color: dominantColor,
                   fullReveal: !_hasRevealedOnce,
+                  onRevealComplete: () {
+                    if (mounted && !_hasRevealedOnce) {
+                      setState(() => _hasRevealedOnce = true);
+                    }
+                  },
                 ),
-                if (!_hasRevealedOnce)
-                  Builder(builder: (_) {
-                    // Mark first reveal as done after build
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) setState(() => _hasRevealedOnce = true);
-                    });
-                    return const SizedBox.shrink();
-                  }),
                 const SizedBox(height: MintSpacing.xs),
                 Align(
                   alignment: Alignment.centerRight,
@@ -547,9 +538,11 @@ class _PulseScreenState extends State<PulseScreen> {
       if (n.value >= 40) return MintColors.warning;
       return MintColors.error;
     }
-    // CHF: budget margin uses positive/negative semantic colour
+    // CHF: budget margin — full semantic colour spectrum
     if (n.type == _NumberType.chf) {
+      if (n.value > 0) return MintColors.success;
       if (n.value < 0) return MintColors.warning;
+      return MintColors.textSecondary; // exactly zero = neutral
     }
     return MintColors.textPrimary;
   }
@@ -558,7 +551,8 @@ class _PulseScreenState extends State<PulseScreen> {
   String _dominantPrefix(_DominantNumber n) {
     switch (n.type) {
       case _NumberType.chf:
-        return n.value >= 0 ? '+' : '-';
+        if (n.value == 0) return '';
+        return n.value > 0 ? '+' : '-';
       case _NumberType.percentage:
       case _NumberType.score:
         return '';
@@ -1002,8 +996,8 @@ class _PulseScreenState extends State<PulseScreen> {
       signals.add(_SignalRow(
         label: l.pulseKeyFigBudgetLibre,
         value: libre >= 0
-            ? '+${formatChfWithPrefix(libre)}/mois'
-            : '${formatChfWithPrefix(libre)}/mois',
+            ? l.pulseAmountPerMonth('+${formatChfWithPrefix(libre)}')
+            : l.pulseAmountPerMonth(formatChfWithPrefix(libre)),
         color: libre >= 0 ? MintColors.success : MintColors.warning,
         onTap: () => context.push('/budget'),
       ));

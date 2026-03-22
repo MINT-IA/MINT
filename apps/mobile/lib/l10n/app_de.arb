@@ -4192,6 +4192,14 @@
   },
   "pulseKeyFigBudgetLibre": "Freies Budget",
   "pulseKeyFigPatrimoine": "Vermögen",
+  "pulseAmountPerMonth": "{amount}/Monat",
+  "@pulseAmountPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseCoupleRetraite": "Rente als Paar: {montant}",
   "@pulseCoupleRetraite": {
     "placeholders": {
@@ -5869,7 +5877,6 @@
   "benchmarkBelowRange": "Deine Situation liegt unter dem typischen Bereich.",
   "benchmarkTypicalRange": "Typischer Bereich: {low} – {high}",
   "tabPulse": "Pulse",
-  "tabMint": "Mint",
   "authGateDocScanTitle": "Sichere deine Dokumente",
   "authGateDocScanMessage": "Deine Zertifikate enthalten sensible Daten. Erstelle ein Konto, um sie mit Ende-zu-Ende-Verschlüsselung zu schützen.",
   "authGateSalaryTitle": "Schütze deine Finanzdaten",
@@ -6120,7 +6127,7 @@
       "lppTotal": {"type": "String"}
     }
   },
-  "tabMint": "MINT",
+  "tabMint": "Mint",
   "pulseNarrativeRetirementClose": "deine Pensionierung naht. Hier ist dein aktueller Stand.",
   "pulseNarrativeYearsToAct": "du hast {yearsToRetire} Jahre zum Handeln. Jedes Jahr zählt.",
   "@pulseNarrativeYearsToAct": {"placeholders": {"yearsToRetire": {"type": "int"}}},
@@ -9385,6 +9392,54 @@
       "n": {"type": "String"},
       "total": {"type": "String"},
       "next": {"type": "String"}
+    }
+  },
+  "semanticsBackButton": "Zur\u00fcck",
+  "semanticsDecrement": "Verringern",
+  "semanticsIncrement": "Erh\u00f6hen",
+  "frontalierDisclaimer": "Vereinfachte Sch\u00e4tzungen zu Bildungszwecken — kein Steuer- oder Rechtsrat. Betr\u00e4ge h\u00e4ngen von vielen Faktoren ab. Konsultiere einen Steuerexperten f\u00fcr eine pers\u00f6nliche Analyse. LSFin.",
+  "firstJobPayslipAvsExplanation": "Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.",
+  "firstJobPayslipLppExplanation": "Obligatorische Altersvorsorge ab 25 Jahren. Der genaue Satz h\u00e4ngt von deiner Kasse und deinem Alter ab.",
+  "firstJobPayslipImpotLabel": "Quellensteuer (Sch\u00e4tzung)",
+  "firstJobPayslipImpotExplanation": "Direkt vom Lohn abgezogen, wenn du quellensteuerpflichtig bist. Satz variiert je nach Kanton, Status und Einkommen.",
+  "firstJobChecklistDeadline1": "Vor dem Austritt",
+  "firstJobChecklistAction1": "Verlange dein BVG-Zertifikat bei deinem aktuellen Arbeitgeber.",
+  "firstJobChecklistConsequence1": "Ohne Zertifikat kannst du nicht prüfen, ob der übertragene Betrag korrekt ist.",
+  "firstJobChecklistDeadline2": "30 Tage",
+  "firstJobChecklistAction2": "Prüfe, ob dein BVG-Guthaben zur Kasse deines neuen Arbeitgebers übertragen wurde.",
+  "firstJobChecklistConsequence2": "Ohne Übertrag geht dein Kapital zu einem Satz von 0.05% an die Auffangeinrichtung.",
+  "firstJobChecklistDeadline3": "1 Monat",
+  "firstJobChecklistAction3": "Informiere deine Krankenkasse über den Arbeitgeberwechsel, falls du Kollektivdeckung hattest.",
+  "firstJobChecklistDeadline4": "Ab erstem Lohn",
+  "firstJobChecklistAction4": "F\u00fchre deine S\u00e4ule-3a-Einzahlungen fort — Unterbrüche kosten Steuerdeduktionen.",
+  "firstJobBudgetBesoins": "Bedürfnisse",
+  "firstJobBudgetLoyer": "Miete",
+  "firstJobBudgetTransport": "Transport",
+  "firstJobBudgetAlimentation": "Lebensmittel",
+  "firstJobBudgetEnvies": "W\u00fcnsche",
+  "firstJobBudgetLoisirs": "Freizeit",
+  "firstJobBudgetRestaurants": "Restaurants",
+  "firstJobBudgetVoyages": "Reisen",
+  "firstJobBudgetShopping": "Shopping",
+  "firstJobBudgetEpargne": "Sparen & S\u00e4ule 3a",
+  "firstJobBudgetPilier3a": "S\u00e4ule 3a",
+  "firstJobBudgetEpargneCourt": "Ersparnisse",
+  "firstJobBudgetFondsUrgence": "Notfallfonds",
+  "firstJobBudgetChiffreChoc": "Wenn du ab jetzt {annual} CHF/Jahr sparst, wirst du mit 65 ~{future} CHF haben.",
+  "@firstJobBudgetChiffreChoc": {
+    "placeholders": {
+      "annual": {"type": "String"},
+      "future": {"type": "String"}
+    }
+  },
+  "firstJobScenarioMySalary": "Mein Lohn",
+  "firstJobScenarioDefault": "Standard",
+  "firstJobScenarioMedianCH": "CH-Median",
+  "firstJobScenarioBoosted": "+20%",
+  "firstJobScenarioSemantics": "Lohnszenario: {label}",
+  "@firstJobScenarioSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
     }
   }
 }

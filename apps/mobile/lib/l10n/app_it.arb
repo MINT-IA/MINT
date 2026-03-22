@@ -4192,6 +4192,14 @@
   },
   "pulseKeyFigBudgetLibre": "Budget libero",
   "pulseKeyFigPatrimoine": "Patrimonio",
+  "pulseAmountPerMonth": "{amount}/mese",
+  "@pulseAmountPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseCoupleRetraite": "Pensione coppia: {montant}",
   "@pulseCoupleRetraite": {
     "placeholders": {
@@ -5855,7 +5863,6 @@
   "benchmarkBelowRange": "La tua situazione è al di sotto della fascia tipica.",
   "benchmarkTypicalRange": "Fascia tipica: {low} – {high}",
   "tabPulse": "Pulse",
-  "tabMint": "Mint",
   "authGateDocScanTitle": "Proteggi i tuoi documenti",
   "authGateDocScanMessage": "I tuoi certificati contengono dati sensibili. Crea un account per proteggerli con crittografia end-to-end.",
   "authGateSalaryTitle": "Proteggi i tuoi dati finanziari",
@@ -6106,7 +6113,7 @@
       "lppTotal": {"type": "String"}
     }
   },
-  "tabMint": "MINT",
+  "tabMint": "Mint",
   "pulseNarrativeRetirementClose": "il tuo pensionamento si avvicina. Ecco a che punto sei.",
   "pulseNarrativeYearsToAct": "hai {yearsToRetire} anni per agire. Ogni anno conta.",
   "@pulseNarrativeYearsToAct": {"placeholders": {"yearsToRetire": {"type": "int"}}},
@@ -9087,6 +9094,54 @@
       "n": {"type": "String"},
       "total": {"type": "String"},
       "next": {"type": "String"}
+    }
+  },
+  "semanticsBackButton": "Indietro",
+  "semanticsDecrement": "Diminuire",
+  "semanticsIncrement": "Aumentare",
+  "frontalierDisclaimer": "Stime semplificate a scopo educativo — non costituisce consulenza fiscale o legale. Gli importi dipendono da molti fattori. Consulta un esperto fiscale per un'analisi personalizzata. LSFin.",
+  "firstJobPayslipAvsExplanation": "Contributo del dipendente: 5.3% del lordo. Il datore di lavoro paga anche lui il 5.3%.",
+  "firstJobPayslipLppExplanation": "Risparmio previdenziale obbligatorio dai 25 anni. Il tasso esatto dipende dalla cassa e dall'età.",
+  "firstJobPayslipImpotLabel": "Imposta alla fonte (stima)",
+  "firstJobPayslipImpotExplanation": "Trattenuta direttamente dallo stipendio se sei tassato alla fonte. Il tasso varia per cantone, stato civile e reddito.",
+  "firstJobChecklistDeadline1": "Prima di partire",
+  "firstJobChecklistAction1": "Richiedi il tuo certificato LPP al datore di lavoro attuale.",
+  "firstJobChecklistConsequence1": "Senza certificato, non puoi verificare che l'importo trasferito sia corretto.",
+  "firstJobChecklistDeadline2": "30 giorni",
+  "firstJobChecklistAction2": "Verifica che il tuo avere LPP sia stato trasferito alla cassa del nuovo datore di lavoro.",
+  "firstJobChecklistConsequence2": "Senza trasferimento, il tuo capitale va alla fondazione supplente a un tasso dello 0.05%.",
+  "firstJobChecklistDeadline3": "1 mese",
+  "firstJobChecklistAction3": "Informa la tua cassa malati LAMal del cambio datore di lavoro se avevi una copertura collettiva.",
+  "firstJobChecklistDeadline4": "Dal primo stipendio",
+  "firstJobChecklistAction4": "Continua i versamenti al pilastro 3a — l'interruzione ti costa deduzioni fiscali.",
+  "firstJobBudgetBesoins": "Bisogni",
+  "firstJobBudgetLoyer": "Affitto",
+  "firstJobBudgetTransport": "Trasporti",
+  "firstJobBudgetAlimentation": "Alimentazione",
+  "firstJobBudgetEnvies": "Desideri",
+  "firstJobBudgetLoisirs": "Tempo libero",
+  "firstJobBudgetRestaurants": "Ristoranti",
+  "firstJobBudgetVoyages": "Viaggi",
+  "firstJobBudgetShopping": "Shopping",
+  "firstJobBudgetEpargne": "Risparmio & 3a",
+  "firstJobBudgetPilier3a": "Pilastro 3a",
+  "firstJobBudgetEpargneCourt": "Risparmio",
+  "firstJobBudgetFondsUrgence": "Fondo di emergenza",
+  "firstJobBudgetChiffreChoc": "Se risparmi {annual} CHF/anno da ora, avrai ~{future} CHF a 65 anni.",
+  "@firstJobBudgetChiffreChoc": {
+    "placeholders": {
+      "annual": {"type": "String"},
+      "future": {"type": "String"}
+    }
+  },
+  "firstJobScenarioMySalary": "Il mio stipendio",
+  "firstJobScenarioDefault": "Predefinito",
+  "firstJobScenarioMedianCH": "Mediana CH",
+  "firstJobScenarioBoosted": "+20%",
+  "firstJobScenarioSemantics": "Scenario stipendio: {label}",
+  "@firstJobScenarioSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
     }
   }
 }

@@ -4192,6 +4192,14 @@
   },
   "pulseKeyFigBudgetLibre": "Budget libre",
   "pulseKeyFigPatrimoine": "Patrimoine",
+  "pulseAmountPerMonth": "{amount}/mois",
+  "@pulseAmountPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseCoupleRetraite": "Retraite couple : {montant}",
   "@pulseCoupleRetraite": {
     "placeholders": {
@@ -6084,7 +6092,6 @@
     }
   },
   "tabPulse": "Pulse",
-  "tabMint": "Mint",
   "authGateDocScanTitle": "Sécurise tes documents",
   "authGateDocScanMessage": "Tes certificats contiennent des données sensibles. Crée un compte pour les protéger avec un chiffrement de bout en bout.",
   "authGateSalaryTitle": "Protège tes données financières",
@@ -6364,7 +6371,7 @@
       "lppTotal": {"type": "String"}
     }
   },
-  "tabMint": "MINT",
+  "tabMint": "Mint",
   "pulseNarrativeRetirementClose": "ta retraite approche. Chaque décision pèse un peu plus.",
   "pulseNarrativeYearsToAct": "tu as {yearsToRetire} ans pour agir. Chaque année peut te rendre de l'air.",
   "@pulseNarrativeYearsToAct": {"placeholders": {"yearsToRetire": {"type": "int"}}},
@@ -9704,6 +9711,54 @@
       "n": {"type": "String"},
       "total": {"type": "String"},
       "next": {"type": "String"}
+    }
+  },
+  "semanticsBackButton": "Retour",
+  "semanticsDecrement": "Diminuer",
+  "semanticsIncrement": "Augmenter",
+  "frontalierDisclaimer": "Estimations simplifi\u00e9es \u00e0 but \u00e9ducatif \u2014 ne constitue pas un conseil fiscal ou juridique. Les montants d\u00e9pendent de nombreux facteurs (d\u00e9ductions, commune, fortune, convention internationale, etc.). Consulte un\u00b7e sp\u00e9cialiste fiscal\u00b7e pour une analyse personnalis\u00e9e. LSFin.",
+  "firstJobPayslipAvsExplanation": "Cotisation salari\u00e9\u00b7e\u00a0: 5.3% du brut. Ton employeur paie aussi 5.3% en plus.",
+  "firstJobPayslipLppExplanation": "\u00c9pargne vieillesse obligatoire d\u00e8s 25 ans. Le taux exact d\u00e9pend de ta caisse et ton \u00e2ge.",
+  "firstJobPayslipImpotLabel": "Imp\u00f4t \u00e0 la source (estimation)",
+  "firstJobPayslipImpotExplanation": "Retenu directement sur le salaire si tu es impos\u00e9\u00b7e \u00e0 la source. Le taux varie selon canton, statut et revenu.",
+  "firstJobChecklistDeadline1": "Avant de quitter",
+  "firstJobChecklistAction1": "Demande ton certificat LPP \u00e0 ton employeur actuel.",
+  "firstJobChecklistConsequence1": "Sans certificat, tu ne peux pas v\u00e9rifier que le montant transf\u00e9r\u00e9 est correct.",
+  "firstJobChecklistDeadline2": "30 jours",
+  "firstJobChecklistAction2": "V\u00e9rifie que ton avoir LPP a \u00e9t\u00e9 transf\u00e9r\u00e9 \u00e0 la caisse de ton nouvel employeur.",
+  "firstJobChecklistConsequence2": "Sans transfert, ton capital va \u00e0 la Fondation suppl\u00e9tive \u00e0 un taux de 0.05%.",
+  "firstJobChecklistDeadline3": "1 mois",
+  "firstJobChecklistAction3": "Informe ton assurance-maladie LAMal du changement d'employeur si tu b\u00e9n\u00e9ficiais d'une couverture collective.",
+  "firstJobChecklistDeadline4": "D\u00e8s le premier salaire",
+  "firstJobChecklistAction4": "Continue tes versements au pilier 3a \u2014 l'interruption te co\u00fbte des d\u00e9ductions fiscales.",
+  "firstJobBudgetBesoins": "Besoins",
+  "firstJobBudgetLoyer": "Loyer",
+  "firstJobBudgetTransport": "Transport",
+  "firstJobBudgetAlimentation": "Alimentation",
+  "firstJobBudgetEnvies": "Envies",
+  "firstJobBudgetLoisirs": "Loisirs",
+  "firstJobBudgetRestaurants": "Restaurants",
+  "firstJobBudgetVoyages": "Voyages",
+  "firstJobBudgetShopping": "Shopping",
+  "firstJobBudgetEpargne": "\u00c9pargne & 3a",
+  "firstJobBudgetPilier3a": "Pilier 3a",
+  "firstJobBudgetEpargneCourt": "\u00c9pargne",
+  "firstJobBudgetFondsUrgence": "Fonds d'urgence",
+  "firstJobBudgetChiffreChoc": "Si tu \u00e9pargnes {annual} CHF/an d\u00e8s maintenant, tu auras ~{future} CHF \u00e0 65 ans.",
+  "@firstJobBudgetChiffreChoc": {
+    "placeholders": {
+      "annual": {"type": "String"},
+      "future": {"type": "String"}
+    }
+  },
+  "firstJobScenarioMySalary": "Mon salaire",
+  "firstJobScenarioDefault": "D\u00e9faut",
+  "firstJobScenarioMedianCH": "M\u00e9dian CH",
+  "firstJobScenarioBoosted": "+20%",
+  "firstJobScenarioSemantics": "Sc\u00e9nario salaire\u00a0: {label}",
+  "@firstJobScenarioSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
     }
   }
 }

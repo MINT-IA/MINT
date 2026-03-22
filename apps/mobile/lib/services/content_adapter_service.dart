@@ -1,4 +1,7 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/lifecycle/lifecycle_adaptation.dart'
+    as lca;
+import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart' as lcphase;
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -239,6 +242,8 @@ class ContentAdapterService {
   /// Coach system prompt addition — injected into LLM context.
   ///
   /// This tells the AI coach how to behave for this user's phase.
+  /// Uses [toneGuidance] from [lca.lifecycleAdaptations] — concrete Claude
+  /// directives that supersede the legacy enum-based tone strings.
   static String _coachSystemPrompt(
     LifecyclePhaseResult result,
     CoachProfile profile,
@@ -248,11 +253,21 @@ class ContentAdapterService {
     final years = result.yearsToRetirement;
     final priorityKeys = result.priorities.take(3).map((p) => p.key).join(', ');
 
+    // Pull tone directive from the phase-specific toneGuidance (concrete LLM
+    // instructions) rather than the legacy LifecycleTone enum mapping.
+    // The two enums share identical names — look up by name to bridge them.
+    final adaptationPhase = lcphase.LifecyclePhase.values.firstWhere(
+      (p) => p.name == result.phase.name,
+      orElse: () => lcphase.LifecyclePhase.construction,
+    );
+    final adaptation = lca.lifecycleAdaptations[adaptationPhase];
+    final toneDirective = adaptation?.toneGuidance ?? _buildToneDirective(result);
+
     return 'CONTEXTE CYCLE DE VIE\u00a0: '
         'L\'utilisateur a $age ans, en phase "$phase" '
         '($years ans avant la retraite). '
         'Priorités principales\u00a0: $priorityKeys. '
-        '${_buildToneDirective(result)} '
+        '$toneDirective '
         'IMPORTANT\u00a0: Ne jamais mentionner le nom de la phase directement. '
         'Adapter le contenu naturellement sans étiqueter.';
   }

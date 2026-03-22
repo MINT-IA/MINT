@@ -356,4 +356,105 @@ void main() {
       expect(adaptation.priorityTopics, contains('estate_planning'));
     });
   });
+
+  // ══════════════════════════════════════════════════════════════
+  //  TONE GUIDANCE — concrete LLM directives (not vague adjectives)
+  // ══════════════════════════════════════════════════════════════
+
+  group('LifecycleAdaptation — toneGuidance is concrete, not vague', () {
+    // Vague adjectives that were previously used and must be gone.
+    const vagueAdjectives = [
+      'Encourageant',
+      'Motivant',
+      'Strat\u00e9gique et orient\u00e9 action',
+      'S\u00e9r\u00e8ne et de soutien',
+      'Sage et respectueux',
+    ];
+
+    test('demarrage toneGuidance references exact CHF amounts', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.demarrage);
+      expect(adaptation.toneGuidance, contains('CHF'));
+      expect(adaptation.toneGuidance, contains('direct'));
+    });
+
+    test('demarrage toneGuidance does not start with vague encouragement', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.demarrage);
+      expect(adaptation.toneGuidance, isNot(startsWith('Encourageant')));
+    });
+
+    test('construction toneGuidance references CHF comparisons', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.construction);
+      expect(adaptation.toneGuidance, contains('CHF'));
+    });
+
+    test('construction toneGuidance is not vague motivational copy', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.construction);
+      expect(adaptation.toneGuidance, isNot(startsWith('Motivant')));
+    });
+
+    test('acceleration toneGuidance references percentages or deadlines', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.acceleration);
+      final g = adaptation.toneGuidance;
+      // Must contain at least one of: pourcentages, délais, calculs, montants
+      final hasConcreteTerms = g.contains('pourcentages') ||
+          g.contains('délais') ||
+          g.contains('calculs') ||
+          g.contains('montants');
+      expect(hasConcreteTerms, isTrue,
+          reason: 'acceleration toneGuidance must reference concrete terms');
+    });
+
+    test('consolidation toneGuidance contains contextual framing cues', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.consolidation);
+      // Must contain "dans la norme" or "attention" — the contextual anchors
+      final g = adaptation.toneGuidance;
+      expect(
+        g.contains('dans la norme') || g.contains('attention'),
+        isTrue,
+        reason:
+            'consolidation toneGuidance must include "dans la norme" or "attention"',
+      );
+    });
+
+    test('transition toneGuidance explicitly mentions no pressure', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.transition);
+      expect(adaptation.toneGuidance.toLowerCase(), contains('pression'));
+    });
+
+    test('retraite toneGuidance forbids jargon and mandates short sentences', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.retraite);
+      final g = adaptation.toneGuidance.toLowerCase();
+      expect(g, contains('jargon'));
+      expect(g, contains('phrases courtes'));
+    });
+
+    test('transmission toneGuidance references succession sensitivity', () {
+      final adaptation = LifecycleDetector.adapt(LifecyclePhase.transmission);
+      expect(adaptation.toneGuidance.toLowerCase(), contains('succession'));
+    });
+
+    test('no toneGuidance starts with a vague adjective from the old spec', () {
+      for (final phase in LifecyclePhase.values) {
+        final adaptation = LifecycleDetector.adapt(phase);
+        for (final adj in vagueAdjectives) {
+          expect(
+            adaptation.toneGuidance,
+            isNot(startsWith(adj)),
+            reason: 'phase $phase toneGuidance must not start with "$adj"',
+          );
+        }
+      }
+    });
+
+    test('toneGuidance length > 50 chars for all phases (concrete, not a word)', () {
+      for (final phase in LifecyclePhase.values) {
+        final adaptation = LifecycleDetector.adapt(phase);
+        expect(
+          adaptation.toneGuidance.length,
+          greaterThan(50),
+          reason: 'phase $phase toneGuidance is too short to be concrete',
+        );
+      }
+    });
+  });
 }

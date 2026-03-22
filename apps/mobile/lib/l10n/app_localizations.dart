@@ -16094,6 +16094,12 @@ abstract class S {
   /// **'Patrimoine'**
   String get pulseKeyFigPatrimoine;
 
+  /// No description provided for @pulseAmountPerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount}/mois'**
+  String pulseAmountPerMonth(String amount);
+
   /// No description provided for @pulseCoupleRetraite.
   ///
   /// In fr, this message translates to:
@@ -21706,12 +21712,6 @@ abstract class S {
   /// **'Pulse'**
   String get tabPulse;
 
-  /// No description provided for @tabMint.
-  ///
-  /// In fr, this message translates to:
-  /// **'MINT'**
-  String get tabMint;
-
   /// No description provided for @authGateDocScanTitle.
   ///
   /// In fr, this message translates to:
@@ -22810,6 +22810,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ton 2e pilier est plafonné : seuls CHF {lppUtilise} sur {lppTotal} sont comptés (max 10 % du prix, règle ASB).'**
   String affordabilityInsightLppCap(String lppUtilise, String lppTotal);
+
+  /// No description provided for @tabMint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint'**
+  String get tabMint;
 
   /// No description provided for @pulseNarrativeRetirementClose.
   ///
@@ -36777,6 +36783,228 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Étape {n}/{total} validée. Prochaine : {next}.'**
   String openerPlanProgress(String n, String total, String next);
+
+  /// No description provided for @semanticsBackButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get semanticsBackButton;
+
+  /// No description provided for @semanticsDecrement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer'**
+  String get semanticsDecrement;
+
+  /// No description provided for @semanticsIncrement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter'**
+  String get semanticsIncrement;
+
+  /// No description provided for @frontalierDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée. LSFin.'**
+  String get frontalierDisclaimer;
+
+  /// No description provided for @firstJobPayslipAvsExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation salarié·e : 5.3% du brut. Ton employeur paie aussi 5.3% en plus.'**
+  String get firstJobPayslipAvsExplanation;
+
+  /// No description provided for @firstJobPayslipLppExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne vieillesse obligatoire dès 25 ans. Le taux exact dépend de ta caisse et ton âge.'**
+  String get firstJobPayslipLppExplanation;
+
+  /// No description provided for @firstJobPayslipImpotLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt à la source (estimation)'**
+  String get firstJobPayslipImpotLabel;
+
+  /// No description provided for @firstJobPayslipImpotExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.'**
+  String get firstJobPayslipImpotExplanation;
+
+  /// No description provided for @firstJobChecklistDeadline1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant de quitter'**
+  String get firstJobChecklistDeadline1;
+
+  /// No description provided for @firstJobChecklistAction1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande ton certificat LPP à ton employeur actuel.'**
+  String get firstJobChecklistAction1;
+
+  /// No description provided for @firstJobChecklistConsequence1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans certificat, tu ne peux pas vérifier que le montant transféré est correct.'**
+  String get firstJobChecklistConsequence1;
+
+  /// No description provided for @firstJobChecklistDeadline2.
+  ///
+  /// In fr, this message translates to:
+  /// **'30 jours'**
+  String get firstJobChecklistDeadline2;
+
+  /// No description provided for @firstJobChecklistAction2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie que ton avoir LPP a été transféré à la caisse de ton nouvel employeur.'**
+  String get firstJobChecklistAction2;
+
+  /// No description provided for @firstJobChecklistConsequence2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05%.'**
+  String get firstJobChecklistConsequence2;
+
+  /// No description provided for @firstJobChecklistDeadline3.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 mois'**
+  String get firstJobChecklistDeadline3;
+
+  /// No description provided for @firstJobChecklistAction3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informe ton assurance-maladie LAMal du changement d\'employeur si tu bénéficiais d\'une couverture collective.'**
+  String get firstJobChecklistAction3;
+
+  /// No description provided for @firstJobChecklistDeadline4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dès le premier salaire'**
+  String get firstJobChecklistDeadline4;
+
+  /// No description provided for @firstJobChecklistAction4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continue tes versements au pilier 3a — l\'interruption te coûte des déductions fiscales.'**
+  String get firstJobChecklistAction4;
+
+  /// No description provided for @firstJobBudgetBesoins.
+  ///
+  /// In fr, this message translates to:
+  /// **'Besoins'**
+  String get firstJobBudgetBesoins;
+
+  /// No description provided for @firstJobBudgetLoyer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer'**
+  String get firstJobBudgetLoyer;
+
+  /// No description provided for @firstJobBudgetTransport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transport'**
+  String get firstJobBudgetTransport;
+
+  /// No description provided for @firstJobBudgetAlimentation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alimentation'**
+  String get firstJobBudgetAlimentation;
+
+  /// No description provided for @firstJobBudgetEnvies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envies'**
+  String get firstJobBudgetEnvies;
+
+  /// No description provided for @firstJobBudgetLoisirs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loisirs'**
+  String get firstJobBudgetLoisirs;
+
+  /// No description provided for @firstJobBudgetRestaurants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurants'**
+  String get firstJobBudgetRestaurants;
+
+  /// No description provided for @firstJobBudgetVoyages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voyages'**
+  String get firstJobBudgetVoyages;
+
+  /// No description provided for @firstJobBudgetShopping.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shopping'**
+  String get firstJobBudgetShopping;
+
+  /// No description provided for @firstJobBudgetEpargne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne & 3a'**
+  String get firstJobBudgetEpargne;
+
+  /// No description provided for @firstJobBudgetPilier3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a'**
+  String get firstJobBudgetPilier3a;
+
+  /// No description provided for @firstJobBudgetEpargneCourt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne'**
+  String get firstJobBudgetEpargneCourt;
+
+  /// No description provided for @firstJobBudgetFondsUrgence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds d\'urgence'**
+  String get firstJobBudgetFondsUrgence;
+
+  /// No description provided for @firstJobBudgetChiffreChoc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu épargnes {annual} CHF/an dès maintenant, tu auras ~{future} CHF à 65 ans.'**
+  String firstJobBudgetChiffreChoc(String annual, String future);
+
+  /// No description provided for @firstJobScenarioMySalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon salaire'**
+  String get firstJobScenarioMySalary;
+
+  /// No description provided for @firstJobScenarioDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défaut'**
+  String get firstJobScenarioDefault;
+
+  /// No description provided for @firstJobScenarioMedianCH.
+  ///
+  /// In fr, this message translates to:
+  /// **'Médian CH'**
+  String get firstJobScenarioMedianCH;
+
+  /// No description provided for @firstJobScenarioBoosted.
+  ///
+  /// In fr, this message translates to:
+  /// **'+20%'**
+  String get firstJobScenarioBoosted;
+
+  /// No description provided for @firstJobScenarioSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scénario salaire : {label}'**
+  String firstJobScenarioSemantics(String label);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

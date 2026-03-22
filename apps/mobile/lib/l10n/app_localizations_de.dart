@@ -8946,6 +8946,11 @@ class SDe extends S {
   String get pulseKeyFigPatrimoine => 'Vermögen';
 
   @override
+  String pulseAmountPerMonth(String amount) {
+    return '$amount/Monat';
+  }
+
+  @override
   String pulseCoupleRetraite(String montant) {
     return 'Rente als Paar: $montant';
   }
@@ -12259,9 +12264,6 @@ class SDe extends S {
   String get tabPulse => 'Pulse';
 
   @override
-  String get tabMint => 'MINT';
-
-  @override
   String get authGateDocScanTitle => 'Sichere deine Dokumente';
 
   @override
@@ -12885,6 +12887,9 @@ class SDe extends S {
   String affordabilityInsightLppCap(String lppUtilise, String lppTotal) {
     return 'Deine 2. Säule ist begrenzt: Nur CHF $lppUtilise von $lppTotal werden angerechnet (max. 10 % des Preises, ASB-Regel).';
   }
+
+  @override
+  String get tabMint => 'Mint';
 
   @override
   String get pulseNarrativeRetirementClose =>
@@ -20856,5 +20861,130 @@ class SDe extends S {
   @override
   String openerPlanProgress(String n, String total, String next) {
     return 'Schritt $n/$total abgeschlossen. Nächster: $next.';
+  }
+
+  @override
+  String get semanticsBackButton => 'Zurück';
+
+  @override
+  String get semanticsDecrement => 'Verringern';
+
+  @override
+  String get semanticsIncrement => 'Erhöhen';
+
+  @override
+  String get frontalierDisclaimer =>
+      'Vereinfachte Schätzungen zu Bildungszwecken — kein Steuer- oder Rechtsrat. Beträge hängen von vielen Faktoren ab. Konsultiere einen Steuerexperten für eine persönliche Analyse. LSFin.';
+
+  @override
+  String get firstJobPayslipAvsExplanation =>
+      'Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.';
+
+  @override
+  String get firstJobPayslipLppExplanation =>
+      'Obligatorische Altersvorsorge ab 25 Jahren. Der genaue Satz hängt von deiner Kasse und deinem Alter ab.';
+
+  @override
+  String get firstJobPayslipImpotLabel => 'Quellensteuer (Schätzung)';
+
+  @override
+  String get firstJobPayslipImpotExplanation =>
+      'Direkt vom Lohn abgezogen, wenn du quellensteuerpflichtig bist. Satz variiert je nach Kanton, Status und Einkommen.';
+
+  @override
+  String get firstJobChecklistDeadline1 => 'Vor dem Austritt';
+
+  @override
+  String get firstJobChecklistAction1 =>
+      'Verlange dein BVG-Zertifikat bei deinem aktuellen Arbeitgeber.';
+
+  @override
+  String get firstJobChecklistConsequence1 =>
+      'Ohne Zertifikat kannst du nicht prüfen, ob der übertragene Betrag korrekt ist.';
+
+  @override
+  String get firstJobChecklistDeadline2 => '30 Tage';
+
+  @override
+  String get firstJobChecklistAction2 =>
+      'Prüfe, ob dein BVG-Guthaben zur Kasse deines neuen Arbeitgebers übertragen wurde.';
+
+  @override
+  String get firstJobChecklistConsequence2 =>
+      'Ohne Übertrag geht dein Kapital zu einem Satz von 0.05% an die Auffangeinrichtung.';
+
+  @override
+  String get firstJobChecklistDeadline3 => '1 Monat';
+
+  @override
+  String get firstJobChecklistAction3 =>
+      'Informiere deine Krankenkasse über den Arbeitgeberwechsel, falls du Kollektivdeckung hattest.';
+
+  @override
+  String get firstJobChecklistDeadline4 => 'Ab erstem Lohn';
+
+  @override
+  String get firstJobChecklistAction4 =>
+      'Führe deine Säule-3a-Einzahlungen fort — Unterbrüche kosten Steuerdeduktionen.';
+
+  @override
+  String get firstJobBudgetBesoins => 'Bedürfnisse';
+
+  @override
+  String get firstJobBudgetLoyer => 'Miete';
+
+  @override
+  String get firstJobBudgetTransport => 'Transport';
+
+  @override
+  String get firstJobBudgetAlimentation => 'Lebensmittel';
+
+  @override
+  String get firstJobBudgetEnvies => 'Wünsche';
+
+  @override
+  String get firstJobBudgetLoisirs => 'Freizeit';
+
+  @override
+  String get firstJobBudgetRestaurants => 'Restaurants';
+
+  @override
+  String get firstJobBudgetVoyages => 'Reisen';
+
+  @override
+  String get firstJobBudgetShopping => 'Shopping';
+
+  @override
+  String get firstJobBudgetEpargne => 'Sparen & Säule 3a';
+
+  @override
+  String get firstJobBudgetPilier3a => 'Säule 3a';
+
+  @override
+  String get firstJobBudgetEpargneCourt => 'Ersparnisse';
+
+  @override
+  String get firstJobBudgetFondsUrgence => 'Notfallfonds';
+
+  @override
+  String firstJobBudgetChiffreChoc(String annual, String future) {
+    return 'Wenn du ab jetzt $annual CHF/Jahr sparst, wirst du mit 65 ~$future CHF haben.';
+  }
+
+  @override
+  String get firstJobScenarioMySalary => 'Mein Lohn';
+
+  @override
+  String get firstJobScenarioDefault => 'Standard';
+
+  @override
+  String get firstJobScenarioMedianCH => 'CH-Median';
+
+  @override
+  String get firstJobScenarioBoosted => '+20%';
+
+  @override
+  String firstJobScenarioSemantics(String label) {
+    return 'Lohnszenario: $label';
   }
 }

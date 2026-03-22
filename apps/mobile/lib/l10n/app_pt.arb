@@ -4192,6 +4192,14 @@
   },
   "pulseKeyFigBudgetLibre": "Orçamento livre",
   "pulseKeyFigPatrimoine": "Património",
+  "pulseAmountPerMonth": "{amount}/mês",
+  "@pulseAmountPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseCoupleRetraite": "Reforma casal: {montant}",
   "@pulseCoupleRetraite": {
     "placeholders": {
@@ -5855,7 +5863,6 @@
   "benchmarkBelowRange": "A tua situação está abaixo da faixa típica.",
   "benchmarkTypicalRange": "Faixa típica: {low} – {high}",
   "tabPulse": "Pulse",
-  "tabMint": "Mint",
   "authGateDocScanTitle": "Protege os teus documentos",
   "authGateDocScanMessage": "Os teus certificados contêm dados sensíveis. Cria uma conta para os proteger com encriptação ponto a ponto.",
   "authGateSalaryTitle": "Protege os teus dados financeiros",
@@ -6106,7 +6113,7 @@
       "lppTotal": {"type": "String"}
     }
   },
-  "tabMint": "MINT",
+  "tabMint": "Mint",
   "pulseNarrativeRetirementClose": "a tua reforma aproxima-se. Aqui está a tua situação.",
   "pulseNarrativeYearsToAct": "tens {yearsToRetire} anos para agir. Cada ano conta.",
   "@pulseNarrativeYearsToAct": {"placeholders": {"yearsToRetire": {"type": "int"}}},
@@ -9087,6 +9094,54 @@
       "n": {"type": "String"},
       "total": {"type": "String"},
       "next": {"type": "String"}
+    }
+  },
+  "semanticsBackButton": "Voltar",
+  "semanticsDecrement": "Diminuir",
+  "semanticsIncrement": "Aumentar",
+  "frontalierDisclaimer": "Estimativas simplificadas para fins educativos — n\u00e3o constitui aconselhamento fiscal ou jur\u00eddico. Os montantes dependem de muitos fatores. Consulta um especialista fiscal para uma an\u00e1lise personalizada. LSFin.",
+  "firstJobPayslipAvsExplanation": "Contribui\u00e7\u00e3o do trabalhador: 5.3% do sal\u00e1rio bruto. O teu empregador tamb\u00e9m paga 5.3% adicional.",
+  "firstJobPayslipLppExplanation": "Poupan\u00e7a para reforma obrigat\u00f3ria a partir dos 25 anos. A taxa exata depende da tua caixa e idade.",
+  "firstJobPayslipImpotLabel": "Imposto na fonte (estimativa)",
+  "firstJobPayslipImpotExplanation": "Deduzido diretamente do sal\u00e1rio se fores tributado na fonte. A taxa varia por cant\u00e3o, estado civil e rendimento.",
+  "firstJobChecklistDeadline1": "Antes de sair",
+  "firstJobChecklistAction1": "Solicita o teu certificado LPP ao empregador atual.",
+  "firstJobChecklistConsequence1": "Sem certificado, n\u00e3o podes verificar se o montante transferido est\u00e1 correto.",
+  "firstJobChecklistDeadline2": "30 dias",
+  "firstJobChecklistAction2": "Verifica que o teu capital LPP foi transferido para a caixa do novo empregador.",
+  "firstJobChecklistConsequence2": "Sem transfer\u00eancia, o teu capital vai para a funda\u00e7\u00e3o supletiva a uma taxa de 0.05%.",
+  "firstJobChecklistDeadline3": "1 m\u00eas",
+  "firstJobChecklistAction3": "Informa o teu seguro de sa\u00fade LAMal da mudan\u00e7a de empregador se tiveras cobertura coletiva.",
+  "firstJobChecklistDeadline4": "A partir do primeiro sal\u00e1rio",
+  "firstJobChecklistAction4": "Continua as tuas contribui\u00e7\u00f5es ao pilar 3a — a interrup\u00e7\u00e3o custa-te dedu\u00e7\u00f5es fiscais.",
+  "firstJobBudgetBesoins": "Necessidades",
+  "firstJobBudgetLoyer": "Renda",
+  "firstJobBudgetTransport": "Transporte",
+  "firstJobBudgetAlimentation": "Alimenta\u00e7\u00e3o",
+  "firstJobBudgetEnvies": "Desejos",
+  "firstJobBudgetLoisirs": "Lazer",
+  "firstJobBudgetRestaurants": "Restaurantes",
+  "firstJobBudgetVoyages": "Viagens",
+  "firstJobBudgetShopping": "Compras",
+  "firstJobBudgetEpargne": "Poupan\u00e7a & 3a",
+  "firstJobBudgetPilier3a": "Pilar 3a",
+  "firstJobBudgetEpargneCourt": "Poupan\u00e7a",
+  "firstJobBudgetFondsUrgence": "Fundo de emerg\u00eancia",
+  "firstJobBudgetChiffreChoc": "Se poupares {annual} CHF/ano a partir de agora, ter\u00e1s ~{future} CHF aos 65.",
+  "@firstJobBudgetChiffreChoc": {
+    "placeholders": {
+      "annual": {"type": "String"},
+      "future": {"type": "String"}
+    }
+  },
+  "firstJobScenarioMySalary": "O meu sal\u00e1rio",
+  "firstJobScenarioDefault": "Padr\u00e3o",
+  "firstJobScenarioMedianCH": "Mediana CH",
+  "firstJobScenarioBoosted": "+20%",
+  "firstJobScenarioSemantics": "Cen\u00e1rio salarial: {label}",
+  "@firstJobScenarioSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
     }
   }
 }

@@ -83,14 +83,9 @@ class CoachChatRequest(CoachChatBaseModel):
             "Injecte dans le system prompt pour la personnalisation contextuelle."
         ),
     )
-    conversation_history: Optional[list[dict[str, Any]]] = Field(
-        None,
-        description=(
-            "Historique de conversation (format messages Anthropic/OpenAI). "
-            "Chaque element: {role: 'user'|'assistant', content: str}. "
-            "Max 20 tours recommandes pour rester dans le contexte LLM."
-        ),
-    )
+    # conversation_history: removed — not consumed by the endpoint.
+    # History management is client-side (Flutter) via the memory_block.
+    # Re-add when multi-turn server-side context is implemented.
     language: str = Field(
         default="fr",
         description="Langue de la reponse: 'fr', 'de', 'en', 'it'.",

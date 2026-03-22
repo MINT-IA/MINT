@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_motion.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -17,10 +18,12 @@ import 'package:mint_mobile/widgets/premium/mint_ligne.dart';
 //  1. Setup text      (350ms fade-in)
 //  2. Silence          (800ms — nothing moves)
 //  3. CountUp          (600ms, digit by digit, Swiss apostrophe)
+//     + haptic feedback (medium impact) when count-up completes
 //  4. MINT Ligne       (400ms, draws left-to-right under the number)
 //  5. Context + lever  (350ms fade-in)
 //
 //  Total: ~2.5s first time. Respects reduceMotion.
+//  Calls [onRevealComplete] when the full sequence finishes.
 //
 //  Usage:
 //  ```dart
@@ -29,6 +32,7 @@ import 'package:mint_mobile/widgets/premium/mint_ligne.dart';
 //    prefix: 'CHF\u00a0',
 //    setupText: 'Ton rachat maximum',
 //    contextText: 'Soit +180 CHF/mois à la retraite',
+//    onRevealComplete: () => setState(() => _revealed = true),
 //  )
 //  ```
 // ────────────────────────────────────────────────────────────
@@ -37,10 +41,11 @@ class MintCountUp extends StatefulWidget {
   /// The numeric value to animate towards.
   final double value;
 
-  /// Text prepended to the formatted number (e.g. 'CHF\u00a0').
+  /// Text prepended to the formatted number. No default — caller must
+  /// be explicit (e.g. 'CHF\u00a0', '+', '-', or '').
   final String prefix;
 
-  /// Text appended to the formatted number (e.g. '\u00a0%').
+  /// Text appended to the formatted number (e.g. '\u00a0%', '\u00a0CHF').
   final String suffix;
 
   /// Setup text shown before the number (step 1). Optional.
@@ -62,13 +67,17 @@ class MintCountUp extends StatefulWidget {
   /// Set to false for subsequent reveals of the same number.
   final bool fullReveal;
 
+  /// Called once when the full 5-step reveal sequence finishes.
+  /// Use this instead of Builder + addPostFrameCallback hacks.
+  final VoidCallback? onRevealComplete;
+
   /// Accessibility label override.
   final String? semanticsLabel;
 
   const MintCountUp({
     super.key,
     required this.value,
-    this.prefix = 'CHF\u00a0',
+    this.prefix = '',
     this.suffix = '',
     this.setupText,
     this.contextText,
@@ -76,6 +85,7 @@ class MintCountUp extends StatefulWidget {
     this.decimals = 0,
     this.showLigne = true,
     this.fullReveal = true,
+    this.onRevealComplete,
     this.semanticsLabel,
   });
 
@@ -155,12 +165,13 @@ class _MintCountUpState extends State<MintCountUp>
       _countUpController.value = 1.0;
       _showLigne = true;
       _contextController.value = 1.0;
+      widget.onRevealComplete?.call();
       return;
     }
 
     // Step 1: Setup text
     _setupController.forward().then((_) {
-      // Step 2: Silence (800ms)
+      // Step 2: Silence (800ms — the anticipation beat)
       _pendingTimers.add(Timer(const Duration(milliseconds: 800), () {
         if (!mounted) return;
         setState(() => _silenceDone = true);
@@ -169,13 +180,19 @@ class _MintCountUpState extends State<MintCountUp>
         _countUpController.forward().then((_) {
           if (!mounted) return;
 
+          // Haptic feedback — the moment the number lands
+          HapticFeedback.mediumImpact();
+
           // Step 4: MINT Ligne
           setState(() => _showLigne = true);
 
-          // Step 5: Context (after Ligne starts — 200ms overlap)
+          // Step 5: Context (200ms after Ligne starts drawing)
           _pendingTimers.add(Timer(const Duration(milliseconds: 200), () {
             if (!mounted) return;
-            _contextController.forward();
+            _contextController.forward().then((_) {
+              // Full sequence complete
+              widget.onRevealComplete?.call();
+            });
           }));
         });
       }));
@@ -196,7 +213,9 @@ class _MintCountUpState extends State<MintCountUp>
       ));
       _countUpController
         ..reset()
-        ..forward();
+        ..forward().then((_) {
+          if (mounted) HapticFeedback.lightImpact();
+        });
     }
   }
 
@@ -246,8 +265,7 @@ class _MintCountUpState extends State<MintCountUp>
                 final v = _countUpValue.value;
                 return Text(
                   '${widget.prefix}${_formatSwiss(v)}${widget.suffix}',
-                  style: MintTextStyles.displayLarge(color: numberColor)
-                      .copyWith(fontSize: 56, height: 1.0),
+                  style: MintTextStyles.displayHero(color: numberColor),
                 );
               },
             ),
