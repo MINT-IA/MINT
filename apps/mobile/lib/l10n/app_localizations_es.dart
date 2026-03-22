@@ -20486,4 +20486,25 @@ class SEs extends S {
 
   @override
   String get proactiveNewCap => 'Tengo una nueva prioridad para ti.';
+
+  @override
+  String get dossierToolsSection => 'Herramientas';
+
+  @override
+  String get dossierToolsCta => 'Ver todas las herramientas';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'tu margen mensual libre:';
+
+  @override
+  String get pulseNarrativeHousingGoal => 'tu capacidad de compra estimada:';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'tu tasa de reemplazo:';
+
+  @override
+  String get pulseLabelBudgetFree => 'Presupuesto libre este mes';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Capacidad de compra estimada';
 }

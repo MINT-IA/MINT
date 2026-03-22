@@ -183,6 +183,36 @@ class _DossierTabState extends State<DossierTab> {
                 const SizedBox(height: MintSpacing.xl),
 
                 // ═══════════════════════════════════════
+                //  Outils
+                // ═══════════════════════════════════════
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: MintSpacing.xs,
+                    bottom: MintSpacing.sm,
+                  ),
+                  child: Text(
+                    l.dossierToolsSection,
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ),
+
+                MintSurface(
+                  tone: MintSurfaceTone.blanc,
+                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+                  child: _DossierRow(
+                    icon: Icons.build_outlined,
+                    title: l.dossierToolsSection,
+                    subtitle: l.dossierToolsCta,
+                    onTap: () => context.push('/tools'),
+                    showDivider: false,
+                  ),
+                ),
+
+                const SizedBox(height: MintSpacing.xl),
+
+                // ═══════════════════════════════════════
                 //  Réglages
                 // ═══════════════════════════════════════
                 Padding(

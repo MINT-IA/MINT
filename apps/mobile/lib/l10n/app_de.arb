@@ -9206,5 +9206,13 @@
       "delta": { "type": "String" }
     }
   },
-  "proactiveNewCap": "Ich habe eine neue Priorit\u00e4t f\u00fcr dich."
+  "proactiveNewCap": "Ich habe eine neue Priorit\u00e4t f\u00fcr dich.",
+
+  "dossierToolsSection": "Werkzeuge",
+  "dossierToolsCta": "Alle Werkzeuge anzeigen",
+  "pulseNarrativeBudgetGoal": "dein monatliches freies Budget:",
+  "pulseNarrativeHousingGoal": "deine gesch\u00e4tzte Kaufkraft:",
+  "pulseNarrativeRetirementGoal": "deine Ersatzquote:",
+  "pulseLabelBudgetFree": "Freies Budget diesen Monat",
+  "pulseLabelPurchasingCapacity": "Gesch\u00e4tzte Kaufkraft"
 }

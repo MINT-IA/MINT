@@ -36177,6 +36177,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'J’ai une nouvelle priorité pour toi.'**
   String get proactiveNewCap;
+
+  /// No description provided for @dossierToolsSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils'**
+  String get dossierToolsSection;
+
+  /// No description provided for @dossierToolsCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tous les outils'**
+  String get dossierToolsCta;
+
+  /// No description provided for @pulseNarrativeBudgetGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'ta marge mensuelle :'**
+  String get pulseNarrativeBudgetGoal;
+
+  /// No description provided for @pulseNarrativeHousingGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'ta capacité d’achat estimée :'**
+  String get pulseNarrativeHousingGoal;
+
+  /// No description provided for @pulseNarrativeRetirementGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'ton taux de remplacement :'**
+  String get pulseNarrativeRetirementGoal;
+
+  /// No description provided for @pulseLabelBudgetFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge libre ce mois-ci'**
+  String get pulseLabelBudgetFree;
+
+  /// No description provided for @pulseLabelPurchasingCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capacité d’achat estimée'**
+  String get pulseLabelPurchasingCapacity;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -8908,5 +8908,13 @@
       "delta": { "type": "String" }
     }
   },
-  "proactiveNewCap": "Ho una nuova priorit\u00e0 per te."
+  "proactiveNewCap": "Ho una nuova priorit\u00e0 per te.",
+  "pulseNarrativeBudgetGoal": "il tuo margine mensile libero:",
+  "pulseNarrativeHousingGoal": "la tua capacit\u00e0 d\u2019acquisto stimata:",
+  "pulseNarrativeRetirementGoal": "il tuo tasso di sostituzione:",
+  "pulseLabelBudgetFree": "Budget libero questo mese",
+  "pulseLabelPurchasingCapacity": "Capacit\u00e0 d\u2019acquisto stimata",
+
+  "dossierToolsSection": "Strumenti",
+  "dossierToolsCta": "Vedi tutti gli strumenti"
 }

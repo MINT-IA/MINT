@@ -20509,4 +20509,25 @@ class SDe extends S {
 
   @override
   String get proactiveNewCap => 'Ich habe eine neue Priorität für dich.';
+
+  @override
+  String get dossierToolsSection => 'Werkzeuge';
+
+  @override
+  String get dossierToolsCta => 'Alle Werkzeuge anzeigen';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'dein monatliches freies Budget:';
+
+  @override
+  String get pulseNarrativeHousingGoal => 'deine geschätzte Kaufkraft:';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'deine Ersatzquote:';
+
+  @override
+  String get pulseLabelBudgetFree => 'Freies Budget diesen Monat';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Geschätzte Kaufkraft';
 }

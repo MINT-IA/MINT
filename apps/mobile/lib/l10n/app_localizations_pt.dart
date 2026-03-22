@@ -20437,4 +20437,26 @@ class SPt extends S {
 
   @override
   String get proactiveNewCap => 'Tenho uma nova prioridade para ti.';
+
+  @override
+  String get dossierToolsSection => 'Ferramentas';
+
+  @override
+  String get dossierToolsCta => 'Ver todas as ferramentas';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'a tua margem mensal livre:';
+
+  @override
+  String get pulseNarrativeHousingGoal =>
+      'a tua capacidade de compra estimada:';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'a tua taxa de substituição:';
+
+  @override
+  String get pulseLabelBudgetFree => 'Orçamento livre este mês';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Capacidade de compra estimada';
 }

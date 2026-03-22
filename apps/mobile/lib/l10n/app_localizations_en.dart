@@ -20388,4 +20388,25 @@ class SEn extends S {
 
   @override
   String get proactiveNewCap => 'I have a new priority for you.';
+
+  @override
+  String get dossierToolsSection => 'Tools';
+
+  @override
+  String get dossierToolsCta => 'See all tools';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'your monthly free budget:';
+
+  @override
+  String get pulseNarrativeHousingGoal => 'your estimated purchasing capacity:';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'your replacement rate:';
+
+  @override
+  String get pulseLabelBudgetFree => 'Free budget this month';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Estimated purchasing capacity';
 }

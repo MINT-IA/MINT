@@ -33,7 +33,6 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
-import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -754,10 +753,10 @@ final _router = GoRouter(
       builder: (context, state) => const AchievementsScreen(),
     ),
 
-    // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
+    // ── WEEKLY RECAP ─────────────────────────────────────────────
     GoRoute(
       path: '/weekly-recap',
-      redirect: (_, __) => '/home',
+      redirect: (_, __) => '/coach/weekly-recap',
     ),
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
@@ -768,10 +767,11 @@ final _router = GoRouter(
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
+    // DEPRECATED: /ask-mint consolidated into /coach/chat (S52 surface dedup).
+    // AskMintScreen kept for backwards compat but entry point redirects.
     GoRoute(
       path: '/ask-mint',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AskMintScreen(),
+      redirect: (_, __) => '/coach/chat',
     ),
     GoRoute(
       path: '/tools',

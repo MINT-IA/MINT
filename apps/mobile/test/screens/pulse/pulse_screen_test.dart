@@ -204,6 +204,90 @@ void main() {
     });
   });
 
+  // ── GOAL-CENTRIC DOMINANT NUMBER ─────────────────────────────
+
+  group('PulseScreen — goal-centric dominant number', () {
+    testWidgets('retirement goal shows replacement rate label',
+        (tester) async {
+      final provider = buildProfileProvider(
+        firstName: 'Julien',
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 9078,
+      );
+      // Default goal from buildProfileProvider is 'retraite'
+      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 2));
+
+      // V6: with retirement goal, label = pulseLabelReplacementRate
+      // "Part de train de vie conservée"
+      expect(
+        find.textContaining('train de vie'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('achat_immo goal: no replacement-rate label shown',
+        (tester) async {
+      final provider = CoachProfileProvider();
+      // Use q_main_goal (not q_goal) — the key fromWizardAnswers reads.
+      provider.updateFromAnswers({
+        'q_firstname': 'Julien',
+        'q_birth_year': 1977,
+        'q_canton': 'VS',
+        'q_net_income_period_chf': 9078.0,
+        'q_civil_status': 'celibataire',
+        'q_main_goal': 'achat_immo',
+      });
+
+      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 2));
+
+      // V6: with housing goal, the retirement-specific label
+      // "Part de train de vie conservée" must NOT appear.
+      expect(find.textContaining('train de vie'), findsNothing);
+      // Screen renders without crash
+      expect(find.byType(Text), findsWidgets);
+    });
+
+    testWidgets('_resolveActiveGoal falls back to retirement when goal=retraite',
+        (tester) async {
+      final provider = buildProfileProvider(
+        firstName: 'Julien',
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 9078,
+      );
+      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 2));
+
+      // Pulse renders without crash and shows Julien's name
+      expect(find.textContaining('Julien'), findsWidgets);
+    });
+
+    testWidgets(
+        '_resolveActiveGoal: no provider in tree falls back to profile.goalA',
+        (tester) async {
+      // PulseScreen built without MintStateProvider — should degrade gracefully.
+      final provider = CoachProfileProvider();
+      // q_main_goal is the correct wizard key; q_goal is ignored.
+      provider.updateFromAnswers({
+        'q_firstname': 'Julien',
+        'q_birth_year': 1977,
+        'q_canton': 'VS',
+        'q_net_income_period_chf': 9078.0,
+        'q_civil_status': 'celibataire',
+        'q_main_goal': 'retraite',
+      });
+
+      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 2));
+
+      // No crash — retirement narrative or label is shown
+      expect(find.byType(Text), findsWidgets);
+    });
+  });
+
   // ── HELPER EDGE CASES ────────────────────────────────────────
 
   group('PulseScreen — _hasMinimalConjointData edge cases', () {

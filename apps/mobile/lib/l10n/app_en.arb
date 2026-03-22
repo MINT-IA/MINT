@@ -9228,5 +9228,13 @@
       "delta": { "type": "String" }
     }
   },
-  "proactiveNewCap": "I have a new priority for you."
+  "proactiveNewCap": "I have a new priority for you.",
+
+  "dossierToolsSection": "Tools",
+  "dossierToolsCta": "See all tools",
+  "pulseNarrativeBudgetGoal": "your monthly free budget:",
+  "pulseNarrativeHousingGoal": "your estimated purchasing capacity:",
+  "pulseNarrativeRetirementGoal": "your replacement rate:",
+  "pulseLabelBudgetFree": "Free budget this month",
+  "pulseLabelPurchasingCapacity": "Estimated purchasing capacity"
 }

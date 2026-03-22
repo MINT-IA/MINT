@@ -11,6 +11,9 @@
 /// Pure data — no Flutter/widget imports. Safe to use in tests and services.
 library;
 
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/navigation/readiness_result.dart';
+
 // ════════════════════════════════════════════════════════════════
 //  SCREEN BEHAVIOR
 // ════════════════════════════════════════════════════════════════
@@ -82,6 +85,16 @@ class ScreenEntry {
   /// Whether the screen should be pre-filled from CoachProfile data.
   final bool prefillFromProfile;
 
+  /// Optional fine-grained gate for Swiss-critical surfaces.
+  ///
+  /// When non-null, [ReadinessGate] calls this function instead of the
+  /// generic field-checking heuristic. Use for surfaces that require
+  /// archetype-aware or composite-condition logic beyond field presence.
+  ///
+  /// Must be a top-level or static function — not a closure — so that
+  /// entries can be declared as `static final` with stable references.
+  final ReadinessResult Function(CoachProfile profile)? customGate;
+
   const ScreenEntry({
     required this.route,
     required this.intentTag,
@@ -91,6 +104,7 @@ class ScreenEntry {
     this.fallbackRoute,
     this.preferFromChat = true,
     this.prefillFromProfile = false,
+    this.customGate,
   });
 }
 
@@ -153,6 +167,166 @@ class InMemoryScreenRegistry extends ScreenRegistry {
 }
 
 // ════════════════════════════════════════════════════════════════
+//  CUSTOM GATE FUNCTIONS — fine-grained Swiss-critical readiness
+// ════════════════════════════════════════════════════════════════
+//
+// Each function is top-level so it can be stored as a const-like
+// static reference in ScreenEntry.customGate.
+//
+// Naming convention: _gate<SurfaceName>(CoachProfile) → ReadinessResult
+
+/// Gate: /invalidite — disability gap calculator.
+///
+/// Requires both [employmentStatus] AND [salaireBrut].
+/// If the user is independent (employmentStatus == 'independant'), the
+/// dedicated self-employed flow takes precedence (different pillars / IJM).
+ReadinessResult gateInvalidite(CoachProfile profile) {
+  final hasEmployment = profile.employmentStatus.isNotEmpty;
+  final hasSalary = profile.salaireBrutMensuel > 0;
+
+  if (!hasEmployment && !hasSalary) {
+    return const ReadinessResult.blocked(
+      ['employmentStatus', 'salaireBrut'],
+      ['employmentStatus', 'salaireBrut'],
+    );
+  }
+  if (!hasEmployment) {
+    return const ReadinessResult.blocked(
+      ['employmentStatus'],
+      ['employmentStatus'],
+    );
+  }
+  if (!hasSalary) {
+    return const ReadinessResult.blocked(
+      ['salaireBrut'],
+      ['salaireBrut'],
+    );
+  }
+  // Both present — if independent, route to dedicated screen (still ready
+  // here; RoutePlanner redirects via profile.archetype externally).
+  return const ReadinessResult.ready();
+}
+
+/// Gate: /lpp-deep/rachat — LPP buy-back simulator.
+///
+/// Requires [avoirLpp] OR [rachatMaximum]. Without either, the screen has
+/// no meaningful content and the user should scan their LPP certificate.
+ReadinessResult gateRachatLppDeep(CoachProfile profile) {
+  final hasAvoir = profile.prevoyance.avoirLppTotal != null &&
+      profile.prevoyance.avoirLppTotal! > 0;
+  final hasRachat = profile.prevoyance.rachatMaximum != null &&
+      profile.prevoyance.rachatMaximum! > 0;
+
+  if (!hasAvoir && !hasRachat) {
+    // Blocked — suggest document scan (fallbackRoute handles the CTA)
+    return const ReadinessResult.blocked(
+      ['avoirLpp', 'rachatMaximum'],
+      ['avoirLpp', 'rachatMaximum'],
+    );
+  }
+  if (!hasAvoir || !hasRachat) {
+    // One of the two is present — partial (estimation mode)
+    final missing = <String>[
+      if (!hasAvoir) 'avoirLpp',
+      if (!hasRachat) 'rachatMaximum',
+    ];
+    return ReadinessResult.partial(missing);
+  }
+  return const ReadinessResult.ready();
+}
+
+/// Gate: /segments/frontalier — cross-border worker hub.
+///
+/// Should only be surfaced for frontaliers (permis G) or users who have
+/// declared employmentStatus as 'frontalier'. Non-frontaliers are blocked.
+ReadinessResult gateFrontalier(CoachProfile profile) {
+  final isPermitG = profile.residencePermit == 'G';
+  final isFrontalierStatus = profile.employmentStatus == 'frontalier';
+
+  if (!isPermitG && !isFrontalierStatus) {
+    return const ReadinessResult.blocked(
+      ['employmentStatus'],
+      ['employmentStatus'],
+    );
+  }
+  return const ReadinessResult.ready();
+}
+
+/// Gate: /debt/ratio — budget sous tension / debt ratio calculator.
+///
+/// Requires [netIncome] AND at least one charge entered (totalMensuel > 0).
+/// If no charges have been entered, open in partial mode with enrichment CTA.
+ReadinessResult gateBudgetSousTension(CoachProfile profile) {
+  final hasIncome = profile.salaireBrutMensuel > 0;
+  final hasCharges = profile.depenses.totalMensuel > 0;
+
+  if (!hasIncome) {
+    return const ReadinessResult.blocked(
+      ['netIncome'],
+      ['netIncome'],
+    );
+  }
+  if (!hasCharges) {
+    // Income present but no charges — open in partial mode
+    return const ReadinessResult.partial(['totalCharges']);
+  }
+  return const ReadinessResult.ready();
+}
+
+/// Gate: /rente-vs-capital — the most critical retirement decision.
+///
+/// Hard minimum: [salaireBrut] + [age].
+/// Quality tiers:
+///   - Both LPP fields present → ready (high quality).
+///   - Only one LPP field present → partial (estimation mode).
+///   - Neither LPP field → partial (projection will use salary-derived estimate).
+///   - Missing salary or age → blocked.
+ReadinessResult gateRenteVsCapital(CoachProfile profile) {
+  final hasSalary = profile.salaireBrutMensuel > 0;
+  final hasAge = profile.age > 0;
+
+  // Blocking: no salary or age
+  if (!hasSalary && !hasAge) {
+    return const ReadinessResult.blocked(
+      ['salaireBrut', 'age'],
+      ['salaireBrut', 'age'],
+    );
+  }
+  if (!hasSalary) {
+    return const ReadinessResult.blocked(
+      ['salaireBrut'],
+      ['salaireBrut'],
+    );
+  }
+  if (!hasAge) {
+    return const ReadinessResult.blocked(
+      ['age'],
+      ['age'],
+    );
+  }
+
+  // Salary + age present — check LPP quality
+  final hasAvoir = profile.prevoyance.avoirLppTotal != null &&
+      profile.prevoyance.avoirLppTotal! > 0;
+  final hasRachat = profile.prevoyance.rachatMaximum != null &&
+      profile.prevoyance.rachatMaximum! > 0;
+
+  if (!hasAvoir && !hasRachat) {
+    // Both missing — partial (screen works with estimates)
+    return const ReadinessResult.partial(['avoirLpp', 'rachatMaximum']);
+  }
+  if (!hasAvoir || !hasRachat) {
+    // One missing — partial (low quality but operable)
+    final missing = <String>[
+      if (!hasAvoir) 'avoirLpp',
+      if (!hasRachat) 'rachatMaximum',
+    ];
+    return ReadinessResult.partial(missing);
+  }
+  return const ReadinessResult.ready();
+}
+
+// ════════════════════════════════════════════════════════════════
 //  MINT SCREEN REGISTRY — canonical, all surfaces
 // ════════════════════════════════════════════════════════════════
 
@@ -204,7 +378,9 @@ class MintScreenRegistry extends ScreenRegistry {
 
   // ── B — Decision Canvas ───────────────────────────────────────
 
-  static const ScreenEntry _renteVsCapital = ScreenEntry(
+  // customGate overrides generic field-check → must be static final
+  // ignore: prefer_const_constructors
+  static final ScreenEntry _renteVsCapital = ScreenEntry(
     route: '/rente-vs-capital',
     intentTag: 'retirement_choice',
     behavior: ScreenBehavior.decisionCanvas,
@@ -213,6 +389,7 @@ class MintScreenRegistry extends ScreenRegistry {
     fallbackRoute: '/coach/chat?prompt=retraite',
     preferFromChat: true,
     prefillFromProfile: true,
+    customGate: gateRenteVsCapital,
   );
 
   static const ScreenEntry _retraite = ScreenEntry(
@@ -269,6 +446,20 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: true,
   );
 
+  // customGate overrides generic field-check → must be static final
+  // ignore: prefer_const_constructors
+  static final ScreenEntry _lppDeepRachat = ScreenEntry(
+    route: '/lpp-deep/rachat',
+    intentTag: 'lpp_deep_rachat',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: [],
+    optionalFields: ['avoirLpp', 'rachatMaximum'],
+    fallbackRoute: '/scan',
+    preferFromChat: true,
+    prefillFromProfile: true,
+    customGate: gateRachatLppDeep,
+  );
+
   static const ScreenEntry _epl = ScreenEntry(
     route: '/epl',
     intentTag: 'early_pension_withdrawal',
@@ -290,14 +481,17 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: true,
   );
 
-  static const ScreenEntry _invalidite = ScreenEntry(
+  // customGate overrides generic field-check → must be static final
+  // ignore: prefer_const_constructors
+  static final ScreenEntry _invalidite = ScreenEntry(
     route: '/invalidite',
     intentTag: 'disability_gap',
     behavior: ScreenBehavior.decisionCanvas,
-    requiredFields: ['employmentStatus'],
-    optionalFields: ['salaireBrut', 'age'],
+    requiredFields: ['employmentStatus', 'salaireBrut'],
+    optionalFields: ['age'],
     preferFromChat: true,
     prefillFromProfile: true,
+    customGate: gateInvalidite,
   );
 
   static const ScreenEntry _jobComparison = ScreenEntry(
@@ -541,7 +735,9 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  static const ScreenEntry _debtRatio = ScreenEntry(
+  // customGate overrides generic field-check → must be static final
+  // ignore: prefer_const_constructors
+  static final ScreenEntry _debtRatio = ScreenEntry(
     route: '/debt/ratio',
     intentTag: 'debt_ratio',
     behavior: ScreenBehavior.decisionCanvas,
@@ -550,6 +746,7 @@ class MintScreenRegistry extends ScreenRegistry {
     fallbackRoute: '/onboarding/quick',
     preferFromChat: true,
     prefillFromProfile: true,
+    customGate: gateBudgetSousTension,
   );
 
   static const ScreenEntry _debtRepayment = ScreenEntry(
@@ -724,7 +921,9 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  static const ScreenEntry _frontalier = ScreenEntry(
+  // customGate overrides generic field-check → must be static final
+  // ignore: prefer_const_constructors
+  static final ScreenEntry _frontalier = ScreenEntry(
     route: '/segments/frontalier',
     intentTag: 'cross_border',
     behavior: ScreenBehavior.roadmapFlow,
@@ -732,6 +931,7 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['canton'],
     preferFromChat: true,
     prefillFromProfile: false,
+    customGate: gateFrontalier,
   );
 
   static const ScreenEntry _independant = ScreenEntry(
@@ -1201,6 +1401,36 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
+  // ── Surface deduplication (S52) ──────────────────────────────
+
+  /// Financial Summary — canonical view of the user's balance sheet.
+  ///
+  /// Behavior B: opens /profile/bilan as a decision canvas. Preferred from
+  /// chat so the Coach can surface a full patrimoine overview on request.
+  static const ScreenEntry _financialSummary = ScreenEntry(
+    route: '/profile/bilan',
+    intentTag: 'financial_summary',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: [],
+    optionalFields: ['salaireBrut', 'age', 'canton'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  /// Confidence Dashboard — displays the 4-axis EnhancedConfidence score.
+  ///
+  /// Behavior A: can be shown inline in chat as a widget. Also routable as
+  /// a full-screen view. preferFromChat true so the Coach can open it.
+  static const ScreenEntry _confidenceDashboard = ScreenEntry(
+    route: '/confidence',
+    intentTag: 'confidence_dashboard',
+    behavior: ScreenBehavior.directAnswer,
+    requiredFields: [],
+    optionalFields: ['salaireBrut', 'age', 'canton'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
   // ── S65 — Expert Tier ────────────────────────────────────────
 
   /// Opens the coach chat with a consult-specialist intent pre-loaded.
@@ -1261,7 +1491,8 @@ class MintScreenRegistry extends ScreenRegistry {
   /// Every intent tag MUST be unique.
   /// Every route MUST start with '/'.
   /// Routes MUST match exactly the GoRouter declarations in app.dart.
-  static const List<ScreenEntry> entries = [
+  // static final because some entries use customGate (non-const function refs)
+  static final List<ScreenEntry> entries = [
     // A — Direct Answer
     _scoreGauge,
     _budgetOverview,
@@ -1273,6 +1504,7 @@ class MintScreenRegistry extends ScreenRegistry {
     _staggeredWithdrawal,
     _fiscal,
     _rachatLpp,
+    _lppDeepRachat,
     _epl,
     _affordability,
     _invalidite,
@@ -1372,6 +1604,9 @@ class MintScreenRegistry extends ScreenRegistry {
     _askMint,
     // B — Decision Canvas (additional)
     _portfolio,
+    // S52 — Surface deduplication
+    _financialSummary,
+    _confidenceDashboard,
     // S65 — Expert Tier
     _consultSpecialist,
     // S68 — Agent Autonome

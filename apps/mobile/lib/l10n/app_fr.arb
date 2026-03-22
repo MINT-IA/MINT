@@ -9525,5 +9525,13 @@
       "delta": { "type": "String" }
     }
   },
-  "proactiveNewCap": "J\u2019ai une nouvelle priorit\u00e9 pour toi."
+  "proactiveNewCap": "J\u2019ai une nouvelle priorit\u00e9 pour toi.",
+
+  "dossierToolsSection": "Outils",
+  "dossierToolsCta": "Voir tous les outils",
+  "pulseNarrativeBudgetGoal": "ta marge mensuelle\u00a0:",
+  "pulseNarrativeHousingGoal": "ta capacit\u00e9 d\u2019achat estim\u00e9e\u00a0:",
+  "pulseNarrativeRetirementGoal": "ton taux de remplacement\u00a0:",
+  "pulseLabelBudgetFree": "Marge libre ce mois-ci",
+  "pulseLabelPurchasingCapacity": "Capacit\u00e9 d\u2019achat estim\u00e9e"
 }

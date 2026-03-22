@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -13,6 +14,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/gamification/community_challenge_service.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
+import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -25,6 +27,9 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// ── Goal category resolved from active profile + MintStateProvider ──
+enum _ActiveGoal { retirement, budget, housing }
 
 // ────────────────────────────────────────────────────────
 //  AUJOURD'HUI — V5 "Plan-first"
@@ -222,6 +227,16 @@ class _PulseScreenState extends State<PulseScreen> {
   Widget build(BuildContext context) {
     final coachProvider = context.watch<CoachProfileProvider>();
 
+    // Read activeGoalIntentTag from MintStateProvider once in build().
+    // Graceful degradation: if provider is not in tree (e.g. tests), returns null.
+    String? activeGoalIntentTag;
+    try {
+      activeGoalIntentTag =
+          context.watch<MintStateProvider>().state?.activeGoalIntentTag;
+    } catch (_) {
+      // Provider not in widget tree — goal falls back to profile.goalA.type.
+    }
+
     if (!coachProvider.hasProfile) {
       return _buildEmptyState(context);
     }
@@ -231,10 +246,11 @@ class _PulseScreenState extends State<PulseScreen> {
     final l = S.of(context)!;
 
     // Compute the dominant number
-    final dominantNumber = _computeDominantNumber(profile);
-    final dominantLabel = _computeDominantLabel(profile, l);
+    final dominantNumber = _computeDominantNumber(profile, activeGoalIntentTag);
+    final dominantLabel = _computeDominantLabel(profile, l, activeGoalIntentTag);
     final dominantColor = _computeDominantColor(dominantNumber);
-    final narrativePhrase = _computeNarrative(profile, cap, l);
+    final narrativePhrase =
+        _computeNarrative(profile, cap, l, activeGoalIntentTag);
 
     // Recent action feedback
     final recentAction = _recentActionLabel();
@@ -320,9 +336,116 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
+  // ── ACTIVE GOAL RESOLUTION ──
+
+  /// Resolve the user's active goal.
+  ///
+  /// Priority:
+  ///   1. [activeGoalIntentTag] from MintStateProvider (passed in from build)
+  ///   2. profile.goalA.type
+  ///   3. Default: retirement
+  ///
+  /// [activeGoalIntentTag] is read once in build() to keep goal-resolution
+  /// pure (no context.read inside helper methods).
+  _ActiveGoal _resolveActiveGoal(
+      CoachProfile profile, String? activeGoalIntentTag) {
+    if (activeGoalIntentTag != null) {
+      return _intentTagToGoal(activeGoalIntentTag);
+    }
+    return _goalATypeToGoal(profile.goalA.type);
+  }
+
+  _ActiveGoal _intentTagToGoal(String tag) {
+    final lower = tag.toLowerCase();
+    if (lower.contains('budget') || lower.contains('dette') ||
+        lower == 'debt_check' || lower == 'budget_overview' ||
+        lower == 'debtfree' || lower == 'debt_free') {
+      return _ActiveGoal.budget;
+    }
+    if (lower.contains('achat') || lower.contains('immo') ||
+        lower.contains('housing') || lower == 'housing_purchase' ||
+        lower == 'achat_immo') {
+      return _ActiveGoal.housing;
+    }
+    return _ActiveGoal.retirement;
+  }
+
+  _ActiveGoal _goalATypeToGoal(GoalAType type) {
+    switch (type) {
+      case GoalAType.achatImmo:
+        return _ActiveGoal.housing;
+      case GoalAType.debtFree:
+        return _ActiveGoal.budget;
+      case GoalAType.retraite:
+      case GoalAType.independance:
+      case GoalAType.custom:
+        return _ActiveGoal.retirement;
+    }
+  }
+
   // ── DOMINANT NUMBER ──
 
-  _DominantNumber _computeDominantNumber(CoachProfile profile) {
+  _DominantNumber _computeDominantNumber(
+      CoachProfile profile, String? activeGoalIntentTag) {
+    final goal = _resolveActiveGoal(profile, activeGoalIntentTag);
+
+    // ── Budget goal: show monthly free margin ──
+    if (goal == _ActiveGoal.budget) {
+      final snapshot = _cachedSnapshot;
+      if (snapshot != null) {
+        final libre = snapshot.present.monthlyFree;
+        return _DominantNumber(
+          value: libre,
+          format: (v) {
+            final prefix = v >= 0 ? '+' : '';
+            return '$prefix${formatChf(v.abs())}\u00a0CHF';
+          },
+          type: _NumberType.chf,
+        );
+      }
+      // Fallback: net minus expenses
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        final libre = revenuNet - profile.totalDepensesMensuelles;
+        return _DominantNumber(
+          value: libre,
+          format: (v) {
+            final prefix = v >= 0 ? '+' : '';
+            return '$prefix${formatChf(v.abs())}\u00a0CHF';
+          },
+          type: _NumberType.chf,
+        );
+      }
+    }
+
+    // ── Housing goal: show purchasing capacity ──
+    if (goal == _ActiveGoal.housing) {
+      final revenuBrut = profile.salaireBrutMensuel * 12;
+      if (revenuBrut > 0) {
+        try {
+          final result = AffordabilityCalculator.calculate(
+            revenuBrutAnnuel: revenuBrut,
+            epargneDispo: profile.patrimoine.epargneLiquide,
+            avoir3a: profile.prevoyance.totalEpargne3a,
+            avoirLpp: profile.prevoyance.avoirLppTotal ?? 0,
+            // Use a representative price = max accessible (self-consistent)
+            prixAchat: revenuBrut * 5,
+            canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+          );
+          if (result.prixMaxAccessible > 0) {
+            return _DominantNumber(
+              value: result.prixMaxAccessible,
+              format: (v) => '${formatChfCompact(v)}\u00a0CHF',
+              type: _NumberType.chf,
+            );
+          }
+        } catch (_) {
+          // Graceful degradation to retirement display below
+        }
+      }
+    }
+
+    // ── Retirement goal (default) ──
     if (_cachedProjection != null) {
       final retraite = _cachedProjection!.base.revenuAnnuelRetraite / 12;
       final revenuNet = _computeRevenuNet(profile);
@@ -337,7 +460,7 @@ class _PulseScreenState extends State<PulseScreen> {
       if (retraite > 0) {
         return _DominantNumber(
           value: retraite,
-          format: (v) => '${formatChf(v)} CHF',
+          format: (v) => '${formatChf(v)}\u00a0CHF',
           type: _NumberType.chf,
         );
       }
@@ -357,7 +480,27 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  String _computeDominantLabel(CoachProfile profile, S l) {
+  String _computeDominantLabel(
+      CoachProfile profile, S l, String? activeGoalIntentTag) {
+    final goal = _resolveActiveGoal(profile, activeGoalIntentTag);
+
+    if (goal == _ActiveGoal.budget) {
+      // Only show budget label if we actually have budget data
+      final snapshot = _cachedSnapshot;
+      final revenuNet = _computeRevenuNet(profile);
+      if (snapshot != null || revenuNet > 0) {
+        return l.pulseLabelBudgetFree;
+      }
+    }
+
+    if (goal == _ActiveGoal.housing) {
+      final revenuBrut = profile.salaireBrutMensuel * 12;
+      if (revenuBrut > 0) {
+        return l.pulseLabelPurchasingCapacity;
+      }
+    }
+
+    // Default: retirement
     if (_cachedProjection != null) {
       final revenuNet = _computeRevenuNet(profile);
       if (revenuNet > 0) {
@@ -379,13 +522,17 @@ class _PulseScreenState extends State<PulseScreen> {
       if (n.value >= 40) return MintColors.warning;
       return MintColors.error;
     }
+    // CHF: budget margin uses positive/negative semantic colour
+    if (n.type == _NumberType.chf) {
+      if (n.value < 0) return MintColors.warning;
+    }
     return MintColors.textPrimary;
   }
 
   // ── NARRATIVE ──
 
   String _computeNarrative(
-      CoachProfile profile, CapDecision? cap, S l) {
+      CoachProfile profile, CapDecision? cap, S l, String? activeGoalIntentTag) {
     final firstName = profile.firstName;
     final yearsToRetire = profile.effectiveRetirementAge - profile.age;
     final hasName = firstName != null && firstName.trim().isNotEmpty;
@@ -400,6 +547,29 @@ class _PulseScreenState extends State<PulseScreen> {
       return hasName
           ? '$firstName, ${w[0].toLowerCase()}${w.substring(1)}'
           : w;
+    }
+
+    // Goal-specific narrative (no active cap): reference the dominant number.
+    final goal = _resolveActiveGoal(profile, activeGoalIntentTag);
+
+    if (goal == _ActiveGoal.budget) {
+      // Show "ta marge mensuelle :" prefixed with name if available.
+      final budgetPhrase = l.pulseNarrativeBudgetGoal;
+      return prefix(budgetPhrase);
+    }
+
+    if (goal == _ActiveGoal.housing) {
+      final housingPhrase = l.pulseNarrativeHousingGoal;
+      return prefix(housingPhrase);
+    }
+
+    // Retirement goal: show goal-specific phrase when we have projection data,
+    // otherwise fall back to time-based narrative.
+    if (goal == _ActiveGoal.retirement && _cachedProjection != null) {
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        return prefix(l.pulseNarrativeRetirementGoal);
+      }
     }
 
     // Fallback: time-based narrative

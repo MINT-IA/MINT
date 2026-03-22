@@ -20510,4 +20510,25 @@ class SIt extends S {
 
   @override
   String get proactiveNewCap => 'Ho una nuova priorità per te.';
+
+  @override
+  String get dossierToolsSection => 'Strumenti';
+
+  @override
+  String get dossierToolsCta => 'Vedi tutti gli strumenti';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'il tuo margine mensile libero:';
+
+  @override
+  String get pulseNarrativeHousingGoal => 'la tua capacità d’acquisto stimata:';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'il tuo tasso di sostituzione:';
+
+  @override
+  String get pulseLabelBudgetFree => 'Budget libero questo mese';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Capacità d’acquisto stimata';
 }

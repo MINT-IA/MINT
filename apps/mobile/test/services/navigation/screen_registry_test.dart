@@ -48,8 +48,8 @@ void main() {
       }
     });
 
-    test('total entry count covers all registered surfaces (= 108)', () {
-      expect(MintScreenRegistry.entries.length, equals(108));
+    test('total entry count covers all registered surfaces (= 111)', () {
+      expect(MintScreenRegistry.entries.length, equals(111));
     });
   });
 
@@ -166,6 +166,23 @@ void main() {
           MintScreenRegistry.findByIntentStatic('admin_observability');
       expect(entry, isNotNull);
       expect(entry!.preferFromChat, isFalse);
+    });
+
+    test('financial_summary → /profile/bilan, decisionCanvas, preferFromChat true', () {
+      final entry = MintScreenRegistry.findByIntentStatic('financial_summary');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/profile/bilan'));
+      expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
+      expect(entry.preferFromChat, isTrue);
+    });
+
+    test('confidence_dashboard → /confidence, directAnswer, preferFromChat true', () {
+      final entry =
+          MintScreenRegistry.findByIntentStatic('confidence_dashboard');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/confidence'));
+      expect(entry.behavior, equals(ScreenBehavior.directAnswer));
+      expect(entry.preferFromChat, isTrue);
     });
 
     test('unknown intent tag returns null', () {

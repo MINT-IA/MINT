@@ -20487,4 +20487,25 @@ class SFr extends S {
 
   @override
   String get proactiveNewCap => 'J’ai une nouvelle priorité pour toi.';
+
+  @override
+  String get dossierToolsSection => 'Outils';
+
+  @override
+  String get dossierToolsCta => 'Voir tous les outils';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'ta marge mensuelle :';
+
+  @override
+  String get pulseNarrativeHousingGoal => 'ta capacité d’achat estimée :';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'ton taux de remplacement :';
+
+  @override
+  String get pulseLabelBudgetFree => 'Marge libre ce mois-ci';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Capacité d’achat estimée';
 }
