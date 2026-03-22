@@ -20974,4 +20974,13 @@ class SEs extends S {
 
   @override
   String get pulseCapImpact => 'Palanca identificada';
+
+  @override
+  String get dossierAddConjointCta => 'Añadir mi pareja';
+
+  @override
+  String get dossierDataAvs => '1er pilar';
+
+  @override
+  String get dossierDataFiscalite => 'Fiscalidad';
 }

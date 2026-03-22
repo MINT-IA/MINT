@@ -20877,4 +20877,13 @@ class SEn extends S {
 
   @override
   String get pulseCapImpact => 'Lever identified';
+
+  @override
+  String get dossierAddConjointCta => 'Add my partner';
+
+  @override
+  String get dossierDataAvs => '1st pillar';
+
+  @override
+  String get dossierDataFiscalite => 'Taxation';
 }

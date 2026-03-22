@@ -9467,5 +9467,8 @@
     }
   },
   "pulseRetirementIncome": "Estimated retirement income",
-  "pulseCapImpact": "Lever identified"
+  "pulseCapImpact": "Lever identified",
+  "dossierAddConjointCta": "Add my partner",
+  "dossierDataAvs": "1st pillar",
+  "dossierDataFiscalite": "Taxation"
 }

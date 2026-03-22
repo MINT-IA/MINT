@@ -37029,6 +37029,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Levier identifié'**
   String get pulseCapImpact;
+
+  /// No description provided for @dossierAddConjointCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter mon·ma conjoint·e'**
+  String get dossierAddConjointCta;
+
+  /// No description provided for @dossierDataAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'1er pilier'**
+  String get dossierDataAvs;
+
+  /// No description provided for @dossierDataFiscalite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get dossierDataFiscalite;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

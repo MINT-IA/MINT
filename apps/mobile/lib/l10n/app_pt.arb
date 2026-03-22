@@ -9147,5 +9147,8 @@
     }
   },
   "pulseRetirementIncome": "Rendimento aposentadoria estimado",
-  "pulseCapImpact": "Alavanca identificada"
+  "pulseCapImpact": "Alavanca identificada",
+  "dossierAddConjointCta": "Adicionar meu\u00b7minha parceiro\u00b7a",
+  "dossierDataAvs": "1\u00ba pilar",
+  "dossierDataFiscalite": "Fiscalidade"
 }

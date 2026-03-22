@@ -20925,4 +20925,13 @@ class SPt extends S {
 
   @override
   String get pulseCapImpact => 'Alavanca identificada';
+
+  @override
+  String get dossierAddConjointCta => 'Adicionar meu·minha parceiro·a';
+
+  @override
+  String get dossierDataAvs => '1º pilar';
+
+  @override
+  String get dossierDataFiscalite => 'Fiscalidade';
 }

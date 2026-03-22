@@ -21003,4 +21003,13 @@ class SIt extends S {
 
   @override
   String get pulseCapImpact => 'Leva identificata';
+
+  @override
+  String get dossierAddConjointCta => 'Aggiungere il·la partner';
+
+  @override
+  String get dossierDataAvs => '1° pilastro';
+
+  @override
+  String get dossierDataFiscalite => 'Fiscalità';
 }

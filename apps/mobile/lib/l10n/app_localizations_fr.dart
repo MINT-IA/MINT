@@ -20975,4 +20975,13 @@ class SFr extends S {
 
   @override
   String get pulseCapImpact => 'Levier identifié';
+
+  @override
+  String get dossierAddConjointCta => 'Ajouter mon·ma conjoint·e';
+
+  @override
+  String get dossierDataAvs => '1er pilier';
+
+  @override
+  String get dossierDataFiscalite => 'Fiscalité';
 }

@@ -9,6 +9,7 @@ import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/benchmark/benchmark_comparison_service.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/benchmark/benchmark_opt_in_service.dart';
 import 'package:mint_mobile/services/expert/advisor_specialization.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -655,6 +656,17 @@ class _DataSection extends StatelessWidget {
     required this.l,
   });
 
+  /// Navigate to [route] then trigger a full state recompute on return.
+  Future<void> _pushAndRecompute(BuildContext context, String route,
+      {Object? extra}) async {
+    await context.push(route, extra: extra);
+    if (!context.mounted) return;
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile != null) {
+      context.read<MintStateProvider>().forceRecompute(profile);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = mintState?.profile ?? provider.profile;
@@ -684,6 +696,10 @@ class _DataSection extends StatelessWidget {
         ? formatChfMonthly(monthlyFree)
         : l.dossierDataUnknown;
 
+    // Conjoint: show CTA when couple but no conjoint data.
+    final isCouple = profile?.isCouple ?? false;
+    final hasConjoint = profile?.conjoint != null;
+
     return MintSurface(
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
@@ -694,7 +710,7 @@ class _DataSection extends StatelessWidget {
             icon: Icons.work_outline,
             label: l.dossierDataRevenu,
             value: revenuStr,
-            onTap: () => context.push('/profile'),
+            onTap: () => _pushAndRecompute(context, '/data-block/revenu'),
           ),
 
           // ── LPP ──
@@ -703,14 +719,19 @@ class _DataSection extends StatelessWidget {
                   icon: Icons.account_balance_outlined,
                   label: l.dossierDataLpp,
                   value: lppStr,
-                  onTap: () => context.push('/lpp'),
+                  onTap: () =>
+                      _pushAndRecompute(context, '/data-block/lpp'),
                 )
               : _DataRow(
                   icon: Icons.account_balance_outlined,
                   label: l.dossierDataLpp,
                   value: l.dossierDataUnknown,
                   cta: l.dossierScanLppCta,
-                  onTap: () => context.push('/documents'),
+                  onTap: () => _pushAndRecompute(
+                    context,
+                    '/scan',
+                    extra: DocumentType.lppCertificate,
+                  ),
                 ),
 
           // ── 3a ──
@@ -718,7 +739,7 @@ class _DataSection extends StatelessWidget {
             icon: Icons.savings_outlined,
             label: l.dossierData3a,
             value: str3a,
-            onTap: () => context.push('/pilier-3a'),
+            onTap: () => _pushAndRecompute(context, '/data-block/3a'),
           ),
 
           // ── Budget mensuel ──
@@ -726,8 +747,21 @@ class _DataSection extends StatelessWidget {
             icon: Icons.bar_chart_outlined,
             label: l.dossierDataBudget,
             value: budgetStr,
-            onTap: () => context.push('/budget'),
+            onTap: () => _pushAndRecompute(context, '/budget'),
           ),
+
+          // ── Ajouter mon conjoint CTA ──
+          if (isCouple && !hasConjoint)
+            _DataRow(
+              icon: Icons.person_add_outlined,
+              label: l.dossierAddConjointCta,
+              value: l.dossierDataUnknown,
+              cta: l.dossierAddConjointCta,
+              onTap: () => _pushAndRecompute(
+                context,
+                '/data-block/compositionMenage',
+              ),
+            ),
 
           // ── Documents ──
           _DossierRow(

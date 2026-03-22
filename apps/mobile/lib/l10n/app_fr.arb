@@ -9764,5 +9764,8 @@
     }
   },
   "pulseRetirementIncome": "Revenu retraite estimé",
-  "pulseCapImpact": "Levier identifié"
+  "pulseCapImpact": "Levier identifié",
+  "dossierAddConjointCta": "Ajouter mon\u00b7ma conjoint\u00b7e",
+  "dossierDataAvs": "1er pilier",
+  "dossierDataFiscalite": "Fiscalit\u00e9"
 }

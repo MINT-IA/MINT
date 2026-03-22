@@ -20999,4 +20999,13 @@ class SDe extends S {
 
   @override
   String get pulseCapImpact => 'Identifizierter Hebel';
+
+  @override
+  String get dossierAddConjointCta => 'Partner·in hinzufügen';
+
+  @override
+  String get dossierDataAvs => '1. Säule';
+
+  @override
+  String get dossierDataFiscalite => 'Steuern';
 }

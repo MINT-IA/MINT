@@ -9445,5 +9445,8 @@
     }
   },
   "pulseRetirementIncome": "Geschätztes Renteneinkommen",
-  "pulseCapImpact": "Identifizierter Hebel"
+  "pulseCapImpact": "Identifizierter Hebel",
+  "dossierAddConjointCta": "Partner\u00b7in hinzuf\u00fcgen",
+  "dossierDataAvs": "1. S\u00e4ule",
+  "dossierDataFiscalite": "Steuern"
 }

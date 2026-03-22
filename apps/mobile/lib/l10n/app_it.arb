@@ -9147,5 +9147,8 @@
     }
   },
   "pulseRetirementIncome": "Reddito pensione stimato",
-  "pulseCapImpact": "Leva identificata"
+  "pulseCapImpact": "Leva identificata",
+  "dossierAddConjointCta": "Aggiungere il\u00b7la partner",
+  "dossierDataAvs": "1\u00b0 pilastro",
+  "dossierDataFiscalite": "Fiscalit\u00e0"
 }

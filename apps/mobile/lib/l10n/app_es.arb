@@ -9230,5 +9230,8 @@
     }
   },
   "pulseRetirementIncome": "Ingreso jubilación estimado",
-  "pulseCapImpact": "Palanca identificada"
+  "pulseCapImpact": "Palanca identificada",
+  "dossierAddConjointCta": "A\u00f1adir mi pareja",
+  "dossierDataAvs": "1er pilar",
+  "dossierDataFiscalite": "Fiscalidad"
 }
