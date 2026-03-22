@@ -158,7 +158,7 @@ void main() {
       final coachSemantics = tester
           .widgetList<Semantics>(find.byType(Semantics))
           .where((s) =>
-              s.properties.label == 'MINT' &&
+              s.properties.label == 'Mint' &&
               (s.properties.selected ?? false));
       expect(coachSemantics, isNotEmpty,
           reason: 'MINT Semantics widget should be selected for tab=1');
@@ -236,7 +236,7 @@ void main() {
       final coachSemantics = tester
           .widgetList<Semantics>(find.byType(Semantics))
           .where((s) =>
-              s.properties.label == 'MINT' &&
+              s.properties.label == 'Mint' &&
               (s.properties.selected ?? false));
       expect(coachSemantics, isNotEmpty,
           reason: '/app/coach should redirect to tab=1');

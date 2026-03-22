@@ -31,9 +31,9 @@ Sources:
 from typing import Optional
 
 from app.services.coach.coach_models import CoachContext
-from app.services.coach.coach_tools import COACH_TOOLS, ROUTE_TO_SCREEN_INTENT_TAGS
+from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
 
-__all__ = ["build_system_prompt", "COACH_TOOLS"]
+__all__ = ["build_system_prompt", "COACH_TOOLS", "INTERNAL_TOOL_NAMES"]
 
 
 # ---------------------------------------------------------------------------
@@ -62,6 +62,11 @@ will handle partial/blocked states automatically.
 the route_to_screen tool with an intent tag.
 - context_message MUST be educational and non-prescriptive. Use conditional \
 language ('pourrait', 'dans ce scénario'). Banned terms are forbidden.
+- Use retrieve_memories when the user references a past discussion, a previous \
+goal, or a topic covered in a prior session. The backend will search memory and \
+inject the result — you never see a raw route, only relevant memory lines. \
+retrieve_memories is INTERNAL: it is handled by the backend and is never \
+forwarded to the Flutter app.
 
 REGISTERED INTENT TAGS (route_to_screen only):
 """ + "\n".join(f"  - {tag}" for tag in ROUTE_TO_SCREEN_INTENT_TAGS)

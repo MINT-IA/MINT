@@ -496,7 +496,7 @@ void main() {
 
       // S52: 4-tab layout — Aujourd'hui, MINT (Coach), Explorer, Dossier
       expect(find.textContaining('ujourd'), findsWidgets);
-      expect(find.text('MINT'), findsOneWidget);
+      expect(find.text('Mint'), findsOneWidget);
       expect(find.text('Explorer'), findsOneWidget);
       expect(find.text('Dossier'), findsOneWidget);
     });

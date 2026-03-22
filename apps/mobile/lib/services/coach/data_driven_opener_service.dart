@@ -335,9 +335,15 @@ class DataDrivenOpenerService {
 
   /// Resolve a CapStep [titleKey] ARB key to a human-readable label.
   ///
+  /// Public so [PrecomputedInsightsService] can resolve stored titleKeys at
+  /// display time using the real locale without re-importing private helpers.
+  ///
   /// This method handles a representative subset of known cap step title keys.
   /// Keys that are not explicitly matched return null — callers should handle
   /// null gracefully (e.g. fall back to the step id).
+  static String? resolveCapStepTitle(String key, S l) =>
+      _resolveCapStepTitleKey(key, l);
+
   static String? _resolveCapStepTitleKey(String key, S l) {
     // Use a try/catch per switch branch since ARB methods are non-nullable;
     // any missing key would throw rather than return null.

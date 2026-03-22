@@ -38,8 +38,10 @@ import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/voice_service.dart';
+import 'package:mint_mobile/services/voice/platform_voice_backend.dart';
 import 'package:mint_mobile/services/llm/provider_health_service.dart';
 import 'package:mint_mobile/services/coach/data_driven_opener_service.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
@@ -114,9 +116,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   bool _isResumingConversation = false;
 
   // ── Voice (S63) ──────────────────────────────────────────────
-  /// Single VoiceService instance for this screen (stub backend by default —
-  /// degrades gracefully when no STT/TTS plugin is configured).
-  final VoiceService _voiceService = VoiceService();
+  /// Single VoiceService instance for this screen.
+  ///
+  /// Uses [PlatformVoiceBackend] which probes native channels via
+  /// [MethodChannel]. When plugins (flutter_tts / speech_to_text) are absent
+  /// the backend degrades gracefully — [MissingPluginException] is caught
+  /// internally and both STT and TTS report unavailable.
+  /// [VoiceStateMachine] (wired inside [VoiceService]) prevents concurrent
+  /// listen+speak operations at the state-machine level.
+  final VoiceService _voiceService = VoiceService(
+    backend: PlatformVoiceBackend(),
+  );
 
   /// Whether STT is available on this device.
   bool _voiceSttAvailable = false;
@@ -307,19 +317,37 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // ── Data-driven opener (Cleo-inspired, Swiss-adapted) ─────────
     // Only fires when no proactive trigger was already selected.
     // Surfaces a real CHF number from the user's state.
-    // mintStateSnapshot was captured synchronously above — safe to use here.
+    //
+    // Priority:
+    //   1. Pre-computed cache (instant — written at profile-change time).
+    //   2. Synchronous generation from mintStateSnapshot (fallback).
     String? dataDrivenMessage;
     String? dataDrivenIntentTag;
-    if ((proactiveMessage == null || proactiveMessage.isEmpty) &&
-        mintStateSnapshot != null) {
+    if (proactiveMessage == null || proactiveMessage.isEmpty) {
       try {
-        final opener = DataDrivenOpenerService.generate(
-          state: mintStateSnapshot,
-          l: s,
+        // Try pre-computed cache first (instant read, no computation).
+        final prefs2 = await SharedPreferences.getInstance();
+        if (!mounted) return;
+        final cached = await PrecomputedInsightsService.getCachedInsight(
+          prefs: prefs2,
         );
-        if (opener != null) {
-          dataDrivenMessage = opener.message;
-          dataDrivenIntentTag = opener.intentTag;
+        if (cached != null) {
+          final opener = cached.resolve(s);
+          if (opener != null) {
+            dataDrivenMessage = opener.message;
+            dataDrivenIntentTag = opener.intentTag;
+          }
+        }
+        // Fallback: synchronous generation if cache missed and state is available.
+        if (dataDrivenMessage == null && mintStateSnapshot != null) {
+          final opener = DataDrivenOpenerService.generate(
+            state: mintStateSnapshot,
+            l: s,
+          );
+          if (opener != null) {
+            dataDrivenMessage = opener.message;
+            dataDrivenIntentTag = opener.intentTag;
+          }
         }
       } catch (_) {
         // Graceful degradation: greeting works without data-driven opener.

@@ -15,11 +15,14 @@
 ///   - No identifiable data stored in this provider.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/mint_state_engine.dart';
 
 /// Reactive provider for the unified [MintUserState].
@@ -94,6 +97,15 @@ class MintStateProvider extends ChangeNotifier {
         prefs: prefs,
       );
       _state = newState;
+      // Pre-compute insight at profile-change time (Cleo 3.0 pattern).
+      // Runs asynchronously after state is set — does not block notifyListeners.
+      // Silent degradation: never throws, cache failure is non-fatal.
+      unawaited(
+        PrecomputedInsightsService.computeAndCache(
+          state: newState,
+          prefs: prefs,
+        ),
+      );
       notifyListeners();
     } catch (_) {
       // Engine errors must not crash the app.
@@ -116,6 +128,13 @@ class MintStateProvider extends ChangeNotifier {
     _pendingRecompute = false;
     _pendingProfile = null;
     _lastProfile = null;
+    // Clear pre-computed insight cache to avoid surfacing stale data after
+    // sign-out or profile switch.
+    unawaited(
+      SharedPreferences.getInstance().then(
+        (prefs) => PrecomputedInsightsService.clear(prefs),
+      ),
+    );
     notifyListeners();
   }
 

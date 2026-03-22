@@ -15,13 +15,48 @@ Architecture notes:
     - `context_message` in route_to_screen MUST be educational and
       non-prescriptive (ComplianceGuard validates all LLM output).
     - All tool descriptions are in English (internal, never user-facing).
+    - `retrieve_memories` is an INTERNAL tool: the backend intercepts
+      tool_use blocks with this name, searches the memory_block locally,
+      and returns a tool_result so the LLM can continue its response.
+      This tool is NEVER forwarded to Flutter.
+    - `category` and `access_level` are backend metadata fields.  They are
+      NOT sent to the LLM but are used for access control and filtering:
+        * get_read_only_tools() strips WRITE tools for low-trust contexts.
+        * get_tools_by_category() allows targeted tool injection per flow.
+
+Tool categories (ToolCategory enum):
+    NAVIGATE — opens a screen (route_to_screen)
+    READ     — displays info inline (show_*, ask_user_input)
+    WRITE    — modifies user state (set_goal, mark_step_completed, save_insight)
+    SEARCH   — semantic memory search (retrieve_memories)
 
 Sources:
     - docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §6
     - docs/BLUEPRINT_COACH_AI_LAYER.md
 """
 
+from enum import Enum
 from typing import Any
+
+# ---------------------------------------------------------------------------
+# Tool category — used by backend for access control (never sent to LLM)
+# ---------------------------------------------------------------------------
+
+
+class ToolCategory(str, Enum):
+    NAVIGATE = "navigate"  # route_to_screen — opens a screen
+    READ = "read"          # show_*, ask_user_input — displays info inline
+    WRITE = "write"        # set_goal, mark_step_completed, save_insight — modifies state
+    SEARCH = "search"      # retrieve_memories — semantic memory search
+
+
+# ---------------------------------------------------------------------------
+# Internal tools handled by the backend (not forwarded to Flutter)
+# ---------------------------------------------------------------------------
+
+INTERNAL_TOOL_NAMES: list[str] = [
+    "retrieve_memories",
+]
 
 # ---------------------------------------------------------------------------
 # Canonical intent tags understood by Flutter RoutePlanner
@@ -63,6 +98,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
     # ─────────────────────────────────────────────────────────────────
     {
         "name": "show_fact_card",
+        "category": "read",
+        "access_level": "user_scoped",
         "description": (
             "Display an educational fact card inline in the chat. "
             "Use for conceptual explanations, key numbers, or legal references. "
@@ -96,6 +133,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
     # ─────────────────────────────────────────────────────────────────
     {
         "name": "show_budget_snapshot",
+        "category": "read",
+        "access_level": "user_scoped",
         "description": (
             "Display the user's budget snapshot inline in the chat. "
             "Use when the user asks about their current financial situation, "
@@ -121,6 +160,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
     # ─────────────────────────────────────────────────────────────────
     {
         "name": "show_score_gauge",
+        "category": "read",
+        "access_level": "user_scoped",
         "description": (
             "Display the user's Financial Readiness Index (FRI) score as an "
             "inline gauge widget. Use when the user asks about their score, "
@@ -142,6 +183,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
     # ─────────────────────────────────────────────────────────────────
     {
         "name": "ask_user_input",
+        "category": "read",
+        "access_level": "user_scoped",
         "description": (
             "Ask the user for a specific piece of missing data via a structured "
             "input chip or form. Use when a readiness gate is blocked due to a "
@@ -176,10 +219,50 @@ COACH_TOOLS: list[dict[str, Any]] = [
         },
     },
     # ─────────────────────────────────────────────────────────────────
+    # retrieve_memories — INTERNAL: search user memory (backend-handled)
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "retrieve_memories",
+        "category": "search",
+        "access_level": "user_scoped",
+        "description": (
+            "Search the user's conversation memory for past insights, goals, and "
+            "screen visits. Use this when the user references something they "
+            "discussed before, or when you want to provide continuity from past "
+            "sessions. This tool is handled internally by the backend — it never "
+            "reaches the Flutter app. The result is injected back into the "
+            "conversation so you can use it in your next response."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "topic": {
+                    "type": "string",
+                    "description": (
+                        "The topic to search for in memory (e.g. 'retraite', "
+                        "'lpp', 'budget', '3a'). Use the user's own words or "
+                        "financial topics."
+                    ),
+                },
+                "max_results": {
+                    "type": "integer",
+                    "description": (
+                        "Maximum number of memory entries to return "
+                        "(default 3, max 5)."
+                    ),
+                    "default": 3,
+                },
+            },
+            "required": ["topic"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
     # route_to_screen — intent-based screen routing
     # ─────────────────────────────────────────────────────────────────
     {
         "name": "route_to_screen",
+        "category": "navigate",
+        "access_level": "user_scoped",
         "description": (
             "Route the user to a specific MINT screen based on their intent. "
             "The Flutter app will verify readiness before opening. "
@@ -223,4 +306,144 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "required": ["intent", "confidence", "context_message"],
         },
     },
+    # ─────────────────────────────────────────────────────────────────
+    # set_goal — WRITE: set the user's active financial goal
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "set_goal",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Set the user's primary financial goal. Use when the user declares "
+            "a new focus area or explicitly states a financial objective. "
+            "The goal_intent_tag must match a registered intent tag so that "
+            "the CapEngine can surface relevant widgets and nudges."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "goal_intent_tag": {
+                    "type": "string",
+                    "description": (
+                        "The goal intent tag identifying the focus area "
+                        "(e.g. 'retirement_choice', 'budget_overview', "
+                        "'housing_purchase', 'tax_optimization_3a')."
+                    ),
+                },
+                "reason": {
+                    "type": "string",
+                    "description": (
+                        "Brief reason for the goal change, derived from the "
+                        "user's own words. Used for memory and continuity."
+                    ),
+                },
+            },
+            "required": ["goal_intent_tag"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # mark_step_completed — WRITE: mark a CapSequence step as done
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "mark_step_completed",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Mark a step in the user's financial plan (CapSequence) as "
+            "completed or skipped. Use when the user confirms they have taken "
+            "an action (e.g. 'I opened my 3a account', 'I skipped the LPP "
+            "buyback for now'). Never mark steps without explicit confirmation."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "step_id": {
+                    "type": "string",
+                    "description": (
+                        "The CapSequence step identifier to mark "
+                        "(e.g. 'open_3a', 'lpp_buyback_check', 'avs_voluntary')."
+                    ),
+                },
+                "outcome": {
+                    "type": "string",
+                    "enum": ["completed", "skipped"],
+                    "description": (
+                        "'completed' if the user has done the step, "
+                        "'skipped' if they have decided not to."
+                    ),
+                },
+            },
+            "required": ["step_id", "outcome"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_insight — WRITE: persist a conversation insight to memory
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_insight",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Save an important insight from the current conversation for "
+            "future reference. Use when the user shares a key fact, decision, "
+            "concern, or goal that should influence future coach responses. "
+            "Keep the summary factual and concise (max 200 chars). "
+            "Do NOT save PII (names, IBAN, employer, exact address)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "topic": {
+                    "type": "string",
+                    "description": (
+                        "Short topic label for the insight "
+                        "(e.g. 'retraite', 'lpp', 'logement', '3a', 'budget')."
+                    ),
+                },
+                "summary": {
+                    "type": "string",
+                    "description": (
+                        "Brief factual summary of the insight (max 200 chars). "
+                        "Use conditional language. No PII."
+                    ),
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["goal", "decision", "concern", "fact"],
+                    "description": (
+                        "Classification of the insight: "
+                        "'goal' = user objective, "
+                        "'decision' = choice the user has made, "
+                        "'concern' = worry or blocker, "
+                        "'fact' = factual data point shared by the user."
+                    ),
+                },
+            },
+            "required": ["topic", "summary", "type"],
+        },
+    },
 ]
+
+
+# ---------------------------------------------------------------------------
+# Access-control helpers (backend use only — strip before sending to LLM)
+# ---------------------------------------------------------------------------
+
+
+def get_tools_by_category(category: ToolCategory) -> list[dict[str, Any]]:
+    """Return tools filtered by category.
+
+    These dicts include the backend-only 'category' and 'access_level'
+    fields.  Strip them before passing to the Anthropic API if needed.
+    """
+    return [t for t in COACH_TOOLS if t.get("category") == category.value]
+
+
+def get_read_only_tools() -> list[dict[str, Any]]:
+    """Return only read + navigate + search tools (no write tools).
+
+    Use this in low-trust or guest contexts where state mutations must
+    be blocked.  Write tools (set_goal, mark_step_completed, save_insight)
+    are excluded.
+    """
+    return [t for t in COACH_TOOLS if t.get("category") != ToolCategory.WRITE.value]

@@ -100,7 +100,7 @@ void main() {
 
       // S52: 4 tabs — Aujourd'hui, MINT (Coach), Explorer, Dossier
       expect(find.text('Aujourd\'hui'), findsOneWidget);
-      expect(find.text('MINT'), findsOneWidget);
+      expect(find.text('Mint'), findsOneWidget);
       expect(find.text('Explorer'), findsOneWidget);
       expect(find.text('Dossier'), findsOneWidget);
     });
@@ -111,8 +111,8 @@ void main() {
 
       expect(find.text('Pulse'), findsNothing,
           reason: 'Old tab label Pulse replaced by Aujourd\'hui');
-      expect(find.text('Mint'), findsNothing,
-          reason: 'Old tab label Mint replaced by MINT');
+      expect(find.text('Coach'), findsNothing,
+          reason: 'Old tab label Coach replaced by Mint');
       expect(find.text('Moi'), findsNothing,
           reason: 'Old tab label Moi replaced by Dossier');
     });
@@ -125,7 +125,7 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
 
       // Tap Tab 1 (MINT)
-      await tester.tap(find.text('MINT'));
+      await tester.tap(find.text('Mint'));
       await tester.pump(const Duration(seconds: 2));
       expect(find.byType(Scaffold), findsWidgets);
 
