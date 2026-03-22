@@ -943,9 +943,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         targetDate: profile.goalA.targetDate,
       );
       final cap = proj.base.capitalFinal;
-      final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
-      if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
+      // replacement_ratio is set below from MintUserState (0-1 ratio, not 0-100 %).
     } catch (_) {}
 
     // Enrich with MintUserState data for backend data lookup tools
