@@ -24,6 +24,7 @@ import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 import 'package:mint_mobile/widgets/pulse/cap_sequence_card.dart';
 import 'package:mint_mobile/widgets/pulse/goal_selector_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart' show Nudge;
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
@@ -82,6 +83,10 @@ class _PulseScreenState extends State<PulseScreen> {
   /// Nudge IDs dismissed in this session — optimistic UI hide while
   /// NudgePersistence writes to SharedPreferences async.
   final Set<String> _sessionDismissedNudgeIds = {};
+
+  /// True after the first MintCountUp revelation has played.
+  /// Subsequent rebuilds skip the 5-step sequence (just count-up).
+  bool _hasRevealedOnce = false;
 
   @override
   void didChangeDependencies() {
@@ -268,29 +273,27 @@ class _PulseScreenState extends State<PulseScreen> {
                 ),
                 const SizedBox(height: MintSpacing.lg),
 
-                // ── 2. CHIFFRE DOMINANT ──
-                TweenAnimationBuilder<double>(
-                  tween: Tween(end: dominantNumber.value),
-                  duration: const Duration(milliseconds: 600),
-                  curve: Curves.easeOutCubic,
-                  builder: (_, value, __) => Text(
-                    dominantNumber.format(value),
-                    style: MintTextStyles.displayLarge(
-                      color: dominantColor,
-                    ),
-                  ),
+                // ── 2. CHIFFRE DOMINANT (Revelation 5 temps) ──
+                MintCountUp(
+                  value: dominantNumber.value.abs(),
+                  prefix: _dominantPrefix(dominantNumber),
+                  suffix: _dominantSuffix(dominantNumber),
+                  contextText: dominantLabel,
+                  color: dominantColor,
+                  fullReveal: !_hasRevealedOnce,
                 ),
+                if (!_hasRevealedOnce)
+                  Builder(builder: (_) {
+                    // Mark first reveal as done after build
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) setState(() => _hasRevealedOnce = true);
+                    });
+                    return const SizedBox.shrink();
+                  }),
                 const SizedBox(height: MintSpacing.xs),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        dominantLabel,
-                        style: MintTextStyles.bodySmall(),
-                      ),
-                    ),
-                    _buildGoalChip(context, profile, l, activeGoalIntentTag),
-                  ],
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _buildGoalChip(context, profile, l, activeGoalIntentTag),
                 ),
 
                 const SizedBox(height: MintSpacing.xxl),
@@ -380,11 +383,12 @@ class _PulseScreenState extends State<PulseScreen> {
       case GoalAType.achatImmo:
         return _ActiveGoal.housing;
       case GoalAType.debtFree:
-        return _ActiveGoal.budget;
       case GoalAType.retraite:
       case GoalAType.independance:
       case GoalAType.custom:
-        return _ActiveGoal.retirement;
+        // Budget Vivant is the default hero (Architecture Decision 2026-03-22).
+        // Retirement is available via goal selector chip.
+        return _ActiveGoal.budget;
     }
   }
 
@@ -548,6 +552,29 @@ class _PulseScreenState extends State<PulseScreen> {
       if (n.value < 0) return MintColors.warning;
     }
     return MintColors.textPrimary;
+  }
+
+  /// Extract prefix for MintCountUp from the format function.
+  String _dominantPrefix(_DominantNumber n) {
+    switch (n.type) {
+      case _NumberType.chf:
+        return n.value >= 0 ? '+' : '-';
+      case _NumberType.percentage:
+      case _NumberType.score:
+        return '';
+    }
+  }
+
+  /// Extract suffix for MintCountUp from the format function.
+  String _dominantSuffix(_DominantNumber n) {
+    switch (n.type) {
+      case _NumberType.chf:
+        return '\u00a0CHF';
+      case _NumberType.percentage:
+        return '\u00a0%';
+      case _NumberType.score:
+        return n.value > 0 ? '/100' : '';
+    }
   }
 
   // ── NARRATIVE ──

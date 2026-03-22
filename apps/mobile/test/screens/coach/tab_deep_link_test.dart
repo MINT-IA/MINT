@@ -149,7 +149,7 @@ void main() {
           reason: 'Dossier Semantics widget should be selected for tab=3');
     });
 
-    testWidgets('/home?tab=1 opens Coach tab', (tester) async {
+    testWidgets('/home?tab=1 opens MINT (Coach) tab', (tester) async {
       await tester.pumpWidget(
           _buildRouterHarness(initialLocation: '/home?tab=1'));
       await tester.pump(const Duration(seconds: 2));
@@ -158,10 +158,10 @@ void main() {
       final coachSemantics = tester
           .widgetList<Semantics>(find.byType(Semantics))
           .where((s) =>
-              s.properties.label == 'Coach' &&
+              s.properties.label == 'MINT' &&
               (s.properties.selected ?? false));
       expect(coachSemantics, isNotEmpty,
-          reason: 'Coach Semantics widget should be selected for tab=1');
+          reason: 'MINT Semantics widget should be selected for tab=1');
     });
 
     testWidgets('out-of-range tab param defaults to tab 0', (tester) async {
@@ -227,7 +227,7 @@ void main() {
           reason: '/app/explore should redirect to tab=2');
     });
 
-    testWidgets('/app/coach redirects to tab 1 (Coach)', (tester) async {
+    testWidgets('/app/coach redirects to tab 1 (MINT)', (tester) async {
       await tester.pumpWidget(
           _buildRouterHarness(initialLocation: '/app/coach'));
       await tester.pump(const Duration(seconds: 2));
@@ -236,7 +236,7 @@ void main() {
       final coachSemantics = tester
           .widgetList<Semantics>(find.byType(Semantics))
           .where((s) =>
-              s.properties.label == 'Coach' &&
+              s.properties.label == 'MINT' &&
               (s.properties.selected ?? false));
       expect(coachSemantics, isNotEmpty,
           reason: '/app/coach should redirect to tab=1');

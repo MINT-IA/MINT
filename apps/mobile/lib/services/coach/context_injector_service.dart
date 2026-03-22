@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
@@ -13,6 +14,7 @@ import 'package:mint_mobile/services/content_adapter_service.dart';
 import 'package:mint_mobile/services/coach/conversation_memory_service.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/memory/memory_context_builder.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
@@ -163,6 +165,22 @@ class ContextInjectorService {
       // Graceful degradation: old memory still works without new insights.
     }
 
+    // ── Mémoire récente (visible memory references) ───────────
+    // List the 3 most recent insights with dates so Claude can
+    // naturally reference past topics in its responses.
+    String recentInsightsBlock = '';
+    try {
+      final recentInsights = await CoachMemoryService.getInsights(prefs: sp);
+      if (recentInsights.isNotEmpty) {
+        recentInsightsBlock = _buildRecentInsightsBlock(
+          recentInsights,
+          now: currentDate,
+        );
+      }
+    } catch (_) {
+      // Graceful degradation: coach works without recent insights block.
+    }
+
     // ── Nudges (JITAI) ─────────────────────────────────────────
     // Evaluate active nudges for lifecycle-aware coaching context.
     // Pure function — uses NudgePersistence for dismissed ids only.
@@ -256,6 +274,7 @@ class ContextInjectorService {
       screensBlock: screensBlock,
       regionalBlock: regionalBlock,
       planBlock: planBlock,
+      recentInsightsBlock: recentInsightsBlock,
     );
 
     return EnrichedContext(
@@ -456,6 +475,55 @@ class ContextInjectorService {
     }
   }
 
+  /// Build the MÉMOIRE RÉCENTE block for the 3 most recent insights.
+  ///
+  /// Gives Claude explicit awareness of what was discussed recently so
+  /// it can naturally reference past topics without hallucinating.
+  ///
+  /// Format:
+  ///   MÉMOIRE RÉCENTE :
+  ///   - [goal] lpp : rachat envisagé (il y a 3 jours)
+  ///   - [fact] retraite : projection revue (il y a 12 jours)
+  ///   - [concern] budget : inquiétude inflation (il y a 1 mois)
+  static String _buildRecentInsightsBlock(
+    List<CoachInsight> insights, {
+    required DateTime now,
+  }) {
+    final top = insights.take(3).toList();
+    if (top.isEmpty) return '';
+
+    final lines = <String>['MÉMOIRE RÉCENTE\u00a0:'];
+    for (final insight in top) {
+      final days = now.difference(insight.createdAt).inDays;
+      final ageText = _insightAgeText(days);
+      // Sanitize: strip control chars, truncate to 80 chars.
+      final summary = insight.summary
+          .replaceAll(RegExp(r'[\n\r\t\x00-\x1F]'), ' ')
+          .replaceAll(RegExp(r' {2,}'), ' ')
+          .trim();
+      final safeSum = summary.length > 80
+          ? '${summary.substring(0, 77)}\u2026'
+          : summary;
+      lines.add(
+        '  - [${insight.type.name}] ${insight.topic}\u00a0: $safeSum ($ageText)',
+      );
+    }
+    return lines.join('\n');
+  }
+
+  /// Format a day count as a compact French age string.
+  static String _insightAgeText(int days) {
+    if (days == 0) return "aujourd\u2019hui";
+    if (days == 1) return 'hier';
+    if (days < 7) return 'il y a $days jours';
+    final weeks = (days / 7).round();
+    if (weeks == 1) return 'il y a 1 semaine';
+    if (weeks < 5) return 'il y a $weeks semaines';
+    final months = (days / 30).round();
+    if (months == 1) return 'il y a 1 mois';
+    return 'il y a $months mois';
+  }
+
   /// Build the formatted memory block for system prompt injection.
   ///
   /// Pure function — deterministic, no side effects.
@@ -468,6 +536,7 @@ class ContextInjectorService {
     String screensBlock = '',
     String regionalBlock = '',
     String planBlock = '',
+    String recentInsightsBlock = '',
   }) {
     final parts = <String>[];
 
@@ -522,6 +591,12 @@ class ContextInjectorService {
     if (goalsSummary.isNotEmpty) {
       parts.add('');
       parts.add(goalsSummary);
+    }
+
+    // Recent insights — visible memory for Claude to reference naturally
+    if (recentInsightsBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(recentInsightsBlock);
     }
 
     // Cross-session insights (CoachMemoryService S58)

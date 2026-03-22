@@ -98,9 +98,9 @@ void main() {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      // S52: 4 tabs — Aujourd'hui, Coach, Explorer, Dossier
+      // S52: 4 tabs — Aujourd'hui, MINT (Coach), Explorer, Dossier
       expect(find.text('Aujourd\'hui'), findsOneWidget);
-      expect(find.text('Coach'), findsOneWidget);
+      expect(find.text('MINT'), findsOneWidget);
       expect(find.text('Explorer'), findsOneWidget);
       expect(find.text('Dossier'), findsOneWidget);
     });
@@ -112,7 +112,7 @@ void main() {
       expect(find.text('Pulse'), findsNothing,
           reason: 'Old tab label Pulse replaced by Aujourd\'hui');
       expect(find.text('Mint'), findsNothing,
-          reason: 'Old tab label Mint replaced by Coach');
+          reason: 'Old tab label Mint replaced by MINT');
       expect(find.text('Moi'), findsNothing,
           reason: 'Old tab label Moi replaced by Dossier');
     });
@@ -124,8 +124,8 @@ void main() {
       // Tab 0 (Aujourd'hui) is active by default
       expect(find.byType(Scaffold), findsWidgets);
 
-      // Tap Tab 1 (Coach)
-      await tester.tap(find.text('Coach'));
+      // Tap Tab 1 (MINT)
+      await tester.tap(find.text('MINT'));
       await tester.pump(const Duration(seconds: 2));
       expect(find.byType(Scaffold), findsWidgets);
 

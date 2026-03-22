@@ -60,6 +60,7 @@ void main() {
     required CoachProfile profile,
     double? replacementRate,
     double? friScore,
+    String? activeGoalIntentTag,
   }) {
     final provider = MintStateProvider();
     final state = MintUserState(
@@ -69,6 +70,7 @@ void main() {
       confidenceScore: 70.0,
       replacementRate: replacementRate,
       friScore: friScore,
+      activeGoalIntentTag: activeGoalIntentTag,
       capMemory: const CapMemory(),
       computedAt: DateTime(2026, 3, 22),
     );
@@ -240,7 +242,7 @@ void main() {
   // ── GOAL-CENTRIC DOMINANT NUMBER ─────────────────────────────
 
   group('PulseScreen — goal-centric dominant number', () {
-    testWidgets('retirement goal shows replacement rate label',
+    testWidgets('explicit retirement goal shows replacement rate label',
         (tester) async {
       final coachProvider = buildProfileProvider(
         firstName: 'Julien',
@@ -248,12 +250,13 @@ void main() {
         canton: 'VS',
         salaire: 9078,
       );
-      // Seed MintStateProvider with replacementRate so the label renders.
-      // The old code derived this from ForecasterService.project() —
-      // V6 reads it exclusively from MintStateProvider.
+      // Seed MintStateProvider with replacementRate + explicit retirement goal
+      // so the label renders. Since S52, budget is the default hero —
+      // retirement requires explicit activeGoalIntentTag.
       final mintProvider = buildMintStateProvider(
         profile: coachProvider.profile!,
         replacementRate: 65.5,
+        activeGoalIntentTag: 'retirement_choice',
       );
       await tester.pumpWidget(buildPulseScreen(
         coachProvider: coachProvider,
@@ -261,7 +264,7 @@ void main() {
       ));
       await tester.pump(const Duration(seconds: 2));
 
-      // V6: with retirement goal + replacementRate, label = pulseLabelReplacementRate
+      // With explicit retirement goal + replacementRate, label = pulseLabelReplacementRate
       // "Part de train de vie conservée"
       expect(
         find.textContaining('train de vie'),
@@ -292,7 +295,7 @@ void main() {
       expect(find.byType(Text), findsWidgets);
     });
 
-    testWidgets('_resolveActiveGoal falls back to retirement when goal=retraite',
+    testWidgets('_resolveActiveGoal falls back to budget when goal=retraite',
         (tester) async {
       final provider = buildProfileProvider(
         firstName: 'Julien',

@@ -1314,7 +1314,7 @@
   "lppDeepEplTaxNote": "El retiro en capital se grava a una tasa reducida (aproximadamente 1/5 del baremo ordinario). La tasa exacta depende del canton y de la situacion personal.",
   "lppDeepEplPointsAttention": "Puntos de atencion",
   "lppDeepEplDisclaimer": "Simulacion pedagogica a titulo indicativo. El importe retirable exacto depende del reglamento de tu caja de pensiones. El impuesto varia segun el canton y la situacion personal. Base legal: art. 30c LPP, OEPL.",
-  "exploreTitle": "EXPLORAR",
+  "exploreTitle": "Explorar",
   "explorePillarComprendreTitle": "Quiero entender",
   "explorePillarComprendreSub": "Lo esencial de las finanzas suizas, sin jerga. Quiz incluido.",
   "explorePillarComprendreCta": "Explorar los 9 temas",
@@ -4141,7 +4141,7 @@
   "confidencePromptAccuracyPrefix": "Confirma: ",
   "confidencePromptAccuracyEstimated": "Ingresa tu valor real",
   "confidencePromptAccuracyCertificate": "Escanea tu certificado para confirmar",
-  "pulseTitle": "Pulse",
+  "pulseTitle": "Hoy",
   "pulseGreeting": "Hola {name}",
   "@pulseGreeting": {
     "placeholders": {
@@ -4161,7 +4161,7 @@
       }
     }
   },
-  "pulseWelcome": "Bienvenido a MINT",
+  "pulseWelcome": "Veamos d\u00f3nde est\u00e1s.",
   "pulseEmptyTitle": "¡Empieza completando tu perfil!",
   "pulseEmptySubtitle": "Unas pocas preguntas bastan para obtener tu primera estimación de visibilidad financiera.",
   "pulseEmptyCtaStart": "Empezar",
@@ -4641,7 +4641,7 @@
   "drawerCeQueTuDoisSubtitle": "Deuda total",
   "drawerCeQueTuAuras": "Lo que tendrás",
   "drawerCeQueTuAurasSubtitle": "Ingreso de jubilación proyectado",
-  "shellWelcomeBack": "¡Bienvenido de nuevo! Tus datos están al día.",
+  "shellWelcomeBack": "De vuelta. Tus n\u00fameros est\u00e1n al d\u00eda.",
   "shellRecommendationsUpdated": "Recomendaciones actualizadas",
   "pulseEnrichirTitle": "Escanea tu certificado LPP",
   "pulseEnrichirSubtitle": "Confianza → +{points} puntos",
@@ -6106,7 +6106,7 @@
       "lppTotal": {"type": "String"}
     }
   },
-  "tabCoach": "Coach",
+  "tabMint": "MINT",
   "pulseNarrativeRetirementClose": "tu jubilación se acerca. Aquí está tu situación.",
   "pulseNarrativeYearsToAct": "tienes {yearsToRetire} años para actuar. Cada año cuenta.",
   "@pulseNarrativeYearsToAct": {"placeholders": {"yearsToRetire": {"type": "int"}}},
@@ -9110,6 +9110,66 @@
   "@dossierConfidencePct": {
     "placeholders": {
       "pct": {"type": "int"}
+    }
+  },
+  "memoryRefTopic": "Hace {days} d\u00edas, me hablaste de {topic}.",
+  "@memoryRefTopic": {
+    "placeholders": {
+      "days": {"type": "int"},
+      "topic": {"type": "String"}
+    }
+  },
+  "memoryRefGoal": "Te hab\u00edas fijado el objetivo: {goal}. \u00bfHacemos balance?",
+  "@memoryRefGoal": {
+    "placeholders": {
+      "goal": {"type": "String"}
+    }
+  },
+  "memoryRefScreenVisit": "La \u00faltima vez, usaste {screen}.",
+  "@memoryRefScreenVisit": {
+    "placeholders": {
+      "screen": {"type": "String"}
+    }
+  },
+  "memoryRefRecentInsights": "Lo que recuerdo de nuestras conversaciones:",
+  "openerBudgetDeficit": "CHF {deficit}/mes de d\u00e9ficit. \u00bfVemos d\u00f3nde se atasca?",
+  "@openerBudgetDeficit": {
+    "placeholders": {
+      "deficit": {"type": "String"}
+    }
+  },
+  "opener3aDeadline": "Quedan {days} d\u00edas para ingresar hasta {plafond}\u00a0CHF en tu 3a.",
+  "@opener3aDeadline": {
+    "placeholders": {
+      "days": {"type": "String"},
+      "plafond": {"type": "String"}
+    }
+  },
+  "openerGapWarning": "Tu tasa de reemplazo: {rate}\u00a0%. En la jubilaci\u00f3n te faltar\u00edan CHF {gap}/mes.",
+  "@openerGapWarning": {
+    "placeholders": {
+      "rate": {"type": "String"},
+      "gap": {"type": "String"}
+    }
+  },
+  "openerSavingsOpportunity": "Tu 3a: CHF 0 este a\u00f1o. {plafond}\u00a0CHF de ahorro fiscal en juego.",
+  "@openerSavingsOpportunity": {
+    "placeholders": {
+      "plafond": {"type": "String"}
+    }
+  },
+  "openerProgressCelebration": "Tu fiabilidad ha ganado {delta} puntos. Tus cifras son m\u00e1s precisas.",
+  "@openerProgressCelebration": {
+    "placeholders": {
+      "delta": {"type": "String"}
+    }
+  },
+  "openerPlanProgress": "Etapa {n}/{total} completada. Siguiente: {next}.",
+  "@openerPlanProgress": {
+    "placeholders": {
+      "n": {"type": "String"},
+      "total": {"type": "String"},
+      "next": {"type": "String"}
     }
   }
 }

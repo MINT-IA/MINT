@@ -494,9 +494,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // S52: 4-tab layout — Aujourd'hui, Coach, Explorer, Dossier
+      // S52: 4-tab layout — Aujourd'hui, MINT (Coach), Explorer, Dossier
       expect(find.textContaining('ujourd'), findsWidgets);
-      expect(find.text('Coach'), findsOneWidget);
+      expect(find.text('MINT'), findsOneWidget);
       expect(find.text('Explorer'), findsOneWidget);
       expect(find.text('Dossier'), findsOneWidget);
     });

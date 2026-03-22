@@ -28,6 +28,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/screen_return.dart' show ScreenOutcome;
+import 'package:mint_mobile/widgets/coach/chat_card_entrance.dart';
 export 'package:mint_mobile/models/screen_return.dart' show ScreenOutcome;
 
 // ════════════════════════════════════════════════════════════════
@@ -93,7 +94,8 @@ class RouteSuggestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    return Container(
+    return ChatCardEntrance(
+      child: Container(
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
         borderRadius: BorderRadius.circular(16),
@@ -139,6 +141,7 @@ class RouteSuggestionCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

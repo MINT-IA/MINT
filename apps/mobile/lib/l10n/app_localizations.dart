@@ -5870,7 +5870,7 @@ abstract class S {
   /// No description provided for @exploreTitle.
   ///
   /// In fr, this message translates to:
-  /// **'EXPLORER'**
+  /// **'Explorer'**
   String get exploreTitle;
 
   /// No description provided for @explorePillarComprendreTitle.
@@ -15935,7 +15935,7 @@ abstract class S {
   /// No description provided for @pulseTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pulse'**
+  /// **'Aujourd’hui'**
   String get pulseTitle;
 
   /// No description provided for @pulseGreeting.
@@ -15953,7 +15953,7 @@ abstract class S {
   /// No description provided for @pulseWelcome.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue sur MINT'**
+  /// **'On regarde où tu en es.'**
   String get pulseWelcome;
 
   /// No description provided for @pulseEmptyTitle.
@@ -17555,7 +17555,7 @@ abstract class S {
   /// No description provided for @shellWelcomeBack.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue ! Tes données sont à jour.'**
+  /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
 
   /// No description provided for @shellRecommendationsUpdated.
@@ -21709,7 +21709,7 @@ abstract class S {
   /// No description provided for @tabMint.
   ///
   /// In fr, this message translates to:
-  /// **'Mint'**
+  /// **'MINT'**
   String get tabMint;
 
   /// No description provided for @authGateDocScanTitle.
@@ -22810,12 +22810,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ton 2e pilier est plafonné : seuls CHF {lppUtilise} sur {lppTotal} sont comptés (max 10 % du prix, règle ASB).'**
   String affordabilityInsightLppCap(String lppUtilise, String lppTotal);
-
-  /// No description provided for @tabCoach.
-  ///
-  /// In fr, this message translates to:
-  /// **'Coach'**
-  String get tabCoach;
 
   /// No description provided for @pulseNarrativeRetirementClose.
   ///
@@ -36723,6 +36717,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{pct} %'**
   String dossierConfidencePct(int pct);
+
+  /// No description provided for @memoryRefTopic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {days} jours, tu m’avais parlé de {topic}.'**
+  String memoryRefTopic(int days, String topic);
+
+  /// No description provided for @memoryRefGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu t’étais fixé l’objectif : {goal}. On fait le point ?'**
+  String memoryRefGoal(String goal);
+
+  /// No description provided for @memoryRefScreenVisit.
+  ///
+  /// In fr, this message translates to:
+  /// **'La dernière fois, tu avais utilisé {screen}.'**
+  String memoryRefScreenVisit(String screen);
+
+  /// No description provided for @memoryRefRecentInsights.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que je retiens de nos échanges :'**
+  String get memoryRefRecentInsights;
+
+  /// No description provided for @openerBudgetDeficit.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {deficit}/mois de déficit. On regarde où ça coince ?'**
+  String openerBudgetDeficit(String deficit);
+
+  /// No description provided for @opener3aDeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste {days} jours pour verser jusqu’à {plafond} CHF dans ton 3a.'**
+  String opener3aDeadline(String days, String plafond);
+
+  /// No description provided for @openerGapWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton taux de remplacement : {rate} %. À la retraite, il te manquerait CHF {gap}/mois.'**
+  String openerGapWarning(String rate, String gap);
+
+  /// No description provided for @openerSavingsOpportunity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton 3a : CHF 0 cette année. {plafond} CHF d’économie d’impôt en jeu.'**
+  String openerSavingsOpportunity(String plafond);
+
+  /// No description provided for @openerProgressCelebration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta fiabilité a gagné {delta} points. Tes chiffres sont plus précis.'**
+  String openerProgressCelebration(String delta);
+
+  /// No description provided for @openerPlanProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {n}/{total} validée. Prochaine : {next}.'**
+  String openerPlanProgress(String n, String total, String next);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

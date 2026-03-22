@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/coach/animated_chiffre.dart';
+import 'package:mint_mobile/widgets/coach/chat_card_entrance.dart';
 
 /// Animated "shock figure" card that reveals a personalized financial insight.
 ///
@@ -39,7 +41,8 @@ class ChiffreChocCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ChatCardEntrance(
+      child: Container(
       decoration: BoxDecoration(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(20),
@@ -86,16 +89,15 @@ class ChiffreChocCard extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Animated counter
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: value),
-            duration: const Duration(milliseconds: 1200),
-            curve: Curves.easeOutCubic,
-            builder: (context, animatedValue, _) {
-              return Text(
-                '$prefix${_formatNumber(animatedValue)}$suffix',
-                style: MintTextStyles.displayMedium(color: color).copyWith(fontWeight: FontWeight.w800, letterSpacing: -1),
-              );
-            },
+          AnimatedChiffre(
+            value: value,
+            prefix: prefix,
+            suffix: suffix,
+            textStyle: MintTextStyles.displayMedium(color: color).copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1,
+            ),
+            duration: const Duration(milliseconds: 1000),
           ),
           const SizedBox(height: 8),
 
@@ -154,21 +156,7 @@ class ChiffreChocCard extends StatelessWidget {
           ),
         ],
       ),
+      ),
     );
-  }
-
-  String _formatNumber(double n) {
-    if (n >= 1000) {
-      final formatted = n.toStringAsFixed(0);
-      final buffer = StringBuffer();
-      int count = 0;
-      for (int i = formatted.length - 1; i >= 0; i--) {
-        buffer.write(formatted[i]);
-        count++;
-        if (count % 3 == 0 && i > 0) buffer.write("'");
-      }
-      return buffer.toString().split('').reversed.join();
-    }
-    return n.toStringAsFixed(0);
   }
 }

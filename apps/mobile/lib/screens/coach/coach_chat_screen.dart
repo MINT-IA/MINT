@@ -25,6 +25,8 @@ import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/coach/memory_reference_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
@@ -37,6 +39,7 @@ import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/voice_service.dart';
 import 'package:mint_mobile/services/llm/provider_health_service.dart';
+import 'package:mint_mobile/services/coach/data_driven_opener_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
@@ -255,6 +258,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     final tier = _currentTier();
 
+    // ── Read MintStateProvider synchronously before any await ─────
+    // context.read is only safe before the first suspension point.
+    // We capture both the pending trigger and the full user state here.
+    MintUserState? mintStateSnapshot;
+    ProactiveTrigger? preloadedTrigger;
+    try {
+      final stateProvider = context.read<MintStateProvider>();
+      mintStateSnapshot = stateProvider.state;
+      preloadedTrigger = mintStateSnapshot?.pendingTrigger;
+    } catch (_) {
+      // MintStateProvider not registered — fall back to direct evaluation below.
+    }
+
     // ── Proactive trigger evaluation ─────────────────────────────
     // Read from MintStateProvider if available (avoids double evaluate() race).
     // Falls back to direct evaluation if provider not wired yet.
@@ -264,11 +280,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
       // Prefer MintStateProvider's pre-computed trigger to avoid race condition.
-      ProactiveTrigger? trigger;
-      try {
-        final stateProvider = context.read<MintStateProvider>();
-        trigger = stateProvider.state?.pendingTrigger;
-      } catch (_) {
+      ProactiveTrigger? trigger = preloadedTrigger;
+      if (trigger == null && mintStateSnapshot == null) {
         // MintStateProvider not registered — fall back to direct evaluation.
         trigger = await ProactiveTriggerService.evaluate(
           profile: p,
@@ -291,10 +304,34 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Graceful degradation: greeting works without proactive trigger.
     }
 
+    // ── Data-driven opener (Cleo-inspired, Swiss-adapted) ─────────
+    // Only fires when no proactive trigger was already selected.
+    // Surfaces a real CHF number from the user's state.
+    // mintStateSnapshot was captured synchronously above — safe to use here.
+    String? dataDrivenMessage;
+    String? dataDrivenIntentTag;
+    if ((proactiveMessage == null || proactiveMessage.isEmpty) &&
+        mintStateSnapshot != null) {
+      try {
+        final opener = DataDrivenOpenerService.generate(
+          state: mintStateSnapshot,
+          l: s,
+        );
+        if (opener != null) {
+          dataDrivenMessage = opener.message;
+          dataDrivenIntentTag = opener.intentTag;
+        }
+      } catch (_) {
+        // Graceful degradation: greeting works without data-driven opener.
+      }
+    }
+
     // ── Build greeting text ────────────────────────────────────────
     final String greeting;
     if (proactiveMessage != null && proactiveMessage.isNotEmpty) {
       greeting = proactiveMessage;
+    } else if (dataDrivenMessage != null && dataDrivenMessage.isNotEmpty) {
+      greeting = dataDrivenMessage;
     } else if (tier == ChatTier.slm) {
       greeting = s.coachGreetingSlm(name);
     } else {
@@ -333,12 +370,25 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       ];
     }
 
+    // If a data-driven opener was fired (and no proactive trigger), prepend
+    // its intentTag as the first suggestion chip.
+    if (proactiveMessage == null &&
+        dataDrivenIntentTag != null &&
+        dataDrivenIntentTag.isNotEmpty) {
+      final chipLabel = _resolveIntentTagToLabel(dataDrivenIntentTag, s);
+      suggestions.remove(chipLabel);
+      suggestions = [
+        chipLabel,
+        ...suggestions.take(3),
+      ];
+    }
+
     // Phase 2: prepend high-priority nudge chips so Claude can reinforce
     // timely topics. Nudges are loaded asynchronously; graceful degradation
     // if SharedPreferences or NudgeEngine fail.
-    // Skip nudge chips when a proactive trigger is already surfaced to avoid
-    // information overload.
-    if (proactiveMessage == null) {
+    // Skip nudge chips when a proactive trigger or data-driven opener is
+    // already surfaced to avoid information overload.
+    if (proactiveMessage == null && dataDrivenMessage == null) {
       try {
         final prefs = await SharedPreferences.getInstance();
         if (!mounted) return;
@@ -406,6 +456,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       '/coach/chat': s.coachSuggestRetirement,
       '/home': s.pulseFeedbackRecalculated,
       '/profile': s.profileSectionIdentity,
+      // Data-driven opener routes:
+      '/budget': s.goalBudgetTitle,
+      '/pilier-3a': s.coachSuggestSimulate3a,
+      '/retraite': s.goalRetirementTitle,
     };
     // Try direct map, then try ScreenRegistry for intent-tag based labels.
     if (map.containsKey(intentTag)) return map[intentTag]!;
@@ -551,6 +605,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Graceful degradation: chat works without memory block.
     }
 
+    // Resolve a visible memory reference so the coach can prepend it.
+    // This makes past memory VISIBLE to the user (Cleo-style recall).
+    MemoryReference? memoryRef;
+    try {
+      memoryRef = await MemoryReferenceService.findRelevant(
+        currentTopic: text.trim(),
+        now: DateTime.now(),
+      ).timeout(const Duration(seconds: 1));
+    } catch (_) {
+      // Graceful degradation: chat works without memory reference.
+    }
+
     // Try SLM streaming first.
     final ctx = _buildCoachContext(_profile!);
     final stream = CoachOrchestrator.streamChat(
@@ -561,20 +627,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
 
     if (stream != null) {
-      await _handleStreamResponse(stream, text.trim(), ctx);
+      await _handleStreamResponse(stream, text.trim(), ctx,
+          memoryRef: memoryRef);
       return;
     }
 
     // Fallback to standard (BYOK → fallback chain).
-    await _handleStandardResponse(text.trim(), memoryBlock: memoryBlock);
+    await _handleStandardResponse(text.trim(),
+        memoryBlock: memoryBlock, memoryRef: memoryRef);
   }
 
   /// Handle SLM streaming response (token-by-token).
   Future<void> _handleStreamResponse(
     Stream<String> stream,
     String userMessage,
-    CoachContext ctx,
-  ) async {
+    CoachContext ctx, {
+    MemoryReference? memoryRef,
+  }) async {
     setState(() {
       _isLoading = false;
       _isStreaming = true;
@@ -675,7 +744,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         : _parseRouteToolUse(finalText);
     final resolvedPayload =
         rawPayload != null ? _resolveRoutePayload(rawPayload) : null;
-    final slmDisplayText = rawPayload != null
+    final slmBaseText = rawPayload != null
         ? finalText
             .replaceAll(
               RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
@@ -683,6 +752,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             )
             .trim()
         : finalText;
+
+    // Prepend visible memory reference when available (Cleo-style recall).
+    final slmDisplayText = _prependMemoryRef(slmBaseText, memoryRef);
 
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
@@ -700,8 +772,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
-  Future<void> _handleStandardResponse(String text,
-      {String? memoryBlock}) async {
+  Future<void> _handleStandardResponse(
+    String text, {
+    String? memoryBlock,
+    MemoryReference? memoryRef,
+  }) async {
     // Capture localizations before async gap (use_build_context_synchronously)
     final l = S.of(context)!;
     try {
@@ -728,7 +803,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Strip the [ROUTE_TO_SCREEN:{...}] marker from the displayed text
       // when a route payload was detected.
-      final displayMessage = rawPayload != null
+      final baseMessage = rawPayload != null
           ? response.message
               .replaceAll(
                 RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
@@ -736,6 +811,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               )
               .trim()
           : response.message;
+
+      // Prepend visible memory reference when available (Cleo-style recall).
+      final displayMessage = _prependMemoryRef(baseMessage, memoryRef);
 
       setState(() {
         _messages.add(ChatMessage(
@@ -1049,6 +1127,32 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     _scrollToBottom();
+  }
+
+  /// Prepend a visible memory reference phrase to a coach response.
+  ///
+  /// When [ref] is non-null and resolution succeeds, returns:
+  ///   "{memoryPhrase}\n\n{responseText}"
+  ///
+  /// Returns [responseText] unchanged when:
+  ///   - [ref] is null (no relevant past insight found).
+  ///   - Localizations are unavailable.
+  ///   - Resolution throws unexpectedly (graceful degradation).
+  String _prependMemoryRef(String responseText, MemoryReference? ref) {
+    if (ref == null) return responseText;
+    try {
+      final s = S.of(context)!;
+      final phrase = MemoryReferenceService.resolve(
+        ref,
+        onTopic: (days, topic) => s.memoryRefTopic(days, topic),
+        onGoal: (goal) => s.memoryRefGoal(goal),
+        onScreen: (screen) => s.memoryRefScreenVisit(screen),
+      );
+      if (phrase.isEmpty) return responseText;
+      return '$phrase\n\n$responseText';
+    } catch (_) {
+      return responseText;
+    }
   }
 
   List<String> _inferSuggestedActions(String userMessage) {

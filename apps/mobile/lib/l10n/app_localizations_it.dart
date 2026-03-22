@@ -3192,7 +3192,7 @@ class SIt extends S {
       'Simulazione pedagogica a titolo indicativo. L\'importo prelevabile esatto dipende dal regolamento della vostra cassa pensioni. L\'imposta varia in base al cantone e alla situazione personale. Base legale: art. 30c LPP, OEPL.';
 
   @override
-  String get exploreTitle => 'ESPLORARE';
+  String get exploreTitle => 'Esplorare';
 
   @override
   String get explorePillarComprendreTitle => 'Voglio capire';
@@ -8875,7 +8875,7 @@ class SIt extends S {
       'Scansiona il tuo certificato per confermare';
 
   @override
-  String get pulseTitle => 'Pulse';
+  String get pulseTitle => 'Oggi';
 
   @override
   String pulseGreeting(String name) {
@@ -8888,7 +8888,7 @@ class SIt extends S {
   }
 
   @override
-  String get pulseWelcome => 'Benvenuto su MINT';
+  String get pulseWelcome => 'Vediamo a che punto sei.';
 
   @override
   String get pulseEmptyTitle => 'Inizia compilando il tuo profilo!';
@@ -9802,7 +9802,7 @@ class SIt extends S {
   String get drawerCeQueTuAurasSubtitle => 'Reddito pensionistico proiettato';
 
   @override
-  String get shellWelcomeBack => 'Bentornato! I tuoi dati sono aggiornati.';
+  String get shellWelcomeBack => 'Bentornato. I tuoi numeri sono aggiornati.';
 
   @override
   String get shellRecommendationsUpdated => 'Raccomandazioni aggiornate';
@@ -12251,7 +12251,7 @@ class SIt extends S {
   String get tabPulse => 'Pulse';
 
   @override
-  String get tabMint => 'Mint';
+  String get tabMint => 'MINT';
 
   @override
   String get authGateDocScanTitle => 'Proteggi i tuoi documenti';
@@ -12876,9 +12876,6 @@ class SIt extends S {
   String affordabilityInsightLppCap(String lppUtilise, String lppTotal) {
     return 'Il tuo 2° pilastro è limitato: solo CHF $lppUtilise su $lppTotal vengono conteggiati (max 10 % del prezzo, regola ASB).';
   }
-
-  @override
-  String get tabCoach => 'Coach';
 
   @override
   String get pulseNarrativeRetirementClose =>
@@ -20814,5 +20811,54 @@ class SIt extends S {
   @override
   String dossierConfidencePct(int pct) {
     return '$pct %';
+  }
+
+  @override
+  String memoryRefTopic(int days, String topic) {
+    return '$days giorni fa, mi hai parlato di $topic.';
+  }
+
+  @override
+  String memoryRefGoal(String goal) {
+    return 'Ti eri fissato l’obiettivo: $goal. Facciamo il punto?';
+  }
+
+  @override
+  String memoryRefScreenVisit(String screen) {
+    return 'L’ultima volta, hai usato $screen.';
+  }
+
+  @override
+  String get memoryRefRecentInsights =>
+      'Quello che ricordo delle nostre conversazioni:';
+
+  @override
+  String openerBudgetDeficit(String deficit) {
+    return 'CHF $deficit/mese di deficit. Vediamo dove si inceppa?';
+  }
+
+  @override
+  String opener3aDeadline(String days, String plafond) {
+    return 'Restano $days giorni per versare fino a $plafond CHF nel tuo 3a.';
+  }
+
+  @override
+  String openerGapWarning(String rate, String gap) {
+    return 'Il tuo tasso di sostituzione: $rate %. In pensione ti mancherebbero CHF $gap/mese.';
+  }
+
+  @override
+  String openerSavingsOpportunity(String plafond) {
+    return 'Il tuo 3a: CHF 0 quest’anno. $plafond CHF di risparmio fiscale in gioco.';
+  }
+
+  @override
+  String openerProgressCelebration(String delta) {
+    return 'La tua affidabilità è aumentata di $delta punti. I tuoi dati sono più precisi.';
+  }
+
+  @override
+  String openerPlanProgress(String n, String total, String next) {
+    return 'Fase $n/$total completata. Prossima: $next.';
   }
 }

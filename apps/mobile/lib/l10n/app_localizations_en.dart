@@ -3165,7 +3165,7 @@ class SEn extends S {
       'Educational simulation for informational purposes only. The exact withdrawable amount depends on your pension fund regulations. Tax varies by canton and personal situation. Legal basis: Art. 30c BVG, OEPL.';
 
   @override
-  String get exploreTitle => 'EXPLORE';
+  String get exploreTitle => 'Explore';
 
   @override
   String get explorePillarComprendreTitle => 'I want to understand';
@@ -8804,7 +8804,7 @@ class SEn extends S {
       'Scan your certificate to confirm';
 
   @override
-  String get pulseTitle => 'Pulse';
+  String get pulseTitle => 'Today';
 
   @override
   String pulseGreeting(String name) {
@@ -8817,7 +8817,7 @@ class SEn extends S {
   }
 
   @override
-  String get pulseWelcome => 'Welcome to MINT';
+  String get pulseWelcome => 'Let’s see where you stand.';
 
   @override
   String get pulseEmptyTitle => 'Start by filling in your profile!';
@@ -9717,7 +9717,7 @@ class SEn extends S {
   String get drawerCeQueTuAurasSubtitle => 'Projected retirement income';
 
   @override
-  String get shellWelcomeBack => 'Welcome back! Your data is up to date.';
+  String get shellWelcomeBack => 'Back. Your numbers are up to date.';
 
   @override
   String get shellRecommendationsUpdated => 'Recommendations updated';
@@ -12181,7 +12181,7 @@ class SEn extends S {
   String get tabPulse => 'Pulse';
 
   @override
-  String get tabMint => 'Mint';
+  String get tabMint => 'MINT';
 
   @override
   String get authGateDocScanTitle => 'Secure your documents';
@@ -12802,9 +12802,6 @@ class SEn extends S {
   String affordabilityInsightLppCap(String lppUtilise, String lppTotal) {
     return 'Your 2nd pillar is capped: only CHF $lppUtilise out of $lppTotal count (max 10% of price, ASB rule).';
   }
-
-  @override
-  String get tabCoach => 'Coach';
 
   @override
   String get pulseNarrativeRetirementClose =>
@@ -20688,5 +20685,54 @@ class SEn extends S {
   @override
   String dossierConfidencePct(int pct) {
     return '$pct %';
+  }
+
+  @override
+  String memoryRefTopic(int days, String topic) {
+    return '$days days ago, you talked to me about $topic.';
+  }
+
+  @override
+  String memoryRefGoal(String goal) {
+    return 'You had set yourself the goal: $goal. Shall we check in?';
+  }
+
+  @override
+  String memoryRefScreenVisit(String screen) {
+    return 'Last time, you used $screen.';
+  }
+
+  @override
+  String get memoryRefRecentInsights =>
+      'What I remember from our conversations:';
+
+  @override
+  String openerBudgetDeficit(String deficit) {
+    return 'CHF $deficit/month deficit. Shall we look at where it’s getting tight?';
+  }
+
+  @override
+  String opener3aDeadline(String days, String plafond) {
+    return '$days days left to contribute up to $plafond CHF to your 3a.';
+  }
+
+  @override
+  String openerGapWarning(String rate, String gap) {
+    return 'Your replacement rate: $rate %. At retirement, you would be missing CHF $gap/month.';
+  }
+
+  @override
+  String openerSavingsOpportunity(String plafond) {
+    return 'Your 3a: CHF 0 this year. $plafond CHF in potential tax savings at stake.';
+  }
+
+  @override
+  String openerProgressCelebration(String delta) {
+    return 'Your reliability improved by $delta points. Your numbers are more accurate.';
+  }
+
+  @override
+  String openerPlanProgress(String n, String total, String next) {
+    return 'Step $n/$total completed. Next: $next.';
   }
 }

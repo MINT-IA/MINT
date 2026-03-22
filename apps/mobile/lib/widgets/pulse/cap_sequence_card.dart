@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/coach/animated_progress_bar.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────────
@@ -362,14 +363,9 @@ class _ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: LinearProgressIndicator(
-        value: progress.clamp(0.0, 1.0),
-        backgroundColor: MintColors.lightBorder,
-        valueColor: const AlwaysStoppedAnimation<Color>(MintColors.success),
-        minHeight: 6,
-      ),
+    return AnimatedProgressBar(
+      progress: progress,
+      color: MintColors.success,
     );
   }
 }
