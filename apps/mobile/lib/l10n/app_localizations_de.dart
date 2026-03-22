@@ -21028,4 +21028,54 @@ class SDe extends S {
   String pulsePlanNextStep(String stepName) {
     return 'Nächster Schritt: $stepName';
   }
+
+  @override
+  String get dossierCoachingTitle => 'Begleitung';
+
+  @override
+  String get dossierCoachingSubtitle =>
+      'Häufigkeit der Erinnerungen und Vorschläge';
+
+  @override
+  String get coachingSheetSubtitle => 'Wähle, wie aktiv MINT dich begleitet';
+
+  @override
+  String get coachingIntensityDiscret => 'Dezent';
+
+  @override
+  String get coachingIntensityCalme => 'Ruhig';
+
+  @override
+  String get coachingIntensityEquilibre => 'Ausgewogen';
+
+  @override
+  String get coachingIntensityAttentif => 'Aufmerksam';
+
+  @override
+  String get coachingIntensityProactif => 'Proaktiv';
+
+  @override
+  String get coachingDescDiscret =>
+      'MINT lässt dich in Ruhe. Seltene Erinnerungen, nur kritische Fristen.';
+
+  @override
+  String get coachingDescCalme =>
+      'MINT meldet sich gelegentlich. Maximal eine Erinnerung alle 3 Tage.';
+
+  @override
+  String get coachingDescEquilibre =>
+      'MINT begleitet dich täglich. Eine Erinnerung pro Tag, kontextuelle Vorschläge.';
+
+  @override
+  String get coachingDescAttentif =>
+      'MINT achtet bei jeder Sitzung auf dich. Häufige Vorschläge und reiches Gedächtnis.';
+
+  @override
+  String get coachingDescProactif =>
+      'MINT coacht dich aktiv. Erinnerungen bei jedem Besuch, vollständiges Gedächtnis.';
+
+  @override
+  String coachingEngagementStats(Object engaged, Object total) {
+    return '$engaged Interaktionen von $total Vorschlägen';
+  }
 }

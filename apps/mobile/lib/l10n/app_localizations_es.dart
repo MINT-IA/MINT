@@ -21004,4 +21004,55 @@ class SEs extends S {
   String pulsePlanNextStep(String stepName) {
     return 'Próximo paso: $stepName';
   }
+
+  @override
+  String get dossierCoachingTitle => 'Acompañamiento';
+
+  @override
+  String get dossierCoachingSubtitle =>
+      'Frecuencia de recordatorios y sugerencias';
+
+  @override
+  String get coachingSheetSubtitle =>
+      'Elige con qué frecuencia MINT te acompaña';
+
+  @override
+  String get coachingIntensityDiscret => 'Discreto';
+
+  @override
+  String get coachingIntensityCalme => 'Calmo';
+
+  @override
+  String get coachingIntensityEquilibre => 'Equilibrado';
+
+  @override
+  String get coachingIntensityAttentif => 'Atento';
+
+  @override
+  String get coachingIntensityProactif => 'Proactivo';
+
+  @override
+  String get coachingDescDiscret =>
+      'MINT te deja tranquilo. Recordatorios raros, solo plazos críticos.';
+
+  @override
+  String get coachingDescCalme =>
+      'MINT interviene ocasionalmente. Un recordatorio cada 3 días máximo.';
+
+  @override
+  String get coachingDescEquilibre =>
+      'MINT te guía diariamente. Un recordatorio por día, sugerencias contextuales.';
+
+  @override
+  String get coachingDescAttentif =>
+      'MINT está atento en cada sesión. Sugerencias frecuentes y memoria rica.';
+
+  @override
+  String get coachingDescProactif =>
+      'MINT te acompaña activamente. Recordatorios en cada visita, memoria completa.';
+
+  @override
+  String coachingEngagementStats(Object engaged, Object total) {
+    return '$engaged interacciones de $total sugerencias';
+  }
 }

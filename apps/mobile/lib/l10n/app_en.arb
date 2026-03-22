@@ -9486,5 +9486,19 @@
     "placeholders": {
       "stepName": { "type": "String" }
     }
-  }
+  },
+  "dossierCoachingTitle": "Coaching",
+  "dossierCoachingSubtitle": "Reminder and suggestion frequency",
+  "coachingSheetSubtitle": "Choose how proactively MINT coaches you",
+  "coachingIntensityDiscret": "Quiet",
+  "coachingIntensityCalme": "Calm",
+  "coachingIntensityEquilibre": "Balanced",
+  "coachingIntensityAttentif": "Attentive",
+  "coachingIntensityProactif": "Proactive",
+  "coachingDescDiscret": "MINT stays out of the way. Rare reminders, only critical deadlines.",
+  "coachingDescCalme": "MINT checks in occasionally. One reminder every 3 days max.",
+  "coachingDescEquilibre": "MINT guides you daily. One reminder per day, contextual suggestions.",
+  "coachingDescAttentif": "MINT pays attention every session. Frequent suggestions and rich memory.",
+  "coachingDescProactif": "MINT actively coaches you. Reminders every visit, complete memory.",
+  "coachingEngagementStats": "{engaged} interactions out of {total} suggestions"
 }

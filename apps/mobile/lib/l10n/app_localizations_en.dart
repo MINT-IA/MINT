@@ -20907,4 +20907,53 @@ class SEn extends S {
   String pulsePlanNextStep(String stepName) {
     return 'Next step: $stepName';
   }
+
+  @override
+  String get dossierCoachingTitle => 'Coaching';
+
+  @override
+  String get dossierCoachingSubtitle => 'Reminder and suggestion frequency';
+
+  @override
+  String get coachingSheetSubtitle => 'Choose how proactively MINT coaches you';
+
+  @override
+  String get coachingIntensityDiscret => 'Quiet';
+
+  @override
+  String get coachingIntensityCalme => 'Calm';
+
+  @override
+  String get coachingIntensityEquilibre => 'Balanced';
+
+  @override
+  String get coachingIntensityAttentif => 'Attentive';
+
+  @override
+  String get coachingIntensityProactif => 'Proactive';
+
+  @override
+  String get coachingDescDiscret =>
+      'MINT stays out of the way. Rare reminders, only critical deadlines.';
+
+  @override
+  String get coachingDescCalme =>
+      'MINT checks in occasionally. One reminder every 3 days max.';
+
+  @override
+  String get coachingDescEquilibre =>
+      'MINT guides you daily. One reminder per day, contextual suggestions.';
+
+  @override
+  String get coachingDescAttentif =>
+      'MINT pays attention every session. Frequent suggestions and rich memory.';
+
+  @override
+  String get coachingDescProactif =>
+      'MINT actively coaches you. Reminders every visit, complete memory.';
+
+  @override
+  String coachingEngagementStats(Object engaged, Object total) {
+    return '$engaged interactions out of $total suggestions';
+  }
 }

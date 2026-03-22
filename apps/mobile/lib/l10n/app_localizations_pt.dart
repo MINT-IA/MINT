@@ -20955,4 +20955,54 @@ class SPt extends S {
   String pulsePlanNextStep(String stepName) {
     return 'Próximo passo: $stepName';
   }
+
+  @override
+  String get dossierCoachingTitle => 'Acompanhamento';
+
+  @override
+  String get dossierCoachingSubtitle => 'Frequência de lembretes e sugestões';
+
+  @override
+  String get coachingSheetSubtitle =>
+      'Escolha com que frequência o MINT te acompanha';
+
+  @override
+  String get coachingIntensityDiscret => 'Discreto';
+
+  @override
+  String get coachingIntensityCalme => 'Calmo';
+
+  @override
+  String get coachingIntensityEquilibre => 'Equilibrado';
+
+  @override
+  String get coachingIntensityAttentif => 'Atento';
+
+  @override
+  String get coachingIntensityProactif => 'Proativo';
+
+  @override
+  String get coachingDescDiscret =>
+      'MINT te deixa em paz. Lembretes raros, apenas prazos críticos.';
+
+  @override
+  String get coachingDescCalme =>
+      'MINT intervém ocasionalmente. Um lembrete a cada 3 dias no máximo.';
+
+  @override
+  String get coachingDescEquilibre =>
+      'MINT te guia diariamente. Um lembrete por dia, sugestões contextuais.';
+
+  @override
+  String get coachingDescAttentif =>
+      'MINT está atento em cada sessão. Sugestões frequentes e memória rica.';
+
+  @override
+  String get coachingDescProactif =>
+      'MINT te acompanha ativamente. Lembretes em cada visita, memória completa.';
+
+  @override
+  String coachingEngagementStats(Object engaged, Object total) {
+    return '$engaged interações de $total sugestões';
+  }
 }

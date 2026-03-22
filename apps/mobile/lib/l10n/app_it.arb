@@ -9166,5 +9166,19 @@
     "placeholders": {
       "stepName": { "type": "String" }
     }
-  }
+  },
+  "dossierCoachingTitle": "Accompagnamento",
+  "dossierCoachingSubtitle": "Frequenza dei promemoria e suggerimenti",
+  "coachingSheetSubtitle": "Scegli con quale ritmo MINT ti accompagna",
+  "coachingIntensityDiscret": "Discreto",
+  "coachingIntensityCalme": "Calmo",
+  "coachingIntensityEquilibre": "Equilibrato",
+  "coachingIntensityAttentif": "Attento",
+  "coachingIntensityProactif": "Proattivo",
+  "coachingDescDiscret": "MINT ti lascia tranquillo. Promemoria rari, solo scadenze critiche.",
+  "coachingDescCalme": "MINT interviene occasionalmente. Un promemoria ogni 3 giorni al massimo.",
+  "coachingDescEquilibre": "MINT ti guida quotidianamente. Un promemoria al giorno, suggerimenti contestuali.",
+  "coachingDescAttentif": "MINT è attento ad ogni sessione. Suggerimenti frequenti e memoria ricca.",
+  "coachingDescProactif": "MINT ti accompagna attivamente. Promemoria ad ogni visita, memoria completa.",
+  "coachingEngagementStats": "{engaged} interazioni su {total} suggerimenti"
 }

@@ -9464,5 +9464,19 @@
     "placeholders": {
       "stepName": { "type": "String" }
     }
-  }
+  },
+  "dossierCoachingTitle": "Begleitung",
+  "dossierCoachingSubtitle": "Häufigkeit der Erinnerungen und Vorschläge",
+  "coachingSheetSubtitle": "Wähle, wie aktiv MINT dich begleitet",
+  "coachingIntensityDiscret": "Dezent",
+  "coachingIntensityCalme": "Ruhig",
+  "coachingIntensityEquilibre": "Ausgewogen",
+  "coachingIntensityAttentif": "Aufmerksam",
+  "coachingIntensityProactif": "Proaktiv",
+  "coachingDescDiscret": "MINT lässt dich in Ruhe. Seltene Erinnerungen, nur kritische Fristen.",
+  "coachingDescCalme": "MINT meldet sich gelegentlich. Maximal eine Erinnerung alle 3 Tage.",
+  "coachingDescEquilibre": "MINT begleitet dich täglich. Eine Erinnerung pro Tag, kontextuelle Vorschläge.",
+  "coachingDescAttentif": "MINT achtet bei jeder Sitzung auf dich. Häufige Vorschläge und reiches Gedächtnis.",
+  "coachingDescProactif": "MINT coacht dich aktiv. Erinnerungen bei jedem Besuch, vollständiges Gedächtnis.",
+  "coachingEngagementStats": "{engaged} Interaktionen von {total} Vorschlägen"
 }

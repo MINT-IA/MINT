@@ -9249,5 +9249,19 @@
     "placeholders": {
       "stepName": { "type": "String" }
     }
-  }
+  },
+  "dossierCoachingTitle": "Acompañamiento",
+  "dossierCoachingSubtitle": "Frecuencia de recordatorios y sugerencias",
+  "coachingSheetSubtitle": "Elige con qué frecuencia MINT te acompaña",
+  "coachingIntensityDiscret": "Discreto",
+  "coachingIntensityCalme": "Calmo",
+  "coachingIntensityEquilibre": "Equilibrado",
+  "coachingIntensityAttentif": "Atento",
+  "coachingIntensityProactif": "Proactivo",
+  "coachingDescDiscret": "MINT te deja tranquilo. Recordatorios raros, solo plazos críticos.",
+  "coachingDescCalme": "MINT interviene ocasionalmente. Un recordatorio cada 3 días máximo.",
+  "coachingDescEquilibre": "MINT te guía diariamente. Un recordatorio por día, sugerencias contextuales.",
+  "coachingDescAttentif": "MINT está atento en cada sesión. Sugerencias frecuentes y memoria rica.",
+  "coachingDescProactif": "MINT te acompaña activamente. Recordatorios en cada visita, memoria completa.",
+  "coachingEngagementStats": "{engaged} interacciones de {total} sugerencias"
 }

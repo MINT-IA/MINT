@@ -37077,6 +37077,90 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Prochaine étape : {stepName}'**
   String pulsePlanNextStep(String stepName);
+
+  /// No description provided for @dossierCoachingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accompagnement'**
+  String get dossierCoachingTitle;
+
+  /// No description provided for @dossierCoachingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence des rappels et suggestions'**
+  String get dossierCoachingSubtitle;
+
+  /// No description provided for @coachingSheetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis à quel rythme MINT t\'accompagne'**
+  String get coachingSheetSubtitle;
+
+  /// No description provided for @coachingIntensityDiscret.
+  ///
+  /// In fr, this message translates to:
+  /// **'Discret'**
+  String get coachingIntensityDiscret;
+
+  /// No description provided for @coachingIntensityCalme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calme'**
+  String get coachingIntensityCalme;
+
+  /// No description provided for @coachingIntensityEquilibre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équilibré'**
+  String get coachingIntensityEquilibre;
+
+  /// No description provided for @coachingIntensityAttentif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attentif'**
+  String get coachingIntensityAttentif;
+
+  /// No description provided for @coachingIntensityProactif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proactif'**
+  String get coachingIntensityProactif;
+
+  /// No description provided for @coachingDescDiscret.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT te laisse tranquille. Rappels rares, uniquement les échéances critiques.'**
+  String get coachingDescDiscret;
+
+  /// No description provided for @coachingDescCalme.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT intervient de temps en temps. Un rappel tous les 3 jours maximum.'**
+  String get coachingDescCalme;
+
+  /// No description provided for @coachingDescEquilibre.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT te guide au quotidien. Un rappel par jour, des suggestions contextuelles.'**
+  String get coachingDescEquilibre;
+
+  /// No description provided for @coachingDescAttentif.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT est attentif à chaque session. Suggestions fréquentes et mémoire riche.'**
+  String get coachingDescAttentif;
+
+  /// No description provided for @coachingDescProactif.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT t\'accompagne activement. Rappels à chaque visite, mémoire complète.'**
+  String get coachingDescProactif;
+
+  /// No description provided for @coachingEngagementStats.
+  ///
+  /// In fr, this message translates to:
+  /// **'{engaged} interactions sur {total} suggestions'**
+  String coachingEngagementStats(Object engaged, Object total);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

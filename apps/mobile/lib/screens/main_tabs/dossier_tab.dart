@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/benchmark/benchmark_comparison_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/benchmark/benchmark_opt_in_service.dart';
+import 'package:mint_mobile/models/coaching_preference.dart';
 import 'package:mint_mobile/services/expert/advisor_specialization.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -42,6 +43,18 @@ class _DossierTabState extends State<DossierTab> {
   void initState() {
     super.initState();
     _loadBenchmarkOptIn();
+  }
+
+  void _showCoachingPreferenceSheet(BuildContext context, S l) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: MintColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => _CoachingPreferenceSheet(l: l),
+    );
   }
 
   Future<void> _loadBenchmarkOptIn() async {
@@ -207,6 +220,14 @@ class _DossierTabState extends State<DossierTab> {
                         title: l.dossierSlmTitle,
                         subtitle: l.dossierSlmSubtitle,
                         onTap: () => context.push('/profile/slm'),
+                      ),
+
+                      // ── Coaching adaptatif ──
+                      _DossierRow(
+                        icon: Icons.tune_outlined,
+                        title: l.dossierCoachingTitle,
+                        subtitle: l.dossierCoachingSubtitle,
+                        onTap: () => _showCoachingPreferenceSheet(context, l),
                       ),
 
                       // ── Clé API (BYOK) ──
@@ -1327,6 +1348,211 @@ class _DossierRow extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════════
+//  Coaching Preference Bottom Sheet — P3.5
+// ════════════════════════════════════════════════════════════════════════════════
+
+class _CoachingPreferenceSheet extends StatefulWidget {
+  final S l;
+  const _CoachingPreferenceSheet({required this.l});
+
+  @override
+  State<_CoachingPreferenceSheet> createState() =>
+      _CoachingPreferenceSheetState();
+}
+
+class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
+  CoachingPreference _pref = CoachingPreference.balanced;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _pref = CoachingPreference.load(prefs);
+      _loaded = true;
+    });
+  }
+
+  Future<void> _save(int newIntensity) async {
+    final updated = _pref.withIntensity(newIntensity);
+    setState(() => _pref = updated);
+    final prefs = await SharedPreferences.getInstance();
+    await updated.save(prefs);
+  }
+
+  String _intensityLabel(int intensity) {
+    switch (intensity) {
+      case 1:
+        return widget.l.coachingIntensityDiscret;
+      case 2:
+        return widget.l.coachingIntensityCalme;
+      case 3:
+        return widget.l.coachingIntensityEquilibre;
+      case 4:
+        return widget.l.coachingIntensityAttentif;
+      case 5:
+        return widget.l.coachingIntensityProactif;
+      default:
+        return widget.l.coachingIntensityEquilibre;
+    }
+  }
+
+  String _intensityDescription(int intensity) {
+    switch (intensity) {
+      case 1:
+        return widget.l.coachingDescDiscret;
+      case 2:
+        return widget.l.coachingDescCalme;
+      case 3:
+        return widget.l.coachingDescEquilibre;
+      case 4:
+        return widget.l.coachingDescAttentif;
+      case 5:
+        return widget.l.coachingDescProactif;
+      default:
+        return widget.l.coachingDescEquilibre;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded) {
+      return const SizedBox(
+        height: 200,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Title
+            Text(
+              widget.l.dossierCoachingTitle,
+              style: MintTextStyles.headlineMedium(),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.l.coachingSheetSubtitle,
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+
+            // Intensity label
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _intensityLabel(_pref.intensity),
+                  style: MintTextStyles.titleMedium(),
+                ),
+                Text(
+                  '${_pref.intensity}/5',
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Slider
+            SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: MintColors.primary,
+                inactiveTrackColor: MintColors.lightBorder,
+                thumbColor: MintColors.primary,
+                overlayColor: MintColors.primary.withValues(alpha: 0.1),
+                trackHeight: 3,
+              ),
+              child: Slider(
+                value: _pref.intensity.toDouble(),
+                min: 1,
+                max: 5,
+                divisions: 4,
+                onChanged: (v) => _save(v.round()),
+              ),
+            ),
+
+            // Labels under slider
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.l.coachingIntensityDiscret,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  widget.l.coachingIntensityProactif,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Description
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MintColors.surface,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                _intensityDescription(_pref.intensity),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ),
+
+            // Engagement stats (subtle)
+            if (_pref.totalGreetingsShown > 0) ...[
+              const SizedBox(height: 16),
+              Text(
+                widget.l.coachingEngagementStats(
+                  _pref.totalGreetingsEngaged.toString(),
+                  _pref.totalGreetingsShown.toString(),
+                ),
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
