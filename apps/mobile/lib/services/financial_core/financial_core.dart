@@ -10,6 +10,7 @@ library;
 export 'arbitrage_engine.dart';
 export 'arbitrage_models.dart';
 export 'avs_calculator.dart';
+export 'cross_pillar_calculator.dart';
 export 'bayesian_enricher.dart';
 export 'coach_reasoner.dart';
 export 'confidence_scorer.dart';

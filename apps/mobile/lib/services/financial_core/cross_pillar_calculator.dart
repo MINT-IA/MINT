@@ -395,7 +395,7 @@ class CrossPillarCalculator {
     double optimal3aMonthly = 0.0;
     double fiscalSaving3a = 0.0;
     if (profile.prevoyance.canContribute3a) {
-      final plafond = pilier3aPlafondAvecLpp;
+      const plafond = pilier3aPlafondAvecLpp;
       final current3aMonthly = profile.total3aMensuel;
       final missing3aMonthly =
           max(0.0, plafond / 12 - current3aMonthly);
@@ -513,8 +513,6 @@ class CrossPillarCalculator {
         'impotCantonActuel': currentTax,
         'impotMeilleurCanton': bestTax,
         'economieAnnuelle': taxDiff,
-        'canton': canton,
-        'meilleurCanton': bestCanton,
       },
     );
   }
@@ -666,7 +664,7 @@ class CrossPillarCalculator {
     // For the insight, we show the fiscal saving (immediate, verifiable)
     double action3aImpact = 0.0;
     if (profile.prevoyance.canContribute3a && yearsLeft > 0) {
-      final plafond = pilier3aPlafondAvecLpp;
+      const plafond = pilier3aPlafondAvecLpp;
       final current3aAnnual = profile.total3aMensuel * 12;
       final missing3a = max(0.0, plafond - current3aAnnual);
       if (missing3a > 0) {
