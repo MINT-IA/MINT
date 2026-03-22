@@ -104,6 +104,49 @@
 
 ---
 
+## P3.5 — Coaching Adaptatif (fréquence pilotée par l'utilisateur)
+
+### Concept
+Au lieu de décider la fréquence des triggers pour l'utilisateur (cooldown 1/jour hardcodé),
+MINT apprend à quel rythme chaque personne veut être accompagnée.
+
+### Feedback implicite (pas de friction)
+- Utilisateur **ignore** un greeting proactif → baisser la fréquence de ce trigger type
+- Utilisateur **engage** (répond, clique) → maintenir/augmenter
+- Utilisateur **dismiss** un recall mémoire → réduire les références passées
+- Utilisateur **réagit positivement** → renforcer le recall
+
+### Feedback explicite (léger)
+- 👍/👎 discret après un proactive greeting (pas une popup)
+- Slider dans les réglages : "Fréquence des rappels" (Discret → Proactif)
+
+### Architecture cible
+```dart
+class CoachingPreference {
+  final int intensity; // 1=discret, 3=équilibré (défaut), 5=proactif
+  final Map<String, double> triggerEngagement; // score 0-1 par trigger type
+}
+```
+- `intensity` module le cooldown ProactiveTriggerService (1→7j, 3→1j, 5→0j)
+- `triggerEngagement` filtre les triggers bas-engagement même en mode proactif
+- CapMemory.recentFrictionContext + NudgePersistence.getDismissedIds = déjà tracké
+
+### Prérequis
+- 100+ testeurs avec données d'engagement réelles (dismiss rate, response rate)
+- Calibrer les seuils avant d'automatiser
+
+### Day-J checklist
+```
+[ ] Ajouter CoachingPreference au profil (intensity + triggerEngagement)
+[ ] ProactiveTriggerService lit intensity pour le cooldown
+[ ] ContextInjectorService module le recall depth selon intensity
+[ ] Tracker les engagements implicites (greeting ignored vs responded)
+[ ] UI réglages: slider "Fréquence des rappels"
+[ ] Tests: intensity 1→5 change le comportement du coach
+```
+
+---
+
 ## P4 — Phase 3 "L'Expert" Readiness
 
 ### Expert Tier
