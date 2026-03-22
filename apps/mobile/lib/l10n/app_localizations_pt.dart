@@ -20803,8 +20803,14 @@ class SPt extends S {
       'Estimativas simplificadas para fins educativos — não constitui aconselhamento fiscal ou jurídico. Os montantes dependem de muitos fatores. Consulta um especialista fiscal para uma análise personalizada. LSFin.';
 
   @override
+  String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Contribuição do trabalhador: 5.3% do salário bruto. O teu empregador também paga 5.3% adicional.';
+
+  @override
+  String get firstJobPayslipLppLabel => 'LPP (2.º pilar)';
 
   @override
   String get firstJobPayslipLppExplanation =>

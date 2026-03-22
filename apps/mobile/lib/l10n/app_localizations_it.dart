@@ -20881,8 +20881,14 @@ class SIt extends S {
       'Stime semplificate a scopo educativo — non costituisce consulenza fiscale o legale. Gli importi dipendono da molti fattori. Consulta un esperto fiscale per un\'analisi personalizzata. LSFin.';
 
   @override
+  String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Contributo del dipendente: 5.3% del lordo. Il datore di lavoro paga anche lui il 5.3%.';
+
+  @override
+  String get firstJobPayslipLppLabel => 'LPP (2° pilastro)';
 
   @override
   String get firstJobPayslipLppExplanation =>

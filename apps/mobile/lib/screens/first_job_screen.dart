@@ -119,33 +119,27 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     employerHiddenCost: _salaire * 1.13,
                     deductions: [
                       PayslipLine(
-                        label: 'AVS/AI/APG',
+                        label: S.of(context)!.firstJobPayslipAvsLabel,
                         emoji: '\u{1F6E1}\u{FE0F}',
                         amount: _salaire * 0.053,
                         percentage: 5.3,
-                        explanation:
-                            'Cotisation salari\u00e9\u00b7e\u00a0: 5.3% du brut. '
-                            'Ton employeur paie aussi 5.3% en plus.',
+                        explanation: S.of(context)!.firstJobPayslipAvsExplanation,
                         legalRef: 'LAVS art. 5',
                       ),
                       PayslipLine(
-                        label: 'LPP (2e pilier)',
+                        label: S.of(context)!.firstJobPayslipLppLabel,
                         emoji: '\u{1F3E6}',
                         amount: _salaire * 0.08,
                         percentage: 8.0,
-                        explanation:
-                            '\u00c9pargne vieillesse obligatoire d\u00e8s 25 ans. '
-                            'Le taux exact d\u00e9pend de ta caisse et ton \u00e2ge.',
+                        explanation: S.of(context)!.firstJobPayslipLppExplanation,
                         legalRef: 'LPP art. 16',
                       ),
                       PayslipLine(
-                        label: 'Imp\u00f4t \u00e0 la source (estimation)',
+                        label: S.of(context)!.firstJobPayslipImpotLabel,
                         emoji: '\u{1F3DB}\u{FE0F}',
                         amount: _salaire * 0.09,
                         percentage: 9.0,
-                        explanation:
-                            'Retenu directement sur le salaire si tu es impos\u00e9\u00b7e '
-                            '\u00e0 la source. Le taux varie selon canton, statut et revenu.',
+                        explanation: S.of(context)!.firstJobPayslipImpotExplanation,
                         legalRef: 'LIFD art. 83',
                       ),
                     ],
@@ -225,7 +219,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       elevation: 0,
       scrolledUnderElevation: 0.5,
       leading: Semantics(
-        label: 'Retour',
+        label: S.of(context)!.semanticsBackButton,
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
@@ -999,6 +993,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   }
 
   Widget _buildBudget503020() {
+    final l10n = S.of(context)!;
     final net = _result?.netEstime ?? _salaire * 0.85;
     final annualSavings = net * 0.20 * 12;
     final years = (65 - _age).clamp(0, 45);
@@ -1007,30 +1002,45 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       netSalary: net,
       categories: [
         BudgetCategory(
-          label: 'Besoins',
+          label: l10n.firstJobBudgetBesoins,
           emoji: '\u{1F3E0}',
           percent: 50,
           amount: net * 0.50,
-          examples: const ['Loyer', 'LAMal', 'Transport', 'Alimentation'],
+          examples: [
+            l10n.firstJobBudgetLoyer,
+            'LAMal',
+            l10n.firstJobBudgetTransport,
+            l10n.firstJobBudgetAlimentation,
+          ],
         ),
         BudgetCategory(
-          label: 'Envies',
+          label: l10n.firstJobBudgetEnvies,
           emoji: '\u2728',
           percent: 30,
           amount: net * 0.30,
-          examples: const ['Loisirs', 'Restaurants', 'Voyages', 'Shopping'],
+          examples: [
+            l10n.firstJobBudgetLoisirs,
+            l10n.firstJobBudgetRestaurants,
+            l10n.firstJobBudgetVoyages,
+            l10n.firstJobBudgetShopping,
+          ],
         ),
         BudgetCategory(
-          label: '\u00c9pargne & 3a',
+          label: l10n.firstJobBudgetEpargne,
           emoji: '\u{1F3E6}',
           percent: 20,
           amount: net * 0.20,
-          examples: const ['Pilier 3a', '\u00c9pargne', 'Fonds d\'urgence'],
+          examples: [
+            l10n.firstJobBudgetPilier3a,
+            l10n.firstJobBudgetEpargneCourt,
+            l10n.firstJobBudgetFondsUrgence,
+          ],
         ),
       ],
-      chiffreChoc:
-          'Si tu \u00e9pargnes ${(annualSavings.round() ~/ 1000)}\'000 CHF/an '
-          'd\u00e8s maintenant, tu auras ~${(fv.round() ~/ 1000)}\'000 CHF \u00e0 65 ans.',
+      chiffreChoc: l10n.firstJobBudgetChiffreChoc(
+        '${(annualSavings.round() ~/ 1000)}\'000',
+        '~${(fv.round() ~/ 1000)}\'000',
+      ),
     );
   }
 
@@ -1095,6 +1105,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   }
 
   Widget _buildScenarioChips() {
+    final l10n = S.of(context)!;
     const median = 6500.0;
     final profileVal = _seededFromProfile
         ? context
@@ -1108,19 +1119,19 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final scenarios = [
       (
         label: _seededFromProfile
-            ? '\u{1F4CD} Mon salaire'
-            : '\u{1F4CD} D\u00e9faut',
+            ? '\u{1F4CD} ${l10n.firstJobScenarioMySalary}'
+            : '\u{1F4CD} ${l10n.firstJobScenarioDefault}',
         value: profileVal.clamp(2000.0, 15000.0),
         active:
             (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
       ),
       (
-        label: '\u{1F1E8}\u{1F1ED} M\u00e9dian CH',
+        label: '\u{1F1E8}\u{1F1ED} ${l10n.firstJobScenarioMedianCH}',
         value: median,
         active: (_salaire - median).abs() < 50,
       ),
       (
-        label: '\u2728 +20%',
+        label: '\u2728 ${l10n.firstJobScenarioBoosted}',
         value: boosted,
         active: (_salaire - boosted).abs() < 50,
       ),
@@ -1133,7 +1144,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: MintSpacing.sm),
             child: Semantics(
-              label: 'Sc\u00e9nario salaire\u00a0: ${s.label}',
+              label: l10n.firstJobScenarioSemantics(s.label),
               button: true,
               child: GestureDetector(
                 onTap: () {

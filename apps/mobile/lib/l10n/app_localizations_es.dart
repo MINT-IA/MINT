@@ -20852,8 +20852,14 @@ class SEs extends S {
       'Estimaciones simplificadas con fines educativos — no constituye asesoramiento fiscal o jurídico. Los importes dependen de muchos factores. Consulta un especialista fiscal para un análisis personalizado. LSFin.';
 
   @override
+  String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Cotización del empleado: 5.3% del salario bruto. Tu empleador también paga 5.3% adicional.';
+
+  @override
+  String get firstJobPayslipLppLabel => 'LPP (2.° pilar)';
 
   @override
   String get firstJobPayslipLppExplanation =>

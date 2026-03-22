@@ -36808,11 +36808,23 @@ abstract class S {
   /// **'Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée. LSFin.'**
   String get frontalierDisclaimer;
 
+  /// No description provided for @firstJobPayslipAvsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS/AI/APG'**
+  String get firstJobPayslipAvsLabel;
+
   /// No description provided for @firstJobPayslipAvsExplanation.
   ///
   /// In fr, this message translates to:
   /// **'Cotisation salarié·e : 5.3% du brut. Ton employeur paie aussi 5.3% en plus.'**
   String get firstJobPayslipAvsExplanation;
+
+  /// No description provided for @firstJobPayslipLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP (2e pilier)'**
+  String get firstJobPayslipLppLabel;
 
   /// No description provided for @firstJobPayslipLppExplanation.
   ///

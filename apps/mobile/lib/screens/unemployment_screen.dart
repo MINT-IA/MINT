@@ -80,14 +80,20 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MintColors.porcelaine,
+      backgroundColor: MintColors.background,
       appBar: AppBar(
-        backgroundColor: MintColors.porcelaine,
-        surfaceTintColor: MintColors.porcelaine,
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
         foregroundColor: MintColors.textPrimary,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+        leading: Semantics(
+          label: S.of(context)!.semanticsBackButton,
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
         ),
         title: Text(
           S.of(context)!.unemploymentTitle,

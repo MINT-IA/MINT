@@ -20755,8 +20755,14 @@ class SEn extends S {
       'Simplified estimates for educational purposes — does not constitute fiscal or legal advice. Amounts depend on many factors (deductions, municipality, assets, international agreements, etc.). Consult a tax specialist for a personalised analysis. LSFin.';
 
   @override
+  String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Employee contribution: 5.3% of gross salary. Your employer also pays 5.3% on top.';
+
+  @override
+  String get firstJobPayslipLppLabel => 'LPP (2nd pillar)';
 
   @override
   String get firstJobPayslipLppExplanation =>

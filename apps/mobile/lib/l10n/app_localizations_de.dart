@@ -20877,8 +20877,14 @@ class SDe extends S {
       'Vereinfachte Schätzungen zu Bildungszwecken — kein Steuer- oder Rechtsrat. Beträge hängen von vielen Faktoren ab. Konsultiere einen Steuerexperten für eine persönliche Analyse. LSFin.';
 
   @override
+  String get firstJobPayslipAvsLabel => 'AHV/IV/EO';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.';
+
+  @override
+  String get firstJobPayslipLppLabel => 'BVG (2. Säule)';
 
   @override
   String get firstJobPayslipLppExplanation =>
