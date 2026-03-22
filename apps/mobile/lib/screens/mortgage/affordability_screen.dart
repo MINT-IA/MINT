@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
@@ -35,7 +36,20 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('mortgage');
-    ScreenCompletionTracker.markCompleted('affordability');
+    _emitScreenReturn();
+  }
+
+  void _emitScreenReturn() {
+    final result = _result;
+    final screenReturn = ScreenReturn.completed(
+      route: '/mortgage/affordability',
+      updatedFields: {'maxAffordablePrice': result.prixMaxAccessible},
+      confidenceDelta: 0.02,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'affordability',
+      screenReturn,
+    );
   }
 
   double _revenuBrut = 120000;
@@ -243,7 +257,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         max: 300000,
                         divisions: 50,
                         formatValue: (_) => 'CHF\u00a0${formatChf(_revenuBrut)}',
-                        onChanged: (v) => setState(() => _revenuBrut = v),
+                        onChanged: (v) { setState(() => _revenuBrut = v); _emitScreenReturn(); },
                       ),
                       const SizedBox(height: MintSpacing.md),
 
@@ -255,7 +269,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         max: 3000000,
                         divisions: 56,
                         formatValue: (_) => 'CHF\u00a0${formatChf(_prixAchat)}',
-                        onChanged: (v) => setState(() => _prixAchat = v),
+                        onChanged: (v) { setState(() => _prixAchat = v); _emitScreenReturn(); },
                       ),
                       const SizedBox(height: MintSpacing.md),
 
@@ -268,7 +282,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         divisions: 100,
                         formatValue: (_) =>
                             'CHF\u00a0${formatChf(_epargneDispo)}',
-                        onChanged: (v) => setState(() => _epargneDispo = v),
+                        onChanged: (v) { setState(() => _epargneDispo = v); _emitScreenReturn(); },
                       ),
 
                       // Progressive disclosure: 3a + LPP behind toggle
@@ -308,7 +322,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           divisions: 60,
                           formatValue: (_) =>
                               'CHF\u00a0${formatChf(_avoir3a)}',
-                          onChanged: (v) => setState(() => _avoir3a = v),
+                          onChanged: (v) { setState(() => _avoir3a = v); _emitScreenReturn(); },
                         ),
                         const SizedBox(height: MintSpacing.md),
                         MintPremiumSlider(
@@ -319,7 +333,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           divisions: 100,
                           formatValue: (_) =>
                               'CHF\u00a0${formatChf(_avoirLpp)}',
-                          onChanged: (v) => setState(() => _avoirLpp = v),
+                          onChanged: (v) { setState(() => _avoirLpp = v); _emitScreenReturn(); },
                         ),
                       ],
                     ],

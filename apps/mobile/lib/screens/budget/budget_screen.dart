@@ -31,6 +31,7 @@ import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -72,7 +73,12 @@ class _BudgetScreenState extends State<BudgetScreen>
       try {
         context.read<BudgetProvider>().setInputs(widget.inputs);
         _staggerController.forward();
-        ScreenCompletionTracker.markCompleted('budget');
+        _emitScreenReturn({
+          'netIncome': widget.inputs.netIncome,
+          'housingCost': widget.inputs.housingCost,
+          'healthInsurance': widget.inputs.healthInsurance,
+          'taxProvision': widget.inputs.taxProvision,
+        });
       } catch (_) {
         if (mounted) setState(() => _hasError = true);
       }
@@ -107,6 +113,15 @@ class _BudgetScreenState extends State<BudgetScreen>
   void dispose() {
     _staggerController.dispose();
     super.dispose();
+  }
+
+  void _emitScreenReturn(Map<String, dynamic> updatedFields) {
+    final screenReturn = ScreenReturn.completed(
+      route: '/budget',
+      updatedFields: updatedFields,
+      confidenceDelta: 0.05,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('budget', screenReturn);
   }
 
   Widget _staggeredEntry({required int index, required Widget child}) {
@@ -626,6 +641,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           activeColor: MintColors.info,
           onChanged: (val) {
             provider.updateOverride('future', val);
+            _emitScreenReturn({'budgetFuture': val});
           },
         ),
         const SizedBox(height: MintSpacing.lg),
@@ -638,6 +654,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           activeColor: MintColors.success,
           onChanged: (val) {
             provider.updateOverride('variables', val);
+            _emitScreenReturn({'budgetVariables': val});
           },
         ),
       ],

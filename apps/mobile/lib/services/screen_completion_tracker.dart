@@ -46,6 +46,19 @@ class ScreenCompletionTracker {
   }) =>
       _write(screenId, ScreenOutcome.completed, prefs: prefs, now: now);
 
+  /// Persist a full [ScreenReturn] for [screenId].
+  ///
+  /// Stores the return contract (outcome, updatedFields, confidenceDelta,
+  /// nextCapSuggestion) so the boucle vivante can react with rich context.
+  /// Safe to call from any async context. Silently ignores storage errors.
+  static Future<void> markCompletedWithReturn(
+    String screenId,
+    ScreenReturn screenReturn, {
+    SharedPreferences? prefs,
+    DateTime? now,
+  }) =>
+      _writeReturn(screenId, screenReturn, prefs: prefs, now: now);
+
   /// Persist a [ScreenOutcome.abandoned] entry for [screenId].
   ///
   /// Safe to call from any async context. Silently ignores storage errors.
@@ -125,6 +138,39 @@ class ScreenCompletionTracker {
   //  INTERNAL HELPERS
   // ════════════════════════════════════════════════════════════════
 
+  /// Return the last stored [ScreenReturn] for [screenId], or null if
+  /// no full return was persisted (legacy entries only have outcome).
+  static Future<ScreenReturn?> lastReturn(
+    String screenId, {
+    SharedPreferences? prefs,
+  }) async {
+    try {
+      final p = prefs ?? await SharedPreferences.getInstance();
+      final raw = p.getString('$_kPrefix$screenId');
+      if (raw == null) return null;
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      final outcome = _outcomeFromString(map['outcome'] as String?);
+      if (outcome == null) return null;
+      final route = map['route'] as String? ?? '';
+      final confidenceDelta = (map['confidenceDelta'] as num?)?.toDouble();
+      final nextCap = map['nextCapSuggestion'] as String?;
+      final updatedFieldsRaw = map['updatedFields'];
+      Map<String, dynamic>? updatedFields;
+      if (updatedFieldsRaw is Map) {
+        updatedFields = Map<String, dynamic>.from(updatedFieldsRaw);
+      }
+      return ScreenReturn(
+        route: route,
+        outcome: outcome,
+        updatedFields: updatedFields,
+        confidenceDelta: confidenceDelta,
+        nextCapSuggestion: nextCap,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<void> _write(
     String screenId,
     ScreenOutcome outcome, {
@@ -140,6 +186,35 @@ class ScreenCompletionTracker {
           'outcome': _outcomeToString(outcome),
           'timestamp': timestamp,
           'screenId': screenId,
+        }),
+      );
+    } catch (_) {
+      // Non-critical — silently ignore storage failures.
+    }
+  }
+
+  static Future<void> _writeReturn(
+    String screenId,
+    ScreenReturn screenReturn, {
+    SharedPreferences? prefs,
+    DateTime? now,
+  }) async {
+    try {
+      final timestamp = (now ?? DateTime.now()).toIso8601String();
+      final p = prefs ?? await SharedPreferences.getInstance();
+      await p.setString(
+        '$_kPrefix$screenId',
+        jsonEncode({
+          'outcome': _outcomeToString(screenReturn.outcome),
+          'timestamp': timestamp,
+          'screenId': screenId,
+          'route': screenReturn.route,
+          if (screenReturn.updatedFields != null)
+            'updatedFields': screenReturn.updatedFields,
+          if (screenReturn.confidenceDelta != null)
+            'confidenceDelta': screenReturn.confidenceDelta,
+          if (screenReturn.nextCapSuggestion != null)
+            'nextCapSuggestion': screenReturn.nextCapSuggestion,
         }),
       );
     } catch (_) {

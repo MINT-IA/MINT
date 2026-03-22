@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 class Simulator3aScreen extends StatefulWidget {
@@ -86,7 +87,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         annualReturn: _annualReturn,
       );
     });
-    ScreenCompletionTracker.markCompleted('simulator_3a');
+    final screenReturn = ScreenReturn.completed(
+      route: '/simulator-3a',
+      updatedFields: {'simulated3aAmount': _annualContribution},
+      confidenceDelta: 0.02,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'simulator_3a',
+      screenReturn,
+    );
   }
 
   @override
