@@ -90,17 +90,26 @@ async def _get_vector_store():
     return _vector_store
 
 
+_hybrid_search = None
+
+
 def _get_hybrid_search():
-    """Create a HybridSearchService if DATABASE_URL is configured.
+    """Get or create the singleton HybridSearchService.
 
     Returns None in dev/CI environments without PostgreSQL.
+    Thread-safe: idempotent, protected by _init_lock in the caller.
     """
+    global _hybrid_search
+    if _hybrid_search is not None:
+        return _hybrid_search
+
     db_url = os.environ.get("DATABASE_URL", "")
     if not db_url or "sqlite" in db_url:
         return None
     try:
         from app.services.rag.hybrid_search_service import HybridSearchService
-        return HybridSearchService(db_url=db_url)
+        _hybrid_search = HybridSearchService(db_url=db_url)
+        return _hybrid_search
     except ImportError:
         logger.info("HybridSearchService not available -- using ChromaDB only")
         return None

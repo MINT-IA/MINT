@@ -77,8 +77,8 @@ class RAGOrchestrator:
             Dict with keys: answer, sources, disclaimers, tokens_used.
             When tool_calls are present: also includes "tool_calls" key.
         """
-        # Step 1: Retrieve relevant chunks
-        retrieved = self.retriever.retrieve(
+        # Step 1: Retrieve relevant chunks (async — pgvector or ChromaDB)
+        retrieved = await self.retriever.retrieve(
             query=question,
             profile_context=profile_context,
             n_results=n_results,

@@ -57,7 +57,7 @@ class TestFaqFallback:
         orchestrator = RAGOrchestrator(vector_store=vs)
 
         # Patch retriever so it returns our controlled list
-        orchestrator.retriever.retrieve = mock.MagicMock(return_value=vector_results)
+        orchestrator.retriever.retrieve = mock.AsyncMock(return_value=vector_results)
 
         # Patch LLM so we never make a real HTTP call
         async def fake_generate(**kwargs):
@@ -73,7 +73,7 @@ class TestFaqFallback:
 
         vs = mock.MagicMock(spec=MintVectorStore)
         orchestrator = RAGOrchestrator(vector_store=vs)
-        orchestrator.retriever.retrieve = mock.MagicMock(return_value=[])
+        orchestrator.retriever.retrieve = mock.AsyncMock(return_value=[])
 
         # Mock LLM client so it returns without network
         async def fake_generate(*args, **kwargs):
@@ -119,7 +119,7 @@ class TestFaqFallback:
 
         vs = mock.MagicMock(spec=MintVectorStore)
         orchestrator = RAGOrchestrator(vector_store=vs)
-        orchestrator.retriever.retrieve = mock.MagicMock(
+        orchestrator.retriever.retrieve = mock.AsyncMock(
             return_value=[{"text": "Un seul résultat.", "source": {"file": "doc.md"}}]
         )
 
@@ -164,7 +164,7 @@ class TestFaqFallback:
 
         vs = mock.MagicMock(spec=MintVectorStore)
         orchestrator = RAGOrchestrator(vector_store=vs)
-        orchestrator.retriever.retrieve = mock.MagicMock(
+        orchestrator.retriever.retrieve = mock.AsyncMock(
             return_value=[
                 {"text": "Résultat 1 LPP.", "source": {"file": "lpp.md"}},
                 {"text": "Résultat 2 AVS.", "source": {"file": "avs.md"}},
@@ -198,7 +198,7 @@ class TestFaqFallback:
 
         vs = mock.MagicMock(spec=MintVectorStore)
         orchestrator = RAGOrchestrator(vector_store=vs)
-        orchestrator.retriever.retrieve = mock.MagicMock(return_value=[])
+        orchestrator.retriever.retrieve = mock.AsyncMock(return_value=[])
 
         many_faqs = [
             FaqEntry(
@@ -241,7 +241,7 @@ class TestFaqFallback:
 
         vs = mock.MagicMock(spec=MintVectorStore)
         orchestrator = RAGOrchestrator(vector_store=vs)
-        orchestrator.retriever.retrieve = mock.MagicMock(return_value=[])
+        orchestrator.retriever.retrieve = mock.AsyncMock(return_value=[])
 
         async def fake_generate(*args, **kwargs):
             return "Réponse test."

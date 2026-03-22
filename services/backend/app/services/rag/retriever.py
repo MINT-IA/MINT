@@ -8,6 +8,9 @@ Retrieval priority chain:
     1. HybridSearchService (pgvector on Railway PostgreSQL) — production
     2. MintVectorStore (ChromaDB) — dev/CI fallback
     3. Empty results — FaqService handles ultimate fallback in orchestrator
+
+All methods are async to integrate cleanly with FastAPI's async pipeline.
+No asyncio.get_event_loop() or ThreadPoolExecutor bridges needed.
 """
 
 from __future__ import annotations
@@ -35,7 +38,7 @@ class MintRetriever:
         self.vector_store = vector_store
         self._hybrid = hybrid_search
 
-    def retrieve(
+    async def retrieve(
         self,
         query: str,
         profile_context: Optional[dict] = None,
@@ -45,6 +48,9 @@ class MintRetriever:
     ) -> list[dict]:
         """
         Retrieve relevant knowledge chunks for a query.
+
+        Priority chain: pgvector (production) → ChromaDB (dev/CI) → empty.
+        The orchestrator handles FaqService as the ultimate fallback.
 
         Args:
             query: The user's question.
@@ -63,22 +69,9 @@ class MintRetriever:
         # Priority 1: HybridSearchService (pgvector — production)
         if self._hybrid:
             try:
-                import asyncio
-                # HybridSearchService.search is async; call from sync context
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    # Already in async context — use await directly not possible
-                    # from sync method.  Use a thread-safe future.
-                    import concurrent.futures
-                    with concurrent.futures.ThreadPoolExecutor() as pool:
-                        hybrid_results = pool.submit(
-                            asyncio.run, self._hybrid.search(query, n_results=n_results)
-                        ).result(timeout=10)
-                else:
-                    hybrid_results = loop.run_until_complete(
-                        self._hybrid.search(query, n_results=n_results)
-                    )
-
+                hybrid_results = await self._hybrid.search(
+                    query, n_results=n_results,
+                )
                 if hybrid_results:
                     formatted = []
                     for r in hybrid_results:
@@ -99,21 +92,18 @@ class MintRetriever:
                     )
                     return formatted
             except Exception as exc:
-                logger.warning("pgvector retrieval failed, falling back to ChromaDB: %s", exc)
+                logger.warning(
+                    "pgvector retrieval failed, falling back to ChromaDB: %s", exc,
+                )
 
         # Priority 2: ChromaDB (dev/CI fallback)
-        # Enrich the query with profile context
         enriched_query = self._enrich_query(query, profile_context)
 
-        # Build level filter based on literacy_level
-        # "beginner" gets both level 0 (simplified) and level 1 (full).
-        # "intermediate" and "advanced" get level 1 only.
         if literacy_level == "beginner":
             level_filter = {"level": {"$in": [0, 1]}}
         else:
             level_filter = {"level": 1}
 
-        # Merge with language filter when provided
         if language:
             where_filter: Optional[dict] = {
                 "$and": [
@@ -124,15 +114,13 @@ class MintRetriever:
         else:
             where_filter = level_filter
 
-        # Query the vector store with the combined filter
         results = self.vector_store.query(
             query_text=enriched_query,
             n_results=n_results,
-            language=None,  # language handled in where_filter above
+            language=None,
             where_filter=where_filter,
         )
 
-        # Format results with source information
         formatted = []
         for result in results:
             metadata = result.get("metadata", {})
