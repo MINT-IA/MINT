@@ -292,8 +292,8 @@ class CoupleOptimizer {
     final conjointAge = conjoint.age;
     if (conjointAge == null) return null;
 
-    final userRetirementAge = user.age + user.goalA.moisRestants ~/ 12;
-    final conjointRetirementAge = conjoint.targetRetirementAge ?? 65;
+    final userRetirementAge = user.effectiveRetirementAge;
+    final conjointRetirementAge = conjoint.effectiveRetirementAge;
 
     final userRente = AvsCalculator.computeMonthlyRente(
       currentAge: user.age,
@@ -338,24 +338,30 @@ class CoupleOptimizer {
     if (userIncome <= 0 || conjointIncome <= 0) return null;
 
     final canton = user.canton;
+    final enfants = user.nombreEnfants;
 
-    // Tax as married couple (joint filing)
+    // Tax as married couple (joint filing — children counted once)
     final taxMarried = RetirementTaxCalculator.estimateMonthlyIncomeTax(
       revenuAnnuelImposable: userIncome + conjointIncome,
       canton: canton,
       etatCivil: 'marie',
+      nombreEnfants: enfants,
     ) * 12;
 
-    // Tax as two singles
+    // Tax as two singles — children assigned to the higher earner
+    // (Swiss practice: deductions go to the parent with higher income)
+    final userHasKids = userIncome >= conjointIncome;
     final taxUserSingle = RetirementTaxCalculator.estimateMonthlyIncomeTax(
       revenuAnnuelImposable: userIncome,
       canton: canton,
       etatCivil: 'celibataire',
+      nombreEnfants: userHasKids ? enfants : 0,
     ) * 12;
     final taxConjointSingle = RetirementTaxCalculator.estimateMonthlyIncomeTax(
       revenuAnnuelImposable: conjointIncome,
       canton: canton,
       etatCivil: 'celibataire',
+      nombreEnfants: userHasKids ? 0 : enfants,
     ) * 12;
 
     final annualDelta = taxMarried - (taxUserSingle + taxConjointSingle);
