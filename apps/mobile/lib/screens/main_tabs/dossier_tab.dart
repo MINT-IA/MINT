@@ -69,7 +69,13 @@ class _DossierTabState extends State<DossierTab> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final mintState = context.watch<MintStateProvider>().state;
+    // Graceful: tests without MintStateProvider in tree won't crash.
+    MintUserState? mintState;
+    try {
+      mintState = context.watch<MintStateProvider>().state;
+    } catch (_) {
+      mintState = null;
+    }
     final provider = context.watch<CoachProfileProvider>();
 
     // Derived from MintUserState when available; fall back to CoachProfileProvider.

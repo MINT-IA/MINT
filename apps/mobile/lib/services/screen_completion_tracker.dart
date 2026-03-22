@@ -42,8 +42,9 @@ class ScreenCompletionTracker {
   static Future<void> markCompleted(
     String screenId, {
     SharedPreferences? prefs,
+    DateTime? now,
   }) =>
-      _write(screenId, ScreenOutcome.completed, prefs: prefs);
+      _write(screenId, ScreenOutcome.completed, prefs: prefs, now: now);
 
   /// Persist a [ScreenOutcome.abandoned] entry for [screenId].
   ///
@@ -51,8 +52,9 @@ class ScreenCompletionTracker {
   static Future<void> markAbandoned(
     String screenId, {
     SharedPreferences? prefs,
+    DateTime? now,
   }) =>
-      _write(screenId, ScreenOutcome.abandoned, prefs: prefs);
+      _write(screenId, ScreenOutcome.abandoned, prefs: prefs, now: now);
 
   /// Persist a [ScreenOutcome.changedInputs] entry for [screenId].
   ///
@@ -60,8 +62,9 @@ class ScreenCompletionTracker {
   static Future<void> markChangedInputs(
     String screenId, {
     SharedPreferences? prefs,
+    DateTime? now,
   }) =>
-      _write(screenId, ScreenOutcome.changedInputs, prefs: prefs);
+      _write(screenId, ScreenOutcome.changedInputs, prefs: prefs, now: now);
 
   // ════════════════════════════════════════════════════════════════
   //  READ
@@ -126,14 +129,16 @@ class ScreenCompletionTracker {
     String screenId,
     ScreenOutcome outcome, {
     SharedPreferences? prefs,
+    DateTime? now,
   }) async {
     try {
+      final timestamp = (now ?? DateTime.now()).toIso8601String();
       final p = prefs ?? await SharedPreferences.getInstance();
       await p.setString(
         '$_kPrefix$screenId',
         jsonEncode({
           'outcome': _outcomeToString(outcome),
-          'timestamp': DateTime.now().toIso8601String(),
+          'timestamp': timestamp,
           'screenId': screenId,
         }),
       );
