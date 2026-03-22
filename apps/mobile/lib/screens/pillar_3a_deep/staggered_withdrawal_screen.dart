@@ -47,7 +47,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
   void _emitScreenReturn() {
     final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';
-    final screenReturn = ScreenReturn.completed(
+    final screenReturn = ScreenReturn.changedInputs(
       route: '/3a-deep/staggered-withdrawal',
       updatedFields: {'staggeredPlan': plan},
       confidenceDelta: 0.03,

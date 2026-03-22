@@ -116,7 +116,7 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   void _emitScreenReturn(Map<String, dynamic> updatedFields) {
-    final screenReturn = ScreenReturn.completed(
+    final screenReturn = ScreenReturn.changedInputs(
       route: '/budget',
       updatedFields: updatedFields,
       confidenceDelta: 0.05,

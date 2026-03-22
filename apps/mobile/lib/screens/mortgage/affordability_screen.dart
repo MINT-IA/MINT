@@ -41,7 +41,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
   void _emitScreenReturn() {
     final result = _result;
-    final screenReturn = ScreenReturn.completed(
+    final screenReturn = ScreenReturn.changedInputs(
       route: '/mortgage/affordability',
       updatedFields: {'maxAffordablePrice': result.prixMaxAccessible},
       confidenceDelta: 0.02,

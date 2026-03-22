@@ -280,11 +280,13 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 | Nationalité | CH | US (FATCA) |
 | Archetype | swiss_native | expat_us |
 | Caisse LPP | **CPE** (rémun. 5%) | **HOTELA** |
+| Salaire assuré LPP | **91'967 CHF** (CPE Plan Maxi) | standard coordonné |
+| Bonif. vieillesse caisse | **24%** (CPE Plan Maxi, part vieillesse) | standard légal |
 | Avoir LPP | **70'377 CHF** | **19'620 CHF** |
 | Rachat max LPP | **539'414 CHF** | **52'949 CHF** |
 | LPP projeté 65 | 677'847 (rente ~33'892/an) | ~153'000 |
 | 3a capital | 32'000 | 14'000 |
-| AVS couple | 2'500 CHF/mois |
+| AVS couple (marié, cap 150%) | **3'780 CHF/mois** (LAVS art. 35) |
 | Taux remplacement | **65.5%** (~8'505 vs 12'978 net/mois) |
 
 ---
