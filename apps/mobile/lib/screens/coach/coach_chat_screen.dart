@@ -1682,13 +1682,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: MintColors.coachAccent,
+                  color: MintColors.coachBubble,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: MintColors.border.withValues(alpha: 0.3),
+                  ),
                 ),
-                child: const Icon(
-                  Icons.psychology,
-                  color: MintColors.white,
-                  size: 18,
+                child: Text(
+                  'M',
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.coachAccent,
+                  ).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: MintSpacing.sm),
@@ -1911,13 +1915,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: MintColors.coachAccent,
+                color: MintColors.coachBubble,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: MintColors.border.withValues(alpha: 0.3),
+                ),
               ),
-              child: const Icon(
-                Icons.psychology,
-                color: MintColors.white,
-                size: 18,
+              child: Text(
+                'M',
+                style: MintTextStyles.titleMedium(
+                  color: MintColors.coachAccent,
+                ).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(width: MintSpacing.sm),

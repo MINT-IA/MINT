@@ -20977,4 +20977,21 @@ class SEn extends S {
 
   @override
   String get friBarStability => 'Stability';
+
+  @override
+  String get deuxViesTitle => 'Your two lives';
+
+  @override
+  String deuxViesGap(String amount, String name) {
+    return 'Gap of $amount/month in favor of $name';
+  }
+
+  @override
+  String deuxViesLever(String lever, String impact) {
+    return '$lever would close $impact of the gap';
+  }
+
+  @override
+  String get deuxViesDisclaimer =>
+      'Educational tool. Not financial advice (LSFin).';
 }

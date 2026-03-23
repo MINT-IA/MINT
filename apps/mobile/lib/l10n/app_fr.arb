@@ -10483,5 +10483,29 @@
   "friBarLiquidity": "Liquidité",
   "friBarFlexibility": "Flexibilité",
   "friBarResilience": "Résilience",
-  "friBarStability": "Stabilité"
+  "friBarStability": "Stabilité",
+  "deuxViesTitle": "Vos deux vies",
+  "deuxViesGap": "Écart de {amount}/mois en faveur de {name}",
+  "deuxViesLever": "{lever} comblerait {impact} de l'écart",
+  "deuxViesDisclaimer": "Outil éducatif. Ne constitue pas un conseil financier (LSFin).",
+  "@deuxViesGap": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@deuxViesLever": {
+    "placeholders": {
+      "lever": {
+        "type": "String"
+      },
+      "impact": {
+        "type": "String"
+      }
+    }
+  }
 }

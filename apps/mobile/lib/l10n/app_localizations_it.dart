@@ -21105,4 +21105,21 @@ class SIt extends S {
 
   @override
   String get friBarStability => 'Stabilità';
+
+  @override
+  String get deuxViesTitle => 'Le vostre due vite';
+
+  @override
+  String deuxViesGap(String amount, String name) {
+    return 'Divario di $amount/mese a favore di $name';
+  }
+
+  @override
+  String deuxViesLever(String lever, String impact) {
+    return '$lever colmerebbe $impact del divario';
+  }
+
+  @override
+  String get deuxViesDisclaimer =>
+      'Strumento educativo. Non consulenza finanziaria (LSFin).';
 }

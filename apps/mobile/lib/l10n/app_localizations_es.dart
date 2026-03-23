@@ -21076,4 +21076,21 @@ class SEs extends S {
 
   @override
   String get friBarStability => 'Estabilidad';
+
+  @override
+  String get deuxViesTitle => 'Vuestras dos vidas';
+
+  @override
+  String deuxViesGap(String amount, String name) {
+    return 'Brecha de $amount/mes a favor de $name';
+  }
+
+  @override
+  String deuxViesLever(String lever, String impact) {
+    return '$lever cerraría $impact de la brecha';
+  }
+
+  @override
+  String get deuxViesDisclaimer =>
+      'Herramienta educativa. No es asesoramiento financiero (LSFin).';
 }

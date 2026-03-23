@@ -21100,4 +21100,21 @@ class SDe extends S {
 
   @override
   String get friBarStability => 'Stabilität';
+
+  @override
+  String get deuxViesTitle => 'Eure zwei Leben';
+
+  @override
+  String deuxViesGap(String amount, String name) {
+    return 'Differenz von $amount/Monat zugunsten von $name';
+  }
+
+  @override
+  String deuxViesLever(String lever, String impact) {
+    return '$lever würde $impact der Lücke schliessen';
+  }
+
+  @override
+  String get deuxViesDisclaimer =>
+      'Bildungstool. Keine Finanzberatung (FIDLEG).';
 }

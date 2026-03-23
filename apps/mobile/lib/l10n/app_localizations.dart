@@ -37203,6 +37203,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Stabilité'**
   String get friBarStability;
+
+  /// No description provided for @deuxViesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos deux vies'**
+  String get deuxViesTitle;
+
+  /// No description provided for @deuxViesGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart de {amount}/mois en faveur de {name}'**
+  String deuxViesGap(String amount, String name);
+
+  /// No description provided for @deuxViesLever.
+  ///
+  /// In fr, this message translates to:
+  /// **'{lever} comblerait {impact} de l\'écart'**
+  String deuxViesLever(String lever, String impact);
+
+  /// No description provided for @deuxViesDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif. Ne constitue pas un conseil financier (LSFin).'**
+  String get deuxViesDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

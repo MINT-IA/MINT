@@ -68,9 +68,10 @@ class MintColors {
   static const Color scoreGreen = scoreExcellent;
   static const Color scoreRed = scoreCritique;
 
-  // Coach (MINT Coach)
-  static const Color coachBubble = Color(0xFFF0F7FF);
-  static const Color coachAccent = Color(0xFF007AFF);
+  // Coach (MINT Coach) — warm cream, not cold support-chat blue.
+  // "Ami cultivé qui travaille dans la finance suisse."
+  static const Color coachBubble = Color(0xFFFCFBF8); // craie — warm
+  static const Color coachAccent = Color(0xFF3A3D44); // ardoise — premium slate
 
   // Extended palette (educational themes & life events)
   static const Color purple = Color(0xFF8B5CF6);

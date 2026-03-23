@@ -21075,4 +21075,21 @@ class SFr extends S {
 
   @override
   String get friBarStability => 'Stabilité';
+
+  @override
+  String get deuxViesTitle => 'Vos deux vies';
+
+  @override
+  String deuxViesGap(String amount, String name) {
+    return 'Écart de $amount/mois en faveur de $name';
+  }
+
+  @override
+  String deuxViesLever(String lever, String impact) {
+    return '$lever comblerait $impact de l\'écart';
+  }
+
+  @override
+  String get deuxViesDisclaimer =>
+      'Outil éducatif. Ne constitue pas un conseil financier (LSFin).';
 }

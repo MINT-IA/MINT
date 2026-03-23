@@ -21026,4 +21026,21 @@ class SPt extends S {
 
   @override
   String get friBarStability => 'Estabilidade';
+
+  @override
+  String get deuxViesTitle => 'As vossas duas vidas';
+
+  @override
+  String deuxViesGap(String amount, String name) {
+    return 'Diferença de $amount/mês a favor de $name';
+  }
+
+  @override
+  String deuxViesLever(String lever, String impact) {
+    return '$lever fecharia $impact da diferença';
+  }
+
+  @override
+  String get deuxViesDisclaimer =>
+      'Ferramenta educativa. Não é aconselhamento financeiro (LSFin).';
 }
