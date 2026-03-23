@@ -1758,7 +1758,7 @@ abstract class S {
   /// No description provided for @disabilityGapDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Ces résultats sont des estimations indicatives basées sur les barèmes légaux. Ta couverture réelle dépend de ton contrat de travail, de ta caisse de pension et de tes assurances individuelles. Consulte ton employeur et un·e spécialiste qualifié·e.'**
+  /// **'Outil éducatif — ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures réelles dépendent de ton contrat de travail et de ta caisse de pension.'**
   String get disabilityGapDisclaimer;
 
   /// No description provided for @disabilityGapIjmExpl.
@@ -37551,6 +37551,595 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Autres thématiques'**
   String get exploreHubOtherTopics;
+
+  /// No description provided for @bankImportSummaryHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'RÉSUMÉ'**
+  String get bankImportSummaryHeader;
+
+  /// No description provided for @bankImportTransactionsHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'TRANSACTIONS'**
+  String get bankImportTransactionsHeader;
+
+  /// No description provided for @bankImportMoreTransactions.
+  ///
+  /// In fr, this message translates to:
+  /// **'... et {count} autres transactions'**
+  String bankImportMoreTransactions(int count);
+
+  /// No description provided for @bankImportGenericError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue lors de l’analyse du relevé.'**
+  String get bankImportGenericError;
+
+  /// No description provided for @helpResourcesAppBarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'AIDE EN CAS DE DETTE'**
+  String get helpResourcesAppBarTitle;
+
+  /// No description provided for @helpResourcesIntroTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n’êtes pas seul'**
+  String get helpResourcesIntroTitle;
+
+  /// No description provided for @helpResourcesIntroBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En Suisse, de nombreux services professionnels offrent un accompagnement gratuit et confidentiel pour les personnes confrontées à des difficultés financières. Demander de l’aide est un acte de courage, pas un signe de faiblesse.'**
+  String get helpResourcesIntroBody;
+
+  /// No description provided for @helpResourcesIntroNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les liens ci-dessous mènent vers des sites externes. MINT ne transmet aucune donnée à ces services.'**
+  String get helpResourcesIntroNote;
+
+  /// No description provided for @helpResourcesDettesName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dettes Conseils Suisse'**
+  String get helpResourcesDettesName;
+
+  /// No description provided for @helpResourcesDettesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fédération faîtière des services de conseil en dettes en Suisse. Conseil gratuit, confidentiel et professionnel. Plus de 30 services membres dans toute la Suisse.'**
+  String get helpResourcesDettesDesc;
+
+  /// No description provided for @helpResourcesCaritasName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caritas — Conseil en dettes'**
+  String get helpResourcesCaritasName;
+
+  /// No description provided for @helpResourcesCaritasDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service d’aide de Caritas Suisse pour les personnes en situation d’endettement. Aide au désendettement, négociation avec les créanciers, accompagnement budgétaire personnalisé.'**
+  String get helpResourcesCaritasDesc;
+
+  /// No description provided for @helpResourcesFreeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'GRATUIT'**
+  String get helpResourcesFreeLabel;
+
+  /// No description provided for @helpResourcesCantonalHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'SERVICE CANTONAL'**
+  String get helpResourcesCantonalHeader;
+
+  /// No description provided for @helpResourcesCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre canton'**
+  String get helpResourcesCantonLabel;
+
+  /// No description provided for @helpResourcesNoService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun service cantonal référencé pour ce canton. Contactez Dettes Conseils Suisse pour être orienté.'**
+  String get helpResourcesNoService;
+
+  /// No description provided for @helpResourcesPrivacyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection des données (nLPD)'**
+  String get helpResourcesPrivacyTitle;
+
+  /// No description provided for @helpResourcesPrivacyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.'**
+  String get helpResourcesPrivacyBody;
+
+  /// No description provided for @helpResourcesDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT fournit ces liens à titre informatif et pédagogique. Ces services sont indépendants de MINT. MINT ne fournit pas de conseil juridique ou financier. En cas de difficulté financière, contactez directement les services spécialisés.'**
+  String get helpResourcesDisclaimer;
+
+  /// No description provided for @successionUrgenceAction1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclarer le décès à l’état civil dans les 2 jours'**
+  String get successionUrgenceAction1;
+
+  /// No description provided for @successionUrgenceAction2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informer l’employeur et les assurances (LAMal, LPP)'**
+  String get successionUrgenceAction2;
+
+  /// No description provided for @successionUrgenceAction3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer les comptes bancaires conjoints si nécessaire'**
+  String get successionUrgenceAction3;
+
+  /// No description provided for @successionUrgenceAction4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contacter le notaire si la personne avait un testament'**
+  String get successionUrgenceAction4;
+
+  /// No description provided for @successionDemarchesAction1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander les rentes de survivants AVS (LAVS art. 23)'**
+  String get successionDemarchesAction1;
+
+  /// No description provided for @successionDemarchesAction2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contacter la caisse LPP pour le capital décès'**
+  String get successionDemarchesAction2;
+
+  /// No description provided for @successionDemarchesAction3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résilier les abonnements et contrats au nom du défunt'**
+  String get successionDemarchesAction3;
+
+  /// No description provided for @successionDemarchesAction4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire l’inventaire des avoirs et dettes'**
+  String get successionDemarchesAction4;
+
+  /// No description provided for @successionDemarchesAction5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander les certificats d’héritiers au notaire'**
+  String get successionDemarchesAction5;
+
+  /// No description provided for @successionLegaleAction1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir la procédure de succession avec le notaire'**
+  String get successionLegaleAction1;
+
+  /// No description provided for @successionLegaleAction2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager les biens selon le testament ou la loi (CC art. 537)'**
+  String get successionLegaleAction2;
+
+  /// No description provided for @successionLegaleAction3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déposer la déclaration fiscale pour l’année du décès'**
+  String get successionLegaleAction3;
+
+  /// No description provided for @successionLegaleAction4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour les bénéficiaires de vos propres contrats'**
+  String get successionLegaleAction4;
+
+  /// No description provided for @disabilityGapAct1Label.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACTE 1 · Employeur'**
+  String get disabilityGapAct1Label;
+
+  /// No description provided for @disabilityGapAct1Detail.
+  ///
+  /// In fr, this message translates to:
+  /// **'80 % de ton salaire versé par ton employeur'**
+  String get disabilityGapAct1Detail;
+
+  /// No description provided for @disabilityGapAct1Duration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaines 1-26'**
+  String get disabilityGapAct1Duration;
+
+  /// No description provided for @disabilityGapAct2LabelIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACTE 2 · IJM (assurance maladie)'**
+  String get disabilityGapAct2LabelIjm;
+
+  /// No description provided for @disabilityGapAct2LabelNoIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACTE 2 · Pas d’IJM'**
+  String get disabilityGapAct2LabelNoIjm;
+
+  /// No description provided for @disabilityGapAct2SubIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance collective — 80% pendant 720 jours max'**
+  String get disabilityGapAct2SubIjm;
+
+  /// No description provided for @disabilityGapAct2SubNoIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans IJM, tu passes directement à l’AI après l’employeur'**
+  String get disabilityGapAct2SubNoIjm;
+
+  /// No description provided for @disabilityGapAct2Duration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jusqu’à 24 mois'**
+  String get disabilityGapAct2Duration;
+
+  /// No description provided for @disabilityGapAct2DetailIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'80% du salaire assuré'**
+  String get disabilityGapAct2DetailIjm;
+
+  /// No description provided for @disabilityGapAct2DetailNoIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune couverture — délai AI en cours'**
+  String get disabilityGapAct2DetailNoIjm;
+
+  /// No description provided for @disabilityGapAct3Label.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACTE 3 · AI + LPP (définitif)'**
+  String get disabilityGapAct3Label;
+
+  /// No description provided for @disabilityGapAct3Duration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après 24 mois'**
+  String get disabilityGapAct3Duration;
+
+  /// No description provided for @disabilityGapAct3Detail.
+  ///
+  /// In fr, this message translates to:
+  /// **'AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois'**
+  String disabilityGapAct3Detail(
+      String aiAmount, String lppAmount, String totalAmount);
+
+  /// No description provided for @disabilityGapIjmCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'80% pendant 720 jours — assurance collective'**
+  String get disabilityGapIjmCoverage;
+
+  /// No description provided for @disabilityGapNoIjmCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune IJM souscrite — risque maximal'**
+  String get disabilityGapNoIjmCoverage;
+
+  /// No description provided for @disabilityGapAiDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Max {amount} CHF/mois — délai ~14 mois'**
+  String disabilityGapAiDetail(String amount);
+
+  /// No description provided for @disabilityGapLppCovered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente invalidité ≈ 40% salaire coordonné (LPP art. 23)'**
+  String get disabilityGapLppCovered;
+
+  /// No description provided for @disabilityGapLppNotCovered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire sous le seuil LPP — pas de couverture 2e pilier'**
+  String get disabilityGapLppNotCovered;
+
+  /// No description provided for @disabilityGapSavingsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve d’urgence'**
+  String get disabilityGapSavingsLabel;
+
+  /// No description provided for @disabilityGapSavingsDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'{months} mois de charges couverts'**
+  String disabilityGapSavingsDetail(String months);
+
+  /// No description provided for @disabilityGapApgLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'APG / IJM (perte de gain)'**
+  String get disabilityGapApgLabel;
+
+  /// No description provided for @disabilityGapAiLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'AI (assurance invalidité)'**
+  String get disabilityGapAiLabel;
+
+  /// No description provided for @disabilityGapLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP invalidité (2e pilier)'**
+  String get disabilityGapLppLabel;
+
+  /// No description provided for @disabilityGapSources.
+  ///
+  /// In fr, this message translates to:
+  /// **'• LAI art. 28-29 (rente AI)\n• LPP art. 23-26 (invalidité 2e pilier)\n• CO art. 324a (maintien salaire employeur)\n• LPGA art. 19 (délai de carence)'**
+  String get disabilityGapSources;
+
+  /// No description provided for @disabilityGapAgeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{age} ans'**
+  String disabilityGapAgeLabel(int age);
+
+  /// No description provided for @documentDetailExplanationObligatoire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant accumulé dans la part obligatoire LPP'**
+  String get documentDetailExplanationObligatoire;
+
+  /// No description provided for @documentDetailExplanationSurobligatoire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Part au-delà du minimum légal'**
+  String get documentDetailExplanationSurobligatoire;
+
+  /// No description provided for @documentDetailExplanationTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total de ton capital de vieillesse'**
+  String get documentDetailExplanationTotal;
+
+  /// No description provided for @documentDetailExplanationSalaireAssure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire sur lequel les cotisations sont calculées'**
+  String get documentDetailExplanationSalaireAssure;
+
+  /// No description provided for @documentDetailExplanationSalaireAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire déterminant pour l’AVS'**
+  String get documentDetailExplanationSalaireAvs;
+
+  /// No description provided for @documentDetailExplanationDeduction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant déduit pour coordonner avec l’AVS'**
+  String get documentDetailExplanationDeduction;
+
+  /// No description provided for @documentDetailExplanationTauxOblig.
+  ///
+  /// In fr, this message translates to:
+  /// **'Légal minimum : 6.8%'**
+  String get documentDetailExplanationTauxOblig;
+
+  /// No description provided for @documentDetailExplanationTauxSurob.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixé par ta caisse de pension'**
+  String get documentDetailExplanationTauxSurob;
+
+  /// No description provided for @documentDetailExplanationTauxEnv.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux moyen pondéré'**
+  String get documentDetailExplanationTauxEnv;
+
+  /// No description provided for @documentDetailExplanationInvalidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente en cas d’incapacité de travail'**
+  String get documentDetailExplanationInvalidite;
+
+  /// No description provided for @documentDetailExplanationDeces.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant versé aux bénéficiaires en cas de décès'**
+  String get documentDetailExplanationDeces;
+
+  /// No description provided for @documentDetailExplanationConjoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente versée au conjoint survivant'**
+  String get documentDetailExplanationConjoint;
+
+  /// No description provided for @documentDetailExplanationEnfant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente versée par enfant'**
+  String get documentDetailExplanationEnfant;
+
+  /// No description provided for @documentDetailExplanationRachat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant pouvant être racheté pour optimiser ta prévoyance'**
+  String get documentDetailExplanationRachat;
+
+  /// No description provided for @documentDetailExplanationEmploye.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta contribution annuelle'**
+  String get documentDetailExplanationEmploye;
+
+  /// No description provided for @documentDetailExplanationEmployeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contribution de ton employeur'**
+  String get documentDetailExplanationEmployeur;
+
+  /// No description provided for @disabilitySelfEmployedAlertLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'🚨  ALERTE INDÉPENDANT'**
+  String get disabilitySelfEmployedAlertLabel;
+
+  /// No description provided for @disabilitySelfEmployedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton filet n’existe pas'**
+  String get disabilitySelfEmployedTitle;
+
+  /// No description provided for @disabilitySelfEmployedAppBarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invalidité — Indépendant·e'**
+  String get disabilitySelfEmployedAppBarTitle;
+
+  /// No description provided for @disabilitySelfEmployedRevenueTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu mensuel net'**
+  String get disabilitySelfEmployedRevenueTitle;
+
+  /// No description provided for @disabilitySelfEmployedRevenueHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajuste pour voir l’impact sur ta situation réelle'**
+  String get disabilitySelfEmployedRevenueHint;
+
+  /// No description provided for @disabilitySelfEmployedRevenueLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu net/mois'**
+  String get disabilitySelfEmployedRevenueLabel;
+
+  /// No description provided for @disabilitySelfEmployedInsuranceQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as déjà une assurance perte de gain ?'**
+  String get disabilitySelfEmployedInsuranceQuestion;
+
+  /// No description provided for @disabilitySelfEmployedYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get disabilitySelfEmployedYes;
+
+  /// No description provided for @disabilitySelfEmployedNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non / Je ne sais pas'**
+  String get disabilitySelfEmployedNo;
+
+  /// No description provided for @disabilitySelfEmployedApgTip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une APG individuelle dès CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.'**
+  String get disabilitySelfEmployedApgTip;
+
+  /// No description provided for @disabilitySelfEmployedDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil en assurance. Un·e courtier·ère indépendant·e peut comparer les offres APG de différents assureurs selon ton activité et ton revenu réel.'**
+  String get disabilitySelfEmployedDisclaimer;
+
+  /// No description provided for @disabilitySelfEmployedSources.
+  ///
+  /// In fr, this message translates to:
+  /// **'• LAMal art. 67-77 (assurance maladie perte de gain)\n• CO art. 324a (obligation employeur)\n• LAI art. 28 (rente AI)\n• LAVS art. 2 al. 3 (cotisation depuis l’étranger)'**
+  String get disabilitySelfEmployedSources;
+
+  /// No description provided for @confidenceDashboardLevelExcellent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellente'**
+  String get confidenceDashboardLevelExcellent;
+
+  /// No description provided for @confidenceDashboardLevelGood.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne'**
+  String get confidenceDashboardLevelGood;
+
+  /// No description provided for @confidenceDashboardLevelFair.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correcte'**
+  String get confidenceDashboardLevelFair;
+
+  /// No description provided for @confidenceDashboardLevelImprove.
+  ///
+  /// In fr, this message translates to:
+  /// **'À améliorer'**
+  String get confidenceDashboardLevelImprove;
+
+  /// No description provided for @confidenceDashboardLevelInsufficient.
+  ///
+  /// In fr, this message translates to:
+  /// **'Insuffisante'**
+  String get confidenceDashboardLevelInsufficient;
+
+  /// No description provided for @confidenceDashboardBreakdownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail par axe'**
+  String get confidenceDashboardBreakdownTitle;
+
+  /// No description provided for @confidenceDashboardFeaturesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctionnalités débloquées'**
+  String get confidenceDashboardFeaturesTitle;
+
+  /// No description provided for @confidenceDashboardRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % requis'**
+  String confidenceDashboardRequired(String percent);
+
+  /// No description provided for @confidenceDashboardEnrichTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Améliore ta précision'**
+  String get confidenceDashboardEnrichTitle;
+
+  /// No description provided for @confidenceDashboardSourcesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources'**
+  String get confidenceDashboardSourcesTitle;
+
+  /// No description provided for @cockpitDetailEmptyState.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour accéder au cockpit détaillé.'**
+  String get cockpitDetailEmptyState;
+
+  /// No description provided for @cockpitDetailEnrichProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enrichir mon profil'**
+  String get cockpitDetailEnrichProfile;
+
+  /// No description provided for @cockpitDetailDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.'**
+  String get cockpitDetailDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

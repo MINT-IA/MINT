@@ -937,7 +937,7 @@ class SIt extends S {
 
   @override
   String get disabilityGapDisclaimer =>
-      'Questi risultati sono stime indicative basate su baremi legali. La tua copertura reale dipende dal tuo contratto di lavoro, dalla tua cassa pensioni e dalle tue assicurazioni individuali. Consulta il tuo datore di lavoro e uno·a specialista qualificato·a.';
+      'Strumento educativo — non costituisce consulenza assicurativa (LSFin). La tua copertura reale dipende dal tuo contratto di lavoro e dalla cassa pensioni.';
 
   @override
   String get disabilityGapIjmExpl =>
@@ -16140,7 +16140,7 @@ class SIt extends S {
       'Seleziona un evento per simulare il suo impatto finanziario.';
 
   @override
-  String get confidenceDashboardTitle => 'Precisione del profilo';
+  String get confidenceDashboardTitle => 'Precisione del tuo profilo';
 
   @override
   String get confidenceDetailByAxis => 'Dettaglio per asse';
@@ -21306,4 +21306,363 @@ class SIt extends S {
 
   @override
   String get exploreHubOtherTopics => 'Altri argomenti';
+
+  @override
+  String get bankImportSummaryHeader => 'RIEPILOGO';
+
+  @override
+  String get bankImportTransactionsHeader => 'TRANSAZIONI';
+
+  @override
+  String bankImportMoreTransactions(int count) {
+    return '... e altre $count transazioni';
+  }
+
+  @override
+  String get bankImportGenericError =>
+      'Si è verificato un errore durante l\'analisi dell\'estratto conto.';
+
+  @override
+  String get helpResourcesAppBarTitle => 'AIUTO IN CASO DI DEBITO';
+
+  @override
+  String get helpResourcesIntroTitle => 'Non sei solo';
+
+  @override
+  String get helpResourcesIntroBody =>
+      'In Svizzera, molti servizi professionali offrono un accompagnamento gratuito e confidenziale per le persone che affrontano difficoltà finanziarie. Chiedere aiuto è un atto di coraggio.';
+
+  @override
+  String get helpResourcesIntroNote =>
+      'Tutti i link portano a siti esterni. MINT non trasmette alcun dato a questi servizi.';
+
+  @override
+  String get helpResourcesDettesName => 'Dettes Conseils Suisse';
+
+  @override
+  String get helpResourcesDettesDesc =>
+      'Federazione dei servizi di consulenza sui debiti in Svizzera. Consulenza gratuita, confidenziale e professionale.';
+
+  @override
+  String get helpResourcesCaritasName => 'Caritas — Consulenza debiti';
+
+  @override
+  String get helpResourcesCaritasDesc =>
+      'Servizio di aiuto di Caritas Svizzera per persone indebitate. Aiuto al disindebitamento, negoziazione con i creditori.';
+
+  @override
+  String get helpResourcesFreeLabel => 'GRATUITO';
+
+  @override
+  String get helpResourcesCantonalHeader => 'SERVIZIO CANTONALE';
+
+  @override
+  String get helpResourcesCantonLabel => 'Il tuo cantone';
+
+  @override
+  String get helpResourcesNoService =>
+      'Nessun servizio cantonale registrato per questo cantone. Contatta Dettes Conseils Suisse.';
+
+  @override
+  String get helpResourcesPrivacyTitle => 'Protezione dei dati (nLPD)';
+
+  @override
+  String get helpResourcesPrivacyBody =>
+      'MINT non trasmette alcun dato personale ai servizi sopra elencati. I link esterni aprono il tuo browser. Il tuo utilizzo di questa schermata resta strettamente confidenziale.';
+
+  @override
+  String get helpResourcesDisclaimer =>
+      'MINT fornisce questi link a scopo informativo ed educativo. Questi servizi sono indipendenti da MINT. MINT non fornisce consulenza legale o finanziaria.';
+
+  @override
+  String get successionUrgenceAction1 =>
+      'Dichiarare il decesso all\'ufficio di stato civile entro 2 giorni';
+
+  @override
+  String get successionUrgenceAction2 =>
+      'Informare il datore di lavoro e le assicurazioni (LAMal, LPP)';
+
+  @override
+  String get successionUrgenceAction3 =>
+      'Bloccare i conti bancari congiunti se necessario';
+
+  @override
+  String get successionUrgenceAction4 =>
+      'Contattare il notaio se la persona aveva un testamento';
+
+  @override
+  String get successionDemarchesAction1 =>
+      'Richiedere le rendite per superstiti AVS (LAVS art. 23)';
+
+  @override
+  String get successionDemarchesAction2 =>
+      'Contattare la cassa LPP per il capitale decesso';
+
+  @override
+  String get successionDemarchesAction3 =>
+      'Disdire abbonamenti e contratti a nome del defunto';
+
+  @override
+  String get successionDemarchesAction4 =>
+      'Fare l\'inventario di averi e debiti';
+
+  @override
+  String get successionDemarchesAction5 =>
+      'Richiedere i certificati di eredi al notaio';
+
+  @override
+  String get successionLegaleAction1 =>
+      'Aprire la procedura di successione con il notaio';
+
+  @override
+  String get successionLegaleAction2 =>
+      'Dividere i beni secondo il testamento o la legge (CC art. 537)';
+
+  @override
+  String get successionLegaleAction3 =>
+      'Depositare la dichiarazione fiscale per l\'anno del decesso';
+
+  @override
+  String get successionLegaleAction4 =>
+      'Aggiornare i beneficiari dei propri contratti';
+
+  @override
+  String get disabilityGapAct1Label => 'ATTO 1 · Datore di lavoro';
+
+  @override
+  String get disabilityGapAct1Detail =>
+      '80 % del tuo stipendio pagato dal datore di lavoro';
+
+  @override
+  String get disabilityGapAct1Duration => 'Settimane 1-26';
+
+  @override
+  String get disabilityGapAct2LabelIjm =>
+      'ATTO 2 · IGM (indennità giornaliera malattia)';
+
+  @override
+  String get disabilityGapAct2LabelNoIjm => 'ATTO 2 · Nessuna IGM';
+
+  @override
+  String get disabilityGapAct2SubIjm =>
+      'Assicurazione collettiva — 80% per max 720 giorni';
+
+  @override
+  String get disabilityGapAct2SubNoIjm =>
+      'Senza IGM, passi direttamente all\'AI dopo il datore di lavoro';
+
+  @override
+  String get disabilityGapAct2Duration => 'Fino a 24 mesi';
+
+  @override
+  String get disabilityGapAct2DetailIjm => '80% del salario assicurato';
+
+  @override
+  String get disabilityGapAct2DetailNoIjm =>
+      'Nessuna copertura — termine AI in corso';
+
+  @override
+  String get disabilityGapAct3Label => 'ATTO 3 · AI + LPP (definitivo)';
+
+  @override
+  String get disabilityGapAct3Duration => 'Dopo 24 mesi';
+
+  @override
+  String disabilityGapAct3Detail(
+      String aiAmount, String lppAmount, String totalAmount) {
+    return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mese';
+  }
+
+  @override
+  String get disabilityGapIjmCoverage =>
+      '80% per 720 giorni — assicurazione collettiva';
+
+  @override
+  String get disabilityGapNoIjmCoverage =>
+      'Nessuna IGM sottoscritta — rischio massimo';
+
+  @override
+  String disabilityGapAiDetail(String amount) {
+    return 'Max $amount CHF/mese — ~14 mesi di attesa';
+  }
+
+  @override
+  String get disabilityGapLppCovered =>
+      'Rendita di invalidità ≈ 40% salario coordinato (LPP art. 23)';
+
+  @override
+  String get disabilityGapLppNotCovered =>
+      'Salario sotto la soglia LPP — nessuna copertura 2º pilastro';
+
+  @override
+  String get disabilityGapSavingsLabel => 'Riserva d\'emergenza';
+
+  @override
+  String disabilityGapSavingsDetail(String months) {
+    return '$months mesi di spese coperte';
+  }
+
+  @override
+  String get disabilityGapApgLabel => 'IGM / IPG (perdita di guadagno)';
+
+  @override
+  String get disabilityGapAiLabel => 'AI (assicurazione invalidità)';
+
+  @override
+  String get disabilityGapLppLabel => 'LPP invalidità (2º pilastro)';
+
+  @override
+  String get disabilityGapSources =>
+      '• LAI art. 28-29 (rendita AI)\n• LPP art. 23-26 (invalidità 2º pilastro)\n• CO art. 324a (mantenimento salario)\n• LPGA art. 19 (termine di carenza)';
+
+  @override
+  String disabilityGapAgeLabel(int age) {
+    return '$age anni';
+  }
+
+  @override
+  String get documentDetailExplanationObligatoire =>
+      'Importo accumulato nella parte obbligatoria LPP';
+
+  @override
+  String get documentDetailExplanationSurobligatoire =>
+      'Parte oltre il minimo legale';
+
+  @override
+  String get documentDetailExplanationTotal =>
+      'Totale del tuo capitale di vecchiaia';
+
+  @override
+  String get documentDetailExplanationSalaireAssure =>
+      'Salario su cui si calcolano i contributi';
+
+  @override
+  String get documentDetailExplanationSalaireAvs =>
+      'Salario determinante per l\'AVS';
+
+  @override
+  String get documentDetailExplanationDeduction =>
+      'Importo dedotto per il coordinamento con l\'AVS';
+
+  @override
+  String get documentDetailExplanationTauxOblig => 'Minimo legale: 6.8%';
+
+  @override
+  String get documentDetailExplanationTauxSurob =>
+      'Fissato dalla tua cassa pensioni';
+
+  @override
+  String get documentDetailExplanationTauxEnv => 'Tasso medio ponderato';
+
+  @override
+  String get documentDetailExplanationInvalidite =>
+      'Rendita in caso di incapacità lavorativa';
+
+  @override
+  String get documentDetailExplanationDeces =>
+      'Importo versato ai beneficiari in caso di decesso';
+
+  @override
+  String get documentDetailExplanationConjoint =>
+      'Rendita versata al coniuge superstite';
+
+  @override
+  String get documentDetailExplanationEnfant => 'Rendita versata per figlio';
+
+  @override
+  String get documentDetailExplanationRachat =>
+      'Importo riscattabile per ottimizzare la tua previdenza';
+
+  @override
+  String get documentDetailExplanationEmploye => 'Il tuo contributo annuale';
+
+  @override
+  String get documentDetailExplanationEmployeur =>
+      'Contributo del tuo datore di lavoro';
+
+  @override
+  String get disabilitySelfEmployedAlertLabel => '🚨  ALLERTA INDIPENDENTE';
+
+  @override
+  String get disabilitySelfEmployedTitle =>
+      'La tua rete di sicurezza non esiste';
+
+  @override
+  String get disabilitySelfEmployedAppBarTitle => 'Invalidità — Indipendente';
+
+  @override
+  String get disabilitySelfEmployedRevenueTitle =>
+      'Il tuo reddito mensile netto';
+
+  @override
+  String get disabilitySelfEmployedRevenueHint =>
+      'Regola per vedere l\'impatto sulla tua situazione reale';
+
+  @override
+  String get disabilitySelfEmployedRevenueLabel => 'Reddito netto/mese';
+
+  @override
+  String get disabilitySelfEmployedInsuranceQuestion =>
+      'Hai già un\'assicurazione perdita di guadagno?';
+
+  @override
+  String get disabilitySelfEmployedYes => 'Sì';
+
+  @override
+  String get disabilitySelfEmployedNo => 'No / Non so';
+
+  @override
+  String get disabilitySelfEmployedApgTip =>
+      'Un\'IPG individuale da CHF 45/mese può coprire l\'80% del tuo reddito per 720 giorni. La rete più efficace per gli indipendenti.';
+
+  @override
+  String get disabilitySelfEmployedDisclaimer =>
+      'Strumento educativo — non costituisce consulenza assicurativa. Un broker indipendente può confrontare le offerte IPG.';
+
+  @override
+  String get disabilitySelfEmployedSources =>
+      '• LAMal art. 67-77\n• CO art. 324a\n• LAI art. 28\n• LAVS art. 2 al. 3';
+
+  @override
+  String get confidenceDashboardLevelExcellent => 'Eccellente';
+
+  @override
+  String get confidenceDashboardLevelGood => 'Buona';
+
+  @override
+  String get confidenceDashboardLevelFair => 'Discreta';
+
+  @override
+  String get confidenceDashboardLevelImprove => 'Da migliorare';
+
+  @override
+  String get confidenceDashboardLevelInsufficient => 'Insufficiente';
+
+  @override
+  String get confidenceDashboardBreakdownTitle => 'Dettaglio per asse';
+
+  @override
+  String get confidenceDashboardFeaturesTitle => 'Funzionalità sbloccate';
+
+  @override
+  String confidenceDashboardRequired(String percent) {
+    return '$percent % richiesto';
+  }
+
+  @override
+  String get confidenceDashboardEnrichTitle => 'Migliora la tua precisione';
+
+  @override
+  String get confidenceDashboardSourcesTitle => 'Fonti';
+
+  @override
+  String get cockpitDetailEmptyState =>
+      'Completa il tuo profilo per accedere al cockpit dettagliato.';
+
+  @override
+  String get cockpitDetailEnrichProfile => 'Arricchire il mio profilo';
+
+  @override
+  String get cockpitDetailDisclaimer =>
+      'Strumento educativo semplificato. Non costituisce consulenza finanziaria (LSFin). Fonti: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.';
 }

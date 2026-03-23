@@ -1417,6 +1417,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             tier: ChatTier.fallback,
           ));
         });
+        // Emotional canvas: pulse sage green for milestone completion.
+        _triggerMilestonePulse();
 
       case ScreenOutcome.abandoned:
         // Record abandoned flow in CapMemory so engine avoids re-proposing too soon.

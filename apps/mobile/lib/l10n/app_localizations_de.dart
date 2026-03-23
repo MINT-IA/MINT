@@ -934,7 +934,7 @@ class SDe extends S {
 
   @override
   String get disabilityGapDisclaimer =>
-      'Diese Ergebnisse sind unverbindliche Schätzungen basierend auf gesetzlichen Skalen. Deine tatsächliche Deckung hängt von deinem Arbeitsvertrag, deiner Pensionskasse und deinen individuellen Versicherungen ab. Wende dich an deinen Arbeitgeber und eine qualifizierte Fachperson.';
+      'Bildungstool — keine Versicherungsberatung im Sinne des FIDLEG. Deine tatsächliche Deckung hängt von deinem Arbeitsvertrag und deiner Pensionskasse ab.';
 
   @override
   String get disabilityGapIjmExpl =>
@@ -16151,7 +16151,7 @@ class SDe extends S {
       'Wähle ein Ereignis aus, um die finanziellen Auswirkungen zu simulieren.';
 
   @override
-  String get confidenceDashboardTitle => 'Profilgenauigkeit';
+  String get confidenceDashboardTitle => 'Präzision deines Profils';
 
   @override
   String get confidenceDetailByAxis => 'Detail pro Achse';
@@ -21305,4 +21305,361 @@ class SDe extends S {
 
   @override
   String get exploreHubOtherTopics => 'Weitere Themen';
+
+  @override
+  String get bankImportSummaryHeader => 'ZUSAMMENFASSUNG';
+
+  @override
+  String get bankImportTransactionsHeader => 'TRANSAKTIONEN';
+
+  @override
+  String bankImportMoreTransactions(int count) {
+    return '... und $count weitere Transaktionen';
+  }
+
+  @override
+  String get bankImportGenericError =>
+      'Bei der Analyse des Kontoauszugs ist ein Fehler aufgetreten.';
+
+  @override
+  String get helpResourcesAppBarTitle => 'SCHULDENHILFE';
+
+  @override
+  String get helpResourcesIntroTitle => 'Du bist nicht allein';
+
+  @override
+  String get helpResourcesIntroBody =>
+      'In der Schweiz bieten viele professionelle Dienste kostenlose und vertrauliche Unterstützung für Menschen in finanziellen Schwierigkeiten. Hilfe zu suchen ist mutig, nicht schwach.';
+
+  @override
+  String get helpResourcesIntroNote =>
+      'Alle untenstehenden Links führen zu externen Webseiten. MINT übermittelt keine Daten an diese Dienste.';
+
+  @override
+  String get helpResourcesDettesName => 'Schuldenberatung Schweiz';
+
+  @override
+  String get helpResourcesDettesDesc =>
+      'Dachverband der Schuldenberatungsstellen in der Schweiz. Kostenlose, vertrauliche und professionelle Beratung. Über 30 Mitgliederstellen in der ganzen Schweiz.';
+
+  @override
+  String get helpResourcesCaritasName => 'Caritas — Schuldenberatung';
+
+  @override
+  String get helpResourcesCaritasDesc =>
+      'Hilfsdienst der Caritas Schweiz für Personen in Verschuldung. Entschuldungshilfe, Verhandlung mit Gläubigern, personalisierte Budgetberatung.';
+
+  @override
+  String get helpResourcesFreeLabel => 'GRATIS';
+
+  @override
+  String get helpResourcesCantonalHeader => 'KANTONALER DIENST';
+
+  @override
+  String get helpResourcesCantonLabel => 'Dein Kanton';
+
+  @override
+  String get helpResourcesNoService =>
+      'Kein kantonaler Dienst für diesen Kanton erfasst. Kontaktiere Schuldenberatung Schweiz für eine Orientierung.';
+
+  @override
+  String get helpResourcesPrivacyTitle => 'Datenschutz (nDSG)';
+
+  @override
+  String get helpResourcesPrivacyBody =>
+      'MINT übermittelt keine persönlichen Daten an die oben aufgeführten Dienste. Externe Links öffnen deinen Browser. Deine Nutzung dieses Bildschirms bleibt streng vertraulich.';
+
+  @override
+  String get helpResourcesDisclaimer =>
+      'MINT stellt diese Links zu Informations- und Bildungszwecken bereit. Diese Dienste sind unabhängig von MINT. MINT bietet keine rechtliche oder finanzielle Beratung.';
+
+  @override
+  String get successionUrgenceAction1 =>
+      'Todesfall beim Zivilstandsamt innerhalb von 2 Tagen melden';
+
+  @override
+  String get successionUrgenceAction2 =>
+      'Arbeitgeber und Versicherungen (KVG, BVG) informieren';
+
+  @override
+  String get successionUrgenceAction3 =>
+      'Gemeinsame Bankkonten bei Bedarf sperren';
+
+  @override
+  String get successionUrgenceAction4 =>
+      'Notar kontaktieren, falls ein Testament vorhanden war';
+
+  @override
+  String get successionDemarchesAction1 =>
+      'Hinterlassenenrenten AHV beantragen (AHVG Art. 23)';
+
+  @override
+  String get successionDemarchesAction2 =>
+      'BVG-Kasse für Todesfallkapital kontaktieren';
+
+  @override
+  String get successionDemarchesAction3 =>
+      'Abos und Verträge auf den Namen des Verstorbenen kündigen';
+
+  @override
+  String get successionDemarchesAction4 =>
+      'Vermögen und Schulden inventarisieren';
+
+  @override
+  String get successionDemarchesAction5 => 'Erbscheine beim Notar beantragen';
+
+  @override
+  String get successionLegaleAction1 =>
+      'Erbschaftsverfahren beim Notar eröffnen';
+
+  @override
+  String get successionLegaleAction2 =>
+      'Vermögen gemäss Testament oder Gesetz (ZGB Art. 537) aufteilen';
+
+  @override
+  String get successionLegaleAction3 =>
+      'Steuererklärung für das Todesjahr einreichen';
+
+  @override
+  String get successionLegaleAction4 =>
+      'Begünstigte Ihrer eigenen Verträge aktualisieren';
+
+  @override
+  String get disabilityGapAct1Label => 'AKT 1 · Arbeitgeber';
+
+  @override
+  String get disabilityGapAct1Detail =>
+      '80 % deines Lohns durch den Arbeitgeber bezahlt';
+
+  @override
+  String get disabilityGapAct1Duration => 'Wochen 1-26';
+
+  @override
+  String get disabilityGapAct2LabelIjm => 'AKT 2 · KTG (Krankentaggeld)';
+
+  @override
+  String get disabilityGapAct2LabelNoIjm => 'AKT 2 · Kein KTG';
+
+  @override
+  String get disabilityGapAct2SubIjm =>
+      'Kollektivversicherung — 80% während max. 720 Tagen';
+
+  @override
+  String get disabilityGapAct2SubNoIjm =>
+      'Ohne KTG gehst du direkt zur IV nach dem Arbeitgeber';
+
+  @override
+  String get disabilityGapAct2Duration => 'Bis zu 24 Monate';
+
+  @override
+  String get disabilityGapAct2DetailIjm => '80% des versicherten Lohns';
+
+  @override
+  String get disabilityGapAct2DetailNoIjm =>
+      'Keine Deckung — IV-Wartefrist läuft';
+
+  @override
+  String get disabilityGapAct3Label => 'AKT 3 · IV + BVG (definitiv)';
+
+  @override
+  String get disabilityGapAct3Duration => 'Nach 24 Monaten';
+
+  @override
+  String disabilityGapAct3Detail(
+      String aiAmount, String lppAmount, String totalAmount) {
+    return 'IV $aiAmount + BVG $lppAmount = $totalAmount CHF/Monat';
+  }
+
+  @override
+  String get disabilityGapIjmCoverage =>
+      '80% während 720 Tagen — Kollektivversicherung';
+
+  @override
+  String get disabilityGapNoIjmCoverage =>
+      'Kein KTG abgeschlossen — maximales Risiko';
+
+  @override
+  String disabilityGapAiDetail(String amount) {
+    return 'Max $amount CHF/Monat — ~14 Monate Wartezeit';
+  }
+
+  @override
+  String get disabilityGapLppCovered =>
+      'Invaliditätsrente ≈ 40% koordinierter Lohn (BVG Art. 23)';
+
+  @override
+  String get disabilityGapLppNotCovered =>
+      'Lohn unter BVG-Schwelle — keine 2. Säule Deckung';
+
+  @override
+  String get disabilityGapSavingsLabel => 'Notreserve';
+
+  @override
+  String disabilityGapSavingsDetail(String months) {
+    return '$months Monate Ausgaben gedeckt';
+  }
+
+  @override
+  String get disabilityGapApgLabel => 'KTG / EO (Erwerbsausfall)';
+
+  @override
+  String get disabilityGapAiLabel => 'IV (Invalidenversicherung)';
+
+  @override
+  String get disabilityGapLppLabel => 'BVG Invalidität (2. Säule)';
+
+  @override
+  String get disabilityGapSources =>
+      '• IVG Art. 28-29 (IV-Rente)\n• BVG Art. 23-26 (2. Säule Invalidität)\n• OR Art. 324a (Lohnfortzahlung Arbeitgeber)\n• ATSG Art. 19 (Wartefrist)';
+
+  @override
+  String disabilityGapAgeLabel(int age) {
+    return '$age Jahre';
+  }
+
+  @override
+  String get documentDetailExplanationObligatoire =>
+      'Im obligatorischen BVG-Teil angesparter Betrag';
+
+  @override
+  String get documentDetailExplanationSurobligatoire =>
+      'Anteil über dem gesetzlichen Minimum';
+
+  @override
+  String get documentDetailExplanationTotal => 'Total deines Alterskapitals';
+
+  @override
+  String get documentDetailExplanationSalaireAssure =>
+      'Lohn, auf dem die Beiträge berechnet werden';
+
+  @override
+  String get documentDetailExplanationSalaireAvs => 'Massgebender AHV-Lohn';
+
+  @override
+  String get documentDetailExplanationDeduction =>
+      'Für die Koordination mit der AHV abgezogener Betrag';
+
+  @override
+  String get documentDetailExplanationTauxOblig => 'Gesetzliches Minimum: 6.8%';
+
+  @override
+  String get documentDetailExplanationTauxSurob =>
+      'Von deiner Pensionskasse festgelegt';
+
+  @override
+  String get documentDetailExplanationTauxEnv =>
+      'Gewichteter Durchschnittssatz';
+
+  @override
+  String get documentDetailExplanationInvalidite =>
+      'Rente bei Arbeitsunfähigkeit';
+
+  @override
+  String get documentDetailExplanationDeces =>
+      'Betrag an Begünstigte im Todesfall';
+
+  @override
+  String get documentDetailExplanationConjoint =>
+      'Rente an den überlebenden Ehegatten';
+
+  @override
+  String get documentDetailExplanationEnfant => 'Rente pro Kind';
+
+  @override
+  String get documentDetailExplanationRachat =>
+      'Einkaufbarer Betrag zur Optimierung deiner Vorsorge';
+
+  @override
+  String get documentDetailExplanationEmploye => 'Dein Jahresbeitrag';
+
+  @override
+  String get documentDetailExplanationEmployeur =>
+      'Beitrag deines Arbeitgebers';
+
+  @override
+  String get disabilitySelfEmployedAlertLabel => '🚨  SELBSTÄNDIGEN-ALARM';
+
+  @override
+  String get disabilitySelfEmployedTitle =>
+      'Dein Sicherheitsnetz existiert nicht';
+
+  @override
+  String get disabilitySelfEmployedAppBarTitle =>
+      'Invalidität — Selbstständige';
+
+  @override
+  String get disabilitySelfEmployedRevenueTitle =>
+      'Dein monatliches Nettoeinkommen';
+
+  @override
+  String get disabilitySelfEmployedRevenueHint =>
+      'Anpassen, um die Auswirkung auf deine reale Situation zu sehen';
+
+  @override
+  String get disabilitySelfEmployedRevenueLabel => 'Nettoeinkommen/Monat';
+
+  @override
+  String get disabilitySelfEmployedInsuranceQuestion =>
+      'Hast du bereits eine Erwerbsausfallversicherung?';
+
+  @override
+  String get disabilitySelfEmployedYes => 'Ja';
+
+  @override
+  String get disabilitySelfEmployedNo => 'Nein / Weiss nicht';
+
+  @override
+  String get disabilitySelfEmployedApgTip =>
+      'Eine individuelle EO ab CHF 45/Monat kann 80% deines Einkommens während 720 Tagen decken. Das effektivste Sicherheitsnetz für Selbstständige.';
+
+  @override
+  String get disabilitySelfEmployedDisclaimer =>
+      'Bildungstool — keine Versicherungsberatung. Ein unabhängiger Makler kann EO-Angebote verschiedener Versicherer vergleichen.';
+
+  @override
+  String get disabilitySelfEmployedSources =>
+      '• KVG Art. 67-77 (Krankentaggeld)\n• OR Art. 324a (Arbeitgeberpflicht)\n• IVG Art. 28 (IV-Rente)\n• AHVG Art. 2 Abs. 3 (Beitrag aus dem Ausland)';
+
+  @override
+  String get confidenceDashboardLevelExcellent => 'Ausgezeichnet';
+
+  @override
+  String get confidenceDashboardLevelGood => 'Gut';
+
+  @override
+  String get confidenceDashboardLevelFair => 'Ausreichend';
+
+  @override
+  String get confidenceDashboardLevelImprove => 'Verbesserungswürdig';
+
+  @override
+  String get confidenceDashboardLevelInsufficient => 'Ungenügend';
+
+  @override
+  String get confidenceDashboardBreakdownTitle => 'Detail pro Achse';
+
+  @override
+  String get confidenceDashboardFeaturesTitle => 'Freigeschaltete Funktionen';
+
+  @override
+  String confidenceDashboardRequired(String percent) {
+    return '$percent % erforderlich';
+  }
+
+  @override
+  String get confidenceDashboardEnrichTitle => 'Verbessere deine Präzision';
+
+  @override
+  String get confidenceDashboardSourcesTitle => 'Quellen';
+
+  @override
+  String get cockpitDetailEmptyState =>
+      'Vervollständige dein Profil, um auf das detaillierte Cockpit zuzugreifen.';
+
+  @override
+  String get cockpitDetailEnrichProfile => 'Mein Profil anreichern';
+
+  @override
+  String get cockpitDetailDisclaimer =>
+      'Vereinfachtes Bildungstool. Keine Finanzberatung (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7.';
 }
