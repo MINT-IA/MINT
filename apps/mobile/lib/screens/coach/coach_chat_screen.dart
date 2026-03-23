@@ -733,6 +733,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     });
     _controller.clear();
     _scrollToBottom();
+    // Emotional canvas: update background tint based on conversation topic.
+    _updateCanvasMood();
 
     // Build enriched context for AI memory injection (S58).
     // Timeout + try/catch: if SharedPreferences or any dependency fails/hangs,
@@ -930,6 +932,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       _isStreaming = false;
     });
     _scrollToBottom();
+    _updateCanvasMood();
 
     // Generate document card if generate_document tool was detected.
     if (docPayload != null) {
@@ -1009,6 +1012,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         _isLoading = false;
       });
       _scrollToBottom();
+      _updateCanvasMood();
 
       // Generate document card if generate_document tool was detected.
       if (docPayload != null) {
@@ -1672,6 +1676,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         targetColor = MintColors.white;
         duration = const Duration(milliseconds: 800);
       case _CanvasMood.milestone:
+      case _CanvasMood.victory:
+      case _CanvasMood.discovery:
         return;
     }
 
