@@ -1,3 +1,5 @@
+import 'dart:math' show min, max;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -20,7 +22,14 @@ class Retroactive3aScreen extends StatefulWidget {
 }
 
 class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
-  int _gapYears = 5;
+  /// Maximum retroactive years: capped at years since 2025 (first eligible year)
+  /// and at the OPP3 art. 7 maximum of 10.
+  static int get _maxRetroactiveYears {
+    final yearsSince2025 = DateTime.now().year - 2025;
+    return min(10, yearsSince2025).clamp(1, 10);
+  }
+
+  late int _gapYears = _maxRetroactiveYears.clamp(1, _maxRetroactiveYears);
   double _tauxMarginal = 0.30;
   bool _hasLpp = true;
 
@@ -160,13 +169,14 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           ),
           const SizedBox(height: MintSpacing.md),
 
-          // Gap years slider
+          // Gap years slider — max is dynamic: min(10, currentYear - 2025)
+          // In 2026, only 2025 is retroactively available (max = 1).
           _buildSliderRow(
             label: S.of(context)!.retroactive3aAnneesARattraper,
             value: _gapYears.toDouble(),
             min: 1,
-            max: 10,
-            divisions: 9,
+            max: _maxRetroactiveYears.toDouble(),
+            divisions: max(1, _maxRetroactiveYears - 1),
             format: '$_gapYears an${_gapYears > 1 ? "s" : ""}',
             onChanged: (v) => setState(() => _gapYears = v.round()),
           ),

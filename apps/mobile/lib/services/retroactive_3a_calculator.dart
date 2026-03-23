@@ -100,6 +100,8 @@ class Retroactive3aCalculator {
 
     for (int i = 1; i <= effectiveGap; i++) {
       final year = referenceYear - i;
+      // Cannot retroactively contribute before 2025 (OPP3 art. 7 starts 2026).
+      if (year < 2025) break;
       final baseLimit = pilier3aHistoricalLimits[year] ?? 6768.0;
 
       double effectiveLimit;
