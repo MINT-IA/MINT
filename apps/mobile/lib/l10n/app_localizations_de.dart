@@ -8274,7 +8274,7 @@ class SDe extends S {
 
   @override
   String get futurDisclaimer =>
-      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
+      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
 
   @override
   String get futurExplorerDetails => 'Explorer les détails';
@@ -9398,7 +9398,7 @@ class SDe extends S {
 
   @override
   String get pillar3aDisclaimer =>
-      'Pädagogische Annahmen basierend auf historischen Durchschnittsrenditen. Vergangene Renditen garantieren keine zukünftigen Renditen.';
+      'Pädagogische Annahmen basierend auf historischen Durchschnittsrenditen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.';
 
   @override
   String get pillar3aCapitalEvolution => 'Entwicklung deines 3a-Kapitals';
@@ -10973,7 +10973,7 @@ class SDe extends S {
 
   @override
   String get concubinageNeutralTitle =>
-      'Aucune option n\'est universellement meilleure';
+      'Aucune option n\'est universellement adaptée';
 
   @override
   String get concubinageNeutralDesc =>
@@ -12717,6 +12717,14 @@ class SDe extends S {
       'Technischer Fehler. Versuche es später erneut.';
 
   @override
+  String get coachErrorBadRequest =>
+      'Ungültige Anfrage. Formuliere deine Frage um.';
+
+  @override
+  String get coachErrorServiceUnavailable =>
+      'Service vorübergehend nicht verfügbar. Versuche es in einigen Minuten erneut.';
+
+  @override
   String get coachErrorConnection =>
       'Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.';
 
@@ -13350,6 +13358,9 @@ class SDe extends S {
   String quickStartSalaryValue(String salary) {
     return '$salary/Jahr';
   }
+
+  @override
+  String get quickStartNoIncome => 'Kein Einkommen';
 
   @override
   String get quickStartCanton => 'Kanton';
@@ -16539,7 +16550,7 @@ class SDe extends S {
 
   @override
   String get compoundDisclaimer =>
-      'Theoretische Berechnung bei konstanter Rendite. Vergangene Leistungen garantieren keine zukünftigen Ergebnisse.';
+      'Theoretische Berechnung bei konstanter Rendite. Vergangene Leistungen sind keine Zusicherung künftiger Ergebnisse.';
 
   @override
   String get leasingTitle => 'Anti-Leasing-Analyse';
@@ -17922,7 +17933,7 @@ class SDe extends S {
 
   @override
   String get chiffreChocSectionDisclaimer =>
-      'Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht garantiert.';
+      'Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht zugesichert.';
 
   @override
   String get concubinageTabProtection => 'Schutz';
@@ -18255,12 +18266,12 @@ class SDe extends S {
 
   @override
   String compoundDisclaimerInflation(String inflation) {
-    return 'Pädagogische Annahmen (Inflation $inflation %). Vergangene Renditen sind keine Garantie für zukünftige Ergebnisse.';
+    return 'Pädagogische Annahmen (Inflation $inflation %). Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.';
   }
 
   @override
   String get interactive3aDisclaimer =>
-      'Pädagogische Annahmen. Vergangene Renditen garantieren keine zukünftigen Renditen.';
+      'Pädagogische Annahmen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.';
 
   @override
   String get milestoneContinueBtn => 'Weiter';
@@ -21662,4 +21673,53 @@ class SDe extends S {
   @override
   String get cockpitDetailDisclaimer =>
       'Vereinfachtes Bildungstool. Keine Finanzberatung (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7.';
+
+  @override
+  String get toolBudgetSnapshotHint =>
+      'Hier ist eine Übersicht deines aktuellen Budgets.';
+
+  @override
+  String get toolScoreGaugeHint =>
+      'Hier ist dein finanzieller Vertrauensscore.';
+
+  @override
+  String get coachFactCardTitle => 'Wusstest du?';
+
+  @override
+  String firstJobPrimePerMonth(String amount) {
+    return '$amount/Monat';
+  }
+
+  @override
+  String firstJobCoutMaxPerYear(String amount) {
+    return 'Max. $amount/Jahr';
+  }
+
+  @override
+  String get jobChangeChecklistSemantics =>
+      'Checkliste neuer Job BVG Freizügigkeit dringende Aufgaben';
+
+  @override
+  String get jobChangeChecklistTitle => 'Checkliste Jobwechsel';
+
+  @override
+  String get jobChangeChecklistSubtitle =>
+      'Du hast 30 Tage, um zu prüfen, ob dein BVG übertragen wurde.';
+
+  @override
+  String jobChangeChecklistProgress(int completed, int total) {
+    return '$completed / $total Aufgaben erledigt';
+  }
+
+  @override
+  String get jobChangeChecklistAlertTitle =>
+      'Fordere IMMER den BVG-Ausweis an, bevor du unterschreibst';
+
+  @override
+  String get jobChangeChecklistAlertBody =>
+      'Ohne Freizügigkeitsübertragung innerhalb der Frist kann dein BVG-Kapital bei der Auffangeinrichtung zu 0.05 % landen.';
+
+  @override
+  String get jobChangeChecklistDisclaimer =>
+      'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art. 3 (Freizügigkeit), FZV Art. 1-3.';
 }

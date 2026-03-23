@@ -14903,7 +14903,7 @@ abstract class S {
   /// No description provided for @futurDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.'**
+  /// **'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.'**
   String get futurDisclaimer;
 
   /// No description provided for @futurExplorerDetails.
@@ -16877,7 +16877,7 @@ abstract class S {
   /// No description provided for @pillar3aDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne garantissent pas rendements futurs.'**
+  /// **'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.'**
   String get pillar3aDisclaimer;
 
   /// No description provided for @pillar3aCapitalEvolution.
@@ -19585,7 +19585,7 @@ abstract class S {
   /// No description provided for @concubinageNeutralTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Aucune option n\'est universellement meilleure'**
+  /// **'Aucune option n\'est universellement adaptée'**
   String get concubinageNeutralTitle;
 
   /// No description provided for @concubinageNeutralDesc.
@@ -22504,6 +22504,18 @@ abstract class S {
   /// **'Erreur technique. Réessaie plus tard.'**
   String get coachErrorGeneric;
 
+  /// No description provided for @coachErrorBadRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Requête invalide. Reformule ta question.'**
+  String get coachErrorBadRequest;
+
+  /// No description provided for @coachErrorServiceUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service temporairement indisponible. Réessaie dans quelques minutes.'**
+  String get coachErrorServiceUnavailable;
+
   /// No description provided for @coachErrorConnection.
   ///
   /// In fr, this message translates to:
@@ -23638,6 +23650,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{salary}/an'**
   String quickStartSalaryValue(String salary);
+
+  /// No description provided for @quickStartNoIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans revenu'**
+  String get quickStartNoIncome;
 
   /// No description provided for @quickStartCanton.
   ///
@@ -29288,7 +29306,7 @@ abstract class S {
   /// No description provided for @compoundDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.'**
+  /// **'Calcul théorique basé sur un rendement constant. Les performances passées ne constituent pas une assurance de résultat pour les résultats futurs.'**
   String get compoundDisclaimer;
 
   /// No description provided for @leasingTitle.
@@ -31736,7 +31754,7 @@ abstract class S {
   /// No description provided for @chiffreChocSectionDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non garantis.'**
+  /// **'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.'**
   String get chiffreChocSectionDisclaimer;
 
   /// No description provided for @concubinageTabProtection.
@@ -32300,13 +32318,13 @@ abstract class S {
   /// No description provided for @compoundDisclaimerInflation.
   ///
   /// In fr, this message translates to:
-  /// **'Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne garantissent pas les rendements futurs.'**
+  /// **'Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.'**
   String compoundDisclaimerInflation(String inflation);
 
   /// No description provided for @interactive3aDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.'**
+  /// **'Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.'**
   String get interactive3aDisclaimer;
 
   /// No description provided for @milestoneContinueBtn.
@@ -36511,7 +36529,7 @@ abstract class S {
   /// No description provided for @capStepHousing07Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Notaire, courtier, conseiller : quand impliquer qui.'**
+  /// **'Notaire, courtier, spécialiste : quand impliquer qui.'**
   String get capStepHousing07Desc;
 
   /// No description provided for @goalSelectorTitle.
@@ -38140,6 +38158,78 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.'**
   String get cockpitDetailDisclaimer;
+
+  /// No description provided for @toolBudgetSnapshotHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici un aperçu de ton budget actuel.'**
+  String get toolBudgetSnapshotHint;
+
+  /// No description provided for @toolScoreGaugeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici ton score de confiance financière.'**
+  String get toolScoreGaugeHint;
+
+  /// No description provided for @coachFactCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le savais-tu ?'**
+  String get coachFactCardTitle;
+
+  /// No description provided for @firstJobPrimePerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount}/mois'**
+  String firstJobPrimePerMonth(String amount);
+
+  /// No description provided for @firstJobCoutMaxPerYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Max {amount}/an'**
+  String firstJobCoutMaxPerYear(String amount);
+
+  /// No description provided for @jobChangeChecklistSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Checklist nouveau job libre passage LPP actions urgentes'**
+  String get jobChangeChecklistSemantics;
+
+  /// No description provided for @jobChangeChecklistTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Checklist changement de job'**
+  String get jobChangeChecklistTitle;
+
+  /// No description provided for @jobChangeChecklistSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as 30 jours pour vérifier que ton LPP a été transféré.'**
+  String get jobChangeChecklistSubtitle;
+
+  /// No description provided for @jobChangeChecklistProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed} / {total} actions complétées'**
+  String jobChangeChecklistProgress(int completed, int total);
+
+  /// No description provided for @jobChangeChecklistAlertTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande TOUJOURS le certificat LPP avant de signer'**
+  String get jobChangeChecklistAlertTitle;
+
+  /// No description provided for @jobChangeChecklistAlertBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.'**
+  String get jobChangeChecklistAlertBody;
+
+  /// No description provided for @jobChangeChecklistDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.'**
+  String get jobChangeChecklistDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

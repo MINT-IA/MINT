@@ -759,6 +759,15 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
+  /// T3-2: Help resources for debt crisis situations.
+  static const ScreenEntry _debtHelp = ScreenEntry(
+    route: '/debt/help',
+    intentTag: 'debt_help_resources',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    preferFromChat: true,
+  );
+
   static const ScreenEntry _financialReport = ScreenEntry(
     route: '/rapport',
     intentTag: 'financial_report',
@@ -1514,6 +1523,7 @@ class MintScreenRegistry extends ScreenRegistry {
     _debtRatio,
     _debtRepayment,
     _debtRiskCheck,
+    _debtHelp,
     _financialReport,
     _timeline,
     _arbitrageBilan,

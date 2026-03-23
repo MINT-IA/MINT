@@ -635,6 +635,7 @@ class CoachOrchestrator {
       sources: ragResponse.sources,
       disclaimers: ragResponse.disclaimers,
       wasFiltered: !compliance.isCompliant,
+      toolCalls: ragResponse.toolCalls,
     );
   }
 

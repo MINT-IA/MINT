@@ -2,9 +2,14 @@
 //  Feature Flags — migration toggles + phase rollout
 // ────────────────────────────────────────────────────────────
 
+import 'dart:async';
+
 import 'package:mint_mobile/services/api_service.dart';
 
 class FeatureFlags {
+  /// Timer for periodic backend refresh (set in main, cancellable).
+  static Timer? periodicRefreshTimer;
+
   // ── Existing (migration) ──────────────────────────────────
 
   /// Enable SLM-generated narratives (Track B, Phase P3).

@@ -114,7 +114,8 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
   }
 
   Widget _buildCumulativeNote() {
-    final earliest = widget.scenarios.first;
+    final earliest = widget.scenarios.firstOrNull;
+    if (earliest == null) return const SizedBox.shrink();
     final diff = earliest.cumulativeDifference;
     if (diff.abs() < 100) return const SizedBox.shrink();
 

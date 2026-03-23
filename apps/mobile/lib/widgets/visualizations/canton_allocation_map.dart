@@ -125,11 +125,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
 
   CantonAllocation? get _selectedCanton {
     if (_selectedCode == null) return null;
-    try {
-      return widget.cantons.firstWhere((c) => c.code == _selectedCode);
-    } catch (_) {
-      return null;
-    }
+    return widget.cantons.where((c) => c.code == _selectedCode).firstOrNull;
   }
 
   int _rankOf(String code) {

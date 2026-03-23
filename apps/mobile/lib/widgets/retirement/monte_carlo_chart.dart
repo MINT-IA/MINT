@@ -388,8 +388,8 @@ class _MonteCarloFanPainter extends CustomPainter {
     if (yMax <= yMin) yMax = yMin + 1000; // safety
 
     // -- Determine X scale --
-    final ageMin = points.first.age;
-    final ageMax = points.last.age;
+    final ageMin = points.firstOrNull?.age ?? 0;
+    final ageMax = points.lastOrNull?.age ?? 0;
     final ageRange = ageMax - ageMin;
     if (ageRange <= 0) return;
 

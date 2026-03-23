@@ -35,6 +35,7 @@ import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
+import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
@@ -125,12 +126,21 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   ChatTier? _greetingTier;
   bool _isLoading = false;
   bool _isStreaming = false;
+  /// Unified guard preventing concurrent sends (covers _isLoading + context building).
+  bool _isBusy = false;
   final StringBuffer _streamBuffer = StringBuffer();
   bool _isByokConfigured = false;
 
   /// Conversation persistence
   final ConversationStore _conversationStore = ConversationStore();
   String? _conversationId;
+
+  /// Cached SharedPreferences instance (T2-3).
+  SharedPreferences? _cachedPrefs;
+  Future<SharedPreferences> _getPrefs() async {
+    _cachedPrefs ??= await SharedPreferences.getInstance();
+    return _cachedPrefs!;
+  }
 
   /// SLM stream timeout — prevents infinite hang if model deadlocks.
   static const Duration _streamTimeout = Duration(seconds: 45);
@@ -236,7 +246,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   /// Failover logic itself lives in CoachOrchestrator.
   Future<void> _checkProviderHealth() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _getPrefs();
       final health = await ProviderHealthService.getHealth(prefs);
       if (!mounted) return;
       final allOpen = health.isNotEmpty &&
@@ -347,7 +357,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     String? proactiveMessage;
     String? proactiveIntentTag;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _getPrefs();
       if (!mounted) return;
       // Prefer MintStateProvider's pre-computed trigger to avoid race condition.
       ProactiveTrigger? trigger = preloadedTrigger;
@@ -389,7 +399,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (proactiveMessage == null || proactiveMessage.isEmpty) {
       try {
         // Try pre-computed cache first (instant read, no computation).
-        final prefs2 = await SharedPreferences.getInstance();
+        final prefs2 = await _getPrefs();
         if (!mounted) return;
         final cached = await PrecomputedInsightsService.getCachedInsight(
           prefs: prefs2,
@@ -481,7 +491,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // already surfaced to avoid information overload.
     if (proactiveMessage == null && dataDrivenMessage == null) {
       try {
-        final prefs = await SharedPreferences.getInstance();
+        final prefs = await _getPrefs();
         if (!mounted) return;
         final now = DateTime.now();
         final dismissedIds = await NudgePersistence.getDismissedIds(
@@ -692,7 +702,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // The async `.then()` callback would otherwise read a null field
     // because _proactiveTriggerType is cleared synchronously below.
     final triggerType = _proactiveTriggerType!;
-    SharedPreferences.getInstance().then((prefs) {
+    _getPrefs().then((prefs) {
       var pref = CoachingPreference.load(prefs);
       pref = engaged
           ? pref.recordEngagement(triggerType)
@@ -706,11 +716,36 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   }
 
   Future<void> _sendMessage(String text) async {
-    if (text.trim().isEmpty) return;
+    if (text.trim().isEmpty || _isBusy) return;
+    setState(() => _isBusy = true);
 
+    try {
+      await _sendMessageInner(text);
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
+    }
+  }
+
+  Future<void> _sendMessageInner(String text) async {
     // P3.5 Coaching Adaptatif: track proactive greeting engagement.
     // If user sends a message within 60s of a proactive greeting = engaged.
     _trackProactiveEngagement();
+
+    // Refresh profile in case it changed since screen init (T2-5).
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (provider.hasProfile) {
+        _profile = provider.profile!;
+      }
+    } catch (_) {}
+
+    // Capture mintState BEFORE any await (T1-4).
+    MintUserState? mintStateForContext;
+    try {
+      mintStateForContext = context.read<MintStateProvider>().state;
+    } catch (_) {
+      mintStateForContext = null;
+    }
 
     // Collapse greeting narrative canvas into a normal bubble on first send.
     if (_greetingExpanded && _greetingLine2 != null) {
@@ -748,7 +783,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       final enrichedContext = await ContextInjectorService.buildContext(
         profile: _profile,
         now: DateTime.now(),
-        mintState: context.read<MintStateProvider>().state,
+        mintState: mintStateForContext,
       ).timeout(const Duration(seconds: 2));
       if (enrichedContext.memoryBlock.isNotEmpty) {
         memoryBlock = enrichedContext.memoryBlock;
@@ -770,7 +805,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     }
 
     // Try SLM streaming first.
-    final ctx = _buildCoachContext(_profile!);
+    final ctx = _buildCoachContext(_profile!, mintState: mintStateForContext);
     final stream = CoachOrchestrator.streamChat(
       userMessage: text.trim(),
       history: _messages,
@@ -942,6 +977,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (docPayload != null) {
       _handleDocumentGeneration(docPayload);
     }
+
+    // T1-3: Save conversation after each message exchange.
+    await _autoSaveConversation();
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
@@ -1022,6 +1060,14 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       if (docPayload != null) {
         _handleDocumentGeneration(docPayload);
       }
+
+      // T1-1: Handle structured tool_calls from the backend.
+      if (response.toolCalls.isNotEmpty) {
+        await _processToolCalls(response.toolCalls);
+      }
+
+      // T1-3: Save conversation after each message exchange.
+      await _autoSaveConversation();
     } on RagApiException catch (e) {
       if (!mounted) return;
       final s = S.of(context)!;
@@ -1032,6 +1078,12 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           break;
         case 'rate_limit':
           errorMsg = s.coachErrorRateLimit;
+          break;
+        case 'bad_request':
+          errorMsg = s.coachErrorBadRequest;
+          break;
+        case 'service_unavailable':
+          errorMsg = s.coachErrorServiceUnavailable;
           break;
         default:
           errorMsg = s.coachErrorGeneric;
@@ -1089,7 +1141,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
-  CoachContext _buildCoachContext(CoachProfile profile) {
+  CoachContext _buildCoachContext(CoachProfile profile, {MintUserState? mintState}) {
     final knownValues = <String, double>{};
 
     // FRI score
@@ -1112,8 +1164,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     // Enrich with MintUserState data for backend data lookup tools
     // (get_budget_status, get_retirement_projection, get_cross_pillar_analysis, get_cap_status)
+    // T1-4: Use pre-captured mintState instead of context.read after await.
     try {
-      final mintState = context.read<MintStateProvider>().state;
+      mintState ??= context.read<MintStateProvider>().state;
       if (mintState != null) {
         // Budget fields (consumed by get_budget_status)
         final snap = mintState.budgetSnapshot;
@@ -1380,6 +1433,153 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // Store the generated output on the last message for rendering.
     _lastGeneratedForm = formPrefill;
     _lastGeneratedLetter = letter;
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  T1-1: STRUCTURED TOOL_CALL HANDLERS
+  // ════════════════════════════════════════════════════════════
+
+  /// Process structured tool_calls from the backend response.
+  ///
+  /// Handles display tools (show_fact_card, show_budget_snapshot,
+  /// show_score_gauge, ask_user_input) and write tools (set_goal,
+  /// mark_step_completed, save_insight).
+  Future<void> _processToolCalls(List<RagToolCall> toolCalls) async {
+    for (final toolCall in toolCalls) {
+      // Skip tools already handled via text markers.
+      if (toolCall.name == 'route_to_screen' ||
+          toolCall.name == 'generate_document') {
+        continue;
+      }
+      try {
+        await _handleSingleToolCall(toolCall);
+      } catch (e) {
+        debugPrint('[CoachChat] Tool call ${toolCall.name} failed: $e');
+      }
+    }
+  }
+
+  Future<void> _handleSingleToolCall(RagToolCall toolCall) async {
+    switch (toolCall.name) {
+      case 'show_fact_card':
+        if (!mounted) return;
+        final input = toolCall.input;
+        final title = input['title'] as String? ?? '';
+        final content = input['content'] as String? ?? '';
+        final source = input['source'] as String? ?? '';
+        final highlight = input['highlight_value'] as String? ?? '';
+        final display = [
+          if (title.isNotEmpty) '**$title**',
+          if (highlight.isNotEmpty) highlight,
+          if (content.isNotEmpty) content,
+          if (source.isNotEmpty) '_${source}_',
+        ].join('\n');
+        if (display.isNotEmpty) {
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content: display,
+              timestamp: DateTime.now(),
+              tier: ChatTier.byok,
+            ));
+          });
+          _scrollToBottom();
+        }
+
+      case 'show_budget_snapshot':
+        if (!mounted) return;
+        // Navigate the user to the budget screen via a route suggestion.
+        final l = S.of(context)!;
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: l.toolBudgetSnapshotHint,
+            timestamp: DateTime.now(),
+            tier: ChatTier.byok,
+            routePayload: const RouteToolPayload(
+              intent: 'budget_review',
+              confidence: 1.0,
+              contextMessage: '',
+            ),
+          ));
+        });
+        _scrollToBottom();
+
+      case 'show_score_gauge':
+        if (!mounted) return;
+        final l = S.of(context)!;
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: l.toolScoreGaugeHint,
+            timestamp: DateTime.now(),
+            tier: ChatTier.byok,
+            routePayload: const RouteToolPayload(
+              intent: 'confidence_dashboard',
+              confidence: 1.0,
+              contextMessage: '',
+            ),
+          ));
+        });
+        _scrollToBottom();
+
+      case 'ask_user_input':
+        if (!mounted) return;
+        final input = toolCall.input;
+        final promptText = input['prompt_text'] as String? ?? '';
+        if (promptText.isNotEmpty) {
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content: promptText,
+              timestamp: DateTime.now(),
+              tier: ChatTier.byok,
+              suggestedActions: [promptText],
+            ));
+          });
+          _scrollToBottom();
+        }
+
+      case 'set_goal':
+        final goalTag = toolCall.input['goal_intent_tag'] as String?;
+        if (goalTag != null && _profile != null) {
+          final prefs = await _getPrefs();
+          await GoalSelectionService.setSelectedGoal(goalTag, prefs);
+          if (mounted) {
+            context.read<MintStateProvider>().forceRecompute(_profile!);
+          }
+        }
+
+      case 'mark_step_completed':
+        final stepId = toolCall.input['step_id'] as String?;
+        if (stepId != null) {
+          final mem = await CapMemoryStore.load();
+          final updated = mem.copyWith(
+            completedActions: [...mem.completedActions, stepId],
+          );
+          await CapMemoryStore.save(updated);
+        }
+
+      case 'save_insight':
+        final topic = toolCall.input['topic'] as String? ?? '';
+        final summary = toolCall.input['summary'] as String? ?? '';
+        final typeStr = toolCall.input['type'] as String? ?? 'fact';
+        final insightType = InsightType.values.firstWhere(
+          (t) => t.name == typeStr,
+          orElse: () => InsightType.fact,
+        );
+        if (topic.isNotEmpty && summary.isNotEmpty) {
+          await CoachMemoryService.saveInsight(
+            CoachInsight(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              topic: topic,
+              summary: summary,
+              type: insightType,
+              createdAt: DateTime.now(),
+            ),
+          );
+        }
+    }
   }
 
   /// Called when the user returns from a screen opened via [RouteSuggestionCard].
@@ -2068,22 +2268,26 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             child: _buildCoachBubble(msg),
           );
         }
-        return TweenAnimationBuilder<double>(
-          key: ValueKey('msg_$index'),
-          tween: Tween<double>(begin: 0.0, end: 1.0),
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeOutCubic,
-          builder: (context, value, child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(
-                offset: Offset(0, 20 * (1 - value)),
-                child: child,
-              ),
-            );
-          },
-          child: child,
-        );
+        // T2-1: Only animate the last 3 messages for performance.
+        if (index >= _messages.length - 3) {
+          return TweenAnimationBuilder<double>(
+            key: ValueKey('msg_$index'),
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, aChild) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: aChild,
+                ),
+              );
+            },
+            child: child,
+          );
+        }
+        return child;
       },
     );
   }
@@ -2667,7 +2871,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                 label: s.coachSendButton,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: _isStreaming
+                    color: _isBusy
                         ? MintColors.textMuted
                         : MintColors.coachAccent,
                     borderRadius: BorderRadius.circular(24),
@@ -2676,7 +2880,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                     icon: const Icon(Icons.send,
                         color: MintColors.white, size: 20),
                     tooltip: s.coachSendButton,
-                    onPressed: _isStreaming
+                    onPressed: _isBusy
                         ? null
                         : () => _sendMessage(_controller.text),
                   ),

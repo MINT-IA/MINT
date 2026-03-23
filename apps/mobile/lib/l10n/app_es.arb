@@ -3827,7 +3827,7 @@
     }
   },
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
-  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
   "financialSummaryTitle": "RESUMEN FINANCIERO",
   "financialSummaryNoProfile": "Ningún perfil registrado",
@@ -4423,7 +4423,7 @@
   },
   "pillar3aViacGainLabel": "Con VIAC en lugar de un banco:",
   "pillar3aMoreAtRetirement": "¡más en la jubilación!",
-  "pillar3aDisclaimer": "Hipótesis pedagógicas basadas en rendimientos históricos medios. Los rendimientos pasados no garantizan rendimientos futuros.",
+  "pillar3aDisclaimer": "Hipótesis pedagógicas basadas en rendimientos históricos medios. Los rendimientos pasados no constituyen una garantía de resultados futuros.",
   "pillar3aCapitalEvolution": "Evolución de tu capital 3a",
   "pillar3aYearLabel": "Año",
   "pillar3aBank15": "Banco 1.5%",
@@ -5329,7 +5329,7 @@
       }
     }
   },
-  "concubinageNeutralTitle": "Aucune option n'est universellement meilleure",
+  "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
   "concubinageNeutralDesc": "Le choix entre mariage et concubinage dépend de ta situation.",
   "concubinageChecklistIntro": "En concubinage, rien n'est automatique.",
   "concubinageProtectionsCount": "{count}/{total} protections en place",
@@ -6074,6 +6074,8 @@
   "coachErrorInvalidKey": "Tu clave API parece inválida o caducada. Verifícala en los ajustes.",
   "coachErrorRateLimit": "Límite de solicitudes alcanzado. Inténtalo de nuevo en un momento.",
   "coachErrorGeneric": "Error técnico. Inténtalo más tarde.",
+  "coachErrorBadRequest": "Solicitud no válida. Intenta reformular tu pregunta.",
+  "coachErrorServiceUnavailable": "Servicio temporalmente no disponible. Inténtalo en unos minutos.",
   "coachErrorConnection": "Error de conexión. Verifica tu conexión a internet o tu clave API.",
   "coachSuggestSimulate3a": "¿Cuánto ahorro si aporto el máximo?",
   "coachSuggestView3a": "¿Cuánto tengo en mis cuentas 3a?",
@@ -6329,6 +6331,7 @@
   "quickStartAgeValue": "{age} años",
   "quickStartSalary": "Tu ingreso bruto anual",
   "quickStartSalaryValue": "{salary}/año",
+  "quickStartNoIncome": "Sin ingresos",
   "quickStartCanton": "Cantón",
   "quickStartPreviewTitle": "Vista previa jubilación",
   "quickStartVerdictGood": "Buen camino",
@@ -7948,7 +7951,7 @@
   "compoundEffetLevierBody": "Una vez iniciado, tu capital genera sus propios intereses, que a su vez generan más.",
   "compoundDiscipline": "Disciplina",
   "compoundDisciplineBody": "Las contribuciones mensuales regulares suelen ser más efectivas que intentar sincronizar con el mercado.",
-  "compoundDisclaimer": "Cálculo teórico basado en un rendimiento constante. Rendimientos pasados no garantizan resultados futuros.",
+  "compoundDisclaimer": "Cálculo teórico basado en un rendimiento constante. Los rendimientos pasados no constituyen una garantía de resultados futuros.",
   "leasingTitle": "Análisis Anti-Leasing",
   "leasingMentorTitle": "Reflexión del Mentor",
   "leasingMentorBody": "El leasing suele ser una \"fuga\" de capital. Este dinero podría construir tu patrimonio en lugar de financiar la depreciación de un vehículo.",
@@ -8616,7 +8619,7 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Simulación educativa. No constituye asesoramiento financiero (LSFin). Hipótesis modificables — resultados no garantizados.",
+  "chiffreChocSectionDisclaimer": "Simulación educativa. No constituye asesoramiento financiero (LSFin). Hipótesis modificables — resultados no asegurados.",
   "concubinageTabProtection": "Protección",
   "concubinageHeroChiffreChoc": "CHF {montant} de patrimonio expuesto",
   "@concubinageHeroChiffreChoc": {
@@ -8687,7 +8690,7 @@
   "fiscalSuperpowerTaxBenefits": "Tus ventajas fiscales",
   "babyCostTitle": "El costo de la felicidad",
   "babyCostBreakdownTitle": "Desglose mensual",
-  "compoundDisclaimerInflation": "Supuestos pedagógicos (inflación {inflation} %). Los rendimientos pasados no garantizan resultados futuros.",
+  "compoundDisclaimerInflation": "Supuestos pedagógicos (inflación {inflation} %). Los rendimientos pasados no constituyen una garantía de resultados futuros.",
   "@compoundDisclaimerInflation": {
     "placeholders": {
       "inflation": {
@@ -8695,7 +8698,7 @@
       }
     }
   },
-  "interactive3aDisclaimer": "Supuestos pedagógicos. Los rendimientos pasados no garantizan rendimientos futuros.",
+  "interactive3aDisclaimer": "Supuestos pedagógicos. Los rendimientos pasados no constituyen una garantía de resultados futuros.",
   "lifeEventSheetTitle": "Me está pasando algo",
   "lifeEventSheetSubtitle": "Elige un evento para ver el impacto financiero",
   "lifeEventSheetSectionFamille": "Familia",
@@ -10360,5 +10363,19 @@
   "confidenceDashboardSourcesTitle": "Fuentes",
   "cockpitDetailEmptyState": "Completa tu perfil para acceder al cockpit detallado.",
   "cockpitDetailEnrichProfile": "Enriquecer mi perfil",
-  "cockpitDetailDisclaimer": "Herramienta educativa simplificada. No constituye asesoramiento financiero (LSFin). Fuentes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7."
+  "cockpitDetailDisclaimer": "Herramienta educativa simplificada. No constituye asesoramiento financiero (LSFin). Fuentes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
+  "toolBudgetSnapshotHint": "Aquí tienes una vista de tu presupuesto actual.",
+  "toolScoreGaugeHint": "Aquí tienes tu puntuación de confianza financiera.",
+  "coachFactCardTitle": "¿Sabías que?",
+
+  "firstJobPrimePerMonth": "{amount}/mes",
+  "firstJobCoutMaxPerYear": "Máx. {amount}/año",
+
+  "jobChangeChecklistSemantics": "Lista de verificación nuevo empleo LPP libre paso acciones urgentes",
+  "jobChangeChecklistTitle": "Lista de verificación cambio de empleo",
+  "jobChangeChecklistSubtitle": "Tienes 30 días para verificar que tu LPP ha sido transferido.",
+  "jobChangeChecklistProgress": "{completed} / {total} acciones completadas",
+  "jobChangeChecklistAlertTitle": "Solicita SIEMPRE el certificado LPP antes de firmar",
+  "jobChangeChecklistAlertBody": "Sin transferencia del libre paso en los plazos, tu capital LPP puede acabar en la Fundación supletoria al 0.05\u00a0%.",
+  "jobChangeChecklistDisclaimer": "Herramienta educativa \u00b7 no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LPP art.\u00a03 (libre paso), OLP art.\u00a01-3."
 }

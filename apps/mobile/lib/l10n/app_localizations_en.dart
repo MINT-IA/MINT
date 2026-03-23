@@ -8228,7 +8228,7 @@ class SEn extends S {
 
   @override
   String get futurDisclaimer =>
-      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
+      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
 
   @override
   String get futurExplorerDetails => 'Explorer les détails';
@@ -10905,7 +10905,7 @@ class SEn extends S {
 
   @override
   String get concubinageNeutralTitle =>
-      'Aucune option n\'est universellement meilleure';
+      'Aucune option n\'est universellement adaptée';
 
   @override
   String get concubinageNeutralDesc =>
@@ -12635,6 +12635,14 @@ class SEn extends S {
   String get coachErrorGeneric => 'Technical error. Try again later.';
 
   @override
+  String get coachErrorBadRequest =>
+      'Invalid request. Try rephrasing your question.';
+
+  @override
+  String get coachErrorServiceUnavailable =>
+      'Service temporarily unavailable. Try again in a few minutes.';
+
+  @override
   String get coachErrorConnection =>
       'Connection error. Check your internet connection or API key.';
 
@@ -13266,6 +13274,9 @@ class SEn extends S {
   String quickStartSalaryValue(String salary) {
     return '$salary/year';
   }
+
+  @override
+  String get quickStartNoIncome => 'No income';
 
   @override
   String get quickStartCanton => 'Canton';
@@ -21531,4 +21542,52 @@ class SEn extends S {
   @override
   String get cockpitDetailDisclaimer =>
       'Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OAHV art. 21-29, LPP art. 14, OPP3 art. 7.';
+
+  @override
+  String get toolBudgetSnapshotHint =>
+      'Here is a snapshot of your current budget.';
+
+  @override
+  String get toolScoreGaugeHint => 'Here is your financial confidence score.';
+
+  @override
+  String get coachFactCardTitle => 'Did you know?';
+
+  @override
+  String firstJobPrimePerMonth(String amount) {
+    return '$amount/month';
+  }
+
+  @override
+  String firstJobCoutMaxPerYear(String amount) {
+    return 'Max $amount/year';
+  }
+
+  @override
+  String get jobChangeChecklistSemantics =>
+      'New job checklist LPP vested benefits urgent actions';
+
+  @override
+  String get jobChangeChecklistTitle => 'Job change checklist';
+
+  @override
+  String get jobChangeChecklistSubtitle =>
+      'You have 30 days to verify that your LPP has been transferred.';
+
+  @override
+  String jobChangeChecklistProgress(int completed, int total) {
+    return '$completed / $total actions completed';
+  }
+
+  @override
+  String get jobChangeChecklistAlertTitle =>
+      'ALWAYS request the LPP certificate before signing';
+
+  @override
+  String get jobChangeChecklistAlertBody =>
+      'Without a vested benefits transfer within the deadline, your LPP capital may end up at the Substitute Foundation at 0.05 %.';
+
+  @override
+  String get jobChangeChecklistDisclaimer =>
+      'Educational tool · does not constitute financial advice under FinSA. Source: LPP art. 3 (vested benefits), OLP art. 1-3.';
 }

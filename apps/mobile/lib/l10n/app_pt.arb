@@ -3827,7 +3827,7 @@
     }
   },
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
-  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
   "financialSummaryTitle": "RESUMO FINANCEIRO",
   "financialSummaryNoProfile": "Nenhum perfil registado",
@@ -5329,7 +5329,7 @@
       }
     }
   },
-  "concubinageNeutralTitle": "Aucune option n'est meilleure",
+  "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
   "concubinageNeutralDesc": "Dépend de ta situation.",
   "concubinageChecklistIntro": "Rien n'est automatique.",
   "concubinageProtectionsCount": "{count}/{total} protections",
@@ -6074,6 +6074,8 @@
   "coachErrorInvalidKey": "A tua chave API parece inválida ou expirada. Verifica-a nas definições.",
   "coachErrorRateLimit": "Limite de pedidos atingido. Tenta novamente daqui a pouco.",
   "coachErrorGeneric": "Erro técnico. Tenta novamente mais tarde.",
+  "coachErrorBadRequest": "Pedido inválido. Tenta reformular a tua pergunta.",
+  "coachErrorServiceUnavailable": "Serviço temporariamente indisponível. Tenta novamente daqui a uns minutos.",
   "coachErrorConnection": "Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.",
   "coachSuggestSimulate3a": "Quanto poupo se contribuir o máximo?",
   "coachSuggestView3a": "Quanto tenho nas minhas contas 3a?",
@@ -6329,6 +6331,7 @@
   "quickStartAgeValue": "{age} anos",
   "quickStartSalary": "O teu rendimento bruto anual",
   "quickStartSalaryValue": "{salary}/ano",
+  "quickStartNoIncome": "Sem rendimento",
   "quickStartCanton": "Cantao",
   "quickStartPreviewTitle": "Pre-visualizacao reforma",
   "quickStartVerdictGood": "No bom caminho",
@@ -6823,7 +6826,7 @@
       }
     }
   },
-  "expatDepartChiffreChoc": "{amount} de capital a garantir antes da partida",
+  "expatDepartChiffreChoc": "{amount} de capital a assegurar antes da partida",
   "@expatDepartChiffreChoc": {
     "placeholders": {
       "amount": {
@@ -7902,7 +7905,7 @@
   "compoundEffetLevierBody": "Una vez iniciado, tu capital genera sus propios intereses, que a su vez generan más.",
   "compoundDiscipline": "Disciplina",
   "compoundDisciplineBody": "Las contribuciones mensuales regulares suelen ser más efectivas que intentar sincronizar con el mercado.",
-  "compoundDisclaimer": "Cálculo teórico basado en un rendimiento constante. Rendimientos pasados no garantizan resultados futuros.",
+  "compoundDisclaimer": "Cálculo teórico com rendimento constante. Os rendimentos passados não asseguram resultados futuros.",
   "leasingTitle": "Análise Anti-Leasing",
   "leasingMentorTitle": "Reflexión del Mentor",
   "leasingMentorBody": "El leasing suele ser una \"fuga\" de capital. Este dinero podría construir tu patrimonio en lugar de financiar la depreciación de un vehículo.",
@@ -8616,7 +8619,7 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Simulação educativa. Não constitui aconselhamento financeiro (LSFin). Hipóteses modificáveis — resultados não garantidos.",
+  "chiffreChocSectionDisclaimer": "Simulação educativa. Não constitui aconselhamento financeiro (LSFin). Hipóteses modificáveis — resultados não assegurados.",
   "concubinageTabProtection": "Proteção",
   "concubinageHeroChiffreChoc": "CHF {montant} de património exposto",
   "@concubinageHeroChiffreChoc": {
@@ -10361,5 +10364,19 @@
   "confidenceDashboardSourcesTitle": "Fontes",
   "cockpitDetailEmptyState": "Completa o teu perfil para aceder ao cockpit detalhado.",
   "cockpitDetailEnrichProfile": "Enriquecer o meu perfil",
-  "cockpitDetailDisclaimer": "Ferramenta educativa simplificada. N\u00e3o constitui aconselhamento financeiro (LSFin)."
+  "cockpitDetailDisclaimer": "Ferramenta educativa simplificada. N\u00e3o constitui aconselhamento financeiro (LSFin).",
+  "toolBudgetSnapshotHint": "Aqui está uma visão do teu orçamento atual.",
+  "toolScoreGaugeHint": "Aqui está a tua pontuação de confiança financeira.",
+  "coachFactCardTitle": "Sabias que?",
+
+  "firstJobPrimePerMonth": "{amount}/mês",
+  "firstJobCoutMaxPerYear": "Máx. {amount}/ano",
+
+  "jobChangeChecklistSemantics": "Lista de verificação novo emprego LPP livre passagem ações urgentes",
+  "jobChangeChecklistTitle": "Lista de verificação mudança de emprego",
+  "jobChangeChecklistSubtitle": "Tens 30 dias para verificar que o teu LPP foi transferido.",
+  "jobChangeChecklistProgress": "{completed} / {total} ações concluídas",
+  "jobChangeChecklistAlertTitle": "Pede SEMPRE o certificado LPP antes de assinar",
+  "jobChangeChecklistAlertBody": "Sem transferência do livre passagem nos prazos, o teu capital LPP pode acabar na Fundação supletiva a 0.05\u00a0%.",
+  "jobChangeChecklistDisclaimer": "Ferramenta educativa \u00b7 não constitui aconselhamento financeiro nos termos da LSFin. Fonte: LPP art.\u00a03 (livre passagem), OLP art.\u00a01-3."
 }
