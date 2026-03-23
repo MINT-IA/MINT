@@ -119,12 +119,37 @@ jobs:
           alembic upgrade head
           rm -f test_migration.db
 
-  # ─── Flutter Analysis & Tests ────────────────────────────────
+  # ─── Flutter Analysis & Tests (3-shard parallel) ────────────
+  #
+  # Sharding strategy: split ~345 test files across 3 parallel runners.
+  # Each shard runs `flutter test` on a disjoint subset of test directories.
+  #   - services: test/services/ + test/simulators/ + test/financial_core/ + test/domain/ + test/b2b/  (~200 files)
+  #   - widgets:  test/widgets/ + test/models/ + test/providers/                                       (~85 files)
+  #   - screens:  test/screens/ + test/golden/ + test/auth/ + test/modules/                            (~34 files)
+  #
+  # `flutter analyze` runs only in the services shard to avoid redundant work.
+  # All shards exclude test/_archive/ (legacy suite).
+  # --concurrency=4 parallelizes test execution within each shard.
+  #
   flutter:
-    name: Flutter analyze + test
+    name: Flutter ${{ matrix.shard }}
     needs: changes
     if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [services, widgets, screens]
+        include:
+          - shard: services
+            test_dirs: "test/services/ test/simulators/ test/financial_core/ test/domain/ test/b2b/"
+            run_analyze: true
+          - shard: widgets
+            test_dirs: "test/widgets/ test/models/ test/providers/"
+            run_analyze: false
+          - shard: screens
+            test_dirs: "test/screens/ test/golden/ test/auth/ test/modules/"
+            run_analyze: false
     defaults:
       run:
         working-directory: apps/mobile
@@ -150,6 +175,7 @@ jobs:
         run: flutter gen-l10n
 
       - name: Analyze (errors only)
+        if: matrix.run_analyze
         shell: bash
         run: |
           set +e
@@ -172,13 +198,15 @@ jobs:
           fi
           echo "Analyze passed (0 errors, $warnings warnings, $infos infos)"
 
-      - name: Run tests
+      - name: Run tests (${{ matrix.shard }} shard)
         shell: bash
         run: |
-          echo "Running Flutter tests (excluding test/_archive/** legacy suite)"
-          find test -name '*_test.dart' -not -path 'test/_archive/*' -print0 \
+          echo "Running Flutter tests — shard: ${{ matrix.shard }}"
+          echo "Test directories: ${{ matrix.test_dirs }}"
+          # Collect test files from shard directories, excluding _archive
+          find ${{ matrix.test_dirs }} -name '*_test.dart' -not -path 'test/_archive/*' -print0 \
             | sort -z \
-            | xargs -0 flutter test --reporter compact
+            | xargs -0 flutter test --concurrency=4 --reporter compact
 
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
