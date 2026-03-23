@@ -249,7 +249,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       expect(find.textContaining('performances'), findsOneWidget);
-      expect(find.textContaining('garantissent'), findsOneWidget);
+      expect(find.textContaining('assurance de résultat'), findsOneWidget);
     });
 
     testWidgets('has four Slider widgets for inputs', (tester) async {

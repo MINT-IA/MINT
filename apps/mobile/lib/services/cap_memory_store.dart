@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -132,6 +133,9 @@ class CapMemory {
 class CapMemoryStore {
   static const _key = '_cap_memory';
 
+  /// T2-8: Mutex to prevent concurrent writes.
+  static Completer<void>? _saveLock;
+
   CapMemoryStore._();
 
   /// Load the current memory. Returns empty memory if none stored.
@@ -147,10 +151,19 @@ class CapMemoryStore {
     }
   }
 
-  /// Save memory to disk.
+  /// Save memory to disk. Serialized writes to prevent data corruption.
   static Future<void> save(CapMemory memory) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode(memory.toJson()));
+    // Wait for any in-flight save to complete before starting a new one.
+    if (_saveLock != null && !_saveLock!.isCompleted) {
+      await _saveLock!.future;
+    }
+    _saveLock = Completer<void>();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_key, jsonEncode(memory.toJson()));
+    } finally {
+      _saveLock!.complete();
+    }
   }
 
   /// Record that a cap was served to the user.

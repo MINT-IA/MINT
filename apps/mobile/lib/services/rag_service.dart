@@ -200,34 +200,60 @@ class RagService {
     if (profileContext != null) body['profile_context'] = profileContext;
     if (tools != null) body['tools'] = tools;
 
-    final response = await http
-        .post(
-          uri,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 60));
+    // T3-11: Retry with exponential backoff on 429 rate limit.
+    const maxRetries = 2;
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      final response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 60));
 
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      return RagResponse.fromJson(json);
-    } else if (response.statusCode == 401) {
-      throw const RagApiException(
-        code: 'invalid_key',
-        message: 'La cl\u00e9 API est invalide ou expir\u00e9e.',
-      );
-    } else if (response.statusCode == 429) {
-      throw const RagApiException(
-        code: 'rate_limit',
-        message: 'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
-      );
-    } else {
-      final errorBody = _tryDecodeError(response.body);
-      throw RagApiException(
-        code: 'server_error',
-        message: errorBody ?? 'Erreur serveur (${response.statusCode}).',
-      );
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return RagResponse.fromJson(json);
+      } else if (response.statusCode == 401) {
+        throw const RagApiException(
+          code: 'invalid_key',
+          message: 'La cl\u00e9 API est invalide ou expir\u00e9e.',
+        );
+      } else if (response.statusCode == 429) {
+        if (attempt < maxRetries) {
+          await Future<void>.delayed(Duration(seconds: (attempt + 1) * 2));
+          continue;
+        }
+        throw const RagApiException(
+          code: 'rate_limit',
+          message: 'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
+        );
+      } else if (response.statusCode == 400) {
+        // T3-12: Specific error for bad request.
+        final errorBody = _tryDecodeError(response.body);
+        throw RagApiException(
+          code: 'bad_request',
+          message: errorBody ?? 'Requ\u00eate invalide.',
+        );
+      } else if (response.statusCode == 503) {
+        // T3-12: Specific error for service unavailable.
+        throw const RagApiException(
+          code: 'service_unavailable',
+          message: 'Service temporairement indisponible. R\u00e9essaie plus tard.',
+        );
+      } else {
+        final errorBody = _tryDecodeError(response.body);
+        throw RagApiException(
+          code: 'server_error',
+          message: errorBody ?? 'Erreur serveur (${response.statusCode}).',
+        );
+      }
     }
+    // Should never reach here, but dart analyzer needs it.
+    throw const RagApiException(
+      code: 'rate_limit',
+      message: 'Limite de requ\u00eates atteinte.',
+    );
   }
 
   /// Extract structured fields from a document image via BYOK vision LLM.

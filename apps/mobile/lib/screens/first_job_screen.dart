@@ -153,46 +153,40 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   const SizedBox(height: MintSpacing.lg),
                   _buildChecklist(),
                   const SizedBox(height: MintSpacing.lg),
-                  const JobChangeChecklistWidget(
-                    items: [
-                      ChecklistItem(
-                        deadline: 'Avant de quitter',
-                        emoji: '\u{1F4C4}',
-                        action:
-                            'Demande ton certificat LPP \u00e0 ton employeur actuel.',
-                        legalRef: 'LPP art. 3 — libre passage',
-                        consequence:
-                            'Sans certificat, tu ne peux pas v\u00e9rifier que le '
-                            'montant transf\u00e9r\u00e9 est correct.',
-                      ),
-                      ChecklistItem(
-                        deadline: '30 jours',
-                        emoji: '\u{1F3E6}',
-                        action:
-                            'V\u00e9rifie que ton avoir LPP a \u00e9t\u00e9 transf\u00e9r\u00e9 \u00e0 la '
-                            'caisse de ton nouvel employeur.',
-                        legalRef: 'OLP art. 3 — d\u00e9lai de transfert',
-                        consequence:
-                            'Sans transfert, ton capital va \u00e0 la Fondation '
-                            'suppl\u00e9tive \u00e0 un taux de 0.05%.',
-                      ),
-                      ChecklistItem(
-                        deadline: '1 mois',
-                        emoji: '\u{1F6E1}\u{FE0F}',
-                        action:
-                            'Informe ton assurance-maladie LAMal du changement '
-                            'd\'employeur si tu b\u00e9n\u00e9ficiais d\'une couverture collective.',
-                        legalRef: 'LAMal art. 3',
-                      ),
-                      ChecklistItem(
-                        deadline: 'D\u00e8s le premier salaire',
-                        emoji: '\u{1F3E6}',
-                        action:
-                            'Continue tes versements au pilier 3a — '
-                            'l\'interruption te co\u00fbte des d\u00e9ductions fiscales.',
-                        legalRef: 'OPP3 art. 1',
-                      ),
-                    ],
+                  Builder(
+                    builder: (ctx) {
+                      final l = S.of(ctx)!;
+                      return JobChangeChecklistWidget(
+                        items: [
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline1,
+                            emoji: '\u{1F4C4}',
+                            action: l.firstJobChecklistAction1,
+                            legalRef: 'LPP art. 3 — libre passage',
+                            consequence: l.firstJobChecklistConsequence1,
+                          ),
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline2,
+                            emoji: '\u{1F3E6}',
+                            action: l.firstJobChecklistAction2,
+                            legalRef: 'OLP art. 3 — d\u00e9lai de transfert',
+                            consequence: l.firstJobChecklistConsequence2,
+                          ),
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline3,
+                            emoji: '\u{1F6E1}\u{FE0F}',
+                            action: l.firstJobChecklistAction3,
+                            legalRef: 'LAMal art. 3',
+                          ),
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline4,
+                            emoji: '\u{1F3E6}',
+                            action: l.firstJobChecklistAction4,
+                            legalRef: 'OPP3 art. 1',
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: MintSpacing.lg),
                   _buildEducation(),
@@ -730,13 +724,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   Expanded(
                     flex: 3,
                     child: Text(
-                      '${FirstJobService.formatChf(option.primeMensuelle)}/mois',
+                      S.of(context)!.firstJobPrimePerMonth(FirstJobService.formatChf(option.primeMensuelle)),
                       style: MintTextStyles.labelSmall(
                           color: MintColors.textSecondary),
                     ),
                   ),
                   Text(
-                    'Max ${FirstJobService.formatChf(option.coutAnnuelMax)}/an',
+                    S.of(context)!.firstJobCoutMaxPerYear(FirstJobService.formatChf(option.coutAnnuelMax)),
                     style: MintTextStyles.labelSmall(),
                   ),
                 ],

@@ -3827,7 +3827,7 @@
     }
   },
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
-  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
   "financialSummaryTitle": "FINANZÜBERSICHT",
   "financialSummaryNoProfile": "Kein Profil erfasst",
@@ -4423,7 +4423,7 @@
   },
   "pillar3aViacGainLabel": "Mit VIAC statt einer Bank:",
   "pillar3aMoreAtRetirement": "mehr bei der Pensionierung!",
-  "pillar3aDisclaimer": "Pädagogische Annahmen basierend auf historischen Durchschnittsrenditen. Vergangene Renditen garantieren keine zukünftigen Renditen.",
+  "pillar3aDisclaimer": "Pädagogische Annahmen basierend auf historischen Durchschnittsrenditen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.",
   "pillar3aCapitalEvolution": "Entwicklung deines 3a-Kapitals",
   "pillar3aYearLabel": "Jahr",
   "pillar3aBank15": "Bank 1.5%",
@@ -5329,7 +5329,7 @@
       }
     }
   },
-  "concubinageNeutralTitle": "Aucune option n'est universellement meilleure",
+  "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
   "concubinageNeutralDesc": "Le choix entre mariage et concubinage dépend de ta situation : revenus, patrimoine, enfants, canton, projet de vie. Le mariage offre plus de protections légales automatiques, le concubinage plus de flexibilité. Un·e spécialiste peut t'aider à y voir plus clair.",
   "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
   "concubinageProtectionsCount": "{count}/{total} protections en place",
@@ -6074,6 +6074,8 @@
   "coachErrorInvalidKey": "Dein API-Schlüssel scheint ungültig oder abgelaufen zu sein. Überprüfe ihn in den Einstellungen.",
   "coachErrorRateLimit": "Anfragelimit erreicht. Versuche es in einem Moment erneut.",
   "coachErrorGeneric": "Technischer Fehler. Versuche es später erneut.",
+  "coachErrorBadRequest": "Ungültige Anfrage. Formuliere deine Frage um.",
+  "coachErrorServiceUnavailable": "Service vorübergehend nicht verfügbar. Versuche es in einigen Minuten erneut.",
   "coachErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
   "coachSuggestSimulate3a": "Wie viel spare ich, wenn ich das Maximum einzahle?",
   "coachSuggestView3a": "Wie viel habe ich auf meinen 3a-Konten?",
@@ -6329,6 +6331,7 @@
   "quickStartAgeValue": "{age} Jahre",
   "quickStartSalary": "Dein Bruttojahreseinkommen",
   "quickStartSalaryValue": "{salary}/Jahr",
+  "quickStartNoIncome": "Kein Einkommen",
   "quickStartCanton": "Kanton",
   "quickStartPreviewTitle": "Rentenvorschau",
   "quickStartVerdictGood": "Auf Kurs",
@@ -7948,7 +7951,7 @@
   "compoundEffetLevierBody": "Einmal gestartet, erzeugt dein Kapital eigene Zinsen, die wiederum weitere erzeugen.",
   "compoundDiscipline": "Disziplin",
   "compoundDisciplineBody": "Regelmässige monatliche Einzahlungen sind oft effektiver als der Versuch, den Markt zu timen.",
-  "compoundDisclaimer": "Theoretische Berechnung bei konstanter Rendite. Vergangene Leistungen garantieren keine zukünftigen Ergebnisse.",
+  "compoundDisclaimer": "Theoretische Berechnung bei konstanter Rendite. Vergangene Leistungen sind keine Zusicherung künftiger Ergebnisse.",
   "leasingTitle": "Anti-Leasing-Analyse",
   "leasingMentorTitle": "Überlegung des Mentors",
   "leasingMentorBody": "Leasing ist oft ein Kapital-\"Leck\". Dieses Geld könnte dein Vermögen aufbauen statt die Abschreibung eines Fahrzeugs zu finanzieren.",
@@ -8616,7 +8619,7 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht garantiert.",
+  "chiffreChocSectionDisclaimer": "Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht zugesichert.",
   "concubinageTabProtection": "Schutz",
   "concubinageHeroChiffreChoc": "CHF {montant} gefährdetes Vermögen",
   "@concubinageHeroChiffreChoc": {
@@ -8687,7 +8690,7 @@
   "fiscalSuperpowerTaxBenefits": "Deine Steuervorteile",
   "babyCostTitle": "Die Kosten des Glüks",
   "babyCostBreakdownTitle": "Monatliche Aufschlüsselung",
-  "compoundDisclaimerInflation": "Pädagogische Annahmen (Inflation {inflation} %). Vergangene Renditen sind keine Garantie für zukünftige Ergebnisse.",
+  "compoundDisclaimerInflation": "Pädagogische Annahmen (Inflation {inflation} %). Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.",
   "@compoundDisclaimerInflation": {
     "placeholders": {
       "inflation": {
@@ -8695,7 +8698,7 @@
       }
     }
   },
-  "interactive3aDisclaimer": "Pädagogische Annahmen. Vergangene Renditen garantieren keine zukünftigen Renditen.",
+  "interactive3aDisclaimer": "Pädagogische Annahmen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.",
   "lifeEventSheetTitle": "Etwas passiert mir",
   "lifeEventSheetSubtitle": "Wähle ein Ereignis, um die finanzielle Auswirkung zu sehen",
   "lifeEventSheetSectionFamille": "Familie",
@@ -10367,5 +10370,19 @@
 
   "cockpitDetailEmptyState": "Vervollst\u00e4ndige dein Profil, um auf das detaillierte Cockpit zuzugreifen.",
   "cockpitDetailEnrichProfile": "Mein Profil anreichern",
-  "cockpitDetailDisclaimer": "Vereinfachtes Bildungstool. Keine Finanzberatung (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7."
+  "cockpitDetailDisclaimer": "Vereinfachtes Bildungstool. Keine Finanzberatung (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7.",
+  "toolBudgetSnapshotHint": "Hier ist eine Übersicht deines aktuellen Budgets.",
+  "toolScoreGaugeHint": "Hier ist dein finanzieller Vertrauensscore.",
+  "coachFactCardTitle": "Wusstest du?",
+
+  "firstJobPrimePerMonth": "{amount}/Monat",
+  "firstJobCoutMaxPerYear": "Max. {amount}/Jahr",
+
+  "jobChangeChecklistSemantics": "Checkliste neuer Job BVG Freizügigkeit dringende Aufgaben",
+  "jobChangeChecklistTitle": "Checkliste Jobwechsel",
+  "jobChangeChecklistSubtitle": "Du hast 30 Tage, um zu prüfen, ob dein BVG übertragen wurde.",
+  "jobChangeChecklistProgress": "{completed} / {total} Aufgaben erledigt",
+  "jobChangeChecklistAlertTitle": "Fordere IMMER den BVG-Ausweis an, bevor du unterschreibst",
+  "jobChangeChecklistAlertBody": "Ohne Freizügigkeitsübertragung innerhalb der Frist kann dein BVG-Kapital bei der Auffangeinrichtung zu 0.05\u00a0% landen.",
+  "jobChangeChecklistDisclaimer": "Bildungstool \u00b7 keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art.\u00a03 (Freizügigkeit), FZV Art.\u00a01-3."
 }

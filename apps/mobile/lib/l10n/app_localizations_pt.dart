@@ -8271,7 +8271,7 @@ class SPt extends S {
 
   @override
   String get futurDisclaimer =>
-      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
+      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
 
   @override
   String get futurExplorerDetails => 'Explorer les détails';
@@ -10927,7 +10927,8 @@ class SPt extends S {
   }
 
   @override
-  String get concubinageNeutralTitle => 'Aucune option n\'est meilleure';
+  String get concubinageNeutralTitle =>
+      'Aucune option n\'est universellement adaptée';
 
   @override
   String get concubinageNeutralDesc => 'Dépend de ta situation.';
@@ -12652,6 +12653,14 @@ class SPt extends S {
   String get coachErrorGeneric => 'Erro técnico. Tenta novamente mais tarde.';
 
   @override
+  String get coachErrorBadRequest =>
+      'Pedido inválido. Tenta reformular a tua pergunta.';
+
+  @override
+  String get coachErrorServiceUnavailable =>
+      'Serviço temporariamente indisponível. Tenta novamente daqui a uns minutos.';
+
+  @override
   String get coachErrorConnection =>
       'Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.';
 
@@ -13285,6 +13294,9 @@ class SPt extends S {
   String quickStartSalaryValue(String salary) {
     return '$salary/ano';
   }
+
+  @override
+  String get quickStartNoIncome => 'Sem rendimento';
 
   @override
   String get quickStartCanton => 'Cantao';
@@ -14215,7 +14227,7 @@ class SPt extends S {
 
   @override
   String expatDepartChiffreChoc(String amount) {
-    return '$amount de capital a garantir antes da partida';
+    return '$amount de capital a assegurar antes da partida';
   }
 
   @override
@@ -16468,7 +16480,7 @@ class SPt extends S {
 
   @override
   String get compoundDisclaimer =>
-      'Cálculo teórico basado en un rendimiento constante. Rendimientos pasados no garantizan resultados futuros.';
+      'Cálculo teórico com rendimento constante. Os rendimentos passados não asseguram resultados futuros.';
 
   @override
   String get leasingTitle => 'Análise Anti-Leasing';
@@ -17854,7 +17866,7 @@ class SPt extends S {
 
   @override
   String get chiffreChocSectionDisclaimer =>
-      'Simulação educativa. Não constitui aconselhamento financeiro (LSFin). Hipóteses modificáveis — resultados não garantidos.';
+      'Simulação educativa. Não constitui aconselhamento financeiro (LSFin). Hipóteses modificáveis — resultados não assegurados.';
 
   @override
   String get concubinageTabProtection => 'Proteção';
@@ -21586,4 +21598,54 @@ class SPt extends S {
   @override
   String get cockpitDetailDisclaimer =>
       'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).';
+
+  @override
+  String get toolBudgetSnapshotHint =>
+      'Aqui está uma visão do teu orçamento atual.';
+
+  @override
+  String get toolScoreGaugeHint =>
+      'Aqui está a tua pontuação de confiança financeira.';
+
+  @override
+  String get coachFactCardTitle => 'Sabias que?';
+
+  @override
+  String firstJobPrimePerMonth(String amount) {
+    return '$amount/mês';
+  }
+
+  @override
+  String firstJobCoutMaxPerYear(String amount) {
+    return 'Máx. $amount/ano';
+  }
+
+  @override
+  String get jobChangeChecklistSemantics =>
+      'Lista de verificação novo emprego LPP livre passagem ações urgentes';
+
+  @override
+  String get jobChangeChecklistTitle =>
+      'Lista de verificação mudança de emprego';
+
+  @override
+  String get jobChangeChecklistSubtitle =>
+      'Tens 30 dias para verificar que o teu LPP foi transferido.';
+
+  @override
+  String jobChangeChecklistProgress(int completed, int total) {
+    return '$completed / $total ações concluídas';
+  }
+
+  @override
+  String get jobChangeChecklistAlertTitle =>
+      'Pede SEMPRE o certificado LPP antes de assinar';
+
+  @override
+  String get jobChangeChecklistAlertBody =>
+      'Sem transferência do livre passagem nos prazos, o teu capital LPP pode acabar na Fundação supletiva a 0.05 %.';
+
+  @override
+  String get jobChangeChecklistDisclaimer =>
+      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Fonte: LPP art. 3 (livre passagem), OLP art. 1-3.';
 }

@@ -8270,7 +8270,7 @@ class SFr extends S {
 
   @override
   String get futurDisclaimer =>
-      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
+      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
 
   @override
   String get futurExplorerDetails => 'Explorer les détails';
@@ -9391,7 +9391,7 @@ class SFr extends S {
 
   @override
   String get pillar3aDisclaimer =>
-      'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne garantissent pas rendements futurs.';
+      'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.';
 
   @override
   String get pillar3aCapitalEvolution => 'Évolution de ton capital 3a';
@@ -10963,7 +10963,7 @@ class SFr extends S {
 
   @override
   String get concubinageNeutralTitle =>
-      'Aucune option n\'est universellement meilleure';
+      'Aucune option n\'est universellement adaptée';
 
   @override
   String get concubinageNeutralDesc =>
@@ -12701,6 +12701,13 @@ class SFr extends S {
   String get coachErrorGeneric => 'Erreur technique. Réessaie plus tard.';
 
   @override
+  String get coachErrorBadRequest => 'Requête invalide. Reformule ta question.';
+
+  @override
+  String get coachErrorServiceUnavailable =>
+      'Service temporairement indisponible. Réessaie dans quelques minutes.';
+
+  @override
   String get coachErrorConnection =>
       'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.';
 
@@ -13333,6 +13340,9 @@ class SFr extends S {
   String quickStartSalaryValue(String salary) {
     return '$salary/an';
   }
+
+  @override
+  String get quickStartNoIncome => 'Sans revenu';
 
   @override
   String get quickStartCanton => 'Canton';
@@ -16522,7 +16532,7 @@ class SFr extends S {
 
   @override
   String get compoundDisclaimer =>
-      'Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.';
+      'Calcul théorique basé sur un rendement constant. Les performances passées ne constituent pas une assurance de résultat pour les résultats futurs.';
 
   @override
   String get leasingTitle => 'Analyse Anti-Leasing';
@@ -17906,7 +17916,7 @@ class SFr extends S {
 
   @override
   String get chiffreChocSectionDisclaimer =>
-      'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non garantis.';
+      'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.';
 
   @override
   String get concubinageTabProtection => 'Protection';
@@ -18234,12 +18244,12 @@ class SFr extends S {
 
   @override
   String compoundDisclaimerInflation(String inflation) {
-    return 'Hypothèses pédagogiques (inflation $inflation %). Les rendements passés ne garantissent pas les rendements futurs.';
+    return 'Hypothèses pédagogiques (inflation $inflation %). Les rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.';
   }
 
   @override
   String get interactive3aDisclaimer =>
-      'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.';
+      'Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.';
 
   @override
   String get milestoneContinueBtn => 'Continuer';
@@ -20681,7 +20691,7 @@ class SFr extends S {
 
   @override
   String get capStepHousing07Desc =>
-      'Notaire, courtier, conseiller : quand impliquer qui.';
+      'Notaire, courtier, spécialiste : quand impliquer qui.';
 
   @override
   String get goalSelectorTitle => 'Quel est ton objectif principal ?';
@@ -21634,4 +21644,51 @@ class SFr extends S {
   @override
   String get cockpitDetailDisclaimer =>
       'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.';
+
+  @override
+  String get toolBudgetSnapshotHint => 'Voici un aperçu de ton budget actuel.';
+
+  @override
+  String get toolScoreGaugeHint => 'Voici ton score de confiance financière.';
+
+  @override
+  String get coachFactCardTitle => 'Le savais-tu ?';
+
+  @override
+  String firstJobPrimePerMonth(String amount) {
+    return '$amount/mois';
+  }
+
+  @override
+  String firstJobCoutMaxPerYear(String amount) {
+    return 'Max $amount/an';
+  }
+
+  @override
+  String get jobChangeChecklistSemantics =>
+      'Checklist nouveau job libre passage LPP actions urgentes';
+
+  @override
+  String get jobChangeChecklistTitle => 'Checklist changement de job';
+
+  @override
+  String get jobChangeChecklistSubtitle =>
+      'Tu as 30 jours pour vérifier que ton LPP a été transféré.';
+
+  @override
+  String jobChangeChecklistProgress(int completed, int total) {
+    return '$completed / $total actions complétées';
+  }
+
+  @override
+  String get jobChangeChecklistAlertTitle =>
+      'Demande TOUJOURS le certificat LPP avant de signer';
+
+  @override
+  String get jobChangeChecklistAlertBody =>
+      'Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.';
+
+  @override
+  String get jobChangeChecklistDisclaimer =>
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.';
 }

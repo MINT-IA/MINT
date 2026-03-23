@@ -3827,7 +3827,7 @@
     }
   },
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
-  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
   "financialSummaryTitle": "FINANCIAL OVERVIEW",
   "financialSummaryNoProfile": "No profile entered",
@@ -5329,7 +5329,7 @@
       }
     }
   },
-  "concubinageNeutralTitle": "Aucune option n'est universellement meilleure",
+  "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
   "concubinageNeutralDesc": "Le choix entre mariage et concubinage dépend de ta situation : revenus, patrimoine, enfants, canton, projet de vie. Le mariage offre plus de protections légales automatiques, le concubinage plus de flexibilité. Un·e spécialiste peut t'aider à y voir plus clair.",
   "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
   "concubinageProtectionsCount": "{count}/{total} protections en place",
@@ -6074,6 +6074,8 @@
   "coachErrorInvalidKey": "Your API key seems invalid or expired. Check it in settings.",
   "coachErrorRateLimit": "Rate limit reached. Try again in a moment.",
   "coachErrorGeneric": "Technical error. Try again later.",
+  "coachErrorBadRequest": "Invalid request. Try rephrasing your question.",
+  "coachErrorServiceUnavailable": "Service temporarily unavailable. Try again in a few minutes.",
   "coachErrorConnection": "Connection error. Check your internet connection or API key.",
   "coachSuggestSimulate3a": "How much do I save if I max out my 3a?",
   "coachSuggestView3a": "How much is in my 3a accounts?",
@@ -6329,6 +6331,7 @@
   "quickStartAgeValue": "{age} years",
   "quickStartSalary": "Your gross annual income",
   "quickStartSalaryValue": "{salary}/year",
+  "quickStartNoIncome": "No income",
   "quickStartCanton": "Canton",
   "quickStartPreviewTitle": "Retirement preview",
   "quickStartVerdictGood": "On track",
@@ -10395,5 +10398,19 @@
 
   "cockpitDetailEmptyState": "Complete your profile to access the detailed cockpit.",
   "cockpitDetailEnrichProfile": "Enrich my profile",
-  "cockpitDetailDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OAHV art. 21-29, LPP art. 14, OPP3 art. 7."
+  "cockpitDetailDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OAHV art. 21-29, LPP art. 14, OPP3 art. 7.",
+  "toolBudgetSnapshotHint": "Here is a snapshot of your current budget.",
+  "toolScoreGaugeHint": "Here is your financial confidence score.",
+  "coachFactCardTitle": "Did you know?",
+
+  "firstJobPrimePerMonth": "{amount}/month",
+  "firstJobCoutMaxPerYear": "Max {amount}/year",
+
+  "jobChangeChecklistSemantics": "New job checklist LPP vested benefits urgent actions",
+  "jobChangeChecklistTitle": "Job change checklist",
+  "jobChangeChecklistSubtitle": "You have 30 days to verify that your LPP has been transferred.",
+  "jobChangeChecklistProgress": "{completed} / {total} actions completed",
+  "jobChangeChecklistAlertTitle": "ALWAYS request the LPP certificate before signing",
+  "jobChangeChecklistAlertBody": "Without a vested benefits transfer within the deadline, your LPP capital may end up at the Substitute Foundation at 0.05\u00a0%.",
+  "jobChangeChecklistDisclaimer": "Educational tool \u00b7 does not constitute financial advice under FinSA. Source: LPP art.\u00a03 (vested benefits), OLP art.\u00a01-3."
 }

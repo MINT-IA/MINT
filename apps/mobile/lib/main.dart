@@ -69,10 +69,12 @@ Future<void> main() async {
     }),
   ]);
 
-  // Periodic refresh of server-driven feature flags (every 6 hours)
-  Timer.periodic(const Duration(hours: 6), (_) {
-    FeatureFlags.refreshFromBackend();
-  });
+  // Periodic refresh of server-driven feature flags (every 6 hours).
+  // Timer stored on FeatureFlags so WidgetsBindingObserver can cancel on detach.
+  FeatureFlags.periodicRefreshTimer = Timer.periodic(
+    const Duration(hours: 6),
+    (_) => FeatureFlags.refreshFromBackend(),
+  );
 
   // Lancement immédiat de l'app (UX first!)
   runApp(const MintApp());

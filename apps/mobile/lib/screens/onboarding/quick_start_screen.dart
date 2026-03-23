@@ -64,12 +64,12 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       if (profile.firstName != null && profile.firstName!.isNotEmpty) {
         _nameController.text = profile.firstName!;
       }
-      _age = profile.age.toDouble().clamp(22, 67);
+      _age = profile.age.toDouble().clamp(18, 75);
       if (profile.canton.isNotEmpty) {
         _canton = profile.canton;
       }
       if (profile.revenuBrutAnnuel > 0) {
-        _salary = profile.revenuBrutAnnuel.clamp(20000, 300000);
+        _salary = profile.revenuBrutAnnuel.clamp(0, 500000);
       }
     });
   }
@@ -272,9 +272,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                         data: _sliderTheme(),
                         child: Slider(
                           value: _age,
-                          min: 22,
-                          max: 67,
-                          divisions: 45,
+                          min: 18,
+                          max: 75,
+                          divisions: 57,
                           onChanged: (v) => setState(() => _age = v),
                         ),
                       ),
@@ -284,21 +284,25 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     // ── Revenu brut annuel slider ──
                     _buildSliderLabel(
                       l.quickStartSalary,
-                      l.quickStartSalaryValue(
-                          formatChfWithPrefix(_salary)),
+                      _salary == 0
+                          ? l.quickStartNoIncome
+                          : l.quickStartSalaryValue(
+                              formatChfWithPrefix(_salary)),
                     ),
                     Semantics(
                       label: l.quickStartSalary,
                       slider: true,
-                      value: l.quickStartSalaryValue(
-                          formatChfWithPrefix(_salary)),
+                      value: _salary == 0
+                          ? l.quickStartNoIncome
+                          : l.quickStartSalaryValue(
+                              formatChfWithPrefix(_salary)),
                       child: SliderTheme(
                         data: _sliderTheme(),
                         child: Slider(
                           value: _salary,
-                          min: 20000,
-                          max: 300000,
-                          divisions: 56,
+                          min: 0,
+                          max: 500000,
+                          divisions: 100,
                           onChanged: (v) => setState(() => _salary = v),
                         ),
                       ),

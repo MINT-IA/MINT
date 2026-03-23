@@ -200,8 +200,6 @@ class _PulseScreenState extends State<PulseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final coachProvider = context.watch<CoachProfileProvider>();
-
     // Read unified state from MintStateProvider — single source of truth
     // for all financial computations. Graceful degradation: if the provider
     // is not in the tree (e.g. tests without full app setup), falls back
@@ -213,15 +211,18 @@ class _PulseScreenState extends State<PulseScreen> {
       // Provider not in widget tree — all mintState paths degrade to null.
     }
 
-    // Explicit user selection takes priority over MintStateProvider goal tag.
-    final activeGoalIntentTag =
-        _selectedGoalTag ?? mintState?.activeGoalIntentTag;
-
+    // T2-2: Use CoachProfileProvider only for hasProfile check in empty state.
+    // Profile itself is read from MintUserState when available.
+    final coachProvider = context.watch<CoachProfileProvider>();
     if (!coachProvider.hasProfile) {
       return _buildEmptyState(context);
     }
 
-    final profile = coachProvider.profile!;
+    // Explicit user selection takes priority over MintStateProvider goal tag.
+    final activeGoalIntentTag =
+        _selectedGoalTag ?? mintState?.activeGoalIntentTag;
+
+    final profile = mintState?.profile ?? coachProvider.profile!;
     final cap = _cachedCap ?? mintState?.currentCap;
     final l = S.of(context)!;
 

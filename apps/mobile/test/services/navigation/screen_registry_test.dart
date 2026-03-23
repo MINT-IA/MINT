@@ -48,8 +48,8 @@ void main() {
       }
     });
 
-    test('total entry count covers all registered surfaces (= 109)', () {
-      expect(MintScreenRegistry.entries.length, equals(109));
+    test('total entry count covers all registered surfaces (= 110)', () {
+      expect(MintScreenRegistry.entries.length, equals(110));
     });
 
     test('all routes are unique (no duplicate routes)', () {

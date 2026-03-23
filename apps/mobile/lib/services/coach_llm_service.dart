@@ -215,6 +215,9 @@ class CoachResponse {
   final List<String> disclaimers;
   final bool wasFiltered;
 
+  /// Structured tool_calls from the backend LLM (e.g. show_fact_card, set_goal).
+  final List<RagToolCall> toolCalls;
+
   const CoachResponse({
     required this.message,
     this.suggestedActions,
@@ -222,6 +225,7 @@ class CoachResponse {
     this.sources = const [],
     this.disclaimers = const [],
     this.wasFiltered = false,
+    this.toolCalls = const [],
   });
 }
 

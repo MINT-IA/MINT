@@ -3827,7 +3827,7 @@
     }
   },
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
-  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
   "financialSummaryTitle": "APERÇU FINANCIER",
   "financialSummaryNoProfile": "Aucun profil renseigné",
@@ -4423,7 +4423,7 @@
   },
   "pillar3aViacGainLabel": "Avec VIAC au lieu d'une banque :",
   "pillar3aMoreAtRetirement": "de plus à la retraite !",
-  "pillar3aDisclaimer": "Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne garantissent pas rendements futurs.",
+  "pillar3aDisclaimer": "Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.",
   "pillar3aCapitalEvolution": "Évolution de ton capital 3a",
   "pillar3aYearLabel": "Année",
   "pillar3aBank15": "Banque 1.5%",
@@ -5377,7 +5377,7 @@
       }
     }
   },
-  "concubinageNeutralTitle": "Aucune option n'est universellement meilleure",
+  "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
   "concubinageNeutralDesc": "Le choix entre mariage et concubinage dépend de ta situation : revenus, patrimoine, enfants, canton, projet de vie. Le mariage offre plus de protections légales automatiques, le concubinage plus de flexibilité. Un·e spécialiste peut t'aider à y voir plus clair.",
   "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
   "concubinageProtectionsCount": "{count}/{total} protections en place",
@@ -6367,6 +6367,8 @@
   "coachErrorInvalidKey": "Ta clé API semble invalide ou expirée. Vérifie-la dans les paramètres.",
   "coachErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
   "coachErrorGeneric": "Erreur technique. Réessaie plus tard.",
+  "coachErrorBadRequest": "Requête invalide. Reformule ta question.",
+  "coachErrorServiceUnavailable": "Service temporairement indisponible. Réessaie dans quelques minutes.",
   "coachErrorConnection": "Erreur de connexion. Vérifie ta connexion internet ou ta clé API.",
   "coachSuggestSimulate3a": "Combien j’économise si je verse le max ?",
   "coachSuggestView3a": "J’ai combien sur mes comptes 3a ?",
@@ -6636,6 +6638,7 @@
       }
     }
   },
+  "quickStartNoIncome": "Sans revenu",
   "quickStartCanton": "Canton",
   "quickStartPreviewTitle": "Premier aperçu retraite",
   "quickStartVerdictGood": "En bonne voie",
@@ -8274,7 +8277,7 @@
   "compoundEffetLevierBody": "Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d'autres à leur tour.",
   "compoundDiscipline": "Discipline",
   "compoundDisciplineBody": "La régularité des versements mensuels est souvent plus efficace que la recherche du moment idéal pour investir.",
-  "compoundDisclaimer": "Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.",
+  "compoundDisclaimer": "Calcul théorique basé sur un rendement constant. Les performances passées ne constituent pas une assurance de résultat pour les résultats futurs.",
   "leasingTitle": "Analyse Anti-Leasing",
   "leasingMentorTitle": "Réflexion du Mentor",
   "leasingMentorBody": "Le leasing est souvent une \"fuite\" de capital. Cet argent pourrait servir à construire ton patrimoine plutôt qu'à financer la dépréciation d'un véhicule.",
@@ -8963,7 +8966,7 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non garantis.",
+  "chiffreChocSectionDisclaimer": "Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.",
   "concubinageTabProtection": "Protection",
   "concubinageHeroChiffreChoc": "CHF {montant} de patrimoine exposé",
   "@concubinageHeroChiffreChoc": {
@@ -9078,7 +9081,7 @@
   "lifeEventPromptExpatriation": "Je pars à l’étranger — que faire de ma prévoyance AVS, LPP et 3a ?",
   "lifeEventPromptInvalidite": "Suis-je bien couvert·e en cas d’invalidité ou d’accident ?",
   "lifeEventPromptDettes": "J’ai des dettes — comment les gérer sans toucher à ma prévoyance ?",
-  "compoundDisclaimerInflation": "Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne garantissent pas les rendements futurs.",
+  "compoundDisclaimerInflation": "Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.",
   "@compoundDisclaimerInflation": {
     "placeholders": {
       "inflation": {
@@ -9086,7 +9089,7 @@
       }
     }
   },
-  "interactive3aDisclaimer": "Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.",
+  "interactive3aDisclaimer": "Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.",
   "milestoneContinueBtn": "Continuer",
   "slmAutoPromptTitle": "Coach IA sur ton appareil",
   "slmAutoPromptBody": "MINT peut installer un modèle d’IA directement sur ton téléphone pour des conseils personnalisés — 100 % privé, aucune donnée ne quitte ton appareil.",
@@ -10232,7 +10235,7 @@
   "capStepHousing06Title": "Comparer location vs achat",
   "capStepHousing06Desc": "Le calcul qui dépasse les intuitions.",
   "capStepHousing07Title": "Consulter un·e spécialiste",
-  "capStepHousing07Desc": "Notaire, courtier, conseiller : quand impliquer qui.",
+  "capStepHousing07Desc": "Notaire, courtier, spécialiste : quand impliquer qui.",
   "goalSelectorTitle": "Quel est ton objectif principal ?",
   "goalSelectorAuto": "Laisser MINT décider",
   "goalSelectorAutoDesc": "MINT adapte automatiquement selon ton profil",
@@ -10745,5 +10748,43 @@
 
   "cockpitDetailEmptyState": "Compl\u00e8te ton profil pour acc\u00e9der au cockpit d\u00e9taill\u00e9.",
   "cockpitDetailEnrichProfile": "Enrichir mon profil",
-  "cockpitDetailDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7."
+  "cockpitDetailDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
+  "toolBudgetSnapshotHint": "Voici un aper\u00e7u de ton budget actuel.",
+  "toolScoreGaugeHint": "Voici ton score de confiance financière.",
+  "coachFactCardTitle": "Le savais-tu\u00a0?",
+
+  "firstJobPrimePerMonth": "{amount}/mois",
+  "@firstJobPrimePerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobCoutMaxPerYear": "Max {amount}/an",
+  "@firstJobCoutMaxPerYear": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+
+  "jobChangeChecklistSemantics": "Checklist nouveau job libre passage LPP actions urgentes",
+  "jobChangeChecklistTitle": "Checklist changement de job",
+  "jobChangeChecklistSubtitle": "Tu as 30 jours pour v\u00e9rifier que ton LPP a \u00e9t\u00e9 transf\u00e9r\u00e9.",
+  "jobChangeChecklistProgress": "{completed} / {total} actions compl\u00e9t\u00e9es",
+  "@jobChangeChecklistProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "jobChangeChecklistAlertTitle": "Demande TOUJOURS le certificat LPP avant de signer",
+  "jobChangeChecklistAlertBody": "Sans transfert du libre passage dans les d\u00e9lais, ton capital LPP peut finir \u00e0 la Fondation suppl\u00e9tive \u00e0 0.05\u00a0%.",
+  "jobChangeChecklistDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LPP art.\u00a03 (libre passage), OLP art.\u00a01-3."
 }

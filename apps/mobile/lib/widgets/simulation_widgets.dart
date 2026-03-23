@@ -133,7 +133,7 @@ class CompoundInterestChart extends StatelessWidget {
             child: BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
-                maxY: (scenarios.last['futureValue'] as double) * 1.1,
+                maxY: ((scenarios.lastOrNull?['futureValue'] as double?) ?? 0.0) * 1.1,
                 barTouchData: BarTouchData(enabled: false),
                 titlesData: FlTitlesData(
                   show: true,
