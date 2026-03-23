@@ -73,11 +73,11 @@ void main() {
       expect(find.textContaining('Mentor'), findsWidgets);
     });
 
-    testWidgets('displays parameter sliders with French labels', (tester) async {
+    testWidgets('displays parameter inputs with French labels', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: sim3aAnnualContribution = "Versement annuel"
-      expect(find.textContaining('Versement'), findsWidgets);
+      // i18n: sim3aContributionFieldLabel = "Cotisation annuelle"
+      expect(find.textContaining('otisation'), findsWidgets);
       expect(find.textContaining('imposition'), findsWidgets);
       expect(find.textContaining('retraite'), findsWidgets);
     });
@@ -107,10 +107,12 @@ void main() {
       expect(find.textContaining('5 comptes'), findsOneWidget);
     });
 
-    testWidgets('has Slider widgets for input parameters', (tester) async {
+    testWidgets('has modern inputs (chips + text field) for parameters', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      expect(find.byType(Slider), findsNWidgets(4));
+      // Sliders replaced: tax rate chips + return rate chips + contribution text field
+      expect(find.byType(ChoiceChip), findsWidgets);
+      expect(find.byType(TextField), findsWidgets);
     });
   });
 

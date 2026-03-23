@@ -51,8 +51,8 @@ void main() {
     // Caption is i18n budgetChiffreChocCaption (not "Disponible ce mois")
     expect(find.textContaining('3500'), findsWidgets);
 
-    // 5. Verify Sliders presence (MintPremiumSlider wraps Slider internally)
-    expect(find.byType(Slider), findsWidgets);
+    // 5. Verify tap-to-type envelope fields (replaced MintPremiumSlider)
+    expect(find.byType(TextField), findsWidgets);
   });
 
   testWidgets('BudgetScreen Stop Rule triggers warning',

@@ -22,6 +22,7 @@ import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 import 'package:mint_mobile/widgets/pulse/goal_selector_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -240,7 +241,7 @@ class _PulseScreenState extends State<PulseScreen> {
 
     return CustomScrollView(
       slivers: [
-        // ── AppBar (Pulse exception: gradient) ──
+        // ── AppBar (white, consistent) ──
         _buildAppBar(context, profile),
 
         SliverToBoxAdapter(
@@ -273,6 +274,16 @@ class _PulseScreenState extends State<PulseScreen> {
                   alignment: Alignment.centerRight,
                   child: _buildGoalChip(context, profile, l, activeGoalIntentTag),
                 ),
+
+                // ── 2b. BUDGET A/B/GAP (only when fullGapVisible) ──
+                if (mintState?.budgetSnapshot != null &&
+                    mintState!.budgetSnapshot!.hasFullGap) ...[
+                  const SizedBox(height: MintSpacing.xl),
+                  _BudgetABGapBlock(
+                    snapshot: mintState.budgetSnapshot!,
+                    l: l,
+                  ),
+                ],
 
                 const SizedBox(height: MintSpacing.xxl),
 
@@ -778,7 +789,7 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  // ── APP BAR (Pulse exception: gradient) ──
+  // ── APP BAR (white — consistent with all other screens) ──
 
   SliverAppBar _buildAppBar(BuildContext context, CoachProfile profile) {
     final l = S.of(context)!;
@@ -789,11 +800,11 @@ class _PulseScreenState extends State<PulseScreen> {
     return SliverAppBar(
       floating: false,
       pinned: true,
-      backgroundColor: MintColors.primary,
-      surfaceTintColor: MintColors.primary,
+      backgroundColor: MintColors.porcelaine,
+      surfaceTintColor: MintColors.porcelaine,
       title: Text(
         greeting,
-        style: MintTextStyles.titleMedium(color: MintColors.white)
+        style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
             .copyWith(fontSize: 20),
       ),
       centerTitle: false,
@@ -805,23 +816,12 @@ class _PulseScreenState extends State<PulseScreen> {
               label: 'Solo / Duo',
               button: true,
               child: IconButton(
-                icon: const Icon(Icons.people_outline, color: MintColors.white),
+                icon: const Icon(Icons.people_outline, color: MintColors.textSecondary),
                 onPressed: () => context.push('/couple'),
               ),
             ),
           ),
       ],
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [MintColors.primary, MintColors.primaryLight],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -1287,6 +1287,159 @@ class _DominantNumber {
     required this.format,
     required this.type,
   });
+}
+
+// ── BUDGET A / B / GAP BLOCK ──
+//
+// Two-column comparison: Present (Budget A) vs Retirement (Budget B).
+// Shown only when BudgetStage == fullGapVisible.
+// Layout:
+//   ┌─ Aujourd'hui ──┬─ À la retraite ─┐
+//   │ Revenu    8'200 │ Net retraite     │
+//   │ Charges   5'720 │ 1'340            │
+//   │ Libre     2'480 │ Écart: 1'140     │
+//   └─────────────────┴─────────────────┘
+
+class _BudgetABGapBlock extends StatelessWidget {
+  final BudgetSnapshot snapshot;
+  final S l;
+
+  const _BudgetABGapBlock({required this.snapshot, required this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    final present = snapshot.present;
+    final retirement = snapshot.retirement;
+    final gap = snapshot.gap;
+
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MintColors.border.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Column A: Aujourd'hui ──
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.pulseBudgetATitle,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
+                  ).copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+                _BudgetLine(
+                  label: l.pulseBudgetRevenu,
+                  value: formatChf(present.monthlyNet),
+                  color: MintColors.textPrimary,
+                ),
+                const SizedBox(height: 4),
+                _BudgetLine(
+                  label: l.pulseBudgetCharges,
+                  value: formatChf(present.monthlyCharges),
+                  color: MintColors.textSecondary,
+                ),
+                const SizedBox(height: 4),
+                _BudgetLine(
+                  label: l.pulseBudgetLibre,
+                  value: formatChf(present.monthlyFree),
+                  color: present.monthlyFree >= 0
+                      ? MintColors.success
+                      : MintColors.warning,
+                ),
+              ],
+            ),
+          ),
+          // ── Divider ──
+          Container(
+            width: 1,
+            height: 80,
+            margin: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+            color: MintColors.border.withValues(alpha: 0.3),
+          ),
+          // ── Column B: À la retraite ──
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.pulseBudgetBTitle,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
+                  ).copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+                if (retirement != null)
+                  _BudgetLine(
+                    label: l.pulseBudgetRetirementNet,
+                    value: formatChf(retirement.monthlyNet),
+                    color: MintColors.textPrimary,
+                  ),
+                if (gap != null) ...[
+                  const SizedBox(height: 4),
+                  _BudgetLine(
+                    label: l.pulseBudgetGap,
+                    value: '${gap.monthlyGap >= 0 ? "-" : "+"}${formatChf(gap.monthlyGap.abs())}',
+                    color: gap.monthlyGap > 0
+                        ? MintColors.warning
+                        : MintColors.success,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${gap.replacementRate.round()}\u00a0%',
+                    style: MintTextStyles.titleMedium(
+                      color: gap.replacementRate >= 80
+                          ? MintColors.success
+                          : MintColors.warning,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Single line inside the Budget A/B block.
+class _BudgetLine extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _BudgetLine({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+        ),
+        Text(
+          value,
+          style: MintTextStyles.labelSmall(color: color)
+              .copyWith(fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
+  }
 }
 
 // ── NAVIGATION SHELL STATE (kept here for import compatibility) ──

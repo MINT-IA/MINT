@@ -79,6 +79,7 @@ class ExploreTab extends StatelessWidget {
                     tone: promoted[i].tone,
                     icon: promoted[i].icon,
                     onTap: promoted[i].onTap,
+                    chatContext: promoted[i].chatContext,
                   ),
                   if (i < promoted.length - 1)
                     const SizedBox(height: MintSpacing.xl),
@@ -146,63 +147,73 @@ class ExploreTab extends StatelessWidget {
   }
 
   /// Build canonical list of all 7 hubs with metadata.
+  ///
+  /// [narrative] is the human intro phrase — never generic "Découvrez".
+  /// [chatContext] is the hub topic for "En parler avec MINT" CTA.
   List<_HubData> _buildAllHubs(S l, BuildContext context) {
     return [
       _HubData(
         id: 'retraite',
         title: l.exploreHubRetraiteTitle,
-        narrative: l.exploreHubRetraiteSubtitle,
+        narrative: l.exploreHubRetraiteIntro,
         tone: MintSurfaceTone.sauge,
         icon: Icons.beach_access_outlined,
         onTap: () => context.push('/explore/retraite'),
+        chatContext: 'retraite',
       ),
       _HubData(
         id: 'famille',
         title: l.exploreHubFamilleTitle,
-        narrative: l.exploreHubFamilleSubtitle,
+        narrative: l.exploreHubFamilleIntro,
         tone: MintSurfaceTone.peche,
         icon: Icons.family_restroom_outlined,
         onTap: () => context.push('/explore/famille'),
+        chatContext: 'famille',
       ),
       _HubData(
         id: 'travail',
         title: l.exploreHubTravailTitle,
-        narrative: l.exploreHubTravailSubtitle,
+        narrative: l.exploreHubTravailIntro,
         tone: MintSurfaceTone.bleu,
         icon: Icons.work_outline,
         onTap: () => context.push('/explore/travail'),
+        chatContext: 'travail',
       ),
       _HubData(
         id: 'logement',
         title: l.exploreHubLogementTitle,
-        narrative: l.exploreHubLogementSubtitle,
+        narrative: l.exploreHubLogementIntro,
         tone: MintSurfaceTone.porcelaine,
         icon: Icons.home_outlined,
         onTap: () => context.push('/explore/logement'),
+        chatContext: 'logement',
       ),
       _HubData(
         id: 'fiscalite',
         title: l.exploreHubFiscaliteTitle,
-        narrative: l.exploreHubFiscaliteSubtitle,
+        narrative: l.exploreHubFiscaliteIntro,
         tone: MintSurfaceTone.blanc,
         icon: Icons.receipt_long_outlined,
         onTap: () => context.push('/explore/fiscalite'),
+        chatContext: 'fiscalite',
       ),
       _HubData(
         id: 'patrimoine',
         title: l.exploreHubPatrimoineTitle,
-        narrative: l.exploreHubPatrimoineSubtitle,
+        narrative: l.exploreHubPatrimoineIntro,
         tone: MintSurfaceTone.sauge,
         icon: Icons.account_balance_outlined,
         onTap: () => context.push('/explore/patrimoine'),
+        chatContext: 'patrimoine',
       ),
       _HubData(
         id: 'sante',
         title: l.exploreHubSanteTitle,
-        narrative: l.exploreHubSanteSubtitle,
+        narrative: l.exploreHubSanteIntro,
         tone: MintSurfaceTone.bleu,
         icon: Icons.health_and_safety_outlined,
         onTap: () => context.push('/explore/sante'),
+        chatContext: 'sante',
       ),
     ];
   }
@@ -216,6 +227,7 @@ class _HubData {
   final MintSurfaceTone tone;
   final IconData icon;
   final VoidCallback onTap;
+  final String? chatContext;
 
   const _HubData({
     required this.id,
@@ -224,6 +236,7 @@ class _HubData {
     required this.tone,
     required this.icon,
     required this.onTap,
+    this.chatContext,
   });
 }
 
@@ -235,6 +248,7 @@ class _ExploreHubCard extends StatelessWidget {
   final MintSurfaceTone tone;
   final IconData icon;
   final VoidCallback onTap;
+  final String? chatContext;
 
   const _ExploreHubCard({
     required this.title,
@@ -242,10 +256,13 @@ class _ExploreHubCard extends StatelessWidget {
     required this.tone,
     required this.icon,
     required this.onTap,
+    this.chatContext,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
     return Semantics(
       label: title,
       button: true,
@@ -286,6 +303,32 @@ class _ExploreHubCard extends StatelessWidget {
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
+              // ── "En parler avec MINT" CTA ──
+              if (chatContext != null) ...[
+                const SizedBox(height: MintSpacing.md),
+                GestureDetector(
+                  onTap: () => context.push(
+                    '/coach/chat?prompt=$chatContext',
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 14,
+                        color: MintColors.primary.withValues(alpha: 0.8),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        l.exploreTalkToMint,
+                        style: MintTextStyles.labelSmall(
+                          color: MintColors.primary,
+                        ).copyWith(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
