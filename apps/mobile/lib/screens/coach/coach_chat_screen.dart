@@ -176,7 +176,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   /// Background tint that changes subtly based on conversation topic.
   /// Extremely subtle — felt, not seen.
   late final AnimationController _canvasAnimController;
-  late final Animation<Color?> _canvasAnimation;
+  late Animation<Color?> _canvasAnimation;
   Color _canvasColorBegin = MintColors.white;
   Color _canvasColorEnd = MintColors.white;
   _CanvasMood _currentMood = _CanvasMood.neutral;
@@ -688,11 +688,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final elapsed = DateTime.now().difference(_proactiveGreetingShownAt!);
     final engaged = elapsed.inSeconds <= 60;
 
+    // Capture trigger type in a local variable before clearing the field.
+    // The async `.then()` callback would otherwise read a null field
+    // because _proactiveTriggerType is cleared synchronously below.
+    final triggerType = _proactiveTriggerType!;
     SharedPreferences.getInstance().then((prefs) {
       var pref = CoachingPreference.load(prefs);
       pref = engaged
-          ? pref.recordEngagement(_proactiveTriggerType!)
-          : pref.recordDismissal(_proactiveTriggerType!);
+          ? pref.recordEngagement(triggerType)
+          : pref.recordDismissal(triggerType);
       pref.save(prefs);
     });
 
