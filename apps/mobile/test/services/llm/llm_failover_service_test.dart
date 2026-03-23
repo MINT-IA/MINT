@@ -459,4 +459,184 @@ void main() {
       );
     });
   });
+
+  // ═══════════════════════════════════════════════════════════
+  // Circuit breaker integration
+  // ═══════════════════════════════════════════════════════════
+
+  group('LlmFailoverService.generate — circuit breaker', () {
+    test('skips provider when circuitBreakerCheck returns true', () async {
+      final result = await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+          const LlmProviderConfig(provider: 'openai', apiKey: 'sk-openai'),
+        ],
+        callProvider: _successCallback('Response from any'),
+        circuitBreakerCheck: (provider) async => provider == 'claude',
+      );
+
+      // Claude skipped due to open circuit, openai used instead.
+      expect(result.providerUsed, 'openai');
+      expect(result.attemptCount, 1);
+      expect(result.usedFallback, false);
+    });
+
+    test('all providers circuit-open → usedFallback=true', () async {
+      final result = await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+          const LlmProviderConfig(provider: 'openai', apiKey: 'sk-openai'),
+        ],
+        callProvider: _successCallback('Should not be called'),
+        circuitBreakerCheck: (provider) async => true, // all open
+      );
+
+      expect(result.usedFallback, true);
+      expect(result.attemptCount, 0);
+    });
+
+    test('circuitBreakerCheck failure → allows call (graceful degradation)',
+        () async {
+      final result = await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+        ],
+        callProvider: _successCallback('Claude response'),
+        circuitBreakerCheck: (provider) async =>
+            throw Exception('SharedPreferences unavailable'),
+      );
+
+      // Should still succeed despite circuit breaker check failing.
+      expect(result.providerUsed, 'claude');
+      expect(result.usedFallback, false);
+    });
+
+    test('null circuitBreakerCheck → no providers skipped', () async {
+      final result = await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+        ],
+        callProvider: _successCallback('Claude response'),
+        circuitBreakerCheck: null,
+      );
+
+      expect(result.providerUsed, 'claude');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // onAttempt callback integration
+  // ═══════════════════════════════════════════════════════════
+
+  group('LlmFailoverService.generate — onAttempt callback', () {
+    test('onAttempt called with success=true on success', () async {
+      final recorded = <(String, bool, Duration)>[];
+
+      await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+        ],
+        callProvider: _successCallback('Response'),
+        onAttempt: (provider, success, latency) async {
+          recorded.add((provider, success, latency));
+        },
+      );
+
+      expect(recorded.length, 1);
+      expect(recorded.first.$1, 'claude');
+      expect(recorded.first.$2, true);
+    });
+
+    test('onAttempt called with success=false on failure', () async {
+      final recorded = <(String, bool)>[];
+
+      await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+        ],
+        callProvider: _failCallback('error'),
+        onAttempt: (provider, success, latency) async {
+          recorded.add((provider, success));
+        },
+      );
+
+      expect(recorded.length, 1);
+      expect(recorded.first.$1, 'claude');
+      expect(recorded.first.$2, false);
+    });
+
+    test('onAttempt called for each provider in failover chain', () async {
+      final recorded = <(String, bool)>[];
+
+      await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+          const LlmProviderConfig(provider: 'openai', apiKey: 'sk-openai'),
+        ],
+        callProvider: _firstSucceedingCallback(
+          successfulProvider: 'openai',
+          successText: 'GPT response',
+        ),
+        onAttempt: (provider, success, latency) async {
+          recorded.add((provider, success));
+        },
+      );
+
+      expect(recorded.length, 2);
+      expect(recorded[0], ('claude', false));
+      expect(recorded[1], ('openai', true));
+    });
+
+    test('onAttempt called with success=false for empty response', () async {
+      final recorded = <(String, bool)>[];
+
+      await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+        ],
+        callProvider: _successCallback(''),
+        onAttempt: (provider, success, latency) async {
+          recorded.add((provider, success));
+        },
+      );
+
+      expect(recorded.length, 1);
+      expect(recorded.first.$2, false); // empty = failure
+    });
+
+    test('onAttempt failure does not break the generate flow', () async {
+      final result = await LlmFailoverService.generate(
+        userMessage: 'Test',
+        systemPrompt: 'System',
+        providers: [
+          const LlmProviderConfig(provider: 'claude', apiKey: 'sk-claude'),
+        ],
+        callProvider: _successCallback('Response'),
+        onAttempt: (provider, success, latency) async {
+          throw Exception('SharedPreferences crash');
+        },
+      );
+
+      // Response should still succeed despite onAttempt throwing.
+      expect(result.providerUsed, 'claude');
+      expect(result.text, 'Response');
+      expect(result.usedFallback, false);
+    });
+  });
 }

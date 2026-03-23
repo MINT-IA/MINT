@@ -8,7 +8,8 @@
 ///   - Pure orchestration logic; no SharedPreferences I/O (owned by callers).
 ///   - All providers use string identifiers for loose coupling.
 ///   - Each call is independent and self-contained.
-///   - Integrates with [ProviderHealthService] circuit-breaker (optional).
+///   - Integrates with [ProviderHealthService] circuit-breaker via optional
+///     [circuitBreakerCheck] callback.
 ///
 /// References:
 ///   - FINMA circulaire 2008/21 (risque opérationnel — failover)
@@ -166,21 +167,34 @@ class LlmFailoverService {
   /// Iterates [providers] in order:
   ///   1. Skips providers where [LlmProviderConfig.isAvailable] == false.
   ///   2. Skips providers without an API key (unless [callProvider] handles it).
-  ///   3. Calls [callProvider] with timeout [timeout].
-  ///   4. On success → returns immediately with the response.
-  ///   5. On failure → records the error, tries the next provider.
+  ///   3. If [circuitBreakerCheck] is provided, skips providers whose circuit
+  ///      breaker is open (3+ consecutive failures in [ProviderHealthService]).
+  ///   4. Calls [callProvider] with timeout [timeout].
+  ///   5. On success → returns immediately with the response.
+  ///   6. On failure → records the error, notifies [onAttempt], tries next.
   ///
   /// If all providers fail (or the list is empty), returns a static
   /// educational fallback with [LlmFailoverResult.usedFallback] == true.
   ///
   /// [callProvider] is an async function that performs the actual LLM call.
   /// Inject a mock in tests to avoid network I/O.
+  ///
+  /// [circuitBreakerCheck] — optional async callback that returns true if
+  /// the provider's circuit breaker is open (should be skipped). Integrates
+  /// with [ProviderHealthService.isCircuitOpen] in production.
+  ///
+  /// [onAttempt] — optional callback invoked after each attempt (success or
+  /// failure) to record health metrics. Integrates with
+  /// [ProviderHealthService.recordAttempt] in production.
   static Future<LlmFailoverResult> generate({
     required String userMessage,
     required String systemPrompt,
     required List<LlmProviderConfig> providers,
     required LlmProviderCallback callProvider,
     Duration timeout = const Duration(seconds: 30),
+    Future<bool> Function(String provider)? circuitBreakerCheck,
+    Future<void> Function(String provider, bool success, Duration latency)?
+        onAttempt,
   }) async {
     final attempts = <LlmAttemptLog>[];
 
@@ -198,6 +212,22 @@ class LlmFailoverService {
         continue;
       }
 
+      // Skip providers whose circuit breaker is open.
+      if (circuitBreakerCheck != null) {
+        try {
+          final isOpen = await circuitBreakerCheck(config.provider);
+          if (isOpen) {
+            debugPrint(
+                '[LlmFailover] Skipping ${config.provider} (circuit open)');
+            continue;
+          }
+        } catch (e) {
+          // Circuit breaker check failed — allow the call (graceful degradation).
+          debugPrint(
+              '[LlmFailover] Circuit breaker check failed for ${config.provider}: $e — allowing');
+        }
+      }
+
       final stopwatch = Stopwatch()..start();
       try {
         final text = await callProvider(config, userMessage, systemPrompt)
@@ -207,16 +237,21 @@ class LlmFailoverService {
 
         // Reject empty responses.
         if (text.trim().isEmpty) {
-          stopwatch.stop();
           final emptyLog = LlmAttemptLog(
             provider: config.provider,
             success: false,
-            latency: stopwatch.elapsed,
+            latency: latency,
             errorMessage: 'Empty response',
           );
           attempts.add(emptyLog);
           debugPrint(
               '[LlmFailover] ${config.provider} returned empty — trying next');
+          // Record failure for circuit breaker.
+          if (onAttempt != null) {
+            try {
+              await onAttempt(config.provider, false, latency);
+            } catch (_) {}
+          }
           continue;
         }
 
@@ -226,6 +261,13 @@ class LlmFailoverService {
           success: true,
           latency: latency,
         ));
+
+        // Record success for circuit breaker.
+        if (onAttempt != null) {
+          try {
+            await onAttempt(config.provider, true, latency);
+          } catch (_) {}
+        }
 
         return LlmFailoverResult(
           text: text,
@@ -246,6 +288,12 @@ class LlmFailoverService {
           latency: stopwatch.elapsed,
           errorMessage: errorMsg,
         ));
+        // Record failure for circuit breaker.
+        if (onAttempt != null) {
+          try {
+            await onAttempt(config.provider, false, stopwatch.elapsed);
+          } catch (_) {}
+        }
       } catch (e) {
         stopwatch.stop();
         // PRIVACY: log only the error type, not the full message
@@ -259,6 +307,12 @@ class LlmFailoverService {
           latency: stopwatch.elapsed,
           errorMessage: errorType,
         ));
+        // Record failure for circuit breaker.
+        if (onAttempt != null) {
+          try {
+            await onAttempt(config.provider, false, stopwatch.elapsed);
+          } catch (_) {}
+        }
       }
     }
 

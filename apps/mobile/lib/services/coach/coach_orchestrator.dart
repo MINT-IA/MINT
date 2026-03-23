@@ -14,16 +14,19 @@
 ///   - RAM guard: SLM skipped when [FeatureFlags.slmPluginReady] is false
 ///   - Context truncated to [SlmEngine.maxContextTokens] before SLM call
 ///   - Offline-safe: falls through to FallbackTemplates with no network
+///   - Circuit breaker: [ProviderHealthService] prevents hammering dead providers
+///   - Quality monitoring: [ResponseQualityMonitor] tracks per-provider quality
 ///
 /// References:
 ///   - LSFin art. 3/8 (qualité de l'information financière)
 ///   - LPD art. 6 (privacy by design — SLM on-device)
-///   - FINMA circulaire 2008/21 (risque opérationnel)
+///   - FINMA circulaire 2008/21 (risque opérationnel — circuit breaker)
 library;
 
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
@@ -31,6 +34,8 @@ import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach/prompt_registry.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/llm/provider_health_service.dart';
+import 'package:mint_mobile/services/llm/response_quality_monitor.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 
@@ -346,6 +351,11 @@ class CoachOrchestrator {
   // ══════════════════════════════════════════════════════════════
 
   /// Attempt BYOK cloud LLM for a narrative component.
+  ///
+  /// Integrates with [ProviderHealthService] circuit breaker to skip providers
+  /// that have failed repeatedly, and records attempt outcomes for future
+  /// circuit-breaker decisions. Also scores response quality via
+  /// [ResponseQualityMonitor] for per-provider quality tracking.
   static Future<OrchestratorOutput?> _tryByok({
     required String prompt,
     required LlmConfig config,
@@ -355,6 +365,14 @@ class CoachOrchestrator {
     final ragService = RagService();
     final providerStr = _llmProviderString(config.provider);
 
+    // Circuit breaker: skip provider if circuit is open (3+ consecutive failures).
+    if (await _isProviderCircuitOpen(providerStr)) {
+      debugPrint(
+          '[Orchestrator] BYOK skipped — $providerStr circuit open');
+      return null;
+    }
+
+    final stopwatch = Stopwatch()..start();
     RagResponse ragResponse;
     try {
       ragResponse = await ragService
@@ -382,15 +400,23 @@ class CoachOrchestrator {
           )
           .timeout(_byokTimeout);
     } on TimeoutException {
+      stopwatch.stop();
       debugPrint('[Orchestrator] BYOK timed out (${_byokTimeout.inSeconds}s)');
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     } catch (e) {
+      stopwatch.stop();
       debugPrint('[Orchestrator] BYOK error: $e');
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     }
+    stopwatch.stop();
 
     final rawText = ragResponse.answer;
-    if (rawText.trim().isEmpty) return null;
+    if (rawText.trim().isEmpty) {
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
+      return null;
+    }
 
     ComplianceResult compliance;
     try {
@@ -401,14 +427,22 @@ class CoachOrchestrator {
       );
     } catch (e) {
       debugPrint('[Orchestrator] ComplianceGuard error on BYOK output: $e');
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     }
 
     if (compliance.useFallback) {
       debugPrint(
           '[Orchestrator] BYOK output rejected by ComplianceGuard: ${compliance.violations}');
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     }
+
+    // Success — record health + quality metrics.
+    await _recordProviderAttempt(providerStr, true, stopwatch.elapsed);
+    await _recordResponseQuality(
+      providerStr, rawText, prompt,
+    );
 
     return OrchestratorOutput(
       text: compliance.sanitizedText.isNotEmpty
@@ -423,7 +457,7 @@ class CoachOrchestrator {
   //  INTERNAL — BYOK tier (chat)
   // ══════════════════════════════════════════════════════════════
 
-  /// Coach tools in Anthropic format for route_to_screen.
+  /// Coach tools in Anthropic format for route_to_screen + generate_document.
   /// Passed to the backend so Claude can return tool_use blocks.
   static const List<Map<String, dynamic>> _coachTools = [
     {
@@ -450,9 +484,41 @@ class CoachOrchestrator {
         'required': ['intent', 'confidence', 'context_message'],
       },
     },
+    {
+      'name': 'generate_document',
+      'description':
+          'Generate a pre-filled document for the user (fiscal declaration prep, '
+              'pension fund letter, LPP buyback request). The document is read-only '
+              '— MINT never submits it. The user reviews and uses it independently.',
+      'input_schema': {
+        'type': 'object',
+        'properties': {
+          'document_type': {
+            'type': 'string',
+            'enum': [
+              'fiscal_declaration',
+              'pension_fund_letter',
+              'lpp_buyback_request',
+            ],
+            'description':
+                'Type of document to generate: fiscal_declaration, '
+                    'pension_fund_letter, or lpp_buyback_request.',
+          },
+          'context': {
+            'type': 'string',
+            'description':
+                'Brief summary of what the user asked for. No PII.',
+          },
+        },
+        'required': ['document_type', 'context'],
+      },
+    },
   ];
 
   /// Attempt BYOK RAG for a chat response.
+  ///
+  /// Integrates with [ProviderHealthService] circuit breaker and records
+  /// attempt outcomes. Quality scored via [ResponseQualityMonitor].
   static Future<CoachResponse?> _tryByokChat({
     required String userMessage,
     required List<ChatMessage> history,
@@ -462,6 +528,14 @@ class CoachOrchestrator {
   }) async {
     final ragService = RagService();
     final providerStr = _llmProviderString(config.provider);
+
+    // Circuit breaker: skip provider if circuit is open.
+    if (await _isProviderCircuitOpen(providerStr)) {
+      debugPrint(
+          '[Orchestrator] BYOK chat skipped — $providerStr circuit open');
+      return null;
+    }
+
     final baseQuestion = _buildConversationContext(history, userMessage);
     // Prepend memory block to the question so the RAG backend sees the
     // enriched context (lifecycle, goals, conversation history).
@@ -469,6 +543,7 @@ class CoachOrchestrator {
         ? '$memoryBlock\n\n$baseQuestion'
         : baseQuestion;
 
+    final stopwatch = Stopwatch()..start();
     RagResponse ragResponse;
     try {
       ragResponse = await ragService
@@ -498,12 +573,17 @@ class CoachOrchestrator {
           )
           .timeout(_byokTimeout);
     } on TimeoutException {
+      stopwatch.stop();
       debugPrint('[Orchestrator] BYOK chat timed out');
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     } catch (e) {
+      stopwatch.stop();
       debugPrint('[Orchestrator] BYOK chat error: $e');
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     }
+    stopwatch.stop();
 
     ComplianceResult compliance;
     try {
@@ -513,17 +593,27 @@ class CoachOrchestrator {
         componentType: ComponentType.general,
       );
     } catch (_) {
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     }
 
-    if (compliance.useFallback) return null;
+    if (compliance.useFallback) {
+      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
+      return null;
+    }
+
+    // Success — record health + quality metrics.
+    await _recordProviderAttempt(providerStr, true, stopwatch.elapsed);
+    await _recordResponseQuality(
+      providerStr, ragResponse.answer, userMessage,
+    );
 
     var text = compliance.sanitizedText.isNotEmpty
         ? compliance.sanitizedText
         : ragResponse.answer;
 
-    // Transform tool_calls into [ROUTE_TO_SCREEN:{...}] markers that
-    // coach_chat_screen._parseRouteToolUse() can detect and resolve.
+    // Transform tool_calls into inline markers that
+    // coach_chat_screen can detect and resolve.
     if (ragResponse.hasToolCalls) {
       for (final toolCall in ragResponse.toolCalls) {
         if (toolCall.name == 'route_to_screen') {
@@ -531,6 +621,10 @@ class CoachOrchestrator {
               '"confidence":${toolCall.input['confidence']},'
               '"context_message":"${_escapeJson(toolCall.input['context_message'] as String? ?? '')}"}';
           text = '$text\n[ROUTE_TO_SCREEN:$markerJson]';
+        } else if (toolCall.name == 'generate_document') {
+          final markerJson = '{"document_type":"${_escapeJson(toolCall.input['document_type'] as String? ?? '')}",'
+              '"context":"${_escapeJson(toolCall.input['context'] as String? ?? '')}"}';
+          text = '$text\n[GENERATE_DOCUMENT:$markerJson]';
         }
       }
     }
@@ -907,5 +1001,69 @@ class CoachOrchestrator {
 
     // Truncate to context window before sending to SLM.
     return _truncateToContextWindow(buf.toString());
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  INTERNAL — provider health & quality integration
+  // ══════════════════════════════════════════════════════════════
+
+  /// Check whether the circuit breaker for [provider] is open.
+  ///
+  /// Returns false (allow call) if SharedPreferences is unavailable
+  /// (graceful degradation — never block a call due to metrics infra).
+  static Future<bool> _isProviderCircuitOpen(String provider) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return await ProviderHealthService.isCircuitOpen(provider, prefs);
+    } catch (e) {
+      debugPrint(
+          '[Orchestrator] ProviderHealthService unavailable: $e — allowing call');
+      return false;
+    }
+  }
+
+  /// Record the outcome of a BYOK provider call for circuit-breaker tracking.
+  ///
+  /// Fire-and-forget — never blocks the response path. Failures in
+  /// SharedPreferences are silently ignored (metrics are best-effort).
+  static Future<void> _recordProviderAttempt(
+    String provider,
+    bool success,
+    Duration latency,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await ProviderHealthService.recordAttempt(
+        provider: provider,
+        success: success,
+        latency: latency,
+        prefs: prefs,
+      );
+    } catch (e) {
+      // Best-effort: never crash the coach flow due to metrics.
+      debugPrint('[Orchestrator] Failed to record health metric: $e');
+    }
+  }
+
+  /// Score and record response quality for per-provider analytics.
+  ///
+  /// Fire-and-forget — never blocks the response path.
+  static Future<void> _recordResponseQuality(
+    String provider,
+    String response,
+    String userMessage,
+  ) async {
+    try {
+      final qualityScore = ResponseQualityMonitor.score(
+        response,
+        userMessage,
+        provider: provider,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      await ResponseQualityMonitor.record(qualityScore, prefs);
+    } catch (e) {
+      // Best-effort: never crash the coach flow due to quality metrics.
+      debugPrint('[Orchestrator] Failed to record quality metric: $e');
+    }
   }
 }
