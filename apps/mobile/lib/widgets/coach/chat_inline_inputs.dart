@@ -201,8 +201,9 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
       _currentValue = 0;
       return;
     }
-    _currentValue = double.parse(digits);
-    final formatted = _formatSwiss(int.parse(digits));
+    // H1: Clamp to max 10'000'000 CHF to prevent unrealistic values
+    _currentValue = double.parse(digits).clamp(0, 10000000);
+    final formatted = _formatSwiss(_currentValue.round());
     _controller.value = TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),

@@ -1617,6 +1617,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             ));
           }
         case 'salary':
+          // Contract: ask_user_input(field_key='salary') sends ANNUAL gross salary.
+          // ChatAmountInput displays "CHF" with no period suffix.
+          // We convert to monthly for storage (profile.salaireBrutMensuel).
           final salary = double.tryParse(value);
           if (salary != null) {
             provider.updateProfile(profile.copyWith(
@@ -2501,11 +2504,16 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: msg.richToolCalls.map((tc) {
-                  return WidgetRenderer.build(
-                    context,
-                    tc,
-                    onInputSubmitted: _handleInlineInputSubmitted,
-                  ) ?? const SizedBox.shrink();
+                  try {
+                    return WidgetRenderer.build(
+                      context,
+                      tc,
+                      onInputSubmitted: _handleInlineInputSubmitted,
+                    ) ?? const SizedBox.shrink();
+                  } catch (e) {
+                    debugPrint('[CoachChat] WidgetRenderer error: $e');
+                    return const SizedBox.shrink();
+                  }
                 }).toList(),
               ),
             ),

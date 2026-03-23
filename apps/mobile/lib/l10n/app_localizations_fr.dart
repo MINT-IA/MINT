@@ -23318,4 +23318,64 @@ class SFr extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Ton libre mensuel';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Découvre ta situation retraite en 30 secondes';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'Quelques infos suffisent pour un premier aperçu personnalisé.';
+
+  @override
+  String get onboardingSmartFirstNameLabel => 'Comment on t’appelle ?';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'Ton prénom (optionnel)';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Saisie directe';
+
+  @override
+  String get onboardingSmartSeeResult => 'Voir mon résultat';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Outil éducatif — ne constitue pas un conseil financier (LSFin). Les estimations sont basées sur les barèmes 2025 et peuvent varier.';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Choisis ton âge';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'Ton pays d’origine';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Choisis ton canton';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'Aucun canton trouvé';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'Ton salaire brut annuel';
+
+  @override
+  String get onboardingSmartAgeLabel => 'Ton âge';
+
+  @override
+  String get onboardingSmartEmploymentLabel => 'Ta situation professionnelle';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'Ta nationalité';
+
+  @override
+  String get onboardingSmartCantonLabel => 'Ton canton';
+
+  @override
+  String get onboardingAgeInvalid => 'Âge entre 18 et 75 requis';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Rechercher (ex : VD, Vaud)';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/an';
 }

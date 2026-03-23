@@ -266,7 +266,7 @@ class WidgetRenderer {
 
       case 'salary':
         return ChatAmountInput(
-          label: message ?? 'Ton revenu brut annuel',
+          label: message ?? S.of(context)?.onboardingSmartSalaryLabel ?? 'Salary',
           onSubmitted: (amount) {
             onInputSubmitted?.call('salary', '${amount.round()}');
           },

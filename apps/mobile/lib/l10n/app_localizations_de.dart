@@ -23356,4 +23356,64 @@ class SDe extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Dein monatlich Frei';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Entdecke deine Vorsorgelage in 30 Sekunden';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'Ein paar Angaben genügen für eine erste personalisierte Übersicht.';
+
+  @override
+  String get onboardingSmartFirstNameLabel => 'Wie heisst du?';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'Dein Vorname (optional)';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Direkteingabe';
+
+  @override
+  String get onboardingSmartSeeResult => 'Mein Ergebnis ansehen';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Bildungsinstrument — stellt keine Finanzberatung dar (FIDLEG). Schätzungen basieren auf den Tarifen 2025 und können variieren.';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Wähle dein Alter';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'Dein Herkunftsland';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Wähle deinen Kanton';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'Kein Kanton gefunden';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'Dein Brutto-Jahresgehalt';
+
+  @override
+  String get onboardingSmartAgeLabel => 'Dein Alter';
+
+  @override
+  String get onboardingSmartEmploymentLabel => 'Deine berufliche Situation';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'Deine Staatsangehörigkeit';
+
+  @override
+  String get onboardingSmartCantonLabel => 'Dein Kanton';
+
+  @override
+  String get onboardingAgeInvalid => 'Alter muss zwischen 18 und 75 sein';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Suchen (z.B. ZH, Zürich)';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/Jahr';
 }

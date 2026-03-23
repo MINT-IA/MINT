@@ -23358,4 +23358,65 @@ class SIt extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Il tuo libero mensile';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Scopri la tua situazione pensionistica in 30 secondi';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'Poche informazioni bastano per una prima panoramica personalizzata.';
+
+  @override
+  String get onboardingSmartFirstNameLabel => 'Come ti chiami?';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'Il tuo nome (facoltativo)';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Inserimento diretto';
+
+  @override
+  String get onboardingSmartSeeResult => 'Vedi il mio risultato';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Strumento educativo — non costituisce consulenza finanziaria (LSFin). Le stime sono basate sulle tariffe 2025 e possono variare.';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Scegli la tua età';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'Il tuo paese d’origine';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Scegli il tuo cantone';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'Nessun cantone trovato';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'Il tuo stipendio annuo lordo';
+
+  @override
+  String get onboardingSmartAgeLabel => 'La tua età';
+
+  @override
+  String get onboardingSmartEmploymentLabel =>
+      'La tua situazione professionale';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'La tua nazionalità';
+
+  @override
+  String get onboardingSmartCantonLabel => 'Il tuo cantone';
+
+  @override
+  String get onboardingAgeInvalid => 'L’età deve essere tra 18 e 75';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Cerca (es. TI, Ticino)';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/anno';
 }

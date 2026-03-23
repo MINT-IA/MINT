@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -37,7 +39,7 @@ class StepQuestions extends StatefulWidget {
 
 class _StepQuestionsState extends State<StepQuestions> {
   static const int _minAge = 18;
-  static const int _maxAge = 70;
+  static const int _maxAge = 75;
 
   // Salary presets mirrored from onboarding_minimal_screen.dart
   static const List<double> _salaryPresets = [
@@ -136,6 +138,7 @@ class _StepQuestionsState extends State<StepQuestions> {
       );
     }
 
+    final l = S.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -147,7 +150,7 @@ class _StepQuestionsState extends State<StepQuestions> {
               titlePadding:
                   const EdgeInsets.only(left: 24, bottom: 16, right: 24),
               title: Text(
-                'D\u00e9couvre ta situation retraite en 30 secondes',
+                l.onboardingSmartTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -176,7 +179,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                 children: [
                   const SizedBox(height: 4),
                   Text(
-                    'Quelques infos suffisent pour un premier aper\u00e7u personnalis\u00e9.',
+                    l.onboardingSmartSubtitle,
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
@@ -190,8 +193,8 @@ class _StepQuestionsState extends State<StepQuestions> {
                     controller: _firstNameController,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
-                      labelText: 'Comment on t\'appelle ?',
-                      hintText: 'Ton prénom (optionnel)',
+                      labelText: l.onboardingSmartFirstNameLabel,
+                      hintText: l.onboardingSmartFirstNameHint,
                       filled: true,
                       fillColor: Colors.white,
                       suffixIcon: _firstNameController.text.isNotEmpty
@@ -229,7 +232,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 1. SALAIRE ────────────────────────────────────────────
-                  const _SectionTitle(label: 'Ton salaire brut annuel'),
+                  _SectionTitle(label: l.onboardingSmartSalaryLabel),
                   const SizedBox(height: 12),
                   _SalarySelector(
                     presets: _salaryPresets,
@@ -254,7 +257,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 2. AGE ────────────────────────────────────────────────
-                  const _SectionTitle(label: 'Ton \u00e2ge'),
+                  _SectionTitle(label: l.onboardingSmartAgeLabel),
                   const SizedBox(height: 12),
                   _AgePicker(
                     value: widget.viewModel.age,
@@ -271,8 +274,16 @@ class _StepQuestionsState extends State<StepQuestions> {
                         FilteringTextInputFormatter.digitsOnly,
                         LengthLimitingTextInputFormatter(2),
                       ],
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return null;
+                        final age = int.tryParse(v);
+                        if (age == null || age < 18 || age > 75) {
+                          return l.onboardingAgeInvalid;
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
-                        labelText: 'Saisie directe',
+                        labelText: l.onboardingSmartAgeDirectInput,
                         suffixText: 'ans',
                         filled: true,
                         fillColor: Colors.white,
@@ -309,7 +320,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 3. SITUATION PROFESSIONNELLE ──────────────────────────
-                  const _SectionTitle(label: 'Ta situation professionnelle'),
+                  _SectionTitle(label: l.onboardingSmartEmploymentLabel),
                   const SizedBox(height: 12),
                   _EmploymentStatusChips(
                     value: widget.viewModel.employmentStatus,
@@ -321,7 +332,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 4. NATIONALITE ─────────────────────────────────────────
-                  const _SectionTitle(label: 'Ta nationalite'),
+                  _SectionTitle(label: l.onboardingSmartNationalityLabel),
                   const SizedBox(height: 12),
                   _NationalityChips(
                     value: widget.viewModel.nationalityGroup,
@@ -343,7 +354,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 5. CANTON ─────────────────────────────────────────────
-                  const _SectionTitle(label: 'Ton canton'),
+                  _SectionTitle(label: l.onboardingSmartCantonLabel),
                   const SizedBox(height: 12),
                   _CantonPicker(
                     value: widget.viewModel.canton,
@@ -370,7 +381,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                         ),
                       ),
                       child: Text(
-                        'Voir mon resultat',
+                        l.onboardingSmartSeeResult,
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -382,8 +393,7 @@ class _StepQuestionsState extends State<StepQuestions> {
 
                   // Disclaimer
                   Text(
-                    'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-                    'Les estimations sont basees sur les baremes 2025 et peuvent varier.',
+                    l.onboardingSmartDisclaimer,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.textMuted,
@@ -424,10 +434,10 @@ class _SectionTitle extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  SALARY SELECTOR — preset slider with labeled stops (30k–250k, step 5k)
+//  SALARY SELECTOR — CupertinoPicker (0–500k, step 5k)
 // ════════════════════════════════════════════════════════════════════════════
 
-class _SalarySelector extends StatelessWidget {
+class _SalarySelector extends StatefulWidget {
   final List<double> presets;
   final List<String> labels;
   final double selectedValue;
@@ -441,79 +451,143 @@ class _SalarySelector extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    // Map selectedValue to the closest preset index
-    int currentIndex = presets.indexOf(selectedValue);
-    if (currentIndex < 0) {
-      double minDist = double.infinity;
-      for (int i = 0; i < presets.length; i++) {
-        final dist = (presets[i] - selectedValue).abs();
-        if (dist < minDist) {
-          minDist = dist;
-          currentIndex = i;
-        }
-      }
-    }
+  State<_SalarySelector> createState() => _SalarySelectorState();
+}
 
-    return Column(
-      children: [
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.lightBorder,
-            thumbColor: MintColors.primary,
-            overlayColor: MintColors.primary.withAlpha(30),
-            trackHeight: 6,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14),
+class _SalarySelectorState extends State<_SalarySelector> {
+  // Salary range: 0 to 500'000 in steps of 5'000
+  static const int _step = 5000;
+  static const int _maxSalary = 500000;
+  static final List<int> _values =
+      List.generate((_maxSalary ~/ _step) + 1, (i) => i * _step);
+
+  late FixedExtentScrollController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final index = _closestIndex(widget.selectedValue.round());
+    _controller = FixedExtentScrollController(initialItem: index);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  int _closestIndex(int salary) {
+    final clamped = salary.clamp(0, _maxSalary);
+    return (clamped / _step).round();
+  }
+
+  String _formatChf(int value) {
+    return value.toString().replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: SizedBox(
+        height: 150,
+        child: CupertinoPicker(
+          scrollController: _controller,
+          itemExtent: 44,
+          diameterRatio: 1.2,
+          magnification: 1.1,
+          squeeze: 1.0,
+          selectionOverlay: Container(
+            decoration: BoxDecoration(
+              border: Border.symmetric(
+                horizontal: BorderSide(
+                  color: MintColors.primary.withAlpha(38),
+                  width: 1,
+                ),
+              ),
+            ),
           ),
-          child: Slider(
-            value: currentIndex.toDouble(),
-            min: 0,
-            max: (presets.length - 1).toDouble(),
-            divisions: presets.length - 1,
-            onChanged: (v) => onChanged(presets[v.round()]),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: labels.asMap().entries.map((entry) {
-              final isSelected = entry.key == currentIndex;
-              return Text(
-                entry.value,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          onSelectedItemChanged: (index) {
+            widget.onChanged(_values[index].toDouble());
+          },
+          children: _values.map((salary) {
+            final isSelected = salary == widget.selectedValue.round();
+            return Center(
+              child: Text(
+                'CHF\u00a0${_formatChf(salary)}',
+                style: GoogleFonts.montserrat(
+                  fontSize: isSelected ? 22 : 17,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                   color: isSelected
                       ? MintColors.textPrimary
                       : MintColors.textMuted,
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            );
+          }).toList(),
         ),
-      ],
+      ),
     );
   }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  AGE PICKER — slider + quick chips (18–70)
+//  AGE PICKER — CupertinoPicker wheel + quick chips (18–75)
 // ════════════════════════════════════════════════════════════════════════════
 
-class _AgePicker extends StatelessWidget {
+class _AgePicker extends StatefulWidget {
   final int value;
   final ValueChanged<int> onChanged;
 
   const _AgePicker({required this.value, required this.onChanged});
 
   @override
-  Widget build(BuildContext context) {
-    const minAge = 18;
-    const maxAge = 70;
-    const quickAges = [25, 30, 35, 40, 45, 50, 55, 60];
+  State<_AgePicker> createState() => _AgePickerState();
+}
 
+class _AgePickerState extends State<_AgePicker> {
+  static const int _minAge = 18;
+  static const int _maxAge = 75;
+  static const List<int> _quickAges = [25, 30, 35, 40, 45, 50, 55, 60, 65];
+
+  late FixedExtentScrollController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = FixedExtentScrollController(
+      initialItem: widget.value - _minAge,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant _AgePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      final targetItem = widget.value - _minAge;
+      if (_controller.selectedItem != targetItem) {
+        _controller.animateToItem(
+          targetItem,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
@@ -523,68 +597,60 @@ class _AgePicker extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Text(
-              '$value ans',
-              style: GoogleFonts.montserrat(
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+          // CupertinoPicker wheel
+          SizedBox(
+            height: 150,
+            child: CupertinoPicker(
+              scrollController: _controller,
+              itemExtent: 44,
+              diameterRatio: 1.2,
+              magnification: 1.1,
+              squeeze: 1.0,
+              selectionOverlay: Container(
+                decoration: BoxDecoration(
+                  border: Border.symmetric(
+                    horizontal: BorderSide(
+                      color: MintColors.primary.withAlpha(38),
+                      width: 1,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Center(
-            child: Text(
-              'Glisse pour ajuster rapidement',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
+              onSelectedItemChanged: (index) {
+                widget.onChanged(_minAge + index);
+              },
+              children: List.generate(
+                _maxAge - _minAge + 1,
+                (index) {
+                  final age = _minAge + index;
+                  final isSelected = age == widget.value;
+                  return Center(
+                    child: Text(
+                      '$age ans',
+                      style: GoogleFonts.montserrat(
+                        fontSize: isSelected ? 24 : 18,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w400,
+                        color: isSelected
+                            ? MintColors.textPrimary
+                            : MintColors.textMuted,
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.lightBorder,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withAlpha(28),
-              trackHeight: 5,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-            ),
-            child: Slider(
-              value: value.toDouble(),
-              min: minAge.toDouble(),
-              max: maxAge.toDouble(),
-              divisions: maxAge - minAge,
-              label: '$value ans',
-              onChanged: (v) => onChanged(v.round()),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('18',
-                    style:
-                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
-                Text('70',
-                    style:
-                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
-              ],
             ),
           ),
           const SizedBox(height: 10),
+          // Quick-select chips
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: quickAges.map((age) {
-              final isSelected = age == value;
+            children: _quickAges.map((age) {
+              final isSelected = age == widget.value;
               return InkWell(
                 borderRadius: BorderRadius.circular(20),
-                onTap: () => onChanged(age),
+                onTap: () => widget.onChanged(age),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -765,11 +831,12 @@ class _CountryPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ton pays d\'origine',
+          l.onboardingSmartCountryOrigin,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -826,6 +893,7 @@ class _CantonPicker extends StatelessWidget {
   const _CantonPicker({required this.value, required this.onChanged});
 
   Future<void> _open(BuildContext context) async {
+    final l = S.of(context)!;
     final selected = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -866,7 +934,7 @@ class _CantonPicker extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Choisis ton canton',
+                      l.onboardingSmartCantonTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -879,7 +947,7 @@ class _CantonPicker extends StatelessWidget {
                       onChanged: (v) => setModalState(() => query = v.trim()),
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search),
-                        hintText: 'Rechercher (ex: VD, Vaud)',
+                        hintText: l.onboardingSmartCantonSearch,
                         filled: true,
                         fillColor: MintColors.surface,
                         border: OutlineInputBorder(
@@ -906,7 +974,7 @@ class _CantonPicker extends StatelessWidget {
                       child: filtered.isEmpty
                           ? Center(
                               child: Text(
-                                'Aucun canton trouv\u00e9',
+                                l.onboardingSmartCantonNotFound,
                                 style: GoogleFonts.inter(
                                   color: MintColors.textMuted,
                                 ),
@@ -959,8 +1027,9 @@ class _CantonPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final selectedLabel = value == null
-        ? 'Choisis ton canton'
+        ? l.onboardingSmartCantonLabel
         : '$value — ${cantonFullNames[value] ?? value}';
 
     return Container(

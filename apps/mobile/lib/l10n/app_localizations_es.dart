@@ -23321,4 +23321,64 @@ class SEs extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Tu libre mensual';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Descubre tu situación de jubilación en 30 segundos';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'Unos pocos datos bastan para una primera visión personalizada.';
+
+  @override
+  String get onboardingSmartFirstNameLabel => '¿Cómo te llamas?';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'Tu nombre (opcional)';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Entrada directa';
+
+  @override
+  String get onboardingSmartSeeResult => 'Ver mi resultado';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Herramienta educativa — no constituye asesoramiento financiero (LSFin). Las estimaciones se basan en las escalas de 2025 y pueden variar.';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Elige tu edad';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'Tu país de origen';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Elige tu cantón';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'Ningún cantón encontrado';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'Tu salario bruto anual';
+
+  @override
+  String get onboardingSmartAgeLabel => 'Tu edad';
+
+  @override
+  String get onboardingSmartEmploymentLabel => 'Tu situación profesional';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'Tu nacionalidad';
+
+  @override
+  String get onboardingSmartCantonLabel => 'Tu cantón';
+
+  @override
+  String get onboardingAgeInvalid => 'La edad debe estar entre 18 y 75';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Buscar (ej. VD, Vaud)';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/año';
 }

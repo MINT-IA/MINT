@@ -23205,4 +23205,64 @@ class SEn extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'Your monthly free';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Discover your retirement situation in 30 seconds';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'A few details are enough for a first personalised overview.';
+
+  @override
+  String get onboardingSmartFirstNameLabel => 'What’s your name?';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'Your first name (optional)';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Direct input';
+
+  @override
+  String get onboardingSmartSeeResult => 'See my result';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Educational tool — this does not constitute financial advice (FinSA). Estimates are based on 2025 scales and may vary.';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Choose your age';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'Your country of origin';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Choose your canton';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'No canton found';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'Your gross annual salary';
+
+  @override
+  String get onboardingSmartAgeLabel => 'Your age';
+
+  @override
+  String get onboardingSmartEmploymentLabel => 'Your employment status';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'Your nationality';
+
+  @override
+  String get onboardingSmartCantonLabel => 'Your canton';
+
+  @override
+  String get onboardingAgeInvalid => 'Age must be between 18 and 75';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Search (e.g. VD, Vaud)';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/year';
 }

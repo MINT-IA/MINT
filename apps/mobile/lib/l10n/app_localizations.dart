@@ -41116,6 +41116,120 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ton libre mensuel'**
   String get budgetSnapshotFreeLabel;
+
+  /// No description provided for @onboardingSmartTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre ta situation retraite en 30 secondes'**
+  String get onboardingSmartTitle;
+
+  /// No description provided for @onboardingSmartSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques infos suffisent pour un premier aperçu personnalisé.'**
+  String get onboardingSmartSubtitle;
+
+  /// No description provided for @onboardingSmartFirstNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment on t’appelle ?'**
+  String get onboardingSmartFirstNameLabel;
+
+  /// No description provided for @onboardingSmartFirstNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton prénom (optionnel)'**
+  String get onboardingSmartFirstNameHint;
+
+  /// No description provided for @onboardingSmartAgeDirectInput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie directe'**
+  String get onboardingSmartAgeDirectInput;
+
+  /// No description provided for @onboardingSmartSeeResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon résultat'**
+  String get onboardingSmartSeeResult;
+
+  /// No description provided for @onboardingSmartDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin). Les estimations sont basées sur les barèmes 2025 et peuvent varier.'**
+  String get onboardingSmartDisclaimer;
+
+  /// No description provided for @onboardingSmartAgePickerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton âge'**
+  String get onboardingSmartAgePickerHint;
+
+  /// No description provided for @onboardingSmartCountryOrigin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton pays d’origine'**
+  String get onboardingSmartCountryOrigin;
+
+  /// No description provided for @onboardingSmartCantonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton canton'**
+  String get onboardingSmartCantonTitle;
+
+  /// No description provided for @onboardingSmartCantonNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun canton trouvé'**
+  String get onboardingSmartCantonNotFound;
+
+  /// No description provided for @onboardingSmartSalaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire brut annuel'**
+  String get onboardingSmartSalaryLabel;
+
+  /// No description provided for @onboardingSmartAgeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton âge'**
+  String get onboardingSmartAgeLabel;
+
+  /// No description provided for @onboardingSmartEmploymentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation professionnelle'**
+  String get onboardingSmartEmploymentLabel;
+
+  /// No description provided for @onboardingSmartNationalityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta nationalité'**
+  String get onboardingSmartNationalityLabel;
+
+  /// No description provided for @onboardingSmartCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton'**
+  String get onboardingSmartCantonLabel;
+
+  /// No description provided for @onboardingAgeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge entre 18 et 75 requis'**
+  String get onboardingAgeInvalid;
+
+  /// No description provided for @onboardingSmartCantonSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher (ex : VD, Vaud)'**
+  String get onboardingSmartCantonSearch;
+
+  /// No description provided for @onboardingSmartSalaryPerYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF/an'**
+  String get onboardingSmartSalaryPerYear;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

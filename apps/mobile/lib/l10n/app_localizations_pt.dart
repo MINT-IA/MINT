@@ -23275,4 +23275,64 @@ class SPt extends S {
 
   @override
   String get budgetSnapshotFreeLabel => 'O teu livre mensal';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Descobre a tua situação de reforma em 30 segundos';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'Algumas informações bastam para uma primeira visão personalizada.';
+
+  @override
+  String get onboardingSmartFirstNameLabel => 'Como te chamas?';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'O teu nome (opcional)';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Entrada direta';
+
+  @override
+  String get onboardingSmartSeeResult => 'Ver o meu resultado';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin). As estimativas baseiam-se nas tabelas de 2025 e podem variar.';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Escolhe a tua idade';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'O teu país de origem';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Escolhe o teu cantão';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'Nenhum cantão encontrado';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'O teu salário bruto anual';
+
+  @override
+  String get onboardingSmartAgeLabel => 'A tua idade';
+
+  @override
+  String get onboardingSmartEmploymentLabel => 'A tua situação profissional';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'A tua nacionalidade';
+
+  @override
+  String get onboardingSmartCantonLabel => 'O teu cantão';
+
+  @override
+  String get onboardingAgeInvalid => 'A idade deve estar entre 18 e 75';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Pesquisar (ex. VD, Vaud)';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/ano';
 }
