@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -70,11 +71,12 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
   }
 
   String _levelLabel(double score) {
-    if (score >= 85) return 'Excellente';
-    if (score >= 70) return 'Bonne';
-    if (score >= 50) return 'Correcte';
-    if (score >= 30) return 'A ameliorer';
-    return 'Insuffisante';
+    final s = S.of(context)!;
+    if (score >= 85) return s.confidenceDashboardLevelExcellent;
+    if (score >= 70) return s.confidenceDashboardLevelGood;
+    if (score >= 50) return s.confidenceDashboardLevelFair;
+    if (score >= 30) return s.confidenceDashboardLevelImprove;
+    return s.confidenceDashboardLevelInsufficient;
   }
 
   IconData _iconForMethod(String method) {
@@ -143,7 +145,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'Précision de ton profil',
+        S.of(context)!.confidenceDashboardTitle,
         style: MintTextStyles.titleMedium(),
       ),
     );
@@ -229,7 +231,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Détail par axe',
+          S.of(context)!.confidenceDashboardBreakdownTitle,
           style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: 16),
@@ -251,7 +253,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Fonctionnalités débloquées',
+          S.of(context)!.confidenceDashboardFeaturesTitle,
           style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: 12),
@@ -302,7 +304,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '${gate.minConfidence.round()} % requis',
+                S.of(context)!.confidenceDashboardRequired(gate.minConfidence.round().toString()),
                 style: MintTextStyles.labelSmall(),
               ),
             ),
@@ -322,7 +324,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Améliore ta précision',
+          S.of(context)!.confidenceDashboardEnrichTitle,
           style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: 12),
@@ -427,7 +429,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sources',
+          S.of(context)!.confidenceDashboardSourcesTitle,
           style: MintTextStyles.labelSmall(),
         ),
         const SizedBox(height: MintSpacing.sm - 2),

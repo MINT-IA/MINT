@@ -122,17 +122,17 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s.documentsFieldAvoirObligatoire,
               lppFields?.avoirObligatoire,
-              'Montant accumul\u00e9 dans la part obligatoire LPP',
+              s.documentDetailExplanationObligatoire,
             ),
             _field(
               s.documentsFieldAvoirSurobligatoire,
               lppFields?.avoirSurobligatoire,
-              'Part au-del\u00e0 du minimum l\u00e9gal',
+              s.documentDetailExplanationSurobligatoire,
             ),
             _field(
               s.documentsFieldAvoirTotal,
               lppFields?.avoirVieillesseTotal,
-              'Total de ton capital de vieillesse',
+              s.documentDetailExplanationTotal,
             ),
           ],
         ),
@@ -148,17 +148,17 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s.documentsFieldSalaireAssure,
               lppFields?.salaireAssure,
-              'Salaire sur lequel les cotisations sont calcul\u00e9es',
+              s.documentDetailExplanationSalaireAssure,
             ),
             _field(
               s.documentsFieldSalaireAvs,
               lppFields?.salaireAvs,
-              'Salaire d\u00e9terminant pour l\'AVS',
+              s.documentDetailExplanationSalaireAvs,
             ),
             _field(
               s.documentsFieldDeductionCoordination,
               lppFields?.deductionCoordination,
-              'Montant d\u00e9duit pour coordonner avec l\'AVS',
+              s.documentDetailExplanationDeduction,
             ),
           ],
         ),
@@ -174,17 +174,17 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldPercent(
               s.documentsFieldTauxObligatoire,
               lppFields?.tauxConversionObligatoire,
-              'L\u00e9gal minimum : 6.8%',
+              s.documentDetailExplanationTauxOblig,
             ),
             _fieldPercent(
               s.documentsFieldTauxSurobligatoire,
               lppFields?.tauxConversionSurobligatoire,
-              'Fix\u00e9 par ta caisse de pension',
+              s.documentDetailExplanationTauxSurob,
             ),
             _fieldPercent(
               s.documentsFieldTauxEnveloppe,
               lppFields?.tauxConversionEnveloppe,
-              'Taux moyen pond\u00e9r\u00e9',
+              s.documentDetailExplanationTauxEnv,
             ),
           ],
         ),
@@ -200,22 +200,22 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldYearly(
               s.documentsFieldRenteInvalidite,
               lppFields?.renteInvalidite,
-              'Rente en cas d\'incapacit\u00e9 de travail',
+              s.documentDetailExplanationInvalidite,
             ),
             _field(
               s.documentsFieldCapitalDeces,
               lppFields?.capitalDeces,
-              'Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s',
+              s.documentDetailExplanationDeces,
             ),
             _fieldYearly(
               s.documentsFieldRenteConjoint,
               lppFields?.renteConjoint,
-              'Rente vers\u00e9e au conjoint survivant',
+              s.documentDetailExplanationConjoint,
             ),
             _fieldYearly(
               s.documentsFieldRenteEnfant,
               lppFields?.renteEnfant,
-              'Rente vers\u00e9e par enfant',
+              s.documentDetailExplanationEnfant,
             ),
           ],
         ),
@@ -231,7 +231,7 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s.documentsFieldRachatMax,
               lppFields?.rachatMaximum,
-              'Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance',
+              s.documentDetailExplanationRachat,
             ),
           ],
         ),
@@ -247,12 +247,12 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldYearly(
               s.documentsFieldCotisationEmploye,
               lppFields?.cotisationEmploye,
-              'Ta contribution annuelle',
+              s.documentDetailExplanationEmploye,
             ),
             _fieldYearly(
               s.documentsFieldCotisationEmployeur,
               lppFields?.cotisationEmployeur,
-              'Contribution de ton employeur',
+              s.documentDetailExplanationEmployeur,
             ),
           ],
         ),

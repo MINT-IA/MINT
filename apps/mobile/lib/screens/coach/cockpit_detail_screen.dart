@@ -531,7 +531,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                     ),
                     const SizedBox(height: MintSpacing.md),
                     Text(
-                      'Compl\u00e8te ton profil pour acc\u00e9der au cockpit d\u00e9taill\u00e9.',
+                      S.of(context)!.cockpitDetailEmptyState,
                       textAlign: TextAlign.center,
                       style: MintTextStyles.bodyMedium(),
                     ),
@@ -540,7 +540,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                       onPressed: () => context.push('/scan'),
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       label: Text(
-                        'Enrichir mon profil',
+                        S.of(context)!.cockpitDetailEnrichProfile,
                         style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       style: FilledButton.styleFrom(
@@ -563,8 +563,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
-      'Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.',
+      S.of(context)!.cockpitDetailDisclaimer,
       textAlign: TextAlign.center,
       style: MintTextStyles.micro(),
     );

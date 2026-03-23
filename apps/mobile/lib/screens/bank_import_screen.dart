@@ -358,7 +358,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RÉSUMÉ',
+            s.bankImportSummaryHeader,
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
@@ -602,7 +602,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TRANSACTIONS',
+            s.bankImportTransactionsHeader,
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
@@ -624,7 +624,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           if (result.transactions.length > maxItems)
             Center(
               child: Text(
-                '... et ${result.transactions.length - maxItems} autres transactions',
+                s.bankImportMoreTransactions(result.transactions.length - maxItems),
                 style: const TextStyle(
                   fontSize: 13,
                   color: MintColors.textMuted,
@@ -904,7 +904,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       } catch (e) {
         if (!mounted) return;
         setState(() {
-          _error = 'Une erreur est survenue lors de l\'analyse du releve.';
+          _error = S.of(context)!.bankImportGenericError;
           _isUploading = false;
         });
       }

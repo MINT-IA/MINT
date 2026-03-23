@@ -37,7 +37,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             elevation: 0,
             scrolledUnderElevation: 0,
             title: Text(
-              'AIDE EN CAS DE DETTE',
+              S.of(context)!.helpResourcesAppBarTitle,
               style: MintTextStyles.titleMedium(),
             ),
           ),
@@ -51,11 +51,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
                 // Dettes Conseils Suisse
                 _buildNationalResourceCard(
-                  nom: 'Dettes Conseils Suisse',
-                  description:
-                      'Fédération faîtière des services de conseil en dettes '
-                      'en Suisse. Conseil gratuit, confidentiel et professionnel. '
-                      'Plus de 30 services membres dans toute la Suisse.',
+                  nom: S.of(context)!.helpResourcesDettesName,
+                  description: S.of(context)!.helpResourcesDettesDesc,
                   url: 'https://www.dettes.ch',
                   telephone: '0800 40 40 40',
                   icon: Icons.phone_in_talk,
@@ -65,12 +62,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
                 // Caritas
                 _buildNationalResourceCard(
-                  nom: 'Caritas — Conseil en dettes',
-                  description:
-                      'Service d\'aide de Caritas Suisse pour les personnes '
-                      'en situation d\'endettement. Aide au désendettement, '
-                      'négociation avec les créanciers, accompagnement '
-                      'budgétaire personnalisé.',
+                  nom: S.of(context)!.helpResourcesCaritasName,
+                  description: S.of(context)!.helpResourcesCaritasDesc,
                   url: 'https://www.caritas.ch/dettes',
                   telephone: '0800 708 708',
                   icon: Icons.favorite_outline,
@@ -118,32 +111,20 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Vous n\'êtes pas seul',
+                S.of(context)!.helpResourcesIntroTitle,
                 style: MintTextStyles.titleMedium(),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'En Suisse, de nombreux services professionnels offrent un '
-            'accompagnement gratuit et confidentiel pour les personnes '
-            'confrontées à des difficultés financières. Demander de l\'aide '
-            'est un acte de courage, pas un signe de faiblesse.',
-            style: TextStyle(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+          Text(
+            S.of(context)!.helpResourcesIntroBody,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Tous les liens ci-dessous mènent vers des sites externes. '
-            'MINT ne transmet aucune donnée à ces services.',
-            style: TextStyle(
-              fontSize: 12,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+          Text(
+            S.of(context)!.helpResourcesIntroNote,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -195,13 +176,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                         color: MintColors.successBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text(
-                        'GRATUIT',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.success,
-                        ),
+                      child: Text(
+                        S.of(context)!.helpResourcesFreeLabel,
+                        style: MintTextStyles.labelSmall(color: MintColors.success),
                       ),
                     ),
                   ],
@@ -262,7 +239,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SERVICE CANTONAL',
+            S.of(context)!.helpResourcesCantonalHeader,
             style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: 16),
@@ -271,12 +248,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Votre canton',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
+              Text(
+                S.of(context)!.helpResourcesCantonLabel,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
               Container(
                 padding:
@@ -362,15 +336,11 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             ),
             ),
           ] else
-            const Padding(
-              padding: EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
-                'Aucun service cantonal référencé pour ce canton. '
-                'Contactez Dettes Conseils Suisse pour être orienté.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: MintColors.textMuted,
-                ),
+                S.of(context)!.helpResourcesNoService,
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
             ),
         ],
@@ -386,34 +356,23 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: MintColors.neutralBg),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: MintColors.blueDark, size: 20),
-          SizedBox(width: 12),
+          const Icon(Icons.lock_outline, color: MintColors.blueDark, size: 20),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Protection des données (nLPD)',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.blueMaterial900,
-                  ),
+                  S.of(context)!.helpResourcesPrivacyTitle,
+                  style: MintTextStyles.bodySmall(color: MintColors.blueMaterial900),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'MINT ne transmet aucune donnée personnelle aux services '
-                  'référencés ci-dessus. Les liens externes ouvrent votre '
-                  'navigateur. Votre utilisation de cet écran reste strictement '
-                  'confidentielle et n\'est ni enregistrée ni partagée.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: MintColors.blueDark,
-                    height: 1.4,
-                  ),
+                  S.of(context)!.helpResourcesPrivacyBody,
+                  style: MintTextStyles.labelSmall(color: MintColors.blueDark),
                 ),
               ],
             ),
@@ -431,22 +390,15 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: MintColors.orangeRetroWarm),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          SizedBox(width: 12),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'MINT fournit ces liens à titre informatif et pédagogique. '
-              'Ces services sont indépendants de MINT. MINT ne fournit '
-              'pas de conseil juridique ou financier. En cas de difficulté '
-              'financière, contactez directement les services spécialisés.',
-              style: TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              S.of(context)!.helpResourcesDisclaimer,
+              style: MintTextStyles.micro(color: MintColors.deepOrange),
             ),
           ),
         ],

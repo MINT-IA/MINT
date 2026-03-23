@@ -938,7 +938,7 @@ class SPt extends S {
 
   @override
   String get disabilityGapDisclaimer =>
-      'Estes resultados são estimativas indicativas baseadas em tabelas legais. A tua cobertura real depende do teu contrato de trabalho, do teu fundo de pensões e dos teus seguros individuais. Consulta o teu empregador e um·a especialista qualificado·a.';
+      'Ferramenta educativa — não constitui aconselhamento de seguros (LSFin).';
 
   @override
   String get disabilityGapIjmExpl =>
@@ -16081,7 +16081,7 @@ class SPt extends S {
       'Seleciona um evento para simular o seu impacto financeiro.';
 
   @override
-  String get confidenceDashboardTitle => 'Precisão do perfil';
+  String get confidenceDashboardTitle => 'Precisão do teu perfil';
 
   @override
   String get confidenceDetailByAxis => 'Detalhe por eixo';
@@ -21230,358 +21230,360 @@ class SPt extends S {
   String get exploreHubOtherTopics => 'Outros temas';
 
   @override
-  String get bankImportSummaryHeader => 'RÉSUMÉ';
+  String get bankImportSummaryHeader => 'RESUMO';
 
   @override
-  String get bankImportTransactionsHeader => 'TRANSACTIONS';
+  String get bankImportTransactionsHeader => 'TRANSAÇÕES';
 
   @override
   String bankImportMoreTransactions(int count) {
-    return '... et $count autres transactions';
+    return '... e mais $count transações';
   }
 
   @override
-  String get bankImportGenericError =>
-      'Une erreur est survenue lors de l’analyse du relevé.';
+  String get bankImportGenericError => 'Ocorreu um erro ao analisar o extrato.';
 
   @override
-  String get helpResourcesAppBarTitle => 'AIDE EN CAS DE DETTE';
+  String get helpResourcesAppBarTitle => 'AJUDA EM CASO DE DÍVIDA';
 
   @override
-  String get helpResourcesIntroTitle => 'Vous n’êtes pas seul';
+  String get helpResourcesIntroTitle => 'Não estás sozinho';
 
   @override
   String get helpResourcesIntroBody =>
-      'En Suisse, de nombreux services professionnels offrent un accompagnement gratuit et confidentiel pour les personnes confrontées à des difficultés financières. Demander de l’aide est un acte de courage, pas un signe de faiblesse.';
+      'Na Suíça, muitos serviços profissionais oferecem acompanhamento gratuito e confidencial para pessoas em dificuldades financeiras. Pedir ajuda é um ato de coragem.';
 
   @override
   String get helpResourcesIntroNote =>
-      'Tous les liens ci-dessous mènent vers des sites externes. MINT ne transmet aucune donnée à ces services.';
+      'Todos os links levam a sites externos. A MINT não transmite dados a estes serviços.';
 
   @override
   String get helpResourcesDettesName => 'Dettes Conseils Suisse';
 
   @override
   String get helpResourcesDettesDesc =>
-      'Fédération faîtière des services de conseil en dettes en Suisse. Conseil gratuit, confidentiel et professionnel. Plus de 30 services membres dans toute la Suisse.';
+      'Federação dos serviços de aconselhamento de dívidas na Suíça.';
 
   @override
-  String get helpResourcesCaritasName => 'Caritas — Conseil en dettes';
+  String get helpResourcesCaritasName => 'Caritas — Aconselhamento de dívidas';
 
   @override
   String get helpResourcesCaritasDesc =>
-      'Service d’aide de Caritas Suisse pour les personnes en situation d’endettement. Aide au désendettement, négociation avec les créanciers, accompagnement budgétaire personnalisé.';
+      'Serviço de ajuda da Caritas Suíça para pessoas endividadas.';
 
   @override
-  String get helpResourcesFreeLabel => 'GRATUIT';
+  String get helpResourcesFreeLabel => 'GRÁTIS';
 
   @override
-  String get helpResourcesCantonalHeader => 'SERVICE CANTONAL';
+  String get helpResourcesCantonalHeader => 'SERVIÇO CANTONAL';
 
   @override
-  String get helpResourcesCantonLabel => 'Votre canton';
+  String get helpResourcesCantonLabel => 'O teu cantão';
 
   @override
   String get helpResourcesNoService =>
-      'Aucun service cantonal référencé pour ce canton. Contactez Dettes Conseils Suisse pour être orienté.';
+      'Nenhum serviço cantonal registado para este cantão.';
 
   @override
-  String get helpResourcesPrivacyTitle => 'Protection des données (nLPD)';
+  String get helpResourcesPrivacyTitle => 'Proteção de dados (nLPD)';
 
   @override
   String get helpResourcesPrivacyBody =>
-      'MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.';
+      'A MINT não transmite dados pessoais aos serviços acima referidos.';
 
   @override
   String get helpResourcesDisclaimer =>
-      'MINT fournit ces liens à titre informatif et pédagogique. Ces services sont indépendants de MINT. MINT ne fournit pas de conseil juridique ou financier. En cas de difficulté financière, contactez directement les services spécialisés.';
+      'A MINT fornece estes links para fins informativos e educativos.';
 
   @override
   String get successionUrgenceAction1 =>
-      'Déclarer le décès à l’état civil dans les 2 jours';
+      'Declarar o óbito no registo civil em 2 dias';
 
   @override
   String get successionUrgenceAction2 =>
-      'Informer l’employeur et les assurances (LAMal, LPP)';
+      'Informar o empregador e seguradoras (LAMal, LPP)';
 
   @override
   String get successionUrgenceAction3 =>
-      'Bloquer les comptes bancaires conjoints si nécessaire';
+      'Bloquear contas bancárias conjuntas se necessário';
 
   @override
   String get successionUrgenceAction4 =>
-      'Contacter le notaire si la personne avait un testament';
+      'Contactar o notário se a pessoa tinha testamento';
 
   @override
   String get successionDemarchesAction1 =>
-      'Demander les rentes de survivants AVS (LAVS art. 23)';
+      'Solicitar pensões de sobreviventes AVS (LAVS art. 23)';
 
   @override
   String get successionDemarchesAction2 =>
-      'Contacter la caisse LPP pour le capital décès';
+      'Contactar a caixa LPP para o capital de falecimento';
 
   @override
   String get successionDemarchesAction3 =>
-      'Résilier les abonnements et contrats au nom du défunt';
+      'Cancelar assinaturas e contratos em nome do falecido';
 
   @override
   String get successionDemarchesAction4 =>
-      'Faire l’inventaire des avoirs et dettes';
+      'Fazer inventário de ativos e dívidas';
 
   @override
   String get successionDemarchesAction5 =>
-      'Demander les certificats d’héritiers au notaire';
+      'Solicitar certificados de herdeiros ao notário';
 
   @override
   String get successionLegaleAction1 =>
-      'Ouvrir la procédure de succession avec le notaire';
+      'Abrir o procedimento de sucessão com o notário';
 
   @override
   String get successionLegaleAction2 =>
-      'Partager les biens selon le testament ou la loi (CC art. 537)';
+      'Partilhar bens conforme testamento ou lei (CC art. 537)';
 
   @override
   String get successionLegaleAction3 =>
-      'Déposer la déclaration fiscale pour l’année du décès';
+      'Apresentar declaração fiscal do ano do falecimento';
 
   @override
   String get successionLegaleAction4 =>
-      'Mettre à jour les bénéficiaires de vos propres contrats';
+      'Atualizar beneficiários dos teus próprios contratos';
 
   @override
-  String get disabilityGapAct1Label => 'ACTE 1 · Employeur';
+  String get disabilityGapAct1Label => 'ATO 1 · Empregador';
 
   @override
   String get disabilityGapAct1Detail =>
-      '80 % de ton salaire versé par ton employeur';
+      '80 % do teu salário pago pelo empregador';
 
   @override
-  String get disabilityGapAct1Duration => 'Semaines 1-26';
+  String get disabilityGapAct1Duration => 'Semanas 1-26';
 
   @override
-  String get disabilityGapAct2LabelIjm => 'ACTE 2 · IJM (assurance maladie)';
+  String get disabilityGapAct2LabelIjm => 'ATO 2 · IJM (seguro de doença)';
 
   @override
-  String get disabilityGapAct2LabelNoIjm => 'ACTE 2 · Pas d’IJM';
+  String get disabilityGapAct2LabelNoIjm => 'ATO 2 · Sem IJM';
 
   @override
   String get disabilityGapAct2SubIjm =>
-      'Assurance collective — 80% pendant 720 jours max';
+      'Seguro coletivo — 80% durante 720 dias máx.';
 
   @override
   String get disabilityGapAct2SubNoIjm =>
-      'Sans IJM, tu passes directement à l’AI après l’employeur';
+      'Sem IJM, passas diretamente à AI após o empregador';
 
   @override
-  String get disabilityGapAct2Duration => 'Jusqu’à 24 mois';
+  String get disabilityGapAct2Duration => 'Até 24 meses';
 
   @override
-  String get disabilityGapAct2DetailIjm => '80% du salaire assuré';
+  String get disabilityGapAct2DetailIjm => '80% do salário segurado';
 
   @override
   String get disabilityGapAct2DetailNoIjm =>
-      'Aucune couverture — délai AI en cours';
+      'Sem cobertura — prazo AI em curso';
 
   @override
-  String get disabilityGapAct3Label => 'ACTE 3 · AI + LPP (définitif)';
+  String get disabilityGapAct3Label => 'ATO 3 · AI + LPP (definitivo)';
 
   @override
-  String get disabilityGapAct3Duration => 'Après 24 mois';
+  String get disabilityGapAct3Duration => 'Após 24 meses';
 
   @override
   String disabilityGapAct3Detail(
       String aiAmount, String lppAmount, String totalAmount) {
-    return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mois';
+    return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mês';
   }
 
   @override
   String get disabilityGapIjmCoverage =>
-      '80% pendant 720 jours — assurance collective';
+      '80% durante 720 dias — seguro coletivo';
 
   @override
   String get disabilityGapNoIjmCoverage =>
-      'Aucune IJM souscrite — risque maximal';
+      'Nenhuma IJM subscrita — risco máximo';
 
   @override
   String disabilityGapAiDetail(String amount) {
-    return 'Max $amount CHF/mois — délai ~14 mois';
+    return 'Máx. $amount CHF/mês — ~14 meses de espera';
   }
 
   @override
   String get disabilityGapLppCovered =>
-      'Rente invalidité ≈ 40% salaire coordonné (LPP art. 23)';
+      'Pensão de invalidez ≈ 40% salário coordenado (LPP art. 23)';
 
   @override
   String get disabilityGapLppNotCovered =>
-      'Salaire sous le seuil LPP — pas de couverture 2e pilier';
+      'Salário abaixo do limiar LPP — sem cobertura 2º pilar';
 
   @override
-  String get disabilityGapSavingsLabel => 'Réserve d’urgence';
+  String get disabilityGapSavingsLabel => 'Reserva de emergência';
 
   @override
   String disabilityGapSavingsDetail(String months) {
-    return '$months mois de charges couverts';
+    return '$months meses de despesas cobertos';
   }
 
   @override
-  String get disabilityGapApgLabel => 'APG / IJM (perte de gain)';
+  String get disabilityGapApgLabel => 'APG / IJM (perda de rendimento)';
 
   @override
-  String get disabilityGapAiLabel => 'AI (assurance invalidité)';
+  String get disabilityGapAiLabel => 'AI (seguro de invalidez)';
 
   @override
-  String get disabilityGapLppLabel => 'LPP invalidité (2e pilier)';
+  String get disabilityGapLppLabel => 'LPP invalidez (2º pilar)';
 
   @override
   String get disabilityGapSources =>
-      '• LAI art. 28-29 (rente AI)\n• LPP art. 23-26 (invalidité 2e pilier)\n• CO art. 324a (maintien salaire employeur)\n• LPGA art. 19 (délai de carence)';
+      '• LAI art. 28-29\n• LPP art. 23-26\n• CO art. 324a\n• LPGA art. 19';
 
   @override
   String disabilityGapAgeLabel(int age) {
-    return '$age ans';
+    return '$age anos';
   }
 
   @override
   String get documentDetailExplanationObligatoire =>
-      'Montant accumulé dans la part obligatoire LPP';
+      'Montante acumulado na parte obrigatória LPP';
 
   @override
   String get documentDetailExplanationSurobligatoire =>
-      'Part au-delà du minimum légal';
+      'Parte além do mínimo legal';
 
   @override
   String get documentDetailExplanationTotal =>
-      'Total de ton capital de vieillesse';
+      'Total do teu capital de velhice';
 
   @override
   String get documentDetailExplanationSalaireAssure =>
-      'Salaire sur lequel les cotisations sont calculées';
+      'Salário sobre o qual as contribuições são calculadas';
 
   @override
   String get documentDetailExplanationSalaireAvs =>
-      'Salaire déterminant pour l’AVS';
+      'Salário determinante para o AVS';
 
   @override
   String get documentDetailExplanationDeduction =>
-      'Montant déduit pour coordonner avec l’AVS';
+      'Montante deduzido para coordenar com o AVS';
 
   @override
-  String get documentDetailExplanationTauxOblig => 'Légal minimum : 6.8%';
+  String get documentDetailExplanationTauxOblig => 'Mínimo legal: 6.8%';
 
   @override
   String get documentDetailExplanationTauxSurob =>
-      'Fixé par ta caisse de pension';
+      'Definido pela tua caixa de pensões';
 
   @override
-  String get documentDetailExplanationTauxEnv => 'Taux moyen pondéré';
+  String get documentDetailExplanationTauxEnv => 'Taxa média ponderada';
 
   @override
   String get documentDetailExplanationInvalidite =>
-      'Rente en cas d’incapacité de travail';
+      'Pensão em caso de incapacidade de trabalho';
 
   @override
   String get documentDetailExplanationDeces =>
-      'Montant versé aux bénéficiaires en cas de décès';
+      'Montante pago aos beneficiários em caso de falecimento';
 
   @override
   String get documentDetailExplanationConjoint =>
-      'Rente versée au conjoint survivant';
+      'Pensão paga ao cônjuge sobrevivente';
 
   @override
-  String get documentDetailExplanationEnfant => 'Rente versée par enfant';
+  String get documentDetailExplanationEnfant => 'Pensão paga por filho';
 
   @override
   String get documentDetailExplanationRachat =>
-      'Montant pouvant être racheté pour optimiser ta prévoyance';
+      'Montante que pode ser resgatado para otimizar a tua previdência';
 
   @override
-  String get documentDetailExplanationEmploye => 'Ta contribution annuelle';
+  String get documentDetailExplanationEmploye => 'A tua contribuição anual';
 
   @override
   String get documentDetailExplanationEmployeur =>
-      'Contribution de ton employeur';
+      'Contribuição do teu empregador';
 
   @override
-  String get disabilitySelfEmployedAlertLabel => '🚨  ALERTE INDÉPENDANT';
+  String get disabilitySelfEmployedAlertLabel => '🚨  ALERTA INDEPENDENTE';
 
   @override
-  String get disabilitySelfEmployedTitle => 'Ton filet n’existe pas';
+  String get disabilitySelfEmployedTitle =>
+      'A tua rede de segurança não existe';
 
   @override
-  String get disabilitySelfEmployedAppBarTitle => 'Invalidité — Indépendant·e';
+  String get disabilitySelfEmployedAppBarTitle => 'Invalidez — Independente';
 
   @override
-  String get disabilitySelfEmployedRevenueTitle => 'Ton revenu mensuel net';
+  String get disabilitySelfEmployedRevenueTitle =>
+      'O teu rendimento mensal líquido';
 
   @override
   String get disabilitySelfEmployedRevenueHint =>
-      'Ajuste pour voir l’impact sur ta situation réelle';
+      'Ajusta para ver o impacto na tua situação real';
 
   @override
-  String get disabilitySelfEmployedRevenueLabel => 'Revenu net/mois';
+  String get disabilitySelfEmployedRevenueLabel => 'Rendimento líquido/mês';
 
   @override
   String get disabilitySelfEmployedInsuranceQuestion =>
-      'Tu as déjà une assurance perte de gain ?';
+      'Já tens seguro de perda de rendimento?';
 
   @override
-  String get disabilitySelfEmployedYes => 'Oui';
+  String get disabilitySelfEmployedYes => 'Sim';
 
   @override
-  String get disabilitySelfEmployedNo => 'Non / Je ne sais pas';
+  String get disabilitySelfEmployedNo => 'Não / Não sei';
 
   @override
   String get disabilitySelfEmployedApgTip =>
-      'Une APG individuelle dès CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.';
+      'Uma APG individual a partir de CHF 45/mês pode cobrir 80% do teu rendimento durante 720 dias.';
 
   @override
   String get disabilitySelfEmployedDisclaimer =>
-      'Outil éducatif — ne constitue pas un conseil en assurance. Un·e courtier·ère indépendant·e peut comparer les offres APG de différents assureurs selon ton activité et ton revenu réel.';
+      'Ferramenta educativa — não constitui aconselhamento de seguros.';
 
   @override
   String get disabilitySelfEmployedSources =>
-      '• LAMal art. 67-77 (assurance maladie perte de gain)\n• CO art. 324a (obligation employeur)\n• LAI art. 28 (rente AI)\n• LAVS art. 2 al. 3 (cotisation depuis l’étranger)';
+      '• LAMal art. 67-77\n• CO art. 324a\n• LAI art. 28\n• LAVS art. 2 al. 3';
 
   @override
-  String get confidenceDashboardLevelExcellent => 'Excellente';
+  String get confidenceDashboardLevelExcellent => 'Excelente';
 
   @override
-  String get confidenceDashboardLevelGood => 'Bonne';
+  String get confidenceDashboardLevelGood => 'Boa';
 
   @override
-  String get confidenceDashboardLevelFair => 'Correcte';
+  String get confidenceDashboardLevelFair => 'Razoável';
 
   @override
-  String get confidenceDashboardLevelImprove => 'À améliorer';
+  String get confidenceDashboardLevelImprove => 'A melhorar';
 
   @override
-  String get confidenceDashboardLevelInsufficient => 'Insuffisante';
+  String get confidenceDashboardLevelInsufficient => 'Insuficiente';
 
   @override
-  String get confidenceDashboardBreakdownTitle => 'Détail par axe';
+  String get confidenceDashboardBreakdownTitle => 'Detalhe por eixo';
 
   @override
-  String get confidenceDashboardFeaturesTitle => 'Fonctionnalités débloquées';
+  String get confidenceDashboardFeaturesTitle =>
+      'Funcionalidades desbloqueadas';
 
   @override
   String confidenceDashboardRequired(String percent) {
-    return '$percent % requis';
+    return '$percent % necessário';
   }
 
   @override
-  String get confidenceDashboardEnrichTitle => 'Améliore ta précision';
+  String get confidenceDashboardEnrichTitle => 'Melhora a tua precisão';
 
   @override
-  String get confidenceDashboardSourcesTitle => 'Sources';
+  String get confidenceDashboardSourcesTitle => 'Fontes';
 
   @override
   String get cockpitDetailEmptyState =>
-      'Complète ton profil pour accéder au cockpit détaillé.';
+      'Completa o teu perfil para aceder ao cockpit detalhado.';
 
   @override
-  String get cockpitDetailEnrichProfile => 'Enrichir mon profil';
+  String get cockpitDetailEnrichProfile => 'Enriquecer o meu perfil';
 
   @override
   String get cockpitDetailDisclaimer =>
-      'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.';
+      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).';
 }
