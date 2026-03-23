@@ -129,6 +129,33 @@ class RouteToolPayload {
   });
 }
 
+// ────────────────────────────────────────────────────────────
+//  DOCUMENT TOOL PAYLOAD — generate_document tool_use
+// ────────────────────────────────────────────────────────────
+
+/// Payload from a `generate_document` tool_use block returned by Claude.
+///
+/// Produced by [_parseDocumentToolUse] in CoachChatScreen when the LLM response
+/// contains a structured `[GENERATE_DOCUMENT:{...}]` marker.
+///
+/// The Flutter app calls [FormPrefillService] or [LetterGenerationService]
+/// based on [documentType], validates via [AgentValidationGate], then renders
+/// the result as a downloadable card in the chat.
+class DocumentToolPayload {
+  /// The type of document to generate.
+  ///
+  /// One of: 'fiscal_declaration', 'pension_fund_letter', 'lpp_buyback_request'.
+  final String documentType;
+
+  /// Brief context from the LLM about what the user asked for.
+  final String context;
+
+  const DocumentToolPayload({
+    required this.documentType,
+    required this.context,
+  });
+}
+
 /// Message dans l'historique de conversation
 class ChatMessage {
   final String role; // 'user', 'assistant', 'system'
@@ -149,6 +176,12 @@ class ChatMessage {
   /// The card is rendered in CoachChatScreen._buildCoachBubble.
   final RouteToolPayload? routePayload;
 
+  /// Document generation payload from a `generate_document` tool_use block.
+  ///
+  /// Non-null when the message carries a generated document card to render.
+  /// The card is rendered in CoachChatScreen._buildDocumentCard.
+  final DocumentToolPayload? documentPayload;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -159,6 +192,7 @@ class ChatMessage {
     this.tier = ChatTier.none,
     this.responseCards = const [],
     this.routePayload,
+    this.documentPayload,
   });
 
   bool get isUser => role == 'user';
@@ -167,6 +201,9 @@ class ChatMessage {
 
   /// Whether this message carries a route suggestion card.
   bool get hasRoutePayload => routePayload != null;
+
+  /// Whether this message carries a generated document card.
+  bool get hasDocumentPayload => documentPayload != null;
 }
 
 /// Reponse du coach LLM
