@@ -66,6 +66,7 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
+import 'package:mint_mobile/screens/expert/expert_tier_screen.dart';
 import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
@@ -779,6 +780,13 @@ final _router = GoRouter(
       path: '/arbitrage/location-vs-propriete',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LocationVsProprieteScreen(),
+    ),
+
+    // ── EXPERT TIER ───────────────────────────────────────────
+    GoRoute(
+      path: '/expert',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExpertTierScreen(),
     ),
 
     // ── ACHIEVEMENTS ──────────────────────────────────────────

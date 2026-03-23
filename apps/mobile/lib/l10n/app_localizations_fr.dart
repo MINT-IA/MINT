@@ -12705,7 +12705,8 @@ class SFr extends S {
       'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.';
 
   @override
-  String get coachSuggestSimulate3a => 'Combien économiser avec le 3a ?';
+  String get coachSuggestSimulate3a =>
+      'Combien j’économise si je verse le max ?';
 
   @override
   String get coachSuggestView3a => 'L\'état de mes comptes 3a';
@@ -21092,4 +21093,155 @@ class SFr extends S {
   @override
   String get deuxViesDisclaimer =>
       'Outil éducatif. Ne constitue pas un conseil financier (LSFin).';
+
+  @override
+  String get expertTierScreenTitle => 'Consulter un·e spécialiste';
+
+  @override
+  String get expertTierFinancialPlanner => 'Planificateur·rice financier·ère';
+
+  @override
+  String get expertTierFinancialPlannerDesc =>
+      'Retraite, prévoyance, décaissement, stratégie patrimoniale globale';
+
+  @override
+  String get expertTierTaxSpecialist => 'Fiscaliste';
+
+  @override
+  String get expertTierTaxSpecialistDesc =>
+      'Optimisation fiscale, rachat LPP, déclaration, planification inter-cantonale';
+
+  @override
+  String get expertTierNotary => 'Notaire';
+
+  @override
+  String get expertTierNotaryDesc =>
+      'Succession, testament, donation, régime matrimonial, pacte successoral';
+
+  @override
+  String get expertTierPrice => '129 CHF / session';
+
+  @override
+  String get expertTierSelectCta => 'Préparer mon dossier';
+
+  @override
+  String get expertTierDossierPreviewTitle => 'Aperçu de ton dossier';
+
+  @override
+  String get expertTierDossierGenerating => 'Préparation du dossier…';
+
+  @override
+  String get expertTierDossierReady => 'Dossier prêt';
+
+  @override
+  String get expertTierRequestCta => 'Demander un rendez-vous';
+
+  @override
+  String get expertTierComingSoonTitle => 'Bientôt disponible';
+
+  @override
+  String get expertTierComingSoon =>
+      'La prise de rendez-vous arrive prochainement. Ton dossier est prêt — tu pourras le transmettre dès l’ouverture du service.';
+
+  @override
+  String expertTierCompleteness(String percent) {
+    return 'Profil complet à $percent %';
+  }
+
+  @override
+  String get expertTierEstimated => 'Estimé';
+
+  @override
+  String get expertTierMissingDataTitle => 'Données à compléter';
+
+  @override
+  String get expertTierDisclaimerBanner =>
+      'MINT prépare le dossier, le·la spécialiste donne le conseil';
+
+  @override
+  String get expertTierBack => 'Choisir un autre spécialiste';
+
+  @override
+  String get expertTierOk => 'Compris';
+
+  @override
+  String get docCardTitle => 'Document pré-rempli';
+
+  @override
+  String get docCardFiscalDeclaration => 'Déclaration fiscale';
+
+  @override
+  String get docCardPensionFundLetter => 'Courrier caisse de pension';
+
+  @override
+  String get docCardLppBuybackRequest => 'Demande de rachat LPP';
+
+  @override
+  String get docCardDisclaimer => 'Vérifie chaque champ. MINT ne soumet rien.';
+
+  @override
+  String get docCardViewDocument => 'Consulter le document';
+
+  @override
+  String get docCardValidationFailed => 'La validation du document a échoué.';
+
+  @override
+  String get docCardGenerating => 'Génération du document…';
+
+  @override
+  String docCardFieldCount(int count) {
+    return '$count champs pré-remplis';
+  }
+
+  @override
+  String get docCardReadOnly => 'Lecture seule — à compléter manuellement';
+
+  @override
+  String get sourceBadgeEstimated => 'Estimé';
+
+  @override
+  String get sourceBadgeDeclared => 'Déclaré';
+
+  @override
+  String get sourceBadgeCertified => 'Certifié';
+
+  @override
+  String get monteCarloTitle => 'Tes chances de vivre confortablement';
+
+  @override
+  String monteCarloSubtitle(int count) {
+    return '$count scénarios simulés';
+  }
+
+  @override
+  String get monteCarloHeroPhrase =>
+      'de chances que ton capital tienne jusqu’à 90 ans';
+
+  @override
+  String get monteCarloLegendWideBand => 'Fourchette large';
+
+  @override
+  String get monteCarloLegendProbableBand => 'Fourchette probable';
+
+  @override
+  String get monteCarloLegendMedian => 'Scénario central';
+
+  @override
+  String get monteCarloLegendCurrentIncome => 'Ce que tu gagnes aujourd’hui';
+
+  @override
+  String monteCarloMedianAtAge(int age) {
+    return 'Scénario central à $age ans';
+  }
+
+  @override
+  String get monteCarloProbableRange => 'Fourchette probable';
+
+  @override
+  String get monteCarloSuccessLabel =>
+      'Probabilité que ton\ncapital tienne jusqu’à 90 ans';
+
+  @override
+  String get monteCarloDisclaimer =>
+      'Les rendements passés ne présagent pas les rendements futurs. Simulation à titre pédagogique (LSFin).';
 }

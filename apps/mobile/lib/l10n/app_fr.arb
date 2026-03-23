@@ -6368,8 +6368,8 @@
   "coachErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
   "coachErrorGeneric": "Erreur technique. Réessaie plus tard.",
   "coachErrorConnection": "Erreur de connexion. Vérifie ta connexion internet ou ta clé API.",
-  "coachSuggestSimulate3a": "Combien économiser avec le 3a ?",
-  "coachSuggestView3a": "L'état de mes comptes 3a",
+  "coachSuggestSimulate3a": "Combien j\u2019économise si je verse le max ?",
+  "coachSuggestView3a": "J\u2019ai combien sur mes comptes 3a\u00a0?",
   "coachSuggestSimulateLpp": "Chiffrer un rachat LPP",
   "coachSuggestUnderstandLpp": "Comment fonctionne le rachat LPP ?",
   "coachSuggestTrajectory": "Ma trajectoire vers la retraite",
@@ -10507,5 +10507,78 @@
         "type": "String"
       }
     }
-  }
+  },
+  "expertTierScreenTitle": "Consulter un\u00b7e sp\u00e9cialiste",
+  "expertTierFinancialPlanner": "Planificateur\u00b7rice financier\u00b7\u00e8re",
+  "expertTierFinancialPlannerDesc": "Retraite, pr\u00e9voyance, d\u00e9caissement, strat\u00e9gie patrimoniale globale",
+  "expertTierTaxSpecialist": "Fiscaliste",
+  "expertTierTaxSpecialistDesc": "Optimisation fiscale, rachat LPP, d\u00e9claration, planification inter-cantonale",
+  "expertTierNotary": "Notaire",
+  "expertTierNotaryDesc": "Succession, testament, donation, r\u00e9gime matrimonial, pacte successoral",
+  "expertTierPrice": "129\u00a0CHF\u00a0/\u00a0session",
+  "expertTierSelectCta": "Pr\u00e9parer mon dossier",
+  "expertTierDossierPreviewTitle": "Aper\u00e7u de ton dossier",
+  "expertTierDossierGenerating": "Pr\u00e9paration du dossier\u2026",
+  "expertTierDossierReady": "Dossier pr\u00eat",
+  "expertTierRequestCta": "Demander un rendez-vous",
+  "expertTierComingSoonTitle": "Bient\u00f4t disponible",
+  "expertTierComingSoon": "La prise de rendez-vous arrive prochainement. Ton dossier est pr\u00eat\u00a0\u2014 tu pourras le transmettre d\u00e8s l\u2019ouverture du service.",
+  "expertTierCompleteness": "Profil complet \u00e0 {percent}\u00a0%",
+  "@expertTierCompleteness": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "expertTierEstimated": "Estim\u00e9",
+  "expertTierMissingDataTitle": "Donn\u00e9es \u00e0 compl\u00e9ter",
+  "expertTierDisclaimerBanner": "MINT pr\u00e9pare le dossier, le\u00b7la sp\u00e9cialiste donne le conseil",
+  "expertTierBack": "Choisir un autre sp\u00e9cialiste",
+  "expertTierOk": "Compris",
+  "docCardTitle": "Document pr\u00e9-rempli",
+  "docCardFiscalDeclaration": "D\u00e9claration fiscale",
+  "docCardPensionFundLetter": "Courrier caisse de pension",
+  "docCardLppBuybackRequest": "Demande de rachat LPP",
+  "docCardDisclaimer": "V\u00e9rifie chaque champ. MINT ne soumet rien.",
+  "docCardViewDocument": "Consulter le document",
+  "docCardValidationFailed": "La validation du document a \u00e9chou\u00e9.",
+  "docCardGenerating": "G\u00e9n\u00e9ration du document\u2026",
+  "docCardFieldCount": "{count} champs pr\u00e9-remplis",
+  "@docCardFieldCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "docCardReadOnly": "Lecture seule \u2014 \u00e0 compl\u00e9ter manuellement",
+  "sourceBadgeEstimated": "Estim\u00e9",
+  "sourceBadgeDeclared": "D\u00e9clar\u00e9",
+  "sourceBadgeCertified": "Certifi\u00e9",
+  "monteCarloTitle": "Tes chances de vivre confortablement",
+  "monteCarloSubtitle": "{count} sc\u00e9narios simul\u00e9s",
+  "@monteCarloSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloHeroPhrase": "de chances que ton capital tienne jusqu\u2019\u00e0 90 ans",
+  "monteCarloLegendWideBand": "Fourchette large",
+  "monteCarloLegendProbableBand": "Fourchette probable",
+  "monteCarloLegendMedian": "Sc\u00e9nario central",
+  "monteCarloLegendCurrentIncome": "Ce que tu gagnes aujourd\u2019hui",
+  "monteCarloMedianAtAge": "Sc\u00e9nario central \u00e0 {age} ans",
+  "@monteCarloMedianAtAge": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloProbableRange": "Fourchette probable",
+  "monteCarloSuccessLabel": "Probabilit\u00e9 que ton\ncapital tienne jusqu\u2019\u00e0 90 ans",
+  "monteCarloDisclaimer": "Les rendements pass\u00e9s ne pr\u00e9sagent pas les rendements futurs. Simulation \u00e0 titre p\u00e9dagogique (LSFin)."
 }

@@ -22513,7 +22513,7 @@ abstract class S {
   /// No description provided for @coachSuggestSimulate3a.
   ///
   /// In fr, this message translates to:
-  /// **'Combien économiser avec le 3a ?'**
+  /// **'Combien j’économise si je verse le max ?'**
   String get coachSuggestSimulate3a;
 
   /// No description provided for @coachSuggestView3a.
@@ -37227,6 +37227,276 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif. Ne constitue pas un conseil financier (LSFin).'**
   String get deuxViesDisclaimer;
+
+  /// No description provided for @expertTierScreenTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter un·e spécialiste'**
+  String get expertTierScreenTitle;
+
+  /// No description provided for @expertTierFinancialPlanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planificateur·rice financier·ère'**
+  String get expertTierFinancialPlanner;
+
+  /// No description provided for @expertTierFinancialPlannerDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite, prévoyance, décaissement, stratégie patrimoniale globale'**
+  String get expertTierFinancialPlannerDesc;
+
+  /// No description provided for @expertTierTaxSpecialist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscaliste'**
+  String get expertTierTaxSpecialist;
+
+  /// No description provided for @expertTierTaxSpecialistDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation fiscale, rachat LPP, déclaration, planification inter-cantonale'**
+  String get expertTierTaxSpecialistDesc;
+
+  /// No description provided for @expertTierNotary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notaire'**
+  String get expertTierNotary;
+
+  /// No description provided for @expertTierNotaryDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succession, testament, donation, régime matrimonial, pacte successoral'**
+  String get expertTierNotaryDesc;
+
+  /// No description provided for @expertTierPrice.
+  ///
+  /// In fr, this message translates to:
+  /// **'129 CHF / session'**
+  String get expertTierPrice;
+
+  /// No description provided for @expertTierSelectCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer mon dossier'**
+  String get expertTierSelectCta;
+
+  /// No description provided for @expertTierDossierPreviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu de ton dossier'**
+  String get expertTierDossierPreviewTitle;
+
+  /// No description provided for @expertTierDossierGenerating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation du dossier…'**
+  String get expertTierDossierGenerating;
+
+  /// No description provided for @expertTierDossierReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier prêt'**
+  String get expertTierDossierReady;
+
+  /// No description provided for @expertTierRequestCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander un rendez-vous'**
+  String get expertTierRequestCta;
+
+  /// No description provided for @expertTierComingSoonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt disponible'**
+  String get expertTierComingSoonTitle;
+
+  /// No description provided for @expertTierComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'La prise de rendez-vous arrive prochainement. Ton dossier est prêt — tu pourras le transmettre dès l’ouverture du service.'**
+  String get expertTierComingSoon;
+
+  /// No description provided for @expertTierCompleteness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil complet à {percent} %'**
+  String expertTierCompleteness(String percent);
+
+  /// No description provided for @expertTierEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé'**
+  String get expertTierEstimated;
+
+  /// No description provided for @expertTierMissingDataTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données à compléter'**
+  String get expertTierMissingDataTitle;
+
+  /// No description provided for @expertTierDisclaimerBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT prépare le dossier, le·la spécialiste donne le conseil'**
+  String get expertTierDisclaimerBanner;
+
+  /// No description provided for @expertTierBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un autre spécialiste'**
+  String get expertTierBack;
+
+  /// No description provided for @expertTierOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris'**
+  String get expertTierOk;
+
+  /// No description provided for @docCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document pré-rempli'**
+  String get docCardTitle;
+
+  /// No description provided for @docCardFiscalDeclaration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale'**
+  String get docCardFiscalDeclaration;
+
+  /// No description provided for @docCardPensionFundLetter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Courrier caisse de pension'**
+  String get docCardPensionFundLetter;
+
+  /// No description provided for @docCardLppBuybackRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de rachat LPP'**
+  String get docCardLppBuybackRequest;
+
+  /// No description provided for @docCardDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie chaque champ. MINT ne soumet rien.'**
+  String get docCardDisclaimer;
+
+  /// No description provided for @docCardViewDocument.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter le document'**
+  String get docCardViewDocument;
+
+  /// No description provided for @docCardValidationFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La validation du document a échoué.'**
+  String get docCardValidationFailed;
+
+  /// No description provided for @docCardGenerating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération du document…'**
+  String get docCardGenerating;
+
+  /// No description provided for @docCardFieldCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} champs pré-remplis'**
+  String docCardFieldCount(int count);
+
+  /// No description provided for @docCardReadOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture seule — à compléter manuellement'**
+  String get docCardReadOnly;
+
+  /// No description provided for @sourceBadgeEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé'**
+  String get sourceBadgeEstimated;
+
+  /// No description provided for @sourceBadgeDeclared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré'**
+  String get sourceBadgeDeclared;
+
+  /// No description provided for @sourceBadgeCertified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certifié'**
+  String get sourceBadgeCertified;
+
+  /// No description provided for @monteCarloTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes chances de vivre confortablement'**
+  String get monteCarloTitle;
+
+  /// No description provided for @monteCarloSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} scénarios simulés'**
+  String monteCarloSubtitle(int count);
+
+  /// No description provided for @monteCarloHeroPhrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'de chances que ton capital tienne jusqu’à 90 ans'**
+  String get monteCarloHeroPhrase;
+
+  /// No description provided for @monteCarloLegendWideBand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette large'**
+  String get monteCarloLegendWideBand;
+
+  /// No description provided for @monteCarloLegendProbableBand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette probable'**
+  String get monteCarloLegendProbableBand;
+
+  /// No description provided for @monteCarloLegendMedian.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scénario central'**
+  String get monteCarloLegendMedian;
+
+  /// No description provided for @monteCarloLegendCurrentIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que tu gagnes aujourd’hui'**
+  String get monteCarloLegendCurrentIncome;
+
+  /// No description provided for @monteCarloMedianAtAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scénario central à {age} ans'**
+  String monteCarloMedianAtAge(int age);
+
+  /// No description provided for @monteCarloProbableRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette probable'**
+  String get monteCarloProbableRange;
+
+  /// No description provided for @monteCarloSuccessLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Probabilité que ton\ncapital tienne jusqu’à 90 ans'**
+  String get monteCarloSuccessLabel;
+
+  /// No description provided for @monteCarloDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les rendements passés ne présagent pas les rendements futurs. Simulation à titre pédagogique (LSFin).'**
+  String get monteCarloDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

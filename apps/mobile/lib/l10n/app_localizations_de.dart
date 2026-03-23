@@ -21117,4 +21117,157 @@ class SDe extends S {
   @override
   String get deuxViesDisclaimer =>
       'Bildungstool. Keine Finanzberatung (FIDLEG).';
+
+  @override
+  String get expertTierScreenTitle => 'Fachperson konsultieren';
+
+  @override
+  String get expertTierFinancialPlanner => 'Finanzplaner·in';
+
+  @override
+  String get expertTierFinancialPlannerDesc =>
+      'Pensionierung, Vorsorge, Auszahlungsstrategie, ganzheitliche Vermögensplanung';
+
+  @override
+  String get expertTierTaxSpecialist => 'Steuerberater·in';
+
+  @override
+  String get expertTierTaxSpecialistDesc =>
+      'Steueroptimierung, BVG-Einkauf, Steuererklärung, interkantonale Planung';
+
+  @override
+  String get expertTierNotary => 'Notar·in';
+
+  @override
+  String get expertTierNotaryDesc =>
+      'Erbrecht, Testament, Schenkung, Güterrecht, Erbvertrag';
+
+  @override
+  String get expertTierPrice => 'CHF 129 / Sitzung';
+
+  @override
+  String get expertTierSelectCta => 'Mein Dossier vorbereiten';
+
+  @override
+  String get expertTierDossierPreviewTitle => 'Vorschau deines Dossiers';
+
+  @override
+  String get expertTierDossierGenerating => 'Dossier wird vorbereitet…';
+
+  @override
+  String get expertTierDossierReady => 'Dossier bereit';
+
+  @override
+  String get expertTierRequestCta => 'Termin anfragen';
+
+  @override
+  String get expertTierComingSoonTitle => 'Bald verfügbar';
+
+  @override
+  String get expertTierComingSoon =>
+      'Die Terminbuchung kommt bald. Dein Dossier ist bereit — du kannst es übermitteln, sobald der Service startet.';
+
+  @override
+  String expertTierCompleteness(String percent) {
+    return 'Profil zu $percent % vollständig';
+  }
+
+  @override
+  String get expertTierEstimated => 'Geschätzt';
+
+  @override
+  String get expertTierMissingDataTitle => 'Fehlende Daten';
+
+  @override
+  String get expertTierDisclaimerBanner =>
+      'MINT bereitet das Dossier vor, die Fachperson gibt die Beratung';
+
+  @override
+  String get expertTierBack => 'Andere Fachperson wählen';
+
+  @override
+  String get expertTierOk => 'Verstanden';
+
+  @override
+  String get docCardTitle => 'Vorgefülltes Dokument';
+
+  @override
+  String get docCardFiscalDeclaration => 'Steuererklärung';
+
+  @override
+  String get docCardPensionFundLetter => 'Brief an die Pensionskasse';
+
+  @override
+  String get docCardLppBuybackRequest => 'BVG-Einkaufsantrag';
+
+  @override
+  String get docCardDisclaimer =>
+      'Prüfe jedes Feld. MINT reicht nie etwas ein.';
+
+  @override
+  String get docCardViewDocument => 'Dokument ansehen';
+
+  @override
+  String get docCardValidationFailed => 'Dokumentvalidierung fehlgeschlagen.';
+
+  @override
+  String get docCardGenerating => 'Dokument wird erstellt…';
+
+  @override
+  String docCardFieldCount(int count) {
+    return '$count vorgefüllte Felder';
+  }
+
+  @override
+  String get docCardReadOnly => 'Nur Lesen — manuell ergänzen';
+
+  @override
+  String get sourceBadgeEstimated => 'Geschätzt';
+
+  @override
+  String get sourceBadgeDeclared => 'Deklariert';
+
+  @override
+  String get sourceBadgeCertified => 'Zertifiziert';
+
+  @override
+  String get monteCarloTitle =>
+      'Deine Chancen auf einen komfortablen Ruhestand';
+
+  @override
+  String monteCarloSubtitle(int count) {
+    return '$count Szenarien simuliert';
+  }
+
+  @override
+  String get monteCarloHeroPhrase =>
+      'Wahrscheinlichkeit, dass dein Kapital bis 90 reicht';
+
+  @override
+  String get monteCarloLegendWideBand => 'Breite Spanne';
+
+  @override
+  String get monteCarloLegendProbableBand => 'Wahrscheinliche Spanne';
+
+  @override
+  String get monteCarloLegendMedian => 'Zentrales Szenario';
+
+  @override
+  String get monteCarloLegendCurrentIncome => 'Was du heute verdienst';
+
+  @override
+  String monteCarloMedianAtAge(int age) {
+    return 'Zentrales Szenario mit $age';
+  }
+
+  @override
+  String get monteCarloProbableRange => 'Wahrscheinliche Spanne';
+
+  @override
+  String get monteCarloSuccessLabel =>
+      'Wahrscheinlichkeit, dass dein\nKapital bis 90 reicht';
+
+  @override
+  String get monteCarloDisclaimer =>
+      'Vergangene Renditen sind kein Indikator für zukünftige Ergebnisse. Pädagogische Simulation (LSFin).';
 }

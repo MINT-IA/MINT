@@ -12639,34 +12639,36 @@ class SEn extends S {
       'Connection error. Check your internet connection or API key.';
 
   @override
-  String get coachSuggestSimulate3a => 'How much can I save with pillar 3a?';
+  String get coachSuggestSimulate3a => 'How much do I save if I max out my 3a?';
 
   @override
-  String get coachSuggestView3a => 'Status of my 3a accounts';
+  String get coachSuggestView3a => 'How much is in my 3a accounts?';
 
   @override
-  String get coachSuggestSimulateLpp => 'Calculate an LPP buyback';
+  String get coachSuggestSimulateLpp =>
+      'Is it worth buying back into my pension?';
 
   @override
-  String get coachSuggestUnderstandLpp => 'How does LPP buyback work?';
+  String get coachSuggestUnderstandLpp => 'What will I actually get at 65?';
 
   @override
-  String get coachSuggestTrajectory => 'My trajectory to retirement';
+  String get coachSuggestTrajectory => 'How bad is it if I do nothing?';
 
   @override
-  String get coachSuggestScenarios => 'Pension or lump sum: which suits me?';
+  String get coachSuggestScenarios => 'Annuity or lump sum — what suits me?';
 
   @override
-  String get coachSuggestDeductions => 'Where to cut my taxes this year?';
+  String get coachSuggestDeductions => 'How much tax can I get back this year?';
 
   @override
-  String get coachSuggestTaxImpact => 'Calculate the tax saving';
+  String get coachSuggestTaxImpact => 'How much less tax with a buyback?';
 
   @override
-  String get coachSuggestFitness => 'My financial score in detail';
+  String get coachSuggestFitness => 'Am I on track for my goal?';
 
   @override
-  String get coachSuggestRetirement => 'At 65, how much will I have?';
+  String get coachSuggestRetirement =>
+      'Will I have enough to live on in retirement?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -20994,4 +20996,155 @@ class SEn extends S {
   @override
   String get deuxViesDisclaimer =>
       'Educational tool. Not financial advice (LSFin).';
+
+  @override
+  String get expertTierScreenTitle => 'Consult a specialist';
+
+  @override
+  String get expertTierFinancialPlanner => 'Financial planner';
+
+  @override
+  String get expertTierFinancialPlannerDesc =>
+      'Retirement, pension, withdrawal strategy, comprehensive wealth planning';
+
+  @override
+  String get expertTierTaxSpecialist => 'Tax specialist';
+
+  @override
+  String get expertTierTaxSpecialistDesc =>
+      'Tax optimization, LPP buyback, tax return, inter-cantonal planning';
+
+  @override
+  String get expertTierNotary => 'Notary';
+
+  @override
+  String get expertTierNotaryDesc =>
+      'Succession, will, donation, matrimonial regime, inheritance agreement';
+
+  @override
+  String get expertTierPrice => 'CHF 129 / session';
+
+  @override
+  String get expertTierSelectCta => 'Prepare my dossier';
+
+  @override
+  String get expertTierDossierPreviewTitle => 'Your dossier preview';
+
+  @override
+  String get expertTierDossierGenerating => 'Preparing the dossier…';
+
+  @override
+  String get expertTierDossierReady => 'Dossier ready';
+
+  @override
+  String get expertTierRequestCta => 'Request an appointment';
+
+  @override
+  String get expertTierComingSoonTitle => 'Coming soon';
+
+  @override
+  String get expertTierComingSoon =>
+      'Appointment booking is coming soon. Your dossier is ready — you\'ll be able to share it as soon as the service opens.';
+
+  @override
+  String expertTierCompleteness(String percent) {
+    return 'Profile $percent % complete';
+  }
+
+  @override
+  String get expertTierEstimated => 'Estimated';
+
+  @override
+  String get expertTierMissingDataTitle => 'Missing data';
+
+  @override
+  String get expertTierDisclaimerBanner =>
+      'MINT prepares the dossier, the specialist provides the advice';
+
+  @override
+  String get expertTierBack => 'Choose another specialist';
+
+  @override
+  String get expertTierOk => 'Got it';
+
+  @override
+  String get docCardTitle => 'Pre-filled document';
+
+  @override
+  String get docCardFiscalDeclaration => 'Tax declaration';
+
+  @override
+  String get docCardPensionFundLetter => 'Pension fund letter';
+
+  @override
+  String get docCardLppBuybackRequest => 'LPP buyback request';
+
+  @override
+  String get docCardDisclaimer =>
+      'Check every field. MINT never submits anything.';
+
+  @override
+  String get docCardViewDocument => 'View document';
+
+  @override
+  String get docCardValidationFailed => 'Document validation failed.';
+
+  @override
+  String get docCardGenerating => 'Generating document…';
+
+  @override
+  String docCardFieldCount(int count) {
+    return '$count pre-filled fields';
+  }
+
+  @override
+  String get docCardReadOnly => 'Read-only — complete manually';
+
+  @override
+  String get sourceBadgeEstimated => 'Estimated';
+
+  @override
+  String get sourceBadgeDeclared => 'Declared';
+
+  @override
+  String get sourceBadgeCertified => 'Certified';
+
+  @override
+  String get monteCarloTitle => 'Your chances of a comfortable retirement';
+
+  @override
+  String monteCarloSubtitle(int count) {
+    return '$count scenarios simulated';
+  }
+
+  @override
+  String get monteCarloHeroPhrase => 'chance your capital lasts until age 90';
+
+  @override
+  String get monteCarloLegendWideBand => 'Wide range';
+
+  @override
+  String get monteCarloLegendProbableBand => 'Likely range';
+
+  @override
+  String get monteCarloLegendMedian => 'Central scenario';
+
+  @override
+  String get monteCarloLegendCurrentIncome => 'What you earn today';
+
+  @override
+  String monteCarloMedianAtAge(int age) {
+    return 'Central scenario at $age';
+  }
+
+  @override
+  String get monteCarloProbableRange => 'Likely range';
+
+  @override
+  String get monteCarloSuccessLabel =>
+      'Probability your capital\nlasts until age 90';
+
+  @override
+  String get monteCarloDisclaimer =>
+      'Past returns do not predict future results. Educational simulation (LSFin).';
 }

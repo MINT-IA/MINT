@@ -10157,5 +10157,78 @@
         "type": "String"
       }
     }
-  }
+  },
+  "expertTierScreenTitle": "Consultar a un\u00b7a especialista",
+  "expertTierFinancialPlanner": "Planificador\u00b7a financiero\u00b7a",
+  "expertTierFinancialPlannerDesc": "Jubilaci\u00f3n, previsi\u00f3n, estrategia de retiro, planificaci\u00f3n patrimonial global",
+  "expertTierTaxSpecialist": "Especialista fiscal",
+  "expertTierTaxSpecialistDesc": "Optimizaci\u00f3n fiscal, recompra LPP, declaraci\u00f3n, planificaci\u00f3n intercantonal",
+  "expertTierNotary": "Notario\u00b7a",
+  "expertTierNotaryDesc": "Sucesi\u00f3n, testamento, donaci\u00f3n, r\u00e9gimen matrimonial, pacto sucesorio",
+  "expertTierPrice": "CHF\u00a0129\u00a0/\u00a0sesi\u00f3n",
+  "expertTierSelectCta": "Preparar mi expediente",
+  "expertTierDossierPreviewTitle": "Vista previa de tu expediente",
+  "expertTierDossierGenerating": "Preparando el expediente\u2026",
+  "expertTierDossierReady": "Expediente listo",
+  "expertTierRequestCta": "Solicitar una cita",
+  "expertTierComingSoonTitle": "Pr\u00f3ximamente",
+  "expertTierComingSoon": "La reserva de citas llegar\u00e1 pronto. Tu expediente est\u00e1 listo\u00a0\u2014\u00a0podr\u00e1s compartirlo en cuanto el servicio est\u00e9 disponible.",
+  "expertTierCompleteness": "Perfil completo al {percent}\u00a0%",
+  "@expertTierCompleteness": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "expertTierEstimated": "Estimado",
+  "expertTierMissingDataTitle": "Datos por completar",
+  "expertTierDisclaimerBanner": "MINT prepara el expediente, el\u00b7la especialista da el consejo",
+  "expertTierBack": "Elegir otro\u00b7a especialista",
+  "expertTierOk": "Entendido",
+  "docCardTitle": "Documento pre-rellenado",
+  "docCardFiscalDeclaration": "Declaraci\u00f3n fiscal",
+  "docCardPensionFundLetter": "Carta al fondo de pensiones",
+  "docCardLppBuybackRequest": "Solicitud de recompra LPP",
+  "docCardDisclaimer": "Verifica cada campo. MINT nunca env\u00eda nada.",
+  "docCardViewDocument": "Ver documento",
+  "docCardValidationFailed": "La validaci\u00f3n del documento fall\u00f3.",
+  "docCardGenerating": "Generando documento\u2026",
+  "docCardFieldCount": "{count} campos pre-rellenados",
+  "@docCardFieldCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "docCardReadOnly": "Solo lectura \u2014 completar manualmente",
+  "sourceBadgeEstimated": "Estimado",
+  "sourceBadgeDeclared": "Declarado",
+  "sourceBadgeCertified": "Certificado",
+  "monteCarloTitle": "Tus probabilidades de vivir c\u00f3modamente",
+  "monteCarloSubtitle": "{count} escenarios simulados",
+  "@monteCarloSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloHeroPhrase": "de probabilidad de que tu capital dure hasta los 90 a\u00f1os",
+  "monteCarloLegendWideBand": "Rango amplio",
+  "monteCarloLegendProbableBand": "Rango probable",
+  "monteCarloLegendMedian": "Escenario central",
+  "monteCarloLegendCurrentIncome": "Lo que ganas hoy",
+  "monteCarloMedianAtAge": "Escenario central a los {age} a\u00f1os",
+  "@monteCarloMedianAtAge": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloProbableRange": "Rango probable",
+  "monteCarloSuccessLabel": "Probabilidad de que tu\ncapital dure hasta los 90 a\u00f1os",
+  "monteCarloDisclaimer": "Los rendimientos pasados no predicen los rendimientos futuros. Simulaci\u00f3n educativa (LSFin)."
 }

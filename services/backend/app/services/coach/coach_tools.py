@@ -91,6 +91,7 @@ ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = [
     "patrimoine_overview",
     "compound_interest",
     "leasing_simulation",
+    "expert_consultation",
 ]
 
 # ---------------------------------------------------------------------------
@@ -513,6 +514,50 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "type": "object",
             "properties": {},
             "required": [],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # generate_document — WRITE: pre-filled document generation (Flutter-bound)
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "generate_document",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Generate a pre-filled document for the user (fiscal declaration prep, "
+            "pension fund letter, LPP buyback request). The document is read-only "
+            "— MINT never submits it. The user reviews and uses it independently. "
+            "Use when the user asks about preparing a tax declaration, writing to "
+            "their pension fund, or requesting an LPP buyback. "
+            "This tool is forwarded to Flutter for execution — the backend does "
+            "NOT generate the document itself."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "document_type": {
+                    "type": "string",
+                    "enum": [
+                        "fiscal_declaration",
+                        "pension_fund_letter",
+                        "lpp_buyback_request",
+                    ],
+                    "description": (
+                        "Type of document to generate: "
+                        "'fiscal_declaration' = pre-filled tax declaration fields, "
+                        "'pension_fund_letter' = formal letter to pension fund, "
+                        "'lpp_buyback_request' = LPP buyback request form."
+                    ),
+                },
+                "context": {
+                    "type": "string",
+                    "description": (
+                        "Brief summary of what the user asked for, used to "
+                        "customize the document generation. Do not include PII."
+                    ),
+                },
+            },
+            "required": ["document_type", "context"],
         },
     },
 ]

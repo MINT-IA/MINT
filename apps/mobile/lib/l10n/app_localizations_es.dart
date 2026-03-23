@@ -21093,4 +21093,155 @@ class SEs extends S {
   @override
   String get deuxViesDisclaimer =>
       'Herramienta educativa. No es asesoramiento financiero (LSFin).';
+
+  @override
+  String get expertTierScreenTitle => 'Consultar a un·a especialista';
+
+  @override
+  String get expertTierFinancialPlanner => 'Planificador·a financiero·a';
+
+  @override
+  String get expertTierFinancialPlannerDesc =>
+      'Jubilación, previsión, estrategia de retiro, planificación patrimonial global';
+
+  @override
+  String get expertTierTaxSpecialist => 'Especialista fiscal';
+
+  @override
+  String get expertTierTaxSpecialistDesc =>
+      'Optimización fiscal, recompra LPP, declaración, planificación intercantonal';
+
+  @override
+  String get expertTierNotary => 'Notario·a';
+
+  @override
+  String get expertTierNotaryDesc =>
+      'Sucesión, testamento, donación, régimen matrimonial, pacto sucesorio';
+
+  @override
+  String get expertTierPrice => 'CHF 129 / sesión';
+
+  @override
+  String get expertTierSelectCta => 'Preparar mi expediente';
+
+  @override
+  String get expertTierDossierPreviewTitle => 'Vista previa de tu expediente';
+
+  @override
+  String get expertTierDossierGenerating => 'Preparando el expediente…';
+
+  @override
+  String get expertTierDossierReady => 'Expediente listo';
+
+  @override
+  String get expertTierRequestCta => 'Solicitar una cita';
+
+  @override
+  String get expertTierComingSoonTitle => 'Próximamente';
+
+  @override
+  String get expertTierComingSoon =>
+      'La reserva de citas llegará pronto. Tu expediente está listo — podrás compartirlo en cuanto el servicio esté disponible.';
+
+  @override
+  String expertTierCompleteness(String percent) {
+    return 'Perfil completo al $percent %';
+  }
+
+  @override
+  String get expertTierEstimated => 'Estimado';
+
+  @override
+  String get expertTierMissingDataTitle => 'Datos por completar';
+
+  @override
+  String get expertTierDisclaimerBanner =>
+      'MINT prepara el expediente, el·la especialista da el consejo';
+
+  @override
+  String get expertTierBack => 'Elegir otro·a especialista';
+
+  @override
+  String get expertTierOk => 'Entendido';
+
+  @override
+  String get docCardTitle => 'Documento pre-rellenado';
+
+  @override
+  String get docCardFiscalDeclaration => 'Declaración fiscal';
+
+  @override
+  String get docCardPensionFundLetter => 'Carta al fondo de pensiones';
+
+  @override
+  String get docCardLppBuybackRequest => 'Solicitud de recompra LPP';
+
+  @override
+  String get docCardDisclaimer => 'Verifica cada campo. MINT nunca envía nada.';
+
+  @override
+  String get docCardViewDocument => 'Ver documento';
+
+  @override
+  String get docCardValidationFailed => 'La validación del documento falló.';
+
+  @override
+  String get docCardGenerating => 'Generando documento…';
+
+  @override
+  String docCardFieldCount(int count) {
+    return '$count campos pre-rellenados';
+  }
+
+  @override
+  String get docCardReadOnly => 'Solo lectura — completar manualmente';
+
+  @override
+  String get sourceBadgeEstimated => 'Estimado';
+
+  @override
+  String get sourceBadgeDeclared => 'Declarado';
+
+  @override
+  String get sourceBadgeCertified => 'Certificado';
+
+  @override
+  String get monteCarloTitle => 'Tus probabilidades de vivir cómodamente';
+
+  @override
+  String monteCarloSubtitle(int count) {
+    return '$count escenarios simulados';
+  }
+
+  @override
+  String get monteCarloHeroPhrase =>
+      'de probabilidad de que tu capital dure hasta los 90 años';
+
+  @override
+  String get monteCarloLegendWideBand => 'Rango amplio';
+
+  @override
+  String get monteCarloLegendProbableBand => 'Rango probable';
+
+  @override
+  String get monteCarloLegendMedian => 'Escenario central';
+
+  @override
+  String get monteCarloLegendCurrentIncome => 'Lo que ganas hoy';
+
+  @override
+  String monteCarloMedianAtAge(int age) {
+    return 'Escenario central a los $age años';
+  }
+
+  @override
+  String get monteCarloProbableRange => 'Rango probable';
+
+  @override
+  String get monteCarloSuccessLabel =>
+      'Probabilidad de que tu\ncapital dure hasta los 90 años';
+
+  @override
+  String get monteCarloDisclaimer =>
+      'Los rendimientos pasados no predicen los rendimientos futuros. Simulación educativa (LSFin).';
 }

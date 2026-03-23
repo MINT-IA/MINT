@@ -10157,5 +10157,78 @@
         "type": "String"
       }
     }
-  }
+  },
+  "expertTierScreenTitle": "Fachperson konsultieren",
+  "expertTierFinancialPlanner": "Finanzplaner\u00b7in",
+  "expertTierFinancialPlannerDesc": "Pensionierung, Vorsorge, Auszahlungsstrategie, ganzheitliche Verm\u00f6gensplanung",
+  "expertTierTaxSpecialist": "Steuerberater\u00b7in",
+  "expertTierTaxSpecialistDesc": "Steueroptimierung, BVG-Einkauf, Steuererkl\u00e4rung, interkantonale Planung",
+  "expertTierNotary": "Notar\u00b7in",
+  "expertTierNotaryDesc": "Erbrecht, Testament, Schenkung, G\u00fcterrecht, Erbvertrag",
+  "expertTierPrice": "CHF\u00a0129\u00a0/\u00a0Sitzung",
+  "expertTierSelectCta": "Mein Dossier vorbereiten",
+  "expertTierDossierPreviewTitle": "Vorschau deines Dossiers",
+  "expertTierDossierGenerating": "Dossier wird vorbereitet\u2026",
+  "expertTierDossierReady": "Dossier bereit",
+  "expertTierRequestCta": "Termin anfragen",
+  "expertTierComingSoonTitle": "Bald verf\u00fcgbar",
+  "expertTierComingSoon": "Die Terminbuchung kommt bald. Dein Dossier ist bereit\u00a0\u2014\u00a0du kannst es \u00fcbermitteln, sobald der Service startet.",
+  "expertTierCompleteness": "Profil zu {percent}\u00a0% vollst\u00e4ndig",
+  "@expertTierCompleteness": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "expertTierEstimated": "Gesch\u00e4tzt",
+  "expertTierMissingDataTitle": "Fehlende Daten",
+  "expertTierDisclaimerBanner": "MINT bereitet das Dossier vor, die Fachperson gibt die Beratung",
+  "expertTierBack": "Andere Fachperson w\u00e4hlen",
+  "expertTierOk": "Verstanden",
+  "docCardTitle": "Vorgef\u00fclltes Dokument",
+  "docCardFiscalDeclaration": "Steuererkl\u00e4rung",
+  "docCardPensionFundLetter": "Brief an die Pensionskasse",
+  "docCardLppBuybackRequest": "BVG-Einkaufsantrag",
+  "docCardDisclaimer": "Pr\u00fcfe jedes Feld. MINT reicht nie etwas ein.",
+  "docCardViewDocument": "Dokument ansehen",
+  "docCardValidationFailed": "Dokumentvalidierung fehlgeschlagen.",
+  "docCardGenerating": "Dokument wird erstellt\u2026",
+  "docCardFieldCount": "{count} vorgef\u00fcllte Felder",
+  "@docCardFieldCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "docCardReadOnly": "Nur Lesen \u2014 manuell erg\u00e4nzen",
+  "sourceBadgeEstimated": "Gesch\u00e4tzt",
+  "sourceBadgeDeclared": "Deklariert",
+  "sourceBadgeCertified": "Zertifiziert",
+  "monteCarloTitle": "Deine Chancen auf einen komfortablen Ruhestand",
+  "monteCarloSubtitle": "{count} Szenarien simuliert",
+  "@monteCarloSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloHeroPhrase": "Wahrscheinlichkeit, dass dein Kapital bis 90 reicht",
+  "monteCarloLegendWideBand": "Breite Spanne",
+  "monteCarloLegendProbableBand": "Wahrscheinliche Spanne",
+  "monteCarloLegendMedian": "Zentrales Szenario",
+  "monteCarloLegendCurrentIncome": "Was du heute verdienst",
+  "monteCarloMedianAtAge": "Zentrales Szenario mit {age}",
+  "@monteCarloMedianAtAge": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloProbableRange": "Wahrscheinliche Spanne",
+  "monteCarloSuccessLabel": "Wahrscheinlichkeit, dass dein\nKapital bis 90 reicht",
+  "monteCarloDisclaimer": "Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Ergebnisse. P\u00e4dagogische Simulation (LSFin)."
 }

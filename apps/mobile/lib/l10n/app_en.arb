@@ -6075,16 +6075,16 @@
   "coachErrorRateLimit": "Rate limit reached. Try again in a moment.",
   "coachErrorGeneric": "Technical error. Try again later.",
   "coachErrorConnection": "Connection error. Check your internet connection or API key.",
-  "coachSuggestSimulate3a": "How much can I save with pillar 3a?",
-  "coachSuggestView3a": "Status of my 3a accounts",
-  "coachSuggestSimulateLpp": "Calculate an LPP buyback",
-  "coachSuggestUnderstandLpp": "How does LPP buyback work?",
-  "coachSuggestTrajectory": "My trajectory to retirement",
-  "coachSuggestScenarios": "Pension or lump sum: which suits me?",
-  "coachSuggestDeductions": "Where to cut my taxes this year?",
-  "coachSuggestTaxImpact": "Calculate the tax saving",
-  "coachSuggestFitness": "My financial score in detail",
-  "coachSuggestRetirement": "At 65, how much will I have?",
+  "coachSuggestSimulate3a": "How much do I save if I max out my 3a?",
+  "coachSuggestView3a": "How much is in my 3a accounts?",
+  "coachSuggestSimulateLpp": "Is it worth buying back into my pension?",
+  "coachSuggestUnderstandLpp": "What will I actually get at 65?",
+  "coachSuggestTrajectory": "How bad is it if I do nothing?",
+  "coachSuggestScenarios": "Annuity or lump sum — what suits me?",
+  "coachSuggestDeductions": "How much tax can I get back this year?",
+  "coachSuggestTaxImpact": "How much less tax with a buyback?",
+  "coachSuggestFitness": "Am I on track for my goal?",
+  "coachSuggestRetirement": "Will I have enough to live on in retirement?",
   "coachEmptyStateMessage": "No profile yet. Three questions, and we're talking.",
   "coachEmptyStateButton": "Take my diagnosis",
   "coachTooltipHistory": "History",
@@ -10157,5 +10157,78 @@
         "type": "String"
       }
     }
-  }
+  },
+  "expertTierScreenTitle": "Consult a specialist",
+  "expertTierFinancialPlanner": "Financial planner",
+  "expertTierFinancialPlannerDesc": "Retirement, pension, withdrawal strategy, comprehensive wealth planning",
+  "expertTierTaxSpecialist": "Tax specialist",
+  "expertTierTaxSpecialistDesc": "Tax optimization, LPP buyback, tax return, inter-cantonal planning",
+  "expertTierNotary": "Notary",
+  "expertTierNotaryDesc": "Succession, will, donation, matrimonial regime, inheritance agreement",
+  "expertTierPrice": "CHF\u00a0129\u00a0/\u00a0session",
+  "expertTierSelectCta": "Prepare my dossier",
+  "expertTierDossierPreviewTitle": "Your dossier preview",
+  "expertTierDossierGenerating": "Preparing the dossier\u2026",
+  "expertTierDossierReady": "Dossier ready",
+  "expertTierRequestCta": "Request an appointment",
+  "expertTierComingSoonTitle": "Coming soon",
+  "expertTierComingSoon": "Appointment booking is coming soon. Your dossier is ready\u00a0\u2014 you'll be able to share it as soon as the service opens.",
+  "expertTierCompleteness": "Profile {percent}\u00a0% complete",
+  "@expertTierCompleteness": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "expertTierEstimated": "Estimated",
+  "expertTierMissingDataTitle": "Missing data",
+  "expertTierDisclaimerBanner": "MINT prepares the dossier, the specialist provides the advice",
+  "expertTierBack": "Choose another specialist",
+  "expertTierOk": "Got it",
+  "docCardTitle": "Pre-filled document",
+  "docCardFiscalDeclaration": "Tax declaration",
+  "docCardPensionFundLetter": "Pension fund letter",
+  "docCardLppBuybackRequest": "LPP buyback request",
+  "docCardDisclaimer": "Check every field. MINT never submits anything.",
+  "docCardViewDocument": "View document",
+  "docCardValidationFailed": "Document validation failed.",
+  "docCardGenerating": "Generating document\u2026",
+  "docCardFieldCount": "{count} pre-filled fields",
+  "@docCardFieldCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "docCardReadOnly": "Read-only \u2014 complete manually",
+  "sourceBadgeEstimated": "Estimated",
+  "sourceBadgeDeclared": "Declared",
+  "sourceBadgeCertified": "Certified",
+  "monteCarloTitle": "Your chances of a comfortable retirement",
+  "monteCarloSubtitle": "{count} scenarios simulated",
+  "@monteCarloSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloHeroPhrase": "chance your capital lasts until age 90",
+  "monteCarloLegendWideBand": "Wide range",
+  "monteCarloLegendProbableBand": "Likely range",
+  "monteCarloLegendMedian": "Central scenario",
+  "monteCarloLegendCurrentIncome": "What you earn today",
+  "monteCarloMedianAtAge": "Central scenario at {age}",
+  "@monteCarloMedianAtAge": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloProbableRange": "Likely range",
+  "monteCarloSuccessLabel": "Probability your capital\nlasts until age 90",
+  "monteCarloDisclaimer": "Past returns do not predict future results. Educational simulation (LSFin)."
 }

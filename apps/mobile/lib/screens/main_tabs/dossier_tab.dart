@@ -721,6 +721,9 @@ class _DataSection extends StatelessWidget {
     final isCouple = profile?.isCouple ?? false;
     final hasConjoint = profile?.conjoint != null;
 
+    // Data source provenance map for badge display.
+    final ds = profile?.dataSources ?? const {};
+
     return MintSurface(
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
@@ -731,6 +734,9 @@ class _DataSection extends StatelessWidget {
             icon: Icons.work_outline,
             label: l.dossierDataRevenu,
             value: revenuStr,
+            source: revenuBrut != null && revenuBrut > 0
+                ? ds['salaireBrutMensuel'] ?? ProfileDataSource.estimated
+                : null,
             onTap: () => _pushAndRecompute(context, '/data-block/revenu'),
           ),
 
@@ -740,6 +746,7 @@ class _DataSection extends StatelessWidget {
                   icon: Icons.account_balance_outlined,
                   label: l.dossierDataLpp,
                   value: lppStr,
+                  source: ds['prevoyance.avoirLppTotal'],
                   // Show scan CTA when LPP is known but from estimation (not certificate)
                   cta: (profile?.prevoyance.isLppEstimated ?? false)
                       ? l.dossierScanLppPrecision
@@ -768,6 +775,10 @@ class _DataSection extends StatelessWidget {
             icon: Icons.savings_outlined,
             label: l.dossierData3a,
             value: str3a,
+            source: total3a > 0
+                ? ds['prevoyance.totalEpargne3a'] ??
+                    ProfileDataSource.estimated
+                : null,
             onTap: () => _pushAndRecompute(context, '/data-block/3a'),
           ),
 
@@ -776,6 +787,9 @@ class _DataSection extends StatelessWidget {
             icon: Icons.bar_chart_outlined,
             label: l.dossierDataBudget,
             value: budgetStr,
+            source: monthlyFree != null
+                ? ds['depenses.budget'] ?? ProfileDataSource.estimated
+                : null,
             onTap: () => _pushAndRecompute(context, '/budget'),
           ),
 
@@ -814,6 +828,9 @@ class _DataRow extends StatelessWidget {
 
   /// Optional CTA label shown in accent colour instead of [value].
   final String? cta;
+
+  /// Data provenance — drives the source badge (Estimé/Déclaré/Certifié).
+  final ProfileDataSource? source;
   final VoidCallback onTap;
 
   const _DataRow({
@@ -821,6 +838,7 @@ class _DataRow extends StatelessWidget {
     required this.label,
     required this.value,
     this.cta,
+    this.source,
     required this.onTap,
   });
 
@@ -861,6 +879,10 @@ class _DataRow extends StatelessWidget {
                           color: MintColors.textPrimary,
                         ).copyWith(fontSize: 14, fontWeight: FontWeight.w500),
                       ),
+                if (source != null && cta == null) ...[
+                  const SizedBox(width: MintSpacing.xs),
+                  _SourceBadge(source: source!),
+                ],
                 const SizedBox(width: MintSpacing.xs),
                 const Icon(
                   Icons.chevron_right_rounded,
@@ -879,6 +901,55 @@ class _DataRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Compact provenance badge — shows data source quality at a glance.
+///
+/// - [estimated] → "Estimé" (warning amber)
+/// - [userInput] → "Déclaré" (info blue)
+/// - [crossValidated]/[certificate]/[openBanking] → "Certifié" (success green)
+class _SourceBadge extends StatelessWidget {
+  final ProfileDataSource source;
+
+  const _SourceBadge({required this.source});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
+    final String label;
+    final Color textColor;
+    final Color bgColor;
+
+    switch (source) {
+      case ProfileDataSource.estimated:
+        label = l.sourceBadgeEstimated;
+        textColor = MintColors.warning;
+        bgColor = MintColors.warning.withValues(alpha: 0.15);
+      case ProfileDataSource.userInput:
+        label = l.sourceBadgeDeclared;
+        textColor = MintColors.info;
+        bgColor = MintColors.info.withValues(alpha: 0.10);
+      case ProfileDataSource.crossValidated:
+      case ProfileDataSource.certificate:
+      case ProfileDataSource.openBanking:
+        label = l.sourceBadgeCertified;
+        textColor = MintColors.success;
+        bgColor = MintColors.success.withValues(alpha: 0.15);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: MintTextStyles.labelSmall(color: textColor),
+      ),
     );
   }
 }
@@ -1199,7 +1270,7 @@ class _ExpertTierSection extends StatelessWidget {
                 icon: Icons.person_search_outlined,
                 title: l.expertPrepareDossierCta,
                 subtitle: l.expertDisclaimer,
-                onTap: () => context.push('/coach/chat?prompt=specialist'),
+                onTap: () => context.push('/expert'),
                 showDivider: false,
               ),
             ],
