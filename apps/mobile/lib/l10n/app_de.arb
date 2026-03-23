@@ -6075,16 +6075,16 @@
   "coachErrorRateLimit": "Anfragelimit erreicht. Versuche es in einem Moment erneut.",
   "coachErrorGeneric": "Technischer Fehler. Versuche es später erneut.",
   "coachErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
-  "coachSuggestSimulate3a": "Wie viel spare ich mit Säule 3a?",
-  "coachSuggestView3a": "Status meiner 3a-Konten",
-  "coachSuggestSimulateLpp": "BVG-Einkauf berechnen",
-  "coachSuggestUnderstandLpp": "Wie funktioniert der BVG-Einkauf?",
-  "coachSuggestTrajectory": "Mein Weg in die Pensionierung",
-  "coachSuggestScenarios": "Rente oder Kapital: was passt zu mir?",
-  "coachSuggestDeductions": "Wo Steuern sparen in diesem Jahr?",
-  "coachSuggestTaxImpact": "Steuerersparnis berechnen",
-  "coachSuggestFitness": "Mein Finanz-Score im Detail",
-  "coachSuggestRetirement": "Mit 65: wie viel werde ich haben?",
+  "coachSuggestSimulate3a": "Wie viel spare ich, wenn ich das Maximum einzahle?",
+  "coachSuggestView3a": "Wie viel habe ich auf meinen 3a-Konten?",
+  "coachSuggestSimulateLpp": "Lohnt sich ein BVG-Einkauf für mich?",
+  "coachSuggestUnderstandLpp": "Was bekomme ich mit 65 tatsächlich?",
+  "coachSuggestTrajectory": "Wie schlimm ist es, wenn ich nichts tue?",
+  "coachSuggestScenarios": "Rente oder Kapital — was passt zu mir?",
+  "coachSuggestDeductions": "Wie viel Steuern hole ich dieses Jahr zurück?",
+  "coachSuggestTaxImpact": "Wie viel weniger Steuern mit einem Einkauf?",
+  "coachSuggestFitness": "Bin ich auf Kurs für mein Ziel?",
+  "coachSuggestRetirement": "Reicht es mir zum Leben im Ruhestand?",
   "coachEmptyStateMessage": "Noch kein Profil. Drei Fragen, und wir reden.",
   "coachEmptyStateButton": "Diagnose starten",
   "coachTooltipHistory": "Verlauf",
@@ -10230,5 +10230,28 @@
   },
   "monteCarloProbableRange": "Wahrscheinliche Spanne",
   "monteCarloSuccessLabel": "Wahrscheinlichkeit, dass dein\nKapital bis 90 reicht",
-  "monteCarloDisclaimer": "Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Ergebnisse. P\u00e4dagogische Simulation (LSFin)."
+  "monteCarloDisclaimer": "Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Ergebnisse. P\u00e4dagogische Simulation (LSFin).",
+  "exploreHubOtherTopics": "Weitere Themen",
+  "dossierIdentiteSection": "Identit\u00e4t",
+  "dossierDocumentsSection": "Dokumente",
+  "dossierCoupleSection": "Paar",
+  "dossierPreferencesSection": "Einstellungen",
+  "dossierUpdatedAgo": "Vor {days} Tagen aktualisiert",
+  "@dossierUpdatedAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dossierUpdatedOn": "Aktualisiert am {date}",
+  "@dossierUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dossierUpdatedToday": "Heute aktualisiert",
+  "dossierUpdatedYesterday": "Gestern aktualisiert"
 }

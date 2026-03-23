@@ -6075,16 +6075,16 @@
   "coachErrorRateLimit": "Limite di richieste raggiunto. Riprova tra un momento.",
   "coachErrorGeneric": "Errore tecnico. Riprova più tardi.",
   "coachErrorConnection": "Errore di connessione. Verifica la tua connessione internet o la tua chiave API.",
-  "coachSuggestSimulate3a": "Quanto risparmio con il pilastro 3a?",
-  "coachSuggestView3a": "Stato dei miei conti 3a",
-  "coachSuggestSimulateLpp": "Calcolare un riscatto LPP",
-  "coachSuggestUnderstandLpp": "Come funziona il riscatto LPP?",
-  "coachSuggestTrajectory": "La mia traiettoria verso la pensione",
-  "coachSuggestScenarios": "Rendita o capitale: cosa mi conviene?",
-  "coachSuggestDeductions": "Dove ridurre le tasse quest’anno?",
-  "coachSuggestTaxImpact": "Calcolare il risparmio fiscale",
-  "coachSuggestFitness": "Il mio punteggio finanziario in dettaglio",
-  "coachSuggestRetirement": "A 65 anni, quanto avrò?",
+  "coachSuggestSimulate3a": "Quanto risparmio se verso il massimo?",
+  "coachSuggestView3a": "Quanto ho sui miei conti 3a?",
+  "coachSuggestSimulateLpp": "Mi conviene riscattare il LPP?",
+  "coachSuggestUnderstandLpp": "Cosa riceverò davvero a 65 anni?",
+  "coachSuggestTrajectory": "Quanto è grave se non faccio nulla?",
+  "coachSuggestScenarios": "Rendita o capitale — cosa mi conviene?",
+  "coachSuggestDeductions": "Quante tasse recupero quest'anno?",
+  "coachSuggestTaxImpact": "Quante tasse in meno con un riscatto?",
+  "coachSuggestFitness": "Sono in linea con il mio obiettivo?",
+  "coachSuggestRetirement": "Mi basterà per vivere in pensione?",
   "coachEmptyStateMessage": "Ancora nessun profilo. Tre domande, e iniziamo a parlare.",
   "coachEmptyStateButton": "Fare la mia diagnosi",
   "coachTooltipHistory": "Cronologia",
@@ -10230,5 +10230,28 @@
   },
   "monteCarloProbableRange": "Fascia probabile",
   "monteCarloSuccessLabel": "Probabilit\u00e0 che il tuo\ncapitale duri fino a 90 anni",
-  "monteCarloDisclaimer": "I rendimenti passati non sono indicativi dei rendimenti futuri. Simulazione a scopo educativo (LSFin)."
+  "monteCarloDisclaimer": "I rendimenti passati non sono indicativi dei rendimenti futuri. Simulazione a scopo educativo (LSFin).",
+  "exploreHubOtherTopics": "Altri argomenti",
+  "dossierIdentiteSection": "Identit\u00e0",
+  "dossierDocumentsSection": "Documenti",
+  "dossierCoupleSection": "Coppia",
+  "dossierPreferencesSection": "Preferenze",
+  "dossierUpdatedAgo": "Aggiornato {days} giorni fa",
+  "@dossierUpdatedAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dossierUpdatedOn": "Aggiornato il {date}",
+  "@dossierUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dossierUpdatedToday": "Aggiornato oggi",
+  "dossierUpdatedYesterday": "Aggiornato ieri"
 }

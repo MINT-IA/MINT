@@ -12712,34 +12712,34 @@ class SIt extends S {
       'Errore di connessione. Verifica la tua connessione internet o la tua chiave API.';
 
   @override
-  String get coachSuggestSimulate3a => 'Quanto risparmio con il pilastro 3a?';
+  String get coachSuggestSimulate3a => 'Quanto risparmio se verso il massimo?';
 
   @override
-  String get coachSuggestView3a => 'Stato dei miei conti 3a';
+  String get coachSuggestView3a => 'Quanto ho sui miei conti 3a?';
 
   @override
-  String get coachSuggestSimulateLpp => 'Calcolare un riscatto LPP';
+  String get coachSuggestSimulateLpp => 'Mi conviene riscattare il LPP?';
 
   @override
-  String get coachSuggestUnderstandLpp => 'Come funziona il riscatto LPP?';
+  String get coachSuggestUnderstandLpp => 'Cosa riceverò davvero a 65 anni?';
 
   @override
-  String get coachSuggestTrajectory => 'La mia traiettoria verso la pensione';
+  String get coachSuggestTrajectory => 'Quanto è grave se non faccio nulla?';
 
   @override
-  String get coachSuggestScenarios => 'Rendita o capitale: cosa mi conviene?';
+  String get coachSuggestScenarios => 'Rendita o capitale — cosa mi conviene?';
 
   @override
-  String get coachSuggestDeductions => 'Dove ridurre le tasse quest’anno?';
+  String get coachSuggestDeductions => 'Quante tasse recupero quest\'anno?';
 
   @override
-  String get coachSuggestTaxImpact => 'Calcolare il risparmio fiscale';
+  String get coachSuggestTaxImpact => 'Quante tasse in meno con un riscatto?';
 
   @override
-  String get coachSuggestFitness => 'Il mio punteggio finanziario in dettaglio';
+  String get coachSuggestFitness => 'Sono in linea con il mio obiettivo?';
 
   @override
-  String get coachSuggestRetirement => 'A 65 anni, quanto avrò?';
+  String get coachSuggestRetirement => 'Mi basterà per vivere in pensione?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -21275,4 +21275,35 @@ class SIt extends S {
   @override
   String get monteCarloDisclaimer =>
       'I rendimenti passati non sono indicativi dei rendimenti futuri. Simulazione a scopo educativo (LSFin).';
+
+  @override
+  String get dossierIdentiteSection => 'Identità';
+
+  @override
+  String get dossierDocumentsSection => 'Documenti';
+
+  @override
+  String get dossierCoupleSection => 'Coppia';
+
+  @override
+  String get dossierPreferencesSection => 'Preferenze';
+
+  @override
+  String dossierUpdatedAgo(int days) {
+    return 'Aggiornato $days giorni fa';
+  }
+
+  @override
+  String dossierUpdatedOn(String date) {
+    return 'Aggiornato il $date';
+  }
+
+  @override
+  String get dossierUpdatedToday => 'Aggiornato oggi';
+
+  @override
+  String get dossierUpdatedYesterday => 'Aggiornato ieri';
+
+  @override
+  String get exploreHubOtherTopics => 'Altri argomenti';
 }

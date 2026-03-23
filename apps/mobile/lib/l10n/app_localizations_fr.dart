@@ -12709,31 +12709,34 @@ class SFr extends S {
       'Combien j’économise si je verse le max ?';
 
   @override
-  String get coachSuggestView3a => 'L\'état de mes comptes 3a';
+  String get coachSuggestView3a => 'J’ai combien sur mes comptes 3a ?';
 
   @override
-  String get coachSuggestSimulateLpp => 'Chiffrer un rachat LPP';
+  String get coachSuggestSimulateLpp => 'Ça vaut le coup de racheter du LPP ?';
 
   @override
-  String get coachSuggestUnderstandLpp => 'Comment fonctionne le rachat LPP ?';
+  String get coachSuggestUnderstandLpp => 'Qu’est-ce que je touche à 65 ans ?';
 
   @override
-  String get coachSuggestTrajectory => 'Ma trajectoire vers la retraite';
+  String get coachSuggestTrajectory => 'C’est grave si je fais rien ?';
 
   @override
-  String get coachSuggestScenarios => 'Rente ou capital : lequel me convient ?';
+  String get coachSuggestScenarios =>
+      'Rente ou capital — qu’est-ce qui me convient ?';
 
   @override
-  String get coachSuggestDeductions => 'Où réduire mes impôts cette année ?';
+  String get coachSuggestDeductions => 'Combien je récupère cette année ?';
 
   @override
-  String get coachSuggestTaxImpact => 'Calculer l’économie fiscale';
+  String get coachSuggestTaxImpact =>
+      'Combien d’impôts en moins avec un rachat ?';
 
   @override
-  String get coachSuggestFitness => 'Mon score financier en détail';
+  String get coachSuggestFitness => 'Je suis où par rapport à mon objectif ?';
 
   @override
-  String get coachSuggestRetirement => 'À 65 ans, combien j’aurai ?';
+  String get coachSuggestRetirement =>
+      'J’aurai assez pour vivre à la retraite ?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -21244,4 +21247,35 @@ class SFr extends S {
   @override
   String get monteCarloDisclaimer =>
       'Les rendements passés ne présagent pas les rendements futurs. Simulation à titre pédagogique (LSFin).';
+
+  @override
+  String get dossierIdentiteSection => 'Identité';
+
+  @override
+  String get dossierDocumentsSection => 'Documents';
+
+  @override
+  String get dossierCoupleSection => 'Couple';
+
+  @override
+  String get dossierPreferencesSection => 'Préférences';
+
+  @override
+  String dossierUpdatedAgo(int days) {
+    return 'Mis à jour il y a $days jours';
+  }
+
+  @override
+  String dossierUpdatedOn(String date) {
+    return 'Mis à jour le $date';
+  }
+
+  @override
+  String get dossierUpdatedToday => 'Mis à jour aujourd’hui';
+
+  @override
+  String get dossierUpdatedYesterday => 'Mis à jour hier';
+
+  @override
+  String get exploreHubOtherTopics => 'Autres thématiques';
 }

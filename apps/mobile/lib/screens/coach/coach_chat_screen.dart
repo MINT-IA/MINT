@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -46,6 +47,10 @@ import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
+import 'package:mint_mobile/services/agent/agent_validation_gate.dart';
+import 'package:mint_mobile/services/agent/form_prefill_service.dart';
+import 'package:mint_mobile/services/agent/letter_generation_service.dart';
+import 'package:mint_mobile/widgets/coach/document_card.dart';
 import 'package:mint_mobile/widgets/coach/voice_input_button.dart';
 import 'package:mint_mobile/widgets/coach/voice_output_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,7 +97,8 @@ class CoachChatScreen extends StatefulWidget {
   State<CoachChatScreen> createState() => _CoachChatScreenState();
 }
 
-class _CoachChatScreenState extends State<CoachChatScreen> {
+class _CoachChatScreenState extends State<CoachChatScreen>
+    with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
@@ -106,6 +112,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   String? _proactiveTriggerType;
   DateTime? _proactiveGreetingShownAt;
   final List<ChatMessage> _messages = [];
+
+  // ── Greeting narrative canvas ──────────────────────────────
+  /// When true, the greeting is shown as a narrative card above the list.
+  /// Becomes false on first user send, collapsing into a normal bubble.
+  bool _greetingExpanded = true;
+
+  /// Stored greeting data for the narrative canvas.
+  String? _greetingLine1;
+  String? _greetingLine2;
+  List<String>? _greetingSuggestions;
+  ChatTier? _greetingTier;
   bool _isLoading = false;
   bool _isStreaming = false;
   final StringBuffer _streamBuffer = StringBuffer();
@@ -148,9 +165,43 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Whether all known providers are currently unhealthy.
   bool _allProvidersDown = false;
 
+  // ── Document generation (Agent Autonome) ───────────────────
+  /// Last generated form (stored for rendering in document card).
+  FormPrefill? _lastGeneratedForm;
+
+  /// Last generated letter (stored for rendering in document card).
+  GeneratedLetter? _lastGeneratedLetter;
+
+  // ── Emotional canvas (UX P3) ───────────────────────────────
+  /// Background tint that changes subtly based on conversation topic.
+  /// Extremely subtle — felt, not seen.
+  late final AnimationController _canvasAnimController;
+  late final Animation<Color?> _canvasAnimation;
+  Color _canvasColorBegin = MintColors.white;
+  Color _canvasColorEnd = MintColors.white;
+  _CanvasMood _currentMood = _CanvasMood.neutral;
+
+  /// Milestone pulse: one-shot controller for completion celebrations.
+  AnimationController? _milestonePulseController;
+  bool _milestonePulsing = false;
+
   @override
   void initState() {
     super.initState();
+
+    // Emotional canvas animation (800-1200ms depending on mood).
+    _canvasAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _canvasAnimation = ColorTween(
+      begin: MintColors.white,
+      end: MintColors.white,
+    ).animate(CurvedAnimation(
+      parent: _canvasAnimController,
+      curve: Curves.easeInOut,
+    ));
+
     // Bug fix: use provided conversationId when resuming, else generate unique ID.
     _conversationId = widget.conversationId ??
         '${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
@@ -251,6 +302,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _scrollController.dispose();
     _focusNode.dispose();
     _voiceService.dispose();
+    _canvasAnimController.dispose();
+    _milestonePulseController?.dispose();
     super.dispose();
   }
 
@@ -470,14 +523,27 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // No response cards on greeting — they duplicate Pulse.
     // Cards appear only in response to user messages.
+
+    // ── Build narrative canvas line 1: name + time cue ───────────
+    final now = DateTime.now();
+    const frDays = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+    final dayName = frDays[now.weekday - 1];
+    final String timeCue;
+    if (now.hour < 12) {
+      timeCue = 'matin';
+    } else if (now.hour < 18) {
+      timeCue = 'après-midi';
+    } else {
+      timeCue = 'soir';
+    }
+    final line1 = '$name, $dayName $timeCue.';
+
     setState(() {
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: greeting,
-        timestamp: DateTime.now(),
-        suggestedActions: suggestions,
-        tier: tier,
-      ));
+      _greetingExpanded = true;
+      _greetingLine1 = line1;
+      _greetingLine2 = greeting;
+      _greetingSuggestions = suggestions;
+      _greetingTier = tier;
     });
   }
 
@@ -641,6 +707,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // P3.5 Coaching Adaptatif: track proactive greeting engagement.
     // If user sends a message within 60s of a proactive greeting = engaged.
     _trackProactiveEngagement();
+
+    // Collapse greeting narrative canvas into a normal bubble on first send.
+    if (_greetingExpanded && _greetingLine2 != null) {
+      _messages.insert(
+        0,
+        ChatMessage(
+          role: 'assistant',
+          content: _greetingLine2!,
+          timestamp: DateTime.now(),
+          suggestedActions: _greetingSuggestions,
+          tier: _greetingTier ?? ChatTier.fallback,
+        ),
+      );
+      _greetingExpanded = false;
+    }
 
     setState(() {
       _messages.add(ChatMessage(
@@ -809,7 +890,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         : _parseRouteToolUse(finalText);
     final resolvedPayload =
         rawPayload != null ? _resolveRoutePayload(rawPayload) : null;
-    final slmBaseText = rawPayload != null
+
+    // Detect generate_document tool_use in streamed text.
+    final docPayload = compliance.useFallback
+        ? null
+        : _parseDocumentToolUse(finalText);
+
+    var slmBaseText = rawPayload != null
         ? finalText
             .replaceAll(
               RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
@@ -817,6 +904,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             )
             .trim()
         : finalText;
+    // Strip GENERATE_DOCUMENT markers from displayed text.
+    if (docPayload != null) {
+      slmBaseText = slmBaseText
+          .replaceAll(
+            RegExp(r'\[GENERATE_DOCUMENT:\{[^}]*\}\]'),
+            '',
+          )
+          .trim();
+    }
 
     // Prepend visible memory reference when available (Cleo-style recall).
     final slmDisplayText = _prependMemoryRef(slmBaseText, memoryRef);
@@ -834,6 +930,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _isStreaming = false;
     });
     _scrollToBottom();
+
+    // Generate document card if generate_document tool was detected.
+    if (docPayload != null) {
+      _handleDocumentGeneration(docPayload);
+    }
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
@@ -866,9 +967,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final resolvedPayload =
           rawPayload != null ? _resolveRoutePayload(rawPayload) : null;
 
+      // Detect generate_document tool_use in response message.
+      final docPayload = _parseDocumentToolUse(response.message);
+
       // Strip the [ROUTE_TO_SCREEN:{...}] marker from the displayed text
       // when a route payload was detected.
-      final baseMessage = rawPayload != null
+      var baseMessage = rawPayload != null
           ? response.message
               .replaceAll(
                 RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
@@ -876,6 +980,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               )
               .trim()
           : response.message;
+
+      // Strip GENERATE_DOCUMENT markers from displayed text.
+      if (docPayload != null) {
+        baseMessage = baseMessage
+            .replaceAll(
+              RegExp(r'\[GENERATE_DOCUMENT:\{[^}]*\}\]'),
+              '',
+            )
+            .trim();
+      }
 
       // Prepend visible memory reference when available (Cleo-style recall).
       final displayMessage = _prependMemoryRef(baseMessage, memoryRef);
@@ -895,6 +1009,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _isLoading = false;
       });
       _scrollToBottom();
+
+      // Generate document card if generate_document tool was detected.
+      if (docPayload != null) {
+        _handleDocumentGeneration(docPayload);
+      }
     } on RagApiException catch (e) {
       if (!mounted) return;
       final s = S.of(context)!;
@@ -1137,6 +1256,124 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
   }
 
+  // ════════════════════════════════════════════════════════════
+  //  GENERATE_DOCUMENT ORCHESTRATION
+  // ════════════════════════════════════════════════════════════
+
+  /// Parses a `[GENERATE_DOCUMENT:{...}]` marker embedded in a response text.
+  ///
+  /// Returns null if no marker is present (plain-text response).
+  DocumentToolPayload? _parseDocumentToolUse(String text) {
+    final markerStart = text.indexOf('[GENERATE_DOCUMENT:');
+    if (markerStart == -1) return null;
+    final jsonStart = markerStart + '[GENERATE_DOCUMENT:'.length;
+    final markerEnd = text.indexOf(']', jsonStart);
+    if (markerEnd == -1) return null;
+
+    try {
+      final raw = text.substring(jsonStart, markerEnd);
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      final docType = map['document_type'] as String? ?? '';
+      final docContext = map['context'] as String? ?? '';
+      if (docType.isEmpty) return null;
+      return DocumentToolPayload(
+        documentType: docType,
+        context: docContext,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Generates a document from a [DocumentToolPayload] using the appropriate
+  /// service, validates via [AgentValidationGate], and adds a document card
+  /// message to the chat.
+  ///
+  /// Read-only posture: documents are GENERATED, never SUBMITTED.
+  /// AgentValidationGate MUST approve before display.
+  void _handleDocumentGeneration(DocumentToolPayload payload) {
+    if (_profile == null || !mounted) return;
+    final l = S.of(context)!;
+
+    try {
+      switch (payload.documentType) {
+        case 'fiscal_declaration':
+          final prefill = FormPrefillService.prepareTaxDeclaration(
+            profile: _profile!,
+            taxYear: DateTime.now().year,
+            l: l,
+          );
+          // Validate through AgentValidationGate before display.
+          if (!AgentValidationGate.validateFormPrefill(prefill)) return;
+          _addDocumentMessage(formPrefill: prefill);
+
+        case 'pension_fund_letter':
+          final letter = LetterGenerationService.generatePensionFundRequest(
+            profile: _profile!,
+            l: l,
+          );
+          // Validate through AgentValidationGate before display.
+          if (!AgentValidationGate.validateLetter(letter)) return;
+          _addDocumentMessage(letter: letter);
+
+        case 'lpp_buyback_request':
+          final prefill = FormPrefillService.prepareLppBuyback(
+            profile: _profile!,
+            l: l,
+          );
+          // Validate through AgentValidationGate before display.
+          if (!AgentValidationGate.validateFormPrefill(prefill)) return;
+          _addDocumentMessage(formPrefill: prefill);
+
+        default:
+          debugPrint(
+            '[CoachChat] Unknown document_type: ${payload.documentType}',
+          );
+      }
+    } catch (e) {
+      debugPrint('[CoachChat] Document generation failed: $e');
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: l.docCardValidationFailed,
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+        });
+        _scrollToBottom();
+      }
+    }
+  }
+
+  /// Adds a document card message to the chat.
+  void _addDocumentMessage({
+    FormPrefill? formPrefill,
+    GeneratedLetter? letter,
+  }) {
+    if (!mounted) return;
+    // Build a DocumentToolPayload to store on the message.
+    final docType = formPrefill != null
+        ? formPrefill.formType
+        : (letter != null ? letter.type : '');
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: '',
+        timestamp: DateTime.now(),
+        tier: ChatTier.byok,
+        documentPayload: DocumentToolPayload(
+          documentType: docType,
+          context: '',
+        ),
+      ));
+    });
+    _scrollToBottom();
+    // Store the generated output on the last message for rendering.
+    _lastGeneratedForm = formPrefill;
+    _lastGeneratedLetter = letter;
+  }
+
   /// Called when the user returns from a screen opened via [RouteSuggestionCard].
   ///
   /// ReturnContract V2: reacts differently per [ScreenOutcome] —
@@ -1375,6 +1612,132 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
+  //  EMOTIONAL CANVAS (UX P3)
+  // ════════════════════════════════════════════════════════════
+
+  /// Detect conversation topic from recent messages and update canvas tint.
+  void _updateCanvasMood() {
+    final recentTexts = _messages
+        .where((m) => !m.isSystem)
+        .toList()
+        .reversed
+        .take(3)
+        .map((m) => m.content.toLowerCase())
+        .join(' ');
+
+    _CanvasMood detected = _CanvasMood.neutral;
+
+    const stressKeywords = [
+      'dette', 'dettes', 'ch\u00f4mage', 'chomage', 'divorce',
+      'licenci', 'perte', 'crise', 'stress', 'difficult',
+    ];
+    for (final kw in stressKeywords) {
+      if (recentTexts.contains(kw)) {
+        detected = _CanvasMood.stress;
+        break;
+      }
+    }
+
+    if (detected == _CanvasMood.neutral) {
+      const retirementKeywords = [
+        'retraite', 'pension', '65 ans', 'avs', 'lpp',
+        'rente', 'pilier', '2e pilier', '3a',
+      ];
+      for (final kw in retirementKeywords) {
+        if (recentTexts.contains(kw)) {
+          detected = _CanvasMood.retirement;
+          break;
+        }
+      }
+    }
+
+    if (detected != _currentMood) {
+      _currentMood = detected;
+      _transitionCanvas(detected);
+    }
+  }
+
+  void _transitionCanvas(_CanvasMood mood) {
+    final Color targetColor;
+    final Duration duration;
+
+    switch (mood) {
+      case _CanvasMood.retirement:
+        targetColor = MintColors.porcelaine.withValues(alpha: 0.25);
+        duration = const Duration(milliseconds: 800);
+      case _CanvasMood.stress:
+        targetColor = MintColors.pecheDouce.withValues(alpha: 0.08);
+        duration = const Duration(milliseconds: 1200);
+      case _CanvasMood.neutral:
+        targetColor = MintColors.white;
+        duration = const Duration(milliseconds: 800);
+      case _CanvasMood.milestone:
+        return;
+    }
+
+    _canvasColorBegin = _canvasAnimation.value ?? MintColors.white;
+    _canvasColorEnd = targetColor;
+    _canvasAnimController
+      ..duration = duration
+      ..reset();
+    _canvasAnimation = ColorTween(
+      begin: _canvasColorBegin,
+      end: _canvasColorEnd,
+    ).animate(CurvedAnimation(
+      parent: _canvasAnimController,
+      curve: Curves.easeInOut,
+    ));
+    _canvasAnimController.forward();
+  }
+
+  void _triggerMilestonePulse() {
+    if (_milestonePulsing) return;
+    _milestonePulsing = true;
+
+    _milestonePulseController?.dispose();
+    _milestonePulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    );
+
+    final returnColor = _canvasColorEnd;
+
+    _canvasColorBegin = _canvasAnimation.value ?? MintColors.white;
+    _canvasColorEnd = MintColors.saugeClaire.withValues(alpha: 0.10);
+    _canvasAnimController
+      ..duration = const Duration(milliseconds: 600)
+      ..reset();
+    _canvasAnimation = ColorTween(
+      begin: _canvasColorBegin,
+      end: _canvasColorEnd,
+    ).animate(CurvedAnimation(
+      parent: _canvasAnimController,
+      curve: Curves.easeInOut,
+    ));
+    _canvasAnimController.forward();
+
+    _milestonePulseController!.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        _canvasColorBegin = MintColors.saugeClaire.withValues(alpha: 0.10);
+        _canvasColorEnd = returnColor;
+        _canvasAnimController
+          ..duration = const Duration(milliseconds: 800)
+          ..reset();
+        _canvasAnimation = ColorTween(
+          begin: _canvasColorBegin,
+          end: _canvasColorEnd,
+        ).animate(CurvedAnimation(
+          parent: _canvasAnimController,
+          curve: Curves.easeInOut,
+        ));
+        _canvasAnimController.forward();
+        _milestonePulsing = false;
+      }
+    });
+    _milestonePulseController!.forward();
+  }
+
+  // ════════════════════════════════════════════════════════════
   //  BUILD
   // ════════════════════════════════════════════════════════════
 
@@ -1390,7 +1753,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         children: [
           _buildAppBar(context),
           _buildDisclaimer(),
-          Expanded(child: _buildMessageList()),
+          if (_greetingExpanded && _greetingLine2 != null)
+            _buildGreetingCard(),
+          Expanded(
+            child: AnimatedBuilder(
+              animation: _canvasAnimController,
+              builder: (context, child) {
+                return ColoredBox(
+                  color: _canvasAnimation.value ?? MintColors.white,
+                  child: child,
+                );
+              },
+              child: _buildMessageList(),
+            ),
+          ),
           if (_isLoading) _buildLoadingIndicator(),
           _buildInputBar(),
         ],
@@ -1593,6 +1969,68 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
+  //  GREETING NARRATIVE CANVAS
+  // ════════════════════════════════════════════════════════════
+
+  Widget _buildGreetingCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(
+        MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.md,
+      ),
+      color: MintColors.craie,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _greetingLine1 ?? '',
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            _greetingLine2 ?? '',
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (_greetingSuggestions != null &&
+              _greetingSuggestions!.isNotEmpty) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: _greetingSuggestions!.map((action) {
+                return ActionChip(
+                  label: Text(
+                    action,
+                    style: MintTextStyles.labelSmall(
+                        color: MintColors.coachAccent),
+                  ),
+                  backgroundColor: MintColors.white,
+                  side: BorderSide(
+                    color: MintColors.coachAccent.withValues(alpha: 0.3),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  onPressed: () {
+                    final route = _routeForAction(action);
+                    if (route != null) {
+                      context.push(route);
+                    } else {
+                      _sendMessage(action);
+                    }
+                  },
+                );
+              }).toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
   //  MESSAGE LIST
   // ════════════════════════════════════════════════════════════
 
@@ -1707,13 +2145,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        msg.content.isEmpty && isStreamingThis
-                            ? '...'
-                            : msg.content,
-                        style: MintTextStyles.bodyMedium(
-                            color: MintColors.textPrimary),
-                      ),
+                      ..._buildBubbleContent(msg, isStreamingThis),
                       // Streaming cursor
                       if (isStreamingThis) ...[
                         const SizedBox(height: MintSpacing.xs),
@@ -1782,6 +2214,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               child: _buildRouteSuggestionCard(msg.routePayload!),
             ),
           ],
+          // Document Card — generate_document tool_use (Agent Autonome)
+          if (!isStreamingThis && msg.hasDocumentPayload) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 8),
+              child: _buildDocumentCard(),
+            ),
+          ],
           // Suggested actions
           if (!isStreamingThis &&
               msg.suggestedActions != null &&
@@ -1797,12 +2237,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     label: Text(
                       action,
                       style: MintTextStyles.labelSmall(
-                          color: MintColors.coachAccent),
+                          color: MintColors.ardoise),
                     ),
-                    backgroundColor: MintColors.white,
-                    side: BorderSide(
-                      color: MintColors.coachAccent.withValues(alpha: 0.3),
-                    ),
+                    backgroundColor: MintColors.porcelaine,
+                    side: BorderSide.none,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -1822,6 +2260,64 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ],
       ),
     );
+  }
+
+  /// Splits coach bubble content into optional memory-reference block + main text.
+  ///
+  /// When the content contains a memory reference (prepended by [_prependMemoryRef]),
+  /// the first paragraph before `\n\n` is rendered with a peach left border.
+  List<Widget> _buildBubbleContent(ChatMessage msg, bool isStreamingThis) {
+    final text = msg.content.isEmpty && isStreamingThis ? '...' : msg.content;
+
+    // Detect memory reference: pattern is "{memoryPhrase}\n\n{response}".
+    // Memory phrases always contain a known marker pattern from ARB keys.
+    final splitIndex = text.indexOf('\n\n');
+    if (splitIndex > 0 && splitIndex < text.length - 2) {
+      final firstPart = text.substring(0, splitIndex);
+      // Heuristic: memory refs contain time markers or goal markers.
+      final isMemoryRef = firstPart.contains('jours') ||
+          firstPart.contains('objectif') ||
+          firstPart.contains('dernière fois');
+      if (isMemoryRef) {
+        final mainText = text.substring(splitIndex + 2);
+        return [
+          Container(
+            padding: const EdgeInsets.only(
+              left: MintSpacing.sm,
+              top: MintSpacing.xs,
+              bottom: MintSpacing.xs,
+            ),
+            decoration: BoxDecoration(
+              border: const Border(
+                left: BorderSide(
+                  color: MintColors.pecheDouce,
+                  width: 3,
+                ),
+              ),
+              color: MintColors.pecheDouce.withValues(alpha: 0.08),
+            ),
+            child: Text(
+              firstPart,
+              style: MintTextStyles.bodySmall(color: MintColors.ardoise)
+                  .copyWith(fontStyle: FontStyle.italic),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            mainText,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          ),
+        ];
+      }
+    }
+
+    // Default: plain text, no memory reference.
+    return [
+      Text(
+        text,
+        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+      ),
+    ];
   }
 
   Widget _buildCursor() {
@@ -1887,6 +2383,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
+  /// Builds a [DocumentCard] for the last generated document.
+  ///
+  /// Reads from [_lastGeneratedForm] or [_lastGeneratedLetter] which are
+  /// populated by [_handleDocumentGeneration] before this method is called.
+  Widget _buildDocumentCard() {
+    if (_lastGeneratedForm != null) {
+      return DocumentCard(formPrefill: _lastGeneratedForm);
+    }
+    if (_lastGeneratedLetter != null) {
+      return DocumentCard(letter: _lastGeneratedLetter);
+    }
+    return const SizedBox.shrink();
+  }
+
   Widget _buildSystemMessage(ChatMessage msg) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm),
@@ -1936,25 +2446,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 color: MintColors.coachBubble,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: MintColors.coachAccent.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  const SizedBox(width: MintSpacing.sm),
-                  Text(
-                    loadingText,
-                    style: MintTextStyles.bodySmall(
-                        color: MintColors.textMuted),
-                  ),
-                ],
-              ),
+              child: const _BreathingDots(),
             ),
           ],
         ),
@@ -2211,6 +2703,9 @@ class _ResolvedRoutePayload extends RouteToolPayload {
   });
 }
 
+/// Emotional canvas mood — drives subtle background tint changes.
+enum _CanvasMood { neutral, stress, victory, discovery, retirement, milestone }
+
 /// Isolated blinking cursor — manages its own animation lifecycle.
 ///
 /// Avoids triggering parent [setState] for blink cycles, preventing
@@ -2256,6 +2751,68 @@ class _BlinkingCursorState extends State<_BlinkingCursor>
         height: 14,
         color: MintColors.coachAccent,
       ),
+    );
+  }
+}
+
+/// Three softly pulsing dots — replaces CircularProgressIndicator for loading.
+///
+/// All dots breathe simultaneously (NOT sequential bouncing).
+/// Opacity oscillates between 0.2 and 0.7 over 1200ms using a sine wave.
+class _BreathingDots extends StatefulWidget {
+  const _BreathingDots();
+
+  @override
+  State<_BreathingDots> createState() => _BreathingDotsState();
+}
+
+class _BreathingDotsState extends State<_BreathingDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        // Sine wave: 0.0→1.0 maps to opacity 0.2→0.7
+        final t = (math.sin(_controller.value * 2 * math.pi) + 1) / 2;
+        final opacity = 0.2 + (0.5 * t); // range 0.2 – 0.7
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(3, (i) {
+            return Padding(
+              padding: EdgeInsets.only(left: i == 0 ? 0 : 6),
+              child: Opacity(
+                opacity: opacity,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: MintColors.ardoise,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }

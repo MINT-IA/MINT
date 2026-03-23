@@ -6075,16 +6075,16 @@
   "coachErrorRateLimit": "Límite de solicitudes alcanzado. Inténtalo de nuevo en un momento.",
   "coachErrorGeneric": "Error técnico. Inténtalo más tarde.",
   "coachErrorConnection": "Error de conexión. Verifica tu conexión a internet o tu clave API.",
-  "coachSuggestSimulate3a": "¿Cuánto ahorro con el pilar 3a?",
-  "coachSuggestView3a": "Estado de mis cuentas 3a",
-  "coachSuggestSimulateLpp": "Calcular un rescate LPP",
-  "coachSuggestUnderstandLpp": "¿Cómo funciona el rescate LPP?",
-  "coachSuggestTrajectory": "Mi trayectoria hasta la jubilación",
-  "coachSuggestScenarios": "Renta o capital: ¿qué me conviene?",
-  "coachSuggestDeductions": "¿Dónde reducir impuestos este año?",
-  "coachSuggestTaxImpact": "Calcular el ahorro fiscal",
-  "coachSuggestFitness": "Mi puntuación financiera en detalle",
-  "coachSuggestRetirement": "A los 65, ¿cuánto tendré?",
+  "coachSuggestSimulate3a": "¿Cuánto ahorro si aporto el máximo?",
+  "coachSuggestView3a": "¿Cuánto tengo en mis cuentas 3a?",
+  "coachSuggestSimulateLpp": "¿Me conviene hacer un rescate LPP?",
+  "coachSuggestUnderstandLpp": "¿Qué voy a cobrar realmente a los 65?",
+  "coachSuggestTrajectory": "¿Qué pasa si no hago nada?",
+  "coachSuggestScenarios": "Renta o capital — ¿qué me conviene?",
+  "coachSuggestDeductions": "¿Cuánto recupero de impuestos este año?",
+  "coachSuggestTaxImpact": "¿Cuántos impuestos menos con un rescate?",
+  "coachSuggestFitness": "¿Voy bien respecto a mi objetivo?",
+  "coachSuggestRetirement": "¿Tendré suficiente para vivir jubilado?",
   "coachEmptyStateMessage": "Aún sin perfil. Tres preguntas, y hablamos.",
   "coachEmptyStateButton": "Hacer mi diagnóstico",
   "coachTooltipHistory": "Historial",
@@ -10230,5 +10230,28 @@
   },
   "monteCarloProbableRange": "Rango probable",
   "monteCarloSuccessLabel": "Probabilidad de que tu\ncapital dure hasta los 90 a\u00f1os",
-  "monteCarloDisclaimer": "Los rendimientos pasados no predicen los rendimientos futuros. Simulaci\u00f3n educativa (LSFin)."
+  "monteCarloDisclaimer": "Los rendimientos pasados no predicen los rendimientos futuros. Simulaci\u00f3n educativa (LSFin).",
+  "exploreHubOtherTopics": "Otros temas",
+  "dossierIdentiteSection": "Identidad",
+  "dossierDocumentsSection": "Documentos",
+  "dossierCoupleSection": "Pareja",
+  "dossierPreferencesSection": "Preferencias",
+  "dossierUpdatedAgo": "Actualizado hace {days} d\u00edas",
+  "@dossierUpdatedAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dossierUpdatedOn": "Actualizado el {date}",
+  "@dossierUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dossierUpdatedToday": "Actualizado hoy",
+  "dossierUpdatedYesterday": "Actualizado ayer"
 }

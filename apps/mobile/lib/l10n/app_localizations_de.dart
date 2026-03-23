@@ -12721,34 +12721,38 @@ class SDe extends S {
       'Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.';
 
   @override
-  String get coachSuggestSimulate3a => 'Wie viel spare ich mit Säule 3a?';
+  String get coachSuggestSimulate3a =>
+      'Wie viel spare ich, wenn ich das Maximum einzahle?';
 
   @override
-  String get coachSuggestView3a => 'Status meiner 3a-Konten';
+  String get coachSuggestView3a => 'Wie viel habe ich auf meinen 3a-Konten?';
 
   @override
-  String get coachSuggestSimulateLpp => 'BVG-Einkauf berechnen';
+  String get coachSuggestSimulateLpp => 'Lohnt sich ein BVG-Einkauf für mich?';
 
   @override
-  String get coachSuggestUnderstandLpp => 'Wie funktioniert der BVG-Einkauf?';
+  String get coachSuggestUnderstandLpp => 'Was bekomme ich mit 65 tatsächlich?';
 
   @override
-  String get coachSuggestTrajectory => 'Mein Weg in die Pensionierung';
+  String get coachSuggestTrajectory =>
+      'Wie schlimm ist es, wenn ich nichts tue?';
 
   @override
-  String get coachSuggestScenarios => 'Rente oder Kapital: was passt zu mir?';
+  String get coachSuggestScenarios => 'Rente oder Kapital — was passt zu mir?';
 
   @override
-  String get coachSuggestDeductions => 'Wo Steuern sparen in diesem Jahr?';
+  String get coachSuggestDeductions =>
+      'Wie viel Steuern hole ich dieses Jahr zurück?';
 
   @override
-  String get coachSuggestTaxImpact => 'Steuerersparnis berechnen';
+  String get coachSuggestTaxImpact =>
+      'Wie viel weniger Steuern mit einem Einkauf?';
 
   @override
-  String get coachSuggestFitness => 'Mein Finanz-Score im Detail';
+  String get coachSuggestFitness => 'Bin ich auf Kurs für mein Ziel?';
 
   @override
-  String get coachSuggestRetirement => 'Mit 65: wie viel werde ich haben?';
+  String get coachSuggestRetirement => 'Reicht es mir zum Leben im Ruhestand?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -21270,4 +21274,35 @@ class SDe extends S {
   @override
   String get monteCarloDisclaimer =>
       'Vergangene Renditen sind kein Indikator für zukünftige Ergebnisse. Pädagogische Simulation (LSFin).';
+
+  @override
+  String get dossierIdentiteSection => 'Identität';
+
+  @override
+  String get dossierDocumentsSection => 'Dokumente';
+
+  @override
+  String get dossierCoupleSection => 'Paar';
+
+  @override
+  String get dossierPreferencesSection => 'Einstellungen';
+
+  @override
+  String dossierUpdatedAgo(int days) {
+    return 'Vor $days Tagen aktualisiert';
+  }
+
+  @override
+  String dossierUpdatedOn(String date) {
+    return 'Aktualisiert am $date';
+  }
+
+  @override
+  String get dossierUpdatedToday => 'Heute aktualisiert';
+
+  @override
+  String get dossierUpdatedYesterday => 'Gestern aktualisiert';
+
+  @override
+  String get exploreHubOtherTopics => 'Weitere Themen';
 }

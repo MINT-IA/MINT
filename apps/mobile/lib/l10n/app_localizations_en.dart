@@ -21147,4 +21147,35 @@ class SEn extends S {
   @override
   String get monteCarloDisclaimer =>
       'Past returns do not predict future results. Educational simulation (LSFin).';
+
+  @override
+  String get dossierIdentiteSection => 'Identity';
+
+  @override
+  String get dossierDocumentsSection => 'Documents';
+
+  @override
+  String get dossierCoupleSection => 'Couple';
+
+  @override
+  String get dossierPreferencesSection => 'Preferences';
+
+  @override
+  String dossierUpdatedAgo(int days) {
+    return 'Updated $days days ago';
+  }
+
+  @override
+  String dossierUpdatedOn(String date) {
+    return 'Updated on $date';
+  }
+
+  @override
+  String get dossierUpdatedToday => 'Updated today';
+
+  @override
+  String get dossierUpdatedYesterday => 'Updated yesterday';
+
+  @override
+  String get exploreHubOtherTopics => 'Other topics';
 }

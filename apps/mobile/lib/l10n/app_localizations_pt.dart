@@ -12656,34 +12656,37 @@ class SPt extends S {
       'Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.';
 
   @override
-  String get coachSuggestSimulate3a => 'Quanto poupo com o pilar 3a?';
+  String get coachSuggestSimulate3a => 'Quanto poupo se contribuir o máximo?';
 
   @override
-  String get coachSuggestView3a => 'Estado das minhas contas 3a';
+  String get coachSuggestView3a => 'Quanto tenho nas minhas contas 3a?';
 
   @override
-  String get coachSuggestSimulateLpp => 'Calcular um resgate LPP';
+  String get coachSuggestSimulateLpp => 'Vale a pena resgatar o LPP?';
 
   @override
-  String get coachSuggestUnderstandLpp => 'Como funciona o resgate LPP?';
+  String get coachSuggestUnderstandLpp => 'O que vou receber aos 65 anos?';
 
   @override
-  String get coachSuggestTrajectory => 'A minha trajetória até à reforma';
+  String get coachSuggestTrajectory => 'É grave se eu não fizer nada?';
 
   @override
-  String get coachSuggestScenarios => 'Renda ou capital: o que me convém?';
+  String get coachSuggestScenarios => 'Renda ou capital — o que me convém?';
 
   @override
-  String get coachSuggestDeductions => 'Onde reduzir impostos este ano?';
+  String get coachSuggestDeductions => 'Quanto recupero de impostos este ano?';
 
   @override
-  String get coachSuggestTaxImpact => 'Calcular a poupança fiscal';
+  String get coachSuggestTaxImpact =>
+      'Quantos impostos a menos com um resgate?';
 
   @override
-  String get coachSuggestFitness => 'A minha pontuação financeira em detalhe';
+  String get coachSuggestFitness =>
+      'Estou no caminho certo para o meu objetivo?';
 
   @override
-  String get coachSuggestRetirement => 'Aos 65, quanto terei?';
+  String get coachSuggestRetirement =>
+      'Vou ter o suficiente para viver reformado?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -21194,4 +21197,35 @@ class SPt extends S {
   @override
   String get monteCarloDisclaimer =>
       'Os rendimentos passados não são indicadores de rendimentos futuros. Simulação educativa (LSFin).';
+
+  @override
+  String get dossierIdentiteSection => 'Identidade';
+
+  @override
+  String get dossierDocumentsSection => 'Documentos';
+
+  @override
+  String get dossierCoupleSection => 'Casal';
+
+  @override
+  String get dossierPreferencesSection => 'Preferências';
+
+  @override
+  String dossierUpdatedAgo(int days) {
+    return 'Atualizado há $days dias';
+  }
+
+  @override
+  String dossierUpdatedOn(String date) {
+    return 'Atualizado em $date';
+  }
+
+  @override
+  String get dossierUpdatedToday => 'Atualizado hoje';
+
+  @override
+  String get dossierUpdatedYesterday => 'Atualizado ontem';
+
+  @override
+  String get exploreHubOtherTopics => 'Outros temas';
 }

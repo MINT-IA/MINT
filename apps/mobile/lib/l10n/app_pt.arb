@@ -6075,16 +6075,16 @@
   "coachErrorRateLimit": "Limite de pedidos atingido. Tenta novamente daqui a pouco.",
   "coachErrorGeneric": "Erro técnico. Tenta novamente mais tarde.",
   "coachErrorConnection": "Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.",
-  "coachSuggestSimulate3a": "Quanto poupo com o pilar 3a?",
-  "coachSuggestView3a": "Estado das minhas contas 3a",
-  "coachSuggestSimulateLpp": "Calcular um resgate LPP",
-  "coachSuggestUnderstandLpp": "Como funciona o resgate LPP?",
-  "coachSuggestTrajectory": "A minha trajetória até à reforma",
-  "coachSuggestScenarios": "Renda ou capital: o que me convém?",
-  "coachSuggestDeductions": "Onde reduzir impostos este ano?",
-  "coachSuggestTaxImpact": "Calcular a poupança fiscal",
-  "coachSuggestFitness": "A minha pontuação financeira em detalhe",
-  "coachSuggestRetirement": "Aos 65, quanto terei?",
+  "coachSuggestSimulate3a": "Quanto poupo se contribuir o máximo?",
+  "coachSuggestView3a": "Quanto tenho nas minhas contas 3a?",
+  "coachSuggestSimulateLpp": "Vale a pena resgatar o LPP?",
+  "coachSuggestUnderstandLpp": "O que vou receber aos 65 anos?",
+  "coachSuggestTrajectory": "É grave se eu não fizer nada?",
+  "coachSuggestScenarios": "Renda ou capital — o que me convém?",
+  "coachSuggestDeductions": "Quanto recupero de impostos este ano?",
+  "coachSuggestTaxImpact": "Quantos impostos a menos com um resgate?",
+  "coachSuggestFitness": "Estou no caminho certo para o meu objetivo?",
+  "coachSuggestRetirement": "Vou ter o suficiente para viver reformado?",
   "coachEmptyStateMessage": "Ainda sem perfil. Três perguntas, e começamos a conversar.",
   "coachEmptyStateButton": "Fazer o meu diagnóstico",
   "coachTooltipHistory": "Histórico",
@@ -10230,5 +10230,28 @@
   },
   "monteCarloProbableRange": "Faixa prov\u00e1vel",
   "monteCarloSuccessLabel": "Probabilidade de que o teu\ncapital dure at\u00e9 aos 90 anos",
-  "monteCarloDisclaimer": "Os rendimentos passados n\u00e3o s\u00e3o indicadores de rendimentos futuros. Simula\u00e7\u00e3o educativa (LSFin)."
+  "monteCarloDisclaimer": "Os rendimentos passados n\u00e3o s\u00e3o indicadores de rendimentos futuros. Simula\u00e7\u00e3o educativa (LSFin).",
+  "exploreHubOtherTopics": "Outros temas",
+  "dossierIdentiteSection": "Identidade",
+  "dossierDocumentsSection": "Documentos",
+  "dossierCoupleSection": "Casal",
+  "dossierPreferencesSection": "Prefer\u00eancias",
+  "dossierUpdatedAgo": "Atualizado h\u00e1 {days} dias",
+  "@dossierUpdatedAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dossierUpdatedOn": "Atualizado em {date}",
+  "@dossierUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dossierUpdatedToday": "Atualizado hoje",
+  "dossierUpdatedYesterday": "Atualizado ontem"
 }

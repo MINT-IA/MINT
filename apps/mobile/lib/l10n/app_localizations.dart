@@ -22519,55 +22519,55 @@ abstract class S {
   /// No description provided for @coachSuggestView3a.
   ///
   /// In fr, this message translates to:
-  /// **'L\'état de mes comptes 3a'**
+  /// **'J’ai combien sur mes comptes 3a ?'**
   String get coachSuggestView3a;
 
   /// No description provided for @coachSuggestSimulateLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Chiffrer un rachat LPP'**
+  /// **'Ça vaut le coup de racheter du LPP ?'**
   String get coachSuggestSimulateLpp;
 
   /// No description provided for @coachSuggestUnderstandLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Comment fonctionne le rachat LPP ?'**
+  /// **'Qu’est-ce que je touche à 65 ans ?'**
   String get coachSuggestUnderstandLpp;
 
   /// No description provided for @coachSuggestTrajectory.
   ///
   /// In fr, this message translates to:
-  /// **'Ma trajectoire vers la retraite'**
+  /// **'C’est grave si je fais rien ?'**
   String get coachSuggestTrajectory;
 
   /// No description provided for @coachSuggestScenarios.
   ///
   /// In fr, this message translates to:
-  /// **'Rente ou capital : lequel me convient ?'**
+  /// **'Rente ou capital — qu’est-ce qui me convient ?'**
   String get coachSuggestScenarios;
 
   /// No description provided for @coachSuggestDeductions.
   ///
   /// In fr, this message translates to:
-  /// **'Où réduire mes impôts cette année ?'**
+  /// **'Combien je récupère cette année ?'**
   String get coachSuggestDeductions;
 
   /// No description provided for @coachSuggestTaxImpact.
   ///
   /// In fr, this message translates to:
-  /// **'Calculer l’économie fiscale'**
+  /// **'Combien d’impôts en moins avec un rachat ?'**
   String get coachSuggestTaxImpact;
 
   /// No description provided for @coachSuggestFitness.
   ///
   /// In fr, this message translates to:
-  /// **'Mon score financier en détail'**
+  /// **'Je suis où par rapport à mon objectif ?'**
   String get coachSuggestFitness;
 
   /// No description provided for @coachSuggestRetirement.
   ///
   /// In fr, this message translates to:
-  /// **'À 65 ans, combien j’aurai ?'**
+  /// **'J’aurai assez pour vivre à la retraite ?'**
   String get coachSuggestRetirement;
 
   /// No description provided for @coachEmptyStateMessage.
@@ -37497,6 +37497,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les rendements passés ne présagent pas les rendements futurs. Simulation à titre pédagogique (LSFin).'**
   String get monteCarloDisclaimer;
+
+  /// No description provided for @dossierIdentiteSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité'**
+  String get dossierIdentiteSection;
+
+  /// No description provided for @dossierDocumentsSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documents'**
+  String get dossierDocumentsSection;
+
+  /// No description provided for @dossierCoupleSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couple'**
+  String get dossierCoupleSection;
+
+  /// No description provided for @dossierPreferencesSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préférences'**
+  String get dossierPreferencesSection;
+
+  /// No description provided for @dossierUpdatedAgo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour il y a {days} jours'**
+  String dossierUpdatedAgo(int days);
+
+  /// No description provided for @dossierUpdatedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour le {date}'**
+  String dossierUpdatedOn(String date);
+
+  /// No description provided for @dossierUpdatedToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour aujourd’hui'**
+  String get dossierUpdatedToday;
+
+  /// No description provided for @dossierUpdatedYesterday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour hier'**
+  String get dossierUpdatedYesterday;
+
+  /// No description provided for @exploreHubOtherTopics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres thématiques'**
+  String get exploreHubOtherTopics;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

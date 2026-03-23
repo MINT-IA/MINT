@@ -6368,16 +6368,16 @@
   "coachErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
   "coachErrorGeneric": "Erreur technique. Réessaie plus tard.",
   "coachErrorConnection": "Erreur de connexion. Vérifie ta connexion internet ou ta clé API.",
-  "coachSuggestSimulate3a": "Combien j\u2019économise si je verse le max ?",
-  "coachSuggestView3a": "J\u2019ai combien sur mes comptes 3a\u00a0?",
-  "coachSuggestSimulateLpp": "Chiffrer un rachat LPP",
-  "coachSuggestUnderstandLpp": "Comment fonctionne le rachat LPP ?",
-  "coachSuggestTrajectory": "Ma trajectoire vers la retraite",
-  "coachSuggestScenarios": "Rente ou capital : lequel me convient ?",
-  "coachSuggestDeductions": "Où réduire mes impôts cette année ?",
-  "coachSuggestTaxImpact": "Calculer l’économie fiscale",
-  "coachSuggestFitness": "Mon score financier en détail",
-  "coachSuggestRetirement": "À 65 ans, combien j’aurai ?",
+  "coachSuggestSimulate3a": "Combien j’économise si je verse le max ?",
+  "coachSuggestView3a": "J’ai combien sur mes comptes 3a ?",
+  "coachSuggestSimulateLpp": "Ça vaut le coup de racheter du LPP ?",
+  "coachSuggestUnderstandLpp": "Qu’est-ce que je touche à 65 ans ?",
+  "coachSuggestTrajectory": "C’est grave si je fais rien ?",
+  "coachSuggestScenarios": "Rente ou capital — qu’est-ce qui me convient ?",
+  "coachSuggestDeductions": "Combien je récupère cette année ?",
+  "coachSuggestTaxImpact": "Combien d’impôts en moins avec un rachat ?",
+  "coachSuggestFitness": "Je suis où par rapport à mon objectif ?",
+  "coachSuggestRetirement": "J’aurai assez pour vivre à la retraite ?",
   "coachEmptyStateMessage": "Pas encore de profil. Trois questions, et on discute.",
   "coachEmptyStateButton": "Faire mon diagnostic",
   "coachTooltipHistory": "Historique",
@@ -10580,5 +10580,28 @@
   },
   "monteCarloProbableRange": "Fourchette probable",
   "monteCarloSuccessLabel": "Probabilit\u00e9 que ton\ncapital tienne jusqu\u2019\u00e0 90 ans",
-  "monteCarloDisclaimer": "Les rendements pass\u00e9s ne pr\u00e9sagent pas les rendements futurs. Simulation \u00e0 titre p\u00e9dagogique (LSFin)."
+  "monteCarloDisclaimer": "Les rendements pass\u00e9s ne pr\u00e9sagent pas les rendements futurs. Simulation \u00e0 titre p\u00e9dagogique (LSFin).",
+  "dossierIdentiteSection": "Identit\u00e9",
+  "dossierDocumentsSection": "Documents",
+  "dossierCoupleSection": "Couple",
+  "dossierPreferencesSection": "Pr\u00e9f\u00e9rences",
+  "dossierUpdatedAgo": "Mis \u00e0 jour il y a {days} jours",
+  "@dossierUpdatedAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dossierUpdatedOn": "Mis \u00e0 jour le {date}",
+  "@dossierUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dossierUpdatedToday": "Mis \u00e0 jour aujourd\u2019hui",
+  "dossierUpdatedYesterday": "Mis \u00e0 jour hier",
+  "exploreHubOtherTopics": "Autres th\u00e9matiques"
 }

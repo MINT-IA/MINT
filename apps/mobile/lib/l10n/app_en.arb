@@ -10230,5 +10230,28 @@
   },
   "monteCarloProbableRange": "Likely range",
   "monteCarloSuccessLabel": "Probability your capital\nlasts until age 90",
-  "monteCarloDisclaimer": "Past returns do not predict future results. Educational simulation (LSFin)."
+  "monteCarloDisclaimer": "Past returns do not predict future results. Educational simulation (LSFin).",
+  "dossierIdentiteSection": "Identity",
+  "dossierDocumentsSection": "Documents",
+  "dossierCoupleSection": "Couple",
+  "dossierPreferencesSection": "Preferences",
+  "dossierUpdatedAgo": "Updated {days} days ago",
+  "@dossierUpdatedAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dossierUpdatedOn": "Updated on {date}",
+  "@dossierUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dossierUpdatedToday": "Updated today",
+  "dossierUpdatedYesterday": "Updated yesterday",
+  "exploreHubOtherTopics": "Other topics"
 }
