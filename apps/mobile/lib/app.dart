@@ -103,6 +103,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
+import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
@@ -200,7 +201,7 @@ final _router = GoRouter(
       if (!hasProfile) {
         // Skip if already on the onboarding flow
         if (!path.startsWith('/onboarding')) {
-          return '/onboarding/quick';
+          return '/onboarding/smart';
         }
       }
     }
@@ -926,7 +927,11 @@ final _router = GoRouter(
       return '/onboarding/quick?section=$section';
     }),
     GoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
-    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(
+      path: '/onboarding/smart',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SmartOnboardingScreen(),
+    ),
     GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
     GoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
   ],

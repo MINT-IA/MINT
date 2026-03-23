@@ -53,8 +53,10 @@ import 'package:mint_mobile/services/agent/agent_validation_gate.dart';
 import 'package:mint_mobile/services/agent/form_prefill_service.dart';
 import 'package:mint_mobile/services/agent/letter_generation_service.dart';
 import 'package:mint_mobile/widgets/coach/document_card.dart';
+import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/widgets/coach/voice_input_button.dart';
 import 'package:mint_mobile/widgets/coach/voice_output_button.dart';
+import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -688,6 +690,27 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (prompt != null && prompt.isNotEmpty && mounted) {
       _sendMessage(prompt);
     }
+  }
+
+  /// Show the Lightning Menu bottom sheet with contextual actions.
+  Future<void> _showLightningMenu() async {
+    final capMem = await CapMemoryStore.load();
+    if (!mounted) return;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => LightningMenu(
+        profile: _profile,
+        capMemory: capMem,
+        onSendMessage: (message) {
+          if (mounted) _sendMessage(message);
+        },
+        onNavigate: (route) {
+          if (mounted) context.push(route);
+        },
+      ),
+    );
   }
 
   /// P3.5 Coaching Adaptatif: record whether the user engaged with
@@ -1497,84 +1520,42 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   Future<void> _handleSingleToolCall(RagToolCall toolCall) async {
     switch (toolCall.name) {
+      // ── Display tools → rendered inline via WidgetRenderer ────────
       case 'show_fact_card':
-        if (!mounted) return;
-        final input = toolCall.input;
-        final title = input['title'] as String? ?? '';
-        final content = input['content'] as String? ?? '';
-        final source = input['source'] as String? ?? '';
-        final highlight = input['highlight_value'] as String? ?? '';
-        final display = [
-          if (title.isNotEmpty) '**$title**',
-          if (highlight.isNotEmpty) highlight,
-          if (content.isNotEmpty) content,
-          if (source.isNotEmpty) '_${source}_',
-        ].join('\n');
-        if (display.isNotEmpty) {
-          setState(() {
-            _messages.add(ChatMessage(
-              role: 'assistant',
-              content: display,
-              timestamp: DateTime.now(),
-              tier: ChatTier.byok,
-            ));
-          });
-          _scrollToBottom();
-        }
-
       case 'show_budget_snapshot':
-        if (!mounted) return;
-        // Navigate the user to the budget screen via a route suggestion.
-        final l = S.of(context)!;
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: l.toolBudgetSnapshotHint,
-            timestamp: DateTime.now(),
-            tier: ChatTier.byok,
-            routePayload: const RouteToolPayload(
-              intent: 'budget_review',
-              confidence: 1.0,
-              contextMessage: '',
-            ),
-          ));
-        });
-        _scrollToBottom();
-
       case 'show_score_gauge':
+      case 'show_comparison_card':
+      case 'show_retirement_comparison':
+      case 'show_budget_overview':
+      case 'show_choice_comparison':
+      case 'show_pillar_breakdown':
         if (!mounted) return;
-        final l = S.of(context)!;
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
-            content: l.toolScoreGaugeHint,
+            content: '',
             timestamp: DateTime.now(),
             tier: ChatTier.byok,
-            routePayload: const RouteToolPayload(
-              intent: 'confidence_dashboard',
-              confidence: 1.0,
-              contextMessage: '',
-            ),
+            richToolCalls: [toolCall],
           ));
         });
         _scrollToBottom();
 
       case 'ask_user_input':
         if (!mounted) return;
-        final input = toolCall.input;
-        final promptText = input['prompt_text'] as String? ?? '';
-        if (promptText.isNotEmpty) {
-          setState(() {
-            _messages.add(ChatMessage(
-              role: 'assistant',
-              content: promptText,
-              timestamp: DateTime.now(),
-              tier: ChatTier.byok,
-              suggestedActions: [promptText],
-            ));
-          });
-          _scrollToBottom();
-        }
+        final promptText = toolCall.input['prompt_text'] as String?
+            ?? toolCall.input['message'] as String?
+            ?? '';
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: promptText,
+            timestamp: DateTime.now(),
+            tier: ChatTier.byok,
+            richToolCalls: [toolCall],
+          ));
+        });
+        _scrollToBottom();
 
       case 'set_goal':
         final goalTag = toolCall.input['goal_intent_tag'] as String?;
@@ -1616,6 +1597,44 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           );
         }
     }
+  }
+
+  /// Called when an inline input picker (from ask_user_input) is submitted.
+  /// Updates the profile and sends the value as a user message.
+  void _handleInlineInputSubmitted(String field, String value) {
+    if (!mounted) return;
+    // Update profile via provider
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile != null) {
+      switch (field) {
+        case 'age':
+          final age = int.tryParse(value);
+          if (age != null) {
+            provider.updateProfile(profile.copyWith(
+              dateOfBirth: DateTime(DateTime.now().year - age, 1, 1),
+              updatedAt: DateTime.now(),
+            ));
+          }
+        case 'salary':
+          final salary = double.tryParse(value);
+          if (salary != null) {
+            provider.updateProfile(profile.copyWith(
+              salaireBrutMensuel: salary / 12,
+              updatedAt: DateTime.now(),
+            ));
+          }
+        case 'canton':
+          provider.updateProfile(profile.copyWith(
+            canton: value,
+            updatedAt: DateTime.now(),
+          ));
+        default:
+          break;
+      }
+    }
+    // Send as user message to continue the conversation
+    _sendMessage(value);
   }
 
   /// Called when the user returns from a screen opened via [RouteSuggestionCard].
@@ -2474,6 +2493,23 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               child: _buildDocumentCard(),
             ),
           ],
+          // Rich tool calls — inline widgets via WidgetRenderer
+          if (!isStreamingThis && msg.hasRichToolCalls) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: msg.richToolCalls.map((tc) {
+                  return WidgetRenderer.build(
+                    context,
+                    tc,
+                    onInputSubmitted: _handleInlineInputSubmitted,
+                  ) ?? const SizedBox.shrink();
+                }).toList(),
+              ),
+            ),
+          ],
           // Suggested actions
           if (!isStreamingThis &&
               msg.suggestedActions != null &&
@@ -2837,12 +2873,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               horizontal: MintSpacing.sm + 4, vertical: MintSpacing.sm),
           child: Row(
             children: [
-              // Life event trigger button
-              IconButton(
-                icon: const Icon(Icons.flash_on_outlined,
-                    color: MintColors.coachAccent, size: 22),
-                tooltip: s.coachTooltipLifeEvent,
-                onPressed: _isStreaming ? null : _showLifeEventSheet,
+              // Lightning Menu bolt button (long-press for life events)
+              GestureDetector(
+                onLongPress: _isStreaming ? null : _showLifeEventSheet,
+                child: IconButton(
+                  icon: const Icon(Icons.bolt_rounded,
+                      color: MintColors.coachAccent, size: 22),
+                  tooltip: s.lightningMenuTitle,
+                  onPressed: _isStreaming ? null : _showLightningMenu,
+                ),
               ),
               Expanded(
                 child: Semantics(

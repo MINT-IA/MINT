@@ -23032,4 +23032,290 @@ class SFr extends S {
   @override
   String get visibilityHintSecuriteComplete =>
       'Tes données de sécurité sont complètes';
+
+  @override
+  String get exploreHubRetraiteIntro =>
+      'Chaque année qui passe change tes options. Voici où tu en es.';
+
+  @override
+  String get exploreHubFamilleIntro =>
+      'Mariage, naissance, séparation : chaque étape a un impact financier.';
+
+  @override
+  String get exploreHubTravailIntro =>
+      'Ton statut professionnel détermine tes droits. Vérifie-les.';
+
+  @override
+  String get exploreHubLogementIntro =>
+      'Acheter, louer, déménager : les chiffres avant la décision.';
+
+  @override
+  String get exploreHubFiscaliteIntro =>
+      'Chaque franc déduit est un franc gagné. Trouve tes leviers.';
+
+  @override
+  String get exploreHubPatrimoineIntro =>
+      'Ce que tu transmets mérite autant d’attention que ce que tu gagnes.';
+
+  @override
+  String get exploreHubSanteIntro =>
+      'Ta couverture te protège — ou te coûte trop. Vérifie.';
+
+  @override
+  String get exploreTalkToMint => 'En parler avec MINT';
+
+  @override
+  String get dossierSettingsTitle => 'Réglages';
+
+  @override
+  String get dossierEnrichmentHint => 'Pour améliorer la précision :';
+
+  @override
+  String get pulseBudgetATitle => 'Aujourd’hui';
+
+  @override
+  String get pulseBudgetBTitle => 'À la retraite';
+
+  @override
+  String get pulseBudgetRevenu => 'Revenu';
+
+  @override
+  String get pulseBudgetCharges => 'Charges';
+
+  @override
+  String get pulseBudgetLibre => 'Libre';
+
+  @override
+  String get pulseBudgetRetirementNet => 'Net retraite';
+
+  @override
+  String get pulseBudgetGap => 'Écart';
+
+  @override
+  String get sim3aTaxRateChipsLabel => 'Taux marginal d’imposition';
+
+  @override
+  String get sim3aReturnChipsLabel => 'Rendement espéré';
+
+  @override
+  String get sim3aYearsAutoLabel => 'Années jusqu’à la retraite';
+
+  @override
+  String get sim3aContributionFieldLabel => 'Cotisation annuelle';
+
+  @override
+  String get sim3aProfilePreFilled => 'Prérempli depuis ton profil';
+
+  @override
+  String sim3aProfileEstimatedRate(String rate, String canton) {
+    return 'Ton taux marginal estimé : $rate % ($canton)';
+  }
+
+  @override
+  String sim3aYearsReadOnly(int years) {
+    return '$years ans (calculé depuis ton âge)';
+  }
+
+  @override
+  String get renteVsCapitalRetirementAgeChips => 'Âge de départ à la retraite';
+
+  @override
+  String get renteVsCapitalLifeExpectancyChips => 'Espérance de vie';
+
+  @override
+  String get budgetEnvelopeFieldHint => 'Montant en CHF';
+
+  @override
+  String get budgetEnvelopeFieldFuture => 'Épargne future (CHF/mois)';
+
+  @override
+  String get budgetEnvelopeFieldVariables => 'Dépenses variables (CHF/mois)';
+
+  @override
+  String get retroactive3aYearsChipsLabel => 'Années à rattraper';
+
+  @override
+  String get lightningMenuTitle => 'Que veux-tu explorer ?';
+
+  @override
+  String get lightningMenuSubtitle => 'MINT calcule, tu décides.';
+
+  @override
+  String get lightningMenuRetirementTitle => 'Mon aperçu retraite';
+
+  @override
+  String get lightningMenuRetirementSubtitle =>
+      'Combien tu garderas à la retraite';
+
+  @override
+  String get lightningMenuRetirementAction => 'Combien à la retraite ?';
+
+  @override
+  String get lightningMenuBudgetTitle => 'Mon budget';
+
+  @override
+  String get lightningMenuBudgetSubtitle => 'Où part ton argent ce mois';
+
+  @override
+  String get lightningMenuBudgetAction => 'Mon budget ce mois';
+
+  @override
+  String get lightningMenuRenteCapitalTitle => 'Rente ou capital ?';
+
+  @override
+  String get lightningMenuRenteCapitalSubtitle => 'Comparer les deux scénarios';
+
+  @override
+  String get lightningMenuRenteCapitalAction => 'Rente ou capital ?';
+
+  @override
+  String get lightningMenuScoreTitle => 'Mon score fitness';
+
+  @override
+  String get lightningMenuScoreSubtitle =>
+      'Ta santé financière en un coup d’œil';
+
+  @override
+  String get lightningMenuScoreAction => 'Mon score financier';
+
+  @override
+  String get lightningMenuCoupleTitle => 'Notre situation à deux';
+
+  @override
+  String get lightningMenuCoupleSubtitle =>
+      'Prévoyance et patrimoine en couple';
+
+  @override
+  String get lightningMenuCoupleAction => 'Notre prévoyance couple';
+
+  @override
+  String get lightningMenuDebtTitle => 'Sortir de la dette';
+
+  @override
+  String get lightningMenuDebtSubtitle => 'Un plan pour réduire tes charges';
+
+  @override
+  String get lightningMenuDebtAction => 'Comment réduire ma dette ?';
+
+  @override
+  String get lightningMenuIndependantTitle => 'Mon filet indépendant';
+
+  @override
+  String get lightningMenuIndependantSubtitle =>
+      'Couverture et protection en solo';
+
+  @override
+  String get lightningMenuIndependantAction => 'Ma couverture indépendant';
+
+  @override
+  String get lightningMenuRetirementPrepTitle => 'Préparer ma retraite';
+
+  @override
+  String get lightningMenuRetirementPrepSubtitle =>
+      'Les dernières années comptent double';
+
+  @override
+  String get lightningMenuRetirementPrepAction => 'Mon plan retraite';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Comprendre ma fiche de salaire';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Salaire brut, net, déductions : tout s’éclaire';
+
+  @override
+  String get lightningMenuPayslipAction => 'Explique-moi ma fiche de salaire';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'C’est quoi les 3 piliers ?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'Le système suisse en 2 minutes';
+
+  @override
+  String get lightningMenuThreePillarsAction =>
+      'C’est quoi les 3 piliers suisses ?';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Scanner un document';
+
+  @override
+  String get lightningMenuScanDocSubtitle =>
+      'Certificat LPP, fiche de salaire, impôts';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'Mon premier budget';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Savoir où va ton argent chaque mois';
+
+  @override
+  String get lightningMenuFirstBudgetAction => 'Aide-moi à faire mon budget';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Où alléger mes impôts';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Déductions et leviers fiscaux';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'Comment payer moins d’impôts ?';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Compléter mon profil';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'Plus tu précises, plus MINT est juste';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'Racheter du LPP';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'Un levier fiscal souvent sous-estimé';
+
+  @override
+  String get lightningMenuLppBuybackAction =>
+      'Un rachat LPP, ça vaut le coup ?';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'Mon budget vivant';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'Ton équilibre ce mois, mis à jour';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'Où j’en suis ?';
+
+  @override
+  String get budgetSnapshotTitle => 'Ton budget vivant';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Libre aujourd’hui';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Libre retraite';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Écart';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Fiabilité';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Ajoute des données pour affiner.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Estimation crédible.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Levier';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'Ton libre mensuel';
 }
