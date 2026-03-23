@@ -156,7 +156,10 @@ class ContextInjectorService {
     if (profile != null) {
       phaseResult = LifecyclePhaseService.detect(profile, now: currentDate);
       adaptation = ContentAdapterService.adapt(phaseResult, profile);
-      lifecycleBlock = adaptation.coachSystemPromptAddition;
+      // Append literacy level directive so Claude adapts language complexity.
+      final literacyDirective = _literacyDirective(profile.financialLiteracyLevel);
+      lifecycleBlock = adaptation.coachSystemPromptAddition +
+          (literacyDirective.isNotEmpty ? '\n$literacyDirective' : '');
     }
 
     // Load cross-session insights from the new CoachMemoryService (S58).
@@ -422,6 +425,29 @@ class ContextInjectorService {
   ///
   /// Resolves ARB title keys using the French fallback (service layer context).
   /// Format:
+  /// Build the literacy level directive for the coach system prompt.
+  ///
+  /// Adapts the coach's language complexity to the user's financial literacy.
+  /// See VOICE_SYSTEM.md §Axe 2 for the full spec.
+  static String _literacyDirective(FinancialLiteracyLevel level) {
+    switch (level) {
+      case FinancialLiteracyLevel.beginner:
+        return 'NIVEAU DE MAÎTRISE\u00a0: novice\n'
+            'Phrases courtes. Pas de sigle sans explication (LPP = "2e pilier"). '
+            'Métaphores concrètes. Pas de pourcentages abstraits sans ancrage CHF. '
+            'Explique chaque concept comme si c\'était la première fois.';
+      case FinancialLiteracyLevel.intermediate:
+        return 'NIVEAU DE MAÎTRISE\u00a0: autonome\n'
+            'Sigles OK (LPP, AVS, 3a). Chiffres directs. Moins de contexte. '
+            'L\'utilisateur comprend le système suisse — va droit au fait.';
+      case FinancialLiteracyLevel.advanced:
+        return 'NIVEAU DE MAÎTRISE\u00a0: expert\n'
+            'Références légales (LAVS art. 35, LIFD art. 38). '
+            'Scénarios avancés. Hypothèses éditables. Sensibilité. '
+            'L\'utilisateur veut de la profondeur, pas de la vulgarisation.';
+    }
+  }
+
   ///   PLAN EN COURS : <goalId> (<completed>/<total> étapes)
   ///   Étape actuelle : <currentStep title>
   ///   Prochaine étape : <nextStep title>
