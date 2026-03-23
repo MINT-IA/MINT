@@ -7,7 +7,10 @@ can verify coverage without touching the vector store.
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from app.core.auth import require_current_user
+from app.models.user import User
 
 from app.services.rag.knowledge_catalog import KnowledgeCatalog
 from app.services.rag.update_pipeline import KnowledgeUpdatePipeline
@@ -16,11 +19,9 @@ router = APIRouter()
 
 
 @router.get("/knowledge/status")
-# TODO(security): Add auth guard when moving to production.
-# Currently returns only aggregate public stats (no user data, no PII).
-# Low risk as-is, but should require at minimum an API key header before
-# exposing to external consumers in a production environment.
-def knowledge_status() -> dict:
+def knowledge_status(
+    _user: User = Depends(require_current_user),
+) -> dict:
     """Return the status of the RAG knowledge base.
 
     Combines the full knowledge catalog with the update pipeline

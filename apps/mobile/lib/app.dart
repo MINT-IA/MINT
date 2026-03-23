@@ -189,6 +189,8 @@ final _router = GoRouter(
       '/lpp',
       '/mortgage',
       '/scan',
+      '/expert',      // expert tier (needs profile for dossier prep)
+      '/tools',       // tools library (needs profile for context)
     ];
     final requiresProfile = profileRequiredPrefixes.any(
       (p) => path.startsWith(p),
