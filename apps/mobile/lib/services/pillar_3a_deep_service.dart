@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 // ============================================================================
@@ -92,6 +93,7 @@ class StaggeredWithdrawalSimulator {
     required double revenuImposable,
     required int ageRetraitDebut,
     required int ageRetraitFin,
+    S? l,
   }) {
     // Clamp inputs
     final clampedComptes = nbComptes.clamp(1, 5);
@@ -155,7 +157,7 @@ class StaggeredWithdrawalSimulator {
         texte: 'Economie : CHF ${formatChf(economie)}',
         isPositive: economie > 0,
       ),
-      disclaimer:
+      disclaimer: l?.pillar3aStaggeredDisclaimer ??
           'Simulation pedagogique a titre indicatif. L\'impot sur le retrait '
           'en capital depend du canton, de la commune, de la situation '
           'personnelle et du montant total retire dans l\'annee fiscale. '
@@ -249,6 +251,7 @@ class RealReturnCalculator {
     required double rendementBrut,
     required double fraisGestion,
     required int dureeAnnees,
+    S? l,
   }) {
     final clampedTaux = tauxMarginal.clamp(0.0, 0.50);
     final clampedRendement = rendementBrut.clamp(-0.99, 0.15);
@@ -301,7 +304,7 @@ class RealReturnCalculator {
             '${rendNominal.toStringAsFixed(1)}% sans avantage fiscal',
         isPositive: gainVsEpargne > 0,
       ),
-      disclaimer:
+      disclaimer: l?.pillar3aRealReturnDisclaimer ??
           'Simulation pédagogique basée sur des hypothèses de rendement '
           'constant. Les rendements passés ne préjugent pas des rendements '
           'futurs. Les frais et rendements varient selon le prestataire. '
@@ -525,6 +528,7 @@ class ProviderComparator {
     required double versementAnnuel,
     required int duree,
     required ProfilRisque profilRisque,
+    S? l,
   }) {
     final clampedAge = age.clamp(18, 70);
     final clampedDuree = duree.clamp(1, 50);
@@ -620,7 +624,8 @@ class ProviderComparator {
             'Difference sur $clampedDuree ans : CHF ${formatChf(difference)}',
         isPositive: true,
       ),
-      disclaimer: 'Rendements passes ne prejugent pas des rendements futurs. '
+      disclaimer: l?.pillar3aProviderDisclaimer ??
+          'Rendements passes ne prejugent pas des rendements futurs. '
           'Les frais et rendements moyens sont bases sur des donnees '
           'historiques simplifiees a titre pedagogique. '
           'Le choix d\'un prestataire 3a depend de ta situation personnelle, '

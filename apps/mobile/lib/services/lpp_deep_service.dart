@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
@@ -74,6 +75,7 @@ class RachatEchelonneSimulator {
     required int horizon,
     // Legacy param kept for backwards compatibility, ignored if canton provided
     double tauxMarginalEstime = 0.30,
+    S? l,
   }) {
     final clampedHorizon = horizon.clamp(1, 15);
     // No arbitrary 500k cap — use actual rachat max from profile/slider
@@ -153,7 +155,8 @@ class RachatEchelonneSimulator {
       economieEchelonneTotal: totalEconomieEchelonne,
       delta: totalEconomieEchelonne - economieBlocTotal,
       yearlyPlan: plan,
-      disclaimer: 'Simulation pédagogique basée sur les barèmes cantonaux estimés. '
+      disclaimer: l?.lppRachatDisclaimerEchelonne ??
+          'Simulation pédagogique basée sur les barèmes cantonaux estimés. '
           'Le rachat LPP est soumis à acceptation par la caisse de pension. '
           'La déduction annuelle est plafonnée au revenu imposable. '
           'Blocage EPL de 3 ans après chaque rachat (LPP art. 79b al. 3). '
@@ -229,33 +232,35 @@ class LibrePassageAdvisor {
     required int age,
     required bool hasNewEmployer,
     int daysSinceDeparture = 0,
+    S? l,
   }) {
     final checklist = <ChecklistItem>[];
     final alerts = <LibrePassageAlert>[];
     final recommendations = <String>[];
 
     // Regles communes
-    checklist.add(const ChecklistItem(
-      title: 'Demander un décompte de sortie',
-      description: 'Exige un décompte détaillé de ta caisse de pension '
+    checklist.add(ChecklistItem(
+      title: l?.lppChecklistTitleDecompte ?? 'Demander un décompte de sortie',
+      description: l?.lppChecklistDescDecompte ??
+          'Exige un décompte détaillé de ta caisse de pension '
           'avec la répartition obligatoire / surobligatoire.',
       urgency: ChecklistUrgency.haute,
     ));
 
     // Transfert dans les 30 jours
     if (statut == LibrePassageStatut.changementEmploi && hasNewEmployer) {
-      checklist.add(const ChecklistItem(
-        title: 'Transférer ton avoir dans les 30 jours',
-        description:
+      checklist.add(ChecklistItem(
+        title: l?.lppChecklistTitleTransfert30j ?? 'Transférer ton avoir dans les 30 jours',
+        description: l?.lppChecklistDescTransfert30j ??
             'L\'avoir doit être transféré à la nouvelle caisse de pension. '
             'Communiquez les coordonnées de la nouvelle caisse à l\'ancienne.',
         urgency: ChecklistUrgency.critique,
       ));
 
       if (daysSinceDeparture > 20) {
-        alerts.add(const LibrePassageAlert(
-          title: 'Délai de transfert bientôt échu',
-          message:
+        alerts.add(LibrePassageAlert(
+          title: l?.lppChecklistAlertTransfertTitle ?? 'Délai de transfert bientôt échu',
+          message: l?.lppChecklistAlertTransfertMsg ??
               'Le transfert de ton avoir doit intervenir dans les 30 jours. '
               'Contacte ton ancienne caisse de pension rapidement.',
           urgency: ChecklistUrgency.critique,
@@ -270,17 +275,18 @@ class LibrePassageAdvisor {
 
     // Pas de nouvel employeur -> libre passage
     if (!hasNewEmployer) {
-      checklist.add(const ChecklistItem(
-        title: 'Ouvrir un compte de libre passage',
-        description:
+      checklist.add(ChecklistItem(
+        title: l?.lppChecklistTitleOuvrirLP ?? 'Ouvrir un compte de libre passage',
+        description: l?.lppChecklistDescOuvrirLP ??
             'Sans nouvel employeur, ton avoir doit être placé sur un ou '
             'deux comptes de libre passage (max. 2 selon la loi).',
         urgency: ChecklistUrgency.critique,
       ));
 
-      checklist.add(const ChecklistItem(
-        title: 'Choisir entre compte bancaire et police de libre passage',
-        description: 'Le compte bancaire offre plus de flexibilité. La police '
+      checklist.add(ChecklistItem(
+        title: l?.lppChecklistTitleChoisirLP ?? 'Choisir entre compte bancaire et police de libre passage',
+        description: l?.lppChecklistDescChoisirLP ??
+            'Le compte bancaire offre plus de flexibilité. La police '
             'd\'assurance peut inclure une couverture risque.',
         urgency: ChecklistUrgency.haute,
       ));
@@ -297,25 +303,27 @@ class LibrePassageAdvisor {
 
     // Depart de Suisse
     if (statut == LibrePassageStatut.departSuisse) {
-      checklist.add(const ChecklistItem(
-        title: 'Vérifier les règles de retrait selon le pays de destination',
-        description:
+      checklist.add(ChecklistItem(
+        title: l?.lppChecklistTitleVerifierDestination ?? 'Vérifier les règles de retrait selon le pays de destination',
+        description: l?.lppChecklistDescVerifierDestination ??
             'UE/AELE : seule la part surobligatoire peut être retirée en '
             'espèces. La part obligatoire reste en Suisse. '
             'Hors UE/AELE : retrait total possible.',
         urgency: ChecklistUrgency.critique,
       ));
 
-      checklist.add(const ChecklistItem(
-        title: 'Annoncer ton départ à la caisse de pension',
-        description: 'Informe ta caisse dans les 30 jours suivant ton départ.',
+      checklist.add(ChecklistItem(
+        title: l?.lppChecklistTitleAnnoncerDepart ?? 'Annoncer ton départ à la caisse de pension',
+        description: l?.lppChecklistDescAnnoncerDepart ??
+            'Informe ta caisse dans les 30 jours suivant ton départ.',
         urgency: ChecklistUrgency.haute,
       ));
 
       if (daysSinceDeparture > 0 && daysSinceDeparture <= 180) {
-        alerts.add(const LibrePassageAlert(
-          title: 'Transfert à effectuer dans les 6 mois',
-          message: 'Après un départ de Suisse, tu disposes de 6 mois pour '
+        alerts.add(LibrePassageAlert(
+          title: l?.lppChecklistAlertTransfert6mTitle ?? 'Transfert à effectuer dans les 6 mois',
+          message: l?.lppChecklistAlertTransfert6mMsg ??
+              'Après un départ de Suisse, tu disposes de 6 mois pour '
               'transférer ton avoir ou ouvrir un compte de libre passage.',
           urgency: ChecklistUrgency.haute,
         ));
@@ -329,9 +337,9 @@ class LibrePassageAdvisor {
 
     // Cessation d'activite
     if (statut == LibrePassageStatut.cessationActivite) {
-      checklist.add(const ChecklistItem(
-        title: 'Vérifier tes droits au chômage',
-        description:
+      checklist.add(ChecklistItem(
+        title: l?.lppChecklistTitleChomage ?? 'Vérifier tes droits au chômage',
+        description: l?.lppChecklistDescChomage ??
             'En cas de chômage, ta prévoyance professionnelle continue '
             'via la fondation institution supplétive (Fondation LPP).',
         urgency: ChecklistUrgency.haute,
@@ -346,17 +354,19 @@ class LibrePassageAdvisor {
     }
 
     // Avoirs oublies
-    checklist.add(const ChecklistItem(
-      title: 'Rechercher des avoirs oubliés',
-      description: 'Utilisez la Centrale du 2e pilier (sfbvg.ch) pour '
+    checklist.add(ChecklistItem(
+      title: l?.lppChecklistTitleAvoirs ?? 'Rechercher des avoirs oubliés',
+      description: l?.lppChecklistDescAvoirs ??
+          'Utilisez la Centrale du 2e pilier (sfbvg.ch) pour '
           'rechercher d\'éventuels avoirs de libre passage oubliés.',
       urgency: ChecklistUrgency.moyenne,
     ));
 
     // Couverture risque
-    checklist.add(const ChecklistItem(
-      title: 'Vérifier la couverture risque transitoire',
-      description: 'Pendant la période de libre passage, la couverture décès '
+    checklist.add(ChecklistItem(
+      title: l?.lppChecklistTitleCouverture ?? 'Vérifier la couverture risque transitoire',
+      description: l?.lppChecklistDescCouverture ??
+          'Pendant la période de libre passage, la couverture décès '
           'et invalidité peut être réduite. Vérifie tes contrats.',
       urgency: ChecklistUrgency.haute,
     ));
@@ -365,7 +375,8 @@ class LibrePassageAdvisor {
       checklist: checklist,
       alerts: alerts,
       recommendations: recommendations,
-      disclaimer: 'Ces informations sont pédagogiques et ne constituent pas '
+      disclaimer: l?.lppLibrePassageDisclaimer ??
+          'Ces informations sont pédagogiques et ne constituent pas '
           'un conseil juridique ou financier personnalisé. Les règles '
           'dépendent de ta caisse de pension et de ta situation. '
           'Base légale : LFLP, OLP. Consultez un ou une spécialiste '
@@ -417,6 +428,7 @@ class EplSimulator {
     required bool aRachete,
     int anneesSDepuisRachat = 0,
     String canton = 'ZH',
+    S? l,
   }) {
     final alerts = <String>[];
 
@@ -507,7 +519,7 @@ class EplSimulator {
       reductionRenteInvalidite: reductionInvalidite,
       reductionCapitalDeces: reductionDeces,
       alerts: alerts,
-      disclaimer:
+      disclaimer: l?.lppEplDisclaimer ??
           'Simulation pédagogique à titre indicatif. Le montant retirable '
           'exact dépend du règlement de ta caisse de pension et de '
           'ton avoir à 50 ans. L\'impôt varie selon le canton et '

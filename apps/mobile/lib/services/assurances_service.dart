@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+
 // ────────────────────────────────────────────────────────────
 //  ASSURANCES SERVICE — Sprint S13 / Chantier 7
 // ────────────────────────────────────────────────────────────
@@ -109,6 +111,7 @@ class LamalFranchiseService {
     double primeMensuelleBase,
     double depensesSanteAnnuelles, {
     bool isChild = false,
+    S? l,
   }) {
     final levels = isChild ? franchiseLevelsChildren : franchiseLevelsAdults;
     final cap = isChild ? quotePartCapChildren : quotePartCapAdults;
@@ -175,9 +178,11 @@ class LamalFranchiseService {
       franchiseOptimale: optimalFranchise,
       breakEvenPoints: breakEvenPoints,
       recommandations: recommandations,
-      alerteDelai: 'Rappel : modification de franchise possible avant le '
+      alerteDelai: l?.assurancesAlerteDelai ??
+          'Rappel : modification de franchise possible avant le '
           '30 novembre de chaque année pour l\'année suivante.',
-      disclaimer: 'Cette analyse est indicative. Les primes varient selon '
+      disclaimer: l?.assurancesDisclaimerLamal ??
+          'Cette analyse est indicative. Les primes varient selon '
           'l\'assureur, la région et le modèle d\'assurance. Consultez '
           'ta caisse maladie pour des chiffres exacts. '
           'Source : LAMal art. 62-64, OAMal.',
@@ -369,6 +374,7 @@ class CoverageCheckService {
     required bool aAssuranceVoyage,
     required bool aAssuranceDeces,
     required String canton,
+    S? l,
   }) {
     final isIndependant = statutProfessionnel == 'independant';
     final isSalarie = statutProfessionnel == 'salarie';
@@ -502,7 +508,8 @@ class CoverageCheckService {
       scoreCouverture: scoreCouverture,
       lacunesCritiques: lacunesCritiques,
       recommandations: recommandations,
-      disclaimer: 'Cette analyse est indicative et ne constitue pas '
+      disclaimer: l?.assurancesDisclaimerCoverage ??
+          'Cette analyse est indicative et ne constitue pas '
           'un conseil en assurance personnalisé. Les primes varient '
           'selon l\'assureur et ton profil. Consulte un·e spécialiste '
           'en assurances pour une évaluation complète.',

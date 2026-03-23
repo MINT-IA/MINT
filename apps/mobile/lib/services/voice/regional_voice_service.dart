@@ -13,6 +13,10 @@
 //
 // Pure functions, no side effects, no I/O.
 //
+// ARCH NOTE: LLM prompt context, intentionally FR — all French strings
+// below are injected into the AI system prompt and must not be extracted
+// to ARB files. They are coach identity guidance, not UI copy.
+//
 // References:
 //   - docs/VOICE_SYSTEM.md §9 (Adaptation linguistique)
 //   - CLAUDE.md §6 (Compliance rules)

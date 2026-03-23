@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -191,6 +192,7 @@ class RetirementProjectionService {
     int? retirementAgeConjoint,
     double? depensesMensuelles,
     double lppCapitalPct = 0.0,
+    S? l,
   }) {
     final conjAge = retirementAgeConjoint ?? 65;
     final expenses =
@@ -202,6 +204,7 @@ class RetirementProjectionService {
       ageUser: retirementAgeUser,
       ageConjoint: conjAge,
       lppCapitalPct: lppCapitalPct,
+      l: l,
     );
     final revenuMensuel =
         incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
@@ -230,6 +233,7 @@ class RetirementProjectionService {
       ageUser: retirementAgeUser,
       ageConjoint: conjAge,
       lppCapitalPct: lppCapitalPct,
+      l: l,
     );
 
     // 3. Early retirement comparison (63-70)
@@ -237,6 +241,7 @@ class RetirementProjectionService {
       profile: profile,
       ageConjoint: conjAge,
       lppCapitalPct: lppCapitalPct,
+      l: l,
     );
 
     // 4. Budget gap
@@ -262,7 +267,7 @@ class RetirementProjectionService {
       earlyRetirementComparisons: earlyComparisons,
       budgetGap: budgetGap,
       indexedProjection: indexedProjection,
-      disclaimer:
+      disclaimer: l?.retirementProjectionDisclaimer ??
           'Projection educative basee sur les baremes AVS/LPP 2025. '
           'Ne constitue pas un conseil financier ou en prevoyance. '
           'Les montants sont des estimations qui peuvent varier selon '
@@ -287,6 +292,7 @@ class RetirementProjectionService {
     required int ageUser,
     int ageConjoint = 65,
     double lppCapitalPct = 0.0,
+    S? l,
   }) {
     final sources = <RetirementIncomeSource>[];
     final userName = profile.firstName ?? 'Toi';
@@ -482,7 +488,7 @@ class RetirementProjectionService {
     if (threeACapital > 0) {
       sources.add(RetirementIncomeSource(
         id: '3a',
-        label: '3e pilier',
+        label: l?.retirementIncomeLabelPillar3a ?? '3e pilier',
         monthlyAmount: threeACapital / _pillar3aAnnualizationYears / 12,
         color: color3a,
       ));
@@ -498,7 +504,7 @@ class RetirementProjectionService {
     if (libreCapital > 0) {
       sources.add(RetirementIncomeSource(
         id: 'libre',
-        label: 'Patrimoine libre',
+        label: l?.retirementIncomeLabelPatrimoine ?? 'Patrimoine libre',
         monthlyAmount: libreCapital * _safeWithdrawalRate / 12,
         color: colorLibre,
       ));
@@ -585,6 +591,7 @@ class RetirementProjectionService {
     required int ageUser,
     int ageConjoint = 65,
     double lppCapitalPct = 0.0,
+    S? l,
   }) {
     final hasConjoint =
         profile.isCouple && profile.conjoint?.birthYear != null;
@@ -593,9 +600,9 @@ class RetirementProjectionService {
     if (!hasConjoint) {
       return [
         RetirementPhase(
-          label: 'Retraite',
+          label: l?.retirementPhaseLabelRetraite ?? 'Retraite',
           startYear: profile.birthYear + ageUser,
-          sources: _computeIncomes(profile: profile, ageUser: ageUser, lppCapitalPct: lppCapitalPct),
+          sources: _computeIncomes(profile: profile, ageUser: ageUser, lppCapitalPct: lppCapitalPct, l: l),
         ),
       ];
     }
@@ -607,10 +614,10 @@ class RetirementProjectionService {
     if (retireYearUser == retireYearConj) {
       return [
         RetirementPhase(
-          label: 'Les deux a la retraite',
+          label: l?.retirementPhaseLabelBothRetired ?? 'Les deux a la retraite',
           startYear: retireYearUser,
           sources: _computeIncomes(
-              profile: profile, ageUser: ageUser, ageConjoint: ageConjoint, lppCapitalPct: lppCapitalPct),
+              profile: profile, ageUser: ageUser, ageConjoint: ageConjoint, lppCapitalPct: lppCapitalPct, l: l),
         ),
       ];
     }
@@ -626,6 +633,7 @@ class RetirementProjectionService {
       ageConjoint: ageConjoint,
       userRetiresFirst: userFirst,
       lppCapitalPct: lppCapitalPct,
+      l: l,
     );
 
     // Phase 2: both retired — adjust 3a/libre for capital already consumed
@@ -635,6 +643,7 @@ class RetirementProjectionService {
       ageUser: ageUser,
       ageConjoint: ageConjoint,
       lppCapitalPct: lppCapitalPct,
+      l: l,
     );
 
     // Deduplication: Phase 1 already drew down 3a/libre capital.
@@ -677,7 +686,7 @@ class RetirementProjectionService {
         sources: phase1,
       ),
       RetirementPhase(
-        label: 'Les deux a la retraite',
+        label: l?.retirementPhaseLabelBothRetired ?? 'Les deux a la retraite',
         startYear: secondYear,
         sources: phase2Sources,
       ),
@@ -690,6 +699,7 @@ class RetirementProjectionService {
     required int ageConjoint,
     required bool userRetiresFirst,
     double lppCapitalPct = 0.0,
+    S? l,
   }) {
     final sources = <RetirementIncomeSource>[];
     final userName = profile.firstName ?? 'Toi';
@@ -886,7 +896,7 @@ class RetirementProjectionService {
     if (threeACapital > 0) {
       sources.add(RetirementIncomeSource(
         id: '3a',
-        label: '3e pilier',
+        label: l?.retirementIncomeLabelPillar3a ?? '3e pilier',
         monthlyAmount: threeACapital / _pillar3aAnnualizationYears / 12,
         color: color3a,
       ));
@@ -901,7 +911,7 @@ class RetirementProjectionService {
     if (libreCapital > 0) {
       sources.add(RetirementIncomeSource(
         id: 'libre',
-        label: 'Patrimoine libre',
+        label: l?.retirementIncomeLabelPatrimoine ?? 'Patrimoine libre',
         monthlyAmount: libreCapital * _safeWithdrawalRate / 12,
         color: colorLibre,
       ));
@@ -918,6 +928,7 @@ class RetirementProjectionService {
     required CoachProfile profile,
     int ageConjoint = 65,
     double lppCapitalPct = 0.0,
+    S? l,
   }) {
     final hasConjoint =
         profile.isCouple && profile.conjoint?.birthYear != null;
@@ -926,7 +937,7 @@ class RetirementProjectionService {
     // sources respecting whether the conjoint is also retired at that point.
     List<RetirementIncomeSource> sourcesForAge(int userAge) {
       if (!hasConjoint) {
-        return _computeIncomes(profile: profile, ageUser: userAge, lppCapitalPct: lppCapitalPct);
+        return _computeIncomes(profile: profile, ageUser: userAge, lppCapitalPct: lppCapitalPct, l: l);
       }
       // Year the user reaches userAge
       final yearUser = profile.birthYear + userAge;
@@ -939,6 +950,7 @@ class RetirementProjectionService {
           ageUser: userAge,
           ageConjoint: ageConjoint,
           lppCapitalPct: lppCapitalPct,
+          l: l,
         );
       } else {
         // Only user retired, conjoint still working → transition phase
@@ -948,6 +960,7 @@ class RetirementProjectionService {
           ageConjoint: ageConjoint,
           userRetiresFirst: true,
           lppCapitalPct: lppCapitalPct,
+          l: l,
         );
       }
     }

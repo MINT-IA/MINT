@@ -10695,5 +10695,148 @@
   "pulseNavEvenementTitle": "Uma mudan\u00e7a de vida\u00a0?",
   "pulseNavEvenementSubtitle": "Cada evento tem um impacto financeiro.",
   "pulseNavEvenementDetail": "Casamento, nascimento, div\u00f3rcio, her\u00e7a, mudan\u00e7a...",
-  "pulseNavEvenementCta": "Explorar"
+  "pulseNavEvenementCta": "Explorar",
+
+  "reengagementTitleNewYear": "Novos limites do 3a",
+  "reengagementTitleTaxPrep": "Declara\u00e7\u00e3o fiscal",
+  "reengagementTitleTaxDeadline": "Prazo fiscal",
+  "reengagementTitleThreeA": "Prazo do 3a",
+  "reengagementTitleThreeAFinal": "\u00daltimo m\u00eas para o 3a",
+  "reengagementTitleQuarterlyFri": "Pontua\u00e7\u00e3o de solidez",
+
+  "assurancesAlerteDelai": "Lembrete\u00a0: as altera\u00e7\u00f5es de franquia devem ser feitas antes do dia 30 de novembro de cada ano para o ano seguinte.",
+  "assurancesDisclaimerLamal": "Esta an\u00e1lise \u00e9 indicativa. Os pr\u00eamios variam conforme o segurador, a regi\u00e3o e o modelo de seguro. Consulte a sua caixa de sa\u00fade para obter valores exatos. Fonte\u00a0: LAMal art. 62-64, OAMal.",
+  "assurancesDisclaimerCoverage": "Esta an\u00e1lise \u00e9 indicativa e n\u00e3o constitui aconselhamento personalizado em seguros. Os pr\u00eamios variam conforme o segurador e o seu perfil. Consulte um\u00b7a especialista para uma avalia\u00e7\u00e3o completa.",
+
+  "recommendationsDisclaimer": "Sugest\u00f5es pedag\u00f3gicas baseadas no seu perfil \u2014 ferramenta educativa que n\u00e3o constitui aconselhamento financeiro personalizado no sentido da LSFin. Consulte um\u00b7a especialista para uma an\u00e1lise adaptada \u00e0 sua situa\u00e7\u00e3o.",
+  "recommendationsTitleEmergencyFund": "Constituir um fundo de emerg\u00eancia",
+  "recommendationsTitlePillar3a": "Otimizar com o pilar 3a",
+  "recommendationsTitleLppBuyback": "Simular uma compra LPP",
+  "recommendationsTitleCompoundInterest": "O poder do tempo",
+  "recommendationsTitleStartDiagnostic": "Inicia o teu diagn\u00f3stico",
+
+  "cantonalBenchmarkDisclaimer": "Estes dados s\u00e3o ordens de grandeza derivadas de estat\u00edsticas federais anonimizadas (OFS). N\u00e3o constituem aconselhamento financeiro. Nenhum dado pessoal \u00e9 comparado com outros utilizadores. Ferramenta educativa\u00a0: n\u00e3o constitui aconselhamento no sentido da LSFin.",
+
+  "scenarioLabelPrudent": "Cen\u00e1rio prudente",
+  "scenarioLabelReference": "Cen\u00e1rio de refer\u00eancia",
+  "scenarioLabelFavorable": "Cen\u00e1rio favor\u00e1vel",
+  "scenarioDisclaimer": "Ferramenta educativa \u2014 n\u00e3o constitui aconselhamento financeiro no sentido da LSFin. As proje\u00e7\u00f5es baseiam-se em hip\u00f3teses de rendimento e n\u00e3o predizem resultados futuros. Consulte um\u00b7a especialista para um plano personalizado.",
+
+  "bayesianDisclaimer": "Estimativas bayesianas baseadas em estat\u00edsticas su\u00ed\u00e7as (OFS/BFS). Estes valores s\u00e3o aproxima\u00e7\u00f5es pedag\u00f3gicas, n\u00e3o certezas. N\u00e3o constitui aconselhamento financeiro no sentido da LSFin.",
+
+  "consentLabelByok": "Personaliza\u00e7\u00e3o com IA",
+  "consentLabelSnapshot": "Hist\u00f3rico de progresso",
+  "consentLabelNotifications": "Lembretes personalizados",
+  "consentDashboardDisclaimer": "Os seus dados pertencem-lhe. Cada par\u00e2metro \u00e9 revog\u00e1vel a qualquer momento (nLPD art. 6).",
+
+  "wizardValidationRequired": "Esta quest\u00e3o \u00e9 obrigat\u00f3ria",
+  "wizardAnswerNotProvided": "N\u00e3o fornecido",
+
+  "arbitrageTitleRenteVsCapital": "Renda vs Capital",
+  "arbitrageMissingLpp": "Adicione o seu saldo LPP para ver esta compara\u00e7\u00e3o",
+  "arbitrageTitleCalendrierRetraits": "Calend\u00e1rio de levantamentos",
+  "arbitrageMissingLppAnd3a": "Adicione o seu saldo LPP e 3a para ver o calend\u00e1rio",
+  "arbitrageTitleRachatVsMarche": "Resgate LPP vs Mercado",
+  "arbitrageMissingLppCertificat": "Digitalize o seu certificado LPP para conhecer a sua margem de resgate",
+
+  "reportTitleBilanFlash": "O seu Balan\u00e7o Flash",
+  "reportLabelSanteFinanciere": "Sa\u00fade Financeira",
+
+  "retirementProjectionDisclaimer": "Proje\u00e7\u00e3o educativa baseada nas tarifas AVS/LPP 2025. N\u00e3o constitui aconselhamento financeiro ou previdenci\u00e1rio. Os valores s\u00e3o estimativas que podem variar consoante altera\u00e7\u00f5es legislativas e a situa\u00e7\u00e3o pessoal. Consulte um especialista para um plano personalizado. LSFin.",
+  "retirementIncomeLabelPillar3a": "3\u00ba pilar",
+  "retirementIncomeLabelPatrimoine": "Patrim\u00f3nio livre",
+  "retirementPhaseLabelBothRetired": "Ambos reformados",
+  "retirementPhaseLabelRetraite": "Reforma",
+  "forecasterDisclaimer": "Proje\u00e7\u00f5es educativas baseadas em pressupostos de rendimento. N\u00e3o constitui aconselhamento financeiro. Os rendimentos passados n\u00e3o predizem os futuros. Consulte um especialista para um plano personalizado. LSFin.",
+  "forecasterEtSiDisclaimer": "Simula\u00e7\u00e3o \u00abE se...\u00bb apenas para fins educativos. Pressupostos de rendimento ajustados manualmente. N\u00e3o constitui aconselhamento financeiro (LSFin). Os rendimentos passados n\u00e3o predizem os futuros.",
+  "lppRachatDisclaimerEchelonne": "Simula\u00e7\u00e3o educativa baseada em taxas fiscais cantonais estimadas. O resgate LPP est\u00e1 sujeito \u00e0 aprova\u00e7\u00e3o do fundo de pens\u00f5es. A dedu\u00e7\u00e3o anual est\u00e1 limitada ao rendimento tribut\u00e1vel. Bloqueio EPL de 3\u00a0anos ap\u00f3s cada resgate (LPP art. 79b al. 3). Consulte o seu fundo de pens\u00f5es e um especialista antes de qualquer decis\u00e3o.",
+  "lppLibrePassageDisclaimer": "Esta informa\u00e7\u00e3o \u00e9 educativa e n\u00e3o constitui aconselhamento jur\u00eddico ou financeiro personalizado. As regras dependem do seu fundo de pens\u00f5es e situa\u00e7\u00e3o. Base legal: LFLP, OLP. Consulte um especialista em previd\u00eancia profissional.",
+  "lppEplDisclaimer": "Simula\u00e7\u00e3o educativa de car\u00e1ter indicativo. O valor exato levan\u00e1vel depende do regulamento do seu fundo de pens\u00f5es e do saldo aos 50\u00a0anos. O imposto varia consoante o cant\u00e3o e a situa\u00e7\u00e3o pessoal. Base legal: art. 30c LPP, OEPL. Consulte o seu fundo de pens\u00f5es e um especialista antes de qualquer decis\u00e3o.",
+  "lppChecklistTitleDecompte": "Solicitar extrato de sa\u00edda",
+  "lppChecklistDescDecompte": "Solicite um extrato detalhado ao fundo de pens\u00f5es com a reparti\u00e7\u00e3o obrigat\u00f3ria/suplementar.",
+  "lppChecklistTitleTransfert30j": "Transferir o saldo em 30\u00a0dias",
+  "lppChecklistDescTransfert30j": "O saldo deve ser transferido para o novo fundo de pens\u00f5es. Fornecer os dados do novo fundo ao anterior.",
+  "lppChecklistAlertTransfertTitle": "Prazo de transfer\u00eancia pr\u00f3ximo",
+  "lppChecklistAlertTransfertMsg": "O saldo deve ser transferido em 30\u00a0dias. Contacte o seu antigo fundo de pens\u00f5es rapidamente.",
+  "lppChecklistTitleOuvrirLP": "Abrir uma conta de livre passage",
+  "lppChecklistDescOuvrirLP": "Sem novo empregador, o saldo deve ser depositado em uma ou duas contas de livre passage (m\u00e1x. 2 por lei).",
+  "lppChecklistTitleChoisirLP": "Escolher entre conta banc\u00e1ria e ap\u00f3lice de livre passage",
+  "lppChecklistDescChoisirLP": "A conta banc\u00e1ria oferece mais flexibilidade. A ap\u00f3lice de seguro pode incluir cobertura de risco.",
+  "lppChecklistTitleVerifierDestination": "Verificar as regras de levantamento consoante o pa\u00eds de destino",
+  "lppChecklistDescVerifierDestination": "UE/EFTA: apenas a parte suplementar pode ser levantada em dinheiro. A parte obrigat\u00f3ria permanece na Su\u00ed\u00e7a. Fora da UE/EFTA: levantamento total poss\u00edvel.",
+  "lppChecklistTitleAnnoncerDepart": "Notificar o fundo de pens\u00f5es da sa\u00edda",
+  "lppChecklistDescAnnoncerDepart": "Informe o seu fundo nos 30\u00a0dias seguintes \u00e0 sa\u00edda.",
+  "lppChecklistAlertTransfert6mTitle": "Transfer\u00eancia a efetuar em 6\u00a0meses",
+  "lppChecklistAlertTransfert6mMsg": "Ap\u00f3s deixar a Su\u00ed\u00e7a, tem 6\u00a0meses para transferir o saldo ou abrir uma conta de livre passage.",
+  "lppChecklistTitleChomage": "Verificar os direitos ao desemprego",
+  "lppChecklistDescChomage": "Em caso de desemprego, a previd\u00eancia profissional continua atrav\u00e9s da institui\u00e7\u00e3o supletiva (Funda\u00e7\u00e3o LPP).",
+  "lppChecklistTitleAvoirs": "Procurar saldos esquecidos",
+  "lppChecklistDescAvoirs": "Utilize a Central do 2\u00ba Pilar (sfbvg.ch) para procurar eventuais saldos de livre passage esquecidos.",
+  "lppChecklistTitleCouverture": "Verificar a cobertura de risco transit\u00f3ria",
+  "lppChecklistDescCouverture": "Durante o per\u00edodo de livre passage, a cobertura em caso de morte e invalidez pode ser reduzida. Verifique os seus contratos.",
+  "pillar3aStaggeredDisclaimer": "Simula\u00e7\u00e3o educativa de car\u00e1ter indicativo. O imposto sobre o levantamento de capital depende do cant\u00e3o, munic\u00edpio, situa\u00e7\u00e3o pessoal e do total levantado no ano fiscal. As taxas utilizadas s\u00e3o m\u00e9dias cantonais simplificadas. Base legal: OPP3, LIFD art. 38. Consulte um especialista antes de qualquer decis\u00e3o.",
+  "pillar3aRealReturnDisclaimer": "Simula\u00e7\u00e3o educativa baseada em pressupostos de rendimento constante. Os rendimentos passados n\u00e3o predizem os futuros. Comiss\u00f5es e rendimentos variam consoante o prestador. A poupan\u00e7a fiscal depende da taxa marginal real. Base legal: OPP3, LIFD art. 33 al. 1 let. e. Consulte um especialista antes de qualquer decis\u00e3o.",
+  "pillar3aProviderDisclaimer": "Os rendimentos passados n\u00e3o predizem os futuros. Comiss\u00f5es e rendimentos m\u00e9dios baseiam-se em dados hist\u00f3ricos simplificados para fins educativos. A escolha de um prestador 3a depende da situa\u00e7\u00e3o pessoal, perfil de risco e horizonte de investimento. A MINT n\u00e3o \u00e9 um intermedi\u00e1rio financeiro e n\u00e3o presta aconselhamento de investimento. Consulte um especialista.",
+  "reportDisclaimerBase1": "Ferramenta educativa \u2014 n\u00e3o constitui aconselhamento financeiro na ace\u00e7\u00e3o da LSFin.",
+  "reportDisclaimerBase2": "Os valores s\u00e3o estimativas baseadas nos dados declarados.",
+  "reportDisclaimerBase3": "Os resultados passados n\u00e3o predizem os resultados futuros.",
+  "reportDisclaimerFiscal": "A estimativa fiscal \u00e9 aproximada e n\u00e3o substitui uma declara\u00e7\u00e3o de impostos.",
+  "reportDisclaimerRetraite": "A proje\u00e7\u00e3o de reforma \u00e9 indicativa e depende de altera\u00e7\u00f5es legislativas (reformas AVS/LPP).",
+  "reportDisclaimerRachatLpp": "O resgate LPP est\u00e1 sujeito a um bloqueio de 3\u00a0anos para levantamentos EPL (LPP art. 79b al. 3).",
+  "reportActionTitle3aFirst": "Abre a tua primeira conta 3a",
+  "reportActionDesc3aFirst": "Deduz at\u00e9 CHF\u00a07\u2019258/ano do rendimento tribut\u00e1vel. Poupan\u00e7a imediata.",
+  "reportActionTitle3aSecond": "Abre uma 2\u00aa conta 3a fintech",
+  "reportActionDesc3aSecond": "Otimiza a fiscalidade no levantamento e diversifica os investimentos.",
+  "reportActionTitleAvsCheck": "Verifica a tua conta AVS",
+  "reportActionDescAvsCheck": "Evita perder at\u00e9 CHF\u00a038\u2019000 de pens\u00e3o ao longo da vida.",
+  "reportActionTitleDette": "Reembolsa as tuas d\u00edvidas de consumo",
+  "reportActionDescDette": "\u00c9 o investimento mais rent\u00e1vel: poupes 6-10\u00a0% ao ano em juros.",
+  "reportActionTitleUrgence": "Constitui o teu fundo de emerg\u00eancia",
+  "reportActionDescUrgence": "Aponta a 3\u00a0meses de despesas numa conta poupan\u00e7a separada.",
+  "reportRoadmapPhaseImmediat": "Imediato",
+  "reportRoadmapTimeframeImmediat": "Este m\u00eas",
+  "reportRoadmapPhaseCourtTerme": "Curto Prazo",
+  "reportRoadmapTimeframeCourtTerme": "3-6 meses",
+  "visibilityNarrativeHigh": "Tens uma vis\u00e3o clara da tua situa\u00e7\u00e3o. Mant\u00e9m os teus dados atualizados.",
+  "visibilityNarrativeMediumHigh": "Boa visibilidade! Refina a tua {axisLabel} para ir mais longe.",
+  "@visibilityNarrativeMediumHigh": {
+    "placeholders": {
+      "axisLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityNarrativeMedium": "Est\u00e1s a come\u00e7ar a ver com mais clareza. Concentra-te na tua {axisLabel}.",
+  "@visibilityNarrativeMedium": {
+    "placeholders": {
+      "axisLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityNarrativeLow": "Cada informa\u00e7\u00e3o conta. Come\u00e7a por {hint}.",
+  "@visibilityNarrativeLow": {
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityAxisLabelLiquidite": "Liquidez",
+  "visibilityAxisLabelFiscalite": "Fiscalidade",
+  "visibilityAxisLabelRetraite": "Reforma",
+  "visibilityAxisLabelSecurite": "Seguran\u00e7a",
+  "visibilityHintAddSalaire": "Adiciona o teu sal\u00e1rio para come\u00e7ar",
+  "visibilityHintAddEpargne": "Indica as tuas poupan\u00e7as e investimentos",
+  "visibilityHintLiquiditeComplete": "Os teus dados de liquidez est\u00e3o completos",
+  "visibilityHintAddAgeCanton": "Indica a tua idade e cant\u00e3o de resid\u00eancia",
+  "visibilityHintScanFiscal": "Digitaliza a tua declara\u00e7\u00e3o fiscal",
+  "visibilityHintFiscaliteComplete": "Os teus dados fiscais est\u00e3o completos",
+  "visibilityHintAddLpp": "Adiciona o teu certificado LPP",
+  "visibilityHintCommandeAvs": "Solicita o teu extrato AVS",
+  "visibilityHintAdd3a": "Indica as tuas contas 3a",
+  "visibilityHintRetraiteComplete": "Os teus dados de reforma est\u00e3o completos",
+  "visibilityHintAddFamille": "Indica a tua situa\u00e7\u00e3o familiar",
+  "visibilityHintAddStatutPro": "Completa o teu estado profissional",
+  "visibilityHintSecuriteComplete": "Os teus dados de seguran\u00e7a est\u00e3o completos"
 }

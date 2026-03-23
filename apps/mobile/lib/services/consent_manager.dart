@@ -14,6 +14,8 @@
 /// - LSFin art. 3 (information financiere)
 library;
 
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+
 // ────────────────────────────────────────────────────────────
 //  CONSENT MANAGER — S40 / Reengagement + Consent
 // ────────────────────────────────────────────────────────────
@@ -147,8 +149,10 @@ class ConsentManager {
   }
 
   /// Load dashboard with persisted consent state.
-  static Future<ConsentDashboard> loadDashboard() async {
-    final dashboard = getDefaultDashboard();
+  ///
+  /// Pass [l] to get localized labels; falls back to French strings if null.
+  static Future<ConsentDashboard> loadDashboard({S? l}) async {
+    final dashboard = getDefaultDashboard(l: l);
     final prefs = await _getPrefs();
     return ConsentDashboard(
       consents: dashboard.consents.map((c) {
@@ -169,13 +173,15 @@ class ConsentManager {
   }
 
   /// Returns default consent dashboard (all OFF).
-  static ConsentDashboard getDefaultDashboard() {
-    return const ConsentDashboard(
+  ///
+  /// Pass [l] to get localized labels; falls back to French strings if null.
+  static ConsentDashboard getDefaultDashboard({S? l}) {
+    return ConsentDashboard(
       consents: [
         ConsentState(
           type: ConsentType.byokDataSharing,
           enabled: false,
-          label: 'Personnalisation IA',
+          label: l?.consentLabelByok ?? 'Personnalisation IA',
           detail: 'Envoyer tes donnees financieres agregees a ton fournisseur IA '
               'pour personnaliser les textes du coach.',
           neverSent: 'Ton salaire exact, tes soldes bancaires, ton employeur, '
@@ -184,7 +190,7 @@ class ConsentManager {
         ConsentState(
           type: ConsentType.snapshotStorage,
           enabled: false,
-          label: 'Historique de progression',
+          label: l?.consentLabelSnapshot ?? 'Historique de progression',
           detail: 'Conserver l\'historique de tes projections pour suivre '
               'ta progression dans le temps.',
           neverSent: 'Tes donnees brutes ne sont pas stockees. '
@@ -193,16 +199,17 @@ class ConsentManager {
         ConsentState(
           type: ConsentType.notifications,
           enabled: false,
-          label: 'Rappels personnalises',
+          label: l?.consentLabelNotifications ?? 'Rappels personnalises',
           detail: 'Recevoir des rappels avec tes chiffres personnels '
               '(3a, impots, check-in).',
           neverSent: 'Aucune notification ne contient ton salaire, '
               'tes soldes ou tes donnees sensibles.',
         ),
       ],
-      disclaimer: 'Tes donnees t\'appartiennent. Chaque parametre est '
+      disclaimer: l?.consentDashboardDisclaimer ??
+          'Tes donnees t\'appartiennent. Chaque parametre est '
           'revocable a tout moment (nLPD art. 6).',
-      sources: [
+      sources: const [
         'LPD art. 6 (principes de traitement)',
         'nLPD art. 5 let. f (profilage)',
         'LSFin art. 3 (information financiere)',

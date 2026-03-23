@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
@@ -278,6 +279,7 @@ class ForecasterService {
   static ProjectionResult project({
     required CoachProfile profile,
     DateTime? targetDate,
+    S? l,
   }) {
     final target = targetDate ?? profile.goalA.targetDate;
 
@@ -333,7 +335,7 @@ class ForecasterService {
       optimiste: scenarioOptimiste,
       tauxRemplacementBase: tauxRemplacement,
       milestones: milestones,
-      disclaimer:
+      disclaimer: l?.forecasterDisclaimer ??
           'Projections educatives basees sur des hypotheses de rendement. '
           'Ne constitue pas un conseil financier. Les rendements passes ne '
           'presagent pas des rendements futurs. Consulte un·e specialiste '
@@ -377,6 +379,7 @@ class ForecasterService {
     required CoachProfile profile,
     required ScenarioAssumptions customBase,
     DateTime? targetDate,
+    S? l,
   }) {
     final target = targetDate ?? profile.goalA.targetDate;
 
@@ -471,7 +474,8 @@ class ForecasterService {
       optimiste: scenarioOptimiste,
       tauxRemplacementBase: tauxRemplacement,
       milestones: milestones,
-      disclaimer: 'Simulation "Et si..." a titre educatif uniquement. '
+      disclaimer: l?.forecasterEtSiDisclaimer ??
+          'Simulation "Et si..." a titre educatif uniquement. '
           'Hypotheses de rendement ajustees manuellement. '
           'Ne constitue pas un conseil financier (LSFin). '
           'Les rendements passes ne presagent pas des rendements futurs.',

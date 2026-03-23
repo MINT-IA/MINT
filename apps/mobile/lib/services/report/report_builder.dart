@@ -1,5 +1,6 @@
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/goal_template.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/session.dart';
@@ -12,7 +13,8 @@ class ReportBuilder {
 
   ReportBuilder(this.answers);
 
-  SessionReport build() {
+  /// Pass [l] (S) for localized report titles and labels.
+  SessionReport build({S? l}) {
     final now = DateTime.now();
     final budgetInputs = BudgetInputs.fromMap(answers);
     final budgetService = BudgetService();
@@ -233,11 +235,11 @@ class ReportBuilder {
       id: 'local_${now.millisecondsSinceEpoch}',
       sessionId: 'local_session',
       precisionScore: 0.85,
-      title: 'Ton Bilan Flash',
+      title: l?.reportTitleBilanFlash ?? 'Ton Bilan Flash',
       overview: SessionReportOverview(
         canton: answers['q_canton'] ?? 'CH',
         householdType: answers['q_civil_status'] ?? 'Inconnu',
-        goalRecommendedLabel: 'Santé Financière',
+        goalRecommendedLabel: l?.reportLabelSanteFinanciere ?? 'Sant\u00e9 Financi\u00e8re',
       ),
       mintRoadmap: MintRoadmap(
         mentorshipLevel: 'Bootcamp',
@@ -251,7 +253,7 @@ class ReportBuilder {
       ),
       scoreboard: scoreboard,
       recommendedGoal:
-          const GoalTemplate(id: 'financial_health', label: 'Santé Financière'),
+          GoalTemplate(id: 'financial_health', label: l?.reportLabelSanteFinanciere ?? 'Sant\u00e9 Financi\u00e8re'),
       alternativeGoals: [],
       topActions: topActions,
       recommendations: recommendations,

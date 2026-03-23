@@ -11176,5 +11176,148 @@
   "pulseNavEvenementTitle": "Un changement de vie\u00a0?",
   "pulseNavEvenementSubtitle": "Chaque \u00e9v\u00e9nement a un impact financier.",
   "pulseNavEvenementDetail": "Mariage, naissance, divorce, h\u00e9ritage, d\u00e9m\u00e9nagement...",
-  "pulseNavEvenementCta": "Explorer"
+  "pulseNavEvenementCta": "Explorer",
+
+  "reengagementTitleNewYear": "Nouveaux plafonds 3a",
+  "reengagementTitleTaxPrep": "D\u00e9claration fiscale",
+  "reengagementTitleTaxDeadline": "Deadline fiscale",
+  "reengagementTitleThreeA": "Deadline 3a",
+  "reengagementTitleThreeAFinal": "Dernier mois 3a",
+  "reengagementTitleQuarterlyFri": "Score de solidit\u00e9",
+
+  "assurancesAlerteDelai": "Rappel\u00a0: modification de franchise possible avant le 30 novembre de chaque ann\u00e9e pour l\u2019ann\u00e9e suivante.",
+  "assurancesDisclaimerLamal": "Cette analyse est indicative. Les primes varient selon l\u2019assureur, la r\u00e9gion et le mod\u00e8le d\u2019assurance. Consultez ta caisse maladie pour des chiffres exacts. Source\u00a0: LAMal art. 62-64, OAMal.",
+  "assurancesDisclaimerCoverage": "Cette analyse est indicative et ne constitue pas un conseil en assurance personnalis\u00e9. Les primes varient selon l\u2019assureur et ton profil. Consulte un\u00b7e sp\u00e9cialiste en assurances pour une \u00e9valuation compl\u00e8te.",
+
+  "recommendationsDisclaimer": "Suggestions p\u00e9dagogiques bas\u00e9es sur ton profil \u2014 outil \u00e9ducatif qui ne constitue pas un conseil financier personnalis\u00e9 au sens de la LSFin. Consultez un\u00b7e sp\u00e9cialiste pour une analyse adapt\u00e9e \u00e0 ta situation.",
+  "recommendationsTitleEmergencyFund": "Constituer un fonds d\u2019urgence",
+  "recommendationsTitlePillar3a": "Optimiser avec le 3a",
+  "recommendationsTitleLppBuyback": "Simuler un rachat LPP",
+  "recommendationsTitleCompoundInterest": "Le pouvoir du temps",
+  "recommendationsTitleStartDiagnostic": "Commence ton diagnostic",
+
+  "cantonalBenchmarkDisclaimer": "Ces donn\u00e9es sont des ordres de grandeur issus de statistiques f\u00e9d\u00e9rales anonymis\u00e9es (OFS). Elles ne constituent pas un conseil financier. Aucune donn\u00e9e personnelle n\u2019est compar\u00e9e \u00e0 d\u2019autres utilisateurs. Outil \u00e9ducatif\u00a0: ne constitue pas un conseil au sens de la LSFin.",
+
+  "scenarioLabelPrudent": "Sc\u00e9nario prudent",
+  "scenarioLabelReference": "Sc\u00e9nario de r\u00e9f\u00e9rence",
+  "scenarioLabelFavorable": "Sc\u00e9nario favorable",
+  "scenarioDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. Les projections reposent sur des hypoth\u00e8ses de rendement et ne pr\u00e9sagent pas des r\u00e9sultats futurs. Consulte un\u00b7e sp\u00e9cialiste pour un plan personnalis\u00e9.",
+
+  "bayesianDisclaimer": "Estimations bay\u00e9siennes bas\u00e9es sur les statistiques suisses (OFS/BFS). Ces valeurs sont des approximations p\u00e9dagogiques, pas des certitudes. Ne constitue pas un conseil financier au sens de la LSFin.",
+
+  "consentLabelByok": "Personnalisation IA",
+  "consentLabelSnapshot": "Historique de progression",
+  "consentLabelNotifications": "Rappels personnalis\u00e9s",
+  "consentDashboardDisclaimer": "Tes donn\u00e9es t\u2019appartiennent. Chaque param\u00e8tre est r\u00e9vocable \u00e0 tout moment (nLPD art. 6).",
+
+  "wizardValidationRequired": "Cette question est obligatoire",
+  "wizardAnswerNotProvided": "Non renseign\u00e9",
+
+  "arbitrageTitleRenteVsCapital": "Rente vs Capital",
+  "arbitrageMissingLpp": "Ajoute ton avoir LPP pour voir cette comparaison",
+  "arbitrageTitleCalendrierRetraits": "Calendrier de retraits",
+  "arbitrageMissingLppAnd3a": "Ajoute ton avoir LPP et 3a pour voir le calendrier",
+  "arbitrageTitleRachatVsMarche": "Rachat LPP vs March\u00e9",
+  "arbitrageMissingLppCertificat": "Scanne ton certificat LPP pour conna\u00eetre ta lacune de rachat",
+
+  "reportTitleBilanFlash": "Ton Bilan Flash",
+  "reportLabelSanteFinanciere": "Sant\u00e9 Financi\u00e8re",
+
+  "retirementProjectionDisclaimer": "Projection \u00e9ducative bas\u00e9e sur les bar\u00e8mes AVS/LPP 2025. Ne constitue pas un conseil financier ou en pr\u00e9voyance. Les montants sont des estimations qui peuvent varier selon l\u2019\u00e9volution l\u00e9gale et ta situation personnelle. Consulte un\u00b7e sp\u00e9cialiste pour un plan personnalis\u00e9. LSFin.",
+  "retirementIncomeLabelPillar3a": "3e pilier",
+  "retirementIncomeLabelPatrimoine": "Patrimoine libre",
+  "retirementPhaseLabelBothRetired": "Les deux \u00e0 la retraite",
+  "retirementPhaseLabelRetraite": "Retraite",
+  "forecasterDisclaimer": "Projections \u00e9ducatives bas\u00e9es sur des hypoth\u00e8ses de rendement. Ne constitue pas un conseil financier. Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs. Consulte un\u00b7e sp\u00e9cialiste pour un plan personnalis\u00e9. LSFin.",
+  "forecasterEtSiDisclaimer": "Simulation \u00ab\u00a0Et si...\u00a0\u00bb \u00e0 titre \u00e9ducatif uniquement. Hypoth\u00e8ses de rendement ajust\u00e9es manuellement. Ne constitue pas un conseil financier (LSFin). Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs.",
+  "lppRachatDisclaimerEchelonne": "Simulation p\u00e9dagogique bas\u00e9e sur les bar\u00e8mes cantonaux estim\u00e9s. Le rachat LPP est soumis \u00e0 acceptation par la caisse de pension. La d\u00e9duction annuelle est plafonn\u00e9e au revenu imposable. Blocage EPL de 3\u00a0ans apr\u00e8s chaque rachat (LPP art. 79b al. 3). Consulte ta caisse de pension et un\u00b7e sp\u00e9cialiste en pr\u00e9voyance avant toute d\u00e9cision.",
+  "lppLibrePassageDisclaimer": "Ces informations sont p\u00e9dagogiques et ne constituent pas un conseil juridique ou financier personnalis\u00e9. Les r\u00e8gles d\u00e9pendent de ta caisse de pension et de ta situation. Base l\u00e9gale\u00a0: LFLP, OLP. Consultez un ou une sp\u00e9cialiste en pr\u00e9voyance professionnelle.",
+  "lppEplDisclaimer": "Simulation p\u00e9dagogique \u00e0 titre indicatif. Le montant retirable exact d\u00e9pend du r\u00e8glement de ta caisse de pension et de ton avoir \u00e0 50\u00a0ans. L\u2019imp\u00f4t varie selon le canton et la situation personnelle. Base l\u00e9gale\u00a0: art. 30c LPP, OEPL. Consulte ta caisse de pension et un ou une sp\u00e9cialiste avant toute d\u00e9cision.",
+  "lppChecklistTitleDecompte": "Demander un d\u00e9compte de sortie",
+  "lppChecklistDescDecompte": "Exige un d\u00e9compte d\u00e9taill\u00e9 de ta caisse de pension avec la r\u00e9partition obligatoire / surobligatoire.",
+  "lppChecklistTitleTransfert30j": "Transf\u00e9rer ton avoir dans les 30\u00a0jours",
+  "lppChecklistDescTransfert30j": "L\u2019avoir doit \u00eatre transf\u00e9r\u00e9 \u00e0 la nouvelle caisse de pension. Communiquez les coordonn\u00e9es de la nouvelle caisse \u00e0 l\u2019ancienne.",
+  "lppChecklistAlertTransfertTitle": "D\u00e9lai de transfert bient\u00f4t \u00e9chu",
+  "lppChecklistAlertTransfertMsg": "Le transfert de ton avoir doit intervenir dans les 30\u00a0jours. Contacte ton ancienne caisse de pension rapidement.",
+  "lppChecklistTitleOuvrirLP": "Ouvrir un compte de libre passage",
+  "lppChecklistDescOuvrirLP": "Sans nouvel employeur, ton avoir doit \u00eatre plac\u00e9 sur un ou deux comptes de libre passage (max. 2 selon la loi).",
+  "lppChecklistTitleChoisirLP": "Choisir entre compte bancaire et police de libre passage",
+  "lppChecklistDescChoisirLP": "Le compte bancaire offre plus de flexibilit\u00e9. La police d\u2019assurance peut inclure une couverture risque.",
+  "lppChecklistTitleVerifierDestination": "V\u00e9rifier les r\u00e8gles de retrait selon le pays de destination",
+  "lppChecklistDescVerifierDestination": "UE/AELE\u00a0: seule la part surobligatoire peut \u00eatre retir\u00e9e en esp\u00e8ces. La part obligatoire reste en Suisse. Hors UE/AELE\u00a0: retrait total possible.",
+  "lppChecklistTitleAnnoncerDepart": "Annoncer ton d\u00e9part \u00e0 la caisse de pension",
+  "lppChecklistDescAnnoncerDepart": "Informe ta caisse dans les 30\u00a0jours suivant ton d\u00e9part.",
+  "lppChecklistAlertTransfert6mTitle": "Transfert \u00e0 effectuer dans les 6\u00a0mois",
+  "lppChecklistAlertTransfert6mMsg": "Apr\u00e8s un d\u00e9part de Suisse, tu disposes de 6\u00a0mois pour transf\u00e9rer ton avoir ou ouvrir un compte de libre passage.",
+  "lppChecklistTitleChomage": "V\u00e9rifier tes droits au ch\u00f4mage",
+  "lppChecklistDescChomage": "En cas de ch\u00f4mage, ta pr\u00e9voyance professionnelle continue via la fondation institution suppl\u00e9tive (Fondation LPP).",
+  "lppChecklistTitleAvoirs": "Rechercher des avoirs oubli\u00e9s",
+  "lppChecklistDescAvoirs": "Utilisez la Centrale du 2e pilier (sfbvg.ch) pour rechercher d\u2019\u00e9ventuels avoirs de libre passage oubli\u00e9s.",
+  "lppChecklistTitleCouverture": "V\u00e9rifier la couverture risque transitoire",
+  "lppChecklistDescCouverture": "Pendant la p\u00e9riode de libre passage, la couverture d\u00e9c\u00e8s et invalidit\u00e9 peut \u00eatre r\u00e9duite. V\u00e9rifie tes contrats.",
+  "pillar3aStaggeredDisclaimer": "Simulation p\u00e9dagogique \u00e0 titre indicatif. L\u2019imp\u00f4t sur le retrait en capital d\u00e9pend du canton, de la commune, de la situation personnelle et du montant total retir\u00e9 dans l\u2019ann\u00e9e fiscale. Les taux utilis\u00e9s sont des moyennes cantonales simplifi\u00e9es. Base l\u00e9gale\u00a0: OPP3, LIFD art. 38. Consultez un ou une sp\u00e9cialiste en pr\u00e9voyance avant toute d\u00e9cision.",
+  "pillar3aRealReturnDisclaimer": "Simulation p\u00e9dagogique bas\u00e9e sur des hypoth\u00e8ses de rendement constant. Les rendements pass\u00e9s ne pr\u00e9jugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L\u2019\u00e9conomie fiscale d\u00e9pend de ton taux marginal r\u00e9el. Base l\u00e9gale\u00a0: OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une sp\u00e9cialiste avant toute d\u00e9cision.",
+  "pillar3aProviderDisclaimer": "Rendements pass\u00e9s ne pr\u00e9jugent pas des rendements futurs. Les frais et rendements moyens sont bas\u00e9s sur des donn\u00e9es historiques simplifi\u00e9es \u00e0 titre p\u00e9dagogique. Le choix d\u2019un prestataire 3a d\u00e9pend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n\u2019est pas un interm\u00e9diaire financier et ne fournit aucun conseil en placement. Consultez un ou une sp\u00e9cialiste.",
+  "reportDisclaimerBase1": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin.",
+  "reportDisclaimerBase2": "Les montants sont des estimations bas\u00e9es sur les donn\u00e9es d\u00e9clar\u00e9es.",
+  "reportDisclaimerBase3": "Les performances pass\u00e9es ne pr\u00e9jugent pas des performances futures.",
+  "reportDisclaimerFiscal": "L\u2019estimation fiscale est approximative et ne remplace pas une d\u00e9claration d\u2019imp\u00f4ts.",
+  "reportDisclaimerRetraite": "La projection retraite est indicative et d\u00e9pend de l\u2019\u00e9volution l\u00e9gislative (r\u00e9formes AVS/LPP).",
+  "reportDisclaimerRachatLpp": "Le rachat LPP est soumis \u00e0 un blocage de 3\u00a0ans pour les retraits EPL (LPP art. 79b al. 3).",
+  "reportActionTitle3aFirst": "Ouvre ton premier 3a",
+  "reportActionDesc3aFirst": "D\u00e9duis jusqu\u2019\u00e0 CHF\u00a07\u2019258/an de ton revenu imposable. \u00c9conomie imm\u00e9diate.",
+  "reportActionTitle3aSecond": "Ouvre un 2e compte 3a fintech",
+  "reportActionDesc3aSecond": "Optimise ta fiscalit\u00e9 au retrait et diversifie tes placements.",
+  "reportActionTitleAvsCheck": "V\u00e9rifie ton compte AVS",
+  "reportActionDescAvsCheck": "\u00c9vite de perdre jusqu\u2019\u00e0 38\u2019000 CHF de rente \u00e0 vie.",
+  "reportActionTitleDette": "Rembourse tes dettes de consommation",
+  "reportActionDescDette": "C\u2019est le placement le plus rentable\u00a0: tu \u00e9conomises 6-10\u00a0% par an sur les int\u00e9r\u00eats.",
+  "reportActionTitleUrgence": "Constitue ton fonds d\u2019urgence",
+  "reportActionDescUrgence": "Vise 3\u00a0mois de charges sur un compte \u00e9pargne s\u00e9par\u00e9.",
+  "reportRoadmapPhaseImmediat": "Imm\u00e9diat",
+  "reportRoadmapTimeframeImmediat": "Ce mois",
+  "reportRoadmapPhaseCourtTerme": "Court Terme",
+  "reportRoadmapTimeframeCourtTerme": "3-6 mois",
+  "visibilityNarrativeHigh": "Tu as une vision claire de ta situation. Continue \u00e0 maintenir tes donn\u00e9es \u00e0 jour.",
+  "visibilityNarrativeMediumHigh": "Bonne visibilit\u00e9\u00a0! Affine ta {axisLabel} pour aller plus loin.",
+  "@visibilityNarrativeMediumHigh": {
+    "placeholders": {
+      "axisLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityNarrativeMedium": "Tu commences \u00e0 y voir plus clair. Concentre-toi sur ta {axisLabel}.",
+  "@visibilityNarrativeMedium": {
+    "placeholders": {
+      "axisLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityNarrativeLow": "Chaque information compte. Commence par {hint}.",
+  "@visibilityNarrativeLow": {
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityAxisLabelLiquidite": "Liquidit\u00e9",
+  "visibilityAxisLabelFiscalite": "Fiscalit\u00e9",
+  "visibilityAxisLabelRetraite": "Retraite",
+  "visibilityAxisLabelSecurite": "S\u00e9curit\u00e9",
+  "visibilityHintAddSalaire": "Ajoute ton salaire pour commencer",
+  "visibilityHintAddEpargne": "Renseigne ton \u00e9pargne et investissements",
+  "visibilityHintLiquiditeComplete": "Tes donn\u00e9es de liquidit\u00e9 sont compl\u00e8tes",
+  "visibilityHintAddAgeCanton": "Indique ton \u00e2ge et canton de r\u00e9sidence",
+  "visibilityHintScanFiscal": "Scanne ta d\u00e9claration fiscale",
+  "visibilityHintFiscaliteComplete": "Tes donn\u00e9es fiscales sont compl\u00e8tes",
+  "visibilityHintAddLpp": "Ajoute ton certificat LPP",
+  "visibilityHintCommandeAvs": "Commande ton extrait AVS",
+  "visibilityHintAdd3a": "Renseigne tes comptes 3a",
+  "visibilityHintRetraiteComplete": "Tes donn\u00e9es retraite sont compl\u00e8tes",
+  "visibilityHintAddFamille": "Indique ta situation familiale",
+  "visibilityHintAddStatutPro": "Compl\u00e8te ton statut professionnel",
+  "visibilityHintSecuriteComplete": "Tes donn\u00e9es de s\u00e9curit\u00e9 sont compl\u00e8tes"
 }

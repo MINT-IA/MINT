@@ -22672,4 +22672,399 @@ class SDe extends S {
 
   @override
   String get pulseNavEvenementCta => 'Erkunden';
+
+  @override
+  String get reengagementTitleNewYear => 'Neue 3a-Obergrenzen';
+
+  @override
+  String get reengagementTitleTaxPrep => 'Steuererklärung';
+
+  @override
+  String get reengagementTitleTaxDeadline => 'Steuerfrist';
+
+  @override
+  String get reengagementTitleThreeA => '3a-Frist';
+
+  @override
+  String get reengagementTitleThreeAFinal => 'Letzter Monat für 3a';
+
+  @override
+  String get reengagementTitleQuarterlyFri => 'Stabilitäts-Score';
+
+  @override
+  String get assurancesAlerteDelai =>
+      'Erinnerung : Franchiseänderungen müssen bis zum 30. November jedes Jahres für das Folgejahr vorgenommen werden.';
+
+  @override
+  String get assurancesDisclaimerLamal =>
+      'Diese Analyse ist indikativ. Prämien variieren je nach Versicherer, Region und Versicherungsmodell. Fragen Sie Ihre Krankenkasse für genaue Zahlen. Quelle : KVG Art. 62-64, KVV.';
+
+  @override
+  String get assurancesDisclaimerCoverage =>
+      'Diese Analyse ist indikativ und stellt keine persönliche Versicherungsberatung dar. Prämien variieren je nach Versicherer und Ihrem Profil. Konsultieren Sie eine Fachperson für eine vollständige Beurteilung.';
+
+  @override
+  String get recommendationsDisclaimer =>
+      'Pädagogische Vorschläge basierend auf Ihrem Profil — ein Werkzeug, das keine persönliche Finanzberatung im Sinne des FIDLEG darstellt. Konsultieren Sie eine Fachperson für eine auf Ihre Situation zugeschnittene Analyse.';
+
+  @override
+  String get recommendationsTitleEmergencyFund => 'Notfallfonds aufbauen';
+
+  @override
+  String get recommendationsTitlePillar3a => 'Mit Säule 3a optimieren';
+
+  @override
+  String get recommendationsTitleLppBuyback => 'BVG-Einkauf simulieren';
+
+  @override
+  String get recommendationsTitleCompoundInterest => 'Die Kraft der Zeit';
+
+  @override
+  String get recommendationsTitleStartDiagnostic => 'Diagnose starten';
+
+  @override
+  String get cantonalBenchmarkDisclaimer =>
+      'Diese Zahlen sind Größenordnungen aus anonymisierten Bundesstatistiken (BFS). Sie stellen keine Finanzberatung dar. Keine persönlichen Daten werden mit anderen Nutzern verglichen. Bildungswerkzeug : stellt keine Beratung im Sinne des FIDLEG dar.';
+
+  @override
+  String get scenarioLabelPrudent => 'Vorsichtiges Szenario';
+
+  @override
+  String get scenarioLabelReference => 'Referenz-Szenario';
+
+  @override
+  String get scenarioLabelFavorable => 'Günstiges Szenario';
+
+  @override
+  String get scenarioDisclaimer =>
+      'Bildungswerkzeug — stellt keine Finanzberatung im Sinne des FIDLEG dar. Prognosen basieren auf Renditeannahmen und sagen keine zukünftigen Ergebnisse voraus. Konsultieren Sie eine Fachperson für einen persönlichen Plan.';
+
+  @override
+  String get bayesianDisclaimer =>
+      'Bayesianische Schätzungen basierend auf Schweizer Statistiken (BFS). Diese Werte sind pädagogische Annäherungen, keine Gewissheiten. Stellt keine Finanzberatung im Sinne des FIDLEG dar.';
+
+  @override
+  String get consentLabelByok => 'KI-Personalisierung';
+
+  @override
+  String get consentLabelSnapshot => 'Fortschrittsverlauf';
+
+  @override
+  String get consentLabelNotifications => 'Persönliche Erinnerungen';
+
+  @override
+  String get consentDashboardDisclaimer =>
+      'Ihre Daten gehören Ihnen. Jede Einstellung ist jederzeit widerrufbar (nDSG Art. 6).';
+
+  @override
+  String get wizardValidationRequired => 'Diese Frage ist Pflicht';
+
+  @override
+  String get wizardAnswerNotProvided => 'Nicht angegeben';
+
+  @override
+  String get arbitrageTitleRenteVsCapital => 'Rente vs Kapital';
+
+  @override
+  String get arbitrageMissingLpp =>
+      'Füge dein Pensionskassenguthaben hinzu, um diesen Vergleich zu sehen';
+
+  @override
+  String get arbitrageTitleCalendrierRetraits => 'Bezugskalender';
+
+  @override
+  String get arbitrageMissingLppAnd3a =>
+      'Füge dein PK- und 3a-Guthaben hinzu, um den Kalender zu sehen';
+
+  @override
+  String get arbitrageTitleRachatVsMarche => 'PK-Einkauf vs Markt';
+
+  @override
+  String get arbitrageMissingLppCertificat =>
+      'Scanne dein PK-Zertifikat, um deine Einkaufsmöglichkeit zu kennen';
+
+  @override
+  String get reportTitleBilanFlash => 'Deine Finanzübersicht';
+
+  @override
+  String get reportLabelSanteFinanciere => 'Finanzgesundheit';
+
+  @override
+  String get retirementProjectionDisclaimer =>
+      'Pädagogische Projektion basierend auf AHV/BVG-Tarifen 2025. Stellt keine Finanz- oder Vorsorgeberatung dar. Die Beträge sind Schätzungen, die je nach gesetzlichen Änderungen und Ihrer persönlichen Situation variieren können. Wenden Sie sich für einen persönlichen Plan an einen Spezialisten. FIDLEG.';
+
+  @override
+  String get retirementIncomeLabelPillar3a => '3. Säule';
+
+  @override
+  String get retirementIncomeLabelPatrimoine => 'Freies Vermögen';
+
+  @override
+  String get retirementPhaseLabelBothRetired => 'Beide in Rente';
+
+  @override
+  String get retirementPhaseLabelRetraite => 'Rente';
+
+  @override
+  String get forecasterDisclaimer =>
+      'Pädagogische Projektionen auf Basis von Renditeannahmen. Stellt keine Finanzberatung dar. Vergangene Renditen lassen keine Rückschlüsse auf zukünftige Renditen zu. Wenden Sie sich für einen persönlichen Plan an einen Spezialisten. FIDLEG.';
+
+  @override
+  String get forecasterEtSiDisclaimer =>
+      'Was-wäre-wenn-Simulation nur zu pädagogischen Zwecken. Renditeannahmen manuell angepasst. Stellt keine Finanzberatung dar (FIDLEG). Vergangene Renditen sind kein Indikator für zukünftige Renditen.';
+
+  @override
+  String get lppRachatDisclaimerEchelonne =>
+      'Pädagogische Simulation auf Basis geschätzter kantonaler Steuersätze. Der BVG-Einkauf bedarf der Genehmigung durch die Pensionskasse. Der jährliche Abzug ist auf das steuerbare Einkommen begrenzt. EPL-Sperrfrist von 3 Jahren nach jedem Einkauf (BVG Art. 79b Abs. 3). Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.';
+
+  @override
+  String get lppLibrePassageDisclaimer =>
+      'Diese Informationen sind pädagogischer Natur und stellen keine persönliche Rechts- oder Finanzberatung dar. Die Regeln hängen von Ihrer Pensionskasse und Ihrer Situation ab. Rechtsgrundlage: FZG, BVV2. Konsultieren Sie einen Spezialisten für berufliche Vorsorge.';
+
+  @override
+  String get lppEplDisclaimer =>
+      'Pädagogische Simulation zur Orientierung. Der genaue Auszahlungsbetrag hängt vom Reglement Ihrer Pensionskasse und Ihrem Guthaben im Alter 50 ab. Die Steuer variiert je nach Kanton und persönlicher Situation. Rechtsgrundlage: Art. 30c BVG, WEFV. Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.';
+
+  @override
+  String get lppChecklistTitleDecompte => 'Austrittsabrechnung anfordern';
+
+  @override
+  String get lppChecklistDescDecompte =>
+      'Fordern Sie eine detaillierte Abrechnung Ihrer Pensionskasse mit der obligatorischen/überobligatorischen Aufteilung an.';
+
+  @override
+  String get lppChecklistTitleTransfert30j =>
+      'Guthaben innerhalb von 30 Tagen übertragen';
+
+  @override
+  String get lppChecklistDescTransfert30j =>
+      'Das Guthaben muss auf die neue Pensionskasse übertragen werden. Teilen Sie der alten Kasse die Koordinaten der neuen mit.';
+
+  @override
+  String get lppChecklistAlertTransfertTitle =>
+      'Übertragungsfrist läuft bald ab';
+
+  @override
+  String get lppChecklistAlertTransfertMsg =>
+      'Das Guthaben muss innerhalb von 30 Tagen übertragen werden. Kontaktieren Sie Ihre frühere Pensionskasse umgehend.';
+
+  @override
+  String get lppChecklistTitleOuvrirLP => 'Freizügigkeitskonto eröffnen';
+
+  @override
+  String get lppChecklistDescOuvrirLP =>
+      'Ohne neuen Arbeitgeber muss Ihr Guthaben auf ein oder zwei Freizügigkeitskonten (max. 2 gemäss Gesetz) übertragen werden.';
+
+  @override
+  String get lppChecklistTitleChoisirLP =>
+      'Zwischen Bankkonto und Freizügigkeitspolice wählen';
+
+  @override
+  String get lppChecklistDescChoisirLP =>
+      'Das Bankkonto bietet mehr Flexibilität. Die Versicherungspolice kann eine Risikodeckung beinhalten.';
+
+  @override
+  String get lppChecklistTitleVerifierDestination =>
+      'Auszahlungsregeln für das Zielland prüfen';
+
+  @override
+  String get lppChecklistDescVerifierDestination =>
+      'EU/EFTA: Nur der überobligatorische Anteil kann bar ausgezahlt werden. Der obligatorische Anteil verbleibt in der Schweiz. Außerhalb EU/EFTA: Vollständige Auszahlung möglich.';
+
+  @override
+  String get lppChecklistTitleAnnoncerDepart =>
+      'Pensionskasse über Wegzug informieren';
+
+  @override
+  String get lppChecklistDescAnnoncerDepart =>
+      'Informieren Sie Ihre Kasse innerhalb von 30 Tagen nach Ihrem Wegzug.';
+
+  @override
+  String get lppChecklistAlertTransfert6mTitle =>
+      'Übertragung innerhalb von 6 Monaten';
+
+  @override
+  String get lppChecklistAlertTransfert6mMsg =>
+      'Nach dem Verlassen der Schweiz haben Sie 6 Monate Zeit, Ihr Guthaben zu übertragen oder ein Freizügigkeitskonto zu eröffnen.';
+
+  @override
+  String get lppChecklistTitleChomage => 'Arbeitslosenrechte prüfen';
+
+  @override
+  String get lppChecklistDescChomage =>
+      'Bei Arbeitslosigkeit wird Ihre berufliche Vorsorge über die Auffangeinrichtung (BVG) weitergedeckt.';
+
+  @override
+  String get lppChecklistTitleAvoirs => 'Vergessene Guthaben suchen';
+
+  @override
+  String get lppChecklistDescAvoirs =>
+      'Nutzen Sie die Zentrale 2. Säule (sfbvg.ch), um eventuelle vergessene Freizügigkeitsguthaben zu suchen.';
+
+  @override
+  String get lppChecklistTitleCouverture =>
+      'Vorübergehende Risikodeckung prüfen';
+
+  @override
+  String get lppChecklistDescCouverture =>
+      'Während der Freizügigkeitsperiode kann der Tod- und Invaliditätsschutz reduziert sein. Prüfen Sie Ihre Verträge.';
+
+  @override
+  String get pillar3aStaggeredDisclaimer =>
+      'Pädagogische Simulation zur Orientierung. Die Steuer auf Kapitalleistungen hängt vom Kanton, der Gemeinde, der persönlichen Situation und dem im Steuerjahr insgesamt bezogenen Betrag ab. Die verwendeten Sätze sind vereinfachte kantonale Durchschnittswerte. Rechtsgrundlage: BVV3, DBG Art. 38. Konsultieren Sie einen Spezialisten.';
+
+  @override
+  String get pillar3aRealReturnDisclaimer =>
+      'Pädagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Gebühren und Renditen variieren je nach Anbieter. Die Steuerersparnis hängt von Ihrem tatsächlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.';
+
+  @override
+  String get pillar3aProviderDisclaimer =>
+      'Vergangene Renditen sind kein Indikator für zukünftige Renditen. Durchschnittliche Gebühren und Renditen basieren auf vereinfachten historischen Daten zu pädagogischen Zwecken. Die Wahl eines 3a-Anbieters hängt von Ihrer persönlichen Situation, Ihrem Risikoprofil und Ihrem Anlagehorizont ab. MINT ist kein Finanzintermediär und gibt keine Anlageberatung. Konsultieren Sie einen Spezialisten.';
+
+  @override
+  String get reportDisclaimerBase1 =>
+      'Pädagogisches Tool — stellt keine Finanzberatung im Sinne des FIDLEG dar.';
+
+  @override
+  String get reportDisclaimerBase2 =>
+      'Die Beträge sind Schätzungen basierend auf den angegebenen Daten.';
+
+  @override
+  String get reportDisclaimerBase3 =>
+      'Vergangene Leistungen sind kein Indikator für zukünftige Leistungen.';
+
+  @override
+  String get reportDisclaimerFiscal =>
+      'Die Steuerschätzung ist approximativ und ersetzt keine Steuererklärung.';
+
+  @override
+  String get reportDisclaimerRetraite =>
+      'Die Rentenprojektion ist indikativ und hängt von gesetzlichen Änderungen ab (AHV/BVG-Reformen).';
+
+  @override
+  String get reportDisclaimerRachatLpp =>
+      'Der BVG-Einkauf unterliegt einer 3-jährigen Sperrfrist für WEF-Bezüge (BVG Art. 79b Abs. 3).';
+
+  @override
+  String get reportActionTitle3aFirst => 'Öffne dein erstes 3a';
+
+  @override
+  String get reportActionDesc3aFirst =>
+      'Ziehe bis zu CHF 7’258/Jahr von deinem steuerbaren Einkommen ab. Sofortige Einsparung.';
+
+  @override
+  String get reportActionTitle3aSecond => 'Öffne ein 2. Fintech-3a-Konto';
+
+  @override
+  String get reportActionDesc3aSecond =>
+      'Optimiere deine Steuer beim Bezug und diversifiziere deine Anlagen.';
+
+  @override
+  String get reportActionTitleAvsCheck => 'Prüfe dein AHV-Konto';
+
+  @override
+  String get reportActionDescAvsCheck =>
+      'Vermeide den Verlust von bis zu CHF 38’000 lebenslanger Rente.';
+
+  @override
+  String get reportActionTitleDette => 'Tilge deine Konsumschulden';
+
+  @override
+  String get reportActionDescDette =>
+      'Das ist die rentabelste Investition: Du sparst 6-10 % pro Jahr an Zinsen.';
+
+  @override
+  String get reportActionTitleUrgence => 'Bilde deinen Notfallfonds';
+
+  @override
+  String get reportActionDescUrgence =>
+      'Ziele auf 3 Monatsausgaben auf einem separaten Sparkonto.';
+
+  @override
+  String get reportRoadmapPhaseImmediat => 'Sofort';
+
+  @override
+  String get reportRoadmapTimeframeImmediat => 'Diesen Monat';
+
+  @override
+  String get reportRoadmapPhaseCourtTerme => 'Kurzfristig';
+
+  @override
+  String get reportRoadmapTimeframeCourtTerme => '3-6 Monate';
+
+  @override
+  String get visibilityNarrativeHigh =>
+      'Du hast einen klaren Überblick über deine Situation. Halte deine Daten aktuell.';
+
+  @override
+  String visibilityNarrativeMediumHigh(String axisLabel) {
+    return 'Gute Sichtbarkeit! Verfeinere dein·e $axisLabel um weiter zu kommen.';
+  }
+
+  @override
+  String visibilityNarrativeMedium(String axisLabel) {
+    return 'Du beginnst klarer zu sehen. Konzentriere dich auf dein·e $axisLabel.';
+  }
+
+  @override
+  String visibilityNarrativeLow(String hint) {
+    return 'Jede Information zählt. Beginne mit $hint.';
+  }
+
+  @override
+  String get visibilityAxisLabelLiquidite => 'Liquidität';
+
+  @override
+  String get visibilityAxisLabelFiscalite => 'Steuern';
+
+  @override
+  String get visibilityAxisLabelRetraite => 'Rente';
+
+  @override
+  String get visibilityAxisLabelSecurite => 'Sicherheit';
+
+  @override
+  String get visibilityHintAddSalaire =>
+      'Füge dein Gehalt hinzu, um zu starten';
+
+  @override
+  String get visibilityHintAddEpargne => 'Gib deine Ersparnisse und Anlagen an';
+
+  @override
+  String get visibilityHintLiquiditeComplete =>
+      'Deine Liquiditätsdaten sind vollständig';
+
+  @override
+  String get visibilityHintAddAgeCanton => 'Gib dein Alter und Wohnkanton an';
+
+  @override
+  String get visibilityHintScanFiscal => 'Scanne deine Steuererklärung';
+
+  @override
+  String get visibilityHintFiscaliteComplete =>
+      'Deine Steuerdaten sind vollständig';
+
+  @override
+  String get visibilityHintAddLpp => 'Füge dein BVG-Zertifikat hinzu';
+
+  @override
+  String get visibilityHintCommandeAvs => 'Bestelle deinen AHV-Auszug';
+
+  @override
+  String get visibilityHintAdd3a => 'Gib deine 3a-Konten an';
+
+  @override
+  String get visibilityHintRetraiteComplete =>
+      'Deine Rentendaten sind vollständig';
+
+  @override
+  String get visibilityHintAddFamille => 'Gib deine Familiensituation an';
+
+  @override
+  String get visibilityHintAddStatutPro =>
+      'Vervollständige deinen Berufsstatus';
+
+  @override
+  String get visibilityHintSecuriteComplete =>
+      'Deine Sicherheitsdaten sind vollständig';
 }

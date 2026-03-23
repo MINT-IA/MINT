@@ -22594,4 +22594,399 @@ class SPt extends S {
 
   @override
   String get pulseNavEvenementCta => 'Explorar';
+
+  @override
+  String get reengagementTitleNewYear => 'Novos limites do 3a';
+
+  @override
+  String get reengagementTitleTaxPrep => 'Declaração fiscal';
+
+  @override
+  String get reengagementTitleTaxDeadline => 'Prazo fiscal';
+
+  @override
+  String get reengagementTitleThreeA => 'Prazo do 3a';
+
+  @override
+  String get reengagementTitleThreeAFinal => 'Último mês para o 3a';
+
+  @override
+  String get reengagementTitleQuarterlyFri => 'Pontuação de solidez';
+
+  @override
+  String get assurancesAlerteDelai =>
+      'Lembrete : as alterações de franquia devem ser feitas antes do dia 30 de novembro de cada ano para o ano seguinte.';
+
+  @override
+  String get assurancesDisclaimerLamal =>
+      'Esta análise é indicativa. Os prêmios variam conforme o segurador, a região e o modelo de seguro. Consulte a sua caixa de saúde para obter valores exatos. Fonte : LAMal art. 62-64, OAMal.';
+
+  @override
+  String get assurancesDisclaimerCoverage =>
+      'Esta análise é indicativa e não constitui aconselhamento personalizado em seguros. Os prêmios variam conforme o segurador e o seu perfil. Consulte um·a especialista para uma avaliação completa.';
+
+  @override
+  String get recommendationsDisclaimer =>
+      'Sugestões pedagógicas baseadas no seu perfil — ferramenta educativa que não constitui aconselhamento financeiro personalizado no sentido da LSFin. Consulte um·a especialista para uma análise adaptada à sua situação.';
+
+  @override
+  String get recommendationsTitleEmergencyFund =>
+      'Constituir um fundo de emergência';
+
+  @override
+  String get recommendationsTitlePillar3a => 'Otimizar com o pilar 3a';
+
+  @override
+  String get recommendationsTitleLppBuyback => 'Simular uma compra LPP';
+
+  @override
+  String get recommendationsTitleCompoundInterest => 'O poder do tempo';
+
+  @override
+  String get recommendationsTitleStartDiagnostic => 'Inicia o teu diagnóstico';
+
+  @override
+  String get cantonalBenchmarkDisclaimer =>
+      'Estes dados são ordens de grandeza derivadas de estatísticas federais anonimizadas (OFS). Não constituem aconselhamento financeiro. Nenhum dado pessoal é comparado com outros utilizadores. Ferramenta educativa : não constitui aconselhamento no sentido da LSFin.';
+
+  @override
+  String get scenarioLabelPrudent => 'Cenário prudente';
+
+  @override
+  String get scenarioLabelReference => 'Cenário de referência';
+
+  @override
+  String get scenarioLabelFavorable => 'Cenário favorável';
+
+  @override
+  String get scenarioDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro no sentido da LSFin. As projeções baseiam-se em hipóteses de rendimento e não predizem resultados futuros. Consulte um·a especialista para um plano personalizado.';
+
+  @override
+  String get bayesianDisclaimer =>
+      'Estimativas bayesianas baseadas em estatísticas suíças (OFS/BFS). Estes valores são aproximações pedagógicas, não certezas. Não constitui aconselhamento financeiro no sentido da LSFin.';
+
+  @override
+  String get consentLabelByok => 'Personalização com IA';
+
+  @override
+  String get consentLabelSnapshot => 'Histórico de progresso';
+
+  @override
+  String get consentLabelNotifications => 'Lembretes personalizados';
+
+  @override
+  String get consentDashboardDisclaimer =>
+      'Os seus dados pertencem-lhe. Cada parâmetro é revogável a qualquer momento (nLPD art. 6).';
+
+  @override
+  String get wizardValidationRequired => 'Esta questão é obrigatória';
+
+  @override
+  String get wizardAnswerNotProvided => 'Não fornecido';
+
+  @override
+  String get arbitrageTitleRenteVsCapital => 'Renda vs Capital';
+
+  @override
+  String get arbitrageMissingLpp =>
+      'Adicione o seu saldo LPP para ver esta comparação';
+
+  @override
+  String get arbitrageTitleCalendrierRetraits => 'Calendário de levantamentos';
+
+  @override
+  String get arbitrageMissingLppAnd3a =>
+      'Adicione o seu saldo LPP e 3a para ver o calendário';
+
+  @override
+  String get arbitrageTitleRachatVsMarche => 'Resgate LPP vs Mercado';
+
+  @override
+  String get arbitrageMissingLppCertificat =>
+      'Digitalize o seu certificado LPP para conhecer a sua margem de resgate';
+
+  @override
+  String get reportTitleBilanFlash => 'O seu Balanço Flash';
+
+  @override
+  String get reportLabelSanteFinanciere => 'Saúde Financeira';
+
+  @override
+  String get retirementProjectionDisclaimer =>
+      'Projeção educativa baseada nas tarifas AVS/LPP 2025. Não constitui aconselhamento financeiro ou previdenciário. Os valores são estimativas que podem variar consoante alterações legislativas e a situação pessoal. Consulte um especialista para um plano personalizado. LSFin.';
+
+  @override
+  String get retirementIncomeLabelPillar3a => '3º pilar';
+
+  @override
+  String get retirementIncomeLabelPatrimoine => 'Património livre';
+
+  @override
+  String get retirementPhaseLabelBothRetired => 'Ambos reformados';
+
+  @override
+  String get retirementPhaseLabelRetraite => 'Reforma';
+
+  @override
+  String get forecasterDisclaimer =>
+      'Projeções educativas baseadas em pressupostos de rendimento. Não constitui aconselhamento financeiro. Os rendimentos passados não predizem os futuros. Consulte um especialista para um plano personalizado. LSFin.';
+
+  @override
+  String get forecasterEtSiDisclaimer =>
+      'Simulação «E se...» apenas para fins educativos. Pressupostos de rendimento ajustados manualmente. Não constitui aconselhamento financeiro (LSFin). Os rendimentos passados não predizem os futuros.';
+
+  @override
+  String get lppRachatDisclaimerEchelonne =>
+      'Simulação educativa baseada em taxas fiscais cantonais estimadas. O resgate LPP está sujeito à aprovação do fundo de pensões. A dedução anual está limitada ao rendimento tributável. Bloqueio EPL de 3 anos após cada resgate (LPP art. 79b al. 3). Consulte o seu fundo de pensões e um especialista antes de qualquer decisão.';
+
+  @override
+  String get lppLibrePassageDisclaimer =>
+      'Esta informação é educativa e não constitui aconselhamento jurídico ou financeiro personalizado. As regras dependem do seu fundo de pensões e situação. Base legal: LFLP, OLP. Consulte um especialista em previdência profissional.';
+
+  @override
+  String get lppEplDisclaimer =>
+      'Simulação educativa de caráter indicativo. O valor exato levanável depende do regulamento do seu fundo de pensões e do saldo aos 50 anos. O imposto varia consoante o cantão e a situação pessoal. Base legal: art. 30c LPP, OEPL. Consulte o seu fundo de pensões e um especialista antes de qualquer decisão.';
+
+  @override
+  String get lppChecklistTitleDecompte => 'Solicitar extrato de saída';
+
+  @override
+  String get lppChecklistDescDecompte =>
+      'Solicite um extrato detalhado ao fundo de pensões com a repartição obrigatória/suplementar.';
+
+  @override
+  String get lppChecklistTitleTransfert30j => 'Transferir o saldo em 30 dias';
+
+  @override
+  String get lppChecklistDescTransfert30j =>
+      'O saldo deve ser transferido para o novo fundo de pensões. Fornecer os dados do novo fundo ao anterior.';
+
+  @override
+  String get lppChecklistAlertTransfertTitle =>
+      'Prazo de transferência próximo';
+
+  @override
+  String get lppChecklistAlertTransfertMsg =>
+      'O saldo deve ser transferido em 30 dias. Contacte o seu antigo fundo de pensões rapidamente.';
+
+  @override
+  String get lppChecklistTitleOuvrirLP => 'Abrir uma conta de livre passage';
+
+  @override
+  String get lppChecklistDescOuvrirLP =>
+      'Sem novo empregador, o saldo deve ser depositado em uma ou duas contas de livre passage (máx. 2 por lei).';
+
+  @override
+  String get lppChecklistTitleChoisirLP =>
+      'Escolher entre conta bancária e apólice de livre passage';
+
+  @override
+  String get lppChecklistDescChoisirLP =>
+      'A conta bancária oferece mais flexibilidade. A apólice de seguro pode incluir cobertura de risco.';
+
+  @override
+  String get lppChecklistTitleVerifierDestination =>
+      'Verificar as regras de levantamento consoante o país de destino';
+
+  @override
+  String get lppChecklistDescVerifierDestination =>
+      'UE/EFTA: apenas a parte suplementar pode ser levantada em dinheiro. A parte obrigatória permanece na Suíça. Fora da UE/EFTA: levantamento total possível.';
+
+  @override
+  String get lppChecklistTitleAnnoncerDepart =>
+      'Notificar o fundo de pensões da saída';
+
+  @override
+  String get lppChecklistDescAnnoncerDepart =>
+      'Informe o seu fundo nos 30 dias seguintes à saída.';
+
+  @override
+  String get lppChecklistAlertTransfert6mTitle =>
+      'Transferência a efetuar em 6 meses';
+
+  @override
+  String get lppChecklistAlertTransfert6mMsg =>
+      'Após deixar a Suíça, tem 6 meses para transferir o saldo ou abrir uma conta de livre passage.';
+
+  @override
+  String get lppChecklistTitleChomage => 'Verificar os direitos ao desemprego';
+
+  @override
+  String get lppChecklistDescChomage =>
+      'Em caso de desemprego, a previdência profissional continua através da instituição supletiva (Fundação LPP).';
+
+  @override
+  String get lppChecklistTitleAvoirs => 'Procurar saldos esquecidos';
+
+  @override
+  String get lppChecklistDescAvoirs =>
+      'Utilize a Central do 2º Pilar (sfbvg.ch) para procurar eventuais saldos de livre passage esquecidos.';
+
+  @override
+  String get lppChecklistTitleCouverture =>
+      'Verificar a cobertura de risco transitória';
+
+  @override
+  String get lppChecklistDescCouverture =>
+      'Durante o período de livre passage, a cobertura em caso de morte e invalidez pode ser reduzida. Verifique os seus contratos.';
+
+  @override
+  String get pillar3aStaggeredDisclaimer =>
+      'Simulação educativa de caráter indicativo. O imposto sobre o levantamento de capital depende do cantão, município, situação pessoal e do total levantado no ano fiscal. As taxas utilizadas são médias cantonais simplificadas. Base legal: OPP3, LIFD art. 38. Consulte um especialista antes de qualquer decisão.';
+
+  @override
+  String get pillar3aRealReturnDisclaimer =>
+      'Simulação educativa baseada em pressupostos de rendimento constante. Os rendimentos passados não predizem os futuros. Comissões e rendimentos variam consoante o prestador. A poupança fiscal depende da taxa marginal real. Base legal: OPP3, LIFD art. 33 al. 1 let. e. Consulte um especialista antes de qualquer decisão.';
+
+  @override
+  String get pillar3aProviderDisclaimer =>
+      'Os rendimentos passados não predizem os futuros. Comissões e rendimentos médios baseiam-se em dados históricos simplificados para fins educativos. A escolha de um prestador 3a depende da situação pessoal, perfil de risco e horizonte de investimento. A MINT não é um intermediário financeiro e não presta aconselhamento de investimento. Consulte um especialista.';
+
+  @override
+  String get reportDisclaimerBase1 =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro na aceção da LSFin.';
+
+  @override
+  String get reportDisclaimerBase2 =>
+      'Os valores são estimativas baseadas nos dados declarados.';
+
+  @override
+  String get reportDisclaimerBase3 =>
+      'Os resultados passados não predizem os resultados futuros.';
+
+  @override
+  String get reportDisclaimerFiscal =>
+      'A estimativa fiscal é aproximada e não substitui uma declaração de impostos.';
+
+  @override
+  String get reportDisclaimerRetraite =>
+      'A projeção de reforma é indicativa e depende de alterações legislativas (reformas AVS/LPP).';
+
+  @override
+  String get reportDisclaimerRachatLpp =>
+      'O resgate LPP está sujeito a um bloqueio de 3 anos para levantamentos EPL (LPP art. 79b al. 3).';
+
+  @override
+  String get reportActionTitle3aFirst => 'Abre a tua primeira conta 3a';
+
+  @override
+  String get reportActionDesc3aFirst =>
+      'Deduz até CHF 7’258/ano do rendimento tributável. Poupança imediata.';
+
+  @override
+  String get reportActionTitle3aSecond => 'Abre uma 2ª conta 3a fintech';
+
+  @override
+  String get reportActionDesc3aSecond =>
+      'Otimiza a fiscalidade no levantamento e diversifica os investimentos.';
+
+  @override
+  String get reportActionTitleAvsCheck => 'Verifica a tua conta AVS';
+
+  @override
+  String get reportActionDescAvsCheck =>
+      'Evita perder até CHF 38’000 de pensão ao longo da vida.';
+
+  @override
+  String get reportActionTitleDette => 'Reembolsa as tuas dívidas de consumo';
+
+  @override
+  String get reportActionDescDette =>
+      'É o investimento mais rentável: poupes 6-10 % ao ano em juros.';
+
+  @override
+  String get reportActionTitleUrgence => 'Constitui o teu fundo de emergência';
+
+  @override
+  String get reportActionDescUrgence =>
+      'Aponta a 3 meses de despesas numa conta poupança separada.';
+
+  @override
+  String get reportRoadmapPhaseImmediat => 'Imediato';
+
+  @override
+  String get reportRoadmapTimeframeImmediat => 'Este mês';
+
+  @override
+  String get reportRoadmapPhaseCourtTerme => 'Curto Prazo';
+
+  @override
+  String get reportRoadmapTimeframeCourtTerme => '3-6 meses';
+
+  @override
+  String get visibilityNarrativeHigh =>
+      'Tens uma visão clara da tua situação. Mantém os teus dados atualizados.';
+
+  @override
+  String visibilityNarrativeMediumHigh(String axisLabel) {
+    return 'Boa visibilidade! Refina a tua $axisLabel para ir mais longe.';
+  }
+
+  @override
+  String visibilityNarrativeMedium(String axisLabel) {
+    return 'Estás a começar a ver com mais clareza. Concentra-te na tua $axisLabel.';
+  }
+
+  @override
+  String visibilityNarrativeLow(String hint) {
+    return 'Cada informação conta. Começa por $hint.';
+  }
+
+  @override
+  String get visibilityAxisLabelLiquidite => 'Liquidez';
+
+  @override
+  String get visibilityAxisLabelFiscalite => 'Fiscalidade';
+
+  @override
+  String get visibilityAxisLabelRetraite => 'Reforma';
+
+  @override
+  String get visibilityAxisLabelSecurite => 'Segurança';
+
+  @override
+  String get visibilityHintAddSalaire => 'Adiciona o teu salário para começar';
+
+  @override
+  String get visibilityHintAddEpargne =>
+      'Indica as tuas poupanças e investimentos';
+
+  @override
+  String get visibilityHintLiquiditeComplete =>
+      'Os teus dados de liquidez estão completos';
+
+  @override
+  String get visibilityHintAddAgeCanton =>
+      'Indica a tua idade e cantão de residência';
+
+  @override
+  String get visibilityHintScanFiscal => 'Digitaliza a tua declaração fiscal';
+
+  @override
+  String get visibilityHintFiscaliteComplete =>
+      'Os teus dados fiscais estão completos';
+
+  @override
+  String get visibilityHintAddLpp => 'Adiciona o teu certificado LPP';
+
+  @override
+  String get visibilityHintCommandeAvs => 'Solicita o teu extrato AVS';
+
+  @override
+  String get visibilityHintAdd3a => 'Indica as tuas contas 3a';
+
+  @override
+  String get visibilityHintRetraiteComplete =>
+      'Os teus dados de reforma estão completos';
+
+  @override
+  String get visibilityHintAddFamille => 'Indica a tua situação familiar';
+
+  @override
+  String get visibilityHintAddStatutPro => 'Completa o teu estado profissional';
+
+  @override
+  String get visibilityHintSecuriteComplete =>
+      'Os teus dados de segurança estão completos';
 }

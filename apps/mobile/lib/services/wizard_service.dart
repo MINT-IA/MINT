@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/models/clarity_state.dart';
 import 'package:mint_mobile/models/profile.dart';
@@ -147,10 +148,13 @@ class WizardService {
   }
 
   /// Valide qu'une réponse respecte les contraintes
-  static String? validateAnswer(WizardQuestion question, dynamic answer) {
+  ///
+  /// Pass [l] (S) for localized error messages.
+  static String? validateAnswer(WizardQuestion question, dynamic answer,
+      {S? l}) {
     // Required
     if (question.required && answer == null) {
-      return 'Cette question est obligatoire';
+      return l?.wizardValidationRequired ?? 'Cette question est obligatoire';
     }
 
     // Input validation
@@ -158,10 +162,10 @@ class WizardService {
         question.type == QuestionType.number;
     if (isNumericQuestion && (answer is int || answer is double)) {
       if (question.minValue != null && answer < question.minValue!) {
-        return 'Valeur minimum : ${question.minValue}';
+        return 'Valeur minimum : ${question.minValue}'; // Dynamic interpolation — not extracted
       }
       if (question.maxValue != null && answer > question.maxValue!) {
-        return 'Valeur maximum : ${question.maxValue}';
+        return 'Valeur maximum : ${question.maxValue}'; // Dynamic interpolation — not extracted
       }
     }
 
@@ -169,10 +173,13 @@ class WizardService {
   }
 
   /// Génère un résumé des réponses pour affichage
+  ///
+  /// Pass [l] (S) for localized fallback values.
   static Map<String, String> generateAnswersSummary(
     Map<String, dynamic> answers,
-    List<WizardQuestion> questions,
-  ) {
+    List<WizardQuestion> questions, {
+    S? l,
+  }) {
     final summary = <String, String>{};
 
     for (final entry in answers.entries) {
@@ -182,15 +189,16 @@ class WizardService {
       );
 
       if (question.id == entry.key) {
-        summary[question.title] = _formatAnswer(entry.value, question);
+        summary[question.title] = _formatAnswer(entry.value, question, l: l);
       }
     }
 
     return summary;
   }
 
-  static String _formatAnswer(dynamic value, WizardQuestion question) {
-    if (value == null) return 'Non renseigné';
+  static String _formatAnswer(dynamic value, WizardQuestion question,
+      {S? l}) {
+    if (value == null) return l?.wizardAnswerNotProvided ?? 'Non renseigné';
 
     if (question.type == QuestionType.choice) {
       final option = question.options?.firstWhere(

@@ -19,6 +19,7 @@
 library;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -211,7 +212,7 @@ class BayesianProfileEnricher {
   ///
   /// Returns estimates for all key financial fields, ranked prompts
   /// for data collection, and an overall uncertainty measure.
-  static BayesianEnrichmentResult enrich(CoachProfile profile) {
+  static BayesianEnrichmentResult enrich(CoachProfile profile, {S? l}) {
     final estimates = <String, PosteriorEstimate>{};
     final prompts = <EviPrompt>[];
 
@@ -261,7 +262,8 @@ class BayesianProfileEnricher {
       estimates: estimates,
       rankedPrompts: prompts,
       overallUncertainty: overallUncertainty,
-      disclaimer: 'Estimations bayesiennes basees sur les statistiques suisses '
+      disclaimer: l?.bayesianDisclaimer ??
+          'Estimations bayesiennes basees sur les statistiques suisses '
           '(OFS/BFS). Ces valeurs sont des approximations pedagogiques, '
           'pas des certitudes. Ne constitue pas un conseil financier '
           'au sens de la LSFin.',

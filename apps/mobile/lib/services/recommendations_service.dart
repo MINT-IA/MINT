@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/profile.dart';
 
@@ -20,6 +21,10 @@ class RecommendationsService {
       'qui ne constitue pas un conseil financier personnalisé au sens de la LSFin. '
       'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
 
+  /// Localized disclaimer — use this when a BuildContext is available.
+  static String getDisclaimer(S? l) =>
+      l?.recommendationsDisclaimer ?? disclaimer;
+
   static const List<String> sources = [
     'LSFin art. 3 (Définition du conseil en placement)',
     'OPP3 — plafonds 3a 2025/2026',
@@ -36,32 +41,33 @@ class RecommendationsService {
   static List<Recommendation> generateRecommendations({
     required Profile? profile,
     int maxRecommendations = 3,
+    S? l,
   }) {
     final recommendations = <Recommendation>[];
 
     // Si pas de profil, recommandations génériques
     if (profile == null) {
-      return _getGenericRecommendations();
+      return _getGenericRecommendations(l: l);
     }
 
     // 1. Protection : Fonds d'urgence si dettes ou revenus faibles
     if (profile.hasDebt || (profile.totalSavings ?? 0) < 3000) {
-      recommendations.add(_buildEmergencyFundRecommendation(profile));
+      recommendations.add(_buildEmergencyFundRecommendation(profile, l: l));
     }
 
     // 2. Optimisation fiscale : 3a si éligible
     if (_isEligibleFor3a(profile)) {
-      recommendations.add(_build3aRecommendation(profile));
+      recommendations.add(_build3aRecommendation(profile, l: l));
     }
 
     // 3. LPP : Rachat si salarié avec LPP
     if (_isEligibleForLppBuyback(profile)) {
-      recommendations.add(_buildLppBuybackRecommendation(profile));
+      recommendations.add(_buildLppBuybackRecommendation(profile, l: l));
     }
 
     // 4. Croissance : Intérêts composés si épargne régulière
     if ((profile.savingsMonthly ?? 0) > 0) {
-      recommendations.add(_buildCompoundInterestRecommendation(profile));
+      recommendations.add(_buildCompoundInterestRecommendation(profile, l: l));
     }
 
     // Limiter au nombre max et trier par priorité
@@ -90,7 +96,7 @@ class RecommendationsService {
   }
 
   /// Recommandation : Fonds d'urgence
-  static Recommendation _buildEmergencyFundRecommendation(Profile profile) {
+  static Recommendation _buildEmergencyFundRecommendation(Profile profile, {S? l}) {
     final currentSavings = profile.totalSavings ?? 0;
     const target = 3000.0;
     final remaining = target - currentSavings;
@@ -98,7 +104,7 @@ class RecommendationsService {
     return Recommendation(
       id: 'emergency_fund',
       kind: 'protection',
-      title: 'Constituer un fonds d\'urgence',
+      title: l?.recommendationsTitleEmergencyFund ?? 'Constituer un fonds d\'urgence',
       summary:
           'CHF ${remaining.toStringAsFixed(0)} restants pour sécuriser ton budget.',
       why: [
@@ -121,7 +127,7 @@ class RecommendationsService {
   }
 
   /// Recommandation : Pilier 3a
-  static Recommendation _build3aRecommendation(Profile profile) {
+  static Recommendation _build3aRecommendation(Profile profile, {S? l}) {
     // Estimation économie fiscale (taux marginal ~25%)
     const limit = pilier3aPlafondAvecLpp; // Limite 2025 avec LPP
     const taxSavings = limit * 0.25;
@@ -129,7 +135,7 @@ class RecommendationsService {
     return Recommendation(
       id: 'pillar3a',
       kind: 'pillar3a',
-      title: 'Optimiser avec le 3a',
+      title: l?.recommendationsTitlePillar3a ?? 'Optimiser avec le 3a',
       summary:
           'Économise jusqu\'à CHF ${taxSavings.toStringAsFixed(0)}/an d\'impôts.',
       why: [
@@ -155,13 +161,13 @@ class RecommendationsService {
   }
 
   /// Recommandation : Rachat LPP
-  static Recommendation _buildLppBuybackRecommendation(Profile profile) {
+  static Recommendation _buildLppBuybackRecommendation(Profile profile, {S? l}) {
     const estimatedSavings = 850.0; // Estimation conservative
 
     return Recommendation(
       id: 'lpp_buyback',
       kind: 'lpp',
-      title: 'Simuler un rachat LPP',
+      title: l?.recommendationsTitleLppBuyback ?? 'Simuler un rachat LPP',
       summary:
           'Potentiel : CHF ${estimatedSavings.toStringAsFixed(0)}/an d\'économie fiscale.',
       why: [
@@ -190,7 +196,7 @@ class RecommendationsService {
   }
 
   /// Recommandation : Intérêts composés
-  static Recommendation _buildCompoundInterestRecommendation(Profile profile) {
+  static Recommendation _buildCompoundInterestRecommendation(Profile profile, {S? l}) {
     final monthlySavings = profile.savingsMonthly ?? 500;
     const years = 20;
     const rate = 0.05; // 5% annuel
@@ -204,7 +210,7 @@ class RecommendationsService {
     return Recommendation(
       id: 'compound_interest',
       kind: 'compound_interest',
-      title: 'Le pouvoir du temps',
+      title: l?.recommendationsTitleCompoundInterest ?? 'Le pouvoir du temps',
       summary:
           'CHF ${monthlySavings.toStringAsFixed(0)}/mois à 5% = CHF ${futureValue.toStringAsFixed(0)} en $years ans.',
       why: [
@@ -230,12 +236,12 @@ class RecommendationsService {
   }
 
   /// Recommandations génériques (si pas de profil)
-  static List<Recommendation> _getGenericRecommendations() {
+  static List<Recommendation> _getGenericRecommendations({S? l}) {
     return [
       Recommendation(
         id: 'start_advisor',
         kind: 'onboarding',
-        title: 'Commence ton diagnostic',
+        title: l?.recommendationsTitleStartDiagnostic ?? 'Commence ton diagnostic',
         summary: 'Découvre ta situation en 5 minutes.',
         why: [
           'Comprends ta situation financière',

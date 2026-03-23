@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
@@ -76,7 +77,9 @@ class ArbitrageSummaryService {
 
   /// Compute all arbitrages from a profile.
   /// Returns items sorted by absolute monthly impact (descending).
-  static ArbitrageSummary compute(CoachProfile profile) {
+  ///
+  /// Pass [l] (S) for localized titles and prompts.
+  static ArbitrageSummary compute(CoachProfile profile, {S? l}) {
     final items = <ArbitrageSummaryItem>[];
     final locked = <ArbitrageLocked>[];
 
@@ -99,10 +102,11 @@ class ArbitrageSummaryService {
       );
       if (item != null) items.add(item);
     } else {
-      locked.add(const ArbitrageLocked(
+      locked.add(ArbitrageLocked(
         id: 'rente_vs_capital',
-        title: 'Rente vs Capital',
-        missingDataPrompt: 'Ajoute ton avoir LPP pour voir cette comparaison',
+        title: l?.arbitrageTitleRenteVsCapital ?? 'Rente vs Capital',
+        missingDataPrompt:
+            l?.arbitrageMissingLpp ?? 'Ajoute ton avoir LPP pour voir cette comparaison',
         enrichmentRoute: '/scan',
       ));
     }
@@ -118,11 +122,11 @@ class ArbitrageSummaryService {
       );
       if (item != null) items.add(item);
     } else if (lppAvoir <= 0 || total3a <= 0) {
-      locked.add(const ArbitrageLocked(
+      locked.add(ArbitrageLocked(
         id: 'calendrier_retraits',
-        title: 'Calendrier de retraits',
+        title: l?.arbitrageTitleCalendrierRetraits ?? 'Calendrier de retraits',
         missingDataPrompt:
-            'Ajoute ton avoir LPP et 3a pour voir le calendrier',
+            l?.arbitrageMissingLppAnd3a ?? 'Ajoute ton avoir LPP et 3a pour voir le calendrier',
         enrichmentRoute: '/scan',
       ));
     }
@@ -141,11 +145,11 @@ class ArbitrageSummaryService {
     } else if (lppAvoir > 0 && lacune <= 1000) {
       // No locked card — no buyback gap, that's fine
     } else {
-      locked.add(const ArbitrageLocked(
+      locked.add(ArbitrageLocked(
         id: 'rachat_vs_marche',
-        title: 'Rachat LPP vs Marche',
+        title: l?.arbitrageTitleRachatVsMarche ?? 'Rachat LPP vs March\u00e9',
         missingDataPrompt:
-            'Scanne ton certificat LPP pour connaitre ta lacune de rachat',
+            l?.arbitrageMissingLppCertificat ?? 'Scanne ton certificat LPP pour conna\u00eetre ta lacune de rachat',
         enrichmentRoute: '/scan',
       ));
     }

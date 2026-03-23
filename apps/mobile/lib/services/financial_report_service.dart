@@ -1,6 +1,7 @@
 import 'dart:math' show pow;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 import '../models/financial_report.dart';
@@ -12,7 +13,7 @@ class FinancialReportService {
   final CircleScoringService _scoringService = CircleScoringService();
 
   /// Génère le rapport complet à partir des réponses du wizard
-  FinancialReport generateReport(Map<String, dynamic> answers) {
+  FinancialReport generateReport(Map<String, dynamic> answers, {S? l}) {
     // 1. Profil utilisateur
     final profile = _buildUserProfile(answers);
 
@@ -37,10 +38,11 @@ class FinancialReportService {
       taxSim: taxSim,
       lppStrategy: lppStrategy,
       pillar3aAnalysis: pillar3aAnalysis,
+      l: l,
     );
 
     // 8. Roadmap personnalisée
-    final roadmap = _buildRoadmap(healthScore, answers, profile);
+    final roadmap = _buildRoadmap(healthScore, answers, profile, l: l);
 
     // 9. Sources juridiques par cercle
     final sources = _buildJuridicalSources(healthScore);
@@ -50,6 +52,7 @@ class FinancialReportService {
       taxSim: taxSim,
       retirementProj: retirementProj,
       lppStrategy: lppStrategy,
+      l: l,
     );
 
     return FinancialReport(
@@ -104,31 +107,32 @@ class FinancialReportService {
     required TaxSimulation taxSim,
     RetirementProjection? retirementProj,
     LppBuybackStrategy? lppStrategy,
+    S? l,
   }) {
     final disclaimers = <String>[
-      'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
-      'Les montants sont des estimations basées sur les données déclarées.',
-      'Les performances passées ne préjugent pas des performances futures.',
+      l?.reportDisclaimerBase1 ?? 'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
+      l?.reportDisclaimerBase2 ?? 'Les montants sont des estimations basées sur les données déclarées.',
+      l?.reportDisclaimerBase3 ?? 'Les performances passées ne préjugent pas des performances futures.',
     ];
 
     // Disclaimer fiscal (toujours présent car taxSim est required)
     if (taxSim.totalTax > 0) {
       disclaimers.add(
-        'L\'estimation fiscale est approximative et ne remplace pas une déclaration d\'impôts.',
+        l?.reportDisclaimerFiscal ?? 'L\'estimation fiscale est approximative et ne remplace pas une déclaration d\'impôts.',
       );
     }
 
     // Disclaimer retraite
     if (retirementProj != null) {
       disclaimers.add(
-        'La projection retraite est indicative et dépend de l\'évolution législative (réformes AVS/LPP).',
+        l?.reportDisclaimerRetraite ?? 'La projection retraite est indicative et dépend de l\'évolution législative (réformes AVS/LPP).',
       );
     }
 
     // Disclaimer rachat LPP
     if (lppStrategy != null) {
       disclaimers.add(
-        'Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).',
+        l?.reportDisclaimerRachatLpp ?? 'Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).',
       );
     }
 
@@ -456,6 +460,7 @@ class FinancialReportService {
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
+    S? l,
   }) {
     final actions = <ActionItem>[];
 
@@ -466,6 +471,7 @@ class FinancialReportService {
         taxSim: taxSim,
         lppStrategy: lppStrategy,
         pillar3aAnalysis: pillar3aAnalysis,
+        l: l,
       );
       if (action != null) actions.add(action);
     }
@@ -478,12 +484,13 @@ class FinancialReportService {
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
+    S? l,
   }) {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
     if (recommendation.contains('premier compte 3a') || recommendation.contains('premier 3a')) {
-      return const ActionItem(
-        title: 'Ouvre ton premier 3a',
-        description: 'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
+      return ActionItem(
+        title: l?.reportActionTitle3aFirst ?? 'Ouvre ton premier 3a',
+        description: l?.reportActionDesc3aFirst ?? 'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
         priority: ActionPriority.high,
         potentialGainChf: 1500,
         category: ActionCategory.pillar3a,
@@ -504,8 +511,8 @@ class FinancialReportService {
       final computedGain = totalGain > 0 ? totalGain : 12000.0;
 
       return ActionItem(
-        title: 'Ouvre un 2e compte 3a fintech',
-        description:
+        title: l?.reportActionTitle3aSecond ?? 'Ouvre un 2e compte 3a fintech',
+        description: l?.reportActionDesc3aSecond ??
             'Optimise ta fiscalité au retrait et diversifie tes placements.',
         priority: ActionPriority.high,
         potentialGainChf: computedGain,
@@ -542,9 +549,9 @@ class FinancialReportService {
     }
 
     if (recommendation.contains('AVS')) {
-      return const ActionItem(
-        title: 'Vérifie ton compte AVS',
-        description: 'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
+      return ActionItem(
+        title: l?.reportActionTitleAvsCheck ?? 'Vérifie ton compte AVS',
+        description: l?.reportActionDescAvsCheck ?? 'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
         priority: ActionPriority.high,
         category: ActionCategory.avs,
         steps: [
@@ -556,9 +563,9 @@ class FinancialReportService {
     }
 
     if (recommendation.contains('dette') || recommendation.contains('crédit')) {
-      return const ActionItem(
-        title: 'Rembourse tes dettes de consommation',
-        description:
+      return ActionItem(
+        title: l?.reportActionTitleDette ?? 'Rembourse tes dettes de consommation',
+        description: l?.reportActionDescDette ??
             'C\'est le placement le plus rentable : tu économises 6-10% par an sur les intérêts.',
         priority: ActionPriority.critical,
         potentialGainChf: 2000,
@@ -572,9 +579,9 @@ class FinancialReportService {
     }
 
     if (recommendation.toLowerCase().contains('urgence')) {
-      return const ActionItem(
-        title: 'Constitue ton fonds d\'urgence',
-        description: 'Vise 3 mois de charges sur un compte épargne séparé.',
+      return ActionItem(
+        title: l?.reportActionTitleUrgence ?? 'Constitue ton fonds d\'urgence',
+        description: l?.reportActionDescUrgence ?? 'Vise 3 mois de charges sur un compte épargne séparé.',
         priority: ActionPriority.critical,
         category: ActionCategory.protection,
         steps: [
@@ -589,21 +596,21 @@ class FinancialReportService {
   }
 
   Roadmap _buildRoadmap(FinancialHealthScore healthScore,
-      Map<String, dynamic> answers, UserProfile profile) {
+      Map<String, dynamic> answers, UserProfile profile, {S? l}) {
     return Roadmap(phases: [
       RoadmapPhase(
-        title: 'Immédiat',
-        timeframe: 'Ce mois',
-        actions: _buildPriorityActions(healthScore)
+        title: l?.reportRoadmapPhaseImmediat ?? 'Immédiat',
+        timeframe: l?.reportRoadmapTimeframeImmediat ?? 'Ce mois',
+        actions: _buildPriorityActions(healthScore, l: l)
             .where((a) =>
                 a.priority == ActionPriority.critical ||
                 a.priority == ActionPriority.high)
             .toList(),
       ),
-      const RoadmapPhase(
-        title: 'Court Terme',
-        timeframe: '3-6 mois',
-        actions: [], // À compléter selon contexte
+      RoadmapPhase(
+        title: l?.reportRoadmapPhaseCourtTerme ?? 'Court Terme',
+        timeframe: l?.reportRoadmapTimeframeCourtTerme ?? '3-6 mois',
+        actions: const [], // À compléter selon contexte
       ),
     ]);
   }

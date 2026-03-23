@@ -10701,5 +10701,148 @@
   "pulseNavEvenementTitle": "Eine Lebensver\u00e4nderung\u00a0?",
   "pulseNavEvenementSubtitle": "Jedes Ereignis hat finanzielle Auswirkungen.",
   "pulseNavEvenementDetail": "Heirat, Geburt, Scheidung, Erbschaft, Umzug...",
-  "pulseNavEvenementCta": "Erkunden"
+  "pulseNavEvenementCta": "Erkunden",
+
+  "reengagementTitleNewYear": "Neue 3a-Obergrenzen",
+  "reengagementTitleTaxPrep": "Steuererkl\u00e4rung",
+  "reengagementTitleTaxDeadline": "Steuerfrist",
+  "reengagementTitleThreeA": "3a-Frist",
+  "reengagementTitleThreeAFinal": "Letzter Monat f\u00fcr 3a",
+  "reengagementTitleQuarterlyFri": "Stabilit\u00e4ts-Score",
+
+  "assurancesAlerteDelai": "Erinnerung\u00a0: Franchise\u00e4nderungen m\u00fcssen bis zum 30. November jedes Jahres f\u00fcr das Folgejahr vorgenommen werden.",
+  "assurancesDisclaimerLamal": "Diese Analyse ist indikativ. Pr\u00e4mien variieren je nach Versicherer, Region und Versicherungsmodell. Fragen Sie Ihre Krankenkasse f\u00fcr genaue Zahlen. Quelle\u00a0: KVG Art. 62-64, KVV.",
+  "assurancesDisclaimerCoverage": "Diese Analyse ist indikativ und stellt keine pers\u00f6nliche Versicherungsberatung dar. Pr\u00e4mien variieren je nach Versicherer und Ihrem Profil. Konsultieren Sie eine Fachperson f\u00fcr eine vollst\u00e4ndige Beurteilung.",
+
+  "recommendationsDisclaimer": "P\u00e4dagogische Vorschl\u00e4ge basierend auf Ihrem Profil \u2014 ein Werkzeug, das keine pers\u00f6nliche Finanzberatung im Sinne des FIDLEG darstellt. Konsultieren Sie eine Fachperson f\u00fcr eine auf Ihre Situation zugeschnittene Analyse.",
+  "recommendationsTitleEmergencyFund": "Notfallfonds aufbauen",
+  "recommendationsTitlePillar3a": "Mit S\u00e4ule 3a optimieren",
+  "recommendationsTitleLppBuyback": "BVG-Einkauf simulieren",
+  "recommendationsTitleCompoundInterest": "Die Kraft der Zeit",
+  "recommendationsTitleStartDiagnostic": "Diagnose starten",
+
+  "cantonalBenchmarkDisclaimer": "Diese Zahlen sind Gr\u00f6\u00dfenordnungen aus anonymisierten Bundesstatistiken (BFS). Sie stellen keine Finanzberatung dar. Keine pers\u00f6nlichen Daten werden mit anderen Nutzern verglichen. Bildungswerkzeug\u00a0: stellt keine Beratung im Sinne des FIDLEG dar.",
+
+  "scenarioLabelPrudent": "Vorsichtiges Szenario",
+  "scenarioLabelReference": "Referenz-Szenario",
+  "scenarioLabelFavorable": "G\u00fcnstiges Szenario",
+  "scenarioDisclaimer": "Bildungswerkzeug \u2014 stellt keine Finanzberatung im Sinne des FIDLEG dar. Prognosen basieren auf Renditeannahmen und sagen keine zuk\u00fcnftigen Ergebnisse voraus. Konsultieren Sie eine Fachperson f\u00fcr einen pers\u00f6nlichen Plan.",
+
+  "bayesianDisclaimer": "Bayesianische Sch\u00e4tzungen basierend auf Schweizer Statistiken (BFS). Diese Werte sind p\u00e4dagogische Ann\u00e4herungen, keine Gewissheiten. Stellt keine Finanzberatung im Sinne des FIDLEG dar.",
+
+  "consentLabelByok": "KI-Personalisierung",
+  "consentLabelSnapshot": "Fortschrittsverlauf",
+  "consentLabelNotifications": "Pers\u00f6nliche Erinnerungen",
+  "consentDashboardDisclaimer": "Ihre Daten geh\u00f6ren Ihnen. Jede Einstellung ist jederzeit widerrufbar (nDSG Art. 6).",
+
+  "wizardValidationRequired": "Diese Frage ist Pflicht",
+  "wizardAnswerNotProvided": "Nicht angegeben",
+
+  "arbitrageTitleRenteVsCapital": "Rente vs Kapital",
+  "arbitrageMissingLpp": "F\u00fcge dein Pensionskassenguthaben hinzu, um diesen Vergleich zu sehen",
+  "arbitrageTitleCalendrierRetraits": "Bezugskalender",
+  "arbitrageMissingLppAnd3a": "F\u00fcge dein PK- und 3a-Guthaben hinzu, um den Kalender zu sehen",
+  "arbitrageTitleRachatVsMarche": "PK-Einkauf vs Markt",
+  "arbitrageMissingLppCertificat": "Scanne dein PK-Zertifikat, um deine Einkaufsm\u00f6glichkeit zu kennen",
+
+  "reportTitleBilanFlash": "Deine Finanz\u00fcbersicht",
+  "reportLabelSanteFinanciere": "Finanzgesundheit",
+
+  "retirementProjectionDisclaimer": "P\u00e4dagogische Projektion basierend auf AHV/BVG-Tarifen 2025. Stellt keine Finanz- oder Vorsorgeberatung dar. Die Betr\u00e4ge sind Sch\u00e4tzungen, die je nach gesetzlichen \u00c4nderungen und Ihrer pers\u00f6nlichen Situation variieren k\u00f6nnen. Wenden Sie sich f\u00fcr einen pers\u00f6nlichen Plan an einen Spezialisten. FIDLEG.",
+  "retirementIncomeLabelPillar3a": "3. S\u00e4ule",
+  "retirementIncomeLabelPatrimoine": "Freies Verm\u00f6gen",
+  "retirementPhaseLabelBothRetired": "Beide in Rente",
+  "retirementPhaseLabelRetraite": "Rente",
+  "forecasterDisclaimer": "P\u00e4dagogische Projektionen auf Basis von Renditeannahmen. Stellt keine Finanzberatung dar. Vergangene Renditen lassen keine R\u00fcckschl\u00fcsse auf zuk\u00fcnftige Renditen zu. Wenden Sie sich f\u00fcr einen pers\u00f6nlichen Plan an einen Spezialisten. FIDLEG.",
+  "forecasterEtSiDisclaimer": "Was-w\u00e4re-wenn-Simulation nur zu p\u00e4dagogischen Zwecken. Renditeannahmen manuell angepasst. Stellt keine Finanzberatung dar (FIDLEG). Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Renditen.",
+  "lppRachatDisclaimerEchelonne": "P\u00e4dagogische Simulation auf Basis gesch\u00e4tzter kantonaler Steuers\u00e4tze. Der BVG-Einkauf bedarf der Genehmigung durch die Pensionskasse. Der j\u00e4hrliche Abzug ist auf das steuerbare Einkommen begrenzt. EPL-Sperrfrist von 3\u00a0Jahren nach jedem Einkauf (BVG Art. 79b Abs. 3). Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.",
+  "lppLibrePassageDisclaimer": "Diese Informationen sind p\u00e4dagogischer Natur und stellen keine pers\u00f6nliche Rechts- oder Finanzberatung dar. Die Regeln h\u00e4ngen von Ihrer Pensionskasse und Ihrer Situation ab. Rechtsgrundlage: FZG, BVV2. Konsultieren Sie einen Spezialisten f\u00fcr berufliche Vorsorge.",
+  "lppEplDisclaimer": "P\u00e4dagogische Simulation zur Orientierung. Der genaue Auszahlungsbetrag h\u00e4ngt vom Reglement Ihrer Pensionskasse und Ihrem Guthaben im Alter 50 ab. Die Steuer variiert je nach Kanton und pers\u00f6nlicher Situation. Rechtsgrundlage: Art. 30c BVG, WEFV. Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.",
+  "lppChecklistTitleDecompte": "Austrittsabrechnung anfordern",
+  "lppChecklistDescDecompte": "Fordern Sie eine detaillierte Abrechnung Ihrer Pensionskasse mit der obligatorischen/\u00fcberobligatorischen Aufteilung an.",
+  "lppChecklistTitleTransfert30j": "Guthaben innerhalb von 30\u00a0Tagen \u00fcbertragen",
+  "lppChecklistDescTransfert30j": "Das Guthaben muss auf die neue Pensionskasse \u00fcbertragen werden. Teilen Sie der alten Kasse die Koordinaten der neuen mit.",
+  "lppChecklistAlertTransfertTitle": "\u00dcbertragungsfrist l\u00e4uft bald ab",
+  "lppChecklistAlertTransfertMsg": "Das Guthaben muss innerhalb von 30\u00a0Tagen \u00fcbertragen werden. Kontaktieren Sie Ihre fr\u00fchere Pensionskasse umgehend.",
+  "lppChecklistTitleOuvrirLP": "Freiz\u00fcgigkeitskonto er\u00f6ffnen",
+  "lppChecklistDescOuvrirLP": "Ohne neuen Arbeitgeber muss Ihr Guthaben auf ein oder zwei Freiz\u00fcgigkeitskonten (max. 2 gem\u00e4ss Gesetz) \u00fcbertragen werden.",
+  "lppChecklistTitleChoisirLP": "Zwischen Bankkonto und Freiz\u00fcgigkeitspolice w\u00e4hlen",
+  "lppChecklistDescChoisirLP": "Das Bankkonto bietet mehr Flexibilit\u00e4t. Die Versicherungspolice kann eine Risikodeckung beinhalten.",
+  "lppChecklistTitleVerifierDestination": "Auszahlungsregeln f\u00fcr das Zielland pr\u00fcfen",
+  "lppChecklistDescVerifierDestination": "EU/EFTA: Nur der \u00fcberobligatorische Anteil kann bar ausgezahlt werden. Der obligatorische Anteil verbleibt in der Schweiz. Au\u00dferhalb EU/EFTA: Vollst\u00e4ndige Auszahlung m\u00f6glich.",
+  "lppChecklistTitleAnnoncerDepart": "Pensionskasse \u00fcber Wegzug informieren",
+  "lppChecklistDescAnnoncerDepart": "Informieren Sie Ihre Kasse innerhalb von 30\u00a0Tagen nach Ihrem Wegzug.",
+  "lppChecklistAlertTransfert6mTitle": "\u00dcbertragung innerhalb von 6\u00a0Monaten",
+  "lppChecklistAlertTransfert6mMsg": "Nach dem Verlassen der Schweiz haben Sie 6\u00a0Monate Zeit, Ihr Guthaben zu \u00fcbertragen oder ein Freiz\u00fcgigkeitskonto zu er\u00f6ffnen.",
+  "lppChecklistTitleChomage": "Arbeitslosenrechte pr\u00fcfen",
+  "lppChecklistDescChomage": "Bei Arbeitslosigkeit wird Ihre berufliche Vorsorge \u00fcber die Auffangeinrichtung (BVG) weitergedeckt.",
+  "lppChecklistTitleAvoirs": "Vergessene Guthaben suchen",
+  "lppChecklistDescAvoirs": "Nutzen Sie die Zentrale 2. S\u00e4ule (sfbvg.ch), um eventuelle vergessene Freiz\u00fcgigkeitsguthaben zu suchen.",
+  "lppChecklistTitleCouverture": "Vor\u00fcbergehende Risikodeckung pr\u00fcfen",
+  "lppChecklistDescCouverture": "W\u00e4hrend der Freiz\u00fcgigkeitsperiode kann der Tod- und Invalidit\u00e4tsschutz reduziert sein. Pr\u00fcfen Sie Ihre Vertr\u00e4ge.",
+  "pillar3aStaggeredDisclaimer": "P\u00e4dagogische Simulation zur Orientierung. Die Steuer auf Kapitalleistungen h\u00e4ngt vom Kanton, der Gemeinde, der pers\u00f6nlichen Situation und dem im Steuerjahr insgesamt bezogenen Betrag ab. Die verwendeten S\u00e4tze sind vereinfachte kantonale Durchschnittswerte. Rechtsgrundlage: BVV3, DBG Art. 38. Konsultieren Sie einen Spezialisten.",
+  "pillar3aRealReturnDisclaimer": "P\u00e4dagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Renditen. Geb\u00fchren und Renditen variieren je nach Anbieter. Die Steuerersparnis h\u00e4ngt von Ihrem tats\u00e4chlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.",
+  "pillar3aProviderDisclaimer": "Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Renditen. Durchschnittliche Geb\u00fchren und Renditen basieren auf vereinfachten historischen Daten zu p\u00e4dagogischen Zwecken. Die Wahl eines 3a-Anbieters h\u00e4ngt von Ihrer pers\u00f6nlichen Situation, Ihrem Risikoprofil und Ihrem Anlagehorizont ab. MINT ist kein Finanzintermedi\u00e4r und gibt keine Anlageberatung. Konsultieren Sie einen Spezialisten.",
+  "reportDisclaimerBase1": "P\u00e4dagogisches Tool \u2014 stellt keine Finanzberatung im Sinne des FIDLEG dar.",
+  "reportDisclaimerBase2": "Die Betr\u00e4ge sind Sch\u00e4tzungen basierend auf den angegebenen Daten.",
+  "reportDisclaimerBase3": "Vergangene Leistungen sind kein Indikator f\u00fcr zuk\u00fcnftige Leistungen.",
+  "reportDisclaimerFiscal": "Die Steuersch\u00e4tzung ist approximativ und ersetzt keine Steuererkl\u00e4rung.",
+  "reportDisclaimerRetraite": "Die Rentenprojektion ist indikativ und h\u00e4ngt von gesetzlichen \u00c4nderungen ab (AHV/BVG-Reformen).",
+  "reportDisclaimerRachatLpp": "Der BVG-Einkauf unterliegt einer 3-j\u00e4hrigen Sperrfrist f\u00fcr WEF-Bez\u00fcge (BVG Art. 79b Abs. 3).",
+  "reportActionTitle3aFirst": "\u00d6ffne dein erstes 3a",
+  "reportActionDesc3aFirst": "Ziehe bis zu CHF\u00a07\u2019258/Jahr von deinem steuerbaren Einkommen ab. Sofortige Einsparung.",
+  "reportActionTitle3aSecond": "\u00d6ffne ein 2. Fintech-3a-Konto",
+  "reportActionDesc3aSecond": "Optimiere deine Steuer beim Bezug und diversifiziere deine Anlagen.",
+  "reportActionTitleAvsCheck": "Pr\u00fcfe dein AHV-Konto",
+  "reportActionDescAvsCheck": "Vermeide den Verlust von bis zu CHF\u00a038\u2019000 lebenslanger Rente.",
+  "reportActionTitleDette": "Tilge deine Konsumschulden",
+  "reportActionDescDette": "Das ist die rentabelste Investition: Du sparst 6-10\u00a0% pro Jahr an Zinsen.",
+  "reportActionTitleUrgence": "Bilde deinen Notfallfonds",
+  "reportActionDescUrgence": "Ziele auf 3\u00a0Monatsausgaben auf einem separaten Sparkonto.",
+  "reportRoadmapPhaseImmediat": "Sofort",
+  "reportRoadmapTimeframeImmediat": "Diesen Monat",
+  "reportRoadmapPhaseCourtTerme": "Kurzfristig",
+  "reportRoadmapTimeframeCourtTerme": "3-6 Monate",
+  "visibilityNarrativeHigh": "Du hast einen klaren \u00dcberblick \u00fcber deine Situation. Halte deine Daten aktuell.",
+  "visibilityNarrativeMediumHigh": "Gute Sichtbarkeit! Verfeinere dein\u00b7e {axisLabel} um weiter zu kommen.",
+  "@visibilityNarrativeMediumHigh": {
+    "placeholders": {
+      "axisLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityNarrativeMedium": "Du beginnst klarer zu sehen. Konzentriere dich auf dein\u00b7e {axisLabel}.",
+  "@visibilityNarrativeMedium": {
+    "placeholders": {
+      "axisLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityNarrativeLow": "Jede Information z\u00e4hlt. Beginne mit {hint}.",
+  "@visibilityNarrativeLow": {
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityAxisLabelLiquidite": "Liquidit\u00e4t",
+  "visibilityAxisLabelFiscalite": "Steuern",
+  "visibilityAxisLabelRetraite": "Rente",
+  "visibilityAxisLabelSecurite": "Sicherheit",
+  "visibilityHintAddSalaire": "F\u00fcge dein Gehalt hinzu, um zu starten",
+  "visibilityHintAddEpargne": "Gib deine Ersparnisse und Anlagen an",
+  "visibilityHintLiquiditeComplete": "Deine Liquidit\u00e4tsdaten sind vollst\u00e4ndig",
+  "visibilityHintAddAgeCanton": "Gib dein Alter und Wohnkanton an",
+  "visibilityHintScanFiscal": "Scanne deine Steuererkl\u00e4rung",
+  "visibilityHintFiscaliteComplete": "Deine Steuerdaten sind vollst\u00e4ndig",
+  "visibilityHintAddLpp": "F\u00fcge dein BVG-Zertifikat hinzu",
+  "visibilityHintCommandeAvs": "Bestelle deinen AHV-Auszug",
+  "visibilityHintAdd3a": "Gib deine 3a-Konten an",
+  "visibilityHintRetraiteComplete": "Deine Rentendaten sind vollst\u00e4ndig",
+  "visibilityHintAddFamille": "Gib deine Familiensituation an",
+  "visibilityHintAddStatutPro": "Vervollst\u00e4ndige deinen Berufsstatus",
+  "visibilityHintSecuriteComplete": "Deine Sicherheitsdaten sind vollst\u00e4ndig"
 }
