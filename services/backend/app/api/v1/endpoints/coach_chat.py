@@ -204,6 +204,9 @@ _PROFILE_SAFE_FIELDS = {
     "civil_status", "employment_status",
     # Couple optimization (pre-computed by Flutter CoupleOptimizer):
     "couple_optimization",
+    # C2: Couple context fields (numeric, privacy-safe)
+    "is_married", "conjoint_age", "conjoint_salary",
+    "couple_avs_monthly", "couple_marriage_annual_delta",
 }
 
 

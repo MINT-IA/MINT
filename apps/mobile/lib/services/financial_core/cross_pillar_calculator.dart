@@ -215,7 +215,7 @@ class CrossPillarCalculator {
   /// most providers. Returns null if canContribute3a = false.
   static CrossPillarInsight? _pillar3aOptimization(CoachProfile profile) {
     // FATCA hard block: most providers refuse US persons (LSFin compliance).
-    if (!profile.prevoyance.canContribute3a) return null;
+    if (!profile.canContribute3a) return null;
 
     final grossAnnual = profile.revenuBrutAnnuel;
     if (grossAnnual <= 0) return null;
@@ -397,7 +397,7 @@ class CrossPillarCalculator {
     // 1. Fill 3a gap first (if user can contribute)
     double optimal3aMonthly = 0.0;
     double fiscalSaving3a = 0.0;
-    if (profile.prevoyance.canContribute3a) {
+    if (profile.canContribute3a) {
       const plafond = pilier3aPlafondAvecLpp;
       final current3aMonthly = profile.total3aMensuel;
       final missing3aMonthly =
@@ -673,7 +673,7 @@ class CrossPillarCalculator {
     // Each year's 3a adds plafond × (1 + growth)^yearsLeft / 12 monthly income
     // For the insight, we show the fiscal saving (immediate, verifiable)
     double action3aImpact = 0.0;
-    if (profile.prevoyance.canContribute3a && yearsLeft > 0) {
+    if (profile.canContribute3a && yearsLeft > 0) {
       const plafond = pilier3aPlafondAvecLpp;
       final current3aAnnual = profile.total3aMensuel * 12;
       final missing3a = max(0.0, plafond - current3aAnnual);

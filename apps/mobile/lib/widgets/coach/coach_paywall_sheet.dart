@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -145,7 +146,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
               ),
               // Close button
               Semantics(
-                label: 'Fermer',
+                label: S.of(context)!.paywallClose,
                 button: true,
                 child: GestureDetector(
                   onTap: () {
@@ -174,12 +175,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Debloque MINT Coach',
+            S.of(context)!.paywallTitle,
             style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
-            'Ton coach financier personnel',
+            S.of(context)!.paywallSubtitle,
             style: MintTextStyles.bodyLarge(color: MintColors.white.withValues(alpha: 0.8)).copyWith(fontSize: 15),
           ),
         ],
@@ -256,7 +257,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
     final isSelected = _selectedTier == tier;
 
     return Semantics(
-      label: 'Sélectionner $name',
+      label: S.of(context)!.paywallSelectTier(name),
       button: true,
       child: GestureDetector(
         onTap: () => setState(() => _selectedTier = tier),
@@ -300,7 +301,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'Top',
+                      S.of(context)!.paywallFeatureTop,
                       style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -318,7 +319,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
                   ),
                   TextSpan(
-                    text: ' /mois',
+                    text: ' ${S.of(context)!.paywallPricePerMonth}',
                     style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                 ],
@@ -401,7 +402,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           ),
           const SizedBox(width: 8),
           Text(
-            'Essai gratuit 14 jours',
+            S.of(context)!.paywallTrialBadge,
             style: MintTextStyles.bodyMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
@@ -455,8 +456,8 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
               SnackBar(
                 content: Text(
                   isIosIap
-                      ? 'Abonnement $tierLabel active avec succes.'
-                      : 'Essai gratuit active ! Profite de MINT Coach pendant 14 jours.',
+                      ? S.of(context)!.paywallSubscriptionActivated(tierLabel)
+                      : S.of(context)!.paywallTrialActivated,
                 ),
               ),
             );
@@ -472,8 +473,8 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
         ),
         child: Text(
           isIosIap
-              ? 'Choisir $tierLabel'
-              : 'Commencer l\'essai gratuit',
+              ? S.of(context)!.paywallChooseTier(tierLabel)
+              : S.of(context)!.paywallStartTrial,
           style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
         ),
       ),
@@ -498,17 +499,17 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           if (isCoach) {
             context.pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Abonnement restaure avec succes !')),
+              SnackBar(content: Text(S.of(context)!.paywallRestoreSuccess)),
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Aucun achat precedent trouve.')),
+              SnackBar(content: Text(S.of(context)!.paywallRestoreNoPurchase)),
             );
           }
         }
       },
       child: Text(
-        'Restaurer un achat',
+        S.of(context)!.paywallRestoreButton,
         style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500, decoration: TextDecoration.underline),
       ),
     );
@@ -520,8 +521,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil educatif — ne constitue pas un conseil financier. LSFin. '
-      'Tu peux annuler a tout moment depuis les reglages de ton compte.',
+      S.of(context)!.paywallDisclaimer,
       textAlign: TextAlign.center,
       style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.4),
     );

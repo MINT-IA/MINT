@@ -45,10 +45,42 @@ class BudgetLivingEngine {
     // 2. Confidence — mandatory on all projections
     final confidence = ConfidenceScorer.score(profile);
 
-    // 3. Determine stage
-    final hasRetirementData = profile.salaireBrutMensuel > 0 &&
-        profile.age > 0 &&
-        profile.age < 70;
+    // 3. Determine stage — three distinct cases:
+    //    a) Retired (age >= targetRetirementAge): budget based on actual rentes.
+    //    b) Pre-retirement (has salary + valid age): full projection + gap.
+    //    c) No usable data (zero salary and not retired): present-only.
+    final targetRetirementAge = profile.targetRetirementAge ?? 65;
+    final isRetired = profile.age > 0 && profile.age >= targetRetirementAge;
+
+    // Case a: user is already in retirement — show rente income, no gap.
+    if (isRetired) {
+      try {
+        final retirementResult = RetirementProjectionService.project(
+          profile: profile,
+          retirementAgeUser: targetRetirementAge,
+        );
+        final retirementBudget = _wrapRetirementResult(retirementResult, profile);
+        return BudgetSnapshot(
+          present: present,
+          retirement: retirementBudget,
+          gap: null, // already retired — gap is not meaningful
+          capImpacts: const [],
+          stage: BudgetStage.fullGapVisible,
+          confidenceScore: confidence.score,
+        );
+      } catch (_) {
+        // Graceful degradation: show present-only if rente calc fails.
+        return BudgetSnapshot(
+          present: present,
+          stage: BudgetStage.presentOnly,
+          capImpacts: const [],
+          confidenceScore: confidence.score,
+        );
+      }
+    }
+
+    // Case b/c: pre-retirement — require salary > 0 and valid age for projection.
+    final hasRetirementData = profile.salaireBrutMensuel > 0 && profile.age > 0;
 
     if (!hasRetirementData) {
       return BudgetSnapshot(
@@ -66,7 +98,7 @@ class BudgetLivingEngine {
     try {
       final retirementResult = RetirementProjectionService.project(
         profile: profile,
-        retirementAgeUser: profile.targetRetirementAge ?? 65,
+        retirementAgeUser: targetRetirementAge,
       );
       retirementBudget = _wrapRetirementResult(retirementResult, profile);
       gap = _computeGap(present, retirementBudget);

@@ -397,6 +397,50 @@ class PrevoyanceProfile {
         'canContribute3a': canContribute3a,
         'librePassage': librePassage.map((lp) => lp.toJson()).toList(),
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrevoyanceProfile &&
+          runtimeType == other.runtimeType &&
+          anneesContribuees == other.anneesContribuees &&
+          lacunesAVS == other.lacunesAVS &&
+          renteAVSEstimeeMensuelle == other.renteAVSEstimeeMensuelle &&
+          nomCaisse == other.nomCaisse &&
+          avoirLppTotal == other.avoirLppTotal &&
+          avoirLppObligatoire == other.avoirLppObligatoire &&
+          avoirLppSurobligatoire == other.avoirLppSurobligatoire &&
+          rachatMaximum == other.rachatMaximum &&
+          rachatEffectue == other.rachatEffectue &&
+          tauxConversion == other.tauxConversion &&
+          tauxConversionSuroblig == other.tauxConversionSuroblig &&
+          rendementCaisse == other.rendementCaisse &&
+          salaireAssure == other.salaireAssure &&
+          ramd == other.ramd &&
+          nombre3a == other.nombre3a &&
+          totalEpargne3a == other.totalEpargne3a &&
+          canContribute3a == other.canContribute3a;
+
+  @override
+  int get hashCode => Object.hashAll([
+        anneesContribuees,
+        lacunesAVS,
+        renteAVSEstimeeMensuelle,
+        nomCaisse,
+        avoirLppTotal,
+        avoirLppObligatoire,
+        avoirLppSurobligatoire,
+        rachatMaximum,
+        rachatEffectue,
+        tauxConversion,
+        tauxConversionSuroblig,
+        rendementCaisse,
+        salaireAssure,
+        ramd,
+        nombre3a,
+        totalEpargne3a,
+        canContribute3a,
+      ]);
 }
 
 /// Compte 3a individuel
@@ -565,6 +609,36 @@ class PatrimoineProfile {
         'monthlyRent': monthlyRent,
         'propertyDescription': propertyDescription,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PatrimoineProfile &&
+          runtimeType == other.runtimeType &&
+          epargneLiquide == other.epargneLiquide &&
+          investissements == other.investissements &&
+          immobilier == other.immobilier &&
+          deviseInvestissements == other.deviseInvestissements &&
+          plateformeInvestissement == other.plateformeInvestissement &&
+          propertyMarketValue == other.propertyMarketValue &&
+          mortgageBalance == other.mortgageBalance &&
+          mortgageRate == other.mortgageRate &&
+          monthlyRent == other.monthlyRent &&
+          propertyDescription == other.propertyDescription;
+
+  @override
+  int get hashCode => Object.hashAll([
+        epargneLiquide,
+        investissements,
+        immobilier,
+        deviseInvestissements,
+        plateformeInvestissement,
+        propertyMarketValue,
+        mortgageBalance,
+        mortgageRate,
+        monthlyRent,
+        propertyDescription,
+      ]);
 }
 
 /// Dettes — enriched with rates, terms, monthly payments (S45).
@@ -1207,26 +1281,36 @@ class CoachProfile {
       identical(this, other) ||
       other is CoachProfile &&
           runtimeType == other.runtimeType &&
+          firstName == other.firstName &&
           birthYear == other.birthYear &&
           canton == other.canton &&
+          nationality == other.nationality &&
           salaireBrutMensuel == other.salaireBrutMensuel &&
           employmentStatus == other.employmentStatus &&
           etatCivil == other.etatCivil &&
           nombreEnfants == other.nombreEnfants &&
           targetRetirementAge == other.targetRetirementAge &&
+          prevoyance == other.prevoyance &&
+          patrimoine == other.patrimoine &&
+          conjoint == other.conjoint &&
           updatedAt == other.updatedAt;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
+        firstName,
         birthYear,
         canton,
+        nationality,
         salaireBrutMensuel,
         employmentStatus,
         etatCivil,
         nombreEnfants,
         targetRetirementAge,
+        prevoyance,
+        patrimoine,
+        conjoint,
         updatedAt,
-      );
+      ]);
 
   // ════════════════════════════════════════════════════════════════
   //  COMPUTED PROPERTIES
@@ -1360,6 +1444,18 @@ class CoachProfile {
     }
 
     return FinancialArchetype.expatNonEu;
+  }
+
+  /// Whether the main user can contribute to pillar 3a.
+  ///
+  /// Returns false for US citizens/green card holders (FATCA — most 3a
+  /// providers refuse US persons per LSFin compliance).
+  /// Also delegates to [PrevoyanceProfile.canContribute3a] which may be
+  /// set independently (e.g. when profile is loaded from a certificate).
+  bool get canContribute3a {
+    if (archetype == FinancialArchetype.expatUs) return false;
+    if (nationality == 'US') return false;
+    return prevoyance.canContribute3a;
   }
 
   /// Est-ce un profil couple ?

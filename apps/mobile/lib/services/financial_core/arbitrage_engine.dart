@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
@@ -80,6 +81,7 @@ class ArbitrageEngine {
     int? currentAge,
     double? grossAnnualSalary,
     double? caisseReturn,
+    S? l,
   }) {
     final startYear = DateTime.now().year;
 
@@ -163,7 +165,7 @@ class ArbitrageEngine {
 
     final optionA = TrajectoireOption(
       id: 'full_rente',
-      label: '100 % Rente',
+      label: l?.arbitrageOptionFullRente ?? '100\u00a0% Rente',
       trajectory: renteTrajectory,
       terminalValue: renteTrajectory.last.netPatrimony,
       cumulativeTaxImpact: renteTrajectory.last.cumulativeTaxDelta,
@@ -171,7 +173,7 @@ class ArbitrageEngine {
 
     final optionB = TrajectoireOption(
       id: 'full_capital',
-      label: '100 % Capital',
+      label: l?.arbitrageOptionFullCapital ?? '100\u00a0% Capital',
       trajectory: capitalTrajectory,
       terminalValue: capitalTrajectory.last.netPatrimony,
       cumulativeTaxImpact: capitalTrajectory.last.cumulativeTaxDelta,
@@ -179,7 +181,7 @@ class ArbitrageEngine {
 
     final optionC = TrajectoireOption(
       id: 'mixed',
-      label: 'Mixte (oblig. rente + surob. capital)',
+      label: l?.arbitrageOptionMixed ?? 'Mixte (oblig. rente + surob. capital)',
       trajectory: mixedTrajectory,
       terminalValue: mixedTrajectory.last.netPatrimony,
       cumulativeTaxImpact: mixedTrajectory.last.cumulativeTaxDelta,
@@ -477,6 +479,7 @@ class ArbitrageEngine {
     double rendementMarche = 0.04,
     String canton = 'VD',
     Map<String, ProfileDataSource>? dataSources,
+    S? l,
   }) {
     final startYear = DateTime.now().year;
     final options = <TrajectoireOption>[];
@@ -539,7 +542,7 @@ class ArbitrageEngine {
       );
       options.add(TrajectoireOption(
         id: 'amort_indirect',
-        label: 'Amortissement indirect',
+        label: l?.arbitrageOptionAmortIndirect ?? 'Amortissement indirect',
         trajectory: trajectoryAmort,
         terminalValue: trajectoryAmort.last.netPatrimony,
         cumulativeTaxImpact: trajectoryAmort.last.cumulativeTaxDelta,
@@ -559,7 +562,7 @@ class ArbitrageEngine {
     );
     options.add(TrajectoireOption(
       id: 'invest_libre',
-      label: 'Investissement libre',
+      label: l?.arbitrageOptionInvestLibre ?? 'Investissement libre',
       trajectory: trajectoryLibre,
       terminalValue: trajectoryLibre.last.netPatrimony,
       cumulativeTaxImpact: trajectoryLibre.last.cumulativeTaxDelta,
@@ -652,7 +655,7 @@ class ArbitrageEngine {
         );
         variantOptions.add(TrajectoireOption(
           id: 'amort_indirect',
-          label: 'Amortissement indirect',
+          label: l?.arbitrageOptionAmortIndirect ?? 'Amortissement indirect',
           trajectory: trajectoryAmort,
           terminalValue: trajectoryAmort.last.netPatrimony,
           cumulativeTaxImpact: trajectoryAmort.last.cumulativeTaxDelta,
@@ -671,7 +674,7 @@ class ArbitrageEngine {
       );
       variantOptions.add(TrajectoireOption(
         id: 'invest_libre',
-        label: 'Investissement libre',
+        label: l?.arbitrageOptionInvestLibre ?? 'Investissement libre',
         trajectory: trajectoryLibre,
         terminalValue: trajectoryLibre.last.netPatrimony,
         cumulativeTaxImpact: trajectoryLibre.last.cumulativeTaxDelta,

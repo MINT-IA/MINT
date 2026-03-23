@@ -70,11 +70,8 @@ Future<void> main() async {
   ]);
 
   // Periodic refresh of server-driven feature flags (every 6 hours).
-  // Timer stored on FeatureFlags so WidgetsBindingObserver can cancel on detach.
-  FeatureFlags.periodicRefreshTimer = Timer.periodic(
-    const Duration(hours: 6),
-    (_) => FeatureFlags.refreshFromBackend(),
-  );
+  // Cancelled/restarted by WidgetsBindingObserver in app.dart on lifecycle changes.
+  FeatureFlags.startPeriodicRefresh();
 
   // Lancement immédiat de l'app (UX first!)
   runApp(const MintApp());

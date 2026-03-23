@@ -114,6 +114,13 @@ class CoupleOptimizationResult {
     this.marriagePenalty,
   });
 
+  /// Returns an empty result when no conjoint data is available.
+  const CoupleOptimizationResult.empty()
+      : lppBuybackOrder = null,
+        pillar3aOrder = null,
+        avsCap = null,
+        marriagePenalty = null;
+
   /// True when at least one analysis produced a result.
   bool get hasResults =>
       lppBuybackOrder != null ||
@@ -142,10 +149,20 @@ class CoupleOptimizer {
   ///
   /// Returns [CoupleOptimizationResult] with nullable fields — each
   /// analysis is skipped when insufficient data is available.
+  ///
+  /// Returns [CoupleOptimizationResult.empty] when [conjoint] is null
+  /// or has no usable income data (avoids crash on single-user profiles).
   static CoupleOptimizationResult optimize({
     required CoachProfile mainUser,
-    required ConjointProfile conjoint,
+    ConjointProfile? conjoint,
   }) {
+    // Guard: no conjoint → nothing to optimize.
+    if (conjoint == null) return const CoupleOptimizationResult.empty();
+
+    // Guard: conjoint with zero/null salary is unusable for tax comparisons.
+    final conjointIncome = conjoint.revenuBrutAnnuel;
+    if (conjointIncome <= 0) return const CoupleOptimizationResult.empty();
+
     return CoupleOptimizationResult(
       lppBuybackOrder: _analyzeLppBuybackOrder(mainUser, conjoint),
       pillar3aOrder: _analyze3aContributionOrder(mainUser, conjoint),
