@@ -35,6 +35,7 @@ import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
+import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
@@ -1096,6 +1097,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         ));
         _isLoading = false;
       });
+      // A1: Save conversation even on error — user message + error must persist.
+      await _autoSaveConversation();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -1106,6 +1109,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         ));
         _isLoading = false;
       });
+      // A1: Save conversation even on error — user message + error must persist.
+      await _autoSaveConversation();
     }
   }
 
@@ -1201,6 +1206,37 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       }
     } catch (_) {
       // Graceful: if MintStateProvider is not available, knownValues stays as-is.
+    }
+
+    // C2: Inject couple data so backend tools (get_couple_optimization) have context.
+    try {
+      final conj = profile.conjoint;
+      if (conj != null) {
+        knownValues['is_married'] = profile.etatCivil == CoachCivilStatus.marie ? 1.0 : 0.0;
+        final conjAge = conj.age;
+        if (conjAge != null && conjAge > 0) knownValues['conjoint_age'] = conjAge.toDouble();
+        final conjSalary = conj.salaireBrutMensuel;
+        if (conjSalary != null && conjSalary > 0) {
+          knownValues['conjoint_salary'] = conjSalary;
+        }
+        // Pre-compute couple optimizer results
+        try {
+          final result = CoupleOptimizer.optimize(
+            mainUser: profile,
+            conjoint: conj,
+          );
+          if (result.avsCap != null) {
+            knownValues['couple_avs_monthly'] = result.avsCap!.totalAfterCap;
+          }
+          if (result.marriagePenalty != null) {
+            knownValues['couple_marriage_annual_delta'] = result.marriagePenalty!.annualDelta;
+          }
+        } catch (_) {
+          // CoupleOptimizer failed — skip couple pre-computation
+        }
+      }
+    } catch (_) {
+      // Conjoint data not available — skip
     }
 
     return CoachContext(

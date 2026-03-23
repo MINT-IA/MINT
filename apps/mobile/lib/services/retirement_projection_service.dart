@@ -379,11 +379,15 @@ class RetirementProjectionService {
       baseRate: profile.prevoyance.tauxConversion,
       retirementAge: ageUser,
     );
+    final grossAnnualForLpp = (profile.prevoyance.salaireAssure != null &&
+            profile.prevoyance.salaireAssure! > 0)
+        ? profile.prevoyance.salaireAssure!
+        : profile.revenuBrutAnnuel;
     final lppUserRente = LppCalculator.projectToRetirement(
       currentBalance: profile.prevoyance.avoirLppTotal ?? 0,
       currentAge: profile.age,
       retirementAge: ageUser,
-      grossAnnualSalary: userHasLpp ? profile.revenuBrutAnnuel : 0,
+      grossAnnualSalary: userHasLpp ? grossAnnualForLpp : 0,
       caisseReturn: profile.prevoyance.rendementCaisse,
       conversionRate: profile.prevoyance.tauxConversion,
       monthlyBuyback: userBuyback,
@@ -421,11 +425,15 @@ class RetirementProjectionService {
         baseRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
         retirementAge: ageConjoint,
       );
+      final conjGrossAnnualForLpp =
+          (conjPrev?.salaireAssure != null && conjPrev!.salaireAssure! > 0)
+              ? conjPrev.salaireAssure!
+              : profile.conjoint!.revenuBrutAnnuel;
       final lppConjRente = LppCalculator.projectToRetirement(
         currentBalance: conjPrev?.avoirLppTotal ?? 0,
         currentAge: profile.conjoint!.age ?? 45,
         retirementAge: ageConjoint,
-        grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
+        grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
         conversionRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
         monthlyBuyback: conjBuyback,
@@ -708,11 +716,15 @@ class RetirementProjectionService {
       // User LPP — independants without LPP: no bonifications (LPP art. 4)
       final userHasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
           profile.employmentStatus != 'independant';
+      final grossAnnualForLpp = (profile.prevoyance.salaireAssure != null &&
+              profile.prevoyance.salaireAssure! > 0)
+          ? profile.prevoyance.salaireAssure!
+          : profile.revenuBrutAnnuel;
       final lppUser = LppCalculator.projectToRetirement(
         currentBalance: profile.prevoyance.avoirLppTotal ?? 0,
         currentAge: profile.age,
         retirementAge: ageUser,
-        grossAnnualSalary: userHasLpp ? profile.revenuBrutAnnuel : 0,
+        grossAnnualSalary: userHasLpp ? grossAnnualForLpp : 0,
         caisseReturn: profile.prevoyance.rendementCaisse,
         conversionRate: profile.prevoyance.tauxConversion,
         monthlyBuyback: _userLppBuyback(profile),
@@ -779,11 +791,15 @@ class RetirementProjectionService {
 
       // Conjoint LPP
       final conjPrev = profile.conjoint!.prevoyance;
+      final conjGrossAnnualForLpp =
+          (conjPrev?.salaireAssure != null && conjPrev!.salaireAssure! > 0)
+              ? conjPrev.salaireAssure!
+              : profile.conjoint!.revenuBrutAnnuel;
       final lppConj = LppCalculator.projectToRetirement(
         currentBalance: conjPrev?.avoirLppTotal ?? 0,
         currentAge: profile.conjoint!.age ?? 45,
         retirementAge: ageConjoint,
-        grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
+        grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
         conversionRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
         monthlyBuyback: _conjointLppBuyback(profile),

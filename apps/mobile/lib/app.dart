@@ -962,9 +962,15 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
+      // A3: Cancel periodic timer to prevent battery drain in background.
+      FeatureFlags.stopPeriodicRefresh();
       if (SlmEngine.instance.isAvailable) {
         SlmEngine.instance.dispose();
       }
+    }
+    if (state == AppLifecycleState.resumed) {
+      // A3: Restart periodic refresh when app returns to foreground.
+      FeatureFlags.startPeriodicRefresh();
     }
   }
 

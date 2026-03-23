@@ -217,6 +217,7 @@ class RagService {
       } else if (response.statusCode == 401) {
         throw const RagApiException(
           code: 'invalid_key',
+          // ragErrorInvalidKey — user-visible, extracted to ARB
           message: 'La cl\u00e9 API est invalide ou expir\u00e9e.',
         );
       } else if (response.statusCode == 429) {
@@ -226,6 +227,7 @@ class RagService {
         }
         throw const RagApiException(
           code: 'rate_limit',
+          // ragErrorRateLimit — user-visible, extracted to ARB
           message: 'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
         );
       } else if (response.statusCode == 400) {
@@ -233,25 +235,28 @@ class RagService {
         final errorBody = _tryDecodeError(response.body);
         throw RagApiException(
           code: 'bad_request',
+          // ragErrorBadRequest — user-visible fallback, extracted to ARB
           message: errorBody ?? 'Requ\u00eate invalide.',
         );
       } else if (response.statusCode == 503) {
         // T3-12: Specific error for service unavailable.
         throw const RagApiException(
           code: 'service_unavailable',
+          // ragErrorServiceUnavailable — user-visible, extracted to ARB
           message: 'Service temporairement indisponible. R\u00e9essaie plus tard.',
         );
       } else {
         final errorBody = _tryDecodeError(response.body);
         throw RagApiException(
           code: 'server_error',
-          message: errorBody ?? 'Erreur serveur (${response.statusCode}).',
+          message: errorBody ?? 'Erreur serveur (${response.statusCode}).', // Dynamic — not extracted
         );
       }
     }
     // Should never reach here, but dart analyzer needs it.
     throw const RagApiException(
       code: 'rate_limit',
+      // ragErrorRateLimitShort — user-visible, extracted to ARB
       message: 'Limite de requ\u00eates atteinte.',
     );
   }
@@ -303,18 +308,20 @@ class RagService {
       final errorBody = _tryDecodeError(response.body);
       throw RagApiException(
         code: 'vision_bad_request',
-        message: errorBody ?? 'Requete vision invalide.',
+        // ragErrorVisionBadRequest — user-visible fallback, extracted to ARB
+        message: errorBody ?? 'Requ\u00eate vision invalide.',
       );
     } else if (response.statusCode == 413) {
       throw const RagApiException(
         code: 'image_too_large',
-        message: 'L\'image depasse la taille limite de 20 MB.',
+        // ragErrorImageTooLarge — user-visible, extracted to ARB
+        message: 'L\'image d\u00e9passe la taille limite de 20\u00a0MB.',
       );
     } else {
       final errorBody = _tryDecodeError(response.body);
       throw RagApiException(
         code: 'vision_error',
-        message: errorBody ?? 'Erreur d\'extraction vision (${response.statusCode}).',
+        message: errorBody ?? 'Erreur d\'extraction vision (${response.statusCode}).', // Dynamic — not extracted
       );
     }
   }
@@ -333,6 +340,7 @@ class RagService {
     } else {
       throw const RagApiException(
         code: 'status_error',
+        // ragErrorStatus — user-visible, extracted to ARB
         message: 'Impossible de v\u00e9rifier le statut du syst\u00e8me RAG.',
       );
     }

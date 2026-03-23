@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/educational/educational_widgets.dart';
 
 /// Service de mapping entre les questions wizard et les inserts didactiques
@@ -389,42 +390,43 @@ class EducationalInsertService {
     }
   }
 
-  /// Retourne le titre du modal "En savoir plus"
-  static String? getLearnMoreTitle(String questionId) {
+  /// Retourne le titre du modal "En savoir plus".
+  /// [l] — optional localizations; when null (e.g. in tests) French fallbacks are used.
+  static String? getLearnMoreTitle(String questionId, {S? l}) {
     switch (questionId) {
       case 'q_financial_stress_check':
-        return 'Ton stress financier, en clair';
+        return l?.educationalLearnMoreStressCheck ?? 'Ton stress financier, en clair';
       case 'q_has_pension_fund':
-        return 'Comprendre le 2e pilier (LPP)';
+        return l?.educationalLearnMoreLpp ?? 'Comprendre le 2e pilier (LPP)';
       case 'q_has_3a':
       case 'q_3a_annual_amount':
-        return 'Le 3e pilier en détail';
+        return l?.educationalLearnMoreTroisA ?? 'Le 3e pilier en détail';
       case 'q_mortgage_type':
-        return 'Types d\'hypothèques en Suisse';
+        return l?.educationalLearnMoreMortgage ?? 'Types d\'hypothèques en Suisse';
       case 'q_has_consumer_credit':
-        return 'Le crédit à la consommation';
+        return l?.educationalLearnMoreCredit ?? 'Le crédit à la consommation';
       case 'q_has_leasing':
-        return 'Leasing vs achat';
+        return l?.educationalLearnMoreLeasing ?? 'Leasing vs achat';
       case 'q_emergency_fund':
-        return 'Pourquoi un fonds d\'urgence ?';
+        return l?.educationalLearnMoreEmergency ?? 'Pourquoi un fonds d\'urgence ?';
       // Nouveaux inserts S27 — Niveau 1
       case 'q_civil_status':
-        return 'État civil et finances en Suisse';
+        return l?.educationalLearnMoreCivilStatus ?? 'État civil et finances en Suisse';
       case 'q_employment_status':
-        return 'Statut professionnel et prévoyance';
+        return l?.educationalLearnMoreEmployment ?? 'Statut professionnel et prévoyance';
       case 'q_housing_status':
-        return 'Locataire ou propriétaire ?';
+        return l?.educationalLearnMoreHousing ?? 'Locataire ou propriétaire ?';
       case 'q_canton':
-        return 'Fiscalité cantonale en Suisse';
+        return l?.educationalLearnMoreCanton ?? 'Fiscalité cantonale en Suisse';
       // Nouveaux inserts S27 — Niveau 2
       case 'q_lpp_buyback_available':
-        return 'Le rachat LPP, comment ça marche ?';
+        return l?.educationalLearnMoreLppBuyback ?? 'Le rachat LPP, comment ça marche ?';
       case 'q_3a_accounts_count':
-        return 'Stratégie multi-comptes 3a';
+        return l?.educationalLearnMoreTroisaCount ?? 'Stratégie multi-comptes 3a';
       case 'q_has_investments':
-        return 'Placements et fiscalité suisse';
+        return l?.educationalLearnMoreInvestments ?? 'Placements et fiscalité suisse';
       case 'q_real_estate_project':
-        return 'Financer un achat immobilier';
+        return l?.educationalLearnMoreRealEstate ?? 'Financer un achat immobilier';
       default:
         return null;
     }

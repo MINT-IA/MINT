@@ -11398,11 +11398,11 @@ class SDe extends S {
   String get nudgeBirthdayAction => 'Mein Dashboard ansehen';
 
   @override
-  String get nudgeAnniversaryTitle => 'Schon 1 Jahr zusammen !';
+  String get nudgeAnniversaryTitle => 'Schon 1 Jahr zusammen!';
 
   @override
   String get nudgeAnniversaryMessage =>
-      'Du nutzt MINT seit einem Jahr. Der ideale Moment, um dein Profil zu aktualisieren und deinen Fortschritt zu messen.';
+      'Du nutzt MINT seit einem Jahr. Das ist der ideale Zeitpunkt, dein Profil zu aktualisieren und deine Fortschritte zu messen.';
 
   @override
   String get nudgeAnniversaryAction => 'Mein Profil aktualisieren';
@@ -21722,4 +21722,954 @@ class SDe extends S {
   @override
   String get jobChangeChecklistDisclaimer =>
       'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art. 3 (Freizügigkeit), FZV Art. 1-3.';
+
+  @override
+  String get circleLabelEmergencyFund => 'Notreserve';
+
+  @override
+  String get circleLabelDettes => 'Schulden';
+
+  @override
+  String get circleLabelRevenu => 'Einkommen';
+
+  @override
+  String get circleLabelAssurancesObligatoires =>
+      'Obligatorische Versicherungen';
+
+  @override
+  String get circleLabelTroisaOptimisation => '3a - Optimierung';
+
+  @override
+  String get circleLabelTroisaVersement => '3a - Einzahlung';
+
+  @override
+  String get circleLabelLppRachat => 'BVG - Einkauf';
+
+  @override
+  String get circleLabelAvs => 'AHV';
+
+  @override
+  String get circleLabelInvestissements => 'Anlagen';
+
+  @override
+  String get circleLabelPatrimoineImmobilier => 'Immobilienvermögen';
+
+  @override
+  String get circleNameProtection => 'Schutz & Sicherheit';
+
+  @override
+  String get circleNamePrevoyance => 'Fiskalische Vorsorge';
+
+  @override
+  String get circleNameCroissance => 'Wachstum';
+
+  @override
+  String get circleNameOptimisation => 'Optimierung & Übertragung';
+
+  @override
+  String get nudgeSalaryDayTitle => 'Zahltag!';
+
+  @override
+  String get nudgeSalaryDayMessage =>
+      'Hast du an deine 3a-Überweisung diesen Monat gedacht? Jeder Monat zählt für deine Vorsorge.';
+
+  @override
+  String get nudgeSalaryDayAction => 'Mein 3a ansehen';
+
+  @override
+  String get nudgeTaxDeadlineMessage =>
+      'Prüfe die Abgabefrist der Steuererklärung in deinem Kanton. Hast du deine 3a- und BVG-Abzüge geprüft?';
+
+  @override
+  String get nudgeTaxDeadlineAction => 'Meine Steuern simulieren';
+
+  @override
+  String get nudgeThreeADeadlineTitle => 'Letzte Gelegenheit für dein 3a';
+
+  @override
+  String get nudgeThreeADeadlineMessageLastDay =>
+      'Heute ist der letzte Tag für eine Einzahlung in dein 3a!';
+
+  @override
+  String get nudgeThreeADeadlineAction => 'Meine Ersparnis berechnen';
+
+  @override
+  String get nudgeBirthdayDashboardAction => 'Mein Dashboard ansehen';
+
+  @override
+  String get nudgeLppBonifStartTitle => 'BVG-Beiträge beginnen';
+
+  @override
+  String get nudgeLppBonifChangeTitle => 'Änderung der BVG-Stufe';
+
+  @override
+  String get nudgeLppBonifAction => 'Einkauf erkunden';
+
+  @override
+  String get nudgeWeeklyCheckInTitle => 'Es ist eine Weile her!';
+
+  @override
+  String get nudgeWeeklyCheckInMessage =>
+      'Deine finanzielle Situation verändert sich jede Woche. Nimm dir 2 Minuten, um dein Dashboard zu prüfen.';
+
+  @override
+  String get nudgeWeeklyCheckInAction => 'Meinen Pulse ansehen';
+
+  @override
+  String get nudgeStreakRiskTitle => 'Deine Serie ist in Gefahr!';
+
+  @override
+  String get nudgeStreakRiskAction => 'Meine Serie fortsetzen';
+
+  @override
+  String get nudgeGoalApproachingTitle => 'Dein Ziel nähert sich';
+
+  @override
+  String get nudgeGoalApproachingAction => 'Mit dem Coach sprechen';
+
+  @override
+  String get nudgeFhsDroppedTitle => 'Dein Gesundheitsscore ist gesunken';
+
+  @override
+  String get nudgeFhsDroppedAction => 'Den Rückgang verstehen';
+
+  @override
+  String get ragErrorInvalidKey =>
+      'Der API-Schlüssel ist ungültig oder abgelaufen.';
+
+  @override
+  String get ragErrorRateLimit =>
+      'Anfragelimit erreicht. Bitte versuche es in einem Moment erneut.';
+
+  @override
+  String get ragErrorBadRequest => 'Ungültige Anfrage.';
+
+  @override
+  String get ragErrorServiceUnavailable =>
+      'Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.';
+
+  @override
+  String get ragErrorStatus =>
+      'Der RAG-Systemstatus konnte nicht überprüft werden.';
+
+  @override
+  String get ragErrorVisionBadRequest => 'Ungültige Vision-Anfrage.';
+
+  @override
+  String get ragErrorImageTooLarge =>
+      'Das Bild überschreitet das 20 MB-Größenlimit.';
+
+  @override
+  String get ragErrorRateLimitShort => 'Anfragelimit erreicht.';
+
+  @override
+  String get paywallTitle => 'MINT Coach freischalten';
+
+  @override
+  String get paywallSubtitle => 'Dein persönlicher Finanz-Coach';
+
+  @override
+  String get paywallTrialBadge => '14 Tage kostenlos testen';
+
+  @override
+  String paywallSubscriptionActivated(String tier) {
+    return '$tier-Abonnement erfolgreich aktiviert.';
+  }
+
+  @override
+  String get paywallTrialActivated =>
+      'Kostenloser Test aktiviert! Genieße MINT Coach für 14 Tage.';
+
+  @override
+  String get paywallRestoreButton => 'Kauf wiederherstellen';
+
+  @override
+  String get paywallRestoreSuccess =>
+      'Abonnement erfolgreich wiederhergestellt!';
+
+  @override
+  String get paywallRestoreNoPurchase => 'Kein früherer Kauf gefunden.';
+
+  @override
+  String get paywallDisclaimer =>
+      'Bildungstool — keine Finanzberatung. FIDLEG. Du kannst jederzeit in deinen Kontoeinstellungen kündigen.';
+
+  @override
+  String get paywallClose => 'Schließen';
+
+  @override
+  String paywallSelectTier(String name) {
+    return '$name auswählen';
+  }
+
+  @override
+  String paywallChooseTier(String tier) {
+    return '$tier wählen';
+  }
+
+  @override
+  String get paywallStartTrial => 'Kostenlose Testphase starten';
+
+  @override
+  String get paywallPricePerMonth => '/Monat';
+
+  @override
+  String get paywallFeatureTop => 'Top';
+
+  @override
+  String get arbitrageOptionFullRente => '100 % Rente';
+
+  @override
+  String get arbitrageOptionFullCapital => '100 % Kapital';
+
+  @override
+  String get arbitrageOptionMixed =>
+      'Gemischt (obligat. Rente + überobligat. Kapital)';
+
+  @override
+  String get arbitrageOptionAmortIndirect => 'Indirekte Amortisation';
+
+  @override
+  String get arbitrageOptionInvestLibre => 'Freie Anlage';
+
+  @override
+  String get tornadoLabelRendementCapital => 'Rendite deines Kapitals';
+
+  @override
+  String get tornadoLabelTauxRetrait => 'Jährliche Kapitalentnahme';
+
+  @override
+  String get tornadoLabelConversionOblig => 'Obligatorische BVG-Umwandlung';
+
+  @override
+  String get tornadoLabelConversionSurob => 'Überobligat. BVG-Umwandlung';
+
+  @override
+  String get tornadoLabelRendementMarche => 'Rendite deiner Anlagen';
+
+  @override
+  String get tornadoLabelTauxMarginal => 'Dein Steuersatz';
+
+  @override
+  String get tornadoLabelRendement3a => 'Rendite deiner 3. Säule';
+
+  @override
+  String get tornadoLabelRendementLpp => 'Rendite deiner BVG-Kasse';
+
+  @override
+  String get tornadoLabelTauxHypothecaire => 'Hypothekarzins';
+
+  @override
+  String get tornadoLabelAppreciationImmo => 'Immobilienzuwachs';
+
+  @override
+  String get tornadoLabelLoyerMensuel => 'Monatliche Miete';
+
+  @override
+  String get tornadoLabelTauxImpotCapital => 'Kapitalsteuersatz';
+
+  @override
+  String get tornadoLabelAgeRetraite => 'Rentenalter';
+
+  @override
+  String get tornadoLabelCapitalTotal => 'Gesamtkapital';
+
+  @override
+  String get tornadoLabelAnneesAvantRetraite => 'Jahre bis zur Rente';
+
+  @override
+  String get tornadoLabelBas => 'Niedrig';
+
+  @override
+  String get tornadoLabelHaut => 'Hoch';
+
+  @override
+  String get educationalLearnMoreStressCheck =>
+      'Dein finanzieller Stress, klar erklärt';
+
+  @override
+  String get educationalLearnMoreLpp => 'Die 2. Säule (BVG) verstehen';
+
+  @override
+  String get educationalLearnMoreTroisA => 'Die 3. Säule im Detail';
+
+  @override
+  String get educationalLearnMoreMortgage => 'Hypothekenarten in der Schweiz';
+
+  @override
+  String get educationalLearnMoreCredit => 'Konsumkredit';
+
+  @override
+  String get educationalLearnMoreLeasing => 'Leasing vs. Kauf';
+
+  @override
+  String get educationalLearnMoreEmergency => 'Warum ein Notfallsparguthaben?';
+
+  @override
+  String get educationalLearnMoreCivilStatus =>
+      'Zivilstand und Finanzen in der Schweiz';
+
+  @override
+  String get educationalLearnMoreEmployment => 'Berufsstatus und Vorsorge';
+
+  @override
+  String get educationalLearnMoreHousing => 'Mieten oder Eigentum?';
+
+  @override
+  String get educationalLearnMoreCanton =>
+      'Kantonale Besteuerung in der Schweiz';
+
+  @override
+  String get educationalLearnMoreLppBuyback =>
+      'BVG-Einkauf: Wie funktioniert das?';
+
+  @override
+  String get educationalLearnMoreTroisaCount =>
+      'Multi-Konto-Strategie für die 3. Säule';
+
+  @override
+  String get educationalLearnMoreInvestments =>
+      'Anlagen und Schweizer Besteuerung';
+
+  @override
+  String get educationalLearnMoreRealEstate => 'Eine Immobilie finanzieren';
+
+  @override
+  String get capMissingPieceHeadline => 'Ein Teil fehlt';
+
+  @override
+  String capMissingPieceWhyNow(String label) {
+    return '$label — ohne diese Angabe bleibt deine Prognose ungenau.';
+  }
+
+  @override
+  String capMissingPieceExpectedImpact(String impact) {
+    return '+$impact Vertrauenspunkte';
+  }
+
+  @override
+  String capMissingPieceConfidenceLabel(String score) {
+    return 'Vertrauen $score %';
+  }
+
+  @override
+  String get capDebtHeadline => 'Deine Schulden lasten';
+
+  @override
+  String get capDebtWhyNow =>
+      'Zuerst den höchsten Zinssatz abzahlen schafft jeden Monat Spielraum.';
+
+  @override
+  String get capDebtCtaLabel => 'Meinen Plan ansehen';
+
+  @override
+  String get capDebtExpectedImpact => 'Spielraum zurückgewinnen';
+
+  @override
+  String get capIndepNoLppHeadline => 'Deine 2. Säule : CHF 0';
+
+  @override
+  String get capIndepNoLppWhyNow =>
+      'Ohne BVG ist deine Rente = AHV allein. Ein freiwilliges Netz ändert die Perspektive.';
+
+  @override
+  String get capIndepNoLppCtaLabel => 'Mein Netz aufbauen';
+
+  @override
+  String get capIndepNoLppExpectedImpact => 'gestärkte Rente';
+
+  @override
+  String get capDisabilityGapHeadline => 'Dein Invaliditätsnetz : nur IV';
+
+  @override
+  String get capDisabilityGapWhyNow =>
+      'Ohne BVG beschränkt sich dein Invaliditätsschutz auf die IV. Die Lücke kann überraschen.';
+
+  @override
+  String get capDisabilityGapCtaLabel => 'Lücke ansehen';
+
+  @override
+  String get capDisabilityGapExpectedImpact => '~70 % Lücke verstehen';
+
+  @override
+  String get cap3aHeadline => 'Dieses Jahr zählt noch';
+
+  @override
+  String get cap3aWhyNow =>
+      'Eine Säule-3a-Einzahlung kann noch Steuern senken und deine Rente stärken.';
+
+  @override
+  String get cap3aCtaLabel => 'Mein 3a simulieren';
+
+  @override
+  String get capLppBuybackHeadline => 'BVG-Einkauf verfügbar';
+
+  @override
+  String capLppBuybackWhyNow(String amount) {
+    return 'Du kannst bis zu $amount einkaufen und von den Steuern abziehen.';
+  }
+
+  @override
+  String get capLppBuybackCtaLabel => 'Einkauf simulieren';
+
+  @override
+  String get capLppBuybackExpectedImpact => 'Steuerabzug';
+
+  @override
+  String get capBudgetDeficitHeadline => 'Dein Spielraum zurückgewinnen';
+
+  @override
+  String get capBudgetDeficitWhyNow =>
+      'Dein Budget ist eng. Eine Anpassung kann Luft verschaffen.';
+
+  @override
+  String get capBudgetDeficitCtaLabel => 'Budget anpassen';
+
+  @override
+  String get capBudgetDeficitExpectedImpact => 'monatlicher Spielraum';
+
+  @override
+  String get capReplacementRateHeadline => 'Deine Rente ist noch knapp';
+
+  @override
+  String capReplacementRateWhyNow(String rate) {
+    return '$rate % Ersatzquote. Ein Einkauf oder 3a ändert die Perspektive.';
+  }
+
+  @override
+  String get capReplacementRateCtaLabel => 'Szenarien erkunden';
+
+  @override
+  String get capReplacementRateExpectedImpact => '+4 bis +7 Punkte';
+
+  @override
+  String get capCoverageCheckSeniorHeadline =>
+      'Invalidität nach 50 : ein blinder Fleck ?';
+
+  @override
+  String get capCoverageCheckHeadline => 'Dein Schutz verdient einen Check';
+
+  @override
+  String get capCoverageCheckSeniorWhyNow =>
+      'Nach 50 kann die Lücke zwischen Einkommen und IV + BVG-Leistungen 40 % übersteigen. Deckt dein Taggeld den Rest ?';
+
+  @override
+  String get capCoverageCheckWhyNow =>
+      'Taggeld, IV, BVG-Invalidität — prüfe dein Netz.';
+
+  @override
+  String get capCoverageCheckCtaLabel => 'Prüfen';
+
+  @override
+  String get capChomageHeadline => 'Die nächsten 90 Tage sichern';
+
+  @override
+  String get capChomageWhyNow =>
+      'Arbeitslos : drei Prioritäten — deine ALV-Rechte, der BVG-Einfluss und Budgetanpassung.';
+
+  @override
+  String get capChomageCtaLabel => 'Meine Rechte ansehen';
+
+  @override
+  String get capChomageExpectedImpact => 'sofortige Stabilisierung';
+
+  @override
+  String get capDivorceUrgencyHeadline => 'Scheidung : klären, was sich ändert';
+
+  @override
+  String get capDivorceUrgencyWhyNow =>
+      'BVG-Teilung, Unterhalt, Wohnen — die finanziellen Auswirkungen verdienen eine klare Bestandsaufnahme.';
+
+  @override
+  String get capDivorceUrgencyCtaLabel => 'Auswirkung simulieren';
+
+  @override
+  String get capDivorceUrgencyExpectedImpact => 'BVG + Steuererklärung';
+
+  @override
+  String get capLeMarriageHeadline => 'Heirat in Sicht';
+
+  @override
+  String get capLeMarriageWhyNow =>
+      'Steuern, AHV, BVG, Erbfolge — alles ändert sich.';
+
+  @override
+  String get capLeMarriageCtaLabel => 'Auswirkung ansehen';
+
+  @override
+  String get capLeDivorceHeadline => 'Scheidung im Gang';
+
+  @override
+  String get capLeDivorceWhyNow =>
+      'BVG-Teilung, Rente, Steuern — plane voraus.';
+
+  @override
+  String get capLeDivorceCtaLabel => 'Simulieren';
+
+  @override
+  String get capLeBirthHeadline => 'Geburt erwartet';
+
+  @override
+  String get capLeBirthWhyNow => 'Zulagen, Abzüge, Budget — bereite dich vor.';
+
+  @override
+  String get capLeBirthCtaLabel => 'Auswirkung ansehen';
+
+  @override
+  String get capLeHousingPurchaseHeadline => 'Immobilienkauf';
+
+  @override
+  String get capLeHousingPurchaseWhyNow =>
+      'WEF, 3a, Hypothek — jetzt entscheidet sich alles.';
+
+  @override
+  String get capLeHousingPurchaseCtaLabel => 'Meine Kapazität simulieren';
+
+  @override
+  String get capLeJobLossHeadline => 'Stellenverlust';
+
+  @override
+  String get capLeJobLossWhyNow => 'ALV, BVG, Budget — die 3 Prioritäten.';
+
+  @override
+  String get capLeJobLossCtaLabel => 'Meine Rechte ansehen';
+
+  @override
+  String get capLeSelfEmploymentHeadline => 'Selbständig werden';
+
+  @override
+  String get capLeSelfEmploymentWhyNow =>
+      'Freiwilliges BVG, max. 3a, Taggeld — dein Netz neu aufbauen.';
+
+  @override
+  String get capLeSelfEmploymentCtaLabel => 'Schutz prüfen';
+
+  @override
+  String get capLeRetirementHeadline => 'Rente am Horizont';
+
+  @override
+  String get capLeRetirementWhyNow =>
+      'Kapital oder Rente, Bezug, Timing — jetzt ist der Moment.';
+
+  @override
+  String get capLeRetirementCtaLabel => 'Optionen erkunden';
+
+  @override
+  String get capLeConcubinageHeadline => 'Zusammenleben';
+
+  @override
+  String get capLeConcubinageWhyNow =>
+      'Keine AHV-Obergrenze 150 %, keine automatische BVG-Teilung — plane voraus.';
+
+  @override
+  String get capLeConcubinageCtaLabel => 'Unterschiede ansehen';
+
+  @override
+  String get capLeDeathOfRelativeHeadline => 'Verlust eines Angehörigen';
+
+  @override
+  String get capLeDeathOfRelativeWhyNow =>
+      'Erbfolge, Hinterlassenenrenten, Fristen — was dringend ist.';
+
+  @override
+  String get capLeDeathOfRelativeCtaLabel => 'Schritte ansehen';
+
+  @override
+  String get capLeNewJobHeadline => 'Neue Stelle';
+
+  @override
+  String get capLeNewJobWhyNow =>
+      'BVG, Freizügigkeit, 3a — drei Dinge zu prüfen.';
+
+  @override
+  String get capLeNewJobCtaLabel => 'Vergleichen';
+
+  @override
+  String get capLeHousingSaleHeadline => 'Immobilienverkauf';
+
+  @override
+  String get capLeHousingSaleWhyNow =>
+      'Kapitalgewinn, WEF-Rückzahlung, Reinvestition — plane voraus.';
+
+  @override
+  String get capLeHousingSaleCtaLabel => 'Auswirkung ansehen';
+
+  @override
+  String get capLeInheritanceHeadline => 'Erbschaft erhalten';
+
+  @override
+  String get capLeInheritanceWhyNow =>
+      'Steuern, Vermögensintegration, BVG-Einkauf — abwägen.';
+
+  @override
+  String get capLeInheritanceCtaLabel => 'Optionen ansehen';
+
+  @override
+  String get capLeDonationHeadline => 'Schenkung geplant';
+
+  @override
+  String get capLeDonationWhyNow =>
+      'Vorempfang auf Erbe, Besteuerung, Bericht — plane voraus.';
+
+  @override
+  String get capLeDonationCtaLabel => 'Auswirkung ansehen';
+
+  @override
+  String get capLeDisabilityHeadline => 'Invaliditätsrisiko';
+
+  @override
+  String get capLeDisabilityWhyNow =>
+      'IV, BVG-Invalidität, Taggeld — prüfe dein Netz.';
+
+  @override
+  String get capLeDisabilityCtaLabel => 'Schutz prüfen';
+
+  @override
+  String get capLeCantonMoveHeadline => 'Kantonswechsel';
+
+  @override
+  String get capLeCantonMoveWhyNow =>
+      'Steuern, KVG, Abgaben — der Einfluss kann überraschen.';
+
+  @override
+  String get capLeCantonMoveCtaLabel => 'Kantone vergleichen';
+
+  @override
+  String get capLeCountryMoveHeadline => 'Auswanderung aus der Schweiz';
+
+  @override
+  String get capLeCountryMoveWhyNow =>
+      'Freizügigkeit, AHV, 3a — was folgt dir, was bleibt.';
+
+  @override
+  String get capLeCountryMoveCtaLabel => 'Konsequenzen ansehen';
+
+  @override
+  String get capLeDebtCrisisHeadline => 'Schuldensituation';
+
+  @override
+  String get capLeDebtCrisisWhyNow =>
+      'Priorisieren, umstrukturieren, das Wesentliche schützen — Schritt für Schritt.';
+
+  @override
+  String get capLeDebtCrisisCtaLabel => 'Meinen Plan ansehen';
+
+  @override
+  String get capCouple3aHeadline => 'Zu zweit, ein zusätzlicher Hebel';
+
+  @override
+  String get capCouple3aWhyNow =>
+      'Euer Haushalt kann 2 × 7’258 CHF abziehen, wenn jeder in die 3. Säule einzahlt. Das Konto deines Partners ist noch nicht erfasst.';
+
+  @override
+  String get capCouple3aCtaLabel => 'Paar-3a simulieren';
+
+  @override
+  String get capCouple3aExpectedImpact => 'bis zu 14’516 CHF Abzüge';
+
+  @override
+  String get capCoupleLppBuybackHeadline => 'BVG-Einkauf : der Partner-Hebel';
+
+  @override
+  String capCoupleLppBuybackWhyNow(String amount) {
+    return 'Dein Partner hat einen möglichen Einkauf von $amount. Den höheren Grenzsteuersatz zu priorisieren maximiert den Abzug.';
+  }
+
+  @override
+  String get capCoupleLppBuybackCtaLabel => 'Einkäufe vergleichen';
+
+  @override
+  String get capCoupleLppBuybackExpectedImpact => 'Haushalt-Steueroptimierung';
+
+  @override
+  String get capCoupleAvsCapHeadline => 'Paar-AHV : die 150 %-Grenze';
+
+  @override
+  String get capCoupleAvsCapWhyNow =>
+      'Verheiratet werden eure kumulierten AHV-Renten auf 150 % der Maximalrente begrenzt (AHVG Art. 35). Die Lücke kann ~10’000 CHF/Jahr erreichen.';
+
+  @override
+  String get capCoupleAvsCapCtaLabel => 'AHV-Auswirkung ansehen';
+
+  @override
+  String get capCoupleAvsCapExpectedImpact => '~10k/Jahr Delta verstehen';
+
+  @override
+  String get capHonestyDebtHeadline =>
+      'Deine Situation braucht einen Expertenblick';
+
+  @override
+  String get capHonestyDebtWhyNow =>
+      'Klassische Hebel reichen hier nicht aus. Ein Schuldenberater kann dir helfen, einen realistischen Plan zu erstellen.';
+
+  @override
+  String get capHonestryCrossBorderHeadline =>
+      'Lass uns gemeinsam Bilanz ziehen';
+
+  @override
+  String get capHonestryCrossBorderWhyNow =>
+      'An deinem Horizont sind die 2.-Säule-Hebel begrenzt. Ein Grenzgänger-Spezialist kann Wege finden, die MINT noch nicht abdeckt.';
+
+  @override
+  String get capHonestyNoLppHeadline => 'Deine Basis ist vorhanden';
+
+  @override
+  String get capHonestyNoLppWhyNow =>
+      'Klassische Hebel ändern hier nicht viel. Ein Spezialist kann dir helfen, weiter zu sehen.';
+
+  @override
+  String get capHonestyCtaLabel => 'Mit dem Coach sprechen';
+
+  @override
+  String get capHonestyExpectedImpact => 'Klärung';
+
+  @override
+  String capAcquiredAvsWithRente(String rente, String years) {
+    return 'AHV : ~$rente CHF/Monat ($years Jahre beigetragen)';
+  }
+
+  @override
+  String capAcquiredAvsYearsOnly(String years) {
+    return 'AHV : $years Jahre beigetragen';
+  }
+
+  @override
+  String get capAcquiredAvsInProgress => 'AHV : Anspruch läuft';
+
+  @override
+  String capAcquiredLpp(String amount) {
+    return 'BVG : $amount angespart';
+  }
+
+  @override
+  String capAcquired3a(String amount) {
+    return '3a : $amount gespart';
+  }
+
+  @override
+  String get capFallbackHeadline => 'Profil vervollständigen';
+
+  @override
+  String get capFallbackWhyNow =>
+      'Je mehr MINT über dich weiß, desto präziser die Hebel.';
+
+  @override
+  String get capFallbackCtaLabel => 'Ergänzen';
+
+  @override
+  String get pulseIndepLppTitle => 'CHF 0';
+
+  @override
+  String get pulseIndepLppSubtitle => 'Das ist deine 2. Säule heute.';
+
+  @override
+  String get pulseIndepLppDetail =>
+      'Ohne BVG ist deine Rente = AHV allein : ~CHF 1’934/Monat.';
+
+  @override
+  String get pulseIndepLppCta => 'Mein Netz aufbauen';
+
+  @override
+  String get pulseDebtSubtitle => 'Schulden zurückzuzahlen.';
+
+  @override
+  String get pulseDebtCta => 'Meinen Plan ansehen';
+
+  @override
+  String get pulseComprSalaireSubtitle =>
+      'verschwinden von deinem Lohn, bevor er ankommt.';
+
+  @override
+  String get pulseComprSalaireDetail =>
+      'AHV, BVG, ALV, Steuern — entdecke, wohin jeder Franken geht.';
+
+  @override
+  String get pulseComprSalaireCta => 'Meinen Lohnausweis verstehen';
+
+  @override
+  String get pulseComprSystemeTitle => '3 Säulen';
+
+  @override
+  String get pulseComprSystemeSubtitle => 'Das Schweizer System in 1 Minute.';
+
+  @override
+  String get pulseComprSystemeDetail =>
+      'AHV (Staat) + BVG (Arbeitgeber) + 3a (du) = deine Rente.';
+
+  @override
+  String get pulseComprSystemeCta => 'Entdecken';
+
+  @override
+  String get pulseComprSituationTitle => 'Deine finanzielle Sichtbarkeit';
+
+  @override
+  String get pulseComprSituationSubtitle =>
+      'Was weißt du wirklich über deine Situation ?';
+
+  @override
+  String get pulseComprSituationDetail =>
+      'Vervollständige dein Profil, um deinen Score zu verbessern.';
+
+  @override
+  String get pulseComprSituationCta => 'Meinen Score sehen';
+
+  @override
+  String get pulseProtRetraiteCapRenteTitle => 'Kapital oder Rente ?';
+
+  @override
+  String get pulseProtRetraiteCapRenteSubtitle => 'Die Wahl, die alles ändert.';
+
+  @override
+  String get pulseProtRetraiteCapRenteDetail =>
+      'Vergleiche beide Optionen mit deinen echten Zahlen.';
+
+  @override
+  String get pulseProtRetraiteCapRenteCta => 'Vergleichen';
+
+  @override
+  String get pulseProtRetraiteSubtitle => 'im Ruhestand erhalten.';
+
+  @override
+  String get pulseProtRetraiteDetail =>
+      'Schweizer Median : 60 %. Wo stehst du ?';
+
+  @override
+  String get pulseProtRetraiteCta => 'Meine Prognose ansehen';
+
+  @override
+  String get pulseProtFamilleSubtitle => 'Eure Rente zu zweit.';
+
+  @override
+  String get pulseProtFamilleDetail =>
+      'Plane die Lücke, wenn nur einer in Rente ist.';
+
+  @override
+  String get pulseProtFamilleCta => 'Timeline ansehen';
+
+  @override
+  String get pulseProtUrgenceDebtSubtitle => 'zurückzuzahlen.';
+
+  @override
+  String get pulseProtUrgenceDebtDetail => 'Beginne mit dem höchsten Zinssatz.';
+
+  @override
+  String get pulseProtUrgenceDebtCta => 'Mein Rückzahlungsplan';
+
+  @override
+  String get pulseProtUrgenceTitle => 'Dein Sicherheitsnetz';
+
+  @override
+  String get pulseProtUrgenceSubtitle =>
+      'Was passiert, wenn du nicht mehr arbeiten kannst ?';
+
+  @override
+  String get pulseProtUrgenceDetail =>
+      'Taggeld, IV, BVG-Invalidität — prüfe deine Absicherung.';
+
+  @override
+  String get pulseProtUrgenceCta => 'Prüfen';
+
+  @override
+  String get pulseOptFiscalSubtitle => 'jährlich ans Finanzamt überlassen.';
+
+  @override
+  String get pulseOptFiscalDetail =>
+      '3a + BVG-Einkauf = deine stärksten Hebel.';
+
+  @override
+  String get pulseOptFiscalCta => 'Zurückgewinnen';
+
+  @override
+  String get pulseOptPatrimoineSubtitle => 'Dein Gesamtvermögen.';
+
+  @override
+  String get pulseOptPatrimoineDetail => 'Ersparnisse + BVG + 3a + Anlagen.';
+
+  @override
+  String get pulseOptPatrimoineCtaLabel => 'Details';
+
+  @override
+  String get pulseOptCapRenteTitle => 'Kapital oder Rente ?';
+
+  @override
+  String get pulseOptCapRenteSubtitle =>
+      'Der Unterschied kann CHF 200’000 überschreiten.';
+
+  @override
+  String get pulseOptCapRenteDetail =>
+      'Einmalig besteuert (Kapital) vs jährlich (Rente).';
+
+  @override
+  String get pulseOptCapRenteCta => 'Vergleichen';
+
+  @override
+  String get pulseNavExpatGapsSubtitle => 'fehlende AHV-Beitragsjahre.';
+
+  @override
+  String get pulseNavExpatGapsDetail =>
+      'Jedes fehlende Jahr = -2.3 % lebenslange Rente.';
+
+  @override
+  String get pulseNavExpatGapsCta => 'Meine Lücken analysieren';
+
+  @override
+  String get pulseNavExpatTitle => 'Neu in der Schweiz ?';
+
+  @override
+  String get pulseNavExpatSubtitle =>
+      'Deine Rechte, deine Lücken, deine Fallstricke.';
+
+  @override
+  String get pulseNavExpatDetail =>
+      'AHV, BVG, 3a — alles, was ab Ankunft zählt.';
+
+  @override
+  String get pulseNavExpatCta => 'Entdecken';
+
+  @override
+  String get pulseNavAchatTitle => 'Immobilie kaufen';
+
+  @override
+  String get pulseNavAchatSubtitle => 'Berechne deine Kaufkapazität.';
+
+  @override
+  String get pulseNavAchatDetail => 'Dein 3a und BVG = deine Hauptanzahlung.';
+
+  @override
+  String get pulseNavAchatCta => 'Simulieren';
+
+  @override
+  String get pulseNavAchatCapSubtitle =>
+      'Die Immobilie, die du anpeilen kannst.';
+
+  @override
+  String get pulseNavAchatCapCta => 'Meinen Kauf simulieren';
+
+  @override
+  String get pulseNavIndependantTitle => 'Selbständig ?';
+
+  @override
+  String get pulseNavIndependantSubtitle =>
+      'Ohne Arbeitgeber bist du dein eigenes Netz.';
+
+  @override
+  String get pulseNavIndependantDetail =>
+      'Freiwilliges BVG, max. 3a 36’288/Jahr, Taggeld obligatorisch.';
+
+  @override
+  String get pulseNavIndependantCta => 'Schutz prüfen';
+
+  @override
+  String get pulseNavEvenementTitle => 'Eine Lebensveränderung ?';
+
+  @override
+  String get pulseNavEvenementSubtitle =>
+      'Jedes Ereignis hat finanzielle Auswirkungen.';
+
+  @override
+  String get pulseNavEvenementDetail =>
+      'Heirat, Geburt, Scheidung, Erbschaft, Umzug...';
+
+  @override
+  String get pulseNavEvenementCta => 'Erkunden';
 }

@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
@@ -18,12 +19,13 @@ class CircleScoringService {
     'LAVS art. 29 (Durée de cotisation AVS — Cercle 2)',
     'LAMal art. 61 (Primes et franchise — Cercle 1)',
   ];
-  /// Calcule le score global à partir des réponses du wizard
-  FinancialHealthScore calculateScore(Map<String, dynamic> answers) {
-    final circle1 = _scoreCircle1Protection(answers);
-    final circle2 = _scoreCircle2Prevoyance(answers);
-    final circle3 = _scoreCircle3Croissance(answers);
-    final circle4 = _scoreCircle4Optimisation(answers);
+  /// Calcule le score global à partir des réponses du wizard.
+  /// [l] — optional localizations; when null (e.g. in tests) French fallbacks are used.
+  FinancialHealthScore calculateScore(Map<String, dynamic> answers, {S? l}) {
+    final circle1 = _scoreCircle1Protection(answers, l);
+    final circle2 = _scoreCircle2Prevoyance(answers, l);
+    final circle3 = _scoreCircle3Croissance(answers, l);
+    final circle4 = _scoreCircle4Optimisation(l);
 
     // Score global = moyenne pondérée (Cercles 1-2 plus importants)
     final overall = (circle1.percentage * 0.35) +
@@ -45,7 +47,7 @@ class CircleScoringService {
   }
 
   /// CERCLE 1 : PROTECTION
-  CircleScore _scoreCircle1Protection(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle1Protection(Map<String, dynamic> answers, S? l) {
     final items = <ScoreItem>[];
     double totalWeight = 0;
     double totalScore = 0;
@@ -61,7 +63,7 @@ class CircleScoringService {
       fundStatus = ItemStatus.critical;
     }
     items.add(ScoreItem(
-      label: 'Fonds d\'urgence',
+      label: l?.circleLabelEmergencyFund ?? 'Fonds d\'urgence',
       status: fundStatus,
       detail: _emergencyFundDetail(hasEmergencyFund),
       weight: 2.0, // Double importance
@@ -73,9 +75,9 @@ class CircleScoringService {
     final hasDebt = answers['q_has_consumer_debt'] == 'yes';
     final debtStatus = hasDebt ? ItemStatus.critical : ItemStatus.perfect;
     items.add(ScoreItem(
-      label: 'Dettes',
+      label: l?.circleLabelDettes ?? 'Dettes',
       status: debtStatus,
-      detail: hasDebt ? 'Crédits en cours' : 'Aucune dette',
+      detail: hasDebt ? 'Crédits en cours' : 'Aucune dette', // Internal detail — not extracted
       weight: 1.5,
     ));
     totalWeight += 1.5;
@@ -87,19 +89,19 @@ class CircleScoringService {
         ? ItemStatus.perfect
         : ItemStatus.unknown;
     items.add(ScoreItem(
-      label: 'Revenu',
+      label: l?.circleLabelRevenu ?? 'Revenu',
       status: incomeStatus,
-      detail: income != null ? 'CHF ${income.toStringAsFixed(0)}/mois' : null,
+      detail: income != null ? 'CHF ${income.toStringAsFixed(0)}/mois' : null, // Formatted number — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
     totalScore += incomeStatus.scoreValue * 1.0;
 
     // 4. Assurances de base (LAMal obligatoire en Suisse)
-    items.add(const ScoreItem(
-      label: 'Assurances obligatoires',
+    items.add(ScoreItem(
+      label: l?.circleLabelAssurancesObligatoires ?? 'Assurances obligatoires',
       status: ItemStatus.perfect,
-      detail: 'LAMal active',
+      detail: 'LAMal active', // Legal identifier — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -108,7 +110,7 @@ class CircleScoringService {
     final percentage = (totalScore / totalWeight) * 100;
 
     return CircleScore(
-      circleName: 'Protection & Sécurité',
+      circleName: l?.circleNameProtection ?? 'Protection & Sécurité',
       circleNumber: 1,
       percentage: percentage,
       level: _percentageToLevel(percentage),
@@ -118,7 +120,7 @@ class CircleScoringService {
   }
 
   /// CERCLE 2 : PRÉVOYANCE
-  CircleScore _scoreCircle2Prevoyance(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle2Prevoyance(Map<String, dynamic> answers, S? l) {
     final items = <ScoreItem>[];
     double totalWeight = 0;
     double totalScore = 0;
@@ -138,7 +140,7 @@ class CircleScoringService {
       accountDetail = 'Aucun 3a';
     }
     items.add(ScoreItem(
-      label: '3a - Optimisation',
+      label: l?.circleLabelTroisaOptimisation ?? '3a - Optimisation',
       status: accountStatus,
       detail: accountDetail,
       weight: 2.0,
@@ -163,7 +165,7 @@ class CircleScoringService {
       contributionStatus = ItemStatus.critical;
     }
     items.add(ScoreItem(
-      label: '3a - Versement',
+      label: l?.circleLabelTroisaVersement ?? '3a - Versement',
       status: contributionStatus,
       detail: contribution3a != null
           ? 'CHF ${contribution3a.toStringAsFixed(0)}/an (max: ${maxContribution.toStringAsFixed(0)})'
@@ -185,7 +187,7 @@ class CircleScoringService {
       lppStatus = ItemStatus.unknown;
     }
     items.add(ScoreItem(
-      label: 'LPP - Rachat',
+      label: l?.circleLabelLppRachat ?? 'LPP - Rachat',
       status: lppStatus,
       detail: lppBuyback != null && lppBuyback > 0
           ? 'CHF ${lppBuyback.toStringAsFixed(0)} disponibles'
@@ -289,7 +291,7 @@ class CircleScoringService {
     }
 
     items.add(ScoreItem(
-      label: 'AVS',
+      label: l?.circleLabelAvs ?? 'AVS',
       status: avsStatus,
       detail: avsDetail,
       weight: 1.0,
@@ -300,7 +302,7 @@ class CircleScoringService {
     final percentage = (totalScore / totalWeight) * 100;
 
     return CircleScore(
-      circleName: 'Prévoyance Fiscale',
+      circleName: l?.circleNamePrevoyance ?? 'Prévoyance Fiscale',
       circleNumber: 2,
       percentage: percentage,
       level: _percentageToLevel(percentage),
@@ -310,7 +312,7 @@ class CircleScoringService {
   }
 
   /// CERCLE 3 : CROISSANCE
-  CircleScore _scoreCircle3Croissance(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle3Croissance(Map<String, dynamic> answers, S? l) {
     final items = <ScoreItem>[];
     double totalWeight = 0;
     double totalScore = 0;
@@ -319,9 +321,9 @@ class CircleScoringService {
     final hasInvestments = answers['q_has_investments'] == 'yes';
     final investStatus = hasInvestments ? ItemStatus.good : ItemStatus.warning;
     items.add(ScoreItem(
-      label: 'Investissements',
+      label: l?.circleLabelInvestissements ?? 'Investissements',
       status: investStatus,
-      detail: hasInvestments ? 'Actif' : 'Non diversifié',
+      detail: hasInvestments ? 'Actif' : 'Non diversifié', // Internal detail — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -331,9 +333,9 @@ class CircleScoringService {
     final isOwner = answers['q_housing_status'] == 'owner';
     final ownerStatus = isOwner ? ItemStatus.good : ItemStatus.warning;
     items.add(ScoreItem(
-      label: 'Patrimoine immobilier',
+      label: l?.circleLabelPatrimoineImmobilier ?? 'Patrimoine immobilier',
       status: ownerStatus,
-      detail: isOwner ? 'Propriétaire' : 'Locataire',
+      detail: isOwner ? 'Propriétaire' : 'Locataire', // Internal detail — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -342,7 +344,7 @@ class CircleScoringService {
     final percentage = (totalScore / totalWeight) * 100;
 
     return CircleScore(
-      circleName: 'Croissance',
+      circleName: l?.circleNameCroissance ?? 'Croissance',
       circleNumber: 3,
       percentage: percentage,
       level: _percentageToLevel(percentage),
@@ -352,15 +354,15 @@ class CircleScoringService {
   }
 
   /// CERCLE 4 : OPTIMISATION
-  CircleScore _scoreCircle4Optimisation(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle4Optimisation(S? l) {
     // Simplifié pour l'instant
-    return const CircleScore(
-      circleName: 'Optimisation & Transmission',
+    return CircleScore(
+      circleName: l?.circleNameOptimisation ?? 'Optimisation & Transmission',
       circleNumber: 4,
       percentage: 20,
       level: ScoreLevel.needsImprovement,
-      items: [],
-      recommendations: ['Cercles 1-3 à compléter en priorité'],
+      items: const [],
+      recommendations: const ['Cercles 1-3 à compléter en priorité'], // Internal — not extracted
     );
   }
 

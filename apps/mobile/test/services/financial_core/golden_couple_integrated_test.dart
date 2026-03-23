@@ -18,7 +18,11 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -738,6 +742,123 @@ void main() {
         lessThan(kJulienLppRachatMax),
         reason: 'Lauren (43, 67k, HOTELA standard) has smaller buyback gap than Julien (49, 122k, CPE)',
       );
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  GROUP 9 — CoupleOptimizer: edge cases
+  // ══════════════════════════════════════════════════════════════════════════
+
+  GoalA _retraiteGoal() => GoalA(
+        type: GoalAType.retraite,
+        targetDate: DateTime(2042, 1, 1),
+        label: 'Retraite',
+      );
+
+  CoachProfile _julienProfile() => CoachProfile(
+        firstName: 'Julien',
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 10184,
+        nombreDeMois: 12,
+        etatCivil: CoachCivilStatus.marie,
+        goalA: _retraiteGoal(),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70377,
+          rachatMaximum: 539414,
+          totalEpargne3a: 32000,
+        ),
+      );
+
+  group('CoupleOptimizer — edge cases', () {
+    test('G9.1 conjoint null (divorced profile) → returns empty, no crash', () {
+      // Simulates a divorced user who has no conjoint in the profile.
+      // optimize() must return empty and never throw.
+      final result = CoupleOptimizer.optimize(
+        mainUser: _julienProfile(),
+        conjoint: null,
+      );
+      expect(result.hasResults, isFalse,
+          reason: 'No conjoint → empty result');
+      expect(result.lppBuybackOrder, isNull);
+      expect(result.pillar3aOrder, isNull);
+      expect(result.avsCap, isNull);
+      expect(result.marriagePenalty, isNull);
+    });
+
+    test('G9.2 conjoint salary 0 → returns empty, no crash', () {
+      // Conjoint with zero salary is unusable for tax comparisons.
+      // The guard in optimize() must catch this and return empty.
+      const conjointZeroSalary = ConjointProfile(
+        birthYear: 1982,
+        salaireBrutMensuel: 0,
+      );
+      final result = CoupleOptimizer.optimize(
+        mainUser: _julienProfile(),
+        conjoint: conjointZeroSalary,
+      );
+      expect(result.hasResults, isFalse,
+          reason: 'Conjoint salary=0 → no usable income → empty result');
+      expect(result.lppBuybackOrder, isNull);
+      expect(result.pillar3aOrder, isNull);
+      expect(result.avsCap, isNull);
+      expect(result.marriagePenalty, isNull);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  GROUP 10 — BudgetLivingEngine: retired age edge cases
+  // ══════════════════════════════════════════════════════════════════════════
+
+  CoachProfile _profileAtAge(int birthYear) => CoachProfile(
+        birthYear: birthYear,
+        canton: 'VS',
+        salaireBrutMensuel: 5000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(DateTime.now().year + 1, 1, 1),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 200000,
+        ),
+      );
+
+  group('BudgetLivingEngine — retired mode (age >= targetRetirementAge)', () {
+    test('G10.1 age 70 → does NOT return presentOnly (isRetired=true path)', () {
+      // birthYear such that age == 70 in the current year.
+      final profile = _profileAtAge(DateTime.now().year - 70);
+      final snapshot = BudgetLivingEngine.compute(profile);
+      // Must NOT be presentOnly — retired users get fullGapVisible or
+      // emergingRetirement (from the isRetired branch).
+      expect(
+        snapshot.stage,
+        isNot(BudgetStage.presentOnly),
+        reason: 'Age 70 >= targetRetirementAge 65 → retired branch, not presentOnly',
+      );
+    });
+
+    test('G10.2 age 75 → does NOT return presentOnly (isRetired=true path)', () {
+      final profile = _profileAtAge(DateTime.now().year - 75);
+      final snapshot = BudgetLivingEngine.compute(profile);
+      expect(
+        snapshot.stage,
+        isNot(BudgetStage.presentOnly),
+        reason: 'Age 75 >= targetRetirementAge 65 → retired branch, not presentOnly',
+      );
+    });
+
+    test('G10.3 age 70 → confidenceScore is a valid number (not NaN)', () {
+      final profile = _profileAtAge(DateTime.now().year - 70);
+      final snapshot = BudgetLivingEngine.compute(profile);
+      expect(snapshot.confidenceScore.isNaN, isFalse);
+      expect(snapshot.confidenceScore.isInfinite, isFalse);
+      expect(snapshot.confidenceScore, inInclusiveRange(0.0, 100.0));
+    });
+
+    test('G10.4 age 75 → never throws', () {
+      final profile = _profileAtAge(DateTime.now().year - 75);
+      expect(() => BudgetLivingEngine.compute(profile), returnsNormally);
     });
   });
 }
