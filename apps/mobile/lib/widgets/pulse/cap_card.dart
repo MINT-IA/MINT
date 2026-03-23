@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -27,7 +26,8 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 class CapCard extends StatelessWidget {
   final CapDecision cap;
 
-  /// Optional: recent action feedback (e.g. "Ajouté hier").
+  /// Kept for API compatibility but no longer rendered in the card.
+  /// Feedback is shown via a snackbar instead.
   final String? recentActionLabel;
 
   const CapCard({
@@ -60,16 +60,6 @@ class CapCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Recent action feedback
-              if (recentActionLabel != null) ...[
-                _buildFeedbackPill(),
-                const SizedBox(height: MintSpacing.sm + 4),
-              ],
-
-              // Kind pill
-              _buildKindPill(context),
-              const SizedBox(height: MintSpacing.sm + 4),
-
               // Headline
               Text(
                 cap.headline,
@@ -115,57 +105,9 @@ class CapCard extends StatelessWidget {
 
               // CTA button
               _buildCta(context),
-
-              // Confidence label
-              if (cap.confidenceLabel != null) ...[
-                const SizedBox(height: MintSpacing.sm + 4),
-                Text(
-                  cap.confidenceLabel!,
-                  style: MintTextStyles.micro(),
-                ),
-              ],
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildKindPill(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: _kindColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        _kindLabel(context),
-        style: MintTextStyles.labelSmall(color: _kindColor),
-      ),
-    );
-  }
-
-  Widget _buildFeedbackPill() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: MintColors.success.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.check_circle_outline_rounded,
-            size: 14,
-            color: MintColors.success.withValues(alpha: 0.7),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            recentActionLabel!,
-            style: MintTextStyles.labelSmall(color: MintColors.success),
-          ),
-        ],
       ),
     );
   }
@@ -249,26 +191,6 @@ class CapCard extends StatelessWidget {
     });
   }
 
-  // ── COMPUTED ──────────────────────────────────────────────
-
-  String _kindLabel(BuildContext context) {
-    final l = S.of(context)!;
-    return switch (cap.kind) {
-      CapKind.complete => l.capKindComplete,
-      CapKind.correct => l.capKindCorrect,
-      CapKind.optimize => l.capKindOptimize,
-      CapKind.secure => l.capKindSecure,
-      CapKind.prepare => l.capKindPrepare,
-    };
-  }
-
-  Color get _kindColor => switch (cap.kind) {
-        CapKind.complete => MintColors.info,
-        CapKind.correct => MintColors.warning,
-        CapKind.optimize => MintColors.success,
-        CapKind.secure => MintColors.error,
-        CapKind.prepare => MintColors.primary,
-      };
 }
 
 /// Bridge for passing coach prompt from CapCard to CoachChatScreen.

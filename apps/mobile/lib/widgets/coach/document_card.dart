@@ -7,7 +7,7 @@
 /// Design contract (MINT_UX_GRAAL_MASTERPLAN.md):
 /// - Read-only posture: MINT generates, never submits.
 /// - [AgentValidationGate] MUST approve before display.
-/// - All text via AppLocalizations (zero hardcoded strings).
+/// - All text via S (zero hardcoded strings).
 /// - MintColors, MintTextStyles, MintSpacing only — no hardcoded hex.
 ///
 /// Compliance:
@@ -60,7 +60,7 @@ class DocumentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+    final l = S.of(context)!;
     final isForm = formPrefill != null;
     final title = isForm ? _formTypeLabel(formPrefill!.formType, l) : letter!.subject;
     final disclaimer = isForm ? formPrefill!.disclaimer : letter!.disclaimer;
@@ -103,14 +103,14 @@ class DocumentCard extends StatelessWidget {
                       children: [
                         Text(
                           l.docCardTitle,
-                          style: MintTextStyles.captionBold.copyWith(
+                          style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.w700).copyWith(
                             color: MintColors.primary,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           title,
-                          style: MintTextStyles.bodyMedium.copyWith(
+                          style: MintTextStyles.bodyMedium().copyWith(
                             color: MintColors.textPrimary,
                           ),
                         ),
@@ -144,7 +144,7 @@ class DocumentCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       l.docCardReadOnly,
-                      style: MintTextStyles.caption.copyWith(
+                      style: MintTextStyles.labelSmall().copyWith(
                         color: MintColors.textSecondary,
                       ),
                     ),
@@ -163,7 +163,7 @@ class DocumentCard extends StatelessWidget {
               ),
               child: Text(
                 disclaimer,
-                style: MintTextStyles.caption.copyWith(
+                style: MintTextStyles.labelSmall().copyWith(
                   color: MintColors.textSecondary,
                   fontStyle: FontStyle.italic,
                 ),
@@ -179,7 +179,7 @@ class DocumentCard extends StatelessWidget {
   //  FORM FIELDS — tabular display
   // ──────────────────────────────────────────────────────────────
 
-  Widget _buildFormFields(FormPrefill form, AppLocalizations l) {
+  Widget _buildFormFields(FormPrefill form, S l) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: MintSpacing.md,
@@ -200,7 +200,7 @@ class DocumentCard extends StatelessWidget {
             ),
             child: Text(
               l.docCardFieldCount(form.fields.length),
-              style: MintTextStyles.caption.copyWith(
+              style: MintTextStyles.labelSmall().copyWith(
                 color: MintColors.primary,
               ),
             ),
@@ -217,7 +217,7 @@ class DocumentCard extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       field.label,
-                      style: MintTextStyles.caption.copyWith(
+                      style: MintTextStyles.labelSmall().copyWith(
                         color: MintColors.textSecondary,
                       ),
                     ),
@@ -230,7 +230,7 @@ class DocumentCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             field.value,
-                            style: MintTextStyles.bodySmall.copyWith(
+                            style: MintTextStyles.bodySmall().copyWith(
                               color: MintColors.textPrimary,
                             ),
                           ),
@@ -259,7 +259,7 @@ class DocumentCard extends StatelessWidget {
   //  LETTER PREVIEW — truncated body + placeholder count
   // ──────────────────────────────────────────────────────────────
 
-  Widget _buildLetterPreview(GeneratedLetter letter, AppLocalizations l) {
+  Widget _buildLetterPreview(GeneratedLetter letter, S l) {
     // Show first ~200 chars of body as preview
     final preview = letter.body.length > 200
         ? '${letter.body.substring(0, 200)}\u2026'
@@ -285,7 +285,7 @@ class DocumentCard extends StatelessWidget {
             ),
             child: Text(
               l.docCardFieldCount(letter.placeholders.length),
-              style: MintTextStyles.caption.copyWith(
+              style: MintTextStyles.labelSmall().copyWith(
                 color: MintColors.primary,
               ),
             ),
@@ -298,12 +298,12 @@ class DocumentCard extends StatelessWidget {
               color: MintColors.background,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: MintColors.divider,
+                color: MintColors.border,
               ),
             ),
             child: Text(
               preview,
-              style: MintTextStyles.caption.copyWith(
+              style: MintTextStyles.labelSmall().copyWith(
                 color: MintColors.textPrimary,
                 height: 1.5,
               ),
@@ -321,7 +321,7 @@ class DocumentCard extends StatelessWidget {
   // ──────────────────────────────────────────────────────────────
 
   /// Map a form type ID to a human-readable i18n label.
-  static String _formTypeLabel(String formType, AppLocalizations l) {
+  static String _formTypeLabel(String formType, S l) {
     return switch (formType) {
       'taxDeclaration' => l.docCardFiscalDeclaration,
       'lppBuyback' => l.docCardLppBuybackRequest,

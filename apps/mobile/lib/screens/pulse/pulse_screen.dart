@@ -11,8 +11,6 @@ import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_step_title_resolver.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
-import 'package:mint_mobile/services/gamification/community_challenge_service.dart';
-import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -22,13 +20,9 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
-import 'package:mint_mobile/widgets/pulse/cap_sequence_card.dart';
 import 'package:mint_mobile/widgets/pulse/goal_selector_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
-import 'package:mint_mobile/services/nudge/nudge_engine.dart' show Nudge;
-import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ── Goal category resolved from active profile + MintStateProvider ──
@@ -80,10 +74,6 @@ class _PulseScreenState extends State<PulseScreen> {
   ///
   /// Null = auto-detect from MintStateProvider / profile.
   String? _selectedGoalTag;
-
-  /// Nudge IDs dismissed in this session — optimistic UI hide while
-  /// NudgePersistence writes to SharedPreferences async.
-  final Set<String> _sessionDismissedNudgeIds = {};
 
   /// True after the first MintCountUp revelation has played.
   /// Subsequent rebuilds skip the 5-step sequence (just count-up).
@@ -227,11 +217,6 @@ class _PulseScreenState extends State<PulseScreen> {
     final activeGoalIntentTag =
         _selectedGoalTag ?? mintState?.activeGoalIntentTag;
 
-    // Active nudges from MintStateEngine, minus any dismissed in this session.
-    final activeNudges = (mintState?.activeNudges ?? const [])
-        .where((n) => !_sessionDismissedNudgeIds.contains(n.id))
-        .toList();
-
     if (!coachProvider.hasProfile) {
       return _buildEmptyState(context);
     }
@@ -299,39 +284,21 @@ class _PulseScreenState extends State<PulseScreen> {
                 else
                   _buildFallbackAction(context),
 
-                // ── 3b. CAP SEQUENCE ──
+                // ── 3b. COMPACT PLAN PROGRESS (circular) ──
                 if (_cachedSequence != null &&
                     _cachedSequence!.hasSteps) ...[
                   const SizedBox(height: MintSpacing.md),
-                  CapSequenceCard(sequence: _cachedSequence!),
+                  _CompactPlanProgress(sequence: _cachedSequence!),
+                ] else if (mintState?.capSequencePlan != null &&
+                    mintState!.capSequencePlan!.totalCount > 0) ...[
+                  const SizedBox(height: MintSpacing.md),
+                  _CompactPlanProgress(sequence: mintState.capSequencePlan!),
                 ],
-
-                // ── 3c. PLAN PROGRESS (compact CapSequence strip) ──
-                if (mintState?.capSequencePlan != null &&
-                    mintState!.capSequencePlan!.totalCount > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: MintSpacing.lg),
-                    child: _PlanProgressSection(
-                      sequence: mintState.capSequencePlan!,
-                    ),
-                  ),
 
                 const SizedBox(height: MintSpacing.xl),
 
-                // ── 4. DEUX SIGNAUX SECONDAIRES ──
+                // ── 4. DEUX SIGNAUX SECONDAIRES (hard cap: 2) ──
                 _buildSecondarySignals(profile, mintState, l),
-
-                // ── 5. NUDGE PROACTIF (S61 — JITAI) ──
-                if (activeNudges.isNotEmpty) ...[
-                  const SizedBox(height: MintSpacing.xl),
-                  _buildNudgeCard(activeNudges.first, l),
-                ],
-
-                // ── 6. ÉVÉNEMENT SAISONNIER (S66) ──
-                ..._buildSeasonalEventCard(l),
-
-                // ── 7. DÉFI COMMUNAUTAIRE (S66) ──
-                ..._buildCommunityChallenge(l),
 
                 const SizedBox(height: MintSpacing.xxl),
 
@@ -717,284 +684,6 @@ class _PulseScreenState extends State<PulseScreen> {
         : l.pulseFeedbackAddedRecently;
   }
 
-  // ── SECONDARY SIGNALS (max 2) ──
-
-  /// Build a nudge card for a JITAI proactive nudge (S61).
-  Widget _buildNudgeCard(Nudge nudge, S l) {
-    // Resolve i18n title and body from ARB keys via the nudge's titleKey/bodyKey.
-    // Since ARB keys are resolved at compile time, we use a lookup approach.
-    final title = _resolveNudgeText(nudge.titleKey, nudge.params, l);
-    final body = _resolveNudgeText(nudge.bodyKey, nudge.params, l);
-
-    return MintSurface(
-      tone: MintSurfaceTone.sauge,
-      padding: const EdgeInsets.all(MintSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.lightbulb_outline,
-                  size: 18, color: MintColors.primary),
-              const SizedBox(width: MintSpacing.sm),
-              Expanded(
-                child: Text(
-                  title,
-                  style: MintTextStyles.titleMedium(
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-              // Dismiss button — optimistic hide, async persist.
-              GestureDetector(
-                onTap: () async {
-                  if (mounted) {
-                    setState(() => _sessionDismissedNudgeIds.add(nudge.id));
-                  }
-                  final prefs = await SharedPreferences.getInstance();
-                  await NudgePersistence.dismiss(nudge.id, nudge.trigger, prefs);
-                },
-                child: const Icon(Icons.close,
-                    size: 16, color: MintColors.textMuted),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            body,
-            style: MintTextStyles.bodySmall(
-              color: MintColors.textSecondary,
-            ),
-          ),
-          if (nudge.intentTag.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.sm),
-            GestureDetector(
-              onTap: () {
-                // Route to coach chat with the intent tag as initial prompt.
-                context.push('/coach/chat?prompt=${Uri.encodeComponent(nudge.intentTag)}');
-              },
-              child: Text(
-                l.routeSuggestionCta,
-                style: MintTextStyles.labelSmall(
-                  color: MintColors.primary,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  /// Resolve a nudge ARB key to its localized text.
-  /// Handles both simple getters and parameterized methods.
-  /// Falls back to the key name if not found.
-  String _resolveNudgeText(String key, Map<String, String>? params, S l) {
-    final p = params ?? {};
-    switch (key) {
-      // Simple getters
-      case 'nudgeSalaryTitle': return l.nudgeSalaryTitle;
-      case 'nudgeSalaryBody': return l.nudgeSalaryBody;
-      case 'nudgeTaxDeadlineTitle': return l.nudgeTaxDeadlineTitle;
-      case 'nudgeTaxDeadlineBody': return l.nudgeTaxDeadlineBody;
-      case 'nudge3aDeadlineTitle': return l.nudge3aDeadlineTitle;
-      case 'nudgeProfileTitle': return l.nudgeProfileTitle;
-      case 'nudgeProfileBody': return l.nudgeProfileBody;
-      case 'nudgeInactiveTitle': return l.nudgeInactiveTitle;
-      case 'nudgeInactiveBody': return l.nudgeInactiveBody;
-      case 'nudgeGoalProgressTitle': return l.nudgeGoalProgressTitle;
-      case 'nudgeAnniversaryTitle': return l.nudgeAnniversaryTitle;
-      case 'nudgeAnniversaryBody': return l.nudgeAnniversaryBody;
-      case 'nudgeLppBuybackTitle': return l.nudgeLppBuybackTitle;
-      case 'nudgeNewYearTitle': return l.nudgeNewYearTitle;
-      // Parameterized methods
-      case 'nudgeBirthdayTitle': return l.nudgeBirthdayTitle(p['age'] ?? '');
-      case 'nudgeBirthdayBody': return l.nudgeBirthdayBody;
-      case 'nudge3aDeadlineBody':
-        return l.nudge3aDeadlineBody(
-          p['days'] ?? '', p['limit'] ?? '', p['year'] ?? '');
-      case 'nudgeGoalProgressBody':
-        return l.nudgeGoalProgressBody(p['progress'] ?? '');
-      case 'nudgeLppBuybackBody':
-        return l.nudgeLppBuybackBody(p['year'] ?? '');
-      case 'nudgeNewYearBody':
-        return l.nudgeNewYearBody(p['year'] ?? '');
-      default: return key;
-    }
-  }
-
-  // ── SEASONAL EVENT CARD (S66) ─────────────────────────────────
-
-  /// Returns a list with a spacing + card widget if an event is active,
-  /// or an empty list for clean spread-operator insertion.
-  List<Widget> _buildSeasonalEventCard(S l) {
-    final events = SeasonalEventService.activeEvents(now: DateTime.now());
-    if (events.isEmpty) return const [];
-
-    final event = events.first;
-    final String title;
-    final String description;
-
-    switch (event.titleKey) {
-      case 'seasonalTaxSeasonTitle':
-        title = l.seasonalTaxSeasonTitle;
-        description = l.seasonalTaxSeasonDesc;
-        break;
-      case 'seasonal3aCountdownTitle':
-        title = l.seasonal3aCountdownTitle;
-        description = l.seasonal3aCountdownDesc;
-        break;
-      case 'seasonalNewYearResolutionsTitle':
-        title = l.seasonalNewYearResolutionsTitle;
-        description = l.seasonalNewYearResolutionsDesc;
-        break;
-      case 'seasonalMidYearReviewTitle':
-        title = l.seasonalMidYearReviewTitle;
-        description = l.seasonalMidYearReviewDesc;
-        break;
-      case 'seasonalRetirementMonthTitle':
-        title = l.seasonalRetirementMonthTitle;
-        description = l.seasonalRetirementMonthDesc;
-        break;
-      default:
-        return const [];
-    }
-
-    return [
-      const SizedBox(height: MintSpacing.xl),
-      MintSurface(
-        tone: MintSurfaceTone.peche,
-        padding: const EdgeInsets.all(MintSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.event_outlined,
-                    size: 16, color: MintColors.textPrimary),
-                const SizedBox(width: MintSpacing.xs),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              description,
-              style: MintTextStyles.bodySmall(
-                color: MintColors.textSecondary,
-              ),
-            ),
-            if (event.intentTag != null && event.intentTag!.isNotEmpty) ...[
-              const SizedBox(height: MintSpacing.sm),
-              GestureDetector(
-                onTap: () {
-                  context.push(
-                    '/coach/chat?prompt=${Uri.encodeComponent(event.intentTag!)}',
-                  );
-                },
-                child: Text(
-                  l.seasonalEventCta,
-                  style: MintTextStyles.labelSmall(
-                    color: MintColors.primary,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    ];
-  }
-
-  // ── COMMUNITY CHALLENGE CARD (S66) ───────────────────────────
-
-  /// Returns a list with a spacing + card widget for the current month's
-  /// community challenge, or an empty list if none found.
-  List<Widget> _buildCommunityChallenge(S l) {
-    final challenge = CommunityChallengeService.currentChallenge(
-      now: DateTime.now(),
-    );
-    if (challenge == null) return const [];
-
-    final String title;
-    final String description;
-
-    switch (challenge.titleKey) {
-      case 'communityChallenge01Title': title = l.communityChallenge01Title; description = l.communityChallenge01Desc; break;
-      case 'communityChallenge02Title': title = l.communityChallenge02Title; description = l.communityChallenge02Desc; break;
-      case 'communityChallenge03Title': title = l.communityChallenge03Title; description = l.communityChallenge03Desc; break;
-      case 'communityChallenge04Title': title = l.communityChallenge04Title; description = l.communityChallenge04Desc; break;
-      case 'communityChallenge05Title': title = l.communityChallenge05Title; description = l.communityChallenge05Desc; break;
-      case 'communityChallenge06Title': title = l.communityChallenge06Title; description = l.communityChallenge06Desc; break;
-      case 'communityChallenge07Title': title = l.communityChallenge07Title; description = l.communityChallenge07Desc; break;
-      case 'communityChallenge08Title': title = l.communityChallenge08Title; description = l.communityChallenge08Desc; break;
-      case 'communityChallenge09Title': title = l.communityChallenge09Title; description = l.communityChallenge09Desc; break;
-      case 'communityChallenge10Title': title = l.communityChallenge10Title; description = l.communityChallenge10Desc; break;
-      case 'communityChallenge11Title': title = l.communityChallenge11Title; description = l.communityChallenge11Desc; break;
-      case 'communityChallenge12Title': title = l.communityChallenge12Title; description = l.communityChallenge12Desc; break;
-      default: return const [];
-    }
-
-    return [
-      const SizedBox(height: MintSpacing.xl),
-      MintSurface(
-        tone: MintSurfaceTone.sauge,
-        padding: const EdgeInsets.all(MintSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.emoji_events_outlined,
-                    size: 16, color: MintColors.textPrimary),
-                const SizedBox(width: MintSpacing.xs),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              description,
-              style: MintTextStyles.bodySmall(
-                color: MintColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            GestureDetector(
-              onTap: () {
-                final intent = challenge.intentTag;
-                final prompt = intent != null && intent.isNotEmpty
-                    ? intent
-                    : challenge.titleKey;
-                context.push(
-                  '/coach/chat?prompt=${Uri.encodeComponent(prompt)}',
-                );
-              },
-              child: Text(
-                l.communityChallengeCta,
-                style: MintTextStyles.labelSmall(
-                  color: MintColors.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ];
-  }
-
   Widget _buildSecondarySignals(
       CoachProfile profile, MintUserState? mintState, S l) {
     final signals = <Widget>[];
@@ -1072,8 +761,8 @@ class _PulseScreenState extends State<PulseScreen> {
 
     if (signals.isEmpty) return const SizedBox.shrink();
 
-    // Show up to 3 signals (budget libre + retirement + cap impact or patrimoine)
-    const maxSignals = 3;
+    // Hard cap: 2 secondary signals (UX P2 — Hero Plan template).
+    const maxSignals = 2;
     return Column(
       children: [
         for (int i = 0; i < signals.length && i < maxSignals; i++) ...[
@@ -1277,54 +966,42 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 }
 
-// ── PLAN PROGRESS SECTION (compact CapSequence strip) ──
+// ── COMPACT PLAN PROGRESS (circular — UX P2) ──
 //
-//  Minimal, calm progress indicator — Swiss-watch simplicity.
+//  Single-row plan indicator replacing CapSequenceCard + _PlanProgressSection.
 //
 //  Layout:
 //    ┌──────────────────────────────────────┐
-//    │  Mon plan                      3/10  │
-//    │  [═══════░░░░░░░░░░░░░░░░░░░] 30%   │
-//    │  Prochaine étape : Vérifier AVS      │
+//    │  Mon plan    3/10  ·····  (○ 30%)   │
 //    └──────────────────────────────────────┘
 //
-//  Tap → coach chat with current step as prompt.
-//  ONLY rendered when capSequencePlan != null && totalCount > 0.
+//  Row: Column("Mon plan", "3/10") + Spacer + circular progress (44×44)
+//  Center text = percentage in labelSmall.
+//  Tap → bottom sheet with full CapSequence steps.
 
-class _PlanProgressSection extends StatelessWidget {
+class _CompactPlanProgress extends StatelessWidget {
   final CapSequence sequence;
 
-  const _PlanProgressSection({required this.sequence});
+  const _CompactPlanProgress({required this.sequence});
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final currentStep = sequence.currentStep;
-    final stepTitle = currentStep != null
-        ? resolveCapStepTitle(currentStep.titleKey, l) ?? currentStep.titleKey
-        : null;
+    final percent = (sequence.progressPercent * 100).round();
 
     return Semantics(
       label: '${l.pulsePlanTitle}\u00a0: '
           '${l.pulsePlanProgress(sequence.completedCount, sequence.totalCount)}',
-      button: currentStep != null,
+      button: true,
       child: GestureDetector(
-        onTap: currentStep != null
-            ? () {
-                final prompt = stepTitle ?? currentStep.titleKey;
-                context.push(
-                  '/coach/chat?prompt=${Uri.encodeComponent(prompt)}',
-                );
-              }
-            : null,
+        onTap: () => _showCapSequenceSheet(context, sequence),
         behavior: HitTestBehavior.opaque,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            // ── Header: "Mon plan" + "3/10" ──
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // ── Label column ──
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   l.pulsePlanTitle,
@@ -1332,46 +1009,203 @@ class _PlanProgressSection extends StatelessWidget {
                     color: MintColors.textSecondary,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   l.pulsePlanProgress(
                     sequence.completedCount,
                     sequence.totalCount,
                   ),
-                  style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondary,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted,
                   ),
                 ),
               ],
             ),
-
-            const SizedBox(height: MintSpacing.xs),
-
-            // ── Thin progress bar (3px, rounded) ──
-            ClipRRect(
-              borderRadius: BorderRadius.circular(2),
-              child: LinearProgressIndicator(
-                value: sequence.progressPercent,
-                backgroundColor: MintColors.lightBorder,
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  MintColors.primary,
-                ),
-                minHeight: 3,
+            const Spacer(),
+            // ── Circular progress (44×44, 3px stroke) ──
+            SizedBox(
+              width: 44,
+              height: 44,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: CircularProgressIndicator(
+                      value: sequence.progressPercent,
+                      strokeWidth: 3,
+                      backgroundColor:
+                          MintColors.border.withValues(alpha: 0.3),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        MintColors.primary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$percent\u00a0%',
+                    style: MintTextStyles.labelSmall(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // ── Next step label ──
-            if (stepTitle != null) ...[
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                l.pulsePlanNextStep(stepTitle),
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textMuted,
+  /// Show a bottom sheet with the full CapSequence steps.
+  void _showCapSequenceSheet(BuildContext context, CapSequence sequence) {
+    final l = S.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.85,
+        builder: (_, controller) => Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: MintColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              Text(
+                l.pulsePlanTitle,
+                style: MintTextStyles.headlineMedium(),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                l.pulsePlanProgress(
+                  sequence.completedCount,
+                  sequence.totalCount,
+                ),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              Expanded(
+                child: ListView.builder(
+                  controller: controller,
+                  itemCount: sequence.steps.length,
+                  itemBuilder: (_, i) {
+                    final step = sequence.steps[i];
+                    final isCompleted =
+                        step.status == CapStepStatus.completed;
+                    final isCurrent = step.status == CapStepStatus.current;
+                    final isBlocked = step.status == CapStepStatus.blocked;
+                    final title =
+                        resolveCapStepTitle(step.titleKey, l) ??
+                            step.titleKey;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: MintSpacing.sm),
+                      child: Row(
+                        children: [
+                          // Status icon
+                          if (isCompleted)
+                            const Icon(Icons.check_circle_rounded,
+                                size: 18, color: MintColors.success)
+                          else if (isCurrent)
+                            Container(
+                              width: 18,
+                              height: 18,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: MintColors.primary,
+                              ),
+                              child: const Icon(
+                                Icons.play_arrow_rounded,
+                                size: 12,
+                                color: MintColors.white,
+                              ),
+                            )
+                          else if (isBlocked)
+                            const Icon(Icons.lock_outline_rounded,
+                                size: 18, color: MintColors.textMuted)
+                          else
+                            Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: MintColors.border,
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                          const SizedBox(width: MintSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: isCurrent
+                                  ? MintTextStyles.titleMedium(
+                                      color: MintColors.textPrimary)
+                                  : MintTextStyles.bodyMedium(
+                                      color: isCompleted || isBlocked
+                                          ? MintColors.textMuted
+                                          : MintColors.textPrimary,
+                                    ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (isCurrent &&
+                              step.intentTag != null) ...[
+                            const SizedBox(width: MintSpacing.xs),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(ctx).pop();
+                                context.push(step.intentTag!);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: MintSpacing.sm,
+                                  vertical: MintSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: MintColors.primary,
+                                  borderRadius:
+                                      BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  l.capSequenceCurrentStep,
+                                  style: MintTextStyles.labelSmall(
+                                      color: MintColors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
