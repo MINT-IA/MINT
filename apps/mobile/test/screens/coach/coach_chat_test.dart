@@ -202,8 +202,8 @@ void main() {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // Coach avatar uses the psychology icon
-      expect(find.byIcon(Icons.psychology), findsOneWidget);
+      // Coach avatar shows "M" typographic mark
+      expect(find.text('M'), findsWidgets);
     });
 
     testWidgets('disclaimer mentions LSFin', (tester) async {
