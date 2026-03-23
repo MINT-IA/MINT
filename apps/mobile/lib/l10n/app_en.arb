@@ -10253,5 +10253,147 @@
   },
   "dossierUpdatedToday": "Updated today",
   "dossierUpdatedYesterday": "Updated yesterday",
-  "exploreHubOtherTopics": "Other topics"
+  "exploreHubOtherTopics": "Other topics",
+
+  "bankImportSummaryHeader": "SUMMARY",
+  "bankImportTransactionsHeader": "TRANSACTIONS",
+  "bankImportMoreTransactions": "... and {count} more transactions",
+  "@bankImportMoreTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bankImportGenericError": "An error occurred while analyzing the statement.",
+
+  "helpResourcesAppBarTitle": "DEBT HELP",
+  "helpResourcesIntroTitle": "You are not alone",
+  "helpResourcesIntroBody": "In Switzerland, many professional services offer free and confidential support for people facing financial difficulties. Asking for help is an act of courage, not a sign of weakness.",
+  "helpResourcesIntroNote": "All links below lead to external websites. MINT does not transmit any data to these services.",
+  "helpResourcesDettesName": "Dettes Conseils Suisse",
+  "helpResourcesDettesDesc": "Umbrella organization for debt counseling services in Switzerland. Free, confidential and professional advice. More than 30 member services across Switzerland.",
+  "helpResourcesCaritasName": "Caritas \u2014 Debt counseling",
+  "helpResourcesCaritasDesc": "Caritas Switzerland's support service for people in debt. Help with debt relief, negotiation with creditors, personalized budget support.",
+  "helpResourcesFreeLabel": "FREE",
+  "helpResourcesCantonalHeader": "CANTONAL SERVICE",
+  "helpResourcesCantonLabel": "Your canton",
+  "helpResourcesNoService": "No cantonal service listed for this canton. Contact Dettes Conseils Suisse for guidance.",
+  "helpResourcesPrivacyTitle": "Data protection (nDPA)",
+  "helpResourcesPrivacyBody": "MINT does not transmit any personal data to the services listed above. External links open your browser. Your use of this screen remains strictly confidential and is neither recorded nor shared.",
+  "helpResourcesDisclaimer": "MINT provides these links for informational and educational purposes. These services are independent of MINT. MINT does not provide legal or financial advice. In case of financial difficulty, contact the specialized services directly.",
+
+  "successionUrgenceAction1": "Declare the death at the civil registry within 2 days",
+  "successionUrgenceAction2": "Inform the employer and insurances (LAMal, LPP)",
+  "successionUrgenceAction3": "Block joint bank accounts if necessary",
+  "successionUrgenceAction4": "Contact the notary if the person had a will",
+  "successionDemarchesAction1": "Apply for survivor pensions AVS (LAVS art. 23)",
+  "successionDemarchesAction2": "Contact the LPP fund for death capital",
+  "successionDemarchesAction3": "Cancel subscriptions and contracts in the deceased's name",
+  "successionDemarchesAction4": "Take inventory of assets and debts",
+  "successionDemarchesAction5": "Request certificates of heirs from the notary",
+  "successionLegaleAction1": "Open the succession procedure with the notary",
+  "successionLegaleAction2": "Share assets according to the will or law (CC art. 537)",
+  "successionLegaleAction3": "File the tax return for the year of death",
+  "successionLegaleAction4": "Update the beneficiaries of your own contracts",
+
+  "disabilityGapAct1Label": "ACT 1 \u00b7 Employer",
+  "disabilityGapAct1Detail": "80% of your salary paid by your employer",
+  "disabilityGapAct1Duration": "Weeks 1-26",
+  "disabilityGapAct2LabelIjm": "ACT 2 \u00b7 DLI (daily loss of income)",
+  "disabilityGapAct2LabelNoIjm": "ACT 2 \u00b7 No DLI",
+  "disabilityGapAct2SubIjm": "Collective insurance \u2014 80% for up to 720 days",
+  "disabilityGapAct2SubNoIjm": "Without DLI, you go directly to DI after the employer",
+  "disabilityGapAct2Duration": "Up to 24 months",
+  "disabilityGapAct2DetailIjm": "80% of insured salary",
+  "disabilityGapAct2DetailNoIjm": "No coverage \u2014 DI waiting period ongoing",
+  "disabilityGapAct3Label": "ACT 3 \u00b7 DI + LPP (permanent)",
+  "disabilityGapAct3Duration": "After 24 months",
+  "disabilityGapAct3Detail": "DI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/month",
+  "@disabilityGapAct3Detail": {
+    "placeholders": {
+      "aiAmount": { "type": "String" },
+      "lppAmount": { "type": "String" },
+      "totalAmount": { "type": "String" }
+    }
+  },
+  "disabilityGapIjmCoverage": "80% for 720 days \u2014 collective insurance",
+  "disabilityGapNoIjmCoverage": "No DLI subscribed \u2014 maximum risk",
+  "disabilityGapAiDetail": "Max {amount} CHF/month \u2014 ~14 months delay",
+  "@disabilityGapAiDetail": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "disabilityGapLppCovered": "Disability pension \u2248 40% coordinated salary (LPP art. 23)",
+  "disabilityGapLppNotCovered": "Salary below LPP threshold \u2014 no 2nd pillar coverage",
+  "disabilityGapSavingsLabel": "Emergency reserve",
+  "disabilityGapSavingsDetail": "{months} months of expenses covered",
+  "@disabilityGapSavingsDetail": {
+    "placeholders": {
+      "months": { "type": "String" }
+    }
+  },
+  "disabilityGapApgLabel": "DLI / APG (loss of income)",
+  "disabilityGapAiLabel": "DI (disability insurance)",
+  "disabilityGapLppLabel": "LPP disability (2nd pillar)",
+  "disabilityGapDisclaimer": "Educational tool \u2014 does not constitute insurance advice under FinSA. Your actual coverage depends on your employment contract and pension fund.",
+  "disabilityGapSources": "\u2022 DIA art. 28-29 (DI pension)\n\u2022 LPP art. 23-26 (2nd pillar disability)\n\u2022 CO art. 324a (employer salary maintenance)\n\u2022 LPGA art. 19 (waiting period)",
+  "disabilityGapAgeLabel": "{age} years",
+  "@disabilityGapAgeLabel": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+
+  "documentDetailExplanationObligatoire": "Amount accumulated in the mandatory LPP part",
+  "documentDetailExplanationSurobligatoire": "Part beyond the legal minimum",
+  "documentDetailExplanationTotal": "Total of your retirement capital",
+  "documentDetailExplanationSalaireAssure": "Salary on which contributions are calculated",
+  "documentDetailExplanationSalaireAvs": "Salary determining for AHV",
+  "documentDetailExplanationDeduction": "Amount deducted for coordination with AHV",
+  "documentDetailExplanationTauxOblig": "Legal minimum: 6.8%",
+  "documentDetailExplanationTauxSurob": "Set by your pension fund",
+  "documentDetailExplanationTauxEnv": "Weighted average rate",
+  "documentDetailExplanationInvalidite": "Pension in case of disability",
+  "documentDetailExplanationDeces": "Amount paid to beneficiaries in case of death",
+  "documentDetailExplanationConjoint": "Pension paid to the surviving spouse",
+  "documentDetailExplanationEnfant": "Pension paid per child",
+  "documentDetailExplanationRachat": "Amount that can be repurchased to optimize your pension",
+  "documentDetailExplanationEmploye": "Your annual contribution",
+  "documentDetailExplanationEmployeur": "Your employer's contribution",
+
+  "disabilitySelfEmployedAlertLabel": "\ud83d\udea8  SELF-EMPLOYED ALERT",
+  "disabilitySelfEmployedTitle": "Your safety net doesn't exist",
+  "disabilitySelfEmployedAppBarTitle": "Disability \u2014 Self-employed",
+  "disabilitySelfEmployedRevenueTitle": "Your monthly net income",
+  "disabilitySelfEmployedRevenueHint": "Adjust to see the impact on your real situation",
+  "disabilitySelfEmployedRevenueLabel": "Net income/month",
+  "disabilitySelfEmployedInsuranceQuestion": "Do you already have loss of income insurance?",
+  "disabilitySelfEmployedYes": "Yes",
+  "disabilitySelfEmployedNo": "No / I don't know",
+  "disabilitySelfEmployedApgTip": "An individual APG from CHF 45/month can cover 80% of your income for 720 days. It's the most effective safety net for self-employed workers.",
+  "disabilitySelfEmployedDisclaimer": "Educational tool \u2014 does not constitute insurance advice. An independent broker can compare APG offers from different insurers based on your activity and actual income.",
+  "disabilitySelfEmployedSources": "\u2022 LAMal art. 67-77 (health insurance loss of income)\n\u2022 CO art. 324a (employer obligation)\n\u2022 DIA art. 28 (DI pension)\n\u2022 OAHV art. 2 al. 3 (contribution from abroad)",
+
+  "confidenceDashboardTitle": "Profile precision",
+  "confidenceDashboardLevelExcellent": "Excellent",
+  "confidenceDashboardLevelGood": "Good",
+  "confidenceDashboardLevelFair": "Fair",
+  "confidenceDashboardLevelImprove": "Needs improvement",
+  "confidenceDashboardLevelInsufficient": "Insufficient",
+  "confidenceDashboardBreakdownTitle": "Breakdown by axis",
+  "confidenceDashboardFeaturesTitle": "Unlocked features",
+  "confidenceDashboardRequired": "{percent} % required",
+  "@confidenceDashboardRequired": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "confidenceDashboardEnrichTitle": "Improve your precision",
+  "confidenceDashboardSourcesTitle": "Sources",
+
+  "cockpitDetailEmptyState": "Complete your profile to access the detailed cockpit.",
+  "cockpitDetailEnrichProfile": "Enrich my profile",
+  "cockpitDetailDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OAHV art. 21-29, LPP art. 14, OPP3 art. 7."
 }

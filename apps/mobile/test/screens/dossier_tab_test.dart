@@ -17,12 +17,12 @@ import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 //  DOSSIER TAB — Unit + Smoke Tests
 //
 //  Verifies the six sections render correctly from MintUserState:
-//    1. Mon profil  (identity + confidence)
-//    2. Mon plan    (CapSequence progress or choose-goal CTA)
-//    3. Mes données (revenue, LPP, 3a, budget)
-//    4. Benchmarks  (opt-in card when not opted in)
-//    5. Spécialiste + Documents préparés
-//    6. Réglages    (consents, SLM, BYOK)
+//    1. Identité     (identity + confidence)
+//    2. Données      (revenue, LPP, 3a, budget + deltas)
+//    3. Documents    (scanned certs, agent-prepared docs)
+//    4. Couple       (conjoint data, only when isCouple)
+//    5. Plan         (CapSequence progress or choose-goal CTA)
+//    6. Préférences  (consents, SLM, BYOK, specialist)
 // ────────────────────────────────────────────────────────────────────────────
 
 void main() {
@@ -115,14 +115,14 @@ void main() {
     return provider;
   }
 
-  // ── Section 1: Mon profil ────────────────────────────────────────────────
+  // ── Section 1: Identité ────────────────────────────────────────────────
 
-  group('Section 1 — Mon profil', () {
-    testWidgets('renders profile section label', (tester) async {
+  group('Section 1 — Identité', () {
+    testWidgets('renders identity section label', (tester) async {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.text('Mon profil'), findsOneWidget);
+      expect(find.textContaining('Identit'), findsOneWidget);
     });
 
     testWidgets('shows first name initial avatar when MintUserState present',
@@ -200,39 +200,9 @@ void main() {
     });
   });
 
-  // ── Section 2: Mon plan ──────────────────────────────────────────────────
+  // ── Section 2: Données ─────────────────────────────────────────────────
 
-  group('Section 2 — Mon plan', () {
-    testWidgets('renders plan section label', (tester) async {
-      await tester.pumpWidget(buildDossierTab());
-      await tester.pumpAndSettle(const Duration(seconds: 3));
-
-      expect(find.text('Mon plan'), findsOneWidget);
-    });
-
-    testWidgets('shows choose-goal CTA when no capSequencePlan', (tester) async {
-      final profile = buildMinimalProfile();
-      final mintProvider = buildMintStateProvider(profile: profile);
-      // No capSequencePlan set → mintState.capSequencePlan == null.
-
-      await tester.pumpWidget(buildDossierTab(mintStateProvider: mintProvider));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
-
-      expect(find.textContaining('objectif'), findsWidgets);
-    });
-
-    testWidgets('shows choose-goal CTA when no MintState', (tester) async {
-      await tester.pumpWidget(buildDossierTab());
-      await tester.pumpAndSettle(const Duration(seconds: 3));
-
-      // Without any state, the plan section falls back to choose-goal.
-      expect(find.textContaining('objectif'), findsWidgets);
-    });
-  });
-
-  // ── Section 3: Mes données ───────────────────────────────────────────────
-
-  group('Section 3 — Mes données', () {
+  group('Section 2 — Données', () {
     testWidgets('renders data section label', (tester) async {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -275,13 +245,6 @@ void main() {
       expect(find.textContaining('Scanner'), findsOneWidget);
     });
 
-    testWidgets('shows documents row', (tester) async {
-      await tester.pumpWidget(buildDossierTab());
-      await tester.pumpAndSettle(const Duration(seconds: 3));
-
-      expect(find.text('Documents'), findsOneWidget);
-    });
-
     testWidgets('shows monthly margin row label', (tester) async {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -290,30 +253,18 @@ void main() {
     });
   });
 
-  // ── Section 4: Benchmarks ────────────────────────────────────────────────
+  // ── Section 3: Documents ───────────────────────────────────────────────
 
-  group('Section 4 — Comparaison cantonale', () {
-    testWidgets('shows benchmark opt-in card by default', (tester) async {
-      tester.view.physicalSize = const Size(800, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-
-      // SharedPreferences returns empty → not opted in.
+  group('Section 3 — Documents', () {
+    testWidgets('renders documents section label', (tester) async {
       await tester.pumpWidget(buildDossierTab());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      // The opt-in button should be visible after async load.
-      expect(find.textContaining('Activer'), findsWidgets);
+      // The section label "Documents" appears (may also appear as row title).
+      expect(find.textContaining('Documents'), findsWidgets);
     });
-  });
 
-  // ── Section 5 & 6 ────────────────────────────────────────────────────────
-
-  group('Section 5 — Spécialiste', () {
-    testWidgets('shows specialist section title', (tester) async {
+    testWidgets('shows agent-prepared document rows', (tester) async {
       tester.view.physicalSize = const Size(800, 4000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -324,10 +275,15 @@ void main() {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.textContaining('pécialiste'), findsWidgets);
+      // Agent-prepared docs are now in the Documents section.
+      expect(find.textContaining('Certificats'), findsOneWidget);
     });
+  });
 
-    testWidgets('shows agent section title', (tester) async {
+  // ── Section 5: Plan ────────────────────────────────────────────────────
+
+  group('Section 5 — Plan', () {
+    testWidgets('renders plan section label', (tester) async {
       tester.view.physicalSize = const Size(800, 4000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -338,12 +294,45 @@ void main() {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.textContaining('préparés'), findsWidgets);
+      expect(find.text('Mon plan'), findsOneWidget);
+    });
+
+    testWidgets('shows choose-goal CTA when no capSequencePlan', (tester) async {
+      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final profile = buildMinimalProfile();
+      final mintProvider = buildMintStateProvider(profile: profile);
+
+      await tester.pumpWidget(buildDossierTab(mintStateProvider: mintProvider));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      expect(find.textContaining('objectif'), findsWidgets);
+    });
+
+    testWidgets('shows choose-goal CTA when no MintState', (tester) async {
+      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(buildDossierTab());
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      expect(find.textContaining('objectif'), findsWidgets);
     });
   });
 
-  group('Section 6 — Réglages', () {
-    testWidgets('shows réglages section label', (tester) async {
+  // ── Section 6: Préférences ─────────────────────────────────────────────
+
+  group('Section 6 — Préférences', () {
+    testWidgets('shows préférences section label', (tester) async {
       tester.view.physicalSize = const Size(800, 5000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -354,7 +343,7 @@ void main() {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.text('Réglages'), findsOneWidget);
+      expect(find.textContaining('références'), findsOneWidget);
     });
 
     testWidgets('shows consents row', (tester) async {
@@ -369,6 +358,21 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       expect(find.text('Consentements'), findsOneWidget);
+    });
+
+    testWidgets('shows specialist row inside préférences', (tester) async {
+      tester.view.physicalSize = const Size(800, 5000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(buildDossierTab());
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      // Specialist is now a row inside Préférences, not a standalone section.
+      expect(find.textContaining('pécialiste'), findsWidgets);
     });
   });
 
@@ -406,13 +410,21 @@ void main() {
       expect(find.text('Dossier'), findsOneWidget);
     });
 
-    testWidgets('shows all six section labels in order', (tester) async {
+    testWidgets('shows key section labels in new order', (tester) async {
+      tester.view.physicalSize = const Size(800, 5000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.text('Mon profil'), findsOneWidget);
-      expect(find.text('Mon plan'), findsOneWidget);
+      // New section order: Identité → Données → Documents → Plan → Préférences
+      expect(find.textContaining('Identit'), findsOneWidget);
       expect(find.text('Mes données'), findsOneWidget);
+      expect(find.text('Mon plan'), findsOneWidget);
     });
   });
 }

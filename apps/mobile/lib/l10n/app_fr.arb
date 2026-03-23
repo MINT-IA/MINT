@@ -10603,5 +10603,147 @@
   },
   "dossierUpdatedToday": "Mis \u00e0 jour aujourd\u2019hui",
   "dossierUpdatedYesterday": "Mis \u00e0 jour hier",
-  "exploreHubOtherTopics": "Autres th\u00e9matiques"
+  "exploreHubOtherTopics": "Autres th\u00e9matiques",
+
+  "bankImportSummaryHeader": "R\u00c9SUM\u00c9",
+  "bankImportTransactionsHeader": "TRANSACTIONS",
+  "bankImportMoreTransactions": "... et {count} autres transactions",
+  "@bankImportMoreTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bankImportGenericError": "Une erreur est survenue lors de l\u2019analyse du relev\u00e9.",
+
+  "helpResourcesAppBarTitle": "AIDE EN CAS DE DETTE",
+  "helpResourcesIntroTitle": "Vous n\u2019\u00eates pas seul",
+  "helpResourcesIntroBody": "En Suisse, de nombreux services professionnels offrent un accompagnement gratuit et confidentiel pour les personnes confront\u00e9es \u00e0 des difficult\u00e9s financi\u00e8res. Demander de l\u2019aide est un acte de courage, pas un signe de faiblesse.",
+  "helpResourcesIntroNote": "Tous les liens ci-dessous m\u00e8nent vers des sites externes. MINT ne transmet aucune donn\u00e9e \u00e0 ces services.",
+  "helpResourcesDettesName": "Dettes Conseils Suisse",
+  "helpResourcesDettesDesc": "F\u00e9d\u00e9ration fa\u00eeti\u00e8re des services de conseil en dettes en Suisse. Conseil gratuit, confidentiel et professionnel. Plus de 30 services membres dans toute la Suisse.",
+  "helpResourcesCaritasName": "Caritas \u2014 Conseil en dettes",
+  "helpResourcesCaritasDesc": "Service d\u2019aide de Caritas Suisse pour les personnes en situation d\u2019endettement. Aide au d\u00e9sendettement, n\u00e9gociation avec les cr\u00e9anciers, accompagnement budg\u00e9taire personnalis\u00e9.",
+  "helpResourcesFreeLabel": "GRATUIT",
+  "helpResourcesCantonalHeader": "SERVICE CANTONAL",
+  "helpResourcesCantonLabel": "Votre canton",
+  "helpResourcesNoService": "Aucun service cantonal r\u00e9f\u00e9renc\u00e9 pour ce canton. Contactez Dettes Conseils Suisse pour \u00eatre orient\u00e9.",
+  "helpResourcesPrivacyTitle": "Protection des donn\u00e9es (nLPD)",
+  "helpResourcesPrivacyBody": "MINT ne transmet aucune donn\u00e9e personnelle aux services r\u00e9f\u00e9renc\u00e9s ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet \u00e9cran reste strictement confidentielle et n\u2019est ni enregistr\u00e9e ni partag\u00e9e.",
+  "helpResourcesDisclaimer": "MINT fournit ces liens \u00e0 titre informatif et p\u00e9dagogique. Ces services sont ind\u00e9pendants de MINT. MINT ne fournit pas de conseil juridique ou financier. En cas de difficult\u00e9 financi\u00e8re, contactez directement les services sp\u00e9cialis\u00e9s.",
+
+  "successionUrgenceAction1": "D\u00e9clarer le d\u00e9c\u00e8s \u00e0 l\u2019\u00e9tat civil dans les 2 jours",
+  "successionUrgenceAction2": "Informer l\u2019employeur et les assurances (LAMal, LPP)",
+  "successionUrgenceAction3": "Bloquer les comptes bancaires conjoints si n\u00e9cessaire",
+  "successionUrgenceAction4": "Contacter le notaire si la personne avait un testament",
+  "successionDemarchesAction1": "Demander les rentes de survivants AVS (LAVS art. 23)",
+  "successionDemarchesAction2": "Contacter la caisse LPP pour le capital d\u00e9c\u00e8s",
+  "successionDemarchesAction3": "R\u00e9silier les abonnements et contrats au nom du d\u00e9funt",
+  "successionDemarchesAction4": "Faire l\u2019inventaire des avoirs et dettes",
+  "successionDemarchesAction5": "Demander les certificats d\u2019h\u00e9ritiers au notaire",
+  "successionLegaleAction1": "Ouvrir la proc\u00e9dure de succession avec le notaire",
+  "successionLegaleAction2": "Partager les biens selon le testament ou la loi (CC art. 537)",
+  "successionLegaleAction3": "D\u00e9poser la d\u00e9claration fiscale pour l\u2019ann\u00e9e du d\u00e9c\u00e8s",
+  "successionLegaleAction4": "Mettre \u00e0 jour les b\u00e9n\u00e9ficiaires de vos propres contrats",
+
+  "disabilityGapAct1Label": "ACTE 1 \u00b7 Employeur",
+  "disabilityGapAct1Detail": "80\u00a0% de ton salaire vers\u00e9 par ton employeur",
+  "disabilityGapAct1Duration": "Semaines 1-26",
+  "disabilityGapAct2LabelIjm": "ACTE 2 \u00b7 IJM (assurance maladie)",
+  "disabilityGapAct2LabelNoIjm": "ACTE 2 \u00b7 Pas d\u2019IJM",
+  "disabilityGapAct2SubIjm": "Assurance collective \u2014 80% pendant 720 jours max",
+  "disabilityGapAct2SubNoIjm": "Sans IJM, tu passes directement \u00e0 l\u2019AI apr\u00e8s l\u2019employeur",
+  "disabilityGapAct2Duration": "Jusqu\u2019\u00e0 24 mois",
+  "disabilityGapAct2DetailIjm": "80% du salaire assur\u00e9",
+  "disabilityGapAct2DetailNoIjm": "Aucune couverture \u2014 d\u00e9lai AI en cours",
+  "disabilityGapAct3Label": "ACTE 3 \u00b7 AI + LPP (d\u00e9finitif)",
+  "disabilityGapAct3Duration": "Apr\u00e8s 24 mois",
+  "disabilityGapAct3Detail": "AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois",
+  "@disabilityGapAct3Detail": {
+    "placeholders": {
+      "aiAmount": { "type": "String" },
+      "lppAmount": { "type": "String" },
+      "totalAmount": { "type": "String" }
+    }
+  },
+  "disabilityGapIjmCoverage": "80% pendant 720 jours \u2014 assurance collective",
+  "disabilityGapNoIjmCoverage": "Aucune IJM souscrite \u2014 risque maximal",
+  "disabilityGapAiDetail": "Max {amount} CHF/mois \u2014 d\u00e9lai ~14 mois",
+  "@disabilityGapAiDetail": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "disabilityGapLppCovered": "Rente invalidit\u00e9 \u2248 40% salaire coordonn\u00e9 (LPP art. 23)",
+  "disabilityGapLppNotCovered": "Salaire sous le seuil LPP \u2014 pas de couverture 2e pilier",
+  "disabilityGapSavingsLabel": "R\u00e9serve d\u2019urgence",
+  "disabilityGapSavingsDetail": "{months} mois de charges couverts",
+  "@disabilityGapSavingsDetail": {
+    "placeholders": {
+      "months": { "type": "String" }
+    }
+  },
+  "disabilityGapApgLabel": "APG / IJM (perte de gain)",
+  "disabilityGapAiLabel": "AI (assurance invalidit\u00e9)",
+  "disabilityGapLppLabel": "LPP invalidit\u00e9 (2e pilier)",
+  "disabilityGapDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures r\u00e9elles d\u00e9pendent de ton contrat de travail et de ta caisse de pension.",
+  "disabilityGapSources": "\u2022 LAI art. 28-29 (rente AI)\n\u2022 LPP art. 23-26 (invalidit\u00e9 2e pilier)\n\u2022 CO art. 324a (maintien salaire employeur)\n\u2022 LPGA art. 19 (d\u00e9lai de carence)",
+  "disabilityGapAgeLabel": "{age} ans",
+  "@disabilityGapAgeLabel": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+
+  "documentDetailExplanationObligatoire": "Montant accumul\u00e9 dans la part obligatoire LPP",
+  "documentDetailExplanationSurobligatoire": "Part au-del\u00e0 du minimum l\u00e9gal",
+  "documentDetailExplanationTotal": "Total de ton capital de vieillesse",
+  "documentDetailExplanationSalaireAssure": "Salaire sur lequel les cotisations sont calcul\u00e9es",
+  "documentDetailExplanationSalaireAvs": "Salaire d\u00e9terminant pour l\u2019AVS",
+  "documentDetailExplanationDeduction": "Montant d\u00e9duit pour coordonner avec l\u2019AVS",
+  "documentDetailExplanationTauxOblig": "L\u00e9gal minimum\u00a0: 6.8%",
+  "documentDetailExplanationTauxSurob": "Fix\u00e9 par ta caisse de pension",
+  "documentDetailExplanationTauxEnv": "Taux moyen pond\u00e9r\u00e9",
+  "documentDetailExplanationInvalidite": "Rente en cas d\u2019incapacit\u00e9 de travail",
+  "documentDetailExplanationDeces": "Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s",
+  "documentDetailExplanationConjoint": "Rente vers\u00e9e au conjoint survivant",
+  "documentDetailExplanationEnfant": "Rente vers\u00e9e par enfant",
+  "documentDetailExplanationRachat": "Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance",
+  "documentDetailExplanationEmploye": "Ta contribution annuelle",
+  "documentDetailExplanationEmployeur": "Contribution de ton employeur",
+
+  "disabilitySelfEmployedAlertLabel": "\ud83d\udea8  ALERTE IND\u00c9PENDANT",
+  "disabilitySelfEmployedTitle": "Ton filet n\u2019existe pas",
+  "disabilitySelfEmployedAppBarTitle": "Invalidit\u00e9 \u2014 Ind\u00e9pendant\u00b7e",
+  "disabilitySelfEmployedRevenueTitle": "Ton revenu mensuel net",
+  "disabilitySelfEmployedRevenueHint": "Ajuste pour voir l\u2019impact sur ta situation r\u00e9elle",
+  "disabilitySelfEmployedRevenueLabel": "Revenu net/mois",
+  "disabilitySelfEmployedInsuranceQuestion": "Tu as d\u00e9j\u00e0 une assurance perte de gain\u00a0?",
+  "disabilitySelfEmployedYes": "Oui",
+  "disabilitySelfEmployedNo": "Non / Je ne sais pas",
+  "disabilitySelfEmployedApgTip": "Une APG individuelle d\u00e8s CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. C\u2019est le filet le plus efficace pour un\u00b7e ind\u00e9pendant\u00b7e.",
+  "disabilitySelfEmployedDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil en assurance. Un\u00b7e courtier\u00b7\u00e8re ind\u00e9pendant\u00b7e peut comparer les offres APG de diff\u00e9rents assureurs selon ton activit\u00e9 et ton revenu r\u00e9el.",
+  "disabilitySelfEmployedSources": "\u2022 LAMal art. 67-77 (assurance maladie perte de gain)\n\u2022 CO art. 324a (obligation employeur)\n\u2022 LAI art. 28 (rente AI)\n\u2022 LAVS art. 2 al. 3 (cotisation depuis l\u2019\u00e9tranger)",
+
+  "confidenceDashboardTitle": "Pr\u00e9cision de ton profil",
+  "confidenceDashboardLevelExcellent": "Excellente",
+  "confidenceDashboardLevelGood": "Bonne",
+  "confidenceDashboardLevelFair": "Correcte",
+  "confidenceDashboardLevelImprove": "\u00c0 am\u00e9liorer",
+  "confidenceDashboardLevelInsufficient": "Insuffisante",
+  "confidenceDashboardBreakdownTitle": "D\u00e9tail par axe",
+  "confidenceDashboardFeaturesTitle": "Fonctionnalit\u00e9s d\u00e9bloqu\u00e9es",
+  "confidenceDashboardRequired": "{percent} % requis",
+  "@confidenceDashboardRequired": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "confidenceDashboardEnrichTitle": "Am\u00e9liore ta pr\u00e9cision",
+  "confidenceDashboardSourcesTitle": "Sources",
+
+  "cockpitDetailEmptyState": "Compl\u00e8te ton profil pour acc\u00e9der au cockpit d\u00e9taill\u00e9.",
+  "cockpitDetailEnrichProfile": "Enrichir mon profil",
+  "cockpitDetailDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7."
 }

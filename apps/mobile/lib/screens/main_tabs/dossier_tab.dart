@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -8,23 +11,25 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
-import 'package:mint_mobile/services/benchmark/benchmark_comparison_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
-import 'package:mint_mobile/services/benchmark/benchmark_opt_in_service.dart';
 import 'package:mint_mobile/models/coaching_preference.dart';
-import 'package:mint_mobile/services/expert/advisor_specialization.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
+/// SharedPreferences key for the last time the user visited the Dossier tab.
+const _kLastDossierVisit = 'dossier_last_visit_ts';
+
+/// SharedPreferences key for the snapshot of financial values at last visit.
+const _kDossierSnapshot = 'dossier_values_snapshot';
+
 /// Tab 3 — Dossier
 ///
 /// "Mes données, mes documents, mes réglages."
 /// Mirror unifié de l'état utilisateur via [MintUserState].
-/// Six sections : Mon profil, Mon plan, Mes données, Comparaison cantonale,
-/// Spécialiste + Documents préparés, Réglages.
+/// Six sections : Identité, Données, Documents, Couple, Plan, Préférences.
 ///
 /// Design: fond porcelaine, sections MintSurface(blanc), espacement xl.
 /// Espace personnel calme — pas de couleurs vives, icônes textSecondary.
@@ -36,13 +41,86 @@ class DossierTab extends StatefulWidget {
 }
 
 class _DossierTabState extends State<DossierTab> {
-  bool _benchmarkOptedIn = false;
-  bool _benchmarkLoaded = false;
+  /// Previous financial values snapshot for delta computation.
+  Map<String, double> _previousValues = {};
+
+  bool _snapshotLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadBenchmarkOptIn();
+    _loadSnapshot();
+  }
+
+  @override
+  void dispose() {
+    _saveSnapshot();
+    super.dispose();
+  }
+
+  /// Load previous snapshot + last visit timestamp from SharedPreferences.
+  Future<void> _loadSnapshot() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Load previous values snapshot.
+      final snapshotJson = prefs.getString(_kDossierSnapshot);
+      if (snapshotJson != null) {
+        final decoded = json.decode(snapshotJson) as Map<String, dynamic>;
+        _previousValues = decoded.map(
+          (k, v) => MapEntry(k, (v as num).toDouble()),
+        );
+      }
+
+      if (mounted) setState(() => _snapshotLoaded = true);
+    } catch (_) {
+      if (mounted) setState(() => _snapshotLoaded = true);
+    }
+  }
+
+  /// Save current financial values + timestamp on dispose.
+  Future<void> _saveSnapshot() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Save current timestamp.
+      await prefs.setInt(
+        _kLastDossierVisit,
+        DateTime.now().millisecondsSinceEpoch,
+      );
+
+      // Build current values map.
+      final currentValues = _buildCurrentValues();
+      if (currentValues.isNotEmpty) {
+        await prefs.setString(_kDossierSnapshot, json.encode(currentValues));
+      }
+    } catch (_) {
+      // Silent — non-critical.
+    }
+  }
+
+  /// Build a map of current financial values for snapshot comparison.
+  Map<String, double> _buildCurrentValues() {
+    MintUserState? mintState;
+    try {
+      mintState = context.read<MintStateProvider>().state;
+    } catch (_) {
+      mintState = null;
+    }
+    final provider = context.read<CoachProfileProvider>();
+    final profile = mintState?.profile ?? provider.profile;
+    final prev = profile?.prevoyance;
+
+    final values = <String, double>{};
+    final lpp = prev?.avoirLppTotal;
+    if (lpp != null && lpp > 0) values['lpp'] = lpp;
+    final total3a = prev?.totalEpargne3a ?? 0.0;
+    if (total3a > 0) values['3a'] = total3a;
+    final patrimoine = profile?.patrimoine.totalPatrimoine;
+    if (patrimoine != null && patrimoine > 0) values['patrimoine'] = patrimoine;
+    final monthlyFree = mintState?.monthlyFree;
+    if (monthlyFree != null) values['marge'] = monthlyFree;
+    return values;
   }
 
   void _showCoachingPreferenceSheet(BuildContext context, S l) {
@@ -55,29 +133,6 @@ class _DossierTabState extends State<DossierTab> {
       ),
       builder: (_) => _CoachingPreferenceSheet(l: l),
     );
-  }
-
-  Future<void> _loadBenchmarkOptIn() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final optedIn = await BenchmarkOptInService.isOptedIn(prefs);
-      if (mounted) {
-        setState(() {
-          _benchmarkOptedIn = optedIn;
-          _benchmarkLoaded = true;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _benchmarkLoaded = true);
-    }
-  }
-
-  Future<void> _enableBenchmark() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await BenchmarkOptInService.setOptIn(true, prefs);
-      if (mounted) setState(() => _benchmarkOptedIn = true);
-    } catch (_) {}
   }
 
   @override
@@ -95,10 +150,13 @@ class _DossierTabState extends State<DossierTab> {
     // Derived from MintUserState when available; fall back to CoachProfileProvider.
     final firstName = mintState?.profile.firstName
         ?? (provider.hasProfile ? (provider.profile!.firstName ?? '') : '');
-    final canton = mintState?.profile.canton
-        ?? (provider.hasProfile ? provider.profile!.canton : '');
     final confidenceScore = mintState?.confidenceScore ?? 0.0;
     final confidencePct = (confidenceScore * 100).round().clamp(0, 100);
+    final profile = mintState?.profile ?? provider.profile;
+    final isCouple = profile?.isCouple ?? false;
+
+    // Timestamps for section freshness display.
+    final timestamps = profile?.dataTimestamps ?? const {};
 
     return ColoredBox(
       color: MintColors.porcelaine,
@@ -126,9 +184,16 @@ class _DossierTabState extends State<DossierTab> {
               delegate: SliverChildListDelegate([
 
                 // ═══════════════════════════════════════
-                //  Section 1 — Mon profil
+                //  Section 1 — Identité
                 // ═══════════════════════════════════════
-                _SectionLabel(l.dossierProfileSection),
+                _SectionLabel(
+                  l.dossierIdentiteSection,
+                  timestamp: _mostRecentTimestamp(timestamps, [
+                    'firstName', 'birthYear', 'canton', 'nationality',
+                    'etatCivil',
+                  ]),
+                  l: l,
+                ),
                 _ProfileSection(
                   mintState: mintState,
                   provider: provider,
@@ -140,66 +205,64 @@ class _DossierTabState extends State<DossierTab> {
                 const SizedBox(height: MintSpacing.xl),
 
                 // ═══════════════════════════════════════
-                //  Section 2 — Mon plan (CapSequence)
+                //  Section 2 — Données
                 // ═══════════════════════════════════════
-                _SectionLabel(l.dossierPlanSection),
-                _PlanSection(mintState: mintState, l: l),
-
-                const SizedBox(height: MintSpacing.xl),
-
-                // ═══════════════════════════════════════
-                //  Section 3 — Mes données
-                // ═══════════════════════════════════════
-                _SectionLabel(l.dossierDataSection),
-                _DataSection(mintState: mintState, provider: provider, l: l),
-
-                const SizedBox(height: MintSpacing.xl),
-
-                // ═══════════════════════════════════════
-                //  Section 4 — Comparaison cantonale (S60 Benchmarks)
-                // ═══════════════════════════════════════
-                if (_benchmarkLoaded) ...[
-                  _SectionLabel(l.benchmarkTitle),
-                  _benchmarkOptedIn && canton.isNotEmpty
-                      ? _BenchmarkInsightsCard(canton: canton)
-                      : _BenchmarkOptInCard(onOptIn: _enableBenchmark),
-                  const SizedBox(height: MintSpacing.xl),
-                ],
-
-                // ═══════════════════════════════════════
-                //  Section 5 — Spécialiste + Documents préparés
-                // ═══════════════════════════════════════
-                _ExpertTierSection(provider: provider),
-
-                const SizedBox(height: MintSpacing.xl),
-
-                const _AgentAutonomeSection(),
-
-                const SizedBox(height: MintSpacing.xl),
-
-                // ═══════════════════════════════════════
-                //  Outils
-                // ═══════════════════════════════════════
-                _SectionLabel(l.dossierToolsSection),
-
-                MintSurface(
-                  tone: MintSurfaceTone.blanc,
-                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
-                  child: _DossierRow(
-                    icon: Icons.build_outlined,
-                    title: l.dossierToolsSection,
-                    subtitle: l.dossierToolsCta,
-                    onTap: () => context.push('/tools'),
-                    showDivider: false,
-                  ),
+                _SectionLabel(
+                  l.dossierDataSection,
+                  timestamp: _mostRecentTimestamp(timestamps, [
+                    'salaireBrutMensuel', 'prevoyance.avoirLppTotal',
+                    'prevoyance.totalEpargne3a', 'depenses.budget',
+                  ]),
+                  l: l,
+                ),
+                _DataSection(
+                  mintState: mintState,
+                  provider: provider,
+                  l: l,
+                  previousValues: _snapshotLoaded ? _previousValues : const {},
                 ),
 
                 const SizedBox(height: MintSpacing.xl),
 
                 // ═══════════════════════════════════════
-                //  Section 6 — Réglages
+                //  Section 3 — Documents
                 // ═══════════════════════════════════════
-                _SectionLabel(l.dossierReglages),
+                _SectionLabel(l.dossierDocumentsSection, l: l),
+                _DocumentsSection(l: l),
+
+                const SizedBox(height: MintSpacing.xl),
+
+                // ═══════════════════════════════════════
+                //  Section 4 — Couple (only if isCouple)
+                // ═══════════════════════════════════════
+                if (isCouple) ...[
+                  _SectionLabel(
+                    l.dossierCoupleSection,
+                    timestamp: _mostRecentTimestamp(timestamps, [
+                      'conjoint.firstName', 'conjoint.birthYear',
+                      'conjoint.salaireBrutMensuel',
+                    ]),
+                    l: l,
+                  ),
+                  _CoupleSection(
+                    profile: profile,
+                    l: l,
+                  ),
+                  const SizedBox(height: MintSpacing.xl),
+                ],
+
+                // ═══════════════════════════════════════
+                //  Section 5 — Plan (CapSequence)
+                // ═══════════════════════════════════════
+                _SectionLabel(l.dossierPlanSection, l: l),
+                _PlanSection(mintState: mintState, l: l),
+
+                const SizedBox(height: MintSpacing.xl),
+
+                // ═══════════════════════════════════════
+                //  Section 6 — Préférences
+                // ═══════════════════════════════════════
+                _SectionLabel(l.dossierPreferencesSection, l: l),
 
                 MintSurface(
                   tone: MintSurfaceTone.blanc,
@@ -236,6 +299,14 @@ class _DossierTabState extends State<DossierTab> {
                         title: l.dossierByokTitle,
                         subtitle: l.dossierByokSubtitle,
                         onTap: () => context.push('/profile/byok'),
+                      ),
+
+                      // ── Spécialiste (moved from standalone section) ──
+                      _DossierRow(
+                        icon: Icons.person_search_outlined,
+                        title: l.dossierExpertSectionTitle,
+                        subtitle: l.expertSubtitle,
+                        onTap: () => context.push('/expert'),
                         showDivider: false,
                       ),
                     ],
@@ -250,14 +321,34 @@ class _DossierTabState extends State<DossierTab> {
       ),
     );
   }
+
+  /// Find the most recent timestamp among a set of field paths.
+  /// Returns null if none of the fields have timestamps.
+  static DateTime? _mostRecentTimestamp(
+    Map<String, DateTime> timestamps,
+    List<String> fieldPaths,
+  ) {
+    DateTime? latest;
+    for (final path in fieldPaths) {
+      final ts = timestamps[path];
+      if (ts != null && (latest == null || ts.isAfter(latest))) {
+        latest = ts;
+      }
+    }
+    return latest;
+  }
 }
 
 // ── Section label ─────────────────────────────────────────────────────────────
 
-/// Thin label above each dossier section (e.g. "Mon profil", "Mon plan").
+/// Thin label above each dossier section (e.g. "Identité", "Données").
+/// Optionally shows a freshness timestamp below the label.
 class _SectionLabel extends StatelessWidget {
   final String text;
-  const _SectionLabel(this.text);
+  final DateTime? timestamp;
+  final S l;
+
+  const _SectionLabel(this.text, {this.timestamp, required this.l});
 
   @override
   Widget build(BuildContext context) {
@@ -266,15 +357,54 @@ class _SectionLabel extends StatelessWidget {
         left: MintSpacing.xs,
         bottom: MintSpacing.sm,
       ),
-      child: Text(
-        text,
-        style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+          ),
+          if (timestamp != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                _formatTimestamp(timestamp!, l),
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.textMuted,
+                ).copyWith(fontSize: 11),
+              ),
+            ),
+        ],
       ),
     );
   }
+
+  /// Format a timestamp as a relative or absolute date string.
+  /// - Today: "Mis à jour aujourd'hui"
+  /// - Yesterday: "Mis à jour hier"
+  /// - 2–30 days: "Mis à jour il y a X jours"
+  /// - > 30 days: "Mis à jour le 14 mars"
+  static String _formatTimestamp(DateTime ts, S l) {
+    final now = DateTime.now();
+    final diff = now.difference(ts);
+
+    if (diff.inDays == 0 && now.day == ts.day) {
+      return l.dossierUpdatedToday;
+    }
+    if (diff.inDays == 1 ||
+        (diff.inDays == 0 && now.day != ts.day)) {
+      return l.dossierUpdatedYesterday;
+    }
+    if (diff.inDays <= 30) {
+      return l.dossierUpdatedAgo(diff.inDays);
+    }
+    // > 30 days — show absolute date.
+    final formatted = DateFormat('d MMMM', 'fr_CH').format(ts);
+    return l.dossierUpdatedOn(formatted);
+  }
 }
 
-// ── Section 1 — Mon profil ────────────────────────────────────────────────────
+// ── Section 1 — Identité ─────────────────────────────────────────────────────
 
 /// Identity card + confidence score with progress bar.
 /// Shows "Compléter mon profil" CTA when confidence < 60.
@@ -449,7 +579,246 @@ class _ProfileSection extends StatelessWidget {
   }
 }
 
-// ── Section 2 — Mon plan ──────────────────────────────────────────────────────
+// ── Section 2 — Données ──────────────────────────────────────────────────────
+
+/// Shows what MINT knows: revenue, LPP, 3a, monthly margin.
+/// Data sourced from [MintUserState] / [CoachProfile] — no service calls.
+class _DataSection extends StatelessWidget {
+  final MintUserState? mintState;
+  final CoachProfileProvider provider;
+  final S l;
+  final Map<String, double> previousValues;
+
+  const _DataSection({
+    required this.mintState,
+    required this.provider,
+    required this.l,
+    required this.previousValues,
+  });
+
+  /// Navigate to [route] then trigger a full state recompute on return.
+  Future<void> _pushAndRecompute(BuildContext context, String route,
+      {Object? extra}) async {
+    await context.push(route, extra: extra);
+    if (!context.mounted) return;
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile != null) {
+      context.read<MintStateProvider>().forceRecompute(profile);
+    }
+  }
+
+  /// Compute the delta between a current value and its previous snapshot.
+  /// Returns null if no previous value exists or if there is no change.
+  double? _delta(String key, double? current) {
+    if (current == null || current <= 0) return null;
+    final prev = previousValues[key];
+    if (prev == null) return null;
+    final diff = current - prev;
+    if (diff.abs() < 1) return null; // ignore sub-CHF changes
+    return diff;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = mintState?.profile ?? provider.profile;
+    final prev = profile?.prevoyance;
+
+    // Revenue: formatted range or exact.
+    final revenuBrut = profile?.revenuBrutAnnuel;
+    final revenuStr = revenuBrut != null && revenuBrut > 0
+        ? formatChfWithPrefix(revenuBrut)
+        : l.dossierDataUnknown;
+
+    // LPP avoir.
+    final lppAvoir = prev?.avoirLppTotal;
+    final lppStr = lppAvoir != null && lppAvoir > 0
+        ? formatChfWithPrefix(lppAvoir)
+        : null;
+
+    // 3a total.
+    final total3a = prev?.totalEpargne3a ?? 0.0;
+    final str3a = total3a > 0
+        ? formatChfWithPrefix(total3a)
+        : l.dossierDataUnknown;
+
+    // Monthly free margin from BudgetSnapshot.
+    final monthlyFree = mintState?.monthlyFree;
+    final budgetStr = monthlyFree != null
+        ? formatChfMonthly(monthlyFree)
+        : l.dossierDataUnknown;
+
+    // Data source provenance map for badge display.
+    final ds = profile?.dataSources ?? const {};
+
+    // Deltas.
+    final lppDelta = _delta('lpp', lppAvoir);
+    final delta3a = _delta('3a', total3a > 0 ? total3a : null);
+    final margeDelta = _delta('marge', monthlyFree);
+
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+      child: Column(
+        children: [
+          // ── Revenu ──
+          _DataRow(
+            icon: Icons.work_outline,
+            label: l.dossierDataRevenu,
+            value: revenuStr,
+            source: revenuBrut != null && revenuBrut > 0
+                ? ds['salaireBrutMensuel'] ?? ProfileDataSource.estimated
+                : null,
+            onTap: () => _pushAndRecompute(context, '/data-block/revenu'),
+          ),
+
+          // ── LPP ──
+          lppStr != null
+              ? _DataRow(
+                  icon: Icons.account_balance_outlined,
+                  label: l.dossierDataLpp,
+                  value: lppStr,
+                  delta: lppDelta,
+                  source: ds['prevoyance.avoirLppTotal'],
+                  // Show scan CTA when LPP is known but from estimation (not certificate)
+                  cta: (profile?.prevoyance.isLppEstimated ?? false)
+                      ? l.dossierScanLppPrecision
+                      : null,
+                  onTap: () => (profile?.prevoyance.isLppEstimated ?? false)
+                      ? _pushAndRecompute(
+                          context, '/scan',
+                          extra: DocumentType.lppCertificate,
+                        )
+                      : _pushAndRecompute(context, '/data-block/lpp'),
+                )
+              : _DataRow(
+                  icon: Icons.account_balance_outlined,
+                  label: l.dossierDataLpp,
+                  value: l.dossierDataUnknown,
+                  cta: l.dossierScanLppCta,
+                  onTap: () => _pushAndRecompute(
+                    context,
+                    '/scan',
+                    extra: DocumentType.lppCertificate,
+                  ),
+                ),
+
+          // ── 3a ──
+          _DataRow(
+            icon: Icons.savings_outlined,
+            label: l.dossierData3a,
+            value: str3a,
+            delta: delta3a,
+            source: total3a > 0
+                ? ds['prevoyance.totalEpargne3a'] ??
+                    ProfileDataSource.estimated
+                : null,
+            onTap: () => _pushAndRecompute(context, '/data-block/3a'),
+          ),
+
+          // ── Budget mensuel ──
+          _DataRow(
+            icon: Icons.bar_chart_outlined,
+            label: l.dossierDataBudget,
+            value: budgetStr,
+            delta: margeDelta,
+            source: monthlyFree != null
+                ? ds['depenses.budget'] ?? ProfileDataSource.estimated
+                : null,
+            onTap: () => _pushAndRecompute(context, '/budget'),
+            showDivider: false,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Section 3 — Documents ────────────────────────────────────────────────────
+
+/// Documents section: scanned certificates, agent-prepared docs.
+class _DocumentsSection extends StatelessWidget {
+  final S l;
+
+  const _DocumentsSection({required this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+      child: Column(
+        children: [
+          _DossierRow(
+            icon: Icons.folder_outlined,
+            title: l.dossierDocumentsTitle,
+            subtitle: l.dossierDocumentsSubtitle,
+            onTap: () => context.push('/documents'),
+          ),
+          _DossierRow(
+            icon: Icons.receipt_long_outlined,
+            title: l.agentFormsTaxCta,
+            subtitle: l.agentFormsTaxSubtitle,
+            onTap: () =>
+                context.push('/coach/chat?prompt=tax_declaration'),
+          ),
+          _DossierRow(
+            icon: Icons.assignment_ind_outlined,
+            title: l.agentFormsAvsCta,
+            subtitle: l.agentFormsAvsSubtitle,
+            onTap: () => context.push('/coach/chat?prompt=avs_extract'),
+          ),
+          _DossierRow(
+            icon: Icons.send_outlined,
+            title: l.agentFormsLppCta,
+            subtitle: l.agentFormsLppSubtitle,
+            onTap: () => context.push('/coach/chat?prompt=lpp_transfer'),
+            showDivider: false,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Section 4 — Couple ───────────────────────────────────────────────────────
+
+/// Couple section: shows conjoint data or CTA to add.
+class _CoupleSection extends StatelessWidget {
+  final CoachProfile? profile;
+  final S l;
+
+  const _CoupleSection({required this.profile, required this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasConjoint = profile?.conjoint != null;
+    final conjoint = profile?.conjoint;
+
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+      child: Column(
+        children: [
+          _DossierRow(
+            icon: hasConjoint ? Icons.people_outlined : Icons.person_add_outlined,
+            title: hasConjoint
+                ? (conjoint?.firstName ?? l.dossierCoupleTitle)
+                : l.dossierAddConjointCta,
+            subtitle: hasConjoint
+                ? l.dossierCoupleSubtitle
+                : l.dossierDataUnknown,
+            onTap: () => context.push(
+              hasConjoint ? '/couple' : '/data-block/compositionMenage',
+            ),
+            showDivider: false,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Section 5 — Mon plan ──────────────────────────────────────────────────────
 
 /// CapSequence progress: X/Y étapes, current step, next step, change goal chip.
 /// Falls back to "Choisir un objectif" CTA when no goal is selected.
@@ -662,165 +1031,9 @@ class _PlanStepRow extends StatelessWidget {
   }
 }
 
-// ── Section 3 — Mes données ───────────────────────────────────────────────────
+// ── Shared widgets ───────────────────────────────────────────────────────────
 
-/// Shows what MINT knows: revenue, LPP, 3a, monthly margin, documents.
-/// Data sourced from [MintUserState] / [CoachProfile] — no service calls.
-class _DataSection extends StatelessWidget {
-  final MintUserState? mintState;
-  final CoachProfileProvider provider;
-  final S l;
-
-  const _DataSection({
-    required this.mintState,
-    required this.provider,
-    required this.l,
-  });
-
-  /// Navigate to [route] then trigger a full state recompute on return.
-  Future<void> _pushAndRecompute(BuildContext context, String route,
-      {Object? extra}) async {
-    await context.push(route, extra: extra);
-    if (!context.mounted) return;
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile != null) {
-      context.read<MintStateProvider>().forceRecompute(profile);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final profile = mintState?.profile ?? provider.profile;
-    final prev = profile?.prevoyance;
-
-    // Revenue: formatted range or exact.
-    final revenuBrut = profile?.revenuBrutAnnuel;
-    final revenuStr = revenuBrut != null && revenuBrut > 0
-        ? formatChfWithPrefix(revenuBrut)
-        : l.dossierDataUnknown;
-
-    // LPP avoir.
-    final lppAvoir = prev?.avoirLppTotal;
-    final lppStr = lppAvoir != null && lppAvoir > 0
-        ? formatChfWithPrefix(lppAvoir)
-        : null;
-
-    // 3a total.
-    final total3a = prev?.totalEpargne3a ?? 0.0;
-    final str3a = total3a > 0
-        ? formatChfWithPrefix(total3a)
-        : l.dossierDataUnknown;
-
-    // Monthly free margin from BudgetSnapshot.
-    final monthlyFree = mintState?.monthlyFree;
-    final budgetStr = monthlyFree != null
-        ? formatChfMonthly(monthlyFree)
-        : l.dossierDataUnknown;
-
-    // Conjoint: show CTA when couple but no conjoint data.
-    final isCouple = profile?.isCouple ?? false;
-    final hasConjoint = profile?.conjoint != null;
-
-    // Data source provenance map for badge display.
-    final ds = profile?.dataSources ?? const {};
-
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
-      child: Column(
-        children: [
-          // ── Revenu ──
-          _DataRow(
-            icon: Icons.work_outline,
-            label: l.dossierDataRevenu,
-            value: revenuStr,
-            source: revenuBrut != null && revenuBrut > 0
-                ? ds['salaireBrutMensuel'] ?? ProfileDataSource.estimated
-                : null,
-            onTap: () => _pushAndRecompute(context, '/data-block/revenu'),
-          ),
-
-          // ── LPP ──
-          lppStr != null
-              ? _DataRow(
-                  icon: Icons.account_balance_outlined,
-                  label: l.dossierDataLpp,
-                  value: lppStr,
-                  source: ds['prevoyance.avoirLppTotal'],
-                  // Show scan CTA when LPP is known but from estimation (not certificate)
-                  cta: (profile?.prevoyance.isLppEstimated ?? false)
-                      ? l.dossierScanLppPrecision
-                      : null,
-                  onTap: () => (profile?.prevoyance.isLppEstimated ?? false)
-                      ? _pushAndRecompute(
-                          context, '/scan',
-                          extra: DocumentType.lppCertificate,
-                        )
-                      : _pushAndRecompute(context, '/data-block/lpp'),
-                )
-              : _DataRow(
-                  icon: Icons.account_balance_outlined,
-                  label: l.dossierDataLpp,
-                  value: l.dossierDataUnknown,
-                  cta: l.dossierScanLppCta,
-                  onTap: () => _pushAndRecompute(
-                    context,
-                    '/scan',
-                    extra: DocumentType.lppCertificate,
-                  ),
-                ),
-
-          // ── 3a ──
-          _DataRow(
-            icon: Icons.savings_outlined,
-            label: l.dossierData3a,
-            value: str3a,
-            source: total3a > 0
-                ? ds['prevoyance.totalEpargne3a'] ??
-                    ProfileDataSource.estimated
-                : null,
-            onTap: () => _pushAndRecompute(context, '/data-block/3a'),
-          ),
-
-          // ── Budget mensuel ──
-          _DataRow(
-            icon: Icons.bar_chart_outlined,
-            label: l.dossierDataBudget,
-            value: budgetStr,
-            source: monthlyFree != null
-                ? ds['depenses.budget'] ?? ProfileDataSource.estimated
-                : null,
-            onTap: () => _pushAndRecompute(context, '/budget'),
-          ),
-
-          // ── Ajouter mon conjoint CTA ──
-          if (isCouple && !hasConjoint)
-            _DataRow(
-              icon: Icons.person_add_outlined,
-              label: l.dossierAddConjointCta,
-              value: l.dossierDataUnknown,
-              cta: l.dossierAddConjointCta,
-              onTap: () => _pushAndRecompute(
-                context,
-                '/data-block/compositionMenage',
-              ),
-            ),
-
-          // ── Documents ──
-          _DossierRow(
-            icon: Icons.folder_outlined,
-            title: l.dossierDocumentsTitle,
-            subtitle: l.dossierDocumentsSubtitle,
-            onTap: () => context.push('/documents'),
-            showDivider: false,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Compact read-only data row for Section 3 — Mes données.
+/// Compact read-only data row for Section 2 — Données.
 class _DataRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -831,7 +1044,12 @@ class _DataRow extends StatelessWidget {
 
   /// Data provenance — drives the source badge (Estimé/Déclaré/Certifié).
   final ProfileDataSource? source;
+
+  /// Delta since last Dossier visit. Positive = gain, negative = loss.
+  final double? delta;
+
   final VoidCallback onTap;
+  final bool showDivider;
 
   const _DataRow({
     required this.icon,
@@ -839,7 +1057,9 @@ class _DataRow extends StatelessWidget {
     required this.value,
     this.cta,
     this.source,
+    this.delta,
     required this.onTap,
+    this.showDivider = true,
   });
 
   @override
@@ -873,11 +1093,20 @@ class _DataRow extends StatelessWidget {
                           color: MintColors.primary,
                         ).copyWith(fontWeight: FontWeight.w500),
                       )
-                    : Text(
-                        value,
-                        style: MintTextStyles.titleMedium(
-                          color: MintColors.textPrimary,
-                        ).copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            value,
+                            style: MintTextStyles.titleMedium(
+                              color: MintColors.textPrimary,
+                            ).copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+                          ),
+                          if (delta != null) ...[
+                            const SizedBox(width: MintSpacing.xs),
+                            _DeltaBadge(delta: delta!),
+                          ],
+                        ],
                       ),
                 if (source != null && cta == null) ...[
                   const SizedBox(width: MintSpacing.xs),
@@ -893,14 +1122,35 @@ class _DataRow extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
-          child: Divider(
-            height: 1,
-            color: MintColors.textPrimary.withValues(alpha: 0.05),
+        if (showDivider)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+            child: Divider(
+              height: 1,
+              color: MintColors.textPrimary.withValues(alpha: 0.05),
+            ),
           ),
-        ),
       ],
+    );
+  }
+}
+
+/// Delta indicator badge: "+5'377" in green or "-1'200" in red.
+class _DeltaBadge extends StatelessWidget {
+  final double delta;
+
+  const _DeltaBadge({required this.delta});
+
+  @override
+  Widget build(BuildContext context) {
+    final isPositive = delta > 0;
+    final color = isPositive ? MintColors.success : MintColors.error;
+    final prefix = isPositive ? '+' : '';
+    final formatted = '$prefix${formatChf(delta)}';
+
+    return Text(
+      formatted,
+      style: MintTextStyles.labelSmall(color: color),
     );
   }
 }
@@ -950,397 +1200,6 @@ class _SourceBadge extends StatelessWidget {
         label,
         style: MintTextStyles.labelSmall(color: textColor),
       ),
-    );
-  }
-}
-
-// ── Benchmark Opt-In CTA card ──────────────────────────────────────────────
-
-/// Shown when user has not yet opted into cantonal benchmarks.
-class _BenchmarkOptInCard extends StatelessWidget {
-  final VoidCallback onOptIn;
-
-  const _BenchmarkOptInCard({required this.onOptIn});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = S.of(context)!;
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.bar_chart_outlined,
-                  size: 18, color: MintColors.textSecondary),
-              const SizedBox(width: MintSpacing.sm),
-              Expanded(
-                child: Text(
-                  l.benchmarkOptInTitle,
-                  style: MintTextStyles.titleMedium(
-                    color: MintColors.textPrimary,
-                  ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            l.benchmarkOptInBody,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-          ),
-          const SizedBox(height: MintSpacing.md),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FilledButton(
-              onPressed: onOptIn,
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: MintSpacing.lg,
-                  vertical: MintSpacing.sm,
-                ),
-              ),
-              child: Text(
-                l.benchmarkOptInButton,
-                style: MintTextStyles.labelSmall(color: MintColors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Benchmark Insights card ────────────────────────────────────────────────
-
-/// Shows 2–3 key benchmark insights when user has opted in.
-/// Uses [BenchmarkComparisonService] with the user's canton.
-class _BenchmarkInsightsCard extends StatelessWidget {
-  final String canton;
-
-  const _BenchmarkInsightsCard({required this.canton});
-
-  /// Resolve an observation ARB key to its localised string.
-  String _resolveObservation(String key, Map<String, String>? params, S l) {
-    final p = params ?? {};
-    switch (key) {
-      case 'benchmarkInsightIncome':
-        return l.benchmarkInsightIncome(p['canton'] ?? '', p['amount'] ?? '');
-      case 'benchmarkInsightSavings':
-        return l.benchmarkInsightSavings(p['rate'] ?? '');
-      case 'benchmarkInsightTax':
-        final levelKey = p['level'] ?? 'benchmarkTaxLevelAverage';
-        final String level;
-        switch (levelKey) {
-          case 'benchmarkTaxLevelBelow':
-            level = l.benchmarkTaxLevelBelow;
-            break;
-          case 'benchmarkTaxLevelAbove':
-            level = l.benchmarkTaxLevelAbove;
-            break;
-          default:
-            level = l.benchmarkTaxLevelAverage;
-        }
-        return l.benchmarkInsightTax(p['canton'] ?? '', level);
-      case 'benchmarkInsightHousing':
-        return l.benchmarkInsightHousing(p['amount'] ?? '');
-      case 'benchmarkInsight3a':
-        return l.benchmarkInsight3a(p['rate'] ?? '');
-      case 'benchmarkInsightLpp':
-        return l.benchmarkInsightLpp(p['rate'] ?? '');
-      default:
-        return key;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = S.of(context)!;
-
-    // Build comparison using a dummy profile approach — canton-level data only.
-    // We pass an empty profile; the service uses it for user-side values only.
-    // For display we show the canton-level factual observations (income, tax, housing).
-    final provider = context.watch<CoachProfileProvider>();
-    if (!provider.hasProfile) return const SizedBox.shrink();
-
-    final comparison = BenchmarkComparisonService.compare(
-      profile: provider.profile!,
-      cantonCode: canton,
-    );
-
-    if (comparison == null) return const SizedBox.shrink();
-
-    // Show first 3 insights.
-    final displayed = comparison.insights.take(3).toList();
-
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (int i = 0; i < displayed.length; i++) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.info_outline,
-                    size: 14, color: MintColors.textSecondary),
-                const SizedBox(width: MintSpacing.xs),
-                Expanded(
-                  child: Text(
-                    _resolveObservation(
-                      displayed[i].observationKey,
-                      displayed[i].params,
-                      l,
-                    ),
-                    style: MintTextStyles.bodySmall(
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            if (i < displayed.length - 1) ...[
-              const SizedBox(height: MintSpacing.xs),
-              Divider(
-                height: 1,
-                color: MintColors.textPrimary.withValues(alpha: 0.05),
-              ),
-              const SizedBox(height: MintSpacing.xs),
-            ],
-          ],
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            comparison.disclaimer,
-            style: MintTextStyles.labelSmall(
-              color: MintColors.textMuted,
-            ).copyWith(fontStyle: FontStyle.italic, fontSize: 10),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Expert Tier Section (S65) ──────────────────────────────────────────────
-
-/// Shows the "Consulter un·e spécialiste" section.
-///
-/// Displays the suggested [AdvisorSpecialization] chips based on the user's
-/// profile (e.g. retirement if age > 55, divorce if civil status is divorced).
-/// The CTA routes to the coach chat with the `specialist` prompt pre-loaded.
-///
-/// Design: MintSurface blanc, section label above, chevron CTA below chips.
-class _ExpertTierSection extends StatelessWidget {
-  final CoachProfileProvider provider;
-
-  const _ExpertTierSection({required this.provider});
-
-  /// Derive up to 3 suggested specializations from the profile.
-  List<AdvisorSpecialization> _suggestedSpecs(BuildContext context) {
-    if (!provider.hasProfile) return [AdvisorSpecialization.retirement];
-    final profile = provider.profile!;
-    final age = DateTime.now().year - profile.birthYear;
-    final suggestions = <AdvisorSpecialization>[];
-
-    // Retirement priority for users approaching retirement age.
-    if (age >= 45) suggestions.add(AdvisorSpecialization.retirement);
-
-    // Divorce / separation situation.
-    if (profile.etatCivil == CoachCivilStatus.divorce) {
-      suggestions.add(AdvisorSpecialization.divorce);
-    }
-
-    // Tax optimization if LPP buyback potential.
-    if ((profile.prevoyance.lacuneRachatRestante) > 0) {
-      suggestions.add(AdvisorSpecialization.taxOptimization);
-    }
-
-    // Real estate if high equity or existing mortgage.
-    if (profile.patrimoine.immobilierEffectif > 0 ||
-        (profile.patrimoine.epargneLiquide + profile.patrimoine.investissements) >
-            100000) {
-      if (!suggestions.contains(AdvisorSpecialization.taxOptimization)) {
-        suggestions.add(AdvisorSpecialization.realEstate);
-      }
-    }
-
-    // Succession for users with patrimoine or children.
-    if (profile.patrimoine.totalPatrimoine > 200000 || profile.nombreEnfants > 0) {
-      if (suggestions.length < 3) suggestions.add(AdvisorSpecialization.succession);
-    }
-
-    // Self-employment specialization.
-    if (profile.employmentStatus == 'independant') {
-      suggestions.insert(0, AdvisorSpecialization.selfEmployment);
-    }
-
-    // Expat flag.
-    if (profile.archetype == FinancialArchetype.expatUs ||
-        profile.archetype == FinancialArchetype.expatEu ||
-        profile.archetype == FinancialArchetype.expatNonEu) {
-      if (suggestions.length < 3) suggestions.add(AdvisorSpecialization.expatriation);
-    }
-
-    if (suggestions.isEmpty) suggestions.add(AdvisorSpecialization.retirement);
-    return suggestions.take(3).toList();
-  }
-
-  String _specLabel(AdvisorSpecialization spec, S l) {
-    return switch (spec) {
-      AdvisorSpecialization.retirement => l.expertSpecRetirement,
-      AdvisorSpecialization.succession => l.expertSpecSuccession,
-      AdvisorSpecialization.expatriation => l.expertSpecExpatriation,
-      AdvisorSpecialization.divorce => l.expertSpecDivorce,
-      AdvisorSpecialization.selfEmployment => l.expertSpecSelfEmployment,
-      AdvisorSpecialization.realEstate => l.expertSpecRealEstate,
-      AdvisorSpecialization.taxOptimization => l.expertSpecTax,
-      AdvisorSpecialization.debtManagement => l.expertSpecDebt,
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = S.of(context)!;
-    final specs = _suggestedSpecs(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: MintSpacing.xs,
-            bottom: MintSpacing.sm,
-          ),
-          child: Text(
-            l.dossierExpertSectionTitle,
-            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
-        ),
-        MintSurface(
-          tone: MintSurfaceTone.blanc,
-          padding: const EdgeInsets.all(MintSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l.expertSubtitle,
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: MintSpacing.sm),
-              Wrap(
-                spacing: MintSpacing.xs,
-                runSpacing: MintSpacing.xs,
-                children: specs
-                    .map(
-                      (spec) => Chip(
-                        label: Text(
-                          _specLabel(spec, l),
-                          style: MintTextStyles.labelSmall(
-                            color: MintColors.textPrimary,
-                          ),
-                        ),
-                        backgroundColor:
-                            MintColors.primary.withValues(alpha: 0.08),
-                        side: BorderSide.none,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: MintSpacing.xs,
-                        ),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    )
-                    .toList(),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              Divider(
-                height: 1,
-                color: MintColors.textPrimary.withValues(alpha: 0.05),
-              ),
-              const SizedBox(height: MintSpacing.xs),
-              _DossierRow(
-                icon: Icons.person_search_outlined,
-                title: l.expertPrepareDossierCta,
-                subtitle: l.expertDisclaimer,
-                onTap: () => context.push('/expert'),
-                showDivider: false,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ── Agent Autonome Section (S68) ───────────────────────────────────────────
-
-/// Shows the "Documents préparés" section.
-///
-/// Three rows — tax declaration, AVS extract letter, LPP transfer letter —
-/// each routing to the coach chat with the appropriate pre-loaded prompt.
-/// The coach generates the document via [FormPrefillService] /
-/// [LetterGenerationService] during the conversation.
-///
-/// No services are called here: wiring is purely navigational.
-/// Actual generation happens in the coach chat tool pipeline.
-class _AgentAutonomeSection extends StatelessWidget {
-  const _AgentAutonomeSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = S.of(context)!;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: MintSpacing.xs,
-            bottom: MintSpacing.sm,
-          ),
-          child: Text(
-            l.dossierAgentSectionTitle,
-            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
-        ),
-        MintSurface(
-          tone: MintSurfaceTone.blanc,
-          padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
-          child: Column(
-            children: [
-              _DossierRow(
-                icon: Icons.receipt_long_outlined,
-                title: l.agentFormsTaxCta,
-                subtitle: l.agentFormsTaxSubtitle,
-                onTap: () =>
-                    context.push('/coach/chat?prompt=tax_declaration'),
-              ),
-              _DossierRow(
-                icon: Icons.assignment_ind_outlined,
-                title: l.agentFormsAvsCta,
-                subtitle: l.agentFormsAvsSubtitle,
-                onTap: () => context.push('/coach/chat?prompt=avs_extract'),
-              ),
-              _DossierRow(
-                icon: Icons.send_outlined,
-                title: l.agentFormsLppCta,
-                subtitle: l.agentFormsLppSubtitle,
-                onTap: () => context.push('/coach/chat?prompt=lpp_transfer'),
-                showDivider: false,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
