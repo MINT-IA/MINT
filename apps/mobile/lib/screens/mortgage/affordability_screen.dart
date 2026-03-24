@@ -20,6 +20,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 
 /// Ecran de capacite d'achat immobilier (Cat B — Decision Canvas).
@@ -136,18 +137,18 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // SECTION 1 — L'ENJEU : la question hero
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                Text(
+                MintEntrance(child: Text(
                   l.affordabilityEmotionalPositif,
                   style: MintTextStyles.headlineLarge(
                     color: MintColors.textPrimary,
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
 
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // SECTION 2 — LE RESULTAT : consequence financiere
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintResultHeroCard(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: MintResultHeroCard(
                   eyebrow: result.chiffreChocPositif
                       ? l.affordabilityParameters
                       : l.affordabilityInsightEquityTitle,
@@ -162,7 +163,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                       ? MintColors.success
                       : MintColors.error,
                   tone: MintSurfaceTone.porcelaine,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
 
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

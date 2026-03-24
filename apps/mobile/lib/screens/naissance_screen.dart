@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
@@ -150,10 +151,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildTab1Conge(),
-            _buildTab2Allocations(),
-            _buildTab3Impact(),
-            _buildTab4Checklist(),
+            MintEntrance(child: _buildTab1Conge()),
+            MintEntrance(child: _buildTab2Allocations()),
+            MintEntrance(child: _buildTab3Impact()),
+            MintEntrance(child: _buildTab4Checklist()),
           ],
         ),
       ),

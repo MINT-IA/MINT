@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
 import 'package:mint_mobile/widgets/coach/prix_du_silence_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
@@ -201,15 +202,15 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               _buildIntroCard(),
               const SizedBox(height: MintSpacing.xl),
             ],
-            _buildSituationFamilialeSection(),
+            MintEntrance(child: _buildSituationFamilialeSection()),
             const SizedBox(height: MintSpacing.md),
-            _buildRevenusSection(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRevenusSection()),
             const SizedBox(height: MintSpacing.md),
-            _buildPrevoyanceSection(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrevoyanceSection()),
             const SizedBox(height: MintSpacing.md),
-            _buildPatrimoineSection(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPatrimoineSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildSimulateButton(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSimulateButton()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) ...[
               _buildLppSplitCard(),

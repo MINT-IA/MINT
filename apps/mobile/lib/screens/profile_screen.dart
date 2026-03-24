@@ -14,6 +14,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -54,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   // ── Identity card (compact) ───────────────
                   if (coachProfile != null)
-                    _buildIdentityCard(context, coachProfile),
+                    MintEntrance(child: _buildIdentityCard(context, coachProfile)),
                   if (coachProfile != null)
                     const SizedBox(height: MintSpacing.md + MintSpacing.xs),
 
