@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/disability_red_screen_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — INVALIDITÉ INDÉPENDANT
@@ -159,34 +160,15 @@ class _DisabilitySelfEmployedScreenState
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.disabilitySelfEmployedRevenueLabel,
-                style: MintTextStyles.labelSmall(),
-              ),
-              Text(
-                "CHF ${_fmtChf(_monthlyRevenue)}",
-                style: MintTextStyles.bodyMedium(color: MintColors.critical).copyWith(fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 3,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-              activeTrackColor: MintColors.critical,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.critical,
-            ),
-            child: Slider(
-              value: _monthlyRevenue,
-              min: 2000,
-              max: 25000,
-              divisions: 46,
-              onChanged: (v) => setState(() => _monthlyRevenue = v),
-            ),
+          MintPremiumSlider(
+            label: S.of(context)!.disabilitySelfEmployedRevenueLabel,
+            value: _monthlyRevenue,
+            min: 2000,
+            max: 25000,
+            divisions: 46,
+            formatValue: (v) => "CHF ${_fmtChf(v)}",
+            activeColor: MintColors.critical,
+            onChanged: (v) => setState(() => _monthlyRevenue = v),
           ),
         ],
       ),

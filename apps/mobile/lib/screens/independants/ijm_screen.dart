@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
@@ -129,30 +130,14 @@ class _IjmScreenState extends State<IjmScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(title, style: MintTextStyles.titleMedium()),
-              Text(valueLabel, style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 20)),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Semantics(
-            label: title,
-            value: valueLabel,
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(activeTrackColor: MintColors.primary, inactiveTrackColor: MintColors.border, thumbColor: MintColors.primary, overlayColor: MintColors.primary.withValues(alpha: 0.1), trackHeight: 4),
-              child: Slider(value: value, min: min, max: max, divisions: divisions, onChanged: onChanged),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text(minLabel, style: MintTextStyles.labelSmall()), Text(maxLabel, style: MintTextStyles.labelSmall())],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: title,
+        value: value,
+        min: min,
+        max: max,
+        divisions: divisions,
+        formatValue: (_) => valueLabel,
+        onChanged: onChanged,
       ),
     );
   }

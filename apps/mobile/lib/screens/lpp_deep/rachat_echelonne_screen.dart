@@ -13,6 +13,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
@@ -438,7 +439,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   const SizedBox(height: MintSpacing.sm),
                   Row(
                     children: [
-                      Expanded(child: Slider(value: _manualTaux, min: 0.10, max: 0.45, divisions: 35, activeColor: MintColors.primary, onChanged: (v) { _manualTaux = v; _onInputChanged(); })),
+                      Expanded(child: MintCompactSlider(value: _manualTaux, min: 0.10, max: 0.45, divisions: 35, onChanged: (v) { _manualTaux = v; _onInputChanged(); })),
                       Semantics(
                         button: true,
                         label: l.rachatEchelonneAuto,
@@ -545,22 +546,14 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildSliderRow({required String label, required double value, required double min, required double max, required int divisions, required String format, required ValueChanged<double> onChanged}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-          ],
-        ),
-        Semantics(
-          label: label,
-          value: format,
-          child: Slider(value: value, min: min, max: max, divisions: divisions, activeColor: MintColors.primary, onChanged: onChanged),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: (_) => format,
+      onChanged: onChanged,
     );
   }
 

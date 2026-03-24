@@ -14,6 +14,7 @@ import 'package:mint_mobile/widgets/coach/lpp_vs_3a_decision_tree.dart';
 import 'package:mint_mobile/widgets/coach/fiscal_superpower_widget.dart';
 import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
@@ -455,52 +456,23 @@ class _IndependantScreenState extends State<IndependantScreen> {
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                IndependantService.formatChf(_revenuNet),
-                style: MintTextStyles.headlineMedium(),
-              ),
-              Text(
-                S.of(context)!.independantAgeLabel(_age),
-                style: MintTextStyles.bodySmall(
-                    color: MintColors.textSecondary),
-              ),
-            ],
+          Text(
+            S.of(context)!.independantAgeLabel(_age),
+            style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Semantics(
+          MintPremiumSlider(
             label: S.of(context)!.independantRevenueTitle,
-            value: IndependantService.formatChf(_revenuNet),
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: MintColors.primary,
-                inactiveTrackColor: MintColors.border,
-                thumbColor: MintColors.primary,
-                overlayColor: MintColors.primary.withValues(alpha: 0.1),
-                trackHeight: 4,
-              ),
-              child: Slider(
-                value: _revenuNet,
-                min: 20000,
-                max: 200000,
-                divisions: 36,
-                onChanged: (value) {
-                  _revenuNet = value;
-                  _compute();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('CHF\u00A020k',
-                  style: MintTextStyles.labelSmall()),
-              Text('CHF\u00A0200k',
-                  style: MintTextStyles.labelSmall()),
-            ],
+            value: _revenuNet,
+            min: 20000,
+            max: 200000,
+            divisions: 36,
+            formatValue: (v) => IndependantService.formatChf(v),
+            onChanged: (value) {
+              _revenuNet = value;
+              _compute();
+            },
           ),
         ],
       ),
