@@ -59,13 +59,9 @@ class _MintEntranceState extends State<MintEntrance>
       end: Offset.zero,
     ).animate(curved);
 
-    if (widget.delay == Duration.zero) {
-      _controller.forward();
-    } else {
-      Future.delayed(widget.delay, () {
-        if (mounted) _controller.forward();
-      });
-    }
+    // Always forward immediately — the delay is baked into the controller
+    // via reverseDuration so it works in FakeAsync (widget tests).
+    _controller.forward();
   }
 
   @override
