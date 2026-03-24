@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Bank statement import screen with a 3-step flow:
 /// 1. Upload CSV/PDF
@@ -62,19 +63,19 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header
-                  Text(
+                  MintEntrance(child: Text(
                     s.bankImportTitle,
                     style: MintTextStyles.headlineLarge(),
-                  ),
+                  )),
                   const SizedBox(height: MintSpacing.sm),
-                  Text(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     s.bankImportSubtitle,
                     style: MintTextStyles.bodyLarge(),
-                  ),
+                  )),
                   const SizedBox(height: MintSpacing.lg),
 
                   // Step 1: Upload
-                  _buildUploadCard(s),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildUploadCard(s)),
                   const SizedBox(height: 24),
 
                   // Uploading indicator
@@ -124,7 +125,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                   ],
 
                   // Privacy footer
-                  _buildPrivacyFooter(s),
+                  MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPrivacyFooter(s)),
                   const SizedBox(height: 40),
                 ],
               ),

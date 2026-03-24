@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -99,11 +100,11 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Situation selector
-                _buildSituationSelector(l),
+                MintEntrance(child: _buildSituationSelector(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // Profile inputs (age + avoir)
-                _buildProfileInputs(l),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildProfileInputs(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // New employer toggle — only for job change
@@ -120,7 +121,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // Checklist
-                _buildChecklistSection(result.checklist, l),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChecklistSection(result.checklist, l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Recommendations
@@ -130,7 +131,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // ── P7-D : Opération sauvetage 2e pilier ─────────
-                LppRescueWidget(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: LppRescueWidget(
                   lppBalance: _avoir,
                   daysElapsed: 10,
                   options: [
@@ -160,11 +161,11 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                       legalRef: 'LFLP art. 4',
                     ),
                   ],
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Link to sfbvg.ch
-                _buildCentrale2ePilier(l),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCentrale2ePilier(l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // nLPD / Privacy

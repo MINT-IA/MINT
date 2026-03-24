@@ -17,6 +17,7 @@ import 'package:mint_mobile/widgets/profile/patrimoine_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/dettes_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/futur_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/enrichment_cta.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // NOTE: This screen is a deep-dive view. Primary display is now in PulseScreen
 // via BudgetSnapshot. Keep for /profile/bilan deep link and ProfileScreen access.
@@ -171,7 +172,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── HERO GAP CARD ──
-            HeroGapCard(
+            MintEntrance(child: HeroGapCard(
               currentMonthlyNet: currentMonthlyNet,
               projectedMonthlyRetirement: projectedMonthly,
               confidencePercent: confidence,
@@ -181,11 +182,11 @@ class FinancialSummaryScreen extends StatelessWidget {
               onScanTap: missingCount > 0
                   ? () => context.push('/scan')
                   : null,
-            ),
+            )),
             const SizedBox(height: 20),
 
             // ── TIROIR 1: Ce que tu as ──
-            FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: FinancialDrawer(
               title: s.drawerCeQueTuAs,
               subtitle: s.drawerCeQueTuAsSubtitle,
               heroValue: formatChfCompact(patrimoineNet),
@@ -227,11 +228,11 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ],
               ),
               content: PatrimoineDrawerContent(profile: profile),
-            ),
+            )),
             const SizedBox(height: 12),
 
             // ── TIROIR 2: Ce que tu dois ──
-            FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: FinancialDrawer(
               title: s.drawerCeQueTuDois,
               subtitle: s.drawerCeQueTuDoisSubtitle,
               heroValue: det.hasDette
@@ -267,11 +268,11 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ],
               ),
               content: DettesDrawerContent(profile: profile),
-            ),
+            )),
             const SizedBox(height: 12),
 
             // ── TIROIR 3: Ce que tu auras ──
-            FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: FinancialDrawer(
               title: s.drawerCeQueTuAuras,
               subtitle: s.drawerCeQueTuAurasSubtitle,
               heroValue: projectedMonthly > 0
@@ -311,7 +312,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ],
               ),
               content: FuturDrawerContent(profile: profile),
-            ),
+            )),
             const SizedBox(height: 20),
 
             // ── ENRICHMENT CTA ──
@@ -323,7 +324,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             if (missingCount > 0) const SizedBox(height: 16),
 
             // ── DISCLAIMER ──
-            _buildDisclaimer(context),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(context)),
             const SizedBox(height: 24),
 
             // ── RESTART DIAGNOSTIC ──

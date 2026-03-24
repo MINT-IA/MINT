@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class PortfolioScreen extends StatelessWidget {
   const PortfolioScreen({super.key});
@@ -37,14 +38,14 @@ class PortfolioScreen extends StatelessWidget {
               _buildSafeModeWarning(context),
               const SizedBox(height: 24),
             ],
-            _buildWealthSummary(),
+            MintEntrance(child: _buildWealthSummary()),
             const SizedBox(height: 32),
-            _buildReadinessIndex(context, profile),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildReadinessIndex(context, profile)),
             const SizedBox(height: 32),
-            _buildSectionHeader('Répartition par Enveloppe'),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionHeader('Répartition par Enveloppe')),
             const SizedBox(height: 12),
-            _buildAccountItem('Libre (Compte Placement)', 'CHF 73\'508.90', icon: Icons.trending_up, color: MintColors.primary),
-            _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem('Libre (Compte Placement)', 'CHF 73\'508.90', icon: Icons.trending_up, color: MintColors.primary)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success)),
             _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF 10\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
             const SizedBox(height: 32),
             SafeModeGate(

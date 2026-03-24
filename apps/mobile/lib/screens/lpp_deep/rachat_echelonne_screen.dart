@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -175,15 +176,15 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildIntroCard(l),
+                MintEntrance(child: _buildIntroCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildHeroChiffreChoc(result, l),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeroChiffreChoc(result, l)),
                 const SizedBox(height: MintSpacing.lg),
-                _buildLppSituationCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildLppSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildFiscalSituationCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFiscalSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildStrategieCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildStrategieCard(l)),
                 const SizedBox(height: MintSpacing.lg),
                 _buildComparisonSection(result, l),
                 const SizedBox(height: MintSpacing.lg),

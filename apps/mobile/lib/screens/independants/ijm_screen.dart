@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class IjmScreen extends StatefulWidget {
   const IjmScreen({super.key});
@@ -73,13 +74,13 @@ class _IjmScreenState extends State<IjmScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(s),
+            MintEntrance(child: _buildHeader(s)),
             const SizedBox(height: MintSpacing.xl),
-            _buildSliderCard(title: s.ijmRevenuMensuel, valueLabel: IndependantsService.formatChf(_revenuMensuel), minLabel: s.ijmSliderMinChf0, maxLabel: s.ijmSliderMax20k, value: _revenuMensuel, min: 0, max: 20000, divisions: 200, onChanged: (v) { _revenuMensuel = v; _calculate(); }),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderCard(title: s.ijmRevenuMensuel, valueLabel: IndependantsService.formatChf(_revenuMensuel), minLabel: s.ijmSliderMinChf0, maxLabel: s.ijmSliderMax20k, value: _revenuMensuel, min: 0, max: 20000, divisions: 200, onChanged: (v) { _revenuMensuel = v; _calculate(); })),
             const SizedBox(height: MintSpacing.md + 4),
-            _buildSliderCard(title: s.ijmTonAge, valueLabel: '$_age ans', minLabel: s.ijmAgeMin, maxLabel: s.ijmAgeMax, value: _age.toDouble(), min: 18, max: 65, divisions: 47, onChanged: (v) { _age = v.toInt(); _calculate(); }),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderCard(title: s.ijmTonAge, valueLabel: '$_age ans', minLabel: s.ijmAgeMin, maxLabel: s.ijmAgeMax, value: _age.toDouble(), min: 18, max: 65, divisions: 47, onChanged: (v) { _age = v.toInt(); _calculate(); })),
             const SizedBox(height: MintSpacing.md + 4),
-            _buildCarenceToggle(s),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCarenceToggle(s)),
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               _buildChiffreChoc(s),
@@ -95,7 +96,7 @@ class _IjmScreenState extends State<IjmScreen> {
               _buildEducation(s),
               const SizedBox(height: MintSpacing.lg),
             ],
-            _buildDisclaimer(s),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(s)),
             const SizedBox(height: 100),
           ],
         ),

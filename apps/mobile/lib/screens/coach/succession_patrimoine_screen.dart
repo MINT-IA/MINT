@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
 import 'package:mint_mobile/widgets/coach/death_urgency_guide_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class SuccessionPatrimoineScreen extends StatelessWidget {
   const SuccessionPatrimoineScreen({super.key});
@@ -77,7 +78,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Concepts clés ────────────────────────────
-                EduSectionTitle(text: l.successionNotionsCles),
+                MintEntrance(child: EduSectionTitle(text: l.successionNotionsCles)),
                 const SizedBox(height: MintSpacing.sm + 4),
 
                 _ConceptCard(
@@ -126,9 +127,9 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── P14-A : Guide de première urgence ────────────
-                EduSectionTitle(text: l.successionDecesProche),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: EduSectionTitle(text: l.successionDecesProche)),
                 const SizedBox(height: MintSpacing.sm + 4),
-                DeathUrgencyGuideWidget(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
                       timeframe: 'J+1 à J+7',
@@ -168,11 +169,11 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       ],
                     ),
                   ],
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Checklist pratique ────────────────────────
-                EduSectionTitle(text: l.successionChecklistTitle),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: EduSectionTitle(text: l.successionChecklistTitle)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _ChecklistCard(
                   items: [
@@ -186,12 +187,12 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── CTA spécialiste ───────────────────────────
-                EduSpecialistCta(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: EduSpecialistCta(
                   icon: Icons.gavel_outlined,
                   color: MintColors.successionDark,
                   title: l.successionSpecialisteTitle,
                   body: l.successionSpecialisteBody,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Sources légales ───────────────────────────

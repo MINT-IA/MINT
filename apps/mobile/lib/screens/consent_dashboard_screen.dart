@@ -5,6 +5,7 @@ import 'package:mint_mobile/services/privacy_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ConsentDashboardScreen extends StatefulWidget {
   const ConsentDashboardScreen({super.key});
@@ -197,29 +198,29 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSecurityHeader(l10n),
+            MintEntrance(child: _buildSecurityHeader(l10n)),
             const SizedBox(height: MintSpacing.lg),
-            _buildExportButton(l10n),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildExportButton(l10n)),
             const SizedBox(height: MintSpacing.xl),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               l10n.consentRequiredTitle,
               style: MintTextStyles.titleMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm + 4),
             ...consentStatus
                 .where((c) => c['required'] == true)
                 .map((c) => _buildCategoryCard(c, l10n)),
             const SizedBox(height: MintSpacing.lg),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
               l10n.consentOptionalTitle,
               style: MintTextStyles.titleMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm + 4),
             ...consentStatus
                 .where((c) => c['required'] == false)
                 .map((c) => _buildCategoryCard(c, l10n)),
             const SizedBox(height: MintSpacing.xl),
-            _buildRevokeAllButton(l10n),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRevokeAllButton(l10n)),
             const SizedBox(height: MintSpacing.lg),
             _buildDisclaimer(),
             const SizedBox(height: MintSpacing.md),

@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  TRANSACTION LIST SCREEN — Sprint S14
@@ -84,17 +85,17 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildFinmaGateBanner(),
+                MintEntrance(child: _buildFinmaGateBanner()),
                 const SizedBox(height: 12),
-                _buildDemoModeBadge(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDemoModeBadge()),
                 const SizedBox(height: 16),
 
                 // Period selector
-                _buildPeriodSelector(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPeriodSelector()),
                 const SizedBox(height: 16),
 
                 // Category filters
-                _buildCategoryFilters(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCategoryFilters()),
                 const SizedBox(height: 20),
 
                 // Transaction groups
@@ -114,7 +115,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 const SizedBox(height: 16),
 
                 // Monthly summary
-                _buildMonthlySummary(summary),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildMonthlySummary(summary)),
                 const SizedBox(height: 20),
 
                 // Disclaimer

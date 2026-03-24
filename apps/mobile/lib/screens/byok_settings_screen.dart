@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// BYOK Settings Screen - Configure your own LLM API key.
 ///
@@ -63,25 +64,25 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Text(
+            MintEntrance(child: Text(
               s.byokTitle,
               style: MintTextStyles.headlineLarge(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               s.byokSubtitle,
               style: MintTextStyles.bodyLarge(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.xl),
 
             // Privacy card
-            _buildPrivacyCard(s),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrivacyCard(s)),
             const SizedBox(height: MintSpacing.xl),
 
             // Provider selector
-            _buildSectionLabel(s.byokProviderLabel),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSectionLabel(s.byokProviderLabel)),
             const SizedBox(height: MintSpacing.sm + 4),
-            _buildProviderSelector(s),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildProviderSelector(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // API Key input

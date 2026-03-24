@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class AvsCotisationsScreen extends StatefulWidget {
   const AvsCotisationsScreen({super.key});
@@ -66,9 +67,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(s),
+            MintEntrance(child: _buildHeader(s)),
             const SizedBox(height: MintSpacing.xl),
-            _buildIncomeSlider(s),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIncomeSlider(s)),
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               _buildChiffreChoc(s),
@@ -82,7 +83,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
               _buildEducation(s),
               const SizedBox(height: MintSpacing.lg),
             ],
-            _buildDisclaimer(s),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer(s)),
             const SizedBox(height: MintSpacing.xxl),
           ],
         ),

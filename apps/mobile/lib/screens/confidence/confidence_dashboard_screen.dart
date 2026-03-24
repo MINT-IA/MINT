@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/confidence/confidence_breakdown_chart.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONFIDENCE DASHBOARD SCREEN — Sprint S46
@@ -109,15 +110,15 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 24),
-                _buildOverallGauge(),
+                MintEntrance(child: _buildOverallGauge()),
                 const SizedBox(height: 32),
-                _buildBreakdownSection(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBreakdownSection()),
                 const SizedBox(height: 32),
-                _buildFeatureGatesSection(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildFeatureGatesSection()),
                 const SizedBox(height: 32),
-                _buildEnrichmentPromptsSection(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildEnrichmentPromptsSection()),
                 const SizedBox(height: 32),
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 16),
                 _buildSourcesFooter(),
                 const SizedBox(height: 100),

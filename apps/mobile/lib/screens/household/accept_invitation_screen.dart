@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Screen for accepting a household invitation code.
 ///
@@ -70,19 +71,19 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         const SizedBox(height: 32),
         const Icon(Icons.people, size: 64, color: MintColors.primary),
         const SizedBox(height: 24),
-        Text(
+        MintEntrance(child: Text(
           'Entre le code recu de ton/ta partenaire',
           textAlign: TextAlign.center,
           style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm),
-        Text(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
           'Le code est valable 72 heures apres l\'envoi.',
           textAlign: TextAlign.center,
           style: MintTextStyles.bodyMedium(),
-        ),
+        )),
         const SizedBox(height: 32),
-        TextField(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: TextField(
           controller: _codeController,
           textAlign: TextAlign.center,
           textCapitalization: TextCapitalization.characters,
@@ -102,7 +103,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
               vertical: 20,
             ),
           ),
-        ),
+        )),
         if (household.error != null) ...[
           const SizedBox(height: 12),
           Text(
@@ -112,7 +113,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
         ],
         const SizedBox(height: 24),
-        Semantics(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
           button: true,
           label: 'Rejoindre le menage',
           child: FilledButton(
@@ -144,7 +145,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
                   style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
         ),
-        ),
+        )),
       ],
     );
   }

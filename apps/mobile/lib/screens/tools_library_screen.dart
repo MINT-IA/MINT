@@ -5,6 +5,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Data model for a single tool entry.
 class _ToolItem {
@@ -557,7 +558,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: Row(
                 children: [
-                  Container(
+                  MintEntrance(child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
@@ -570,9 +571,9 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                  )),
                   const SizedBox(width: 8),
-                  Container(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
@@ -585,7 +586,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                  )),
                   if (_searchQuery.isNotEmpty) ...[
                     const Spacer(),
                     TextButton(

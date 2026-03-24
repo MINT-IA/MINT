@@ -5,6 +5,7 @@ import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Step 2 of the Smart Onboarding flow — Chiffre Choc reveal.
 ///
@@ -187,7 +188,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
               const SizedBox(height: 16),
 
               // ── CHIFFRE CHOC CARD ────────────────────────────────────────
-              FadeTransition(
+              MintEntrance(child: FadeTransition(
                 opacity: _fadeAnim,
                 child: ScaleTransition(
                   scale: _scaleAnim,
@@ -275,12 +276,12 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ),
                   ),
                 ),
-              ),
+              )),
 
               const SizedBox(height: 20),
 
               // ── CONFIDENCE BAR ───────────────────────────────────────────
-              FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -335,12 +336,12 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ],
                   ),
                 ),
-              ),
+              )),
 
               const SizedBox(height: 24),
 
               // ── LITERACY — optionnel, post-reveal ────────────────────────
-              FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,7 +391,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ),
                   ],
                 ),
-              ),
+              )),
 
               const SizedBox(height: 32),
 
@@ -491,7 +492,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
               const SizedBox(height: 16),
 
               // ── DISCLAIMER ───────────────────────────────────────────────
-              Text(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
                 'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
                 'Sources: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
                 style: GoogleFonts.inter(
@@ -500,7 +501,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 24),
             ],
           ),

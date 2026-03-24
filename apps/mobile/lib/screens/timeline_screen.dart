@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LIFE EVENT DEFINITION
@@ -403,7 +404,7 @@ class TimelineScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintEntrance(child: Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
@@ -411,21 +412,21 @@ class TimelineScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(action.icon, color: action.color, size: 18),
-            ),
+            )),
             const Spacer(),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               action.title,
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                 fontWeight: FontWeight.w700,
               ),
-            ),
+            )),
             const SizedBox(height: MintSpacing.xs),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               action.subtitle,
               style: MintTextStyles.micro(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-            ),
+            )),
           ],
         ),
       ),

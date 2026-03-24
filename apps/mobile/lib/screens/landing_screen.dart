@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/widgets/analytics_consent_banner.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -79,7 +80,7 @@ class _LandingScreenState extends State<LandingScreen>
       backgroundColor: MintColors.porcelaine,
       body: Stack(
         children: [
-          SafeArea(
+          MintEntrance(child: SafeArea(
             child: Align(
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
@@ -111,7 +112,7 @@ class _LandingScreenState extends State<LandingScreen>
                 ),
               ),
             ),
-          ),
+          )),
 
           // Analytics consent
           const AnalyticsConsentBanner(),

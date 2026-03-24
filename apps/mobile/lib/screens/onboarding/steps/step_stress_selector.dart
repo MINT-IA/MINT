@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Step 0: Stress/intention selector — a single tap auto-advances.
 ///
@@ -110,14 +111,14 @@ class StepStressSelector extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  MintEntrance(child: Text(
                     'Choisis un theme — on personnalise ton experience.',
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
                       height: 1.5,
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 24),
                   ..._options.map((opt) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -128,7 +129,7 @@ class StepStressSelector extends StatelessWidget {
                         ),
                       )),
                   const SizedBox(height: 16),
-                  Text(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     'Outil educatif — ne constitue pas un conseil financier (LSFin).',
                     style: GoogleFonts.inter(
                       fontSize: 11,
@@ -136,7 +137,7 @@ class StepStressSelector extends StatelessWidget {
                       height: 1.4,
                     ),
                     textAlign: TextAlign.center,
-                  ),
+                  )),
                   const SizedBox(height: 24),
                 ],
               ),

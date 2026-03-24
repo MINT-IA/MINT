@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SCREEN — Sprint S19 / Chomage (LACI)
@@ -125,13 +126,13 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               _buildHeader(),
               const SizedBox(height: MintSpacing.xl),
             ],
-            _buildGainSlider(),
+            MintEntrance(child: _buildGainSlider()),
             const SizedBox(height: MintSpacing.md),
-            _buildAgeSlider(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAgeSlider()),
             const SizedBox(height: MintSpacing.md),
-            _buildMoisCotisationSlider(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildMoisCotisationSlider()),
             const SizedBox(height: MintSpacing.md),
-            _buildToggles(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildToggles()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null && _result!.eligible) ...[
               _buildTauxCard(),
@@ -158,7 +159,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               _buildMintCrashTestSection(),
               const SizedBox(height: MintSpacing.xl),
             ],
-            _buildDisclaimer(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.xxl + MintSpacing.xl),
           ],
         ),

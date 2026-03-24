@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Data block enrichment screen — deep-edit a specific confidence bloc.
 ///
@@ -170,11 +171,11 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 16),
 
               // ── Disclaimer ───────────────────────────────────────
-              Text(
+              MintEntrance(child: Text(
                 S.of(context)!.dataBlockDisclaimer,
                 style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 16),
             ],
           ),

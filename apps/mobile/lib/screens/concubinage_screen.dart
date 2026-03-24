@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONCUBINAGE SCREEN — Category C (Life Event)
@@ -182,7 +183,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ],
 
         // Inputs
-        _buildComparateurInputs(),
+        MintEntrance(child: _buildComparateurInputs()),
         const SizedBox(height: MintSpacing.lg),
 
         if (_comparisonResult != null) ...[
@@ -206,19 +207,19 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ],
 
         // Educational insert — AVS cap 150% (LAVS art. 35)
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.concubinageEducationalAvs,
-        ),
+        )),
         const SizedBox(height: MintSpacing.md),
 
         // Educational insert — Succession
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(
           S.of(context)!.concubinageEducationalSuccession,
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Neutral conclusion
-        _buildNeutralConclusion(),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildNeutralConclusion()),
         const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
@@ -642,7 +643,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        Container(
+        MintEntrance(child: Container(
           padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
@@ -663,11 +664,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
             ],
           ),
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // LPP slider
-        MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.lg),
           radius: 16,
@@ -683,11 +684,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               });
             },
           ),
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Side-by-side chiffre-choc: Married vs Concubin survivor total
-        Row(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: Row(
           children: [
             // Married survivor
             Expanded(
@@ -741,13 +742,13 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm),
-        Text(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
           S.of(context)!.concubinageProtectionSurvivorZero,
           style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           textAlign: TextAlign.center,
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Comparison table: married vs concubin
@@ -900,7 +901,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        Container(
+        MintEntrance(child: Container(
           padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
@@ -921,11 +922,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
             ],
           ),
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Progress bar
-        MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.lg),
           radius: 16,
@@ -961,7 +962,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
             ],
           ),
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Checklist items
@@ -976,7 +977,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         }),
         const SizedBox(height: MintSpacing.lg),
 
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }

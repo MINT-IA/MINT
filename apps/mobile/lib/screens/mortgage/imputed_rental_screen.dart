@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de calcul de la valeur locative et de son impact fiscal.
 ///
@@ -100,23 +101,23 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Intro
-          _buildIntroCard(s),
+          MintEntrance(child: _buildIntroCard(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          _buildChiffreChocCard(result),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Decomposition
-          _buildDecompositionCard(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDecompositionCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(s),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
-          _buildDisclaimer(result.disclaimer),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
           const SizedBox(height: MintSpacing.sm),
 
           // Source legale

@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -151,15 +152,15 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            MintEntrance(child: _buildHeader()),
             const SizedBox(height: 24),
-            _buildIntroCard(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: 24),
-            _buildBienSection(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildBienSection()),
             const SizedBox(height: 12),
-            _buildFinancementSection(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFinancementSection()),
             const SizedBox(height: 12),
-            _buildEplSection(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildEplSection()),
             const SizedBox(height: 12),
             _buildRemploiSection(),
             const SizedBox(height: 24),

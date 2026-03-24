@@ -11,6 +11,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// "Coffre-fort" (Document Vault) screen.
 ///
@@ -101,15 +102,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. Header card
-            _buildHeaderCard(s, totalDocs),
+            MintEntrance(child: _buildHeaderCard(s, totalDocs)),
             const SizedBox(height: MintSpacing.lg),
 
             // 2. Category grid
-            _buildCategoryGrid(s, docProvider),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCategoryGrid(s, docProvider)),
             const SizedBox(height: MintSpacing.xl),
 
             // 3. Legal guidance section
-            _buildGuidanceSection(s),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildGuidanceSection(s)),
             const SizedBox(height: MintSpacing.xl),
 
             // Uploading indicator
@@ -132,11 +133,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ],
 
             // 4. Documents list
-            _buildDocumentsList(s, docProvider, sub),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDocumentsList(s, docProvider, sub)),
             const SizedBox(height: MintSpacing.lg),
 
             // Bank import card (kept as fallback)
-            _buildBankImportCard(s),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBankImportCard(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Privacy footer

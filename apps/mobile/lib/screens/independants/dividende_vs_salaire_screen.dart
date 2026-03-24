@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DIVIDENDE VS SALAIRE SCREEN — Sprint S18
@@ -86,13 +87,13 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                _buildBeneficeSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBeneficeSlider()),
                 const SizedBox(height: 20),
-                _buildPartSalaireSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPartSalaireSlider()),
                 const SizedBox(height: 20),
-                _buildTauxSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTauxSlider()),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -108,7 +109,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                   _buildEducation(),
                   const SizedBox(height: 24),
                 ],
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 16),
                 _buildCantonalDisclaimer(),
                 const SizedBox(height: 16),

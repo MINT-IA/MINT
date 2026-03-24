@@ -7,6 +7,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Screen for navigating the financial impact of a relative's death in Switzerland.
 ///
@@ -80,23 +81,23 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Hero: chiffre choc ──
-              _buildChiffreChoc(s),
+              MintEntrance(child: _buildChiffreChoc(s)),
               const SizedBox(height: 24),
 
               // ── Urgences 48h ──
-              _buildUrgences48h(s),
+              MintEntrance(delay: const Duration(milliseconds: 100), child: _buildUrgences48h(s)),
               const SizedBox(height: 24),
 
               // ── Inputs ──
-              _buildInputs(s),
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputs(s)),
               const SizedBox(height: 24),
 
               // ── Timeline succession ──
-              _buildTimeline(s),
+              MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTimeline(s)),
               const SizedBox(height: 24),
 
               // ── Beneficiaires LPP / 3a ──
-              _buildBeneficiaires(s),
+              MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBeneficiaires(s)),
               const SizedBox(height: 24),
 
               // ── Impact fiscal ──

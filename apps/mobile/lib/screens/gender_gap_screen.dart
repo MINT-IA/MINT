@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/segments_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  GENDER GAP PREVOYANCE SCREEN — Sprint S12 / Chantier 6
@@ -108,17 +109,17 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(s),
+            MintEntrance(child: _buildHeader(s)),
             const SizedBox(height: MintSpacing.lg),
-            _buildIntro(s),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Taux activite slider
-            _buildTauxSlider(s),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildTauxSlider(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Input section
-            _buildInputSection(s),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildInputSection(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Results
@@ -134,7 +135,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ],
 
             // Disclaimer
-            _buildDisclaimer(s),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(s)),
             const SizedBox(height: MintSpacing.md),
 
             // Sources

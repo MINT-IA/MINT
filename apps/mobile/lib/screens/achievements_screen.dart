@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/milestone_detection_service.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ACHIEVEMENTS SCREEN — S55 / Daily Streaks + Achievements
@@ -560,27 +561,27 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
+            MintEntrance(child: Container(
               width: 40,
               height: 4,
               decoration: BoxDecoration(
                 color: MintColors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
-            Icon(badge.icon, size: 48, color: MintColors.warning),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Icon(badge.icon, size: 48, color: MintColors.warning)),
             const SizedBox(height: MintSpacing.md),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               badge.label,
               style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
               badge.description,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
           ],
         ),

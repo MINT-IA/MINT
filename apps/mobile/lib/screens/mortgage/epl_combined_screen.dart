@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de financement EPL multi-sources.
 ///
@@ -99,23 +100,23 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
-          _buildChiffreChocCard(s, result),
+          MintEntrance(child: _buildChiffreChocCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Pie chart
-          _buildPieChartSection(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPieChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(s),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sources detail
-          _buildSourcesDetail(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSourcesDetail(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Ordre recommande
-          _buildOrdreRecommande(s),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildOrdreRecommande(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Alertes

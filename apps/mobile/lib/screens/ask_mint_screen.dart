@@ -16,6 +16,7 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// A single chat message in the Ask MINT conversation.
 class _ChatMessage {
@@ -103,7 +104,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            MintEntrance(child: Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
                 color: MintColors.accentPastel,
@@ -114,14 +115,14 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 color: MintColors.accent,
                 size: 48,
               ),
-            ),
+            )),
             const SizedBox(height: 24),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               s.askMintConfigureTitle,
               style: MintTextStyles.headlineLarge(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               s.askMintConfigureBody,
               textAlign: TextAlign.center,
               style: const TextStyle(
@@ -129,7 +130,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 color: MintColors.textSecondary,
                 height: 1.5,
               ),
-            ),
+            )),
             const SizedBox(height: MintSpacing.xl),
             SizedBox(
               width: double.infinity,
@@ -141,7 +142,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             ),
             const SizedBox(height: 16),
             // Privacy note
-            Row(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.lock_outline,
@@ -155,7 +156,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                   ),
                 ),
               ],
-            ),
+            )),
           ],
         ),
       ),

@@ -10,6 +10,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ConsumerCreditSimulatorScreen extends StatefulWidget {
   const ConsumerCreditSimulatorScreen({super.key});
@@ -86,13 +87,13 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCoachSection(),
+            MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildInputSection(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
             const SizedBox(height: MintSpacing.xl),
-            _buildGuidanceSection(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildGuidanceSection()),
             const SizedBox(height: MintSpacing.xl),
             // ── P10-B : Avalanche vs Boule de neige ──────────────
             const DebtRepaymentWidget(
@@ -122,7 +123,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               extraMonthly: 150,
             ),
             const SizedBox(height: MintSpacing.xxl),
-            _buildDisclaimer(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.lg),
             const DebtToolsNav(currentRoute: '/simulator/credit'),
             const SizedBox(height: MintSpacing.xl),

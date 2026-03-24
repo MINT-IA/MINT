@@ -9,6 +9,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANNUAL REFRESH SCREEN — T6 / MINT Coach
@@ -256,15 +257,15 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      _buildSalaireCard(),
+                      MintEntrance(child: _buildSalaireCard()),
                       const SizedBox(height: 16),
-                      _buildEmploiCard(),
+                      MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEmploiCard()),
                       const SizedBox(height: 16),
-                      _buildLppCard(),
+                      MintEntrance(delay: const Duration(milliseconds: 200), child: _buildLppCard()),
                       const SizedBox(height: 16),
-                      _buildThreeACard(),
+                      MintEntrance(delay: const Duration(milliseconds: 300), child: _buildThreeACard()),
                       const SizedBox(height: 16),
-                      _buildRealEstateCard(),
+                      MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRealEstateCard()),
                       const SizedBox(height: 16),
                       _buildFamilyCard(),
                       const SizedBox(height: 16),

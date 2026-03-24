@@ -10,6 +10,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Household management screen — Couple+ tier.
 ///
@@ -77,24 +78,24 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           children: [
             const Icon(Icons.lock_outline, size: 64, color: MintColors.greyBorderLight),
             const SizedBox(height: 16),
-            Text(
+            MintEntrance(child: Text(
               'Couple+',
               style: MintTextStyles.headlineMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               S.of(context)!.householdUpsellDescription,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),
-            ),
+            )),
             const SizedBox(height: 24),
-            FilledButton(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: FilledButton(
               onPressed: () {
                 final sub = context.read<SubscriptionProvider>();
                 sub.upgrade(SubscriptionTier.couplePlus);
               },
               child: Text(S.of(context)!.householdDiscoverCouplePlus),
-            ),
+            )),
           ],
         ),
       ),

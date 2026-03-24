@@ -15,6 +15,7 @@ import 'package:mint_mobile/screens/onboarding/steps/step_stress_selector.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_top_actions.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ZERO-PERSISTENCE GUARANTEE (P1):
 // All onboarding inputs stay in-memory until the user explicitly saves.
@@ -346,39 +347,39 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               // ── Page 0: Stress intention ────────────────────────────────
-              StepStressSelector(
+              MintEntrance(child: StepStressSelector(
                 viewModel: _viewModel,
                 onNext: () => _goToPage(1),
-              ),
+              )),
 
               // ── Page 1: 5 questions + 3 calibrage literacy ───────────────
-              StepQuestions(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: StepQuestions(
                 viewModel: _viewModel,
                 onNext: _onStepQuestionsNext,
                 onInputChanged: _onInputChanged,
-              ),
+              )),
 
               // ── Page 2: Chiffre choc reveal ──────────────────────────────
-              StepChiffreChoc(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
                 onNext: () => _goToPage(3),
                 onEnrich: () => _saveThenEnrich(context),
                 onDashboard: () => _saveThenGo(context),
-              ),
+              )),
 
               // ── Page 3: OCR document upload (LPD-compliant, optional) ────
-              StepOcrUpload(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: StepOcrUpload(
                 viewModel: _viewModel,
                 onNext: () => _goToPage(4),
-              ),
+              )),
 
               // ── Page 4: JIT explanation (SI...ALORS) ─────────────────────
-              StepJitExplanation(
+              MintEntrance(delay: const Duration(milliseconds: 400), child: StepJitExplanation(
                 chiffreChoc: _viewModel.chiffreChoc,
                 onNext: () => _goToPage(5),
                 onBack: () => _goToPage(3),
-              ),
+              )),
 
               // ── Page 5: Top 3 actions ────────────────────────────────────
               StepTopActions(

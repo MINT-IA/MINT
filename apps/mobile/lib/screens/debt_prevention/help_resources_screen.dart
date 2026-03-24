@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran des ressources d'aide en cas de dette.
 ///
@@ -46,37 +47,37 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Intro
-                _buildIntroCard(),
+                MintEntrance(child: _buildIntroCard()),
                 const SizedBox(height: 24),
 
                 // Dettes Conseils Suisse
-                _buildNationalResourceCard(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildNationalResourceCard(
                   nom: S.of(context)!.helpResourcesDettesName,
                   description: S.of(context)!.helpResourcesDettesDesc,
                   url: 'https://www.dettes.ch',
                   telephone: '0800 40 40 40',
                   icon: Icons.phone_in_talk,
                   color: MintColors.info,
-                ),
+                )),
                 const SizedBox(height: 16),
 
                 // Caritas
-                _buildNationalResourceCard(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildNationalResourceCard(
                   nom: S.of(context)!.helpResourcesCaritasName,
                   description: S.of(context)!.helpResourcesCaritasDesc,
                   url: 'https://www.caritas.ch/dettes',
                   telephone: '0800 708 708',
                   icon: Icons.favorite_outline,
                   color: MintColors.error,
-                ),
+                )),
                 const SizedBox(height: 24),
 
                 // Service cantonal
-                _buildCantonalSection(cantonalResource),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonalSection(cantonalResource)),
                 const SizedBox(height: 24),
 
                 // Note privacy nLPD
-                _buildPrivacyNote(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPrivacyNote()),
                 const SizedBox(height: 24),
 
                 // Disclaimer

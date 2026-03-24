@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class DebtRiskCheckScreen extends StatefulWidget {
   const DebtRiskCheckScreen({super.key});
@@ -63,9 +64,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildMentorIntro(),
+        MintEntrance(child: _buildMentorIntro()),
         const SizedBox(height: MintSpacing.xl),
-        _buildQuestionSection(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildQuestionSection(
           S.of(context)!.debtCheckSectionDaily,
           [
             _buildQuestionCard(
@@ -81,9 +82,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
               (v) => setState(() => _hasMultipleCredits = v),
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
-        _buildQuestionSection(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildQuestionSection(
           S.of(context)!.debtCheckSectionObligations,
           [
             _buildQuestionCard(
@@ -99,9 +100,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
               (v) => setState(() => _hasDebtCollection = v),
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
-        _buildQuestionSection(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildQuestionSection(
           S.of(context)!.debtCheckSectionBehaviors,
           [
             _buildQuestionCard(
@@ -117,7 +118,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
               (v) => setState(() => _hasGamblingHabit = v),
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.xl),
         SizedBox(
           width: double.infinity,
@@ -127,7 +128,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           ),
         ),
         const SizedBox(height: MintSpacing.xl),
-        _buildPrivacyNote(),
+        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPrivacyNote()),
         const SizedBox(height: MintSpacing.lg),
         const DebtToolsNav(currentRoute: '/check/debt'),
         const SizedBox(height: 40),

@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class SanteHubScreen extends StatelessWidget {
   const SanteHubScreen({super.key});
@@ -26,10 +27,10 @@ class SanteHubScreen extends StatelessWidget {
           vertical: MintSpacing.md,
         ),
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
           _HubItemCard(
             title: l.santeHubFeaturedFranchise,
@@ -55,10 +56,10 @@ class SanteHubScreen extends StatelessWidget {
             onTap: () => context.push('/assurances/coverage'),
           ),
           const SizedBox(height: MintSpacing.xl),
-          Text(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
             l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
           _HubItemCard(
             title: l.santeHubToolAssuranceInvalidite,

@@ -4,6 +4,7 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Admin analytics dashboard — shows event summary + conversion funnel.
 ///
@@ -146,21 +147,21 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Period selector
-        _buildPeriodSelector(),
+        MintEntrance(child: _buildPeriodSelector()),
         const SizedBox(height: MintSpacing.lg),
 
         // KPI cards
-        _buildKpiRow(l10n),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildKpiRow(l10n)),
         const SizedBox(height: MintSpacing.lg),
 
         // Funnel
-        _buildSectionTitle(l10n.adminAnalyticsFunnel),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionTitle(l10n.adminAnalyticsFunnel)),
         const SizedBox(height: MintSpacing.sm + 4),
-        _buildFunnel(l10n),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFunnel(l10n)),
         const SizedBox(height: MintSpacing.lg),
 
         // Events by screen
-        _buildSectionTitle(l10n.adminAnalyticsByScreen),
+        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSectionTitle(l10n.adminAnalyticsByScreen)),
         const SizedBox(height: MintSpacing.sm + 4),
         _buildBreakdownCard(_byScreen, l10n),
         const SizedBox(height: MintSpacing.lg),

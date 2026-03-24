@@ -17,6 +17,7 @@ import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -97,13 +98,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildSalaireSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSalaireSlider()),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildAgeSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeSlider()),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildCantonAndActivity(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonAndActivity()),
                 const SizedBox(height: MintSpacing.lg),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -196,7 +197,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   _buildMintAnalysisSection(),
                   const SizedBox(height: MintSpacing.lg),
                 ],
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),

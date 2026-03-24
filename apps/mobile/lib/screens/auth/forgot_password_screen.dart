@@ -6,6 +6,7 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -100,12 +101,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
+                MintEntrance(child: Text(
                   l10n.authForgotSteps,
                   style: MintTextStyles.bodyMedium(),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg - 4),
-                Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -116,7 +117,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       prefixIcon: const Icon(Icons.email_outlined),
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.sm + 4),
                 FilledButton.tonal(
                   onPressed: auth.isLoading ? null : _requestReset,
@@ -139,7 +140,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ],
                 const SizedBox(height: MintSpacing.lg),
-                Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
                   label: l10n.authForgotResetTokenLabel,
                   textField: true,
                   child: TextFormField(
@@ -152,9 +153,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ? l10n.authTokenRequired
                         : null,
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.sm + 4),
-                Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                   label: l10n.authForgotNewPasswordLabel,
                   textField: true,
                   child: TextFormField(
@@ -187,9 +188,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       return null;
                     },
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.sm + 4),
-                Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authConfirmPassword,
                   textField: true,
                   child: TextFormField(
@@ -219,7 +220,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ? null
                         : l10n.authPasswordMismatch,
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg - 4),
                 if (auth.error != null)
                   Padding(

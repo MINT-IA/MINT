@@ -19,6 +19,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -178,9 +179,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCoachSection(),
+            MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildInputSection(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null)
               SafeModeGate(
@@ -190,16 +191,16 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                 child: _buildResultSection(),
               ),
             const SizedBox(height: MintSpacing.xl),
-            SafeModeGate(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: SafeModeGate(
               hasDebt: hasDebt,
               lockedTitle: l.sim3aDebtStrategyTitle,
               lockedMessage: l.sim3aDebtStrategyMessage,
               child: _buildEducationSection(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.xl),
-            _buildRelatedSections(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRelatedSections()),
             const SizedBox(height: MintSpacing.xxl),
-            _buildDisclaimer(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.lg),
             _buildCountdown3a(),
             const SizedBox(height: MintSpacing.xl),

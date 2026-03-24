@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LAMAL FRANCHISE OPTIMISER SCREEN — Sprint S13 / Chantier 7
@@ -105,19 +106,19 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildDemoModeBadge(),
+                MintEntrance(child: _buildDemoModeBadge()),
                 const SizedBox(height: MintSpacing.sm + 4),
-                _buildHeader(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildIntro(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildIntro()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Toggle Adult / Child
-                _buildToggle(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildToggle()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Input sliders
-                _buildPrimeSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPrimeSlider()),
                 const SizedBox(height: MintSpacing.md),
                 _buildDepensesSlider(),
                 const SizedBox(height: MintSpacing.lg),

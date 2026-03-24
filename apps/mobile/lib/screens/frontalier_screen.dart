@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -196,7 +197,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _buildTaxInputsCard(),
+        MintEntrance(child: _buildTaxInputsCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_taxResult != null) ...[
           _buildTaxResultCard(),
@@ -207,11 +208,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (_taxResult!['isTessin'] == true)
             const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducationalTax,
-        ),
+        )),
         const SizedBox(height: MintSpacing.md + 4),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -602,7 +603,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _build90DayInputCard(),
+        MintEntrance(child: _build90DayInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_ruleResult != null) ...[
           _build90DayGauge(),
@@ -612,11 +613,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           _build90DayLegalRef(),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducational90Days,
-        ),
+        )),
         const SizedBox(height: MintSpacing.md + 4),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -940,7 +941,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _buildChargesInputCard(),
+        MintEntrance(child: _buildChargesInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_chargesResult != null) ...[
           _buildChargesComparison(),
@@ -950,11 +951,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           _buildLamalSection(),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducationalCharges,
-        ),
+        )),
         const SizedBox(height: MintSpacing.md + 4),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }

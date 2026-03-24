@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COVERAGE CHECK SCREEN — Sprint S13 / Chantier 7
@@ -380,27 +381,27 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.coverageCheckCouvertureActuelle,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckIjm, _aIjmCollective, (v) {
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCoverageSwitch(S.of(context)!.coverageCheckIjm, _aIjmCollective, (v) {
             _aIjmCollective = v;
             _compute();
-          }),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckLaa, _aLaa, (v) {
+          })),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCoverageSwitch(S.of(context)!.coverageCheckLaa, _aLaa, (v) {
             _aLaa = v;
             _compute();
-          }),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckRcPrivee, _aRcPrivee, (v) {
+          })),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCoverageSwitch(S.of(context)!.coverageCheckRcPrivee, _aRcPrivee, (v) {
             _aRcPrivee = v;
             _compute();
-          }),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckMenage, _aMenage, (v) {
+          })),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCoverageSwitch(S.of(context)!.coverageCheckMenage, _aMenage, (v) {
             _aMenage = v;
             _compute();
-          }),
+          })),
           _buildCoverageSwitch(S.of(context)!.coverageCheckProtJuridique, _aProtectionJuridique, (v) {
             _aProtectionJuridique = v;
             _compute();

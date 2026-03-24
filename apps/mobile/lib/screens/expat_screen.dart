@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -210,19 +211,19 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
-        _buildForfaitInputCard(),
+        MintEntrance(child: _buildForfaitInputCard()),
         const SizedBox(height: MintSpacing.lg),
         if (_forfaitResult != null) ...[
           _buildForfaitResultCard(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        _buildAbolishedWarning(),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAbolishedWarning()),
         const SizedBox(height: MintSpacing.lg),
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(
           S.of(context)!.expatForfaitEducation,
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
-        _buildTopCantonSection(),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTopCantonSection()),
         const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
@@ -646,11 +647,11 @@ class _ExpatScreenState extends State<ExpatScreen>
             ),
           ),
 
-        _buildDepartInputCard(),
+        MintEntrance(child: _buildDepartInputCard()),
         const SizedBox(height: MintSpacing.lg),
-        _buildNoExitTaxBadge(),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildNoExitTaxBadge()),
         const SizedBox(height: MintSpacing.lg),
-        ExpatCountdownWidget(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: ExpatCountdownWidget(
           departureDate: _departureDate,
           deadlines: const [
             ExpatDeadline(
@@ -681,7 +682,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               isEuOnly: false,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
         if (_departResult != null) ...[
           _buildDepartTimeline(),
@@ -689,7 +690,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildDepartChecklist(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        _buildEducationalInsert(l.expatTab2EduInsert),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildEducationalInsert(l.expatTab2EduInsert)),
         const SizedBox(height: MintSpacing.lg),
         // ── P13-A : 5 choses que tu perds en partant ───────────
         const ExpatRightsLossWidget(
@@ -1217,7 +1218,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
-        _buildAvsInputCard(),
+        MintEntrance(child: _buildAvsInputCard()),
         const SizedBox(height: MintSpacing.lg),
         if (_avsResult != null) ...[
           // ── Chiffre-choc hero for Tab 3 ──
@@ -1266,7 +1267,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildAvsRecommendation(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        Builder(builder: (context) {
+        MintEntrance(delay: const Duration(milliseconds: 100), child: Builder(builder: (context) {
           final provider = context.read<CoachProfileProvider>();
           final profileAge =
               (provider.hasProfile && provider.profile!.age > 0)
@@ -1276,11 +1277,11 @@ class _ExpatScreenState extends State<ExpatScreen>
             currentContributionYears: _yearsInCh,
             currentAge: profileAge,
           );
-        }),
+        })),
         const SizedBox(height: MintSpacing.lg),
-        _buildEducationalInsert(l.expatAvsEducation),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(l.expatAvsEducation)),
         const SizedBox(height: MintSpacing.lg),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDisclaimer()),
       ],
     );
   }

@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Allocation annuelle arbitrage screen — compare 3a, rachat LPP,
 /// amortissement indirect, and investissement libre.
@@ -341,19 +342,19 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.allocAnnuelleBudgetTitle,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
-          _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTextField(
             controller: _montantCtrl,
             label: l.allocAnnuelleMontantLabel,
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Taux marginal slider
-          MintPremiumSlider(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: MintPremiumSlider(
             label: l.allocAnnuelleTauxMarginal,
             value: _tauxMarginal,
             min: 10,
@@ -364,11 +365,11 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               setState(() => _tauxMarginal = v);
               _recalculate();
             },
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm),
 
           // Annees avant retraite slider
-          MintPremiumSlider(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: MintPremiumSlider(
             label: l.allocAnnuelleAnneesRetraite,
             value: _anneesAvantRetraite.toDouble(),
             min: 5,
@@ -379,18 +380,18 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               setState(() => _anneesAvantRetraite = v.round());
               _recalculate();
             },
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm),
 
           // Toggles
-          _buildToggle(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildToggle(
             label: l.allocAnnuelle3aMaxed,
             value: _a3aMaxed,
             onChanged: (v) {
               _a3aMaxed = v;
               _recalculate();
             },
-          ),
+          )),
           _buildToggle(
             label: l.allocAnnuelleRachatLpp,
             value: _hasRachatLpp,

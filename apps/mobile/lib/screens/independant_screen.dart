@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/coach/fiscal_superpower_widget.dart';
 import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
@@ -109,17 +110,17 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: MintSpacing.lg),
-                _buildIntro(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Revenue input
-                _buildRevenueSection(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenueSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Coverage toggles
-                _buildCoverageToggles(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCoverageToggles()),
                 const SizedBox(height: MintSpacing.lg),
 
                 if (_result != null) ...[
@@ -190,7 +191,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 ],
 
                 // Disclaimer
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: MintSpacing.md),
 
                 _buildMintIndependantSection(),

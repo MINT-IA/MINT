@@ -6,6 +6,7 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -96,12 +97,12 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              MintEntrance(child: Text(
                 l10n.authVerifyInstructions,
                 style: MintTextStyles.bodyMedium(),
-              ),
+              )),
               const SizedBox(height: MintSpacing.md),
-              Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: Semantics(
                 label: l10n.authEmail,
                 textField: true,
                 child: TextField(
@@ -112,7 +113,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     prefixIcon: const Icon(Icons.email_outlined),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: MintSpacing.sm + 4),
               FilledButton.tonal(
                 onPressed: auth.isLoading ? null : _requestToken,
@@ -135,7 +136,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 ),
               ],
               const SizedBox(height: MintSpacing.md),
-              Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
                 label: l10n.authVerifyTokenLabel,
                 textField: true,
                 child: TextField(
@@ -145,7 +146,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     prefixIcon: const Icon(Icons.key_outlined),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: MintSpacing.md),
               if (auth.error != null)
                 Padding(
@@ -155,14 +156,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     style: MintTextStyles.bodyMedium(color: MintColors.error),
                   ),
                 ),
-              Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                 label: l10n.authVerifySubmit,
                 button: true,
                 child: FilledButton(
                   onPressed: auth.isLoading ? null : _confirm,
                   child: Text(l10n.authVerifySubmit),
                 ),
-              ),
+              )),
             ],
           ),
         ),

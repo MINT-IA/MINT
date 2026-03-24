@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran comparateur SARON vs Taux fixe.
 ///
@@ -77,23 +78,23 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
-          _buildChiffreChocCard(result),
+          MintEntrance(child: _buildChiffreChocCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          _buildChartSection(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(s),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail couts
-          _buildCostComparisonSection(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCostComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
-          _buildDisclaimer(result.disclaimer),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
           const SizedBox(height: MintSpacing.sm),
 
           // Source legale

@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL COMPARATOR SCREEN — Sprint S20 / 26 cantons
@@ -261,7 +262,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _buildInputsCard(),
+        MintEntrance(child: _buildInputsCard()),
         const SizedBox(height: 20),
         if (_taxResult != null) ...[
           _buildTaxGauge(),
@@ -271,7 +272,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           _buildNationalComparison(),
           const SizedBox(height: 20),
         ],
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDisclaimer()),
       ],
     );
   }
@@ -889,7 +890,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        Container(
+        MintEntrance(child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
@@ -909,11 +910,11 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
             ],
           ),
-        ),
+        )),
         const SizedBox(height: 20),
 
         // Canton pickers
-        MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -958,7 +959,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
             ],
           ),
-        ),
+        )),
         const SizedBox(height: 24),
 
         // Results
@@ -984,11 +985,11 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 24),
 
         // Moving checklist
-        _buildMoveChecklist(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildMoveChecklist()),
         const SizedBox(height: 24),
 
         // Education
-        _buildMoveEducation(),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildMoveEducation()),
         const SizedBox(height: 24),
 
         // ── P12-B : Le vrai coût du déménagement cantonal ───
