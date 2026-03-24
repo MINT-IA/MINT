@@ -14,6 +14,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class OptimisationDecaissementScreen extends StatelessWidget {
   const OptimisationDecaissementScreen({super.key});
@@ -185,13 +186,10 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 14,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -226,12 +224,9 @@ class _WithdrawalTable extends StatelessWidget {
       (l.optimDecaissementTableRow3Spread, l.optimDecaissementTableRow3Amount, l.optimDecaissementTableRow3Tax),
     ];
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 14,
       child: Column(
         children: [
           // Header
@@ -294,13 +289,10 @@ class _StepCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 14,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -233,12 +234,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
 
   // ── Header ──
   Widget _buildHeader() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Row(
         children: [
           Container(
@@ -878,12 +876,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
 
   // ── Expandable Tile ──
   Widget _buildExpandableTile(String title, String content) {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 16,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
@@ -944,13 +939,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 8),
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.border),
-          ),
+          radius: 12,
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _canton,

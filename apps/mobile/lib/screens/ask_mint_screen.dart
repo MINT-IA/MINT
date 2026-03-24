@@ -17,6 +17,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// A single chat message in the Ask MINT conversation.
 class _ChatMessage {
@@ -380,13 +381,10 @@ class _AskMintScreenState extends State<AskMintScreen> {
         child: InkWell(
         onTap: () => _sendMessage(text),
         borderRadius: BorderRadius.circular(16),
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.border),
-          ),
+          radius: 16,
           child: Row(
             children: [
               Expanded(

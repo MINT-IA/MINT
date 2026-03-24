@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class DebtRiskCheckScreen extends StatefulWidget {
   const DebtRiskCheckScreen({super.key});
@@ -145,12 +146,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       _hasGamblingHabit != null;
 
   Widget _buildMentorIntro() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -186,14 +184,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
   }
 
   Widget _buildQuestionCard(String question, String sub, bool? value, Function(bool?) onChanged) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.sm),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1565,12 +1565,10 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
             const SizedBox(height: MintSpacing.md),
 
             // Description
-            Container(
+            MintSurface(
+              tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.all(MintSpacing.sm + 4),
-              decoration: BoxDecoration(
-                color: MintColors.surface,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              radius: 8,
               child: Text(
                 _intensityDescription(_pref.intensity),
                 style: MintTextStyles.bodyMedium(

@@ -600,13 +600,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(MintSpacing.xs + 2),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.balance, size: 18, color: MintColors.primary),
+          const MintSurface(
+            padding: EdgeInsets.all(MintSpacing.xs + 2),
+            radius: 10,
+            child: Icon(Icons.balance, size: 18, color: MintColors.primary),
           ),
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(

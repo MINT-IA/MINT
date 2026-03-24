@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/coach/rent_vs_buy_scoreboard_widget.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Location vs Propriete arbitrage screen — compare renting + investing
 /// surplus vs buying property with mortgage.
@@ -331,13 +332,8 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -374,12 +370,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                     ),
                     const SizedBox(height: 6),
-                    Container(
+                    MintSurface(
+                      tone: MintSurfaceTone.porcelaine,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      radius: 12,
                       child: DropdownButton<String>(
                         value: _canton,
                         isExpanded: true,
@@ -549,21 +543,9 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
   Widget _buildChiffreChocCard() {
     if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.info.withAlpha(15),
-            blurRadius: 30,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
+      elevated: true,
       child: Column(
         children: [
           Container(
@@ -637,13 +619,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
   Widget _buildDisclaimerCard() {
     if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

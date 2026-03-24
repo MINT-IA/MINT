@@ -10,6 +10,7 @@ import 'package:mint_mobile/widgets/coach/franchise_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — COUVERTURE INVALIDITÉ
@@ -253,12 +254,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
   }
 
   Widget _buildInputsCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

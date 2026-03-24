@@ -239,13 +239,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               Semantics(
                 label: S.of(context)!.frontalierCantonTravail,
                 button: true,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.sm + 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  radius: 10,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _taxCanton,
@@ -486,12 +484,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: MintSpacing.md),
 
           // Annual total
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            radius: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -910,12 +906,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final result = _ruleResult!;
     final legalRef = result['legalReference'] as String;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.sm + 4),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1257,12 +1251,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(MintSpacing.sm),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          radius: 8,
           child: Icon(icon, size: 16, color: MintColors.textSecondary),
         ),
         const SizedBox(width: MintSpacing.sm + 2),

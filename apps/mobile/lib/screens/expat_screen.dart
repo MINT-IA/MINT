@@ -305,13 +305,10 @@ class _ExpatScreenState extends State<ExpatScreen>
                       color: MintColors.textPrimary),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                radius: 10,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _forfaitCanton,
@@ -424,12 +421,10 @@ class _ExpatScreenState extends State<ExpatScreen>
           Row(
             children: [
               Expanded(
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.all(MintSpacing.md),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  radius: 16,
                   child: Column(
                     children: [
                       const Icon(Icons.receipt_long_outlined,
@@ -460,12 +455,10 @@ class _ExpatScreenState extends State<ExpatScreen>
               ),
               const SizedBox(width: MintSpacing.sm),
               Expanded(
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.all(MintSpacing.md),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  radius: 16,
                   child: Column(
                     children: [
                       const Icon(Icons.account_balance_outlined,
@@ -804,14 +797,11 @@ class _ExpatScreenState extends State<ExpatScreen>
                       _recalculateDepart();
                     }
                   },
-                  child: Container(
+                  child: MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
                     padding: const EdgeInsets.symmetric(
                         horizontal: MintSpacing.md, vertical: MintSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: MintColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: MintColors.border),
-                    ),
+                    radius: 10,
                     child: Row(
                       children: [
                         const Icon(Icons.calendar_today,
@@ -841,13 +831,10 @@ class _ExpatScreenState extends State<ExpatScreen>
                       color: MintColors.textPrimary),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                radius: 10,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _departCanton,
@@ -1404,12 +1391,10 @@ class _ExpatScreenState extends State<ExpatScreen>
           ),
           const SizedBox(height: MintSpacing.lg),
 
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            radius: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1504,12 +1489,10 @@ class _ExpatScreenState extends State<ExpatScreen>
             bold: true,
           ),
           const SizedBox(height: MintSpacing.sm),
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.sm),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Text(
               l.expatAvsReductionExplain(
                   (ExpatService.reductionPerMissingYear * 100)
@@ -1729,12 +1712,10 @@ class _ExpatScreenState extends State<ExpatScreen>
   Widget _buildDisclaimer() {
     return Semantics(
       label: ExpatService.disclaimer,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

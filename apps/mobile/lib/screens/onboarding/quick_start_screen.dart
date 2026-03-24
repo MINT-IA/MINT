@@ -13,6 +13,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
 /// in under 30 seconds.
@@ -294,13 +295,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     Semantics(
                       label: l.quickStartCanton,
                       button: true,
-                      child: Container(
+                      child: MintSurface(
+                        tone: MintSurfaceTone.porcelaine,
                         padding: const EdgeInsets.symmetric(horizontal: 14),
-                        decoration: BoxDecoration(
-                          color: MintColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: MintColors.border),
-                        ),
+                        radius: 12,
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _canton,
@@ -408,13 +406,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       verdict = l.quickStartVerdictGap;
     }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         children: [
           // Title

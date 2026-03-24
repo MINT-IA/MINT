@@ -20,6 +20,7 @@ import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -651,21 +652,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
         break;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.md),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: priorityColor, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: priorityColor.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      radius: 16,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -776,13 +766,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   .copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: MintSpacing.md),
-            ...strategy.yearlyPlan.map((buyback) => Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+            ...strategy.yearlyPlan.map((buyback) => MintSurface(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: MintColors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  radius: 12,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -942,13 +928,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
     IconData icon,
     List<String> items,
   ) {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -996,16 +979,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget _buildDisclaimerFooter(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-      child: Container(
-        width: double.infinity,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: MintColors.lightBorder,
-          ),
-        ),
+        radius: 12,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

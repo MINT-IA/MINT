@@ -8,6 +8,7 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class PortfolioScreen extends StatelessWidget {
   const PortfolioScreen({super.key});
@@ -87,13 +88,9 @@ class PortfolioScreen extends StatelessWidget {
   }
 
   Widget _buildReadinessIndex(BuildContext context, Profile? profile) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 24,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -132,13 +129,10 @@ class PortfolioScreen extends StatelessWidget {
   }
 
   Widget _buildWealthSummary() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 24,
       child: Column(
         children: [
           Text(
@@ -178,14 +172,9 @@ class PortfolioScreen extends StatelessWidget {
   }
 
   Widget _buildAccountItem(String title, String balance, {required IconData icon, required Color color}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Row(
         children: [
           Container(

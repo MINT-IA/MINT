@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  TRANSACTION LIST SCREEN — Sprint S14
@@ -313,14 +314,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     final amountColor = isCredit ? MintColors.success : MintColors.error;
     final amountPrefix = isCredit ? '+' : '-';
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(14),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.5), width: 0.8),
-      ),
+      radius: 14,
       child: Row(
         children: [
           // Category icon
@@ -426,22 +422,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   // ── Monthly Summary ────────────────────────────────────────
 
   Widget _buildMonthlySummary(Map<String, double> summary) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

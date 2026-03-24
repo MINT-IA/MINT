@@ -338,14 +338,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               Semantics(
                 label: S.of(context)!.firstJobCantonLabel,
                 button: true,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.sm + 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: MintColors.border),
-                  ),
+                  radius: 10,
                   child: DropdownButton<String>(
                     value: _canton,
                     underline: const SizedBox.shrink(),
@@ -482,12 +479,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   }
 
   Widget _buildMiniMetric(String label, String value) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.sm + 6),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -817,21 +812,16 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintSurface(
               padding: const EdgeInsets.all(MintSpacing.sm),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              radius: 10,
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: MintSpacing.sm + 4),

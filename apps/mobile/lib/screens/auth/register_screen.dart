@@ -10,6 +10,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -111,21 +112,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: MintSpacing.xl),
                 // Logo
-                MintEntrance(child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(MintSpacing.md),
-                    decoration: BoxDecoration(
-                      color: MintColors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: MintColors.black.withValues(alpha: 0.06),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
+                const MintEntrance(child: Center(
+                  child: MintSurface(
+                    padding: EdgeInsets.all(MintSpacing.md),
+                    radius: 24,
+                    elevated: true,
+                    child: Icon(
                       Icons.token_rounded,
                       color: MintColors.primary,
                       size: 48,
@@ -146,15 +138,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textAlign: TextAlign.center,
                 )),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: Container(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: MintSurface(
                   padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: MintColors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: MintColors.primary.withValues(alpha: 0.18),
-                    ),
-                  ),
+                  radius: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -497,12 +483,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: MintSpacing.sm),
                 // Privacy reassurance text
-                Container(
+                MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.all(MintSpacing.md),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  radius: 12,
                   child: Row(
                     children: [
                       const Icon(

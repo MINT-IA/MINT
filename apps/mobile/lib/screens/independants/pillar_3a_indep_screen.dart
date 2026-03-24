@@ -13,6 +13,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -168,13 +169,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── LPP Toggle ─────────────────────────────────────────────
 
   Widget _buildLppToggle() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Row(
         children: [
           Expanded(
@@ -211,13 +207,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── Revenu Slider ──────────────────────────────────────────
 
   Widget _buildRevenuSlider() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: MintPremiumSlider(
         label: S.of(context)!.pillar3aIndepRevenuLabel,
         value: _revenuNet,
@@ -236,13 +227,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── Taux Marginal Slider ───────────────────────────────────
 
   Widget _buildTauxSlider() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: MintPremiumSlider(
         label: S.of(context)!.pillar3aIndepTauxLabel,
         value: _tauxMarginal * 100,
@@ -319,13 +305,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
   Widget _buildResultSection() {
     final r = _result!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         children: [
           _buildResultRow(S.of(context)!.pillar3aIndepPlafondApplicableLabel, IndependantsService.formatChf(r.plafond)),
@@ -377,13 +358,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     final proj20Indep = plafondIndep * ((math.pow(1.04, 20) - 1) / 0.04);
     final proj20Salarie = petit * ((math.pow(1.04, 20) - 1) / 0.04);
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -591,12 +567,9 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintSurface(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              radius: 10,
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: 12),

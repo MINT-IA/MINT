@@ -8,6 +8,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class IjmScreen extends StatefulWidget {
   const IjmScreen({super.key});
@@ -124,13 +125,9 @@ class _IjmScreenState extends State<IjmScreen> {
   }
 
   Widget _buildSliderCard({required String title, required String valueLabel, required String minLabel, required String maxLabel, required double value, required double min, required double max, required int divisions, required ValueChanged<double> onChanged}) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: MintPremiumSlider(
         label: title,
         value: value,
@@ -144,13 +141,9 @@ class _IjmScreenState extends State<IjmScreen> {
   }
 
   Widget _buildCarenceToggle(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -264,9 +257,9 @@ class _IjmScreenState extends State<IjmScreen> {
   }
 
   Widget _buildResultCard(String label, String value, IconData icon, {bool small = false}) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border.withValues(alpha: 0.5))),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -284,9 +277,9 @@ class _IjmScreenState extends State<IjmScreen> {
     final r = _result!;
     const totalDays = 180;
     final carenceRatio = r.delaiCarence / totalDays;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border.withValues(alpha: 0.5))),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -312,9 +305,10 @@ class _IjmScreenState extends State<IjmScreen> {
             _buildLegendDot(MintColors.success, s.ijmTimelineCoverageIjm),
           ]),
           const SizedBox(height: MintSpacing.md),
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.sm + 4),
-            decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12)),
+            radius: 12,
             child: Text(s.ijmTimelineSummary(r.delaiCarence, IndependantsService.formatChf(r.indemniteJournaliere)), style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
           ),
         ],
@@ -346,13 +340,17 @@ class _IjmScreenState extends State<IjmScreen> {
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(16)),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(padding: const EdgeInsets.all(MintSpacing.sm), decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(10)), child: Icon(icon, size: 18, color: MintColors.primary)),
+            MintSurface(
+            padding: const EdgeInsets.all(MintSpacing.sm),
+            radius: 10,
+            child: Icon(icon, size: 18, color: MintColors.primary)),
             const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -14,6 +14,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cantonal_benchmark_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class CantonalBenchmarkScreen extends StatefulWidget {
   const CantonalBenchmarkScreen({super.key});
@@ -136,13 +137,8 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
   }
 
   Widget _buildOptInCard() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Row(
         children: [
           Expanded(
@@ -304,13 +300,9 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

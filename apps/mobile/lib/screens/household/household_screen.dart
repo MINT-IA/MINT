@@ -11,6 +11,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Household management screen — Couple+ tier.
 ///
@@ -450,13 +451,9 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               style: MintTextStyles.titleMedium(color: MintColors.greenDark),
             ),
             const SizedBox(height: 8),
-            Container(
+            MintSurface(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: MintColors.greenLight),
-              ),
+              radius: 12,
               child: Text(
                 household.pendingInviteCode!,
                 style: MintTextStyles.displayMedium(),

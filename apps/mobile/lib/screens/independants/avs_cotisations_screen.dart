@@ -8,6 +8,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class AvsCotisationsScreen extends StatefulWidget {
   const AvsCotisationsScreen({super.key});
@@ -113,13 +114,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
   }
 
   Widget _buildIncomeSlider(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: MintPremiumSlider(
         label: s.avsCotisationsRevenuLabel,
         value: _revenuNet,
@@ -185,13 +182,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
   }
 
   Widget _buildMetricCard(String label, String value, IconData icon, {bool small = false}) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -211,13 +204,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     if (maxVal <= 0) return const SizedBox.shrink();
     final indepRatio = r.cotisationAnnuelle / maxVal;
     final salarieRatio = r.cotisationSalarie / maxVal;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -279,13 +268,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
   Widget _buildBaremeGauge(S s) {
     final r = _result!;
     final position = (_revenuNet / 60500).clamp(0.0, 1.0);
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -353,21 +338,16 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintSurface(
               padding: const EdgeInsets.all(MintSpacing.sm),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              radius: 10,
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: MintSpacing.sm + 4),

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Screen for navigating the financial impact of a relative's death in Switzerland.
 ///
@@ -290,13 +291,10 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 64,
+                MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  radius: 8,
                   child: Text(e.$3,
                       style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                       textAlign: TextAlign.center),
@@ -407,13 +405,10 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         ),
         const SizedBox(height: 12),
         ...actions.map(
-          (a) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
+          (a) => MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            radius: 10,
             child: Row(
               children: [
                 const Icon(Icons.check_circle_outline,

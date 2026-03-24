@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class ComprendreHubScreen extends StatelessWidget {
   const ComprendreHubScreen({super.key});
@@ -63,19 +64,8 @@ class _ThemeCard extends StatelessWidget {
       child: InkWell(
       onTap: () => context.push('/education/theme/${theme.id}'),
       borderRadius: BorderRadius.circular(20),
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+      child: MintSurface(
+        elevated: true,
         child: Row(
           children: [
             // Color bar

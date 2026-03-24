@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 // mint_ui_kit.dart removed — deprecated MintPremiumButton replaced
 
 class ThemeDetailScreen extends StatefulWidget {
@@ -296,21 +297,9 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
 
   // ─── Key Facts ───
   Widget _buildKeyFacts(EducationTopicContent content, EducationalTheme theme) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.black.withValues(alpha: 0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -389,20 +378,9 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
   // ─── Quiz ───
   Widget _buildQuiz(EducationTopicContent content, EducationalTheme theme) {
     final quiz = content.quiz;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: _quizAnswered
-              ? (_selectedQuizAnswer == quiz.correctIndex
-                  ? MintColors.success.withValues(alpha: 0.3)
-                  : MintColors.error.withValues(alpha: 0.3))
-              : MintColors.lightBorder,
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -594,14 +572,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
 
   // ─── Fun Fact ───
   Widget _buildFunFact(EducationTopicContent content, EducationalTheme theme) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -711,14 +683,10 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
 
   // ─── Reminder ───
   Widget _buildReminder(EducationalTheme theme) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 16,
       child: Row(
         children: [
           Container(

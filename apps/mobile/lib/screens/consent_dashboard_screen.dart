@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class ConsentDashboardScreen extends StatefulWidget {
   const ConsentDashboardScreen({super.key});
@@ -285,13 +286,9 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg - 4),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -354,12 +351,10 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   }
 
   Widget _buildTag(String text) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      radius: 8,
       child: Text(
         text,
         style: MintTextStyles.labelSmall().copyWith(fontSize: 10),
