@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — ÉCRAN PRINCIPAL INVALIDITÉ
@@ -39,17 +40,28 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     super.didChangeDependencies();
     if (_seededFromProfile) return;
     _seededFromProfile = true;
-    ScreenCompletionTracker.markCompleted('disability_gap');
     final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
-    setState(() {
-      final salary = profile.salaireBrutMensuel;
-      if (salary > 0) _grossMonthly = salary.clamp(2000.0, 25000.0);
-      final age = DateTime.now().year - profile.birthYear;
-      _age = age.clamp(18, 64);
-      final savings = profile.patrimoine.epargneLiquide;
-      if (savings > 0) _savings = savings.clamp(0.0, 500000.0);
-    });
+    if (profile != null) {
+      setState(() {
+        final salary = profile.salaireBrutMensuel;
+        if (salary > 0) _grossMonthly = salary.clamp(2000.0, 25000.0);
+        final age = DateTime.now().year - profile.birthYear;
+        _age = age.clamp(18, 64);
+        final savings = profile.patrimoine.epargneLiquide;
+        if (savings > 0) _savings = savings.clamp(0.0, 500000.0);
+      });
+    }
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'disability_gap',
+      ScreenReturn.completed(
+        route: '/disability-gap',
+        updatedFields: {
+          'disabilityGapMensuel': _grossMonthly - _acts.last.monthlyIncome,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'assurance_invalidite',
+      ),
+    );
   }
 
   // ── Calcul des actes (La Falaise) ─────────────────────────

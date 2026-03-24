@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -170,7 +171,25 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         communeMultiplier: communeMultiplier,
       );
     });
-    ScreenCompletionTracker.markCompleted('fiscal_comparator');
+    final bestCanton = _allCantons.isNotEmpty
+        ? _allCantons.first['canton'] as String?
+        : null;
+    final maxSavings = _allCantons.isNotEmpty
+        ? (_allCantons.last['chargeTotale'] as double) -
+            (_allCantons.first['chargeTotale'] as double)
+        : 0.0;
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'fiscal_comparator',
+      ScreenReturn.completed(
+        route: '/fiscal-comparator',
+        updatedFields: {
+          'fiscalBestCanton': bestCanton,
+          'fiscalMaxSavings': maxSavings,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: maxSavings > 5000 ? 'demenagement' : null,
+      ),
+    );
   }
 
   // ════════════════════════════════════════════════════════════

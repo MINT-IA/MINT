@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -72,7 +73,22 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         isChild: _isChild,
       );
     });
-    ScreenCompletionTracker.markCompleted('lamal_franchise');
+    final optimalEconomie = _result?.comparaison
+            .where((c) => c.isOptimal)
+            .map((c) => c.economieVs300)
+            .firstOrNull ??
+        0.0;
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'lamal_franchise',
+      ScreenReturn.completed(
+        route: '/lamal-franchise',
+        updatedFields: {
+          'lamalFranchiseOptimale': _result?.franchiseOptimale ?? 300,
+          'lamalEconomie': optimalEconomie,
+        },
+        confidenceDelta: 0.02,
+      ),
+    );
   }
 
   // ── Build ──────────────────────────────────────────────────
