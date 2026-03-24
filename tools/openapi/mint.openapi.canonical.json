@@ -3265,6 +3265,146 @@
         "title": "ClaimLocalDataResponse",
         "type": "object"
       },
+      "CoachChatRequest": {
+        "description": "Requete de chat coach.\n\nCombines BYOK LLM access with user profile context for personalized,\ntool-aware, RAG-enriched responses.\n\nPrivacy: profile_context and memory_block MUST NOT contain IBAN, full name,\nNPA, employer, or any directly identifying information.",
+        "properties": {
+          "apiKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cle API LLM de l'utilisateur (BYOK). Optionnel en beta: quand absent, le serveur utilise sa propre cle ANTHROPIC_API_KEY. Jamais stockee, jamais loggee par MINT.",
+            "title": "Apikey"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
+            "title": "Language",
+            "type": "string"
+          },
+          "memoryBlock": {
+            "anyOf": [
+              {
+                "maxLength": 8000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Bloc memoire serialise (CapMemory format). Contient le cycle de vie, les nudges actifs, la couleur regionale, et le plan en cours. Injecte dans le system prompt pour la personnalisation contextuelle.",
+            "title": "Memoryblock"
+          },
+          "message": {
+            "description": "Message de l'utilisateur au coach.",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Modele LLM specifique (utilise le defaut du provider si absent).",
+            "title": "Model"
+          },
+          "profileContext": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Contexte profil agrege (non identifiant). Cles autorisees: age, canton, archetype, fri_total, fri_delta, replacement_ratio, months_liquidity, tax_saving_potential, confidence_score, fiscal_season, upcoming_event, check_in_streak, primary_focus. Jamais: IBAN, nom complet, NPA, employeur.",
+            "title": "Profilecontext"
+          },
+          "provider": {
+            "default": "claude",
+            "description": "Fournisseur LLM: 'claude', 'openai', 'mistral'.",
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "CoachChatRequest",
+        "type": "object"
+      },
+      "CoachChatResponse": {
+        "description": "Reponse du coach chat.\n\nContient le texte genere + les appels d'outils eventuels +\nles sources RAG + les disclaimers de conformite.\n\nSources:\n    - LSFin art. 3 (information financiere)\n    - LPD art. 6 (protection des donnees)",
+        "properties": {
+          "disclaimers": {
+            "description": "Disclaimers de conformite ajoutes par ComplianceGuard.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Disclaimers",
+            "type": "array"
+          },
+          "message": {
+            "description": "Reponse textuelle du coach (validee par ComplianceGuard).",
+            "title": "Message",
+            "type": "string"
+          },
+          "sources": {
+            "description": "Sources de la base de connaissance utilisees (RAG retrieval).",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "systemPromptUsed": {
+            "default": true,
+            "description": "Indique si le system prompt coach a ete applique.",
+            "title": "Systempromptused",
+            "type": "boolean"
+          },
+          "tokensUsed": {
+            "default": 0,
+            "description": "Estimation de l'utilisation de tokens pour la requete.",
+            "minimum": 0.0,
+            "title": "Tokensused",
+            "type": "integer"
+          },
+          "toolCalls": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Appels d'outils retournes par le LLM (format Anthropic tool_use). Chaque element: {name: str, input: dict}. Le client Flutter execute l'action correspondante.",
+            "title": "Toolcalls"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "CoachChatResponse",
+        "type": "object"
+      },
       "CoachContextRequest": {
         "description": "Requete de contexte pour la generation de narratifs coach.",
         "properties": {
@@ -21436,6 +21576,53 @@
         ]
       }
     },
+    "/api/v1/coach/chat": {
+      "post": {
+        "description": "Coach chat endpoint — tools + system prompt + RAG + agent loop.\n\nCombines:\n    1. System prompt (lifecycle + regional voice + plan awareness)\n    2. Coach tools (route_to_screen, show_*, ask_user_input, retrieve_memories)\n    3. RAG retrieval (FAQ fallback + cantonal enrichment)\n    4. Agent loop (internal tool execute -> re-call LLM until end_turn)\n    5. ComplianceGuard filter on all LLM output\n\nInternal tools (INTERNAL_TOOL_NAMES):\n    - retrieve_memories: intercepted by the backend agent loop; searches\n      memory_block locally and returns tool_result to the LLM for the\n      next iteration.  Never forwarded to Flutter.\n\nThe API key is used for a single request and is never stored by MINT.\n\nReturns:\n    CoachChatResponse with message, optional tool_calls, sources,\n    disclaimers, and token usage.  tool_calls never contains internal tools.\n\nRaises:\n    400: Invalid request (missing fields, malformed provider).\n    401: Authentication required.\n    502: LLM API call failed.\n    503: RAG dependencies not installed.",
+        "operationId": "coach_chat_api_v1_coach_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CoachChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoachChatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Coach Chat",
+        "tags": [
+          "Coach Chat S56"
+        ]
+      }
+    },
     "/api/v1/coach/chiffre-choc": {
       "post": {
         "description": "Generer uniquement la recontextualisation du chiffre choc.\n\nReturns:\n    ComponentNarrativeResponse avec le chiffre choc reframe.",
@@ -24683,6 +24870,35 @@
         "summary": "Compare Jobs",
         "tags": [
           "job-comparison"
+        ]
+      }
+    },
+    "/api/v1/knowledge/status": {
+      "get": {
+        "description": "Return the status of the RAG knowledge base.\n\nCombines the full knowledge catalog with the update pipeline\nto produce a coverage and freshness report.\n\nReturns:\n    Dict with keys: total_sources, up_to_date, needs_update,\n    coverage_gaps.",
+        "operationId": "knowledge_status_api_v1_knowledge_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Knowledge Status Api V1 Knowledge Status Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Knowledge Status",
+        "tags": [
+          "Knowledge S67"
         ]
       }
     },
