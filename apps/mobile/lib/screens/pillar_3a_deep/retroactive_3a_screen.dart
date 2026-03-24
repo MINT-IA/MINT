@@ -8,6 +8,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/retroactive_3a_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
 ///
@@ -40,6 +43,45 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
         tauxMarginal: _tauxMarginal,
         hasLpp: _hasLpp,
       );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.revenuBrutAnnuel > 0) {
+        final rate = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        );
+        // Snap to nearest available rate in the dropdown
+        final closest = _taxRates.reduce((a, b) =>
+            (a - rate).abs() < (b - rate).abs() ? a : b);
+        _tauxMarginal = closest;
+        changed = true;
+      }
+      // Detect LPP affiliation from prevoyance data
+      if (profile.prevoyance.avoirLppTotal != null &&
+          profile.prevoyance.avoirLppTotal! > 0) {
+        _hasLpp = true;
+        changed = true;
+      } else if (profile.employmentStatus == 'independant') {
+        _hasLpp = false;
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

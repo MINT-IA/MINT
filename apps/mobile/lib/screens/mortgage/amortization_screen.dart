@@ -7,6 +7,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Ecran de comparaison amortissement direct vs indirect.
 ///
@@ -31,6 +34,42 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         dureeAns: _dureeAns,
         tauxMarginal: _tauxMarginal,
       );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      final mortgage = profile.patrimoine.mortgageBalance;
+      if (mortgage != null && mortgage > 0) {
+        _montantHypothecaire = mortgage.clamp(200000, 2000000);
+        changed = true;
+      }
+      final rate = profile.patrimoine.mortgageRate;
+      if (rate != null && rate > 0) {
+        _tauxInteret = (rate / 100).clamp(0.01, 0.05);
+        changed = true;
+      }
+      if (profile.revenuBrutAnnuel > 0) {
+        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        ).clamp(0.15, 0.45);
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

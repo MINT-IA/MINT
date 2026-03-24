@@ -6,6 +6,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DIVIDENDE VS SALAIRE SCREEN — Sprint S18
@@ -33,7 +36,32 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.revenuBrutAnnuel > 0) {
+        _benefice = profile.revenuBrutAnnuel.clamp(0, 500000);
+        changed = true;
+      }
+      if (profile.revenuBrutAnnuel > 0) {
+        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        );
+        changed = true;
+      }
+      if (changed) _calculate();
+    } catch (_) {
+      // Provider not available
+    }
   }
 
   void _calculate() {
