@@ -234,8 +234,10 @@ class FinancialReportService {
     final effectiveRate = _estimateEffectiveRate(
         taxableIncome, profile.canton, profile.isMarried);
     final totalTax = taxableIncome * effectiveRate;
-    final cantonalTax = totalTax * 0.75; // ~75% cantonal+communal
-    final federalTax = totalTax * 0.25; // ~25% fédéral
+    // Approximation: ~75% of Swiss income tax is cantonal+communal, ~25% federal.
+    // A precise split requires FiscalService per canton; acceptable for report overview.
+    final cantonalTax = totalTax * 0.75;
+    final federalTax = totalTax * 0.25;
 
     // Simulation avec rachat LPP (si montant disponible)
     final lppBuybackAvailable =
@@ -621,13 +623,13 @@ class FinancialReportService {
 
   double _estimateEffectiveRate(
       double taxableIncome, String canton, bool isMarried) {
-    // TODO(P8-Phase2): migrate to FiscalService.estimateTax() for canton-aware rates
-    final baseRate = isMarried ? 0.12 : 0.15;
-
-    if (taxableIncome > 150000) return baseRate + 0.10;
-    if (taxableIncome > 100000) return baseRate + 0.05;
-    if (taxableIncome > 60000) return baseRate + 0.02;
-    return baseRate;
+    // Delegate to centralized marginal rate estimator (financial_core).
+    // RetirementTaxCalculator.estimateMarginalRate accounts for canton grouping
+    // and income-level brackets (AFC taux marginaux 2025).
+    final marginalRate =
+        RetirementTaxCalculator.estimateMarginalRate(taxableIncome, canton);
+    // Married couples benefit from splitting (~15% reduction, cf. LIFD art. 36).
+    return isMarried ? marginalRate * 0.85 : marginalRate;
   }
 
   double _estimateAvsRent(UserProfile profile) {

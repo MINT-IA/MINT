@@ -2528,16 +2528,7 @@ class CoachProfile {
     final startAge = arrivalAge != null ? arrivalAge.clamp(25, 65) : 25;
     double total = 0;
     for (int a = startAge; a < age && a < 65; a++) {
-      double taux;
-      if (a < 35) {
-        taux = 0.07;
-      } else if (a < 45) {
-        taux = 0.10;
-      } else if (a < 55) {
-        taux = 0.15;
-      } else {
-        taux = 0.18;
-      }
+      final taux = getLppBonificationRate(a);
       total = total * 1.01 + salaireCoordonne * taux; // 1% rendement
     }
     return total;

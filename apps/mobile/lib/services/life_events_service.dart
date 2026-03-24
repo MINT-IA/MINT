@@ -1,3 +1,5 @@
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+
 // ────────────────────────────────────────────────────────────
 //  DIVORCE SERVICE
 // ────────────────────────────────────────────────────────────
@@ -284,15 +286,21 @@ class DivorceService {
   }
 
   /// Simplified individual tax estimation (Swiss progressive).
+  ///
+  /// Delegates to RetirementTaxCalculator.estimateMarginalRate for the
+  /// income-based marginal rate, then applies it as an effective rate.
+  /// Canton defaults to 'ZH' (median tax burden) since the divorce
+  /// service does not have canton in scope here.
+  /// TODO(profile-injection): Pass canton from DivorceInput when available.
   static double _estimateIndividualTax(double income) {
     if (income <= 0) return 0;
-    // Simplified progressive brackets (federal + cantonal average)
-    if (income <= 30000) return income * 0.05;
-    if (income <= 60000) return 1500 + (income - 30000) * 0.12;
-    if (income <= 100000) return 5100 + (income - 60000) * 0.18;
-    if (income <= 150000) return 12300 + (income - 100000) * 0.22;
-    if (income <= 250000) return 23300 + (income - 150000) * 0.28;
-    return 51300 + (income - 250000) * 0.33;
+    // Use centralized marginal rate (AFC taux marginaux 2025).
+    // 'ZH' is used as a median proxy — not exact, but avoids fabricated brackets.
+    final marginalRate =
+        RetirementTaxCalculator.estimateMarginalRate(income, 'ZH');
+    // Effective tax ≈ ~60-70% of marginal rate for progressive systems.
+    // This approximation aligns with the old bracket-based approach.
+    return income * marginalRate * 0.65;
   }
 
   /// Format CHF with Swiss apostrophe.

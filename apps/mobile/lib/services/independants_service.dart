@@ -588,22 +588,11 @@ class IndependantsService {
     final renteAvsMax = AvsCalculator.annualRente(avsRenteMaxMensuelle); // 32760 CHF (13 rentes)
     final projectionSansLpp = renteAvsMax;
 
-    // With LPP: project capital at retirement
+    // With LPP: project capital at retirement using centralized bonification rates
     double capitalLpp = 0;
     for (int i = 0; i < anneesRestantes; i++) {
       final ageYear = age + i;
-      double taux;
-      if (ageYear >= 55) {
-        taux = 0.18;
-      } else if (ageYear >= 45) {
-        taux = 0.15;
-      } else if (ageYear >= 35) {
-        taux = 0.10;
-      } else if (ageYear >= 25) {
-        taux = 0.07;
-      } else {
-        taux = 0;
-      }
+      final taux = getLppBonificationRate(ageYear);
       capitalLpp =
           capitalLpp * (1 + _projectedReturn) + salaireCoordonne * taux;
     }

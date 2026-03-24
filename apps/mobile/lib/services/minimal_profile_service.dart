@@ -185,8 +185,12 @@ class MinimalProfileService {
     bool isPropertyOwner,
   ) {
     // Expense base ≈ 75% of gross — intentionally different from NetIncomeBreakdown
-    // (which computes actual net payslip). Here 0.75 approximates disposable spending
-    // capacity for the minimal profile expense estimator, not salary net.
+    // (which computes actual net payslip and requires canton + age).
+    // Here 0.75 approximates disposable spending capacity as a quick proxy
+    // for the minimal profile context where canton may not be reliable yet.
+    // Swiss average: social charges ~6.4%, LPP ~5-9%, taxes ~10-15% → net ~70-78%.
+    // 0.75 is a reasonable median. For canton-aware precision, use
+    // NetIncomeBreakdown.compute() when canton and age are confirmed.
     final netMonthly = grossAnnualSalary * 0.75 / 12;
 
     // Expense ratio depends on household type
