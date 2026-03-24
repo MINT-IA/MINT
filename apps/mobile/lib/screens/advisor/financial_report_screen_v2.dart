@@ -19,6 +19,7 @@ import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -78,7 +79,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header personnalisé (greeting + status summary)
-            _buildHeader(context, report.profile, report.healthScore),
+            MintEntrance(child: _buildHeader(context, report.profile, report.healthScore)),
 
             const SizedBox(height: MintSpacing.lg),
 
@@ -97,17 +98,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
 
             // ── Budget thematic card ──
-            Padding(
+            MintEntrance(delay: Duration(milliseconds: 100), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildBudgetSection(context, wizardAnswers),
-            ),
+            )),
 
             // ── Protection thematic card ──
-            Padding(
+            MintEntrance(delay: Duration(milliseconds: 200), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildProtectionSection(
                   context, wizardAnswers, report.healthScore),
-            ),
+            )),
 
             // ── Retirement thematic card ──
             if (report.retirementProjection != null)
@@ -118,21 +119,21 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
 
             // ── Tax thematic card ──
-            Padding(
+            MintEntrance(delay: Duration(milliseconds: 300), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildTaxThematicSection(context, report),
-            ),
+            )),
 
             const SizedBox(height: MintSpacing.lg),
 
             // ── Top 3 Priorities ──
-            SafeModeGate(
+            MintEntrance(delay: Duration(milliseconds: 400), child: SafeModeGate(
               hasDebt: hasDebt,
               lockedTitle: S.of(context)!.reportSafeModePriority,
               lockedMessage: S.of(context)!.reportSafeModeActions,
               reasons: safeModeReasons,
               child: _buildTopPriorities(context, report.priorityActions),
-            ),
+            )),
 
             const SizedBox(height: MintSpacing.lg),
 

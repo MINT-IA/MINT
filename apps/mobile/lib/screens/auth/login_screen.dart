@@ -6,6 +6,7 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -63,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: MintSpacing.xl),
                 // Logo
-                Center(
+                MintEntrance(child: Center(
                   child: Container(
                     padding: const EdgeInsets.all(MintSpacing.md),
                     decoration: BoxDecoration(
@@ -83,23 +84,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       size: 48,
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
                 // Title
-                Text(
+                MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                   l10n.authLoginTitle,
                   style: MintTextStyles.headlineLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.sm),
-                Text(
+                MintEntrance(delay: Duration(milliseconds: 200), child: Text(
                   l10n.authLoginSubtitle,
                   style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xxl),
                 // Email field
-                Semantics(
+                MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -120,10 +121,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
                 // Password field
-                Semantics(
+                MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authPassword,
                   textField: true,
                   child: TextFormField(
@@ -159,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
                 // Error message
                 if (authProvider.error != null)

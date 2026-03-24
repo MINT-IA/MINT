@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  AVS GUIDE SCREEN — Sprint S45
@@ -59,15 +60,15 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(l),
+                MintEntrance(child: _buildHeader(l)),
                 const SizedBox(height: 24),
-                _buildConfidenceImpact(l),
+                MintEntrance(delay: Duration(milliseconds: 100), child: _buildConfidenceImpact(l)),
                 const SizedBox(height: 28),
-                _buildSteps(l),
+                MintEntrance(delay: Duration(milliseconds: 200), child: _buildSteps(l)),
                 const SizedBox(height: 28),
-                _buildOpenAhvButton(l),
+                MintEntrance(delay: Duration(milliseconds: 300), child: _buildOpenAhvButton(l)),
                 const SizedBox(height: 16),
-                _buildScanButton(l),
+                MintEntrance(delay: Duration(milliseconds: 400), child: _buildScanButton(l)),
                 if (kDebugMode) ...[
                   const SizedBox(height: 16),
                   _buildSimulateButton(l),

@@ -23,6 +23,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Rente vs Capital arbitrage screen — the "a-ha" moment.
 ///
@@ -1194,12 +1195,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Life expectancy: chips ──
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.renteVsCapitalLifeExpectancyChips,
             style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm),
-          Wrap(
+          MintEntrance(delay: Duration(milliseconds: 100), child: Wrap(
             spacing: MintSpacing.xs,
             runSpacing: MintSpacing.xs,
             children: [75, 80, 85, 90, 95, 100].map((age) {
@@ -1225,21 +1226,21 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 visualDensity: VisualDensity.compact,
               );
             }).toList(),
-          ),
-          _buildDeltaAtAge(_lifeExpectancy.round()),
+          )),
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildDeltaAtAge(_lifeExpectancy.round())),
           const SizedBox(height: MintSpacing.xs),
-          Text(
+          MintEntrance(delay: Duration(milliseconds: 300), child: Text(
             S.of(context)!.renteVsCapitalLifeExpectancyRef,
             style: MintTextStyles.labelSmall(),
-          ),
+          )),
 
           const SizedBox(height: MintSpacing.lg),
 
           // ── Chart: capital restant vs revenus cumules de la rente ──
-          Text(
+          MintEntrance(delay: Duration(milliseconds: 400), child: Text(
             S.of(context)!.renteVsCapitalChartTitle,
             style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
-          ),
+          )),
           const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.renteVsCapitalChartSubtitle,

@@ -10,6 +10,7 @@ import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -741,7 +742,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          MintEntrance(child: Row(
             children: [
               Icon(icon, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 6),
@@ -751,33 +752,33 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
               ),
             ],
-          ),
+          )),
           const SizedBox(height: 2),
-          Text(
+          MintEntrance(delay: Duration(milliseconds: 100), child: Text(
             subtitle,
             style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text(
+          MintEntrance(delay: Duration(milliseconds: 200), child: Text(
             S.of(context)!.repaymentDurationDisplay(mois),
             style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
-          ),
+          )),
           const SizedBox(height: 4),
-          Text(
+          MintEntrance(delay: Duration(milliseconds: 300), child: Text(
             S.of(context)!.repaymentInteretsDisplay(formatChf(interets)),
             style: const TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
             ),
-          ),
+          )),
           const SizedBox(height: 8),
-          Text(
+          MintEntrance(delay: Duration(milliseconds: 400), child: Text(
             '✓ $pro',
             style: const TextStyle(
               fontSize: 10,
               color: MintColors.textSecondary,
             ),
-          ),
+          )),
         ],
       ),
     );

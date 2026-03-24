@@ -32,6 +32,7 @@ import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -797,29 +798,29 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        MintEntrance(child: Text(
           l.budgetExploreAlso,
           style: MintTextStyles.titleMedium(),
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm),
-        CollapsibleSection(
+        MintEntrance(delay: Duration(milliseconds: 100), child: CollapsibleSection(
           title: l.budgetDebtRatio,
           subtitle: l.budgetDebtRatioSubtitle,
           icon: Icons.warning_amber_rounded,
           child: _buildSectionCta(l.budgetCtaEvaluate, '/debt/ratio'),
-        ),
-        CollapsibleSection(
+        )),
+        MintEntrance(delay: Duration(milliseconds: 200), child: CollapsibleSection(
           title: l.budgetRepaymentPlan,
           subtitle: l.budgetRepaymentPlanSubtitle,
           icon: Icons.trending_down,
           child: _buildSectionCta(l.budgetCtaPlan, '/debt/repayment'),
-        ),
-        CollapsibleSection(
+        )),
+        MintEntrance(delay: Duration(milliseconds: 300), child: CollapsibleSection(
           title: l.budgetHelpResources,
           subtitle: l.budgetHelpResourcesSubtitle,
           icon: Icons.help_outline,
           child: _buildSectionCta(l.budgetCtaDiscover, '/debt/help'),
-        ),
+        )),
       ],
     );
   }

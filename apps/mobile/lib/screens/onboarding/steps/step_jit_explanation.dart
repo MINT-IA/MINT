@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/analytics_events.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Step 3 of the Smart Onboarding flow — JIT (Just-In-Time) Explanation.
 ///
@@ -62,19 +63,19 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
               const SizedBox(height: 24),
 
               // ── HEADER ─────────────────────────────────────────────
-              Text(
+              MintEntrance(child: Text(
                 'Comprendre en 30 secondes',
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
                 ),
-              ),
+              )),
               const SizedBox(height: 24),
 
               // ── SI...ALORS CARD ────────────────────────────────────
               Expanded(
-                child: SingleChildScrollView(
+                child: MintEntrance(delay: Duration(milliseconds: 100), child: SingleChildScrollView(
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -144,12 +145,12 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                     ),
                   ),
                 ),
-              ),
+              )),
 
               const SizedBox(height: 16),
 
               // ── NAVIGATION ──────────────────────────────────────────
-              Semantics(
+              MintEntrance(delay: Duration(milliseconds: 200), child: Semantics(
                 button: true,
                 label: 'Que puis-je faire ?',
                 child: SizedBox(
@@ -173,9 +174,9 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                   ),
                 ),
               ),
-              ),
+              )),
               const SizedBox(height: 8),
-              Center(
+              MintEntrance(delay: Duration(milliseconds: 300), child: Center(
                 child: TextButton(
                   onPressed: widget.onBack,
                   child: Text(
@@ -186,11 +187,11 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                     ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 16),
 
               // ── DISCLAIMER ──────────────────────────────────────────
-              Text(
+              MintEntrance(delay: Duration(milliseconds: 400), child: Text(
                 'Outil éducatif simplifié. Ne constitue pas un conseil '
                 'financier (LSFin).',
                 style: GoogleFonts.inter(
@@ -199,7 +200,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 16),
             ],
           ),

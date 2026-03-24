@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Detail screen for a single uploaded LPP document.
 ///
@@ -109,11 +110,11 @@ class DocumentDetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header with confidence
-        _buildConfidenceHeader(s, confidence, result),
+        MintEntrance(child: _buildConfidenceHeader(s, confidence, result)),
         const SizedBox(height: MintSpacing.lg + 4),
 
         // Category: Epargne
-        _buildCategory(
+        MintEntrance(delay: Duration(milliseconds: 100), child: _buildCategory(
           s,
           label: s.documentsCategoryEpargne,
           icon: Icons.savings_outlined,
@@ -135,11 +136,11 @@ class DocumentDetailScreen extends StatelessWidget {
               s.documentDetailExplanationTotal,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Salaire
-        _buildCategory(
+        MintEntrance(delay: Duration(milliseconds: 200), child: _buildCategory(
           s,
           label: s.documentsCategorySalaire,
           icon: Icons.account_balance_wallet_outlined,
@@ -161,11 +162,11 @@ class DocumentDetailScreen extends StatelessWidget {
               s.documentDetailExplanationDeduction,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Taux de conversion
-        _buildCategory(
+        MintEntrance(delay: Duration(milliseconds: 300), child: _buildCategory(
           s,
           label: s.documentsCategoryTaux,
           icon: Icons.percent,
@@ -187,11 +188,11 @@ class DocumentDetailScreen extends StatelessWidget {
               s.documentDetailExplanationTauxEnv,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Couverture risque
-        _buildCategory(
+        MintEntrance(delay: Duration(milliseconds: 400), child: _buildCategory(
           s,
           label: s.documentsCategoryRisque,
           icon: Icons.shield_outlined,
@@ -218,7 +219,7 @@ class DocumentDetailScreen extends StatelessWidget {
               s.documentDetailExplanationEnfant,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Rachat

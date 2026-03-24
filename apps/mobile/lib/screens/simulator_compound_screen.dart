@@ -9,6 +9,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
   const SimulatorCompoundScreen({super.key});
@@ -83,15 +84,15 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCoachSection(),
+            MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildInputSection(),
+            MintEntrance(delay: Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
             const SizedBox(height: MintSpacing.xl),
-            _buildLessonSection(),
+            MintEntrance(delay: Duration(milliseconds: 200), child: _buildLessonSection()),
             const SizedBox(height: MintSpacing.xxl),
-            _buildDisclaimer(),
+            MintEntrance(delay: Duration(milliseconds: 300), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.xl),
           ],
         ),

@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONSENT MANAGEMENT SCREEN — Sprint S14
@@ -664,33 +665,33 @@ class _ConsentScreenState extends State<ConsentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.consentSelectScopesTitle,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: MintSpacing.xs),
-          Text(
+          MintEntrance(delay: Duration(milliseconds: 100), child: Text(
             S.of(context)!.consentSelectedBankLabel(_selectedBankName ?? ''),
             style: MintTextStyles.bodySmall(),
-          ),
+          )),
           const SizedBox(height: 16),
 
           // Checkboxes — NOT pre-checked (nLPD compliance)
-          _buildScopeCheckbox(
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildScopeCheckbox(
             value: _scopeAccounts,
             label: S.of(context)!.consentScopeAccountsDesc,
             onChanged: (v) => setState(() => _scopeAccounts = v ?? false),
-          ),
-          _buildScopeCheckbox(
+          )),
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildScopeCheckbox(
             value: _scopeBalances,
             label: S.of(context)!.consentScopeBalancesDesc,
             onChanged: (v) => setState(() => _scopeBalances = v ?? false),
-          ),
-          _buildScopeCheckbox(
+          )),
+          MintEntrance(delay: Duration(milliseconds: 400), child: _buildScopeCheckbox(
             value: _scopeTransactions,
             label: S.of(context)!.consentScopeTransactionsDesc,
             onChanged: (v) => setState(() => _scopeTransactions = v ?? false),
-          ),
+          )),
 
           const SizedBox(height: 16),
 

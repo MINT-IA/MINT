@@ -5,6 +5,7 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 typedef AdminMapLoader = Future<Map<String, dynamic>> Function({int days});
 typedef AdminCsvLoader = Future<String> Function({int days});
@@ -134,15 +135,15 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(MintSpacing.md),
                     children: [
-                      _buildHeaderControls(l10n),
+                      MintEntrance(child: _buildHeaderControls(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      _buildObsCard(l10n),
+                      MintEntrance(delay: Duration(milliseconds: 100), child: _buildObsCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      _buildQualityCard(l10n),
+                      MintEntrance(delay: Duration(milliseconds: 200), child: _buildQualityCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      _buildCohortsCard(l10n),
+                      MintEntrance(delay: Duration(milliseconds: 300), child: _buildCohortsCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      Semantics(
+                      MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
                         label: l10n.adminObsExportCsv,
                         button: true,
                         child: OutlinedButton.icon(
@@ -150,7 +151,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                           icon: const Icon(Icons.download_outlined),
                           label: Text(l10n.adminObsExportCsv),
                         ),
-                      ),
+                      )),
                     ],
                   ),
                 ),

@@ -11,6 +11,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
 ///
@@ -112,23 +113,23 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // 1. Hero Card
-                _buildHeroCard(),
+                MintEntrance(child: _buildHeroCard()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 2. Input Section
-                _buildInputSection(),
+                MintEntrance(delay: Duration(milliseconds: 100), child: _buildInputSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 3. Chiffre Choc
-                _buildChiffreChocCard(result),
+                MintEntrance(delay: Duration(milliseconds: 200), child: _buildChiffreChocCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 4. Breakdown
-                _buildBreakdownSection(result),
+                MintEntrance(delay: Duration(milliseconds: 300), child: _buildBreakdownSection(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 5. Avant / Apres
-                _buildImpactComparison(result),
+                MintEntrance(delay: Duration(milliseconds: 400), child: _buildImpactComparison(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 6. Action Cards

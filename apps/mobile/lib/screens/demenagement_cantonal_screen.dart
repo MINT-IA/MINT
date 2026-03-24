@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Screen for simulating the financial impact of a cantonal move (Cat C — Life Event).
 ///
@@ -118,36 +119,36 @@ class _DemenagementCantonalScreenState
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 1 — L'ENJEU : delta fiscal hero
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              MintHeroNumber(
+              MintEntrance(child: MintHeroNumber(
                 value: '${estPositif ? '+\u00a0' : ''}'
                     '${formatChfWithPrefix(economieTotal)}',
                 caption: s.demenagementChiffreChocSousTitre,
                 color: estPositif ? MintColors.success : MintColors.error,
                 semanticsLabel: s.demenagementBilanTotal,
-              ),
+              )),
               const SizedBox(height: MintSpacing.sm),
-              Text(
+              MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                 s.demenagementChiffreChocDetail(_cantonDepart, _cantonArrivee),
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-              ),
+              )),
               const SizedBox(height: MintSpacing.xxl),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 2 — COMPARAISON : deux cantons cote a cote
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              _buildCantonComparison(s),
+              MintEntrance(delay: Duration(milliseconds: 200), child: _buildCantonComparison(s)),
               const SizedBox(height: MintSpacing.xl),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 3 — DETAIL par poste (MintSignalRow)
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              _buildDetailParPoste(s),
+              MintEntrance(delay: Duration(milliseconds: 300), child: _buildDetailParPoste(s)),
               const SizedBox(height: MintSpacing.lg),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 4 — INSIGHT emotionnel
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              _buildInsight(s),
+              MintEntrance(delay: Duration(milliseconds: 400), child: _buildInsight(s)),
               const SizedBox(height: MintSpacing.lg),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

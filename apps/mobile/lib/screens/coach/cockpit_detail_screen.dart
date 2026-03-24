@@ -39,6 +39,7 @@ import 'package:mint_mobile/widgets/dashboard/couple_action_plan.dart';
 import 'package:mint_mobile/widgets/dashboard/couple_phase_timeline.dart';
 import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
 import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COCKPIT DETAIL SCREEN
@@ -318,7 +319,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Confidence Bar ──────────────────────────
-                ConfidenceBar(score: _confidenceScore),
+                MintEntrance(child: ConfidenceBar(score: _confidenceScore)),
                 const SizedBox(height: 16),
 
                 // ── Confidence Blocks Bar (per-category) ────
@@ -328,9 +329,9 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Replacement Ratio Badge ─────────────────
-                ReplacementRatioBadge(
+                MintEntrance(delay: Duration(milliseconds: 100), child: ReplacementRatioBadge(
                   ratio: proj.tauxRemplacementBase,
-                ),
+                )),
                 const SizedBox(height: 16),
 
                 // ── Budget Gap Card ─────────────────────────
@@ -340,7 +341,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Monte Carlo Toggle Section ──────────────
-                MonteCarloToggleSection(
+                MintEntrance(delay: Duration(milliseconds: 200), child: MonteCarloToggleSection(
                   monteCarloResult: _monteCarloResult,
                   currentMonthlyIncome:
                       _snapshot?.currentHouseholdNetMonthly ??
@@ -354,7 +355,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                     profile: profile,
                     projection: proj,
                   ),
-                ),
+                )),
                 const SizedBox(height: 16),
 
                 // ── Sensitivity Snippet (top 3 tornado) ─────
@@ -399,14 +400,14 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Pillar Decomposition ────────────────────
-                PillarDecomposition(
+                MintEntrance(delay: Duration(milliseconds: 300), child: PillarDecomposition(
                   avsMonthly: avsUserMonthly,
                   lppMonthly: lppUserMonthly,
                   threeAMonthly: threeAMonthly,
                   freeMonthly: freeMonthly,
                   avsConjointMonthly: avsConjointMonthly,
                   lppConjointMonthly: lppConjointMonthly,
-                ),
+                )),
                 const SizedBox(height: 16),
 
                 // ── Arbitrage Teaser (age >= 45) ────────────
@@ -438,7 +439,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Retirement Checklist ────────────────────
-                RetirementChecklistCard(profile: profile),
+                MintEntrance(delay: Duration(milliseconds: 400), child: RetirementChecklistCard(profile: profile)),
                 const SizedBox(height: 16),
 
                 // ── Impact MINT Card ────────────────────────

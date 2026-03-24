@@ -21,6 +21,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DOCUMENT SCAN SCREEN — production flow
@@ -84,15 +85,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 24),
-                _buildDocumentTypeSelector(),
+                MintEntrance(delay: Duration(milliseconds: 100), child: _buildDocumentTypeSelector()),
                 const SizedBox(height: 32),
-                _buildDocumentDescription(),
+                MintEntrance(delay: Duration(milliseconds: 200), child: _buildDocumentDescription()),
                 const SizedBox(height: 32),
-                _buildCaptureButtons(),
+                MintEntrance(delay: Duration(milliseconds: 300), child: _buildCaptureButtons()),
                 const SizedBox(height: 12),
-                _buildPasteTextButton(),
+                MintEntrance(delay: Duration(milliseconds: 400), child: _buildPasteTextButton()),
                 if (kDebugMode) ...[
                   const SizedBox(height: 12),
                   _buildDebugExampleButton(),

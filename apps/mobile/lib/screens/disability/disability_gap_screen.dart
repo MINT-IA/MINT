@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — ÉCRAN PRINCIPAL INVALIDITÉ
@@ -259,17 +260,17 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
-                _buildInputsCard(),
+                MintEntrance(child: _buildInputsCard()),
                 const SizedBox(height: 20),
-                DisabilityCliffWidget(
+                MintEntrance(delay: Duration(milliseconds: 100), child: DisabilityCliffWidget(
                   grossMonthly: _grossMonthly,
                   acts: _acts,
-                ),
+                )),
                 const SizedBox(height: 20),
-                DisabilityCountdownWidget(
+                MintEntrance(delay: Duration(milliseconds: 200), child: DisabilityCountdownWidget(
                   monthlyExpenses: _grossMonthly * 0.70,
                   initialSavings: _savings,
-                ),
+                )),
                 const SizedBox(height: 20),
                 if (_age >= 35 && _lppCapitalBefore > 0) ...[
                   DisabilityResetWidget(
@@ -281,14 +282,14 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                DisabilityScorecardWidget(
+                MintEntrance(delay: Duration(milliseconds: 300), child: DisabilityScorecardWidget(
                   items: _scorecardItems,
                   overallGrade: _overallGrade,
                   lifeDropPercent: _lifeDropPercent,
-                ),
+                )),
                 const SizedBox(height: 20),
                 // ── Related sections (hub) ──
-                _buildRelatedSections(),
+                MintEntrance(delay: Duration(milliseconds: 400), child: _buildRelatedSections()),
                 const SizedBox(height: 20),
                 EduDisclaimer(
                   text: S.of(context)!.disabilityGapDisclaimer,

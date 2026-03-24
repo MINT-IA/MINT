@@ -4,6 +4,7 @@ import 'package:mint_mobile/services/analytics_events.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Step 4 of the Smart Onboarding flow — Top 3 Actions.
 ///
@@ -39,28 +40,28 @@ class StepTopActions extends StatelessWidget {
               const SizedBox(height: 24),
 
               // ── HEADER ─────────────────────────────────────────────
-              Text(
+              MintEntrance(child: Text(
                 'Tes 3 actions prioritaires',
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
                 ),
-              ),
+              )),
               const SizedBox(height: 8),
-              Text(
+              MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                 'Basees sur ta situation, voici par ou commencer.',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
                   height: 1.4,
                 ),
-              ),
+              )),
               const SizedBox(height: 24),
 
               // ── ACTION CARDS ───────────────────────────────────────
               Expanded(
-                child: top3.isEmpty
+                child: MintEntrance(delay: Duration(milliseconds: 200), child: top3.isEmpty
                     ? Center(
                         child: Text(
                           'Complete ton profil pour recevoir des actions personnalisees.',
@@ -93,7 +94,7 @@ class StepTopActions extends StatelessWidget {
                     );
                   },
                 ),
-              ),
+              )),
 
               const SizedBox(height: 16),
 
@@ -120,7 +121,7 @@ class StepTopActions extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Center(
+              MintEntrance(delay: Duration(milliseconds: 300), child: Center(
                 child: TextButton(
                   onPressed: onBack,
                   child: Text(
@@ -131,11 +132,11 @@ class StepTopActions extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 12),
 
               // ── DISCLAIMER ──────────────────────────────────────────
-              Text(
+              MintEntrance(delay: Duration(milliseconds: 400), child: Text(
                 'Suggestions educatives. Ne constitue pas un conseil '
                 'financier (LSFin). Consulte un·e specialiste pour un '
                 'plan personnalise.',
@@ -145,7 +146,7 @@ class StepTopActions extends StatelessWidget {
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 16),
             ],
           ),

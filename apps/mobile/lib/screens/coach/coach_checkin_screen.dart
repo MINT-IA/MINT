@@ -23,6 +23,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHECK-IN SCREEN — Sprint C6 / MINT Coach
@@ -712,7 +713,7 @@ Reponds uniquement avec le texte final.
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Handle
-                  Center(
+                  MintEntrance(child: Center(
                     child: Container(
                       width: 40,
                       height: 4,
@@ -721,21 +722,21 @@ Reponds uniquement avec le texte final.
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 20),
-                  Text(
+                  MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                     s.checkinAddContribution,
                     style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-                  ),
+                  )),
                   const SizedBox(height: 20),
 
                   // Category chips
-                  Text(
+                  MintEntrance(delay: Duration(milliseconds: 200), child: Text(
                     s.checkinCategoryLabel,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
-                  ),
+                  )),
                   const SizedBox(height: 8),
-                  Wrap(
+                  MintEntrance(delay: Duration(milliseconds: 300), child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: categories.map((cat) {
@@ -788,14 +789,14 @@ Reponds uniquement avec le texte final.
                       ),
                       );
                     }).toList(),
-                  ),
+                  )),
                   const SizedBox(height: 18),
 
                   // Label
-                  Text(
+                  MintEntrance(delay: Duration(milliseconds: 400), child: Text(
                     s.checkinLabelField,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
-                  ),
+                  )),
                   const SizedBox(height: MintSpacing.sm),
                   TextFormField(
                     controller: labelController,

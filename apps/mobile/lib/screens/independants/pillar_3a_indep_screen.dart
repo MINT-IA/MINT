@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -93,13 +94,13 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                _buildLppToggle(),
+                MintEntrance(delay: Duration(milliseconds: 100), child: _buildLppToggle()),
                 const SizedBox(height: 20),
-                _buildRevenuSlider(),
+                MintEntrance(delay: Duration(milliseconds: 200), child: _buildRevenuSlider()),
                 const SizedBox(height: 20),
-                _buildTauxSlider(),
+                MintEntrance(delay: Duration(milliseconds: 300), child: _buildTauxSlider()),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -111,7 +112,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                   _buildEducation(),
                   const SizedBox(height: 24),
                 ],
-                _buildDisclaimer(),
+                MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),

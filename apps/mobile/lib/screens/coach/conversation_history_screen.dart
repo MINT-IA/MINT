@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/conversation_tile.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ConversationHistoryScreen extends StatefulWidget {
   const ConversationHistoryScreen({super.key});
@@ -173,25 +174,25 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            MintEntrance(child: Icon(
               Icons.chat_outlined,
               size: 64,
               color: MintColors.textMuted.withValues(alpha: 0.5),
-            ),
+            )),
             const SizedBox(height: MintSpacing.md),
-            Text(
+            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
               l10n.conversationEmptyTitle,
               style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
               l10n.conversationEmptySubtitle,
               style: MintTextStyles.bodyMedium(),
               textAlign: TextAlign.center,
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
-            Semantics(
+            MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
               button: true,
               label: l10n.conversationStartFirst,
               child: FilledButton.icon(
@@ -210,7 +211,7 @@ class _EmptyState extends StatelessWidget {
                 ),
               ),
             ),
-            ),
+            )),
           ],
         ),
       ),

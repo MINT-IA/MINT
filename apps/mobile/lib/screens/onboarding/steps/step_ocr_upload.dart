@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart
 import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Step OCR — Enrichissement du profil par scan de documents.
 ///
@@ -385,7 +386,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Lien skip — visible sans friction DES l'entree ──────
-                  Align(
+                  MintEntrance(child: Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: widget.onNext,
@@ -398,7 +399,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                         ),
                       ),
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 4),
 
                   // ── Banniere LPD — obligatoire avant tout scan ──────────
@@ -406,7 +407,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                   const SizedBox(height: 24),
 
                   // ── Texte intro ─────────────────────────────────────────
-                  Text(
+                  MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                     'Scanne un ou plusieurs documents pour que MINT calcule '
                     'ta situation avec plus de precision.',
                     style: GoogleFonts.inter(
@@ -414,7 +415,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                       color: MintColors.textSecondary,
                       height: 1.5,
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 20),
 
                   // ── Cartes documents ────────────────────────────────────
@@ -468,7 +469,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                   const SizedBox(height: 12),
 
                   // Disclaimer FINMA/LPD
-                  Text(
+                  MintEntrance(delay: Duration(milliseconds: 200), child: Text(
                     'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
                     'Documents traités sur ton appareil, aucune donnée envoyée (LPD art. 6).',
                     style: GoogleFonts.inter(
@@ -477,7 +478,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                       height: 1.4,
                     ),
                     textAlign: TextAlign.center,
-                  ),
+                  )),
                   const SizedBox(height: 32),
                 ],
               ),

@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran comparateur de providers 3a (fintech / banque / assurance).
 ///
@@ -166,14 +167,14 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.providerComparatorSectionParametres,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Age
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 100), child: _buildSliderRow(
             label: l.providerComparatorLabelAge,
             value: _age.toDouble(),
             min: 18,
@@ -184,11 +185,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               _age = v.round();
               _duree = (65 - _age).clamp(5, 45);
             }),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Versement
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSliderRow(
             label: l.providerComparatorLabelVersement,
             value: _versementAnnuel,
             min: 1000,
@@ -196,11 +197,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             divisions: 62,
             format: 'CHF ${formatChf(_versementAnnuel)}',
             onChanged: (v) => setState(() => _versementAnnuel = v),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Duree
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSliderRow(
             label: l.providerComparatorLabelDuree,
             value: _duree.toDouble(),
             min: 5,
@@ -208,11 +209,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             divisions: 40,
             format: l.providerComparatorLabelDureeFormat(_duree),
             onChanged: (v) => setState(() => _duree = v.round()),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Profil de risque
-          _buildProfilRisque(l),
+          MintEntrance(delay: Duration(milliseconds: 400), child: _buildProfilRisque(l)),
         ],
       ),
     );

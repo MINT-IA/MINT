@@ -61,6 +61,7 @@ import 'package:mint_mobile/widgets/coach/voice_input_button.dart';
 import 'package:mint_mobile/widgets/coach/voice_output_button.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -2079,11 +2080,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       body: Column(
         children: [
           _buildAppBar(context),
-          _buildDisclaimer(),
+          MintEntrance(child: _buildDisclaimer()),
           if (_greetingExpanded && _greetingLine2 != null)
             _buildGreetingCard(),
           Expanded(
-            child: AnimatedBuilder(
+            child: MintEntrance(delay: Duration(milliseconds: 100), child: AnimatedBuilder(
               animation: _canvasAnimController,
               builder: (context, child) {
                 return ColoredBox(
@@ -2093,9 +2094,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               },
               child: _buildMessageList(),
             ),
-          ),
+          )),
           if (_isLoading) _buildLoadingIndicator(),
-          _buildInputBar(),
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildInputBar()),
         ],
       ),
     );

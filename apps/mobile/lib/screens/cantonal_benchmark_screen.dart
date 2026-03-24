@@ -13,6 +13,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cantonal_benchmark_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class CantonalBenchmarkScreen extends StatefulWidget {
   const CantonalBenchmarkScreen({super.key});
@@ -115,7 +116,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // ── Opt-in toggle ──────────────────────────────
-                            _buildOptInCard(),
+                            MintEntrance(child: _buildOptInCard()),
                             const SizedBox(height: 20),
 
                             if (!_optedIn) ...[

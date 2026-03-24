@@ -10,6 +10,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
 ///
@@ -85,23 +86,23 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
-          _buildChiffreChoc(result),
+          MintEntrance(child: _buildChiffreChoc(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Aha moment narrative
-          _buildAhaMoment(result),
+          MintEntrance(delay: Duration(milliseconds: 100), child: _buildAhaMoment(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(),
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSlidersSection()),
           const SizedBox(height: MintSpacing.lg),
 
           // Resultat rendement
-          _buildRendementSection(result),
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildRendementSection(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison barres
-          _buildComparisonBars(result),
+          MintEntrance(delay: Duration(milliseconds: 400), child: _buildComparisonBars(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail economie fiscale

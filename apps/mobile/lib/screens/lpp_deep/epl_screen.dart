@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
 ///
@@ -203,14 +204,14 @@ class _EplScreenState extends State<EplScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.eplSectionParametres,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Avoir total
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 100), child: _buildSliderRow(
             label: l.eplLabelAvoirTotal,
             value: _avoirTotal,
             min: 0,
@@ -218,11 +219,11 @@ class _EplScreenState extends State<EplScreen> {
             divisions: 160,
             format: 'CHF ${formatChf(_avoirTotal)}',
             onChanged: (v) => setState(() => _avoirTotal = v),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Age
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSliderRow(
             label: l.eplLabelAge,
             value: _age.toDouble(),
             min: 25,
@@ -230,11 +231,11 @@ class _EplScreenState extends State<EplScreen> {
             divisions: 40,
             format: l.eplLabelAgeFormat(_age),
             onChanged: (v) => setState(() => _age = v.round()),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Montant souhaite
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSliderRow(
             label: l.eplLabelMontantSouhaite,
             value: _montantSouhaite,
             min: 20000,
@@ -242,11 +243,11 @@ class _EplScreenState extends State<EplScreen> {
             divisions: 96,
             format: 'CHF ${formatChf(_montantSouhaite)}',
             onChanged: (v) => setState(() => _montantSouhaite = v),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Canton (pour l'impot sur retrait)
-          Row(
+          MintEntrance(delay: Duration(milliseconds: 400), child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -272,7 +273,7 @@ class _EplScreenState extends State<EplScreen> {
                 ),
               ),
             ],
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Rachats recents

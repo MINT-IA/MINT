@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -214,13 +215,13 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            MintEntrance(child: _buildHeader()),
             const SizedBox(height: MintSpacing.lg),
-            _buildIntroCard(),
+            MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: MintSpacing.lg),
-            _buildAgeSlider(),
+            MintEntrance(delay: Duration(milliseconds: 200), child: _buildAgeSlider()),
             const SizedBox(height: MintSpacing.lg),
-            _buildJobSection(
+            MintEntrance(delay: Duration(milliseconds: 300), child: _buildJobSection(
               title: S.of(context)!.jobCompareCurrentJob,
               expanded: _currentJobExpanded,
               onToggle: () =>
@@ -250,9 +251,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               onIjmChanged: (v) => setState(() => _currentHasIjm = v),
               accentColor: MintColors.primary,
               icon: Icons.business,
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
-            _buildJobSection(
+            MintEntrance(delay: Duration(milliseconds: 400), child: _buildJobSection(
               title: S.of(context)!.jobCompareNewJob,
               expanded: _newJobExpanded,
               onToggle: () =>
@@ -282,7 +283,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               onIjmChanged: (v) => setState(() => _newHasIjm = v),
               accentColor: MintColors.deepOrange,
               icon: Icons.work_outline,
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
             _buildCompareButton(),
             const SizedBox(height: MintSpacing.lg),

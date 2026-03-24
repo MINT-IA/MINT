@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/analytics_events.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Step 5 of the Smart Onboarding flow — Next Step (completion).
 ///
@@ -41,7 +42,7 @@ class StepNextStep extends StatelessWidget {
               const Spacer(flex: 2),
 
               // ── SUCCESS ICON ────────────────────────────────────────
-              Center(
+              MintEntrance(child: Center(
                 child: Container(
                   width: 80,
                   height: 80,
@@ -55,11 +56,11 @@ class StepNextStep extends StatelessWidget {
                     color: MintColors.success,
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 24),
 
               // ── HEADING ─────────────────────────────────────────────
-              Text(
+              MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                 'Ton premier bilan est pret',
                 style: GoogleFonts.montserrat(
                   fontSize: 24,
@@ -67,9 +68,9 @@ class StepNextStep extends StatelessWidget {
                   color: MintColors.textPrimary,
                 ),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 12),
-              Text(
+              MintEntrance(delay: Duration(milliseconds: 200), child: Text(
                 'Precision actuelle : $confidencePct%. '
                 'Plus tu completes ton profil, plus les projections '
                 'seront fiables.',
@@ -79,12 +80,12 @@ class StepNextStep extends StatelessWidget {
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
-              ),
+              )),
 
               const Spacer(flex: 3),
 
               // ── PRIMARY CTA — enrich ────────────────────────────────
-              Semantics(
+              MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
                 button: true,
                 label: 'Affiner mon profil',
                 child: SizedBox(
@@ -115,7 +116,7 @@ class StepNextStep extends StatelessWidget {
                   ),
                 ),
               ),
-              ),
+              )),
               const SizedBox(height: 12),
 
               // ── SECONDARY CTA — dashboard ───────────────────────────
@@ -181,7 +182,7 @@ class StepNextStep extends StatelessWidget {
               const SizedBox(height: 16),
 
               // ── DISCLAIMER ──────────────────────────────────────────
-              Text(
+              MintEntrance(delay: Duration(milliseconds: 400), child: Text(
                 'Outil educatif simplifie. Ne constitue pas un conseil '
                 'financier (LSFin). '
                 'Sources: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
@@ -191,7 +192,7 @@ class StepNextStep extends StatelessWidget {
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 24),
             ],
           ),

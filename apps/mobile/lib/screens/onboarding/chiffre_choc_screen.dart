@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Chiffre Choc screen — Category A (Hero).
 ///
@@ -210,7 +211,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
               const SizedBox(height: MintSpacing.md),
 
               // Back button
-              Align(
+              MintEntrance(child: Align(
                 alignment: Alignment.centerLeft,
                 child: Semantics(
                   button: true,
@@ -221,11 +222,11 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     color: MintColors.textSecondary,
                   ),
                 ),
-              ),
+              )),
               const Spacer(flex: 3),
 
               // ── Hero: chiffre-choc ALONE at center, max air ──
-              FadeTransition(
+              MintEntrance(delay: Duration(milliseconds: 100), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: ScaleTransition(
                   scale: _scaleAnim,
@@ -254,12 +255,12 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     ],
                   ),
                 ),
-              ),
+              )),
 
               const SizedBox(height: MintSpacing.xxl),
 
               // ── Avant/Apres in MintSurface (craie) ──
-              FadeTransition(
+              MintEntrance(delay: Duration(milliseconds: 200), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Semantics(
                   button: true,
@@ -327,12 +328,12 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     ),
                   ),
                 ),
-              ),
+              )),
 
               const SizedBox(height: MintSpacing.md),
 
               // ── Confidence notice — premium component ──
-              FadeTransition(
+              MintEntrance(delay: Duration(milliseconds: 300), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: MintConfidenceNotice(
                   percent: (infoCount * 15).clamp(0, 100),
@@ -340,12 +341,12 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     infoCount.toString(),
                   ),
                 ),
-              ),
+              )),
 
               const Spacer(flex: 4),
 
               // ── Primary CTA — pill (StadiumBorder) ──
-              Semantics(
+              MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
                 button: true,
                 label: l10n.chiffreChocAction,
                 child: SizedBox(
@@ -382,7 +383,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: MintSpacing.md),
 
               // ── Disclaimer (micro pattern) ──

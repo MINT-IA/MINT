@@ -6,6 +6,7 @@ import 'package:mint_mobile/data/education_content.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 // mint_ui_kit.dart removed — deprecated MintPremiumButton replaced
 
 class ThemeDetailScreen extends StatefulWidget {
@@ -126,7 +127,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
+                            MintEntrance(child: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: MintColors.white.withValues(alpha: 0.2),
@@ -134,19 +135,19 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                               ),
                               child: Icon(theme.icon,
                                   color: MintColors.white, size: 28),
-                            ),
+                            )),
                             const SizedBox(height: 12),
-                            Text(
+                            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                               theme.title,
                               style: MintTextStyles.headlineLarge(color: MintColors.white),
-                            ),
+                            )),
                             const SizedBox(height: MintSpacing.xs),
-                            Text(
+                            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
                               theme.question,
                               style: MintTextStyles.bodyMedium(
                                 color: MintColors.white.withValues(alpha: 0.85),
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ),
@@ -163,11 +164,11 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildChiffreChoc(content, theme),
-                  _buildIntro(content),
-                  _buildKeyFacts(content, theme),
-                  _buildQuiz(content, theme),
-                  _buildFunFact(content, theme),
+                  MintEntrance(child: _buildChiffreChoc(content, theme)),
+                  MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntro(content)),
+                  MintEntrance(delay: Duration(milliseconds: 200), child: _buildKeyFacts(content, theme)),
+                  MintEntrance(delay: Duration(milliseconds: 300), child: _buildQuiz(content, theme)),
+                  MintEntrance(delay: Duration(milliseconds: 400), child: _buildFunFact(content, theme)),
                   _buildSources(content),
                   _buildCTA(theme),
                   _buildReminder(theme),
@@ -185,13 +186,13 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(theme.icon, size: 64, color: theme.color),
+                      MintEntrance(child: Icon(theme.icon, size: 64, color: theme.color)),
                       const SizedBox(height: 24),
-                      Text(
+                      MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                         theme.question,
                         style: MintTextStyles.headlineMedium(),
                         textAlign: TextAlign.center,
-                      ),
+                      )),
                       const SizedBox(height: 32),
                       SizedBox(
                         width: double.infinity,

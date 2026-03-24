@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// SLM Settings Screen — On-device AI model management.
 ///
@@ -40,15 +41,15 @@ class SlmSettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
-          _buildPrivacyBanner(context, l10n),
+          MintEntrance(child: _buildPrivacyBanner(context, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildTierSelector(context, slm, l10n),
+          MintEntrance(delay: Duration(milliseconds: 100), child: _buildTierSelector(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildModelCard(context, slm, l10n),
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildModelCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildStatusCard(context, slm, l10n),
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildStatusCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildInfoCard(context, slm, l10n),
+          MintEntrance(delay: Duration(milliseconds: 400), child: _buildInfoCard(context, slm, l10n)),
         ],
       ),
     );

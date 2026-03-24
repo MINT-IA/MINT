@@ -28,6 +28,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  SPECIALIST TYPE MODEL
@@ -195,7 +196,7 @@ class _ExpertTierScreenState extends State<ExpertTierScreen> {
             // Disclaimer banner — always visible (compliance).
             _DisclaimerBanner(text: l.expertTierDisclaimerBanner),
             Expanded(
-              child: _selected == null
+              child: MintEntrance(child: _selected == null
                   ? _SpecialistSelectionView(
                       onSelect: _selectSpecialist,
                     )
@@ -211,7 +212,7 @@ class _ExpertTierScreenState extends State<ExpertTierScreen> {
                           : _LoadingView(
                               text: l.expertTierDossierGenerating,
                             ),
-            ),
+            )),
           ],
         ),
       ),

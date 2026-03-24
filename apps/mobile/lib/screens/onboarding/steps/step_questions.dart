@@ -8,6 +8,7 @@ import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Step 1 of the Smart Onboarding flow — 5 core questions.
 ///
@@ -178,18 +179,18 @@ class _StepQuestionsState extends State<StepQuestions> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 4),
-                  Text(
+                  MintEntrance(child: Text(
                     l.onboardingSmartSubtitle,
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
                       height: 1.5,
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 28),
 
                   // ── 0. PRENOM (optionnel) ─────────────────────────────────
-                  TextField(
+                  MintEntrance(delay: Duration(milliseconds: 100), child: TextField(
                     controller: _firstNameController,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
@@ -228,7 +229,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                       widget.viewModel.setFirstName(v);
                       setState(() {}); // rebuild suffixIcon
                     },
-                  ),
+                  )),
                   const SizedBox(height: 32),
 
                   // ── 1. SALAIRE ────────────────────────────────────────────
@@ -244,7 +245,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  Center(
+                  MintEntrance(delay: Duration(milliseconds: 200), child: Center(
                     child: Text(
                       '${formatChfWithPrefix(widget.viewModel.grossSalary)}/an',
                       style: GoogleFonts.montserrat(
@@ -253,7 +254,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                         color: MintColors.textPrimary,
                       ),
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 32),
 
                   // ── 2. AGE ────────────────────────────────────────────────
@@ -367,7 +368,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 48),
 
                   // ── CTA ───────────────────────────────────────────────────
-                  Semantics(
+                  MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
                     button: true,
                     label: l.onboardingSmartSeeResult,
                     child: SizedBox(
@@ -392,11 +393,11 @@ class _StepQuestionsState extends State<StepQuestions> {
                       ),
                     ),
                   ),
-                  ),
+                  )),
                   const SizedBox(height: 24),
 
                   // Disclaimer
-                  Text(
+                  MintEntrance(delay: Duration(milliseconds: 400), child: Text(
                     l.onboardingSmartDisclaimer,
                     style: GoogleFonts.inter(
                       fontSize: 11,
@@ -404,7 +405,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                       height: 1.4,
                     ),
                     textAlign: TextAlign.center,
-                  ),
+                  )),
                   const SizedBox(height: 32),
                 ],
               ),

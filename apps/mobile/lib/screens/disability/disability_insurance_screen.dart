@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
 import 'package:mint_mobile/widgets/coach/franchise_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — COUVERTURE INVALIDITÉ
@@ -262,12 +263,12 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.disabilityInsRefineSituation,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
-          ),
+          )),
           const SizedBox(height: 16),
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 100), child: _buildSliderRow(
             label: S.of(context)!.disabilityInsGrossSalary,
             value: _grossMonthly,
             min: 2000,
@@ -275,9 +276,9 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             divisions: 46,
             format: (v) => "CHF ${_fmtChf(v)}",
             onChanged: (v) => setState(() => _grossMonthly = v),
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildSliderRow(
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSliderRow(
             label: S.of(context)!.disabilityInsSavings,
             value: _savings,
             min: 0,
@@ -285,19 +286,19 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             divisions: 40,
             format: (v) => "CHF ${_fmtChf(v)}",
             onChanged: (v) => setState(() => _savings = v),
-          ),
+          )),
           const SizedBox(height: 16),
-          _buildToggleRow(
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildToggleRow(
             label: S.of(context)!.disabilityInsIjmEmployer,
             value: _hasIjm,
             onChanged: (v) => setState(() => _hasIjm = v),
-          ),
+          )),
           const SizedBox(height: 8),
-          _buildToggleRow(
+          MintEntrance(delay: Duration(milliseconds: 400), child: _buildToggleRow(
             label: S.of(context)!.disabilityInsPrivateLossInsurance,
             value: _hasPrivateInsurance,
             onChanged: (v) => setState(() => _hasPrivateInsurance = v),
-          ),
+          )),
         ],
       ),
     );

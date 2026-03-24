@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
 /// in under 30 seconds.
@@ -194,7 +195,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
           children: [
             // ── Scrollable form ──
             Expanded(
-              child: SingleChildScrollView(
+              child: MintEntrance(child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(
                   MintSpacing.lg,
                   MintSpacing.md,
@@ -335,10 +336,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                   ],
                 ),
               ),
-            ),
+            )),
 
             // ── CTA button (sticky) ──
-            Padding(
+            MintEntrance(delay: Duration(milliseconds: 100), child: Padding(
               padding: const EdgeInsets.fromLTRB(
                 MintSpacing.lg,
                 MintSpacing.sm,
@@ -377,7 +378,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                   ),
                 ),
               ),
-            ),
+            )),
           ],
         ),
       ),

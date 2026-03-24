@@ -5,6 +5,7 @@ import 'package:mint_mobile/data/educational_themes.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ComprendreHubScreen extends StatelessWidget {
   const ComprendreHubScreen({super.key});
@@ -78,7 +79,7 @@ class _ThemeCard extends StatelessWidget {
         child: Row(
           children: [
             // Color bar
-            Container(
+            MintEntrance(child: Container(
               width: 8,
               decoration: BoxDecoration(
                 color: theme.color,
@@ -87,9 +88,9 @@ class _ThemeCard extends StatelessWidget {
                   bottomLeft: Radius.circular(20),
                 ),
               ),
-            ),
+            )),
             Expanded(
-              child: Padding(
+              child: MintEntrance(delay: Duration(milliseconds: 100), child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 child: Row(
                   children: [
@@ -123,7 +124,7 @@ class _ThemeCard extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
+            )),
           ],
         ),
       ),

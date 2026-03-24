@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  WEEKLY RECAP SCREEN — Sprint S59
@@ -127,11 +128,11 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
               color: MintColors.textMuted,
             ),
             const SizedBox(height: MintSpacing.md),
-            Text(
+            MintEntrance(child: Text(
               l.recapEmpty,
               style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               textAlign: TextAlign.center,
-            ),
+            )),
           ],
         ),
       ),

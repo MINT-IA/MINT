@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SCORE REVEAL SCREEN — Post-Wizard "Ta-Da" Moment
@@ -300,15 +301,15 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: MintSpacing.xxl),
-                        _buildPhase1Title(),
+                        MintEntrance(child: _buildPhase1Title()),
                         const SizedBox(height: MintSpacing.xl + 4),
-                        _buildPhase2Gauge(),
+                        MintEntrance(delay: Duration(milliseconds: 100), child: _buildPhase2Gauge()),
                         const SizedBox(height: MintSpacing.xl),
-                        _buildPhase3SubScores(),
+                        MintEntrance(delay: Duration(milliseconds: 200), child: _buildPhase3SubScores()),
                         const SizedBox(height: MintSpacing.lg + 4),
-                        _buildPhase4CoachMessage(),
+                        MintEntrance(delay: Duration(milliseconds: 300), child: _buildPhase4CoachMessage()),
                         const SizedBox(height: MintSpacing.xl),
-                        _buildPhase5Cta(),
+                        MintEntrance(delay: Duration(milliseconds: 400), child: _buildPhase5Cta()),
                         const SizedBox(height: MintSpacing.xxl),
                         _buildDisclaimer(),
                         const SizedBox(height: MintSpacing.lg),

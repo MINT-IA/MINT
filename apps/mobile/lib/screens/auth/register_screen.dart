@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -110,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: MintSpacing.xl),
                 // Logo
-                Center(
+                MintEntrance(child: Center(
                   child: Container(
                     padding: const EdgeInsets.all(MintSpacing.md),
                     decoration: BoxDecoration(
@@ -130,22 +131,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       size: 48,
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
                 // Title
-                Text(
+                MintEntrance(delay: Duration(milliseconds: 100), child: Text(
                   l10n.authRegisterTitle,
                   style: MintTextStyles.headlineLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.sm),
-                Text(
+                MintEntrance(delay: Duration(milliseconds: 200), child: Text(
                   l10n.authRegisterSubtitle,
                   style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
-                Container(
+                MintEntrance(delay: Duration(milliseconds: 300), child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: MintColors.white,
@@ -167,10 +168,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       _RegisterBenefitRow(text: l10n.authBenefitSync),
                     ],
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xxl),
                 // Email field
-                Semantics(
+                MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -191,7 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return null;
                     },
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
                 // First name field (required for coach personalization)
                 Semantics(

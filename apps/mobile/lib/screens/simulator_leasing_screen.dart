@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
   const SimulatorLeasingScreen({super.key});
@@ -76,23 +77,23 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCoachSection(),
+            MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildInputSection(),
+            MintEntrance(delay: Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
             const SizedBox(height: MintSpacing.xl),
             // ── P10-D : Le vrai coût du leasing ─────────────────
-            LeasingCostWidget(
+            MintEntrance(delay: Duration(milliseconds: 200), child: LeasingCostWidget(
               vehiclePrice: _monthlyPayment * _durationMonths / 0.55,
               monthlyLeasing: _monthlyPayment,
               leasingDurationMonths: _durationMonths,
               annualReturnRate: _alternativeRate / 100,
-            ),
+            )),
             const SizedBox(height: MintSpacing.xl),
-            _buildAlternativesSection(),
+            MintEntrance(delay: Duration(milliseconds: 300), child: _buildAlternativesSection()),
             const SizedBox(height: MintSpacing.xxl),
-            _buildDisclaimer(),
+            MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.xl),
           ],
         ),

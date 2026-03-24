@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/coach/disability_red_screen_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — INVALIDITÉ INDÉPENDANT
@@ -55,23 +56,23 @@ class _DisabilitySelfEmployedScreenState
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
-                _buildRevenueSlider(),
+                MintEntrance(child: _buildRevenueSlider()),
                 const SizedBox(height: 20),
-                DisabilityRedScreenWidget(
+                MintEntrance(delay: Duration(milliseconds: 100), child: DisabilityRedScreenWidget(
                   monthlyExpenses: _monthlyRevenue * 0.70,
                   hasPerteDegain: _hasPerteDegain,
-                ),
+                )),
                 const SizedBox(height: 20),
-                DisabilityCountdownWidget(
+                MintEntrance(delay: Duration(milliseconds: 200), child: DisabilityCountdownWidget(
                   monthlyExpenses: _monthlyRevenue * 0.70,
                   initialSavings: _monthlyRevenue * 3, // hypothèse 3 mois
-                ),
+                )),
                 const SizedBox(height: 20),
-                _buildPerteDegainToggle(),
+                MintEntrance(delay: Duration(milliseconds: 300), child: _buildPerteDegainToggle()),
                 const SizedBox(height: 20),
-                EduDisclaimer(
+                MintEntrance(delay: Duration(milliseconds: 400), child: EduDisclaimer(
                   text: S.of(context)!.disabilitySelfEmployedDisclaimer,
-                ),
+                )),
                 const SizedBox(height: 8),
                 EduLegalSources(
                   sources: S.of(context)!.disabilitySelfEmployedSources,

@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -110,19 +111,19 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc gauge
-                _buildGaugeSection(result),
+                MintEntrance(child: _buildGaugeSection(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Sliders
-                _buildSlidersSection(),
+                MintEntrance(delay: Duration(milliseconds: 100), child: _buildSlidersSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Minimum vital
-                _buildMinimumVitalCard(result),
+                MintEntrance(delay: Duration(milliseconds: 200), child: _buildMinimumVitalCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Recommandations
-                _buildRecommandationsSection(result),
+                MintEntrance(delay: Duration(milliseconds: 300), child: _buildRecommandationsSection(result)),
                 const SizedBox(height: MintSpacing.md),
 
                 // CTA contextuel → Plan de remboursement
@@ -138,7 +139,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 ],
 
                 // Disclaimer
-                _buildDisclaimer(result.disclaimer),
+                MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Navigation croisée dette

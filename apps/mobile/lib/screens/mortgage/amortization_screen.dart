@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de comparaison amortissement direct vs indirect.
 ///
@@ -92,23 +93,23 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Intro pedagogique
-          _buildIntroCard(s),
+          MintEntrance(child: _buildIntroCard(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          _buildChiffreChocCard(s, result),
+          MintEntrance(delay: Duration(milliseconds: 100), child: _buildChiffreChocCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          _buildChartSection(s, result),
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(s),
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison detaillee
-          _buildComparisonSection(s, result),
+          MintEntrance(delay: Duration(milliseconds: 400), child: _buildComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer

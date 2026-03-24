@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -167,15 +168,15 @@ class _DonationScreenState extends State<DonationScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            MintEntrance(child: _buildHeader()),
             const SizedBox(height: 24),
-            _buildIntroCard(),
+            MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: 24),
-            _buildDonationSection(),
+            MintEntrance(delay: Duration(milliseconds: 200), child: _buildDonationSection()),
             const SizedBox(height: 12),
-            _buildSuccessionContextSection(),
+            MintEntrance(delay: Duration(milliseconds: 300), child: _buildSuccessionContextSection()),
             const SizedBox(height: 24),
-            _buildSimulateButton(),
+            MintEntrance(delay: Duration(milliseconds: 400), child: _buildSimulateButton()),
             const SizedBox(height: 24),
             if (_result != null) ...[
               Container(key: _resultsKey),

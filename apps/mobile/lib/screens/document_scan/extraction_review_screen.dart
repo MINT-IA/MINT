@@ -7,6 +7,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXTRACTION REVIEW SCREEN — Sprint S42-S43
@@ -55,9 +56,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 8),
-                _buildOverallConfidenceBadge(),
+                MintEntrance(delay: Duration(milliseconds: 100), child: _buildOverallConfidenceBadge()),
                 const SizedBox(height: 20),
                 if (widget.result.warnings.isNotEmpty) ...[
                   _buildWarnings(),
@@ -68,9 +69,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                       child: _buildFieldCard(f),
                     )),
                 const SizedBox(height: 24),
-                _buildConfirmButton(),
+                MintEntrance(delay: Duration(milliseconds: 200), child: _buildConfirmButton()),
                 const SizedBox(height: 16),
-                _buildDisclaimer(),
+                MintEntrance(delay: Duration(milliseconds: 300), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),

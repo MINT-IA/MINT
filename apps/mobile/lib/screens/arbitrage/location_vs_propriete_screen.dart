@@ -17,6 +17,7 @@ import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/coach/rent_vs_buy_scoreboard_widget.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Location vs Propriete arbitrage screen — compare renting + investing
 /// surplus vs buying property with mortgage.
@@ -340,29 +341,29 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.locationProjetImmobilier,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: 16),
-          _buildTextField(
+          MintEntrance(delay: Duration(milliseconds: 100), child: _buildTextField(
             controller: _capitalCtrl,
             label: S.of(context)!.locationCapitalDispo,
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildTextField(
+          MintEntrance(delay: Duration(milliseconds: 200), child: _buildTextField(
             controller: _loyerCtrl,
             label: S.of(context)!.locationLoyerMensuel,
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildTextField(
+          MintEntrance(delay: Duration(milliseconds: 300), child: _buildTextField(
             controller: _prixBienCtrl,
             label: S.of(context)!.locationPrixBien,
-          ),
+          )),
           const SizedBox(height: 16),
 
           // Canton dropdown + married toggle
-          Row(
+          MintEntrance(delay: Duration(milliseconds: 400), child: Row(
             children: [
               Expanded(
                 child: Column(
@@ -424,7 +425,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 ],
               ),
             ],
-          ),
+          )),
           const SizedBox(height: 12),
           Semantics(
             button: true,
