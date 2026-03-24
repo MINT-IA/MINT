@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 
 // Screens under test
@@ -143,8 +144,8 @@ void main() {
       await tester.pumpWidget(buildTestable(const IndependantScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Revenu net annuel'), findsOneWidget);
-      expect(find.byType(Slider), findsOneWidget);
+      expect(find.text('Revenu net annuel'), findsWidgets);
+      expect(find.byType(MintPremiumSlider), findsOneWidget);
     });
 
     testWidgets('shows PARCOURS INDEPENDANT in app bar', (tester) async {
