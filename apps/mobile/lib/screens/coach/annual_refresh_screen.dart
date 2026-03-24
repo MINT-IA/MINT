@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANNUAL REFRESH SCREEN — T6 / MINT Coach
@@ -316,19 +317,14 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       title: S.of(context)!.annualRefreshQ1,
       child: Column(
         children: [
-          Text(
-            '${_salaireBrutMensuel.toInt()} CHF / mois',
-            style: MintTextStyles.displayMedium(color: MintColors.coachAccent).copyWith(fontSize: 24),
-          ),
-          const SizedBox(height: 12),
-          Slider(
+          MintPremiumSlider(
+            label: 'Salaire brut mensuel',
             value: _salaireBrutMensuel.clamp(0, 30000),
             min: 0,
             max: 30000,
             divisions: 300,
             activeColor: MintColors.coachAccent,
-            inactiveColor: MintColors.coachAccent.withAlpha(40),
-            label: '${_salaireBrutMensuel.toInt()} CHF',
+            formatValue: (v) => '${v.toInt()} CHF / mois',
             onChanged: (v) => setState(() => _salaireBrutMensuel = v),
           ),
           Row(

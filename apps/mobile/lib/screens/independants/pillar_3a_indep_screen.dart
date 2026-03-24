@@ -11,6 +11,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -216,50 +217,17 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.pillar3aIndepRevenuLabel,
-                style: MintTextStyles.titleMedium(),
-              ),
-              Text(
-                IndependantsService.formatChf(_revenuNet),
-                style: MintTextStyles.headlineMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: _revenuNet,
-              min: 0,
-              max: 300000,
-              divisions: 300,
-              onChanged: (v) {
-                _revenuNet = v;
-                _calculate();
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.pillar3aIndepCHF0, style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text(S.of(context)!.pillar3aIndepSliderMax300k, style: MintTextStyles.micro(color: MintColors.textMuted)),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: S.of(context)!.pillar3aIndepRevenuLabel,
+        value: _revenuNet,
+        min: 0,
+        max: 300000,
+        divisions: 300,
+        formatValue: (v) => IndependantsService.formatChf(v),
+        onChanged: (v) {
+          _revenuNet = v;
+          _calculate();
+        },
       ),
     );
   }
@@ -274,50 +242,17 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.pillar3aIndepTauxLabel,
-                style: MintTextStyles.titleMedium(),
-              ),
-              Text(
-                '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
-                style: MintTextStyles.headlineMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: _tauxMarginal * 100,
-              min: 10,
-              max: 45,
-              divisions: 35,
-              onChanged: (v) {
-                _tauxMarginal = v / 100;
-                _calculate();
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.pillar3aIndepTaux10, style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text(S.of(context)!.pillar3aIndepTaux45, style: MintTextStyles.micro(color: MintColors.textMuted)),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: S.of(context)!.pillar3aIndepTauxLabel,
+        value: _tauxMarginal * 100,
+        min: 10,
+        max: 45,
+        divisions: 35,
+        formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+        onChanged: (v) {
+          _tauxMarginal = v / 100;
+          _calculate();
+        },
       ),
     );
   }

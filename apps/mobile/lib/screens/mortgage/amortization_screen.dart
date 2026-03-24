@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -399,12 +400,13 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
               ),
             ],
           ),
-          Slider(
+          MintPremiumSlider(
+            label: label,
             value: value,
             min: min,
             max: max,
             divisions: divisions,
-            activeColor: MintColors.primary,
+            formatValue: (_) => format,
             onChanged: onChanged,
           ),
         ],

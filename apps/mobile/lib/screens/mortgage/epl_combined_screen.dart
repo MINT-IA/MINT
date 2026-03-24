@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 /// Ecran de financement EPL multi-sources.
 ///
@@ -414,12 +415,13 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               ),
             ],
           ),
-          Slider(
+          MintPremiumSlider(
+            label: label,
             value: value,
             min: min,
             max: max,
             divisions: divisions,
-            activeColor: MintColors.primary,
+            formatValue: (_) => format,
             onChanged: onChanged,
           ),
         ],

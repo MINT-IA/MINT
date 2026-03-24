@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 /// Screen for navigating the financial impact of a relative's death in Switzerland.
 ///
@@ -224,19 +225,15 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         const SizedBox(height: 16),
 
         // Fortune du défunt
-        Text(s.decesProcheFortune,
-            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
-        Slider(
+        MintPremiumSlider(
+          label: s.decesProcheFortune,
           value: _fortuneDefunt,
           min: 0,
           max: 5000000,
           divisions: 100,
-          label: formatChfWithPrefix(_fortuneDefunt),
-
+          formatValue: (v) => formatChfWithPrefix(v),
           onChanged: (v) => setState(() => _fortuneDefunt = v),
         ),
-        Text(formatChfWithPrefix(_fortuneDefunt),
-            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 16),
 
         // Canton
