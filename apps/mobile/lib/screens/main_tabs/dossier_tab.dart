@@ -19,6 +19,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// SharedPreferences key for the last time the user visited the Dossier tab.
@@ -1532,40 +1533,15 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
             ),
             const SizedBox(height: MintSpacing.lg),
 
-            // Intensity label
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _intensityLabel(_pref.intensity),
-                  style: MintTextStyles.titleMedium(),
-                ),
-                Text(
-                  '${_pref.intensity}/5',
-                  style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: MintSpacing.sm),
-
-            // Slider
-            SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: MintColors.primary,
-                inactiveTrackColor: MintColors.lightBorder,
-                thumbColor: MintColors.primary,
-                overlayColor: MintColors.primary.withValues(alpha: 0.1),
-                trackHeight: 3,
-              ),
-              child: Slider(
-                value: _pref.intensity.toDouble(),
-                min: 1,
-                max: 5,
-                divisions: 4,
-                onChanged: (v) => _save(v.round()),
-              ),
+            // Intensity slider
+            MintPremiumSlider(
+              label: _intensityLabel(_pref.intensity),
+              value: _pref.intensity.toDouble(),
+              min: 1,
+              max: 5,
+              divisions: 4,
+              formatValue: (v) => '${v.round()}/5',
+              onChanged: (v) => _save(v.round()),
             ),
 
             // Labels under slider

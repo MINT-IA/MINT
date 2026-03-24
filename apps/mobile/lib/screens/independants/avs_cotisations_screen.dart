@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
@@ -118,47 +119,17 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(s.avsCotisationsRevenuLabel, style: MintTextStyles.titleMedium()),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Text(
-            IndependantsService.formatChf(_revenuNet),
-            style: MintTextStyles.headlineMedium(color: MintColors.primary),
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Semantics(
-            label: s.avsCotisationsRevenuLabel,
-            value: IndependantsService.formatChf(_revenuNet),
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: MintColors.primary,
-                inactiveTrackColor: MintColors.border,
-                thumbColor: MintColors.primary,
-                overlayColor: MintColors.primary.withValues(alpha: 0.1),
-                trackHeight: 4,
-              ),
-              child: Slider(
-                value: _revenuNet,
-                min: 0,
-                max: 250000,
-                divisions: 250,
-                onChanged: (value) {
-                  _revenuNet = value;
-                  _calculate();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(s.avsCotisationsSliderMin, style: MintTextStyles.labelSmall()),
-              Text(s.avsCotisationsSliderMax250k, style: MintTextStyles.labelSmall()),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: s.avsCotisationsRevenuLabel,
+        value: _revenuNet,
+        min: 0,
+        max: 250000,
+        divisions: 250,
+        formatValue: (v) => IndependantsService.formatChf(v),
+        onChanged: (value) {
+          _revenuNet = value;
+          _calculate();
+        },
       ),
     );
   }

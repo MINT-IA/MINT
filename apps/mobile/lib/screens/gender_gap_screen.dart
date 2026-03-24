@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/segments_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
@@ -225,65 +226,22 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                s.genderGapTauxActivite,
-                style: MintTextStyles.titleMedium(),
-              ),
-              Semantics(
-                label: '${_tauxActivite.round()}%',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _tauxActivite < 60
-                        ? MintColors.error.withValues(alpha: 0.1)
-                        : _tauxActivite < 80
-                            ? MintColors.warning.withValues(alpha: 0.1)
-                            : MintColors.success.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${_tauxActivite.round()}%',
-                    style: MintTextStyles.headlineMedium(
-                      color: _tauxActivite < 60
-                          ? MintColors.error
-                          : _tauxActivite < 80
-                              ? MintColors.warning
-                              : MintColors.success,
-                    ).copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: _tauxActivite,
-              min: 10,
-              max: 100,
-              divisions: 18,
-              onChanged: (value) {
-                _tauxActivite = value;
-                _compute();
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('10%', style: MintTextStyles.labelSmall()),
-              Text('100%', style: MintTextStyles.labelSmall()),
-            ],
+          MintPremiumSlider(
+            label: s.genderGapTauxActivite,
+            value: _tauxActivite,
+            min: 10,
+            max: 100,
+            divisions: 18,
+            formatValue: (v) => '${v.round()}%',
+            activeColor: _tauxActivite < 60
+                ? MintColors.error
+                : _tauxActivite < 80
+                    ? MintColors.warning
+                    : MintColors.success,
+            onChanged: (value) {
+              _tauxActivite = value;
+              _compute();
+            },
           ),
         ],
       ),

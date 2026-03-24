@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de conseil en libre passage.
@@ -265,44 +266,25 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           ),
           const SizedBox(height: MintSpacing.md),
           // Age slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(l.librePassageLabelAge, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              Text(l.librePassageLabelAgeFormat(_age), style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-            ],
-          ),
-          Semantics(
+          MintPremiumSlider(
             label: l.librePassageLabelAge,
-            value: l.librePassageLabelAgeFormat(_age),
-            child: Slider(
-              value: _age.toDouble(),
-              min: 18,
-              max: 65,
-              divisions: 47,
-              activeColor: MintColors.primary,
-              onChanged: (v) => setState(() => _age = v.round()),
-            ),
+            value: _age.toDouble(),
+            min: 18,
+            max: 65,
+            divisions: 47,
+            formatValue: (v) => l.librePassageLabelAgeFormat(v.round()),
+            onChanged: (v) => setState(() => _age = v.round()),
           ),
           const SizedBox(height: MintSpacing.sm),
           // Avoir slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(l.librePassageLabelAvoir, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              Text('CHF ${(_avoir / 1000).toStringAsFixed(0)}k', style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-            ],
-          ),
-          Semantics(
+          MintPremiumSlider(
             label: l.librePassageLabelAvoir,
-            child: Slider(
-              value: _avoir,
-              min: 0,
-              max: 500000,
-              divisions: 100,
-              activeColor: MintColors.primary,
-              onChanged: (v) => setState(() => _avoir = v),
-            ),
+            value: _avoir,
+            min: 0,
+            max: 500000,
+            divisions: 100,
+            formatValue: (v) => 'CHF ${(v / 1000).toStringAsFixed(0)}k',
+            onChanged: (v) => setState(() => _avoir = v),
           ),
         ],
       ),
