@@ -25,6 +25,7 @@ import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ── Goal category resolved from active profile + MintStateProvider ──
 enum _ActiveGoal { retirement, budget, housing }
@@ -253,9 +254,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── 1+2. REVELATION 5 TEMPS ──
-                // Setup text (narrative) → silence → count-up → ligne → context
-                // All orchestrated by MintCountUp as a single sequence.
-                MintCountUp(
+                MintEntrance(child: MintCountUp(
                   value: dominantNumber.value.abs(),
                   prefix: _dominantPrefix(dominantNumber),
                   suffix: _dominantSuffix(dominantNumber),
@@ -268,7 +267,7 @@ class _PulseScreenState extends State<PulseScreen> {
                       setState(() => _hasRevealedOnce = true);
                     }
                   },
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xs),
                 Align(
                   alignment: Alignment.centerRight,
@@ -288,13 +287,10 @@ class _PulseScreenState extends State<PulseScreen> {
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── 3. CAP DU JOUR ──
-                if (cap != null)
-                  CapCard(
-                    cap: cap,
-                    recentActionLabel: recentAction,
-                  )
-                else
-                  _buildFallbackAction(context),
+                MintEntrance(delay: const Duration(milliseconds: 200), child:
+                  cap != null
+                    ? CapCard(cap: cap, recentActionLabel: recentAction)
+                    : _buildFallbackAction(context)),
 
                 // ── 3b. COMPACT PLAN PROGRESS (circular) ──
                 if (_cachedSequence != null &&
@@ -310,7 +306,8 @@ class _PulseScreenState extends State<PulseScreen> {
                 const SizedBox(height: MintSpacing.xl),
 
                 // ── 4. DEUX SIGNAUX SECONDAIRES (hard cap: 2) ──
-                _buildSecondarySignals(profile, mintState, l),
+                MintEntrance(delay: const Duration(milliseconds: 300), child:
+                  _buildSecondarySignals(profile, mintState, l)),
 
                 const SizedBox(height: MintSpacing.xxl),
 
