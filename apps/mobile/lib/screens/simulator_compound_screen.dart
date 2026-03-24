@@ -219,9 +219,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         children: [
           Text(S.of(context)!.compoundValeurFinale, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            _currencyFormat.format(finalValue),
-            style: MintTextStyles.displayMedium(),
+          Semantics(
+            label: '${S.of(context)!.compoundValeurFinale}: ${_currencyFormat.format(finalValue)}',
+            child: Text(
+              _currencyFormat.format(finalValue),
+              style: MintTextStyles.displayMedium(),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
           Row(

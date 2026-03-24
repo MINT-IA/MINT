@@ -178,17 +178,20 @@ class _ActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _priorityColor(tip.priority);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: MintColors.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
-        child: Row(
+    return Semantics(
+      button: true,
+      label: tip.title,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: MintColors.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Index badge
@@ -253,6 +256,7 @@ class _ActionCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

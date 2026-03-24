@@ -112,10 +112,13 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
         ],
         const SizedBox(height: 24),
-        FilledButton(
-          onPressed: household.isLoading
-              ? null
-              : () async {
+        Semantics(
+          button: true,
+          label: 'Rejoindre le menage',
+          child: FilledButton(
+            onPressed: household.isLoading
+                ? null
+                : () async {
                   final code = _codeController.text.trim();
                   if (code.isEmpty) return;
                   household.clearError();
@@ -140,6 +143,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
                   'Rejoindre le menage',
                   style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
+        ),
         ),
       ],
     );

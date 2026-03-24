@@ -240,9 +240,12 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           ),
         ),
       ),
-      title: Text(
-        S.of(context)!.disabilityInsAppBarTitle,
-        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+      title: Semantics(
+        header: true,
+        child: Text(
+          S.of(context)!.disabilityInsAppBarTitle,
+          style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }

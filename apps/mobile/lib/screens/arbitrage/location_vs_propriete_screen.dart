@@ -426,21 +426,25 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _recalculate,
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                foregroundColor: MintColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+          Semantics(
+            button: true,
+            label: S.of(context)!.locationComparer,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _recalculate,
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-              ),
-              child: Text(
-                S.of(context)!.locationComparer,
-                style: MintTextStyles.titleMedium(color: MintColors.white),
+                child: Text(
+                  S.of(context)!.locationComparer,
+                  style: MintTextStyles.titleMedium(color: MintColors.white),
+                ),
               ),
             ),
           ),

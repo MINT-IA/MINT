@@ -304,11 +304,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   // ── Confirm button ───────────────────────────────────────
 
   Widget _buildConfirmButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: FilledButton.icon(
-        onPressed: _onConfirmAll,
+    return Semantics(
+      button: true,
+      label: S.of(context)!.extractionReviewConfirmAll,
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: FilledButton.icon(
+          onPressed: _onConfirmAll,
         icon: const Icon(Icons.check_circle_outline, size: 22),
         label: Text(
           S.of(context)!.extractionReviewConfirmAll,
@@ -322,6 +325,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

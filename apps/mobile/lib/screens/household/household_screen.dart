@@ -204,10 +204,14 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               style: MintTextStyles.bodyMedium(),
             ),
             const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: () => setState(() => _showInviteForm = true),
-              icon: const Icon(Icons.person_add),
-              label: Text(S.of(context)!.householdInvitePartner),
+            Semantics(
+              button: true,
+              label: S.of(context)!.householdInvitePartner,
+              child: FilledButton.icon(
+                onPressed: () => setState(() => _showInviteForm = true),
+                icon: const Icon(Icons.person_add),
+                label: Text(S.of(context)!.householdInvitePartner),
+              ),
             ),
             if (_showInviteForm) ...[
               const SizedBox(height: 16),

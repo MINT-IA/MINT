@@ -146,51 +146,55 @@ class _HubItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: MintSurface(
-        tone: tone,
-        padding: EdgeInsets.symmetric(
-          horizontal: MintSpacing.lg,
-          vertical: subtitle != null ? MintSpacing.lg : MintSpacing.md,
-        ),
-        child: Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, color: MintColors.textSecondary, size: 22),
-              const SizedBox(width: MintSpacing.md),
-            ],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: subtitle != null
-                        ? MintTextStyles.titleMedium()
-                        : MintTextStyles.bodyMedium(),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: MintSpacing.xs),
+    return Semantics(
+      button: true,
+      label: title,
+      child: GestureDetector(
+        onTap: onTap,
+        child: MintSurface(
+          tone: tone,
+          padding: EdgeInsets.symmetric(
+            horizontal: MintSpacing.lg,
+            vertical: subtitle != null ? MintSpacing.lg : MintSpacing.md,
+          ),
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: MintColors.textSecondary, size: 22),
+                const SizedBox(width: MintSpacing.md),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle!,
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.textSecondary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      title,
+                      style: subtitle != null
+                          ? MintTextStyles.titleMedium()
+                          : MintTextStyles.bodyMedium(),
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(
+                        subtitle!,
+                        style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            const SizedBox(width: MintSpacing.sm),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: MintColors.textMuted.withValues(alpha: 0.5),
-              size: 20,
-            ),
-          ],
+              const SizedBox(width: MintSpacing.sm),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: MintColors.textMuted.withValues(alpha: 0.5),
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );

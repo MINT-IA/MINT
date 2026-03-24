@@ -191,11 +191,14 @@ class _EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: MintSpacing.lg),
-            FilledButton.icon(
-              onPressed: onNewConversation,
-              icon: const Icon(Icons.add),
-              label: Text(
-                l10n.conversationStartFirst,
+            Semantics(
+              button: true,
+              label: l10n.conversationStartFirst,
+              child: FilledButton.icon(
+                onPressed: onNewConversation,
+                icon: const Icon(Icons.add),
+                label: Text(
+                  l10n.conversationStartFirst,
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
@@ -206,6 +209,7 @@ class _EmptyState extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+            ),
             ),
           ],
         ),

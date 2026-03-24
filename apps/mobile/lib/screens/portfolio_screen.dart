@@ -145,9 +145,12 @@ class PortfolioScreen extends StatelessWidget {
             style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            'CHF 102\'678.64',
-            style: MintTextStyles.displayMedium(),
+          Semantics(
+            label: 'CHF 102\'678.64',
+            child: Text(
+              'CHF 102\'678.64',
+              style: MintTextStyles.displayMedium(),
+            ),
           ),
           const SizedBox(height: 16),
           Row(

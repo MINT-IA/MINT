@@ -180,10 +180,13 @@ class _StressCard extends StatelessWidget {
           ? MintColors.primary.withAlpha(20)
           : MintColors.surface,
       borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Container(
+      child: Semantics(
+        button: true,
+        label: option.label,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -245,6 +248,7 @@ class _StressCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

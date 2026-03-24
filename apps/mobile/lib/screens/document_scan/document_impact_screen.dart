@@ -452,11 +452,14 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   Widget _buildCtaButton(BuildContext context) {
     return Opacity(
       opacity: _ctaFadeIn.value,
-      child: SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: FilledButton.icon(
-          onPressed: () {
+      child: Semantics(
+        button: true,
+        label: S.of(context)!.docImpactReturnDashboard,
+        child: SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: FilledButton.icon(
+            onPressed: () {
             // Navigate back to root dashboard via GoRouter
             context.go('/home');
           },
@@ -473,6 +476,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             ),
           ),
         ),
+      ),
       ),
     );
   }
