@@ -270,9 +270,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         ),
         child: Column(
           children: [
-            Text(
-              IndependantsService.formatChf(r.economieFiscale),
-              style: MintTextStyles.displayMedium(color: MintColors.primary),
+            Semantics(
+              label: IndependantsService.formatChf(r.economieFiscale),
+              child: Text(
+                IndependantsService.formatChf(r.economieFiscale),
+                style: MintTextStyles.displayMedium(color: MintColors.primary),
+              ),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
@@ -293,9 +296,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            IndependantsService.formatChf(r.avantageSurSalarie),
-            style: MintTextStyles.displayMedium(color: MintColors.white),
+          Semantics(
+            label: IndependantsService.formatChf(r.avantageSurSalarie),
+            child: Text(
+              IndependantsService.formatChf(r.avantageSurSalarie),
+              style: MintTextStyles.displayMedium(color: MintColors.white),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(

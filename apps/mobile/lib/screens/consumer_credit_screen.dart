@@ -287,9 +287,12 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         children: [
           Text(S.of(context)!.creditTaMensualite, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            _currencyFormat.format(monthlyPayment),
-            style: MintTextStyles.displayMedium(),
+          Semantics(
+            label: '${S.of(context)!.creditTaMensualite}: ${_currencyFormat.format(monthlyPayment)}',
+            child: Text(
+              _currencyFormat.format(monthlyPayment),
+              style: MintTextStyles.displayMedium(),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
           const Divider(color: MintColors.border),

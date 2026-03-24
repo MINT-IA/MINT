@@ -536,16 +536,20 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                       style: MintTextStyles.bodyMedium(),
                     ),
                     const SizedBox(height: 20),
-                    FilledButton.icon(
-                      onPressed: () => context.push('/scan'),
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      label: Text(
-                        S.of(context)!.cockpitDetailEnrichProfile,
+                    Semantics(
+                      button: true,
+                      label: S.of(context)!.cockpitDetailEnrichProfile,
+                      child: FilledButton.icon(
+                        onPressed: () => context.push('/scan'),
+                        icon: const Icon(Icons.edit_outlined, size: 18),
+                        label: Text(
+                          S.of(context)!.cockpitDetailEnrichProfile,
                         style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       style: FilledButton.styleFrom(
                         backgroundColor: MintColors.primary,
                       ),
+                    ),
                     ),
                   ],
                 ),

@@ -128,9 +128,12 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            '$delaiRepudiation',
-            style: MintTextStyles.displayLarge(color: MintColors.white),
+          Semantics(
+            label: '$delaiRepudiation ${s.decesProcheMoisRepudiation}',
+            child: Text(
+              '$delaiRepudiation',
+              style: MintTextStyles.displayLarge(color: MintColors.white),
+            ),
           ),
           Text(
             s.decesProcheMoisRepudiation,

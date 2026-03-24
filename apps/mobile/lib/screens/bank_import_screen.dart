@@ -210,10 +210,13 @@ class _BankImportScreenState extends State<BankImportScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _isUploading ? null : () => _pickAndUpload(),
+          Semantics(
+            button: true,
+            label: s.bankImportUploadButton,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _isUploading ? null : () => _pickAndUpload(),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.white,
                 foregroundColor: MintColors.info,
@@ -229,6 +232,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
+          ),
           ),
         ],
       ),

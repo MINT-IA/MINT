@@ -259,10 +259,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
       message = S.of(context)!.reportStatusLow;
       emoji = '\ud83d\udd34'; // red circle
     }
-    return Text(
-      '$emoji $message',
-      style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
-      textAlign: TextAlign.center,
+    return Semantics(
+      label: message,
+      child: Text(
+        '$emoji $message',
+        style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 

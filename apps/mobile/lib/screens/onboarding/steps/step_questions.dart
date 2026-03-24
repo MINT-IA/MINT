@@ -367,10 +367,13 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 48),
 
                   // ── CTA ───────────────────────────────────────────────────
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: widget.viewModel.canCompute ? _onSubmit : null,
+                  Semantics(
+                    button: true,
+                    label: l.onboardingSmartSeeResult,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: widget.viewModel.canCompute ? _onSubmit : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: MintColors.primary,
                         foregroundColor: MintColors.background,
@@ -388,6 +391,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                         ),
                       ),
                     ),
+                  ),
                   ),
                   const SizedBox(height: 24),
 

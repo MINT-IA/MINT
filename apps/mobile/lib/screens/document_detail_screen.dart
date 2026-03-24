@@ -265,11 +265,14 @@ class DocumentDetailScreen extends StatelessWidget {
         ],
 
         // Action buttons
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
+        Semantics(
+          button: true,
+          label: s.documentsConfirmButton,
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(s.documentDetailProfileUpdated),
                   backgroundColor: MintColors.success,
@@ -284,6 +287,7 @@ class DocumentDetailScreen extends StatelessWidget {
               s.documentsConfirmButton,
             ),
           ),
+        ),
         ),
         const SizedBox(height: MintSpacing.sm + 4),
         Center(

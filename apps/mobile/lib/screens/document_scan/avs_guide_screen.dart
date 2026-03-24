@@ -264,11 +264,14 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   // ── Open ahv-iv.ch button ──────────────────────────────────
 
   Widget _buildOpenAhvButton(S l) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: FilledButton.icon(
-        onPressed: _onOpenAhv,
+    return Semantics(
+      button: true,
+      label: l.avsGuideOpenAhvButton,
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: FilledButton.icon(
+          onPressed: _onOpenAhv,
         icon: const Icon(Icons.open_in_new, size: 20),
         label: Text(
           l.avsGuideOpenAhvButton,
@@ -282,17 +285,21 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 
   // ── Scan button ────────────────────────────────────────────
 
   Widget _buildScanButton(S l) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: OutlinedButton.icon(
-        onPressed: _isProcessing ? null : _onScanExtract,
+    return Semantics(
+      button: true,
+      label: l.avsGuideScanButton,
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton.icon(
+          onPressed: _isProcessing ? null : _onScanExtract,
         icon: const Icon(Icons.document_scanner_outlined, size: 22),
         label: Text(
           l.avsGuideScanButton,
@@ -306,6 +313,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

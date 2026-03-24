@@ -149,10 +149,13 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
               const SizedBox(height: 16),
 
               // ── NAVIGATION ──────────────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: widget.onNext,
+              Semantics(
+                button: true,
+                label: 'Que puis-je faire ?',
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: widget.onNext,
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     foregroundColor: MintColors.white,
@@ -169,6 +172,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                     ),
                   ),
                 ),
+              ),
               ),
               const SizedBox(height: 8),
               Center(

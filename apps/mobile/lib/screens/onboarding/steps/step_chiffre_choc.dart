@@ -600,11 +600,14 @@ class _LiteracyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: selected ? MintColors.primary.withAlpha(24) : MintColors.white,
           borderRadius: BorderRadius.circular(16),
@@ -622,6 +625,7 @@ class _LiteracyChip extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

@@ -270,9 +270,12 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            IndependantsService.formatChf(r.capitalisationAnnuelle),
-            style: MintTextStyles.displayMedium(color: MintColors.white),
+          Semantics(
+            label: IndependantsService.formatChf(r.capitalisationAnnuelle),
+            child: Text(
+              IndependantsService.formatChf(r.capitalisationAnnuelle),
+              style: MintTextStyles.displayMedium(color: MintColors.white),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(

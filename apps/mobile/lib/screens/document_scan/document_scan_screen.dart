@@ -235,11 +235,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget _buildCaptureButtons() {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: FilledButton.icon(
-            onPressed: _isProcessing ? null : _onCameraPressed,
+        Semantics(
+          button: true,
+          label: S.of(context)!.documentScanTakePhoto,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: _isProcessing ? null : _onCameraPressed,
             icon: const Icon(
               kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
               size: 22,
@@ -261,12 +264,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
           ),
         ),
+        ),
         const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton.icon(
-            onPressed: _isProcessing ? null : _onGalleryPressed,
+        Semantics(
+          button: true,
+          label: S.of(context)!.docScanFromGallery,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton.icon(
+              onPressed: _isProcessing ? null : _onGalleryPressed,
             icon: const Icon(Icons.photo_library_outlined, size: 22),
             label: Text(
               S.of(context)!.docScanFromGallery,
@@ -280,6 +287,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               ),
             ),
           ),
+        ),
         ),
       ],
     );

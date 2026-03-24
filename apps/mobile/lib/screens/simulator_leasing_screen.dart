@@ -241,9 +241,12 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         children: [
           Text(S.of(context)!.leasingCoutOpportunite20, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            _currencyFormat.format(opportunityCost20),
-            style: MintTextStyles.displayMedium(color: MintColors.error),
+          Semantics(
+            label: '${S.of(context)!.leasingCoutOpportunite20}: ${_currencyFormat.format(opportunityCost20)}',
+            child: Text(
+              _currencyFormat.format(opportunityCost20),
+              style: MintTextStyles.displayMedium(color: MintColors.error),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
           Text(

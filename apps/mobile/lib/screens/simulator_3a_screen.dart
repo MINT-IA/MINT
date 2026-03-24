@@ -446,9 +446,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         children: [
           Text(l.sim3aAnnualTaxSaved, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            _currencyFormat.format(_result!['annualTaxSaved']!),
-            style: MintTextStyles.displayMedium(color: MintColors.primary),
+          Semantics(
+            label: '${l.sim3aAnnualTaxSaved}: ${_currencyFormat.format(_result!['annualTaxSaved']!)}',
+            child: Text(
+              _currencyFormat.format(_result!['annualTaxSaved']!),
+              style: MintTextStyles.displayMedium(color: MintColors.primary),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
           const Divider(color: MintColors.border),

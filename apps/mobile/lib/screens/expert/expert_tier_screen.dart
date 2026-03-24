@@ -351,21 +351,25 @@ class _SpecialistCard extends StatelessWidget {
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: MintSpacing.md),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: onTap,
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                foregroundColor: MintColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+          Semantics(
+            button: true,
+            label: ctaLabel,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onTap,
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: Text(
-                ctaLabel,
-                style: MintTextStyles.bodySmall(color: MintColors.white),
+                child: Text(
+                  ctaLabel,
+                  style: MintTextStyles.bodySmall(color: MintColors.white),
+                ),
               ),
             ),
           ),
@@ -752,10 +756,13 @@ class _BottomCtaBar extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: onRequest,
+          Semantics(
+            button: true,
+            label: requestLabel,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onRequest,
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 foregroundColor: MintColors.white,
@@ -769,6 +776,7 @@ class _BottomCtaBar extends StatelessWidget {
                 style: MintTextStyles.bodySmall(color: MintColors.white),
               ),
             ),
+          ),
           ),
           const SizedBox(height: MintSpacing.sm),
           TextButton(

@@ -277,9 +277,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            IndependantsService.formatChf(saving),
-            style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
+          Semantics(
+            label: IndependantsService.formatChf(saving),
+            child: Text(
+              IndependantsService.formatChf(saving),
+              style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(

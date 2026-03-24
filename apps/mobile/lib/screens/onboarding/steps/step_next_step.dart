@@ -84,10 +84,13 @@ class StepNextStep extends StatelessWidget {
               const Spacer(flex: 3),
 
               // ── PRIMARY CTA — enrich ────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
+              Semantics(
+                button: true,
+                label: 'Affiner mon profil',
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
                     AnalyticsService().trackEvent(
                       kEventEnrichmentStarted,
                       category: 'conversion',
@@ -111,6 +114,7 @@ class StepNextStep extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
               ),
               const SizedBox(height: 12),
 

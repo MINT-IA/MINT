@@ -223,9 +223,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 .copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            '${strategiePrioritaire.moisJusquaLiberation} mois',
-            style: MintTextStyles.displayMedium(color: color),
+          Semantics(
+            label: '${S.of(context)!.repaymentLibereDans}: ${strategiePrioritaire.moisJusquaLiberation} mois',
+            child: Text(
+              '${strategiePrioritaire.moisJusquaLiberation} mois',
+              style: MintTextStyles.displayMedium(color: color),
+            ),
           ),
           const SizedBox(height: 4),
           if (result.economieInterets > 0)
@@ -407,9 +410,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     required String display,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
+    return Semantics(
+      button: true,
+      label: '$label: $display',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -437,6 +443,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -585,8 +592,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildBudgetSection() {
-    return GestureDetector(
-      onTap: () => _showValueEditor(
+    return Semantics(
+      button: true,
+      label: S.of(context)!.repaymentBudgetLabel,
+      child: GestureDetector(
+        onTap: () => _showValueEditor(
         label: S.of(context)!.repaymentBudgetEditorLabel,
         currentValue: _budgetMensuel,
         min: 200,
@@ -634,6 +644,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 

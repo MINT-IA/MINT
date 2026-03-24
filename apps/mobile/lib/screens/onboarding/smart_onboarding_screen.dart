@@ -187,11 +187,15 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
                   style: MintTextStyles.bodyMedium(),
                 ),
                 const SizedBox(height: MintSpacing.md),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                    child: Text(l.onboardingConsentAllow),
+                Semantics(
+                  button: true,
+                  label: l.onboardingConsentAllow,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      child: Text(l.onboardingConsentAllow),
+                    ),
                   ),
                 ),
                 const SizedBox(height: MintSpacing.sm),

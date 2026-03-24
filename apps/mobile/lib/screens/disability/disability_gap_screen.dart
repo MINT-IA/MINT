@@ -426,11 +426,15 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   }
 
   Widget _buildSectionCta(String label, String route) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () => context.push(route),
-        child: Text(label),
+    return Semantics(
+      button: true,
+      label: label,
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: () => context.push(route),
+          child: Text(label),
+        ),
       ),
     );
   }

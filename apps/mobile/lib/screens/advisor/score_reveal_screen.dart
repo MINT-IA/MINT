@@ -675,9 +675,12 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
       opacity: _ctaOpacity.value,
       child: Column(
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
+          Semantics(
+            button: true,
+            label: S.of(context)!.scoreRevealCtaDashboard,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
               onPressed: _ctaOpacity.value > 0.5
                   ? () => context.go('/home')
                   : null,
@@ -697,6 +700,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 ).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
+          ),
           ),
           const SizedBox(height: MintSpacing.md - 4),
           // Secondary action

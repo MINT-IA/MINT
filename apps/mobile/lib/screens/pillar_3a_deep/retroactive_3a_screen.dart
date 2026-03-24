@@ -336,9 +336,12 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 .copyWith(fontWeight: FontWeight.w700, letterSpacing: 1.0),
           ),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text(
-            'CHF\u00a0${formatChf(result.economiesFiscales)}',
-            style: MintTextStyles.displayMedium(color: MintColors.white),
+          Semantics(
+            label: 'CHF ${formatChf(result.economiesFiscales)}',
+            child: Text(
+              'CHF\u00a0${formatChf(result.economiesFiscales)}',
+              style: MintTextStyles.displayMedium(color: MintColors.white),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           Text(

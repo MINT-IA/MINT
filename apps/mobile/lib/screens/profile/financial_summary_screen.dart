@@ -90,10 +90,14 @@ class FinancialSummaryScreen extends StatelessWidget {
               style: MintTextStyles.bodyLarge(),
             ),
             const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.push('/onboarding/quick'),
-              child:
-                  Text(S.of(context)!.financialSummaryStartDiagnostic),
+            Semantics(
+              button: true,
+              label: S.of(context)!.financialSummaryStartDiagnostic,
+              child: FilledButton(
+                onPressed: () => context.push('/onboarding/quick'),
+                child:
+                    Text(S.of(context)!.financialSummaryStartDiagnostic),
+              ),
             ),
           ],
         ),
