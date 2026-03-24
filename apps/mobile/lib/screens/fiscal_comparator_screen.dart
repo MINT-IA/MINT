@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL COMPARATOR SCREEN — Sprint S20 / 26 cantons
@@ -260,14 +261,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   Widget _buildInputsCard() {
     final sortedCodes = FiscalService.sortedCantonCodes;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -542,13 +538,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     );
     final isBelow = tauxEffectif < avgAdjusted;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Row(
         children: [
           // Rate circle
@@ -619,13 +611,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     final chargeTotaleAvecExtras =
         (tax['chargeTotale'] as double) + wealthTax + churchTax;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -879,13 +867,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 12),
 
         // Ranking list
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
           child: Column(
             children: _allCantons.map((c) {
               return CantonRankingBar(
@@ -941,14 +925,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 20),
 
         // Canton pickers
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-          ),
           child: Column(
             children: [
               // From
@@ -1078,13 +1057,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     final difference = impotDepart - impotArrivee;
     final isSaving = difference > 0;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1222,13 +1197,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       S.of(context)!.fiscalChecklist6,
     ];
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
