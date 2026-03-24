@@ -14,6 +14,7 @@ import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -164,13 +165,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       DebtRiskLevel.rouge => S.of(context)!.debtRatioLevelCritique,
     };
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         children: [
           // Semi-circle gauge
@@ -289,14 +287,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         // ── Affiner le diagnostic ──
         GestureDetector(
           onTap: () => setState(() => _showDetails = !_showDetails),
-          child: Container(
+          child: MintSurface(
+            tone: MintSurfaceTone.blanc,
             padding: const EdgeInsets.symmetric(
                 horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.border),
-            ),
+            radius: 12,
             child: Row(
               children: [
                 Icon(
@@ -418,17 +413,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   }) {
     final color = accentColor ?? MintColors.primary;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: accentColor != null
-              ? accentColor.withValues(alpha: 0.3)
-              : MintColors.border,
-        ),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -524,13 +512,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     required int selectedIndex,
     required ValueChanged<int> onChanged,
   }) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -588,13 +573,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     required List<int> options,
     required ValueChanged<int> onChanged,
   }) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -841,13 +823,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   }
 
   Widget _buildRecommandationsSection(DebtRatioResult result) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1001,13 +980,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       child: InkWell(
       onTap: () => _launchUrl(url),
       borderRadius: BorderRadius.circular(12),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
         padding: const EdgeInsets.all(MintSpacing.sm + 6),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 12,
         child: Row(
           children: [
             Expanded(

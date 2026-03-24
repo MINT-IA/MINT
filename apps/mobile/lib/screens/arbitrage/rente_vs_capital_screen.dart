@@ -21,6 +21,7 @@ import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 /// Rente vs Capital arbitrage screen — the "a-ha" moment.
@@ -622,13 +623,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1024,19 +1021,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ? S.of(context)!.renteVsCapitalSyntheseCapitalHigher(formatChf(delta))
         : S.of(context)!.renteVsCapitalSyntheseRenteHigher(formatChf(delta));
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withAlpha(8),
-            blurRadius: 20, offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+      elevated: true,
       child: Column(
         children: [
           Row(
@@ -1199,13 +1187,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildExplorerBloc(List<TrajectoireOption> chartOptions) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1443,13 +1427,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     required String rightDetail,
     required String bottomText,
   }) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1642,13 +1623,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final lowDelta = v.lowValue - v.baseValue;
     final highDelta = v.highValue - v.baseValue;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1761,13 +1739,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   Widget _buildDisclaimerCard() {
     if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

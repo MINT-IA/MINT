@@ -19,6 +19,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/widgets/coach/milestone_celebration_sheet.dart';
 import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
@@ -623,30 +624,24 @@ Reponds uniquement avec le texte final.
       button: true,
       child: GestureDetector(
         onTap: _showAddContributionSheet,
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: MintColors.coachAccent.withValues(alpha: 0.3),
-            style: BorderStyle.solid,
+          radius: 16,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.add_circle_outline,
+                  color: MintColors.coachAccent, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                s.checkinAddContribution,
+                style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.add_circle_outline,
-                color: MintColors.coachAccent, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              s.checkinAddContribution,
-              style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
       ),
-    ),
     );
   }
 
@@ -953,13 +948,10 @@ Reponds uniquement avec le texte final.
     required IconData icon,
     required Color color,
   }) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1445,13 +1437,10 @@ Reponds uniquement avec le texte final.
   // ── Disclaimer ─────────────────────────────────────────────
   Widget _buildDisclaimer() {
     final s = S.of(context)!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 16,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1496,20 +1485,11 @@ class _ContributionRow extends StatelessWidget {
 
     return Stack(
       children: [
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.lightBorder),
-            boxShadow: [
-              BoxShadow(
-                color: MintColors.primary.withValues(alpha: 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+          radius: 16,
+          elevated: true,
           child: Row(
             children: [
               // Category icon
