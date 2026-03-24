@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:go_router/go_router.dart';
@@ -34,19 +36,47 @@ class IndependantScreen extends StatefulWidget {
 class _IndependantScreenState extends State<IndependantScreen> {
   // ── State ──────────────────────────────────────────────────
   double _revenuNet = 80000;
-  final int _age = 42;
+  int _age = 42;
   bool _hasLpp = false;
   bool _hasIjm = false;
   bool _hasLaa = false;
   bool _has3a = false;
-  final String _canton = 'VD';
+  String _canton = 'VD';
 
   IndependantResult? _result;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _compute();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Age
+        final age = profile.age;
+        if (age >= 18 && age <= 70) _age = age;
+
+        // Canton
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _canton = profile.canton;
+        }
+
+        // Revenue
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) _revenuNet = revenu;
+      });
+      _compute();
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
   }
 
   void _compute() {
@@ -1086,19 +1116,19 @@ class _IndependantScreenState extends State<IndependantScreen> {
           charges: [
             ChargeLine(
               label: 'AVS / AI / APG',
-              employeeAmount: _revenuNet * 0.0530,
-              selfEmployedAmount: _revenuNet * 0.1010,
+              employeeAmount: _revenuNet * avsCotisationSalarie,
+              selfEmployedAmount: _revenuNet * avsCotisationTotal,
               note: 'LAVS art. 8 \u2014 ind\u00e9p. paie les 2 parts',
             ),
             ChargeLine(
               label: 'LPP (2e pilier)',
-              employeeAmount: _revenuNet * 0.070,
+              employeeAmount: _revenuNet * getLppBonificationRate(_age),
               selfEmployedAmount: 0,
               note: 'Facultatif pour ind\u00e9pendant (LPP art. 4)',
             ),
             ChargeLine(
               label: 'Ch\u00f4mage (AC)',
-              employeeAmount: _revenuNet * 0.011,
+              employeeAmount: _revenuNet * acCotisationSalarie,
               selfEmployedAmount: 0,
               note: 'Pas d\'AC pour ind\u00e9pendant (LACI art. 2)',
             ),
@@ -1109,8 +1139,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
               note: '\u00c0 charge enti\u00e8re de l\'ind\u00e9pendant',
             ),
           ],
-          totalEmployee: _revenuNet * (0.0530 + 0.070 + 0.011 + 0.020),
-          totalSelfEmployed: _revenuNet * (0.1010 + 0 + 0 + 0.040),
+          totalEmployee: _revenuNet * (avsCotisationSalarie + getLppBonificationRate(_age) + acCotisationSalarie + 0.020),
+          totalSelfEmployed: _revenuNet * (avsCotisationTotal + 0 + 0 + 0.040),
         ),
         const SizedBox(height: MintSpacing.lg),
 

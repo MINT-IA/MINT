@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -35,7 +37,30 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('lamal');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _compute();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Monthly health insurance premium
+        final prime = profile.depenses.assuranceMaladie;
+        if (prime > 0) _primeMensuelle = prime;
+
+        // Annual medical expenses
+        final frais = profile.depenses.fraisMedicaux;
+        if (frais != null && frais > 0) _depensesSante = frais;
+      });
+      _compute();
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
   }
 
   void _compute() {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -72,9 +74,67 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   List<bool> _checklistState = [];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Conjoint 1 income from profile
+        final revenu1 = profile.revenuBrutAnnuel;
+        if (revenu1 > 0) _incomeConjoint1 = revenu1;
+
+        // Conjoint 2 income from conjoint profile
+        final conjoint = profile.conjoint;
+        if (conjoint != null) {
+          final revenu2 = conjoint.revenuBrutAnnuel;
+          if (revenu2 > 0) _incomeConjoint2 = revenu2;
+
+          // Conjoint 2 LPP
+          final lpp2 = conjoint.prevoyance?.avoirLppTotal;
+          if (lpp2 != null && lpp2 > 0) _lppConjoint2 = lpp2;
+
+          // Conjoint 2 3a
+          final epargne3a2 = conjoint.prevoyance?.totalEpargne3a;
+          if (epargne3a2 != null && epargne3a2 > 0) {
+            _pillar3aConjoint2 = epargne3a2;
+          }
+        }
+
+        // Conjoint 1 LPP
+        final lpp1 = profile.prevoyance.avoirLppTotal;
+        if (lpp1 != null && lpp1 > 0) _lppConjoint1 = lpp1;
+
+        // Conjoint 1 3a
+        final epargne3a1 = profile.prevoyance.totalEpargne3a;
+        if (epargne3a1 > 0) _pillar3aConjoint1 = epargne3a1;
+
+        // Children
+        if (profile.nombreEnfants > 0) {
+          _numberOfChildren = profile.nombreEnfants;
+        }
+
+        // Fortune commune = epargne liquide + investissements
+        final fortune = profile.patrimoine.epargneLiquide +
+            profile.patrimoine.investissements;
+        if (fortune > 0) _fortuneCommune = fortune;
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
   }
 
   void _simulate() {

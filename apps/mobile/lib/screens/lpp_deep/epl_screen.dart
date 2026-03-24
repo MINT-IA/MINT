@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -27,11 +29,13 @@ class _EplScreenState extends State<EplScreen> {
   bool _aRachete = false;
   int _anneesSDepuisRachat = 0;
   String _canton = 'ZH';
+  double _obligRatio = 0.6;
+  double _grossAnnualSalary = 100000;
 
   EplResult get _result {
-    // Repartition simplifiee oblig / suroblig
-    final oblig = _avoirTotal * 0.6;
-    final suroblig = _avoirTotal * 0.4;
+    // Repartition oblig / suroblig from profile or default ratio
+    final oblig = _avoirTotal * _obligRatio;
+    final suroblig = _avoirTotal * (1 - _obligRatio);
 
     return EplSimulator.simulate(
       avoirTotal: _avoirTotal,
@@ -43,6 +47,49 @@ class _EplScreenState extends State<EplScreen> {
       anneesSDepuisRachat: _anneesSDepuisRachat,
       canton: _canton,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // LPP total balance
+        final lppTotal = profile.prevoyance.avoirLppTotal;
+        if (lppTotal != null && lppTotal > 0) _avoirTotal = lppTotal;
+
+        // Age
+        final age = profile.age;
+        if (age >= 25 && age <= 65) _age = age;
+
+        // Canton
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _canton = profile.canton;
+        }
+
+        // Oblig / surob split from profile if available
+        final oblig = profile.prevoyance.avoirLppObligatoire;
+        final surob = profile.prevoyance.avoirLppSurobligatoire;
+        if (oblig != null && surob != null && (oblig + surob) > 0) {
+          _obligRatio = oblig / (oblig + surob);
+        }
+
+        // Gross annual salary
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) _grossAnnualSalary = revenu;
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
   }
 
   @override
@@ -443,7 +490,7 @@ class _EplScreenState extends State<EplScreen> {
       eplRepaid: 0,
       currentAge: _age,
       retirementAge: 65,
-      grossAnnualSalary: 100000,
+      grossAnnualSalary: _grossAnnualSalary,
       caisseReturn: 0.02,
       conversionRate: 0.068,
     );
