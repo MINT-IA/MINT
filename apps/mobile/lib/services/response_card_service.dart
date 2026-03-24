@@ -583,9 +583,12 @@ class ResponseCardService {
     final plafond =
         isIndep && !hasLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
 
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
       profile.revenuBrutAnnuel,
       profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
     );
     final taxSaving = plafond * marginalRate;
 
@@ -626,9 +629,12 @@ class ResponseCardService {
     if (rachatMax <= 0) return null;
     if (profile.salaireBrutMensuel <= 0) return null;
 
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
       profile.revenuBrutAnnuel,
       profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
     );
 
     // Economie fiscale sur rachat de 10k (ou rachat max si < 10k)
@@ -827,9 +833,12 @@ class ResponseCardService {
     if (profile.salaireBrutMensuel <= 0) return null;
     if (profile.age < 25) return null;
 
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
       profile.revenuBrutAnnuel,
       profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
     );
 
     // Total deductible: 3a + rachat LPP potentiel

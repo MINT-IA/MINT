@@ -89,9 +89,13 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         // Marginal tax rate from TaxCalculator (precise, canton-aware)
         final grossAnnual = coachProfile.salaireBrutMensuel * 12;
         if (grossAnnual > 0 && _profileCanton.isNotEmpty) {
+          final isMarried =
+              coachProfile.etatCivil == CoachCivilStatus.marie;
           _marginalTaxRate = RetirementTaxCalculator.estimateMarginalRate(
             grossAnnual,
             _profileCanton,
+            isMarried: isMarried,
+            children: coachProfile.nombreEnfants,
           );
         }
       }

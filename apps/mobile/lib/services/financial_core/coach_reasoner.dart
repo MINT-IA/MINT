@@ -107,8 +107,13 @@ class CoachReasonerService {
     if (lacune <= 0) return null;
 
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(revenuBrut, profile.canton);
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+      revenuBrut,
+      profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
+    );
 
     // Suggested annual buyback: spread over remaining years, min 5k, max 50k
     final annualBuyback = (lacune / yearsToRetirement)
@@ -213,8 +218,13 @@ class CoachReasonerService {
     if (gap < 500) return null; // trivial gap
 
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(revenuBrut, profile.canton);
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+      revenuBrut,
+      profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
+    );
     final annualTaxSaving = gap * marginalRate;
 
     // FV of annual contributions at estimated 3a return
@@ -296,8 +306,13 @@ class CoachReasonerService {
     if (amountToRedirect < 1000) return null;
 
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(revenuBrut, profile.canton);
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+      revenuBrut,
+      profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
+    );
 
     // Tax advantage: direct amorti = no deduction, indirect = 3a deduction
     final taxSaving = amountToRedirect * marginalRate;

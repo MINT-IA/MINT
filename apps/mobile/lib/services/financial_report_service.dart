@@ -383,8 +383,10 @@ class FinancialReportService {
     if (buybackAvailable < 10000) return null;
 
     final yearsToRetirement = profile.yearsToRetirement;
+    final isMarried = profile.civilStatus == 'marie';
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
-        profile.annualIncome, profile.canton);
+        profile.annualIncome, profile.canton,
+        isMarried: isMarried, children: profile.childrenCount);
 
     final plan = <AnnualBuyback>[];
     final currentYear = DateTime.now().year;

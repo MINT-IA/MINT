@@ -43,8 +43,13 @@ class ChiffreChocSection extends StatelessWidget {
         !has3aCapitalButNoContribDeclared &&
         cotisation3aAnnuelle < plafond3a &&
         profile.prevoyance.canContribute3a) {
-      final tauxMarginal =
-          RetirementTaxCalculator.estimateMarginalRate(revenuBrutAnnuel, profile.canton);
+      final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+      final tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+        revenuBrutAnnuel,
+        profile.canton,
+        isMarried: isMarried,
+        children: profile.nombreEnfants,
+      );
       final economieAnnuelle =
           (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
       final anneesRestantes = profile.anneesAvantRetraite;
@@ -71,8 +76,13 @@ class ChiffreChocSection extends StatelessWidget {
     // 2. LPP buyback tax deduction potential
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
     if (lacuneLpp > 5000) {
-      final tauxMarginal =
-          RetirementTaxCalculator.estimateMarginalRate(revenuBrutAnnuel, profile.canton);
+      final isMarried2 = profile.etatCivil == CoachCivilStatus.marie;
+      final tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+        revenuBrutAnnuel,
+        profile.canton,
+        isMarried: isMarried2,
+        children: profile.nombreEnfants,
+      );
       final economieRachat = lacuneLpp * tauxMarginal;
 
       cards.add(ChiffreChocCard(

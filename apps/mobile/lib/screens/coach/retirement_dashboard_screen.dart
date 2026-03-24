@@ -237,10 +237,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final profile = _profile;
     if (profile == null) return;
 
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final taxSaving3a = profile.salaireBrutMensuel > 0
         ? pilier3aPlafondAvecLpp *
             RetirementTaxCalculator.estimateMarginalRate(
-                profile.salaireBrutMensuel * 12, profile.canton)
+                profile.salaireBrutMensuel * 12, profile.canton,
+                isMarried: isMarried, children: profile.nombreEnfants)
         : 0.0;
     final friScore = _score?.global.toDouble() ?? 0.0;
     final friDelta = (_score?.deltaVsPreviousMonth ?? 0).toDouble();

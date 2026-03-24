@@ -352,9 +352,9 @@ void main() {
         canton: 'VS',
       );
 
-      // VS is a high-tax canton, income 122k → marginal rate ~32% * 1.1 = 35.2%
-      // Saving on 10k ≈ 3520
-      const expectedApprox = 3520.0;
+      // VS effective 14.56% × income adj ~1.044 × 1.3 marginal ≈ 19.8%
+      // Saving on 10k ≈ 1'975
+      const expectedApprox = 1975.0;
 
       // ignore: avoid_print
       print('\n--- Tax Saving from LPP Rachat (Julien) ---');
@@ -372,8 +372,8 @@ void main() {
 
       expect(saving, greaterThan(1000),
           reason: 'Tax saving on 10k should be > 1000 CHF');
-      expect(saving, lessThan(6000),
-          reason: 'Tax saving on 10k should be < 6000 CHF');
+      expect(saving, lessThan(4000),
+          reason: 'Tax saving on 10k should be < 4000 CHF');
     });
 
     test('3c. Marginal rate — Julien VS vs ZG comparison', () {
@@ -391,10 +391,10 @@ void main() {
 
       expect(rateVS, greaterThan(rateZG),
           reason: 'VS should have higher marginal rate than ZG');
-      expect(rateVS, greaterThan(0.25),
-          reason: 'VS marginal rate at 122k should be > 25%');
-      expect(rateZG, lessThan(0.30),
-          reason: 'ZG marginal rate at 122k should be < 30%');
+      expect(rateVS, greaterThan(0.15),
+          reason: 'VS marginal rate at 122k should be > 15%');
+      expect(rateZG, lessThan(0.20),
+          reason: 'ZG marginal rate at 122k should be < 20%');
     });
 
     test('3d. NetIncomeBreakdown — Julien', () {

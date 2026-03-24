@@ -191,11 +191,15 @@ class CoupleOptimizer {
     const referenceAmount = 10000.0;
     final canton = user.canton;
 
+    // Couple context → isMarried: true for tax splitting
+    final children = user.nombreEnfants;
     final userSaving = userIncome > 0 && userRachat > 0
         ? RetirementTaxCalculator.estimateTaxSaving(
             income: userIncome,
             deduction: referenceAmount.clamp(0, userRachat),
             canton: canton,
+            isMarried: true,
+            children: children,
           )
         : 0.0;
 
@@ -204,6 +208,8 @@ class CoupleOptimizer {
             income: conjointIncome,
             deduction: referenceAmount.clamp(0, conjointRachat),
             canton: canton,
+            isMarried: true,
+            children: children,
           )
         : 0.0;
 
@@ -257,12 +263,15 @@ class CoupleOptimizer {
 
     final canton = user.canton;
     const ceiling = pilier3aPlafondAvecLpp;
+    final children3a = user.nombreEnfants;
 
     final userSaving = userIncome > 0
         ? RetirementTaxCalculator.estimateTaxSaving(
             income: userIncome,
             deduction: ceiling,
             canton: canton,
+            isMarried: true,
+            children: children3a,
           )
         : 0.0;
 
@@ -271,6 +280,8 @@ class CoupleOptimizer {
             income: conjointIncome,
             deduction: ceiling,
             canton: canton,
+            isMarried: true,
+            children: children3a,
           )
         : 0.0;
 

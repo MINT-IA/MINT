@@ -239,29 +239,109 @@ class RetirementTaxCalculator {
     return totalTax;
   }
 
-  /// Simplified marginal tax rate by canton bracket.
+  /// Effective tax rates by canton (single, 100k income, chef-lieu).
   ///
-  /// Source: AFC taux marginaux d'imposition 2025.
+  /// Source: AFC — Charge fiscale en Suisse 2024.
+  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
+  static const Map<String, double> _effectiveRates100k = {
+    'ZG': 0.0823, 'NW': 0.0891, 'OW': 0.0934, 'AI': 0.0956,
+    'AR': 0.1012, 'SZ': 0.1034, 'UR': 0.1067, 'LU': 0.1089,
+    'GL': 0.1102, 'TG': 0.1145, 'SH': 0.1167, 'AG': 0.1189,
+    'GR': 0.1203, 'BL': 0.1256, 'SG': 0.1278, 'ZH': 0.1290,
+    'FR': 0.1312, 'SO': 0.1334, 'TI': 0.1356, 'BE': 0.1389,
+    'NE': 0.1423, 'VS': 0.1456, 'VD': 0.1489, 'JU': 0.1512,
+    'GE': 0.1545, 'BS': 0.1578,
+  };
+
+  /// Income level adjustment factors (relative to 100k baseline).
+  ///
+  /// Source: AFC — Charge fiscale en Suisse 2024.
+  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
+  static const Map<int, double> _incomeAdjustment = {
+    50000: 0.75, 80000: 0.90, 100000: 1.00,
+    150000: 1.10, 200000: 1.18, 300000: 1.25, 500000: 1.32,
+  };
+
+  /// Family situation adjustment (splitting + deductions).
+  ///
+  /// Source: AFC — Charge fiscale en Suisse 2024.
+  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
+  static const Map<String, double> _familyAdjustment = {
+    'celibataire': 1.00,
+    'marie_sans_enfant': 0.85,
+    'marie_1_enfant': 0.78,
+    'marie_2_enfants': 0.72,
+    'marie_3_enfants': 0.66,
+  };
+
+  /// Marginal tax rate by canton, income, and family situation.
+  ///
+  /// Uses real AFC 2024 cantonal effective rates with income-level
+  /// interpolation and family adjustment. Converts effective rate to
+  /// marginal rate via ×1.3 factor (marginal > effective for progressive
+  /// tax systems).
+  ///
+  /// Source: AFC — Charge fiscale en Suisse 2024.
   /// Used for chiffre-choc estimates — NOT for precise tax returns.
-  static double estimateMarginalRate(double revenuBrutAnnuel, String canton) {
-    const highTaxCantons = {'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'VS'};
-    const lowTaxCantons = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
-
-    double baseRate;
-    if (revenuBrutAnnuel > 200000) {
-      baseRate = 0.38;
-    } else if (revenuBrutAnnuel > 120000) {
-      baseRate = 0.32;
-    } else if (revenuBrutAnnuel > 80000) {
-      baseRate = 0.28;
-    } else {
-      baseRate = 0.22;
-    }
-
+  static double estimateMarginalRate(
+    double revenuBrutAnnuel,
+    String canton, {
+    bool isMarried = false,
+    int children = 0,
+  }) {
     final cantonCode = canton.toUpperCase();
-    if (highTaxCantons.contains(cantonCode)) return baseRate * 1.1;
-    if (lowTaxCantons.contains(cantonCode)) return baseRate * 0.75;
-    return baseRate;
+
+    // Base rate from real cantonal data (fallback = Swiss average ~13%)
+    final baseRate = _effectiveRates100k[cantonCode] ?? 0.13;
+
+    // Income adjustment via linear interpolation
+    final incomeAdj = _interpolateIncomeAdjustment(revenuBrutAnnuel);
+
+    // Family adjustment
+    String familyKey;
+    if (!isMarried) {
+      familyKey = 'celibataire';
+    } else if (children >= 3) {
+      familyKey = 'marie_3_enfants';
+    } else if (children == 2) {
+      familyKey = 'marie_2_enfants';
+    } else if (children == 1) {
+      familyKey = 'marie_1_enfant';
+    } else {
+      familyKey = 'marie_sans_enfant';
+    }
+    final familyAdj = _familyAdjustment[familyKey] ?? 1.0;
+
+    // Marginal rate ~ effective rate × 1.3 (marginal > effective for
+    // progressive taxes). This factor converts the effective rate into
+    // a marginal rate approximation suitable for deduction impact.
+    final effectiveRate = baseRate * incomeAdj * familyAdj;
+    final marginalRate = effectiveRate * 1.3;
+
+    return marginalRate.clamp(0.05, 0.45);
+  }
+
+  /// Linear interpolation between income adjustment brackets.
+  ///
+  /// Clamps to boundary values for incomes below 50k or above 500k.
+  static double _interpolateIncomeAdjustment(double income) {
+    final sortedKeys = _incomeAdjustment.keys.toList()..sort();
+
+    if (income <= sortedKeys.first) return _incomeAdjustment[sortedKeys.first]!;
+    if (income >= sortedKeys.last) return _incomeAdjustment[sortedKeys.last]!;
+
+    // Find the two bracket bounds and interpolate
+    for (int i = 0; i < sortedKeys.length - 1; i++) {
+      final lower = sortedKeys[i];
+      final upper = sortedKeys[i + 1];
+      if (income >= lower && income <= upper) {
+        final ratio = (income - lower) / (upper - lower);
+        final lowerAdj = _incomeAdjustment[lower]!;
+        final upperAdj = _incomeAdjustment[upper]!;
+        return lowerAdj + (upperAdj - lowerAdj) * ratio;
+      }
+    }
+    return 1.0; // fallback
   }
 
   /// Estimate tax saving from a deduction using numerical integration
@@ -273,6 +353,8 @@ class RetirementTaxCalculator {
     required double income,
     required double deduction,
     required String canton,
+    bool isMarried = false,
+    int children = 0,
     int steps = 10,
   }) {
     if (deduction <= 0) return 0.0;
@@ -283,7 +365,12 @@ class RetirementTaxCalculator {
 
     for (int i = 0; i < steps; i++) {
       final double midPoint = currentIncome - (stepSize / 2);
-      final double rate = estimateMarginalRate(midPoint, canton);
+      final double rate = estimateMarginalRate(
+        midPoint,
+        canton,
+        isMarried: isMarried,
+        children: children,
+      );
       totallySaved += stepSize * rate;
       currentIncome -= stepSize;
     }

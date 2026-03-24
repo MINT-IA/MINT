@@ -252,10 +252,13 @@ class CrossPillarCalculator {
     if (missing3a < 100) return null; // Not worth surfacing
 
     // Fiscal saving via numerical integration (estimateTaxSaving)
+    final isMarried3a = profile.etatCivil == CoachCivilStatus.marie;
     final fiscalSaving = RetirementTaxCalculator.estimateTaxSaving(
       income: grossAnnual,
       deduction: missing3a,
       canton: profile.canton,
+      isMarried: isMarried3a,
+      children: profile.nombreEnfants,
     );
 
     if (fiscalSaving < 50) return null;
@@ -303,10 +306,13 @@ class CrossPillarCalculator {
 
     // Fiscal saving from deducting rachat against income (LIFD art. 81)
     // Rachat is a deductible expense against income tax.
+    final isMarriedLpp = profile.etatCivil == CoachCivilStatus.marie;
     final fiscalSaving = RetirementTaxCalculator.estimateTaxSaving(
       income: grossAnnual,
       deduction: rachatMax,
       canton: profile.canton,
+      isMarried: isMarriedLpp,
+      children: profile.nombreEnfants,
     );
 
     // Retirement income boost: rente increase from rachat
@@ -404,10 +410,13 @@ class CrossPillarCalculator {
           max(0.0, plafond / 12 - current3aMonthly);
       optimal3aMonthly = min(excess, missing3aMonthly);
       if (optimal3aMonthly > 0) {
+        final isMarriedC = profile.etatCivil == CoachCivilStatus.marie;
         fiscalSaving3a = RetirementTaxCalculator.estimateTaxSaving(
           income: grossAnnual,
           deduction: optimal3aMonthly * 12,
           canton: profile.canton,
+          isMarried: isMarriedC,
+          children: profile.nombreEnfants,
         );
       }
     }
@@ -558,10 +567,13 @@ class CrossPillarCalculator {
     if (annualInterest < 500) return null;
 
     // Tax value of deduction via numerical integration (no hardcoded rate)
+    final isMarriedMtg = profile.etatCivil == CoachCivilStatus.marie;
     final deductionValue = RetirementTaxCalculator.estimateTaxSaving(
       income: grossAnnual,
       deduction: annualInterest,
       canton: profile.canton,
+      isMarried: isMarriedMtg,
+      children: profile.nombreEnfants,
     );
 
     if (deductionValue < 100) return null;
@@ -678,10 +690,13 @@ class CrossPillarCalculator {
       final current3aAnnual = profile.total3aMensuel * 12;
       final missing3a = max(0.0, plafond - current3aAnnual);
       if (missing3a > 0) {
+        final isMarriedGap = profile.etatCivil == CoachCivilStatus.marie;
         action3aImpact = RetirementTaxCalculator.estimateTaxSaving(
           income: grossAnnual,
           deduction: missing3a,
           canton: profile.canton,
+          isMarried: isMarriedGap,
+          children: profile.nombreEnfants,
         );
       }
     }

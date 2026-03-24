@@ -108,9 +108,12 @@ class FriComputationService {
     final potentielRachat = profile.prevoyance.rachatMaximum ?? 0.0;
     final rachatEffectue = profile.prevoyance.rachatEffectue ?? 0.0;
     // Marginal tax rate from centralized RetirementTaxCalculator
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
       monthlyGross * profile.nombreDeMois,
       profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
     );
     final isPropertyOwner =
         (profile.patrimoine.immobilier ?? 0) > 0 ||
