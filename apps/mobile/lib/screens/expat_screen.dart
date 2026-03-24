@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
 import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -1674,49 +1675,18 @@ class _ExpatScreenState extends State<ExpatScreen>
     return Semantics(
       label: label,
       value: displayValue,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: MintTextStyles.bodySmall(
-                      color: MintColors.textSecondary),
-                ),
-              ),
-              Text(
-                displayValue,
-                style:
-                    MintTextStyles.titleMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-              thumbShape:
-                  const RoundSliderThumbShape(enabledThumbRadius: 7),
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions > 0 ? divisions : 1,
-              onChanged: (v) {
-                setState(() {
-                  onChanged((v / step).round() * step);
-                });
-              },
-            ),
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: label,
+        value: value,
+        min: min,
+        max: max,
+        divisions: divisions > 0 ? divisions : 1,
+        formatValue: (_) => displayValue,
+        onChanged: (v) {
+          setState(() {
+            onChanged((v / step).round() * step);
+          });
+        },
       ),
     );
   }
