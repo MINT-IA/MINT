@@ -5,6 +5,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/segments_service.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  GENDER GAP PREVOYANCE SCREEN — Sprint S12 / Chantier 6
@@ -20,18 +22,49 @@ class GenderGapScreen extends StatefulWidget {
 class _GenderGapScreenState extends State<GenderGapScreen> {
   // ── State ──────────────────────────────────────────────────
   double _tauxActivite = 60;
-  final double _revenuAnnuel = 85000;
-  final int _age = 40;
-  final double _avoirLpp = 120000;
-  final int _anneesCotisation = 15;
-  final String _canton = 'VD';
+  double _revenuAnnuel = 85000;
+  int _age = 40;
+  double _avoirLpp = 120000;
+  int _anneesCotisation = 15;
+  String _canton = 'VD';
 
   GenderGapResult? _result;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _compute();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.revenuBrutAnnuel > 0) {
+          _revenuAnnuel = profile.revenuBrutAnnuel;
+        }
+        if (profile.age > 0) {
+          _age = profile.age;
+        }
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _avoirLpp = lpp;
+        }
+        final annees = profile.prevoyance.anneesContribuees;
+        if (annees != null && annees > 0) {
+          _anneesCotisation = annees;
+        }
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+      });
+      _compute();
+    } catch (_) {}
   }
 
   void _compute() {

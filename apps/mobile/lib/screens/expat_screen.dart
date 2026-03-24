@@ -59,9 +59,46 @@ class _ExpatScreenState extends State<ExpatScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _recalculateForfait();
     _recalculateDepart();
     _recalculateAvs();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _forfaitCanton = profile.canton;
+          _departCanton = profile.canton;
+        }
+        if (profile.prevoyance.totalEpargne3a > 0) {
+          _pillar3aBalance = profile.prevoyance.totalEpargne3a;
+        }
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _lppBalance = lpp;
+        }
+        final depenses = profile.depenses.totalMensuel * 12;
+        if (depenses > 0) {
+          _livingExpenses = depenses;
+        }
+        if (profile.arrivalAge != null) {
+          final yearsInCh = profile.age - profile.arrivalAge!;
+          if (yearsInCh > 0) {
+            _yearsInCh = yearsInCh;
+          }
+        }
+      });
+      _recalculateForfait();
+      _recalculateDepart();
+      _recalculateAvs();
+    } catch (_) {}
   }
 
   @override

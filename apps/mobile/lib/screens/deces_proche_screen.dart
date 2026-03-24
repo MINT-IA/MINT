@@ -4,6 +4,8 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Screen for navigating the financial impact of a relative's death in Switzerland.
 ///
@@ -22,9 +24,41 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
   String _lienParente = 'conjoint';
   String _canton = 'VD';
   double _fortuneDefunt = 500000;
-  final double _lppDefunt = 200000;
-  final double _pilier3aDefunt = 50000;
+  double _lppDefunt = 200000;
+  double _pilier3aDefunt = 50000;
   bool _testamentExiste = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
+        if (totalPatrimoine > 0) {
+          _fortuneDefunt = totalPatrimoine;
+        }
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _lppDefunt = lpp;
+        }
+        if (profile.prevoyance.totalEpargne3a > 0) {
+          _pilier3aDefunt = profile.prevoyance.totalEpargne3a;
+        }
+      });
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {

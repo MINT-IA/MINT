@@ -55,7 +55,35 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _recalculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.revenuBrutAnnuel > 0) {
+          _revenu1 = profile.revenuBrutAnnuel;
+        }
+        if (profile.conjoint?.revenuBrutAnnuel != null &&
+            profile.conjoint!.revenuBrutAnnuel > 0) {
+          _revenu2 = profile.conjoint!.revenuBrutAnnuel;
+        }
+        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
+        if (totalPatrimoine > 0) {
+          _patrimoine = totalPatrimoine;
+        }
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+      });
+      _recalculate();
+    } catch (_) {}
   }
 
   @override

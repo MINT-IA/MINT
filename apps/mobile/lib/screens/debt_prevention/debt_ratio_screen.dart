@@ -11,6 +11,9 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -29,6 +32,35 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('debt');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.salaireBrutMensuel > 0) {
+          _revenusMensuels = profile.salaireBrutMensuel;
+        }
+        if (profile.depenses.loyer > 0) {
+          _loyer = profile.depenses.loyer;
+        }
+        if (profile.dettes.totalMensualite > 0) {
+          _chargesDetteMensuelles = profile.dettes.totalMensualite;
+        }
+        if (profile.etatCivil == CoachCivilStatus.celibataire ||
+            profile.etatCivil == CoachCivilStatus.divorce) {
+          _estCelibataire = true;
+        } else {
+          _estCelibataire = false;
+        }
+        _nombreEnfants = profile.nombreEnfants;
+      });
+    } catch (_) {}
   }
 
   double _revenusMensuels = 6000;

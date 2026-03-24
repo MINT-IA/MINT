@@ -60,6 +60,13 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       setState(() {
         _gainAssure = salaireMensuel.roundToDouble();
         _age = age;
+        if (p.nombreEnfants > 0) {
+          _hasChildren = true;
+        }
+        final annees = p.prevoyance.anneesContribuees;
+        if (annees != null && annees > 0) {
+          _moisCotisation = (annees * 12).clamp(0, 480);
+        }
       });
       _calculate();
     });
