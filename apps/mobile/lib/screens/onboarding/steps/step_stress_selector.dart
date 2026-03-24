@@ -87,7 +87,7 @@ class StepStressSelector extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
-                  color: Colors.white,
+                  color: MintColors.white,
                   height: 1.25,
                 ),
                 maxLines: 2,

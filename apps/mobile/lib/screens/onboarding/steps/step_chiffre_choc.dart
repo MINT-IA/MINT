@@ -408,7 +408,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: MintColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -606,7 +606,7 @@ class _LiteracyChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? MintColors.primary.withAlpha(24) : Colors.white,
+          color: selected ? MintColors.primary.withAlpha(24) : MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected ? MintColors.primary : MintColors.lightBorder,

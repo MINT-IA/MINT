@@ -154,7 +154,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
-                  color: Colors.white,
+                  color: MintColors.background,
                   height: 1.25,
                 ),
                 maxLines: 2,
@@ -196,7 +196,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                       labelText: l.onboardingSmartFirstNameLabel,
                       hintText: l.onboardingSmartFirstNameHint,
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: MintColors.background,
                       suffixIcon: _firstNameController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear,
@@ -286,7 +286,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                         labelText: l.onboardingSmartAgeDirectInput,
                         suffixText: 'ans',
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: MintColors.background,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 12,
@@ -373,7 +373,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                       onPressed: widget.viewModel.canCompute ? _onSubmit : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: MintColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: MintColors.background,
                         disabledBackgroundColor: MintColors.border,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
@@ -659,7 +659,7 @@ class _AgePickerState extends State<_AgePicker> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? MintColors.primary.withAlpha(24)
-                        : Colors.white,
+                        : MintColors.background,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
@@ -897,7 +897,7 @@ class _CantonPicker extends StatelessWidget {
     final selected = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

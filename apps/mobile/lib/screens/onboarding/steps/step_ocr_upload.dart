@@ -221,7 +221,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
     if (!mounted) return false;
     final result = await showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -298,7 +298,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                     onPressed: () => Navigator.of(ctx).pop(true),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.background,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -356,7 +356,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
-                  color: Colors.white,
+                  color: MintColors.background,
                   height: 1.25,
                 ),
                 maxLines: 2,
@@ -444,7 +444,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                         backgroundColor: scannedCount > 0
                             ? MintColors.primary
                             : MintColors.primary.withAlpha(180),
-                        foregroundColor: Colors.white,
+                        foregroundColor: MintColors.background,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -561,7 +561,7 @@ class _DocumentCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isScanned
               ? MintColors.primary.withAlpha(12)
-              : Colors.white,
+              : MintColors.background,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isScanned ? MintColors.primary : MintColors.lightBorder,
@@ -645,7 +645,7 @@ class _DocumentCard extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color:
-                      isScanned ? Colors.white : MintColors.textSecondary,
+                      isScanned ? MintColors.background : MintColors.textSecondary,
                 ),
               ),
             ),

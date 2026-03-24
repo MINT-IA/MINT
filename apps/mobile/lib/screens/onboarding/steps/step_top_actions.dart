@@ -104,7 +104,7 @@ class StepTopActions extends StatelessWidget {
                   onPressed: onNext,
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: MintColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
