@@ -12,7 +12,6 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
