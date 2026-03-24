@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 /// Ecran de calcul de la valeur locative et de son impact fiscal.
 ///
@@ -496,12 +497,13 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               ),
             ],
           ),
-          Slider(
+          MintPremiumSlider(
+            label: label,
             value: value,
             min: min,
             max: max,
             divisions: divisions,
-            activeColor: MintColors.primary,
+            formatValue: (_) => format,
             onChanged: onChanged,
           ),
         ],
