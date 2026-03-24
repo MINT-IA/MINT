@@ -17,6 +17,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// SharedPreferences key for the last time the user visited the Dossier tab.
@@ -123,6 +124,91 @@ class _DossierTabState extends State<DossierTab> {
     return values;
   }
 
+  void _showSettingsSheet(BuildContext context, S l) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: MintColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: MintColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              Text(
+                l.dossierSettingsTitle,
+                style: MintTextStyles.headlineMedium(),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              MintSurface(
+                tone: MintSurfaceTone.blanc,
+                padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+                child: Column(
+                  children: [
+                    _DossierRow(
+                      icon: Icons.smart_toy_outlined,
+                      title: l.dossierSlmTitle,
+                      subtitle: l.dossierSlmSubtitle,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        this.context.push('/profile/slm');
+                      },
+                    ),
+                    _DossierRow(
+                      icon: Icons.vpn_key_outlined,
+                      title: l.dossierByokTitle,
+                      subtitle: l.dossierByokSubtitle,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        this.context.push('/profile/byok');
+                      },
+                    ),
+                    _DossierRow(
+                      icon: Icons.verified_user_outlined,
+                      title: l.dossierConsentsTitle,
+                      subtitle: l.dossierConsentsSubtitle,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        this.context.push('/profile/consent');
+                      },
+                    ),
+                    _DossierRow(
+                      icon: Icons.tune_outlined,
+                      title: l.dossierCoachingTitle,
+                      subtitle: l.dossierCoachingSubtitle,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showCoachingPreferenceSheet(this.context, l);
+                      },
+                      showDivider: false,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showCoachingPreferenceSheet(BuildContext context, S l) {
     showModalBottomSheet<void>(
       context: context,
@@ -150,10 +236,29 @@ class _DossierTabState extends State<DossierTab> {
     // Derived from MintUserState when available; fall back to CoachProfileProvider.
     final firstName = mintState?.profile.firstName
         ?? (provider.hasProfile ? (provider.profile!.firstName ?? '') : '');
-    final confidenceScore = mintState?.confidenceScore ?? 0.0;
-    final confidencePct = (confidenceScore * 100).round().clamp(0, 100);
     final profile = mintState?.profile ?? provider.profile;
+
+    // Confidence score: prefer pre-computed from MintUserState, fall back to
+    // real EnhancedConfidence (4-axis) when MintUserState not available.
+    EnhancedConfidence? enhancedConf;
+    double rawConfidence = mintState?.confidenceScore ?? 0.0;
+    if (profile != null) {
+      try {
+        enhancedConf = ConfidenceScorer.scoreEnhanced(profile);
+        // Use real combined score if MintUserState didn't pre-compute one.
+        if (mintState?.confidenceScore == null || mintState!.confidenceScore == 0.0) {
+          rawConfidence = enhancedConf.combined / 100.0;
+        }
+      } catch (_) {
+        enhancedConf = null;
+      }
+    }
+    final confidencePct = (rawConfidence * 100).round().clamp(0, 100);
+    final enrichmentPrompts = enhancedConf?.axisPrompts ?? const [];
+
     final isCouple = profile?.isCouple ?? false;
+    // Determine if enough data exists for expert section.
+    final hasEnoughDataForExpert = confidencePct >= 40;
 
     // Timestamps for section freshness display.
     final timestamps = profile?.dataTimestamps ?? const {};
@@ -174,6 +279,17 @@ class _DossierTabState extends State<DossierTab> {
               ),
             ),
             centerTitle: false,
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: MintColors.textSecondary,
+                  size: 22,
+                ),
+                onPressed: () => _showSettingsSheet(context, l),
+                tooltip: l.dossierSettingsTitle,
+              ),
+            ],
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(
@@ -197,6 +313,7 @@ class _DossierTabState extends State<DossierTab> {
                 _ProfileSection(
                   mintState: mintState,
                   provider: provider,
+                  enrichmentPrompts: enrichmentPrompts,
                   firstName: firstName,
                   confidencePct: confidencePct,
                   l: l,
@@ -260,58 +377,22 @@ class _DossierTabState extends State<DossierTab> {
                 const SizedBox(height: MintSpacing.xl),
 
                 // ═══════════════════════════════════════
-                //  Section 6 — Préférences
+                //  Section 6 — Expert (only if enough data)
                 // ═══════════════════════════════════════
-                _SectionLabel(l.dossierPreferencesSection, l: l),
-
-                MintSurface(
-                  tone: MintSurfaceTone.blanc,
-                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
-                  child: Column(
-                    children: [
-                      // ── Consentements ──
-                      _DossierRow(
-                        icon: Icons.verified_user_outlined,
-                        title: l.dossierConsentsTitle,
-                        subtitle: l.dossierConsentsSubtitle,
-                        onTap: () => context.push('/profile/consent'),
-                      ),
-
-                      // ── Modèle local (SLM) ──
-                      _DossierRow(
-                        icon: Icons.smart_toy_outlined,
-                        title: l.dossierSlmTitle,
-                        subtitle: l.dossierSlmSubtitle,
-                        onTap: () => context.push('/profile/slm'),
-                      ),
-
-                      // ── Coaching adaptatif ──
-                      _DossierRow(
-                        icon: Icons.tune_outlined,
-                        title: l.dossierCoachingTitle,
-                        subtitle: l.dossierCoachingSubtitle,
-                        onTap: () => _showCoachingPreferenceSheet(context, l),
-                      ),
-
-                      // ── Clé API (BYOK) ──
-                      _DossierRow(
-                        icon: Icons.vpn_key_outlined,
-                        title: l.dossierByokTitle,
-                        subtitle: l.dossierByokSubtitle,
-                        onTap: () => context.push('/profile/byok'),
-                      ),
-
-                      // ── Spécialiste (moved from standalone section) ──
-                      _DossierRow(
-                        icon: Icons.person_search_outlined,
-                        title: l.dossierExpertSectionTitle,
-                        subtitle: l.expertSubtitle,
-                        onTap: () => context.push('/expert'),
-                        showDivider: false,
-                      ),
-                    ],
+                if (hasEnoughDataForExpert) ...[
+                  _SectionLabel(l.dossierExpertSectionTitle, l: l),
+                  MintSurface(
+                    tone: MintSurfaceTone.blanc,
+                    padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+                    child: _DossierRow(
+                      icon: Icons.person_search_outlined,
+                      title: l.dossierExpertSectionTitle,
+                      subtitle: l.expertSubtitle,
+                      onTap: () => context.push('/expert'),
+                      showDivider: false,
+                    ),
                   ),
-                ),
+                ],
 
                 const SizedBox(height: MintSpacing.xxl),
               ]),
@@ -414,6 +495,7 @@ class _ProfileSection extends StatelessWidget {
   final String firstName;
   final int confidencePct;
   final S l;
+  final List<EnrichmentPrompt> enrichmentPrompts;
 
   const _ProfileSection({
     required this.mintState,
@@ -421,6 +503,7 @@ class _ProfileSection extends StatelessWidget {
     required this.firstName,
     required this.confidencePct,
     required this.l,
+    this.enrichmentPrompts = const [],
   });
 
   /// Derive archetype display label from [FinancialArchetype].
@@ -552,6 +635,52 @@ class _ProfileSection extends StatelessWidget {
               minHeight: 4,
             ),
           ),
+
+          // ── Enrichment prompts (top actions to improve score) ──
+          if (enrichmentPrompts.isNotEmpty) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              l.dossierEnrichmentHint,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.textMuted,
+              ).copyWith(fontSize: 11),
+            ),
+            const SizedBox(height: 4),
+            // Show top 2 enrichment prompts max.
+            for (int i = 0; i < enrichmentPrompts.length && i < 2; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 12,
+                      color: MintColors.primary.withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        enrichmentPrompts[i].action,
+                        style: MintTextStyles.labelSmall(
+                          color: MintColors.primary,
+                        ).copyWith(fontSize: 11),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      '+${enrichmentPrompts[i].impact}\u00a0%',
+                      style: MintTextStyles.labelSmall(
+                        color: MintColors.success,
+                      ).copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
 
           // ── CTA when confidence is low ──
           if (hasProfile && confidenceLow) ...[

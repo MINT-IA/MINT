@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -20,7 +22,14 @@ class Retroactive3aScreen extends StatefulWidget {
 }
 
 class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
-  int _gapYears = 5;
+  /// Maximum retroactive years: capped at years since 2025 (first eligible year)
+  /// and at the OPP3 art. 7 maximum of 10.
+  static int get _maxRetroactiveYears {
+    final yearsSince2025 = DateTime.now().year - 2025;
+    return min(10, yearsSince2025).clamp(1, 10);
+  }
+
+  late int _gapYears = _maxRetroactiveYears.clamp(1, _maxRetroactiveYears);
   double _tauxMarginal = 0.30;
   bool _hasLpp = true;
 
@@ -160,15 +169,40 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           ),
           const SizedBox(height: MintSpacing.md),
 
-          // Gap years slider
-          _buildSliderRow(
-            label: S.of(context)!.retroactive3aAnneesARattraper,
-            value: _gapYears.toDouble(),
-            min: 1,
-            max: 10,
-            divisions: 9,
-            format: '$_gapYears an${_gapYears > 1 ? "s" : ""}',
-            onChanged: (v) => setState(() => _gapYears = v.round()),
+          // Gap years chips — max is dynamic: min(10, currentYear - 2025)
+          // In 2026, only 2025 is retroactively available (max = 1).
+          Text(
+            S.of(context)!.retroactive3aYearsChipsLabel,
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Wrap(
+            spacing: MintSpacing.xs,
+            runSpacing: MintSpacing.xs,
+            children: List.generate(
+              _maxRetroactiveYears,
+              (i) {
+                final year = i + 1;
+                final isSelected = _gapYears == year;
+                return ChoiceChip(
+                  label: Text('$year'),
+                  selected: isSelected,
+                  onSelected: (_) => setState(() => _gapYears = year),
+                  selectedColor: MintColors.primary.withValues(alpha: 0.15),
+                  backgroundColor: MintColors.surface,
+                  labelStyle: MintTextStyles.bodySmall(
+                    color: isSelected ? MintColors.primary : MintColors.textPrimary,
+                  ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+                  side: BorderSide(
+                    color: isSelected ? MintColors.primary : MintColors.border,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                );
+              },
+            ),
           ),
           const SizedBox(height: MintSpacing.md),
 
@@ -711,41 +745,4 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   // ── Shared helpers ────────────────────────────────────────────
 
-  Widget _buildSliderRow({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String format,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-            ),
-            Text(
-              format,
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
-                  .copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
 }

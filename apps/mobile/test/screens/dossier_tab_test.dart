@@ -331,8 +331,8 @@ void main() {
 
   // ── Section 6: Préférences ─────────────────────────────────────────────
 
-  group('Section 6 — Préférences', () {
-    testWidgets('shows préférences section label', (tester) async {
+  group('Section 6 — Settings (gear icon)', () {
+    testWidgets('shows gear icon in AppBar', (tester) async {
       tester.view.physicalSize = const Size(800, 5000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -343,10 +343,11 @@ void main() {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.textContaining('références'), findsOneWidget);
+      // Settings gear icon should be in the AppBar.
+      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
     });
 
-    testWidgets('shows consents row', (tester) async {
+    testWidgets('gear icon opens settings sheet with consents', (tester) async {
       tester.view.physicalSize = const Size(800, 5000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -357,10 +358,15 @@ void main() {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
+      // Tap the gear icon to open the settings sheet.
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.pumpAndSettle();
+
+      // Consents, SLM, BYOK, Coaching should appear in the sheet.
       expect(find.text('Consentements'), findsOneWidget);
     });
 
-    testWidgets('shows specialist row inside préférences', (tester) async {
+    testWidgets('gear icon opens settings sheet with coaching', (tester) async {
       tester.view.physicalSize = const Size(800, 5000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -371,8 +377,11 @@ void main() {
       await tester.pumpWidget(buildDossierTab());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      // Specialist is now a row inside Préférences, not a standalone section.
-      expect(find.textContaining('pécialiste'), findsWidgets);
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.pumpAndSettle();
+
+      // Coaching adaptatif (i18n: "Accompagnement") should appear in the settings sheet.
+      expect(find.textContaining('Accompagnement'), findsWidgets);
     });
   });
 

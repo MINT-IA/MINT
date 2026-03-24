@@ -22989,4 +22989,350 @@ class SPt extends S {
   @override
   String get visibilityHintSecuriteComplete =>
       'Os teus dados de segurança estão completos';
+
+  @override
+  String get exploreHubRetraiteIntro =>
+      'Cada ano que passa muda as tuas opções. Eis onde estás.';
+
+  @override
+  String get exploreHubFamilleIntro =>
+      'Casamento, nascimento, separação: cada marco tem um impacto financeiro.';
+
+  @override
+  String get exploreHubTravailIntro =>
+      'O teu estado profissional determina os teus direitos. Verifica-os.';
+
+  @override
+  String get exploreHubLogementIntro =>
+      'Comprar, alugar, mudar: os números antes da decisão.';
+
+  @override
+  String get exploreHubFiscaliteIntro =>
+      'Cada franco deduzido é um franco ganho. Encontra as tuas alavancas.';
+
+  @override
+  String get exploreHubPatrimoineIntro =>
+      'O que transmites merece tanta atenção quanto o que ganhas.';
+
+  @override
+  String get exploreHubSanteIntro =>
+      'A tua cobertura protege-te — ou custa demasiado. Verifica.';
+
+  @override
+  String get exploreTalkToMint => 'Falar com o MINT';
+
+  @override
+  String get dossierSettingsTitle => 'Definições';
+
+  @override
+  String get dossierEnrichmentHint => 'Para melhorar a precisão:';
+
+  @override
+  String get pulseBudgetATitle => 'Hoje';
+
+  @override
+  String get pulseBudgetBTitle => 'Na reforma';
+
+  @override
+  String get pulseBudgetRevenu => 'Rendimento';
+
+  @override
+  String get pulseBudgetCharges => 'Encargos';
+
+  @override
+  String get pulseBudgetLibre => 'Livre';
+
+  @override
+  String get pulseBudgetRetirementNet => 'Líquido reforma';
+
+  @override
+  String get pulseBudgetGap => 'Diferença';
+
+  @override
+  String get sim3aTaxRateChipsLabel => 'Taxa marginal de imposto';
+
+  @override
+  String get sim3aReturnChipsLabel => 'Rendimento esperado';
+
+  @override
+  String get sim3aYearsAutoLabel => 'Anos até à reforma';
+
+  @override
+  String get sim3aContributionFieldLabel => 'Contribuição anual';
+
+  @override
+  String get sim3aProfilePreFilled => 'Preenchido a partir do teu perfil';
+
+  @override
+  String sim3aProfileEstimatedRate(String rate, String canton) {
+    return 'A tua taxa marginal estimada: $rate% ($canton)';
+  }
+
+  @override
+  String sim3aYearsReadOnly(int years) {
+    return '$years anos (calculado a partir da tua idade)';
+  }
+
+  @override
+  String get renteVsCapitalRetirementAgeChips => 'Idade de reforma';
+
+  @override
+  String get renteVsCapitalLifeExpectancyChips => 'Esperança de vida';
+
+  @override
+  String get budgetEnvelopeFieldHint => 'Montante em CHF';
+
+  @override
+  String get budgetEnvelopeFieldFuture => 'Poupança futura (CHF/mês)';
+
+  @override
+  String get budgetEnvelopeFieldVariables => 'Despesas variáveis (CHF/mês)';
+
+  @override
+  String get retroactive3aYearsChipsLabel => 'Anos a recuperar';
+
+  @override
+  String get lightningMenuTitle => 'O que queres explorar?';
+
+  @override
+  String get lightningMenuSubtitle => 'MINT calcula, tu decides.';
+
+  @override
+  String get lightningMenuRetirementTitle => 'A minha visão da reforma';
+
+  @override
+  String get lightningMenuRetirementSubtitle => 'Quanto vais manter na reforma';
+
+  @override
+  String get lightningMenuRetirementAction => 'Quanto na reforma?';
+
+  @override
+  String get lightningMenuBudgetTitle => 'O meu orçamento';
+
+  @override
+  String get lightningMenuBudgetSubtitle =>
+      'Para onde vai o teu dinheiro este mês';
+
+  @override
+  String get lightningMenuBudgetAction => 'O meu orçamento este mês';
+
+  @override
+  String get lightningMenuRenteCapitalTitle => 'Renda ou capital?';
+
+  @override
+  String get lightningMenuRenteCapitalSubtitle => 'Comparar ambos os cenários';
+
+  @override
+  String get lightningMenuRenteCapitalAction => 'Renda ou capital?';
+
+  @override
+  String get lightningMenuScoreTitle => 'A minha pontuação fitness';
+
+  @override
+  String get lightningMenuScoreSubtitle => 'A tua saúde financeira de relance';
+
+  @override
+  String get lightningMenuScoreAction => 'A minha pontuação financeira';
+
+  @override
+  String get lightningMenuCoupleTitle => 'A nossa situação a dois';
+
+  @override
+  String get lightningMenuCoupleSubtitle => 'Previdência e património em casal';
+
+  @override
+  String get lightningMenuCoupleAction => 'A nossa previdência em casal';
+
+  @override
+  String get lightningMenuDebtTitle => 'Sair da dívida';
+
+  @override
+  String get lightningMenuDebtSubtitle =>
+      'Um plano para reduzir os teus encargos';
+
+  @override
+  String get lightningMenuDebtAction => 'Como reduzir a minha dívida?';
+
+  @override
+  String get lightningMenuIndependantTitle => 'A minha rede de segurança';
+
+  @override
+  String get lightningMenuIndependantSubtitle =>
+      'Cobertura e proteção como independente';
+
+  @override
+  String get lightningMenuIndependantAction =>
+      'A minha cobertura como independente';
+
+  @override
+  String get lightningMenuRetirementPrepTitle => 'Preparar a minha reforma';
+
+  @override
+  String get lightningMenuRetirementPrepSubtitle =>
+      'Os últimos anos contam a dobrar';
+
+  @override
+  String get lightningMenuRetirementPrepAction => 'O meu plano de reforma';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Compreender o meu recibo de salário';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Bruto, líquido, deduções: tudo claro';
+
+  @override
+  String get lightningMenuPayslipAction => 'Explica-me o meu recibo de salário';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'O que são os 3 pilares?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'O sistema suíço em 2 minutos';
+
+  @override
+  String get lightningMenuThreePillarsAction =>
+      'O que são os 3 pilares suíços?';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Digitalizar um documento';
+
+  @override
+  String get lightningMenuScanDocSubtitle =>
+      'Certificado LPP, recibo, impostos';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'O meu primeiro orçamento';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Saber para onde vai o teu dinheiro cada mês';
+
+  @override
+  String get lightningMenuFirstBudgetAction =>
+      'Ajuda-me a fazer o meu orçamento';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Onde reduzir impostos';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Deduções e alavancas fiscais';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'Como pagar menos impostos?';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Completar o perfil';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'Quanto mais preciso, mais justo é o MINT';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'Resgatar LPP';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'Uma alavanca fiscal muitas vezes subestimada';
+
+  @override
+  String get lightningMenuLppBuybackAction => 'Vale a pena um resgate LPP?';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'O meu orçamento vivo';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'O teu equilíbrio este mês, atualizado';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'Onde estou?';
+
+  @override
+  String get budgetSnapshotTitle => 'O teu orçamento vivo';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Livre hoje';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Livre na reforma';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Lacuna';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Fiabilidade';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Adiciona dados para refinar.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Estimativa credível.';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Alavanca';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'O teu livre mensal';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Descobre a tua situação de reforma em 30 segundos';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'Algumas informações bastam para uma primeira visão personalizada.';
+
+  @override
+  String get onboardingSmartFirstNameLabel => 'Como te chamas?';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'O teu nome (opcional)';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Entrada direta';
+
+  @override
+  String get onboardingSmartSeeResult => 'Ver o meu resultado';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin). As estimativas baseiam-se nas tabelas de 2025 e podem variar.';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Escolhe a tua idade';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'O teu país de origem';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Escolhe o teu cantão';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'Nenhum cantão encontrado';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'O teu salário bruto anual';
+
+  @override
+  String get onboardingSmartAgeLabel => 'A tua idade';
+
+  @override
+  String get onboardingSmartEmploymentLabel => 'A tua situação profissional';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'A tua nacionalidade';
+
+  @override
+  String get onboardingSmartCantonLabel => 'O teu cantão';
+
+  @override
+  String get onboardingAgeInvalid => 'A idade deve estar entre 18 e 75';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Pesquisar (ex. VD, Vaud)';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/ano';
 }

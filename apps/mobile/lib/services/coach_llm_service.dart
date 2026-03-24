@@ -182,6 +182,11 @@ class ChatMessage {
   /// The card is rendered in CoachChatScreen._buildDocumentCard.
   final DocumentToolPayload? documentPayload;
 
+  /// Rich tool calls to render inline via [WidgetRenderer].
+  /// These are display tools like show_fact_card, show_budget_snapshot,
+  /// show_score_gauge, ask_user_input, etc.
+  final List<RagToolCall> richToolCalls;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -193,6 +198,7 @@ class ChatMessage {
     this.responseCards = const [],
     this.routePayload,
     this.documentPayload,
+    this.richToolCalls = const [],
   });
 
   bool get isUser => role == 'user';
@@ -204,6 +210,9 @@ class ChatMessage {
 
   /// Whether this message carries a generated document card.
   bool get hasDocumentPayload => documentPayload != null;
+
+  /// Whether this message carries rich tool calls for inline rendering.
+  bool get hasRichToolCalls => richToolCalls.isNotEmpty;
 }
 
 /// Reponse du coach LLM

@@ -865,45 +865,41 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   Widget _buildRetirementAgeSlider() {
+    final l = S.of(context)!;
+    // Retirement age chips: 58 to 70.
+    const ageOptions = [58, 60, 62, 63, 64, 65, 66, 67, 70];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(S.of(context)!.renteVsCapitalRetirementAge, style: _labelStyle),
-            const Spacer(),
-            ValueListenableBuilder<double>(
-              valueListenable: _ageRetraiteSlider,
-              builder: (_, v, __) => Text(
-                S.of(context)!.renteVsCapitalAgeYears(v.round()),
-                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Semantics(
-          label: S.of(context)!.renteVsCapitalRetirementAge,
-          slider: true,
-          child: SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withAlpha(30),
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            ),
-            child: Slider(
-              value: _ageRetraiteSlider.value,
-              min: 58, max: 70, divisions: 12,
-              onChanged: (v) {
-                _ageRetraiteSlider.value = v;
+        Text(l.renteVsCapitalRetirementAgeChips, style: _labelStyle),
+        const SizedBox(height: MintSpacing.sm),
+        Wrap(
+          spacing: MintSpacing.xs,
+          runSpacing: MintSpacing.xs,
+          children: ageOptions.map((age) {
+            final isSelected = _ageRetraiteSlider.value.round() == age;
+            return ChoiceChip(
+              label: Text('$age'),
+              selected: isSelected,
+              onSelected: (_) {
+                _ageRetraiteSlider.value = age.toDouble();
                 _recalculate();
               },
-            ),
-          ),
+              selectedColor: MintColors.primary.withValues(alpha: 0.15),
+              backgroundColor: MintColors.surface,
+              labelStyle: MintTextStyles.bodySmall(
+                color: isSelected ? MintColors.primary : MintColors.textPrimary,
+              ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+              side: BorderSide(
+                color: isSelected ? MintColors.primary : MintColors.border,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              visualDensity: VisualDensity.compact,
+            );
+          }).toList(),
         ),
       ],
     );
@@ -1213,36 +1209,38 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Slider: "Et si je vis jusqu'a..." ──
+          // ── Life expectancy: chips ──
           Text(
-            S.of(context)!.renteVsCapitalLifeExpectancy,
+            S.of(context)!.renteVsCapitalLifeExpectancyChips,
             style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Semantics(
-            label: S.of(context)!.renteVsCapitalLifeExpectancy,
-            slider: true,
-            child: SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: MintColors.primary,
-                inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-                thumbColor: MintColors.primary,
-                overlayColor: MintColors.primary.withAlpha(30),
-                trackHeight: 6,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-                showValueIndicator: ShowValueIndicator.always,
-              ),
-              child: Slider(
-                value: _lifeExpectancy,
-                min: 70, max: 100, divisions: 30,
-                label: S.of(context)!.renteVsCapitalAgeYears(_lifeExpectancy.round()),
-                onChanged: (v) {
-                  setState(() => _lifeExpectancy = v);
+          Wrap(
+            spacing: MintSpacing.xs,
+            runSpacing: MintSpacing.xs,
+            children: [75, 80, 85, 90, 95, 100].map((age) {
+              final isSelected = _lifeExpectancy.round() == age;
+              return ChoiceChip(
+                label: Text(S.of(context)!.renteVsCapitalAgeYears(age)),
+                selected: isSelected,
+                onSelected: (_) {
+                  setState(() => _lifeExpectancy = age.toDouble());
                   _recalculate();
                 },
-              ),
-            ),
+                selectedColor: MintColors.primary.withValues(alpha: 0.15),
+                backgroundColor: MintColors.surface,
+                labelStyle: MintTextStyles.bodySmall(
+                  color: isSelected ? MintColors.primary : MintColors.textPrimary,
+                ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+                side: BorderSide(
+                  color: isSelected ? MintColors.primary : MintColors.border,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                visualDensity: VisualDensity.compact,
+              );
+            }).toList(),
           ),
           _buildDeltaAtAge(_lifeExpectancy.round()),
           const SizedBox(height: MintSpacing.xs),

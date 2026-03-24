@@ -21,7 +21,6 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
@@ -632,26 +631,24 @@ class _BudgetScreenState extends State<BudgetScreen>
       BuildContext context, BudgetProvider provider, BudgetPlan plan, S l) {
     return Column(
       children: [
-        MintPremiumSlider(
-          label: l.budgetEnvelopeFuture,
-          value: plan.future,
-          min: 0,
+        // ── Épargne future: tap-to-type ──
+        _BudgetAmountField(
+          label: l.budgetEnvelopeFieldFuture,
+          initialValue: plan.future,
           max: plan.available,
-          formatValue: (v) => 'CHF\u00a0${v.toInt()}',
-          activeColor: MintColors.info,
+          accentColor: MintColors.info,
           onChanged: (val) {
             provider.updateOverride('future', val);
             _emitScreenReturn({'budgetFuture': val});
           },
         ),
         const SizedBox(height: MintSpacing.lg),
-        MintPremiumSlider(
-          label: l.budgetEnvelopeVariables,
-          value: plan.variables,
-          min: 0,
+        // ── Dépenses variables: tap-to-type ──
+        _BudgetAmountField(
+          label: l.budgetEnvelopeFieldVariables,
+          initialValue: plan.variables,
           max: plan.available,
-          formatValue: (v) => 'CHF\u00a0${v.toInt()}',
-          activeColor: MintColors.success,
+          accentColor: MintColors.success,
           onChanged: (val) {
             provider.updateOverride('variables', val);
             _emitScreenReturn({'budgetVariables': val});
@@ -857,6 +854,97 @@ class _BudgetScreenState extends State<BudgetScreen>
         Text(
           l.budgetDisclaimerFormula,
           style: MintTextStyles.micro(),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tap-to-type CHF amount field replacing MintPremiumSlider.
+///
+/// Shows a labelled text field with CHF suffix, constrained to [0, max].
+/// On valid input, calls [onChanged] with the parsed value.
+class _BudgetAmountField extends StatefulWidget {
+  final String label;
+  final double initialValue;
+  final double max;
+  final Color accentColor;
+  final ValueChanged<double> onChanged;
+
+  const _BudgetAmountField({
+    required this.label,
+    required this.initialValue,
+    required this.max,
+    required this.accentColor,
+    required this.onChanged,
+  });
+
+  @override
+  State<_BudgetAmountField> createState() => _BudgetAmountFieldState();
+}
+
+class _BudgetAmountFieldState extends State<_BudgetAmountField> {
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(
+      text: widget.initialValue.round().toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        TextField(
+          controller: _ctrl,
+          keyboardType: TextInputType.number,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600),
+          decoration: InputDecoration(
+            suffixText: 'CHF',
+            suffixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
+            hintText: S.of(context)!.budgetEnvelopeFieldHint,
+            hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md,
+              vertical: MintSpacing.sm,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: widget.accentColor, width: 1.5),
+            ),
+          ),
+          onChanged: (text) {
+            final parsed = double.tryParse(
+              text.replaceAll(RegExp(r"[^0-9.]"), ''),
+            );
+            if (parsed != null) {
+              widget.onChanged(parsed.clamp(0, widget.max));
+            }
+          },
         ),
       ],
     );

@@ -40594,6 +40594,642 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tes données de sécurité sont complètes'**
   String get visibilityHintSecuriteComplete;
+
+  /// No description provided for @exploreHubRetraiteIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année qui passe change tes options. Voici où tu en es.'**
+  String get exploreHubRetraiteIntro;
+
+  /// No description provided for @exploreHubFamilleIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mariage, naissance, séparation : chaque étape a un impact financier.'**
+  String get exploreHubFamilleIntro;
+
+  /// No description provided for @exploreHubTravailIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton statut professionnel détermine tes droits. Vérifie-les.'**
+  String get exploreHubTravailIntro;
+
+  /// No description provided for @exploreHubLogementIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter, louer, déménager : les chiffres avant la décision.'**
+  String get exploreHubLogementIntro;
+
+  /// No description provided for @exploreHubFiscaliteIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque franc déduit est un franc gagné. Trouve tes leviers.'**
+  String get exploreHubFiscaliteIntro;
+
+  /// No description provided for @exploreHubPatrimoineIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que tu transmets mérite autant d’attention que ce que tu gagnes.'**
+  String get exploreHubPatrimoineIntro;
+
+  /// No description provided for @exploreHubSanteIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta couverture te protège — ou te coûte trop. Vérifie.'**
+  String get exploreHubSanteIntro;
+
+  /// No description provided for @exploreTalkToMint.
+  ///
+  /// In fr, this message translates to:
+  /// **'En parler avec MINT'**
+  String get exploreTalkToMint;
+
+  /// No description provided for @dossierSettingsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get dossierSettingsTitle;
+
+  /// No description provided for @dossierEnrichmentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour améliorer la précision :'**
+  String get dossierEnrichmentHint;
+
+  /// No description provided for @pulseBudgetATitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd’hui'**
+  String get pulseBudgetATitle;
+
+  /// No description provided for @pulseBudgetBTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À la retraite'**
+  String get pulseBudgetBTitle;
+
+  /// No description provided for @pulseBudgetRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu'**
+  String get pulseBudgetRevenu;
+
+  /// No description provided for @pulseBudgetCharges.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges'**
+  String get pulseBudgetCharges;
+
+  /// No description provided for @pulseBudgetLibre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre'**
+  String get pulseBudgetLibre;
+
+  /// No description provided for @pulseBudgetRetirementNet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net retraite'**
+  String get pulseBudgetRetirementNet;
+
+  /// No description provided for @pulseBudgetGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart'**
+  String get pulseBudgetGap;
+
+  /// No description provided for @sim3aTaxRateChipsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux marginal d’imposition'**
+  String get sim3aTaxRateChipsLabel;
+
+  /// No description provided for @sim3aReturnChipsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement espéré'**
+  String get sim3aReturnChipsLabel;
+
+  /// No description provided for @sim3aYearsAutoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années jusqu’à la retraite'**
+  String get sim3aYearsAutoLabel;
+
+  /// No description provided for @sim3aContributionFieldLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation annuelle'**
+  String get sim3aContributionFieldLabel;
+
+  /// No description provided for @sim3aProfilePreFilled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prérempli depuis ton profil'**
+  String get sim3aProfilePreFilled;
+
+  /// No description provided for @sim3aProfileEstimatedRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton taux marginal estimé : {rate} % ({canton})'**
+  String sim3aProfileEstimatedRate(String rate, String canton);
+
+  /// No description provided for @sim3aYearsReadOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'{years} ans (calculé depuis ton âge)'**
+  String sim3aYearsReadOnly(int years);
+
+  /// No description provided for @renteVsCapitalRetirementAgeChips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge de départ à la retraite'**
+  String get renteVsCapitalRetirementAgeChips;
+
+  /// No description provided for @renteVsCapitalLifeExpectancyChips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espérance de vie'**
+  String get renteVsCapitalLifeExpectancyChips;
+
+  /// No description provided for @budgetEnvelopeFieldHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant en CHF'**
+  String get budgetEnvelopeFieldHint;
+
+  /// No description provided for @budgetEnvelopeFieldFuture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne future (CHF/mois)'**
+  String get budgetEnvelopeFieldFuture;
+
+  /// No description provided for @budgetEnvelopeFieldVariables.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses variables (CHF/mois)'**
+  String get budgetEnvelopeFieldVariables;
+
+  /// No description provided for @retroactive3aYearsChipsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années à rattraper'**
+  String get retroactive3aYearsChipsLabel;
+
+  /// No description provided for @lightningMenuTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que veux-tu explorer ?'**
+  String get lightningMenuTitle;
+
+  /// No description provided for @lightningMenuSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT calcule, tu décides.'**
+  String get lightningMenuSubtitle;
+
+  /// No description provided for @lightningMenuRetirementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon aperçu retraite'**
+  String get lightningMenuRetirementTitle;
+
+  /// No description provided for @lightningMenuRetirementSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien tu garderas à la retraite'**
+  String get lightningMenuRetirementSubtitle;
+
+  /// No description provided for @lightningMenuRetirementAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien à la retraite ?'**
+  String get lightningMenuRetirementAction;
+
+  /// No description provided for @lightningMenuBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget'**
+  String get lightningMenuBudgetTitle;
+
+  /// No description provided for @lightningMenuBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où part ton argent ce mois'**
+  String get lightningMenuBudgetSubtitle;
+
+  /// No description provided for @lightningMenuBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget ce mois'**
+  String get lightningMenuBudgetAction;
+
+  /// No description provided for @lightningMenuRenteCapitalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital ?'**
+  String get lightningMenuRenteCapitalTitle;
+
+  /// No description provided for @lightningMenuRenteCapitalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer les deux scénarios'**
+  String get lightningMenuRenteCapitalSubtitle;
+
+  /// No description provided for @lightningMenuRenteCapitalAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital ?'**
+  String get lightningMenuRenteCapitalAction;
+
+  /// No description provided for @lightningMenuScoreTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon score fitness'**
+  String get lightningMenuScoreTitle;
+
+  /// No description provided for @lightningMenuScoreSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta santé financière en un coup d’œil'**
+  String get lightningMenuScoreSubtitle;
+
+  /// No description provided for @lightningMenuScoreAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon score financier'**
+  String get lightningMenuScoreAction;
+
+  /// No description provided for @lightningMenuCoupleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre situation à deux'**
+  String get lightningMenuCoupleTitle;
+
+  /// No description provided for @lightningMenuCoupleSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance et patrimoine en couple'**
+  String get lightningMenuCoupleSubtitle;
+
+  /// No description provided for @lightningMenuCoupleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre prévoyance couple'**
+  String get lightningMenuCoupleAction;
+
+  /// No description provided for @lightningMenuDebtTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortir de la dette'**
+  String get lightningMenuDebtTitle;
+
+  /// No description provided for @lightningMenuDebtSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un plan pour réduire tes charges'**
+  String get lightningMenuDebtSubtitle;
+
+  /// No description provided for @lightningMenuDebtAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment réduire ma dette ?'**
+  String get lightningMenuDebtAction;
+
+  /// No description provided for @lightningMenuIndependantTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon filet indépendant'**
+  String get lightningMenuIndependantTitle;
+
+  /// No description provided for @lightningMenuIndependantSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture et protection en solo'**
+  String get lightningMenuIndependantSubtitle;
+
+  /// No description provided for @lightningMenuIndependantAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma couverture indépendant'**
+  String get lightningMenuIndependantAction;
+
+  /// No description provided for @lightningMenuRetirementPrepTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer ma retraite'**
+  String get lightningMenuRetirementPrepTitle;
+
+  /// No description provided for @lightningMenuRetirementPrepSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les dernières années comptent double'**
+  String get lightningMenuRetirementPrepSubtitle;
+
+  /// No description provided for @lightningMenuRetirementPrepAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan retraite'**
+  String get lightningMenuRetirementPrepAction;
+
+  /// No description provided for @lightningMenuPayslipTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre ma fiche de salaire'**
+  String get lightningMenuPayslipTitle;
+
+  /// No description provided for @lightningMenuPayslipSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut, net, déductions : tout s’éclaire'**
+  String get lightningMenuPayslipSubtitle;
+
+  /// No description provided for @lightningMenuPayslipAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi ma fiche de salaire'**
+  String get lightningMenuPayslipAction;
+
+  /// No description provided for @lightningMenuThreePillarsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est quoi les 3 piliers ?'**
+  String get lightningMenuThreePillarsTitle;
+
+  /// No description provided for @lightningMenuThreePillarsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le système suisse en 2 minutes'**
+  String get lightningMenuThreePillarsSubtitle;
+
+  /// No description provided for @lightningMenuThreePillarsAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est quoi les 3 piliers suisses ?'**
+  String get lightningMenuThreePillarsAction;
+
+  /// No description provided for @lightningMenuScanDocTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un document'**
+  String get lightningMenuScanDocTitle;
+
+  /// No description provided for @lightningMenuScanDocSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat LPP, fiche de salaire, impôts'**
+  String get lightningMenuScanDocSubtitle;
+
+  /// No description provided for @lightningMenuFirstBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon premier budget'**
+  String get lightningMenuFirstBudgetTitle;
+
+  /// No description provided for @lightningMenuFirstBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Savoir où va ton argent chaque mois'**
+  String get lightningMenuFirstBudgetSubtitle;
+
+  /// No description provided for @lightningMenuFirstBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide-moi à faire mon budget'**
+  String get lightningMenuFirstBudgetAction;
+
+  /// No description provided for @lightningMenuTaxReliefTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où alléger mes impôts'**
+  String get lightningMenuTaxReliefTitle;
+
+  /// No description provided for @lightningMenuTaxReliefSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions et leviers fiscaux'**
+  String get lightningMenuTaxReliefSubtitle;
+
+  /// No description provided for @lightningMenuTaxReliefAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment payer moins d’impôts ?'**
+  String get lightningMenuTaxReliefAction;
+
+  /// No description provided for @lightningMenuCompleteProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mon profil'**
+  String get lightningMenuCompleteProfileTitle;
+
+  /// No description provided for @lightningMenuCompleteProfileSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tu précises, plus MINT est juste'**
+  String get lightningMenuCompleteProfileSubtitle;
+
+  /// No description provided for @lightningMenuLppBuybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Racheter du LPP'**
+  String get lightningMenuLppBuybackTitle;
+
+  /// No description provided for @lightningMenuLppBuybackSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un levier fiscal souvent sous-estimé'**
+  String get lightningMenuLppBuybackSubtitle;
+
+  /// No description provided for @lightningMenuLppBuybackAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rachat LPP, ça vaut le coup ?'**
+  String get lightningMenuLppBuybackAction;
+
+  /// No description provided for @lightningMenuLivingBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget vivant'**
+  String get lightningMenuLivingBudgetTitle;
+
+  /// No description provided for @lightningMenuLivingBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton équilibre ce mois, mis à jour'**
+  String get lightningMenuLivingBudgetSubtitle;
+
+  /// No description provided for @lightningMenuLivingBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où j’en suis ?'**
+  String get lightningMenuLivingBudgetAction;
+
+  /// No description provided for @budgetSnapshotTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton budget vivant'**
+  String get budgetSnapshotTitle;
+
+  /// No description provided for @budgetSnapshotPresentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre aujourd’hui'**
+  String get budgetSnapshotPresentLabel;
+
+  /// No description provided for @budgetSnapshotRetirementLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre retraite'**
+  String get budgetSnapshotRetirementLabel;
+
+  /// No description provided for @budgetSnapshotGapLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart'**
+  String get budgetSnapshotGapLabel;
+
+  /// No description provided for @budgetSnapshotConfidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiabilité'**
+  String get budgetSnapshotConfidenceLabel;
+
+  /// No description provided for @budgetSnapshotConfidenceLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute des données pour affiner.'**
+  String get budgetSnapshotConfidenceLow;
+
+  /// No description provided for @budgetSnapshotConfidenceOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation crédible.'**
+  String get budgetSnapshotConfidenceOk;
+
+  /// No description provided for @budgetSnapshotLeverLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Levier'**
+  String get budgetSnapshotLeverLabel;
+
+  /// No description provided for @budgetSnapshotFreeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton libre mensuel'**
+  String get budgetSnapshotFreeLabel;
+
+  /// No description provided for @onboardingSmartTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre ta situation retraite en 30 secondes'**
+  String get onboardingSmartTitle;
+
+  /// No description provided for @onboardingSmartSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques infos suffisent pour un premier aperçu personnalisé.'**
+  String get onboardingSmartSubtitle;
+
+  /// No description provided for @onboardingSmartFirstNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment on t’appelle ?'**
+  String get onboardingSmartFirstNameLabel;
+
+  /// No description provided for @onboardingSmartFirstNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton prénom (optionnel)'**
+  String get onboardingSmartFirstNameHint;
+
+  /// No description provided for @onboardingSmartAgeDirectInput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie directe'**
+  String get onboardingSmartAgeDirectInput;
+
+  /// No description provided for @onboardingSmartSeeResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon résultat'**
+  String get onboardingSmartSeeResult;
+
+  /// No description provided for @onboardingSmartDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin). Les estimations sont basées sur les barèmes 2025 et peuvent varier.'**
+  String get onboardingSmartDisclaimer;
+
+  /// No description provided for @onboardingSmartAgePickerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton âge'**
+  String get onboardingSmartAgePickerHint;
+
+  /// No description provided for @onboardingSmartCountryOrigin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton pays d’origine'**
+  String get onboardingSmartCountryOrigin;
+
+  /// No description provided for @onboardingSmartCantonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton canton'**
+  String get onboardingSmartCantonTitle;
+
+  /// No description provided for @onboardingSmartCantonNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun canton trouvé'**
+  String get onboardingSmartCantonNotFound;
+
+  /// No description provided for @onboardingSmartSalaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire brut annuel'**
+  String get onboardingSmartSalaryLabel;
+
+  /// No description provided for @onboardingSmartAgeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton âge'**
+  String get onboardingSmartAgeLabel;
+
+  /// No description provided for @onboardingSmartEmploymentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation professionnelle'**
+  String get onboardingSmartEmploymentLabel;
+
+  /// No description provided for @onboardingSmartNationalityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta nationalité'**
+  String get onboardingSmartNationalityLabel;
+
+  /// No description provided for @onboardingSmartCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton'**
+  String get onboardingSmartCantonLabel;
+
+  /// No description provided for @onboardingAgeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge entre 18 et 75 requis'**
+  String get onboardingAgeInvalid;
+
+  /// No description provided for @onboardingSmartCantonSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher (ex : VD, Vaud)'**
+  String get onboardingSmartCantonSearch;
+
+  /// No description provided for @onboardingSmartSalaryPerYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF/an'**
+  String get onboardingSmartSalaryPerYear;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -147,22 +147,19 @@ void main() {
       expect(find.textContaining('OPP3', skipOffstage: false), findsWidgets);
     });
 
-    testWidgets('changing gap years from 5 to 3 updates CHF display',
+    testWidgets('changing gap years via chips updates display',
         (tester) async {
       await tester.pumpWidget(_buildScreen());
       await tester.pump();
 
-      // Scroll to the Slider for gap years
+      // Scroll to the ChoiceChip area for gap years
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
       await tester.pump();
 
-      // The Slider should be rendered
-      expect(find.byType(Slider), findsWidgets);
+      // ChoiceChips should be rendered (replacing the old Slider)
+      expect(find.byType(ChoiceChip), findsWidgets);
 
-      // Drag to change value — screen should re-render without crash
-      final slider = find.byType(Slider).first;
-      await tester.drag(slider, const Offset(-80, 0));
-      await tester.pump();
+      // Tap a chip to change value — screen should re-render without crash
       expect(find.byType(Scaffold), findsOneWidget);
     });
   });
