@@ -749,20 +749,20 @@ void main() {
   //  GROUP 9 — CoupleOptimizer: edge cases
   // ══════════════════════════════════════════════════════════════════════════
 
-  GoalA _retraiteGoal() => GoalA(
+  GoalA retraiteGoal() => GoalA(
         type: GoalAType.retraite,
         targetDate: DateTime(2042, 1, 1),
         label: 'Retraite',
       );
 
-  CoachProfile _julienProfile() => CoachProfile(
+  CoachProfile julienProfile() => CoachProfile(
         firstName: 'Julien',
         birthYear: 1977,
         canton: 'VS',
         salaireBrutMensuel: 10184,
         nombreDeMois: 12,
         etatCivil: CoachCivilStatus.marie,
-        goalA: _retraiteGoal(),
+        goalA: retraiteGoal(),
         prevoyance: const PrevoyanceProfile(
           avoirLppTotal: 70377,
           rachatMaximum: 539414,
@@ -775,7 +775,7 @@ void main() {
       // Simulates a divorced user who has no conjoint in the profile.
       // optimize() must return empty and never throw.
       final result = CoupleOptimizer.optimize(
-        mainUser: _julienProfile(),
+        mainUser: julienProfile(),
         conjoint: null,
       );
       expect(result.hasResults, isFalse,
@@ -794,7 +794,7 @@ void main() {
         salaireBrutMensuel: 0,
       );
       final result = CoupleOptimizer.optimize(
-        mainUser: _julienProfile(),
+        mainUser: julienProfile(),
         conjoint: conjointZeroSalary,
       );
       expect(result.hasResults, isFalse,
@@ -810,7 +810,7 @@ void main() {
   //  GROUP 10 — BudgetLivingEngine: retired age edge cases
   // ══════════════════════════════════════════════════════════════════════════
 
-  CoachProfile _profileAtAge(int birthYear) => CoachProfile(
+  CoachProfile profileAtAge(int birthYear) => CoachProfile(
         birthYear: birthYear,
         canton: 'VS',
         salaireBrutMensuel: 5000,
@@ -827,7 +827,7 @@ void main() {
   group('BudgetLivingEngine — retired mode (age >= targetRetirementAge)', () {
     test('G10.1 age 70 → does NOT return presentOnly (isRetired=true path)', () {
       // birthYear such that age == 70 in the current year.
-      final profile = _profileAtAge(DateTime.now().year - 70);
+      final profile = profileAtAge(DateTime.now().year - 70);
       final snapshot = BudgetLivingEngine.compute(profile);
       // Must NOT be presentOnly — retired users get fullGapVisible or
       // emergingRetirement (from the isRetired branch).
@@ -839,7 +839,7 @@ void main() {
     });
 
     test('G10.2 age 75 → does NOT return presentOnly (isRetired=true path)', () {
-      final profile = _profileAtAge(DateTime.now().year - 75);
+      final profile = profileAtAge(DateTime.now().year - 75);
       final snapshot = BudgetLivingEngine.compute(profile);
       expect(
         snapshot.stage,
@@ -849,7 +849,7 @@ void main() {
     });
 
     test('G10.3 age 70 → confidenceScore is a valid number (not NaN)', () {
-      final profile = _profileAtAge(DateTime.now().year - 70);
+      final profile = profileAtAge(DateTime.now().year - 70);
       final snapshot = BudgetLivingEngine.compute(profile);
       expect(snapshot.confidenceScore.isNaN, isFalse);
       expect(snapshot.confidenceScore.isInfinite, isFalse);
@@ -857,7 +857,7 @@ void main() {
     });
 
     test('G10.4 age 75 → never throws', () {
-      final profile = _profileAtAge(DateTime.now().year - 75);
+      final profile = profileAtAge(DateTime.now().year - 75);
       expect(() => BudgetLivingEngine.compute(profile), returnsNormally);
     });
   });

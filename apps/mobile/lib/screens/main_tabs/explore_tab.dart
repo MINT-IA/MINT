@@ -32,7 +32,7 @@ class ExploreTab extends StatelessWidget {
     final promotedIds = _promotedHubIds(userAge);
 
     // Build full hub list in canonical order.
-    final allHubs = _buildAllHubs(l, context);
+    final allHubs = _buildAllHubs(l, context, userAge: userAge);
 
     // Split into promoted (top 3) and compact (bottom 4).
     final promoted = <_HubData>[];
@@ -146,16 +146,40 @@ class ExploreTab extends StatelessWidget {
     return ['travail', 'logement', 'famille'];
   }
 
+  /// Age-adaptive intro phrase for Retraite hub.
+  String _retraiteIntro(int? age, S l) {
+    if (age != null && age >= 55) return l.exploreHubRetraiteIntro55plus;
+    if (age != null && age >= 40) return l.exploreHubRetraiteIntro40plus;
+    if (age != null) return l.exploreHubRetraiteIntroYoung;
+    return l.exploreHubRetraiteIntro;
+  }
+
+  /// Age-adaptive intro phrase for Travail hub.
+  String _travailIntro(int? age, S l) {
+    if (age != null && age >= 55) return l.exploreHubTravailIntro55plus;
+    if (age != null && age >= 40) return l.exploreHubTravailIntro40plus;
+    if (age != null) return l.exploreHubTravailIntroYoung;
+    return l.exploreHubTravailIntro;
+  }
+
+  /// Age-adaptive intro phrase for Logement hub.
+  String _logementIntro(int? age, S l) {
+    if (age != null && age >= 55) return l.exploreHubLogementIntro55plus;
+    if (age != null && age >= 40) return l.exploreHubLogementIntro40plus;
+    if (age != null) return l.exploreHubLogementIntroYoung;
+    return l.exploreHubLogementIntro;
+  }
+
   /// Build canonical list of all 7 hubs with metadata.
   ///
   /// [narrative] is the human intro phrase — never generic "Découvrez".
   /// [chatContext] is the hub topic for "En parler avec MINT" CTA.
-  List<_HubData> _buildAllHubs(S l, BuildContext context) {
+  List<_HubData> _buildAllHubs(S l, BuildContext context, {int? userAge}) {
     return [
       _HubData(
         id: 'retraite',
         title: l.exploreHubRetraiteTitle,
-        narrative: l.exploreHubRetraiteIntro,
+        narrative: _retraiteIntro(userAge, l),
         tone: MintSurfaceTone.sauge,
         icon: Icons.beach_access_outlined,
         onTap: () => context.push('/explore/retraite'),
@@ -173,7 +197,7 @@ class ExploreTab extends StatelessWidget {
       _HubData(
         id: 'travail',
         title: l.exploreHubTravailTitle,
-        narrative: l.exploreHubTravailIntro,
+        narrative: _travailIntro(userAge, l),
         tone: MintSurfaceTone.bleu,
         icon: Icons.work_outline,
         onTap: () => context.push('/explore/travail'),
@@ -182,7 +206,7 @@ class ExploreTab extends StatelessWidget {
       _HubData(
         id: 'logement',
         title: l.exploreHubLogementTitle,
-        narrative: l.exploreHubLogementIntro,
+        narrative: _logementIntro(userAge, l),
         tone: MintSurfaceTone.porcelaine,
         icon: Icons.home_outlined,
         onTap: () => context.push('/explore/logement'),
@@ -318,7 +342,7 @@ class _ExploreHubCard extends StatelessWidget {
                         size: 14,
                         color: MintColors.primary.withValues(alpha: 0.8),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: MintSpacing.xs),
                       Text(
                         l.exploreTalkToMint,
                         style: MintTextStyles.labelSmall(

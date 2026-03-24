@@ -67,12 +67,13 @@ const Map<String, double> lppBonificationsVieillesse = {
 };
 
 /// Retourne le taux de bonification LPP pour un age donne (LPP art. 16).
+/// Bonifications stop at reference retirement age 65.
 double getLppBonificationRate(int age) {
+  if (age > 65 || age < 25) return 0.0;
   if (age >= 55) return 0.18;
   if (age >= 45) return 0.15;
   if (age >= 35) return 0.10;
-  if (age >= 25) return 0.07;
-  return 0.0;
+  return 0.07;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

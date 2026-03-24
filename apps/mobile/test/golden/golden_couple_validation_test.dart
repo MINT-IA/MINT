@@ -249,7 +249,7 @@ void main() {
       // ignore: avoid_print
       print('  Expected rente/an:  ${expectedRente.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  Conversion rate:    ${lppTauxConversionMinDecimal}');
+      print('  Conversion rate:    $lppTauxConversionMinDecimal');
       // ignore: avoid_print
       print(
           _verdict('LPP Julien balance', projectedBalance, expectedBalance,
@@ -515,7 +515,7 @@ void main() {
       // ignore: avoid_print
       print('  Taux remplacement:      ${result.tauxRemplacementBase.toStringAsFixed(1)}%');
       // ignore: avoid_print
-      print('  Expected (CLAUDE.md):   ${expectedTauxRemplacement}%');
+      print('  Expected (CLAUDE.md):   $expectedTauxRemplacement%');
       // ignore: avoid_print
       print('  Confidence score:       ${result.confidenceScore.toStringAsFixed(1)}');
       // ignore: avoid_print
@@ -897,7 +897,7 @@ void main() {
     // ── TEST 10: Lauren FATCA 3a block ─────────────────────────────────────
 
     test('10. Lauren FATCA — 3a contribution blocked', () {
-      final laurenConjoint = const ConjointProfile(
+      const laurenConjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 67000 / 12,

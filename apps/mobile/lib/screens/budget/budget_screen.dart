@@ -47,6 +47,9 @@ class BudgetScreen extends StatefulWidget {
 
 class _BudgetScreenState extends State<BudgetScreen>
     with SingleTickerProviderStateMixin {
+  /// Vertical offset (px) for staggered card slide-up animation.
+  static const double _slideUpOffset = 20;
+
   late AnimationController _staggerController;
   late Animation<double> _staggerAnimation;
   bool _hasError = false;
@@ -133,7 +136,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         return Opacity(
           opacity: cardProgress,
           child: Transform.translate(
-            offset: Offset(0, 20 * (1 - cardProgress)),
+            offset: Offset(0, _slideUpOffset * (1 - cardProgress)),
             child: child,
           ),
         );

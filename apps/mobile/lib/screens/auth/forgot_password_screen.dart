@@ -165,8 +165,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: Semantics(
                         label: _obscurePassword
-                            ? 'Afficher le mot de passe'
-                            : 'Masquer le mot de passe',
+                            ? l10n.authShowPassword
+                            : l10n.authHidePassword,
                         button: true,
                         child: IconButton(
                           icon: Icon(
@@ -200,8 +200,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: Semantics(
                         label: _obscureConfirmPassword
-                            ? 'Afficher le mot de passe'
-                            : 'Masquer le mot de passe',
+                            ? l10n.authShowPassword
+                            : l10n.authHidePassword,
                         button: true,
                         child: IconButton(
                           icon: Icon(

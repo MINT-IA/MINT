@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -338,6 +339,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     final s = S.of(context)!;
     final name = p.firstName ?? s.coachFallbackName;
+    final locale = Localizations.localeOf(context).languageCode;
 
     final tier = _currentTier();
 
@@ -539,15 +541,14 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     // ── Build narrative canvas line 1: name + time cue ───────────
     final now = DateTime.now();
-    const frDays = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-    final dayName = frDays[now.weekday - 1];
+    final dayName = DateFormat.EEEE(locale).format(now);
     final String timeCue;
     if (now.hour < 12) {
-      timeCue = 'matin';
+      timeCue = s.greetingMorning;
     } else if (now.hour < 18) {
-      timeCue = 'après-midi';
+      timeCue = s.greetingAfternoon;
     } else {
-      timeCue = 'soir';
+      timeCue = s.greetingEvening;
     }
     final line1 = '$name, $dayName $timeCue.';
 

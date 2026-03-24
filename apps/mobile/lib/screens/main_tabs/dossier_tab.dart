@@ -81,6 +81,9 @@ class _DossierTabState extends State<DossierTab> {
 
   /// Save current financial values + timestamp on dispose.
   Future<void> _saveSnapshot() async {
+    // Capture values synchronously before any await — context may be
+    // invalid after await when called from dispose().
+    final currentValues = _buildCurrentValues();
     try {
       final prefs = await SharedPreferences.getInstance();
 
@@ -89,9 +92,6 @@ class _DossierTabState extends State<DossierTab> {
         _kLastDossierVisit,
         DateTime.now().millisecondsSinceEpoch,
       );
-
-      // Build current values map.
-      final currentValues = _buildCurrentValues();
       if (currentValues.isNotEmpty) {
         await prefs.setString(_kDossierSnapshot, json.encode(currentValues));
       }
@@ -108,8 +108,13 @@ class _DossierTabState extends State<DossierTab> {
     } catch (_) {
       mintState = null;
     }
-    final provider = context.read<CoachProfileProvider>();
-    final profile = mintState?.profile ?? provider.profile;
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } catch (_) {
+      provider = null;
+    }
+    final profile = mintState?.profile ?? provider?.profile;
     final prev = profile?.prevoyance;
 
     final values = <String, double>{};
@@ -507,16 +512,16 @@ class _ProfileSection extends StatelessWidget {
   });
 
   /// Derive archetype display label from [FinancialArchetype].
-  String _archetypeLabel(FinancialArchetype archetype) {
+  String _archetypeLabel(FinancialArchetype archetype, S l) {
     return switch (archetype) {
-      FinancialArchetype.swissNative => 'Résident·e suisse',
-      FinancialArchetype.expatEu => 'Expat EU/AELE',
-      FinancialArchetype.expatNonEu => 'Expat hors EU',
-      FinancialArchetype.expatUs => 'Résident·e US (FATCA)',
-      FinancialArchetype.independentWithLpp => 'Indépendant·e avec LPP',
-      FinancialArchetype.independentNoLpp => 'Indépendant·e sans LPP',
-      FinancialArchetype.crossBorder => 'Frontalier·ère',
-      FinancialArchetype.returningSwiss => 'Suisse de retour',
+      FinancialArchetype.swissNative => l.archetypeSwissNative,
+      FinancialArchetype.expatEu => l.archetypeExpatEu,
+      FinancialArchetype.expatNonEu => l.archetypeExpatNonEu,
+      FinancialArchetype.expatUs => l.archetypeExpatUs,
+      FinancialArchetype.independentWithLpp => l.archetypeIndependentWithLpp,
+      FinancialArchetype.independentNoLpp => l.archetypeIndependentNoLpp,
+      FinancialArchetype.crossBorder => l.archetypeCrossBorder,
+      FinancialArchetype.returningSwiss => l.archetypeReturningSwiss,
     };
   }
 
@@ -582,7 +587,7 @@ class _ProfileSection extends StatelessWidget {
                         ),
                       if (archetype != null)
                         Text(
-                          _archetypeLabel(archetype),
+                          _archetypeLabel(archetype, l),
                           style: MintTextStyles.labelSmall(
                             color: MintColors.textSecondary,
                           ),
@@ -645,7 +650,7 @@ class _ProfileSection extends StatelessWidget {
                 color: MintColors.textMuted,
               ).copyWith(fontSize: 11),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             // Show top 2 enrichment prompts max.
             for (int i = 0; i < enrichmentPrompts.length && i < 2; i++)
               Padding(
@@ -657,7 +662,7 @@ class _ProfileSection extends StatelessWidget {
                       size: 12,
                       color: MintColors.primary.withValues(alpha: 0.7),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: MintSpacing.xs),
                     Expanded(
                       child: Text(
                         enrichmentPrompts[i].action,
@@ -1320,7 +1325,7 @@ class _SourceBadge extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.xs, vertical: 2),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8),
@@ -1496,7 +1501,7 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1512,19 +1517,19 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: MintSpacing.md),
 
             // Title
             Text(
               widget.l.dossierCoachingTitle,
               style: MintTextStyles.headlineMedium(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               widget.l.coachingSheetSubtitle,
               style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
 
             // Intensity label
             Row(
@@ -1542,7 +1547,7 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
 
             // Slider
             SliderTheme(
@@ -1580,11 +1585,11 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
 
             // Description
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(MintSpacing.sm + 4),
               decoration: BoxDecoration(
                 color: MintColors.surface,
                 borderRadius: BorderRadius.circular(8),
@@ -1599,7 +1604,7 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
 
             // Engagement stats (subtle)
             if (_pref.totalGreetingsShown > 0) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
               Text(
                 widget.l.coachingEngagementStats(
                   _pref.totalGreetingsEngaged.toString(),

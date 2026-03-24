@@ -23416,4 +23416,100 @@ class SDe extends S {
 
   @override
   String get onboardingSmartSalaryPerYear => 'CHF/Jahr';
+
+  @override
+  String get greetingMorning => 'Morgen';
+
+  @override
+  String get greetingAfternoon => 'Nachmittag';
+
+  @override
+  String get greetingEvening => 'Abend';
+
+  @override
+  String get authShowPassword => 'Passwort anzeigen';
+
+  @override
+  String get authHidePassword => 'Passwort verbergen';
+
+  @override
+  String get exploreHubRetraiteIntro55plus =>
+      'Die Pensionierung rückt näher: Jede Entscheidung zählt doppelt. Hier stehst du.';
+
+  @override
+  String get exploreHubRetraiteIntro40plus =>
+      'Jedes Jahr verändert deine Optionen. Hier stehst du.';
+
+  @override
+  String get exploreHubRetraiteIntroYoung =>
+      'Es ist weit weg, aber jetzt zählt es. Hier ist warum.';
+
+  @override
+  String get exploreHubTravailIntro55plus =>
+      'Karriereende, Frühpensionierung, Übergang: Deine Rechte ändern sich.';
+
+  @override
+  String get exploreHubTravailIntro40plus =>
+      'Dein beruflicher Status bestimmt deine Rechte. Prüfe sie.';
+
+  @override
+  String get exploreHubTravailIntroYoung =>
+      'Erster Job, Selbstständig, Grenzgänger: Jeder Status hat seine Regeln.';
+
+  @override
+  String get exploreHubLogementIntro55plus =>
+      'Bleiben, verkaufen, vererben: Die Zahlen vor der Entscheidung.';
+
+  @override
+  String get exploreHubLogementIntro40plus =>
+      'Kaufen, mieten, umziehen: Die Zahlen vor der Entscheidung.';
+
+  @override
+  String get exploreHubLogementIntroYoung =>
+      'Erstkauf oder Miete: Die Spielregeln verstehen.';
+
+  @override
+  String get archetypeSwissNative => 'Schweizer Einwohner·in';
+
+  @override
+  String get archetypeExpatEu => 'EU/EFTA-Expat';
+
+  @override
+  String get archetypeExpatNonEu => 'Nicht-EU-Expat';
+
+  @override
+  String get archetypeExpatUs => 'US-Resident (FATCA)';
+
+  @override
+  String get archetypeIndependentWithLpp => 'Selbstständig mit BVG';
+
+  @override
+  String get archetypeIndependentNoLpp => 'Selbstständig ohne BVG';
+
+  @override
+  String get archetypeCrossBorder => 'Grenzgänger·in';
+
+  @override
+  String get archetypeReturningSwiss => 'Rückkehrende·r Schweizer·in';
+
+  @override
+  String get employmentSalarie => 'Angestellt';
+
+  @override
+  String get employmentIndependant => 'Selbstständig';
+
+  @override
+  String get employmentSansEmploi => 'Arbeitslos';
+
+  @override
+  String get employmentRetraite => 'Pensioniert';
+
+  @override
+  String get nationalitySuisse => 'Schweiz';
+
+  @override
+  String get nationalityEuAele => 'EU/EFTA';
+
+  @override
+  String get nationalityAutre => 'Andere';
 }

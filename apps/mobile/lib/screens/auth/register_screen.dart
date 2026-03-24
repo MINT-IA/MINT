@@ -280,8 +280,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       hintText: l10n.authPasswordHintFull,
                       suffixIcon: Semantics(
                         label: _obscurePassword
-                            ? 'Afficher le mot de passe'
-                            : 'Masquer le mot de passe',
+                            ? l10n.authShowPassword
+                            : l10n.authHidePassword,
                         button: true,
                         child: IconButton(
                           icon: Icon(
@@ -348,8 +348,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           Semantics(
                             label: _obscureConfirmPassword
-                                ? 'Afficher le mot de passe'
-                                : 'Masquer le mot de passe',
+                                ? l10n.authShowPassword
+                                : l10n.authHidePassword,
                             button: true,
                             child: IconButton(
                               icon: Icon(

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_chiffre_choc.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_jit_explanation.dart';
@@ -115,6 +118,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
 
   @override
   void dispose() {
+    _viewModel.dispose();
     _pageController.dispose();
     _animTrigger.dispose();
     super.dispose();
@@ -160,6 +164,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   Future<bool> _showOnboardingConsentSheet() async {
     if (_consentPromptOpen || !mounted) return false;
     _consentPromptOpen = true;
+    final l = S.of(context)!;
     final result = await showModalBottomSheet<bool>(
       context: context,
       isDismissible: false,
@@ -167,34 +172,34 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
       builder: (ctx) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.lg),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Sauvegarde locale des reponses',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                Text(
+                  l.onboardingConsentTitle,
+                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Tes reponses peuvent etre sauvegardees localement sur ton appareil '
-                  'pour reprendre plus tard. Aucune donnee n est envoyee sans ton accord.',
+                const SizedBox(height: MintSpacing.sm),
+                Text(
+                  l.onboardingConsentBody,
+                  style: MintTextStyles.bodyMedium(),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Navigator.of(ctx).pop(true),
-                    child: const Text('Autoriser'),
+                    child: Text(l.onboardingConsentAllow),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: MintSpacing.sm),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(ctx).pop(false),
-                    child: const Text('Continuer sans sauvegarde'),
+                    child: Text(l.onboardingConsentContinueWithout),
                   ),
                 ),
               ],

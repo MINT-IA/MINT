@@ -135,7 +135,7 @@ class DocumentCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.info_outline,
                     size: 14,
                     color: MintColors.textSecondary,
@@ -237,7 +237,7 @@ class DocumentCard extends StatelessWidget {
                         ),
                         if (field.isEstimated) ...[
                           const SizedBox(width: 4),
-                          Icon(
+                          const Icon(
                             Icons.edit_note,
                             size: 14,
                             color: MintColors.warning,

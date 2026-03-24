@@ -92,19 +92,19 @@ class _LandingScreenState extends State<LandingScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildHeader(),
-                        const SizedBox(height: 80),
+                        const SizedBox(height: MintSpacing.xxxxl),
                         _buildHeroPunchline(),
-                        const SizedBox(height: 64),
+                        const SizedBox(height: MintSpacing.xxxl),
                         _buildTranslator(),
-                        const SizedBox(height: 56),
+                        const SizedBox(height: MintSpacing.xxxl),
                         _buildHiddenNumber(),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: MintSpacing.xxl),
                         _buildCta(),
                         const SizedBox(height: MintSpacing.xxl),
                         _buildTrustBar(),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: MintSpacing.sm),
                         _buildLegalFooter(),
-                        const SizedBox(height: 80),
+                        const SizedBox(height: MintSpacing.xxxxl),
                       ],
                     ),
                   ),
@@ -125,18 +125,13 @@ class _LandingScreenState extends State<LandingScreen>
   // ---------------------------------------------------------------------------
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 8),
+      padding: const EdgeInsets.only(top: MintSpacing.sm, bottom: MintSpacing.sm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             'MINT',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
-                .copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 3,
-            ),
+            style: MintTextStyles.brandLogo(),
           ),
           TextButton(
             onPressed: () {
@@ -144,7 +139,7 @@ class _LandingScreenState extends State<LandingScreen>
               context.go('/auth/login');
             },
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.sm),
             ),
             child: Text(
               S.of(context)!.authLogin,
@@ -344,7 +339,7 @@ class _LandingScreenState extends State<LandingScreen>
           style: FilledButton.styleFrom(
             backgroundColor: MintColors.primary,
             shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32),
+            padding: const EdgeInsets.symmetric(vertical: MintSpacing.md + 2, horizontal: MintSpacing.xl),
           ),
           child: Text(
             l10n.landingCtaCommencer,
@@ -382,7 +377,7 @@ class _LandingScreenState extends State<LandingScreen>
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 12, color: MintColors.textMuted.withValues(alpha: 0.6)),
-        const SizedBox(width: 4),
+        const SizedBox(width: MintSpacing.xs),
         Text(
           label,
           style: MintTextStyles.labelSmall(color: MintColors.textMuted.withValues(alpha: 0.6)),
@@ -393,7 +388,7 @@ class _LandingScreenState extends State<LandingScreen>
 
   Widget _trustDot() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
       child: Container(
         width: 3,
         height: 3,
@@ -411,7 +406,7 @@ class _LandingScreenState extends State<LandingScreen>
   Widget _buildLegalFooter() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
           S.of(context)!.landingLegalFooterShort,
           textAlign: TextAlign.center,

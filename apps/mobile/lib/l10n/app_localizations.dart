@@ -41230,6 +41230,180 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'CHF/an'**
   String get onboardingSmartSalaryPerYear;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'matin'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'après-midi'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In fr, this message translates to:
+  /// **'soir'**
+  String get greetingEvening;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher le mot de passe'**
+  String get authShowPassword;
+
+  /// No description provided for @authHidePassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer le mot de passe'**
+  String get authHidePassword;
+
+  /// No description provided for @exploreHubRetraiteIntro55plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'La retraite approche : chaque décision compte double. Voici où tu en es.'**
+  String get exploreHubRetraiteIntro55plus;
+
+  /// No description provided for @exploreHubRetraiteIntro40plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année qui passe change tes options. Voici où tu en es.'**
+  String get exploreHubRetraiteIntro40plus;
+
+  /// No description provided for @exploreHubRetraiteIntroYoung.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est loin, mais c’est maintenant que ça se joue. Voici pourquoi.'**
+  String get exploreHubRetraiteIntroYoung;
+
+  /// No description provided for @exploreHubTravailIntro55plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin de carrière, retraite anticipée, transition : tes droits changent.'**
+  String get exploreHubTravailIntro55plus;
+
+  /// No description provided for @exploreHubTravailIntro40plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton statut professionnel détermine tes droits. Vérifie-les.'**
+  String get exploreHubTravailIntro40plus;
+
+  /// No description provided for @exploreHubTravailIntroYoung.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier emploi, indépendant, frontalier : chaque statut a ses règles.'**
+  String get exploreHubTravailIntroYoung;
+
+  /// No description provided for @exploreHubLogementIntro55plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rester, vendre, transmettre : les chiffres avant la décision.'**
+  String get exploreHubLogementIntro55plus;
+
+  /// No description provided for @exploreHubLogementIntro40plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter, louer, déménager : les chiffres avant la décision.'**
+  String get exploreHubLogementIntro40plus;
+
+  /// No description provided for @exploreHubLogementIntroYoung.
+  ///
+  /// In fr, this message translates to:
+  /// **'Première acquisition ou location : comprendre les règles du jeu.'**
+  String get exploreHubLogementIntroYoung;
+
+  /// No description provided for @archetypeSwissNative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résident·e suisse'**
+  String get archetypeSwissNative;
+
+  /// No description provided for @archetypeExpatEu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expat EU/AELE'**
+  String get archetypeExpatEu;
+
+  /// No description provided for @archetypeExpatNonEu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expat hors EU'**
+  String get archetypeExpatNonEu;
+
+  /// No description provided for @archetypeExpatUs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résident·e US (FATCA)'**
+  String get archetypeExpatUs;
+
+  /// No description provided for @archetypeIndependentWithLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e avec LPP'**
+  String get archetypeIndependentWithLpp;
+
+  /// No description provided for @archetypeIndependentNoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e sans LPP'**
+  String get archetypeIndependentNoLpp;
+
+  /// No description provided for @archetypeCrossBorder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frontalier·ère'**
+  String get archetypeCrossBorder;
+
+  /// No description provided for @archetypeReturningSwiss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suisse de retour'**
+  String get archetypeReturningSwiss;
+
+  /// No description provided for @employmentSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e'**
+  String get employmentSalarie;
+
+  /// No description provided for @employmentIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant·e'**
+  String get employmentIndependant;
+
+  /// No description provided for @employmentSansEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans emploi'**
+  String get employmentSansEmploi;
+
+  /// No description provided for @employmentRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraité·e'**
+  String get employmentRetraite;
+
+  /// No description provided for @nationalitySuisse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suisse'**
+  String get nationalitySuisse;
+
+  /// No description provided for @nationalityEuAele.
+  ///
+  /// In fr, this message translates to:
+  /// **'EU/AELE'**
+  String get nationalityEuAele;
+
+  /// No description provided for @nationalityAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get nationalityAutre;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

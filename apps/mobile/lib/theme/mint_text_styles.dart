@@ -116,6 +116,19 @@ class MintTextStyles {
         color: color ?? MintColors.textMuted,
       );
 
+  // ── Brand ──
+
+  /// MINT wordmark logo text (18pt Montserrat, w800, wide tracking).
+  /// Used exclusively on landing screen header.
+  static TextStyle brandLogo({Color? color}) => GoogleFonts.montserrat(
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 3,
+        color: color ?? MintColors.textPrimary,
+      );
+
+  // ── Micro ──
+
   /// Disclaimer, legal mentions (10pt italic).
   static TextStyle micro({Color? color}) => GoogleFonts.inter(
         fontSize: 10,

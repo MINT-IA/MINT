@@ -23381,4 +23381,100 @@ class SEs extends S {
 
   @override
   String get onboardingSmartSalaryPerYear => 'CHF/año';
+
+  @override
+  String get greetingMorning => 'mañana';
+
+  @override
+  String get greetingAfternoon => 'tarde';
+
+  @override
+  String get greetingEvening => 'noche';
+
+  @override
+  String get authShowPassword => 'Mostrar contraseña';
+
+  @override
+  String get authHidePassword => 'Ocultar contraseña';
+
+  @override
+  String get exploreHubRetraiteIntro55plus =>
+      'La jubilación se acerca: cada decisión cuenta doble. Aquí estás.';
+
+  @override
+  String get exploreHubRetraiteIntro40plus =>
+      'Cada año que pasa cambia tus opciones. Aquí estás.';
+
+  @override
+  String get exploreHubRetraiteIntroYoung =>
+      'Está lejos, pero ahora es cuando importa. He aquí por qué.';
+
+  @override
+  String get exploreHubTravailIntro55plus =>
+      'Fin de carrera, jubilación anticipada, transición: tus derechos cambian.';
+
+  @override
+  String get exploreHubTravailIntro40plus =>
+      'Tu situación profesional determina tus derechos. Verifícalos.';
+
+  @override
+  String get exploreHubTravailIntroYoung =>
+      'Primer empleo, autónomo, fronterizo: cada estatus tiene sus reglas.';
+
+  @override
+  String get exploreHubLogementIntro55plus =>
+      'Quedarse, vender, transmitir: los números antes de la decisión.';
+
+  @override
+  String get exploreHubLogementIntro40plus =>
+      'Comprar, alquilar, mudarse: los números antes de la decisión.';
+
+  @override
+  String get exploreHubLogementIntroYoung =>
+      'Primera compra o alquiler: entender las reglas del juego.';
+
+  @override
+  String get archetypeSwissNative => 'Residente suizo/a';
+
+  @override
+  String get archetypeExpatEu => 'Expat UE/AELC';
+
+  @override
+  String get archetypeExpatNonEu => 'Expat fuera de la UE';
+
+  @override
+  String get archetypeExpatUs => 'Residente en EE.UU. (FATCA)';
+
+  @override
+  String get archetypeIndependentWithLpp => 'Autónomo/a con LPP';
+
+  @override
+  String get archetypeIndependentNoLpp => 'Autónomo/a sin LPP';
+
+  @override
+  String get archetypeCrossBorder => 'Fronterizo/a';
+
+  @override
+  String get archetypeReturningSwiss => 'Suizo/a de regreso';
+
+  @override
+  String get employmentSalarie => 'Asalariado/a';
+
+  @override
+  String get employmentIndependant => 'Autónomo/a';
+
+  @override
+  String get employmentSansEmploi => 'Sin empleo';
+
+  @override
+  String get employmentRetraite => 'Jubilado/a';
+
+  @override
+  String get nationalitySuisse => 'Suiza';
+
+  @override
+  String get nationalityEuAele => 'UE/AELC';
+
+  @override
+  String get nationalityAutre => 'Otro';
 }

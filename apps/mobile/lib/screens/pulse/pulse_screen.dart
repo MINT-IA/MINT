@@ -936,7 +936,7 @@ class _PulseScreenState extends State<PulseScreen> {
           },
         ),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 2, vertical: MintSpacing.xs),
           decoration: BoxDecoration(
             color: MintColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
@@ -1256,7 +1256,7 @@ class _SignalRow extends StatelessWidget {
                         .copyWith(fontWeight: FontWeight.w700),
                   ),
                   if (onTap != null) ...[
-                    const SizedBox(width: 4),
+                    const SizedBox(width: MintSpacing.xs),
                     const Icon(
                       Icons.chevron_right_rounded,
                       size: 16,
@@ -1341,13 +1341,13 @@ class _BudgetABGapBlock extends StatelessWidget {
                   value: formatChf(present.monthlyNet),
                   color: MintColors.textPrimary,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 _BudgetLine(
                   label: l.pulseBudgetCharges,
                   value: formatChf(present.monthlyCharges),
                   color: MintColors.textSecondary,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 _BudgetLine(
                   label: l.pulseBudgetLibre,
                   value: formatChf(present.monthlyFree),
@@ -1384,7 +1384,7 @@ class _BudgetABGapBlock extends StatelessWidget {
                     color: MintColors.textPrimary,
                   ),
                 if (gap != null) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   _BudgetLine(
                     label: l.pulseBudgetGap,
                     value: '${gap.monthlyGap >= 0 ? "-" : "+"}${formatChf(gap.monthlyGap.abs())}',
@@ -1392,7 +1392,7 @@ class _BudgetABGapBlock extends StatelessWidget {
                         ? MintColors.warning
                         : MintColors.success,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
                     '${gap.replacementRate.round()}\u00a0%',
                     style: MintTextStyles.titleMedium(

@@ -309,6 +309,6 @@ class RetirementTaxCalculator {
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
     );
-    return (result['chargeTotale'] as double) / 12;
+    return ((result['chargeTotale'] as double?) ?? 0) / 12;
   }
 }

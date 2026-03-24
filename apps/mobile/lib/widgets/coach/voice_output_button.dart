@@ -97,7 +97,7 @@ class _VoiceOutputButtonState extends State<VoiceOutputButton> {
 
     // Check TTS availability
     final available = await widget.voiceService.isTtsAvailable();
-    if (!available) return;
+    if (!available || !mounted) return;
 
     setState(() => _isSpeakingThis = true);
     try {
