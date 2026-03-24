@@ -10,6 +10,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
@@ -163,7 +164,20 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       );
       _checklistState = List.filled(_result!.checklist.length, false);
     });
-    ScreenCompletionTracker.markCompleted('job_comparison');
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'job_comparison',
+      ScreenReturn.completed(
+        route: '/job-comparison',
+        updatedFields: {
+          'jobComparisonDeltaNet': _result!.axes.isNotEmpty
+              ? _result!.axes.first.delta
+              : 0.0,
+          'jobComparisonLppDelta': _result!.annualPensionDelta,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'lpp_rachat',
+      ),
+    );
 
     // Smooth scroll to results
     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -157,7 +158,18 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       _result = DivorceService.simulate(input: input);
       _checklistState = List.filled(_result!.checklist.length, false);
     });
-    ScreenCompletionTracker.markCompleted('divorce_simulator');
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'divorce_simulator',
+      ScreenReturn.completed(
+        route: '/divorce',
+        updatedFields: {
+          'divorceLppSplit': _result!.lppSplit.transferAmount,
+          'divorcePensionAlimentaire': _result!.pensionAlimentaireMonthly,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'budget_post_divorce',
+      ),
+    );
 
     // Smooth scroll to results
     WidgetsBinding.instance.addPostFrameCallback((_) {
