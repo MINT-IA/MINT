@@ -12,6 +12,8 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -201,13 +203,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildIntroCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -266,13 +265,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildLppSituationCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -289,13 +285,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   Widget _buildFiscalSituationCard(S l) {
     final displayRate = _effectiveTaux;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -511,9 +504,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildStrategieCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -577,9 +571,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required bool isWinner, required String adaptedLabel, required String savingsLabel}) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isWinner ? color : MintColors.border, width: isWinner ? 2 : 1)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -603,9 +598,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildWaterfallSection(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -650,9 +646,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     double cumul = 0;
     for (final year in result.yearlyPlan) { cumul += year.montantRachat; cumulativeRachat.add(cumul); }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
