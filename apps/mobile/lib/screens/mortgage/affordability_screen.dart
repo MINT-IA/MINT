@@ -80,10 +80,8 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         if (epargne > 0) {
           _epargneDispo = epargne;
         }
-        final avoir3a = profile.prevoyance.totalEpargne3a;
-        if (avoir3a > 0) {
-          _avoir3a = avoir3a;
-        }
+        // Always use profile's 3a value (even 0 = no savings is valid data)
+        _avoir3a = profile.prevoyance.totalEpargne3a;
         final lpp = profile.prevoyance.avoirLppTotal;
         if (lpp != null && lpp > 0) {
           _avoirLpp = lpp;

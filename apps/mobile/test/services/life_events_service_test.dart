@@ -232,7 +232,9 @@ void main() {
         ),
       );
 
-      expect(result.taxImpact.estimatedTaxMarried, closeTo(180000 * 0.18, 0.01));
+      // Uses RetirementTaxCalculator.estimateMarginalRate(180000, 'ZH', isMarried: true)
+      // Effective: 12.9% * 1.15 income adj * 0.85 married * 1.3 marginal ≈ 16.36%
+      expect(result.taxImpact.estimatedTaxMarried, closeTo(29455.50, 50));
     });
 
     test('individual taxes sum is different from married tax', () {

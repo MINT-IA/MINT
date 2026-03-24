@@ -35,6 +35,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   @override
   void initState() {
     super.initState();
+    _emitScreenReturn();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeFromProfile();
     });
@@ -82,11 +83,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         ageRetraitFin: _ageRetraitFin,
       );
 
-  @override
-  void initState() {
-    super.initState();
-    _emitScreenReturn();
-  }
+  // _emitScreenReturn is called from primary initState above
+  // (merged with profile initialization)
 
   void _emitScreenReturn() {
     final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';

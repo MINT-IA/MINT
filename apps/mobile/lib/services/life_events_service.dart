@@ -173,8 +173,11 @@ class DivorceService {
     // Married couples benefit from ~15-25% effective discount (splitting).
     // After divorce, each is taxed individually.
     final combinedIncome = input.incomeConjoint1 + input.incomeConjoint2;
-    // Simplified progressive rate: ~20% effective for married on combined income
-    final taxMarried = combinedIncome * 0.18;
+    // Married rate via centralized calculator (splitting + canton-average)
+    final marriedRate = RetirementTaxCalculator.estimateMarginalRate(
+      combinedIncome, 'ZH', isMarried: true,
+    );
+    final taxMarried = combinedIncome * marriedRate;
     // Individual rates slightly higher per person
     final taxC1 = _estimateIndividualTax(input.incomeConjoint1);
     final taxC2 = _estimateIndividualTax(input.incomeConjoint2);

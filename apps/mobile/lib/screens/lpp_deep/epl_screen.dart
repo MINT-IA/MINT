@@ -491,8 +491,8 @@ class _EplScreenState extends State<EplScreen> {
       currentAge: _age,
       retirementAge: 65,
       grossAnnualSalary: _grossAnnualSalary,
-      caisseReturn: 0.02,
-      conversionRate: 0.068,
+      caisseReturn: lppTauxInteretMin / 100,
+      conversionRate: lppTauxConversionMinDecimal,
     );
 
     final renteWithout = eplImpact.renteWithoutEpl / 12;

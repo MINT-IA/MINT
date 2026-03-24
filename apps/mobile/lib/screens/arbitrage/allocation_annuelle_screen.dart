@@ -76,8 +76,16 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   }
 
   void _autoFillFromProfile() {
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      _autoFillFromProfileData(profile);
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
+
+  void _autoFillFromProfileData(CoachProfile profile) {
 
     // Annual contribution capacity: 3a max for salaried
     if (profile.salaireBrutMensuel > 0) {
