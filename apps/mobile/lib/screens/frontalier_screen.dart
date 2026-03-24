@@ -6,6 +6,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -51,9 +54,37 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _recalculateTax();
     _recalculate90Day();
     _recalculateCharges();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _taxCanton = profile.canton;
+        }
+        if (profile.salaireBrutMensuel > 0) {
+          _taxSalary = profile.salaireBrutMensuel;
+          _chargesSalary = profile.salaireBrutMensuel;
+        }
+        if (profile.nombreEnfants > 0) {
+          _taxChildren = profile.nombreEnfants;
+        }
+        if (profile.etatCivil == CoachCivilStatus.marie) {
+          _taxMaritalStatus = 1;
+        }
+      });
+      _recalculateTax();
+      _recalculateCharges();
+    } catch (_) {}
   }
 
   @override

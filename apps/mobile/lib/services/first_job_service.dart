@@ -168,7 +168,7 @@ class FirstJobService {
       double coordinated = annuel - lppDeductionCoordination;
       coordinated = max(coordinated, lppSalaireCoordMin);
       coordinated = min(coordinated, _lppMaxCoordinated);
-      final lppRate = _getLppRate(age);
+      final lppRate = getLppBonificationRate(age);
       lppEmploye = (coordinated * lppRate) / 12 / 2; // employee half
     }
 
@@ -248,14 +248,8 @@ class FirstJobService {
     );
   }
 
-  /// Get LPP bonification rate by age.
-  static double _getLppRate(int age) {
-    if (age < 25) return 0.0;
-    if (age <= 34) return 0.07;
-    if (age <= 44) return 0.10;
-    if (age <= 54) return 0.15;
-    return 0.18;
-  }
+  // _getLppRate removed — use centralized getLppBonificationRate(age)
+  // from social_insurance.dart (LPP art. 16).
 
   /// Calculate LAMal franchise options.
   /// Returns (options, recommended franchise, annual savings vs 300).

@@ -5,6 +5,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COVERAGE CHECK SCREEN — Sprint S13 / Chantier 7
@@ -29,7 +31,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   bool _aFamille = false;
   bool _estLocataire = true;
   bool _voyagesFrequents = false;
-  final String _canton = 'VD';
+  String _canton = 'VD';
 
   // ── State — Current coverage ───────────────────────────────
   bool _aIjmCollective = true;
@@ -45,7 +47,40 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _compute();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.employmentStatus == 'independant') {
+          _statut = 'independant';
+        } else if (profile.employmentStatus == 'chomage') {
+          _statut = 'sans_emploi';
+        }
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+        if (profile.dettes.hypotheque != null &&
+            profile.dettes.hypotheque! > 0) {
+          _aHypotheque = true;
+        }
+        if (profile.nombreEnfants > 0 ||
+            profile.conjoint != null) {
+          _aFamille = true;
+        }
+        if (profile.housingStatus == 'proprietaire') {
+          _estLocataire = false;
+        }
+      });
+      _compute();
+    } catch (_) {}
   }
 
   void _compute() {

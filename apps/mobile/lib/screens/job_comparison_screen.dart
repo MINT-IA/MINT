@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -58,6 +61,49 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   double _currentCapitalDeces = 200000;
   double _currentRachatMax = 80000;
   bool _currentHasIjm = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        _age = profile.age;
+
+        // Current job: auto-fill from profile
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) {
+          _currentSalaireBrut = revenu;
+        }
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _currentAvoirVieillesse = lpp;
+        }
+        // Conversion rate from profile or legal minimum
+        final tc = profile.prevoyance.tauxConversion;
+        if (tc > 0 && tc < 1) {
+          _currentTauxConversion = tc * 100;
+        } else {
+          _currentTauxConversion = lppTauxConversionMin;
+        }
+        // Rachat maximum from profile
+        final rachat = profile.prevoyance.lacuneRachatRestante;
+        if (rachat > 0) {
+          _currentRachatMax = rachat;
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   // New job inputs
   double _newSalaireBrut = 95000;

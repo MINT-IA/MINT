@@ -8,6 +8,9 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -34,7 +37,38 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.revenuBrutAnnuel > 0) {
+        _revenuNet = profile.revenuBrutAnnuel.clamp(0, 300000);
+        changed = true;
+      }
+      if (profile.revenuBrutAnnuel > 0) {
+        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        );
+        changed = true;
+      }
+      // Detect LPP affiliation from prevoyance data
+      if (profile.prevoyance.avoirLppTotal != null &&
+          profile.prevoyance.avoirLppTotal! > 0) {
+        _affilieLpp = true;
+        changed = true;
+      }
+      if (changed) _calculate();
+    } catch (_) {
+      // Provider not available
+    }
   }
 
   void _calculate() {

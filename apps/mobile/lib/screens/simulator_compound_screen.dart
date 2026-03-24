@@ -6,6 +6,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/info_tooltip.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
   const SimulatorCompoundScreen({super.key});
@@ -27,7 +29,31 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.salaireBrutMensuel > 0) {
+          _monthlyContribution =
+              (profile.salaireBrutMensuel * 0.1).roundToDouble();
+        }
+        if (profile.patrimoine.epargneLiquide > 0) {
+          _principal = profile.patrimoine.epargneLiquide;
+        }
+        if (profile.age > 0) {
+          _years = (65 - profile.age).clamp(5, 45);
+        }
+      });
+      _calculate();
+    } catch (_) {}
   }
 
   void _calculate() {

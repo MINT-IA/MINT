@@ -7,6 +7,8 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 class ConsumerCreditSimulatorScreen extends StatefulWidget {
   const ConsumerCreditSimulatorScreen({super.key});
@@ -31,7 +33,29 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        final creditConso = profile.dettes.creditConsommation;
+        if (creditConso != null && creditConso > 0) {
+          _amount = creditConso;
+        }
+        final tauxConso = profile.dettes.tauxCreditConso;
+        if (tauxConso != null && tauxConso > 0) {
+          _annualRate = tauxConso;
+        }
+      });
+      _calculate();
+    } catch (_) {}
   }
 
   void _calculate() {

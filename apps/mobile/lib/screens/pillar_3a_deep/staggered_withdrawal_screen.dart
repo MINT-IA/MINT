@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -29,6 +32,47 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   int _ageRetraitDebut = 60;
   int _ageRetraitFin = 64;
 
+  @override
+  void initState() {
+    super.initState();
+    _emitScreenReturn();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        final avoir3a = profile.prevoyance.totalEpargne3a;
+        if (avoir3a > 0) {
+          _avoirTotal = avoir3a;
+        }
+        final nb3a = profile.prevoyance.nombre3a;
+        if (nb3a > 0 && nb3a <= 5) {
+          _nbComptes = nb3a;
+        }
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _canton = profile.canton;
+        }
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) {
+          _revenuImposable = revenu;
+        }
+        final targetAge = profile.targetRetirementAge ?? 65;
+        // Withdrawal typically starts 5 years before retirement
+        final computedDebut = (targetAge - 5).clamp(60, 65);
+        _ageRetraitDebut = computedDebut;
+        _ageRetraitFin = targetAge.clamp(computedDebut, 65);
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
+
   StaggeredWithdrawalResult get _result =>
       StaggeredWithdrawalSimulator.simulate(
         avoirTotal: _avoirTotal,
@@ -39,11 +83,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         ageRetraitFin: _ageRetraitFin,
       );
 
-  @override
-  void initState() {
-    super.initState();
-    _emitScreenReturn();
-  }
+  // _emitScreenReturn is called from primary initState above
+  // (merged with profile initialization)
 
   void _emitScreenReturn() {
     final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';

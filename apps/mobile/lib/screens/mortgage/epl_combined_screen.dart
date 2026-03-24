@@ -7,6 +7,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Ecran de financement EPL multi-sources.
 ///
@@ -34,6 +36,47 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         prixCible: _prixCible,
         canton: _canton,
       );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.patrimoine.epargneLiquide > 0) {
+        _epargneCash = profile.patrimoine.epargneLiquide.clamp(0, 500000);
+        changed = true;
+      }
+      if (profile.prevoyance.totalEpargne3a > 0) {
+        _avoir3a = profile.prevoyance.totalEpargne3a.clamp(0, 300000);
+        changed = true;
+      }
+      final lpp = profile.prevoyance.avoirLppTotal;
+      if (lpp != null && lpp > 0) {
+        _avoirLpp = lpp.clamp(0, 500000);
+        changed = true;
+      }
+      final propertyValue = profile.patrimoine.propertyMarketValue;
+      if (propertyValue != null && propertyValue > 0) {
+        _prixCible = propertyValue.clamp(200000, 3000000);
+        changed = true;
+      }
+      if (profile.canton.isNotEmpty) {
+        _canton = profile.canton.toUpperCase();
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

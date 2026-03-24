@@ -79,18 +79,32 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
     final canton = profile.canton.isNotEmpty ? profile.canton : 'VD';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final patrimoine = profile.patrimoine;
-    final capital = patrimoine.epargneLiquide;
+
+    // Capital disponible = epargne liquide + 3a + investissements
+    // (LPP is handled separately for EPL max 10% rule)
+    final epargneLiquide = patrimoine.epargneLiquide;
+    final avoir3a = profile.prevoyance.totalEpargne3a;
+    final investissements = patrimoine.investissements;
+    final totalCapital = epargneLiquide + avoir3a + investissements;
 
     setState(() {
       _canton = canton;
       _isMarried = isMarried;
-      if (capital > 0) {
-        _capitalCtrl.text = capital.round().toString();
+      if (totalCapital > 0) {
+        _capitalCtrl.text = totalCapital.round().toString();
         _hasEstimatedValues = true;
       }
       // Loyer mensuel from profile
       if (profile.depenses.loyer > 0) {
         _loyerCtrl.text = profile.depenses.loyer.round().toString();
+        _hasEstimatedValues = true;
+      }
+      // Income-based property price estimate (rule of 1/3)
+      final revenu = profile.revenuBrutAnnuel;
+      if (revenu > 0) {
+        // Max property affordable: revenu / 7% theoretical charges / 20% equity
+        // Simplified: max ~= revenu / 0.07 (rough capacity estimate)
+        // But we don't override prixBien — user should set it
         _hasEstimatedValues = true;
       }
       _dataSources = profile.dataSources;

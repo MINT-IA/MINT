@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -37,6 +40,9 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('mortgage');
     _emitScreenReturn();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
   }
 
   void _emitScreenReturn() {
@@ -60,11 +66,34 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   String _canton = 'VD';
   bool _showAdvancedParams = false;
 
-  static const _cantons = [
-    'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
-    'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
-    'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
-  ];
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        final revenuAnnuel = profile.revenuBrutAnnuel;
+        if (revenuAnnuel > 0) {
+          _revenuBrut = revenuAnnuel;
+        }
+        final epargne = profile.patrimoine.epargneLiquide;
+        if (epargne > 0) {
+          _epargneDispo = epargne;
+        }
+        // Always use profile's 3a value (even 0 = no savings is valid data)
+        _avoir3a = profile.prevoyance.totalEpargne3a;
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _avoirLpp = lpp;
+        }
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _canton = profile.canton;
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   AffordabilityResult get _result => AffordabilityCalculator.calculate(
         revenuBrutAnnuel: _revenuBrut,
@@ -229,7 +258,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<String>(
                                   value: _canton,
-                                  items: _cantons
+                                  items: sortedCantonCodes
                                       .map((c) => DropdownMenuItem(
                                             value: c,
                                             child: Text(c,

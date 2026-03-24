@@ -6,6 +6,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/leasing_cost_widget.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
   const SimulatorLeasingScreen({super.key});
@@ -26,7 +28,26 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      // Leasing is a generic calculator — check if dettes.leasing informs
+      // a better monthly payment default
+      final leasingDebt = profile.dettes.mensualiteLeasing;
+      if (leasingDebt != null && leasingDebt > 0) {
+        _monthlyPayment = leasingDebt.clamp(100, 1500);
+        _calculate();
+      }
+    } catch (_) {
+      // Provider not available
+    }
   }
 
   void _calculate() {

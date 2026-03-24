@@ -9,6 +9,8 @@ import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
 import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -66,6 +68,36 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   List<bool> _checklistState = [];
 
   static List<String> get _cantons => sortedCantonCodes;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        final propertyValue = profile.patrimoine.immobilierEffectif;
+        if (propertyValue > 0) {
+          _prixAchat = propertyValue;
+          _prixVente = propertyValue * 1.25;
+        }
+        final mortgage = profile.patrimoine.mortgageBalance;
+        if (mortgage != null && mortgage > 0) {
+          _hypothequeRestante = mortgage;
+        }
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+      });
+    } catch (_) {}
+  }
 
   @override
   void dispose() {

@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -64,6 +66,9 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _recalculateAll();
   }
 
@@ -71,6 +76,39 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Tab 1: Conge — monthly salary
+        if (profile.salaireBrutMensuel > 0) {
+          _salaireMensuel = profile.salaireBrutMensuel;
+        }
+
+        // Tab 2: Allocations — canton and children
+        final canton = profile.canton;
+        if (FamilyService.cantonNames.containsKey(canton)) {
+          _cantonAlloc = canton;
+        }
+        if (profile.nombreEnfants > 0) {
+          _nbEnfantsAlloc = profile.nombreEnfants;
+        }
+
+        // Tab 3: Impact — annual income and children
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) _revenuImpact = revenu;
+        if (profile.nombreEnfants > 0) {
+          _nbEnfantsImpact = profile.nombreEnfants;
+        }
+      });
+      _recalculateAll();
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
   }
 
   void _recalculateAll() {

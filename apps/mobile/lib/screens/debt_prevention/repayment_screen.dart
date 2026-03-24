@@ -8,6 +8,8 @@ import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -54,6 +56,60 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       dettes: dettes,
       budgetMensuelRemboursement: _budgetMensuel,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      final dettes = profile.dettes;
+      if (!dettes.hasDette) return;
+      final entries = <_DebtInput>[];
+      if ((dettes.creditConsommation ?? 0) > 0) {
+        entries.add(_DebtInput(
+          nom: 'Crédit conso',
+          montant: dettes.creditConsommation!,
+          tauxAnnuel: dettes.tauxCreditConso ?? 9.9,
+          mensualiteMin: dettes.mensualiteCreditConso ?? 300,
+        ));
+      }
+      if ((dettes.leasing ?? 0) > 0) {
+        entries.add(_DebtInput(
+          nom: 'Leasing',
+          montant: dettes.leasing!,
+          tauxAnnuel: dettes.tauxLeasing ?? 4.5,
+          mensualiteMin: dettes.mensualiteLeasing ?? 250,
+        ));
+      }
+      if ((dettes.autresDettes ?? 0) > 0) {
+        entries.add(_DebtInput(
+          nom: 'Autres dettes',
+          montant: dettes.autresDettes!,
+          tauxAnnuel: 5.0,
+          mensualiteMin: 200,
+        ));
+      }
+      if (entries.isNotEmpty) {
+        setState(() {
+          _dettes
+            ..clear()
+            ..addAll(entries);
+          _budgetMensuel = entries.fold<double>(
+            0,
+            (s, d) => s + d.mensualiteMin,
+          ) * 1.2;
+        });
+      }
+    } catch (_) {}
   }
 
   @override

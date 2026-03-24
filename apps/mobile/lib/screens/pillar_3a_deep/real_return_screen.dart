@@ -6,6 +6,9 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
 ///
@@ -33,6 +36,37 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         fraisGestion: _fraisGestion,
         dureeAnnees: _dureeAnnees,
       );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.revenuBrutAnnuel > 0) {
+        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        ).clamp(0.0, 0.50);
+        changed = true;
+      }
+      final yearsToRetirement = profile.anneesAvantRetraite;
+      if (yearsToRetirement >= 5 && yearsToRetirement <= 40) {
+        _dureeAnnees = yearsToRetirement;
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

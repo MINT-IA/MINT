@@ -411,7 +411,7 @@ class PrecisionService {
         (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, annualSalary * 0.8);
     double lppEstimate = 0;
     for (int a = (age - yearsContrib).round(); a < age; a++) {
-      lppEstimate += salaireCoord * _bonificationRate(a);
+      lppEstimate += salaireCoord * getLppBonificationRate(a);
     }
     // Add ~2% annual return compounding
     lppEstimate *= 1.0 + (yearsContrib * 0.015);
@@ -439,7 +439,7 @@ class PrecisionService {
       final coordMin = (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, lppSalaireCoordMax);
       double obligEstimate = 0;
       for (int a = (age - yearsContrib).round(); a < age; a++) {
-        obligEstimate += coordMin * _bonificationRate(a);
+        obligEstimate += coordMin * getLppBonificationRate(a);
       }
       obligEstimate *= 1.0 + (yearsContrib * 0.01);
 
@@ -710,14 +710,8 @@ class PrecisionService {
     }
   }
 
-  /// LPP bonification rate by age (LPP art. 16).
-  static double _bonificationRate(int age) {
-    if (age < 25) return 0;
-    if (age < 35) return 0.07;
-    if (age < 45) return 0.10;
-    if (age < 55) return 0.15;
-    return 0.18;
-  }
+  // _bonificationRate removed — use centralized getLppBonificationRate(age)
+  // from social_insurance.dart (LPP art. 16).
 
   /// Approximate net/gross ratio by canton.
   static double _netRatio(String canton) {

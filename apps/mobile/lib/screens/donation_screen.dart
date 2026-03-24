@@ -6,6 +6,8 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -84,6 +86,37 @@ class _DonationScreenState extends State<DonationScreen> {
     'communaute_biens': 'Communauté de biens',
     'separation_biens': 'Séparation de biens',
   };
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+        if (profile.age > 0) {
+          _donateurAge = profile.age;
+        }
+        if (profile.nombreEnfants > 0) {
+          _nbEnfants = profile.nombreEnfants;
+        }
+        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
+        if (totalPatrimoine > 0) {
+          _fortuneTotaleDonateur = totalPatrimoine;
+        }
+      });
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
