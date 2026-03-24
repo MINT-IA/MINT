@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONCUBINAGE SCREEN — Category C (Life Event)
@@ -257,14 +258,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   Widget _buildComparateurInputs() {
     final sortedCodes = FamilyService.sortedCantonCodes;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -466,13 +463,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     final difference = fiscal['difference'] as double;
     final isPenalite = fiscal['isPenalite'] as bool;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -526,13 +520,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
     if (impot <= 0) return const SizedBox.shrink();
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -676,14 +667,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // LPP slider
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.lg),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-          ),
+          radius: 16,
           child: _buildSlider(
             label: S.of(context)!.concubinageProtectionLppSlider,
             value: _renteLpp,
@@ -802,13 +789,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   }
 
   Widget _buildProtectionComparison() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -941,13 +925,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // Progress bar
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.lg),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
+          radius: 16,
           child: Column(
             children: [
               Row(

@@ -10,6 +10,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// "Coffre-fort" (Document Vault) screen.
 ///
@@ -159,13 +160,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     // Compute confidence choc: rough heuristic
     final confidencePct = totalDocs >= 6 ? 95 : (totalDocs * 15).clamp(0, 90);
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -268,13 +265,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: InkWell(
         onTap: () => _pickAndUpload(type),
         borderRadius: BorderRadius.circular(20),
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.md),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: MintColors.border),
-          ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -524,13 +517,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           child: InkWell(
             onTap: () => context.push('/documents/${doc.id}'),
             borderRadius: BorderRadius.circular(16),
-          child: Container(
+          child: MintSurface(
+            tone: MintSurfaceTone.blanc,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.border),
-            ),
+            radius: 16,
             child: Row(
               children: [
                 Container(
@@ -873,29 +863,28 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildFieldRow(String label, String value) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.sm),
-      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 14),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              label,
-              style: MintTextStyles.bodyMedium(),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 14),
+        radius: 14,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Text(
+                label,
+                style: MintTextStyles.bodyMedium(),
+              ),
             ),
-          ),
-          const SizedBox(width: MintSpacing.sm),
-          Text(
-            value,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
-          ),
-        ],
+            const SizedBox(width: MintSpacing.sm),
+            Text(
+              value,
+              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -956,13 +945,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: InkWell(
         onTap: () => context.push('/bank-import'),
         borderRadius: BorderRadius.circular(20),
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.md),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
-          ),
         child: Row(
           children: [
             Container(
