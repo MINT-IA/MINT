@@ -28,6 +28,7 @@ import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -376,7 +377,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ],
 
                 // Position 1: Hero — Replacement rate arc (the single moment hero)
-                Center(
+                MintEntrance(child: Center(
                   child: MintProgressArc(
                     value: proj.tauxRemplacementBase,
                     maxValue: 100,
@@ -384,11 +385,11 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     subtitle: l.dashboardMetricReplacementRate,
                     size: 200,
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
 
                 // Position 1b: Hero Zone — monthly income, sparkline, pillar bar
-                RetirementHeroZone(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: RetirementHeroZone(
                   monthlyIncome: isCouple && partnerMonthly != null
                       ? monthlyBase + partnerMonthly
                       : monthlyBase,
@@ -406,7 +407,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   partnerName: profile.conjoint?.firstName,
                   partnerMonthlyIncome: partnerMonthly,
                   onConfidenceTap: () => _showEnrichmentSheet(context),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── BELOW FOLD ──
@@ -425,7 +426,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   ),
 
                 // Position 2b: Pillar signal rows (AVS/LPP/3a — light, not heavy cards)
-                MintSurface(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: MintSurface(
                   tone: MintSurfaceTone.craie,
                   padding: const EdgeInsets.symmetric(
                     horizontal: MintSpacing.lg,
@@ -451,7 +452,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                         ),
                     ],
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
 
                 // Position 2c: Confidence notice (premium)

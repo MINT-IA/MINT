@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -307,50 +308,50 @@ class _DossierTabState extends State<DossierTab> {
                 // ═══════════════════════════════════════
                 //  Section 1 — Identité
                 // ═══════════════════════════════════════
-                _SectionLabel(
+                MintEntrance(child: _SectionLabel(
                   l.dossierIdentiteSection,
                   timestamp: _mostRecentTimestamp(timestamps, [
                     'firstName', 'birthYear', 'canton', 'nationality',
                     'etatCivil',
                   ]),
                   l: l,
-                ),
-                _ProfileSection(
+                )),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _ProfileSection(
                   mintState: mintState,
                   provider: provider,
                   enrichmentPrompts: enrichmentPrompts,
                   firstName: firstName,
                   confidencePct: confidencePct,
                   l: l,
-                ),
+                )),
 
                 const SizedBox(height: MintSpacing.xl),
 
                 // ═══════════════════════════════════════
                 //  Section 2 — Données
                 // ═══════════════════════════════════════
-                _SectionLabel(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _SectionLabel(
                   l.dossierDataSection,
                   timestamp: _mostRecentTimestamp(timestamps, [
                     'salaireBrutMensuel', 'prevoyance.avoirLppTotal',
                     'prevoyance.totalEpargne3a', 'depenses.budget',
                   ]),
                   l: l,
-                ),
-                _DataSection(
+                )),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _DataSection(
                   mintState: mintState,
                   provider: provider,
                   l: l,
                   previousValues: _snapshotLoaded ? _previousValues : const {},
-                ),
+                )),
 
                 const SizedBox(height: MintSpacing.xl),
 
                 // ═══════════════════════════════════════
                 //  Section 3 — Documents
                 // ═══════════════════════════════════════
-                _SectionLabel(l.dossierDocumentsSection, l: l),
-                _DocumentsSection(l: l),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _SectionLabel(l.dossierDocumentsSection, l: l)),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _DocumentsSection(l: l)),
 
                 const SizedBox(height: MintSpacing.xl),
 
