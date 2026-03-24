@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran des ressources d'aide en cas de dette.
 ///
@@ -96,13 +97,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
   }
 
   Widget _buildIntroCard() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -140,13 +137,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
     required IconData icon,
     required Color color,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -229,13 +222,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
   }
 
   Widget _buildCantonalSection(HelpResource? cantonalResource) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -289,12 +278,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               child: InkWell(
               onTap: () => _launchUrl(cantonalResource.url),
               borderRadius: BorderRadius.circular(12),
-              child: Container(
+              child: MintSurface(
+                tone: MintSurfaceTone.porcelaine,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                radius: 12,
                 child: Row(
                   children: [
                     Container(

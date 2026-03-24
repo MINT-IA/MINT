@@ -594,12 +594,11 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 if (reward != null)
-                  Container(
+                  MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
                     padding: const EdgeInsets.symmetric(
                         horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
-                    decoration: BoxDecoration(
-                        color: MintColors.porcelaine,
-                        borderRadius: BorderRadius.circular(8)),
+                    radius: 8,
                     child: Text(reward,
                         style: MintTextStyles.micro(
                           color: MintColors.primary,

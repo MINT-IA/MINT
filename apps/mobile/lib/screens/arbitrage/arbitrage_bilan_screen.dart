@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ARBITRAGE BILAN SCREEN — S45 Phase 1
@@ -204,13 +205,10 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 8),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
+        radius: 14,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -283,20 +281,10 @@ class _ArbitrageItemCard extends StatelessWidget {
       child: InkWell(
       onTap: () => context.push(item.route),
       borderRadius: BorderRadius.circular(16),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.lightBorder),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        radius: 16,
+        elevated: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -390,13 +378,10 @@ class _LockedItemCard extends StatelessWidget {
       child: InkWell(
       onTap: () => context.push(locked.enrichmentRoute),
       borderRadius: BorderRadius.circular(14),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 14,
         child: Row(
           children: [
             Container(

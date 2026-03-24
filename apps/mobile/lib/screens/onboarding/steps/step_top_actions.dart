@@ -5,6 +5,7 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Step 4 of the Smart Onboarding flow — Top 3 Actions.
 ///
@@ -185,13 +186,9 @@ class _ActionCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
+        child: MintSurface(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: MintColors.card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
+          radius: 16,
           child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

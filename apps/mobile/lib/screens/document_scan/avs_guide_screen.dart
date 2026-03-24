@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  AVS GUIDE SCREEN — Sprint S45
@@ -414,13 +415,10 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   // ── Privacy note ──────────────────────────────────────────
 
   Widget _buildPrivacyNote(S l) {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

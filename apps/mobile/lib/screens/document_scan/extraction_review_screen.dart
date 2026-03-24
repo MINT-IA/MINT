@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXTRACTION REVIEW SCREEN — Sprint S42-S43
@@ -213,25 +214,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         statusIcon = Icons.error_outline;
     }
 
-    return Container(
-      width: double.infinity,
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: field.needsReview
-              ? badgeColor.withValues(alpha: 0.4)
-              : MintColors.lightBorder,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      radius: 14,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -333,13 +319,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   // ── Disclaimer ───────────────────────────────────────────
 
   Widget _buildDisclaimer() {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DIVIDENDE VS SALAIRE SCREEN — Sprint S18
@@ -233,13 +234,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     required int divisions,
     required ValueChanged<double> onChanged,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -338,13 +334,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildResultSection() {
     final r = _result!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         children: [
           _buildResultRow(
@@ -426,13 +417,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     final r = _result!;
     if (r.sensitivity.isEmpty) return const SizedBox.shrink();
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -554,12 +540,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintSurface(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              radius: 10,
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: 12),

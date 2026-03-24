@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -184,13 +185,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildSituationSelector(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -251,13 +248,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildProfileInputs(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -293,13 +286,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildNewEmployerToggle(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Row(
         children: [
           Expanded(
@@ -364,13 +353,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildChecklistSection(List<ChecklistItem> items, S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -386,15 +371,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildChecklistCard(ChecklistItem item, int index, S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(color: _urgencyColor(item.urgency), width: 3),
-        ),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -436,13 +416,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildRecommendationsSection(List<String> recommendations, S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -507,12 +483,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildPrivacyNote(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -6,6 +6,7 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Step 2 of the Smart Onboarding flow — Chiffre Choc reveal.
 ///
@@ -192,21 +193,10 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                 opacity: _fadeAnim,
                 child: ScaleTransition(
                   scale: _scaleAnim,
-                  child: Container(
-                    width: double.infinity,
+                  child: MintSurface(
                     padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: MintColors.card,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: MintColors.lightBorder),
-                      boxShadow: [
-                        BoxShadow(
-                          color: accentColor.withAlpha(20),
-                          blurRadius: 40,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
-                    ),
+                    radius: 24,
+                    elevated: true,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -283,15 +273,13 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
               // ── CONFIDENCE BAR ───────────────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 100), child: FadeTransition(
                 opacity: _fadeAnim,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 14,
                   ),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  radius: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -550,13 +538,10 @@ class _LiteracyQuestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+      radius: 14,
       child: Row(
         children: [
           Expanded(

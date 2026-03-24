@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
 ///
@@ -150,13 +151,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   // ── 1. Hero Card ──────────────────────────────────────────────
 
   Widget _buildHeroCard() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Row(
         children: [
           Container(
@@ -196,13 +193,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   // ── 2. Input Section ──────────────────────────────────────────
 
   Widget _buildInputSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -358,13 +351,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   // ── 4. Breakdown Section ──────────────────────────────────────
 
   Widget _buildBreakdownSection(Retroactive3aResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -603,16 +592,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     required Color color,
     required bool isHighlighted,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isHighlighted ? color : MintColors.border,
-          width: isHighlighted ? 2 : 1,
-        ),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -684,13 +666,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     required String subtitle,
     required Color color,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

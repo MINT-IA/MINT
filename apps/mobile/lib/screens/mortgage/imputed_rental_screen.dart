@@ -10,6 +10,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de calcul de la valeur locative et de son impact fiscal.
 ///
@@ -132,13 +133,9 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
   }
 
   Widget _buildIntroCard(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -166,13 +163,9 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
     return Semantics(
       label: 'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-        ),
+        radius: 16,
         child: Column(
           children: [
             Icon(icon, color: color, size: 40),
@@ -194,13 +187,9 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
   }
 
   Widget _buildDecompositionCard(S s, ImputedRentalResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -692,15 +692,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       context.push('/data-block/${p.category}');
                     },
                     borderRadius: BorderRadius.circular(12),
-                    child: Container(
+                    child: MintSurface(
+                      tone: MintSurfaceTone.porcelaine,
                       padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: MintColors.border.withValues(alpha: 0.5),
-                        ),
-                      ),
+                      radius: 12,
                       child: Row(
                         children: [
                           Container(
@@ -843,13 +838,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       button: true,
       child: GestureDetector(
         onTap: () => context.push('/education/hub'),
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(MintSpacing.md),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-          ),
+          radius: 14,
           child: Row(
             children: [
               Container(
@@ -1030,22 +1022,10 @@ class _ActionCard extends StatelessWidget {
       child: GestureDetector(
         onTap:
             card.deeplink != null ? () => context.push(card.deeplink!) : null,
-        child: Container(
+        child: MintSurface(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: urgencyColor.withValues(alpha: 0.15),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: MintColors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+          radius: 14,
+          elevated: true,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

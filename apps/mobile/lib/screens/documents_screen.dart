@@ -584,14 +584,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildEmptyState(S s) {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.xl),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Column(
         children: [
           Icon(Icons.folder_open_outlined,
@@ -704,13 +699,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildUploadingIndicator(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Row(
         children: [
           const SizedBox(
@@ -1027,13 +1018,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildDisclaimer(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

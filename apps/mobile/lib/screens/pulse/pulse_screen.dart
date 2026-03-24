@@ -26,6 +26,7 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ── Goal category resolved from active profile + MintStateProvider ──
 enum _ActiveGoal { retirement, budget, housing }
@@ -618,15 +619,9 @@ class _PulseScreenState extends State<PulseScreen> {
   Widget _buildFallbackAction(BuildContext context) {
     return GestureDetector(
       onTap: () => NavigationShellState.switchTab(1),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.5),
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           children: [
             Container(

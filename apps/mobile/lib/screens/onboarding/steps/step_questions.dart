@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Step 1 of the Smart Onboarding flow — 5 core questions.
 ///
@@ -493,12 +494,10 @@ class _SalarySelectorState extends State<_SalarySelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      radius: 16,
       child: SizedBox(
         height: 150,
         child: CupertinoPicker(
@@ -593,12 +592,10 @@ class _AgePickerState extends State<_AgePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1037,12 +1034,9 @@ class _CantonPicker extends StatelessWidget {
         ? l.onboardingSmartCantonLabel
         : '$value — ${cantonFullNames[value] ?? value}';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 16,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => _open(context),

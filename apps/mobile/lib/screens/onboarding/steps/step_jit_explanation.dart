@@ -5,6 +5,7 @@ import 'package:mint_mobile/services/analytics_events.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Step 3 of the Smart Onboarding flow — JIT (Just-In-Time) Explanation.
 ///
@@ -76,13 +77,8 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
               // ── SI...ALORS CARD ────────────────────────────────────
               Expanded(
                 child: MintEntrance(delay: const Duration(milliseconds: 100), child: SingleChildScrollView(
-                  child: Container(
+                  child: MintSurface(
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: MintColors.card,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: MintColors.lightBorder),
-                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -103,12 +99,10 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                         const SizedBox(height: 24),
 
                         // WHY IT MATTERS
-                        Container(
+                        MintSurface(
+                          tone: MintSurfaceTone.porcelaine,
                           padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: MintColors.surface,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          radius: 12,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

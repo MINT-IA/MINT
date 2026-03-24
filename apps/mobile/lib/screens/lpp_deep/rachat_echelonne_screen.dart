@@ -315,13 +315,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               Text(l.rachatEchelonneCanton, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
               Semantics(
                 label: l.rachatEchelonneCanton,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: MintColors.border),
-                  ),
+                  radius: 8,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _canton,
@@ -344,12 +341,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(l.rachatEchelonneEtatCivil, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              Container(
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: MintColors.border),
-                ),
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                radius: 8,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -366,13 +360,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           const SizedBox(height: MintSpacing.lg),
 
           // Auto-calculated taux marginal
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.border),
-            ),
+            radius: 12,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -663,9 +654,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           for (int i = 0; i < result.yearlyPlan.length; i++)
             _buildTimelineNode(year: result.yearlyPlan[i], index: i, total: result.yearlyPlan.length, lacunePercent: _rachatMax > 0 ? (cumulativeRachat[i] / _rachatMax * 100).clamp(0.0, 100.0) : 0.0, l: l),
           const SizedBox(height: MintSpacing.sm),
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12)),
+            radius: 12,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -711,10 +703,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
-            child: Container(
-              margin: EdgeInsets.only(bottom: isLast ? 0 : MintSpacing.sm + 4),
+            child: MintSurface(
+              tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: MintColors.border)),
+              radius: 12,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

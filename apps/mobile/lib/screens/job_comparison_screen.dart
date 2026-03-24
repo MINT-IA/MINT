@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -359,12 +360,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
 
   // --- Header ---
   Widget _buildHeader() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Row(
         children: [
           Container(
@@ -791,12 +789,10 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       child: Column(
         children: [
           // Header row
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 10),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(8),
-            ),
+            radius: 8,
             child: Row(
               children: [
                 Expanded(
@@ -1107,12 +1103,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
 
   // --- Expandable Tile ---
   Widget _buildExpandableTile(String title, String content) {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 16,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(

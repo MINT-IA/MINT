@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANNUAL REFRESH SCREEN — T6 / MINT Coach
@@ -711,20 +712,10 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 ),
                 const SizedBox(height: 24),
                 // Score comparison card
-                Container(
+                MintSurface(
                   padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: MintColors.card,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: MintColors.lightBorder),
-                    boxShadow: [
-                      BoxShadow(
-                        color: MintColors.black.withAlpha(8),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+                  radius: 16,
+                  elevated: true,
                   child: Column(
                     children: [
                       Row(
@@ -831,20 +822,10 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     String? helpText,
     required Widget child,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.black.withAlpha(5),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      radius: 16,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

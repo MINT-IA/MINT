@@ -19,6 +19,7 @@ import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Allocation annuelle arbitrage screen — compare 3a, rachat LPP,
 /// amortissement indirect, and investissement libre.
@@ -332,13 +333,9 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -521,14 +518,9 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
     final options = _result!.options;
     final colorMap = _colorsForOptions(options);
 
-    return Container(
-      width: double.infinity,
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -589,14 +581,9 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
     if (_result == null) return const SizedBox.shrink();
     return Semantics(
       label: _result!.chiffreChoc,
-      child: Container(
-        width: double.infinity,
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border.withAlpha(128)),
-        ),
+        radius: 16,
         child: Column(
           children: [
             Container(
@@ -679,13 +666,10 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
     if (_result == null) return const SizedBox.shrink();
     return Semantics(
       label: l.allocAnnuelleAvertissement,
-      child: Container(
-        width: double.infinity,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

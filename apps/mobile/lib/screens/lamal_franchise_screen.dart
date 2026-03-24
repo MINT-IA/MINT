@@ -12,6 +12,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LAMAL FRANCHISE OPTIMISER SCREEN — Sprint S13 / Chantier 7
@@ -201,13 +202,11 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(
+        const MintSurface(
+          tone: MintSurfaceTone.porcelaine,
+          padding: EdgeInsets.all(14),
+          radius: 16,
+          child: Icon(
             Icons.health_and_safety,
             color: MintColors.info,
             size: 28,
@@ -237,13 +236,10 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   // ── Intro ──────────────────────────────────────────────────
 
   Widget _buildIntro() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -263,12 +259,10 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   // ── Toggle ─────────────────────────────────────────────────
 
   Widget _buildToggle() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.xs),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         children: [
           Expanded(
@@ -368,14 +362,8 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   // ── Prime slider ───────────────────────────────────────────
 
   Widget _buildPrimeSlider() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: MintPremiumSlider(
         label: S.of(context)!.lamalFranchisePrimeSliderLabel,
         value: _primeMensuelle,
@@ -394,14 +382,8 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   // ── Depenses slider ────────────────────────────────────────
 
   Widget _buildDepensesSlider() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: MintPremiumSlider(
         label: S.of(context)!.lamalFranchiseDepensesSliderLabel,
         value: _depensesSante,
@@ -450,18 +432,9 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   }
 
   Widget _buildFranchiseCard(FranchiseComparison c) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: c.isOptimal
-              ? MintColors.success
-              : MintColors.border.withValues(alpha: 0.6),
-          width: c.isOptimal ? 2 : 0.8,
-        ),
-      ),
+      radius: 16,
       child: Column(
         children: [
           Row(
@@ -553,14 +526,9 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     final result = _result!;
     if (result.breakEvenPoints.isEmpty) return const SizedBox.shrink();
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -633,15 +601,9 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         const SizedBox(height: MintSpacing.sm + 4),
         ...result.recommandations.map((rec) => Padding(
               padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-              child: Container(
+              child: MintSurface(
                 padding: const EdgeInsets.all(MintSpacing.md),
-                decoration: BoxDecoration(
-                  color: MintColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: MintColors.border.withValues(alpha: 0.6),
-                      width: 0.8),
-                ),
+                radius: 16,
                 child: Text(
                   rec,
                   style: MintTextStyles.bodySmall(

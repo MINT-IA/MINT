@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
   const SimulatorCompoundScreen({super.key});
@@ -101,12 +102,9 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   }
 
   Widget _buildCoachSection() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -271,12 +269,10 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
           const SizedBox(width: MintSpacing.md),

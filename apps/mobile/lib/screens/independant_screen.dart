@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
@@ -274,13 +275,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Intro ──────────────────────────────────────────────────
 
   Widget _buildIntro() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -441,14 +439,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Revenue section ────────────────────────────────────────
 
   Widget _buildRevenueSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -483,14 +476,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Coverage toggles ───────────────────────────────────────
 
   Widget _buildCoverageToggles() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -640,16 +628,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
     return Semantics(
       label: '${gap.label}: $statusLabel',
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: statusColor.withValues(alpha: 0.3),
-            width: gap.isCovered ? 0.8 : 1.5,
-          ),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -718,14 +699,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
     final result = _result!;
     final cost = result.protectionCost;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -920,15 +896,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
         ...result.recommendations.asMap().entries.map((entry) {
           return Padding(
             padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-            child: Container(
+            child: MintSurface(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                    color: MintColors.border.withValues(alpha: 0.6),
-                    width: 0.8),
-              ),
+              radius: 14,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1183,12 +1153,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget _buildDisclaimer() {
     return Semantics(
       label: S.of(context)!.independantDisclaimer,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

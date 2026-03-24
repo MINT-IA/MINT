@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/confidence/confidence_breakdown_chart.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONFIDENCE DASHBOARD SCREEN — Sprint S46
@@ -406,13 +407,10 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildDisclaimer() {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Text(
         widget.result.disclaimer,
         textAlign: TextAlign.center,

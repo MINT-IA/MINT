@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de financement EPL multi-sources.
 ///
@@ -147,13 +148,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
     return Semantics(
       label: '${result.pourcentageCouvert.toStringAsFixed(1)}%',
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-        ),
+        radius: 16,
         child: Column(
           children: [
             Icon(
@@ -190,13 +187,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       return const SizedBox.shrink();
     }
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -283,13 +276,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   Widget _buildSlidersSection(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -431,13 +420,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   Widget _buildSourcesDetail(S s, EplCombinedResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -531,13 +516,10 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   Widget _buildOrdreRecommande(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

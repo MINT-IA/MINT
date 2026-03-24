@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -64,21 +65,12 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: MintSpacing.xl),
                 // Logo
-                MintEntrance(child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(MintSpacing.md),
-                    decoration: BoxDecoration(
-                      color: MintColors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: MintColors.black.withValues(alpha: 0.06),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
+                const MintEntrance(child: Center(
+                  child: MintSurface(
+                    padding: EdgeInsets.all(MintSpacing.md),
+                    radius: 24,
+                    elevated: true,
+                    child: Icon(
                       Icons.token_rounded,
                       color: MintColors.primary,
                       size: 48,

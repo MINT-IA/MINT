@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  GENDER GAP PREVOYANCE SCREEN — Sprint S12 / Chantier 6
@@ -217,13 +218,8 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   // ── Taux slider ────────────────────────────────────────────
 
   Widget _buildTauxSlider(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -252,13 +248,8 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   // ── Input section ──────────────────────────────────────────
 
   Widget _buildInputSection(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -321,13 +312,8 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   Widget _buildPensionComparison(S s) {
     final result = _result!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -447,13 +433,8 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   Widget _buildCoordinationExplanation(S s) {
     final result = _result!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -477,12 +458,10 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(height: MintSpacing.md),
 
           // Comparison table
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Column(
               children: [
                 _buildComparisonRow(
@@ -611,13 +590,9 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   Widget _buildRecommendationCard(GenderGapRecommendation rec) {
     return Semantics(
       label: rec.title,
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -693,12 +693,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             // Auto-computed readout
             if (_result != null && _result!.isProjected) ...[
               const SizedBox(height: MintSpacing.sm),
-              Container(
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
                 padding: const EdgeInsets.all(MintSpacing.sm),
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                radius: 12,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -812,12 +810,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   children: [
                     Text(S.of(context)!.renteVsCapitalCanton, style: _labelStyle),
                     const SizedBox(height: MintSpacing.xs),
-                    Container(
+                    MintSurface(
+                      tone: MintSurfaceTone.porcelaine,
                       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-                      decoration: BoxDecoration(
-                        color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      radius: 12,
                       child: DropdownButton<String>(
                         value: _canton,
                         isExpanded: true,
@@ -1125,13 +1121,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ],
           ),
           const SizedBox(height: MintSpacing.md),
-          Container(
-            width: double.infinity,
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.sm),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            radius: 10,
             child: Text(
               synthese,
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
@@ -1141,14 +1134,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           // AVS complement if available
           if (_avsRenteMensuelle != null && _avsRenteMensuelle! > 0) ...[
             const SizedBox(height: MintSpacing.sm),
-            Container(
-              width: double.infinity,
+            MintSurface(
+              tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: MintColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: MintColors.lightBorder),
-              ),
+              radius: 10,
               child: Row(
                 children: [
                   const Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),

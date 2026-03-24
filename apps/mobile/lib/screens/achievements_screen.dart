@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/milestone_detection_service.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ACHIEVEMENTS SCREEN — S55 / Daily Streaks + Achievements
@@ -317,12 +318,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildStatChip(IconData icon, String label) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -704,14 +702,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildMilestoneCategoryCard(_MilestoneCategory category) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.md),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -789,14 +782,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildMilestoneTypeCategoryCard(_MilestoneCategory category) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.md),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -861,12 +849,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   // ════════════════════════════════════════════════════════════
 
   Widget _buildDisclaimer(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -506,12 +506,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
-              Container(
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: MintColors.porcelaine,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                radius: 10,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _cantonAlloc,

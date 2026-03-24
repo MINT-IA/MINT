@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -246,13 +247,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildDettesSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -300,12 +297,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   Widget _buildDebtCard(int index) {
     final dette = _dettes[index];
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -416,13 +411,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       label: '$label: $display',
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
+        child: MintSurface(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 10,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -605,13 +596,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         prefix: 'CHF',
         onChanged: (v) => setState(() => _budgetMensuel = v),
       ),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
-        ),
+        radius: 16,
         child: Row(
           children: [
             Container(
@@ -684,12 +671,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
-          ),
+          radius: 12,
           child: Column(
             children: [
               _buildComparisonRow(
@@ -729,16 +714,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     required double interets,
     required IconData icon,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: MintColors.border,
-          width: 1,
-        ),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -847,13 +825,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       sampled.add(timeline.last);
     }
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -937,13 +911,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         children: [
           const Icon(Icons.account_balance_wallet_outlined,

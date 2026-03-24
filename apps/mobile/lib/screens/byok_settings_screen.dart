@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// BYOK Settings Screen - Configure your own LLM API key.
 ///
@@ -125,13 +126,10 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
   }
 
   Widget _buildPrivacyCard(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -535,13 +533,10 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       children: [
         _buildSectionLabel(s.byokLearnTitle),
         const SizedBox(height: MintSpacing.md),
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(MintSpacing.lg - 4),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.border),
-          ),
+          radius: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

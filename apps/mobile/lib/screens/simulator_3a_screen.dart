@@ -20,6 +20,7 @@ import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -212,12 +213,10 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
   Widget _buildCoachSection() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -379,14 +378,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               ),
             ),
             const SizedBox(width: MintSpacing.sm),
-            Container(
+            MintSurface(
+              tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.symmetric(
                 horizontal: MintSpacing.md, vertical: MintSpacing.xs),
-              decoration: BoxDecoration(
-                color: MintColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: MintColors.border),
-              ),
+              radius: 12,
               child: Text(
                 l.sim3aYearsReadOnly(_years),
                 style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
@@ -436,13 +432,10 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
   Widget _buildResultSection() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         children: [
           Text(l.sim3aAnnualTaxSaved, style: MintTextStyles.bodyMedium()),
@@ -498,12 +491,10 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
           const SizedBox(width: MintSpacing.md),

@@ -526,11 +526,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 .copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: MintSpacing.sm + 2),
-          Container(
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(10),
-            ),
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
+            radius: 10,
             child: Row(
               children: List.generate(options.length, (i) {
                 final isSelected = i == selectedIndex;

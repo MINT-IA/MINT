@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Admin analytics dashboard — shows event summary + conversion funnel.
 ///
@@ -223,13 +224,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildKpiCard(String label, String value, IconData icon) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -258,12 +255,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   Widget _buildFunnel(S l10n) {
     if (_funnelSteps.isEmpty) {
-      return Container(
+      return MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.lg - 4),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Text(
           l10n.adminAnalyticsNoFunnel,
           style: MintTextStyles.bodyMedium(),
@@ -273,12 +268,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
     final firstCount = (_funnelSteps.first['count'] as int?) ?? 1;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      radius: 16,
       child: Column(
         children: _funnelSteps.asMap().entries.map((entry) {
           final i = entry.key;
@@ -353,12 +344,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   Widget _buildBreakdownCard(Map<String, dynamic> data, S l10n) {
     if (data.isEmpty) {
-      return Container(
+      return MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.lg - 4),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Text(
           l10n.adminAnalyticsNoData,
           style: MintTextStyles.bodyMedium(),
@@ -370,12 +359,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     final entries = data.entries.toList()
       ..sort((a, b) => ((b.value as int?) ?? 0).compareTo((a.value as int?) ?? 0));
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      radius: 16,
       child: Column(
         children: entries.asMap().entries.map((entry) {
           final i = entry.key;

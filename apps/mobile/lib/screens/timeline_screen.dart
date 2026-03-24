@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LIFE EVENT DEFINITION
@@ -386,21 +387,10 @@ class TimelineScreen extends StatelessWidget {
       button: true,
       child: GestureDetector(
         onTap: () => context.push(action.route),
-        child: Container(
-          width: 150,
-          padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: action.color.withValues(alpha: 0.25)),
-          boxShadow: [
-            BoxShadow(
-              color: action.color.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        child: MintSurface(
+        padding: const EdgeInsets.all(14),
+        radius: 16,
+        elevated: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -495,13 +485,9 @@ class TimelineScreen extends StatelessWidget {
         child: InkWell(
           onTap: () => context.push(event.route),
           borderRadius: BorderRadius.circular(14),
-        child: Container(
+        child: MintSurface(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
+          radius: 14,
           child: Row(
             children: [
               Container(

@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
 ///
@@ -175,13 +176,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildSlidersSection() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -269,13 +266,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildRendementSection(RealReturnResult result) {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -321,13 +314,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     final ratioEpargne =
         maxVal > 0 ? (result.capitalFinalEpargne / maxVal) : 0.0;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -412,13 +401,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildFiscalDetail(RealReturnResult result) {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

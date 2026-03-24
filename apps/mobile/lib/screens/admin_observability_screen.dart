@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 typedef AdminMapLoader = Future<Map<String, dynamic>> Function({int days});
 typedef AdminCsvLoader = Future<String> Function({int days});
@@ -312,13 +313,9 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
   }
 
   Widget _chip(String label, String value) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 2, vertical: 7),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 9,
       child: Text(
         '$label: $value',
         style: MintTextStyles.labelSmall(
@@ -337,13 +334,9 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 14,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
