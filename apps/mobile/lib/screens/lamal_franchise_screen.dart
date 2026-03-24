@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LAMAL FRANCHISE OPTIMISER SCREEN — Sprint S13 / Chantier 7
@@ -358,69 +359,17 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  S.of(context)!.lamalFranchisePrimeSliderLabel,
-                  style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: MintSpacing.sm + 4,
-                    vertical: MintSpacing.xs + 2),
-                decoration: BoxDecoration(
-                  color: MintColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  LamalFranchiseService.formatChf(_primeMensuelle),
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
-                      .copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: S.of(context)!.lamalFranchisePrimeSliderLabel,
-              slider: true,
-              child: Slider(
-                value: _primeMensuelle,
-                min: 200,
-                max: 600,
-                divisions: 40,
-                onChanged: (value) {
-                  _primeMensuelle = value;
-                  _compute();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.lamalFranchisePrimeMin,
-                  style: MintTextStyles.labelSmall()),
-              Text(S.of(context)!.lamalFranchisePrimeMax,
-                  style: MintTextStyles.labelSmall()),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: S.of(context)!.lamalFranchisePrimeSliderLabel,
+        value: _primeMensuelle,
+        min: 200,
+        max: 600,
+        divisions: 40,
+        formatValue: (v) => LamalFranchiseService.formatChf(v),
+        onChanged: (value) {
+          _primeMensuelle = value;
+          _compute();
+        },
       ),
     );
   }
@@ -436,78 +385,22 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  S.of(context)!.lamalFranchiseDepensesSliderLabel,
-                  style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: MintSpacing.sm + 4,
-                    vertical: MintSpacing.xs + 2),
-                decoration: BoxDecoration(
-                  color: _depensesSante > 3000
-                      ? MintColors.error.withValues(alpha: 0.1)
-                      : _depensesSante > 1000
-                          ? MintColors.warning.withValues(alpha: 0.1)
-                          : MintColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  LamalFranchiseService.formatChf(_depensesSante),
-                  style: MintTextStyles.bodySmall(
-                    color: _depensesSante > 3000
-                        ? MintColors.error
-                        : _depensesSante > 1000
-                            ? MintColors.warning
-                            : MintColors.success,
-                  ).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: S.of(context)!.lamalFranchiseDepensesSliderLabel,
-              slider: true,
-              child: Slider(
-                value: _depensesSante,
-                min: 0,
-                max: 10000,
-                divisions: 100,
-                onChanged: (value) {
-                  _depensesSante = value;
-                  _compute();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.lamalFranchiseDepensesMin,
-                  style: MintTextStyles.labelSmall()),
-              Text(S.of(context)!.lamalFranchiseDepensesMax,
-                  style: MintTextStyles.labelSmall()),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: S.of(context)!.lamalFranchiseDepensesSliderLabel,
+        value: _depensesSante,
+        min: 0,
+        max: 10000,
+        divisions: 100,
+        activeColor: _depensesSante > 3000
+            ? MintColors.error
+            : _depensesSante > 1000
+                ? MintColors.warning
+                : MintColors.success,
+        formatValue: (v) => LamalFranchiseService.formatChf(v),
+        onChanged: (value) {
+          _depensesSante = value;
+          _compute();
+        },
       ),
     );
   }

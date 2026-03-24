@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/coach/career_timelapse_widget.dart';
 import 'package:mint_mobile/widgets/coach/payslip_xray_widget.dart';
 import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -310,56 +311,14 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary),
-                ),
-              ),
-              Text(
-                valueLabel,
-                style: MintTextStyles.headlineMedium(
-                        color: MintColors.primary)
-                    .copyWith(fontSize: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: title,
-              slider: true,
-              child: Slider(
-                value: value,
-                min: min,
-                max: max,
-                divisions: divisions,
-                onChanged: onChanged,
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(minLabel, style: MintTextStyles.labelSmall()),
-              Text(maxLabel, style: MintTextStyles.labelSmall()),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: title,
+        value: value,
+        min: min,
+        max: max,
+        divisions: divisions,
+        formatValue: (_) => valueLabel,
+        onChanged: onChanged,
       ),
     );
   }
@@ -420,54 +379,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           const SizedBox(height: MintSpacing.md + 4),
 
           // Activity rate slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.firstJobActivityRate,
-                style:
-                    MintTextStyles.titleMedium(color: MintColors.textPrimary),
-              ),
-              Text(
-                '${_tauxActivite.toStringAsFixed(0)}\u00a0%',
-                style: MintTextStyles.headlineMedium(
-                        color: MintColors.primary)
-                    .copyWith(fontSize: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: S.of(context)!.firstJobActivityRate,
-              slider: true,
-              child: Slider(
-                value: _tauxActivite,
-                min: 10,
-                max: 100,
-                divisions: 18,
-                onChanged: (v) {
-                  _tauxActivite = v;
-                  _calculate();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.firstJobActivityMin,
-                  style: MintTextStyles.labelSmall()),
-              Text(S.of(context)!.firstJobActivityMax,
-                  style: MintTextStyles.labelSmall()),
-            ],
+          MintPremiumSlider(
+            label: S.of(context)!.firstJobActivityRate,
+            value: _tauxActivite,
+            min: 10,
+            max: 100,
+            divisions: 18,
+            formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+            onChanged: (v) {
+              _tauxActivite = v;
+              _calculate();
+            },
           ),
         ],
       ),
