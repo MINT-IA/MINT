@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -43,6 +44,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   bool _hasRachatLpp = true;
   bool _isPropertyOwner = false;
   int _anneesAvantRetraite = 20;
+  String _canton = 'VD';
 
   // ── Hypothesis sliders ──
   Map<String, double> _hypotheses = {
@@ -82,12 +84,33 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       _montantCtrl.text = pilier3aPlafondAvecLpp.round().toString();
       _hasEstimatedValues = true;
     }
-    if (profile.prevoyance.avoirLppTotal != null) {
-      // Estimate potential rachat (simplified: ~20% of current LPP)
-      final potentiel = (profile.prevoyance.avoirLppTotal! * 0.2).round();
-      _potentielRachatCtrl.text = potentiel.toString();
-      _hasRachatLpp = potentiel > 0;
+
+    // Canton from profile
+    if (cantonFullNames.containsKey(profile.canton)) {
+      _canton = profile.canton;
     }
+
+    // Real marginal rate via RetirementTaxCalculator
+    final revenu = profile.revenuBrutAnnuel;
+    if (revenu > 0) {
+      final rate = RetirementTaxCalculator.estimateMarginalRate(
+        revenu,
+        _canton,
+      );
+      _tauxMarginal = (rate * 100).roundToDouble().clamp(10, 50);
+    }
+
+    // Real lacune rachat LPP (not estimated 20%)
+    final lacune = profile.prevoyance.lacuneRachatRestante;
+    if (lacune > 0) {
+      _potentielRachatCtrl.text = lacune.round().toString();
+      _hasRachatLpp = true;
+    } else if (profile.prevoyance.avoirLppTotal != null) {
+      // Fallback: no lacune data, disable rachat
+      _potentielRachatCtrl.text = '0';
+      _hasRachatLpp = false;
+    }
+
     _anneesAvantRetraite = profile.anneesAvantRetraite;
     _dataSources = profile.dataSources;
     _recalculate();
@@ -119,7 +142,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       rendement3a: (_hypotheses['rendement_3a'] ?? 2.0) / 100,
       rendementLpp: (_hypotheses['rendement_lpp'] ?? 1.25) / 100,
       rendementMarche: (_hypotheses['rendement_marche'] ?? 4.0) / 100,
-      canton: 'VD',
+      canton: _canton,
       dataSources: _dataSources,
     );
 

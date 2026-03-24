@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -25,6 +27,43 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   double _versementAnnuel = pilier3aPlafondAvecLpp;
   int _duree = 35;
   ProfilRisque _profilRisque = ProfilRisque.dynamique;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        _age = profile.age;
+        _duree = profile.anneesAvantRetraite.clamp(5, 45);
+        // Map riskTolerance string to ProfilRisque enum
+        final risk = profile.riskTolerance;
+        if (risk != null) {
+          switch (risk.toLowerCase()) {
+            case 'prudent':
+            case 'conservateur':
+              _profilRisque = ProfilRisque.prudent;
+            case 'equilibre':
+            case 'modere':
+              _profilRisque = ProfilRisque.equilibre;
+            case 'dynamique':
+            case 'agressif':
+              _profilRisque = ProfilRisque.dynamique;
+          }
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   ProviderComparisonResult get _result => ProviderComparator.compare(
         age: _age,

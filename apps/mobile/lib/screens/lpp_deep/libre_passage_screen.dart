@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -26,6 +28,37 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   bool _hasNewEmployer = true;
   double _avoir = 150000;
   int _age = 35;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        _age = profile.age;
+        // Prefer libre passage total if available, otherwise fall back to LPP total
+        final librePassage = profile.prevoyance.totalLibrePassage;
+        if (librePassage > 0) {
+          _avoir = librePassage;
+        } else {
+          final lpp = profile.prevoyance.avoirLppTotal;
+          if (lpp != null && lpp > 0) {
+            _avoir = lpp;
+          }
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   LibrePassageResult get _result => LibrePassageAdvisor.analyze(
         statut: _statut,

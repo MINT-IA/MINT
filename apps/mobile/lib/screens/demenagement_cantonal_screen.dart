@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -31,6 +34,44 @@ class _DemenagementCantonalScreenState
   String _cantonArrivee = 'VS';
   double _revenuBrut = 120000;
   String _situationFamiliale = 'marie';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Departure canton = user's CURRENT canton
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _cantonDepart = profile.canton;
+        }
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) {
+          _revenuBrut = revenu;
+        }
+        // Map etatCivil to situation familiale
+        switch (profile.etatCivil) {
+          case CoachCivilStatus.marie:
+            _situationFamiliale = 'marie';
+          case CoachCivilStatus.celibataire:
+          case CoachCivilStatus.divorce:
+          case CoachCivilStatus.veuf:
+          case CoachCivilStatus.concubinage:
+            _situationFamiliale = 'celibataire';
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   // Simplified cantonal tax burden index (relative, GE=100)
   static const _indiceFiscal = {
