@@ -249,16 +249,16 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           MintEntrance(child: Text(l.staggered3aParametres, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5))),
           const SizedBox(height: MintSpacing.md),
 
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) => setState(() => _avoirTotal = v))),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) => setState(() => _avoirTotal = v))),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) { setState(() => _nbComptes = v.round()); _emitScreenReturn(); })),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) { setState(() => _nbComptes = v.round()); _emitScreenReturn(); })),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildCantonDropdown(l)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonDropdown(l)),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) => setState(() => _revenuImposable = v))),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) => setState(() => _revenuImposable = v))),
           const SizedBox(height: MintSpacing.sm + 4),
 
           _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 60, max: 65, divisions: 5, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) { setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; }); _emitScreenReturn(); }),

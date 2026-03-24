@@ -79,21 +79,21 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
           children: [
             MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildInputSection()),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
             const SizedBox(height: MintSpacing.xl),
             // ── P10-D : Le vrai coût du leasing ─────────────────
-            MintEntrance(delay: Duration(milliseconds: 200), child: LeasingCostWidget(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: LeasingCostWidget(
               vehiclePrice: _monthlyPayment * _durationMonths / 0.55,
               monthlyLeasing: _monthlyPayment,
               leasingDurationMonths: _durationMonths,
               annualReturnRate: _alternativeRate / 100,
             )),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 300), child: _buildAlternativesSection()),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAlternativesSection()),
             const SizedBox(height: MintSpacing.xxl),
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.xl),
           ],
         ),

@@ -724,19 +724,19 @@ Reponds uniquement avec le texte final.
                     ),
                   )),
                   const SizedBox(height: 20),
-                  MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     s.checkinAddContribution,
                     style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
                   )),
                   const SizedBox(height: 20),
 
                   // Category chips
-                  MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                     s.checkinCategoryLabel,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                   )),
                   const SizedBox(height: 8),
-                  MintEntrance(delay: Duration(milliseconds: 300), child: Wrap(
+                  MintEntrance(delay: const Duration(milliseconds: 300), child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: categories.map((cat) {
@@ -793,7 +793,7 @@ Reponds uniquement avec le texte final.
                   const SizedBox(height: 18),
 
                   // Label
-                  MintEntrance(delay: Duration(milliseconds: 400), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
                     s.checkinLabelField,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                   )),

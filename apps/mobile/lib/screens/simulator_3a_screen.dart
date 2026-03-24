@@ -181,7 +181,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           children: [
             MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildInputSection()),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null)
               SafeModeGate(
@@ -191,16 +191,16 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                 child: _buildResultSection(),
               ),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 200), child: SafeModeGate(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: SafeModeGate(
               hasDebt: hasDebt,
               lockedTitle: l.sim3aDebtStrategyTitle,
               lockedMessage: l.sim3aDebtStrategyMessage,
               child: _buildEducationSection(),
             )),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 300), child: _buildRelatedSections()),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRelatedSections()),
             const SizedBox(height: MintSpacing.xxl),
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.lg),
             _buildCountdown3a(),
             const SizedBox(height: MintSpacing.xl),

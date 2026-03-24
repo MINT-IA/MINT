@@ -339,7 +339,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             )),
 
             // ── CTA button (sticky) ──
-            MintEntrance(delay: Duration(milliseconds: 100), child: Padding(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
               padding: const EdgeInsets.fromLTRB(
                 MintSpacing.lg,
                 MintSpacing.sm,

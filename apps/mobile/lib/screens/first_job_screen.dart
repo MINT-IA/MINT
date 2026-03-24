@@ -100,11 +100,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               delegate: SliverChildListDelegate([
                 MintEntrance(child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildSalaireSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSalaireSlider()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildAgeSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeSlider()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildCantonAndActivity()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonAndActivity()),
                 const SizedBox(height: MintSpacing.lg),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -197,7 +197,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   _buildMintAnalysisSection(),
                   const SizedBox(height: MintSpacing.lg),
                 ],
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),

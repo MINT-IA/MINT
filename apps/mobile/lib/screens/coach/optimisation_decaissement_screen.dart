@@ -76,18 +76,18 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Tableau illustratif ───────────────────────
-                MintEntrance(delay: Duration(milliseconds: 100), child: EduSectionTitle(text: l.optimDecaissementIllustration)),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: EduSectionTitle(text: l.optimDecaissementIllustration)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _WithdrawalTable(l: l),
                 const SizedBox(height: MintSpacing.sm),
-                MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                   l.optimDecaissementTableFootnote,
                   style: MintTextStyles.micro(),
                 )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Plan d'action ────────────────────────────
-                MintEntrance(delay: Duration(milliseconds: 300), child: EduSectionTitle(text: l.optimDecaissementPlanTitle)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: EduSectionTitle(text: l.optimDecaissementPlanTitle)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _StepCard(
                   number: '1',
@@ -109,7 +109,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── CTA spécialiste ───────────────────────────
-                MintEntrance(delay: Duration(milliseconds: 400), child: EduSpecialistCta(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: EduSpecialistCta(
                   icon: Icons.person_outline,
                   color: MintColors.withdrawalOptim,
                   title: l.optimDecaissementSpecialisteTitle,

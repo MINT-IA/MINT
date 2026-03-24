@@ -69,20 +69,20 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               style: MintTextStyles.headlineLarge(),
             )),
             const SizedBox(height: MintSpacing.sm),
-            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               s.byokSubtitle,
               style: MintTextStyles.bodyLarge(),
             )),
             const SizedBox(height: MintSpacing.xl),
 
             // Privacy card
-            MintEntrance(delay: Duration(milliseconds: 200), child: _buildPrivacyCard(s)),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrivacyCard(s)),
             const SizedBox(height: MintSpacing.xl),
 
             // Provider selector
-            MintEntrance(delay: Duration(milliseconds: 300), child: _buildSectionLabel(s.byokProviderLabel)),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSectionLabel(s.byokProviderLabel)),
             const SizedBox(height: MintSpacing.sm + 4),
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildProviderSelector(s)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildProviderSelector(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // API Key input

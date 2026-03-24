@@ -60,7 +60,7 @@ class StepNextStep extends StatelessWidget {
               const SizedBox(height: 24),
 
               // ── HEADING ─────────────────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                 'Ton premier bilan est pret',
                 style: GoogleFonts.montserrat(
                   fontSize: 24,
@@ -70,7 +70,7 @@ class StepNextStep extends StatelessWidget {
                 textAlign: TextAlign.center,
               )),
               const SizedBox(height: 12),
-              MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                 'Precision actuelle : $confidencePct%. '
                 'Plus tu completes ton profil, plus les projections '
                 'seront fiables.',
@@ -85,7 +85,7 @@ class StepNextStep extends StatelessWidget {
               const Spacer(flex: 3),
 
               // ── PRIMARY CTA — enrich ────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                 button: true,
                 label: 'Affiner mon profil',
                 child: SizedBox(
@@ -182,7 +182,7 @@ class StepNextStep extends StatelessWidget {
               const SizedBox(height: 16),
 
               // ── DISCLAIMER ──────────────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 400), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
                 'Outil educatif simplifie. Ne constitue pas un conseil '
                 'financier (LSFin). '
                 'Sources: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',

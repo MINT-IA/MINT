@@ -208,11 +208,11 @@ class _MariageScreenState extends State<MariageScreen>
           _buildDeductionsBreakdown(),
           const SizedBox(height: MintSpacing.xl),
         ],
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.mariageEducationalPenalty,
         )),
         const SizedBox(height: MintSpacing.xl),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -417,7 +417,7 @@ class _MariageScreenState extends State<MariageScreen>
           ],
         )),
         const SizedBox(height: MintSpacing.sm + 4),
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildRegimeCard(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRegimeCard(
           index: 0,
           icon: Icons.handshake_outlined,
           title: S.of(context)!.mariageParticipation,
@@ -425,7 +425,7 @@ class _MariageScreenState extends State<MariageScreen>
           description: S.of(context)!.mariageParticipationDesc,
         )),
         const SizedBox(height: MintSpacing.sm + 2),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildRegimeCard(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRegimeCard(
           index: 1,
           icon: Icons.lock_outline,
           title: S.of(context)!.mariageSeparation,
@@ -433,7 +433,7 @@ class _MariageScreenState extends State<MariageScreen>
           description: S.of(context)!.mariageSeparationDesc,
         )),
         const SizedBox(height: MintSpacing.sm + 2),
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildRegimeCard(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRegimeCard(
           index: 2,
           icon: Icons.group_outlined,
           title: S.of(context)!.mariageCommunaute,
@@ -668,7 +668,7 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: MintSpacing.xl),
 
         // LPP slider
-        MintEntrance(delay: Duration(milliseconds: 100), child: MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           child: MintPremiumSlider(
             label: S.of(context)!.mariageLppRenteLabel,
@@ -687,7 +687,7 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: MintSpacing.xl),
 
         // AVS survivor
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildSurvivorCard(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSurvivorCard(
           icon: Icons.account_balance_outlined,
           label: S.of(context)!.mariageAvsSurvivor,
           subtitle: S.of(context)!.mariageAvsSurvivorSub,
@@ -697,7 +697,7 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: MintSpacing.sm + 4),
 
         // LPP survivor
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildSurvivorCard(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSurvivorCard(
           icon: Icons.savings_outlined,
           label: S.of(context)!.mariageLppSurvivor,
           subtitle: S.of(context)!.mariageLppSurvivorSub,
@@ -960,7 +960,7 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: MintSpacing.xl),
 
         // Progress bar
-        MintEntrance(delay: Duration(milliseconds: 100), child: MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           child: Column(
             children: [
@@ -1013,7 +1013,7 @@ class _MariageScreenState extends State<MariageScreen>
         }),
         const SizedBox(height: MintSpacing.lg),
 
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }

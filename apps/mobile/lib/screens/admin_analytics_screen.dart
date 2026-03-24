@@ -151,17 +151,17 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         const SizedBox(height: MintSpacing.lg),
 
         // KPI cards
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildKpiRow(l10n)),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildKpiRow(l10n)),
         const SizedBox(height: MintSpacing.lg),
 
         // Funnel
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildSectionTitle(l10n.adminAnalyticsFunnel)),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionTitle(l10n.adminAnalyticsFunnel)),
         const SizedBox(height: MintSpacing.sm + 4),
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildFunnel(l10n)),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFunnel(l10n)),
         const SizedBox(height: MintSpacing.lg),
 
         // Events by screen
-        MintEntrance(delay: Duration(milliseconds: 400), child: _buildSectionTitle(l10n.adminAnalyticsByScreen)),
+        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSectionTitle(l10n.adminAnalyticsByScreen)),
         const SizedBox(height: MintSpacing.sm + 4),
         _buildBreakdownCard(_byScreen, l10n),
         const SizedBox(height: MintSpacing.lg),

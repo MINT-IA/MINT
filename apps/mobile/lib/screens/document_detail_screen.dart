@@ -114,7 +114,7 @@ class DocumentDetailScreen extends StatelessWidget {
         const SizedBox(height: MintSpacing.lg + 4),
 
         // Category: Epargne
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCategory(
           s,
           label: s.documentsCategoryEpargne,
           icon: Icons.savings_outlined,
@@ -140,7 +140,7 @@ class DocumentDetailScreen extends StatelessWidget {
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Salaire
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCategory(
           s,
           label: s.documentsCategorySalaire,
           icon: Icons.account_balance_wallet_outlined,
@@ -166,7 +166,7 @@ class DocumentDetailScreen extends StatelessWidget {
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Taux de conversion
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCategory(
           s,
           label: s.documentsCategoryTaux,
           icon: Icons.percent,
@@ -192,7 +192,7 @@ class DocumentDetailScreen extends StatelessWidget {
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Couverture risque
-        MintEntrance(delay: Duration(milliseconds: 400), child: _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCategory(
           s,
           label: s.documentsCategoryRisque,
           icon: Icons.shield_outlined,

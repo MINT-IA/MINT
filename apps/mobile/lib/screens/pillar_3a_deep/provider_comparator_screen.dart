@@ -174,7 +174,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           const SizedBox(height: MintSpacing.md),
 
           // Age
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
             label: l.providerComparatorLabelAge,
             value: _age.toDouble(),
             min: 18,
@@ -189,7 +189,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Versement
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
             label: l.providerComparatorLabelVersement,
             value: _versementAnnuel,
             min: 1000,
@@ -201,7 +201,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Duree
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSliderRow(
             label: l.providerComparatorLabelDuree,
             value: _duree.toDouble(),
             min: 5,
@@ -213,7 +213,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           const SizedBox(height: MintSpacing.md),
 
           // Profil de risque
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildProfilRisque(l)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildProfilRisque(l)),
         ],
       ),
     );

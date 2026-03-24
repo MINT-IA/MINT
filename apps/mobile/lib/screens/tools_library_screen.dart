@@ -573,7 +573,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                     ),
                   )),
                   const SizedBox(width: 8),
-                  MintEntrance(delay: Duration(milliseconds: 100), child: Container(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(

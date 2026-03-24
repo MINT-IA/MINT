@@ -69,7 +69,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
           children: [
             MintEntrance(child: _buildHeader(s)),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildIncomeSlider(s)),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIncomeSlider(s)),
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               _buildChiffreChoc(s),
@@ -83,7 +83,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
               _buildEducation(s),
               const SizedBox(height: MintSpacing.lg),
             ],
-            MintEntrance(delay: Duration(milliseconds: 200), child: _buildDisclaimer(s)),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer(s)),
             const SizedBox(height: MintSpacing.xxl),
           ],
         ),

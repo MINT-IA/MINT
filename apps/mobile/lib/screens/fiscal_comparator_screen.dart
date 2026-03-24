@@ -272,7 +272,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           _buildNationalComparison(),
           const SizedBox(height: 20),
         ],
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDisclaimer()),
       ],
     );
   }
@@ -914,7 +914,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 20),
 
         // Canton pickers
-        MintEntrance(delay: Duration(milliseconds: 100), child: MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -985,11 +985,11 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 24),
 
         // Moving checklist
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildMoveChecklist()),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildMoveChecklist()),
         const SizedBox(height: 24),
 
         // Education
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildMoveEducation()),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildMoveEducation()),
         const SizedBox(height: 24),
 
         // ── P12-B : Le vrai coût du déménagement cantonal ───

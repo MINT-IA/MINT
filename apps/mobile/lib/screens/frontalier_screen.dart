@@ -208,11 +208,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (_taxResult!['isTessin'] == true)
             const SizedBox(height: MintSpacing.md + 4),
         ],
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducationalTax,
         )),
         const SizedBox(height: MintSpacing.md + 4),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -613,11 +613,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           _build90DayLegalRef(),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducational90Days,
         )),
         const SizedBox(height: MintSpacing.md + 4),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -951,11 +951,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           _buildLamalSection(),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducationalCharges,
         )),
         const SizedBox(height: MintSpacing.md + 4),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }

@@ -108,17 +108,17 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               delegate: SliverChildListDelegate([
                 MintEntrance(child: _buildDemoModeBadge()),
                 const SizedBox(height: MintSpacing.sm + 4),
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildHeader()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildIntro()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildIntro()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Toggle Adult / Child
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildToggle()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildToggle()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Input sliders
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildPrimeSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPrimeSlider()),
                 const SizedBox(height: MintSpacing.md),
                 _buildDepensesSlider(),
                 const SizedBox(height: MintSpacing.lg),

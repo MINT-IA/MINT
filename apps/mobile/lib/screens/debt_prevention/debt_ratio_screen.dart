@@ -115,15 +115,15 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 const SizedBox(height: MintSpacing.lg),
 
                 // Sliders
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildSlidersSection()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSlidersSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Minimum vital
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildMinimumVitalCard(result)),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildMinimumVitalCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Recommandations
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildRecommandationsSection(result)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRecommandationsSection(result)),
                 const SizedBox(height: MintSpacing.md),
 
                 // CTA contextuel → Plan de remboursement
@@ -139,7 +139,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 ],
 
                 // Disclaimer
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Navigation croisée dette

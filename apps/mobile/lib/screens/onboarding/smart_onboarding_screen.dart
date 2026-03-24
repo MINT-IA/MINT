@@ -353,14 +353,14 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               )),
 
               // ── Page 1: 5 questions + 3 calibrage literacy ───────────────
-              MintEntrance(delay: Duration(milliseconds: 100), child: StepQuestions(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: StepQuestions(
                 viewModel: _viewModel,
                 onNext: _onStepQuestionsNext,
                 onInputChanged: _onInputChanged,
               )),
 
               // ── Page 2: Chiffre choc reveal ──────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 200), child: StepChiffreChoc(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
                 onNext: () => _goToPage(3),
@@ -369,13 +369,13 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               )),
 
               // ── Page 3: OCR document upload (LPD-compliant, optional) ────
-              MintEntrance(delay: Duration(milliseconds: 300), child: StepOcrUpload(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: StepOcrUpload(
                 viewModel: _viewModel,
                 onNext: () => _goToPage(4),
               )),
 
               // ── Page 4: JIT explanation (SI...ALORS) ─────────────────────
-              MintEntrance(delay: Duration(milliseconds: 400), child: StepJitExplanation(
+              MintEntrance(delay: const Duration(milliseconds: 400), child: StepJitExplanation(
                 chiffreChoc: _viewModel.chiffreChoc,
                 onNext: () => _goToPage(5),
                 onBack: () => _goToPage(3),

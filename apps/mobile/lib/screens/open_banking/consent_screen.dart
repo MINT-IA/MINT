@@ -670,24 +670,24 @@ class _ConsentScreenState extends State<ConsentScreen> {
             style: MintTextStyles.titleMedium(),
           )),
           const SizedBox(height: MintSpacing.xs),
-          MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
             S.of(context)!.consentSelectedBankLabel(_selectedBankName ?? ''),
             style: MintTextStyles.bodySmall(),
           )),
           const SizedBox(height: 16),
 
           // Checkboxes — NOT pre-checked (nLPD compliance)
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildScopeCheckbox(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildScopeCheckbox(
             value: _scopeAccounts,
             label: S.of(context)!.consentScopeAccountsDesc,
             onChanged: (v) => setState(() => _scopeAccounts = v ?? false),
           )),
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildScopeCheckbox(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildScopeCheckbox(
             value: _scopeBalances,
             label: S.of(context)!.consentScopeBalancesDesc,
             onChanged: (v) => setState(() => _scopeBalances = v ?? false),
           )),
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildScopeCheckbox(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildScopeCheckbox(
             value: _scopeTransactions,
             label: S.of(context)!.consentScopeTransactionsDesc,
             onChanged: (v) => setState(() => _scopeTransactions = v ?? false),

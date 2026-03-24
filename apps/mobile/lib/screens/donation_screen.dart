@@ -170,13 +170,13 @@ class _DonationScreenState extends State<DonationScreen> {
           children: [
             MintEntrance(child: _buildHeader()),
             const SizedBox(height: 24),
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntroCard()),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: 24),
-            MintEntrance(delay: Duration(milliseconds: 200), child: _buildDonationSection()),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDonationSection()),
             const SizedBox(height: 12),
-            MintEntrance(delay: Duration(milliseconds: 300), child: _buildSuccessionContextSection()),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSuccessionContextSection()),
             const SizedBox(height: 24),
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildSimulateButton()),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSimulateButton()),
             const SizedBox(height: 24),
             if (_result != null) ...[
               Container(key: _resultsKey),

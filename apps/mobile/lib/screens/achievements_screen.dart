@@ -570,14 +570,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               ),
             )),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 100), child: Icon(badge.icon, size: 48, color: MintColors.warning)),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Icon(badge.icon, size: 48, color: MintColors.warning)),
             const SizedBox(height: MintSpacing.md),
-            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               badge.label,
               style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
             )),
             const SizedBox(height: MintSpacing.sm),
-            MintEntrance(delay: Duration(milliseconds: 300), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
               badge.description,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),

@@ -40,19 +40,19 @@ class OpenBankingHubScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 MintEntrance(child: _buildFinmaGateBanner(context)),
                 const SizedBox(height: 12),
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildDemoModeBadge(context)),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDemoModeBadge(context)),
                 const SizedBox(height: 16),
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildHeader(context)),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeader(context)),
                 const SizedBox(height: 24),
 
                 // Connected accounts
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildSectionTitle(S.of(context)!.openBankingHubConnectedAccounts, Icons.account_balance)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSectionTitle(S.of(context)!.openBankingHubConnectedAccounts, Icons.account_balance)),
                 const SizedBox(height: 12),
                 ...accounts.map((acc) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _buildAccountCard(context, acc),
                     )),
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildAddBankButton(context)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAddBankButton(context)),
                 const SizedBox(height: 28),
 
                 // Financial overview

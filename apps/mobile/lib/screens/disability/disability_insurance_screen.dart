@@ -268,7 +268,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           )),
           const SizedBox(height: 16),
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
             label: S.of(context)!.disabilityInsGrossSalary,
             value: _grossMonthly,
             min: 2000,
@@ -278,7 +278,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             onChanged: (v) => setState(() => _grossMonthly = v),
           )),
           const SizedBox(height: 12),
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
             label: S.of(context)!.disabilityInsSavings,
             value: _savings,
             min: 0,
@@ -288,13 +288,13 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             onChanged: (v) => setState(() => _savings = v),
           )),
           const SizedBox(height: 16),
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildToggleRow(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildToggleRow(
             label: S.of(context)!.disabilityInsIjmEmployer,
             value: _hasIjm,
             onChanged: (v) => setState(() => _hasIjm = v),
           )),
           const SizedBox(height: 8),
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildToggleRow(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildToggleRow(
             label: S.of(context)!.disabilityInsPrivateLossInsurance,
             value: _hasPrivateInsurance,
             onChanged: (v) => setState(() => _hasPrivateInsurance = v),

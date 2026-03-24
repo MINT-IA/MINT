@@ -43,13 +43,13 @@ class SlmSettingsScreen extends StatelessWidget {
         children: [
           MintEntrance(child: _buildPrivacyBanner(context, l10n)),
           const SizedBox(height: MintSpacing.md),
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildTierSelector(context, slm, l10n)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTierSelector(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildModelCard(context, slm, l10n)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildModelCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildStatusCard(context, slm, l10n)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildStatusCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildInfoCard(context, slm, l10n)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildInfoCard(context, slm, l10n)),
         ],
       ),
     );

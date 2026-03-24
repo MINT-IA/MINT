@@ -129,7 +129,7 @@ class StepStressSelector extends StatelessWidget {
                         ),
                       )),
                   const SizedBox(height: 16),
-                  MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     'Outil educatif — ne constitue pas un conseil financier (LSFin).',
                     style: GoogleFonts.inter(
                       fontSize: 11,

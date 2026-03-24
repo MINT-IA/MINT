@@ -803,19 +803,19 @@ class _BudgetScreenState extends State<BudgetScreen>
           style: MintTextStyles.titleMedium(),
         )),
         const SizedBox(height: MintSpacing.sm),
-        MintEntrance(delay: Duration(milliseconds: 100), child: CollapsibleSection(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: CollapsibleSection(
           title: l.budgetDebtRatio,
           subtitle: l.budgetDebtRatioSubtitle,
           icon: Icons.warning_amber_rounded,
           child: _buildSectionCta(l.budgetCtaEvaluate, '/debt/ratio'),
         )),
-        MintEntrance(delay: Duration(milliseconds: 200), child: CollapsibleSection(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: CollapsibleSection(
           title: l.budgetRepaymentPlan,
           subtitle: l.budgetRepaymentPlanSubtitle,
           icon: Icons.trending_down,
           child: _buildSectionCta(l.budgetCtaPlan, '/debt/repayment'),
         )),
-        MintEntrance(delay: Duration(milliseconds: 300), child: CollapsibleSection(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: CollapsibleSection(
           title: l.budgetHelpResources,
           subtitle: l.budgetHelpResourcesSubtitle,
           icon: Icons.help_outline,

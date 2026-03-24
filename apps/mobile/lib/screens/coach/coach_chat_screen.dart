@@ -2084,7 +2084,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           if (_greetingExpanded && _greetingLine2 != null)
             _buildGreetingCard(),
           Expanded(
-            child: MintEntrance(delay: Duration(milliseconds: 100), child: AnimatedBuilder(
+            child: MintEntrance(delay: const Duration(milliseconds: 100), child: AnimatedBuilder(
               animation: _canvasAnimController,
               builder: (context, child) {
                 return ColoredBox(
@@ -2096,7 +2096,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             ),
           )),
           if (_isLoading) _buildLoadingIndicator(),
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildInputBar()),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputBar()),
         ],
       ),
     );

@@ -93,11 +93,11 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               delegate: SliverChildListDelegate([
                 MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildRevenuSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRevenuSlider()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildAgeSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeSlider()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildTauxSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTauxSlider()),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -111,7 +111,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                   _buildEducation(),
                   const SizedBox(height: 24),
                 ],
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),

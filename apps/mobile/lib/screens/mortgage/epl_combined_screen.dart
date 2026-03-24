@@ -104,19 +104,19 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Pie chart
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildPieChartSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPieChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sources detail
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSourcesDetail(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSourcesDetail(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Ordre recommande
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildOrdreRecommande(s)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildOrdreRecommande(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Alertes

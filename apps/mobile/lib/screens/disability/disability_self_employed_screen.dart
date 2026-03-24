@@ -58,19 +58,19 @@ class _DisabilitySelfEmployedScreenState
                 const SizedBox(height: 20),
                 MintEntrance(child: _buildRevenueSlider()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 100), child: DisabilityRedScreenWidget(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: DisabilityRedScreenWidget(
                   monthlyExpenses: _monthlyRevenue * 0.70,
                   hasPerteDegain: _hasPerteDegain,
                 )),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 200), child: DisabilityCountdownWidget(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCountdownWidget(
                   monthlyExpenses: _monthlyRevenue * 0.70,
                   initialSavings: _monthlyRevenue * 3, // hypothèse 3 mois
                 )),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildPerteDegainToggle()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPerteDegainToggle()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 400), child: EduDisclaimer(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: EduDisclaimer(
                   text: S.of(context)!.disabilitySelfEmployedDisclaimer,
                 )),
                 const SizedBox(height: 8),

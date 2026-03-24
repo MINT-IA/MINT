@@ -97,19 +97,19 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildChiffreChocCard(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildChartSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison detaillee
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildComparisonSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer

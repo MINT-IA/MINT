@@ -87,15 +87,15 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               delegate: SliverChildListDelegate([
                 MintEntrance(child: _buildFinmaGateBanner()),
                 const SizedBox(height: 12),
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildDemoModeBadge()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDemoModeBadge()),
                 const SizedBox(height: 16),
 
                 // Period selector
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildPeriodSelector()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPeriodSelector()),
                 const SizedBox(height: 16),
 
                 // Category filters
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildCategoryFilters()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCategoryFilters()),
                 const SizedBox(height: 20),
 
                 // Transaction groups
@@ -115,7 +115,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 const SizedBox(height: 16),
 
                 // Monthly summary
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildMonthlySummary(summary)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildMonthlySummary(summary)),
                 const SizedBox(height: 20),
 
                 // Disclaimer

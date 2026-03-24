@@ -217,11 +217,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           children: [
             MintEntrance(child: _buildHeader()),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntroCard()),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 200), child: _buildAgeSlider()),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeSlider()),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 300), child: _buildJobSection(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildJobSection(
               title: S.of(context)!.jobCompareCurrentJob,
               expanded: _currentJobExpanded,
               onToggle: () =>
@@ -253,7 +253,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               icon: Icons.business,
             )),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildJobSection(
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildJobSection(
               title: S.of(context)!.jobCompareNewJob,
               expanded: _newJobExpanded,
               onToggle: () =>

@@ -112,15 +112,15 @@ class _IndependantScreenState extends State<IndependantScreen> {
               delegate: SliverChildListDelegate([
                 MintEntrance(child: _buildHeader()),
                 const SizedBox(height: MintSpacing.lg),
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntro()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Revenue input
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildRevenueSection()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenueSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Coverage toggles
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildCoverageToggles()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCoverageToggles()),
                 const SizedBox(height: MintSpacing.lg),
 
                 if (_result != null) ...[
@@ -191,7 +191,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 ],
 
                 // Disclaimer
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: MintSpacing.md),
 
                 _buildMintIndependantSection(),

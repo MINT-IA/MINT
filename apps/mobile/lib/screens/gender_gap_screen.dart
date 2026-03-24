@@ -111,15 +111,15 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           children: [
             MintEntrance(child: _buildHeader(s)),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntro(s)),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Taux activite slider
-            MintEntrance(delay: Duration(milliseconds: 200), child: _buildTauxSlider(s)),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildTauxSlider(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Input section
-            MintEntrance(delay: Duration(milliseconds: 300), child: _buildInputSection(s)),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildInputSection(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Results
@@ -135,7 +135,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ],
 
             // Disclaimer
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer(s)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(s)),
             const SizedBox(height: MintSpacing.md),
 
             // Sources

@@ -90,19 +90,19 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Aha moment narrative
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildAhaMoment(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAhaMoment(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSlidersSection()),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection()),
           const SizedBox(height: MintSpacing.lg),
 
           // Resultat rendement
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildRendementSection(result)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRendementSection(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison barres
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildComparisonBars(result)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonBars(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail economie fiscale

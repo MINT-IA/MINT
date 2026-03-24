@@ -190,7 +190,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 28),
 
                   // ── 0. PRENOM (optionnel) ─────────────────────────────────
-                  MintEntrance(delay: Duration(milliseconds: 100), child: TextField(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: TextField(
                     controller: _firstNameController,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
@@ -245,7 +245,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  MintEntrance(delay: Duration(milliseconds: 200), child: Center(
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: Center(
                     child: Text(
                       '${formatChfWithPrefix(widget.viewModel.grossSalary)}/an',
                       style: GoogleFonts.montserrat(
@@ -368,7 +368,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 48),
 
                   // ── CTA ───────────────────────────────────────────────────
-                  MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
+                  MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                     button: true,
                     label: l.onboardingSmartSeeResult,
                     child: SizedBox(
@@ -397,7 +397,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 24),
 
                   // Disclaimer
-                  MintEntrance(delay: Duration(milliseconds: 400), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
                     l.onboardingSmartDisclaimer,
                     style: GoogleFonts.inter(
                       fontSize: 11,

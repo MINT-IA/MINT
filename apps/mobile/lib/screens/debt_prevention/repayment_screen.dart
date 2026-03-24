@@ -754,17 +754,17 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             ],
           )),
           const SizedBox(height: 2),
-          MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
             subtitle,
             style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           )),
           const SizedBox(height: MintSpacing.sm + 4),
-          MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
             S.of(context)!.repaymentDurationDisplay(mois),
             style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
           )),
           const SizedBox(height: 4),
-          MintEntrance(delay: Duration(milliseconds: 300), child: Text(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
             S.of(context)!.repaymentInteretsDisplay(formatChf(interets)),
             style: const TextStyle(
               fontSize: 11,
@@ -772,7 +772,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             ),
           )),
           const SizedBox(height: 8),
-          MintEntrance(delay: Duration(milliseconds: 400), child: Text(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
             '✓ $pro',
             style: const TextStyle(
               fontSize: 10,

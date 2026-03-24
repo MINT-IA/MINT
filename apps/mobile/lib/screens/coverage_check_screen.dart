@@ -386,19 +386,19 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             style: MintTextStyles.titleMedium(),
           )),
           const SizedBox(height: 12),
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildCoverageSwitch(S.of(context)!.coverageCheckIjm, _aIjmCollective, (v) {
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCoverageSwitch(S.of(context)!.coverageCheckIjm, _aIjmCollective, (v) {
             _aIjmCollective = v;
             _compute();
           })),
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildCoverageSwitch(S.of(context)!.coverageCheckLaa, _aLaa, (v) {
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCoverageSwitch(S.of(context)!.coverageCheckLaa, _aLaa, (v) {
             _aLaa = v;
             _compute();
           })),
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildCoverageSwitch(S.of(context)!.coverageCheckRcPrivee, _aRcPrivee, (v) {
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCoverageSwitch(S.of(context)!.coverageCheckRcPrivee, _aRcPrivee, (v) {
             _aRcPrivee = v;
             _compute();
           })),
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildCoverageSwitch(S.of(context)!.coverageCheckMenage, _aMenage, (v) {
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCoverageSwitch(S.of(context)!.coverageCheckMenage, _aMenage, (v) {
             _aMenage = v;
             _compute();
           })),

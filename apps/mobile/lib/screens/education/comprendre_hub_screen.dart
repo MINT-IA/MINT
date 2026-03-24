@@ -90,7 +90,7 @@ class _ThemeCard extends StatelessWidget {
               ),
             )),
             Expanded(
-              child: MintEntrance(delay: Duration(milliseconds: 100), child: Padding(
+              child: MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 child: Row(
                   children: [

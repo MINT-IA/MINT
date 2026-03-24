@@ -127,7 +127,7 @@ class _DemenagementCantonalScreenState
                 semanticsLabel: s.demenagementBilanTotal,
               )),
               const SizedBox(height: MintSpacing.sm),
-              MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                 s.demenagementChiffreChocDetail(_cantonDepart, _cantonArrivee),
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               )),
@@ -136,19 +136,19 @@ class _DemenagementCantonalScreenState
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 2 — COMPARAISON : deux cantons cote a cote
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              MintEntrance(delay: Duration(milliseconds: 200), child: _buildCantonComparison(s)),
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCantonComparison(s)),
               const SizedBox(height: MintSpacing.xl),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 3 — DETAIL par poste (MintSignalRow)
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              MintEntrance(delay: Duration(milliseconds: 300), child: _buildDetailParPoste(s)),
+              MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDetailParPoste(s)),
               const SizedBox(height: MintSpacing.lg),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 4 — INSIGHT emotionnel
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              MintEntrance(delay: Duration(milliseconds: 400), child: _buildInsight(s)),
+              MintEntrance(delay: const Duration(milliseconds: 400), child: _buildInsight(s)),
               const SizedBox(height: MintSpacing.lg),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

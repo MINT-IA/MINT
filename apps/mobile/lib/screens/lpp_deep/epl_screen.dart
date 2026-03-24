@@ -211,7 +211,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: MintSpacing.md),
 
           // Avoir total
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
             label: l.eplLabelAvoirTotal,
             value: _avoirTotal,
             min: 0,
@@ -223,7 +223,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Age
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
             label: l.eplLabelAge,
             value: _age.toDouble(),
             min: 25,
@@ -235,7 +235,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Montant souhaite
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSliderRow(
             label: l.eplLabelMontantSouhaite,
             value: _montantSouhaite,
             min: 20000,
@@ -247,7 +247,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Canton (pour l'impot sur retrait)
-          MintEntrance(delay: Duration(milliseconds: 400), child: Row(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(

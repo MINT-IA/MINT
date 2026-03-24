@@ -51,7 +51,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 const SizedBox(height: 24),
 
                 // Dettes Conseils Suisse
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildNationalResourceCard(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildNationalResourceCard(
                   nom: S.of(context)!.helpResourcesDettesName,
                   description: S.of(context)!.helpResourcesDettesDesc,
                   url: 'https://www.dettes.ch',
@@ -62,7 +62,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 const SizedBox(height: 16),
 
                 // Caritas
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildNationalResourceCard(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildNationalResourceCard(
                   nom: S.of(context)!.helpResourcesCaritasName,
                   description: S.of(context)!.helpResourcesCaritasDesc,
                   url: 'https://www.caritas.ch/dettes',
@@ -73,11 +73,11 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 const SizedBox(height: 24),
 
                 // Service cantonal
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildCantonalSection(cantonalResource)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonalSection(cantonalResource)),
                 const SizedBox(height: 24),
 
                 // Note privacy nLPD
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildPrivacyNote()),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPrivacyNote()),
                 const SizedBox(height: 24),
 
                 // Disclaimer

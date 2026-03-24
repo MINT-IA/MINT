@@ -68,14 +68,14 @@ class _BankImportScreenState extends State<BankImportScreen> {
                     style: MintTextStyles.headlineLarge(),
                   )),
                   const SizedBox(height: MintSpacing.sm),
-                  MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     s.bankImportSubtitle,
                     style: MintTextStyles.bodyLarge(),
                   )),
                   const SizedBox(height: MintSpacing.lg),
 
                   // Step 1: Upload
-                  MintEntrance(delay: Duration(milliseconds: 200), child: _buildUploadCard(s)),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildUploadCard(s)),
                   const SizedBox(height: 24),
 
                   // Uploading indicator
@@ -125,7 +125,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                   ],
 
                   // Privacy footer
-                  MintEntrance(delay: Duration(milliseconds: 300), child: _buildPrivacyFooter(s)),
+                  MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPrivacyFooter(s)),
                   const SizedBox(height: 40),
                 ],
               ),

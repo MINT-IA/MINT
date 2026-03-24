@@ -98,13 +98,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
 
             // ── Budget thematic card ──
-            MintEntrance(delay: Duration(milliseconds: 100), child: Padding(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildBudgetSection(context, wizardAnswers),
             )),
 
             // ── Protection thematic card ──
-            MintEntrance(delay: Duration(milliseconds: 200), child: Padding(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildProtectionSection(
                   context, wizardAnswers, report.healthScore),
@@ -119,7 +119,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
 
             // ── Tax thematic card ──
-            MintEntrance(delay: Duration(milliseconds: 300), child: Padding(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildTaxThematicSection(context, report),
             )),
@@ -127,7 +127,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: MintSpacing.lg),
 
             // ── Top 3 Priorities ──
-            MintEntrance(delay: Duration(milliseconds: 400), child: SafeModeGate(
+            MintEntrance(delay: const Duration(milliseconds: 400), child: SafeModeGate(
               hasDebt: hasDebt,
               lockedTitle: S.of(context)!.reportSafeModePriority,
               lockedMessage: S.of(context)!.reportSafeModeActions,

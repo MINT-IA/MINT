@@ -346,24 +346,24 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             style: MintTextStyles.titleMedium(),
           )),
           const SizedBox(height: 16),
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTextField(
             controller: _capitalCtrl,
             label: S.of(context)!.locationCapitalDispo,
           )),
           const SizedBox(height: 12),
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildTextField(
             controller: _loyerCtrl,
             label: S.of(context)!.locationLoyerMensuel,
           )),
           const SizedBox(height: 12),
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTextField(
             controller: _prixBienCtrl,
             label: S.of(context)!.locationPrixBien,
           )),
           const SizedBox(height: 16),
 
           // Canton dropdown + married toggle
-          MintEntrance(delay: Duration(milliseconds: 400), child: Row(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: Row(
             children: [
               Expanded(
                 child: Column(

@@ -186,7 +186,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── TIROIR 1: Ce que tu as ──
-            MintEntrance(delay: Duration(milliseconds: 100), child: FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: FinancialDrawer(
               title: s.drawerCeQueTuAs,
               subtitle: s.drawerCeQueTuAsSubtitle,
               heroValue: formatChfCompact(patrimoineNet),
@@ -232,7 +232,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             // ── TIROIR 2: Ce que tu dois ──
-            MintEntrance(delay: Duration(milliseconds: 200), child: FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: FinancialDrawer(
               title: s.drawerCeQueTuDois,
               subtitle: s.drawerCeQueTuDoisSubtitle,
               heroValue: det.hasDette
@@ -272,7 +272,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             // ── TIROIR 3: Ce que tu auras ──
-            MintEntrance(delay: Duration(milliseconds: 300), child: FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: FinancialDrawer(
               title: s.drawerCeQueTuAuras,
               subtitle: s.drawerCeQueTuAurasSubtitle,
               heroValue: projectedMonthly > 0
@@ -324,7 +324,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             if (missingCount > 0) const SizedBox(height: 16),
 
             // ── DISCLAIMER ──
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer(context)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(context)),
             const SizedBox(height: 24),
 
             // ── RESTART DIAGNOSTIC ──

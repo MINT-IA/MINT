@@ -134,19 +134,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 )),
                 const SizedBox(height: MintSpacing.xl),
                 // Title
-                MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                   l10n.authRegisterTitle,
                   style: MintTextStyles.headlineLarge(),
                   textAlign: TextAlign.center,
                 )),
                 const SizedBox(height: MintSpacing.sm),
-                MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                   l10n.authRegisterSubtitle,
                   style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
                 )),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: Duration(milliseconds: 300), child: Container(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: MintColors.white,
@@ -171,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 )),
                 const SizedBox(height: MintSpacing.xxl),
                 // Email field
-                MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(

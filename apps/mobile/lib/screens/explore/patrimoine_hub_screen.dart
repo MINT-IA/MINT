@@ -56,7 +56,7 @@ class PatrimoineHubScreen extends StatelessWidget {
             onTap: () => context.push('/rente-vs-capital'),
           ),
           const SizedBox(height: MintSpacing.xl),
-          MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
             l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           )),

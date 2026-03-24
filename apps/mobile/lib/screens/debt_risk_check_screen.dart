@@ -66,7 +66,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       children: [
         MintEntrance(child: _buildMentorIntro()),
         const SizedBox(height: MintSpacing.xl),
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildQuestionSection(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildQuestionSection(
           S.of(context)!.debtCheckSectionDaily,
           [
             _buildQuestionCard(
@@ -84,7 +84,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           ],
         )),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildQuestionSection(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildQuestionSection(
           S.of(context)!.debtCheckSectionObligations,
           [
             _buildQuestionCard(
@@ -102,7 +102,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           ],
         )),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildQuestionSection(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildQuestionSection(
           S.of(context)!.debtCheckSectionBehaviors,
           [
             _buildQuestionCard(
@@ -128,7 +128,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           ),
         ),
         const SizedBox(height: MintSpacing.xl),
-        MintEntrance(delay: Duration(milliseconds: 400), child: _buildPrivacyNote()),
+        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPrivacyNote()),
         const SizedBox(height: MintSpacing.lg),
         const DebtToolsNav(currentRoute: '/check/debt'),
         const SizedBox(height: 40),

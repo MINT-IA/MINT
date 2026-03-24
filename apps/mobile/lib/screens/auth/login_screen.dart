@@ -87,20 +87,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 )),
                 const SizedBox(height: MintSpacing.xl),
                 // Title
-                MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                   l10n.authLoginTitle,
                   style: MintTextStyles.headlineLarge(),
                   textAlign: TextAlign.center,
                 )),
                 const SizedBox(height: MintSpacing.sm),
-                MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                   l10n.authLoginSubtitle,
                   style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
                 )),
                 const SizedBox(height: MintSpacing.xxl),
                 // Email field
-                MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 )),
                 const SizedBox(height: MintSpacing.md),
                 // Password field
-                MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authPassword,
                   textField: true,
                   child: TextFormField(

@@ -77,13 +77,13 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
         )),
         const SizedBox(height: MintSpacing.sm),
-        MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
           'Le code est valable 72 heures apres l\'envoi.',
           textAlign: TextAlign.center,
           style: MintTextStyles.bodyMedium(),
         )),
         const SizedBox(height: 32),
-        MintEntrance(delay: Duration(milliseconds: 200), child: TextField(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: TextField(
           controller: _codeController,
           textAlign: TextAlign.center,
           textCapitalization: TextCapitalization.characters,
@@ -113,7 +113,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
         ],
         const SizedBox(height: 24),
-        MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
           button: true,
           label: 'Rejoindre le menage',
           child: FilledButton(

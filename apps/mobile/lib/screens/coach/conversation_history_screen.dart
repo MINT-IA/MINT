@@ -180,19 +180,19 @@ class _EmptyState extends StatelessWidget {
               color: MintColors.textMuted.withValues(alpha: 0.5),
             )),
             const SizedBox(height: MintSpacing.md),
-            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               l10n.conversationEmptyTitle,
               style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
             )),
             const SizedBox(height: MintSpacing.sm),
-            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               l10n.conversationEmptySubtitle,
               style: MintTextStyles.bodyMedium(),
               textAlign: TextAlign.center,
             )),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
               button: true,
               label: l10n.conversationStartFirst,
               child: FilledButton.icon(

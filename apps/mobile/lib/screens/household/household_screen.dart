@@ -83,13 +83,13 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               style: MintTextStyles.headlineMedium(),
             )),
             const SizedBox(height: MintSpacing.sm),
-            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               S.of(context)!.householdUpsellDescription,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),
             )),
             const SizedBox(height: 24),
-            MintEntrance(delay: Duration(milliseconds: 200), child: FilledButton(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: FilledButton(
               onPressed: () {
                 final sub = context.read<SubscriptionProvider>();
                 sub.upgrade(SubscriptionTier.couplePlus);

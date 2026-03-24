@@ -127,9 +127,9 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── P14-A : Guide de première urgence ────────────
-                MintEntrance(delay: Duration(milliseconds: 100), child: EduSectionTitle(text: l.successionDecesProche)),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: EduSectionTitle(text: l.successionDecesProche)),
                 const SizedBox(height: MintSpacing.sm + 4),
-                MintEntrance(delay: Duration(milliseconds: 200), child: DeathUrgencyGuideWidget(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
                       timeframe: 'J+1 à J+7',
@@ -173,7 +173,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Checklist pratique ────────────────────────
-                MintEntrance(delay: Duration(milliseconds: 300), child: EduSectionTitle(text: l.successionChecklistTitle)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: EduSectionTitle(text: l.successionChecklistTitle)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _ChecklistCard(
                   items: [
@@ -187,7 +187,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── CTA spécialiste ───────────────────────────
-                MintEntrance(delay: Duration(milliseconds: 400), child: EduSpecialistCta(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: EduSpecialistCta(
                   icon: Icons.gavel_outlined,
                   color: MintColors.successionDark,
                   title: l.successionSpecialisteTitle,

@@ -89,11 +89,11 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               delegate: SliverChildListDelegate([
                 MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildBeneficeSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBeneficeSlider()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildPartSalaireSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPartSalaireSlider()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildTauxSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTauxSlider()),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -109,7 +109,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                   _buildEducation(),
                   const SizedBox(height: 24),
                 ],
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer()),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 16),
                 _buildCantonalDisclaimer(),
                 const SizedBox(height: 16),

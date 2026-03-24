@@ -407,7 +407,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                   const SizedBox(height: 24),
 
                   // ── Texte intro ─────────────────────────────────────────
-                  MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     'Scanne un ou plusieurs documents pour que MINT calcule '
                     'ta situation avec plus de precision.',
                     style: GoogleFonts.inter(
@@ -469,7 +469,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                   const SizedBox(height: 12),
 
                   // Disclaimer FINMA/LPD
-                  MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                     'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
                     'Documents traités sur ton appareil, aucune donnée envoyée (LPD art. 6).',
                     style: GoogleFonts.inter(

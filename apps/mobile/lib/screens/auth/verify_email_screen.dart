@@ -102,7 +102,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 style: MintTextStyles.bodyMedium(),
               )),
               const SizedBox(height: MintSpacing.md),
-              MintEntrance(delay: Duration(milliseconds: 100), child: Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: Semantics(
                 label: l10n.authEmail,
                 textField: true,
                 child: TextField(
@@ -136,7 +136,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 ),
               ],
               const SizedBox(height: MintSpacing.md),
-              MintEntrance(delay: Duration(milliseconds: 200), child: Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
                 label: l10n.authVerifyTokenLabel,
                 textField: true,
                 child: TextField(
@@ -156,7 +156,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     style: MintTextStyles.bodyMedium(color: MintColors.error),
                   ),
                 ),
-              MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                 label: l10n.authVerifySubmit,
                 button: true,
                 child: FilledButton(

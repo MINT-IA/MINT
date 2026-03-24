@@ -226,7 +226,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
               const Spacer(flex: 3),
 
               // ── Hero: chiffre-choc ALONE at center, max air ──
-              MintEntrance(delay: Duration(milliseconds: 100), child: FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: ScaleTransition(
                   scale: _scaleAnim,
@@ -260,7 +260,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
               const SizedBox(height: MintSpacing.xxl),
 
               // ── Avant/Apres in MintSurface (craie) ──
-              MintEntrance(delay: Duration(milliseconds: 200), child: FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Semantics(
                   button: true,
@@ -333,7 +333,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
               const SizedBox(height: MintSpacing.md),
 
               // ── Confidence notice — premium component ──
-              MintEntrance(delay: Duration(milliseconds: 300), child: FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: MintConfidenceNotice(
                   percent: (infoCount * 15).clamp(0, 100),
@@ -346,7 +346,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
               const Spacer(flex: 4),
 
               // ── Primary CTA — pill (StadiumBorder) ──
-              MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                 button: true,
                 label: l10n.chiffreChocAction,
                 child: SizedBox(

@@ -49,7 +49,7 @@ class StepTopActions extends StatelessWidget {
                 ),
               )),
               const SizedBox(height: 8),
-              MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                 'Basees sur ta situation, voici par ou commencer.',
                 style: GoogleFonts.inter(
                   fontSize: 14,
@@ -61,7 +61,7 @@ class StepTopActions extends StatelessWidget {
 
               // ── ACTION CARDS ───────────────────────────────────────
               Expanded(
-                child: MintEntrance(delay: Duration(milliseconds: 200), child: top3.isEmpty
+                child: MintEntrance(delay: const Duration(milliseconds: 200), child: top3.isEmpty
                     ? Center(
                         child: Text(
                           'Complete ton profil pour recevoir des actions personnalisees.',
@@ -121,7 +121,7 @@ class StepTopActions extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              MintEntrance(delay: Duration(milliseconds: 300), child: Center(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: Center(
                 child: TextButton(
                   onPressed: onBack,
                   child: Text(
@@ -136,7 +136,7 @@ class StepTopActions extends StatelessWidget {
               const SizedBox(height: 12),
 
               // ── DISCLAIMER ──────────────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 400), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
                 'Suggestions educatives. Ne constitue pas un conseil '
                 'financier (LSFin). Consulte un·e specialiste pour un '
                 'plan personnalise.',

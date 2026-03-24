@@ -207,19 +207,19 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ],
 
         // Educational insert — AVS cap 150% (LAVS art. 35)
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.concubinageEducationalAvs,
         )),
         const SizedBox(height: MintSpacing.md),
 
         // Educational insert — Succession
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(
           S.of(context)!.concubinageEducationalSuccession,
         )),
         const SizedBox(height: MintSpacing.lg),
 
         // Neutral conclusion
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildNeutralConclusion()),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildNeutralConclusion()),
         const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
@@ -668,7 +668,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // LPP slider
-        MintEntrance(delay: Duration(milliseconds: 100), child: MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.lg),
           radius: 16,
@@ -688,7 +688,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // Side-by-side chiffre-choc: Married vs Concubin survivor total
-        MintEntrance(delay: Duration(milliseconds: 200), child: Row(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: Row(
           children: [
             // Married survivor
             Expanded(
@@ -744,7 +744,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           ],
         )),
         const SizedBox(height: MintSpacing.sm),
-        MintEntrance(delay: Duration(milliseconds: 300), child: Text(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
           S.of(context)!.concubinageProtectionSurvivorZero,
           style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           textAlign: TextAlign.center,
@@ -926,7 +926,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // Progress bar
-        MintEntrance(delay: Duration(milliseconds: 100), child: MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.lg),
           radius: 16,
@@ -977,7 +977,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         }),
         const SizedBox(height: MintSpacing.lg),
 
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }

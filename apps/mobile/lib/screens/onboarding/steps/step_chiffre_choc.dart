@@ -281,7 +281,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
               const SizedBox(height: 20),
 
               // ── CONFIDENCE BAR ───────────────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 100), child: FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -341,7 +341,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
               const SizedBox(height: 24),
 
               // ── LITERACY — optionnel, post-reveal ────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 200), child: FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,7 +492,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
               const SizedBox(height: 16),
 
               // ── DISCLAIMER ───────────────────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 300), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
                 'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
                 'Sources: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
                 style: GoogleFonts.inter(

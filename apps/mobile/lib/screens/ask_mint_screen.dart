@@ -117,12 +117,12 @@ class _AskMintScreenState extends State<AskMintScreen> {
               ),
             )),
             const SizedBox(height: 24),
-            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               s.askMintConfigureTitle,
               style: MintTextStyles.headlineLarge(),
             )),
             const SizedBox(height: MintSpacing.sm),
-            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               s.askMintConfigureBody,
               textAlign: TextAlign.center,
               style: const TextStyle(
@@ -142,7 +142,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             ),
             const SizedBox(height: 16),
             // Privacy note
-            MintEntrance(delay: Duration(milliseconds: 300), child: Row(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.lock_outline,

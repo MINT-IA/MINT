@@ -106,7 +106,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   style: MintTextStyles.bodyMedium(),
                 )),
                 const SizedBox(height: MintSpacing.lg - 4),
-                MintEntrance(delay: Duration(milliseconds: 100), child: Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -140,7 +140,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ],
                 const SizedBox(height: MintSpacing.lg),
-                MintEntrance(delay: Duration(milliseconds: 200), child: Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
                   label: l10n.authForgotResetTokenLabel,
                   textField: true,
                   child: TextFormField(
@@ -155,7 +155,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 )),
                 const SizedBox(height: MintSpacing.sm + 4),
-                MintEntrance(delay: Duration(milliseconds: 300), child: Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                   label: l10n.authForgotNewPasswordLabel,
                   textField: true,
                   child: TextFormField(
@@ -190,7 +190,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 )),
                 const SizedBox(height: MintSpacing.sm + 4),
-                MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authConfirmPassword,
                   textField: true,
                   child: TextFormField(

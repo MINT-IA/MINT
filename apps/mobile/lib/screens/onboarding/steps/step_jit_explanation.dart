@@ -75,7 +75,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
 
               // ── SI...ALORS CARD ────────────────────────────────────
               Expanded(
-                child: MintEntrance(delay: Duration(milliseconds: 100), child: SingleChildScrollView(
+                child: MintEntrance(delay: const Duration(milliseconds: 100), child: SingleChildScrollView(
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -150,7 +150,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
               const SizedBox(height: 16),
 
               // ── NAVIGATION ──────────────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 200), child: Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
                 button: true,
                 label: 'Que puis-je faire ?',
                 child: SizedBox(
@@ -176,7 +176,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
               ),
               )),
               const SizedBox(height: 8),
-              MintEntrance(delay: Duration(milliseconds: 300), child: Center(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: Center(
                 child: TextButton(
                   onPressed: widget.onBack,
                   child: Text(
@@ -191,7 +191,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
               const SizedBox(height: 16),
 
               // ── DISCLAIMER ──────────────────────────────────────────
-              MintEntrance(delay: Duration(milliseconds: 400), child: Text(
+              MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
                 'Outil éducatif simplifié. Ne constitue pas un conseil '
                 'financier (LSFin).',
                 style: GoogleFonts.inter(

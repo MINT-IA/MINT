@@ -48,7 +48,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                   style: MintTextStyles.bodyLarge(),
                 )),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 100), child: FilledButton(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: FilledButton(
                   onPressed: () => context.push('/onboarding/quick'),
                   child: Text(S.of(context)!.reportCommencer),
                 )),

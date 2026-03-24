@@ -137,13 +137,13 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                     children: [
                       MintEntrance(child: _buildHeaderControls(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      MintEntrance(delay: Duration(milliseconds: 100), child: _buildObsCard(l10n)),
+                      MintEntrance(delay: const Duration(milliseconds: 100), child: _buildObsCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      MintEntrance(delay: Duration(milliseconds: 200), child: _buildQualityCard(l10n)),
+                      MintEntrance(delay: const Duration(milliseconds: 200), child: _buildQualityCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      MintEntrance(delay: Duration(milliseconds: 300), child: _buildCohortsCard(l10n)),
+                      MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCohortsCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      MintEntrance(delay: Duration(milliseconds: 400), child: Semantics(
+                      MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                         label: l10n.adminObsExportCsv,
                         button: true,
                         child: OutlinedButton.icon(

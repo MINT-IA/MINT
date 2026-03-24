@@ -200,9 +200,9 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
           children: [
             MintEntrance(child: _buildSecurityHeader(l10n)),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildExportButton(l10n)),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildExportButton(l10n)),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               l10n.consentRequiredTitle,
               style: MintTextStyles.titleMedium(),
             )),
@@ -211,7 +211,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                 .where((c) => c['required'] == true)
                 .map((c) => _buildCategoryCard(c, l10n)),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: Duration(milliseconds: 300), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
               l10n.consentOptionalTitle,
               style: MintTextStyles.titleMedium(),
             )),
@@ -220,7 +220,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                 .where((c) => c['required'] == false)
                 .map((c) => _buildCategoryCard(c, l10n)),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildRevokeAllButton(l10n)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRevokeAllButton(l10n)),
             const SizedBox(height: MintSpacing.lg),
             _buildDisclaimer(),
             const SizedBox(height: MintSpacing.md),

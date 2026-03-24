@@ -82,19 +82,19 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildChartSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail couts
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildCostComparisonSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCostComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
           const SizedBox(height: MintSpacing.sm),
 
           // Source legale

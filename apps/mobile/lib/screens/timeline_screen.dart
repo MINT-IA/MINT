@@ -414,14 +414,14 @@ class TimelineScreen extends StatelessWidget {
               child: Icon(action.icon, color: action.color, size: 18),
             )),
             const Spacer(),
-            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               action.title,
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                 fontWeight: FontWeight.w700,
               ),
             )),
             const SizedBox(height: MintSpacing.xs),
-            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               action.subtitle,
               style: MintTextStyles.micro(),
               maxLines: 1,

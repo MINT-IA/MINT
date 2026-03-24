@@ -347,14 +347,14 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             style: MintTextStyles.titleMedium(),
           )),
           const SizedBox(height: MintSpacing.md),
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTextField(
             controller: _montantCtrl,
             label: l.allocAnnuelleMontantLabel,
           )),
           const SizedBox(height: MintSpacing.md),
 
           // Taux marginal slider
-          MintEntrance(delay: Duration(milliseconds: 200), child: MintPremiumSlider(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: MintPremiumSlider(
             label: l.allocAnnuelleTauxMarginal,
             value: _tauxMarginal,
             min: 10,
@@ -369,7 +369,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
           const SizedBox(height: MintSpacing.sm),
 
           // Annees avant retraite slider
-          MintEntrance(delay: Duration(milliseconds: 300), child: MintPremiumSlider(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: MintPremiumSlider(
             label: l.allocAnnuelleAnneesRetraite,
             value: _anneesAvantRetraite.toDouble(),
             min: 5,
@@ -384,7 +384,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
           const SizedBox(height: MintSpacing.sm),
 
           // Toggles
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildToggle(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildToggle(
             label: l.allocAnnuelle3aMaxed,
             value: _a3aMaxed,
             onChanged: (v) {

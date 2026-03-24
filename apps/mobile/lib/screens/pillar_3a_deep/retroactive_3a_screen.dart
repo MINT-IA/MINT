@@ -117,19 +117,19 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 const SizedBox(height: MintSpacing.lg),
 
                 // 2. Input Section
-                MintEntrance(delay: Duration(milliseconds: 100), child: _buildInputSection()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 3. Chiffre Choc
-                MintEntrance(delay: Duration(milliseconds: 200), child: _buildChiffreChocCard(result)),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChiffreChocCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 4. Breakdown
-                MintEntrance(delay: Duration(milliseconds: 300), child: _buildBreakdownSection(result)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildBreakdownSection(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 5. Avant / Apres
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildImpactComparison(result)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildImpactComparison(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 6. Action Cards

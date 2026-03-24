@@ -56,7 +56,7 @@ class LogementHubScreen extends StatelessWidget {
             onTap: () => context.push('/life-event/housing-sale'),
           ),
           const SizedBox(height: MintSpacing.xl),
-          MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
             l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           )),

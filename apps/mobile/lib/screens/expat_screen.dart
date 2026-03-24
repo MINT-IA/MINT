@@ -217,13 +217,13 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildForfaitResultCard(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildAbolishedWarning()),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAbolishedWarning()),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(
           S.of(context)!.expatForfaitEducation,
         )),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildTopCantonSection()),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTopCantonSection()),
         const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
@@ -649,9 +649,9 @@ class _ExpatScreenState extends State<ExpatScreen>
 
         MintEntrance(child: _buildDepartInputCard()),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 100), child: _buildNoExitTaxBadge()),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildNoExitTaxBadge()),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 200), child: ExpatCountdownWidget(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: ExpatCountdownWidget(
           departureDate: _departureDate,
           deadlines: const [
             ExpatDeadline(
@@ -690,7 +690,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildDepartChecklist(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildEducationalInsert(l.expatTab2EduInsert)),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildEducationalInsert(l.expatTab2EduInsert)),
         const SizedBox(height: MintSpacing.lg),
         // ── P13-A : 5 choses que tu perds en partant ───────────
         const ExpatRightsLossWidget(
@@ -1267,7 +1267,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildAvsRecommendation(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        MintEntrance(delay: Duration(milliseconds: 100), child: Builder(builder: (context) {
+        MintEntrance(delay: const Duration(milliseconds: 100), child: Builder(builder: (context) {
           final provider = context.read<CoachProfileProvider>();
           final profileAge =
               (provider.hasProfile && provider.profile!.age > 0)
@@ -1279,9 +1279,9 @@ class _ExpatScreenState extends State<ExpatScreen>
           );
         })),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 200), child: _buildEducationalInsert(l.expatAvsEducation)),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(l.expatAvsEducation)),
         const SizedBox(height: MintSpacing.lg),
-        MintEntrance(delay: Duration(milliseconds: 300), child: _buildDisclaimer()),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDisclaimer()),
       ],
     );
   }

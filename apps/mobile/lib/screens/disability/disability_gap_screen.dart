@@ -262,12 +262,12 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                 const SizedBox(height: 20),
                 MintEntrance(child: _buildInputsCard()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 100), child: DisabilityCliffWidget(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: DisabilityCliffWidget(
                   grossMonthly: _grossMonthly,
                   acts: _acts,
                 )),
                 const SizedBox(height: 20),
-                MintEntrance(delay: Duration(milliseconds: 200), child: DisabilityCountdownWidget(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCountdownWidget(
                   monthlyExpenses: _grossMonthly * 0.70,
                   initialSavings: _savings,
                 )),
@@ -282,14 +282,14 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                MintEntrance(delay: Duration(milliseconds: 300), child: DisabilityScorecardWidget(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityScorecardWidget(
                   items: _scorecardItems,
                   overallGrade: _overallGrade,
                   lifeDropPercent: _lifeDropPercent,
                 )),
                 const SizedBox(height: 20),
                 // ── Related sections (hub) ──
-                MintEntrance(delay: Duration(milliseconds: 400), child: _buildRelatedSections()),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRelatedSections()),
                 const SizedBox(height: 20),
                 EduDisclaimer(
                   text: S.of(context)!.disabilityGapDisclaimer,

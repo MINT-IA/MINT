@@ -137,12 +137,12 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                                   color: MintColors.white, size: 28),
                             )),
                             const SizedBox(height: 12),
-                            MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                               theme.title,
                               style: MintTextStyles.headlineLarge(color: MintColors.white),
                             )),
                             const SizedBox(height: MintSpacing.xs),
-                            MintEntrance(delay: Duration(milliseconds: 200), child: Text(
+                            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                               theme.question,
                               style: MintTextStyles.bodyMedium(
                                 color: MintColors.white.withValues(alpha: 0.85),
@@ -165,10 +165,10 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   MintEntrance(child: _buildChiffreChoc(content, theme)),
-                  MintEntrance(delay: Duration(milliseconds: 100), child: _buildIntro(content)),
-                  MintEntrance(delay: Duration(milliseconds: 200), child: _buildKeyFacts(content, theme)),
-                  MintEntrance(delay: Duration(milliseconds: 300), child: _buildQuiz(content, theme)),
-                  MintEntrance(delay: Duration(milliseconds: 400), child: _buildFunFact(content, theme)),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro(content)),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildKeyFacts(content, theme)),
+                  MintEntrance(delay: const Duration(milliseconds: 300), child: _buildQuiz(content, theme)),
+                  MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFunFact(content, theme)),
                   _buildSources(content),
                   _buildCTA(theme),
                   _buildReminder(theme),
@@ -188,7 +188,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                     children: [
                       MintEntrance(child: Icon(theme.icon, size: 64, color: theme.color)),
                       const SizedBox(height: 24),
-                      MintEntrance(delay: Duration(milliseconds: 100), child: Text(
+                      MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                         theme.question,
                         style: MintTextStyles.headlineMedium(),
                         textAlign: TextAlign.center,

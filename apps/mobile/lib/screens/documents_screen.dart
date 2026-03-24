@@ -106,11 +106,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(height: MintSpacing.lg),
 
             // 2. Category grid
-            MintEntrance(delay: Duration(milliseconds: 100), child: _buildCategoryGrid(s, docProvider)),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCategoryGrid(s, docProvider)),
             const SizedBox(height: MintSpacing.xl),
 
             // 3. Legal guidance section
-            MintEntrance(delay: Duration(milliseconds: 200), child: _buildGuidanceSection(s)),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildGuidanceSection(s)),
             const SizedBox(height: MintSpacing.xl),
 
             // Uploading indicator
@@ -133,11 +133,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ],
 
             // 4. Documents list
-            MintEntrance(delay: Duration(milliseconds: 300), child: _buildDocumentsList(s, docProvider, sub)),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDocumentsList(s, docProvider, sub)),
             const SizedBox(height: MintSpacing.lg),
 
             // Bank import card (kept as fallback)
-            MintEntrance(delay: Duration(milliseconds: 400), child: _buildBankImportCard(s)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBankImportCard(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Privacy footer

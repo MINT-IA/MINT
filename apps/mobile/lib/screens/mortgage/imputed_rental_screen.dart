@@ -105,19 +105,19 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Decomposition
-          MintEntrance(delay: Duration(milliseconds: 200), child: _buildDecompositionCard(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDecompositionCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: Duration(milliseconds: 300), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
-          MintEntrance(delay: Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
           const SizedBox(height: MintSpacing.sm),
 
           // Source legale

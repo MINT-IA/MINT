@@ -85,19 +85,19 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
               const SizedBox(height: 24),
 
               // ── Urgences 48h ──
-              MintEntrance(delay: Duration(milliseconds: 100), child: _buildUrgences48h(s)),
+              MintEntrance(delay: const Duration(milliseconds: 100), child: _buildUrgences48h(s)),
               const SizedBox(height: 24),
 
               // ── Inputs ──
-              MintEntrance(delay: Duration(milliseconds: 200), child: _buildInputs(s)),
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputs(s)),
               const SizedBox(height: 24),
 
               // ── Timeline succession ──
-              MintEntrance(delay: Duration(milliseconds: 300), child: _buildTimeline(s)),
+              MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTimeline(s)),
               const SizedBox(height: 24),
 
               // ── Beneficiaires LPP / 3a ──
-              MintEntrance(delay: Duration(milliseconds: 400), child: _buildBeneficiaires(s)),
+              MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBeneficiaires(s)),
               const SizedBox(height: 24),
 
               // ── Impact fiscal ──

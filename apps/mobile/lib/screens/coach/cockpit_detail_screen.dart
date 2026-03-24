@@ -329,7 +329,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Replacement Ratio Badge ─────────────────
-                MintEntrance(delay: Duration(milliseconds: 100), child: ReplacementRatioBadge(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: ReplacementRatioBadge(
                   ratio: proj.tauxRemplacementBase,
                 )),
                 const SizedBox(height: 16),
@@ -341,7 +341,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Monte Carlo Toggle Section ──────────────
-                MintEntrance(delay: Duration(milliseconds: 200), child: MonteCarloToggleSection(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: MonteCarloToggleSection(
                   monteCarloResult: _monteCarloResult,
                   currentMonthlyIncome:
                       _snapshot?.currentHouseholdNetMonthly ??
@@ -400,7 +400,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Pillar Decomposition ────────────────────
-                MintEntrance(delay: Duration(milliseconds: 300), child: PillarDecomposition(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: PillarDecomposition(
                   avsMonthly: avsUserMonthly,
                   lppMonthly: lppUserMonthly,
                   threeAMonthly: threeAMonthly,
@@ -439,7 +439,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Retirement Checklist ────────────────────
-                MintEntrance(delay: Duration(milliseconds: 400), child: RetirementChecklistCard(profile: profile)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: RetirementChecklistCard(profile: profile)),
                 const SizedBox(height: 16),
 
                 // ── Impact MINT Card ────────────────────────
