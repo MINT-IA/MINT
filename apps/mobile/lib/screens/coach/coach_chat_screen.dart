@@ -47,6 +47,8 @@ import 'package:mint_mobile/services/voice/platform_voice_backend.dart';
 import 'package:mint_mobile/services/llm/provider_health_service.dart';
 import 'package:mint_mobile/services/coach/data_driven_opener_service.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
@@ -199,6 +201,14 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   AnimationController? _milestonePulseController;
   bool _milestonePulsing = false;
 
+  /// Realtime subscription to ScreenReturn events from simulators.
+  StreamSubscription<ScreenReturn>? _screenReturnSub;
+
+  /// Debounce timer for realtime screen returns — prevents LLM spam when
+  /// sliders emit on every change (e.g. affordability, staggered_withdrawal).
+  Timer? _screenReturnDebounce;
+  ScreenReturn? _lastPendingReturn;
+
   @override
   void initState() {
     super.initState();
@@ -307,10 +317,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         }
       }
     }
+
+    // Realtime ReturnContract: listen for simulation results.
+    _screenReturnSub = ScreenCompletionTracker.stream.listen(
+      _onRealtimeScreenReturn,
+    );
   }
 
   @override
   void dispose() {
+    _screenReturnSub?.cancel();
+    _screenReturnDebounce?.cancel();
     _autoSaveConversation();
     _controller.dispose();
     _scrollController.dispose();
@@ -1739,6 +1756,45 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     }
 
     _scrollToBottom();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  REALTIME RETURN CONTRACT — immediate coach reaction
+  // ════════════════════════════════════════════════════════════════
+
+  /// Called via stream when ANY screen emits a ScreenReturn — even if the user
+  /// navigated there without coach suggestion (direct explore, deep link).
+  ///
+  /// Builds a context-rich system message from the real simulation data and
+  /// sends it to the LLM so the coach can react immediately.
+  void _onRealtimeScreenReturn(ScreenReturn ret) {
+    if (!mounted) return;
+
+    // Debounce: screens like affordability emit on every slider change.
+    // We only react to the LAST event after 2 seconds of quiet.
+    _lastPendingReturn = ret;
+    _screenReturnDebounce?.cancel();
+    _screenReturnDebounce = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      if (_isBusy) return; // Don't interrupt an ongoing LLM call.
+      final pending = _lastPendingReturn;
+      if (pending == null) return;
+      _lastPendingReturn = null;
+
+      // Build a context-rich summary from the real simulation data.
+      final buf = StringBuffer();
+      buf.write('Je viens de simuler ${pending.route}');
+      if (pending.updatedFields != null && pending.updatedFields!.isNotEmpty) {
+        final highlights = pending.updatedFields!.entries
+            .take(3)
+            .map((e) => '${e.key}: ${e.value}')
+            .join(', ');
+        buf.write(' ($highlights)');
+      }
+      buf.write('.');
+
+      _sendMessage(buf.toString());
+    });
   }
 
   /// Prepend a visible memory reference phrase to a coach response.

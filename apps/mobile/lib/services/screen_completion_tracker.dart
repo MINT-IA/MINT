@@ -15,6 +15,7 @@
 /// See: docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §7
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,6 +32,18 @@ const _kPrefix = 'screen_return_';
 /// disk state.
 class ScreenCompletionTracker {
   ScreenCompletionTracker._();
+
+  // ════════════════════════════════════════════════════════════════
+  //  REALTIME STREAM — coach listens for immediate reaction
+  // ════════════════════════════════════════════════════════════════
+
+  static final _controller = StreamController<ScreenReturn>.broadcast();
+
+  /// Realtime stream of ScreenReturn events.
+  ///
+  /// CoachChatScreen subscribes to this so the LLM can react immediately
+  /// when a user completes a simulation — no polling needed.
+  static Stream<ScreenReturn> get stream => _controller.stream;
 
   // ════════════════════════════════════════════════════════════════
   //  WRITE
@@ -56,8 +69,13 @@ class ScreenCompletionTracker {
     ScreenReturn screenReturn, {
     SharedPreferences? prefs,
     DateTime? now,
-  }) =>
-      _writeReturn(screenId, screenReturn, prefs: prefs, now: now);
+  }) {
+    // Emit on realtime stream FIRST — coach reacts immediately.
+    if (!_controller.isClosed) {
+      _controller.add(screenReturn);
+    }
+    return _writeReturn(screenId, screenReturn, prefs: prefs, now: now);
+  }
 
   /// Persist a [ScreenOutcome.abandoned] entry for [screenId].
   ///
