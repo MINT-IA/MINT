@@ -159,8 +159,21 @@ class LLMClient:
 
             text = "\n".join(text_parts)
 
+            # Extract actual token usage from the Anthropic response
+            actual_usage = None
+            if hasattr(response, "usage") and response.usage:
+                actual_usage = (
+                    response.usage.input_tokens + response.usage.output_tokens
+                )
+
             if tool_calls:
-                return {"text": text, "tool_calls": tool_calls}
+                result: dict = {"text": text, "tool_calls": tool_calls}
+                if actual_usage is not None:
+                    result["usage_tokens"] = actual_usage
+                return result
+            # Return dict with usage when available, plain string otherwise
+            if actual_usage is not None:
+                return {"text": text, "usage_tokens": actual_usage}
             return text
         except Exception as e:
             logger.error("Claude API call failed: %s", e)

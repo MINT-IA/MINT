@@ -6612,7 +6612,7 @@
   "affordabilityRelatedCalculate": "Calculate",
   "affordabilityAdvancedParams": "More assumptions",
   "demenagementTitreV2": "Moving cantons — how much do you save?",
-  "demenagementCtaOptimal": "Find the best canton for you",
+  "demenagementCtaOptimal": "Find the right canton for you",
   "demenagementInsightPositif": "This move boosts your purchasing power. The savings cover about {mois} months of average rent.",
   "@demenagementInsightPositif": {
     "placeholders": {
@@ -7062,7 +7062,7 @@
   "lamalFranchiseAppBarTitle": "LAMal Deductible",
   "lamalFranchiseDemoMode": "DEMO MODE",
   "lamalFranchiseHeaderTitle": "Your LAMal deductible",
-  "lamalFranchiseHeaderSubtitle": "Find the best deductible for your health costs",
+  "lamalFranchiseHeaderSubtitle": "Find the right deductible for your health costs",
   "lamalFranchiseIntro": "A higher deductible lowers your monthly premium but increases your out-of-pocket costs when you see a doctor. Adjust the sliders to find the right balance.",
   "lamalFranchiseToggleAdulte": "Adult",
   "lamalFranchiseToggleEnfant": "Child",
@@ -7510,7 +7510,7 @@
   "pillar3aIndepEduInvestirBody": "For a long horizon (>10 years), a 3a invested in equities can offer much higher returns than a classic 3a savings account.",
   "pillar3aIndepDisclaimer": "Tax savings are calculated based on the indicated marginal rate. The actual rate depends on your canton, municipality, and family situation. Consult a specialist for a personalized calculation.",
   "dividendeVsSalaireTitle": "Dividend vs Salary",
-  "dividendeVsSalaireHeaderInfo": "If you own an SA or Sàrl, you can pay yourself a combination of salary and dividends. Dividends are taxed at 50% (qualifying participation) and escape AVS contributions. Find the best-adapted split.",
+  "dividendeVsSalaireHeaderInfo": "If you own an SA or Sàrl, you can pay yourself a combination of salary and dividends. Dividends are taxed at 50% (qualifying participation) and escape AVS contributions. Find the right split for your situation.",
   "dividendeVsSalaireBenefice": "Total profit",
   "dividendeVsSalaireSliderMax500k": "CHF 500,000",
   "dividendeVsSalairePartSalaire": "Salary share",
@@ -7743,7 +7743,7 @@
       }
     }
   },
-  "providerComparatorChiffreChocSubtitle": "between the best and worst performing provider",
+  "providerComparatorChiffreChocSubtitle": "between the highest and lowest performing provider",
   "providerComparatorSectionParametres": "Parameters",
   "providerComparatorLabelAge": "Age",
   "providerComparatorLabelAgeFormat": "{age} yrs",
@@ -10824,7 +10824,7 @@
   "reportActionTitleAvsCheck": "Check your AVS account",
   "reportActionDescAvsCheck": "Avoid losing up to CHF\u00a038\u2019000 of lifetime pension.",
   "reportActionTitleDette": "Pay off your consumer debts",
-  "reportActionDescDette": "It\u2019s the best investment: you save 6-10\u00a0% per year on interest.",
+  "reportActionDescDette": "It\u2019s a highly effective step: you save 6-10\u00a0% per year on interest.",
   "reportActionTitleUrgence": "Build your emergency fund",
   "reportActionDescUrgence": "Aim for 3\u00a0months of expenses in a separate savings account.",
   "reportRoadmapPhaseImmediat": "Immediate",

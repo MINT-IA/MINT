@@ -22084,7 +22084,7 @@ class SPt extends S {
   String get capCoverageCheckCtaLabel => 'Verificar';
 
   @override
-  String get capChomageHeadline => 'Garantir os próximos 90 dias';
+  String get capChomageHeadline => 'Proteger os próximos 90 dias';
 
   @override
   String get capChomageWhyNow =>

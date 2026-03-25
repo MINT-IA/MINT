@@ -594,12 +594,12 @@ void main() {
       expect(blocs['objectifRetraite']!.score, 3.0); // default partial score
     });
 
-    test('compositionMenage is complete for single person', () {
+    test('compositionMenage is partial for default celibataire (unconfirmed)', () {
       final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
       final blocs = ConfidenceScorer.scoreAsBlocs(profile);
-      // celibataire → complete
-      expect(blocs['compositionMenage']!.status, 'complete');
-      expect(blocs['compositionMenage']!.score, blocs['compositionMenage']!.maxScore);
+      // Default celibataire (not confirmed) → partial with 5 points
+      expect(blocs['compositionMenage']!.status, 'partial');
+      expect(blocs['compositionMenage']!.score, 5);
     });
 
     test('empty profile has zero score for missing blocs', () {
@@ -649,6 +649,7 @@ CoachProfile _buildProfile({
   int? anneesContribuees,
   int? arrivalAge,
   String? residencePermit,
+  CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
   Map<String, ProfileDataSource> dataSources = const {},
   Map<String, DateTime> dataTimestamps = const {},
   FinancialLiteracyLevel financialLiteracyLevel = FinancialLiteracyLevel.beginner,
@@ -668,7 +669,7 @@ CoachProfile _buildProfile({
     birthYear: DateTime.now().year - age,
     salaireBrutMensuel: salary,
     canton: canton,
-    etatCivil: CoachCivilStatus.celibataire,
+    etatCivil: etatCivil,
     employmentStatus: employmentStatus,
     arrivalAge: arrivalAge,
     residencePermit: residencePermit,
