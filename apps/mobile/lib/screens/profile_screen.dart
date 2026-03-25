@@ -10,6 +10,11 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -753,6 +758,25 @@ class ProfileScreen extends StatelessWidget {
     if (confirmed != true || !context.mounted) return;
 
     final success = await authProvider.deleteAccount();
+    if (!context.mounted) return;
+
+    // V5-2 audit fix: purge ALL local data artifacts on account deletion.
+    // This ensures conversation history, coach insights, cached data, and
+    // SharedPreferences are wiped — not just the server-side session.
+    if (success) {
+      final store = ConversationStore();
+      // Delete all conversations from local storage
+      final conversations = await store.listConversations();
+      for (final conv in conversations) {
+        await store.deleteConversation(conv.id);
+      }
+      await CoachMemoryService.clear();
+      await CapMemoryStore.clear();
+      final prefs = await SharedPreferences.getInstance();
+      await PrecomputedInsightsService.clear(prefs);
+      await prefs.clear(); // Nuclear option — clears all SharedPreferences
+    }
+
     if (!context.mounted) return;
 
     final l = S.of(context)!;

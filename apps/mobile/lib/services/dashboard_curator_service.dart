@@ -188,7 +188,7 @@ class DashboardCuratorService {
       case 'debt_ratio':
         return '/debt/ratio';
       case 'independant_alert':
-        return '/independants';
+        return '/home?tab=2';
       case 'part_time_gap':
         return '/profile/bilan';
       default:

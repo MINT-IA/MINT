@@ -214,6 +214,10 @@ class PlatformVoiceBackend implements VoiceBackend {
     }
     try {
       // Set locale, rate, pitch then speak.
+      // TODO(V5-8a): TTS completion is not awaited — invokeMethod('speak')
+      // returns when the platform channel acknowledges the call, NOT when
+      // speech finishes. Await TTS completion when a real provider replaces
+      // the flutter_tts stub (e.g. via a completion callback or Completer).
       await _ttsChannel.invokeMethod<void>('setLanguage', locale);
       await _ttsChannel.invokeMethod<void>('setSpeechRate', rate);
       await _ttsChannel.invokeMethod<void>('setPitch', pitch);

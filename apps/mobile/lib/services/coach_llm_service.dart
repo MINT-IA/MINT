@@ -6,6 +6,7 @@ import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/consent_manager.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -330,10 +331,17 @@ class CoachLlmService {
         provider = 'openai';
         break;
     }
-    final profileContext = {
-      ..._buildProfileContext(profile),
-      if (enrichedContext != null) ...enrichedContext,
-    };
+    // V5-3 audit fix: check BYOK consent before sending profileContext.
+    // If user has not consented to ai_context, send empty profile.
+    final hasAiConsent = await ConsentManager.isConsentGiven(
+      ConsentType.byokDataSharing,
+    );
+    final profileContext = hasAiConsent
+        ? {
+            ..._buildProfileContext(profile),
+            if (enrichedContext != null) ...enrichedContext,
+          }
+        : <String, dynamic>{};
 
     // Injecter le contexte conversationnel dans la question
     final augmentedQuestion = _buildConversationContext(history, userMessage);

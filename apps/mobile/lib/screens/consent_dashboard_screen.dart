@@ -3,6 +3,7 @@ import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/privacy_service.dart';
+import 'package:mint_mobile/services/consent_manager.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -49,6 +50,26 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     if (cat == null) return;
     if (cat['required'] == true) return; // Cannot revoke required
     setState(() => _consents[categoryId] = value);
+
+    // Persist to ConsentManager (V5-1 audit fix: authoritative end-to-end)
+    final consentType = _mapCategoryToConsentType(categoryId);
+    if (consentType != null) {
+      ConsentManager.updateConsent(consentType, value);
+    }
+  }
+
+  /// Maps PrivacyService category IDs to ConsentManager ConsentType.
+  ConsentType? _mapCategoryToConsentType(String categoryId) {
+    switch (categoryId) {
+      case 'coaching_notifications':
+        return ConsentType.notifications;
+      case 'rag_queries':
+        return ConsentType.byokDataSharing;
+      case 'analytics':
+        return ConsentType.snapshotStorage;
+      default:
+        return null;
+    }
   }
 
   void _revokeAll() {
@@ -57,6 +78,8 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         _consents[cat['id'] as String] = false;
       }
     });
+    // Persist revocation to ConsentManager (V5-1 audit fix)
+    ConsentManager.revokeAll();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(S.of(context)!.consentAllRevoked),

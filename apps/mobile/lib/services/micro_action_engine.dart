@@ -279,7 +279,7 @@ class MicroActionEngine {
             'Ajoute ton avoir LPP pour des projections plus precises (+12 pts).',
         category: 'lpp',
         estimatedMinutes: 2,
-        deeplink: '/profile/documents',
+        deeplink: '/documents',
         priorityScore: 85,
         urgency: MicroActionUrgency.medium,
         icon: Icons.document_scanner_outlined,

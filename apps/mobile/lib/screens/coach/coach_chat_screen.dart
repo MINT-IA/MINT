@@ -338,6 +338,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     }
 
     // Realtime ReturnContract: listen for simulation results.
+    // V5-6 audit fix: cancel existing subscription before creating a new one.
+    // didChangeDependencies runs multiple times — without this cancel, each
+    // call leaks a new StreamSubscription.
+    _screenReturnSub?.cancel();
     _screenReturnSub = ScreenCompletionTracker.stream.listen(
       _onRealtimeScreenReturn,
     );
@@ -3202,8 +3206,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                   onTranscription: (transcript) {
                     // Sprint E: activate voice mode and auto-send transcription.
                     // Voice mode triggers TTS auto-speak on the coach response.
+                    // V5-7 audit fix: scrub PII from voice transcript before sending.
+                    final clean = ConversationStore.scrubPii(transcript);
                     setState(() => _voiceModeActive = true);
-                    _sendMessage(transcript);
+                    _sendMessage(clean);
                   },
                 ),
               ],

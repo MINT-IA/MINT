@@ -460,7 +460,7 @@ class JitaiNudgeService {
         title: l?.nudgeStreakRiskTitle ?? 'Ta série est en danger\u00a0!',
         message: 'Tu as une série de $currentStreak\u00a0jours. '
             'Une petite action aujourd\'hui suffit pour la maintenir.', // Dynamic with streak count — not extracted
-        actionRoute: '/mint',
+        actionRoute: '/home?tab=1',
         actionLabel: l?.nudgeStreakRiskAction ?? 'Continuer ma série',
         triggeredAt: now,
         priority: NudgePriority.high,
@@ -493,7 +493,7 @@ class JitaiNudgeService {
           message: '«\u00a0$desc\u00a0» — '
               'il reste $daysLeft\u00a0jour${daysLeft > 1 ? 's' : ''}. '
               'As-tu avancé sur ce sujet\u00a0?', // Dynamic with goal desc/days — not extracted
-          actionRoute: '/mint',
+          actionRoute: '/home?tab=1',
           actionLabel: l?.nudgeGoalApproachingAction ?? 'En parler au coach',
           triggeredAt: now,
           priority: NudgePriority.medium,

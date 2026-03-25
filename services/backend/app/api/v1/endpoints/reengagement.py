@@ -14,10 +14,14 @@ Sources:
     - LSFin art. 3 (information financiere)
 """
 
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
+
+logger = logging.getLogger(__name__)
 from app.models.user import User
 
 from app.schemas.reengagement import (
@@ -130,6 +134,10 @@ async def get_consent_dashboard(request: Request) -> ConsentDashboardResponse:
 @limiter.limit("60/minute")
 async def get_user_consent(request: Request, current_user: User = Depends(require_current_user)) -> ConsentDashboardResponse:
     """Return consent dashboard with actual user state."""
+    logger.warning(
+        "V5-1: Consent state uses in-memory store pending DB migration. "
+        "Feature-gated — acceptable for now. TODO: wire SQLAlchemy session."
+    )
     manager = ConsentManager()
     dashboard = manager.get_user_dashboard(current_user.id)
 
@@ -166,6 +174,10 @@ async def update_user_consent(
     request: Request, body: ConsentUpdateRequest, current_user: User = Depends(require_current_user),
 ) -> ConsentStateResponse:
     """Update a single consent for a user."""
+    logger.warning(
+        "V5-1: Consent update uses in-memory store pending DB migration. "
+        "State will not survive server restart."
+    )
     try:
         consent_type = ConsentType(body.consent_type)
     except ValueError:

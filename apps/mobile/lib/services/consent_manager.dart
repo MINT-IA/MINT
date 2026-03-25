@@ -15,6 +15,7 @@
 library;
 
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONSENT MANAGER — S40 / Reengagement + Consent
@@ -164,12 +165,8 @@ class ConsentManager {
     );
   }
 
-  static Future<dynamic> _getPrefs() async {
-    // Lazy import to avoid hard dependency at top level
-    await Future.value(null); // SharedPreferences placeholder
-    // In production, use: SharedPreferences.getInstance()
-    // For now, use in-memory fallback
-    return _InMemoryPrefs.instance;
+  static Future<SharedPreferences> _getPrefs() async {
+    return SharedPreferences.getInstance();
   }
 
   /// Returns default consent dashboard (all OFF).
@@ -259,16 +256,5 @@ class ConsentManager {
   }
 }
 
-/// In-memory SharedPreferences fallback (replaced by SharedPreferences in prod).
-class _InMemoryPrefs {
-  static final _InMemoryPrefs instance = _InMemoryPrefs._();
-  _InMemoryPrefs._();
-
-  final Map<String, dynamic> _store = {};
-
-  bool? getBool(String key) => _store[key] as bool?;
-
-  Future<void> setBool(String key, bool value) async {
-    _store[key] = value;
-  }
-}
+// In-memory fallback removed — consent now persists via SharedPreferences
+// to survive app restarts (V5-1 audit fix).
