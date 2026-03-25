@@ -592,6 +592,7 @@ class _AgePickerState extends State<_AgePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
@@ -628,7 +629,7 @@ class _AgePickerState extends State<_AgePicker> {
                   final isSelected = age == widget.value;
                   return Center(
                     child: Text(
-                      '$age ans',
+                      l.stepQuestionsAgeYears(age),
                       style: GoogleFonts.montserrat(
                         fontSize: isSelected ? 24 : 18,
                         fontWeight:
@@ -670,7 +671,7 @@ class _AgePickerState extends State<_AgePicker> {
                     ),
                   ),
                   child: Text(
-                    '$age ans',
+                    l.stepQuestionsAgeYears(age),
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight:
@@ -703,20 +704,23 @@ class _EmploymentStatusChips extends StatelessWidget {
     required this.onChanged,
   });
 
-  static const _options = [
-    ('salarie', 'Salarie\u00b7e'),
-    ('independant', 'Independant\u00b7e'),
-    ('sans_emploi', 'Sans emploi'),
-    ('retraite', 'Retraite\u00b7e'),
-  ];
+  static const _keys = ['salarie', 'independant', 'sans_emploi', 'retraite'];
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final labels = [
+      l.employmentSalarie,
+      l.employmentIndependant,
+      l.employmentSansEmploi,
+      l.employmentRetraite,
+    ];
     return Wrap(
       spacing: 10,
       runSpacing: 10,
-      children: _options.map((option) {
-        final (key, label) = option;
+      children: List.generate(_keys.length, (i) {
+        final key = _keys[i];
+        final label = labels[i];
         final isSelected = key == value;
         return InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -745,7 +749,7 @@ class _EmploymentStatusChips extends StatelessWidget {
             ),
           ),
         );
-      }).toList(),
+      }),
     );
   }
 }
@@ -763,19 +767,22 @@ class _NationalityChips extends StatelessWidget {
     required this.onChanged,
   });
 
-  static const _options = [
-    ('CH', 'Suisse'),
-    ('EU', 'EU/AELE'),
-    ('OTHER', 'Autre'),
-  ];
+  static const _keys = ['CH', 'EU', 'OTHER'];
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final labels = [
+      l.nationalitySuisse,
+      l.nationalityEuAele,
+      l.nationalityAutre,
+    ];
     return Wrap(
       spacing: 10,
       runSpacing: 10,
-      children: _options.map((option) {
-        final (key, label) = option;
+      children: List.generate(_keys.length, (i) {
+        final key = _keys[i];
+        final label = labels[i];
         final isSelected = key == value;
         return InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -804,7 +811,7 @@ class _NationalityChips extends StatelessWidget {
             ),
           ),
         );
-      }).toList(),
+      }),
     );
   }
 }
@@ -819,21 +826,21 @@ class _CountryPicker extends StatelessWidget {
 
   const _CountryPicker({required this.value, required this.onChanged});
 
-  // Common non-EU/non-CH nationalities in Switzerland
-  static const _countries = [
-    ('US', 'États-Unis'),
-    ('GB', 'Royaume-Uni'),
-    ('CA', 'Canada'),
-    ('IN', 'Inde'),
-    ('CN', 'Chine'),
-    ('BR', 'Brésil'),
-    ('AU', 'Australie'),
-    ('JP', 'Japon'),
-  ];
+  static const _countryCodes = ['US', 'GB', 'CA', 'IN', 'CN', 'BR', 'AU', 'JP'];
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    final countryLabels = [
+      l.stepQuestionsCountryUs,
+      l.stepQuestionsCountryGb,
+      l.stepQuestionsCountryCa,
+      l.stepQuestionsCountryIn,
+      l.stepQuestionsCountryCn,
+      l.stepQuestionsCountryBr,
+      l.stepQuestionsCountryAu,
+      l.stepQuestionsCountryJp,
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -849,8 +856,9 @@ class _CountryPicker extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _countries.map((entry) {
-            final (code, label) = entry;
+          children: List.generate(_countryCodes.length, (i) {
+            final code = _countryCodes[i];
+            final label = countryLabels[i];
             final selected = value == code;
             return InkWell(
               borderRadius: BorderRadius.circular(20),
@@ -877,7 +885,7 @@ class _CountryPicker extends StatelessWidget {
                 ),
               ),
             );
-          }).toList(),
+          }),
         ),
       ],
     );

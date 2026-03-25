@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/analytics_events.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
@@ -29,6 +30,7 @@ class StepTopActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final top3 = tips.take(3).toList();
+    final l = S.of(context)!;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -42,7 +44,7 @@ class StepTopActions extends StatelessWidget {
 
               // ── HEADER ─────────────────────────────────────────────
               MintEntrance(child: Text(
-                'Tes 3 actions prioritaires',
+                l.stepTopActionsTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -51,7 +53,7 @@ class StepTopActions extends StatelessWidget {
               )),
               const SizedBox(height: 8),
               MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-                'Basees sur ta situation, voici par ou commencer.',
+                l.stepTopActionsSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -65,7 +67,7 @@ class StepTopActions extends StatelessWidget {
                 child: MintEntrance(delay: const Duration(milliseconds: 200), child: top3.isEmpty
                     ? Center(
                         child: Text(
-                          'Complete ton profil pour recevoir des actions personnalisees.',
+                          l.stepTopActionsEmpty,
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: MintColors.textMuted,
@@ -113,7 +115,7 @@ class StepTopActions extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Continuer',
+                    l.stepTopActionsContinue,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -126,7 +128,7 @@ class StepTopActions extends StatelessWidget {
                 child: TextButton(
                   onPressed: onBack,
                   child: Text(
-                    'Retour',
+                    l.stepTopActionsBack,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.textSecondary,
@@ -138,9 +140,7 @@ class StepTopActions extends StatelessWidget {
 
               // ── DISCLAIMER ──────────────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
-                'Suggestions educatives. Ne constitue pas un conseil '
-                'financier (LSFin). Consulte un·e specialiste pour un '
-                'plan personnalise.',
+                l.stepTopActionsDisclaimer,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   color: MintColors.textMuted,
@@ -179,6 +179,7 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _priorityColor(tip.priority);
+    final l = S.of(context)!;
 
     return Semantics(
       button: true,
@@ -237,7 +238,7 @@ class _ActionCard extends StatelessWidget {
                   if (tip.estimatedImpactChf != null) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'Impact estime : ${CoachingService.formatChf(tip.estimatedImpactChf!)}',
+                      l.stepTopActionsImpact(CoachingService.formatChf(tip.estimatedImpactChf!)),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

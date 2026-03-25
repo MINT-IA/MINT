@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/analytics_events.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -51,7 +52,8 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
 
   @override
   Widget build(BuildContext context) {
-    final explanation = _explanationForType(widget.chiffreChoc?.type);
+    final l = S.of(context)!;
+    final explanation = _explanationForType(widget.chiffreChoc?.type, l);
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -65,7 +67,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
 
               // ── HEADER ─────────────────────────────────────────────
               MintEntrance(child: Text(
-                'Comprendre en 30 secondes',
+                l.stepJitTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -84,7 +86,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                       children: [
                         // SI...
                         _ConditionRow(
-                          label: 'SI',
+                          label: l.stepJitSi,
                           color: MintColors.warning,
                           text: explanation.condition,
                         ),
@@ -92,7 +94,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
 
                         // ALORS...
                         _ConditionRow(
-                          label: 'ALORS',
+                          label: l.stepJitAlors,
                           color: MintColors.success,
                           text: explanation.consequence,
                         ),
@@ -146,7 +148,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
               // ── NAVIGATION ──────────────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
                 button: true,
-                label: 'Que puis-je faire ?',
+                label: l.stepJitAction,
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -160,7 +162,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                     ),
                   ),
                   child: Text(
-                    'Que puis-je faire ?',
+                    l.stepJitAction,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -174,7 +176,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
                 child: TextButton(
                   onPressed: widget.onBack,
                   child: Text(
-                    'Retour',
+                    l.stepJitBack,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.textSecondary,
@@ -186,8 +188,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
 
               // ── DISCLAIMER ──────────────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
-                'Outil éducatif simplifié. Ne constitue pas un conseil '
-                'financier (LSFin).',
+                l.stepJitDisclaimer,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   color: MintColors.textMuted,
@@ -203,67 +204,37 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
     );
   }
 
-  _JitExplanation _explanationForType(ChiffreChocType? type) {
+  _JitExplanation _explanationForType(ChiffreChocType? type, S l) {
     return switch (type) {
-      ChiffreChocType.liquidityAlert => const _JitExplanation(
-          condition:
-              'ton épargne de sécurité couvre moins de 2 mois de charges',
-          consequence:
-              'un imprévu (perte d\'emploi, réparation urgente) peut '
-              'te mettre en difficulté financière rapidement.',
-          insight:
-              'Les experts recommandent 3 à 6 mois de charges fixes en '
-              'réserve. Même 100 CHF/mois sur un compte épargne fait une '
-              'différence significative sur 12 mois.',
-          source: 'Recommandation Budget-conseil Suisse',
+      ChiffreChocType.liquidityAlert => _JitExplanation(
+          condition: l.stepJitLiquidityCond,
+          consequence: l.stepJitLiquidityCons,
+          insight: l.stepJitLiquidityInsight,
+          source: l.stepJitLiquiditySource,
         ),
-      ChiffreChocType.retirementGap => const _JitExplanation(
-          condition:
-              'ton taux de remplacement à la retraite est inférieur à 60%',
-          consequence:
-              'ton niveau de vie pourrait baisser significativement '
-              'le jour où tu arrêtes de travailler.',
-          insight:
-              'En Suisse, l\'AVS et la LPP couvrent en moyenne 60% du '
-              'dernier salaire. Le 3e pilier et l\'épargne libre comblent '
-              'le reste. Plus tu commences tôt, moins l\'effort mensuel '
-              'est important.',
-          source: 'LAVS art. 34 / LPP art. 14',
+      ChiffreChocType.retirementGap => _JitExplanation(
+          condition: l.stepJitRetirementCond,
+          consequence: l.stepJitRetirementCons,
+          insight: l.stepJitRetirementInsight,
+          source: l.stepJitRetirementSource,
         ),
-      ChiffreChocType.taxSaving3a => const _JitExplanation(
-          condition:
-              'tu ne verses pas le maximum dans ton 3e pilier chaque année',
-          consequence:
-              'tu passes à côté d\'une économie fiscale et d\'un capital '
-              'retraite supplémentaire.',
-          insight:
-              'Chaque franc versé en 3a est déductible du revenu imposable. '
-              'Sur 20 ans, la différence entre verser 0 et le plafond '
-              '(7\'258 CHF) peut représenter plus de 200\'000 CHF.',
-          source: 'OPP3 art. 7 / LIFD art. 33',
+      ChiffreChocType.taxSaving3a => _JitExplanation(
+          condition: l.stepJitTax3aCond,
+          consequence: l.stepJitTax3aCons,
+          insight: l.stepJitTax3aInsight,
+          source: l.stepJitTax3aSource,
         ),
-      ChiffreChocType.retirementIncome => const _JitExplanation(
-          condition:
-              'ta projection de revenu à la retraite est estimée',
-          consequence:
-              'connaître ce montant te permet de planifier '
-              'et d\'ajuster ta stratégie de prévoyance dès maintenant.',
-          insight:
-              'Le système suisse à 3 piliers (AVS + LPP + 3a) couvre en '
-              'moyenne 60% du dernier salaire. Chaque pilier a ses règles '
-              'et ses leviers d\'optimisation spécifiques.',
-          source: 'LAVS art. 34 / LPP art. 14 / OPP3 art. 7',
+      ChiffreChocType.retirementIncome => _JitExplanation(
+          condition: l.stepJitIncomeCond,
+          consequence: l.stepJitIncomeCons,
+          insight: l.stepJitIncomeInsight,
+          source: l.stepJitIncomeSource,
         ),
-      _ => const _JitExplanation(
-          condition: 'tu n\'as pas encore un plan financier structuré',
-          consequence:
-              'tu risques de passer à côté d\'opportunités d\'optimisation '
-              'fiscale et de prévoyance.',
-          insight:
-              'Un bilan financier annuel permet d\'identifier les leviers '
-              'les plus impactants : 3a, rachat LPP, franchise LAMal, '
-              'amortissement indirect.',
-          source: 'Recommandation éducative MINT',
+      _ => _JitExplanation(
+          condition: l.stepJitDefaultCond,
+          consequence: l.stepJitDefaultCons,
+          insight: l.stepJitDefaultInsight,
+          source: l.stepJitDefaultSource,
         ),
     };
   }

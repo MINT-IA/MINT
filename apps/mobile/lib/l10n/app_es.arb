@@ -10991,5 +10991,161 @@
   "employmentRetraite": "Jubilado/a",
   "nationalitySuisse": "Suiza",
   "nationalityEuAele": "UE/AELC",
-  "nationalityAutre": "Otro"
+  "nationalityAutre": "Otro",
+
+  "stepStressTitle": "\u00bfQu\u00e9 te preocupa m\u00e1s?",
+  "stepStressSubtitle": "Elige un tema \u2014 personalizamos tu experiencia.",
+  "stepStressRetirement": "Mi jubilaci\u00f3n",
+  "stepStressRetirementSub": "\u00bfTendr\u00e9 suficiente para vivir?",
+  "stepStressTaxes": "Mis impuestos",
+  "stepStressTaxesSub": "\u00bfEstoy pagando demasiado?",
+  "stepStressBudget": "Mi presupuesto",
+  "stepStressBudgetSub": "\u00bfA d\u00f3nde va mi dinero?",
+  "stepStressWealth": "Mi patrimonio",
+  "stepStressWealthSub": "\u00bfC\u00f3mo hacerlo crecer?",
+  "stepStressCouple": "En pareja",
+  "stepStressCoupleSub": "Optimizar juntos",
+  "stepStressCurious": "Solo curioso",
+  "stepStressCuriousSub": "Quiero entender mi situaci\u00f3n",
+  "stepStressDisclaimer": "Herramienta educativa \u2014 no constituye asesoramiento financiero (LSFin).",
+
+  "stepNextTitle": "Tu primer balance est\u00e1 listo",
+  "stepNextConfidence": "Precisi\u00f3n actual: {pct}\u00a0%. Cuanto m\u00e1s completes tu perfil, m\u00e1s fiables ser\u00e1n las proyecciones.",
+  "@stepNextConfidence": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepNextEnrich": "Afinar mi perfil",
+  "stepNextDashboard": "Ver mi dashboard",
+  "stepNextCheckin": "Hacer mi primer check-in",
+  "stepNextDisclaimer": "Herramienta educativa simplificada. No constituye asesoramiento financiero (LSFin). Fuentes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+
+  "stepTopActionsTitle": "Tus 3 acciones prioritarias",
+  "stepTopActionsSubtitle": "Bas\u00e1ndose en tu situaci\u00f3n, aqu\u00ed es donde empezar.",
+  "stepTopActionsEmpty": "Completa tu perfil para recibir acciones personalizadas.",
+  "stepTopActionsContinue": "Continuar",
+  "stepTopActionsBack": "Volver",
+  "stepTopActionsImpact": "Impacto estimado: {amount}",
+  "@stepTopActionsImpact": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "stepTopActionsDisclaimer": "Sugerencias educativas. No constituye asesoramiento financiero (LSFin). Consulta a un especialista para un plan personalizado.",
+
+  "stepChocConfidenceInfo": "Estimaci\u00f3n basada en {count} informaciones. Cuanto m\u00e1s precises, m\u00e1s fiable.",
+  "@stepChocConfidenceInfo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "stepChocConfidenceLabel": "Precisi\u00f3n: {pct}\u00a0%",
+  "@stepChocConfidenceLabel": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepChocLiteracyTitle": "Para personalizar tus consejos",
+  "stepChocLiteracySubtitle": "3 preguntas r\u00e1pidas \u2014 sin respuesta correcta o incorrecta.",
+  "stepChocLiteracyLpp": "Conozco el monto de mi capital LPP",
+  "stepChocLiteracyConversion": "S\u00e9 qu\u00e9 es la tasa de conversi\u00f3n",
+  "stepChocLiteracy3a": "Ya he aportado a una cuenta 3a",
+  "stepChocYes": "S\u00ed",
+  "stepChocNo": "No",
+  "stepChocAction": "\u00bfQu\u00e9 puedo hacer?",
+  "stepChocEnrich": "Afinar mi perfil",
+  "stepChocDashboard": "Ver mi dashboard",
+  "stepChocDisclaimer": "Herramienta educativa simplificada. No constituye asesoramiento financiero (LSFin). Fuentes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+
+  "stepJitTitle": "Comprender en 30 segundos",
+  "stepJitSi": "SI",
+  "stepJitAlors": "ENTONCES",
+  "stepJitAction": "\u00bfQu\u00e9 puedo hacer?",
+  "stepJitBack": "Volver",
+  "stepJitDisclaimer": "Herramienta educativa simplificada. No constituye asesoramiento financiero (LSFin).",
+  "stepJitLiquidityCond": "tus ahorros de emergencia cubren menos de 2 meses de gastos",
+  "stepJitLiquidityCons": "un imprevisto (p\u00e9rdida de empleo, reparaci\u00f3n urgente) podr\u00eda ponerte en dificultad financiera r\u00e1pidamente.",
+  "stepJitLiquidityInsight": "Los expertos recomiendan 3 a 6 meses de gastos fijos en reserva. Incluso CHF 100/mes en una cuenta de ahorros marca una diferencia significativa en 12 meses.",
+  "stepJitLiquiditySource": "Recomendaci\u00f3n presupuestaria Suiza",
+  "stepJitRetirementCond": "tu tasa de reemplazo en la jubilaci\u00f3n est\u00e1 por debajo del 60\u00a0%",
+  "stepJitRetirementCons": "tu nivel de vida podr\u00eda bajar significativamente cuando dejes de trabajar.",
+  "stepJitRetirementInsight": "En Suiza, el AVS y la LPP cubren en promedio el 60\u00a0% del \u00faltimo salario. El 3er pilar y el ahorro libre cubren el resto. Cuanto antes empieces, menor ser\u00e1 el esfuerzo mensual.",
+  "stepJitRetirementSource": "LAVS art. 34 / LPP art. 14",
+  "stepJitTax3aCond": "no aportas el m\u00e1ximo a tu 3er pilar cada a\u00f1o",
+  "stepJitTax3aCons": "est\u00e1s perdiendo un ahorro fiscal y un capital de jubilaci\u00f3n adicional.",
+  "stepJitTax3aInsight": "Cada franco aportado al 3a es deducible del ingreso imponible. En 20 a\u00f1os, la diferencia entre aportar 0 y el m\u00e1ximo (CHF 7'258) puede superar los CHF 200'000.",
+  "stepJitTax3aSource": "OPP3 art. 7 / LIFD art. 33",
+  "stepJitIncomeCond": "tu proyecci\u00f3n de ingresos de jubilaci\u00f3n est\u00e1 estimada",
+  "stepJitIncomeCons": "conocer este monto te permite planificar y ajustar tu estrategia de previsi\u00f3n ahora.",
+  "stepJitIncomeInsight": "El sistema suizo de 3 pilares (AVS + LPP + 3a) cubre en promedio el 60\u00a0% del \u00faltimo salario. Cada pilar tiene sus reglas y palancas de optimizaci\u00f3n espec\u00edficas.",
+  "stepJitIncomeSource": "LAVS art. 34 / LPP art. 14 / OPP3 art. 7",
+  "stepJitDefaultCond": "a\u00fan no tienes un plan financiero estructurado",
+  "stepJitDefaultCons": "corres el riesgo de perder oportunidades de optimizaci\u00f3n fiscal y de previsi\u00f3n.",
+  "stepJitDefaultInsight": "Un balance financiero anual permite identificar las palancas m\u00e1s impactantes: 3a, recompra LPP, franquicia LAMal, amortizaci\u00f3n indirecta.",
+  "stepJitDefaultSource": "Recomendaci\u00f3n educativa MINT",
+
+  "stepOcrTitle": "Enriquece tu perfil en 30 segundos",
+  "stepOcrSkip": "Continuar sin documento",
+  "stepOcrIntro": "Escanea uno o m\u00e1s documentos para que MINT calcule tu situaci\u00f3n con m\u00e1s precisi\u00f3n.",
+  "stepOcrLppTitle": "Tu carta de jubilaci\u00f3n LPP",
+  "stepOcrLppSubtitle": "Capital, tasa de conversi\u00f3n, laguna de recompra",
+  "stepOcrLppBoost": "+27 pts de precisi\u00f3n",
+  "stepOcrAvsTitle": "Tu extracto AVS",
+  "stepOcrAvsSubtitle": "A\u00f1os de cotizaci\u00f3n, lagunas, RAMD",
+  "stepOcrAvsBoost": "+22 pts de precisi\u00f3n",
+  "stepOcrTaxTitle": "Tu declaraci\u00f3n fiscal",
+  "stepOcrTaxSubtitle": "Ingreso imponible, fortuna, tasa marginal",
+  "stepOcrTaxBoost": "+17 pts de precisi\u00f3n",
+  "stepOcr3aTitle": "Tu cuenta 3a",
+  "stepOcr3aSubtitle": "Saldo, aportaciones acumuladas, rendimiento",
+  "stepOcr3aBoost": "+7 pts de precisi\u00f3n",
+  "stepOcrScanned": "Escaneado",
+  "stepOcrContinueWith": "Continuar ({count} documento{plural} escaneado{plural})",
+  "@stepOcrContinueWith": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrContinueWithout": "Continuar sin documento",
+  "stepOcrDisclaimer": "Herramienta educativa \u2014 no constituye asesoramiento financiero (LSFin). Documentos procesados en tu dispositivo, ning\u00fan dato enviado (LPD art. 6).",
+  "stepOcrLpdBanner": "Tus documentos se procesan en tu dispositivo. Nada se env\u00eda a Internet.",
+  "stepOcrLpdTitle": "Procesamiento privado en tu dispositivo",
+  "stepOcrLpdBody": "Este documento se analiza directamente en tu tel\u00e9fono.\nNing\u00fan dato se env\u00eda por Internet.\nLa informaci\u00f3n extra\u00edda se elimina despu\u00e9s del procesamiento.",
+  "stepOcrLpdLegal": "Base legal: LPD art. 6 \u2014 minimizaci\u00f3n de datos.",
+  "stepOcrLpdScan": "Escanear este documento",
+  "stepOcrLpdCancel": "Cancelar",
+  "stepOcrSnackSuccess": "{count} campo{plural} extra\u00eddo{plural} con \u00e9xito",
+  "@stepOcrSnackSuccess": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrSnackEmpty": "Documento procesado \u2014 ning\u00fan campo reconocido autom\u00e1ticamente",
+  "stepOcrSnackError": "Error de procesamiento: {error}",
+  "@stepOcrSnackError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "stepOcrSnackWebOnly": "Escaneo de imagen no disponible en web. Usa la app m\u00f3vil o importa un archivo .txt.",
+
+  "stepQuestionsAgeYears": "{age} a\u00f1os",
+  "@stepQuestionsAgeYears": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "stepQuestionsCountryUs": "Estados Unidos",
+  "stepQuestionsCountryGb": "Reino Unido",
+  "stepQuestionsCountryCa": "Canad\u00e1",
+  "stepQuestionsCountryIn": "India",
+  "stepQuestionsCountryCn": "China",
+  "stepQuestionsCountryBr": "Brasil",
+  "stepQuestionsCountryAu": "Australia",
+  "stepQuestionsCountryJp": "Jap\u00f3n",
+
+  "householdAcceptCodeHint": "CODE"
 }

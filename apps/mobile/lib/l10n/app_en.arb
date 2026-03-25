@@ -11026,5 +11026,161 @@
   "employmentRetraite": "Retired",
   "nationalitySuisse": "Swiss",
   "nationalityEuAele": "EU/EFTA",
-  "nationalityAutre": "Other"
+  "nationalityAutre": "Other",
+
+  "stepStressTitle": "What concerns you most?",
+  "stepStressSubtitle": "Pick a topic \u2014 we'll personalise your experience.",
+  "stepStressRetirement": "My retirement",
+  "stepStressRetirementSub": "Will I have enough to live on?",
+  "stepStressTaxes": "My taxes",
+  "stepStressTaxesSub": "Am I paying too much?",
+  "stepStressBudget": "My budget",
+  "stepStressBudgetSub": "Where does my money go?",
+  "stepStressWealth": "My wealth",
+  "stepStressWealthSub": "How can I grow it?",
+  "stepStressCouple": "As a couple",
+  "stepStressCoupleSub": "Optimise together",
+  "stepStressCurious": "Just curious",
+  "stepStressCuriousSub": "I want to understand my situation",
+  "stepStressDisclaimer": "Educational tool \u2014 does not constitute financial advice (FinSA).",
+
+  "stepNextTitle": "Your first assessment is ready",
+  "stepNextConfidence": "Current accuracy: {pct}%. The more you complete your profile, the more reliable the projections.",
+  "@stepNextConfidence": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepNextEnrich": "Refine my profile",
+  "stepNextDashboard": "View my dashboard",
+  "stepNextCheckin": "Do my first check-in",
+  "stepNextDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OASI art. 34, BVG art. 14-16, BVV3 art. 7.",
+
+  "stepTopActionsTitle": "Your 3 priority actions",
+  "stepTopActionsSubtitle": "Based on your situation, here is where to start.",
+  "stepTopActionsEmpty": "Complete your profile to receive personalised actions.",
+  "stepTopActionsContinue": "Continue",
+  "stepTopActionsBack": "Back",
+  "stepTopActionsImpact": "Estimated impact: {amount}",
+  "@stepTopActionsImpact": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "stepTopActionsDisclaimer": "Educational suggestions. Does not constitute financial advice (FinSA). Consult a specialist for a personalised plan.",
+
+  "stepChocConfidenceInfo": "Estimate based on {count} data points. The more you specify, the more reliable.",
+  "@stepChocConfidenceInfo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "stepChocConfidenceLabel": "Accuracy: {pct}%",
+  "@stepChocConfidenceLabel": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepChocLiteracyTitle": "To personalise your advice",
+  "stepChocLiteracySubtitle": "3 quick questions \u2014 no right or wrong answer.",
+  "stepChocLiteracyLpp": "I know the amount of my BVG pension assets",
+  "stepChocLiteracyConversion": "I know what the conversion rate is",
+  "stepChocLiteracy3a": "I have already contributed to a 3a account",
+  "stepChocYes": "Yes",
+  "stepChocNo": "No",
+  "stepChocAction": "What can I do?",
+  "stepChocEnrich": "Refine my profile",
+  "stepChocDashboard": "View my dashboard",
+  "stepChocDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OASI art. 34, BVG art. 14-16, BVV3 art. 7.",
+
+  "stepJitTitle": "Understand in 30 seconds",
+  "stepJitSi": "IF",
+  "stepJitAlors": "THEN",
+  "stepJitAction": "What can I do?",
+  "stepJitBack": "Back",
+  "stepJitDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA).",
+  "stepJitLiquidityCond": "your emergency savings cover less than 2 months of expenses",
+  "stepJitLiquidityCons": "an unexpected event (job loss, urgent repair) could put you in financial difficulty quickly.",
+  "stepJitLiquidityInsight": "Experts recommend 3 to 6 months of fixed expenses in reserve. Even CHF 100/month in a savings account makes a significant difference over 12 months.",
+  "stepJitLiquiditySource": "Swiss Budget Counselling recommendation",
+  "stepJitRetirementCond": "your replacement rate at retirement is below 60%",
+  "stepJitRetirementCons": "your standard of living could drop significantly when you stop working.",
+  "stepJitRetirementInsight": "In Switzerland, OASI and BVG cover an average of 60% of the last salary. The 3rd pillar and free savings bridge the gap. The earlier you start, the lower the monthly effort.",
+  "stepJitRetirementSource": "OASI art. 34 / BVG art. 14",
+  "stepJitTax3aCond": "you are not contributing the maximum to your 3rd pillar each year",
+  "stepJitTax3aCons": "you are missing out on a tax saving and additional retirement capital.",
+  "stepJitTax3aInsight": "Every franc paid into 3a is tax-deductible. Over 20 years, the difference between contributing 0 and the maximum (CHF 7,258) can exceed CHF 200,000.",
+  "stepJitTax3aSource": "BVV3 art. 7 / DBG art. 33",
+  "stepJitIncomeCond": "your projected retirement income is estimated",
+  "stepJitIncomeCons": "knowing this amount lets you plan and adjust your pension strategy now.",
+  "stepJitIncomeInsight": "The Swiss 3-pillar system (OASI + BVG + 3a) covers an average of 60% of the last salary. Each pillar has its own rules and specific optimisation levers.",
+  "stepJitIncomeSource": "OASI art. 34 / BVG art. 14 / BVV3 art. 7",
+  "stepJitDefaultCond": "you do not yet have a structured financial plan",
+  "stepJitDefaultCons": "you risk missing out on tax and pension optimisation opportunities.",
+  "stepJitDefaultInsight": "An annual financial review identifies the most impactful levers: 3a, BVG buyback, health insurance deductible, indirect amortisation.",
+  "stepJitDefaultSource": "MINT educational recommendation",
+
+  "stepOcrTitle": "Enrich your profile in 30 seconds",
+  "stepOcrSkip": "Continue without document",
+  "stepOcrIntro": "Scan one or more documents so MINT can calculate your situation more accurately.",
+  "stepOcrLppTitle": "Your BVG pension letter",
+  "stepOcrLppSubtitle": "Assets, conversion rate, buyback gap",
+  "stepOcrLppBoost": "+27 accuracy pts",
+  "stepOcrAvsTitle": "Your OASI extract",
+  "stepOcrAvsSubtitle": "Contribution years, gaps, AIME",
+  "stepOcrAvsBoost": "+22 accuracy pts",
+  "stepOcrTaxTitle": "Your tax return",
+  "stepOcrTaxSubtitle": "Taxable income, wealth, marginal rate",
+  "stepOcrTaxBoost": "+17 accuracy pts",
+  "stepOcr3aTitle": "Your 3a account",
+  "stepOcr3aSubtitle": "Balance, cumulative contributions, return",
+  "stepOcr3aBoost": "+7 accuracy pts",
+  "stepOcrScanned": "Scanned",
+  "stepOcrContinueWith": "Continue ({count} document{plural} scanned)",
+  "@stepOcrContinueWith": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrContinueWithout": "Continue without document",
+  "stepOcrDisclaimer": "Educational tool \u2014 does not constitute financial advice (FinSA). Documents processed on your device, no data sent (DPA art. 6).",
+  "stepOcrLpdBanner": "Your documents are processed on your device. Nothing is sent to the Internet.",
+  "stepOcrLpdTitle": "Private processing on your device",
+  "stepOcrLpdBody": "This document is analysed directly on your phone.\nNo data is sent over the Internet.\nExtracted information is deleted after processing.",
+  "stepOcrLpdLegal": "Legal basis: DPA art. 6 \u2014 data minimisation.",
+  "stepOcrLpdScan": "Scan this document",
+  "stepOcrLpdCancel": "Cancel",
+  "stepOcrSnackSuccess": "{count} field{plural} extracted successfully",
+  "@stepOcrSnackSuccess": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrSnackEmpty": "Document processed \u2014 no field recognised automatically",
+  "stepOcrSnackError": "Processing error: {error}",
+  "@stepOcrSnackError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "stepOcrSnackWebOnly": "Image scanning not available on web. Use the mobile app or import a .txt file.",
+
+  "stepQuestionsAgeYears": "{age} years",
+  "@stepQuestionsAgeYears": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "stepQuestionsCountryUs": "United States",
+  "stepQuestionsCountryGb": "United Kingdom",
+  "stepQuestionsCountryCa": "Canada",
+  "stepQuestionsCountryIn": "India",
+  "stepQuestionsCountryCn": "China",
+  "stepQuestionsCountryBr": "Brazil",
+  "stepQuestionsCountryAu": "Australia",
+  "stepQuestionsCountryJp": "Japan",
+
+  "householdAcceptCodeHint": "CODE"
 }

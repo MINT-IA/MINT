@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -168,6 +169,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
   Widget build(BuildContext context) {
     final choc = widget.viewModel.chiffreChoc;
     final vm = widget.viewModel;
+    final l = S.of(context)!;
 
     if (choc == null) {
       return const Scaffold(
@@ -294,8 +296,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Estimation bas\u00e9e sur $infoCount informations. '
-                              'Plus tu pr\u00e9cises, plus c\'est fiable.',
+                              l.stepChocConfidenceInfo(infoCount),
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: MintColors.textMuted,
@@ -309,7 +310,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                       Row(
                         children: [
                           Text(
-                            'Precision: ${confidence.round()}%',
+                            l.stepChocConfidenceLabel(confidence.round()),
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -336,7 +337,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Pour personnaliser tes conseils',
+                      l.stepChocLiteracyTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -345,7 +346,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '3 questions rapides — aucune bonne ou mauvaise reponse.',
+                      l.stepChocLiteracySubtitle,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textMuted,
@@ -353,7 +354,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ),
                     const SizedBox(height: 12),
                     _LiteracyQuestion(
-                      question: 'Je connais le montant de mon avoir LPP',
+                      question: l.stepChocLiteracyLpp,
                       value: _knowsLppBalance,
                       onChanged: (v) {
                         setState(() => _knowsLppBalance = v);
@@ -362,7 +363,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ),
                     const SizedBox(height: 10),
                     _LiteracyQuestion(
-                      question: 'Je sais ce qu\'est le taux de conversion',
+                      question: l.stepChocLiteracyConversion,
                       value: _knowsConversionRate,
                       onChanged: (v) {
                         setState(() => _knowsConversionRate = v);
@@ -371,7 +372,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ),
                     const SizedBox(height: 10),
                     _LiteracyQuestion(
-                      question: 'J\'ai deja verse sur un compte 3a',
+                      question: l.stepChocLiteracy3a,
                       value: _hasDone3a,
                       onChanged: (v) {
                         setState(() => _hasDone3a = v);
@@ -405,7 +406,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     ),
                   ),
                   child: Text(
-                    'Qu\'est-ce que je peux faire ?',
+                    l.stepChocAction,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -442,7 +443,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Affiner mon profil',
+                        l.stepChocEnrich,
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -470,7 +471,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: Text(
-                    'Voir mon dashboard',
+                    l.stepChocDashboard,
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -482,8 +483,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
 
               // ── DISCLAIMER ───────────────────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
-                'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
-                'Sources: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
+                l.stepChocDisclaimer,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   color: MintColors.textMuted,
@@ -539,6 +539,7 @@ class _LiteracyQuestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -558,13 +559,13 @@ class _LiteracyQuestion extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           _LiteracyChip(
-            label: 'Oui',
+            label: l.stepChocYes,
             selected: value == true,
             onTap: () => onChanged(value == true ? null : true),
           ),
           const SizedBox(width: 8),
           _LiteracyChip(
-            label: 'Non',
+            label: l.stepChocNo,
             selected: value == false,
             onTap: () => onChanged(value == false ? null : false),
           ),

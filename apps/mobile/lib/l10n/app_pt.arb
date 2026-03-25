@@ -10992,5 +10992,161 @@
   "employmentRetraite": "Reformado/a",
   "nationalitySuisse": "Su\u00ed\u00e7a",
   "nationalityEuAele": "UE/EFTA",
-  "nationalityAutre": "Outro"
+  "nationalityAutre": "Outro",
+
+  "stepStressTitle": "O que mais te preocupa?",
+  "stepStressSubtitle": "Escolhe um tema \u2014 vamos personalizar a tua experi\u00eancia.",
+  "stepStressRetirement": "A minha reforma",
+  "stepStressRetirementSub": "Terei o suficiente para viver?",
+  "stepStressTaxes": "Os meus impostos",
+  "stepStressTaxesSub": "Estou a pagar demais?",
+  "stepStressBudget": "O meu or\u00e7amento",
+  "stepStressBudgetSub": "Para onde vai o meu dinheiro?",
+  "stepStressWealth": "O meu patrim\u00f3nio",
+  "stepStressWealthSub": "Como faz\u00ea-lo crescer?",
+  "stepStressCouple": "Em casal",
+  "stepStressCoupleSub": "Otimizar a dois",
+  "stepStressCurious": "Apenas curioso",
+  "stepStressCuriousSub": "Quero compreender a minha situa\u00e7\u00e3o",
+  "stepStressDisclaimer": "Ferramenta educativa \u2014 n\u00e3o constitui aconselhamento financeiro (LSFin).",
+
+  "stepNextTitle": "O teu primeiro balan\u00e7o est\u00e1 pronto",
+  "stepNextConfidence": "Precis\u00e3o atual: {pct}\u00a0%. Quanto mais completares o teu perfil, mais fi\u00e1veis ser\u00e3o as proje\u00e7\u00f5es.",
+  "@stepNextConfidence": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepNextEnrich": "Refinar o meu perfil",
+  "stepNextDashboard": "Ver o meu dashboard",
+  "stepNextCheckin": "Fazer o meu primeiro check-in",
+  "stepNextDisclaimer": "Ferramenta educativa simplificada. N\u00e3o constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+
+  "stepTopActionsTitle": "As tuas 3 a\u00e7\u00f5es priorit\u00e1rias",
+  "stepTopActionsSubtitle": "Com base na tua situa\u00e7\u00e3o, aqui \u00e9 por onde come\u00e7ar.",
+  "stepTopActionsEmpty": "Completa o teu perfil para receber a\u00e7\u00f5es personalizadas.",
+  "stepTopActionsContinue": "Continuar",
+  "stepTopActionsBack": "Voltar",
+  "stepTopActionsImpact": "Impacto estimado: {amount}",
+  "@stepTopActionsImpact": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "stepTopActionsDisclaimer": "Sugest\u00f5es educativas. N\u00e3o constitui aconselhamento financeiro (LSFin). Consulta um especialista para um plano personalizado.",
+
+  "stepChocConfidenceInfo": "Estimativa baseada em {count} informa\u00e7\u00f5es. Quanto mais precisares, mais fi\u00e1vel.",
+  "@stepChocConfidenceInfo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "stepChocConfidenceLabel": "Precis\u00e3o: {pct}\u00a0%",
+  "@stepChocConfidenceLabel": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepChocLiteracyTitle": "Para personalizar os teus conselhos",
+  "stepChocLiteracySubtitle": "3 perguntas r\u00e1pidas \u2014 sem resposta certa ou errada.",
+  "stepChocLiteracyLpp": "Conhe\u00e7o o montante do meu capital LPP",
+  "stepChocLiteracyConversion": "Sei o que \u00e9 a taxa de convers\u00e3o",
+  "stepChocLiteracy3a": "J\u00e1 contribu\u00ed para uma conta 3a",
+  "stepChocYes": "Sim",
+  "stepChocNo": "N\u00e3o",
+  "stepChocAction": "O que posso fazer?",
+  "stepChocEnrich": "Refinar o meu perfil",
+  "stepChocDashboard": "Ver o meu dashboard",
+  "stepChocDisclaimer": "Ferramenta educativa simplificada. N\u00e3o constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+
+  "stepJitTitle": "Compreender em 30 segundos",
+  "stepJitSi": "SE",
+  "stepJitAlors": "ENT\u00c3O",
+  "stepJitAction": "O que posso fazer?",
+  "stepJitBack": "Voltar",
+  "stepJitDisclaimer": "Ferramenta educativa simplificada. N\u00e3o constitui aconselhamento financeiro (LSFin).",
+  "stepJitLiquidityCond": "as tuas poupan\u00e7as de emerg\u00eancia cobrem menos de 2 meses de despesas",
+  "stepJitLiquidityCons": "um imprevisto (perda de emprego, repara\u00e7\u00e3o urgente) pode colocar-te em dificuldade financeira rapidamente.",
+  "stepJitLiquidityInsight": "Os especialistas recomendam 3 a 6 meses de despesas fixas em reserva. Mesmo CHF 100/m\u00eas numa conta poupan\u00e7a faz uma diferen\u00e7a significativa em 12 meses.",
+  "stepJitLiquiditySource": "Recomenda\u00e7\u00e3o de consultoria or\u00e7amental Su\u00ed\u00e7a",
+  "stepJitRetirementCond": "a tua taxa de substitui\u00e7\u00e3o na reforma est\u00e1 abaixo de 60\u00a0%",
+  "stepJitRetirementCons": "o teu n\u00edvel de vida pode diminuir significativamente quando parares de trabalhar.",
+  "stepJitRetirementInsight": "Na Su\u00ed\u00e7a, o AVS e a LPP cobrem em m\u00e9dia 60\u00a0% do \u00faltimo sal\u00e1rio. O 3\u00ba pilar e a poupan\u00e7a livre preenchem o restante. Quanto mais cedo come\u00e7ares, menor o esfor\u00e7o mensal.",
+  "stepJitRetirementSource": "LAVS art. 34 / LPP art. 14",
+  "stepJitTax3aCond": "n\u00e3o contribu\u00eds o m\u00e1ximo para o teu 3\u00ba pilar todos os anos",
+  "stepJitTax3aCons": "est\u00e1s a perder uma poupan\u00e7a fiscal e um capital de reforma adicional.",
+  "stepJitTax3aInsight": "Cada franco contribu\u00eddo para o 3a \u00e9 dedut\u00edvel do rendimento tribut\u00e1vel. Em 20 anos, a diferen\u00e7a entre contribuir 0 e o m\u00e1ximo (CHF 7'258) pode ultrapassar CHF 200'000.",
+  "stepJitTax3aSource": "OPP3 art. 7 / LIFD art. 33",
+  "stepJitIncomeCond": "a tua proje\u00e7\u00e3o de rendimento na reforma est\u00e1 estimada",
+  "stepJitIncomeCons": "conhecer este montante permite-te planear e ajustar a tua estrat\u00e9gia de previd\u00eancia agora.",
+  "stepJitIncomeInsight": "O sistema su\u00ed\u00e7o de 3 pilares (AVS + LPP + 3a) cobre em m\u00e9dia 60\u00a0% do \u00faltimo sal\u00e1rio. Cada pilar tem as suas regras e alavancas de otimiza\u00e7\u00e3o espec\u00edficas.",
+  "stepJitIncomeSource": "LAVS art. 34 / LPP art. 14 / OPP3 art. 7",
+  "stepJitDefaultCond": "ainda n\u00e3o tens um plano financeiro estruturado",
+  "stepJitDefaultCons": "arriscas perder oportunidades de otimiza\u00e7\u00e3o fiscal e de previd\u00eancia.",
+  "stepJitDefaultInsight": "Um balan\u00e7o financeiro anual permite identificar as alavancas mais impactantes: 3a, resgate LPP, franquia LAMal, amortiza\u00e7\u00e3o indireta.",
+  "stepJitDefaultSource": "Recomenda\u00e7\u00e3o educativa MINT",
+
+  "stepOcrTitle": "Enriquece o teu perfil em 30 segundos",
+  "stepOcrSkip": "Continuar sem documento",
+  "stepOcrIntro": "Digitaliza um ou mais documentos para que o MINT calcule a tua situa\u00e7\u00e3o com mais precis\u00e3o.",
+  "stepOcrLppTitle": "A tua carta de reforma LPP",
+  "stepOcrLppSubtitle": "Capital, taxa de convers\u00e3o, lacuna de resgate",
+  "stepOcrLppBoost": "+27 pts de precis\u00e3o",
+  "stepOcrAvsTitle": "O teu extrato AVS",
+  "stepOcrAvsSubtitle": "Anos de contribui\u00e7\u00e3o, lacunas, RAMD",
+  "stepOcrAvsBoost": "+22 pts de precis\u00e3o",
+  "stepOcrTaxTitle": "A tua declara\u00e7\u00e3o fiscal",
+  "stepOcrTaxSubtitle": "Rendimento tribut\u00e1vel, patrim\u00f3nio, taxa marginal",
+  "stepOcrTaxBoost": "+17 pts de precis\u00e3o",
+  "stepOcr3aTitle": "A tua conta 3a",
+  "stepOcr3aSubtitle": "Saldo, contribui\u00e7\u00f5es acumuladas, rendimento",
+  "stepOcr3aBoost": "+7 pts de precis\u00e3o",
+  "stepOcrScanned": "Digitalizado",
+  "stepOcrContinueWith": "Continuar ({count} documento{plural} digitalizado{plural})",
+  "@stepOcrContinueWith": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrContinueWithout": "Continuar sem documento",
+  "stepOcrDisclaimer": "Ferramenta educativa \u2014 n\u00e3o constitui aconselhamento financeiro (LSFin). Documentos processados no teu dispositivo, nenhum dado enviado (LPD art. 6).",
+  "stepOcrLpdBanner": "Os teus documentos s\u00e3o processados no teu dispositivo. Nada \u00e9 enviado para a Internet.",
+  "stepOcrLpdTitle": "Processamento privado no teu dispositivo",
+  "stepOcrLpdBody": "Este documento \u00e9 analisado diretamente no teu telefone.\nNenhum dado \u00e9 enviado pela Internet.\nAs informa\u00e7\u00f5es extra\u00eddas s\u00e3o eliminadas ap\u00f3s o processamento.",
+  "stepOcrLpdLegal": "Base legal: LPD art. 6 \u2014 minimiza\u00e7\u00e3o de dados.",
+  "stepOcrLpdScan": "Digitalizar este documento",
+  "stepOcrLpdCancel": "Cancelar",
+  "stepOcrSnackSuccess": "{count} campo{plural} extra\u00eddo{plural} com sucesso",
+  "@stepOcrSnackSuccess": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrSnackEmpty": "Documento processado \u2014 nenhum campo reconhecido automaticamente",
+  "stepOcrSnackError": "Erro de processamento: {error}",
+  "@stepOcrSnackError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "stepOcrSnackWebOnly": "Digitaliza\u00e7\u00e3o de imagem n\u00e3o dispon\u00edvel na web. Usa a app m\u00f3vel ou importa um ficheiro .txt.",
+
+  "stepQuestionsAgeYears": "{age} anos",
+  "@stepQuestionsAgeYears": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "stepQuestionsCountryUs": "Estados Unidos",
+  "stepQuestionsCountryGb": "Reino Unido",
+  "stepQuestionsCountryCa": "Canad\u00e1",
+  "stepQuestionsCountryIn": "\u00cdndia",
+  "stepQuestionsCountryCn": "China",
+  "stepQuestionsCountryBr": "Brasil",
+  "stepQuestionsCountryAu": "Austr\u00e1lia",
+  "stepQuestionsCountryJp": "Jap\u00e3o",
+
+  "householdAcceptCodeHint": "CODE"
 }

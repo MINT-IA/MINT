@@ -23515,4 +23515,372 @@ class SIt extends S {
 
   @override
   String get nationalityAutre => 'Altro';
+
+  @override
+  String get stepStressTitle => 'Cosa ti preoccupa di più?';
+
+  @override
+  String get stepStressSubtitle =>
+      'Scegli un tema — personalizziamo la tua esperienza.';
+
+  @override
+  String get stepStressRetirement => 'La mia pensione';
+
+  @override
+  String get stepStressRetirementSub => 'Avrò abbastanza per vivere?';
+
+  @override
+  String get stepStressTaxes => 'Le mie tasse';
+
+  @override
+  String get stepStressTaxesSub => 'Sto pagando troppo?';
+
+  @override
+  String get stepStressBudget => 'Il mio budget';
+
+  @override
+  String get stepStressBudgetSub => 'Dove vanno i miei soldi?';
+
+  @override
+  String get stepStressWealth => 'Il mio patrimonio';
+
+  @override
+  String get stepStressWealthSub => 'Come farlo crescere?';
+
+  @override
+  String get stepStressCouple => 'In coppia';
+
+  @override
+  String get stepStressCoupleSub => 'Ottimizzare insieme';
+
+  @override
+  String get stepStressCurious => 'Solo curioso';
+
+  @override
+  String get stepStressCuriousSub => 'Voglio capire la mia situazione';
+
+  @override
+  String get stepStressDisclaimer =>
+      'Strumento educativo — non costituisce consulenza finanziaria (LSFin).';
+
+  @override
+  String get stepNextTitle => 'Il tuo primo bilancio è pronto';
+
+  @override
+  String stepNextConfidence(int pct) {
+    return 'Precisione attuale: $pct %. Più completi il tuo profilo, più affidabili saranno le proiezioni.';
+  }
+
+  @override
+  String get stepNextEnrich => 'Perfezionare il mio profilo';
+
+  @override
+  String get stepNextDashboard => 'Visualizza la mia dashboard';
+
+  @override
+  String get stepNextCheckin => 'Fare il mio primo check-in';
+
+  @override
+  String get stepNextDisclaimer =>
+      'Strumento educativo semplificato. Non costituisce consulenza finanziaria (LSFin). Fonti: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
+
+  @override
+  String get stepTopActionsTitle => 'Le tue 3 azioni prioritarie';
+
+  @override
+  String get stepTopActionsSubtitle =>
+      'In base alla tua situazione, ecco da dove iniziare.';
+
+  @override
+  String get stepTopActionsEmpty =>
+      'Completa il tuo profilo per ricevere azioni personalizzate.';
+
+  @override
+  String get stepTopActionsContinue => 'Continua';
+
+  @override
+  String get stepTopActionsBack => 'Indietro';
+
+  @override
+  String stepTopActionsImpact(String amount) {
+    return 'Impatto stimato: $amount';
+  }
+
+  @override
+  String get stepTopActionsDisclaimer =>
+      'Suggerimenti educativi. Non costituisce consulenza finanziaria (LSFin). Consulta uno specialista per un piano personalizzato.';
+
+  @override
+  String stepChocConfidenceInfo(int count) {
+    return 'Stima basata su $count informazioni. Più precisi i dati, più affidabile il risultato.';
+  }
+
+  @override
+  String stepChocConfidenceLabel(int pct) {
+    return 'Precisione: $pct %';
+  }
+
+  @override
+  String get stepChocLiteracyTitle => 'Per personalizzare i tuoi consigli';
+
+  @override
+  String get stepChocLiteracySubtitle =>
+      '3 domande rapide — nessuna risposta giusta o sbagliata.';
+
+  @override
+  String get stepChocLiteracyLpp => 'Conosco l’importo del mio avere LPP';
+
+  @override
+  String get stepChocLiteracyConversion => 'So cos’è il tasso di conversione';
+
+  @override
+  String get stepChocLiteracy3a => 'Ho già versato su un conto 3a';
+
+  @override
+  String get stepChocYes => 'Sì';
+
+  @override
+  String get stepChocNo => 'No';
+
+  @override
+  String get stepChocAction => 'Cosa posso fare?';
+
+  @override
+  String get stepChocEnrich => 'Perfezionare il mio profilo';
+
+  @override
+  String get stepChocDashboard => 'Visualizza la mia dashboard';
+
+  @override
+  String get stepChocDisclaimer =>
+      'Strumento educativo semplificato. Non costituisce consulenza finanziaria (LSFin). Fonti: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
+
+  @override
+  String get stepJitTitle => 'Capire in 30 secondi';
+
+  @override
+  String get stepJitSi => 'SE';
+
+  @override
+  String get stepJitAlors => 'ALLORA';
+
+  @override
+  String get stepJitAction => 'Cosa posso fare?';
+
+  @override
+  String get stepJitBack => 'Indietro';
+
+  @override
+  String get stepJitDisclaimer =>
+      'Strumento educativo semplificato. Non costituisce consulenza finanziaria (LSFin).';
+
+  @override
+  String get stepJitLiquidityCond =>
+      'i tuoi risparmi di emergenza coprono meno di 2 mesi di spese';
+
+  @override
+  String get stepJitLiquidityCons =>
+      'un imprevisto (perdita del lavoro, riparazione urgente) potrebbe metterti in difficoltà finanziaria rapidamente.';
+
+  @override
+  String get stepJitLiquidityInsight =>
+      'Gli esperti raccomandano 3-6 mesi di spese fisse come riserva. Anche CHF 100/mese su un conto risparmio fanno una differenza significativa in 12 mesi.';
+
+  @override
+  String get stepJitLiquiditySource =>
+      'Raccomandazione consulenza budget Svizzera';
+
+  @override
+  String get stepJitRetirementCond =>
+      'il tuo tasso di sostituzione alla pensione è inferiore al 60 %';
+
+  @override
+  String get stepJitRetirementCons =>
+      'il tuo tenore di vita potrebbe calare significativamente quando smetterai di lavorare.';
+
+  @override
+  String get stepJitRetirementInsight =>
+      'In Svizzera, AVS e LPP coprono in media il 60 % dell’ultimo salario. Il 3° pilastro e il risparmio libero colmano il resto. Prima inizi, minore è lo sforzo mensile.';
+
+  @override
+  String get stepJitRetirementSource => 'LAVS art. 34 / LPP art. 14';
+
+  @override
+  String get stepJitTax3aCond =>
+      'non versi il massimo nel tuo 3° pilastro ogni anno';
+
+  @override
+  String get stepJitTax3aCons =>
+      'stai perdendo un risparmio fiscale e un capitale pensionistico aggiuntivo.';
+
+  @override
+  String get stepJitTax3aInsight =>
+      'Ogni franco versato nel 3a è deducibile dal reddito imponibile. In 20 anni, la differenza tra versare 0 e il massimo (CHF 7\'258) può superare CHF 200\'000.';
+
+  @override
+  String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
+
+  @override
+  String get stepJitIncomeCond =>
+      'la tua proiezione di reddito pensionistico è stimata';
+
+  @override
+  String get stepJitIncomeCons =>
+      'conoscere questo importo ti permette di pianificare e adattare la tua strategia previdenziale ora.';
+
+  @override
+  String get stepJitIncomeInsight =>
+      'Il sistema svizzero a 3 pilastri (AVS + LPP + 3a) copre in media il 60 % dell’ultimo salario. Ogni pilastro ha le sue regole e leve di ottimizzazione specifiche.';
+
+  @override
+  String get stepJitIncomeSource => 'LAVS art. 34 / LPP art. 14 / OPP3 art. 7';
+
+  @override
+  String get stepJitDefaultCond =>
+      'non hai ancora un piano finanziario strutturato';
+
+  @override
+  String get stepJitDefaultCons =>
+      'rischi di perdere opportunità di ottimizzazione fiscale e previdenziale.';
+
+  @override
+  String get stepJitDefaultInsight =>
+      'Un bilancio finanziario annuale permette di identificare le leve più impattanti: 3a, riscatto LPP, franchigia LAMal, ammortamento indiretto.';
+
+  @override
+  String get stepJitDefaultSource => 'Raccomandazione educativa MINT';
+
+  @override
+  String get stepOcrTitle => 'Arricchisci il tuo profilo in 30 secondi';
+
+  @override
+  String get stepOcrSkip => 'Continua senza documento';
+
+  @override
+  String get stepOcrIntro =>
+      'Scansiona uno o più documenti affinché MINT calcoli la tua situazione con più precisione.';
+
+  @override
+  String get stepOcrLppTitle => 'La tua lettera pensionistica LPP';
+
+  @override
+  String get stepOcrLppSubtitle =>
+      'Avere, tasso di conversione, lacuna di riscatto';
+
+  @override
+  String get stepOcrLppBoost => '+27 punti di precisione';
+
+  @override
+  String get stepOcrAvsTitle => 'Il tuo estratto AVS';
+
+  @override
+  String get stepOcrAvsSubtitle => 'Anni di contribuzione, lacune, RAMD';
+
+  @override
+  String get stepOcrAvsBoost => '+22 punti di precisione';
+
+  @override
+  String get stepOcrTaxTitle => 'La tua dichiarazione fiscale';
+
+  @override
+  String get stepOcrTaxSubtitle =>
+      'Reddito imponibile, patrimonio, aliquota marginale';
+
+  @override
+  String get stepOcrTaxBoost => '+17 punti di precisione';
+
+  @override
+  String get stepOcr3aTitle => 'Il tuo conto 3a';
+
+  @override
+  String get stepOcr3aSubtitle => 'Saldo, versamenti cumulati, rendimento';
+
+  @override
+  String get stepOcr3aBoost => '+7 punti di precisione';
+
+  @override
+  String get stepOcrScanned => 'Scansionato';
+
+  @override
+  String stepOcrContinueWith(int count, String plural) {
+    return 'Continua ($count documento$plural scansionato$plural)';
+  }
+
+  @override
+  String get stepOcrContinueWithout => 'Continua senza documento';
+
+  @override
+  String get stepOcrDisclaimer =>
+      'Strumento educativo — non costituisce consulenza finanziaria (LSFin). Documenti elaborati sul tuo dispositivo, nessun dato inviato (LPD art. 6).';
+
+  @override
+  String get stepOcrLpdBanner =>
+      'I tuoi documenti vengono elaborati sul tuo dispositivo. Niente viene inviato su Internet.';
+
+  @override
+  String get stepOcrLpdTitle => 'Elaborazione privata sul tuo dispositivo';
+
+  @override
+  String get stepOcrLpdBody =>
+      'Questo documento viene analizzato direttamente sul tuo telefono.\nNessun dato viene inviato su Internet.\nLe informazioni estratte vengono eliminate dopo l’elaborazione.';
+
+  @override
+  String get stepOcrLpdLegal =>
+      'Base giuridica: LPD art. 6 — minimizzazione dei dati.';
+
+  @override
+  String get stepOcrLpdScan => 'Scansiona questo documento';
+
+  @override
+  String get stepOcrLpdCancel => 'Annulla';
+
+  @override
+  String stepOcrSnackSuccess(int count, String plural) {
+    return '$count campo$plural estratto$plural con successo';
+  }
+
+  @override
+  String get stepOcrSnackEmpty =>
+      'Documento elaborato — nessun campo riconosciuto automaticamente';
+
+  @override
+  String stepOcrSnackError(String error) {
+    return 'Errore di elaborazione: $error';
+  }
+
+  @override
+  String get stepOcrSnackWebOnly =>
+      'Scansione immagini non disponibile su web. Usa l’app mobile o importa un file .txt.';
+
+  @override
+  String stepQuestionsAgeYears(int age) {
+    return '$age anni';
+  }
+
+  @override
+  String get stepQuestionsCountryUs => 'Stati Uniti';
+
+  @override
+  String get stepQuestionsCountryGb => 'Regno Unito';
+
+  @override
+  String get stepQuestionsCountryCa => 'Canada';
+
+  @override
+  String get stepQuestionsCountryIn => 'India';
+
+  @override
+  String get stepQuestionsCountryCn => 'Cina';
+
+  @override
+  String get stepQuestionsCountryBr => 'Brasile';
+
+  @override
+  String get stepQuestionsCountryAu => 'Australia';
+
+  @override
+  String get stepQuestionsCountryJp => 'Giappone';
+
+  @override
+  String get householdAcceptCodeHint => 'CODE';
 }

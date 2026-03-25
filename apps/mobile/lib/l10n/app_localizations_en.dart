@@ -23361,4 +23361,370 @@ class SEn extends S {
 
   @override
   String get nationalityAutre => 'Other';
+
+  @override
+  String get stepStressTitle => 'What concerns you most?';
+
+  @override
+  String get stepStressSubtitle =>
+      'Pick a topic — we\'ll personalise your experience.';
+
+  @override
+  String get stepStressRetirement => 'My retirement';
+
+  @override
+  String get stepStressRetirementSub => 'Will I have enough to live on?';
+
+  @override
+  String get stepStressTaxes => 'My taxes';
+
+  @override
+  String get stepStressTaxesSub => 'Am I paying too much?';
+
+  @override
+  String get stepStressBudget => 'My budget';
+
+  @override
+  String get stepStressBudgetSub => 'Where does my money go?';
+
+  @override
+  String get stepStressWealth => 'My wealth';
+
+  @override
+  String get stepStressWealthSub => 'How can I grow it?';
+
+  @override
+  String get stepStressCouple => 'As a couple';
+
+  @override
+  String get stepStressCoupleSub => 'Optimise together';
+
+  @override
+  String get stepStressCurious => 'Just curious';
+
+  @override
+  String get stepStressCuriousSub => 'I want to understand my situation';
+
+  @override
+  String get stepStressDisclaimer =>
+      'Educational tool — does not constitute financial advice (FinSA).';
+
+  @override
+  String get stepNextTitle => 'Your first assessment is ready';
+
+  @override
+  String stepNextConfidence(int pct) {
+    return 'Current accuracy: $pct%. The more you complete your profile, the more reliable the projections.';
+  }
+
+  @override
+  String get stepNextEnrich => 'Refine my profile';
+
+  @override
+  String get stepNextDashboard => 'View my dashboard';
+
+  @override
+  String get stepNextCheckin => 'Do my first check-in';
+
+  @override
+  String get stepNextDisclaimer =>
+      'Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OASI art. 34, BVG art. 14-16, BVV3 art. 7.';
+
+  @override
+  String get stepTopActionsTitle => 'Your 3 priority actions';
+
+  @override
+  String get stepTopActionsSubtitle =>
+      'Based on your situation, here is where to start.';
+
+  @override
+  String get stepTopActionsEmpty =>
+      'Complete your profile to receive personalised actions.';
+
+  @override
+  String get stepTopActionsContinue => 'Continue';
+
+  @override
+  String get stepTopActionsBack => 'Back';
+
+  @override
+  String stepTopActionsImpact(String amount) {
+    return 'Estimated impact: $amount';
+  }
+
+  @override
+  String get stepTopActionsDisclaimer =>
+      'Educational suggestions. Does not constitute financial advice (FinSA). Consult a specialist for a personalised plan.';
+
+  @override
+  String stepChocConfidenceInfo(int count) {
+    return 'Estimate based on $count data points. The more you specify, the more reliable.';
+  }
+
+  @override
+  String stepChocConfidenceLabel(int pct) {
+    return 'Accuracy: $pct%';
+  }
+
+  @override
+  String get stepChocLiteracyTitle => 'To personalise your advice';
+
+  @override
+  String get stepChocLiteracySubtitle =>
+      '3 quick questions — no right or wrong answer.';
+
+  @override
+  String get stepChocLiteracyLpp =>
+      'I know the amount of my BVG pension assets';
+
+  @override
+  String get stepChocLiteracyConversion => 'I know what the conversion rate is';
+
+  @override
+  String get stepChocLiteracy3a => 'I have already contributed to a 3a account';
+
+  @override
+  String get stepChocYes => 'Yes';
+
+  @override
+  String get stepChocNo => 'No';
+
+  @override
+  String get stepChocAction => 'What can I do?';
+
+  @override
+  String get stepChocEnrich => 'Refine my profile';
+
+  @override
+  String get stepChocDashboard => 'View my dashboard';
+
+  @override
+  String get stepChocDisclaimer =>
+      'Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OASI art. 34, BVG art. 14-16, BVV3 art. 7.';
+
+  @override
+  String get stepJitTitle => 'Understand in 30 seconds';
+
+  @override
+  String get stepJitSi => 'IF';
+
+  @override
+  String get stepJitAlors => 'THEN';
+
+  @override
+  String get stepJitAction => 'What can I do?';
+
+  @override
+  String get stepJitBack => 'Back';
+
+  @override
+  String get stepJitDisclaimer =>
+      'Simplified educational tool. Does not constitute financial advice (FinSA).';
+
+  @override
+  String get stepJitLiquidityCond =>
+      'your emergency savings cover less than 2 months of expenses';
+
+  @override
+  String get stepJitLiquidityCons =>
+      'an unexpected event (job loss, urgent repair) could put you in financial difficulty quickly.';
+
+  @override
+  String get stepJitLiquidityInsight =>
+      'Experts recommend 3 to 6 months of fixed expenses in reserve. Even CHF 100/month in a savings account makes a significant difference over 12 months.';
+
+  @override
+  String get stepJitLiquiditySource =>
+      'Swiss Budget Counselling recommendation';
+
+  @override
+  String get stepJitRetirementCond =>
+      'your replacement rate at retirement is below 60%';
+
+  @override
+  String get stepJitRetirementCons =>
+      'your standard of living could drop significantly when you stop working.';
+
+  @override
+  String get stepJitRetirementInsight =>
+      'In Switzerland, OASI and BVG cover an average of 60% of the last salary. The 3rd pillar and free savings bridge the gap. The earlier you start, the lower the monthly effort.';
+
+  @override
+  String get stepJitRetirementSource => 'OASI art. 34 / BVG art. 14';
+
+  @override
+  String get stepJitTax3aCond =>
+      'you are not contributing the maximum to your 3rd pillar each year';
+
+  @override
+  String get stepJitTax3aCons =>
+      'you are missing out on a tax saving and additional retirement capital.';
+
+  @override
+  String get stepJitTax3aInsight =>
+      'Every franc paid into 3a is tax-deductible. Over 20 years, the difference between contributing 0 and the maximum (CHF 7,258) can exceed CHF 200,000.';
+
+  @override
+  String get stepJitTax3aSource => 'BVV3 art. 7 / DBG art. 33';
+
+  @override
+  String get stepJitIncomeCond =>
+      'your projected retirement income is estimated';
+
+  @override
+  String get stepJitIncomeCons =>
+      'knowing this amount lets you plan and adjust your pension strategy now.';
+
+  @override
+  String get stepJitIncomeInsight =>
+      'The Swiss 3-pillar system (OASI + BVG + 3a) covers an average of 60% of the last salary. Each pillar has its own rules and specific optimisation levers.';
+
+  @override
+  String get stepJitIncomeSource => 'OASI art. 34 / BVG art. 14 / BVV3 art. 7';
+
+  @override
+  String get stepJitDefaultCond =>
+      'you do not yet have a structured financial plan';
+
+  @override
+  String get stepJitDefaultCons =>
+      'you risk missing out on tax and pension optimisation opportunities.';
+
+  @override
+  String get stepJitDefaultInsight =>
+      'An annual financial review identifies the most impactful levers: 3a, BVG buyback, health insurance deductible, indirect amortisation.';
+
+  @override
+  String get stepJitDefaultSource => 'MINT educational recommendation';
+
+  @override
+  String get stepOcrTitle => 'Enrich your profile in 30 seconds';
+
+  @override
+  String get stepOcrSkip => 'Continue without document';
+
+  @override
+  String get stepOcrIntro =>
+      'Scan one or more documents so MINT can calculate your situation more accurately.';
+
+  @override
+  String get stepOcrLppTitle => 'Your BVG pension letter';
+
+  @override
+  String get stepOcrLppSubtitle => 'Assets, conversion rate, buyback gap';
+
+  @override
+  String get stepOcrLppBoost => '+27 accuracy pts';
+
+  @override
+  String get stepOcrAvsTitle => 'Your OASI extract';
+
+  @override
+  String get stepOcrAvsSubtitle => 'Contribution years, gaps, AIME';
+
+  @override
+  String get stepOcrAvsBoost => '+22 accuracy pts';
+
+  @override
+  String get stepOcrTaxTitle => 'Your tax return';
+
+  @override
+  String get stepOcrTaxSubtitle => 'Taxable income, wealth, marginal rate';
+
+  @override
+  String get stepOcrTaxBoost => '+17 accuracy pts';
+
+  @override
+  String get stepOcr3aTitle => 'Your 3a account';
+
+  @override
+  String get stepOcr3aSubtitle => 'Balance, cumulative contributions, return';
+
+  @override
+  String get stepOcr3aBoost => '+7 accuracy pts';
+
+  @override
+  String get stepOcrScanned => 'Scanned';
+
+  @override
+  String stepOcrContinueWith(int count, String plural) {
+    return 'Continue ($count document$plural scanned)';
+  }
+
+  @override
+  String get stepOcrContinueWithout => 'Continue without document';
+
+  @override
+  String get stepOcrDisclaimer =>
+      'Educational tool — does not constitute financial advice (FinSA). Documents processed on your device, no data sent (DPA art. 6).';
+
+  @override
+  String get stepOcrLpdBanner =>
+      'Your documents are processed on your device. Nothing is sent to the Internet.';
+
+  @override
+  String get stepOcrLpdTitle => 'Private processing on your device';
+
+  @override
+  String get stepOcrLpdBody =>
+      'This document is analysed directly on your phone.\nNo data is sent over the Internet.\nExtracted information is deleted after processing.';
+
+  @override
+  String get stepOcrLpdLegal => 'Legal basis: DPA art. 6 — data minimisation.';
+
+  @override
+  String get stepOcrLpdScan => 'Scan this document';
+
+  @override
+  String get stepOcrLpdCancel => 'Cancel';
+
+  @override
+  String stepOcrSnackSuccess(int count, String plural) {
+    return '$count field$plural extracted successfully';
+  }
+
+  @override
+  String get stepOcrSnackEmpty =>
+      'Document processed — no field recognised automatically';
+
+  @override
+  String stepOcrSnackError(String error) {
+    return 'Processing error: $error';
+  }
+
+  @override
+  String get stepOcrSnackWebOnly =>
+      'Image scanning not available on web. Use the mobile app or import a .txt file.';
+
+  @override
+  String stepQuestionsAgeYears(int age) {
+    return '$age years';
+  }
+
+  @override
+  String get stepQuestionsCountryUs => 'United States';
+
+  @override
+  String get stepQuestionsCountryGb => 'United Kingdom';
+
+  @override
+  String get stepQuestionsCountryCa => 'Canada';
+
+  @override
+  String get stepQuestionsCountryIn => 'India';
+
+  @override
+  String get stepQuestionsCountryCn => 'China';
+
+  @override
+  String get stepQuestionsCountryBr => 'Brazil';
+
+  @override
+  String get stepQuestionsCountryAu => 'Australia';
+
+  @override
+  String get stepQuestionsCountryJp => 'Japan';
+
+  @override
+  String get householdAcceptCodeHint => 'CODE';
 }

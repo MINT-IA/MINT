@@ -23512,4 +23512,372 @@ class SDe extends S {
 
   @override
   String get nationalityAutre => 'Andere';
+
+  @override
+  String get stepStressTitle => 'Was beschäftigt dich am meisten?';
+
+  @override
+  String get stepStressSubtitle =>
+      'Wähle ein Thema — wir personalisieren dein Erlebnis.';
+
+  @override
+  String get stepStressRetirement => 'Meine Pension';
+
+  @override
+  String get stepStressRetirementSub => 'Werde ich genug zum Leben haben?';
+
+  @override
+  String get stepStressTaxes => 'Meine Steuern';
+
+  @override
+  String get stepStressTaxesSub => 'Zahle ich zu viel?';
+
+  @override
+  String get stepStressBudget => 'Mein Budget';
+
+  @override
+  String get stepStressBudgetSub => 'Wo geht mein Geld hin?';
+
+  @override
+  String get stepStressWealth => 'Mein Vermögen';
+
+  @override
+  String get stepStressWealthSub => 'Wie kann ich es vermehren?';
+
+  @override
+  String get stepStressCouple => 'Als Paar';
+
+  @override
+  String get stepStressCoupleSub => 'Gemeinsam optimieren';
+
+  @override
+  String get stepStressCurious => 'Einfach neugierig';
+
+  @override
+  String get stepStressCuriousSub => 'Ich möchte meine Situation verstehen';
+
+  @override
+  String get stepStressDisclaimer =>
+      'Bildungstool — stellt keine Finanzberatung dar (FIDLEG).';
+
+  @override
+  String get stepNextTitle => 'Deine erste Bilanz ist bereit';
+
+  @override
+  String stepNextConfidence(int pct) {
+    return 'Aktuelle Genauigkeit: $pct %. Je mehr du dein Profil ergänzt, desto zuverlässiger die Projektionen.';
+  }
+
+  @override
+  String get stepNextEnrich => 'Mein Profil verfeinern';
+
+  @override
+  String get stepNextDashboard => 'Mein Dashboard ansehen';
+
+  @override
+  String get stepNextCheckin => 'Meinen ersten Check-in machen';
+
+  @override
+  String get stepNextDisclaimer =>
+      'Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.';
+
+  @override
+  String get stepTopActionsTitle => 'Deine 3 wichtigsten Aktionen';
+
+  @override
+  String get stepTopActionsSubtitle =>
+      'Basierend auf deiner Situation, hier ist der Anfang.';
+
+  @override
+  String get stepTopActionsEmpty =>
+      'Ergänze dein Profil, um personalisierte Aktionen zu erhalten.';
+
+  @override
+  String get stepTopActionsContinue => 'Weiter';
+
+  @override
+  String get stepTopActionsBack => 'Zurück';
+
+  @override
+  String stepTopActionsImpact(String amount) {
+    return 'Geschätzter Impact: $amount';
+  }
+
+  @override
+  String get stepTopActionsDisclaimer =>
+      'Bildungsvorschläge. Stellt keine Finanzberatung dar (FIDLEG). Konsultiere eine Fachperson für einen individuellen Plan.';
+
+  @override
+  String stepChocConfidenceInfo(int count) {
+    return 'Schätzung basierend auf $count Angaben. Je genauer du bist, desto zuverlässiger.';
+  }
+
+  @override
+  String stepChocConfidenceLabel(int pct) {
+    return 'Genauigkeit: $pct %';
+  }
+
+  @override
+  String get stepChocLiteracyTitle => 'Um deine Beratung zu personalisieren';
+
+  @override
+  String get stepChocLiteracySubtitle =>
+      '3 kurze Fragen — keine richtige oder falsche Antwort.';
+
+  @override
+  String get stepChocLiteracyLpp => 'Ich kenne den Betrag meines BVG-Guthabens';
+
+  @override
+  String get stepChocLiteracyConversion =>
+      'Ich weiss, was der Umwandlungssatz ist';
+
+  @override
+  String get stepChocLiteracy3a =>
+      'Ich habe bereits auf ein 3a-Konto eingezahlt';
+
+  @override
+  String get stepChocYes => 'Ja';
+
+  @override
+  String get stepChocNo => 'Nein';
+
+  @override
+  String get stepChocAction => 'Was kann ich tun?';
+
+  @override
+  String get stepChocEnrich => 'Mein Profil verfeinern';
+
+  @override
+  String get stepChocDashboard => 'Mein Dashboard ansehen';
+
+  @override
+  String get stepChocDisclaimer =>
+      'Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.';
+
+  @override
+  String get stepJitTitle => 'In 30 Sekunden verstehen';
+
+  @override
+  String get stepJitSi => 'WENN';
+
+  @override
+  String get stepJitAlors => 'DANN';
+
+  @override
+  String get stepJitAction => 'Was kann ich tun?';
+
+  @override
+  String get stepJitBack => 'Zurück';
+
+  @override
+  String get stepJitDisclaimer =>
+      'Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG).';
+
+  @override
+  String get stepJitLiquidityCond =>
+      'deine Notfallersparnisse weniger als 2 Monate Ausgaben decken';
+
+  @override
+  String get stepJitLiquidityCons =>
+      'ein unerwartetes Ereignis (Jobverlust, dringende Reparatur) kann dich schnell in finanzielle Schwierigkeiten bringen.';
+
+  @override
+  String get stepJitLiquidityInsight =>
+      'Experten empfehlen 3 bis 6 Monate Fixkosten als Reserve. Selbst CHF 100/Monat auf einem Sparkonto machen über 12 Monate einen erheblichen Unterschied.';
+
+  @override
+  String get stepJitLiquiditySource => 'Empfehlung Budgetberatung Schweiz';
+
+  @override
+  String get stepJitRetirementCond =>
+      'deine Ersatzquote bei der Pensionierung unter 60 % liegt';
+
+  @override
+  String get stepJitRetirementCons =>
+      'dein Lebensstandard könnte erheblich sinken, wenn du aufhörst zu arbeiten.';
+
+  @override
+  String get stepJitRetirementInsight =>
+      'In der Schweiz decken AHV und BVG durchschnittlich 60 % des letzten Gehalts. Die 3. Säule und freies Sparen überbrücken den Rest. Je früher du anfängst, desto geringer der monatliche Aufwand.';
+
+  @override
+  String get stepJitRetirementSource => 'AHVG Art. 34 / BVG Art. 14';
+
+  @override
+  String get stepJitTax3aCond =>
+      'du nicht den Maximalbetrag in deine 3. Säule einzahlst';
+
+  @override
+  String get stepJitTax3aCons =>
+      'du verpasst eine Steuerersparnis und zusätzliches Alterskapital.';
+
+  @override
+  String get stepJitTax3aInsight =>
+      'Jeder in die Säule 3a eingezahlte Franken ist steuerlich absetzbar. Über 20 Jahre kann der Unterschied zwischen 0 und dem Maximum (CHF 7\'258) mehr als CHF 200\'000 betragen.';
+
+  @override
+  String get stepJitTax3aSource => 'BVV3 Art. 7 / DBG Art. 33';
+
+  @override
+  String get stepJitIncomeCond =>
+      'dein prognostiziertes Einkommen im Ruhestand geschätzt wird';
+
+  @override
+  String get stepJitIncomeCons =>
+      'diesen Betrag zu kennen ermöglicht dir, deine Vorsorgestrategie jetzt zu planen und anzupassen.';
+
+  @override
+  String get stepJitIncomeInsight =>
+      'Das Schweizer 3-Säulen-System (AHV + BVG + 3a) deckt durchschnittlich 60 % des letzten Gehalts. Jede Säule hat eigene Regeln und spezifische Optimierungshebel.';
+
+  @override
+  String get stepJitIncomeSource => 'AHVG Art. 34 / BVG Art. 14 / BVV3 Art. 7';
+
+  @override
+  String get stepJitDefaultCond =>
+      'du noch keinen strukturierten Finanzplan hast';
+
+  @override
+  String get stepJitDefaultCons =>
+      'du riskierst, Steuer- und Vorsorge-Optimierungen zu verpassen.';
+
+  @override
+  String get stepJitDefaultInsight =>
+      'Eine jährliche Finanzbilanz identifiziert die wirkungsvollsten Hebel: 3a, BVG-Einkauf, Krankenkassen-Franchise, indirekte Amortisation.';
+
+  @override
+  String get stepJitDefaultSource => 'MINT Bildungsempfehlung';
+
+  @override
+  String get stepOcrTitle => 'Profil in 30 Sekunden anreichern';
+
+  @override
+  String get stepOcrSkip => 'Ohne Dokument fortfahren';
+
+  @override
+  String get stepOcrIntro =>
+      'Scanne ein oder mehrere Dokumente, damit MINT deine Situation genauer berechnen kann.';
+
+  @override
+  String get stepOcrLppTitle => 'Dein BVG-Pensionsschreiben';
+
+  @override
+  String get stepOcrLppSubtitle => 'Guthaben, Umwandlungssatz, Einkaufslücke';
+
+  @override
+  String get stepOcrLppBoost => '+27 Genauigkeitspunkte';
+
+  @override
+  String get stepOcrAvsTitle => 'Dein AHV-Auszug';
+
+  @override
+  String get stepOcrAvsSubtitle => 'Beitragsjahre, Lücken, RAMD';
+
+  @override
+  String get stepOcrAvsBoost => '+22 Genauigkeitspunkte';
+
+  @override
+  String get stepOcrTaxTitle => 'Deine Steuererklärung';
+
+  @override
+  String get stepOcrTaxSubtitle =>
+      'Steuerbares Einkommen, Vermögen, Grenzsteuersatz';
+
+  @override
+  String get stepOcrTaxBoost => '+17 Genauigkeitspunkte';
+
+  @override
+  String get stepOcr3aTitle => 'Dein 3a-Konto';
+
+  @override
+  String get stepOcr3aSubtitle => 'Saldo, kumulierte Einzahlungen, Rendite';
+
+  @override
+  String get stepOcr3aBoost => '+7 Genauigkeitspunkte';
+
+  @override
+  String get stepOcrScanned => 'Gescannt';
+
+  @override
+  String stepOcrContinueWith(int count, String plural) {
+    return 'Weiter ($count Dokument$plural gescannt)';
+  }
+
+  @override
+  String get stepOcrContinueWithout => 'Ohne Dokument fortfahren';
+
+  @override
+  String get stepOcrDisclaimer =>
+      'Bildungstool — stellt keine Finanzberatung dar (FIDLEG). Dokumente werden auf deinem Gerät verarbeitet, keine Daten gesendet (DSG Art. 6).';
+
+  @override
+  String get stepOcrLpdBanner =>
+      'Deine Dokumente werden auf deinem Gerät verarbeitet. Nichts wird ins Internet gesendet.';
+
+  @override
+  String get stepOcrLpdTitle => 'Private Verarbeitung auf deinem Gerät';
+
+  @override
+  String get stepOcrLpdBody =>
+      'Dieses Dokument wird direkt auf deinem Telefon analysiert.\nKeine Daten werden übers Internet gesendet.\nExtrahierte Informationen werden nach der Verarbeitung gelöscht.';
+
+  @override
+  String get stepOcrLpdLegal =>
+      'Rechtsgrundlage: DSG Art. 6 — Datenminimierung.';
+
+  @override
+  String get stepOcrLpdScan => 'Dieses Dokument scannen';
+
+  @override
+  String get stepOcrLpdCancel => 'Abbrechen';
+
+  @override
+  String stepOcrSnackSuccess(int count, String plural) {
+    return '$count Feld$plural erfolgreich extrahiert';
+  }
+
+  @override
+  String get stepOcrSnackEmpty =>
+      'Dokument verarbeitet — kein Feld automatisch erkannt';
+
+  @override
+  String stepOcrSnackError(String error) {
+    return 'Verarbeitungsfehler: $error';
+  }
+
+  @override
+  String get stepOcrSnackWebOnly =>
+      'Bildscan im Web nicht verfügbar. Nutze die mobile App oder importiere eine .txt-Datei.';
+
+  @override
+  String stepQuestionsAgeYears(int age) {
+    return '$age Jahre';
+  }
+
+  @override
+  String get stepQuestionsCountryUs => 'Vereinigte Staaten';
+
+  @override
+  String get stepQuestionsCountryGb => 'Vereinigtes Königreich';
+
+  @override
+  String get stepQuestionsCountryCa => 'Kanada';
+
+  @override
+  String get stepQuestionsCountryIn => 'Indien';
+
+  @override
+  String get stepQuestionsCountryCn => 'China';
+
+  @override
+  String get stepQuestionsCountryBr => 'Brasilien';
+
+  @override
+  String get stepQuestionsCountryAu => 'Australien';
+
+  @override
+  String get stepQuestionsCountryJp => 'Japan';
+
+  @override
+  String get householdAcceptCodeHint => 'CODE';
 }

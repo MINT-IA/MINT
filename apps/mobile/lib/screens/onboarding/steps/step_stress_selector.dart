@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -20,43 +21,22 @@ class StepStressSelector extends StatelessWidget {
     required this.onNext,
   });
 
-  static const _options = [
-    _StressOption(
-      id: 'stress_retraite',
-      icon: Icons.trending_up,
-      label: 'Ma retraite',
-      subtitle: 'Vais-je avoir assez pour vivre ?',
-    ),
-    _StressOption(
-      id: 'stress_impots',
-      icon: Icons.receipt_long,
-      label: 'Mes impots',
-      subtitle: 'Est-ce que je paie trop ?',
-    ),
-    _StressOption(
-      id: 'stress_budget',
-      icon: Icons.account_balance_wallet,
-      label: 'Mon budget',
-      subtitle: 'Ou passe mon argent ?',
-    ),
-    _StressOption(
-      id: 'stress_patrimoine',
-      icon: Icons.savings,
-      label: 'Mon patrimoine',
-      subtitle: 'Comment le faire grandir ?',
-    ),
-    _StressOption(
-      id: 'stress_couple',
-      icon: Icons.people,
-      label: 'En couple',
-      subtitle: 'Optimiser a deux',
-    ),
-    _StressOption(
-      id: 'stress_general',
-      icon: Icons.explore,
-      label: 'Juste curieux',
-      subtitle: 'Je veux comprendre ma situation',
-    ),
+  static const _optionIds = [
+    'stress_retraite',
+    'stress_impots',
+    'stress_budget',
+    'stress_patrimoine',
+    'stress_couple',
+    'stress_general',
+  ];
+
+  static const _optionIcons = [
+    Icons.trending_up,
+    Icons.receipt_long,
+    Icons.account_balance_wallet,
+    Icons.savings,
+    Icons.people,
+    Icons.explore,
   ];
 
   void _select(BuildContext context, String id) {
@@ -73,6 +53,25 @@ class StepStressSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
+    final labels = [
+      l.stepStressRetirement,
+      l.stepStressTaxes,
+      l.stepStressBudget,
+      l.stepStressWealth,
+      l.stepStressCouple,
+      l.stepStressCurious,
+    ];
+    final subtitles = [
+      l.stepStressRetirementSub,
+      l.stepStressTaxesSub,
+      l.stepStressBudgetSub,
+      l.stepStressWealthSub,
+      l.stepStressCoupleSub,
+      l.stepStressCuriousSub,
+    ];
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -84,7 +83,7 @@ class StepStressSelector extends StatelessWidget {
               titlePadding:
                   const EdgeInsets.only(left: 24, bottom: 16, right: 24),
               title: Text(
-                'Qu\'est-ce qui te preoccupe le plus ?',
+                l.stepStressTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -112,7 +111,7 @@ class StepStressSelector extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   MintEntrance(child: Text(
-                    'Choisis un theme — on personnalise ton experience.',
+                    l.stepStressSubtitle,
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
@@ -120,17 +119,19 @@ class StepStressSelector extends StatelessWidget {
                     ),
                   )),
                   const SizedBox(height: 24),
-                  ..._options.map((opt) => Padding(
+                  ...List.generate(_optionIds.length, (i) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: _StressCard(
-                          option: opt,
-                          isSelected: viewModel.stressType == opt.id,
-                          onTap: () => _select(context, opt.id),
+                          icon: _optionIcons[i],
+                          label: labels[i],
+                          subtitle: subtitles[i],
+                          isSelected: viewModel.stressType == _optionIds[i],
+                          onTap: () => _select(context, _optionIds[i]),
                         ),
                       )),
                   const SizedBox(height: 16),
                   MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-                    'Outil educatif — ne constitue pas un conseil financier (LSFin).',
+                    l.stepStressDisclaimer,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.textMuted,
@@ -149,27 +150,17 @@ class StepStressSelector extends StatelessWidget {
   }
 }
 
-class _StressOption {
-  final String id;
+class _StressCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String subtitle;
-
-  const _StressOption({
-    required this.id,
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-  });
-}
-
-class _StressCard extends StatelessWidget {
-  final _StressOption option;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _StressCard({
-    required this.option,
+    required this.icon,
+    required this.label,
+    required this.subtitle,
     required this.isSelected,
     required this.onTap,
   });
@@ -183,7 +174,7 @@ class _StressCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Semantics(
         button: true,
-        label: option.label,
+        label: label,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
@@ -208,7 +199,7 @@ class _StressCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  option.icon,
+                  icon,
                   color: isSelected
                       ? MintColors.primary
                       : MintColors.textSecondary,
@@ -221,7 +212,7 @@ class _StressCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      option.label,
+                      label,
                       style: GoogleFonts.montserrat(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -230,7 +221,7 @@ class _StressCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      option.subtitle,
+                      subtitle,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textSecondary,
