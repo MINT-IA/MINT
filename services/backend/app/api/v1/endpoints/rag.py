@@ -259,11 +259,12 @@ async def rag_ingest(request: Request, body: RAGIngestRequest, _user: User = Dep
 
 
 @router.get("/status", response_model=RAGStatusResponse)
-async def rag_status():
+async def rag_status(_user: User = Depends(require_current_user)):
     """
     Check RAG system status.
 
     Returns vector store readiness, document count, and available collections.
+    Requires authentication to prevent reconnaissance of internal state.
     """
     try:
         vector_store = _get_vector_store()

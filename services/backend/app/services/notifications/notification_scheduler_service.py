@@ -103,7 +103,7 @@ class NotificationSchedulerService:
                     f"Il reste {days_oct1} jours pour ton 3a. "
                     f"Economie estimee : CHF {chf_saving}."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 scheduled_date=oct1,
                 personal_number=f"CHF {chf_saving}",
                 time_reference=f"{days_oct1} jours",
@@ -122,7 +122,7 @@ class NotificationSchedulerService:
                     f"Il reste {days_nov1} jours. "
                     f"Economie estimee : CHF {chf_saving}."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 scheduled_date=nov1,
                 personal_number=f"CHF {chf_saving}",
                 time_reference=f"{days_nov1} jours",
@@ -142,7 +142,7 @@ class NotificationSchedulerService:
                     f"CHF {chf_saving} d\u2019economie en jeu. "
                     f"{days_dec1} jours restants."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 scheduled_date=dec1,
                 personal_number=f"CHF {chf_saving}",
                 time_reference=f"{days_dec1} jours",
@@ -161,7 +161,7 @@ class NotificationSchedulerService:
                     f"{days_dec20} jours. Dernier rappel 3a. "
                     f"CHF {chf_saving} d\u2019economie potentielle."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 scheduled_date=dec20,
                 personal_number=f"CHF {chf_saving}",
                 time_reference=f"{days_dec20} jours",
@@ -180,7 +180,7 @@ class NotificationSchedulerService:
                     f"Ton economie potentielle a change. "
                     f"Plafond 3a : CHF 7\u2019258."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 scheduled_date=jan5,
                 personal_number="CHF 7\u2019258",
                 time_reference=str(year + 1),
@@ -214,7 +214,7 @@ class NotificationSchedulerService:
                         f"Ton check-in mensuel est disponible. "
                         f"Mois de {month_names[month]} {year}."
                     ),
-                    deeplink="/check-in",
+                    deeplink="/coach/checkin",
                     scheduled_date=first_of_month,
                     personal_number=f"{month}/12",
                     time_reference=f"{month_names[month]} {year}",
@@ -264,7 +264,7 @@ class NotificationSchedulerService:
                         f"Depuis ton dernier check-in : "
                         f"{sign}{fri_delta:.1f} points sur ton score de solidite."
                     ),
-                    deeplink="/dashboard",
+                    deeplink="/home?tab=0",
                     scheduled_date=today,
                     personal_number=f"{sign}{fri_delta:.1f} points",
                     time_reference="dernier check-in",
@@ -280,7 +280,7 @@ class NotificationSchedulerService:
                         "Check-in termine. Ton score de solidite "
                         "est stable depuis le dernier check-in."
                     ),
-                    deeplink="/dashboard",
+                    deeplink="/home?tab=0",
                     scheduled_date=today,
                     personal_number="0 point",
                     time_reference="dernier check-in",
@@ -297,7 +297,7 @@ class NotificationSchedulerService:
                         "Ton profil a ete mis a jour. "
                         "Nouvelles projections disponibles des maintenant."
                     ),
-                    deeplink="/dashboard",
+                    deeplink="/home?tab=0",
                     scheduled_date=today,
                     personal_number="1 mise a jour",
                     time_reference="maintenant",
@@ -314,7 +314,7 @@ class NotificationSchedulerService:
                         f"Ta solidite a progresse de {fri_delta:.1f} points "
                         f"depuis la derniere evaluation."
                     ),
-                    deeplink="/dashboard",
+                    deeplink="/home?tab=0",
                     scheduled_date=today,
                     personal_number=f"+{fri_delta:.1f} points",
                     time_reference="derniere evaluation",

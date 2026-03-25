@@ -39,7 +39,10 @@ def claim_local_data(
     """
     One-shot migration of local mobile data to the authenticated user's cloud profile.
 
-    Idempotency strategy: upsert on latest profile for (user_id, device_id claim marker).
+    Merge policy: Last write wins, version-gated. Same or older version is a no-op.
+    If the existing profile already contains a localDataClaim whose localDataVersion
+    is >= the incoming version, we skip the overwrite and return the existing data.
+    This prevents stale replays from older devices or retry storms.
     """
     now = datetime.now(timezone.utc)
     existing_profile = (
@@ -48,6 +51,24 @@ def claim_local_data(
         .order_by(ProfileModel.updated_at.desc())
         .first()
     )
+
+    # --- Version-based idempotence gate ---
+    # If the profile already has a claim with a version >= the incoming one,
+    # return early (no-op) to prevent stale replays.
+    if existing_profile and existing_profile.data:
+        existing_claim = existing_profile.data.get("localDataClaim", {})
+        existing_meta = existing_claim.get("meta", {})
+        existing_version = existing_meta.get("localDataVersion", 0)
+        if existing_version >= body.local_data_version:
+            merged_fields_count = (
+                len(body.mini_onboarding) + len(body.wizard_answers)
+            )
+            return ClaimLocalDataResponse(
+                status="ok",
+                profile_id=existing_profile.id,
+                created_profile=False,
+                merged_fields_count=merged_fields_count,
+            )
 
     claim_blob = {
         "meta": {

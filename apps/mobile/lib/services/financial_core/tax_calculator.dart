@@ -378,6 +378,28 @@ class RetirementTaxCalculator {
     return totallySaved;
   }
 
+  /// Estimate annual 3a tax saving using canton-aware marginal rate.
+  ///
+  /// Replaces hardcoded `7258 * 0.25` patterns. Uses the real marginal rate
+  /// for the user's income level, canton, and family situation.
+  ///
+  /// Legal basis: OPP3 art. 7 (plafond 3a), LIFD (impot federal).
+  static double estimate3aTaxSaving({
+    required double grossAnnualSalary,
+    required String canton,
+    bool isMarried = false,
+    int children = 0,
+  }) {
+    if (grossAnnualSalary <= 0) return 0;
+    final marginalRate = estimateMarginalRate(
+      grossAnnualSalary,
+      canton,
+      isMarried: isMarried,
+      children: children,
+    );
+    return pilier3aPlafondAvecLpp * marginalRate;
+  }
+
   /// Estimate retirement income tax (annual → monthly).
   ///
   /// CRITICAL: revenuAnnuelImposable must EXCLUDE capital SWR withdrawals.

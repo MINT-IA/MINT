@@ -81,7 +81,7 @@ class TestCalendarNotifications:
         n = oct_notifs[0]
         assert "jours" in n.body
         assert "1\u2019820" in n.body
-        assert n.deeplink == "/3a"
+        assert n.deeplink == "/pilier-3a"
         assert n.tier == NotificationTier.calendar
 
     def test_3a_dec20_last_reminder(self):
@@ -213,7 +213,7 @@ class TestEventNotifications:
         assert len(result) >= 1
         assert "profil" in result[0].body.lower()
         assert "projections" in result[0].body.lower()
-        assert result[0].deeplink == "/dashboard"
+        assert result[0].deeplink == "/home?tab=0"
 
     def test_fri_improvement_without_check_in(self):
         """FRI improvement without check-in should generate a separate notification."""

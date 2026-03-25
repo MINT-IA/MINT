@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -343,9 +344,12 @@ class _FocusSelectorState extends State<FocusSelector> {
 
   String _taxApercu(CoachProfile p) {
     if (p.salaireBrutMensuel <= 0) return 'Économies potentielles';
-    // Rough 3a tax saving estimate
-    const marginalRate = 0.25; // ~25% average marginal rate
-    final saving3a = (7258 * marginalRate).round();
+    final grossAnnual = p.salaireBrutMensuel * 12;
+    final canton = p.canton.isNotEmpty ? p.canton : 'ZH';
+    final saving3a = RetirementTaxCalculator.estimate3aTaxSaving(
+      grossAnnualSalary: grossAnnual,
+      canton: canton,
+    ).round();
     return '~CHF $saving3a/an récupérables';
   }
 

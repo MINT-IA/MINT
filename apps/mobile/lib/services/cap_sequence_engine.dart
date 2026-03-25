@@ -2,6 +2,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────────
 //  CAP SEQUENCE ENGINE
@@ -460,13 +461,17 @@ class CapSequenceEngine {
     return avoir * taux / 12;
   }
 
-  /// Annual 3a tax saving estimate (rough 25% marginal rate).
+  /// Annual 3a tax saving estimate using canton-aware marginal rate.
   static double? _estimate3aImpact(CoachProfile profile) {
     if (profile.salaireBrutMensuel <= 0) return null;
-    // Max 3a salarié LPP = 7'258 CHF/an (2025/2026)
-    const max3aAnnuelLocal = 7258.0;
-    // Conservative 25% TMI estimate → monthly impact = annual savings / 12
-    return (max3aAnnuelLocal * 0.25) / 12;
+    final grossAnnual = profile.salaireBrutMensuel * 12;
+    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    final annualSaving = RetirementTaxCalculator.estimate3aTaxSaving(
+      grossAnnualSalary: grossAnnual,
+      canton: canton,
+    );
+    // Monthly impact = annual savings / 12
+    return annualSaving / 12;
   }
 
   /// Rough LPP buyback monthly benefit (rachat × taux conversion / 12).
