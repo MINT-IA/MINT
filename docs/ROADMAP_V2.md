@@ -3,7 +3,7 @@
 > Date: March 2026 | Version: 2.1 | Production: v0.9.1
 > Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` (40+ apps, 18 research themes)
 > Execution method: Autoresearch Dev Agents (`visions/MINT_Autoresearch_Dev_Agents.md`)
-> Last sync: 2026-03-21 — status column added, deliverables corrected against code
+> Last sync: 2026-03-25 — status column added, deliverables corrected against code
 
 ---
 
@@ -51,7 +51,7 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 | S53 | Gate Closer | `shipped` | Honesty clause enforcement, disability gap fixes, AVS couple caps (LAVS art. 35 applied correctly), all 18 life events coverage, LPP split logic | 13e rente AVS not found in codebase — not yet implemented |
 | S54 | Financial Health Score v1 | `shipped` | `FinancialHealthScoreService` (4-axis composite), `ScoreRevealScreen`, `StreakService` (with badges and milestones), `MilestoneV2Service`, achievements screen | FHS service exists and is functional; UI wiring to daily widget is partial |
 | S55 | North Star screens | `shipped` | `QuickStartScreen` V2, `RetirementDashboardScreen` V2, `LandingScreen` V10, `ScoreRevealScreen`, 12 screens redesigned to Hero Plan / Decision Canvas templates | Sprint label was "Streaks + 10 Milestones" in old roadmap — actual S55 was visual premium |
-| S56 | Chat Central | `shipped` | Claude API live (tool calling), `CoachOrchestrator`, `ContextInjectorService`, lightning menu wiring, `ProactiveTriggerService` (7 triggers), `RegionalVoiceService` (26 cantons), `RagRetrievalService` (FAQ fallback + cantonal context), `VoiceService` (stub backend + config), `WeeklyRecapService` (service layer), Dossier tab reorganization | RAG v2 file-based retrieval wired; vector store embedding pipeline not yet implemented. Voice service exists with stub backend — real STT/TTS not integrated |
+| S56 | Chat Central | `shipped` | Claude API live (tool calling), `CoachOrchestrator`, `ContextInjectorService`, lightning menu wiring, `ProactiveTriggerService` (7 triggers), `RegionalVoiceService` (26 cantons), `RagRetrievalService` (FAQ fallback + cantonal context), `VoiceService` (stub backend + config), `WeeklyRecapService` (service layer), `StructuredReasoningService` (reasoning/humanization split), Dossier tab reorganization, agent loop (tool_use -> execute -> re-call LLM) in `coach_chat.py`, 5 internal tools (`retrieve_memories`, `get_budget_status`, `get_retirement_projection`, `get_cross_pillar_analysis`, `get_cap_status`) | RAG v2 file-based retrieval wired; vector store embedding pipeline not yet implemented. Voice service exists with stub backend — real STT/TTS not integrated. Agent loop runs up to 5 iterations with 8K token budget |
 
 **KPIs Phase 1**: DAU/MAU > 25%, Retention J7 > 35%, Chat used by > 40% active users
 
@@ -70,7 +70,7 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 | Sprint | Objective | Status | What actually shipped | Notes |
 |--------|-----------|--------|-----------------------|-------|
 | S57 | Lifecycle Engine + ScreenRegistry + ReadinessGate | `shipped` | `LifecyclePhase` (7-phase enum), `LifecycleDetector`, `LifecycleContentService`, `LifecycleAdaptation`, `ScreenRegistry` (109 surfaces with intentTag/behavior/requiredFields), `ReadinessGate` (3 levels) | Lifecycle engine pure functions; content adaptation wiring to coach system prompt is partial |
-| S58 | AI Memory + RoutePlanner + ReturnContract | `foundation` | `RoutePlanner` service exists, `ScreenRegistry` complete, `GoalTrackerService` exists | `ReturnContract` / `ScreenReturn` model not found in codebase. `route_to_screen` tool in `coach_tools.py` not verified. Cross-session vector store not implemented |
+| S58 | AI Memory + RoutePlanner + ReturnContract | `shipped` | `ScreenReturn` model (V2 with completed/abandoned/changedInputs), `ScreenCompletionTracker` (realtime broadcast stream + SharedPreferences persistence), `ReturnContract` on 11 screens (rente_vs_capital, simulator_3a, staggered_withdrawal, affordability, rachat_echelonne, divorce, lamal_franchise, job_comparison, fiscal_comparator, disability_gap, budget), `CoachMemoryService` (cross-session insights), `MemoryReferenceService`, `RoutePlanner`, `route_to_screen` tool in coach_tools.py | Fully implemented. Realtime stream feeds coach chat immediately after simulation. Vector store memory not yet implemented |
 | S59 | Weekly Recap AI | `foundation` | `WeeklyRecapService` (service layer complete), `WeeklyRecapScreen` (screen exists at `/coach/weekly-recap`) | Screen is implemented but route in app.dart shows it as live; quality of generated content depends on BYOK |
 | S60 | Cantonal benchmarks | `shipped` | `CantonalBenchmarkService` (full 26-canton data), `CantonalBenchmarkScreen` at `/cantonal-benchmark`, no social comparison language | Service and screen fully implemented with compliance-safe language |
 | S61 | JITAI Proactive nudges | `shipped` | `JitaiNudgeService` (trigger engine), `ProactiveTriggerService` (7 triggers: lifecycle change, weekly recap, goal milestone, seasonal, inactivity, confidence improvement, new cap) | Nudge delivery to UI is partial — trigger logic complete, notification wiring depends on `NotificationService` |
@@ -92,12 +92,12 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 
 | Sprint | Objective | Status | What actually shipped | Notes |
 |--------|-----------|--------|-----------------------|-------|
-| S63 | Voice AI (STT+TTS) | `foundation` | `VoiceService` (class with stub backend), `VoiceConfig`, `VoiceChatIntegration`, `RegionalVoiceService` (26-canton flavor for system prompt) | Stub backend only — no real STT/TTS provider integrated. Regional voice flavor is for text coaching, not audio |
-| S64 | Multi-LLM redundancy | `foundation` | `MultiLlmService` (class with provider health tracking, Claude primary + GPT-4o fallback) | Service layer exists; production failover not verified. Local model for sensitive calcs not implemented |
-| S65 | Expert tier (human advisors) | `planned` | — | No advisor matching, dossier prep for human sessions, or scheduling implemented |
-| S66 | Advanced gamification | `planned` | — | Community challenge service exists as skeleton; cantonal leagues not implemented |
-| S67 | RAG v2 (comprehensive) | `foundation` | `RagRetrievalService` (3 document pools: concepts, cantons, FAQ; keyword-based scoring; source citations) | File-based keyword retrieval implemented. Vector embeddings not implemented. Document count: 45+ concepts, 26 cantonal docs (pending), 10 FAQ docs (pending) |
-| S68 | Agent autonome v1 | `planned` | — | No form pre-fill, letter generation, or fiscal dossier prep implemented |
+| S63 | Voice AI (STT+TTS) | `foundation` | `VoiceService` (class with stub backend), `VoiceConfig`, `VoiceChatIntegration`, `VoiceInputButton`, `VoiceOutputButton`, `VoiceStateMachine`, `PlatformVoiceBackend`, `RegionalVoiceService` (26-canton flavor for system prompt) | Stub backend only — no real STT/TTS provider integrated. Full UI widget layer (input/output buttons, state machine, platform backend) exists but wired to stub. Regional voice flavor is for text coaching, not audio |
+| S64 | Multi-LLM redundancy | `shipped` | `MultiLlmService` (Claude primary + GPT-4o fallback), `LlmFailoverService` (automatic failover with retry logic), `ProviderHealthService` (health tracking + circuit breaker), `ResponseQualityMonitor` (quality scoring + anomaly detection) — all with unit tests | Full failover stack implemented and tested. Local model for sensitive calcs not implemented |
+| S65 | Expert tier (human advisors) | `foundation` | `ExpertTierScreen` (UI), `AdvisorSpecialization` (enum), `AdvisorMatchingService`, `DossierPreparationService` (AI pre-filled dossier with compliance disclaimer), `SessionSchedulerService` — all with unit tests | Service layer complete. No real advisor marketplace or payment integration. Dossier generation is functional but untested with real specialist workflows |
+| S66 | Advanced gamification | `foundation` | `CommunityChallengeService` (community challenges by archetype), `SeasonalEventService` (time-based event triggers), `MilestoneV2Service` (achievement tracking with badges) | Service layer complete. Challenge completion UI wiring partial; cantonal leagues not implemented |
+| S67 | RAG v2 (comprehensive) | `foundation` | `RagRetrievalService` (3 document pools: concepts, cantons, FAQ; keyword-based scoring; source citations), backend: `HybridSearchService` (pgvector + PostgreSQL FTS, 0.7/0.3 score fusion), `KnowledgeCatalog` (full corpus registry), `FaqService` (FAQ retrieval), `CantonalKnowledge` (26-canton knowledge base), `KnowledgeUpdatePipeline` (freshness checks), `/knowledge/status` API endpoint — all with backend tests | Keyword retrieval live in production. pgvector hybrid search implemented but requires production PostgreSQL with pgvector extension. Backend RAG stack fully tested; vector embeddings pipeline ready but not activated in prod |
+| S68 | Agent autonome v1 | `foundation` | `AutonomousAgentService` (task generation with mandatory user validation, safe mode, audit log), `AgentValidationGate` (validation enforcement before any action), `FormPrefillService` (form pre-fill from profile), `LetterGenerationService` (letter drafts with placeholder fields) — validation gate, form prefill, and letter generation have unit tests | Service layer complete with compliance-safe design (all tasks require user validation). No end-to-end wiring to coach chat yet. AutonomousAgentService lacks dedicated test file |
 
 **KPIs Phase 3**: Retention M12 > 25%, NPS > 50, Revenue MRR > CHF 50K
 
@@ -162,7 +162,7 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 
 ---
 
-## ACTUAL CODEBASE STATE (2026-03-21)
+## ACTUAL CODEBASE STATE (2026-03-25)
 
 ### What is fully shipped and production-ready
 
@@ -170,27 +170,34 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 - 7 Explorer hubs with 60+ flows reachable
 - `CapEngine` (12-rule heuristic scoring) + `CapMemoryStore`
 - `CoachChatScreen` with Claude API + tool calling + compliance guard
+- Agent loop (tool_use -> execute -> re-call LLM, max 5 iterations, 8K token budget)
+- `StructuredReasoningService` (reasoning/humanization split)
+- 5 internal tools: `retrieve_memories`, `get_budget_status`, `get_retirement_projection`, `get_cross_pillar_analysis`, `get_cap_status`
 - `ConversationMemoryService` (cross-session persistence)
 - `FinancialHealthScoreService` (4-axis composite)
 - `StreakService` + `MilestoneV2Service` + `AchievementsScreen`
 - `LifecyclePhase` (7-phase enum) + `LifecycleDetector` + `LifecycleContentService`
 - `ScreenRegistry` (109 surfaces) + `ReadinessGate` + `RoutePlanner`
+- `ScreenReturn` model (V2) + `ScreenCompletionTracker` (realtime stream) on 11 screens
+- `CoachMemoryService` + `MemoryReferenceService`
 - `CantonalBenchmarkService` + `CantonalBenchmarkScreen`
 - `JitaiNudgeService` + `ProactiveTriggerService` (7 triggers)
 - `AdaptiveChallengeService` + `SeasonalEventService`
 - `RegionalVoiceService` (26 cantons — text prompt flavor, not audio)
 - `RagRetrievalService` (keyword-based, 3 doc pools)
-- `MultiLlmService` (Claude primary + fallback config)
+- `MultiLlmService` + `LlmFailoverService` + `ProviderHealthService` + `ResponseQualityMonitor`
 - `WeeklyRecapService` + `WeeklyRecapScreen`
 - `Retroactive3aCalculator` + `Retroactive3aScreen`
 - Financial core: 11 calculators (AVS, LPP, Tax, FRI, Monte Carlo, Arbitrage, Confidence, Withdrawal Sequencing, Tornado Sensitivity, Housing Cost, Coach Reasoner)
-- 110+ screens, 6428+ tests green, flutter analyze 0 errors
+- 110+ screens, 8101+ Flutter tests + 4787 backend tests green, flutter analyze 0 errors
 
 ### What is foundation / partial
 
-- Voice AI: `VoiceService` exists with stub backend — no real STT/TTS provider integrated
-- `ReturnContract` / `ScreenReturn` model: referenced in docs, not confirmed in code
-- RAG v2: keyword retrieval works; vector embeddings not implemented
+- Voice AI: `VoiceService`, `VoiceInputButton`, `VoiceOutputButton`, `VoiceStateMachine`, `PlatformVoiceBackend`, `VoiceChatIntegration` — full widget layer exists with stub backend, no real STT/TTS provider integrated
+- RAG v2 backend: `HybridSearchService` (pgvector + FTS), `KnowledgeCatalog`, `FaqService`, `CantonalKnowledge`, `KnowledgeUpdatePipeline` — all tested, pgvector not activated in production
+- Expert tier: `ExpertTierScreen`, `AdvisorMatchingService`, `DossierPreparationService`, `SessionSchedulerService` — service layer tested, no real advisor marketplace
+- Agent autonome: `AutonomousAgentService`, `AgentValidationGate`, `FormPrefillService`, `LetterGenerationService` — service layer exists, not wired to coach chat
+- Advanced gamification: `CommunityChallengeService`, `SeasonalEventService`, `MilestoneV2Service` — service layer complete, UI wiring partial
 - AI Memory vector store: `ConversationMemoryService` handles conversation history, not semantic cross-session recall
 - Weekly Recap content quality: depends on BYOK configuration
 - Notification delivery: `NotificationService` exists; full JITAI delivery pipeline not verified
@@ -198,12 +205,14 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 ### What is planned (not started)
 
 - 13e rente AVS in calculator
-- Expert tier (human advisor matching)
-- Form pre-fill / autonomous agent (S68)
+- Real STT/TTS provider integration (S63 — widget layer ready, backend stub)
+- Local LLM for sensitive calculations (S64)
+- Real advisor marketplace + payment integration (S65)
+- Cantonal leagues (S66)
+- pgvector activation in production (S67 — code ready, infra pending)
+- Agent autonome wired to coach chat (S68)
 - Institutional API connections (S69+)
 - B2B white-label (S71+)
-- Real STT/TTS integration (S63)
-- Cantonal leagues and community features (S66)
 
 ---
 
@@ -264,4 +273,4 @@ Each phase activates specific agents. Agents run nightly (8h sessions) on dedica
 
 ---
 
-*This document is the strategic roadmap for MINT V2. Updated 2026-03-21 with status column reflecting actual code state. All sprint execution uses autoresearch dev agents as defined in `visions/MINT_Autoresearch_Dev_Agents.md`.*
+*This document is the strategic roadmap for MINT V2. Updated 2026-03-25 with status column reflecting actual code state. All sprint execution uses autoresearch dev agents as defined in `visions/MINT_Autoresearch_Dev_Agents.md`.*

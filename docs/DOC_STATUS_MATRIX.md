@@ -1,6 +1,6 @@
 # MINT Documentation Status Matrix
 
-> Created: 2026-03-21
+> Created: 2026-03-21 | Last reviewed: 2026-03-25
 > Purpose: Single-glance status of every doc — last update, accuracy vs code, what's drifted.
 > Update this file whenever a doc is significantly modified or when codebase diverges.
 
@@ -39,7 +39,7 @@
 
 | Document | Last Updated | Status | Sync with Code | Notes |
 |----------|-------------|--------|----------------|-------|
-| `docs/ROADMAP_V2.md` | 2026-03-21 | `current` | `synced` | Status column added; S51-S68 deliverables corrected vs actual code |
+| `docs/ROADMAP_V2.md` | 2026-03-25 | `current` | `synced` | Status column added; S51-S68 deliverables corrected vs actual code. Re-verified 2026-03-25. |
 | `docs/SPRINT_TRACKER.md` | 2026-03-17 | `partially outdated` | `minor drift` | Covers S0-S50 accurately; S51-S56 not listed (covered by ROADMAP_V2) |
 | `docs/P8_EXECUTION.md` | unknown | `not checked` | `not checked` | Billing invariants — not reviewed this session |
 | `docs/P6_BILLING_INVARIANTS.md` | unknown | `not checked` | `not checked` | Not reviewed this session |
@@ -50,7 +50,7 @@
 
 | Document | Last Updated | Status | Sync with Code | Notes |
 |----------|-------------|--------|----------------|-------|
-| `docs/NAVIGATION_GRAAL_V10.md` | 2026-03-21 | `current` | `synced` | §8, §9 routes verified against app.dart; destinations updated to DONE |
+| `docs/NAVIGATION_GRAAL_V10.md` | 2026-03-25 | `current` | `synced` | §8, §9 routes verified against app.dart; destinations updated to DONE. ScreenRegistry confirmed at 111 entries (2026-03-25). |
 | `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` | unknown | `partially outdated` | `minor drift` | ScreenRegistry and RoutePlanner exist in code; ReturnContract/ScreenReturn not confirmed in code |
 | `docs/APP_WEB_LONG_TERM_ARCHITECTURE.md` | unknown | `not checked` | `not checked` | Not reviewed this session |
 
@@ -60,9 +60,9 @@
 
 | Document | Last Updated | Status | Sync with Code | Notes |
 |----------|-------------|--------|----------------|-------|
-| `docs/DESIGN_SYSTEM.md` | unknown | `current` | `synced` | MintColors, MintTextStyles, MintSpacing, MintMotion all implemented. Outfit deprecated, MintGlassCard deprecated. |
+| `docs/DESIGN_SYSTEM.md` | 2026-03-25 | `partially outdated` | `minor drift` | MintColors, MintTextStyles, MintSpacing, MintMotion all implemented. MintSurface and MintLoadingSkeleton documented. MintEntrance and MintTextField exist in code (`widgets/premium/`) but are NOT documented in DESIGN_SYSTEM.md. Outfit deprecated, MintGlassCard deprecated. |
 | `docs/VOICE_SYSTEM.md` | unknown | `current` | `N/A` | Editorial guidelines — not code-dependent |
-| `docs/MINT_SCREEN_BOARD_101.md` | unknown | `partially outdated` | `minor drift` | Screen count may have changed. Not verified screen-by-screen this session |
+| `docs/MINT_SCREEN_BOARD_101.md` | 2026-03-25 | `current` | `synced` | 113 active surfaces verified against `find screens/ -name "*.dart"` (121 files, 8 helpers excluded). 3 screens added: weekly_recap, expert_tier, smart_onboarding. ScreenRegistry: 111 entries. |
 | `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | unknown | `partially outdated` | `not checked` | 75 proposals — some implemented, status per-widget not tracked here |
 | `docs/UX_V2_COACH_CONVERSATIONNEL.md` | unknown | `significantly outdated` | `major drift` | Describes old 3-tab coach-centric UI. App moved to 4-tab shell with coach as one tab |
 | `docs/AUDIT_REPORT_2026-03-13.md` | 2026-03-13 | `partially outdated` | `minor drift` | Point-in-time audit. S52 closed many findings. |
@@ -75,7 +75,7 @@
 
 | Document | Last Updated | Status | Sync with Code | Notes |
 |----------|-------------|--------|----------------|-------|
-| `docs/BLUEPRINT_COACH_AI_LAYER.md` | 2026-03-21 (modified) | `partially outdated` | `minor drift` | References `coach_dashboard_screen.dart` (replaced by `CoachChatScreen`). Core architecture accurate. `route_to_screen` tool in `coach_tools.py` not verified. |
+| `docs/BLUEPRINT_COACH_AI_LAYER.md` | 2026-03-25 | `partially outdated` | `minor drift` | References `coach_dashboard_screen.dart` (replaced by `CoachChatScreen`). Agent loop (tool_use -> execute -> re-call LLM) implemented in `coach_chat.py` + `coach_tools.py` but not explicitly documented in blueprint. `structured_reasoning.py` with `ReasoningOutput` exists in code. `ReturnContract` listed as S58 task (§Tx) — not confirmed shipped. Core architecture accurate. |
 | `docs/MINT_CAP_ENGINE_SPEC.md` | unknown | `current` | `synced` | CapEngine + CapMemoryStore both implemented per spec |
 | `docs/CAPENGINE_IMPLEMENTATION_CHECKLIST.md` | unknown | `current` | `synced` | Phases 0-4 complete |
 
