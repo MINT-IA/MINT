@@ -10998,5 +10998,161 @@
   "employmentRetraite": "Pensioniert",
   "nationalitySuisse": "Schweiz",
   "nationalityEuAele": "EU/EFTA",
-  "nationalityAutre": "Andere"
+  "nationalityAutre": "Andere",
+
+  "stepStressTitle": "Was besch\u00e4ftigt dich am meisten?",
+  "stepStressSubtitle": "W\u00e4hle ein Thema \u2014 wir personalisieren dein Erlebnis.",
+  "stepStressRetirement": "Meine Pension",
+  "stepStressRetirementSub": "Werde ich genug zum Leben haben?",
+  "stepStressTaxes": "Meine Steuern",
+  "stepStressTaxesSub": "Zahle ich zu viel?",
+  "stepStressBudget": "Mein Budget",
+  "stepStressBudgetSub": "Wo geht mein Geld hin?",
+  "stepStressWealth": "Mein Verm\u00f6gen",
+  "stepStressWealthSub": "Wie kann ich es vermehren?",
+  "stepStressCouple": "Als Paar",
+  "stepStressCoupleSub": "Gemeinsam optimieren",
+  "stepStressCurious": "Einfach neugierig",
+  "stepStressCuriousSub": "Ich m\u00f6chte meine Situation verstehen",
+  "stepStressDisclaimer": "Bildungstool \u2014 stellt keine Finanzberatung dar (FIDLEG).",
+
+  "stepNextTitle": "Deine erste Bilanz ist bereit",
+  "stepNextConfidence": "Aktuelle Genauigkeit: {pct}\u00a0%. Je mehr du dein Profil erg\u00e4nzt, desto zuverl\u00e4ssiger die Projektionen.",
+  "@stepNextConfidence": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepNextEnrich": "Mein Profil verfeinern",
+  "stepNextDashboard": "Mein Dashboard ansehen",
+  "stepNextCheckin": "Meinen ersten Check-in machen",
+  "stepNextDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.",
+
+  "stepTopActionsTitle": "Deine 3 wichtigsten Aktionen",
+  "stepTopActionsSubtitle": "Basierend auf deiner Situation, hier ist der Anfang.",
+  "stepTopActionsEmpty": "Erg\u00e4nze dein Profil, um personalisierte Aktionen zu erhalten.",
+  "stepTopActionsContinue": "Weiter",
+  "stepTopActionsBack": "Zur\u00fcck",
+  "stepTopActionsImpact": "Gesch\u00e4tzter Impact: {amount}",
+  "@stepTopActionsImpact": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "stepTopActionsDisclaimer": "Bildungsvorschl\u00e4ge. Stellt keine Finanzberatung dar (FIDLEG). Konsultiere eine Fachperson f\u00fcr einen individuellen Plan.",
+
+  "stepChocConfidenceInfo": "Sch\u00e4tzung basierend auf {count} Angaben. Je genauer du bist, desto zuverl\u00e4ssiger.",
+  "@stepChocConfidenceInfo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "stepChocConfidenceLabel": "Genauigkeit: {pct}\u00a0%",
+  "@stepChocConfidenceLabel": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "stepChocLiteracyTitle": "Um deine Beratung zu personalisieren",
+  "stepChocLiteracySubtitle": "3 kurze Fragen \u2014 keine richtige oder falsche Antwort.",
+  "stepChocLiteracyLpp": "Ich kenne den Betrag meines BVG-Guthabens",
+  "stepChocLiteracyConversion": "Ich weiss, was der Umwandlungssatz ist",
+  "stepChocLiteracy3a": "Ich habe bereits auf ein 3a-Konto eingezahlt",
+  "stepChocYes": "Ja",
+  "stepChocNo": "Nein",
+  "stepChocAction": "Was kann ich tun?",
+  "stepChocEnrich": "Mein Profil verfeinern",
+  "stepChocDashboard": "Mein Dashboard ansehen",
+  "stepChocDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.",
+
+  "stepJitTitle": "In 30 Sekunden verstehen",
+  "stepJitSi": "WENN",
+  "stepJitAlors": "DANN",
+  "stepJitAction": "Was kann ich tun?",
+  "stepJitBack": "Zur\u00fcck",
+  "stepJitDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG).",
+  "stepJitLiquidityCond": "deine Notfallersparnisse weniger als 2 Monate Ausgaben decken",
+  "stepJitLiquidityCons": "ein unerwartetes Ereignis (Jobverlust, dringende Reparatur) kann dich schnell in finanzielle Schwierigkeiten bringen.",
+  "stepJitLiquidityInsight": "Experten empfehlen 3 bis 6 Monate Fixkosten als Reserve. Selbst CHF 100/Monat auf einem Sparkonto machen \u00fcber 12 Monate einen erheblichen Unterschied.",
+  "stepJitLiquiditySource": "Empfehlung Budgetberatung Schweiz",
+  "stepJitRetirementCond": "deine Ersatzquote bei der Pensionierung unter 60\u00a0% liegt",
+  "stepJitRetirementCons": "dein Lebensstandard k\u00f6nnte erheblich sinken, wenn du aufh\u00f6rst zu arbeiten.",
+  "stepJitRetirementInsight": "In der Schweiz decken AHV und BVG durchschnittlich 60\u00a0% des letzten Gehalts. Die 3. S\u00e4ule und freies Sparen \u00fcberbr\u00fccken den Rest. Je fr\u00fcher du anf\u00e4ngst, desto geringer der monatliche Aufwand.",
+  "stepJitRetirementSource": "AHVG Art. 34 / BVG Art. 14",
+  "stepJitTax3aCond": "du nicht den Maximalbetrag in deine 3. S\u00e4ule einzahlst",
+  "stepJitTax3aCons": "du verpasst eine Steuerersparnis und zus\u00e4tzliches Alterskapital.",
+  "stepJitTax3aInsight": "Jeder in die S\u00e4ule 3a eingezahlte Franken ist steuerlich absetzbar. \u00dcber 20 Jahre kann der Unterschied zwischen 0 und dem Maximum (CHF 7'258) mehr als CHF 200'000 betragen.",
+  "stepJitTax3aSource": "BVV3 Art. 7 / DBG Art. 33",
+  "stepJitIncomeCond": "dein prognostiziertes Einkommen im Ruhestand gesch\u00e4tzt wird",
+  "stepJitIncomeCons": "diesen Betrag zu kennen erm\u00f6glicht dir, deine Vorsorgestrategie jetzt zu planen und anzupassen.",
+  "stepJitIncomeInsight": "Das Schweizer 3-S\u00e4ulen-System (AHV + BVG + 3a) deckt durchschnittlich 60\u00a0% des letzten Gehalts. Jede S\u00e4ule hat eigene Regeln und spezifische Optimierungshebel.",
+  "stepJitIncomeSource": "AHVG Art. 34 / BVG Art. 14 / BVV3 Art. 7",
+  "stepJitDefaultCond": "du noch keinen strukturierten Finanzplan hast",
+  "stepJitDefaultCons": "du riskierst, Steuer- und Vorsorge-Optimierungen zu verpassen.",
+  "stepJitDefaultInsight": "Eine j\u00e4hrliche Finanzbilanz identifiziert die wirkungsvollsten Hebel: 3a, BVG-Einkauf, Krankenkassen-Franchise, indirekte Amortisation.",
+  "stepJitDefaultSource": "MINT Bildungsempfehlung",
+
+  "stepOcrTitle": "Profil in 30 Sekunden anreichern",
+  "stepOcrSkip": "Ohne Dokument fortfahren",
+  "stepOcrIntro": "Scanne ein oder mehrere Dokumente, damit MINT deine Situation genauer berechnen kann.",
+  "stepOcrLppTitle": "Dein BVG-Pensionsschreiben",
+  "stepOcrLppSubtitle": "Guthaben, Umwandlungssatz, Einkaufsl\u00fccke",
+  "stepOcrLppBoost": "+27 Genauigkeitspunkte",
+  "stepOcrAvsTitle": "Dein AHV-Auszug",
+  "stepOcrAvsSubtitle": "Beitragsjahre, L\u00fccken, RAMD",
+  "stepOcrAvsBoost": "+22 Genauigkeitspunkte",
+  "stepOcrTaxTitle": "Deine Steuererkl\u00e4rung",
+  "stepOcrTaxSubtitle": "Steuerbares Einkommen, Verm\u00f6gen, Grenzsteuersatz",
+  "stepOcrTaxBoost": "+17 Genauigkeitspunkte",
+  "stepOcr3aTitle": "Dein 3a-Konto",
+  "stepOcr3aSubtitle": "Saldo, kumulierte Einzahlungen, Rendite",
+  "stepOcr3aBoost": "+7 Genauigkeitspunkte",
+  "stepOcrScanned": "Gescannt",
+  "stepOcrContinueWith": "Weiter ({count} Dokument{plural} gescannt)",
+  "@stepOcrContinueWith": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrContinueWithout": "Ohne Dokument fortfahren",
+  "stepOcrDisclaimer": "Bildungstool \u2014 stellt keine Finanzberatung dar (FIDLEG). Dokumente werden auf deinem Ger\u00e4t verarbeitet, keine Daten gesendet (DSG Art. 6).",
+  "stepOcrLpdBanner": "Deine Dokumente werden auf deinem Ger\u00e4t verarbeitet. Nichts wird ins Internet gesendet.",
+  "stepOcrLpdTitle": "Private Verarbeitung auf deinem Ger\u00e4t",
+  "stepOcrLpdBody": "Dieses Dokument wird direkt auf deinem Telefon analysiert.\nKeine Daten werden \u00fcbers Internet gesendet.\nExtrahierte Informationen werden nach der Verarbeitung gel\u00f6scht.",
+  "stepOcrLpdLegal": "Rechtsgrundlage: DSG Art. 6 \u2014 Datenminimierung.",
+  "stepOcrLpdScan": "Dieses Dokument scannen",
+  "stepOcrLpdCancel": "Abbrechen",
+  "stepOcrSnackSuccess": "{count} Feld{plural} erfolgreich extrahiert",
+  "@stepOcrSnackSuccess": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "stepOcrSnackEmpty": "Dokument verarbeitet \u2014 kein Feld automatisch erkannt",
+  "stepOcrSnackError": "Verarbeitungsfehler: {error}",
+  "@stepOcrSnackError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "stepOcrSnackWebOnly": "Bildscan im Web nicht verf\u00fcgbar. Nutze die mobile App oder importiere eine .txt-Datei.",
+
+  "stepQuestionsAgeYears": "{age} Jahre",
+  "@stepQuestionsAgeYears": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "stepQuestionsCountryUs": "Vereinigte Staaten",
+  "stepQuestionsCountryGb": "Vereinigtes K\u00f6nigreich",
+  "stepQuestionsCountryCa": "Kanada",
+  "stepQuestionsCountryIn": "Indien",
+  "stepQuestionsCountryCn": "China",
+  "stepQuestionsCountryBr": "Brasilien",
+  "stepQuestionsCountryAu": "Australien",
+  "stepQuestionsCountryJp": "Japan",
+
+  "householdAcceptCodeHint": "CODE"
 }

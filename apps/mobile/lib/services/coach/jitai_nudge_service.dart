@@ -578,7 +578,7 @@ class JitaiNudgeService {
           'Attention\u00a0: chaque année d\'anticipation réduit ta rente '
           'd\'environ 6 à 7\u00a0%, selon le barème en vigueur (LAVS art.\u00a040).';
     }
-    if (age == 65) {
+    if (age == avsAgeReferenceHomme) {
       return 'C\'est l\'année de référence AVS\u00a0! '
           'Vérifie que ta demande de rente est en cours.';
     }

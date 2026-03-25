@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -52,7 +53,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           _principal = profile.patrimoine.epargneLiquide;
         }
         if (profile.age > 0) {
-          _years = (65 - profile.age).clamp(5, 45);
+          _years = (avsAgeReferenceHomme - profile.age).clamp(5, 45);
         }
       });
       _calculate();

@@ -41404,6 +41404,642 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Autre'**
   String get nationalityAutre;
+
+  /// No description provided for @stepStressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu’est-ce qui te préoccupe le plus ?'**
+  String get stepStressTitle;
+
+  /// No description provided for @stepStressSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis un thème — on personnalise ton expérience.'**
+  String get stepStressSubtitle;
+
+  /// No description provided for @stepStressRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma retraite'**
+  String get stepStressRetirement;
+
+  /// No description provided for @stepStressRetirementSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vais-je avoir assez pour vivre ?'**
+  String get stepStressRetirementSub;
+
+  /// No description provided for @stepStressTaxes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes impôts'**
+  String get stepStressTaxes;
+
+  /// No description provided for @stepStressTaxesSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Est-ce que je paie trop ?'**
+  String get stepStressTaxesSub;
+
+  /// No description provided for @stepStressBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget'**
+  String get stepStressBudget;
+
+  /// No description provided for @stepStressBudgetSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où passe mon argent ?'**
+  String get stepStressBudgetSub;
+
+  /// No description provided for @stepStressWealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon patrimoine'**
+  String get stepStressWealth;
+
+  /// No description provided for @stepStressWealthSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment le faire grandir ?'**
+  String get stepStressWealthSub;
+
+  /// No description provided for @stepStressCouple.
+  ///
+  /// In fr, this message translates to:
+  /// **'En couple'**
+  String get stepStressCouple;
+
+  /// No description provided for @stepStressCoupleSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser à deux'**
+  String get stepStressCoupleSub;
+
+  /// No description provided for @stepStressCurious.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juste curieux'**
+  String get stepStressCurious;
+
+  /// No description provided for @stepStressCuriousSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux comprendre ma situation'**
+  String get stepStressCuriousSub;
+
+  /// No description provided for @stepStressDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin).'**
+  String get stepStressDisclaimer;
+
+  /// No description provided for @stepNextTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton premier bilan est prêt'**
+  String get stepNextTitle;
+
+  /// No description provided for @stepNextConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précision actuelle : {pct} %. Plus tu complètes ton profil, plus les projections seront fiables.'**
+  String stepNextConfidence(int pct);
+
+  /// No description provided for @stepNextEnrich.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affiner mon profil'**
+  String get stepNextEnrich;
+
+  /// No description provided for @stepNextDashboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon dashboard'**
+  String get stepNextDashboard;
+
+  /// No description provided for @stepNextCheckin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire mon premier check-in'**
+  String get stepNextCheckin;
+
+  /// No description provided for @stepNextDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.'**
+  String get stepNextDisclaimer;
+
+  /// No description provided for @stepTopActionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes 3 actions prioritaires'**
+  String get stepTopActionsTitle;
+
+  /// No description provided for @stepTopActionsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basées sur ta situation, voici par où commencer.'**
+  String get stepTopActionsSubtitle;
+
+  /// No description provided for @stepTopActionsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour recevoir des actions personnalisées.'**
+  String get stepTopActionsEmpty;
+
+  /// No description provided for @stepTopActionsContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get stepTopActionsContinue;
+
+  /// No description provided for @stepTopActionsBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get stepTopActionsBack;
+
+  /// No description provided for @stepTopActionsImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact estimé : {amount}'**
+  String stepTopActionsImpact(String amount);
+
+  /// No description provided for @stepTopActionsDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suggestions éducatives. Ne constitue pas un conseil financier (LSFin). Consulte un·e spécialiste pour un plan personnalisé.'**
+  String get stepTopActionsDisclaimer;
+
+  /// No description provided for @stepChocConfidenceInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation basée sur {count} informations. Plus tu précises, plus c’est fiable.'**
+  String stepChocConfidenceInfo(int count);
+
+  /// No description provided for @stepChocConfidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précision : {pct} %'**
+  String stepChocConfidenceLabel(int pct);
+
+  /// No description provided for @stepChocLiteracyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour personnaliser tes conseils'**
+  String get stepChocLiteracyTitle;
+
+  /// No description provided for @stepChocLiteracySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'3 questions rapides — aucune bonne ou mauvaise réponse.'**
+  String get stepChocLiteracySubtitle;
+
+  /// No description provided for @stepChocLiteracyLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je connais le montant de mon avoir LPP'**
+  String get stepChocLiteracyLpp;
+
+  /// No description provided for @stepChocLiteracyConversion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je sais ce qu’est le taux de conversion'**
+  String get stepChocLiteracyConversion;
+
+  /// No description provided for @stepChocLiteracy3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai déjà versé sur un compte 3a'**
+  String get stepChocLiteracy3a;
+
+  /// No description provided for @stepChocYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get stepChocYes;
+
+  /// No description provided for @stepChocNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get stepChocNo;
+
+  /// No description provided for @stepChocAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu’est-ce que je peux faire ?'**
+  String get stepChocAction;
+
+  /// No description provided for @stepChocEnrich.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affiner mon profil'**
+  String get stepChocEnrich;
+
+  /// No description provided for @stepChocDashboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon dashboard'**
+  String get stepChocDashboard;
+
+  /// No description provided for @stepChocDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.'**
+  String get stepChocDisclaimer;
+
+  /// No description provided for @stepJitTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre en 30 secondes'**
+  String get stepJitTitle;
+
+  /// No description provided for @stepJitSi.
+  ///
+  /// In fr, this message translates to:
+  /// **'SI'**
+  String get stepJitSi;
+
+  /// No description provided for @stepJitAlors.
+  ///
+  /// In fr, this message translates to:
+  /// **'ALORS'**
+  String get stepJitAlors;
+
+  /// No description provided for @stepJitAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que puis-je faire ?'**
+  String get stepJitAction;
+
+  /// No description provided for @stepJitBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get stepJitBack;
+
+  /// No description provided for @stepJitDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).'**
+  String get stepJitDisclaimer;
+
+  /// No description provided for @stepJitLiquidityCond.
+  ///
+  /// In fr, this message translates to:
+  /// **'ton épargne de sécurité couvre moins de 2 mois de charges'**
+  String get stepJitLiquidityCond;
+
+  /// No description provided for @stepJitLiquidityCons.
+  ///
+  /// In fr, this message translates to:
+  /// **'un imprévu (perte d’emploi, réparation urgente) peut te mettre en difficulté financière rapidement.'**
+  String get stepJitLiquidityCons;
+
+  /// No description provided for @stepJitLiquidityInsight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les experts recommandent 3 à 6 mois de charges fixes en réserve. Même 100 CHF/mois sur un compte épargne fait une différence significative sur 12 mois.'**
+  String get stepJitLiquidityInsight;
+
+  /// No description provided for @stepJitLiquiditySource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandation Budget-conseil Suisse'**
+  String get stepJitLiquiditySource;
+
+  /// No description provided for @stepJitRetirementCond.
+  ///
+  /// In fr, this message translates to:
+  /// **'ton taux de remplacement à la retraite est inférieur à 60 %'**
+  String get stepJitRetirementCond;
+
+  /// No description provided for @stepJitRetirementCons.
+  ///
+  /// In fr, this message translates to:
+  /// **'ton niveau de vie pourrait baisser significativement le jour où tu arrêtes de travailler.'**
+  String get stepJitRetirementCons;
+
+  /// No description provided for @stepJitRetirementInsight.
+  ///
+  /// In fr, this message translates to:
+  /// **'En Suisse, l’AVS et la LPP couvrent en moyenne 60 % du dernier salaire. Le 3e pilier et l’épargne libre comblent le reste. Plus tu commences tôt, moins l’effort mensuel est important.'**
+  String get stepJitRetirementInsight;
+
+  /// No description provided for @stepJitRetirementSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAVS art. 34 / LPP art. 14'**
+  String get stepJitRetirementSource;
+
+  /// No description provided for @stepJitTax3aCond.
+  ///
+  /// In fr, this message translates to:
+  /// **'tu ne verses pas le maximum dans ton 3e pilier chaque année'**
+  String get stepJitTax3aCond;
+
+  /// No description provided for @stepJitTax3aCons.
+  ///
+  /// In fr, this message translates to:
+  /// **'tu passes à côté d’une économie fiscale et d’un capital retraite supplémentaire.'**
+  String get stepJitTax3aCons;
+
+  /// No description provided for @stepJitTax3aInsight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque franc versé en 3a est déductible du revenu imposable. Sur 20 ans, la différence entre verser 0 et le plafond (7’258 CHF) peut représenter plus de 200’000 CHF.'**
+  String get stepJitTax3aInsight;
+
+  /// No description provided for @stepJitTax3aSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'OPP3 art. 7 / LIFD art. 33'**
+  String get stepJitTax3aSource;
+
+  /// No description provided for @stepJitIncomeCond.
+  ///
+  /// In fr, this message translates to:
+  /// **'ta projection de revenu à la retraite est estimée'**
+  String get stepJitIncomeCond;
+
+  /// No description provided for @stepJitIncomeCons.
+  ///
+  /// In fr, this message translates to:
+  /// **'connaître ce montant te permet de planifier et d’ajuster ta stratégie de prévoyance dès maintenant.'**
+  String get stepJitIncomeCons;
+
+  /// No description provided for @stepJitIncomeInsight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le système suisse à 3 piliers (AVS + LPP + 3a) couvre en moyenne 60 % du dernier salaire. Chaque pilier a ses règles et ses leviers d’optimisation spécifiques.'**
+  String get stepJitIncomeInsight;
+
+  /// No description provided for @stepJitIncomeSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAVS art. 34 / LPP art. 14 / OPP3 art. 7'**
+  String get stepJitIncomeSource;
+
+  /// No description provided for @stepJitDefaultCond.
+  ///
+  /// In fr, this message translates to:
+  /// **'tu n’as pas encore un plan financier structuré'**
+  String get stepJitDefaultCond;
+
+  /// No description provided for @stepJitDefaultCons.
+  ///
+  /// In fr, this message translates to:
+  /// **'tu risques de passer à côté d’opportunités d’optimisation fiscale et de prévoyance.'**
+  String get stepJitDefaultCons;
+
+  /// No description provided for @stepJitDefaultInsight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un bilan financier annuel permet d’identifier les leviers les plus impactants : 3a, rachat LPP, franchise LAMal, amortissement indirect.'**
+  String get stepJitDefaultInsight;
+
+  /// No description provided for @stepJitDefaultSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandation éducative MINT'**
+  String get stepJitDefaultSource;
+
+  /// No description provided for @stepOcrTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enrichis ton profil en 30 secondes'**
+  String get stepOcrTitle;
+
+  /// No description provided for @stepOcrSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans document'**
+  String get stepOcrSkip;
+
+  /// No description provided for @stepOcrIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanne un ou plusieurs documents pour que MINT calcule ta situation avec plus de précision.'**
+  String get stepOcrIntro;
+
+  /// No description provided for @stepOcrLppTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta lettre de retraite LPP'**
+  String get stepOcrLppTitle;
+
+  /// No description provided for @stepOcrLppSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir, taux de conversion, lacune de rachat'**
+  String get stepOcrLppSubtitle;
+
+  /// No description provided for @stepOcrLppBoost.
+  ///
+  /// In fr, this message translates to:
+  /// **'+27 pts de précision'**
+  String get stepOcrLppBoost;
+
+  /// No description provided for @stepOcrAvsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton extrait AVS'**
+  String get stepOcrAvsTitle;
+
+  /// No description provided for @stepOcrAvsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années de cotisation, lacunes, RAMD'**
+  String get stepOcrAvsSubtitle;
+
+  /// No description provided for @stepOcrAvsBoost.
+  ///
+  /// In fr, this message translates to:
+  /// **'+22 pts de précision'**
+  String get stepOcrAvsBoost;
+
+  /// No description provided for @stepOcrTaxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta déclaration fiscale'**
+  String get stepOcrTaxTitle;
+
+  /// No description provided for @stepOcrTaxSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu imposable, fortune, taux marginal'**
+  String get stepOcrTaxSubtitle;
+
+  /// No description provided for @stepOcrTaxBoost.
+  ///
+  /// In fr, this message translates to:
+  /// **'+17 pts de précision'**
+  String get stepOcrTaxBoost;
+
+  /// No description provided for @stepOcr3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton compte 3a'**
+  String get stepOcr3aTitle;
+
+  /// No description provided for @stepOcr3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde, versements cumulés, rendement'**
+  String get stepOcr3aSubtitle;
+
+  /// No description provided for @stepOcr3aBoost.
+  ///
+  /// In fr, this message translates to:
+  /// **'+7 pts de précision'**
+  String get stepOcr3aBoost;
+
+  /// No description provided for @stepOcrScanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanné'**
+  String get stepOcrScanned;
+
+  /// No description provided for @stepOcrContinueWith.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer ({count} document{plural} scanné{plural})'**
+  String stepOcrContinueWith(int count, String plural);
+
+  /// No description provided for @stepOcrContinueWithout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans document'**
+  String get stepOcrContinueWithout;
+
+  /// No description provided for @stepOcrDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin). Documents traités sur ton appareil, aucune donnée envoyée (LPD art. 6).'**
+  String get stepOcrDisclaimer;
+
+  /// No description provided for @stepOcrLpdBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes documents sont traités sur ton appareil. Rien n’est envoyé sur Internet.'**
+  String get stepOcrLpdBanner;
+
+  /// No description provided for @stepOcrLpdTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement privé sur ton appareil'**
+  String get stepOcrLpdTitle;
+
+  /// No description provided for @stepOcrLpdBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce document est analysé directement sur ton téléphone.\nAucune donnée n’est envoyée sur Internet.\nLes informations extraites sont supprimées après traitement.'**
+  String get stepOcrLpdBody;
+
+  /// No description provided for @stepOcrLpdLegal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base légale : LPD art. 6 — minimisation des données.'**
+  String get stepOcrLpdLegal;
+
+  /// No description provided for @stepOcrLpdScan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner ce document'**
+  String get stepOcrLpdScan;
+
+  /// No description provided for @stepOcrLpdCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get stepOcrLpdCancel;
+
+  /// No description provided for @stepOcrSnackSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} champ{plural} extrait{plural} avec succès'**
+  String stepOcrSnackSuccess(int count, String plural);
+
+  /// No description provided for @stepOcrSnackEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document traité — aucun champ reconnu automatiquement'**
+  String get stepOcrSnackEmpty;
+
+  /// No description provided for @stepOcrSnackError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du traitement : {error}'**
+  String stepOcrSnackError(String error);
+
+  /// No description provided for @stepOcrSnackWebOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scan d’image non disponible sur web. Utilise l’app mobile ou importe un fichier .txt.'**
+  String get stepOcrSnackWebOnly;
+
+  /// No description provided for @stepQuestionsAgeYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'{age} ans'**
+  String stepQuestionsAgeYears(int age);
+
+  /// No description provided for @stepQuestionsCountryUs.
+  ///
+  /// In fr, this message translates to:
+  /// **'États-Unis'**
+  String get stepQuestionsCountryUs;
+
+  /// No description provided for @stepQuestionsCountryGb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Royaume-Uni'**
+  String get stepQuestionsCountryGb;
+
+  /// No description provided for @stepQuestionsCountryCa.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canada'**
+  String get stepQuestionsCountryCa;
+
+  /// No description provided for @stepQuestionsCountryIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inde'**
+  String get stepQuestionsCountryIn;
+
+  /// No description provided for @stepQuestionsCountryCn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chine'**
+  String get stepQuestionsCountryCn;
+
+  /// No description provided for @stepQuestionsCountryBr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Brésil'**
+  String get stepQuestionsCountryBr;
+
+  /// No description provided for @stepQuestionsCountryAu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Australie'**
+  String get stepQuestionsCountryAu;
+
+  /// No description provided for @stepQuestionsCountryJp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Japon'**
+  String get stepQuestionsCountryJp;
+
+  /// No description provided for @householdAcceptCodeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'CODE'**
+  String get householdAcceptCodeHint;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

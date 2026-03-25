@@ -46,7 +46,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   bool _hasRachatLpp = true;
   bool _isPropertyOwner = false;
   int _anneesAvantRetraite = 20;
-  String _canton = 'VD';
+  String _canton = 'ZH';
 
   // ── Hypothesis sliders ──
   Map<String, double> _hypotheses = {
@@ -243,7 +243,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                   // ── Sensitivity ──
                   BreakevenIndicatorWidget(
                     breakevenYear: _result!.breakevenYear,
-                    ageRetraite: 65,
+                    ageRetraite: avsAgeReferenceHomme,
                     horizon: _anneesAvantRetraite,
                     sensitivity: _result!.sensitivity,
                   ),

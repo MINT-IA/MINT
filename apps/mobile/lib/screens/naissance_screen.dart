@@ -49,7 +49,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   Map<String, dynamic>? _congeResult;
 
   // ── Tab 2: Allocations inputs ─────────────────────────
-  String _cantonAlloc = 'VD';
+  String _cantonAlloc = 'ZH';
   int _nbEnfantsAlloc = 1;
   Map<String, dynamic>? _allocResult;
   List<Map<String, dynamic>> _allocRanking = [];

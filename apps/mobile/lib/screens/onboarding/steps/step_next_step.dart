@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/analytics_events.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -30,6 +31,7 @@ class StepNextStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final confidencePct = confidenceScore.round();
+    final l = S.of(context)!;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -61,7 +63,7 @@ class StepNextStep extends StatelessWidget {
 
               // ── HEADING ─────────────────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-                'Ton premier bilan est pret',
+                l.stepNextTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -71,9 +73,7 @@ class StepNextStep extends StatelessWidget {
               )),
               const SizedBox(height: 12),
               MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
-                'Precision actuelle : $confidencePct%. '
-                'Plus tu completes ton profil, plus les projections '
-                'seront fiables.',
+                l.stepNextConfidence(confidencePct),
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -87,7 +87,7 @@ class StepNextStep extends StatelessWidget {
               // ── PRIMARY CTA — enrich ────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                 button: true,
-                label: 'Affiner mon profil',
+                label: l.stepNextEnrich,
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -108,7 +108,7 @@ class StepNextStep extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Affiner mon profil',
+                    l.stepNextEnrich,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -143,7 +143,7 @@ class StepNextStep extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Voir mon dashboard',
+                    l.stepNextDashboard,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -166,7 +166,7 @@ class StepNextStep extends StatelessWidget {
                     },
                     icon: const Icon(Icons.receipt_long_rounded, size: 18),
                     label: Text(
-                      'Faire mon premier check-in',
+                      l.stepNextCheckin,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -183,9 +183,7 @@ class StepNextStep extends StatelessWidget {
 
               // ── DISCLAIMER ──────────────────────────────────────────
               MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
-                'Outil educatif simplifie. Ne constitue pas un conseil '
-                'financier (LSFin). '
-                'Sources: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
+                l.stepNextDisclaimer,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   color: MintColors.textMuted,

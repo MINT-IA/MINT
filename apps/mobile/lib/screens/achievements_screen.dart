@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -138,11 +139,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_loading)
-              const Center(
-                child: Padding(
+              const Padding(
                   padding: EdgeInsets.all(MintSpacing.xl),
-                  child: CircularProgressIndicator(),
-                ),
+                  child: MintLoadingSkeleton(),
               )
             else if (_hasError)
               Container(

@@ -27,7 +27,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
   double _valeurVenale = 900000;
   double _interetsAnnuels = 15000;
   double _fraisEntretien = 3000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _bienAncien = true;
   double _tauxMarginal = 0.30;
 

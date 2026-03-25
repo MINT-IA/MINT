@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -50,38 +51,6 @@ class StepOcrUpload extends StatefulWidget {
 }
 
 class _StepOcrUploadState extends State<StepOcrUpload> {
-  // Documents disponibles dans ce step
-  static const _documents = [
-    (
-      type: DocumentType.lppCertificate,
-      title: 'Ta lettre de retraite LPP',
-      subtitle: 'Avoir, taux de conversion, lacune de rachat',
-      icon: Icons.account_balance_outlined,
-      confidenceBoost: '+27 pts de précision',
-    ),
-    (
-      type: DocumentType.avsExtract,
-      title: 'Ton extrait AVS',
-      subtitle: 'Années de cotisation, lacunes, RAMD',
-      icon: Icons.security_outlined,
-      confidenceBoost: '+22 pts de précision',
-    ),
-    (
-      type: DocumentType.taxDeclaration,
-      title: 'Ta déclaration fiscale',
-      subtitle: 'Revenu imposable, fortune, taux marginal',
-      icon: Icons.receipt_long_outlined,
-      confidenceBoost: '+17 pts de précision',
-    ),
-    (
-      type: DocumentType.threeAAttestation,
-      title: 'Ton compte 3a',
-      subtitle: 'Solde, versements cumulés, rendement',
-      icon: Icons.savings_outlined,
-      confidenceBoost: '+7 pts de précision',
-    ),
-  ];
-
   DocumentType? _scanning;
   final Set<DocumentType> _scanned = {};
   final _imagePicker = ImagePicker();
@@ -103,10 +72,12 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
         });
         final count = result.fields.where((f) => f.confidence >= 0.5).length;
         if (mounted) {
+          final l = S.of(context)!;
+          final plural = count > 1 ? 's' : '';
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(count > 0
-                ? '$count champ${count > 1 ? 's' : ''} extrait${count > 1 ? 's' : ''} avec succès'
-                : 'Document traité — aucun champ reconnu automatiquement'),
+                ? l.stepOcrSnackSuccess(count, plural)
+                : l.stepOcrSnackEmpty),
             duration: const Duration(seconds: 3),
           ));
         }
@@ -117,8 +88,9 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
     } catch (e) {
       if (mounted) {
         setState(() => _scanning = null);
+        final l = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Erreur lors du traitement : $e'),
+          content: Text(l.stepOcrSnackError('$e')),
           duration: const Duration(seconds: 4),
         ));
       }
@@ -156,12 +128,10 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
 
     // Image on web — OCR not possible without ML Kit (mobile only).
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-          'Scan d\'image non disponible sur web. '
-          'Utilise l\'app mobile ou importe un fichier .txt.',
-        ),
-        duration: Duration(seconds: 5),
+      final l = S.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l.stepOcrSnackWebOnly),
+        duration: const Duration(seconds: 5),
       ));
     }
     // Mark as "attempted" so user gets visual feedback
@@ -220,6 +190,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
 
   Future<bool> _showLpdConfirmation(DocumentType type) async {
     if (!mounted) return false;
+    final l = S.of(context)!;
     final result = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: MintColors.background,
@@ -263,7 +234,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Traitement privé sur ton appareil',
+                        l.stepOcrLpdTitle,
                         style: GoogleFonts.montserrat(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -275,9 +246,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Ce document est analysé directement sur ton téléphone.\n'
-                  'Aucune donnée n\'est envoyée sur Internet.\n'
-                  'Les informations extraites sont supprimées après traitement.',
+                  l.stepOcrLpdBody,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textSecondary,
@@ -286,7 +255,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Base légale : LPD art. 6 — minimisation des données.',
+                  l.stepOcrLpdLegal,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -295,7 +264,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                 const SizedBox(height: 20),
                 Semantics(
                   button: true,
-                  label: 'Scanner ce document',
+                  label: l.stepOcrLpdScan,
                   child: SizedBox(
                     width: double.infinity,
                     child: FilledButton(
@@ -309,7 +278,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                         ),
                       ),
                       child: Text(
-                        'Scanner ce document',
+                        l.stepOcrLpdScan,
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -324,7 +293,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                   child: TextButton(
                     onPressed: () => Navigator.of(ctx).pop(false),
                     child: Text(
-                      'Annuler',
+                      l.stepOcrLpdCancel,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: MintColors.textSecondary,
@@ -344,6 +313,13 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
   @override
   Widget build(BuildContext context) {
     final scannedCount = _scanned.length;
+    final l = S.of(context)!;
+
+    final docTitles = [l.stepOcrLppTitle, l.stepOcrAvsTitle, l.stepOcrTaxTitle, l.stepOcr3aTitle];
+    final docSubtitles = [l.stepOcrLppSubtitle, l.stepOcrAvsSubtitle, l.stepOcrTaxSubtitle, l.stepOcr3aSubtitle];
+    final docBoosts = [l.stepOcrLppBoost, l.stepOcrAvsBoost, l.stepOcrTaxBoost, l.stepOcr3aBoost];
+    const docTypes = [DocumentType.lppCertificate, DocumentType.avsExtract, DocumentType.taxDeclaration, DocumentType.threeAAttestation];
+    const docIcons = [Icons.account_balance_outlined, Icons.security_outlined, Icons.receipt_long_outlined, Icons.savings_outlined];
 
     return Scaffold(
       body: CustomScrollView(
@@ -357,7 +333,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
               titlePadding:
                   const EdgeInsets.only(left: 24, bottom: 16, right: 24),
               title: Text(
-                'Enrichis ton profil en 30 secondes',
+                l.stepOcrTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -391,7 +367,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                     child: TextButton(
                       onPressed: widget.onNext,
                       child: Text(
-                        'Continuer sans document',
+                        l.stepOcrSkip,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: MintColors.textSecondary,
@@ -403,13 +379,12 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                   const SizedBox(height: 4),
 
                   // ── Banniere LPD — obligatoire avant tout scan ──────────
-                  const _LpdBanner(),
+                  _LpdBanner(text: l.stepOcrLpdBanner),
                   const SizedBox(height: 24),
 
                   // ── Texte intro ─────────────────────────────────────────
                   MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-                    'Scanne un ou plusieurs documents pour que MINT calcule '
-                    'ta situation avec plus de precision.',
+                    l.stepOcrIntro,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.textSecondary,
@@ -419,21 +394,22 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                   const SizedBox(height: 20),
 
                   // ── Cartes documents ────────────────────────────────────
-                  ..._documents.map((doc) {
-                    final isScanned = _scanned.contains(doc.type);
-                    final isScanning = _scanning == doc.type;
+                  ...List.generate(docTypes.length, (i) {
+                    final isScanned = _scanned.contains(docTypes[i]);
+                    final isScanning = _scanning == docTypes[i];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _DocumentCard(
-                        title: doc.title,
-                        subtitle: doc.subtitle,
-                        icon: doc.icon,
-                        confidenceBoost: doc.confidenceBoost,
+                        title: docTitles[i],
+                        subtitle: docSubtitles[i],
+                        icon: docIcons[i],
+                        confidenceBoost: docBoosts[i],
                         isScanned: isScanned,
                         isLoading: isScanning,
+                        scannedLabel: l.stepOcrScanned,
                         onTap: isScanning
                             ? null
-                            : () => _scanDocument(doc.type),
+                            : () => _scanDocument(docTypes[i]),
                       ),
                     );
                   }),
@@ -457,8 +433,8 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                       ),
                       child: Text(
                         scannedCount > 0
-                            ? 'Continuer ($scannedCount document${scannedCount > 1 ? 's' : ''} scanné${scannedCount > 1 ? 's' : ''})'
-                            : 'Continuer sans document',
+                            ? l.stepOcrContinueWith(scannedCount, scannedCount > 1 ? 's' : '')
+                            : l.stepOcrContinueWithout,
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -470,8 +446,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
 
                   // Disclaimer FINMA/LPD
                   MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
-                    'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
-                    'Documents traités sur ton appareil, aucune donnée envoyée (LPD art. 6).',
+                    l.stepOcrDisclaimer,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.textMuted,
@@ -495,7 +470,8 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
 // ════════════════════════════════════════════════════════════════════════════
 
 class _LpdBanner extends StatelessWidget {
-  const _LpdBanner();
+  final String text;
+  const _LpdBanner({required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -517,8 +493,7 @@ class _LpdBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Tes documents sont traités sur ton appareil. '
-              'Rien n\'est envoyé sur Internet.',
+              text,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.primary,
@@ -544,6 +519,7 @@ class _DocumentCard extends StatelessWidget {
   final String confidenceBoost;
   final bool isScanned;
   final bool isLoading;
+  final String scannedLabel;
   final VoidCallback? onTap;
 
   const _DocumentCard({
@@ -553,6 +529,7 @@ class _DocumentCard extends StatelessWidget {
     required this.confidenceBoost,
     required this.isScanned,
     required this.isLoading,
+    required this.scannedLabel,
     this.onTap,
   });
 
@@ -645,7 +622,7 @@ class _DocumentCard extends StatelessWidget {
                 ),
               ),
               child: Text(
-                isScanned ? 'Scanné' : confidenceBoost,
+                isScanned ? scannedLabel : confidenceBoost,
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

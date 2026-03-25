@@ -713,7 +713,7 @@ class CrossPillarCalculator {
     // LAVS art. 39: +5.2% on individual rente per year deferred from 65
     final avsMonthlyAt65 = AvsCalculator.computeMonthlyRente(
       currentAge: currentAge,
-      retirementAge: 65,
+      retirementAge: avsAgeReferenceHomme,
       lacunes: profile.prevoyance.lacunesAVS ?? 0,
       anneesContribuees: profile.prevoyance.anneesContribuees,
       arrivalAge: profile.arrivalAge,

@@ -287,7 +287,7 @@ class JobComparisonService {
 
     // Compute pension delta
     final annualPensionDelta = deltaRente * 12;
-    // Assume 20 years of retirement (65 to 85)
+    // Assume 20 years of retirement (avsAgeReferenceHomme to 85)
     final lifetimePensionDelta = annualPensionDelta * 20;
 
     // Determine verdict
@@ -374,10 +374,10 @@ class JobComparisonService {
     );
   }
 
-  /// Project retirement capital at age 65 with annual contributions.
+  /// Project retirement capital at retirement age with annual contributions.
   /// Delegates to LppCalculator.projectToRetirement() from financial_core.
   static double _projectCapital(LPPPlanInput plan, int yearsToRetirement) {
-    final currentAge = 65 - yearsToRetirement;
+    final currentAge = avsAgeReferenceHomme - yearsToRetirement;
     final salaireAssure = plan.effectiveSalaireAssure;
     // Compute effective bonification rate from plan's total contribution
     // (employee + employer) relative to the insured salary.
@@ -389,7 +389,7 @@ class JobComparisonService {
     return LppCalculator.projectToRetirement(
       currentBalance: plan.avoirVieillesse,
       currentAge: currentAge,
-      retirementAge: 65,
+      retirementAge: avsAgeReferenceHomme,
       grossAnnualSalary: plan.salaireBrut,
       caisseReturn: 0.0125, // BVG minimum interest rate
       conversionRate: 1.0, // Return raw capital, not rente

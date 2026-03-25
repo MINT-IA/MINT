@@ -33,7 +33,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   bool _aFamille = false;
   bool _estLocataire = true;
   bool _voyagesFrequents = false;
-  String _canton = 'VD';
+  String _canton = 'ZH';
 
   // ── State — Current coverage ───────────────────────────────
   bool _aIjmCollective = true;

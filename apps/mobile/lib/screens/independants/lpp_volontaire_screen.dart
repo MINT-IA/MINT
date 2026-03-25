@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -54,7 +55,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
         changed = true;
       }
       final age = profile.age;
-      if (age >= 25 && age <= 65) {
+      if (age >= 25 && age <= avsAgeReferenceHomme) {
         _age = age;
         changed = true;
       }
@@ -493,7 +494,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       ('25-34 ans', '7%', _age >= 25 && _age <= 34),
       ('35-44 ans', '10%', _age >= 35 && _age <= 44),
       ('45-54 ans', '15%', _age >= 45 && _age <= 54),
-      ('55-65 ans', '18%', _age >= 55 && _age <= 65),
+      ('55-65 ans', '18%', _age >= 55 && _age <= avsAgeReferenceHomme),
     ];
 
     return MintSurface(

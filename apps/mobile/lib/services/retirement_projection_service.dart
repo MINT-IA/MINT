@@ -188,13 +188,13 @@ class RetirementProjectionService {
   /// Projette les revenus du menage a la retraite.
   static RetirementProjectionResult project({
     required CoachProfile profile,
-    int retirementAgeUser = 65,
+    int retirementAgeUser = avsAgeReferenceHomme,
     int? retirementAgeConjoint,
     double? depensesMensuelles,
     double lppCapitalPct = 0.0,
     S? l,
   }) {
-    final conjAge = retirementAgeConjoint ?? 65;
+    final conjAge = retirementAgeConjoint ?? avsAgeReferenceHomme;
     final expenses =
         depensesMensuelles ?? _estimateRetirementExpenses(profile);
 
@@ -290,7 +290,7 @@ class RetirementProjectionService {
   static List<RetirementIncomeSource> _computeIncomes({
     required CoachProfile profile,
     required int ageUser,
-    int ageConjoint = 65,
+    int ageConjoint = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
     S? l,
   }) {
@@ -603,7 +603,7 @@ class RetirementProjectionService {
   static List<RetirementPhase> _computePhases({
     required CoachProfile profile,
     required int ageUser,
-    int ageConjoint = 65,
+    int ageConjoint = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
     S? l,
   }) {
@@ -942,7 +942,7 @@ class RetirementProjectionService {
 
   static List<EarlyRetirementScenario> _computeEarlyRetirementComparisons({
     required CoachProfile profile,
-    int ageConjoint = 65,
+    int ageConjoint = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
     S? l,
   }) {
@@ -981,7 +981,7 @@ class RetirementProjectionService {
       }
     }
 
-    final ref = sourcesForAge(65);
+    final ref = sourcesForAge(avsAgeReferenceHomme);
     final refTotal = ref.fold(0.0, (sum, s) => sum + s.monthlyAmount);
     final scenarios = <EarlyRetirementScenario>[];
 
@@ -990,16 +990,16 @@ class RetirementProjectionService {
       final total = sources.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
       double adjustmentPct = 0;
-      if (age < 65) {
-        adjustmentPct = -(avsReductionAnticipation * (65 - age) * 100);
-      } else if (age > 65) {
+      if (age < avsAgeReferenceHomme) {
+        adjustmentPct = -(avsReductionAnticipation * (avsAgeReferenceHomme - age) * 100);
+      } else if (age > avsAgeReferenceHomme) {
         final bonus =
-            avsDeferralBonus[(age - 65).clamp(1, 5)];
+            avsDeferralBonus[(age - avsAgeReferenceHomme).clamp(1, 5)];
         adjustmentPct = (bonus ?? 0) * 100;
       }
 
       final yearsThis = _lifeExpectancy - age;
-      const yearsRef = _lifeExpectancy - 65;
+      const yearsRef = _lifeExpectancy - avsAgeReferenceHomme;
       final cumulative =
           (total * 12 * yearsThis) - (refTotal * 12 * yearsRef);
 
@@ -1128,7 +1128,7 @@ class RetirementProjectionService {
           ? profile.canton.toUpperCase()
           : 'ZH',
       currentAge: profile.age,
-      targetRetirementAge: profile.targetRetirementAge ?? 65,
+      targetRetirementAge: profile.targetRetirementAge ?? avsAgeReferenceHomme,
       propertyMarketValue: profile.patrimoine.propertyMarketValue,
       mortgageBalance: profile.patrimoine.mortgageBalance,
       mortgageRate: profile.patrimoine.mortgageRate,

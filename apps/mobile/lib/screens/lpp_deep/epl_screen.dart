@@ -72,7 +72,7 @@ class _EplScreenState extends State<EplScreen> {
 
         // Age
         final age = profile.age;
-        if (age >= 25 && age <= 65) _age = age;
+        if (age >= 25 && age <= avsAgeReferenceHomme) _age = age;
 
         // Canton
         if (cantonFullNames.containsKey(profile.canton)) {
@@ -469,7 +469,7 @@ class _EplScreenState extends State<EplScreen> {
       eplAmount: result.montantSouhaiteApplicable,
       eplRepaid: 0,
       currentAge: _age,
-      retirementAge: 65,
+      retirementAge: avsAgeReferenceHomme,
       grossAnnualSalary: _grossAnnualSalary,
       caisseReturn: lppTauxInteretMin / 100,
       conversionRate: lppTauxConversionMinDecimal,

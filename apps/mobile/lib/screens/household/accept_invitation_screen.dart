@@ -43,11 +43,12 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
   @override
   Widget build(BuildContext context) {
     final household = context.watch<HouseholdProvider>();
+    final l = S.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Rejoindre un ménage',
+          l.acceptInvitationTitle,
           style: MintTextStyles.titleMedium(),
         ),
         backgroundColor: MintColors.white,
@@ -58,13 +59,13 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Padding(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: _accepted
-            ? _buildSuccess(context)
-            : _buildForm(context, household),
+            ? _buildSuccess(context, l)
+            : _buildForm(context, household, l),
       ))),
     );
   }
 
-  Widget _buildForm(BuildContext context, HouseholdProvider household) {
+  Widget _buildForm(BuildContext context, HouseholdProvider household, S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -72,13 +73,13 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         const Icon(Icons.people, size: 64, color: MintColors.primary),
         const SizedBox(height: 24),
         MintEntrance(child: Text(
-          'Entre le code recu de ton/ta partenaire',
+          l.acceptInvitationPrompt,
           textAlign: TextAlign.center,
           style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
         )),
         const SizedBox(height: MintSpacing.sm),
         MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-          'Le code est valable 72 heures apres l\'envoi.',
+          l.acceptInvitationCodeValidity,
           textAlign: TextAlign.center,
           style: MintTextStyles.bodyMedium(),
         )),
@@ -89,7 +90,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           textCapitalization: TextCapitalization.characters,
           style: MintTextStyles.headlineLarge().copyWith(fontSize: 28, letterSpacing: 6),
           decoration: InputDecoration(
-            hintText: 'CODE',
+            hintText: l.householdAcceptCodeHint,
             hintStyle: MintTextStyles.headlineLarge(color: MintColors.greyBorder).copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w300,
@@ -115,7 +116,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         const SizedBox(height: 24),
         MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
           button: true,
-          label: 'Rejoindre le menage',
+          label: l.acceptInvitationJoin,
           child: FilledButton(
             onPressed: household.isLoading
                 ? null
@@ -141,7 +142,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
                   ),
                 )
               : Text(
-                  'Rejoindre le menage',
+                  l.acceptInvitationJoin,
                   style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
         ),
@@ -150,7 +151,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
     );
   }
 
-  Widget _buildSuccess(BuildContext context) {
+  Widget _buildSuccess(BuildContext context, S l) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -169,20 +170,19 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Bienvenue dans le menage !',
+            l.acceptInvitationSuccess,
             style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: MintSpacing.md),
           Text(
-            'Tu as rejoint le menage Couple+. Tes projections '
-            'de retraite sont desormais liees.',
+            l.acceptInvitationSuccessBody,
             textAlign: TextAlign.center,
             style: MintTextStyles.bodyMedium(),
           ),
           const SizedBox(height: 32),
           FilledButton(
             onPressed: () => context.go('/couple'),
-            child: Text(S.of(context)!.acceptInvitationVoirMenage),
+            child: Text(l.acceptInvitationVoirMenage),
           ),
         ],
       ),

@@ -41,7 +41,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   final _capitalCtrl = TextEditingController(text: '200000');
   final _loyerCtrl = TextEditingController(text: '2000');
   final _prixBienCtrl = TextEditingController(text: '800000');
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _isMarried = false;
   bool _hasEstimatedValues = false;
 
@@ -78,7 +78,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
     final profile = context.read<CoachProfileProvider>().profile;
     if (profile == null) return;
 
-    final canton = profile.canton.isNotEmpty ? profile.canton : 'VD';
+    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final patrimoine = profile.patrimoine;
 

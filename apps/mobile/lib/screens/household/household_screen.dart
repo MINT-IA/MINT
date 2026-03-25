@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -65,7 +66,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           : !sub.isPaid
               ? _buildUpsellCard(context)
               : household.isLoading && !household.hasHousehold
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const MintLoadingSkeleton()
                   : _buildContent(context, household))),
     );
   }

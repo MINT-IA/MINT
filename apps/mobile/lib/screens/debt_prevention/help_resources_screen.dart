@@ -21,7 +21,7 @@ class HelpResourcesScreen extends StatefulWidget {
 }
 
 class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
-  String _canton = 'VD';
+  String _canton = 'ZH';
 
   @override
   Widget build(BuildContext context) {

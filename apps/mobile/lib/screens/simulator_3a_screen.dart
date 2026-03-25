@@ -113,7 +113,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           final profile = profileProvider.profile!;
           if (profile.birthYear != null) {
             final age = DateTime.now().year - profile.birthYear!;
-            _years = (65 - age).clamp(5, 45);
+            _years = (avsAgeReferenceHomme - age).clamp(5, 45);
           }
 
           if (profile.employmentStatus == EmploymentStatus.selfEmployed &&

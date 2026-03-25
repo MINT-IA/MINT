@@ -52,7 +52,7 @@ class RetirementService {
   @Deprecated('Use AvsCalculator.computeMonthlyRente() from financial_core')
   static Map<String, dynamic> estimateAvs({
     required int ageActuel,
-    int ageRetraite = 65,
+    int ageRetraite = avsAgeReferenceHomme,
     bool isCouple = false,
     int anneesLacunes = 0,
     int esperanceVie = 87,
@@ -129,7 +129,7 @@ class RetirementService {
     required double capitalLpp,
     double? conversionRate,
     String canton = 'ZH',
-    int ageRetraite = 65,
+    int ageRetraite = avsAgeReferenceHomme,
     int esperanceVie = 87,
   }) {
     // Rente — use provided blended rate or minimum legal fallback

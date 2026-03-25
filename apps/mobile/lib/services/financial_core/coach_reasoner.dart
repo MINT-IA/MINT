@@ -46,7 +46,7 @@ class CoachReasonerService {
 
     final age = DateTime.now().year - profile.birthYear;
     final yearsToRetirement =
-        ((profile.targetRetirementAge ?? 65) - age).clamp(0, 45);
+        ((profile.targetRetirementAge ?? avsAgeReferenceHomme) - age).clamp(0, 45);
     if (yearsToRetirement <= 0) {
       return ReasonerResult(
           recommendations: results, confidence: confidence);
@@ -384,7 +384,7 @@ class CoachReasonerService {
     if (prev.nombre3a < 2) return null; // need >= 2 accounts to stagger
     if (prev.totalEpargne3a < 20000) return null; // trivial amounts
 
-    final retirementAge = profile.targetRetirementAge ?? 65;
+    final retirementAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 10) return null; // only relevant near retirement
 
@@ -471,7 +471,7 @@ class CoachReasonerService {
     if (totalLP < 20000) return null; // too small
     if (prev.librePassage.length >= 2) return null; // already split
 
-    final retirementAge = profile.targetRetirementAge ?? 65;
+    final retirementAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 15) return null; // not urgent yet
 

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -249,7 +250,7 @@ class HousingCostCalculator {
     String? housingStatus,
     String canton = 'ZH',
     int currentAge = 50,
-    int targetRetirementAge = 65,
+    int targetRetirementAge = avsAgeReferenceHomme,
     double? propertyMarketValue,
     double? mortgageBalance,
     double? mortgageRate,

@@ -258,13 +258,13 @@ class CoachNarrativeService {
     double replacementRatio = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      if (salary > 0 && profile.age < 65) {
+      if (salary > 0 && profile.age < avsAgeReferenceHomme) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
           currentAge: profile.age,
-          retirementAge: 65,
+          retirementAge: avsAgeReferenceHomme,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
           conversionRate: profile.prevoyance.tauxConversion,
@@ -908,13 +908,13 @@ class CoachNarrativeService {
     double replacementRate = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      if (salary > 0 && profile.age < 65) {
+      if (salary > 0 && profile.age < avsAgeReferenceHomme) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
           currentAge: profile.age,
-          retirementAge: 65,
+          retirementAge: avsAgeReferenceHomme,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
           conversionRate: profile.prevoyance.tauxConversion,
@@ -934,9 +934,9 @@ class CoachNarrativeService {
       buffer.writeln(
           '- Taux de remplacement estime : ~${(replacementRate * 100).toStringAsFixed(0)}%');
     }
-    if (retirementAge < 65) {
+    if (retirementAge < avsAgeReferenceHomme) {
       buffer.writeln(
-          '- Retraite anticipee : penalite AVS de ${((65 - retirementAge) * 6.8).toStringAsFixed(1)}% '
+          '- Retraite anticipee : penalite AVS de ${((avsAgeReferenceHomme - retirementAge) * 6.8).toStringAsFixed(1)}% '
           '+ taux conversion LPP reduit');
     }
     buffer.writeln();

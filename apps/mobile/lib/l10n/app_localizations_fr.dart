@@ -23474,4 +23474,371 @@ class SFr extends S {
 
   @override
   String get nationalityAutre => 'Autre';
+
+  @override
+  String get stepStressTitle => 'Qu’est-ce qui te préoccupe le plus ?';
+
+  @override
+  String get stepStressSubtitle =>
+      'Choisis un thème — on personnalise ton expérience.';
+
+  @override
+  String get stepStressRetirement => 'Ma retraite';
+
+  @override
+  String get stepStressRetirementSub => 'Vais-je avoir assez pour vivre ?';
+
+  @override
+  String get stepStressTaxes => 'Mes impôts';
+
+  @override
+  String get stepStressTaxesSub => 'Est-ce que je paie trop ?';
+
+  @override
+  String get stepStressBudget => 'Mon budget';
+
+  @override
+  String get stepStressBudgetSub => 'Où passe mon argent ?';
+
+  @override
+  String get stepStressWealth => 'Mon patrimoine';
+
+  @override
+  String get stepStressWealthSub => 'Comment le faire grandir ?';
+
+  @override
+  String get stepStressCouple => 'En couple';
+
+  @override
+  String get stepStressCoupleSub => 'Optimiser à deux';
+
+  @override
+  String get stepStressCurious => 'Juste curieux';
+
+  @override
+  String get stepStressCuriousSub => 'Je veux comprendre ma situation';
+
+  @override
+  String get stepStressDisclaimer =>
+      'Outil éducatif — ne constitue pas un conseil financier (LSFin).';
+
+  @override
+  String get stepNextTitle => 'Ton premier bilan est prêt';
+
+  @override
+  String stepNextConfidence(int pct) {
+    return 'Précision actuelle : $pct %. Plus tu complètes ton profil, plus les projections seront fiables.';
+  }
+
+  @override
+  String get stepNextEnrich => 'Affiner mon profil';
+
+  @override
+  String get stepNextDashboard => 'Voir mon dashboard';
+
+  @override
+  String get stepNextCheckin => 'Faire mon premier check-in';
+
+  @override
+  String get stepNextDisclaimer =>
+      'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
+
+  @override
+  String get stepTopActionsTitle => 'Tes 3 actions prioritaires';
+
+  @override
+  String get stepTopActionsSubtitle =>
+      'Basées sur ta situation, voici par où commencer.';
+
+  @override
+  String get stepTopActionsEmpty =>
+      'Complète ton profil pour recevoir des actions personnalisées.';
+
+  @override
+  String get stepTopActionsContinue => 'Continuer';
+
+  @override
+  String get stepTopActionsBack => 'Retour';
+
+  @override
+  String stepTopActionsImpact(String amount) {
+    return 'Impact estimé : $amount';
+  }
+
+  @override
+  String get stepTopActionsDisclaimer =>
+      'Suggestions éducatives. Ne constitue pas un conseil financier (LSFin). Consulte un·e spécialiste pour un plan personnalisé.';
+
+  @override
+  String stepChocConfidenceInfo(int count) {
+    return 'Estimation basée sur $count informations. Plus tu précises, plus c’est fiable.';
+  }
+
+  @override
+  String stepChocConfidenceLabel(int pct) {
+    return 'Précision : $pct %';
+  }
+
+  @override
+  String get stepChocLiteracyTitle => 'Pour personnaliser tes conseils';
+
+  @override
+  String get stepChocLiteracySubtitle =>
+      '3 questions rapides — aucune bonne ou mauvaise réponse.';
+
+  @override
+  String get stepChocLiteracyLpp => 'Je connais le montant de mon avoir LPP';
+
+  @override
+  String get stepChocLiteracyConversion =>
+      'Je sais ce qu’est le taux de conversion';
+
+  @override
+  String get stepChocLiteracy3a => 'J’ai déjà versé sur un compte 3a';
+
+  @override
+  String get stepChocYes => 'Oui';
+
+  @override
+  String get stepChocNo => 'Non';
+
+  @override
+  String get stepChocAction => 'Qu’est-ce que je peux faire ?';
+
+  @override
+  String get stepChocEnrich => 'Affiner mon profil';
+
+  @override
+  String get stepChocDashboard => 'Voir mon dashboard';
+
+  @override
+  String get stepChocDisclaimer =>
+      'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
+
+  @override
+  String get stepJitTitle => 'Comprendre en 30 secondes';
+
+  @override
+  String get stepJitSi => 'SI';
+
+  @override
+  String get stepJitAlors => 'ALORS';
+
+  @override
+  String get stepJitAction => 'Que puis-je faire ?';
+
+  @override
+  String get stepJitBack => 'Retour';
+
+  @override
+  String get stepJitDisclaimer =>
+      'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).';
+
+  @override
+  String get stepJitLiquidityCond =>
+      'ton épargne de sécurité couvre moins de 2 mois de charges';
+
+  @override
+  String get stepJitLiquidityCons =>
+      'un imprévu (perte d’emploi, réparation urgente) peut te mettre en difficulté financière rapidement.';
+
+  @override
+  String get stepJitLiquidityInsight =>
+      'Les experts recommandent 3 à 6 mois de charges fixes en réserve. Même 100 CHF/mois sur un compte épargne fait une différence significative sur 12 mois.';
+
+  @override
+  String get stepJitLiquiditySource => 'Recommandation Budget-conseil Suisse';
+
+  @override
+  String get stepJitRetirementCond =>
+      'ton taux de remplacement à la retraite est inférieur à 60 %';
+
+  @override
+  String get stepJitRetirementCons =>
+      'ton niveau de vie pourrait baisser significativement le jour où tu arrêtes de travailler.';
+
+  @override
+  String get stepJitRetirementInsight =>
+      'En Suisse, l’AVS et la LPP couvrent en moyenne 60 % du dernier salaire. Le 3e pilier et l’épargne libre comblent le reste. Plus tu commences tôt, moins l’effort mensuel est important.';
+
+  @override
+  String get stepJitRetirementSource => 'LAVS art. 34 / LPP art. 14';
+
+  @override
+  String get stepJitTax3aCond =>
+      'tu ne verses pas le maximum dans ton 3e pilier chaque année';
+
+  @override
+  String get stepJitTax3aCons =>
+      'tu passes à côté d’une économie fiscale et d’un capital retraite supplémentaire.';
+
+  @override
+  String get stepJitTax3aInsight =>
+      'Chaque franc versé en 3a est déductible du revenu imposable. Sur 20 ans, la différence entre verser 0 et le plafond (7’258 CHF) peut représenter plus de 200’000 CHF.';
+
+  @override
+  String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
+
+  @override
+  String get stepJitIncomeCond =>
+      'ta projection de revenu à la retraite est estimée';
+
+  @override
+  String get stepJitIncomeCons =>
+      'connaître ce montant te permet de planifier et d’ajuster ta stratégie de prévoyance dès maintenant.';
+
+  @override
+  String get stepJitIncomeInsight =>
+      'Le système suisse à 3 piliers (AVS + LPP + 3a) couvre en moyenne 60 % du dernier salaire. Chaque pilier a ses règles et ses leviers d’optimisation spécifiques.';
+
+  @override
+  String get stepJitIncomeSource => 'LAVS art. 34 / LPP art. 14 / OPP3 art. 7';
+
+  @override
+  String get stepJitDefaultCond =>
+      'tu n’as pas encore un plan financier structuré';
+
+  @override
+  String get stepJitDefaultCons =>
+      'tu risques de passer à côté d’opportunités d’optimisation fiscale et de prévoyance.';
+
+  @override
+  String get stepJitDefaultInsight =>
+      'Un bilan financier annuel permet d’identifier les leviers les plus impactants : 3a, rachat LPP, franchise LAMal, amortissement indirect.';
+
+  @override
+  String get stepJitDefaultSource => 'Recommandation éducative MINT';
+
+  @override
+  String get stepOcrTitle => 'Enrichis ton profil en 30 secondes';
+
+  @override
+  String get stepOcrSkip => 'Continuer sans document';
+
+  @override
+  String get stepOcrIntro =>
+      'Scanne un ou plusieurs documents pour que MINT calcule ta situation avec plus de précision.';
+
+  @override
+  String get stepOcrLppTitle => 'Ta lettre de retraite LPP';
+
+  @override
+  String get stepOcrLppSubtitle =>
+      'Avoir, taux de conversion, lacune de rachat';
+
+  @override
+  String get stepOcrLppBoost => '+27 pts de précision';
+
+  @override
+  String get stepOcrAvsTitle => 'Ton extrait AVS';
+
+  @override
+  String get stepOcrAvsSubtitle => 'Années de cotisation, lacunes, RAMD';
+
+  @override
+  String get stepOcrAvsBoost => '+22 pts de précision';
+
+  @override
+  String get stepOcrTaxTitle => 'Ta déclaration fiscale';
+
+  @override
+  String get stepOcrTaxSubtitle => 'Revenu imposable, fortune, taux marginal';
+
+  @override
+  String get stepOcrTaxBoost => '+17 pts de précision';
+
+  @override
+  String get stepOcr3aTitle => 'Ton compte 3a';
+
+  @override
+  String get stepOcr3aSubtitle => 'Solde, versements cumulés, rendement';
+
+  @override
+  String get stepOcr3aBoost => '+7 pts de précision';
+
+  @override
+  String get stepOcrScanned => 'Scanné';
+
+  @override
+  String stepOcrContinueWith(int count, String plural) {
+    return 'Continuer ($count document$plural scanné$plural)';
+  }
+
+  @override
+  String get stepOcrContinueWithout => 'Continuer sans document';
+
+  @override
+  String get stepOcrDisclaimer =>
+      'Outil éducatif — ne constitue pas un conseil financier (LSFin). Documents traités sur ton appareil, aucune donnée envoyée (LPD art. 6).';
+
+  @override
+  String get stepOcrLpdBanner =>
+      'Tes documents sont traités sur ton appareil. Rien n’est envoyé sur Internet.';
+
+  @override
+  String get stepOcrLpdTitle => 'Traitement privé sur ton appareil';
+
+  @override
+  String get stepOcrLpdBody =>
+      'Ce document est analysé directement sur ton téléphone.\nAucune donnée n’est envoyée sur Internet.\nLes informations extraites sont supprimées après traitement.';
+
+  @override
+  String get stepOcrLpdLegal =>
+      'Base légale : LPD art. 6 — minimisation des données.';
+
+  @override
+  String get stepOcrLpdScan => 'Scanner ce document';
+
+  @override
+  String get stepOcrLpdCancel => 'Annuler';
+
+  @override
+  String stepOcrSnackSuccess(int count, String plural) {
+    return '$count champ$plural extrait$plural avec succès';
+  }
+
+  @override
+  String get stepOcrSnackEmpty =>
+      'Document traité — aucun champ reconnu automatiquement';
+
+  @override
+  String stepOcrSnackError(String error) {
+    return 'Erreur lors du traitement : $error';
+  }
+
+  @override
+  String get stepOcrSnackWebOnly =>
+      'Scan d’image non disponible sur web. Utilise l’app mobile ou importe un fichier .txt.';
+
+  @override
+  String stepQuestionsAgeYears(int age) {
+    return '$age ans';
+  }
+
+  @override
+  String get stepQuestionsCountryUs => 'États-Unis';
+
+  @override
+  String get stepQuestionsCountryGb => 'Royaume-Uni';
+
+  @override
+  String get stepQuestionsCountryCa => 'Canada';
+
+  @override
+  String get stepQuestionsCountryIn => 'Inde';
+
+  @override
+  String get stepQuestionsCountryCn => 'Chine';
+
+  @override
+  String get stepQuestionsCountryBr => 'Brésil';
+
+  @override
+  String get stepQuestionsCountryAu => 'Australie';
+
+  @override
+  String get stepQuestionsCountryJp => 'Japon';
+
+  @override
+  String get householdAcceptCodeHint => 'CODE';
 }

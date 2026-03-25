@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -213,7 +214,7 @@ class SlmSettingsScreen extends StatelessWidget {
       return const MintSurface(
         padding: EdgeInsets.all(MintSpacing.lg),
         radius: 16,
-        child: Center(child: CircularProgressIndicator()),
+        child: MintLoadingSkeleton(),
       );
     }
 

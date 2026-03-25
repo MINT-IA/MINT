@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -1497,7 +1498,7 @@ class _CoachingPreferenceSheetState extends State<_CoachingPreferenceSheet> {
     if (!_loaded) {
       return const SizedBox(
         height: 200,
-        child: Center(child: CircularProgressIndicator()),
+        child: MintLoadingSkeleton(),
       );
     }
 

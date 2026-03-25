@@ -98,8 +98,8 @@ class StaggeredWithdrawalSimulator {
     // Clamp inputs
     final clampedComptes = nbComptes.clamp(1, 5);
     final clampedAvoir = avoirTotal.clamp(0.0, 1000000.0);
-    final clampedDebut = ageRetraitDebut.clamp(59, 65);
-    final clampedFin = ageRetraitFin.clamp(clampedDebut, 65);
+    final clampedDebut = ageRetraitDebut.clamp(59, avsAgeReferenceHomme);
+    final clampedFin = ageRetraitFin.clamp(clampedDebut, avsAgeReferenceHomme);
 
     final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
 

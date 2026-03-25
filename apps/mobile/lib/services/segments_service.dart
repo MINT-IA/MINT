@@ -103,7 +103,7 @@ class GenderGapService {
   static const double tauxConversion = lppTauxConversionMinDecimal;
 
   /// Swiss legal retirement age (post-AVS21).
-  static const int ageRetraite = 65;
+  static const int ageRetraite = avsAgeReferenceHomme;
 
   /// LPP contribution rates by age bracket (employee + employer).
   /// Source of truth: getLppBonificationRate() in social_insurance.dart

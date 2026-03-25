@@ -44,7 +44,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
   bool _hasIjm = false;
   bool _hasLaa = false;
   bool _has3a = false;
-  String _canton = 'VD';
+  String _canton = 'ZH';
 
   IndependantResult? _result;
 

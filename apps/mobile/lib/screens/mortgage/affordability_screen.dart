@@ -64,7 +64,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   double _epargneDispo = 100000;
   double _avoir3a = 50000;
   double _avoirLpp = 200000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _showAdvancedParams = false;
 
   void _initializeFromProfile() {

@@ -29,7 +29,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   int _age = 40;
   double _avoirLpp = 120000;
   int _anneesCotisation = 15;
-  String _canton = 'VD';
+  String _canton = 'ZH';
 
   GenderGapResult? _result;
 

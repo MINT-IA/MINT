@@ -62,7 +62,7 @@ class MonteCarloProjectionService {
   /// [seed] : graine pour le generateur aleatoire (tests reproductibles).
   static MonteCarloResult simulate({
     required CoachProfile profile,
-    int retirementAgeUser = 65,
+    int retirementAgeUser = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
     double? depensesMensuelles,
     int numSimulations = 1000,
@@ -85,8 +85,8 @@ class MonteCarloProjectionService {
     final hasConjoint = profile.isCouple && profile.conjoint != null;
     final conjoint = profile.conjoint;
     final conjointAge = conjoint?.age;
-    // Default conjoint retirement age: 65 (could differ but we simplify)
-    const conjointRetirementAge = 65;
+    // Default conjoint retirement age: avsAgeReferenceHomme (could differ but we simplify)
+    const conjointRetirementAge = avsAgeReferenceHomme;
 
     // ── Early retirement: AVS deferred start (LAVS art. 40) ─
     // AVS anticipation only possible from age 63. If retirement < 63,
@@ -539,7 +539,7 @@ class MonteCarloProjectionService {
           : 'ZH',
       currentAge: profile.age,
       targetRetirementAge:
-          retirementAge ?? profile.targetRetirementAge ?? 65,
+          retirementAge ?? profile.targetRetirementAge ?? avsAgeReferenceHomme,
       propertyMarketValue: profile.patrimoine.propertyMarketValue,
       mortgageBalance: profile.patrimoine.mortgageBalance,
       mortgageRate: profile.patrimoine.mortgageRate,

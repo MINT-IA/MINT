@@ -30,7 +30,7 @@ class StaggeredWithdrawalScreen extends StatefulWidget {
 class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   double _avoirTotal = 300000;
   int _nbComptes = 3;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   double _revenuImposable = 120000;
   int _ageRetraitDebut = 60;
   int _ageRetraitFin = 64;
@@ -65,11 +65,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         if (revenu > 0) {
           _revenuImposable = revenu;
         }
-        final targetAge = profile.targetRetirementAge ?? 65;
+        final targetAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
         // Withdrawal typically starts 5 years before retirement
-        final computedDebut = (targetAge - 5).clamp(60, 65);
+        final computedDebut = (targetAge - 5).clamp(60, avsAgeReferenceHomme);
         _ageRetraitDebut = computedDebut;
-        _ageRetraitFin = targetAge.clamp(computedDebut, 65);
+        _ageRetraitFin = targetAge.clamp(computedDebut, avsAgeReferenceHomme);
       });
     } catch (_) {
       // Provider not in tree (tests) — keep defaults

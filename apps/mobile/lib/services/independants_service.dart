@@ -319,7 +319,7 @@ class IndependantsService {
     int age,
     int delaiCarence,
   ) {
-    if (revenuMensuel <= 0 || age < 18 || age > 65) {
+    if (revenuMensuel <= 0 || age < 18 || age > avsAgeReferenceHomme) {
       return IjmResult(
         revenuMensuel: revenuMensuel,
         age: age,

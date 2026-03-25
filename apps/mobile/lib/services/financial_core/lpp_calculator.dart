@@ -43,7 +43,7 @@ class LppCalculator {
   static double adjustedConversionRate({
     required double baseRate,
     required int retirementAge,
-    int referenceAge = 65,
+    int referenceAge = avsAgeReferenceHomme,
     double reductionPerYear = lppEarlyRetirementRateReduction,
   }) {
     if (retirementAge >= referenceAge) return baseRate;
@@ -145,7 +145,7 @@ class LppCalculator {
     required String canton,
     bool isMarried = false,
     int? horizonYears,
-    int retirementAge = 65,
+    int retirementAge = avsAgeReferenceHomme,
   }) {
     if (lppCapitalPct <= 0 || annualRente <= 0) return annualRente / 12;
 

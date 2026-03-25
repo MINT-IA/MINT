@@ -165,7 +165,7 @@ class LifecyclePhaseService {
     if (age < 35) return LifecyclePhase.construction;
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
-    if (age < 65) return LifecyclePhase.transition;
+    if (age < avsAgeReferenceHomme) return LifecyclePhase.transition;
     if (age < 75) return LifecyclePhase.retraite;
     return LifecyclePhase.transmission;
   }

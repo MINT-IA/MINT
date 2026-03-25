@@ -122,7 +122,7 @@ class ReengagementEngine {
   /// current month. Multiple messages may apply (e.g. quarterly + monthly).
   static List<ReengagementMessage> generateMessages({
     DateTime? today,
-    String canton = 'VD',
+    String canton = 'ZH',
     double taxSaving3a = 0,
     double friTotal = 0,
     double friDelta = 0,
