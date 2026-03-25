@@ -15,6 +15,7 @@ import 'dart:io' show Platform;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/consent_manager.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NOTIFICATION SERVICE — Local-only, zero backend
@@ -131,6 +132,13 @@ class NotificationService {
     required CoachProfile profile,
   }) async {
     if (kIsWeb || _plugin == null) return;
+
+    // V5-3 audit fix: check notification consent before scheduling.
+    // If user has not consented, skip all notification scheduling.
+    final hasConsent = await ConsentManager.isConsentGiven(
+      ConsentType.notifications,
+    );
+    if (!hasConsent) return;
 
     // Request permission if not already granted (deferred, not at startup).
     // This is the right place because scheduleCoachingReminders is only

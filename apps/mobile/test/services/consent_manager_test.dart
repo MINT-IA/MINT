@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/consent_manager.dart';
 
 /// Tests for ConsentManager (Sprint S40).
@@ -6,6 +7,13 @@ import 'package:mint_mobile/services/consent_manager.dart';
 /// Validates LSFin/nLPD compliance, privacy by design (all OFF by default),
 /// consent state transitions, and BYOK field detail.
 void main() {
+  // V5-1: ConsentManager now uses SharedPreferences (not in-memory).
+  // Tests must initialize the mock binding before any async call.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
   group('ConsentManager — defaults (privacy by design)', () {
     test('all consents are OFF by default (nLPD art. 6)', () {
       final dashboard = ConsentManager.getDefaultDashboard();
@@ -132,7 +140,7 @@ void main() {
     });
   });
 
-  group('ConsentManager — persistence (in-memory fallback)', () {
+  group('ConsentManager — persistence (SharedPreferences)', () {
     test('isConsentGiven returns false by default', () async {
       // Reset state — use a fresh type that hasn't been set
       final result =

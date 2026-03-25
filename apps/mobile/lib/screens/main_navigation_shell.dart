@@ -66,6 +66,16 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     NavigationShellState.register(_switchTabCallback);
+
+    // V5-5 audit fix: check for pending notification deep link on cold start.
+    // On cold start, didChangeAppLifecycleState(resumed) is never called,
+    // so we must also check here.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pendingRoute = NotificationService.consumePendingRoute();
+      if (pendingRoute != null && pendingRoute.isNotEmpty && mounted) {
+        GoRouter.of(context).go(pendingRoute);
+      }
+    });
   }
 
   void _switchTabCallback(int index) {

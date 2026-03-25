@@ -320,7 +320,7 @@ class NudgeEngine {
       priority: goalProgressPct == 100
           ? NudgePriority.high
           : NudgePriority.medium,
-      intentTag: '/mint',
+      intentTag: '/home?tab=1',
       titleKey: 'nudgeGoalProgressTitle',
       bodyKey: 'nudgeGoalProgressBody',
       params: {'progress': goalProgressPct.toString()},
