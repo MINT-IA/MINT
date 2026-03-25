@@ -23841,4 +23841,12 @@ class SFr extends S {
 
   @override
   String get householdAcceptCodeHint => 'CODE';
+
+  @override
+  String get friInsufficientData => 'Complète ton profil pour voir ton score';
+
+  @override
+  String projectionUncertaintyBand(String low, String high) {
+    return 'CHF $low — $high / mois';
+  }
 }

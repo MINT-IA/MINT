@@ -23880,4 +23880,13 @@ class SDe extends S {
 
   @override
   String get householdAcceptCodeHint => 'CODE';
+
+  @override
+  String get friInsufficientData =>
+      'Vervollständige dein Profil, um deinen Score zu sehen';
+
+  @override
+  String projectionUncertaintyBand(String low, String high) {
+    return 'CHF $low — $high / Monat';
+  }
 }

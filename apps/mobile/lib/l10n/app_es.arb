@@ -11147,5 +11147,14 @@
   "stepQuestionsCountryAu": "Australia",
   "stepQuestionsCountryJp": "Jap\u00f3n",
 
-  "householdAcceptCodeHint": "CODE"
+  "householdAcceptCodeHint": "CODE",
+
+  "friInsufficientData": "Completa tu perfil para ver tu puntuación",
+  "projectionUncertaintyBand": "CHF\u00a0{low}\u00a0—\u00a0{high}\u00a0/\u00a0mes",
+  "@projectionUncertaintyBand": {
+    "placeholders": {
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  }
 }

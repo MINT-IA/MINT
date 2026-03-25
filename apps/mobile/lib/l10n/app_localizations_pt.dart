@@ -23799,4 +23799,13 @@ class SPt extends S {
 
   @override
   String get householdAcceptCodeHint => 'CODE';
+
+  @override
+  String get friInsufficientData =>
+      'Completa o teu perfil para ver a tua pontuação';
+
+  @override
+  String projectionUncertaintyBand(String low, String high) {
+    return 'CHF $low — $high / mês';
+  }
 }

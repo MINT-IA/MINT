@@ -23842,4 +23842,12 @@ class SEs extends S {
 
   @override
   String get householdAcceptCodeHint => 'CODE';
+
+  @override
+  String get friInsufficientData => 'Completa tu perfil para ver tu puntuación';
+
+  @override
+  String projectionUncertaintyBand(String low, String high) {
+    return 'CHF $low — $high / mes';
+  }
 }

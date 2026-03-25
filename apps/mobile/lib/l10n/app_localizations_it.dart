@@ -23883,4 +23883,13 @@ class SIt extends S {
 
   @override
   String get householdAcceptCodeHint => 'CODE';
+
+  @override
+  String get friInsufficientData =>
+      'Completa il tuo profilo per vedere il tuo punteggio';
+
+  @override
+  String projectionUncertaintyBand(String low, String high) {
+    return 'CHF $low — $high / mese';
+  }
 }
