@@ -152,8 +152,8 @@ void main() {
       final avsSource = result.phases[0].sources.firstWhere(
         (s) => s.id == 'avs_user',
       );
-      // Single: max AVS = 2520/month
-      expect(avsSource.monthlyAmount, lessThanOrEqualTo(avsRenteMaxMensuelle));
+      // Single: max AVS = 2520/month (with 13th rente: 2520 * 13/12 = 2730)
+      expect(avsSource.monthlyAmount, lessThanOrEqualTo(avsRenteMaxMensuelle * avs13emeRenteFactor));
     });
 
     test('no couple timeline sources', () {
@@ -501,7 +501,8 @@ void main() {
       final avsTotal =
           avsSources.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
-      expect(avsTotal, lessThanOrEqualTo(avsRenteCoupleMaxMensuelle + 0.01));
+      // With 13th rente: effective cap = 3780 * 13/12 = 4095
+      expect(avsTotal, lessThanOrEqualTo(avsRenteCoupleMaxMensuelle * avs13emeRenteFactor + 0.01));
     });
 
     test('transition phase AVS not capped (only one retiree)', () {
@@ -936,8 +937,8 @@ void main() {
       final avs = result.phases.first.sources
           .where((s) => s.id == 'avs_user')
           .first.monthlyAmount;
-      // Should get full max rente (2520) minus no gap
-      expect(avs, closeTo(avsRenteMaxMensuelle, 1));
+      // Should get full max rente (2520) with 13th rente: 2520 * 13/12 = 2730
+      expect(avs, closeTo(avsRenteMaxMensuelle * avs13emeRenteFactor, 1));
     });
 
     test('low income (<88.2k) gets reduced AVS rente', () {
@@ -962,11 +963,12 @@ void main() {
       final avs = result.phases.first.sources
           .where((s) => s.id == 'avs_user')
           .first.monthlyAmount;
-      // 48k RAMD → rente between 1260 and 2520
-      expect(avs, lessThan(avsRenteMaxMensuelle));
-      expect(avs, greaterThan(avsRenteMinMensuelle));
+      // 48k RAMD → rente between 1260 and 2520 (with 13th rente: * 13/12)
+      expect(avs, lessThan(avsRenteMaxMensuelle * avs13emeRenteFactor));
+      expect(avs, greaterThan(avsRenteMinMensuelle * avs13emeRenteFactor));
       // Linear interpolation: (48k-14.7k)/(88.2k-14.7k) * 1260 + 1260 ≈ 1831
-      expect(avs, closeTo(1831, 50));
+      // With 13th rente: 1831 * 13/12 ≈ 1983
+      expect(avs, closeTo(1831 * avs13emeRenteFactor, 55));
     });
   });
 
@@ -1022,8 +1024,8 @@ void main() {
       // Expat should get less AVS than native
       expect(avsExpat, lessThan(avsNative));
       // With arrivalAge 35, ~30 years of contributions vs 44 required
-      // gapFactor ≈ 30/44 ≈ 0.68
-      expect(avsExpat, closeTo(avsRenteMaxMensuelle * 30 / 44, 50));
+      // gapFactor ≈ 30/44 ≈ 0.68, with 13th rente: * 13/12
+      expect(avsExpat, closeTo(avsRenteMaxMensuelle * avs13emeRenteFactor * 30 / 44, 55));
     });
 
     test('conjoint arrivalAge reduces their AVS rente', () {
@@ -1102,8 +1104,8 @@ void main() {
           .where((s) => s.id.startsWith('avs'))
           .fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
-      // Married: capped at 3780
-      expect(totalAvs, closeTo(avsRenteCoupleMaxMensuelle, 1));
+      // Married: capped at 3780, with 13th rente: 3780 * 13/12 = 4095
+      expect(totalAvs, closeTo(avsRenteCoupleMaxMensuelle * avs13emeRenteFactor, 1));
     });
 
     test('concubin couple AVS NOT capped — each gets individual rente', () {
@@ -1116,9 +1118,10 @@ void main() {
           .fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
       // Concubins: NOT capped, each gets up to 2520 → 5040 total
-      expect(totalAvs, greaterThan(avsRenteCoupleMaxMensuelle));
-      // With 10k/month each (120k/yr > 88.2k), each gets max 2520
-      expect(totalAvs, closeTo(avsRenteMaxMensuelle * 2, 1));
+      // With 13th rente: effective cap = 4095, individual max = 2730
+      expect(totalAvs, greaterThan(avsRenteCoupleMaxMensuelle * avs13emeRenteFactor));
+      // With 10k/month each (120k/yr > 88.2k), each gets max 2520 * 13/12 = 2730 → 5460 total
+      expect(totalAvs, closeTo(avsRenteMaxMensuelle * avs13emeRenteFactor * 2, 1));
     });
 
     test('concubin AVS higher than married AVS', () {
