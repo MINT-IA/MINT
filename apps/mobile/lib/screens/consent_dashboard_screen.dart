@@ -137,7 +137,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             style: MintTextStyles.headlineMedium(),
           ),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const Center(child: CircularProgressIndicator()))),
       );
     }
 
@@ -153,7 +153,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             style: MintTextStyles.headlineMedium(),
           ),
         ),
-        body: Center(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
           child: Container(
             padding: const EdgeInsets.all(MintSpacing.md),
             margin: const EdgeInsets.all(MintSpacing.lg),
@@ -175,7 +175,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
               ],
             ),
           ),
-        ),
+        ))),
       );
     }
 
@@ -194,7 +194,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +228,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             _buildSources(l10n),
           ],
         ),
-      ),
+      ))),
     );
   }
 

@@ -311,7 +311,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -483,7 +483,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -515,7 +515,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   Widget _buildEmptyState() {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverFillRemaining(
@@ -558,7 +558,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

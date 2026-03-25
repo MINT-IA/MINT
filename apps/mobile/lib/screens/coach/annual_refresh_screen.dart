@@ -242,7 +242,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -283,7 +283,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -667,7 +667,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -788,7 +788,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

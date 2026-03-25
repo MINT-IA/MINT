@@ -103,13 +103,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             style: MintTextStyles.headlineMedium(),
           ),
         ),
-        body: Center(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
           child: Text(
             s.achievementsEmptyProfile,
             style: MintTextStyles.bodyMedium(),
             textAlign: TextAlign.center,
           ),
-        ),
+        ))),
       );
     }
 
@@ -132,7 +132,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -183,7 +183,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ],
           ],
         ),
-      ),
+      ))),
     );
   }
 

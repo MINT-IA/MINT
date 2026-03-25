@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Form(
@@ -250,10 +250,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       l10n.authNoAccount,
                       style: MintTextStyles.bodyMedium(),
-                    ),
+                      overflow: TextOverflow.ellipsis,
+                    )),
                     const SizedBox(width: MintSpacing.sm),
                     TextButton(
                       onPressed: () {
@@ -285,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
+      ))),
     );
   }
 }

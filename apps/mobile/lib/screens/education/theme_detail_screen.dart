@@ -61,9 +61,9 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       return Scaffold(
         backgroundColor: MintColors.background,
         appBar: AppBar(title: Text(S.of(context)!.themeInconnu)),
-        body: Center(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
           child: Text(S.of(context)!.themeInconnuBody),
-        ),
+        ))),
       );
     }
     final theme = rawTheme.localized(S.of(context));
@@ -71,7 +71,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── Compact colored header ──
           SliverAppBar(
@@ -138,17 +138,21 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                                   color: MintColors.white, size: 28),
                             )),
                             const SizedBox(height: 12),
-                            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
+                            Flexible(child: MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                               theme.title,
                               style: MintTextStyles.headlineLarge(color: MintColors.white),
-                            )),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ))),
                             const SizedBox(height: MintSpacing.xs),
-                            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
+                            Flexible(child: MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                               theme.question,
                               style: MintTextStyles.bodyMedium(
                                 color: MintColors.white.withValues(alpha: 0.85),
                               ),
-                            )),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ))),
                           ],
                         ),
                       ),
@@ -218,7 +222,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               ),
             ),
         ],
-      ),
+      ))),
     );
   }
 

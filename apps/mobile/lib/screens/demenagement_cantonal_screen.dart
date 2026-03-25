@@ -110,7 +110,7 @@ class _DemenagementCantonalScreenState
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
@@ -182,7 +182,7 @@ class _DemenagementCantonalScreenState
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 

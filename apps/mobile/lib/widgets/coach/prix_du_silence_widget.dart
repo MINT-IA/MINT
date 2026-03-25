@@ -116,10 +116,11 @@ class PrixDuSilenceWidget extends StatelessWidget {
         children: [
           const Icon(Icons.account_balance_outlined, color: MintColors.info, size: 18),
           const SizedBox(width: 10),
-          Text(
+          Flexible(child: Text(
             'Patrimoine transmis : CHF ${_fmt(patrimoine)}',
             style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
-          ),
+            overflow: TextOverflow.ellipsis,
+          )),
         ],
       ),
     );

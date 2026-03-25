@@ -63,7 +63,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
         scrolledUnderElevation: 0,
         title: Text(s.avsCotisationsTitle, style: MintTextStyles.headlineMedium()),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +88,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             const SizedBox(height: MintSpacing.xxl),
           ],
         ),
-      ),
+      ))),
     );
   }
 

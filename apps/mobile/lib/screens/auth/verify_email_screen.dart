@@ -91,7 +91,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
@@ -167,7 +167,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 }

@@ -147,7 +147,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       appBar: AppBar(
         title: Text(S.of(context)!.housingSaleAppBarTitle),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
@@ -228,7 +228,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             const SizedBox(height: 40),
           ],
         ),
-      ),
+      ))),
     );
   }
 

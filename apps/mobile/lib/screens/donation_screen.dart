@@ -163,7 +163,7 @@ class _DonationScreenState extends State<DonationScreen> {
       appBar: AppBar(
         title: Text(S.of(context)!.donationAppBarTitle),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
@@ -202,7 +202,7 @@ class _DonationScreenState extends State<DonationScreen> {
             const SizedBox(height: 40),
           ],
         ),
-      ),
+      ))),
     );
   }
 

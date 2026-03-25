@@ -108,7 +108,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.lg,
         ),
@@ -163,7 +163,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             const SizedBox(height: MintSpacing.xxl + MintSpacing.xl),
           ],
         ),
-      ),
+      ))),
     );
   }
 

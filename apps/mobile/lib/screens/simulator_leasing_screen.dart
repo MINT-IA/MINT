@@ -73,7 +73,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         title: Text(S.of(context)!.leasingTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -98,7 +98,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      ))),
     );
   }
 

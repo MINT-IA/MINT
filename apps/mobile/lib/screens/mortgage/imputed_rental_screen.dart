@@ -98,7 +98,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Intro
@@ -128,7 +128,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           ),
           const SizedBox(height: MintSpacing.xl),
         ],
-      ),
+      ))),
     );
   }
 

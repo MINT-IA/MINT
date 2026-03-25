@@ -28,7 +28,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── AppBar white standard ──────────────────────────────
           SliverAppBar(
@@ -207,7 +207,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 }

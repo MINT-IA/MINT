@@ -44,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverToBoxAdapter(
@@ -120,7 +120,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

@@ -75,7 +75,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
@@ -105,7 +105,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           ),
           const SizedBox(height: MintSpacing.xl),
         ],
-      ),
+      ))),
     );
   }
 

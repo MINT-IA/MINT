@@ -104,7 +104,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
       await tester.pump();
 
       // i18n: affordabilityParameters = "Tes hypotheses"

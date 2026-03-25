@@ -88,9 +88,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: byok.isConfigured
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: byok.isConfigured
           ? _buildChatInterface(s, byok)
-          : _buildConfigureCTA(s),
+          : _buildConfigureCTA(s))),
     );
   }
 
@@ -149,13 +149,14 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 const Icon(Icons.lock_outline,
                     size: 14, color: MintColors.textMuted),
                 const SizedBox(width: 6),
-                Text(
+                Flexible(child: Text(
                   s.byokPrivacyShort,
                   style: const TextStyle(
                     fontSize: 12,
                     color: MintColors.textMuted,
                   ),
-                ),
+                  overflow: TextOverflow.ellipsis,
+                )),
               ],
             )),
           ],

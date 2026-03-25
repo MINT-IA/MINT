@@ -90,7 +90,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Intro pedagogique
@@ -124,7 +124,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           ),
           const SizedBox(height: MintSpacing.xl),
         ],
-      ),
+      ))),
     );
   }
 

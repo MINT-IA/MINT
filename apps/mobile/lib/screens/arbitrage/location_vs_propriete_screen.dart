@@ -150,7 +150,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── SliverAppBar ──
           SliverAppBar(
@@ -323,7 +323,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

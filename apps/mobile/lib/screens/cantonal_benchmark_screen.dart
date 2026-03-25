@@ -69,7 +69,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
         : null;
 
     return Scaffold(
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -132,7 +132,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

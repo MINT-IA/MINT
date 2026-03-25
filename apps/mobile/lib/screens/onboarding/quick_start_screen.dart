@@ -190,7 +190,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
           },
         ),
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         top: false,
         child: Column(
           children: [
@@ -379,7 +379,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             )),
           ],
         ),
-      ),
+      ))),
     );
   }
 

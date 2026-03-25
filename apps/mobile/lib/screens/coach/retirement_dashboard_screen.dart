@@ -357,7 +357,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(profile.firstName),
           SliverPadding(
@@ -489,7 +489,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -500,7 +500,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget _buildStateC() {
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(null),
           SliverPadding(
@@ -520,7 +520,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

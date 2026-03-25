@@ -112,7 +112,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── White standard AppBar (Design System §4.5) ──
           SliverAppBar(
@@ -409,7 +409,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

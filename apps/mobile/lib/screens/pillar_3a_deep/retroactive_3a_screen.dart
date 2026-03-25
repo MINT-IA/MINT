@@ -91,7 +91,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -144,7 +144,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

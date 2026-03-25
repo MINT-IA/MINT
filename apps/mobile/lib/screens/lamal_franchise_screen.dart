@@ -99,7 +99,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -149,7 +149,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

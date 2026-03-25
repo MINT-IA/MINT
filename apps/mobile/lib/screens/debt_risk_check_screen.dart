@@ -54,10 +54,10 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         title: Text(S.of(context)!.debtCheckTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: _showResults ? _buildResults() : _buildQuestionnaire(),
-      ),
+      ))),
     );
   }
 

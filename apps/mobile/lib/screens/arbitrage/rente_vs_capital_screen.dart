@@ -398,7 +398,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         : _optionsAsAgeTrajectories(_result!.options);
 
     return Scaffold(
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── SliverAppBar (white standard — Simulator screen) ──
           SliverAppBar(
@@ -505,7 +505,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

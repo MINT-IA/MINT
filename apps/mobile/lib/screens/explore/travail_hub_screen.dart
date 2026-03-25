@@ -21,7 +21,7 @@ class TravailHubScreen extends StatelessWidget {
         title: Text(l.exploreHubTravailTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.symmetric(
           horizontal: MintSpacing.lg,
           vertical: MintSpacing.md,
@@ -129,7 +129,7 @@ class TravailHubScreen extends StatelessWidget {
           ),
           const SizedBox(height: MintSpacing.xxl),
         ],
-      ),
+      ))),
     );
   }
 }

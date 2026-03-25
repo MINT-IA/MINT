@@ -102,7 +102,7 @@ class _EplScreenState extends State<EplScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -165,7 +165,7 @@ class _EplScreenState extends State<EplScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

@@ -185,10 +185,12 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Flexible(child: Text(
                 isSurplus ? 'Excedent mensuel' : 'Deficit mensuel',
                 style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
-              ),
+                overflow: TextOverflow.ellipsis,
+              )),
+              const SizedBox(width: 8),
               AnimatedBuilder(
                 animation: _fillAnimation,
                 builder: (context, _) {

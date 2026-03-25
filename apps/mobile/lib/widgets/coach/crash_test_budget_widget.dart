@@ -119,14 +119,14 @@ class CrashTestBudgetWidget extends StatelessWidget {
               border: Border.all(color: MintColors.scoreCritique.withValues(alpha: 0.3)),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.content_cut, color: MintColors.scoreCritique, size: 16),
                 const SizedBox(width: 6),
-                Text(
+                Flexible(child: Text(
                   'Tu économises CHF ${_fmt(saving)}/mois en mode survie',
                   style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
-                ),
+                  overflow: TextOverflow.ellipsis,
+                )),
               ],
             ),
           ),

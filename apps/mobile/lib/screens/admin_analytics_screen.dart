@@ -91,7 +91,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: _loading
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: _loading
           ? const Center(
               child: Padding(
                 padding: EdgeInsets.only(top: 60),
@@ -103,7 +103,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(MintSpacing.lg - 4),
                   child: _buildContent(l10n),
-                ),
+                ))),
     );
   }
 

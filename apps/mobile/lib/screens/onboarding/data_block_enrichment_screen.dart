@@ -93,7 +93,7 @@ class _DataBlockEnrichmentScreenState
           style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
@@ -181,7 +181,7 @@ class _DataBlockEnrichmentScreenState
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 
