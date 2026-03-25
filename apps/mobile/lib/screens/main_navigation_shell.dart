@@ -72,6 +72,12 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     if (index >= 0 && index < _tabs.length && mounted) {
       setState(() => _currentIndex = index);
       _analytics.trackScreenView('/${_tabNames[index]}');
+      // Sync URL for programmatic tab switches (e.g. from PulseScreen).
+      try {
+        GoRouter.of(context).go('/home?tab=$index');
+      } catch (_) {
+        // No GoRouter in tree (unit tests).
+      }
     }
   }
 
@@ -234,6 +240,14 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     if (_currentIndex == index) return;
     _analytics.trackTabSwitch(_tabNames[_currentIndex], _tabNames[index]);
     setState(() => _currentIndex = index);
+    // Keep the URL in sync so deep links and state restoration work after
+    // the initial mount.  We use `go` (not `push`) because the shell is
+    // the root destination — we replace the current URL, never stack.
+    try {
+      GoRouter.of(context).go('/home?tab=$index');
+    } catch (_) {
+      // No GoRouter in tree (unit tests with plain MaterialApp).
+    }
   }
 }
 

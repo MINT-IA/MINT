@@ -69,6 +69,13 @@ class RouteSuggestionCard extends StatelessWidget {
   /// incomplètes") to inform the user that some data is missing.
   final bool isPartial;
 
+  /// Prefill values extracted from the user's profile by [RoutePlanner].
+  ///
+  /// Passed to the target screen via GoRouter `extra` so the screen can
+  /// pre-populate fields with known data instead of showing defaults.
+  /// Screens opt in by reading `GoRouterState.of(context).extra`.
+  final Map<String, dynamic>? prefill;
+
   /// Called after [context.push(route)] completes (i.e. user comes back).
   ///
   /// Receives a [ScreenOutcome] so the parent can react differently to
@@ -87,6 +94,7 @@ class RouteSuggestionCard extends StatelessWidget {
     required this.contextMessage,
     required this.route,
     this.isPartial = false,
+    this.prefill,
     this.onReturn,
     this.profileHashFn,
   });
@@ -159,7 +167,10 @@ class RouteSuggestionCard extends StatelessWidget {
     // Navigate — context.push awaited synchronously. Any async work involving
     // ScreenCompletionTracker happens after the mounted check below so that
     // context is never accessed across an async gap.
-    await context.push(route); // ignore: use_build_context_synchronously — guarded by mounted check immediately below
+    // Pass prefill data via `extra` so the target screen can pre-populate
+    // fields with known profile values (screens opt in by reading extra).
+    final extra = prefill != null ? {'prefill': prefill} : null;
+    await context.push(route, extra: extra); // ignore: use_build_context_synchronously — guarded by mounted check immediately below
 
     if (!context.mounted) return;
 
