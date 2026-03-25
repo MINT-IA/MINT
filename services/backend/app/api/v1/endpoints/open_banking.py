@@ -19,6 +19,7 @@ Endpoints:
     POST /categorize                       — Re-categorize transactions
 """
 
+import logging
 import os
 from typing import List, Optional
 
@@ -26,6 +27,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.auth import require_current_user
 from app.models.user import User
+
+logger = logging.getLogger(__name__)
 from app.schemas.open_banking import (
     OpenBankingStatusResponse,
     ConsentRequest,
@@ -58,6 +61,11 @@ _aggregator = AccountAggregator(
     connector=_connector,
     consent_manager=_consent_manager,
     categorizer=_categorizer,
+)
+
+# V3-4: Log warning — in-memory mode means consents are lost on restart.
+logger.warning(
+    "Open Banking running in-memory mode — consents will not survive restart"
 )
 
 # ---------------------------------------------------------------------------
@@ -172,6 +180,13 @@ def revoke_consent(consent_id: str, current_user: User = Depends(require_current
     This action is logged in the audit trail.
     """
     _check_open_banking_enabled()
+
+    # V3-4: IDOR guard — verify consent belongs to the current user.
+    consent = _consent_manager.get_consent(consent_id)
+    if not consent:
+        raise HTTPException(status_code=404, detail="Consentement non trouve.")
+    if consent.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Acces interdit.")
 
     success = _consent_manager.revoke_consent(consent_id)
     if not success:

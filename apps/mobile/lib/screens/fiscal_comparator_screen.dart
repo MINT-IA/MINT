@@ -184,7 +184,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     ScreenCompletionTracker.markCompletedWithReturn(
       'fiscal_comparator',
       ScreenReturn.completed(
-        route: '/fiscal-comparator',
+        route: '/fiscal',
         updatedFields: {
           'fiscalBestCanton': bestCanton,
           'fiscalMaxSavings': maxSavings,

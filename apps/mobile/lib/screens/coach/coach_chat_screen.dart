@@ -212,6 +212,13 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   AnimationController? _milestonePulseController;
   bool _milestonePulsing = false;
 
+  // ── Write-tool confirmation guards (V3 audit) ──────────────
+  /// Pending goal change awaiting user confirmation.
+  String? _pendingGoalTag;
+
+  /// Pending step completion awaiting user confirmation.
+  String? _pendingStepId;
+
   /// Realtime subscription to ScreenReturn events from simulators.
   StreamSubscription<ScreenReturn>? _screenReturnSub;
 
@@ -771,12 +778,97 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty || _isBusy) return;
+
+    // ── V3-1: handle pending write-tool confirmations ───────────
+    if (_pendingGoalTag != null || _pendingStepId != null) {
+      final confirmed = text.trim().toLowerCase() == 'confirmer';
+      final cancelled = text.trim().toLowerCase() == 'annuler';
+      if (confirmed || cancelled) {
+        await _handlePendingWriteConfirmation(confirmed);
+        return;
+      }
+      // If user typed something else, cancel the pending action silently
+      // and continue with normal message flow.
+      _pendingGoalTag = null;
+      _pendingStepId = null;
+    }
+
     setState(() => _isBusy = true);
 
     try {
       await _sendMessageInner(text);
     } finally {
       if (mounted) setState(() => _isBusy = false);
+    }
+  }
+
+  /// Execute or cancel a pending write-tool action (V3-1 audit).
+  Future<void> _handlePendingWriteConfirmation(bool confirmed) async {
+    if (!mounted) return;
+
+    if (_pendingGoalTag != null) {
+      final goalTag = _pendingGoalTag!;
+      _pendingGoalTag = null;
+      if (confirmed && _profile != null) {
+        final prefs = await _getPrefs();
+        await GoalSelectionService.setSelectedGoal(goalTag, prefs);
+        if (mounted) {
+          context.read<MintStateProvider>().forceRecompute(_profile!);
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content: 'Objectif mis \u00e0 jour\u00a0: $goalTag',
+              timestamp: DateTime.now(),
+              tier: ChatTier.byok,
+            ));
+          });
+          _scrollToBottom();
+        }
+      } else if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: 'Changement d\u2019objectif annul\u00e9.',
+            timestamp: DateTime.now(),
+            tier: ChatTier.byok,
+          ));
+        });
+        _scrollToBottom();
+      }
+      return;
+    }
+
+    if (_pendingStepId != null) {
+      final stepId = _pendingStepId!;
+      _pendingStepId = null;
+      if (confirmed) {
+        // V3-2: use canonical CapMemoryStore.markCompleted() API
+        final mem = await CapMemoryStore.load();
+        await CapMemoryStore.markCompleted(mem, stepId);
+        if (mounted) {
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content:
+                  '\u00c9tape \u00ab\u202f$stepId\u202f\u00bb termin\u00e9e.',
+              timestamp: DateTime.now(),
+              tier: ChatTier.byok,
+            ));
+          });
+          _scrollToBottom();
+        }
+      } else if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: 'Action annul\u00e9e.',
+            timestamp: DateTime.now(),
+            tier: ChatTier.byok,
+          ));
+        });
+        _scrollToBottom();
+      }
+      return;
     }
   }
 
@@ -1603,24 +1695,39 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         });
         _scrollToBottom();
 
+      // ── Write tools with confirmation guard (V3-1 audit) ──────
       case 'set_goal':
         final goalTag = toolCall.input['goal_intent_tag'] as String?;
-        if (goalTag != null && _profile != null) {
-          final prefs = await _getPrefs();
-          await GoalSelectionService.setSelectedGoal(goalTag, prefs);
-          if (mounted) {
-            context.read<MintStateProvider>().forceRecompute(_profile!);
-          }
+        if (goalTag != null && _profile != null && mounted) {
+          _pendingGoalTag = goalTag;
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content:
+                  'Changer ton objectif vers\u00a0: $goalTag\u00a0?',
+              timestamp: DateTime.now(),
+              suggestedActions: const ['Confirmer', 'Annuler'],
+              tier: ChatTier.byok,
+            ));
+          });
+          _scrollToBottom();
         }
 
       case 'mark_step_completed':
         final stepId = toolCall.input['step_id'] as String?;
-        if (stepId != null) {
-          final mem = await CapMemoryStore.load();
-          final updated = mem.copyWith(
-            completedActions: [...mem.completedActions, stepId],
-          );
-          await CapMemoryStore.save(updated);
+        if (stepId != null && mounted) {
+          _pendingStepId = stepId;
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content:
+                  'Marquer l\u2019\u00e9tape \u00ab\u202f$stepId\u202f\u00bb comme termin\u00e9e\u00a0?',
+              timestamp: DateTime.now(),
+              suggestedActions: const ['Confirmer', 'Annuler'],
+              tier: ChatTier.byok,
+            ));
+          });
+          _scrollToBottom();
         }
 
       case 'save_insight':
@@ -1641,6 +1748,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               createdAt: DateTime.now(),
             ),
           );
+          debugPrint('[CoachChat] Insight enregistr\u00e9: $topic');
         }
     }
   }

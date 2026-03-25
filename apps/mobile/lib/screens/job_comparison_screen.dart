@@ -169,7 +169,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     ScreenCompletionTracker.markCompletedWithReturn(
       'job_comparison',
       ScreenReturn.completed(
-        route: '/job-comparison',
+        route: '/simulator/job-comparison',
         updatedFields: {
           'jobComparisonDeltaNet': _result!.axes.isNotEmpty
               ? _result!.axes.first.delta
