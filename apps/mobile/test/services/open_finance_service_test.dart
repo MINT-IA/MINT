@@ -81,7 +81,8 @@ void main() {
     expect(conn.type, FinanceProvider.bank);
     expect(conn.institutionName, 'UBS');
     expect(conn.status, ConnectionStatus.active);
-    expect(conn.dataConfidence, 1.0);
+    // V6-5 audit fix: mock data capped at system_estimate confidence (0.25)
+    expect(conn.dataConfidence, 0.25);
     expect(conn.lastSync, isNotNull);
   });
 
@@ -147,7 +148,8 @@ void main() {
 
     expect(dataPoints, isNotEmpty);
     for (final dp in dataPoints) {
-      expect(dp.confidence, 1.0);
+      // V6-5 audit fix: mock data capped at system_estimate confidence (0.25)
+      expect(dp.confidence, 0.25);
       expect(dp.fieldPath, isNotEmpty);
       expect(dp.source, contains('bLink API'));
     }

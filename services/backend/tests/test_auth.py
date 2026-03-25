@@ -882,7 +882,11 @@ def test_admin_onboarding_quality_returns_metrics(auth_client: TestClient):
             "event_data": "{\"time_spent_seconds\": 160}",
         },
     ]
-    ingest = auth_client.post("/api/v1/analytics/events", json={"events": events})
+    ingest = auth_client.post(
+        "/api/v1/analytics/events",
+        json={"events": events},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
     assert ingest.status_code == 201
 
     try:
@@ -952,7 +956,11 @@ def test_admin_onboarding_quality_cohorts_returns_breakdown(auth_client: TestCli
             "platform": "android",
         },
     ]
-    ingest = auth_client.post("/api/v1/analytics/events", json={"events": events})
+    ingest = auth_client.post(
+        "/api/v1/analytics/events",
+        json={"events": events},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
     assert ingest.status_code == 201
 
     try:

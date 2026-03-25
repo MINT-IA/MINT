@@ -59,13 +59,18 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   }
 
   /// Maps PrivacyService category IDs to ConsentManager ConsentType.
+  /// V6-3 audit fix: align toggles to correct ConsentType keys.
   ConsentType? _mapCategoryToConsentType(String categoryId) {
     switch (categoryId) {
       case 'coaching_notifications':
         return ConsentType.notifications;
       case 'rag_queries':
-        return ConsentType.byokDataSharing;
+        return ConsentType.ragQueries;
       case 'analytics':
+        return ConsentType.analytics;
+      case 'open_banking':
+        return ConsentType.byokDataSharing;
+      case 'document_upload':
         return ConsentType.snapshotStorage;
       default:
         return null;

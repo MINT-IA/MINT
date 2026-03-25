@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/ios_iap_service.dart';
 
@@ -331,6 +332,13 @@ class SubscriptionService {
       return purchased;
     }
 
+    // V6-2 audit fix: non-iOS paid upgrades require backend verification
+    // in release mode. Local mock grants only allowed in debug mode.
+    if (tier.isPaid && !kDebugMode) {
+      final refreshed = await refreshFromBackend();
+      return refreshed.tier.rank >= tier.rank;
+    }
+
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
     if (tier == SubscriptionTier.free) {
@@ -342,6 +350,7 @@ class SubscriptionService {
       return true;
     }
 
+    // Debug-only mock grant (never reached in release builds)
     _state = SubscriptionState(
       tier: tier,
       isTrialActive: false,
@@ -374,7 +383,6 @@ class SubscriptionService {
   }
 
   static Future<bool> startTrial() async {
-    await Future<void>.delayed(const Duration(milliseconds: 100));
     // Already a paid subscriber (not on trial) — cannot start trial
     if (_state.tier.isPaid && !_state.isTrialActive) {
       return false;
@@ -383,7 +391,16 @@ class SubscriptionService {
       return false;
     }
 
-    // Trial gives premium-level access
+    // V6-2 audit fix: in release mode, trials must be verified by backend.
+    // Local mock trial grants only allowed in debug mode.
+    if (!kDebugMode) {
+      final refreshed = await refreshFromBackend();
+      return refreshed.isTrialActive;
+    }
+
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    // Debug-only mock trial grant (never reached in release builds)
     _state = SubscriptionState(
       tier: SubscriptionTier.premium,
       isTrialActive: true,

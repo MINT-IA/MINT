@@ -3,6 +3,11 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 
 /// Error codes for authentication operations.
 ///
@@ -213,6 +218,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       await ApiService.deleteAccount();
       await AuthService.logout();
+      // V6-4 audit fix: purge ALL local data on account deletion
+      await _purgeLocalData();
       _isLoggedIn = false;
       _userId = null;
       _email = null;
@@ -299,9 +306,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Logout
+  /// Logout — V6-4 audit fix: purge ALL local data to prevent
+  /// cross-account data bleed on shared devices.
   Future<void> logout() async {
     await AuthService.logout();
+    await _purgeLocalData();
     _isLoggedIn = false;
     _userId = null;
     _email = null;
@@ -309,6 +318,35 @@ class AuthProvider extends ChangeNotifier {
     _requiresEmailVerification = false;
     _error = null;
     notifyListeners();
+  }
+
+  /// V6-4 audit fix: purge ALL local data artifacts to prevent
+  /// cross-account data bleed on shared devices.
+  /// Same purge sequence as profile_screen.dart deleteAccount flow.
+  Future<void> _purgeLocalData() async {
+    try {
+      // Purge conversation history
+      final store = ConversationStore();
+      final conversations = await store.listConversations();
+      for (final conv in conversations) {
+        await store.deleteConversation(conv.id);
+      }
+      // Purge coach memory (insights)
+      await CoachMemoryService.clear();
+      // Purge CapEngine memory
+      await CapMemoryStore.clear();
+      // Purge analytics queue
+      await AnalyticsService().clearLocalQueue();
+      // Clear all SharedPreferences (nuclear option)
+      final prefs = await SharedPreferences.getInstance();
+      await PrecomputedInsightsService.clear(prefs);
+      await prefs.clear();
+    } catch (e) {
+      // Purge is best-effort — never block auth flow
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local data purge failed: $e');
+      }
+    }
   }
 
   /// Migrate local anonymous data to the authenticated account.

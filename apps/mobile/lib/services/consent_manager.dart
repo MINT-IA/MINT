@@ -31,7 +31,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Revocation immediate sans consequence sur le service de base.
 // ────────────────────────────────────────────────────────────
 
-/// The 3 independent consent types.
+/// The independent consent types.
 enum ConsentType {
   /// BYOK data sharing: CoachContext fields sent to LLM provider.
   byokDataSharing,
@@ -41,6 +41,12 @@ enum ConsentType {
 
   /// Notifications: personalized push with financial numbers.
   notifications,
+
+  /// Analytics: anonymous event tracking for product improvement.
+  analytics,
+
+  /// RAG queries: knowledge-base queries for coach personalization.
+  ragQueries,
 }
 
 /// State of a single consent toggle.
