@@ -247,8 +247,8 @@ class WidgetRenderer {
     Map<String, dynamic> p,
     void Function(String field, String value)? onInputSubmitted,
   ) {
-    final field = p['field'] as String? ?? '';
-    final message = p['message'] as String? ?? p['prompt_text'] as String?;
+    final field = p['field_key'] as String? ?? p['field'] as String? ?? '';
+    final message = p['prompt_text'] as String? ?? p['message'] as String?;
 
     switch (field) {
       case 'name':
@@ -265,10 +265,27 @@ class WidgetRenderer {
         );
 
       case 'salary':
+      case 'salaireBrut':
         return ChatAmountInput(
           label: message ?? S.of(context)?.onboardingSmartSalaryLabel ?? 'Salary',
           onSubmitted: (amount) {
-            onInputSubmitted?.call('salary', '${amount.round()}');
+            onInputSubmitted?.call('salaireBrut', '${amount.round()}');
+          },
+        );
+
+      case 'avoirLpp':
+        return ChatAmountInput(
+          label: message ?? 'Avoir LPP (CHF)',
+          onSubmitted: (amount) {
+            onInputSubmitted?.call('avoirLpp', '${amount.round()}');
+          },
+        );
+
+      case 'epargne3a':
+        return ChatAmountInput(
+          label: message ?? '\u00c9pargne 3a (CHF)',
+          onSubmitted: (amount) {
+            onInputSubmitted?.call('epargne3a', '${amount.round()}');
           },
         );
 

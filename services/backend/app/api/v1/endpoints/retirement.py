@@ -94,8 +94,11 @@ def compare_lpp(request: Request, body: LppConversionRequest) -> LppConversionRe
     )
     return LppConversionResponse(
         capital_total=result.capital_total,
-        option_rente_mensuelle=result.option_rente_mensuelle,
+        option_rente_brute_mensuelle=result.option_rente_brute_mensuelle,
         option_rente_annuelle=result.option_rente_annuelle,
+        rente_impot_annuel=result.rente_impot_annuel,
+        option_rente_nette_mensuelle=result.option_rente_nette_mensuelle,
+        option_rente_nette_annuelle=result.option_rente_nette_annuelle,
         option_capital_brut=result.option_capital_brut,
         option_capital_impot=result.option_capital_impot,
         option_capital_net=result.option_capital_net,
@@ -132,7 +135,8 @@ def budget_retirement(request: Request, body: RetirementBudgetRequest) -> Retire
         is_couple=body.is_couple,
     )
     return RetirementBudgetResponse(
-        revenus_mensuels=result.revenus_mensuels,
+        revenus_garantis=result.revenus_garantis,
+        capital_epuisable=result.capital_epuisable,
         total_revenus_mensuels=result.total_revenus_mensuels,
         depenses_mensuelles_estimees=result.depenses_mensuelles_estimees,
         solde_mensuel=result.solde_mensuel,

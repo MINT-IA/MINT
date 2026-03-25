@@ -180,8 +180,8 @@ def compare_providers(
             )
             for p in result.projections
         ],
-        meilleurCapital=result.meilleur_capital,
-        pireCapital=result.pire_capital,
+        capitalPlusHaut=result.capital_plus_haut,
+        capitalPlusBas=result.capital_plus_bas,
         differenceMax=result.difference_max,
         age=result.age,
         versementAnnuel=result.versement_annuel,

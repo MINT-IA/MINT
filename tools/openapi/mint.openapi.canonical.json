@@ -11327,7 +11327,7 @@
         "description": "Response for LPP capital vs rente comparison.",
         "properties": {
           "breakevenAge": {
-            "description": "Age de breakeven (rente > capital net)",
+            "description": "Age de breakeven (rente nette > capital net)",
             "title": "Breakevenage",
             "type": "integer"
           },
@@ -11362,19 +11362,34 @@
             "type": "number"
           },
           "optionRenteAnnuelle": {
-            "description": "Rente annuelle a vie (CHF)",
+            "description": "Rente brute annuelle a vie (CHF)",
             "title": "Optionrenteannuelle",
             "type": "number"
           },
-          "optionRenteMensuelle": {
-            "description": "Rente mensuelle a vie (CHF)",
-            "title": "Optionrentemensuelle",
+          "optionRenteBruteMensuelle": {
+            "description": "Rente brute mensuelle a vie (CHF)",
+            "title": "Optionrentebrutemensuelle",
+            "type": "number"
+          },
+          "optionRenteNetteAnnuelle": {
+            "description": "Rente nette annuelle apres impot sur le revenu (CHF)",
+            "title": "Optionrentenetteannuelle",
+            "type": "number"
+          },
+          "optionRenteNetteMensuelle": {
+            "description": "Rente nette mensuelle apres impot sur le revenu (CHF)",
+            "title": "Optionrentenettemensuelle",
             "type": "number"
           },
           "recommandationNeutre": {
             "description": "Recommandation neutre sans biais",
             "title": "Recommandationneutre",
             "type": "string"
+          },
+          "renteImpotAnnuel": {
+            "description": "Impot annuel estime sur la rente (LIFD art. 22) (CHF)",
+            "title": "Renteimpotannuel",
+            "type": "number"
           },
           "sources": {
             "description": "Sources legales",
@@ -11387,8 +11402,11 @@
         },
         "required": [
           "capitalTotal",
-          "optionRenteMensuelle",
+          "optionRenteBruteMensuelle",
           "optionRenteAnnuelle",
+          "renteImpotAnnuel",
+          "optionRenteNetteMensuelle",
+          "optionRenteNetteAnnuelle",
           "optionCapitalBrut",
           "optionCapitalImpot",
           "optionCapitalNet",
@@ -14214,13 +14232,23 @@
             "title": "Baselegale",
             "type": "string"
           },
+          "capitalPlusBas": {
+            "description": "Nom du provider au capital final le plus bas",
+            "title": "Capitalplusbas",
+            "type": "string"
+          },
+          "capitalPlusHaut": {
+            "description": "Nom du provider au capital final le plus haut",
+            "title": "Capitalplushaut",
+            "type": "string"
+          },
           "chiffreChoc": {
             "description": "Chiffre choc",
             "title": "Chiffrechoc",
             "type": "string"
           },
           "differenceMax": {
-            "description": "Difference max entre meilleur et pire (CHF)",
+            "description": "Ecart max entre le plus haut et le plus bas (CHF)",
             "title": "Differencemax",
             "type": "number"
           },
@@ -14232,16 +14260,6 @@
           "duree": {
             "title": "Duree",
             "type": "integer"
-          },
-          "meilleurCapital": {
-            "description": "Nom du provider au meilleur capital final",
-            "title": "Meilleurcapital",
-            "type": "string"
-          },
-          "pireCapital": {
-            "description": "Nom du provider au pire capital final",
-            "title": "Pirecapital",
-            "type": "string"
           },
           "profilRisque": {
             "title": "Profilrisque",
@@ -14269,8 +14287,8 @@
         },
         "required": [
           "projections",
-          "meilleurCapital",
-          "pireCapital",
+          "capitalPlusHaut",
+          "capitalPlusBas",
           "differenceMax",
           "age",
           "versementAnnuel",
@@ -16320,6 +16338,14 @@
             "title": "Alertes",
             "type": "array"
           },
+          "capitalEpuisable": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Capital epuisable mensualise par source (3a). Ce n'est pas un revenu garanti.",
+            "title": "Capitalepuisable",
+            "type": "object"
+          },
           "checklist": {
             "description": "Checklist de preparation a la retraite",
             "items": {
@@ -16353,12 +16379,12 @@
             "title": "Pcpotentiellementeligible",
             "type": "boolean"
           },
-          "revenusMensuels": {
+          "revenusGarantis": {
             "additionalProperties": {
               "type": "number"
             },
-            "description": "Detail des revenus mensuels par source",
-            "title": "Revenusmensuels",
+            "description": "Revenus garantis mensuels par source (AVS, LPP, autres)",
+            "title": "Revenusgarantis",
             "type": "object"
           },
           "soldeMensuel": {
@@ -16380,13 +16406,14 @@
             "type": "number"
           },
           "totalRevenusMensuels": {
-            "description": "Total des revenus mensuels (CHF)",
+            "description": "Total des revenus mensuels (revenus garantis + capital epuisable) (CHF)",
             "title": "Totalrevenusmensuels",
             "type": "number"
           }
         },
         "required": [
-          "revenusMensuels",
+          "revenusGarantis",
+          "capitalEpuisable",
           "totalRevenusMensuels",
           "depensesMensuellesEstimees",
           "soldeMensuel",

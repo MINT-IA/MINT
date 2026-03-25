@@ -1641,7 +1641,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             ));
           }
         case 'salary':
-          // Contract: ask_user_input(field_key='salary') sends ANNUAL gross salary.
+        case 'salaireBrut':
+          // Contract: ask_user_input(field_key='salaireBrut') sends ANNUAL gross salary.
           // ChatAmountInput displays "CHF" with no period suffix.
           // We convert to monthly for storage (profile.salaireBrutMensuel).
           final salary = double.tryParse(value);
@@ -1656,6 +1657,64 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             canton: value,
             updatedAt: DateTime.now(),
           ));
+        case 'avoirLpp':
+          final avoir = double.tryParse(value);
+          if (avoir != null) {
+            final prev = profile.prevoyance;
+            provider.updateProfile(profile.copyWith(
+              prevoyance: PrevoyanceProfile(
+                anneesContribuees: prev.anneesContribuees,
+                lacunesAVS: prev.lacunesAVS,
+                renteAVSEstimeeMensuelle: prev.renteAVSEstimeeMensuelle,
+                nomCaisse: prev.nomCaisse,
+                avoirLppTotal: avoir,
+                avoirLppObligatoire: prev.avoirLppObligatoire,
+                avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
+                rachatMaximum: prev.rachatMaximum,
+                rachatEffectue: prev.rachatEffectue,
+                tauxConversion: prev.tauxConversion,
+                tauxConversionSuroblig: prev.tauxConversionSuroblig,
+                rendementCaisse: prev.rendementCaisse,
+                salaireAssure: prev.salaireAssure,
+                ramd: prev.ramd,
+                nombre3a: prev.nombre3a,
+                totalEpargne3a: prev.totalEpargne3a,
+                comptes3a: prev.comptes3a,
+                canContribute3a: prev.canContribute3a,
+                librePassage: prev.librePassage,
+              ),
+              updatedAt: DateTime.now(),
+            ));
+          }
+        case 'epargne3a':
+          final epargne = double.tryParse(value);
+          if (epargne != null) {
+            final prev = profile.prevoyance;
+            provider.updateProfile(profile.copyWith(
+              prevoyance: PrevoyanceProfile(
+                anneesContribuees: prev.anneesContribuees,
+                lacunesAVS: prev.lacunesAVS,
+                renteAVSEstimeeMensuelle: prev.renteAVSEstimeeMensuelle,
+                nomCaisse: prev.nomCaisse,
+                avoirLppTotal: prev.avoirLppTotal,
+                avoirLppObligatoire: prev.avoirLppObligatoire,
+                avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
+                rachatMaximum: prev.rachatMaximum,
+                rachatEffectue: prev.rachatEffectue,
+                tauxConversion: prev.tauxConversion,
+                tauxConversionSuroblig: prev.tauxConversionSuroblig,
+                rendementCaisse: prev.rendementCaisse,
+                salaireAssure: prev.salaireAssure,
+                ramd: prev.ramd,
+                nombre3a: prev.nombre3a,
+                totalEpargne3a: epargne,
+                comptes3a: prev.comptes3a,
+                canContribute3a: prev.canContribute3a,
+                librePassage: prev.librePassage,
+              ),
+              updatedAt: DateTime.now(),
+            ));
+          }
         default:
           break;
       }
