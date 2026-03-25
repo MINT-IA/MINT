@@ -110,7 +110,7 @@ class CapSequenceEngine {
         titleKey: 'capStepRetirement01Title',
         descriptionKey: 'capStepRetirement01Desc',
         status: hasSalary ? CapStepStatus.completed : CapStepStatus.upcoming,
-        intentTag: '/profile/income',
+        intentTag: '/profile',
         impactEstimate: null,
       ),
       CapStep(
@@ -119,7 +119,7 @@ class CapSequenceEngine {
         titleKey: 'capStepRetirement02Title',
         descriptionKey: 'capStepRetirement02Desc',
         status: hasAge ? CapStepStatus.completed : CapStepStatus.upcoming,
-        intentTag: '/avs',
+        intentTag: '/retraite',
         impactEstimate: _estimateAvsMonthly(profile),
       ),
       CapStep(
@@ -128,7 +128,7 @@ class CapSequenceEngine {
         titleKey: 'capStepRetirement03Title',
         descriptionKey: 'capStepRetirement03Desc',
         status: hasLpp ? CapStepStatus.completed : CapStepStatus.upcoming,
-        intentTag: '/lpp-deep',
+        intentTag: '/rachat-lpp',
         impactEstimate: _estimateLppMonthly(profile),
       ),
       CapStep(
@@ -207,7 +207,7 @@ class CapSequenceEngine {
             : hasSalary
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/fiscalite',
+        intentTag: '/fiscal',
         impactEstimate: null,
       ),
       CapStep(
@@ -255,7 +255,7 @@ class CapSequenceEngine {
         titleKey: 'capStepBudget01Title',
         descriptionKey: 'capStepBudget01Desc',
         status: hasIncome ? CapStepStatus.completed : CapStepStatus.upcoming,
-        intentTag: '/profile/income',
+        intentTag: '/profile',
         impactEstimate: null,
       ),
       CapStep(
@@ -357,7 +357,7 @@ class CapSequenceEngine {
         titleKey: 'capStepHousing01Title',
         descriptionKey: 'capStepHousing01Desc',
         status: hasIncome ? CapStepStatus.completed : CapStepStatus.upcoming,
-        intentTag: '/profile/income',
+        intentTag: '/profile',
         impactEstimate: null,
       ),
       CapStep(
@@ -370,7 +370,7 @@ class CapSequenceEngine {
             : hasIncome
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/profile/patrimoine',
+        intentTag: '/app/dossier',
         impactEstimate: null,
       ),
       CapStep(
