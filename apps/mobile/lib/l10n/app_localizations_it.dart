@@ -22160,7 +22160,7 @@ class SIt extends S {
   String get capCoverageCheckCtaLabel => 'Verificare';
 
   @override
-  String get capChomageHeadline => 'Garantire i prossimi 90 giorni';
+  String get capChomageHeadline => 'Proteggere i prossimi 90 giorni';
 
   @override
   String get capChomageWhyNow =>

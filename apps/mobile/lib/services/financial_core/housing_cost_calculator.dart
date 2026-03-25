@@ -69,6 +69,14 @@ class HousingCostCalculator {
     'GL': 0.033,
   };
 
+  /// Look up the estimated valeur locative rate for a canton.
+  ///
+  /// Returns the cantonal rate if found, otherwise [defaultRate] (0.035).
+  /// Used by ArbitrageEngine for location-vs-propriete comparisons.
+  static double getValeurLocativeRate(String canton, {double defaultRate = 0.035}) {
+    return _tauxValeurLocative[canton.toUpperCase()] ?? defaultRate;
+  }
+
   /// Compute housing cost at retirement.
   ///
   /// Returns a [HousingCostResult] with the net monthly cost, fiscal impact,

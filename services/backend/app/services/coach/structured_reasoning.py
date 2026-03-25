@@ -185,7 +185,7 @@ def _detect_deficit(profile: dict) -> Optional[ReasoningOutput]:
                     "Revoir les postes de dépenses pour identifier les marges "
                     "de réduction potentielles."
                 ),
-                intent_tag="budget_review",
+                intent_tag="budget_overview",
                 reasoning_trace=(
                     f"monthly_income={monthly_income} CHF, "
                     f"monthly_expenses={monthly_expenses} CHF, "
@@ -214,7 +214,7 @@ def _detect_deficit(profile: dict) -> Optional[ReasoningOutput]:
                 "Reconstituer une réserve de précaution d'au moins 3 mois "
                 "de charges avant tout autre investissement."
             ),
-            intent_tag="budget_review",
+            intent_tag="budget_overview",
             reasoning_trace=(
                 f"months_liquidity={months_liquidity:.1f} < seuil "
                 f"{_LIQUIDITY_DEFICIT_MONTHS} mois"
@@ -353,7 +353,7 @@ def _detect_gap_warning(profile: dict) -> Optional[ReasoningOutput]:
             "Explorer les leviers pour combler l'écart : versements 3a, "
             "rachat LPP, ou épargne libre selon la situation."
         ),
-        intent_tag="retirement_projection",
+        intent_tag="retirement_choice",
         reasoning_trace=(
             f"replacement_ratio={replacement_ratio:.2f} < "
             f"threshold={_REPLACEMENT_RATE_GAP_THRESHOLD:.2f}, "
@@ -410,7 +410,7 @@ def _detect_rachat_opportunity(profile: dict) -> Optional[ReasoningOutput]:
             "Vérifier le certificat de prévoyance pour confirmer le montant "
             "maximal de rachat et simuler l'impact fiscal."
         ),
-        intent_tag="lpp_rachat",
+        intent_tag="lpp_buyback",
         reasoning_trace=(
             f"lpp_buyback_max={lpp_buyback_max:.0f} CHF >= "
             f"min_threshold={_LPP_BUYBACK_MIN_CHF:.0f} CHF, "

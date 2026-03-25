@@ -13925,7 +13925,7 @@ class SEn extends S {
   String get demenagementTitreV2 => 'Moving cantons — how much do you save?';
 
   @override
-  String get demenagementCtaOptimal => 'Find the best canton for you';
+  String get demenagementCtaOptimal => 'Find the right canton for you';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -14591,7 +14591,7 @@ class SEn extends S {
 
   @override
   String get lamalFranchiseHeaderSubtitle =>
-      'Find the best deductible for your health costs';
+      'Find the right deductible for your health costs';
 
   @override
   String get lamalFranchiseIntro =>
@@ -15411,7 +15411,7 @@ class SEn extends S {
 
   @override
   String get dividendeVsSalaireHeaderInfo =>
-      'If you own an SA or Sàrl, you can pay yourself a combination of salary and dividends. Dividends are taxed at 50% (qualifying participation) and escape AVS contributions. Find the best-adapted split.';
+      'If you own an SA or Sàrl, you can pay yourself a combination of salary and dividends. Dividends are taxed at 50% (qualifying participation) and escape AVS contributions. Find the right split for your situation.';
 
   @override
   String get dividendeVsSalaireBenefice => 'Total profit';
@@ -15926,7 +15926,7 @@ class SEn extends S {
 
   @override
   String get providerComparatorChiffreChocSubtitle =>
-      'between the best and worst performing provider';
+      'between the highest and lowest performing provider';
 
   @override
   String get providerComparatorSectionParametres => 'Parameters';
@@ -22831,7 +22831,7 @@ class SEn extends S {
 
   @override
   String get reportActionDescDette =>
-      'It’s the best investment: you save 6-10 % per year on interest.';
+      'It’s a highly effective step: you save 6-10 % per year on interest.';
 
   @override
   String get reportActionTitleUrgence => 'Build your emergency fund';

@@ -453,11 +453,21 @@ class ConfidenceScorer {
     // --- Composition menage ---
     final isCoupled = profile.etatCivil == CoachCivilStatus.marie ||
         profile.etatCivil == CoachCivilStatus.concubinage;
+    // Explicitly declared single/divorced/widowed: full points.
+    // Default celibataire (never explicitly set): partial points only (5),
+    // mirroring the logic in score().
+    final isExplicitlySingle = !isCoupled &&
+        (profile.etatCivil == CoachCivilStatus.divorce ||
+         profile.etatCivil == CoachCivilStatus.veuf);
     double menageScore;
     String menageStatus;
-    if (!isCoupled) {
+    if (isExplicitlySingle) {
       menageScore = _wMenage.toDouble();
       menageStatus = 'complete';
+    } else if (!isCoupled) {
+      // Default celibataire — not confirmed, give partial credit
+      menageScore = 5;
+      menageStatus = 'partial';
     } else if (profile.conjoint == null) {
       menageScore = 0;
       menageStatus = 'missing';

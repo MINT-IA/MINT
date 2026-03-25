@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -473,6 +474,7 @@ class ArbitrageEngine {
     double potentielRachatLpp = 0,
     bool isPropertyOwner = false,
     double tauxHypothecaire = 0.015,
+    double mortgageBalance = 0,
     int anneesAvantRetraite = 20,
     double rendement3a = 0.02,
     double rendementLpp = 0.0125,
@@ -539,6 +541,7 @@ class ArbitrageEngine {
         tauxMarginal: tauxMarginal,
         horizon: anneesAvantRetraite,
         startYear: startYear,
+        mortgageBalance: mortgageBalance,
       );
       options.add(TrajectoireOption(
         id: 'amort_indirect',
@@ -652,6 +655,7 @@ class ArbitrageEngine {
           tauxMarginal: variantTauxMarginal,
           horizon: anneesAvantRetraite,
           startYear: startYear,
+          mortgageBalance: mortgageBalance,
         );
         variantOptions.add(TrajectoireOption(
           id: 'amort_indirect',
@@ -906,7 +910,8 @@ class ArbitrageEngine {
       final interets = tempHyp * tauxHypotheque;
       final amortissement = prixBien * 0.01;
       final entretien = prixBien * tauxEntretien;
-      final valeurLocative = tempVal * 0.035;
+      final tauxVL = HousingCostCalculator.getValeurLocativeRate(canton);
+      final valeurLocative = tempVal * tauxVL;
       final netTaxableIncome = valeurLocative - interets;
       final taxImpact = netTaxableIncome > 0
           ? RetirementTaxCalculator.estimateMonthlyIncomeTax(
@@ -1457,19 +1462,35 @@ class ArbitrageEngine {
     final withdrawalPlan =
         <({String type, double amount, int age, double tax})>[];
 
+    // Group assets by withdrawal year to compute progressive tax on combined total.
+    final yearGroups = <int, List<RetirementAsset>>{};
     for (final asset in sortedAssets) {
-      final tax = RetirementTaxCalculator.capitalWithdrawalTax(
-        capitalBrut: asset.amount,
+      yearGroups.putIfAbsent(asset.earliestWithdrawalAge, () => []).add(asset);
+    }
+
+    for (final entry in yearGroups.entries) {
+      final age = entry.key;
+      final groupAssets = entry.value;
+      final groupTotal = groupAssets.fold<double>(0, (s, a) => s + a.amount);
+
+      // Compute progressive tax on the combined year total
+      final groupTax = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: groupTotal,
         canton: canton,
         isMarried: isMarried,
       );
-      totalTaxEtale += tax;
-      withdrawalPlan.add((
-        type: asset.type,
-        amount: asset.amount,
-        age: asset.earliestWithdrawalAge,
-        tax: tax,
-      ));
+      totalTaxEtale += groupTax;
+
+      // Split tax proportionally back to each asset
+      for (final asset in groupAssets) {
+        final share = groupTotal > 0 ? asset.amount / groupTotal : 0.0;
+        withdrawalPlan.add((
+          type: asset.type,
+          amount: asset.amount,
+          age: age,
+          tax: groupTax * share,
+        ));
+      }
     }
 
     final netEtale = totalCapital - totalTaxEtale;
@@ -1871,10 +1892,10 @@ class ArbitrageEngine {
         ));
         continue;
       }
-      // Add annual contribution
-      balance += montantAnnuel;
-      // Apply return
+      // Apply return on last year's balance first (consistent with LPP calculator)
       balance *= (1 + rendement);
+      // Then add this year's contribution
+      balance += montantAnnuel;
 
       // Tax saving from deduction
       final taxSaving = deductible ? montantAnnuel * tauxMarginal : 0.0;
@@ -1916,6 +1937,7 @@ class ArbitrageEngine {
     required double tauxMarginal,
     required int horizon,
     required int startYear,
+    double mortgageBalance = 0,
   }) {
     final snapshots = <YearlySnapshot>[];
     double balance3a = 0;
@@ -1939,8 +1961,11 @@ class ArbitrageEngine {
 
       // Tax benefits: 3a deduction + maintained mortgage interest deduction
       final taxSaving3a = contribution * tauxMarginal;
-      // Mortgage interest deduction maintained (not amortized directly)
-      final interestDeduction = contribution * tauxHypothecaire * tauxMarginal;
+      // Mortgage interest deduction maintained (full mortgage balance stays,
+      // since capital goes to 3a instead of direct amortization)
+      final interestDeduction = mortgageBalance > 0
+          ? mortgageBalance * tauxHypothecaire * tauxMarginal
+          : 0.0;
       final totalSaving = taxSaving3a + interestDeduction;
       cumulativeSaving += totalSaving;
 

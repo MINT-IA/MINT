@@ -121,10 +121,12 @@ class RAGOrchestrator:
 
         # Step 5: Handle tool_use responses vs plain text
         tool_calls = None
+        actual_usage_tokens = None
         if isinstance(raw_response, dict):
-            # LLM returned structured response with tool calls
+            # LLM returned structured response (with tool calls and/or usage)
             response_text = raw_response.get("text", "")
             tool_calls = raw_response.get("tool_calls")
+            actual_usage_tokens = raw_response.get("usage_tokens")
         else:
             response_text = raw_response
 
@@ -142,10 +144,13 @@ class RAGOrchestrator:
                 sources.append(source)
         sources.extend(faq_sources)
 
-        # Estimate token usage (rough approximation)
-        tokens_used = self._estimate_tokens(
-            system_prompt, question, context_chunks, filtered["text"]
-        )
+        # Use actual API token usage when available, fall back to estimation
+        if actual_usage_tokens is not None:
+            tokens_used = actual_usage_tokens
+        else:
+            tokens_used = self._estimate_tokens(
+                system_prompt, question, context_chunks, filtered["text"]
+            )
 
         result = {
             "answer": filtered["text"],
