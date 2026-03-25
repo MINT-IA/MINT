@@ -11294,5 +11294,58 @@
       "pct": {"type": "String"}
     }
   },
-  "donationDisclaimerFallback": "Questo strumento educativo fornisce stime indicative e non costituisce consulenza giuridica, fiscale o notarile personalizzata ai sensi della LSF. Consulta uno specialista (notaio) per la tua situazione."
+  "donationDisclaimerFallback": "Questo strumento educativo fornisce stime indicative e non costituisce consulenza giuridica, fiscale o notarile personalizzata ai sensi della LSF. Consulta uno specialista (notaio) per la tua situazione.",
+
+  "widgetRetirementTitle": "Il tuo riepilogo pensionistico",
+  "widgetRetirementToday": "Oggi",
+  "widgetRetirementFuture": "Al pensionamento",
+  "widgetBudgetTitle": "Il tuo budget",
+  "widgetBudgetIncome": "Entrate",
+  "widgetBudgetExpenses": "Spese",
+  "widgetPillarTitle": "I tuoi 3 pilastri",
+  "widgetPillarAvsLpp": "AVS + LPP",
+  "widgetPillar3a": "3\u00b0 pilastro",
+  "widgetPillarNotDeclared": "Non dichiarato",
+  "widgetBudgetLabel": "Budget",
+  "widgetInputLppLabel": "Avere LPP (CHF)",
+  "widgetInput3aLabel": "Risparmio pilastro 3a (CHF)",
+  "widgetScoreFallback": "Punteggio",
+  "widgetInputSalaryFallback": "Stipendio",
+
+  "scoreGaugeLevelExcellent": "Eccellente",
+  "scoreGaugeLevelGood": "Buono",
+  "scoreGaugeLevelAttention": "Attenzione",
+  "scoreGaugeLevelCritical": "Critico",
+  "scoreGaugeTitle": "Forma finanziaria",
+  "scoreGaugeSubtitle": "Punteggio composito \u00b7 3 pilastri",
+  "scoreGaugeGainTitle": "Cosa ti ha fatto salire",
+  "scoreGaugeNextTitle": "Per salire ancora",
+  "scoreGaugeDisclaimer": "Stime educative \u2014 non costituisce consulenza finanziaria.",
+  "scoreGaugeSemanticsLabel": "Punteggio di forma finanziaria. {score} su 100. Livello {level}. Budget {budget}, Previdenza {prevoyance}, Patrimonio {patrimoine}.",
+  "@scoreGaugeSemanticsLabel": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "level": {"type": "String"},
+      "budget": {"type": "String"},
+      "prevoyance": {"type": "String"},
+      "patrimoine": {"type": "String"}
+    }
+  },
+  "scoreGaugeSectionBudget": "Budget",
+  "scoreGaugeSectionPrevoyance": "Previdenza",
+  "scoreGaugeSectionPatrimoine": "Patrimonio",
+
+  "byokErrorSaveFailed": "Errore durante il salvataggio della chiave.",
+  "byokErrorNotConfigured": "Configura prima un fornitore e una chiave.",
+  "byokErrorConnection": "Errore di connessione. Verifica la tua connessione internet.",
+
+  "authErrorNetwork": "Servizio non raggiungibile. Verifica la tua rete e riprova.",
+  "authErrorEmailUsed": "Questa e-mail \u00e8 gi\u00e0 in uso. Accedi o reimposta la tua password.",
+  "authErrorIncorrect": "E-mail o password errati.",
+  "authErrorRegistration": "Registrazione non disponibile. Usa la modalit\u00e0 locale e riprova pi\u00f9 tardi.",
+  "authErrorService": "Servizio account non disponibile in questo ambiente. Usa la modalit\u00e0 locale.",
+  "authErrorInvalid": "Le informazioni inserite non sono valide.",
+  "authErrorExpired": "Questo link \u00e8 scaduto. Richiedine uno nuovo.",
+  "authErrorNotVerified": "La tua e-mail non \u00e8 ancora verificata. Verifica la tua e-mail e riprova.",
+  "authErrorGeneric": "Azione non disponibile al momento. Riprova tra qualche istante."
 }

@@ -7,7 +7,7 @@ and protection gap identification for self-employed workers in Switzerland.
 Sources:
     - LAVS art. 8 (cotisations independants: ~10.6%, bareme degressif)
     - LAVS art. 9 (revenu determinant)
-    - OPP3 art. 7 (3a grand plafond: 20% du revenu net, max 35'280 CHF)
+    - OPP3 art. 7 (3a grand plafond: 20% du revenu net, max 36'288 CHF)
     - LPP art. 4 (affiliation volontaire pour independants)
     - LAA art. 4 (assurance accident obligatoire salaries, facultative independants)
     - LCA (assurance IJM: perte de gain maladie, pas d'obligation legale)
@@ -149,7 +149,7 @@ class IndependantService:
     def calculate_3a_plafond(self, revenu_net: float) -> float:
         """Calculate 3a grand plafond for self-employed without LPP.
 
-        OPP3 art. 7: 20% of net income, max 35'280 CHF.
+        OPP3 art. 7: 20% of net income, max 36'288 CHF.
 
         Args:
             revenu_net: Annual net income.

@@ -152,7 +152,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: MintSpacing.sm),
                   child: Text(
-                    auth.error!,
+                    localizeAuthError(auth.error!, l10n),
                     style: MintTextStyles.bodyMedium(color: MintColors.error),
                   ),
                 ),

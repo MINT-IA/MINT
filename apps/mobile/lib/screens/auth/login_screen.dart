@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(width: MintSpacing.sm + 4),
                         Expanded(
                           child: Text(
-                            authProvider.error!,
+                            localizeAuthError(authProvider.error!, l10n),
                             style: MintTextStyles.bodyMedium(
                               color: MintColors.error,
                             ),

@@ -11301,5 +11301,58 @@
       "pct": {"type": "String"}
     }
   },
-  "donationDisclaimerFallback": "Dieses Bildungstool liefert indikative Schätzungen und stellt keine persönliche Rechts-, Steuer- oder Notariatsberatung im Sinne des FIDLEG dar. Konsultiere einen Spezialisten (Notar) für deine Situation."
+  "donationDisclaimerFallback": "Dieses Bildungstool liefert indikative Schätzungen und stellt keine persönliche Rechts-, Steuer- oder Notariatsberatung im Sinne des FIDLEG dar. Konsultiere einen Spezialisten (Notar) für deine Situation.",
+
+  "widgetRetirementTitle": "Deine Renten\u00fcbersicht",
+  "widgetRetirementToday": "Heute",
+  "widgetRetirementFuture": "Bei Pensionierung",
+  "widgetBudgetTitle": "Dein Budget",
+  "widgetBudgetIncome": "Einnahmen",
+  "widgetBudgetExpenses": "Ausgaben",
+  "widgetPillarTitle": "Deine 3 S\u00e4ulen",
+  "widgetPillarAvsLpp": "AHV + BVG",
+  "widgetPillar3a": "S\u00e4ule 3a",
+  "widgetPillarNotDeclared": "Nicht angegeben",
+  "widgetBudgetLabel": "Budget",
+  "widgetInputLppLabel": "BVG-Guthaben (CHF)",
+  "widgetInput3aLabel": "S\u00e4ule-3a-Ersparnisse (CHF)",
+  "widgetScoreFallback": "Score",
+  "widgetInputSalaryFallback": "Gehalt",
+
+  "scoreGaugeLevelExcellent": "Ausgezeichnet",
+  "scoreGaugeLevelGood": "Gut",
+  "scoreGaugeLevelAttention": "Achtung",
+  "scoreGaugeLevelCritical": "Kritisch",
+  "scoreGaugeTitle": "Finanzielle Fitness",
+  "scoreGaugeSubtitle": "Gesamtscore \u00b7 3 S\u00e4ulen",
+  "scoreGaugeGainTitle": "Was dich weitergebracht hat",
+  "scoreGaugeNextTitle": "Um weiter zu steigen",
+  "scoreGaugeDisclaimer": "Bildungssch\u00e4tzungen \u2014 keine Finanzberatung.",
+  "scoreGaugeSemanticsLabel": "Finanzielle Fitness. {score} von 100. Stufe {level}. Budget {budget}, Vorsorge {prevoyance}, Verm\u00f6gen {patrimoine}.",
+  "@scoreGaugeSemanticsLabel": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "level": {"type": "String"},
+      "budget": {"type": "String"},
+      "prevoyance": {"type": "String"},
+      "patrimoine": {"type": "String"}
+    }
+  },
+  "scoreGaugeSectionBudget": "Budget",
+  "scoreGaugeSectionPrevoyance": "Vorsorge",
+  "scoreGaugeSectionPatrimoine": "Verm\u00f6gen",
+
+  "byokErrorSaveFailed": "Fehler beim Speichern des Schl\u00fcssels.",
+  "byokErrorNotConfigured": "Konfiguriere zuerst einen Anbieter und Schl\u00fcssel.",
+  "byokErrorConnection": "Verbindungsfehler. Pr\u00fcfe deine Internetverbindung.",
+
+  "authErrorNetwork": "Service nicht erreichbar. Pr\u00fcfe dein Netzwerk und versuche es erneut.",
+  "authErrorEmailUsed": "Diese E-Mail wird bereits verwendet. Melde dich an oder setze dein Passwort zur\u00fcck.",
+  "authErrorIncorrect": "E-Mail oder Passwort falsch.",
+  "authErrorRegistration": "Registrierung derzeit nicht verf\u00fcgbar. Nutze den lokalen Modus.",
+  "authErrorService": "Kontodienst in dieser Umgebung nicht verf\u00fcgbar. Nutze den lokalen Modus.",
+  "authErrorInvalid": "Die eingegebenen Daten sind ung\u00fcltig.",
+  "authErrorExpired": "Dieser Link ist abgelaufen. Fordere einen neuen an.",
+  "authErrorNotVerified": "Deine E-Mail ist noch nicht best\u00e4tigt. Best\u00e4tige deine E-Mail und versuche es erneut.",
+  "authErrorGeneric": "Aktion derzeit nicht m\u00f6glich. Versuche es in K\u00fcrze erneut."
 }

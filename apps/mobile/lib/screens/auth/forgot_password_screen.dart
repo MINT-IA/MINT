@@ -226,7 +226,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
                     child: Text(
-                      auth.error!,
+                      localizeAuthError(auth.error!, l10n),
                       style: MintTextStyles.bodyMedium(color: MintColors.error),
                     ),
                   ),

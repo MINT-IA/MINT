@@ -102,7 +102,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
 
             // Feedback
             if (byok.testSuccess) _buildSuccessFeedback(s),
-            if (byok.testError != null) _buildErrorFeedback(byok.testError!),
+            if (byok.testError != null) _buildErrorFeedback(_localizeByokError(byok.testError!, byok.apiErrorMessage, s)),
             const SizedBox(height: MintSpacing.md),
 
             // Clear key (if configured)
@@ -460,6 +460,20 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
         ),
       ],
     );
+  }
+
+  /// Translate a [ByokError] code to a localized user-facing string.
+  String _localizeByokError(ByokError error, String? apiMessage, S s) {
+    switch (error) {
+      case ByokError.saveFailed:
+        return s.byokErrorSaveFailed;
+      case ByokError.notConfigured:
+        return s.byokErrorNotConfigured;
+      case ByokError.connectionError:
+        return s.byokErrorConnection;
+      case ByokError.apiError:
+        return apiMessage ?? s.byokErrorConnection;
+    }
   }
 
   Widget _buildErrorFeedback(String error) {

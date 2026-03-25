@@ -758,7 +758,9 @@ class ProfileScreen extends StatelessWidget {
     final l = S.of(context)!;
     final message = success
         ? l.profileDeleteAccountSuccess
-        : (authProvider.error ?? l.profileDeleteAccountError);
+        : (authProvider.error != null
+            ? localizeAuthError(authProvider.error!, l)
+            : l.profileDeleteAccountError);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
     if (success) {

@@ -24262,4 +24262,137 @@ class SIt extends S {
   @override
   String get donationDisclaimerFallback =>
       'Questo strumento educativo fornisce stime indicative e non costituisce consulenza giuridica, fiscale o notarile personalizzata ai sensi della LSF. Consulta uno specialista (notaio) per la tua situazione.';
+
+  @override
+  String get widgetRetirementTitle => 'Il tuo riepilogo pensionistico';
+
+  @override
+  String get widgetRetirementToday => 'Oggi';
+
+  @override
+  String get widgetRetirementFuture => 'Al pensionamento';
+
+  @override
+  String get widgetBudgetTitle => 'Il tuo budget';
+
+  @override
+  String get widgetBudgetIncome => 'Entrate';
+
+  @override
+  String get widgetBudgetExpenses => 'Spese';
+
+  @override
+  String get widgetPillarTitle => 'I tuoi 3 pilastri';
+
+  @override
+  String get widgetPillarAvsLpp => 'AVS + LPP';
+
+  @override
+  String get widgetPillar3a => '3° pilastro';
+
+  @override
+  String get widgetPillarNotDeclared => 'Non dichiarato';
+
+  @override
+  String get widgetBudgetLabel => 'Budget';
+
+  @override
+  String get widgetInputLppLabel => 'Avere LPP (CHF)';
+
+  @override
+  String get widgetInput3aLabel => 'Risparmio pilastro 3a (CHF)';
+
+  @override
+  String get widgetScoreFallback => 'Punteggio';
+
+  @override
+  String get widgetInputSalaryFallback => 'Stipendio';
+
+  @override
+  String get scoreGaugeLevelExcellent => 'Eccellente';
+
+  @override
+  String get scoreGaugeLevelGood => 'Buono';
+
+  @override
+  String get scoreGaugeLevelAttention => 'Attenzione';
+
+  @override
+  String get scoreGaugeLevelCritical => 'Critico';
+
+  @override
+  String get scoreGaugeTitle => 'Forma finanziaria';
+
+  @override
+  String get scoreGaugeSubtitle => 'Punteggio composito · 3 pilastri';
+
+  @override
+  String get scoreGaugeGainTitle => 'Cosa ti ha fatto salire';
+
+  @override
+  String get scoreGaugeNextTitle => 'Per salire ancora';
+
+  @override
+  String get scoreGaugeDisclaimer =>
+      'Stime educative — non costituisce consulenza finanziaria.';
+
+  @override
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
+    return 'Punteggio di forma finanziaria. $score su 100. Livello $level. Budget $budget, Previdenza $prevoyance, Patrimonio $patrimoine.';
+  }
+
+  @override
+  String get scoreGaugeSectionBudget => 'Budget';
+
+  @override
+  String get scoreGaugeSectionPrevoyance => 'Previdenza';
+
+  @override
+  String get scoreGaugeSectionPatrimoine => 'Patrimonio';
+
+  @override
+  String get byokErrorSaveFailed =>
+      'Errore durante il salvataggio della chiave.';
+
+  @override
+  String get byokErrorNotConfigured =>
+      'Configura prima un fornitore e una chiave.';
+
+  @override
+  String get byokErrorConnection =>
+      'Errore di connessione. Verifica la tua connessione internet.';
+
+  @override
+  String get authErrorNetwork =>
+      'Servizio non raggiungibile. Verifica la tua rete e riprova.';
+
+  @override
+  String get authErrorEmailUsed =>
+      'Questa e-mail è già in uso. Accedi o reimposta la tua password.';
+
+  @override
+  String get authErrorIncorrect => 'E-mail o password errati.';
+
+  @override
+  String get authErrorRegistration =>
+      'Registrazione non disponibile. Usa la modalità locale e riprova più tardi.';
+
+  @override
+  String get authErrorService =>
+      'Servizio account non disponibile in questo ambiente. Usa la modalità locale.';
+
+  @override
+  String get authErrorInvalid => 'Le informazioni inserite non sono valide.';
+
+  @override
+  String get authErrorExpired => 'Questo link è scaduto. Richiedine uno nuovo.';
+
+  @override
+  String get authErrorNotVerified =>
+      'La tua e-mail non è ancora verificata. Verifica la tua e-mail e riprova.';
+
+  @override
+  String get authErrorGeneric =>
+      'Azione non disponibile al momento. Riprova tra qualche istante.';
 }

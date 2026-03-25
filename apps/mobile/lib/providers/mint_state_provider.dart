@@ -116,8 +116,10 @@ class MintStateProvider extends ChangeNotifier {
         _pendingRecompute = false;
         final queued = _pendingProfile!;
         _pendingProfile = null;
-        // Recurse for the queued call.
-        await recompute(queued);
+        // Recurse for the queued call — use _doRecompute to bypass the
+        // identical-profile guard. The queued call may have come from
+        // forceRecompute, which must always run regardless of _lastProfile.
+        await _doRecompute(queued);
       }
     }
   }
