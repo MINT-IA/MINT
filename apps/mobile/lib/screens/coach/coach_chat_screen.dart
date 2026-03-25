@@ -1355,6 +1355,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           contextMessage: raw.contextMessage,
           resolvedRoute: decision.route!,
           isPartial: decision.action == RouteAction.openWithWarning,
+          prefill: decision.prefill,
         );
       case RouteAction.askFirst:
         // Missing critical data — add a coach message naming the specific fields.
@@ -2793,6 +2794,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       contextMessage: payload.contextMessage,
       route: payload.resolvedRoute,
       isPartial: payload.isPartial,
+      prefill: payload.prefill,
       onReturn: _handleRouteReturn,
       profileHashFn: () {
         final profile = context.read<CoachProfileProvider>().profile;
@@ -3115,12 +3117,19 @@ class _ResolvedRoutePayload extends RouteToolPayload {
   /// Whether the screen opens in partial/estimation mode.
   final bool isPartial;
 
+  /// Prefill values extracted from [CoachProfile] by [RoutePlanner].
+  ///
+  /// Passed to the target screen via GoRouter `extra` so the screen can
+  /// pre-populate fields with known profile data.
+  final Map<String, dynamic>? prefill;
+
   const _ResolvedRoutePayload({
     required super.intent,
     required super.confidence,
     required super.contextMessage,
     required this.resolvedRoute,
     required this.isPartial,
+    this.prefill,
   });
 }
 
