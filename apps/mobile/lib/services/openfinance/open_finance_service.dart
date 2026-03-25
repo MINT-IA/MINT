@@ -408,6 +408,7 @@ class OpenFinanceService {
     final now = DateTime.now();
     final connectionId = 'conn_${institutionId}_${now.millisecondsSinceEpoch}';
 
+    // SAFETY: mock connections use system_estimate confidence (V6-5 audit fix).
     final connection = FinanceConnection(
       id: connectionId,
       type: type,
@@ -415,7 +416,7 @@ class OpenFinanceService {
       status: ConnectionStatus.active,
       lastSync: now,
       frequency: SyncFrequency.daily,
-      dataConfidence: 1.0,
+      dataConfidence: _mockDataConfidence,
     );
 
     final consent = ConsentRecord(
@@ -636,6 +637,11 @@ class OpenFinanceService {
     }
   }
 
+  /// SAFETY: mock data must never claim openBanking confidence (V6-5 audit fix).
+  /// Mock data is capped at 0.25 (system_estimate level) to prevent
+  /// mock values from being treated as verified openBanking data.
+  static const double _mockDataConfidence = 0.25;
+
   /// Generate mock data points for a connection (balances only).
   static List<FinanceDataPoint> _generateMockDataPoints(
     String connectionId,
@@ -653,8 +659,8 @@ class OpenFinanceService {
           fieldPath: 'patrimoine.epargneLiquide',
           value: 45230.0,
           asOf: now,
-          source: 'bLink API \u2014 $connectionId',
-          confidence: 1.0,
+          source: 'bLink API \u2014 $connectionId (mock)',
+          confidence: _mockDataConfidence,
         ),
       ];
     }
@@ -666,8 +672,8 @@ class OpenFinanceService {
           fieldPath: 'prevoyance.totalEpargne3a',
           value: 32000.0,
           asOf: now,
-          source: 'bLink API \u2014 $connectionId',
-          confidence: 1.0,
+          source: 'bLink API \u2014 $connectionId (mock)',
+          confidence: _mockDataConfidence,
         ),
       ];
     }
@@ -677,8 +683,8 @@ class OpenFinanceService {
           fieldPath: 'prevoyance.avoirLppTotal',
           value: 70377.0,
           asOf: now,
-          source: 'bLink API \u2014 $connectionId',
-          confidence: 1.0,
+          source: 'bLink API \u2014 $connectionId (mock)',
+          confidence: _mockDataConfidence,
         ),
       ];
     }
@@ -688,8 +694,8 @@ class OpenFinanceService {
         fieldPath: 'patrimoine.capitalLibre',
         value: 10000.0,
         asOf: now,
-        source: 'bLink API \u2014 $connectionId',
-        confidence: 1.0,
+        source: 'bLink API \u2014 $connectionId (mock)',
+        confidence: _mockDataConfidence,
       ),
     ];
   }

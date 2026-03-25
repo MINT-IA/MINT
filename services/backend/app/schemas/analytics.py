@@ -29,7 +29,7 @@ class AnalyticsEventCreate(BaseModel):
     @field_validator('event_category')
     @classmethod
     def validate_event_category(cls, v: str) -> str:
-        valid_categories = ["navigation", "engagement", "conversion", "error"]
+        valid_categories = ["navigation", "engagement", "conversion", "error", "system", "experiment"]
         if v not in valid_categories:
             raise ValueError(f'event_category must be one of {valid_categories}')
         return v
