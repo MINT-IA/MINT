@@ -100,15 +100,15 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
             profile_context=profile_ctx,
             language=body.language.value,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except ImportError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
+    except ImportError:
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     except Exception as e:
         logger.error("RAG query failed: %s", e)
         raise HTTPException(
             status_code=502,
-            detail=f"LLM API call failed: {str(e)}",
+            detail="External service unavailable",
         )
 
     return RAGQueryResponse(
@@ -179,15 +179,15 @@ async def rag_vision(request: Request, body: RAGVisionRequest, _user: User = Dep
             profile_context=profile_ctx,
             language=body.language.value,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except ImportError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
+    except ImportError:
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     except Exception as e:
         logger.error("RAG vision query failed: %s", e)
         raise HTTPException(
             status_code=502,
-            detail=f"Vision LLM call failed: {str(e)}",
+            detail="External service unavailable",
         )
 
     return RAGVisionResponse(

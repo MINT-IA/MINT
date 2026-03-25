@@ -225,8 +225,11 @@ def update_consent(request: ConsentUpdateRequest, _user: User = Depends(require_
             categorie=request.categorie.value,
             est_actif=request.est_actif,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Consentement requis — base contractuelle obligatoire (nLPD art. 6)",
+        )
 
     return ConsentUpdateResponse(
         profile_id=result.profile_id,

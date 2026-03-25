@@ -17,8 +17,9 @@ Sources:
     - OPP3 art. 7 (plafond 3a)
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.onboarding import (
     MinimalProfileRequest,
     MinimalProfileResponse,
@@ -51,7 +52,8 @@ def _request_to_input(request: MinimalProfileRequest) -> MinimalProfileInput:
 
 
 @router.post("/minimal-profile", response_model=MinimalProfileResponse)
-def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
+@limiter.limit("30/minute")
+def compute_profile(request: Request, body: MinimalProfileRequest) -> MinimalProfileResponse:
     """Calcule un profil financier minimal a partir de 3 inputs.
 
     Seuls age, salaire brut et canton sont requis. Les champs optionnels
@@ -62,7 +64,7 @@ def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
         MinimalProfileResponse avec projections, confiance, disclaimer et sources.
     """
     try:
-        input_data = _request_to_input(request)
+        input_data = _request_to_input(body)
         result = compute_minimal_profile(input_data)
 
         return MinimalProfileResponse(
@@ -85,12 +87,13 @@ def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
             enrichment_prompts=result.enrichment_prompts,
         )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/chiffre-choc", response_model=ChiffreChocResponse)
-def compute_chiffre_choc(request: MinimalProfileRequest) -> ChiffreChocResponse:
+@limiter.limit("30/minute")
+def compute_chiffre_choc(request: Request, body: MinimalProfileRequest) -> ChiffreChocResponse:
     """Calcule le chiffre choc le plus percutant pour l'onboarding.
 
     Prend les memes inputs que le profil minimal, calcule le profil
@@ -106,7 +109,7 @@ def compute_chiffre_choc(request: MinimalProfileRequest) -> ChiffreChocResponse:
         ChiffreChocResponse avec categorie, texte d'accroche, disclaimer et sources.
     """
     try:
-        input_data = _request_to_input(request)
+        input_data = _request_to_input(body)
         profile = compute_minimal_profile(input_data)
         choc = select_chiffre_choc(profile)
 
@@ -121,5 +124,5 @@ def compute_chiffre_choc(request: MinimalProfileRequest) -> ChiffreChocResponse:
             confidence_score=choc.confidence_score,
         )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")

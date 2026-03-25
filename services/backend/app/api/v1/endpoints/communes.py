@@ -13,7 +13,9 @@ Sources:
     - LHID art. 2 al. 1 (autonomie communale en matiere fiscale)
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
+
+from app.core.rate_limit import limiter
 from typing import Optional
 
 from app.schemas.commune import (
@@ -42,7 +44,9 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 @router.get("/search", response_model=CommuneSearchResponse)
+@limiter.limit("60/minute")
 def search_communes_endpoint(
+    request: Request,
     q: str = Query(..., min_length=1, description="Recherche par nom ou NPA"),
     canton: Optional[str] = Query(None, min_length=2, max_length=2, description="Filtre par canton (ex: ZH)"),
 ) -> CommuneSearchResponse:
@@ -74,7 +78,9 @@ def search_communes_endpoint(
 # ---------------------------------------------------------------------------
 
 @router.get("/cheapest", response_model=CheapestCommunesResponse)
+@limiter.limit("60/minute")
 def cheapest_communes_endpoint(
+    request: Request,
     canton: Optional[str] = Query(None, min_length=2, max_length=2, description="Filtre par canton (ex: ZH)"),
     limit: int = Query(10, ge=1, le=50, description="Nombre de resultats (1-50)"),
 ) -> CheapestCommunesResponse:
@@ -118,7 +124,9 @@ def cheapest_communes_endpoint(
 # ---------------------------------------------------------------------------
 
 @router.get("/canton/{canton_code}", response_model=CommuneListResponse)
+@limiter.limit("60/minute")
 def list_canton_communes_endpoint(
+    request: Request,
     canton_code: str,
 ) -> CommuneListResponse:
     """Lister toutes les communes d'un canton, triees par multiplicateur.
@@ -132,14 +140,13 @@ def list_canton_communes_endpoint(
     if canton_code not in COMMUNE_DATA:
         raise HTTPException(
             status_code=404,
-            detail=f"Canton inconnu: '{canton_code}'. "
-                   f"Codes valides: {', '.join(sorted(COMMUNE_DATA.keys()))}"
+            detail="Canton inconnu"
         )
 
     try:
         results = list_communes_by_canton(canton=canton_code)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     commune_responses = [
         CommuneResponse(**r) for r in results
@@ -179,7 +186,9 @@ def list_canton_communes_endpoint(
 # ---------------------------------------------------------------------------
 
 @router.get("/{npa}", response_model=CommuneResponse)
+@limiter.limit("60/minute")
 def get_commune_by_npa_endpoint(
+    request: Request,
     npa: int,
 ) -> CommuneResponse:
     """Trouver une commune par son code postal (NPA).

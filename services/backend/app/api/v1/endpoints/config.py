@@ -2,7 +2,9 @@
 Config endpoints -- feature flags (INV-10).
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+
+from app.core.rate_limit import limiter
 from pydantic import BaseModel
 from app.services.feature_flags import FeatureFlags
 
@@ -18,7 +20,9 @@ class FeatureFlagsResponse(BaseModel):
 
 
 @router.get("/feature-flags", response_model=FeatureFlagsResponse)
-def get_feature_flags() -> FeatureFlagsResponse:
+@limiter.limit("60/minute")
+def get_feature_flags(
+    request: Request) -> FeatureFlagsResponse:
     flags = FeatureFlags.get_flags()
     return FeatureFlagsResponse(
         enableCouplePlusTier=flags["enable_couple_plus_tier"],

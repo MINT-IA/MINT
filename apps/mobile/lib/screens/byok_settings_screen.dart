@@ -516,6 +516,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
 
             if (confirm == true) {
               await byok.clearKey();
+              if (!mounted) return;
               _apiKeyController.clear();
               setState(() => _selectedProvider = 'claude');
             }

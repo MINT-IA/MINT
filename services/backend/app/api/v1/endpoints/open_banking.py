@@ -150,8 +150,8 @@ def create_consent(request: ConsentRequest, current_user: User = Depends(require
             bank_name=request.bankName,
             scopes=request.scopes,
         )
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Unprocessable input")
 
     return ConsentResponse(
         consentId=consent.consent_id,

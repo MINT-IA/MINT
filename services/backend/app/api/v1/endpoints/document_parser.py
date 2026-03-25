@@ -23,7 +23,9 @@ Sources:
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+
+from app.core.rate_limit import limiter
 
 from app.schemas.document_parser import (
     ParseDocumentRequest,
@@ -90,7 +92,8 @@ _VALID_DOCUMENT_TYPES = {
 
 
 @router.post("/parse", response_model=ExtractionResultResponse)
-def parse_document(request: ParseDocumentRequest) -> ExtractionResultResponse:
+@limiter.limit("30/minute")
+def parse_document(request: Request, body: ParseDocumentRequest) -> ExtractionResultResponse:
     """Parse un texte OCR de document financier et extrait les champs structures.
 
     Actuellement supporte: certificat de prevoyance LPP (FR + DE).
@@ -106,29 +109,29 @@ def parse_document(request: ParseDocumentRequest) -> ExtractionResultResponse:
         ExtractionResultResponse avec champs extraits, confiance, warnings,
         disclaimer et sources legales.
     """
-    if request.document_type not in _VALID_DOCUMENT_TYPES:
+    if body.document_type not in _VALID_DOCUMENT_TYPES:
         raise HTTPException(
             status_code=400,
-            detail=f"Type de document non supporte: {request.document_type}. "
+            detail=f"Type de document non supporte: {body.document_type}. "
                    f"Types supportes: {', '.join(sorted(_VALID_DOCUMENT_TYPES))}",
         )
 
     # Route to the appropriate parser
-    current_profile = request.current_profile or {}
+    current_profile = body.current_profile or {}
 
-    if request.document_type == "lpp_certificate":
-        result = parse_lpp_certificate(request.text)
+    if body.document_type == "lpp_certificate":
+        result = parse_lpp_certificate(body.text)
         delta = estimate_confidence_delta(result, current_profile)
-    elif request.document_type == "tax_declaration":
-        result = parse_tax_declaration(request.text)
+    elif body.document_type == "tax_declaration":
+        result = parse_tax_declaration(body.text)
         delta = estimate_tax_confidence_delta(result, current_profile)
-    elif request.document_type == "avs_extract":
-        result = parse_avs_extract(request.text)
+    elif body.document_type == "avs_extract":
+        result = parse_avs_extract(body.text)
         delta = estimate_avs_confidence_delta(result, current_profile)
     else:
         raise HTTPException(
             status_code=501,
-            detail=f"Le parsing de '{request.document_type}' n'est pas encore "
+            detail=f"Le parsing de '{body.document_type}' n'est pas encore "
                    "implemente. Types supportes: lpp_certificate, tax_declaration, avs_extract.",
         )
     result.confidence_delta = delta
@@ -163,7 +166,8 @@ def parse_document(request: ParseDocumentRequest) -> ExtractionResultResponse:
 
 
 @router.post("/confidence-delta", response_model=ConfidenceDeltaResponse)
-def get_confidence_delta(request: ConfidenceDeltaRequest) -> ConfidenceDeltaResponse:
+@limiter.limit("30/minute")
+def get_confidence_delta(request: Request, body: ConfidenceDeltaRequest) -> ConfidenceDeltaResponse:
     """Estime le gain en confiance apres extraction d'un document.
 
     Compare les champs extraits avec le profil actuel pour determiner
@@ -175,22 +179,22 @@ def get_confidence_delta(request: ConfidenceDeltaRequest) -> ConfidenceDeltaResp
     Returns:
         ConfidenceDeltaResponse avec delta, nombre de champs nouveaux/ameliores.
     """
-    current_profile = request.current_profile or {}
+    current_profile = body.current_profile or {}
 
     # Route to the appropriate parser
-    if request.document_type == "lpp_certificate":
-        result = parse_lpp_certificate(request.text)
+    if body.document_type == "lpp_certificate":
+        result = parse_lpp_certificate(body.text)
         delta = estimate_confidence_delta(result, current_profile)
-    elif request.document_type == "tax_declaration":
-        result = parse_tax_declaration(request.text)
+    elif body.document_type == "tax_declaration":
+        result = parse_tax_declaration(body.text)
         delta = estimate_tax_confidence_delta(result, current_profile)
-    elif request.document_type == "avs_extract":
-        result = parse_avs_extract(request.text)
+    elif body.document_type == "avs_extract":
+        result = parse_avs_extract(body.text)
         delta = estimate_avs_confidence_delta(result, current_profile)
     else:
         raise HTTPException(
             status_code=501,
-            detail=f"Le parsing de '{request.document_type}' n'est pas encore "
+            detail=f"Le parsing de '{body.document_type}' n'est pas encore "
                    "implemente. Types supportes: lpp_certificate, tax_declaration, avs_extract.",
         )
 
@@ -221,7 +225,8 @@ def get_confidence_delta(request: ConfidenceDeltaRequest) -> ConfidenceDeltaResp
 
 
 @router.get("/field-impact/{document_type}", response_model=FieldImpactResponse)
-def get_field_impact(document_type: str) -> FieldImpactResponse:
+@limiter.limit("60/minute")
+def get_field_impact(request: Request, document_type: str) -> FieldImpactResponse:
     """Retourne le classement des champs par impact sur la precision des projections.
 
     Chaque champ est classe par son impact (0-10) sur les projections

@@ -790,6 +790,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       mintStateForContext = null;
     }
 
+    // Capture LLM config BEFORE any await (P0 async safety).
+    final preAwaitConfig = _buildConfig();
+
     // Collapse greeting narrative canvas into a normal bubble on first send.
     if (_greetingExpanded && _greetingLine2 != null) {
       _messages.insert(
@@ -864,7 +867,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     // Fallback to standard (BYOK → fallback chain).
     await _handleStandardResponse(text.trim(),
-        memoryBlock: memoryBlock, memoryRef: memoryRef);
+        memoryBlock: memoryBlock, memoryRef: memoryRef,
+        preAwaitConfig: preAwaitConfig);
   }
 
   /// Handle SLM streaming response (token-by-token).
@@ -1030,11 +1034,12 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     String text, {
     String? memoryBlock,
     MemoryReference? memoryRef,
+    LlmConfig? preAwaitConfig,
   }) async {
     // Capture localizations before async gap (use_build_context_synchronously)
     final l = S.of(context)!;
     try {
-      final config = _buildConfig();
+      final config = preAwaitConfig ?? _buildConfig();
       final response = await CoachLlmService.chat(
         userMessage: text,
         profile: _profile!,
@@ -1082,6 +1087,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       // Prepend visible memory reference when available (Cleo-style recall).
       final displayMessage = _prependMemoryRef(baseMessage, memoryRef);
 
+      if (!mounted) return;
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
@@ -1211,9 +1217,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     // Enrich with MintUserState data for backend data lookup tools
     // (get_budget_status, get_retirement_projection, get_cross_pillar_analysis, get_cap_status)
-    // T1-4: Use pre-captured mintState instead of context.read after await.
+    // T1-4: Use pre-captured mintState only — no context.read after await.
     try {
-      mintState ??= context.read<MintStateProvider>().state;
       if (mintState != null) {
         // Budget fields (consumed by get_budget_status)
         final snap = mintState.budgetSnapshot;

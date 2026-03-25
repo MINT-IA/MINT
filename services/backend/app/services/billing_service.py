@@ -330,7 +330,7 @@ def _stripe_post(path: str, data: dict[str, Any]) -> dict[str, Any]:
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Billing provider request failed: {exc}",
+            detail="External service unavailable",
         ) from exc
 
 
