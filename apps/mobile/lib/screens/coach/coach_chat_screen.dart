@@ -42,6 +42,7 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach/voice_chat_integration.dart';
 import 'package:mint_mobile/services/coach/voice_service.dart';
 import 'package:mint_mobile/services/voice/platform_voice_backend.dart';
 import 'package:mint_mobile/services/llm/provider_health_service.dart';
@@ -175,6 +176,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   /// Whether TTS is available on this device.
   bool _voiceTtsAvailable = false;
 
+  /// Whether voice mode is currently active (user initiated via mic button).
+  /// When active, coach responses are automatically spoken aloud via TTS.
+  /// Resets to false when the user sends a typed message.
+  bool _voiceModeActive = false;
+
+  /// Integration layer that coordinates STT→chat→TTS loop.
+  /// Handles PII scrubbing, compliance validation, and safe mode detection.
+  late final VoiceChatIntegration _voiceChatIntegration;
+
   // ── Provider health (S64) ────────────────────────────────────
   /// Whether the primary provider circuit is open (temporarily unavailable).
   bool _primaryCircuitOpen = false;
@@ -234,7 +244,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
     }
-    // Voice (S63): probe availability async — does not block screen init.
+    // Voice (S63/Sprint E): initialize integration and probe availability.
+    _voiceChatIntegration = VoiceChatIntegration(voice: _voiceService);
     _initVoiceAvailability();
     // Provider health (S64): check circuit breaker state on mount.
     _checkProviderHealth();
@@ -1025,6 +1036,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       _handleDocumentGeneration(docPayload);
     }
 
+    // Sprint E: auto-speak coach response when voice mode is active.
+    if (_voiceModeActive && _voiceTtsAvailable && slmDisplayText.isNotEmpty) {
+      unawaited(_voiceChatIntegration.chatToVoice(slmDisplayText));
+    }
+
     // T1-3: Save conversation after each message exchange.
     await _autoSaveConversation();
   }
@@ -1113,6 +1129,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       // T1-1: Handle structured tool_calls from the backend.
       if (response.toolCalls.isNotEmpty) {
         await _processToolCalls(response.toolCalls);
+      }
+
+      // Sprint E: auto-speak coach response when voice mode is active.
+      if (_voiceModeActive && _voiceTtsAvailable && displayMessage.isNotEmpty) {
+        unawaited(_voiceChatIntegration.chatToVoice(displayMessage));
       }
 
       // T1-3: Save conversation after each message exchange.
@@ -3057,7 +3078,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                         ),
                       ),
                     ),
-                    onSubmitted: (text) => _sendMessage(text),
+                    onSubmitted: (text) {
+                      // Typed submit → deactivate voice mode.
+                      _voiceModeActive = false;
+                      _sendMessage(text);
+                    },
                   ),
                 ),
               ),
@@ -3067,8 +3092,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                 VoiceInputButton(
                   voiceService: _voiceService,
                   onTranscription: (transcript) {
-                    _controller.text = transcript;
-                    _focusNode.requestFocus();
+                    // Sprint E: activate voice mode and auto-send transcription.
+                    // Voice mode triggers TTS auto-speak on the coach response.
+                    setState(() => _voiceModeActive = true);
+                    _sendMessage(transcript);
                   },
                 ),
               ],
@@ -3089,7 +3116,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                     tooltip: s.coachSendButton,
                     onPressed: _isBusy
                         ? null
-                        : () => _sendMessage(_controller.text),
+                        : () {
+                            // Typed send → deactivate voice mode.
+                            _voiceModeActive = false;
+                            _sendMessage(_controller.text);
+                          },
                   ),
                 ),
               ),

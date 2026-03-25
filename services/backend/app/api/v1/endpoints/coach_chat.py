@@ -286,6 +286,15 @@ def _handle_retrieve_memories(
     as a tool_result so the conversation can continue.  It is never
     forwarded to Flutter.
 
+    Uses a two-pass strategy:
+      1. Exact substring match (fast, high precision).
+      2. Fuzzy matching via difflib.SequenceMatcher (catches semantic
+         near-misses like "retraite" matching "préretraite", or "3a"
+         matching "pilier 3a").
+
+    Results are deduplicated and ranked by relevance (exact matches first,
+    then fuzzy matches sorted by similarity score descending).
+
     Args:
         topic: The topic string to search for (case-insensitive substring).
             Must be non-empty (min 1 char after strip).
@@ -303,13 +312,50 @@ def _handle_retrieve_memories(
         return "Sujet de recherche requis."
 
     max_results = min(max(1, max_results), 5)
-    lines = memory_block.split("\n")
-    matches = [line for line in lines if topic.lower() in line.lower()]
-    if not matches:
+    lines = [line for line in memory_block.split("\n") if line.strip()]
+    topic_lower = topic.lower().strip()
+
+    # Pass 1: exact substring match (high precision)
+    exact_matches = [line for line in lines if topic_lower in line.lower()]
+
+    # Pass 2: fuzzy matching for lines not already matched
+    # Uses SequenceMatcher to find semantically similar lines.
+    # Threshold 0.6 catches near-misses (e.g. "retraite" ↔ "préretraite",
+    # "3a" ↔ "pilier 3a") while avoiding false positives on unrelated topics.
+    from difflib import SequenceMatcher
+
+    _FUZZY_THRESHOLD = 0.6
+    exact_set = set(id(line) for line in exact_matches)
+    fuzzy_scored: list[tuple[float, str]] = []
+    for line in lines:
+        if id(line) in exact_set:
+            continue
+        # Compare topic against each word in the line for best local match.
+        line_lower = line.lower()
+        words = line_lower.split()
+        best_ratio = 0.0
+        for word in words:
+            # Strip punctuation from word for cleaner matching
+            clean_word = word.strip(",:;.!?()[]—–-")
+            if not clean_word:
+                continue
+            ratio = SequenceMatcher(None, topic_lower, clean_word).ratio()
+            if ratio > best_ratio:
+                best_ratio = ratio
+        if best_ratio >= _FUZZY_THRESHOLD:
+            fuzzy_scored.append((best_ratio, line))
+
+    # Sort fuzzy matches by score descending
+    fuzzy_scored.sort(key=lambda x: x[0], reverse=True)
+    fuzzy_matches = [line for _, line in fuzzy_scored]
+
+    # Combine: exact first, then fuzzy (deduplicated)
+    combined = exact_matches + fuzzy_matches
+    if not combined:
         return f"Pas de mémoire trouvée pour '{topic}'."
 
     # Scrub PII from returned lines (defense-in-depth)
-    result_text = "\n".join(matches[:max_results])
+    result_text = "\n".join(combined[:max_results])
     for pattern in _PII_PATTERNS:
         result_text = pattern.sub("[REDACTED]", result_text)
     return result_text
