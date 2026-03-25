@@ -1,12 +1,13 @@
-# MINT Screen Board 109
+# MINT Screen Board 113
 
 > Statut: board de référence pour la migration UX des surfaces MINT
 > Source: codebase actuel + `MINT_UX_GRAAL_MASTERPLAN.md`
 > Usage: savoir quel template appliquer à chaque écran et dans quel ordre le migrer
-> Périmètre: `109` surfaces actives (`105 *_screen.dart` + `4` shell/tabs)
+> Périmètre: `113` surfaces actives (`108 *_screen.dart` + `1 *_screen_v2.dart` + `4` shell/tabs)
 > Note: le label historique `101` reste un nom de chantier dans certains échanges, pas un décompte exact
 > Source de vérité: oui, pour le mapping `surface -> template -> priorité`
 > Ne couvre pas: logique métier détaillée, copy, navigation complète, contrats techniques
+> Dernière synchronisation: 2026-03-25 (121 fichiers .dart dans screens/, 8 helpers exclus)
 
 ---
 
@@ -122,6 +123,7 @@ Les templates maîtres et les behaviors d'orchestration sont deux axes orthogona
 | Aujourd'hui / Pulse | `pulse/pulse_screen.dart` | HP | T1-T5 | 8/10 | A | réponse inline — score, cap du jour |
 | Quick Start | `onboarding/quick_start_screen.dart` | RF | T1-T5 | 10/10 | — | onboarding, non routable depuis chat |
 | Chiffre-Choc | `onboarding/chiffre_choc_screen.dart` | HP | T1-T5 | 10/10 | — | non routable depuis chat |
+| Smart Onboarding | `onboarding/smart_onboarding_screen.dart` | RF | T6-B | — | — | 7-step value-first onboarding flow (Lot 2 + P8-2), non routable depuis chat |
 | Data Block Enrichment | `onboarding/data_block_enrichment_screen.dart` | RF | T6-A | — | D | capture, déclenché par readiness bloquante |
 | Score Reveal | `advisor/score_reveal_screen.dart` | HP | T6-A | — | — | non routable depuis chat |
 | Financial Report V2 | `advisor/financial_report_screen_v2.dart` | HP | T6-B | — | — | synthèse premium, billing-gated, doit rester un `Hero Plan` et jamais devenir un dump de données |
@@ -136,6 +138,7 @@ Les templates maîtres et les behaviors d'orchestration sont deux axes orthogona
 | Coach Check-in | `coach/coach_checkin_screen.dart` | RF | T6-B | — | D | mini-flow data, déclenché par coach |
 | Annual Refresh | `coach/annual_refresh_screen.dart` | RF | T6-B | — | D | refresh annuel, déclenché par coach |
 | Cockpit Detail | `coach/cockpit_detail_screen.dart` | HP | T6-B | — | A | réponse inline enrichie |
+| Weekly Recap | `coach/weekly_recap_screen.dart` | HP | T6-B | — | B | intent: `weekly_recap` — ajouté S59, uses MintSurface+MintEntrance |
 
 ## 3.4 Retraite / prévoyance
 
@@ -308,11 +311,11 @@ Le tableau de transactions reste accessible comme couche de preuve, jamais comme
 | Admin Observability | `admin_observability_screen.dart` | QU | T6-C | — | — | non routable depuis chat |
 | Admin Analytics | `admin_analytics_screen.dart` | QU | T6-C | — | — | non routable depuis chat |
 
-## 3.19 Futur / roadmap hors codebase
+## 3.19 Expert tier
 
 | Écran | Fichier | Template | Priorité | Score S52 | Behavior | Notes |
 |---|---|---:|---:|---:|---:|---|
-| Weekly Recap | `future` | HP | T-future | — | B | intent: `weekly_recap` — prévu en phase 2 roadmap, pas encore implémenté dans le codebase |
+| Expert Tier | `expert/expert_tier_screen.dart` | DC | T6-B | — | B | intent: `expert_tier` — 3 specialist types, dossier prep, Phase 3 feature |
 
 ---
 
@@ -379,4 +382,4 @@ Settings, admin, open banking, portfolio, timeline, tools legacy.
 4. Nettoyer les fuites i18n des écrans déjà refondus
 5. Migrer le long tail `T6-B`
 6. Fermer les utilitaires `T6-C`
-7. Screenshot board final des 109 surfaces actives
+7. Screenshot board final des 113 surfaces actives
