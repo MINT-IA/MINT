@@ -89,7 +89,6 @@ class MintStateProvider extends ChangeNotifier {
     }
 
     _isRecomputing = true;
-    _lastProfile = profile;
     try {
       final prefs = await SharedPreferences.getInstance();
       final newState = await MintStateEngine.compute(
@@ -97,6 +96,10 @@ class MintStateProvider extends ChangeNotifier {
         prefs: prefs,
       );
       _state = newState;
+      // Mark this profile as successfully computed AFTER state is set.
+      // If _doRecompute throws, _lastProfile stays at its previous value,
+      // so the next recompute(sameProfile) will retry instead of no-op.
+      _lastProfile = profile;
       // Pre-compute insight at profile-change time (Cleo 3.0 pattern).
       // Runs asynchronously after state is set — does not block notifyListeners.
       // Silent degradation: never throws, cache failure is non-fatal.
@@ -110,6 +113,7 @@ class MintStateProvider extends ChangeNotifier {
     } catch (_) {
       // Engine errors must not crash the app.
       // State remains at its previous value.
+      // _lastProfile is NOT set here — next call with same profile will retry.
     } finally {
       _isRecomputing = false;
       if (_pendingRecompute && _pendingProfile != null) {
