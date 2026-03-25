@@ -83,7 +83,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     ScreenCompletionTracker.markCompletedWithReturn(
       'lamal_franchise',
       ScreenReturn.completed(
-        route: '/lamal-franchise',
+        route: '/assurances/lamal',
         updatedFields: {
           'lamalFranchiseOptimale': _result?.franchiseOptimale ?? 300,
           'lamalEconomie': optimalEconomie,

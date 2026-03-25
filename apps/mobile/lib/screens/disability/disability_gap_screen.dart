@@ -57,7 +57,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     ScreenCompletionTracker.markCompletedWithReturn(
       'disability_gap',
       ScreenReturn.completed(
-        route: '/disability-gap',
+        route: '/invalidite',
         updatedFields: {
           'disabilityGapMensuel': _grossMonthly - _acts.last.monthlyIncome,
         },

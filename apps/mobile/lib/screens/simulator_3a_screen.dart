@@ -152,7 +152,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       );
     });
     final screenReturn = ScreenReturn.completed(
-      route: '/simulator-3a',
+      route: '/pilier-3a',
       updatedFields: {'simulated3aAmount': _annualContribution},
       confidenceDelta: 0.02,
     );
