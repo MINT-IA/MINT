@@ -42040,6 +42040,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'CODE'**
   String get householdAcceptCodeHint;
+
+  /// No description provided for @friInsufficientData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour voir ton score'**
+  String get friInsufficientData;
+
+  /// No description provided for @projectionUncertaintyBand.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {low} — {high} / mois'**
+  String projectionUncertaintyBand(String low, String high);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

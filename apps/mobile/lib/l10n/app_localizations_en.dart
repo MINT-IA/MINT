@@ -23727,4 +23727,12 @@ class SEn extends S {
 
   @override
   String get householdAcceptCodeHint => 'CODE';
+
+  @override
+  String get friInsufficientData => 'Complete your profile to see your score';
+
+  @override
+  String projectionUncertaintyBand(String low, String high) {
+    return 'CHF $low — $high / month';
+  }
 }

@@ -269,6 +269,27 @@ class _PulseScreenState extends State<PulseScreen> {
                     }
                   },
                 )),
+                // Uncertainty band: ±15% when confidence < 70 and
+                // dominant number is a financial projection (CHF or %).
+                if ((mintState?.confidenceScore ?? 0) < 70 &&
+                    dominantNumber.value > 0 &&
+                    (dominantNumber.type == _NumberType.chf ||
+                        dominantNumber.type == _NumberType.percentage)) ...[
+                  const SizedBox(height: 4),
+                  Center(
+                    child: Text(
+                      dominantNumber.type == _NumberType.chf
+                          ? l.projectionUncertaintyBand(
+                              formatChf(dominantNumber.value.abs() * 0.85),
+                              formatChf(dominantNumber.value.abs() * 1.15),
+                            )
+                          : '${(dominantNumber.value * 0.85).round()}\u00a0—\u00a0${(dominantNumber.value * 1.15).round()}\u00a0%',
+                      style: MintTextStyles.labelSmall(
+                        color: MintColors.textMuted,
+                      ).copyWith(fontSize: 12, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: MintSpacing.xs),
                 Align(
                   alignment: Alignment.centerRight,
@@ -465,8 +486,11 @@ class _PulseScreenState extends State<PulseScreen> {
       }
     }
     // FRI score as tertiary fallback.
+    // Gated: FRI is hidden when confidence < 50 — data too incomplete
+    // for a meaningful score (SOT.md §Confidence Gate).
     final friScore = mintState?.friScore;
-    if (friScore != null) {
+    final confidenceForGate = mintState?.confidenceScore ?? 0;
+    if (friScore != null && confidenceForGate >= 50) {
       return _DominantNumber(
         value: friScore,
         format: (v) => '${v.round()}/100',
@@ -511,6 +535,11 @@ class _PulseScreenState extends State<PulseScreen> {
         return l.pulseLabelReplacementRate;
       }
       return l.pulseLabelRetirementIncome;
+    }
+    // When FRI is gated (confidence < 50), show enrichment prompt instead.
+    final confidenceForGate = mintState?.confidenceScore ?? 0;
+    if (confidenceForGate < 50) {
+      return l.friInsufficientData;
     }
     return l.pulseLabelFinancialScore;
   }

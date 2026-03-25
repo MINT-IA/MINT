@@ -11182,5 +11182,14 @@
   "stepQuestionsCountryAu": "Australia",
   "stepQuestionsCountryJp": "Japan",
 
-  "householdAcceptCodeHint": "CODE"
+  "householdAcceptCodeHint": "CODE",
+
+  "friInsufficientData": "Complete your profile to see your score",
+  "projectionUncertaintyBand": "CHF\u00a0{low}\u00a0—\u00a0{high}\u00a0/\u00a0month",
+  "@projectionUncertaintyBand": {
+    "placeholders": {
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  }
 }
