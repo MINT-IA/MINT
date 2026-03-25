@@ -42718,6 +42718,247 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Consulte un·e spécialiste (notaire) pour ta situation.'**
   String get donationDisclaimerFallback;
+
+  /// No description provided for @widgetRetirementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton aperçu retraite'**
+  String get widgetRetirementTitle;
+
+  /// No description provided for @widgetRetirementToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd’hui'**
+  String get widgetRetirementToday;
+
+  /// No description provided for @widgetRetirementFuture.
+  ///
+  /// In fr, this message translates to:
+  /// **'À la retraite'**
+  String get widgetRetirementFuture;
+
+  /// No description provided for @widgetBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton budget'**
+  String get widgetBudgetTitle;
+
+  /// No description provided for @widgetBudgetIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus'**
+  String get widgetBudgetIncome;
+
+  /// No description provided for @widgetBudgetExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses'**
+  String get widgetBudgetExpenses;
+
+  /// No description provided for @widgetPillarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes 3 piliers'**
+  String get widgetPillarTitle;
+
+  /// No description provided for @widgetPillarAvsLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS + LPP'**
+  String get widgetPillarAvsLpp;
+
+  /// No description provided for @widgetPillar3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier'**
+  String get widgetPillar3a;
+
+  /// No description provided for @widgetPillarNotDeclared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non déclaré'**
+  String get widgetPillarNotDeclared;
+
+  /// No description provided for @widgetBudgetLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget'**
+  String get widgetBudgetLabel;
+
+  /// No description provided for @widgetInputLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP (CHF)'**
+  String get widgetInputLppLabel;
+
+  /// No description provided for @widgetInput3aLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne 3a (CHF)'**
+  String get widgetInput3aLabel;
+
+  /// No description provided for @widgetScoreFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score'**
+  String get widgetScoreFallback;
+
+  /// No description provided for @widgetInputSalaryFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire'**
+  String get widgetInputSalaryFallback;
+
+  /// No description provided for @scoreGaugeLevelExcellent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellent'**
+  String get scoreGaugeLevelExcellent;
+
+  /// No description provided for @scoreGaugeLevelGood.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon'**
+  String get scoreGaugeLevelGood;
+
+  /// No description provided for @scoreGaugeLevelAttention.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attention'**
+  String get scoreGaugeLevelAttention;
+
+  /// No description provided for @scoreGaugeLevelCritical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Critique'**
+  String get scoreGaugeLevelCritical;
+
+  /// No description provided for @scoreGaugeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forme financière'**
+  String get scoreGaugeTitle;
+
+  /// No description provided for @scoreGaugeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score composite · 3 piliers'**
+  String get scoreGaugeSubtitle;
+
+  /// No description provided for @scoreGaugeGainTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui t’a fait monter'**
+  String get scoreGaugeGainTitle;
+
+  /// No description provided for @scoreGaugeNextTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour monter encore'**
+  String get scoreGaugeNextTitle;
+
+  /// No description provided for @scoreGaugeDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimations éducatives — ne constitue pas un conseil financier.'**
+  String get scoreGaugeDisclaimer;
+
+  /// No description provided for @scoreGaugeSemanticsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.'**
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine);
+
+  /// No description provided for @scoreGaugeSectionBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget'**
+  String get scoreGaugeSectionBudget;
+
+  /// No description provided for @scoreGaugeSectionPrevoyance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance'**
+  String get scoreGaugeSectionPrevoyance;
+
+  /// No description provided for @scoreGaugeSectionPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine'**
+  String get scoreGaugeSectionPatrimoine;
+
+  /// No description provided for @byokErrorSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la sauvegarde.'**
+  String get byokErrorSaveFailed;
+
+  /// No description provided for @byokErrorNotConfigured.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configure d’abord un fournisseur et une clé.'**
+  String get byokErrorNotConfigured;
+
+  /// No description provided for @byokErrorConnection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de connexion. Vérifie ta connexion internet.'**
+  String get byokErrorConnection;
+
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion au service indisponible. Vérifie ton réseau et réessaie.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorEmailUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet e-mail est déjà utilisé. Connecte-toi ou réinitialise ton mot de passe.'**
+  String get authErrorEmailUsed;
+
+  /// No description provided for @authErrorIncorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'E-mail ou mot de passe incorrect.'**
+  String get authErrorIncorrect;
+
+  /// No description provided for @authErrorRegistration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.'**
+  String get authErrorRegistration;
+
+  /// No description provided for @authErrorService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.'**
+  String get authErrorService;
+
+  /// No description provided for @authErrorInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les informations saisies sont invalides.'**
+  String get authErrorInvalid;
+
+  /// No description provided for @authErrorExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien de réinitialisation a expiré. Demande un nouveau lien.'**
+  String get authErrorExpired;
+
+  /// No description provided for @authErrorNotVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.'**
+  String get authErrorNotVerified;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action impossible pour le moment. Réessaie dans quelques instants.'**
+  String get authErrorGeneric;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

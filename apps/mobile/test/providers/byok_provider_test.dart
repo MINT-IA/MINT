@@ -220,7 +220,7 @@ void main() {
       final result = await provider.testKey();
 
       expect(result, isFalse);
-      expect(provider.testError, contains('Configure'));
+      expect(provider.testError, equals(ByokError.notConfigured));
       expect(provider.testSuccess, isFalse);
     });
 
@@ -245,7 +245,8 @@ void main() {
 
       expect(result, isFalse);
       expect(provider.testSuccess, isFalse);
-      expect(provider.testError, 'Invalid API key provided');
+      expect(provider.testError, equals(ByokError.apiError));
+      expect(provider.apiErrorMessage, 'Invalid API key provided');
       expect(provider.isTesting, isFalse);
     });
 
@@ -258,7 +259,7 @@ void main() {
 
       expect(result, isFalse);
       expect(provider.testSuccess, isFalse);
-      expect(provider.testError, contains('connexion'));
+      expect(provider.testError, equals(ByokError.connectionError));
       expect(provider.isTesting, isFalse);
     });
 

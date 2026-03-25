@@ -11294,5 +11294,58 @@
       "pct": {"type": "String"}
     }
   },
-  "donationDisclaimerFallback": "Esta herramienta educativa proporciona estimaciones indicativas y no constituye asesoramiento jurídico, fiscal o notarial personalizado. Consulta a un especialista (notario) para tu situación."
+  "donationDisclaimerFallback": "Esta herramienta educativa proporciona estimaciones indicativas y no constituye asesoramiento jurídico, fiscal o notarial personalizado. Consulta a un especialista (notario) para tu situación.",
+
+  "widgetRetirementTitle": "Tu resumen de jubilaci\u00f3n",
+  "widgetRetirementToday": "Hoy",
+  "widgetRetirementFuture": "En la jubilaci\u00f3n",
+  "widgetBudgetTitle": "Tu presupuesto",
+  "widgetBudgetIncome": "Ingresos",
+  "widgetBudgetExpenses": "Gastos",
+  "widgetPillarTitle": "Tus 3 pilares",
+  "widgetPillarAvsLpp": "AVS + LPP",
+  "widgetPillar3a": "3er pilar",
+  "widgetPillarNotDeclared": "No declarado",
+  "widgetBudgetLabel": "Presupuesto",
+  "widgetInputLppLabel": "Saldo LPP (CHF)",
+  "widgetInput3aLabel": "Ahorro pilar 3a (CHF)",
+  "widgetScoreFallback": "Puntuaci\u00f3n",
+  "widgetInputSalaryFallback": "Salario",
+
+  "scoreGaugeLevelExcellent": "Excelente",
+  "scoreGaugeLevelGood": "Bueno",
+  "scoreGaugeLevelAttention": "Atenci\u00f3n",
+  "scoreGaugeLevelCritical": "Cr\u00edtico",
+  "scoreGaugeTitle": "Forma financiera",
+  "scoreGaugeSubtitle": "Puntuaci\u00f3n compuesta \u00b7 3 pilares",
+  "scoreGaugeGainTitle": "Lo que te hizo subir",
+  "scoreGaugeNextTitle": "Para subir m\u00e1s",
+  "scoreGaugeDisclaimer": "Estimaciones educativas \u2014 no constituye asesoramiento financiero.",
+  "scoreGaugeSemanticsLabel": "Puntuaci\u00f3n de forma financiera. {score} de 100. Nivel {level}. Presupuesto {budget}, Previsi\u00f3n {prevoyance}, Patrimonio {patrimoine}.",
+  "@scoreGaugeSemanticsLabel": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "level": {"type": "String"},
+      "budget": {"type": "String"},
+      "prevoyance": {"type": "String"},
+      "patrimoine": {"type": "String"}
+    }
+  },
+  "scoreGaugeSectionBudget": "Presupuesto",
+  "scoreGaugeSectionPrevoyance": "Previsi\u00f3n",
+  "scoreGaugeSectionPatrimoine": "Patrimonio",
+
+  "byokErrorSaveFailed": "Error al guardar la clave.",
+  "byokErrorNotConfigured": "Configura primero un proveedor y una clave.",
+  "byokErrorConnection": "Error de conexi\u00f3n. Verifica tu conexi\u00f3n a internet.",
+
+  "authErrorNetwork": "Servicio no disponible. Verifica tu red e int\u00e9ntalo de nuevo.",
+  "authErrorEmailUsed": "Este correo ya est\u00e1 en uso. Inicia sesi\u00f3n o restablece tu contrase\u00f1a.",
+  "authErrorIncorrect": "Correo o contrase\u00f1a incorrectos.",
+  "authErrorRegistration": "Registro no disponible. Usa el modo local e int\u00e9ntalo m\u00e1s tarde.",
+  "authErrorService": "Servicio de cuenta no disponible en este entorno. Usa el modo local.",
+  "authErrorInvalid": "La informaci\u00f3n ingresada no es v\u00e1lida.",
+  "authErrorExpired": "Este enlace ha expirado. Solicita uno nuevo.",
+  "authErrorNotVerified": "Tu correo a\u00fan no est\u00e1 verificado. Verifica tu correo e int\u00e9ntalo de nuevo.",
+  "authErrorGeneric": "Acci\u00f3n no disponible. Int\u00e9ntalo en unos instantes."
 }

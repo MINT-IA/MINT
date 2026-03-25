@@ -24257,4 +24257,137 @@ class SDe extends S {
   @override
   String get donationDisclaimerFallback =>
       'Dieses Bildungstool liefert indikative Schätzungen und stellt keine persönliche Rechts-, Steuer- oder Notariatsberatung im Sinne des FIDLEG dar. Konsultiere einen Spezialisten (Notar) für deine Situation.';
+
+  @override
+  String get widgetRetirementTitle => 'Deine Rentenübersicht';
+
+  @override
+  String get widgetRetirementToday => 'Heute';
+
+  @override
+  String get widgetRetirementFuture => 'Bei Pensionierung';
+
+  @override
+  String get widgetBudgetTitle => 'Dein Budget';
+
+  @override
+  String get widgetBudgetIncome => 'Einnahmen';
+
+  @override
+  String get widgetBudgetExpenses => 'Ausgaben';
+
+  @override
+  String get widgetPillarTitle => 'Deine 3 Säulen';
+
+  @override
+  String get widgetPillarAvsLpp => 'AHV + BVG';
+
+  @override
+  String get widgetPillar3a => 'Säule 3a';
+
+  @override
+  String get widgetPillarNotDeclared => 'Nicht angegeben';
+
+  @override
+  String get widgetBudgetLabel => 'Budget';
+
+  @override
+  String get widgetInputLppLabel => 'BVG-Guthaben (CHF)';
+
+  @override
+  String get widgetInput3aLabel => 'Säule-3a-Ersparnisse (CHF)';
+
+  @override
+  String get widgetScoreFallback => 'Score';
+
+  @override
+  String get widgetInputSalaryFallback => 'Gehalt';
+
+  @override
+  String get scoreGaugeLevelExcellent => 'Ausgezeichnet';
+
+  @override
+  String get scoreGaugeLevelGood => 'Gut';
+
+  @override
+  String get scoreGaugeLevelAttention => 'Achtung';
+
+  @override
+  String get scoreGaugeLevelCritical => 'Kritisch';
+
+  @override
+  String get scoreGaugeTitle => 'Finanzielle Fitness';
+
+  @override
+  String get scoreGaugeSubtitle => 'Gesamtscore · 3 Säulen';
+
+  @override
+  String get scoreGaugeGainTitle => 'Was dich weitergebracht hat';
+
+  @override
+  String get scoreGaugeNextTitle => 'Um weiter zu steigen';
+
+  @override
+  String get scoreGaugeDisclaimer =>
+      'Bildungsschätzungen — keine Finanzberatung.';
+
+  @override
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
+    return 'Finanzielle Fitness. $score von 100. Stufe $level. Budget $budget, Vorsorge $prevoyance, Vermögen $patrimoine.';
+  }
+
+  @override
+  String get scoreGaugeSectionBudget => 'Budget';
+
+  @override
+  String get scoreGaugeSectionPrevoyance => 'Vorsorge';
+
+  @override
+  String get scoreGaugeSectionPatrimoine => 'Vermögen';
+
+  @override
+  String get byokErrorSaveFailed => 'Fehler beim Speichern des Schlüssels.';
+
+  @override
+  String get byokErrorNotConfigured =>
+      'Konfiguriere zuerst einen Anbieter und Schlüssel.';
+
+  @override
+  String get byokErrorConnection =>
+      'Verbindungsfehler. Prüfe deine Internetverbindung.';
+
+  @override
+  String get authErrorNetwork =>
+      'Service nicht erreichbar. Prüfe dein Netzwerk und versuche es erneut.';
+
+  @override
+  String get authErrorEmailUsed =>
+      'Diese E-Mail wird bereits verwendet. Melde dich an oder setze dein Passwort zurück.';
+
+  @override
+  String get authErrorIncorrect => 'E-Mail oder Passwort falsch.';
+
+  @override
+  String get authErrorRegistration =>
+      'Registrierung derzeit nicht verfügbar. Nutze den lokalen Modus.';
+
+  @override
+  String get authErrorService =>
+      'Kontodienst in dieser Umgebung nicht verfügbar. Nutze den lokalen Modus.';
+
+  @override
+  String get authErrorInvalid => 'Die eingegebenen Daten sind ungültig.';
+
+  @override
+  String get authErrorExpired =>
+      'Dieser Link ist abgelaufen. Fordere einen neuen an.';
+
+  @override
+  String get authErrorNotVerified =>
+      'Deine E-Mail ist noch nicht bestätigt. Bestätige deine E-Mail und versuche es erneut.';
+
+  @override
+  String get authErrorGeneric =>
+      'Aktion derzeit nicht möglich. Versuche es in Kürze erneut.';
 }

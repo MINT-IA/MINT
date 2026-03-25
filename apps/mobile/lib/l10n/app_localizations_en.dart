@@ -24104,4 +24104,135 @@ class SEn extends S {
   @override
   String get donationDisclaimerFallback =>
       'This educational tool provides indicative estimates and does not constitute personalized legal, tax or notarial advice within the meaning of FinSA. Consult a specialist (notary) for your situation.';
+
+  @override
+  String get widgetRetirementTitle => 'Your retirement overview';
+
+  @override
+  String get widgetRetirementToday => 'Today';
+
+  @override
+  String get widgetRetirementFuture => 'At retirement';
+
+  @override
+  String get widgetBudgetTitle => 'Your budget';
+
+  @override
+  String get widgetBudgetIncome => 'Income';
+
+  @override
+  String get widgetBudgetExpenses => 'Expenses';
+
+  @override
+  String get widgetPillarTitle => 'Your 3 pillars';
+
+  @override
+  String get widgetPillarAvsLpp => 'AVS + LPP';
+
+  @override
+  String get widgetPillar3a => '3rd pillar';
+
+  @override
+  String get widgetPillarNotDeclared => 'Not declared';
+
+  @override
+  String get widgetBudgetLabel => 'Budget';
+
+  @override
+  String get widgetInputLppLabel => 'LPP balance (CHF)';
+
+  @override
+  String get widgetInput3aLabel => 'Pillar 3a savings (CHF)';
+
+  @override
+  String get widgetScoreFallback => 'Score';
+
+  @override
+  String get widgetInputSalaryFallback => 'Salary';
+
+  @override
+  String get scoreGaugeLevelExcellent => 'Excellent';
+
+  @override
+  String get scoreGaugeLevelGood => 'Good';
+
+  @override
+  String get scoreGaugeLevelAttention => 'Attention';
+
+  @override
+  String get scoreGaugeLevelCritical => 'Critical';
+
+  @override
+  String get scoreGaugeTitle => 'Financial fitness';
+
+  @override
+  String get scoreGaugeSubtitle => 'Composite score · 3 pillars';
+
+  @override
+  String get scoreGaugeGainTitle => 'What helped you improve';
+
+  @override
+  String get scoreGaugeNextTitle => 'To improve further';
+
+  @override
+  String get scoreGaugeDisclaimer =>
+      'Educational estimates — not financial advice.';
+
+  @override
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
+    return 'Financial fitness score. $score out of 100. Level $level. Budget $budget, Pension $prevoyance, Assets $patrimoine.';
+  }
+
+  @override
+  String get scoreGaugeSectionBudget => 'Budget';
+
+  @override
+  String get scoreGaugeSectionPrevoyance => 'Pension';
+
+  @override
+  String get scoreGaugeSectionPatrimoine => 'Assets';
+
+  @override
+  String get byokErrorSaveFailed => 'Error saving the key.';
+
+  @override
+  String get byokErrorNotConfigured => 'Configure a provider and key first.';
+
+  @override
+  String get byokErrorConnection => 'Connection error. Check your internet.';
+
+  @override
+  String get authErrorNetwork =>
+      'Service unavailable. Check your network and try again.';
+
+  @override
+  String get authErrorEmailUsed =>
+      'This email is already in use. Log in or reset your password.';
+
+  @override
+  String get authErrorIncorrect => 'Incorrect email or password.';
+
+  @override
+  String get authErrorRegistration =>
+      'Registration unavailable. Use local mode and try again later.';
+
+  @override
+  String get authErrorService =>
+      'Account service not available on this environment. Use local mode.';
+
+  @override
+  String get authErrorInvalid => 'The entered information is invalid.';
+
+  @override
+  String get authErrorExpired =>
+      'This reset link has expired. Request a new one.';
+
+  @override
+  String get authErrorNotVerified =>
+      'Your email is not yet verified. Check your email and try again.';
+
+  @override
+  String get authErrorGeneric =>
+      'Action not possible right now. Try again shortly.';
 }

@@ -11329,5 +11329,58 @@
       "pct": {"type": "String"}
     }
   },
-  "donationDisclaimerFallback": "This educational tool provides indicative estimates and does not constitute personalized legal, tax or notarial advice within the meaning of FinSA. Consult a specialist (notary) for your situation."
+  "donationDisclaimerFallback": "This educational tool provides indicative estimates and does not constitute personalized legal, tax or notarial advice within the meaning of FinSA. Consult a specialist (notary) for your situation.",
+
+  "widgetRetirementTitle": "Your retirement overview",
+  "widgetRetirementToday": "Today",
+  "widgetRetirementFuture": "At retirement",
+  "widgetBudgetTitle": "Your budget",
+  "widgetBudgetIncome": "Income",
+  "widgetBudgetExpenses": "Expenses",
+  "widgetPillarTitle": "Your 3 pillars",
+  "widgetPillarAvsLpp": "AVS + LPP",
+  "widgetPillar3a": "3rd pillar",
+  "widgetPillarNotDeclared": "Not declared",
+  "widgetBudgetLabel": "Budget",
+  "widgetInputLppLabel": "LPP balance (CHF)",
+  "widgetInput3aLabel": "Pillar 3a savings (CHF)",
+  "widgetScoreFallback": "Score",
+  "widgetInputSalaryFallback": "Salary",
+
+  "scoreGaugeLevelExcellent": "Excellent",
+  "scoreGaugeLevelGood": "Good",
+  "scoreGaugeLevelAttention": "Attention",
+  "scoreGaugeLevelCritical": "Critical",
+  "scoreGaugeTitle": "Financial fitness",
+  "scoreGaugeSubtitle": "Composite score \u00b7 3 pillars",
+  "scoreGaugeGainTitle": "What helped you improve",
+  "scoreGaugeNextTitle": "To improve further",
+  "scoreGaugeDisclaimer": "Educational estimates \u2014 not financial advice.",
+  "scoreGaugeSemanticsLabel": "Financial fitness score. {score} out of 100. Level {level}. Budget {budget}, Pension {prevoyance}, Assets {patrimoine}.",
+  "@scoreGaugeSemanticsLabel": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "level": {"type": "String"},
+      "budget": {"type": "String"},
+      "prevoyance": {"type": "String"},
+      "patrimoine": {"type": "String"}
+    }
+  },
+  "scoreGaugeSectionBudget": "Budget",
+  "scoreGaugeSectionPrevoyance": "Pension",
+  "scoreGaugeSectionPatrimoine": "Assets",
+
+  "byokErrorSaveFailed": "Error saving the key.",
+  "byokErrorNotConfigured": "Configure a provider and key first.",
+  "byokErrorConnection": "Connection error. Check your internet.",
+
+  "authErrorNetwork": "Service unavailable. Check your network and try again.",
+  "authErrorEmailUsed": "This email is already in use. Log in or reset your password.",
+  "authErrorIncorrect": "Incorrect email or password.",
+  "authErrorRegistration": "Registration unavailable. Use local mode and try again later.",
+  "authErrorService": "Account service not available on this environment. Use local mode.",
+  "authErrorInvalid": "The entered information is invalid.",
+  "authErrorExpired": "This reset link has expired. Request a new one.",
+  "authErrorNotVerified": "Your email is not yet verified. Check your email and try again.",
+  "authErrorGeneric": "Action not possible right now. Try again shortly."
 }

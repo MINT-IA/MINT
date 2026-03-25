@@ -11776,5 +11776,58 @@
       "pct": {"type": "String"}
     }
   },
-  "donationDisclaimerFallback": "Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Consulte un·e spécialiste (notaire) pour ta situation."
+  "donationDisclaimerFallback": "Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Consulte un·e spécialiste (notaire) pour ta situation.",
+
+  "widgetRetirementTitle": "Ton aper\u00e7u retraite",
+  "widgetRetirementToday": "Aujourd\u2019hui",
+  "widgetRetirementFuture": "\u00c0 la retraite",
+  "widgetBudgetTitle": "Ton budget",
+  "widgetBudgetIncome": "Revenus",
+  "widgetBudgetExpenses": "D\u00e9penses",
+  "widgetPillarTitle": "Tes 3 piliers",
+  "widgetPillarAvsLpp": "AVS + LPP",
+  "widgetPillar3a": "3e pilier",
+  "widgetPillarNotDeclared": "Non d\u00e9clar\u00e9",
+  "widgetBudgetLabel": "Budget",
+  "widgetInputLppLabel": "Avoir LPP (CHF)",
+  "widgetInput3aLabel": "\u00c9pargne 3a (CHF)",
+  "widgetScoreFallback": "Score",
+  "widgetInputSalaryFallback": "Salaire",
+
+  "scoreGaugeLevelExcellent": "Excellent",
+  "scoreGaugeLevelGood": "Bon",
+  "scoreGaugeLevelAttention": "Attention",
+  "scoreGaugeLevelCritical": "Critique",
+  "scoreGaugeTitle": "Forme financi\u00e8re",
+  "scoreGaugeSubtitle": "Score composite \u00b7 3 piliers",
+  "scoreGaugeGainTitle": "Ce qui t\u2019a fait monter",
+  "scoreGaugeNextTitle": "Pour monter encore",
+  "scoreGaugeDisclaimer": "Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.",
+  "scoreGaugeSemanticsLabel": "Score de forme financi\u00e8re. {score} sur 100. Niveau {level}. Budget {budget}, Pr\u00e9voyance {prevoyance}, Patrimoine {patrimoine}.",
+  "@scoreGaugeSemanticsLabel": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "level": {"type": "String"},
+      "budget": {"type": "String"},
+      "prevoyance": {"type": "String"},
+      "patrimoine": {"type": "String"}
+    }
+  },
+  "scoreGaugeSectionBudget": "Budget",
+  "scoreGaugeSectionPrevoyance": "Pr\u00e9voyance",
+  "scoreGaugeSectionPatrimoine": "Patrimoine",
+
+  "byokErrorSaveFailed": "Erreur lors de la sauvegarde.",
+  "byokErrorNotConfigured": "Configure d\u2019abord un fournisseur et une cl\u00e9.",
+  "byokErrorConnection": "Erreur de connexion. V\u00e9rifie ta connexion internet.",
+
+  "authErrorNetwork": "Connexion au service indisponible. V\u00e9rifie ton r\u00e9seau et r\u00e9essaie.",
+  "authErrorEmailUsed": "Cet e-mail est d\u00e9j\u00e0 utilis\u00e9. Connecte-toi ou r\u00e9initialise ton mot de passe.",
+  "authErrorIncorrect": "E-mail ou mot de passe incorrect.",
+  "authErrorRegistration": "Inscription indisponible pour le moment. Utilise le mode local puis r\u00e9essaie plus tard.",
+  "authErrorService": "Le service de compte n\u2019est pas disponible sur cet environnement. Utilise le mode local.",
+  "authErrorInvalid": "Les informations saisies sont invalides.",
+  "authErrorExpired": "Ce lien de r\u00e9initialisation a expir\u00e9. Demande un nouveau lien.",
+  "authErrorNotVerified": "Ton e-mail n\u2019est pas encore v\u00e9rifi\u00e9. V\u00e9rifie ton e-mail puis r\u00e9essaie.",
+  "authErrorGeneric": "Action impossible pour le moment. R\u00e9essaie dans quelques instants."
 }

@@ -62,11 +62,12 @@ class WidgetRenderer {
 
   static Widget _buildRetirementComparison(
       BuildContext context, Map<String, dynamic> p) {
+    final l = S.of(context);
     return ChatComparisonCard(
-      title: 'Ton aper\u00e7u retraite',
-      leftLabel: 'Aujourd\u2019hui',
+      title: l?.widgetRetirementTitle ?? 'Ton aper\u00e7u retraite',
+      leftLabel: l?.widgetRetirementToday ?? 'Aujourd\u2019hui',
       leftValue: 'CHF\u00a0${_fmt(p['today_monthly'])}/mois',
-      rightLabel: '\u00c0 la retraite',
+      rightLabel: l?.widgetRetirementFuture ?? '\u00c0 la retraite',
       rightValue: 'CHF\u00a0${_fmt(p['retirement_monthly'])}/mois',
       leftAmount: (p['today_monthly'] as num?)?.toDouble() ?? 0,
       rightAmount: (p['retirement_monthly'] as num?)?.toDouble() ?? 0,
@@ -77,11 +78,12 @@ class WidgetRenderer {
 
   static Widget _buildBudgetOverview(
       BuildContext context, Map<String, dynamic> p) {
+    final l = S.of(context);
     return ChatComparisonCard(
-      title: 'Ton budget',
-      leftLabel: 'Revenus',
+      title: l?.widgetBudgetTitle ?? 'Ton budget',
+      leftLabel: l?.widgetBudgetIncome ?? 'Revenus',
       leftValue: 'CHF\u00a0${_fmt(p['income_monthly'])}/mois',
-      rightLabel: 'D\u00e9penses',
+      rightLabel: l?.widgetBudgetExpenses ?? 'D\u00e9penses',
       rightValue: 'CHF\u00a0${_fmt(p['expenses_monthly'])}/mois',
       leftAmount: (p['income_monthly'] as num?)?.toDouble() ?? 0,
       rightAmount: (p['expenses_monthly'] as num?)?.toDouble() ?? 0,
@@ -93,7 +95,7 @@ class WidgetRenderer {
   static Widget _buildScoreGauge(
       BuildContext context, Map<String, dynamic> p) {
     return ChatGaugeCard(
-      title: p['title'] as String? ?? 'Score',
+      title: p['title'] as String? ?? S.of(context)?.widgetScoreFallback ?? 'Score',
       value: (p['value'] as num?)?.toDouble() ?? 0,
       maxValue: (p['max_value'] as num?)?.toDouble() ?? 100,
       valueLabel: p['label'] as String? ?? '\u2014',
@@ -134,12 +136,13 @@ class WidgetRenderer {
     final p3a = (p['pillar_3a_monthly'] as num?)?.toDouble() ?? 0;
     final total = avs + lpp + p3a;
 
+    final l = S.of(context);
     return ChatComparisonCard(
-      title: 'Tes 3 piliers',
-      leftLabel: 'AVS + LPP',
+      title: l?.widgetPillarTitle ?? 'Tes 3 piliers',
+      leftLabel: l?.widgetPillarAvsLpp ?? 'AVS + LPP',
       leftValue: 'CHF\u00a0${_fmt(avs + lpp)}/mois',
-      rightLabel: '3e pilier',
-      rightValue: p3a > 0 ? 'CHF\u00a0${_fmt(p3a)}/mois' : 'Non d\u00e9clar\u00e9',
+      rightLabel: l?.widgetPillar3a ?? '3e pilier',
+      rightValue: p3a > 0 ? 'CHF\u00a0${_fmt(p3a)}/mois' : (l?.widgetPillarNotDeclared ?? 'Non d\u00e9clar\u00e9'),
       leftAmount: avs + lpp,
       rightAmount: p3a > 0 ? p3a : total * 0.1,
       narrative: p['narrative'] as String?,
@@ -227,7 +230,7 @@ class WidgetRenderer {
     }
 
     return ChatFactCard(
-      eyebrow: 'Budget',
+      eyebrow: l?.widgetBudgetLabel ?? 'Budget',
       value: 'CHF\u00a0${_fmt(presentFree)}/mois',
       description: narrative ?? (l?.budgetSnapshotFreeLabel ?? 'Ton libre mensuel'),
       onTap: () => context.push('/budget'),
@@ -267,7 +270,7 @@ class WidgetRenderer {
       case 'salary':
       case 'salaireBrut':
         return ChatAmountInput(
-          label: message ?? S.of(context)?.onboardingSmartSalaryLabel ?? 'Salary',
+          label: message ?? S.of(context)?.onboardingSmartSalaryLabel ?? S.of(context)?.widgetInputSalaryFallback ?? 'Salary',
           onSubmitted: (amount) {
             onInputSubmitted?.call('salaireBrut', '${amount.round()}');
           },
@@ -275,7 +278,7 @@ class WidgetRenderer {
 
       case 'avoirLpp':
         return ChatAmountInput(
-          label: message ?? 'Avoir LPP (CHF)',
+          label: message ?? S.of(context)?.widgetInputLppLabel ?? 'Avoir LPP (CHF)',
           onSubmitted: (amount) {
             onInputSubmitted?.call('avoirLpp', '${amount.round()}');
           },
@@ -283,7 +286,7 @@ class WidgetRenderer {
 
       case 'epargne3a':
         return ChatAmountInput(
-          label: message ?? '\u00c9pargne 3a (CHF)',
+          label: message ?? S.of(context)?.widgetInput3aLabel ?? '\u00c9pargne 3a (CHF)',
           onSubmitted: (amount) {
             onInputSubmitted?.call('epargne3a', '${amount.round()}');
           },
