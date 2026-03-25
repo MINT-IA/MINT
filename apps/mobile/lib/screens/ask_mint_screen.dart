@@ -870,6 +870,12 @@ class _AskMintScreenState extends State<AskMintScreen> {
       };
     }
 
+    if (byok.apiKey == null || byok.provider == null) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      return;
+    }
+
     try {
       final response = await _ragService.query(
         question: text,
@@ -879,6 +885,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         language: 'fr',
       );
 
+      if (!mounted) return;
       setState(() {
         _messages.add(_ChatMessage(
           text: response.answer,
@@ -889,6 +896,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         _isLoading = false;
       });
     } on RagApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _messages.add(_ChatMessage(
           text: _getErrorMessage(e.code),
@@ -898,6 +906,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _messages.add(_ChatMessage(
           text: S.of(context)!.askMintErrorGeneric,

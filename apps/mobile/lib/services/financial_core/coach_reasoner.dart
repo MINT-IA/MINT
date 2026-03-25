@@ -123,7 +123,9 @@ class CoachReasonerService {
 
     // Compound growth of buyback at fund rate
     final r = prev.rendementCaisse;
-    final futureValue = annualBuyback * ((pow(1 + r, yearsToRetirement) - 1) / r);
+    final futureValue = r > 0
+        ? annualBuyback * ((pow(1 + r, yearsToRetirement) - 1) / r)
+        : annualBuyback * yearsToRetirement;
     final totalInvested = annualBuyback * yearsToRetirement;
     final investmentGain = futureValue - totalInvested;
 
@@ -229,7 +231,9 @@ class CoachReasonerService {
 
     // FV of annual contributions at estimated 3a return
     final r3a = prev.rendementMoyen3a;
-    final fv = gap * ((pow(1 + r3a, yearsToRetirement) - 1) / r3a);
+    final fv = r3a > 0
+        ? gap * ((pow(1 + r3a, yearsToRetirement) - 1) / r3a)
+        : gap * yearsToRetirement;
     final investmentGain = fv - gap * yearsToRetirement;
 
     final annualReturn = annualTaxSaving + investmentGain / yearsToRetirement;

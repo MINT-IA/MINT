@@ -657,7 +657,9 @@ class CrossPillarCalculator {
         salaireAssureOverride: profile.prevoyance.salaireAssure,
       );
 
-      projectedMonthly = avsMonthly + lppAnnualRente / 12;
+      // Apply 13th rente (8.3% uplift) to AVS monthly.
+      final avsMonthlyWith13 = AvsCalculator.annualRente(avsMonthly) / 12;
+      projectedMonthly = avsMonthlyWith13 + lppAnnualRente / 12;
     }
 
     // Current monthly net income (pre-retirement reference)

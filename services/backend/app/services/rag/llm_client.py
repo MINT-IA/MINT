@@ -127,7 +127,7 @@ class LLMClient:
                 "anthropic package not installed. Install with: pip install -e '.[rag]'"
             )
 
-        client = AsyncAnthropic(api_key=self.api_key)
+        client = AsyncAnthropic(api_key=self.api_key, timeout=60.0)
         try:
             kwargs: dict = {
                 "model": self.model,
@@ -244,7 +244,7 @@ class LLMClient:
                 "anthropic package not installed. Install with: pip install -e '.[rag]'"
             )
 
-        client = AsyncAnthropic(api_key=self.api_key)
+        client = AsyncAnthropic(api_key=self.api_key, timeout=60.0)
         try:
             response = await client.messages.create(
                 model=self.model,
