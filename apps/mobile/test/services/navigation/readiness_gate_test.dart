@@ -452,18 +452,19 @@ void main() {
       expect(result.level, equals(ReadinessLevel.ready));
     });
 
-    test('life_event_birth (no required fields) → ready', () {
+    test('life_event_birth (salaireBrut + canton) → ready', () {
       final entry = MintScreenRegistry.findByIntentStatic('life_event_birth')!;
       final result = ReadinessGate.check(entry, _julienProfile());
       expect(result.level, equals(ReadinessLevel.ready));
     });
 
-    test('life_event_divorce (civilStatus) → ready (Julien is marie)', () {
+    test('life_event_divorce (salaireBrut + conjoint) → partial (no conjoint)',
+        () {
       final entry =
           MintScreenRegistry.findByIntentStatic('life_event_divorce')!;
       final result = ReadinessGate.check(entry, _julienProfile());
-      // civilStatus is always present (non-null enum) → ready
-      expect(result.level, equals(ReadinessLevel.ready));
+      // Julien has salaireBrut but no conjoint → partial (conjoint not critical)
+      expect(result.level, equals(ReadinessLevel.partial));
     });
 
     test('simulator_3a (salaireBrut + canton) → ready', () {
@@ -528,11 +529,12 @@ void main() {
       expect(result.level, equals(ReadinessLevel.ready));
     });
 
-    test('life_event_birth (no required fields) → ready even for empty profile',
+    test(
+        'life_event_birth (salaireBrut + canton) → blocked for empty profile',
         () {
       final entry = MintScreenRegistry.findByIntentStatic('life_event_birth')!;
       final result = ReadinessGate.check(entry, emptyProfile);
-      expect(result.level, equals(ReadinessLevel.ready));
+      expect(result.level, equals(ReadinessLevel.blocked));
     });
 
     test('blocked result has non-empty missingCritical', () {

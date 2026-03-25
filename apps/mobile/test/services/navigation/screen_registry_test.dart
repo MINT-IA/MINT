@@ -116,11 +116,11 @@ void main() {
       expect(entry!.route, equals('/segments/independant'));
     });
 
-    test('life_event_birth → /naissance (no required fields)', () {
+    test('life_event_birth → /naissance (salaireBrut + canton)', () {
       final entry = MintScreenRegistry.findByIntentStatic('life_event_birth');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/naissance'));
-      expect(entry.requiredFields, isEmpty);
+      expect(entry.requiredFields, equals(['salaireBrut', 'canton']));
     });
 
     test('document_scan → captureUtility behavior', () {
