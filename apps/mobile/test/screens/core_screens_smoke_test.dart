@@ -411,8 +411,8 @@ void main() {
       );
       await tester.pump();
 
-      // Wealth header
-      expect(find.textContaining('Valeur Totale'), findsOneWidget);
+      // Wealth header (i18n: portfolioValeurTotaleNette)
+      expect(find.textContaining('aleur totale nette'), findsOneWidget);
       // CHF amount
       expect(find.textContaining('CHF'), findsWidgets);
     });

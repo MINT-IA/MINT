@@ -11163,5 +11163,143 @@
       "low": {"type": "String"},
       "high": {"type": "String"}
     }
-  }
+  },
+
+  "portfolioAppBarTitle": "Mein Vermögen",
+  "portfolioValeurTotaleNette": "Nettovermögen",
+  "portfolioRepartitionEnveloppe": "Aufteilung nach Hülle",
+  "portfolioLibrePlacement": "Frei (Anlagekonto)",
+  "portfolioLiePilier3a": "Gebunden (Säule 3a)",
+  "portfolioReserveFondsUrgence": "Reserviert (Notfallfonds)",
+  "portfolioSafeModeLocked": "Priorität Schuldenabbau",
+  "portfolioSafeModeBody": "Allokationsempfehlungen sind im Schutzmodus deaktiviert. Deine Priorität ist der Schuldenabbau vor der Umschichtung.",
+
+  "byokShowKey": "Schlüssel anzeigen",
+  "byokHideKey": "Schlüssel verbergen",
+
+  "themeDetailEssentiel60s": "Das Wichtigste in 60 Sekunden",
+  "themeDetailTesteConnaissances": "Teste dein Wissen",
+  "themeDetailSavaisTu": "Wusstest du?",
+  "themeDetailSourcesLegales": "Rechtsquellen",
+  "themeDetailRappel": "Erinnerung",
+  "themeDetailBienVu": "Gut erkannt!",
+  "themeDetailPasToutAFait": "Nicht ganz...",
+
+  "emergencyFundTitle": "Dein Sicherheitsnetz",
+  "emergencyFundSubtitle": "Berechne deinen idealen Notfallfonds",
+  "emergencyFundDisclaimer": "Das Ziel von 3-6 Monaten ist eine allgemeine Empfehlung. Deine persönliche Situation kann einen anderen Betrag erfordern.",
+  "emergencyFundHyp1": "Fixkosten = Miete + Versicherungen + Abonnements + Kredite",
+  "emergencyFundHyp2": "Empfohlenes Ziel: 3 Monate (Minimum) bis 6 Monate (Komfort)",
+  "emergencyFundHyp3": "Empfohlene Anlage: zugängliches Sparkonto, nicht investiert",
+  "emergencyFundChargesLabel": "Deine monatlichen Fixkosten",
+  "emergencyFundChargesDesc": "Miete + Versicherungen + Abonnements + Kredite",
+  "emergencyFundObjectifLabel": "Ziel in Sicherheitsmonaten",
+  "emergencyFundMoisUnit": "{count} Monate",
+  "@emergencyFundMoisUnit": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "emergencyFundMinimum": "Minimum",
+  "emergencyFundConfort": "Komfort",
+  "emergencyFundObjectifTitle": "Dein Notfallfonds-Ziel",
+  "emergencyFundProgression": "Dein Fortschritt",
+  "emergencyFundManque": "Es fehlen dir noch {amount}",
+  "@emergencyFundManque": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "emergencyFundAtteint": "Ziel erreicht!",
+  "emergencyFundExplication": "Dieser Fonds schützt dich vor unerwarteten Ereignissen (Jobverlust, Krankheit, Reparaturen) ohne deine Investitionen anzutasten.",
+
+  "lifeEventSuggestionsHeader": "Und dann?",
+  "lifeEventSuggestionsSubheader": "Module für dein Profil",
+  "lifeEventSuggestionsSimuler": "Simulieren",
+  "lifeEventSugMariage": "Heirat",
+  "lifeEventSugMariageReason": "Entdecke die steuerlichen Auswirkungen auf die Vorsorge",
+  "lifeEventSugConcubinage": "Konkubinat",
+  "lifeEventSugConcubinageReason": "Achtung: kein automatischer Rechtsschutz",
+  "lifeEventSugNaissance": "Geburt",
+  "lifeEventSugNaissanceReason": "Simuliere die finanzielle Auswirkung eines Kindes",
+  "lifeEventSugSuccession": "Nachlassplanung",
+  "lifeEventSugSuccessionReason": "Pflichtteile und verfügbare Quote (ZGB Art. 470)",
+  "lifeEventSugDonation": "Schenkung unter Lebenden",
+  "lifeEventSugDonationReason": "Plane deine Nachfolge und optimiere die Steuern",
+  "lifeEventSugPremierEmploi": "Erster Job",
+  "lifeEventSugPremierEmploiReason": "Grundlagen legen: AHV, BVG, 3a und Budget",
+  "lifeEventSugChangementEmploi": "Stellenwechsel",
+  "lifeEventSugChangementEmploiReason": "Vergleiche deine BVG bevor du unterschreibst",
+  "lifeEventSugOutilsIndependant": "Selbstständigen-Tools",
+  "lifeEventSugOutilsIndependantReason": "AHV, freiwillige BVG, erweiterte 3a und Dividende vs Lohn",
+  "lifeEventSugRetraite": "Pensionsplanung",
+  "lifeEventSugRetraiteReason": "Rente vs Kapital, 3a-Staffelung, AHV-Lücke",
+  "lifeEventSugAchatImmo": "Immobilienkauf",
+  "lifeEventSugAchatImmoReason": "Simuliere deine Kreditfähigkeit und WEF-Beitrag",
+  "lifeEventSugDemenagement": "Kantonaler Umzug",
+  "lifeEventSugDemenagementReason": "Dein Kanton gehört zu den am höchsten besteuerten — vergleiche alle 26",
+  "lifeEventSugInvalidite": "Invalidität",
+  "lifeEventSugInvaliditeReason": "Überprüfe deine IV + BVG Deckung bei Unfall",
+
+  "indepProtAvs": "Verdopple deinen Beitrag",
+  "indepProtLpp": "Entfällt — freiwillige Wahl",
+  "indepProtLaa": "Entfällt — Unfall ausserhalb der Arbeit",
+  "indepProtIjm": "Entfällt — Krankheit CHF 0",
+  "indepProtApg": "Entfällt — Elternurlaub",
+  "indepLppProInvalidite": "Invaliditätsdeckung inklusive",
+  "indepLppProDeductible": "Steuerabzugsfähige Beiträge",
+  "indepLppProRente": "Geplante Altersrente",
+  "indepLppConCotisations": "Hohe Pflichtbeiträge",
+  "indepLppConFlexible": "Weniger flexibel",
+  "indepGrand3aSub": "20% des Nettoeinkommens, max CHF\u00a036'288/Jahr",
+  "indepGrand3aProFlexibilite": "Totale Flexibilität",
+  "indepGrand3aProDeduction": "Maximaler Steuerabzug",
+  "indepGrand3aProCapital": "Kapital ab 60 verfügbar",
+  "indepGrand3aConInvalidite": "Keine Invaliditätsdeckung",
+  "indepGrand3aConRente": "Keine geplante Rente",
+  "indepLayerImpots": "Steuern (Schätzung)",
+  "indepLayerChargesSociales": "Sozialabgaben AHV/IV",
+  "indepLayerFraisPro": "Geschäftskosten",
+  "indepLayerJoursNonFact": "Nicht fakturierbare Tage",
+  "indepFiscal3a": "Säule 3a Grosseinzahlung",
+  "indepFiscal3aNote": "Max 20% des Nettoeinkommens, begrenzt auf CHF\u00a036'288/Jahr ohne BVG",
+  "indepFiscalFraisPro": "Effektive Geschäftskosten",
+  "indepFiscalFraisProNote": "Büromiete, Material, Weiterbildung — zum Effektivwert absetzbar",
+  "indepFiscalPrimesLpp": "Krankenversicherungsprämien (freiwillige BVG)",
+  "indepChargeAvs": "AHV / IV / EO",
+  "indepChargeLpp": "BVG (2. Säule)",
+  "indepChargeLppNote": "Freiwillig für Selbstständige (BVG Art. 4)",
+  "indepChargeAc": "Arbeitslosigkeit (ALV)",
+  "indepChargeAcNote": "Keine ALV für Selbstständige (AVIG Art. 2)",
+  "indepChargePro": "Berufsversicherungen (KTG/UVG)",
+  "indepChargeProNote": "Vollständig zu Lasten des Selbstständigen",
+  "indepPlanInscriptionAvs": "Anmeldung bei AHV-Kasse für Selbstständige",
+  "indepPlanInscriptionAvsConseq": "Rückwirkende Bussen bei Fristüberschreitung",
+  "indepPlanLaa": "Unfallversicherung UVG (wenn kein BVG)",
+  "indepPlanLaaConseq": "Kein Berufsunfall-Schutz",
+  "indepPlanOuvrir3a": "3a-Konto eröffnen (Abzug bis CHF\u00a036'288)",
+  "indepPlanIjm": "KTG evaluieren (Krankentaggeld)",
+  "indepPlanIjmConseq": "Einkommensverlust ab Tag 3 bei Krankheit",
+  "indepPlanFraisPro": "Abzugsfähige Geschäftskosten — Belege aufbewahren",
+  "indepPlanAcomptes": "Kantonale Steuervorauszahlungen — Zinsen vermeiden",
+
+  "donationTypeEspeces": "Bargeld / Liquidität",
+  "donationTypeImmobilier": "Immobilien",
+  "donationTypeTitres": "Wertpapiere / Mobiliarwerte",
+  "donationRegimeParticipation": "Errungenschaftsbeteiligung",
+  "donationRegimeCommunaute": "Gütergemeinschaft",
+  "donationRegimeSeparation": "Gütertrennung",
+  "donationReserveBarLabel": "Pflichtteil {pct}%",
+  "@donationReserveBarLabel": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "donationDisponibleBarLabel": "Verfügbar {pct}%",
+  "@donationDisponibleBarLabel": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "donationDisclaimerFallback": "Dieses Bildungstool liefert indikative Schätzungen und stellt keine persönliche Rechts-, Steuer- oder Notariatsberatung im Sinne des FIDLEG dar. Konsultiere einen Spezialisten (Notar) für deine Situation."
 }

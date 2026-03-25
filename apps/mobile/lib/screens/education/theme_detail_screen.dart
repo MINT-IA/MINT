@@ -320,7 +320,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                'L\'essentiel en 60 secondes',
+                S.of(context)!.themeDetailEssentiel60s,
                 style: MintTextStyles.titleMedium(),
               ),
             ],
@@ -401,7 +401,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                'Teste tes connaissances',
+                S.of(context)!.themeDetailTesteConnaissances,
                 style: MintTextStyles.titleMedium(),
               ),
             ],
@@ -549,8 +549,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                         const SizedBox(width: 8),
                         Text(
                           _selectedQuizAnswer == quiz.correctIndex
-                              ? 'Bien vu\u00a0!'
-                              : 'Pas tout à fait...',
+                              ? S.of(context)!.themeDetailBienVu
+                              : S.of(context)!.themeDetailPasToutAFait,
                           style: MintTextStyles.bodyMedium(
                             color: _selectedQuizAnswer == quiz.correctIndex
                                 ? MintColors.success
@@ -594,7 +594,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                'Le savais-tu\u00a0?',
+                S.of(context)!.themeDetailSavaisTu,
                 style: MintTextStyles.titleMedium(),
               ),
             ],
@@ -632,7 +632,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
         leading: const Icon(Icons.gavel_outlined,
             size: 18, color: MintColors.textMuted),
         title: Text(
-          'Sources légales',
+          S.of(context)!.themeDetailSourcesLegales,
           style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
         children: content.sources
@@ -708,7 +708,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Rappel',
+                  S.of(context)!.themeDetailRappel,
                   style: MintTextStyles.labelSmall(),
                 ),
                 const SizedBox(height: 2),

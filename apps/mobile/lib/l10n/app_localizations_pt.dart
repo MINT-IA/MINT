@@ -23808,4 +23808,373 @@ class SPt extends S {
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / mês';
   }
+
+  @override
+  String get portfolioAppBarTitle => 'O meu património';
+
+  @override
+  String get portfolioValeurTotaleNette => 'Valor total líquido';
+
+  @override
+  String get portfolioRepartitionEnveloppe => 'Distribuição por envelope';
+
+  @override
+  String get portfolioLibrePlacement => 'Livre (Conta de investimento)';
+
+  @override
+  String get portfolioLiePilier3a => 'Vinculado (Pilar 3a)';
+
+  @override
+  String get portfolioReserveFondsUrgence => 'Reservado (Fundo de emergência)';
+
+  @override
+  String get portfolioSafeModeLocked => 'Prioridade ao desendividamento';
+
+  @override
+  String get portfolioSafeModeBody =>
+      'Os conselhos de alocação estão desativados em modo de proteção. A tua prioridade é reduzir as dívidas antes de reequilibrar o patrimônio.';
+
+  @override
+  String get byokShowKey => 'Mostrar chave';
+
+  @override
+  String get byokHideKey => 'Ocultar chave';
+
+  @override
+  String get themeDetailEssentiel60s => 'O essencial em 60 segundos';
+
+  @override
+  String get themeDetailTesteConnaissances => 'Testa os teus conhecimentos';
+
+  @override
+  String get themeDetailSavaisTu => 'Sabias que?';
+
+  @override
+  String get themeDetailSourcesLegales => 'Fontes legais';
+
+  @override
+  String get themeDetailRappel => 'Lembrete';
+
+  @override
+  String get themeDetailBienVu => 'Bem visto!';
+
+  @override
+  String get themeDetailPasToutAFait => 'Não é bem assim...';
+
+  @override
+  String get emergencyFundTitle => 'A tua rede de segurança';
+
+  @override
+  String get emergencyFundSubtitle => 'Calcula o teu fundo de emergência ideal';
+
+  @override
+  String get emergencyFundDisclaimer =>
+      'O objetivo de 3-6 meses é uma recomendação geral. A tua situação pessoal pode exigir um montante diferente.';
+
+  @override
+  String get emergencyFundHyp1 =>
+      'Encargos fixos = renda + seguros + assinaturas + créditos';
+
+  @override
+  String get emergencyFundHyp2 =>
+      'Objetivo recomendado: 3 meses (mínimo) a 6 meses (conforto)';
+
+  @override
+  String get emergencyFundHyp3 =>
+      'Colocação sugerida: conta poupança acessível, não investida';
+
+  @override
+  String get emergencyFundChargesLabel => 'Os teus encargos fixos mensais';
+
+  @override
+  String get emergencyFundChargesDesc =>
+      'Renda + seguros + assinaturas + créditos';
+
+  @override
+  String get emergencyFundObjectifLabel => 'Objetivo em meses de segurança';
+
+  @override
+  String emergencyFundMoisUnit(int count) {
+    return '$count meses';
+  }
+
+  @override
+  String get emergencyFundMinimum => 'Mínimo';
+
+  @override
+  String get emergencyFundConfort => 'Conforto';
+
+  @override
+  String get emergencyFundObjectifTitle =>
+      'O teu objetivo de fundo de emergência';
+
+  @override
+  String get emergencyFundProgression => 'O teu progresso';
+
+  @override
+  String emergencyFundManque(String amount) {
+    return 'Faltam-te $amount';
+  }
+
+  @override
+  String get emergencyFundAtteint => 'Objetivo atingido!';
+
+  @override
+  String get emergencyFundExplication =>
+      'Este fundo protege-te de imprevistos (perda de emprego, doença, reparações) sem tocar nos teus investimentos.';
+
+  @override
+  String get lifeEventSuggestionsHeader => 'E depois?';
+
+  @override
+  String get lifeEventSuggestionsSubheader => 'Módulos adaptados ao teu perfil';
+
+  @override
+  String get lifeEventSuggestionsSimuler => 'Simular';
+
+  @override
+  String get lifeEventSugMariage => 'Casamento';
+
+  @override
+  String get lifeEventSugMariageReason =>
+      'Descobre o impacto fiscal e na previdência';
+
+  @override
+  String get lifeEventSugConcubinage => 'União de facto';
+
+  @override
+  String get lifeEventSugConcubinageReason =>
+      'Atenção: sem proteção legal automática';
+
+  @override
+  String get lifeEventSugNaissance => 'Nascimento';
+
+  @override
+  String get lifeEventSugNaissanceReason =>
+      'Simula o impacto financeiro de um filho';
+
+  @override
+  String get lifeEventSugSuccession => 'Planeamento sucessório';
+
+  @override
+  String get lifeEventSugSuccessionReason =>
+      'Quotas hereditárias e porção disponível (CC art. 470)';
+
+  @override
+  String get lifeEventSugDonation => 'Doação entre vivos';
+
+  @override
+  String get lifeEventSugDonationReason =>
+      'Antecipa a tua sucessão e otimiza a fiscalidade';
+
+  @override
+  String get lifeEventSugPremierEmploi => 'Primeiro emprego';
+
+  @override
+  String get lifeEventSugPremierEmploiReason =>
+      'Lança as bases: AVS, LPP, 3a e orçamento';
+
+  @override
+  String get lifeEventSugChangementEmploi => 'Mudança de emprego';
+
+  @override
+  String get lifeEventSugChangementEmploiReason =>
+      'Compara a tua LPP antes de assinar um novo contrato';
+
+  @override
+  String get lifeEventSugOutilsIndependant => 'Ferramentas independente';
+
+  @override
+  String get lifeEventSugOutilsIndependantReason =>
+      'AVS, LPP voluntária, 3a alargado e dividendo vs salário';
+
+  @override
+  String get lifeEventSugRetraite => 'Planeamento reforma';
+
+  @override
+  String get lifeEventSugRetraiteReason =>
+      'Renda vs capital, escalonamento 3a, lacuna AVS';
+
+  @override
+  String get lifeEventSugAchatImmo => 'Compra imobiliária';
+
+  @override
+  String get lifeEventSugAchatImmoReason =>
+      'Simula a tua capacidade de empréstimo e o contributo EPL';
+
+  @override
+  String get lifeEventSugDemenagement => 'Mudança cantonal';
+
+  @override
+  String get lifeEventSugDemenagementReason =>
+      'O teu cantão está entre os mais tributados — compara os 26';
+
+  @override
+  String get lifeEventSugInvalidite => 'Invalidez';
+
+  @override
+  String get lifeEventSugInvaliditeReason =>
+      'Verifica a tua cobertura AI + LPP em caso de acidente';
+
+  @override
+  String get indepProtAvs => 'Duplica a tua contribuição';
+
+  @override
+  String get indepProtLpp => 'Desaparece — escolha voluntária';
+
+  @override
+  String get indepProtLaa => 'Desaparece — acidente fora do trabalho';
+
+  @override
+  String get indepProtIjm => 'Desaparece — doença CHF 0';
+
+  @override
+  String get indepProtApg => 'Desaparece — licença parental';
+
+  @override
+  String get indepLppProInvalidite => 'Cobertura de invalidez incluída';
+
+  @override
+  String get indepLppProDeductible => 'Contribuições dedutíveis';
+
+  @override
+  String get indepLppProRente => 'Renda prevista na reforma';
+
+  @override
+  String get indepLppConCotisations => 'Contribuições obrigatórias elevadas';
+
+  @override
+  String get indepLppConFlexible => 'Menos flexível';
+
+  @override
+  String get indepGrand3aSub =>
+      '20% do rendimento líquido, máx. CHF 36\'288/ano';
+
+  @override
+  String get indepGrand3aProFlexibilite => 'Flexibilidade total';
+
+  @override
+  String get indepGrand3aProDeduction => 'Dedução fiscal máxima';
+
+  @override
+  String get indepGrand3aProCapital => 'Capital disponível aos 60 anos';
+
+  @override
+  String get indepGrand3aConInvalidite => 'Sem cobertura de invalidez';
+
+  @override
+  String get indepGrand3aConRente => 'Sem renda prevista';
+
+  @override
+  String get indepLayerImpots => 'Impostos (estimativa)';
+
+  @override
+  String get indepLayerChargesSociales => 'Encargos sociais AVS/AI';
+
+  @override
+  String get indepLayerFraisPro => 'Despesas profissionais';
+
+  @override
+  String get indepLayerJoursNonFact => 'Dias não faturáveis';
+
+  @override
+  String get indepFiscal3a => 'Pilar 3a grande contribuição';
+
+  @override
+  String get indepFiscal3aNote =>
+      'Máx. 20% do rendimento líquido, teto CHF 36\'288/ano sem LPP';
+
+  @override
+  String get indepFiscalFraisPro => 'Despesas profissionais efetivas';
+
+  @override
+  String get indepFiscalFraisProNote =>
+      'Renda escritório, material, formação — dedutíveis ao custo';
+
+  @override
+  String get indepFiscalPrimesLpp => 'Prémios seguro doença (LPP vol.)';
+
+  @override
+  String get indepChargeAvs => 'AVS / AI / APG';
+
+  @override
+  String get indepChargeLpp => 'LPP (2.° pilar)';
+
+  @override
+  String get indepChargeLppNote => 'Facultativo para independente (LPP art. 4)';
+
+  @override
+  String get indepChargeAc => 'Desemprego (AC)';
+
+  @override
+  String get indepChargeAcNote => 'Sem AC para independente (LACI art. 2)';
+
+  @override
+  String get indepChargePro => 'Contribuições profissionais (IJM/LAA)';
+
+  @override
+  String get indepChargeProNote => 'Inteiramente a cargo do independente';
+
+  @override
+  String get indepPlanInscriptionAvs => 'Inscrição caixa AVS independentes';
+
+  @override
+  String get indepPlanInscriptionAvsConseq =>
+      'Multas retroativas se prazo ultrapassado';
+
+  @override
+  String get indepPlanLaa => 'Seguro acidentes LAA (se sem LPP)';
+
+  @override
+  String get indepPlanLaaConseq => 'Sem cobertura acidente profissional';
+
+  @override
+  String get indepPlanOuvrir3a => 'Abrir conta 3a (dedução até CHF 36\'288)';
+
+  @override
+  String get indepPlanIjm => 'Avaliar IJM (indemnização diária doença)';
+
+  @override
+  String get indepPlanIjmConseq =>
+      'Perda de rendimento desde o dia 3 em caso de doença';
+
+  @override
+  String get indepPlanFraisPro =>
+      'Despesas profissionais dedutíveis — manter registo';
+
+  @override
+  String get indepPlanAcomptes =>
+      'Adiantamentos fiscais cantonais — evitar juros';
+
+  @override
+  String get donationTypeEspeces => 'Dinheiro / Liquidez';
+
+  @override
+  String get donationTypeImmobilier => 'Imobiliário';
+
+  @override
+  String get donationTypeTitres => 'Títulos / Valores mobiliários';
+
+  @override
+  String get donationRegimeParticipation => 'Participação nos adquiridos';
+
+  @override
+  String get donationRegimeCommunaute => 'Comunhão de bens';
+
+  @override
+  String get donationRegimeSeparation => 'Separação de bens';
+
+  @override
+  String donationReserveBarLabel(String pct) {
+    return 'Reserva $pct%';
+  }
+
+  @override
+  String donationDisponibleBarLabel(String pct) {
+    return 'Disponível $pct%';
+  }
+
+  @override
+  String get donationDisclaimerFallback =>
+      'Esta ferramenta educativa fornece estimativas indicativas e não constitui aconselhamento jurídico, fiscal ou notarial personalizado. Consulta um especialista (notário) para a tua situação.';
 }

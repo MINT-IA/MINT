@@ -69,10 +69,10 @@ class _DonationScreenState extends State<DonationScreen> {
   static List<String> get _cantons => sortedCantonCodes;
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
-  static const _typesDonationLabels = {
-    'especes': 'Espèces / Liquidités',
-    'immobilier': 'Immobilier',
-    'titres': 'Titres / Valeurs mobilières',
+  Map<String, String> _typesDonationLabels(S s) => {
+    'especes': s.donationTypeEspeces,
+    'immobilier': s.donationTypeImmobilier,
+    'titres': s.donationTypeTitres,
   };
 
   static const _liensParente = [
@@ -84,10 +84,10 @@ class _DonationScreenState extends State<DonationScreen> {
     'tiers',
   ];
 
-  static const _regimesLabels = {
-    'participation_acquets': 'Participation aux acquêts',
-    'communaute_biens': 'Communauté de biens',
-    'separation_biens': 'Séparation de biens',
+  Map<String, String> _regimesLabels(S s) => {
+    'participation_acquets': s.donationRegimeParticipation,
+    'communaute_biens': s.donationRegimeCommunaute,
+    'separation_biens': s.donationRegimeSeparation,
   };
 
   @override
@@ -432,7 +432,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
             return Semantics(
-              label: _typesDonationLabels[type] ?? type,
+              label: _typesDonationLabels(S.of(context)!)[type] ?? type,
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -453,7 +453,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _typesDonationLabels[type] ?? type,
+                  _typesDonationLabels(S.of(context)!)[type] ?? type,
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -485,7 +485,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: regimes.map((regime) {
             final selected = _regimeMatrimonial == regime;
             return Semantics(
-              label: _regimesLabels[regime] ?? regime,
+              label: _regimesLabels(S.of(context)!)[regime] ?? regime,
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -506,7 +506,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _regimesLabels[regime] ?? regime,
+                  _regimesLabels(S.of(context)!)[regime] ?? regime,
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -674,7 +674,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationReserveBarLabel((reservePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -688,7 +688,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: quotitePct > 0.15
                       ? Text(
-                          'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationDisponibleBarLabel((quotitePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -1033,10 +1033,7 @@ class _DonationScreenState extends State<DonationScreen> {
           Expanded(
             child: Text(
               _result?.disclaimer ??
-                  'Cet outil éducatif fournit des estimations indicatives et '
-                      'ne constitue pas un conseil juridique, fiscal ou notarial '
-                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
-                      '(notaire) pour ta situation.',
+                  S.of(context)!.donationDisclaimerFallback,
               style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),

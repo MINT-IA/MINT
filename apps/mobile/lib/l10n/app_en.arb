@@ -11191,5 +11191,143 @@
       "low": {"type": "String"},
       "high": {"type": "String"}
     }
-  }
+  },
+
+  "portfolioAppBarTitle": "My Portfolio",
+  "portfolioValeurTotaleNette": "Total Net Value",
+  "portfolioRepartitionEnveloppe": "Allocation by Envelope",
+  "portfolioLibrePlacement": "Free (Investment Account)",
+  "portfolioLiePilier3a": "Tied (Pillar 3a)",
+  "portfolioReserveFondsUrgence": "Reserved (Emergency Fund)",
+  "portfolioSafeModeLocked": "Debt reduction priority",
+  "portfolioSafeModeBody": "Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.",
+
+  "byokShowKey": "Show key",
+  "byokHideKey": "Hide key",
+
+  "themeDetailEssentiel60s": "The essentials in 60 seconds",
+  "themeDetailTesteConnaissances": "Test your knowledge",
+  "themeDetailSavaisTu": "Did you know?",
+  "themeDetailSourcesLegales": "Legal sources",
+  "themeDetailRappel": "Reminder",
+  "themeDetailBienVu": "Well spotted!",
+  "themeDetailPasToutAFait": "Not quite...",
+
+  "emergencyFundTitle": "Your safety net",
+  "emergencyFundSubtitle": "Calculate your ideal emergency fund",
+  "emergencyFundDisclaimer": "The 3-6 month target is a general recommendation. Your personal situation may require a different amount.",
+  "emergencyFundHyp1": "Fixed charges = rent + insurance + subscriptions + loans",
+  "emergencyFundHyp2": "Recommended target: 3 months (minimum) to 6 months (comfort)",
+  "emergencyFundHyp3": "Suggested placement: accessible savings account, not invested",
+  "emergencyFundChargesLabel": "Your monthly fixed charges",
+  "emergencyFundChargesDesc": "Rent + insurance + subscriptions + loans",
+  "emergencyFundObjectifLabel": "Target in safety months",
+  "emergencyFundMoisUnit": "{count} months",
+  "@emergencyFundMoisUnit": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "emergencyFundMinimum": "Minimum",
+  "emergencyFundConfort": "Comfort",
+  "emergencyFundObjectifTitle": "Your emergency fund target",
+  "emergencyFundProgression": "Your progress",
+  "emergencyFundManque": "You still need {amount}",
+  "@emergencyFundManque": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "emergencyFundAtteint": "Target reached!",
+  "emergencyFundExplication": "This fund protects you from unexpected events (job loss, illness, repairs) without touching your investments.",
+
+  "lifeEventSuggestionsHeader": "What's next?",
+  "lifeEventSuggestionsSubheader": "Modules tailored to your profile",
+  "lifeEventSuggestionsSimuler": "Simulate",
+  "lifeEventSugMariage": "Marriage",
+  "lifeEventSugMariageReason": "Discover the tax and pension impact",
+  "lifeEventSugConcubinage": "Cohabitation",
+  "lifeEventSugConcubinageReason": "Warning: no automatic legal protection",
+  "lifeEventSugNaissance": "Birth",
+  "lifeEventSugNaissanceReason": "Simulate the financial impact of a child",
+  "lifeEventSugSuccession": "Estate planning",
+  "lifeEventSugSuccessionReason": "Forced heirship and disposable portion (CC art. 470)",
+  "lifeEventSugDonation": "Inter vivos gift",
+  "lifeEventSugDonationReason": "Anticipate your succession and optimize taxes",
+  "lifeEventSugPremierEmploi": "First job",
+  "lifeEventSugPremierEmploiReason": "Build the foundations: AVS, LPP, 3a and budget",
+  "lifeEventSugChangementEmploi": "Job change",
+  "lifeEventSugChangementEmploiReason": "Compare your LPP before signing a new contract",
+  "lifeEventSugOutilsIndependant": "Self-employed tools",
+  "lifeEventSugOutilsIndependantReason": "AVS, voluntary LPP, extended 3a and dividend vs salary",
+  "lifeEventSugRetraite": "Retirement planning",
+  "lifeEventSugRetraiteReason": "Annuity vs capital, 3a staggering, AVS gap",
+  "lifeEventSugAchatImmo": "Property purchase",
+  "lifeEventSugAchatImmoReason": "Simulate your borrowing capacity and EPL contribution",
+  "lifeEventSugDemenagement": "Cantonal move",
+  "lifeEventSugDemenagementReason": "Your canton is among the most taxed — compare all 26",
+  "lifeEventSugInvalidite": "Disability",
+  "lifeEventSugInvaliditeReason": "Check your AI + LPP coverage in case of accident",
+
+  "indepProtAvs": "Double your contribution",
+  "indepProtLpp": "Disappears — voluntary choice",
+  "indepProtLaa": "Disappears — non-work accident",
+  "indepProtIjm": "Disappears — illness CHF 0",
+  "indepProtApg": "Disappears — parental leave",
+  "indepLppProInvalidite": "Disability coverage included",
+  "indepLppProDeductible": "Tax-deductible contributions",
+  "indepLppProRente": "Planned retirement annuity",
+  "indepLppConCotisations": "High mandatory contributions",
+  "indepLppConFlexible": "Less flexible",
+  "indepGrand3aSub": "20% of net income, max CHF\u00a036,288/year",
+  "indepGrand3aProFlexibilite": "Total flexibility",
+  "indepGrand3aProDeduction": "Maximum tax deduction",
+  "indepGrand3aProCapital": "Capital available at 60",
+  "indepGrand3aConInvalidite": "No disability coverage",
+  "indepGrand3aConRente": "No planned annuity",
+  "indepLayerImpots": "Taxes (estimate)",
+  "indepLayerChargesSociales": "Social charges AVS/AI",
+  "indepLayerFraisPro": "Business expenses",
+  "indepLayerJoursNonFact": "Non-billable days",
+  "indepFiscal3a": "Pillar 3a large contribution",
+  "indepFiscal3aNote": "Max 20% of net income, capped at CHF\u00a036,288/year without LPP",
+  "indepFiscalFraisPro": "Actual business expenses",
+  "indepFiscalFraisProNote": "Office rent, equipment, training — deductible at cost",
+  "indepFiscalPrimesLpp": "Health insurance premiums (voluntary LPP)",
+  "indepChargeAvs": "AVS / AI / APG",
+  "indepChargeLpp": "LPP (2nd pillar)",
+  "indepChargeLppNote": "Optional for self-employed (LPP art. 4)",
+  "indepChargeAc": "Unemployment (AC)",
+  "indepChargeAcNote": "No AC for self-employed (LACI art. 2)",
+  "indepChargePro": "Professional contributions (IJM/LAA)",
+  "indepChargeProNote": "Entirely borne by the self-employed",
+  "indepPlanInscriptionAvs": "Register with AVS fund for self-employed",
+  "indepPlanInscriptionAvsConseq": "Retroactive fines if deadline missed",
+  "indepPlanLaa": "Accident insurance LAA (if no LPP)",
+  "indepPlanLaaConseq": "No professional accident coverage",
+  "indepPlanOuvrir3a": "Open 3a account (deduction up to CHF\u00a036,288)",
+  "indepPlanIjm": "Evaluate IJM (daily sickness allowance)",
+  "indepPlanIjmConseq": "Loss of income from day 3 in case of illness",
+  "indepPlanFraisPro": "Deductible business expenses — keep records",
+  "indepPlanAcomptes": "Cantonal tax installments — avoid interest",
+
+  "donationTypeEspeces": "Cash / Liquidity",
+  "donationTypeImmobilier": "Real estate",
+  "donationTypeTitres": "Securities / Movable assets",
+  "donationRegimeParticipation": "Participation in acquired property",
+  "donationRegimeCommunaute": "Community of property",
+  "donationRegimeSeparation": "Separation of property",
+  "donationReserveBarLabel": "Reserved {pct}%",
+  "@donationReserveBarLabel": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "donationDisponibleBarLabel": "Available {pct}%",
+  "@donationDisponibleBarLabel": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "donationDisclaimerFallback": "This educational tool provides indicative estimates and does not constitute personalized legal, tax or notarial advice within the meaning of FinSA. Consult a specialist (notary) for your situation."
 }

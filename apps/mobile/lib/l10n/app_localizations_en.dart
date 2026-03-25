@@ -23735,4 +23735,373 @@ class SEn extends S {
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / month';
   }
+
+  @override
+  String get portfolioAppBarTitle => 'My Portfolio';
+
+  @override
+  String get portfolioValeurTotaleNette => 'Total Net Value';
+
+  @override
+  String get portfolioRepartitionEnveloppe => 'Allocation by Envelope';
+
+  @override
+  String get portfolioLibrePlacement => 'Free (Investment Account)';
+
+  @override
+  String get portfolioLiePilier3a => 'Tied (Pillar 3a)';
+
+  @override
+  String get portfolioReserveFondsUrgence => 'Reserved (Emergency Fund)';
+
+  @override
+  String get portfolioSafeModeLocked => 'Debt reduction priority';
+
+  @override
+  String get portfolioSafeModeBody =>
+      'Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.';
+
+  @override
+  String get byokShowKey => 'Show key';
+
+  @override
+  String get byokHideKey => 'Hide key';
+
+  @override
+  String get themeDetailEssentiel60s => 'The essentials in 60 seconds';
+
+  @override
+  String get themeDetailTesteConnaissances => 'Test your knowledge';
+
+  @override
+  String get themeDetailSavaisTu => 'Did you know?';
+
+  @override
+  String get themeDetailSourcesLegales => 'Legal sources';
+
+  @override
+  String get themeDetailRappel => 'Reminder';
+
+  @override
+  String get themeDetailBienVu => 'Well spotted!';
+
+  @override
+  String get themeDetailPasToutAFait => 'Not quite...';
+
+  @override
+  String get emergencyFundTitle => 'Your safety net';
+
+  @override
+  String get emergencyFundSubtitle => 'Calculate your ideal emergency fund';
+
+  @override
+  String get emergencyFundDisclaimer =>
+      'The 3-6 month target is a general recommendation. Your personal situation may require a different amount.';
+
+  @override
+  String get emergencyFundHyp1 =>
+      'Fixed charges = rent + insurance + subscriptions + loans';
+
+  @override
+  String get emergencyFundHyp2 =>
+      'Recommended target: 3 months (minimum) to 6 months (comfort)';
+
+  @override
+  String get emergencyFundHyp3 =>
+      'Suggested placement: accessible savings account, not invested';
+
+  @override
+  String get emergencyFundChargesLabel => 'Your monthly fixed charges';
+
+  @override
+  String get emergencyFundChargesDesc =>
+      'Rent + insurance + subscriptions + loans';
+
+  @override
+  String get emergencyFundObjectifLabel => 'Target in safety months';
+
+  @override
+  String emergencyFundMoisUnit(int count) {
+    return '$count months';
+  }
+
+  @override
+  String get emergencyFundMinimum => 'Minimum';
+
+  @override
+  String get emergencyFundConfort => 'Comfort';
+
+  @override
+  String get emergencyFundObjectifTitle => 'Your emergency fund target';
+
+  @override
+  String get emergencyFundProgression => 'Your progress';
+
+  @override
+  String emergencyFundManque(String amount) {
+    return 'You still need $amount';
+  }
+
+  @override
+  String get emergencyFundAtteint => 'Target reached!';
+
+  @override
+  String get emergencyFundExplication =>
+      'This fund protects you from unexpected events (job loss, illness, repairs) without touching your investments.';
+
+  @override
+  String get lifeEventSuggestionsHeader => 'What\'s next?';
+
+  @override
+  String get lifeEventSuggestionsSubheader =>
+      'Modules tailored to your profile';
+
+  @override
+  String get lifeEventSuggestionsSimuler => 'Simulate';
+
+  @override
+  String get lifeEventSugMariage => 'Marriage';
+
+  @override
+  String get lifeEventSugMariageReason => 'Discover the tax and pension impact';
+
+  @override
+  String get lifeEventSugConcubinage => 'Cohabitation';
+
+  @override
+  String get lifeEventSugConcubinageReason =>
+      'Warning: no automatic legal protection';
+
+  @override
+  String get lifeEventSugNaissance => 'Birth';
+
+  @override
+  String get lifeEventSugNaissanceReason =>
+      'Simulate the financial impact of a child';
+
+  @override
+  String get lifeEventSugSuccession => 'Estate planning';
+
+  @override
+  String get lifeEventSugSuccessionReason =>
+      'Forced heirship and disposable portion (CC art. 470)';
+
+  @override
+  String get lifeEventSugDonation => 'Inter vivos gift';
+
+  @override
+  String get lifeEventSugDonationReason =>
+      'Anticipate your succession and optimize taxes';
+
+  @override
+  String get lifeEventSugPremierEmploi => 'First job';
+
+  @override
+  String get lifeEventSugPremierEmploiReason =>
+      'Build the foundations: AVS, LPP, 3a and budget';
+
+  @override
+  String get lifeEventSugChangementEmploi => 'Job change';
+
+  @override
+  String get lifeEventSugChangementEmploiReason =>
+      'Compare your LPP before signing a new contract';
+
+  @override
+  String get lifeEventSugOutilsIndependant => 'Self-employed tools';
+
+  @override
+  String get lifeEventSugOutilsIndependantReason =>
+      'AVS, voluntary LPP, extended 3a and dividend vs salary';
+
+  @override
+  String get lifeEventSugRetraite => 'Retirement planning';
+
+  @override
+  String get lifeEventSugRetraiteReason =>
+      'Annuity vs capital, 3a staggering, AVS gap';
+
+  @override
+  String get lifeEventSugAchatImmo => 'Property purchase';
+
+  @override
+  String get lifeEventSugAchatImmoReason =>
+      'Simulate your borrowing capacity and EPL contribution';
+
+  @override
+  String get lifeEventSugDemenagement => 'Cantonal move';
+
+  @override
+  String get lifeEventSugDemenagementReason =>
+      'Your canton is among the most taxed — compare all 26';
+
+  @override
+  String get lifeEventSugInvalidite => 'Disability';
+
+  @override
+  String get lifeEventSugInvaliditeReason =>
+      'Check your AI + LPP coverage in case of accident';
+
+  @override
+  String get indepProtAvs => 'Double your contribution';
+
+  @override
+  String get indepProtLpp => 'Disappears — voluntary choice';
+
+  @override
+  String get indepProtLaa => 'Disappears — non-work accident';
+
+  @override
+  String get indepProtIjm => 'Disappears — illness CHF 0';
+
+  @override
+  String get indepProtApg => 'Disappears — parental leave';
+
+  @override
+  String get indepLppProInvalidite => 'Disability coverage included';
+
+  @override
+  String get indepLppProDeductible => 'Tax-deductible contributions';
+
+  @override
+  String get indepLppProRente => 'Planned retirement annuity';
+
+  @override
+  String get indepLppConCotisations => 'High mandatory contributions';
+
+  @override
+  String get indepLppConFlexible => 'Less flexible';
+
+  @override
+  String get indepGrand3aSub => '20% of net income, max CHF 36,288/year';
+
+  @override
+  String get indepGrand3aProFlexibilite => 'Total flexibility';
+
+  @override
+  String get indepGrand3aProDeduction => 'Maximum tax deduction';
+
+  @override
+  String get indepGrand3aProCapital => 'Capital available at 60';
+
+  @override
+  String get indepGrand3aConInvalidite => 'No disability coverage';
+
+  @override
+  String get indepGrand3aConRente => 'No planned annuity';
+
+  @override
+  String get indepLayerImpots => 'Taxes (estimate)';
+
+  @override
+  String get indepLayerChargesSociales => 'Social charges AVS/AI';
+
+  @override
+  String get indepLayerFraisPro => 'Business expenses';
+
+  @override
+  String get indepLayerJoursNonFact => 'Non-billable days';
+
+  @override
+  String get indepFiscal3a => 'Pillar 3a large contribution';
+
+  @override
+  String get indepFiscal3aNote =>
+      'Max 20% of net income, capped at CHF 36,288/year without LPP';
+
+  @override
+  String get indepFiscalFraisPro => 'Actual business expenses';
+
+  @override
+  String get indepFiscalFraisProNote =>
+      'Office rent, equipment, training — deductible at cost';
+
+  @override
+  String get indepFiscalPrimesLpp =>
+      'Health insurance premiums (voluntary LPP)';
+
+  @override
+  String get indepChargeAvs => 'AVS / AI / APG';
+
+  @override
+  String get indepChargeLpp => 'LPP (2nd pillar)';
+
+  @override
+  String get indepChargeLppNote => 'Optional for self-employed (LPP art. 4)';
+
+  @override
+  String get indepChargeAc => 'Unemployment (AC)';
+
+  @override
+  String get indepChargeAcNote => 'No AC for self-employed (LACI art. 2)';
+
+  @override
+  String get indepChargePro => 'Professional contributions (IJM/LAA)';
+
+  @override
+  String get indepChargeProNote => 'Entirely borne by the self-employed';
+
+  @override
+  String get indepPlanInscriptionAvs =>
+      'Register with AVS fund for self-employed';
+
+  @override
+  String get indepPlanInscriptionAvsConseq =>
+      'Retroactive fines if deadline missed';
+
+  @override
+  String get indepPlanLaa => 'Accident insurance LAA (if no LPP)';
+
+  @override
+  String get indepPlanLaaConseq => 'No professional accident coverage';
+
+  @override
+  String get indepPlanOuvrir3a =>
+      'Open 3a account (deduction up to CHF 36,288)';
+
+  @override
+  String get indepPlanIjm => 'Evaluate IJM (daily sickness allowance)';
+
+  @override
+  String get indepPlanIjmConseq =>
+      'Loss of income from day 3 in case of illness';
+
+  @override
+  String get indepPlanFraisPro => 'Deductible business expenses — keep records';
+
+  @override
+  String get indepPlanAcomptes => 'Cantonal tax installments — avoid interest';
+
+  @override
+  String get donationTypeEspeces => 'Cash / Liquidity';
+
+  @override
+  String get donationTypeImmobilier => 'Real estate';
+
+  @override
+  String get donationTypeTitres => 'Securities / Movable assets';
+
+  @override
+  String get donationRegimeParticipation =>
+      'Participation in acquired property';
+
+  @override
+  String get donationRegimeCommunaute => 'Community of property';
+
+  @override
+  String get donationRegimeSeparation => 'Separation of property';
+
+  @override
+  String donationReserveBarLabel(String pct) {
+    return 'Reserved $pct%';
+  }
+
+  @override
+  String donationDisponibleBarLabel(String pct) {
+    return 'Available $pct%';
+  }
+
+  @override
+  String get donationDisclaimerFallback =>
+      'This educational tool provides indicative estimates and does not constitute personalized legal, tax or notarial advice within the meaning of FinSA. Consult a specialist (notary) for your situation.';
 }

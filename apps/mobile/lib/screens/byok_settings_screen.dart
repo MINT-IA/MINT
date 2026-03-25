@@ -246,8 +246,8 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           ),
           suffixIcon: Semantics(
             label: _obscureKey
-                ? 'Afficher la clé'
-                : 'Masquer la clé',
+                ? S.of(context)!.byokShowKey
+                : S.of(context)!.byokHideKey,
             button: true,
             child: IconButton(
               icon: Icon(

@@ -22,7 +22,7 @@ class PortfolioScreen extends StatelessWidget {
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(
-          'Mon patrimoine',
+          S.of(context)!.portfolioAppBarTitle,
           style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
         ),
         centerTitle: false,
@@ -39,23 +39,21 @@ class PortfolioScreen extends StatelessWidget {
               _buildSafeModeWarning(context),
               const SizedBox(height: 24),
             ],
-            MintEntrance(child: _buildWealthSummary()),
+            MintEntrance(child: _buildWealthSummary(context)),
             const SizedBox(height: 32),
             MintEntrance(delay: const Duration(milliseconds: 100), child: _buildReadinessIndex(context, profile)),
             const SizedBox(height: 32),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionHeader('Répartition par Enveloppe')),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionHeader(S.of(context)!.portfolioRepartitionEnveloppe)),
             const SizedBox(height: 12),
             // TODO: wire to real portfolio data from profile.patrimoine
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem('Libre (Compte Placement)', 'CHF\u00a0\u2014', icon: Icons.trending_up, color: MintColors.primary)),
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem('Lié (Pilier 3a)', 'CHF\u00a0\u2014', icon: Icons.savings_outlined, color: MintColors.success)),
-            _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF\u00a0\u2014', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem(S.of(context)!.portfolioLibrePlacement, 'CHF\u00a0\u2014', icon: Icons.trending_up, color: MintColors.primary)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem(S.of(context)!.portfolioLiePilier3a, 'CHF\u00a0\u2014', icon: Icons.savings_outlined, color: MintColors.success)),
+            _buildAccountItem(S.of(context)!.portfolioReserveFondsUrgence, 'CHF\u00a0\u2014', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
             const SizedBox(height: 32),
             SafeModeGate(
               hasDebt: hasDebt,
-              lockedTitle: 'Priorite au desendettement',
-              lockedMessage:
-                  'Les conseils d\'allocation sont desactives en mode protection. '
-                  'Ta priorite est de reduire tes dettes avant de reequilibrer ton patrimoine.',
+              lockedTitle: S.of(context)!.portfolioSafeModeLocked,
+              lockedMessage: S.of(context)!.portfolioSafeModeBody,
               child: _buildCoachAdvice(context),
             ),
             const SizedBox(height: 100),
@@ -129,7 +127,7 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWealthSummary() {
+  Widget _buildWealthSummary(BuildContext context) {
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(24),
@@ -137,7 +135,7 @@ class PortfolioScreen extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Valeur Totale Neté',
+            S.of(context)!.portfolioValeurTotaleNette,
             style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: MintSpacing.sm),

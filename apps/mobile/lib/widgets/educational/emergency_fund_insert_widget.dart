@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
@@ -41,28 +42,29 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return EducationalInsertWidget(
-      title: 'Ton filet de sécurité',
-      subtitle: 'Calcule ton fonds d\'urgence idéal',
-      disclaimer: 'L\'objectif de 3-6 mois est une recommandation générale. Ta situation personnelle peut nécessiter un montant différent.',
-      hypotheses: const [
-        'Charges fixes = loyer + assurances + abonnements + crédits',
-        'Objectif recommandé : 3 mois (minimum) à 6 mois (confort)',
-        'Placement suggéré : compte épargne accessible, non investi',
+      title: s.emergencyFundTitle,
+      subtitle: s.emergencyFundSubtitle,
+      disclaimer: s.emergencyFundDisclaimer,
+      hypotheses: [
+        s.emergencyFundHyp1,
+        s.emergencyFundHyp2,
+        s.emergencyFundHyp3,
       ],
       onLearnMore: widget.onLearnMore,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Slider charges mensuelles
-          const Text(
-            'Tes charges fixes mensuelles',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          Text(
+            s.emergencyFundChargesLabel,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Loyer + assurances + abonnements + crédits',
-            style: TextStyle(fontSize: 12, color: MintColors.textSecondary),
+          Text(
+            s.emergencyFundChargesDesc,
+            style: const TextStyle(fontSize: 12, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -91,9 +93,9 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
           const SizedBox(height: 16),
           
           // Slider mois cible
-          const Text(
-            'Objectif en mois de sécurité',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          Text(
+            s.emergencyFundObjectifLabel,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Row(
@@ -111,7 +113,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
               SizedBox(
                 width: 70,
                 child: Text(
-                  '${_targetMonths.toInt()} mois',
+                  s.emergencyFundMoisUnit(_targetMonths.toInt()),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
@@ -120,13 +122,13 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
           ),
           
           // Labels
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Minimum', style: TextStyle(fontSize: 11, color: MintColors.textSecondary)),
-                Text('Confort', style: TextStyle(fontSize: 11, color: MintColors.textSecondary)),
+                Text(s.emergencyFundMinimum, style: const TextStyle(fontSize: 11, color: MintColors.textSecondary)),
+                Text(s.emergencyFundConfort, style: const TextStyle(fontSize: 11, color: MintColors.textSecondary)),
               ],
             ),
           ),
@@ -158,9 +160,9 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Ton objectif de fonds d\'urgence',
-                          style: TextStyle(fontSize: 13, color: MintColors.textSecondary),
+                        Text(
+                          s.emergencyFundObjectifTitle,
+                          style: const TextStyle(fontSize: 13, color: MintColors.textSecondary),
                         ),
                         Text(
                           _currencyFormat.format(_targetAmount),
@@ -183,7 +185,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Ta progression'),
+                          Text(s.emergencyFundProgression),
                           Text('${(_currentProgress * 100).toInt()}%'),
                         ],
                       ),
@@ -200,7 +202,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       const SizedBox(height: 8),
                       if (_currentProgress < 1)
                         Text(
-                          'Il te manque ${_currencyFormat.format(_targetAmount - widget.currentSavings!)}',
+                          s.emergencyFundManque(_currencyFormat.format(_targetAmount - widget.currentSavings!)),
                           style: const TextStyle(fontSize: 13, color: MintColors.warning),
                         )
                       else
@@ -209,7 +211,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                             const Icon(Icons.check_circle, color: MintColors.success, size: 16),
                             const SizedBox(width: 8),
                             Text(
-                              'Objectif atteint ! 🎉',
+                              s.emergencyFundAtteint,
                               style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -238,7 +240,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Ce fonds te protège des imprévus (perte d\'emploi, maladie, réparations) sans toucher à tes investissements.',
+                    s.emergencyFundExplication,
                     style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
