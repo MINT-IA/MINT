@@ -836,10 +836,10 @@ async def coach_chat(
             memory_block=body.memory_block,
             system_prompt=system_prompt,
         )
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    except ImportError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
+    except ImportError:
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     except Exception as exc:
         logger.error("Coach chat agent loop failed: %s", type(exc).__name__)
         raise HTTPException(

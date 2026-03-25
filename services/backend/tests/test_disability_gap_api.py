@@ -113,7 +113,7 @@ class TestDisabilityGapInvalidInput:
         payload = _employee_payload(canton="XX")
         resp = client.post(API_URL, json=payload)
         assert resp.status_code == 400
-        assert "Canton non supporte" in resp.json()["detail"]
+        assert resp.json()["detail"] == "Invalid request parameters"
 
     def test_missing_required_field_returns_422(self, client):
         """POST with missing required field returns 422 (validation)."""

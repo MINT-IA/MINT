@@ -244,6 +244,9 @@ final _router = GoRouter(
     GoRoute(path: '/app/explore', redirect: (_, __) => '/home?tab=2'),
     GoRoute(path: '/app/dossier', redirect: (_, __) => '/home?tab=3'),
 
+    // /pulse → redirect to home (Pulse is tab 0 of the shell)
+    GoRoute(path: '/pulse', redirect: (_, __) => '/'),
+
     // ── EXPLORER HUBS (7 thematic hubs) ──────────────────────
     GoRoute(
       path: '/explore/retraite',

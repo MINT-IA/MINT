@@ -152,8 +152,8 @@ def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest) ->
 
         return _result_to_response(result, RenteVsCapitalResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/allocation-annuelle", response_model=AllocationAnnuelleResponse)
@@ -227,8 +227,8 @@ def arbitrage_allocation_annuelle(
 
         return _result_to_response(result, AllocationAnnuelleResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/location-vs-propriete", response_model=LocationVsProprieteResponse)
@@ -291,8 +291,8 @@ def arbitrage_location_vs_propriete(
 
         return _result_to_response(result, LocationVsProprieteResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/rachat-vs-marche", response_model=RachatVsMarcheResponse)
@@ -349,8 +349,8 @@ def arbitrage_rachat_vs_marche(
 
         return _result_to_response(result, RachatVsMarcheResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/calendrier-retraits", response_model=CalendrierRetraitsResponse)
@@ -404,5 +404,5 @@ def arbitrage_calendrier_retraits(
 
         return _result_to_response(result, CalendrierRetraitsResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")

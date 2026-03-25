@@ -300,7 +300,7 @@ class RetirementProjectionService {
     final conjName = profile.conjoint?.firstName ?? 'Conjoint·e';
 
     // ── AVS ──────────────────────────────────────────────
-    final avsUser = AvsCalculator.computeMonthlyRente(
+    final avsUserRaw = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
       retirementAge: ageUser,
       lacunes: profile.prevoyance.lacunesAVS ?? 0,
@@ -308,10 +308,12 @@ class RetirementProjectionService {
       arrivalAge: profile.arrivalAge,
       grossAnnualSalary: profile.revenuBrutAnnuel,
     );
+    // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
+    final avsUser = AvsCalculator.annualRente(avsUserRaw) / 12;
 
     double avsConj = 0;
     if (hasConjoint) {
-      avsConj = AvsCalculator.computeMonthlyRente(
+      final avsConjRaw = AvsCalculator.computeMonthlyRente(
         currentAge: profile.conjoint!.age ?? 45,
         retirementAge: ageConjoint,
         lacunes: profile.conjoint?.prevoyance?.lacunesAVS ?? 0,
@@ -319,29 +321,41 @@ class RetirementProjectionService {
         arrivalAge: profile.conjoint!.arrivalAge,
         grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
       );
+      avsConj = AvsCalculator.annualRente(avsConjRaw) / 12;
     }
 
     // Couple cap 150% — LAVS art. 35: ONLY for married couples.
     // Concubins are two singles, each gets their own rente uncapped.
+    // Note: computeCouple operates on raw monthly values, then we apply 13th rente.
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     if (hasConjoint && isMarried) {
       final couple = AvsCalculator.computeCouple(
-        avsUser: avsUser,
-        avsConjoint: avsConj,
+        avsUser: avsUserRaw,
+        avsConjoint: AvsCalculator.computeMonthlyRente(
+          currentAge: profile.conjoint!.age ?? 45,
+          retirementAge: ageConjoint,
+          lacunes: profile.conjoint?.prevoyance?.lacunesAVS ?? 0,
+          anneesContribuees: profile.conjoint?.prevoyance?.anneesContribuees,
+          arrivalAge: profile.conjoint!.arrivalAge,
+          grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
+        ),
         isMarried: true,
       );
+      // Apply 13th rente to capped values.
+      final coupleUserWith13 = AvsCalculator.annualRente(couple.user) / 12;
+      final coupleConjWith13 = AvsCalculator.annualRente(couple.conjoint) / 12;
       sources.add(RetirementIncomeSource(
         id: 'avs_user',
         label: 'AVS $userName',
-        monthlyAmount: couple.user,
+        monthlyAmount: coupleUserWith13,
         color: colorAvs,
         isIndexed: true,
       ));
-      if (couple.conjoint > 0) {
+      if (coupleConjWith13 > 0) {
         sources.add(RetirementIncomeSource(
           id: 'avs_conjoint',
           label: 'AVS $conjName',
-          monthlyAmount: couple.conjoint,
+          monthlyAmount: coupleConjWith13,
           color: MintColors.pillarAvsConjoint,
           isIndexed: true,
         ));
@@ -707,14 +721,15 @@ class RetirementProjectionService {
 
     if (userRetiresFirst) {
       // User AVS (no couple cap — only user receives)
-      final avsUser = AvsCalculator.computeMonthlyRente(
+      // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
+      final avsUser = AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
         currentAge: profile.age,
         retirementAge: ageUser,
         lacunes: profile.prevoyance.lacunesAVS ?? 0,
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
         grossAnnualSalary: profile.revenuBrutAnnuel,
-      );
+      )) / 12;
       sources.add(RetirementIncomeSource(
         id: 'avs_user',
         label: 'AVS $userName',
@@ -783,14 +798,15 @@ class RetirementProjectionService {
       }
     } else {
       // Conjoint AVS (no couple cap — only conjoint receives)
-      final avsConj = AvsCalculator.computeMonthlyRente(
+      // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
+      final avsConj = AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
         currentAge: profile.conjoint!.age ?? 45,
         retirementAge: ageConjoint,
         lacunes: profile.conjoint?.prevoyance?.lacunesAVS ?? 0,
         anneesContribuees: profile.conjoint?.prevoyance?.anneesContribuees,
         arrivalAge: profile.conjoint!.arrivalAge,
         grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
-      );
+      )) / 12;
       sources.add(RetirementIncomeSource(
         id: 'avs_conjoint',
         label: 'AVS $conjName',

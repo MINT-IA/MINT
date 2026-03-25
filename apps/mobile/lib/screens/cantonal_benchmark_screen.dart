@@ -163,6 +163,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             activeTrackColor: MintColors.primary,
             onChanged: (value) async {
               await CantonalBenchmarkService.setOptedIn(value);
+              if (!mounted) return;
               setState(() {
                 _optedIn = value;
               });

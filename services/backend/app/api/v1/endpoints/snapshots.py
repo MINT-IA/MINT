@@ -11,7 +11,11 @@ Sources:
 """
 
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
+from app.models.user import User
 
 from app.schemas.snapshots import (
     CreateSnapshotRequest,
@@ -60,7 +64,8 @@ def _snapshot_to_response(snapshot) -> SnapshotResponse:
 
 
 @router.post("", response_model=SnapshotResponse)
-def create_financial_snapshot(request: CreateSnapshotRequest) -> SnapshotResponse:
+@limiter.limit("30/minute")
+def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, current_user: User = Depends(require_current_user)) -> SnapshotResponse:
     """Creer un snapshot financier.
 
     Capture l'etat financier de l'utilisateur a un moment donne,
@@ -71,7 +76,7 @@ def create_financial_snapshot(request: CreateSnapshotRequest) -> SnapshotRespons
         SnapshotResponse avec l'identifiant unique du snapshot.
     """
     # Consent guard: snapshot_storage consent required (nLPD)
-    if not ConsentManager.is_consent_given(request.user_id, ConsentType.snapshot_storage):
+    if not ConsentManager.is_consent_given(current_user.id, ConsentType.snapshot_storage):
         raise HTTPException(
             status_code=403,
             detail=(
@@ -82,65 +87,66 @@ def create_financial_snapshot(request: CreateSnapshotRequest) -> SnapshotRespons
 
     try:
         snapshot = create_snapshot(
-            user_id=request.user_id,
-            trigger=request.trigger,
-            profile_data=request.profile_data,
+            user_id=current_user.id,
+            trigger=body.trigger,
+            profile_data=body.profile_data,
         )
         return _snapshot_to_response(snapshot)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
-@router.get("/{user_id}", response_model=SnapshotListResponse)
+@router.get("", response_model=SnapshotListResponse)
+@limiter.limit("60/minute")
 def get_user_snapshots(
-    user_id: str,
+    request: Request,
     limit: int = Query(default=10, ge=1, le=100, description="Nombre max de snapshots"),
+    current_user: User = Depends(require_current_user),
 ) -> SnapshotListResponse:
-    """Recuperer les snapshots d'un utilisateur.
+    """Recuperer les snapshots de l'utilisateur authentifie.
 
     Retourne les snapshots les plus recents en premier (ordre chronologique inverse).
 
     Args:
-        user_id: Identifiant de l'utilisateur.
         limit: Nombre maximum de snapshots a retourner (defaut: 10, max: 100).
 
     Returns:
         SnapshotListResponse avec la liste des snapshots.
     """
-    snapshots = get_snapshots(user_id=user_id, limit=limit)
+    snapshots = get_snapshots(user_id=current_user.id, limit=limit)
     return SnapshotListResponse(
         snapshots=[_snapshot_to_response(s) for s in snapshots],
         count=len(snapshots),
     )
 
 
-@router.delete("/{user_id}", response_model=DeleteSnapshotsResponse)
-def delete_user_snapshots(user_id: str) -> DeleteSnapshotsResponse:
-    """Supprimer tous les snapshots d'un utilisateur.
+@router.delete("", response_model=DeleteSnapshotsResponse)
+@limiter.limit("30/minute")
+def delete_user_snapshots(request: Request, current_user: User = Depends(require_current_user)) -> DeleteSnapshotsResponse:
+    """Supprimer tous les snapshots de l'utilisateur authentifie.
 
     Conformite LPD (Loi sur la protection des donnees) — droit a l'effacement.
-
-    Args:
-        user_id: Identifiant de l'utilisateur.
 
     Returns:
         DeleteSnapshotsResponse avec le nombre de snapshots supprimes.
     """
-    count = delete_all_snapshots(user_id=user_id)
+    count = delete_all_snapshots(user_id=current_user.id)
     return DeleteSnapshotsResponse(
         deleted_count=count,
-        message=f"{count} snapshot(s) supprime(s) pour l'utilisateur {user_id}.",
+        message=f"{count} snapshot(s) supprime(s).",
     )
 
 
-@router.get("/{user_id}/evolution", response_model=EvolutionResponse)
+@router.get("/evolution", response_model=EvolutionResponse)
+@limiter.limit("60/minute")
 def get_user_evolution(
-    user_id: str,
+    request: Request,
     field: str = Query(
         default="replacement_ratio",
         description="Metrique a suivre (replacement_ratio, months_liquidity, etc.)",
     ),
+    current_user: User = Depends(require_current_user),
 ) -> EvolutionResponse:
     """Recuperer la serie temporelle d'une metrique financiere.
 
@@ -148,14 +154,13 @@ def get_user_evolution(
     pour visualiser l'evolution dans le temps.
 
     Args:
-        user_id: Identifiant de l'utilisateur.
         field: Nom de la metrique a suivre.
 
     Returns:
         EvolutionResponse avec la serie temporelle.
     """
     try:
-        data_points = get_evolution(user_id=user_id, field=field)
+        data_points = get_evolution(user_id=current_user.id, field=field)
         return EvolutionResponse(
             field=field,
             data_points=[
@@ -169,5 +174,5 @@ def get_user_evolution(
             count=len(data_points),
         )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
