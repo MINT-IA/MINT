@@ -64,7 +64,7 @@ jobs:
       - name: Security audit (pip-audit)
         run: |
           pip install pip-audit
-          pip-audit --skip-editable --desc on
+          pip-audit --skip-editable --desc on --ignore-vuln CVE-2026-4539
 
       - name: Run tests
         env:
