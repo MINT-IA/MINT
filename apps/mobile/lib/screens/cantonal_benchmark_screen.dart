@@ -4,6 +4,7 @@
 // Opt-in only. ZERO ranked comparisons, ZERO social comparison.
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -88,11 +89,9 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: _loading
-                  ? const Center(
-                      child: Padding(
+                  ? const Padding(
                         padding: EdgeInsets.only(top: 60),
-                        child: CircularProgressIndicator(),
-                      ),
+                        child: MintLoadingSkeleton(),
                     )
                   : _hasError
                       ? Container(

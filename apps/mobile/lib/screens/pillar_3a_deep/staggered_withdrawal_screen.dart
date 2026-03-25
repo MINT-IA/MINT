@@ -30,7 +30,7 @@ class StaggeredWithdrawalScreen extends StatefulWidget {
 class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   double _avoirTotal = 300000;
   int _nbComptes = 3;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   double _revenuImposable = 120000;
   int _ageRetraitDebut = 60;
   int _ageRetraitFin = 64;

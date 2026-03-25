@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -62,7 +63,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   final _tcSurobCtrl = TextEditingController(text: '5.0');
 
   // ── Shared inputs ──
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _isMarried = false;
 
   // ── Hypothesis sliders ──
@@ -428,7 +429,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 if (_isLoading && _result == null)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: MintSpacing.lg),
-                    child: Center(child: CircularProgressIndicator()),
+                    child: MintLoadingSkeleton(),
                   ),
 
                 if (_hasError && _result == null)

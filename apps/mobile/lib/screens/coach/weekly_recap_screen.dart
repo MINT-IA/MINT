@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,7 +107,7 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
         centerTitle: false,
       ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const MintLoadingSkeleton()
           : _errorKey != null
               ? _buildEmpty(l)
               : _buildContent(l))),

@@ -40,14 +40,14 @@ class _ExpatScreenState extends State<ExpatScreen>
   late TabController _tabController;
 
   // ── Tab 1: Forfait inputs ─────────────────────────────
-  String _forfaitCanton = 'VD';
+  String _forfaitCanton = 'ZH';
   double _livingExpenses = 1000000;
   double _actualIncome = 5000000;
   Map<String, dynamic>? _forfaitResult;
 
   // ── Tab 2: Depart inputs ──────────────────────────────
   DateTime _departureDate = DateTime.now().add(const Duration(days: 180));
-  String _departCanton = 'VD';
+  String _departCanton = 'ZH';
   double _pillar3aBalance = 80000;
   double _lppBalance = 250000;
   Map<String, dynamic>? _departResult;

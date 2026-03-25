@@ -144,7 +144,7 @@ class FinancialReportService {
     return UserProfile(
       firstName: answers['q_firstname'] as String?,
       birthYear: birthYear,
-      canton: answers['q_canton'] as String? ?? 'VD',
+      canton: answers['q_canton'] as String? ?? 'ZH',
       civilStatus: answers['q_civil_status'] as String? ?? 'single',
       childrenCount: _parseInt(answers['q_children']) ?? 0,
       employmentStatus: answers['q_employment_status'] as String? ?? 'employee',

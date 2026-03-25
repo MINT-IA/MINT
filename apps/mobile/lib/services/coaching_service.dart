@@ -915,7 +915,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static CoachingProfile buildDemoProfile() {
     return const CoachingProfile(
       age: 35,
-      canton: 'VD',
+      canton: 'ZH',
       revenuAnnuel: 85000,
       has3a: false,
       montant3a: 0,

@@ -7,6 +7,7 @@
 // consistency with PulseScreen. Falls back to plan.available when not.
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -195,7 +196,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           final plan = provider.plan;
 
           if (plan == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const MintLoadingSkeleton();
           }
 
           // Hero number: BudgetSnapshot.present.monthlyFree when available,

@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -99,11 +100,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
           // ── Body ──
           if (_isLoading)
             const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: MintColors.primary,
-                ),
-              ),
+              child: MintLoadingSkeleton(),
             )
           else if (_error != null)
             SliverFillRemaining(

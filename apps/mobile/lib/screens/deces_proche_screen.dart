@@ -25,7 +25,7 @@ class DecesProcheScreen extends StatefulWidget {
 class _DecesProcheScreenState extends State<DecesProcheScreen> {
   // ── Input state ──
   String _lienParente = 'conjoint';
-  String _canton = 'VD';
+  String _canton = 'ZH';
   double _fortuneDefunt = 500000;
   double _lppDefunt = 200000;
   double _pilier3aDefunt = 50000;

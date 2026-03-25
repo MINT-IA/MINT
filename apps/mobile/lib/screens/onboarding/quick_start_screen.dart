@@ -40,7 +40,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   final _nameController = TextEditingController();
   double _age = 45;
   double _salary = 85000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _saving = false;
 
   @override

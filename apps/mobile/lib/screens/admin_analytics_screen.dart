@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -92,11 +93,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         ),
       ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: _loading
-          ? const Center(
-              child: Padding(
+          ? const Padding(
                 padding: EdgeInsets.only(top: 60),
-                child: CircularProgressIndicator(),
-              ),
+                child: MintLoadingSkeleton(),
             )
           : _error != null
               ? _buildError(l10n)

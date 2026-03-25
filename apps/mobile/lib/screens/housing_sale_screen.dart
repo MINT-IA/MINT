@@ -57,7 +57,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   double _investissementsValorisants = 50000;
   double _fraisAcquisition = 30000;
   double _hypothequeRestante = 600000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _residencePrincipale = true;
   bool _projetRemploi = false;
   double _prixRemploi = 900000;

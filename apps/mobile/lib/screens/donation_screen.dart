@@ -52,7 +52,7 @@ class _DonationScreenState extends State<DonationScreen> {
   double _montant = 100000;
   int _donateurAge = 55;
   String _lienParente = 'descendant';
-  String _canton = 'VD';
+  String _canton = 'ZH';
   String _typeDonation = 'especes';
   double _valeurImmobiliere = 500000;
   bool _avancementHoirie = true;

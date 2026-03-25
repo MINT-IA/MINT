@@ -38,7 +38,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   int _horizon = 3;
 
   // --- Fiscal situation ---
-  String _canton = 'VD';
+  String _canton = 'ZH';
   String _civilStatus = 'single';
   bool _manualTauxOverride = false;
   double _manualTaux = 0.32;

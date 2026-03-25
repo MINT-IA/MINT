@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
@@ -170,7 +171,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
 
     if (choc == null) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: MintLoadingSkeleton(),
       );
     }
 

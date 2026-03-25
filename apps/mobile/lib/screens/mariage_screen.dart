@@ -49,7 +49,7 @@ class _MariageScreenState extends State<MariageScreen>
   // ── Tab 1: Impots inputs ──────────────────────────────
   double _revenu1 = 80000;
   double _revenu2 = 60000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   int _nbEnfants = 0;
   Map<String, dynamic>? _fiscalResult;
 

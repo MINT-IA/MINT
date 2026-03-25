@@ -70,7 +70,7 @@ void main() {
 
       expect(ctx.firstName, '');
       expect(ctx.age, 30);
-      expect(ctx.canton, 'VD');
+      expect(ctx.canton, 'ZH');
       expect(ctx.archetype, 'swiss_native');
       expect(ctx.friTotal, 0);
       expect(ctx.friDelta, 0);

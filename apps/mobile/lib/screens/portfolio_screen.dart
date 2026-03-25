@@ -45,9 +45,10 @@ class PortfolioScreen extends StatelessWidget {
             const SizedBox(height: 32),
             MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionHeader('Répartition par Enveloppe')),
             const SizedBox(height: 12),
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem('Libre (Compte Placement)', 'CHF 73\'508.90', icon: Icons.trending_up, color: MintColors.primary)),
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success)),
-            _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF 10\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
+            // TODO: wire to real portfolio data from profile.patrimoine
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem('Libre (Compte Placement)', 'CHF\u00a0\u2014', icon: Icons.trending_up, color: MintColors.primary)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem('Lié (Pilier 3a)', 'CHF\u00a0\u2014', icon: Icons.savings_outlined, color: MintColors.success)),
+            _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF\u00a0\u2014', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
             const SizedBox(height: 32),
             SafeModeGate(
               hasDebt: hasDebt,
@@ -140,24 +141,13 @@ class PortfolioScreen extends StatelessWidget {
             style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: MintSpacing.sm),
+          // TODO: wire to real portfolio data from profile.patrimoine
           Semantics(
-            label: 'CHF 102\'678.64',
+            label: 'CHF\u00a0\u2014',
             child: Text(
-              'CHF 102\'678.64',
+              'CHF\u00a0\u2014',
               style: MintTextStyles.displayMedium(),
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.trending_up, color: MintColors.success, size: 16),
-              const SizedBox(width: 4),
-              Text(
-                '509.30 (0.50%) aujourd\'hui',
-                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
           ),
         ],
       ),

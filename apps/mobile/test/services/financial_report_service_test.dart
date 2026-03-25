@@ -102,14 +102,14 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════
 
   group('UserProfile building', () {
-    test('defaults canton to VD when missing', () {
+    test('defaults canton to ZH when missing', () {
       final answers = <String, dynamic>{
         'q_birth_year': 1990,
         'q_employment_status': 'employee',
         'q_net_income_period_chf': 5000.0,
       };
       final report = service.generateReport(answers);
-      expect(report.profile.canton, equals('VD'));
+      expect(report.profile.canton, equals('ZH'));
     });
 
     test('defaults civilStatus to single when missing', () {
@@ -523,7 +523,7 @@ void main() {
 
     test('empty answers use all defaults', () {
       final report = service.generateReport({});
-      expect(report.profile.canton, equals('VD'));
+      expect(report.profile.canton, equals('ZH'));
       expect(report.profile.civilStatus, equals('single'));
       expect(report.profile.monthlyNetIncome, equals(5000.0));
       expect(report.profile.childrenCount, equals(0));

@@ -479,7 +479,7 @@ class ArbitrageEngine {
     double rendement3a = 0.02,
     double rendementLpp = 0.0125,
     double rendementMarche = 0.04,
-    String canton = 'VD',
+    String canton = 'ZH',
     Map<String, ProfileDataSource>? dataSources,
     S? l,
   }) {
@@ -876,7 +876,7 @@ class ArbitrageEngine {
     required double capitalDisponible,
     required double loyerMensuelActuel,
     required double prixBien,
-    String canton = 'VD',
+    String canton = 'ZH',
     int horizonAnnees = 20,
     double rendementMarche = 0.04,
     double appreciationImmo = 0.015,
@@ -1134,7 +1134,7 @@ class ArbitrageEngine {
     double rendementLpp = 0.0125,
     double rendementMarche = 0.04,
     double tauxConversion = lppTauxConversionMinDecimal,
-    String canton = 'VD',
+    String canton = 'ZH',
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
   }) {
@@ -1406,7 +1406,7 @@ class ArbitrageEngine {
   static ArbitrageResult compareCalendrierRetraits({
     required List<RetirementAsset> assets,
     int ageRetraite = avsAgeReferenceHomme,
-    String canton = 'VD',
+    String canton = 'ZH',
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
   }) {

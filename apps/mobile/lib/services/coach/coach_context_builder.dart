@@ -69,7 +69,7 @@ class CoachContextBuilder {
   static CoachContext build({
     String firstName = '',
     int age = 30,
-    String canton = 'VD',
+    String canton = 'ZH',
     String archetype = 'swiss_native',
     double friTotal = 0,
     double friDelta = 0,

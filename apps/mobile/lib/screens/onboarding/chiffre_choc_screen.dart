@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
@@ -193,7 +194,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
     if (choc == null || profile == null) {
       return Scaffold(
-        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const Center(child: CircularProgressIndicator()))),
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const MintLoadingSkeleton())),
       );
     }
 

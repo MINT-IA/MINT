@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +47,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   // ── Shared inputs ───────────────────────────────────────
   double _revenuBrut = 100000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   String? _commune;
   String _etatCivil = 'celibataire';
   int _nombreEnfants = 0;
@@ -66,7 +67,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   List<Map<String, dynamic>> _allCantons = [];
 
   // ── Tab 3: Demenager ───────────────────────────────────
-  String _cantonDepart = 'VD';
+  String _cantonDepart = 'ZH';
   String? _communeDepart;
   String _cantonArrivee = 'ZG';
   String? _communeArrivee;
@@ -791,7 +792,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   Widget _buildTab2AllCantons() {
     if (_allCantons.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const MintLoadingSkeleton();
     }
 
     final maxCharge = _allCantons.isNotEmpty

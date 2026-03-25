@@ -44,7 +44,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   double _revenu1 = 80000;
   double _revenu2 = 60000;
   double _patrimoine = 300000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   Map<String, dynamic>? _comparisonResult;
 
   // ── Tab 2: Protection ─────────────────────────────────

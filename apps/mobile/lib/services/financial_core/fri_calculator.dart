@@ -79,7 +79,7 @@ class FriInput {
     this.employerDependencyRatio = 0,
     this.archetype = 'swiss_native',
     this.age = 30,
-    this.canton = 'VD',
+    this.canton = 'ZH',
   });
 }
 

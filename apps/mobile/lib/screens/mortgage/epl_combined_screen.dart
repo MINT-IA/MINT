@@ -30,7 +30,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   double _avoir3a = 60000;
   double _avoirLpp = 200000;
   double _prixCible = 900000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
 
   EplCombinedResult get _result => EplCombinedCalculator.calculate(
         epargneCash: _epargneCash,
