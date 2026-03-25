@@ -401,3 +401,33 @@ const int friThresholdBon = 60;
 
 /// FRI >= 40 : Attention (orange)
 const int friThresholdAttention = 40;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Projection — Hypothèses par défaut
+// Utilisées par RetirementProjectionService et d'autres services de projection.
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Taux d'indexation annuel des rentes AVS (hypothèse éducative).
+/// Historiquement ~1% par an (ajustement indice mixte prix/salaires).
+const double avsIndexationRate = 0.01;
+
+/// Taux d'inflation annuel par défaut (hypothèse éducative).
+/// Moyenne historique suisse longue période ~1-1.5%.
+const double defaultInflationRate = 0.015;
+
+/// Espérance de vie par défaut utilisée pour les projections de retraite.
+/// OFS 2023: hommes ~82, femmes ~85. Valeur prudente pour planification.
+const int defaultLifeExpectancy = 87;
+
+/// Taux de retrait sûr (Safe Withdrawal Rate) par défaut.
+/// Règle des 4% — Trinity Study adapté au contexte suisse.
+const double defaultSafeWithdrawalRate = 0.04;
+
+/// Gain assuré mensuel maximum AC (LACI art. 3).
+/// = acPlafondSalaireAssure / 12.
+/// Utilisé par UnemploymentService pour plafonner le gain assuré.
+const double acGainAssureMensuelMax = acPlafondSalaireAssure / 12;
+
+/// Seuil de salaire mensuel pour le taux majoré d'indemnités chômage (LACI art. 22).
+/// En dessous de ce seuil, taux 80% au lieu de 70%.
+const double acSeuilSalaireMajore = 3797.0;

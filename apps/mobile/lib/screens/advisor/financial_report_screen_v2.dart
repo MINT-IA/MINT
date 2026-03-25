@@ -186,6 +186,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 employmentStatus: report.profile.employmentStatus,
                 monthlyNetIncome: report.profile.monthlyNetIncome,
                 canton: report.profile.canton,
+                s: S.of(context)!,
               ),
             ),
 

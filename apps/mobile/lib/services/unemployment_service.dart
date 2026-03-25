@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SERVICE — Sprint S19 / Chomage (LACI) + Premier emploi
 // ────────────────────────────────────────────────────────────
@@ -74,10 +76,11 @@ class UnemploymentService {
   static const double _rateEnhanced = 0.80;
 
   /// Maximum gain assure mensuel (CHF 12'350).
-  static const double _gainAssureMax = 12350.0;
+  /// Derived from acPlafondSalaireAssure / 12.
+  static const double _gainAssureMax = acGainAssureMensuelMax;
 
   /// Salary threshold for enhanced rate (CHF 3'797).
-  static const double _salaryThresholdEnhanced = 3797.0;
+  static const double _salaryThresholdEnhanced = acSeuilSalaireMajore;
 
   /// Standard waiting period (5 days).
   static const int _delaiCarenceStandard = 5;

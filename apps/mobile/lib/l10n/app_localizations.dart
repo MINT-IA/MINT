@@ -42052,6 +42052,672 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'CHF {low} — {high} / mois'**
   String projectionUncertaintyBand(String low, String high);
+
+  /// No description provided for @portfolioAppBarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon patrimoine'**
+  String get portfolioAppBarTitle;
+
+  /// No description provided for @portfolioValeurTotaleNette.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur totale nette'**
+  String get portfolioValeurTotaleNette;
+
+  /// No description provided for @portfolioRepartitionEnveloppe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répartition par enveloppe'**
+  String get portfolioRepartitionEnveloppe;
+
+  /// No description provided for @portfolioLibrePlacement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre (Compte Placement)'**
+  String get portfolioLibrePlacement;
+
+  /// No description provided for @portfolioLiePilier3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lié (Pilier 3a)'**
+  String get portfolioLiePilier3a;
+
+  /// No description provided for @portfolioReserveFondsUrgence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé (Fonds d\'urgence)'**
+  String get portfolioReserveFondsUrgence;
+
+  /// No description provided for @portfolioSafeModeLocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Priorité au désendettement'**
+  String get portfolioSafeModeLocked;
+
+  /// No description provided for @portfolioSafeModeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les conseils d\'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.'**
+  String get portfolioSafeModeBody;
+
+  /// No description provided for @byokShowKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher la clé'**
+  String get byokShowKey;
+
+  /// No description provided for @byokHideKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer la clé'**
+  String get byokHideKey;
+
+  /// No description provided for @themeDetailEssentiel60s.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'essentiel en 60 secondes'**
+  String get themeDetailEssentiel60s;
+
+  /// No description provided for @themeDetailTesteConnaissances.
+  ///
+  /// In fr, this message translates to:
+  /// **'Teste tes connaissances'**
+  String get themeDetailTesteConnaissances;
+
+  /// No description provided for @themeDetailSavaisTu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le savais-tu ?'**
+  String get themeDetailSavaisTu;
+
+  /// No description provided for @themeDetailSourcesLegales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources légales'**
+  String get themeDetailSourcesLegales;
+
+  /// No description provided for @themeDetailRappel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel'**
+  String get themeDetailRappel;
+
+  /// No description provided for @themeDetailBienVu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien vu !'**
+  String get themeDetailBienVu;
+
+  /// No description provided for @themeDetailPasToutAFait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas tout à fait...'**
+  String get themeDetailPasToutAFait;
+
+  /// No description provided for @emergencyFundTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton filet de sécurité'**
+  String get emergencyFundTitle;
+
+  /// No description provided for @emergencyFundSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ton fonds d\'urgence idéal'**
+  String get emergencyFundSubtitle;
+
+  /// No description provided for @emergencyFundDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'objectif de 3-6 mois est une recommandation générale. Ta situation personnelle peut nécessiter un montant différent.'**
+  String get emergencyFundDisclaimer;
+
+  /// No description provided for @emergencyFundHyp1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges fixes = loyer + assurances + abonnements + crédits'**
+  String get emergencyFundHyp1;
+
+  /// No description provided for @emergencyFundHyp2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif recommandé : 3 mois (minimum) à 6 mois (confort)'**
+  String get emergencyFundHyp2;
+
+  /// No description provided for @emergencyFundHyp3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placement suggéré : compte épargne accessible, non investi'**
+  String get emergencyFundHyp3;
+
+  /// No description provided for @emergencyFundChargesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes charges fixes mensuelles'**
+  String get emergencyFundChargesLabel;
+
+  /// No description provided for @emergencyFundChargesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer + assurances + abonnements + crédits'**
+  String get emergencyFundChargesDesc;
+
+  /// No description provided for @emergencyFundObjectifLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif en mois de sécurité'**
+  String get emergencyFundObjectifLabel;
+
+  /// No description provided for @emergencyFundMoisUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} mois'**
+  String emergencyFundMoisUnit(int count);
+
+  /// No description provided for @emergencyFundMinimum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum'**
+  String get emergencyFundMinimum;
+
+  /// No description provided for @emergencyFundConfort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confort'**
+  String get emergencyFundConfort;
+
+  /// No description provided for @emergencyFundObjectifTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton objectif de fonds d\'urgence'**
+  String get emergencyFundObjectifTitle;
+
+  /// No description provided for @emergencyFundProgression.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta progression'**
+  String get emergencyFundProgression;
+
+  /// No description provided for @emergencyFundManque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te manque {amount}'**
+  String emergencyFundManque(String amount);
+
+  /// No description provided for @emergencyFundAtteint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif atteint !'**
+  String get emergencyFundAtteint;
+
+  /// No description provided for @emergencyFundExplication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fonds te protège des imprévus (perte d\'emploi, maladie, réparations) sans toucher à tes investissements.'**
+  String get emergencyFundExplication;
+
+  /// No description provided for @lifeEventSuggestionsHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Et ensuite ?'**
+  String get lifeEventSuggestionsHeader;
+
+  /// No description provided for @lifeEventSuggestionsSubheader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modules adaptés à ton profil'**
+  String get lifeEventSuggestionsSubheader;
+
+  /// No description provided for @lifeEventSuggestionsSimuler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler'**
+  String get lifeEventSuggestionsSimuler;
+
+  /// No description provided for @lifeEventSugMariage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mariage'**
+  String get lifeEventSugMariage;
+
+  /// No description provided for @lifeEventSugMariageReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre l\'impact fiscal et sur la prévoyance'**
+  String get lifeEventSugMariageReason;
+
+  /// No description provided for @lifeEventSugConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubinage'**
+  String get lifeEventSugConcubinage;
+
+  /// No description provided for @lifeEventSugConcubinageReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attention : aucune protection légale automatique'**
+  String get lifeEventSugConcubinageReason;
+
+  /// No description provided for @lifeEventSugNaissance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Naissance'**
+  String get lifeEventSugNaissance;
+
+  /// No description provided for @lifeEventSugNaissanceReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule l\'impact financier d\'un enfant'**
+  String get lifeEventSugNaissanceReason;
+
+  /// No description provided for @lifeEventSugSuccession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planification successorale'**
+  String get lifeEventSugSuccession;
+
+  /// No description provided for @lifeEventSugSuccessionReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserves héréditaires et quotité disponible (CC art. 470)'**
+  String get lifeEventSugSuccessionReason;
+
+  /// No description provided for @lifeEventSugDonation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donation entre vifs'**
+  String get lifeEventSugDonation;
+
+  /// No description provided for @lifeEventSugDonationReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anticipe ta succession et optimise la fiscalité'**
+  String get lifeEventSugDonationReason;
+
+  /// No description provided for @lifeEventSugPremierEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier emploi'**
+  String get lifeEventSugPremierEmploi;
+
+  /// No description provided for @lifeEventSugPremierEmploiReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose les bases : AVS, LPP, 3a et budget'**
+  String get lifeEventSugPremierEmploiReason;
+
+  /// No description provided for @lifeEventSugChangementEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changement d\'emploi'**
+  String get lifeEventSugChangementEmploi;
+
+  /// No description provided for @lifeEventSugChangementEmploiReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare ton LPP avant de signer un nouveau contrat'**
+  String get lifeEventSugChangementEmploiReason;
+
+  /// No description provided for @lifeEventSugOutilsIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils indépendant'**
+  String get lifeEventSugOutilsIndependant;
+
+  /// No description provided for @lifeEventSugOutilsIndependantReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS, LPP volontaire, 3a élargi et dividende vs salaire'**
+  String get lifeEventSugOutilsIndependantReason;
+
+  /// No description provided for @lifeEventSugRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planification retraite'**
+  String get lifeEventSugRetraite;
+
+  /// No description provided for @lifeEventSugRetraiteReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente vs capital, échelonnement 3a, lacune AVS'**
+  String get lifeEventSugRetraiteReason;
+
+  /// No description provided for @lifeEventSugAchatImmo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat immobilier'**
+  String get lifeEventSugAchatImmo;
+
+  /// No description provided for @lifeEventSugAchatImmoReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule ta capacité d\'emprunt et l\'apport EPL'**
+  String get lifeEventSugAchatImmoReason;
+
+  /// No description provided for @lifeEventSugDemenagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déménagement cantonal'**
+  String get lifeEventSugDemenagement;
+
+  /// No description provided for @lifeEventSugDemenagementReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton est parmi les plus imposés — compare les 26'**
+  String get lifeEventSugDemenagementReason;
+
+  /// No description provided for @lifeEventSugInvalidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invalidité'**
+  String get lifeEventSugInvalidite;
+
+  /// No description provided for @lifeEventSugInvaliditeReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta couverture AI + LPP en cas d\'accident'**
+  String get lifeEventSugInvaliditeReason;
+
+  /// No description provided for @indepProtAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Double ta cotisation'**
+  String get indepProtAvs;
+
+  /// No description provided for @indepProtLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disparaît — choix volontaire'**
+  String get indepProtLpp;
+
+  /// No description provided for @indepProtLaa.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disparaît — accident hors travail'**
+  String get indepProtLaa;
+
+  /// No description provided for @indepProtIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disparaît — maladie 0 CHF'**
+  String get indepProtIjm;
+
+  /// No description provided for @indepProtApg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disparaît — congé parental'**
+  String get indepProtApg;
+
+  /// No description provided for @indepLppProInvalidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture invalidité incluse'**
+  String get indepLppProInvalidite;
+
+  /// No description provided for @indepLppProDeductible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisations déductibles'**
+  String get indepLppProDeductible;
+
+  /// No description provided for @indepLppProRente.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente prévue à la retraite'**
+  String get indepLppProRente;
+
+  /// No description provided for @indepLppConCotisations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisations obligatoires élevées'**
+  String get indepLppConCotisations;
+
+  /// No description provided for @indepLppConFlexible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moins flexible'**
+  String get indepLppConFlexible;
+
+  /// No description provided for @indepGrand3aSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'20% du revenu net, max CHF 36\'288/an'**
+  String get indepGrand3aSub;
+
+  /// No description provided for @indepGrand3aProFlexibilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flexibilité totale'**
+  String get indepGrand3aProFlexibilite;
+
+  /// No description provided for @indepGrand3aProDeduction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déduction fiscale maximale'**
+  String get indepGrand3aProDeduction;
+
+  /// No description provided for @indepGrand3aProCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital disponible à 60 ans'**
+  String get indepGrand3aProCapital;
+
+  /// No description provided for @indepGrand3aConInvalidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de couverture invalidité'**
+  String get indepGrand3aConInvalidite;
+
+  /// No description provided for @indepGrand3aConRente.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de rente prévue'**
+  String get indepGrand3aConRente;
+
+  /// No description provided for @indepLayerImpots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôts (estimation)'**
+  String get indepLayerImpots;
+
+  /// No description provided for @indepLayerChargesSociales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges sociales AVS/AI'**
+  String get indepLayerChargesSociales;
+
+  /// No description provided for @indepLayerFraisPro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais professionnels'**
+  String get indepLayerFraisPro;
+
+  /// No description provided for @indepLayerJoursNonFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours non facturables'**
+  String get indepLayerJoursNonFact;
+
+  /// No description provided for @indepFiscal3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a grand versement'**
+  String get indepFiscal3a;
+
+  /// No description provided for @indepFiscal3aNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Max 20% du revenu net, plafonné à CHF 36\'288/an sans LPP'**
+  String get indepFiscal3aNote;
+
+  /// No description provided for @indepFiscalFraisPro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais professionnels effectifs'**
+  String get indepFiscalFraisPro;
+
+  /// No description provided for @indepFiscalFraisProNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer bureau, matériel, formation — déductibles au réel'**
+  String get indepFiscalFraisProNote;
+
+  /// No description provided for @indepFiscalPrimesLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Primes assurance maladie (LPP vol.)'**
+  String get indepFiscalPrimesLpp;
+
+  /// No description provided for @indepChargeAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS / AI / APG'**
+  String get indepChargeAvs;
+
+  /// No description provided for @indepChargeLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP (2e pilier)'**
+  String get indepChargeLpp;
+
+  /// No description provided for @indepChargeLppNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Facultatif pour indépendant (LPP art. 4)'**
+  String get indepChargeLppNote;
+
+  /// No description provided for @indepChargeAc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chômage (AC)'**
+  String get indepChargeAc;
+
+  /// No description provided for @indepChargeAcNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas d\'AC pour indépendant (LACI art. 2)'**
+  String get indepChargeAcNote;
+
+  /// No description provided for @indepChargePro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisations pro (IJM/LAA)'**
+  String get indepChargePro;
+
+  /// No description provided for @indepChargeProNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'À charge entière de l\'indépendant'**
+  String get indepChargeProNote;
+
+  /// No description provided for @indepPlanInscriptionAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription caisse AVS indépendants'**
+  String get indepPlanInscriptionAvs;
+
+  /// No description provided for @indepPlanInscriptionAvsConseq.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amendes rétroactives si délai dépassé'**
+  String get indepPlanInscriptionAvsConseq;
+
+  /// No description provided for @indepPlanLaa.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance accidents LAA (si pas LPP)'**
+  String get indepPlanLaa;
+
+  /// No description provided for @indepPlanLaaConseq.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de couverture accident professionnel'**
+  String get indepPlanLaaConseq;
+
+  /// No description provided for @indepPlanOuvrir3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)'**
+  String get indepPlanOuvrir3a;
+
+  /// No description provided for @indepPlanIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer IJM (indemnité journalière maladie)'**
+  String get indepPlanIjm;
+
+  /// No description provided for @indepPlanIjmConseq.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte de revenus dès J+3 en cas de maladie'**
+  String get indepPlanIjmConseq;
+
+  /// No description provided for @indepPlanFraisPro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais professionnels déductibles — tenir registre'**
+  String get indepPlanFraisPro;
+
+  /// No description provided for @indepPlanAcomptes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acomptes impôts cantonaux — éviter les intérêts'**
+  String get indepPlanAcomptes;
+
+  /// No description provided for @donationTypeEspeces.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espèces / Liquidités'**
+  String get donationTypeEspeces;
+
+  /// No description provided for @donationTypeImmobilier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Immobilier'**
+  String get donationTypeImmobilier;
+
+  /// No description provided for @donationTypeTitres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titres / Valeurs mobilières'**
+  String get donationTypeTitres;
+
+  /// No description provided for @donationRegimeParticipation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participation aux acquêts'**
+  String get donationRegimeParticipation;
+
+  /// No description provided for @donationRegimeCommunaute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Communauté de biens'**
+  String get donationRegimeCommunaute;
+
+  /// No description provided for @donationRegimeSeparation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séparation de biens'**
+  String get donationRegimeSeparation;
+
+  /// No description provided for @donationReserveBarLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve {pct}%'**
+  String donationReserveBarLabel(String pct);
+
+  /// No description provided for @donationDisponibleBarLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible {pct}%'**
+  String donationDisponibleBarLabel(String pct);
+
+  /// No description provided for @donationDisclaimerFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Consulte un·e spécialiste (notaire) pour ta situation.'**
+  String get donationDisclaimerFallback;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

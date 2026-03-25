@@ -11156,5 +11156,143 @@
       "low": {"type": "String"},
       "high": {"type": "String"}
     }
-  }
+  },
+
+  "portfolioAppBarTitle": "Mi patrimonio",
+  "portfolioValeurTotaleNette": "Valor total neto",
+  "portfolioRepartitionEnveloppe": "Distribución por sobre",
+  "portfolioLibrePlacement": "Libre (Cuenta de inversión)",
+  "portfolioLiePilier3a": "Vinculado (Pilar 3a)",
+  "portfolioReserveFondsUrgence": "Reservado (Fondo de emergencia)",
+  "portfolioSafeModeLocked": "Prioridad al desendeudamiento",
+  "portfolioSafeModeBody": "Los consejos de asignación están desactivados en modo protección. Tu prioridad es reducir tus deudas antes de reequilibrar tu patrimonio.",
+
+  "byokShowKey": "Mostrar clave",
+  "byokHideKey": "Ocultar clave",
+
+  "themeDetailEssentiel60s": "Lo esencial en 60 segundos",
+  "themeDetailTesteConnaissances": "Pon a prueba tus conocimientos",
+  "themeDetailSavaisTu": "¿Lo sabías?",
+  "themeDetailSourcesLegales": "Fuentes legales",
+  "themeDetailRappel": "Recordatorio",
+  "themeDetailBienVu": "¡Bien visto!",
+  "themeDetailPasToutAFait": "No del todo...",
+
+  "emergencyFundTitle": "Tu red de seguridad",
+  "emergencyFundSubtitle": "Calcula tu fondo de emergencia ideal",
+  "emergencyFundDisclaimer": "El objetivo de 3-6 meses es una recomendación general. Tu situación personal puede requerir un monto diferente.",
+  "emergencyFundHyp1": "Gastos fijos = alquiler + seguros + suscripciones + créditos",
+  "emergencyFundHyp2": "Objetivo recomendado: 3 meses (mínimo) a 6 meses (confort)",
+  "emergencyFundHyp3": "Colocación sugerida: cuenta de ahorro accesible, no invertida",
+  "emergencyFundChargesLabel": "Tus gastos fijos mensuales",
+  "emergencyFundChargesDesc": "Alquiler + seguros + suscripciones + créditos",
+  "emergencyFundObjectifLabel": "Objetivo en meses de seguridad",
+  "emergencyFundMoisUnit": "{count} meses",
+  "@emergencyFundMoisUnit": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "emergencyFundMinimum": "Mínimo",
+  "emergencyFundConfort": "Confort",
+  "emergencyFundObjectifTitle": "Tu objetivo de fondo de emergencia",
+  "emergencyFundProgression": "Tu progreso",
+  "emergencyFundManque": "Te faltan {amount}",
+  "@emergencyFundManque": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "emergencyFundAtteint": "¡Objetivo alcanzado!",
+  "emergencyFundExplication": "Este fondo te protege de imprevistos (pérdida de empleo, enfermedad, reparaciones) sin tocar tus inversiones.",
+
+  "lifeEventSuggestionsHeader": "¿Y después?",
+  "lifeEventSuggestionsSubheader": "Módulos adaptados a tu perfil",
+  "lifeEventSuggestionsSimuler": "Simular",
+  "lifeEventSugMariage": "Matrimonio",
+  "lifeEventSugMariageReason": "Descubre el impacto fiscal y en la previsión",
+  "lifeEventSugConcubinage": "Concubinato",
+  "lifeEventSugConcubinageReason": "Atención: sin protección legal automática",
+  "lifeEventSugNaissance": "Nacimiento",
+  "lifeEventSugNaissanceReason": "Simula el impacto financiero de un hijo",
+  "lifeEventSugSuccession": "Planificación sucesoria",
+  "lifeEventSugSuccessionReason": "Reservas hereditarias y porción disponible (CC art. 470)",
+  "lifeEventSugDonation": "Donación entre vivos",
+  "lifeEventSugDonationReason": "Anticipa tu sucesión y optimiza la fiscalidad",
+  "lifeEventSugPremierEmploi": "Primer empleo",
+  "lifeEventSugPremierEmploiReason": "Sienta las bases: AVS, LPP, 3a y presupuesto",
+  "lifeEventSugChangementEmploi": "Cambio de empleo",
+  "lifeEventSugChangementEmploiReason": "Compara tu LPP antes de firmar un nuevo contrato",
+  "lifeEventSugOutilsIndependant": "Herramientas independiente",
+  "lifeEventSugOutilsIndependantReason": "AVS, LPP voluntaria, 3a ampliado y dividendo vs salario",
+  "lifeEventSugRetraite": "Planificación jubilación",
+  "lifeEventSugRetraiteReason": "Renta vs capital, escalonamiento 3a, laguna AVS",
+  "lifeEventSugAchatImmo": "Compra inmobiliaria",
+  "lifeEventSugAchatImmoReason": "Simula tu capacidad de préstamo y la aportación EPL",
+  "lifeEventSugDemenagement": "Mudanza cantonal",
+  "lifeEventSugDemenagementReason": "Tu cantón está entre los más gravados — compara los 26",
+  "lifeEventSugInvalidite": "Invalidez",
+  "lifeEventSugInvaliditeReason": "Verifica tu cobertura AI + LPP en caso de accidente",
+
+  "indepProtAvs": "Duplica tu cotización",
+  "indepProtLpp": "Desaparece — elección voluntaria",
+  "indepProtLaa": "Desaparece — accidente fuera del trabajo",
+  "indepProtIjm": "Desaparece — enfermedad CHF 0",
+  "indepProtApg": "Desaparece — permiso parental",
+  "indepLppProInvalidite": "Cobertura de invalidez incluida",
+  "indepLppProDeductible": "Cotizaciones deducibles",
+  "indepLppProRente": "Renta prevista en la jubilación",
+  "indepLppConCotisations": "Cotizaciones obligatorias elevadas",
+  "indepLppConFlexible": "Menos flexible",
+  "indepGrand3aSub": "20% del ingreso neto, máx. CHF\u00a036'288/año",
+  "indepGrand3aProFlexibilite": "Flexibilidad total",
+  "indepGrand3aProDeduction": "Deducción fiscal máxima",
+  "indepGrand3aProCapital": "Capital disponible a los 60 años",
+  "indepGrand3aConInvalidite": "Sin cobertura de invalidez",
+  "indepGrand3aConRente": "Sin renta prevista",
+  "indepLayerImpots": "Impuestos (estimación)",
+  "indepLayerChargesSociales": "Cargas sociales AVS/AI",
+  "indepLayerFraisPro": "Gastos profesionales",
+  "indepLayerJoursNonFact": "Días no facturables",
+  "indepFiscal3a": "Pilar 3a gran aporte",
+  "indepFiscal3aNote": "Máx. 20% del ingreso neto, tope CHF\u00a036'288/año sin LPP",
+  "indepFiscalFraisPro": "Gastos profesionales efectivos",
+  "indepFiscalFraisProNote": "Alquiler oficina, material, formación — deducibles al costo",
+  "indepFiscalPrimesLpp": "Primas seguro médico (LPP vol.)",
+  "indepChargeAvs": "AVS / AI / APG",
+  "indepChargeLpp": "LPP (2.° pilar)",
+  "indepChargeLppNote": "Facultativo para independiente (LPP art. 4)",
+  "indepChargeAc": "Desempleo (AC)",
+  "indepChargeAcNote": "Sin AC para independiente (LACI art. 2)",
+  "indepChargePro": "Cotizaciones profesionales (IJM/LAA)",
+  "indepChargeProNote": "Enteramente a cargo del independiente",
+  "indepPlanInscriptionAvs": "Inscripción caja AVS independientes",
+  "indepPlanInscriptionAvsConseq": "Multas retroactivas si se pasa el plazo",
+  "indepPlanLaa": "Seguro de accidentes LAA (si no LPP)",
+  "indepPlanLaaConseq": "Sin cobertura de accidente profesional",
+  "indepPlanOuvrir3a": "Abrir cuenta 3a (deducción hasta CHF\u00a036'288)",
+  "indepPlanIjm": "Evaluar IJM (indemnización diaria por enfermedad)",
+  "indepPlanIjmConseq": "Pérdida de ingresos desde el día 3 en caso de enfermedad",
+  "indepPlanFraisPro": "Gastos profesionales deducibles — llevar registro",
+  "indepPlanAcomptes": "Anticipos fiscales cantonales — evitar intereses",
+
+  "donationTypeEspeces": "Efectivo / Liquidez",
+  "donationTypeImmobilier": "Inmueble",
+  "donationTypeTitres": "Títulos / Valores mobiliarios",
+  "donationRegimeParticipation": "Participación en gananciales",
+  "donationRegimeCommunaute": "Comunidad de bienes",
+  "donationRegimeSeparation": "Separación de bienes",
+  "donationReserveBarLabel": "Reserva {pct}%",
+  "@donationReserveBarLabel": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "donationDisponibleBarLabel": "Disponible {pct}%",
+  "@donationDisponibleBarLabel": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "donationDisclaimerFallback": "Esta herramienta educativa proporciona estimaciones indicativas y no constituye asesoramiento jurídico, fiscal o notarial personalizado. Consulta a un especialista (notario) para tu situación."
 }

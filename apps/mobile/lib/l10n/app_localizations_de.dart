@@ -23889,4 +23889,372 @@ class SDe extends S {
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / Monat';
   }
+
+  @override
+  String get portfolioAppBarTitle => 'Mein Vermögen';
+
+  @override
+  String get portfolioValeurTotaleNette => 'Nettovermögen';
+
+  @override
+  String get portfolioRepartitionEnveloppe => 'Aufteilung nach Hülle';
+
+  @override
+  String get portfolioLibrePlacement => 'Frei (Anlagekonto)';
+
+  @override
+  String get portfolioLiePilier3a => 'Gebunden (Säule 3a)';
+
+  @override
+  String get portfolioReserveFondsUrgence => 'Reserviert (Notfallfonds)';
+
+  @override
+  String get portfolioSafeModeLocked => 'Priorität Schuldenabbau';
+
+  @override
+  String get portfolioSafeModeBody =>
+      'Allokationsempfehlungen sind im Schutzmodus deaktiviert. Deine Priorität ist der Schuldenabbau vor der Umschichtung.';
+
+  @override
+  String get byokShowKey => 'Schlüssel anzeigen';
+
+  @override
+  String get byokHideKey => 'Schlüssel verbergen';
+
+  @override
+  String get themeDetailEssentiel60s => 'Das Wichtigste in 60 Sekunden';
+
+  @override
+  String get themeDetailTesteConnaissances => 'Teste dein Wissen';
+
+  @override
+  String get themeDetailSavaisTu => 'Wusstest du?';
+
+  @override
+  String get themeDetailSourcesLegales => 'Rechtsquellen';
+
+  @override
+  String get themeDetailRappel => 'Erinnerung';
+
+  @override
+  String get themeDetailBienVu => 'Gut erkannt!';
+
+  @override
+  String get themeDetailPasToutAFait => 'Nicht ganz...';
+
+  @override
+  String get emergencyFundTitle => 'Dein Sicherheitsnetz';
+
+  @override
+  String get emergencyFundSubtitle => 'Berechne deinen idealen Notfallfonds';
+
+  @override
+  String get emergencyFundDisclaimer =>
+      'Das Ziel von 3-6 Monaten ist eine allgemeine Empfehlung. Deine persönliche Situation kann einen anderen Betrag erfordern.';
+
+  @override
+  String get emergencyFundHyp1 =>
+      'Fixkosten = Miete + Versicherungen + Abonnements + Kredite';
+
+  @override
+  String get emergencyFundHyp2 =>
+      'Empfohlenes Ziel: 3 Monate (Minimum) bis 6 Monate (Komfort)';
+
+  @override
+  String get emergencyFundHyp3 =>
+      'Empfohlene Anlage: zugängliches Sparkonto, nicht investiert';
+
+  @override
+  String get emergencyFundChargesLabel => 'Deine monatlichen Fixkosten';
+
+  @override
+  String get emergencyFundChargesDesc =>
+      'Miete + Versicherungen + Abonnements + Kredite';
+
+  @override
+  String get emergencyFundObjectifLabel => 'Ziel in Sicherheitsmonaten';
+
+  @override
+  String emergencyFundMoisUnit(int count) {
+    return '$count Monate';
+  }
+
+  @override
+  String get emergencyFundMinimum => 'Minimum';
+
+  @override
+  String get emergencyFundConfort => 'Komfort';
+
+  @override
+  String get emergencyFundObjectifTitle => 'Dein Notfallfonds-Ziel';
+
+  @override
+  String get emergencyFundProgression => 'Dein Fortschritt';
+
+  @override
+  String emergencyFundManque(String amount) {
+    return 'Es fehlen dir noch $amount';
+  }
+
+  @override
+  String get emergencyFundAtteint => 'Ziel erreicht!';
+
+  @override
+  String get emergencyFundExplication =>
+      'Dieser Fonds schützt dich vor unerwarteten Ereignissen (Jobverlust, Krankheit, Reparaturen) ohne deine Investitionen anzutasten.';
+
+  @override
+  String get lifeEventSuggestionsHeader => 'Und dann?';
+
+  @override
+  String get lifeEventSuggestionsSubheader => 'Module für dein Profil';
+
+  @override
+  String get lifeEventSuggestionsSimuler => 'Simulieren';
+
+  @override
+  String get lifeEventSugMariage => 'Heirat';
+
+  @override
+  String get lifeEventSugMariageReason =>
+      'Entdecke die steuerlichen Auswirkungen auf die Vorsorge';
+
+  @override
+  String get lifeEventSugConcubinage => 'Konkubinat';
+
+  @override
+  String get lifeEventSugConcubinageReason =>
+      'Achtung: kein automatischer Rechtsschutz';
+
+  @override
+  String get lifeEventSugNaissance => 'Geburt';
+
+  @override
+  String get lifeEventSugNaissanceReason =>
+      'Simuliere die finanzielle Auswirkung eines Kindes';
+
+  @override
+  String get lifeEventSugSuccession => 'Nachlassplanung';
+
+  @override
+  String get lifeEventSugSuccessionReason =>
+      'Pflichtteile und verfügbare Quote (ZGB Art. 470)';
+
+  @override
+  String get lifeEventSugDonation => 'Schenkung unter Lebenden';
+
+  @override
+  String get lifeEventSugDonationReason =>
+      'Plane deine Nachfolge und optimiere die Steuern';
+
+  @override
+  String get lifeEventSugPremierEmploi => 'Erster Job';
+
+  @override
+  String get lifeEventSugPremierEmploiReason =>
+      'Grundlagen legen: AHV, BVG, 3a und Budget';
+
+  @override
+  String get lifeEventSugChangementEmploi => 'Stellenwechsel';
+
+  @override
+  String get lifeEventSugChangementEmploiReason =>
+      'Vergleiche deine BVG bevor du unterschreibst';
+
+  @override
+  String get lifeEventSugOutilsIndependant => 'Selbstständigen-Tools';
+
+  @override
+  String get lifeEventSugOutilsIndependantReason =>
+      'AHV, freiwillige BVG, erweiterte 3a und Dividende vs Lohn';
+
+  @override
+  String get lifeEventSugRetraite => 'Pensionsplanung';
+
+  @override
+  String get lifeEventSugRetraiteReason =>
+      'Rente vs Kapital, 3a-Staffelung, AHV-Lücke';
+
+  @override
+  String get lifeEventSugAchatImmo => 'Immobilienkauf';
+
+  @override
+  String get lifeEventSugAchatImmoReason =>
+      'Simuliere deine Kreditfähigkeit und WEF-Beitrag';
+
+  @override
+  String get lifeEventSugDemenagement => 'Kantonaler Umzug';
+
+  @override
+  String get lifeEventSugDemenagementReason =>
+      'Dein Kanton gehört zu den am höchsten besteuerten — vergleiche alle 26';
+
+  @override
+  String get lifeEventSugInvalidite => 'Invalidität';
+
+  @override
+  String get lifeEventSugInvaliditeReason =>
+      'Überprüfe deine IV + BVG Deckung bei Unfall';
+
+  @override
+  String get indepProtAvs => 'Verdopple deinen Beitrag';
+
+  @override
+  String get indepProtLpp => 'Entfällt — freiwillige Wahl';
+
+  @override
+  String get indepProtLaa => 'Entfällt — Unfall ausserhalb der Arbeit';
+
+  @override
+  String get indepProtIjm => 'Entfällt — Krankheit CHF 0';
+
+  @override
+  String get indepProtApg => 'Entfällt — Elternurlaub';
+
+  @override
+  String get indepLppProInvalidite => 'Invaliditätsdeckung inklusive';
+
+  @override
+  String get indepLppProDeductible => 'Steuerabzugsfähige Beiträge';
+
+  @override
+  String get indepLppProRente => 'Geplante Altersrente';
+
+  @override
+  String get indepLppConCotisations => 'Hohe Pflichtbeiträge';
+
+  @override
+  String get indepLppConFlexible => 'Weniger flexibel';
+
+  @override
+  String get indepGrand3aSub => '20% des Nettoeinkommens, max CHF 36\'288/Jahr';
+
+  @override
+  String get indepGrand3aProFlexibilite => 'Totale Flexibilität';
+
+  @override
+  String get indepGrand3aProDeduction => 'Maximaler Steuerabzug';
+
+  @override
+  String get indepGrand3aProCapital => 'Kapital ab 60 verfügbar';
+
+  @override
+  String get indepGrand3aConInvalidite => 'Keine Invaliditätsdeckung';
+
+  @override
+  String get indepGrand3aConRente => 'Keine geplante Rente';
+
+  @override
+  String get indepLayerImpots => 'Steuern (Schätzung)';
+
+  @override
+  String get indepLayerChargesSociales => 'Sozialabgaben AHV/IV';
+
+  @override
+  String get indepLayerFraisPro => 'Geschäftskosten';
+
+  @override
+  String get indepLayerJoursNonFact => 'Nicht fakturierbare Tage';
+
+  @override
+  String get indepFiscal3a => 'Säule 3a Grosseinzahlung';
+
+  @override
+  String get indepFiscal3aNote =>
+      'Max 20% des Nettoeinkommens, begrenzt auf CHF 36\'288/Jahr ohne BVG';
+
+  @override
+  String get indepFiscalFraisPro => 'Effektive Geschäftskosten';
+
+  @override
+  String get indepFiscalFraisProNote =>
+      'Büromiete, Material, Weiterbildung — zum Effektivwert absetzbar';
+
+  @override
+  String get indepFiscalPrimesLpp =>
+      'Krankenversicherungsprämien (freiwillige BVG)';
+
+  @override
+  String get indepChargeAvs => 'AHV / IV / EO';
+
+  @override
+  String get indepChargeLpp => 'BVG (2. Säule)';
+
+  @override
+  String get indepChargeLppNote => 'Freiwillig für Selbstständige (BVG Art. 4)';
+
+  @override
+  String get indepChargeAc => 'Arbeitslosigkeit (ALV)';
+
+  @override
+  String get indepChargeAcNote => 'Keine ALV für Selbstständige (AVIG Art. 2)';
+
+  @override
+  String get indepChargePro => 'Berufsversicherungen (KTG/UVG)';
+
+  @override
+  String get indepChargeProNote => 'Vollständig zu Lasten des Selbstständigen';
+
+  @override
+  String get indepPlanInscriptionAvs =>
+      'Anmeldung bei AHV-Kasse für Selbstständige';
+
+  @override
+  String get indepPlanInscriptionAvsConseq =>
+      'Rückwirkende Bussen bei Fristüberschreitung';
+
+  @override
+  String get indepPlanLaa => 'Unfallversicherung UVG (wenn kein BVG)';
+
+  @override
+  String get indepPlanLaaConseq => 'Kein Berufsunfall-Schutz';
+
+  @override
+  String get indepPlanOuvrir3a => '3a-Konto eröffnen (Abzug bis CHF 36\'288)';
+
+  @override
+  String get indepPlanIjm => 'KTG evaluieren (Krankentaggeld)';
+
+  @override
+  String get indepPlanIjmConseq => 'Einkommensverlust ab Tag 3 bei Krankheit';
+
+  @override
+  String get indepPlanFraisPro =>
+      'Abzugsfähige Geschäftskosten — Belege aufbewahren';
+
+  @override
+  String get indepPlanAcomptes =>
+      'Kantonale Steuervorauszahlungen — Zinsen vermeiden';
+
+  @override
+  String get donationTypeEspeces => 'Bargeld / Liquidität';
+
+  @override
+  String get donationTypeImmobilier => 'Immobilien';
+
+  @override
+  String get donationTypeTitres => 'Wertpapiere / Mobiliarwerte';
+
+  @override
+  String get donationRegimeParticipation => 'Errungenschaftsbeteiligung';
+
+  @override
+  String get donationRegimeCommunaute => 'Gütergemeinschaft';
+
+  @override
+  String get donationRegimeSeparation => 'Gütertrennung';
+
+  @override
+  String donationReserveBarLabel(String pct) {
+    return 'Pflichtteil $pct%';
+  }
+
+  @override
+  String donationDisponibleBarLabel(String pct) {
+    return 'Verfügbar $pct%';
+  }
+
+  @override
+  String get donationDisclaimerFallback =>
+      'Dieses Bildungstool liefert indikative Schätzungen und stellt keine persönliche Rechts-, Steuer- oder Notariatsberatung im Sinne des FIDLEG dar. Konsultiere einen Spezialisten (Notar) für deine Situation.';
 }

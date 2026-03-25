@@ -174,12 +174,12 @@ class RetirementProjectionService {
   static const Color colorSalary = MintColors.amber;
 
   // ── Constantes ──────────────────────────────────────────
-  static const double _avsIndexationRate = 0.01;
-  static const double _inflationRate = 0.015;
+  static const double _avsIndexationRate = avsIndexationRate;
+  static const double _inflationRate = defaultInflationRate;
   static const int _projectionYears = 25;
-  static const int _lifeExpectancy = 87;
+  static const int _lifeExpectancy = defaultLifeExpectancy;
   static const double _pillar3aAnnualizationYears = 20.0;
-  static const double _safeWithdrawalRate = 0.04;
+  static const double _safeWithdrawalRate = defaultSafeWithdrawalRate;
 
   // ════════════════════════════════════════════════════════════
   //  PUBLIC API
