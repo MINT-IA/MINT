@@ -49,7 +49,7 @@ class BudgetLivingEngine {
     //    a) Retired (age >= targetRetirementAge): budget based on actual rentes.
     //    b) Pre-retirement (has salary + valid age): full projection + gap.
     //    c) No usable data (zero salary and not retired): present-only.
-    final targetRetirementAge = profile.targetRetirementAge ?? 65;
+    final targetRetirementAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
     final isRetired = profile.age > 0 && profile.age >= targetRetirementAge;
 
     // Case a: user is already in retirement — show rente income, no gap.

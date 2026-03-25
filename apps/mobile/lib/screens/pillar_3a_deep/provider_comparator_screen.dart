@@ -180,7 +180,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             format: l.providerComparatorLabelAgeFormat(_age),
             onChanged: (v) => setState(() {
               _age = v.round();
-              _duree = (65 - _age).clamp(5, 45);
+              _duree = (avsAgeReferenceHomme - _age).clamp(5, 45);
             }),
           )),
           const SizedBox(height: MintSpacing.sm + 4),

@@ -1405,7 +1405,7 @@ class ArbitrageEngine {
   /// Legal basis: LIFD art. 38 (progressive capital withdrawal tax).
   static ArbitrageResult compareCalendrierRetraits({
     required List<RetirementAsset> assets,
-    int ageRetraite = 65,
+    int ageRetraite = avsAgeReferenceHomme,
     String canton = 'VD',
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,

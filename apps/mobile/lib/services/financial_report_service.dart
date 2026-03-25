@@ -293,7 +293,7 @@ class FinancialReportService {
     }
     for (int year = 0; year < profile.yearsToRetirement; year++) {
       final ageThisYear = profile.age + year;
-      if (ageThisYear >= 25 && ageThisYear <= 65) {
+      if (ageThisYear >= 25 && ageThisYear <= avsAgeReferenceHomme) {
         final rate = getLppBonificationRate(ageThisYear);
         estimatedLppGrowth += coordinatedSalary * rate;
       }
@@ -642,7 +642,7 @@ class FinancialReportService {
 
     final userRente = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
-      retirementAge: 65,
+      retirementAge: avsAgeReferenceHomme,
       lacunes: profile.avsGapYears ?? 0,
       anneesContribuees: profile.contributionYears,
       grossAnnualSalary: grossAnnualSalary,
@@ -653,7 +653,7 @@ class FinancialReportService {
       // TODO: Accept spouse income for more accurate couple AVS computation.
       final spouseRente = AvsCalculator.computeMonthlyRente(
         currentAge: profile.age, // Approximate: same age assumed for spouse
-        retirementAge: 65,
+        retirementAge: avsAgeReferenceHomme,
         lacunes: profile.spouseAvsGapYears ?? 0,
         anneesContribuees: profile.spouseContributionYears,
         grossAnnualSalary: grossAnnualSalary,

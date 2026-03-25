@@ -57,7 +57,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       final salaireMensuel = p.revenuBrutAnnuel > 0
           ? (p.revenuBrutAnnuel / 12).clamp(1500.0, 12646.0)
           : 6000.0;
-      final age = p.age > 0 ? p.age.clamp(18, 65) : 35;
+      final age = p.age > 0 ? p.age.clamp(18, avsAgeReferenceHomme) : 35;
       setState(() {
         _gainAssure = salaireMensuel.roundToDouble();
         _age = age;

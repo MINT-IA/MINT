@@ -80,7 +80,7 @@ class NetIncomeBreakdown {
 
     // 2. LPP employe (~50% de la bonification totale sur salaire coordonne)
     double lppEmployee = 0;
-    if (grossSalary >= lppSeuilEntree && age >= 25 && age <= 65) {
+    if (grossSalary >= lppSeuilEntree && age >= 25 && age <= avsAgeReferenceHomme) {
       final salaireCoord = (grossSalary - lppDeductionCoordination)
           .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
       final totalBonif = getLppBonificationRate(age);

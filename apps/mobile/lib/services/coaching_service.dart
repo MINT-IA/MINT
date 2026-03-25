@@ -135,7 +135,7 @@ class CoachingService {
   static const double _plafond3aIndependant = pilier3aPlafondSansLpp;
 
   /// Swiss legal retirement age (post-AVS21 reform, unified at 65).
-  static const int _ageRetraite = 65;
+  static const int _ageRetraite = avsAgeReferenceHomme;
 
   // Cantonal marginal tax rates removed — replaced by
   // RetirementTaxCalculator.estimateMarginalRate(income, canton)

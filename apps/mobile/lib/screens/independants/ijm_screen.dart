@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -42,7 +43,7 @@ class _IjmScreenState extends State<IjmScreen> {
         changed = true;
       }
       final age = profile.age;
-      if (age >= 18 && age <= 65) {
+      if (age >= 18 && age <= avsAgeReferenceHomme) {
         _age = age;
         changed = true;
       }

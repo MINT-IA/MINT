@@ -52,11 +52,11 @@ class AvsCalculator {
     if (retirementAge < 63) {
       // AVS anticipation only possible from 63 (LAVS art. 40)
       return 0.0;
-    } else if (retirementAge < 65) {
-      final yearsEarly = 65 - retirementAge;
+    } else if (retirementAge < avsAgeReferenceHomme) {
+      final yearsEarly = avsAgeReferenceHomme - retirementAge;
       rente *= (1.0 - avsReductionAnticipation * yearsEarly);
-    } else if (retirementAge > 65) {
-      final yearsLate = (retirementAge - 65).clamp(1, 5);
+    } else if (retirementAge > avsAgeReferenceHomme) {
+      final yearsLate = (retirementAge - avsAgeReferenceHomme).clamp(1, 5);
       final bonus = avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!;
       rente *= (1.0 + bonus);
     }

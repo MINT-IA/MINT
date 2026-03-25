@@ -879,7 +879,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final l10n = S.of(context)!;
     final net = _result?.netEstime ?? _salaire * 0.85;
     final annualSavings = net * 0.20 * 12;
-    final years = (65 - _age).clamp(0, 45);
+    final years = (avsAgeReferenceHomme - _age).clamp(0, 45);
     final fv = _fvAnnuity(annualSavings, years);
     return Budget503020Widget(
       netSalary: net,
@@ -937,7 +937,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final scenarios = scenarioAges
         .map((a) => TimeLapseScenario(
               startAge: a,
-              capitalAt65: _fvAnnuity(annual3a, (65 - a).clamp(0, 45)),
+              capitalAt65: _fvAnnuity(annual3a, (avsAgeReferenceHomme - a).clamp(0, 45)),
             ))
         .toList();
 

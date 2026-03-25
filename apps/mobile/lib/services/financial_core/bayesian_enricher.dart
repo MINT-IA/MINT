@@ -360,10 +360,10 @@ class BayesianProfileEnricher {
         (salaireBrut - lppDeductionCoordination).clamp(lppSalaireCoordMin, double.infinity);
 
     // Start age: 25 for Swiss natives, arrivalAge for expats (LPP art. 7)
-    final startAge = arrivalAge != null ? arrivalAge.clamp(25, 65) : 25;
+    final startAge = arrivalAge != null ? arrivalAge.clamp(25, avsAgeReferenceHomme) : 25;
 
     double total = 0;
-    for (int a = startAge; a < age && a < 65; a++) {
+    for (int a = startAge; a < age && a < avsAgeReferenceHomme; a++) {
       final taux = getLppBonificationRate(a);
       total = total * 1.01 + salaireCoordonne * taux; // 1% rendement
     }

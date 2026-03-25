@@ -50,7 +50,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   // ── Estimate mode controllers ──
   final _ageCtrl = TextEditingController(text: '50');
-  final _ageRetraiteSlider = ValueNotifier<double>(65);
+  final _ageRetraiteSlider = ValueNotifier<double>(avsAgeReferenceHomme.toDouble());
   final _salaryCtrl = TextEditingController(text: '100000');
   final _lppTotalCtrl = TextEditingController(text: '350000');
 

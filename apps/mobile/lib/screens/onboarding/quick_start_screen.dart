@@ -110,7 +110,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final coord = (gross - lppDeductionCoordination)
         .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
     double balance = 0;
-    for (int a = 25; a < age && a < 65; a++) {
+    for (int a = 25; a < age && a < avsAgeReferenceHomme; a++) {
       balance *= 1.01;
       balance += coord * getLppBonificationRate(a);
     }
@@ -125,7 +125,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final lppAnnual = LppCalculator.projectToRetirement(
       currentBalance: lppBalance,
       currentAge: age,
-      retirementAge: 65,
+      retirementAge: avsAgeReferenceHomme,
       grossAnnualSalary: gross,
       caisseReturn: 0.01,
       conversionRate: lppTauxConversionMinDecimal,

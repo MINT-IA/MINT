@@ -243,7 +243,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                   // ── Sensitivity ──
                   BreakevenIndicatorWidget(
                     breakevenYear: _result!.breakevenYear,
-                    ageRetraite: 65,
+                    ageRetraite: avsAgeReferenceHomme,
                     horizon: _anneesAvantRetraite,
                     sensitivity: _result!.sensitivity,
                   ),
