@@ -122,10 +122,11 @@ class AvancementHoirieWidget extends StatelessWidget {
             children: [
               Text('${recipient.emoji} ${recipient.name}', style: const TextStyle(fontSize: 16)),
               const SizedBox(width: 8),
-              Text(
+              Flexible(child: Text(
                 'reçoit donation : ${formatChfWithPrefix(donationAmount)}',
                 style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
-              ),
+                overflow: TextOverflow.ellipsis,
+              )),
             ],
           ),
           const SizedBox(height: 6),
@@ -162,10 +163,10 @@ class AvancementHoirieWidget extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(
                 children: [
-                  Text('${e.value.emoji} ${e.value.name}', style: const TextStyle(fontSize: 14)),
+                  Flexible(child: Text('${e.value.emoji} ${e.value.name}', style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis)),
                   if (isRecipient) ...[
                     const SizedBox(width: 6),
-                    Container(
+                    Flexible(child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: MintColors.scoreAttention.withValues(alpha: 0.15),
@@ -174,8 +175,9 @@ class AvancementHoirieWidget extends StatelessWidget {
                       child: Text(
                         '(déjà reçu ${formatChfWithPrefix(donationAmount)})',
                         style: MintTextStyles.micro(color: MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w600),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
+                    )),
                   ],
                   const Spacer(),
                   Text(

@@ -88,7 +88,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -119,7 +119,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

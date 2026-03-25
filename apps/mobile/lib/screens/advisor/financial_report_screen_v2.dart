@@ -75,7 +75,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -202,7 +202,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: MintSpacing.xxl),
           ],
         ),
-      ),
+      ))),
     );
   }
 
@@ -840,10 +840,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
               children: [
                 const Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   S.of(context)!.reportSoaTitle,
                   style: MintTextStyles.headlineMedium(),
-                ),
+                  overflow: TextOverflow.ellipsis,
+                )),
               ],
             ),
             const SizedBox(height: 20),

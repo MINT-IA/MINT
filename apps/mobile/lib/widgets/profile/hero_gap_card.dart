@@ -112,12 +112,12 @@ class HeroGapCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _miniCard(s, s.heroGapToday, formatChf(currentMonthlyNet)),
+        Flexible(child: _miniCard(s, s.heroGapToday, formatChf(currentMonthlyNet))),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: Icon(Icons.arrow_forward, color: MintColors.white70, size: 20),
         ),
-        _miniCard(s, s.heroGapRetirement, formatChf(projectedMonthlyRetirement)),
+        Flexible(child: _miniCard(s, s.heroGapRetirement, formatChf(projectedMonthlyRetirement))),
       ],
     );
   }
@@ -187,10 +187,11 @@ class HeroGapCard extends StatelessWidget {
         children: [
           const Icon(Icons.document_scanner, color: MintColors.white, size: 18),
           const SizedBox(width: 8),
-          Text(
+          Flexible(child: Text(
             s.heroGapScanCta,
             style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontSize: 13, fontWeight: FontWeight.w500, decoration: TextDecoration.underline, decorationColor: MintColors.white70),
-          ),
+            overflow: TextOverflow.ellipsis,
+          )),
           if (confidenceBoostPercent != null) ...[
             const SizedBox(width: 8),
             Container(

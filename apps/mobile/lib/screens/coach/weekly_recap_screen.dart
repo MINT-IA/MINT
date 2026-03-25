@@ -105,11 +105,11 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
         ),
         centerTitle: false,
       ),
-      body: _loading
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: _loading
           ? const Center(child: CircularProgressIndicator())
           : _errorKey != null
               ? _buildEmpty(l)
-              : _buildContent(l),
+              : _buildContent(l))),
     );
   }
 

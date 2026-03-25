@@ -30,7 +30,7 @@ class PortfolioScreen extends StatelessWidget {
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -60,7 +60,7 @@ class PortfolioScreen extends StatelessWidget {
             const SizedBox(height: 100),
           ],
         ),
-      ),
+      ))),
     );
   }
 

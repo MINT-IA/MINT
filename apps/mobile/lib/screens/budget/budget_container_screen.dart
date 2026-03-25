@@ -26,7 +26,7 @@ class BudgetContainerScreen extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(S.of(context)!.budgetTitle)),
-      body: Center(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
@@ -69,7 +69,7 @@ class BudgetContainerScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 }

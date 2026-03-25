@@ -143,7 +143,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: AnimatedBuilder(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: AnimatedBuilder(
         animation: Listenable.merge([_masterController, _pulseController]),
         builder: (context, _) {
           return SafeArea(
@@ -174,7 +174,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             ),
           );
         },
-      ),
+      ))),
     );
   }
 

@@ -59,7 +59,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +114,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             const SizedBox(height: MintSpacing.xxl - 8),
           ],
         ),
-      ),
+      ))),
     );
   }
 
@@ -289,7 +289,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
         children: [
           const Icon(Icons.open_in_new, size: 14, color: MintColors.info),
           const SizedBox(width: 6),
-          Text(
+          Flexible(child: Text(
             s.byokGetKeyOn(label),
             style: MintTextStyles.bodySmall(
               color: MintColors.info,
@@ -297,7 +297,8 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               decoration: TextDecoration.underline,
               decorationColor: MintColors.info,
             ),
-          ),
+            overflow: TextOverflow.ellipsis,
+          )),
         ],
       ),
     ),

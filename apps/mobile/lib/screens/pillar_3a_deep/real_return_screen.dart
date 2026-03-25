@@ -83,7 +83,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         foregroundColor: MintColors.textPrimary,
         title: Text(l.realReturnTitle, style: MintTextStyles.headlineMedium()),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
@@ -114,7 +114,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           _buildDisclaimer(result.disclaimer),
           const SizedBox(height: MintSpacing.xl),
         ],
-      ),
+      ))),
     );
   }
 

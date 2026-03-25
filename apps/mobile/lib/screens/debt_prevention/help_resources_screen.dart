@@ -29,7 +29,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -92,7 +92,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

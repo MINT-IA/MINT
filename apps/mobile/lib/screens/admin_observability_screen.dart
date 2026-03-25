@@ -127,7 +127,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: _loading
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? _buildError(l10n)
@@ -155,7 +155,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                       )),
                     ],
                   ),
-                ),
+                ))),
     );
   }
 

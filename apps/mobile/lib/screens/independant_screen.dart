@@ -103,7 +103,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -205,7 +205,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

@@ -34,7 +34,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
     if (profile == null) {
       return Scaffold(
         appBar: AppBar(title: Text(S.of(context)!.arbitrageBilanTitle)),
-        body: Center(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
@@ -56,7 +56,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
               ],
             ),
           ),
-        ),
+        ))),
       );
     }
 
@@ -64,7 +64,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── AppBar ──
           SliverAppBar(
@@ -155,7 +155,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

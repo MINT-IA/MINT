@@ -2077,7 +2077,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Column(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Column(
         children: [
           _buildAppBar(context),
           MintEntrance(child: _buildDisclaimer()),
@@ -2098,7 +2098,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           if (_isLoading) _buildLoadingIndicator(),
           MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputBar()),
         ],
-      ),
+      ))),
     );
   }
 
@@ -2115,7 +2115,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         backgroundColor: MintColors.primary,
         foregroundColor: MintColors.white,
       ),
-      body: Center(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: MintSpacing.xl),
           child: Column(
@@ -2146,7 +2146,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 

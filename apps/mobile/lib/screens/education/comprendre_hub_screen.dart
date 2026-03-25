@@ -27,7 +27,7 @@ class ComprendreHubScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
         leading: const BackButton(color: MintColors.textPrimary),
       ),
-      body: ListView.builder(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView.builder(
         padding: const EdgeInsets.all(MintSpacing.lg),
         itemCount: EducationData.themes.length + 1, // +1 for header
         itemBuilder: (context, index) {
@@ -46,7 +46,7 @@ class ComprendreHubScreen extends StatelessWidget {
             child: _ThemeCard(theme: theme),
           );
         },
-      ),
+      ))),
     );
   }
 }

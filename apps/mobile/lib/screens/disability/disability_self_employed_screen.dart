@@ -49,7 +49,7 @@ class _DisabilitySelfEmployedScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.redBgLight, // fond rouge très pale
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -82,7 +82,7 @@ class _DisabilitySelfEmployedScreenState
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

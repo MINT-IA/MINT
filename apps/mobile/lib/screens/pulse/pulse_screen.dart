@@ -823,7 +823,7 @@ class _PulseScreenState extends State<PulseScreen> {
     final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
@@ -870,7 +870,7 @@ class _PulseScreenState extends State<PulseScreen> {
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 

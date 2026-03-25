@@ -158,10 +158,12 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            Flexible(child: Text(
               'Prix de vente : ${formatChfWithPrefix(widget.salePrice)}',
               style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
-            ),
+              overflow: TextOverflow.ellipsis,
+            )),
+            const SizedBox(width: 8),
             Text(
               'Net : ${formatChfWithPrefix(_netProceeds)}',
               style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),

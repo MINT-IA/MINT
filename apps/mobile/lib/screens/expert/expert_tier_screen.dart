@@ -190,7 +190,7 @@ class _ExpertTierScreenState extends State<ExpertTierScreen> {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: Column(
           children: [
             // Disclaimer banner — always visible (compliance).
@@ -215,7 +215,7 @@ class _ExpertTierScreenState extends State<ExpertTierScreen> {
             )),
           ],
         ),
-      ),
+      ))),
     );
   }
 }

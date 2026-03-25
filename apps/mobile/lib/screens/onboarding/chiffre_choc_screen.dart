@@ -192,8 +192,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final l10n = S.of(context)!;
 
     if (choc == null || profile == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const Center(child: CircularProgressIndicator()))),
       );
     }
 
@@ -203,7 +203,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
           child: Column(
@@ -396,7 +396,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 }

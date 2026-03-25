@@ -27,6 +27,13 @@ void main() {
     await tester.pumpWidget(_wrap(const DocumentScanScreen()));
     await tester.pumpAndSettle();
 
+    // Scroll down to reveal capture buttons (ConstrainedBox narrows content)
+    final scrollable = find.byType(Scrollable);
+    if (scrollable.evaluate().isNotEmpty) {
+      await tester.scrollUntilVisible(find.text('Prendre une photo'), 200, scrollable: scrollable.first);
+      await tester.pumpAndSettle();
+    }
+
     expect(find.text('Prendre une photo'), findsOneWidget);
     expect(find.text('Depuis la galerie'), findsOneWidget);
     expect(find.textContaining('MODE PROTOTYPE'), findsNothing);

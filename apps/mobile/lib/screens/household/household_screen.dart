@@ -60,13 +60,13 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: !auth.isLoggedIn
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: !auth.isLoggedIn
           ? _buildLoginPrompt(context)
           : !sub.isPaid
               ? _buildUpsellCard(context)
               : household.isLoading && !household.hasHousehold
                   ? const Center(child: CircularProgressIndicator())
-                  : _buildContent(context, household),
+                  : _buildContent(context, household))),
     );
   }
 

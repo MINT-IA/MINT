@@ -21,7 +21,7 @@ class PatrimoineHubScreen extends StatelessWidget {
         title: Text(l.exploreHubPatrimoineTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.symmetric(
           horizontal: MintSpacing.lg,
           vertical: MintSpacing.md,
@@ -87,7 +87,7 @@ class PatrimoineHubScreen extends StatelessWidget {
           ),
           const SizedBox(height: MintSpacing.xxl),
         ],
-      ),
+      ))),
     );
   }
 }

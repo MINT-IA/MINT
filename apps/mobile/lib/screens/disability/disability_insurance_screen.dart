@@ -171,7 +171,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -203,7 +203,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

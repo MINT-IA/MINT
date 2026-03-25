@@ -253,7 +253,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -303,7 +303,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

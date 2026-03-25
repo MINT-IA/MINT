@@ -70,7 +70,7 @@ class _IjmScreenState extends State<IjmScreen> {
         scrolledUnderElevation: 0,
         title: Text(s.ijmTitle, style: MintTextStyles.headlineMedium()),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +101,7 @@ class _IjmScreenState extends State<IjmScreen> {
             const SizedBox(height: 100),
           ],
         ),
-      ),
+      ))),
     );
   }
 

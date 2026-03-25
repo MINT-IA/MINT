@@ -83,7 +83,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         // PDF export hidden — stub not yet implemented
         actions: const [],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -130,7 +130,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      ))),
     );
   }
 

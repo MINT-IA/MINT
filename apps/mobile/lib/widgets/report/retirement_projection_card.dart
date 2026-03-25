@@ -42,10 +42,11 @@ class RetirementProjectionCard extends StatelessWidget {
         // Replacement rate
         Row(
           children: [
-            Text(
+            Flexible(child: Text(
               'Taux de remplacement : ',
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
-            ),
+              overflow: TextOverflow.ellipsis,
+            )),
             Text(
               '${replacementRate.toStringAsFixed(0)}%',
               style: MintTextStyles.bodySmall(color: rateColor).copyWith(fontSize: 12, fontWeight: FontWeight.w700),

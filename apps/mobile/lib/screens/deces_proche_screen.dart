@@ -75,7 +75,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -114,7 +114,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 

@@ -175,7 +175,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -207,7 +207,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      ))),
     );
   }
 

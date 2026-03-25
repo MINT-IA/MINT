@@ -38,7 +38,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           if (profile == null)
@@ -46,7 +46,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           else
             _buildContent(context, profile),
         ],
-      ),
+      ))),
     );
   }
 

@@ -55,12 +55,12 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
       ),
-      body: Padding(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Padding(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: _accepted
             ? _buildSuccess(context)
             : _buildForm(context, household),
-      ),
+      ))),
     );
   }
 

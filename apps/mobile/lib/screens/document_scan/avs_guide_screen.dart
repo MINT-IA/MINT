@@ -53,7 +53,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context, l),
           SliverPadding(
@@ -83,7 +83,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

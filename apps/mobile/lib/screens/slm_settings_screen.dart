@@ -39,7 +39,7 @@ class SlmSettingsScreen extends StatelessWidget {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           MintEntrance(child: _buildPrivacyBanner(context, l10n)),
@@ -52,7 +52,7 @@ class SlmSettingsScreen extends StatelessWidget {
           const SizedBox(height: MintSpacing.md),
           MintEntrance(delay: const Duration(milliseconds: 400), child: _buildInfoCard(context, slm, l10n)),
         ],
-      ),
+      ))),
     );
   }
 

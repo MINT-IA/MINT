@@ -109,7 +109,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 100,
@@ -155,7 +155,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

@@ -165,7 +165,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── AppBar: white standard (Design System §4.5) ──
           SliverAppBar(
@@ -312,7 +312,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 

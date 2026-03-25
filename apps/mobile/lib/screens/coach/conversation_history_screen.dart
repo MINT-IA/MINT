@@ -77,7 +77,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── App Bar ──
           SliverAppBar(
@@ -137,7 +137,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
               ),
             ),
         ],
-      ),
+      ))),
 
       // ── FAB: New conversation ──
       floatingActionButton: (!_isLoading && _error == null)

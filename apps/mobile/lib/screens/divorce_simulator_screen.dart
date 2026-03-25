@@ -196,7 +196,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(
           horizontal: MintSpacing.lg,
@@ -254,7 +254,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             const SizedBox(height: MintSpacing.xl + MintSpacing.sm),
           ],
         ),
-      ),
+      ))),
     );
   }
 

@@ -105,7 +105,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.sm, MintSpacing.lg, MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -144,7 +144,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             const SizedBox(height: MintSpacing.xxl),
           ],
         ),
-      ),
+      ))),
     );
   }
 

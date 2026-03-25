@@ -42,10 +42,12 @@ class MintPremiumSlider extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            Flexible(child: Text(
               label,
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-            ),
+              overflow: TextOverflow.ellipsis,
+            )),
+            const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
