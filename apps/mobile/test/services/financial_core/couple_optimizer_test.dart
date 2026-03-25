@@ -169,7 +169,8 @@ void main() {
       final avs = result.avsCap!;
       expect(avs.capApplied, isTrue);
       expect(avs.monthlyReduction, greaterThan(0));
-      expect(avs.totalAfterCap, lessThanOrEqualTo(3780));
+      // 3780 cap × 13/12 (13ème rente) = ~4095
+      expect(avs.totalAfterCap, lessThanOrEqualTo(4100));
     });
 
     test('concubin couple → no cap applied', () {

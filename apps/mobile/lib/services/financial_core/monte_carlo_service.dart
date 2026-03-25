@@ -132,7 +132,7 @@ class MonteCarloProjectionService {
         );
       }
 
-      // ── AVS couple cap (LAVS art. 35) ─────────────────────
+      // ── AVS couple cap (LAVS art. 35) + 13ème rente ────────
       double avsUserMonthly;
       double avsConjointMonthly;
       if (hasConjoint) {
@@ -147,6 +147,9 @@ class MonteCarloProjectionService {
         avsUserMonthly = avsUserRaw;
         avsConjointMonthly = 0;
       }
+      // Apply 13th rente (8.3% uplift) — AVS pays 13 monthly rentes per year.
+      avsUserMonthly = AvsCalculator.annualRente(avsUserMonthly) / 12;
+      avsConjointMonthly = AvsCalculator.annualRente(avsConjointMonthly) / 12;
 
       // ── LPP utilisateur : projection simplifiee jusqu'a la retraite ─
       // Inclut bonifications annuelles + rachats LPP planifies (LPP art. 79b)

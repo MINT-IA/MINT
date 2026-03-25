@@ -664,8 +664,9 @@ void main() {
 
         expect(avs.capApplied, isTrue,
             reason: 'Married couple with high combined AVS should be capped');
-        expect(avs.totalAfterCap, closeTo(3780, 100),
-            reason: 'Total AVS should be near 3780 cap');
+        // 3780 cap × 13/12 (13ème rente) = ~4095 CHF/mois moyen
+        expect(avs.totalAfterCap, closeTo(4095, 100),
+            reason: 'Total AVS should be near 4095 (3780 cap with 13th rente)');
       }
 
       // Marriage penalty

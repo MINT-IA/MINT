@@ -190,7 +190,7 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
 # Anything NOT in this set is DROPPED to prevent PII leakage.
 # Privacy: never includes IBAN, full name, NPA, or employer.
 _PROFILE_SAFE_FIELDS = {
-    "first_name", "archetype", "age", "canton",
+    "archetype", "age", "canton",
     "fri_total", "fri_delta", "primary_focus",
     "replacement_ratio", "months_liquidity", "tax_saving_potential",
     "confidence_score", "days_since_last_visit", "fiscal_season",
@@ -207,6 +207,9 @@ _PROFILE_SAFE_FIELDS = {
     # C2: Couple context fields (numeric, privacy-safe)
     "is_married", "conjoint_age", "conjoint_salary",
     "couple_avs_monthly", "couple_marriage_annual_delta",
+    # Cap/Plan context (consumed by get_cap_status internal tool):
+    "cap_headline", "cap_why_now", "cap_cta", "cap_expected_impact",
+    "sequence_completed", "sequence_total", "active_goal",
 }
 
 

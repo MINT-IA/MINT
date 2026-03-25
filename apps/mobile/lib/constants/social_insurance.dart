@@ -40,10 +40,10 @@ const double lppTauxConversionMin = 6.8;
 /// Ne jamais appliquer implicitement sur tout le capital LPP.
 const double lppTauxConversionMinDecimal = 0.068;
 
-/// Taux de conversion estime pour la part surobligatoire LPP.
-/// Estimation mediane 2025/2026 des caisses suisses (fourchette 4.8%-6.0%).
-/// Utilise comme fallback quand le certificat LPP ne precise pas le taux enveloppant.
-const double lppTauxConversionSurobligDecimal = 0.054;
+/// Taux de conversion blended pour la part complementaire LPP.
+/// ~60% obligatoire a 6.8% + ~40% surobligatoire a ~4.3% = ~5.8%.
+/// Aligne avec backend (source de verite): LPP_CONVERSION_RATE_COMPLEMENTAIRE = 0.058.
+const double lppTauxConversionSurobligDecimal = 0.058;
 
 /// Reduction du taux de conversion par annee de retraite anticipee.
 /// Pratique standard des caisses suisses: ~0.2 points de % par annee

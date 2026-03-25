@@ -343,15 +343,20 @@ class CoupleOptimizer {
       isMarried: isMarried,
     );
 
-    final uncapped = userRente + conjointRente;
-    final reduction = uncapped - couple.total;
+    // Apply 13th rente (8.3% uplift) to displayed amounts.
+    final userWith13 = AvsCalculator.annualRente(userRente) / 12;
+    final conjointWith13 = AvsCalculator.annualRente(conjointRente) / 12;
+    final coupleWith13 = AvsCalculator.annualRente(couple.total) / 12;
+
+    final uncapped = userWith13 + conjointWith13;
+    final reduction = uncapped - coupleWith13;
 
     return AvsCoupleCapResult(
       capApplied: reduction > 0,
       monthlyReduction: reduction,
-      userRenteBeforeCap: userRente,
-      conjointRenteBeforeCap: conjointRente,
-      totalAfterCap: couple.total,
+      userRenteBeforeCap: userWith13,
+      conjointRenteBeforeCap: conjointWith13,
+      totalAfterCap: coupleWith13,
     );
   }
 

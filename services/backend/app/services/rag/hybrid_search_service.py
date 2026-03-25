@@ -218,6 +218,7 @@ class HybridSearchService:
         # Attempt to embed the query for vector search
         query_embedding = self._embed_query(query)
 
+        conn = None
         try:
             conn = self._get_connection()
 
@@ -244,8 +245,6 @@ class HybridSearchService:
             with conn.cursor() as cur:
                 cur.execute(sql, params)
                 rows = cur.fetchall()
-
-            conn.close()
 
             results = []
             for row in rows:
@@ -278,3 +277,9 @@ class HybridSearchService:
         except Exception as exc:
             logger.error("hybrid_search failed: %s", exc)
             return []
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
