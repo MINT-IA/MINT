@@ -50,6 +50,7 @@ from app.api.v1.endpoints import (
     household,
     config,
     knowledge,
+    regulatory,
 )
 
 api_router = APIRouter()
@@ -184,3 +185,4 @@ api_router.include_router(
     config.router, prefix="/config", tags=["Config"]
 )
 api_router.include_router(knowledge.router, tags=["Knowledge S67"])
+api_router.include_router(regulatory.router, tags=["Regulatory Core"])
