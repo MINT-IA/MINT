@@ -231,11 +231,11 @@ class CrossPillarCalculator {
       // Grand 3a: 20% of net income, max 36'288 CHF
       plafond = min(
         grossAnnual * pilier3aTauxRevenuSansLpp,
-        pilier3aPlafondSansLpp,
+        reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp),
       );
     } else {
       // Petit 3a: flat cap with LPP
-      plafond = pilier3aPlafondAvecLpp;
+      plafond = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     }
 
     final alreadyContributing = profile.prevoyance.totalEpargne3a > 0
@@ -713,7 +713,7 @@ class CrossPillarCalculator {
     // LAVS art. 39: +5.2% on individual rente per year deferred from 65
     final avsMonthlyAt65 = AvsCalculator.computeMonthlyRente(
       currentAge: currentAge,
-      retirementAge: avsAgeReferenceHomme,
+      retirementAge: reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
       lacunes: profile.prevoyance.lacunesAVS ?? 0,
       anneesContribuees: profile.prevoyance.anneesContribuees,
       arrivalAge: profile.arrivalAge,

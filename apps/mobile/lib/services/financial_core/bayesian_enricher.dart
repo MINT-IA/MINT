@@ -357,13 +357,14 @@ class BayesianProfileEnricher {
   }) {
     final salaireBrut = salaireBrutMensuel * 12;
     final salaireCoordonne =
-        (salaireBrut - lppDeductionCoordination).clamp(lppSalaireCoordMin, double.infinity);
+        (salaireBrut - reg('lpp.coordination_deduction', lppDeductionCoordination)).clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), double.infinity);
 
     // Start age: 25 for Swiss natives, arrivalAge for expats (LPP art. 7)
-    final startAge = arrivalAge != null ? arrivalAge.clamp(25, avsAgeReferenceHomme) : 25;
+    final refAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final startAge = arrivalAge != null ? arrivalAge.clamp(25, refAge) : 25;
 
     double total = 0;
-    for (int a = startAge; a < age && a < avsAgeReferenceHomme; a++) {
+    for (int a = startAge; a < age && a < refAge; a++) {
       final taux = getLppBonificationRate(a);
       total = total * 1.01 + salaireCoordonne * taux; // 1% rendement
     }
@@ -415,7 +416,7 @@ class BayesianProfileEnricher {
 
     // If user provided a non-default taux, treat as declared
     // Default in PrevoyanceProfile is lppTauxConversionMinDecimal (minimum legal)
-    final isNonDefault = (declared - lppTauxConversionMinDecimal).abs() > 0.001;
+    final isNonDefault = (declared - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.001;
     if (isNonDefault) {
       return _collapseToDeclared(
         field: 'tauxConversion',
@@ -497,7 +498,7 @@ class BayesianProfileEnricher {
       final adoptionRate = age < 30 ? 0.40 : 0.60;
       final fullEstimate = _compound3a(
         age: age,
-        annualContrib: pilier3aPlafondAvecLpp,
+        annualContrib: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
         employment: employment,
       );
       return fullEstimate * adoptionRate;
@@ -505,8 +506,8 @@ class BayesianProfileEnricher {
 
     // Has declared number of 3a accounts: assume max contribution
     final annualContrib = employment == 'independant'
-        ? (salary * pilier3aTauxRevenuSansLpp).clamp(0.0, pilier3aPlafondSansLpp)
-        : pilier3aPlafondAvecLpp;
+        ? (salary * pilier3aTauxRevenuSansLpp).clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     final fullEstimate = _compound3a(
       age: age,
@@ -760,13 +761,14 @@ class BayesianProfileEnricher {
     final lacunes = profile.prevoyance.lacunesAVS ?? 0;
     final arrivalAge = profile.arrivalAge;
 
+    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
     double priorMean;
     if (arrivalAge != null && arrivalAge > 21) {
       // Expat: contributions start at arrival
-      priorMean = (age - arrivalAge - lacunes).clamp(0, avsDureeCotisationComplete).toDouble();
+      priorMean = (age - arrivalAge - lacunes).clamp(0, fullYears).toDouble();
     } else {
       // Swiss native: contributions since 21
-      priorMean = (age - 21 - lacunes).clamp(0, avsDureeCotisationComplete).toDouble();
+      priorMean = (age - 21 - lacunes).clamp(0, fullYears).toDouble();
     }
 
     // SD: higher for expats (more uncertainty about foreign periods)

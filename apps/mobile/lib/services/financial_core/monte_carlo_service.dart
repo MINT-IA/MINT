@@ -86,7 +86,7 @@ class MonteCarloProjectionService {
     final conjoint = profile.conjoint;
     final conjointAge = conjoint?.age;
     // Default conjoint retirement age: avsAgeReferenceHomme (could differ but we simplify)
-    const conjointRetirementAge = avsAgeReferenceHomme;
+    final conjointRetirementAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
     // ── Early retirement: AVS deferred start (LAVS art. 40) ─
     // AVS anticipation only possible from age 63. If retirement < 63,
@@ -185,12 +185,12 @@ class MonteCarloProjectionService {
       double lppCapitalNet = 0;
       // Split oblig/suroblig conversion rates (LPP art. 14)
       final convRateOblig = LppCalculator.adjustedConversionRate(
-        baseRate: lppTauxConversionMinDecimal,
+        baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         retirementAge: retirementAgeUser,
       );
       final convRateSurob = LppCalculator.adjustedConversionRate(
         baseRate: profile.prevoyance.tauxConversionSuroblig
-            ?? lppTauxConversionSurobligDecimal,
+            ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
         retirementAge: retirementAgeUser,
       );
       final userOblig = profile.prevoyance.avoirLppObligatoire;
@@ -205,9 +205,9 @@ class MonteCarloProjectionService {
         }
         // No certificate split: use conservative rate when profile has default 6.8%
         final profileRate = profile.prevoyance.tauxConversion;
-        final isDefault = (profileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+        final isDefault = (profileRate - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.001;
         final baseRate = isDefault
-            ? lppTauxConversionSurobligDecimal
+            ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
             : profileRate;
         final envRate = LppCalculator.adjustedConversionRate(
           baseRate: baseRate,
@@ -539,7 +539,7 @@ class MonteCarloProjectionService {
           : 'ZH',
       currentAge: profile.age,
       targetRetirementAge:
-          retirementAge ?? profile.targetRetirementAge ?? avsAgeReferenceHomme,
+          retirementAge ?? profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
       propertyMarketValue: profile.patrimoine.propertyMarketValue,
       mortgageBalance: profile.patrimoine.mortgageBalance,
       mortgageRate: profile.patrimoine.mortgageRate,

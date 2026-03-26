@@ -46,7 +46,7 @@ class CoachReasonerService {
 
     final age = DateTime.now().year - profile.birthYear;
     final yearsToRetirement =
-        ((profile.targetRetirementAge ?? avsAgeReferenceHomme) - age).clamp(0, 45);
+        ((profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) - age).clamp(0, 45);
     if (yearsToRetirement <= 0) {
       return ReasonerResult(
           recommendations: results, confidence: confidence);
@@ -208,7 +208,7 @@ class CoachReasonerService {
         profile.employmentStatus == 'independant' &&
         (prev.avoirLppTotal == null || prev.avoirLppTotal == 0);
     final maxAnnual =
-        isIndepNoLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        isIndepNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     // Estimate current annual contribution from existing accounts
     // If no contribution data, assume user contributes 0
@@ -302,7 +302,7 @@ class CoachReasonerService {
         profile.employmentStatus == 'independant' &&
         (prev.avoirLppTotal == null || prev.avoirLppTotal == 0);
     final maxAnnual =
-        isIndepNoLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        isIndepNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     // Estimate annual amortization: 1% of mortgage balance
     final annualAmorti = hypotheque * 0.01;
@@ -384,7 +384,7 @@ class CoachReasonerService {
     if (prev.nombre3a < 2) return null; // need >= 2 accounts to stagger
     if (prev.totalEpargne3a < 20000) return null; // trivial amounts
 
-    final retirementAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
+    final retirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 10) return null; // only relevant near retirement
 
@@ -471,7 +471,7 @@ class CoachReasonerService {
     if (totalLP < 20000) return null; // too small
     if (prev.librePassage.length >= 2) return null; // already split
 
-    final retirementAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
+    final retirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 15) return null; // not urgent yet
 

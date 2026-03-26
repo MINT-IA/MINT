@@ -76,13 +76,13 @@ class NetIncomeBreakdown {
     }
 
     // 1. Charges sociales (AVS/AI/APG combined + AC) — hors LPP
-    final socialCharges = grossSalary * cotisationsSalarieTotal;
+    final socialCharges = grossSalary * (reg('avs.contribution_rate_employee', avsCotisationSalarie) + acCotisationSalarie);
 
     // 2. LPP employe (~50% de la bonification totale sur salaire coordonne)
     double lppEmployee = 0;
-    if (grossSalary >= lppSeuilEntree && age >= 25 && age <= avsAgeReferenceHomme) {
-      final salaireCoord = (grossSalary - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    if (grossSalary >= reg('lpp.entry_threshold', lppSeuilEntree) && age >= 25 && age <= reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) {
+      final salaireCoord = (grossSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
+          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
       final totalBonif = getLppBonificationRate(age);
       lppEmployee =
           salaireCoord * totalBonif / 2; // ~50% part employe (LPP art. 66)
@@ -206,7 +206,7 @@ class RetirementTaxCalculator {
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
     final effectiveRate =
-        isMarried ? baseRate * marriedCapitalTaxDiscount : baseRate;
+        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
     return progressiveTax(capitalBrut, effectiveRate);
   }
 
@@ -397,7 +397,7 @@ class RetirementTaxCalculator {
       isMarried: isMarried,
       children: children,
     );
-    return pilier3aPlafondAvecLpp * marginalRate;
+    return reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * marginalRate;
   }
 
   /// Estimate retirement income tax (annual → monthly).

@@ -253,7 +253,7 @@ class ConfidenceScorer {
       total += _wTauxConversion; // Not applicable
     } else {
       final tauxConv = profile.prevoyance.tauxConversion;
-      if (tauxConv != lppTauxConversionMinDecimal) {
+      if ((tauxConv - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.0001) {
         total += _wTauxConversion;
       } else {
         total += 1;
@@ -363,7 +363,7 @@ class ConfidenceScorer {
         total -= 5; // AVS extrait missing: extra -5
       }
       if (!isIndepSansLpp &&
-          profile.prevoyance.tauxConversion == lppTauxConversionMinDecimal) {
+          (profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.0001) {
         total -= 3; // Default taux: extra -3
       }
 
@@ -530,7 +530,7 @@ class ConfidenceScorer {
     if (isIndepSansLpp) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
-    } else if (profile.prevoyance.tauxConversion != lppTauxConversionMinDecimal) {
+    } else if ((profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.0001) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
     } else {
@@ -631,7 +631,7 @@ class ConfidenceScorer {
         );
       }
       if (!isIndepSansLpp &&
-          profile.prevoyance.tauxConversion == lppTauxConversionMinDecimal) {
+          (profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.0001) {
         final taux = blocs['taux_conversion']!;
         blocs['taux_conversion'] = BlockScore(
           score: (taux.score - 3).clamp(0, taux.maxScore),
