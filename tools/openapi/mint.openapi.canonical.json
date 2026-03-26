@@ -13419,6 +13419,17 @@
             "title": "Factfindcompletionindex",
             "type": "number"
           },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
           "goal": {
             "$ref": "#/components/schemas/Goal",
             "default": "other"
@@ -13736,6 +13747,17 @@
             "title": "Factfindcompletionindex",
             "type": "number"
           },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
           "goal": {
             "$ref": "#/components/schemas/Goal",
             "default": "other"
@@ -13981,6 +14003,17 @@
               }
             ],
             "title": "Factfindcompletionindex"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
           },
           "goal": {
             "anyOf": [
