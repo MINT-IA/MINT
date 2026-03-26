@@ -1,10 +1,12 @@
-/// Enhanced Confidence Scoring service (S46).
+/// Mobile confidence: 3 axes (completeness, accuracy, freshness), weighted average.
+/// Used for UI display when backend is unavailable (offline fallback).
 ///
-/// Evolves the confidence model from binary completeness to a
-/// 3-axis system: completeness + accuracy + freshness.
+/// NOTE: Three confidence systems coexist (V9-5):
+///   1. enhanced_confidence_service.py (backend) — 4-axis geometric mean, authoritative
+///   2. This file (mobile) — 3-axis weighted average, offline fallback for UI display
+///   3. confidence_scorer.dart (financial_core) — project-level scoring with bloc breakdown
 ///
-/// Mirrors the backend enhanced confidence scoring (DATA_ACQUISITION_STRATEGY.md,
-/// section "Confidence Scoring Evolution").
+/// TODO: Unify to single 4-axis model matching backend (SOT §3)
 ///
 /// Weights: completeness 40% + accuracy 35% + freshness 25% = overall
 ///

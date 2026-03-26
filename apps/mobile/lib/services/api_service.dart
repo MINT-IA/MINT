@@ -509,9 +509,11 @@ class ApiService {
       isPropertyOwner: isPropertyOwner ?? false,
       existing3a: existing3a ?? 0,
       existingLpp: existingLpp ?? 0,
-      employmentStatus: _readString(response, const ['employmentStatus', 'employment_status'], fallback: 'salarie'),
+      // These fields are not returned by the API — derived locally from profile data.
+      // Use the API value if present, otherwise fall back to sensible defaults.
+      employmentStatus: _readString(response, const ['employmentStatus', 'employment_status'], fallback: 'employee'),
       nationalityGroup: _readString(response, const ['nationalityGroup', 'nationality_group'], fallback: 'CH'),
-      plafond3a: _readDouble(response, const ['plafond3a', 'plafond_3a']),
+      plafond3a: _readDouble(response, const ['plafond3a', 'plafond_3a'], fallback: 7258.0),
       estimatedFields: _readStringList(
         response,
         const ['estimatedFields', 'estimated_fields'],
@@ -943,7 +945,10 @@ class ApiService {
     }
   }
 
-  // Méthodes spécifiques (legacy)
+  // Legacy methods — kept for backward compatibility.
+  // All data entry now goes through CoachProfile + chat.
+
+  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<Profile> createProfile({
     int? birthYear,
     String? canton,
@@ -957,7 +962,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/profiles'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
       body: jsonEncode({
         'birthYear': birthYear,
         'canton': canton,
@@ -978,6 +983,7 @@ class ApiService {
     }
   }
 
+  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<Session> createSession({
     required String profileId,
     required Map<String, dynamic> answers,
@@ -986,7 +992,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/sessions'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
       body: jsonEncode({
         'profileId': profileId,
         'answers': answers,
@@ -1002,9 +1008,11 @@ class ApiService {
     }
   }
 
+  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<SessionReport> getSessionReport(String sessionId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/sessions/$sessionId/report'),
+      headers: await _authHeaders(),
     );
 
     if (response.statusCode == 200) {

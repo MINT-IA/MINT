@@ -65,6 +65,8 @@ def preview_recommendations(
         commune=profile_data.get("commune"),
         isChurchMember=profile_data.get("isChurchMember", False),
         pillar3aAnnual=profile_data.get("pillar3aAnnual"),
+        wealthEstimate=profile_data.get("wealthEstimate"),
+        gender=profile_data.get("gender"),
         createdAt=datetime.fromisoformat(profile_data["createdAt"]),
     )
 

@@ -1,5 +1,6 @@
 """
-Enhanced Confidence Scoring service — Sprint S46.
+Backend confidence: 4 axes (completeness, accuracy, freshness, understanding), geometric mean.
+Used by /confidence API endpoint. This is the authoritative confidence implementation.
 
 Pure functions for multi-dimensional confidence measurement:
 - score_completeness: champs remplis, ponderes par importance
@@ -10,6 +11,13 @@ Pure functions for multi-dimensional confidence measurement:
 - rank_enrichment_prompts: actions classees par impact sur le score
 
 Score global: moyenne geometrique sur 4 axes (completeness, accuracy, freshness, understanding).
+
+NOTE: Three confidence systems coexist (V9-5):
+  1. This file (backend) — 4-axis geometric mean, used by /confidence API endpoint
+  2. enhanced_confidence_service.dart (mobile) — 3-axis weighted average, used when backend unavailable
+  3. confidence_scorer.dart (financial_core) — project-level scoring with bloc breakdown
+
+TODO: Unify to single 4-axis model matching backend (SOT §3)
 
 Sources:
     - DATA_ACQUISITION_STRATEGY.md, section "Confidence Scoring Evolution"

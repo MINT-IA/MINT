@@ -75,6 +75,8 @@ def create_profile(
         commune=profile_create.commune,
         isChurchMember=profile_create.isChurchMember,
         pillar3aAnnual=profile_create.pillar3aAnnual,
+        wealthEstimate=profile_create.wealthEstimate,
+        gender=profile_create.gender,
         createdAt=now,
     )
 
@@ -128,6 +130,8 @@ def get_profile(
         commune=data.get("commune"),
         isChurchMember=data.get("isChurchMember", False),
         pillar3aAnnual=data.get("pillar3aAnnual"),
+        wealthEstimate=data.get("wealthEstimate"),
+        gender=data.get("gender"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
 
@@ -194,6 +198,8 @@ def update_profile(
         commune=data.get("commune"),
         isChurchMember=data.get("isChurchMember", False),
         pillar3aAnnual=data.get("pillar3aAnnual"),
+        wealthEstimate=data.get("wealthEstimate"),
+        gender=data.get("gender"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
 

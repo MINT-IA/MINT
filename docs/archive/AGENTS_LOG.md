@@ -253,7 +253,7 @@ Prompt: "Tu es le Backend Python engineer de MINT. Lis AGENTS.md, rules.md et SO
 Tu travailles exclusivement dans services/backend/.
 Avant chaque changement : ruff check . && pytest -q.
 Ne touche JAMAIS au code Flutter.
-Si tu changes un contrat API → mettre à jour tools/openapi/mint.openapi.yaml ET SOT.md."
+Si tu changes un contrat API → mettre à jour tools/openapi/mint.openapi.canonical.json ET SOT.md."
 ```
 
 **swiss-brain :**

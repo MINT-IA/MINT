@@ -1,3 +1,13 @@
+// Financial core confidence: project-level scoring with bloc breakdown.
+// Used for projection confidence bands in simulators and forecasters.
+//
+// NOTE: Three confidence systems coexist (V9-5):
+//   1. enhanced_confidence_service.py (backend) — 4-axis geometric mean, authoritative
+//   2. enhanced_confidence_service.dart (mobile) — 3-axis weighted average, offline fallback
+//   3. This file (financial_core) — project-level scoring with bloc breakdown
+//
+// TODO: Unify to single 4-axis model matching backend (SOT §3)
+
 import 'dart:math' as math;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
