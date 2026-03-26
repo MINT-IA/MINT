@@ -22,6 +22,12 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 ///
 /// Sprint S31 (created) / S52 (upgraded to Design System v2).
 /// Receives age, grossSalary, canton via route extra.
+///
+/// ARCHITECTURE: Dual-engine onboarding
+/// Primary: Backend API (/onboarding/minimal-profile) — authoritative
+/// Fallback: Local MinimalProfileService.compute() — offline/error path
+/// The local engine uses simplified heuristics. When both run,
+/// the API result takes precedence. This is by design for offline support.
 class ChiffreChocScreen extends StatefulWidget {
   const ChiffreChocScreen({super.key});
 
