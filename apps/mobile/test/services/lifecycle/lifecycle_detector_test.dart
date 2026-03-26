@@ -169,16 +169,16 @@ void main() {
       expect(LifecycleDetector.detect(profile, now: now), LifecyclePhase.transition);
     });
 
-    // age 67 → retraite (upper boundary)
-    test('age 67 → retraite (boundary)', () {
+    // age 67 → retraite (well within retraite band 65-74)
+    test('age 67 → retraite', () {
       final profile = makeProfile(birthYear: 1959);
       expect(LifecycleDetector.detect(profile, now: now), LifecyclePhase.retraite);
     });
 
-    // age 68 → transmission (just past retraite boundary)
-    test('age 68 → transmission (just past retraite)', () {
+    // age 68 → retraite (retraite band = 65-74, unified with LifecyclePhaseService)
+    test('age 68 → retraite (within 65-74 band)', () {
       final profile = makeProfile(birthYear: 1958);
-      expect(LifecycleDetector.detect(profile, now: now), LifecyclePhase.transmission);
+      expect(LifecycleDetector.detect(profile, now: now), LifecyclePhase.retraite);
     });
   });
 

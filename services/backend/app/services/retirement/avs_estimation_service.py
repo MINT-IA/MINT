@@ -221,6 +221,9 @@ class AvsEstimationService:
 
         normal_rente_mensuelle = AVS_RENTE_MAX_MENSUELLE * gap_factor
 
+        # Annual rente uses 13 payments (13e rente) when active, not 12.
+        nb_rentes = AVS_NOMBRE_RENTES_PAR_AN if AVS_13EME_RENTE_ACTIVE else 12
+
         # Compare cumulative amounts year by year
         cumul_scenario = 0.0
         cumul_normal = 0.0
@@ -228,9 +231,9 @@ class AvsEstimationService:
 
         for age in range(start_age, life_expectancy + 1):
             if age >= retirement_age:
-                cumul_scenario += rente_mensuelle * 12
+                cumul_scenario += rente_mensuelle * nb_rentes
             if age >= AVS_RETIREMENT_AGE:
-                cumul_normal += normal_rente_mensuelle * 12
+                cumul_normal += normal_rente_mensuelle * nb_rentes
 
             if scenario == "ajournement" and cumul_scenario > cumul_normal and cumul_normal > 0:
                 return age
@@ -241,9 +244,9 @@ class AvsEstimationService:
             cumul_normal = 0.0
             for age in range(start_age, life_expectancy + 1):
                 if age >= retirement_age:
-                    cumul_scenario += rente_mensuelle * 12
+                    cumul_scenario += rente_mensuelle * nb_rentes
                 if age >= AVS_RETIREMENT_AGE:
-                    cumul_normal += normal_rente_mensuelle * 12
+                    cumul_normal += normal_rente_mensuelle * nb_rentes
                 if cumul_normal > cumul_scenario and cumul_scenario > 0:
                     return age
 

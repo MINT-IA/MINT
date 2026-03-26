@@ -1136,6 +1136,11 @@ class CoachProfile {
   /// Used by CoachingService for life event nudges.
   final String? familyChange;
 
+  /// Gender: 'M', 'F', or null (unknown).
+  /// Used for AVS21 transitional reference age calculation.
+  /// Women born 1961-1963 have transitional ages (LAVS art. 21 al. 1).
+  final String? gender;
+
   /// Target retirement age chosen by the user (58-70).
   /// Null means default (65 ans, age legal AVS).
   /// LAVS art. 40: anticipation possible des 63 ans.
@@ -1200,6 +1205,7 @@ class CoachProfile {
     this.arrivalAge,
     this.residencePermit,
     this.familyChange,
+    this.gender,
     this.targetRetirementAge,
     this.initialProjectionSnapshot,
     Map<String, ProfileDataSource> dataSources = const {},
@@ -1494,6 +1500,7 @@ class CoachProfile {
     int? arrivalAge,
     String? residencePermit,
     String? familyChange,
+    String? gender,
     int? targetRetirementAge,
     Map<String, dynamic>? initialProjectionSnapshot,
     Map<String, ProfileDataSource>? dataSources,
@@ -1532,6 +1539,7 @@ class CoachProfile {
       arrivalAge: arrivalAge ?? this.arrivalAge,
       residencePermit: residencePermit ?? this.residencePermit,
       familyChange: familyChange ?? this.familyChange,
+      gender: gender ?? this.gender,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
       initialProjectionSnapshot:
           initialProjectionSnapshot ?? this.initialProjectionSnapshot,
@@ -1715,6 +1723,7 @@ class CoachProfile {
       arrivalAge: json['arrivalAge'] as int?,
       residencePermit: json['residencePermit'] as String?,
       familyChange: json['familyChange'] as String?,
+      gender: json['gender'] as String?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
       initialProjectionSnapshot:
           json['initialProjectionSnapshot'] as Map<String, dynamic>?,
@@ -1774,6 +1783,7 @@ class CoachProfile {
         'arrivalAge': arrivalAge,
         'residencePermit': residencePermit,
         'familyChange': familyChange,
+        'gender': gender,
         'targetRetirementAge': targetRetirementAge,
         'initialProjectionSnapshot': initialProjectionSnapshot,
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),

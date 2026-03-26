@@ -142,6 +142,9 @@ class LifecyclePhaseService {
 
   /// Core phase detection — age-based with situation overrides.
   ///
+  /// Canonical rule (unified across all classifiers):
+  /// Retirement = avsAgeReferenceHomme (65). Pre-retirement = 5 years before.
+  ///
   /// Age bands overlap at boundaries; situation signals disambiguate:
   /// - Already retired (employmentStatus) → retraite/transmission
   /// - Target retirement < standard age → may shift to transition earlier

@@ -447,7 +447,7 @@ _register(InsertContent(
         "Savoir que les retraits de la meme annee sont additionnes pour le calcul du taux.",
         "Decouvrir la strategie d'echelonnement : ouvrir 4-5 comptes et les retirer sur 4-5 annees differentes.",
         "Comprendre que les retraits 3a et LPP en capital de la meme annee se cumulent pour l'imposition.",
-        "Savoir que l'age de retrait anticipe est 59 ans (femmes) / 60 ans (hommes) sans condition (OPP3 art. 3 al. 1).",
+        "Savoir que l'age de retrait anticipe est 5 ans avant l'age de reference AVS : 60 ans (hommes), 59 ans (femmes nees avant 1964) ou 60 ans (femmes nees des 1964) — OPP3 art. 3 al. 1.",
     ],
     disclaimer=DISCLAIMER,
     sources=[

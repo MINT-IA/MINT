@@ -98,8 +98,10 @@ class StaggeredWithdrawalSimulator {
     // Clamp inputs
     final clampedComptes = nbComptes.clamp(1, 5);
     final clampedAvoir = avoirTotal.clamp(0.0, 1000000.0);
-    final clampedDebut = ageRetraitDebut.clamp(59, avsAgeReferenceHomme);
-    final clampedFin = ageRetraitFin.clamp(clampedDebut, avsAgeReferenceHomme);
+    // 3a withdrawal allowed from 59 (women pre-1964) up to 70 (deferral).
+    // Backend allows 59-70; mobile must match (OPP3 art. 3 al. 1).
+    final clampedDebut = ageRetraitDebut.clamp(59, 70);
+    final clampedFin = ageRetraitFin.clamp(clampedDebut, 70);
 
     final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
 
