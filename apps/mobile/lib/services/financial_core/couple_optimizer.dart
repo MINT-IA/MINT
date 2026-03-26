@@ -327,6 +327,8 @@ class CoupleOptimizer {
       currentAge: user.age,
       retirementAge: userRetirementAge,
       grossAnnualSalary: user.salaireBrutMensuel * user.nombreDeMois,
+      isFemale: user.gender == 'F' ? true : (user.gender == 'M' ? false : null),
+      birthYear: user.birthYear,
     );
 
     final conjointRente = AvsCalculator.computeMonthlyRente(

@@ -149,8 +149,12 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 //    /invalidite, /divorce, /succession
 // ════════════════════════════════════════════════════════════
 
-final _router = GoRouter(
+// F4-1: Router is now a function so it can receive AuthProvider as
+// refreshListenable. GoRouter re-evaluates redirects whenever
+// AuthProvider notifies (e.g. after checkAuth() restores a session).
+GoRouter _createRouter(AuthProvider authProvider) => GoRouter(
   navigatorKey: _rootNavigatorKey,
+  refreshListenable: authProvider,
   observers: [AnalyticsRouteObserver()],
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
@@ -970,9 +974,17 @@ class MintApp extends StatefulWidget {
 }
 
 class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
+  // F4-1: AuthProvider created here so it can be passed both to
+  // MultiProvider (for descendant widgets) and to GoRouter as
+  // refreshListenable (so redirects re-evaluate on auth state change).
+  late final AuthProvider _authProvider;
+  late final GoRouter _router;
+
   @override
   void initState() {
     super.initState();
+    _authProvider = AuthProvider()..checkAuth();
+    _router = _createRouter(_authProvider);
     WidgetsBinding.instance.addObserver(this);
     AnalyticsService().init();
     NotificationService().init();
@@ -980,6 +992,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _router.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -1004,7 +1017,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuth()),
+        ChangeNotifierProvider.value(value: _authProvider),
         // F3-1: ProfileProvider clears on logout to prevent cross-account bleed.
         ChangeNotifierProxyProvider<AuthProvider, ProfileProvider>(
           create: (_) => ProfileProvider(),
@@ -1089,7 +1102,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             debugShowCheckedModeBanner: false,
             theme: _buildPremiumTheme(),
             themeMode: ThemeMode.light,
-            routerConfig: _router,
+            routerConfig: _router, // F4-1: instance router with refreshListenable
             localizationsDelegates: S.localizationsDelegates,
             supportedLocales: S.supportedLocales,
             locale: localeProvider.locale,

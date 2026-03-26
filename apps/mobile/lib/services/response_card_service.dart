@@ -677,6 +677,8 @@ class ResponseCardService {
       retirementAge: profile.effectiveRetirementAge,
       arrivalAge: profile.arrivalAge,
       grossAnnualSalary: profile.revenuBrutAnnuel,
+      isFemale: profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null),
+      birthYear: profile.birthYear,
     );
 
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;

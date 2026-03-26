@@ -6,6 +6,11 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 /// Minimal profile computation service (Sprint S31 — Onboarding Redesign).
 ///
+/// ARCHITECTURE: Local computation engine for onboarding.
+/// Used as fallback when backend API is unavailable.
+/// The backend MinimalProfileService is the authoritative source.
+/// Constants are synced via reg() from RegulatoryRegistry.
+///
 /// Computes a financial snapshot from as few as 3 inputs (age, salary, canton).
 /// All calculations delegate to [financial_core] — NEVER duplicates formulas.
 ///

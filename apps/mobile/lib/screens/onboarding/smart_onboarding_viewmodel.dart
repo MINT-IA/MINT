@@ -225,6 +225,10 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   ///
   /// Called after step 1 (3 questions) and after each enrichment answer.
   /// Delegates entirely to [MinimalProfileService] and [ChiffreChocSelector].
+  ///
+  /// NOTE: This ViewModel always computes locally for immediate responsiveness.
+  /// The ChiffreChocScreen will re-fetch from API for authoritative values.
+  /// This dual-path exists to provide instant feedback during the wizard.
   void compute() {
     if (!canCompute) return;
 
