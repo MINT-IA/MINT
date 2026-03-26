@@ -10,14 +10,22 @@
 /// Derniere mise a jour: 2026-03-26
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 /// Read a constant from the synced backend cache, falling back to [fallback].
 ///
 /// Usage: `reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)`
 /// Returns the backend-synced value if available, otherwise the local const.
-double reg(String key, double fallback) =>
-    RegulatorySyncService.getCached(key) ?? fallback;
+double reg(String key, double fallback) {
+  final cached = RegulatorySyncService.getCached(key);
+  if (cached != null) return cached;
+  // Fallback: backend cache not available for this key
+  if (kDebugMode) {
+    debugPrint('reg() FALLBACK: $key → $fallback (cache miss)');
+  }
+  return fallback;
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // LPP — Prevoyance professionnelle (2e pilier)

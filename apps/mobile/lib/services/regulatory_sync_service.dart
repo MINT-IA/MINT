@@ -30,6 +30,10 @@ class RegulatorySyncService {
   /// Timestamp of last successful sync.
   static DateTime? _lastSyncAt;
 
+  /// True when cache was loaded from SharedPreferences (disk),
+  /// false when fetched fresh from the backend API.
+  static bool _isFromDisk = false;
+
   /// Load cached constants from SharedPreferences (disk).
   ///
   /// Call this BEFORE [fetchConstants] at app startup so that [reg()]
@@ -45,6 +49,7 @@ class RegulatorySyncService {
             (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
           ),
         );
+        _isFromDisk = true;
       }
     } catch (e) {
       debugPrint('RegulatorySyncService: loadFromDisk failed — $e');
@@ -62,6 +67,7 @@ class RegulatorySyncService {
       if (constants.isNotEmpty) {
         _cachedConstants = constants;
         _lastSyncAt = DateTime.now();
+        _isFromDisk = false;
 
         // Persist to SharedPreferences for cold-start access.
         try {
@@ -111,6 +117,18 @@ class RegulatorySyncService {
   /// Timestamp of last successful sync (null if never synced).
   static DateTime? get lastSyncAt => _lastSyncAt;
 
+  /// Whether the current cache was loaded from disk (SharedPreferences)
+  /// rather than freshly fetched from the backend API.
+  static bool get isFromDisk => _isFromDisk;
+
+  /// Summary of the current sync state, useful for debug UIs and diagnostics.
+  static Map<String, dynamic> syncStatus() => {
+        'hasSynced': hasSynced,
+        'lastSyncAt': _lastSyncAt?.toIso8601String(),
+        'cachedCount': _cachedConstants?.length ?? 0,
+        'isFromDisk': _isFromDisk,
+      };
+
   /// Check freshness of the regulatory data.
   ///
   /// Returns list of stale parameter keys, or empty list if all fresh.
@@ -135,6 +153,15 @@ class RegulatorySyncService {
   static void clearCache() {
     _cachedConstants = null;
     _lastSyncAt = null;
+    _isFromDisk = false;
+  }
+
+  /// Inject mock constants into the cache (useful for testing).
+  @visibleForTesting
+  static void setMockCache(Map<String, double> constants) {
+    _cachedConstants = Map<String, double>.from(constants);
+    _lastSyncAt = DateTime.now();
+    _isFromDisk = false;
   }
 
   /// Parse the /regulatory/constants response into a flat key -> value map.
