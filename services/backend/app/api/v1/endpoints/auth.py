@@ -180,6 +180,7 @@ def register_user(
     verification_required = _email_verification_required()
     verification_token: Optional[str] = None
     verification_email_sent = False
+    _email_infra_failed = False
     if verification_required:
         try:
             verification_token = issue_email_verification_token(db, new_user.id)
@@ -188,16 +189,19 @@ def register_user(
                 token=verification_token,
             )
         except Exception as exc:
-            # Degrade gracefully: never block registration on email-verification
-            # infrastructure issues (missing table/migration, SMTP, etc.).
+            # Fail-soft: user gets tokens but email_verified stays False.
+            # The mobile shows a verification banner.
+            # We still create the user and issue tokens (UX requirement),
+            # but mark email_verification_required so the client can prompt.
             logger.warning(
                 "Email verification bootstrap failed during register; "
-                "continuing without mandatory verification: %s",
+                "continuing with tokens but email_verified=False: %s",
                 exc,
             )
             verification_required = False
             verification_token = None
             verification_email_sent = False
+            _email_infra_failed = True
     log_audit_event(
         db,
         event_type="auth.register",
@@ -236,7 +240,7 @@ def register_user(
             requires_email_verification=True,
         )
 
-    # Generate tokens
+    # Generate tokens — user always gets access (fail-soft pattern).
     token = create_access_token(new_user.id, new_user.email)
     refresh = create_refresh_token(new_user.id)
 
@@ -248,7 +252,9 @@ def register_user(
         user_id=new_user.id,
         email=new_user.email,
         email_verified=bool(new_user.email_verified),
-        requires_email_verification=False,
+        # Fail-soft: when email infra failed, tell the client verification
+        # is still required so it can show a "Vérifie ton email" banner.
+        requires_email_verification=_email_infra_failed,
     )
 
 

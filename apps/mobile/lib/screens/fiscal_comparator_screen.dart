@@ -75,6 +75,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   // ── Move checklist ─────────────────────────────────────
   final Set<int> _moveChecked = {};
+  bool _hasUserInteracted = false;
 
   @override
   void initState() {
@@ -174,6 +175,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         communeMultiplier: communeMultiplier,
       );
     });
+    if (!_hasUserInteracted) return;
     final bestCanton = _allCantons.isNotEmpty
         ? _allCantons.first['canton'] as String?
         : null;
@@ -298,6 +300,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             divisions: 94,
             formatValue: (v) => FiscalService.formatChf(v),
             onChanged: (v) {
+              _hasUserInteracted = true;
               _revenuBrut = (v / 5000).round() * 5000.0;
               _recalculate();
             },
@@ -332,6 +335,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) {
+                        _hasUserInteracted = true;
                         _canton = v;
                         _commune = null; // Reset commune when canton changes
                         _recalculate();
@@ -350,6 +354,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               value: _commune,
               cantonCode: _canton,
               onChanged: (v) {
+                _hasUserInteracted = true;
                 _commune = v;
                 _recalculate();
               },
@@ -384,6 +389,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 ],
                 selected: {_etatCivil},
                 onSelectionChanged: (v) {
+                  _hasUserInteracted = true;
                   _etatCivil = v.first;
                   _recalculate();
                 },
@@ -406,6 +412,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   IconButton(
                     onPressed: _nombreEnfants > 0
                         ? () {
+                            _hasUserInteracted = true;
                             _nombreEnfants--;
                             _recalculate();
                           }
@@ -424,6 +431,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   IconButton(
                     onPressed: _nombreEnfants < 5
                         ? () {
+                            _hasUserInteracted = true;
                             _nombreEnfants++;
                             _recalculate();
                           }
@@ -470,6 +478,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     hintStyle: MintTextStyles.bodyMedium(),
                   ),
                   onChanged: (value) {
+                    _hasUserInteracted = true;
                     final parsed =
                         double.tryParse(value.replaceAll("'", '')) ?? 0;
                     _fortune = parsed;
@@ -504,6 +513,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 value: _isChurchMember,
                 activeTrackColor: MintColors.primary,
                 onChanged: (v) {
+                  _hasUserInteracted = true;
                   _isChurchMember = v;
                   _recalculate();
                 },
@@ -927,6 +937,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 value: _cantonDepart,
                 codes: sortedCodes,
                 onChanged: (v) {
+                  _hasUserInteracted = true;
                   _cantonDepart = v;
                   _recalculate();
                 },
@@ -954,6 +965,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 value: _cantonArrivee,
                 codes: sortedCodes,
                 onChanged: (v) {
+                  _hasUserInteracted = true;
                   _cantonArrivee = v;
                   _recalculate();
                 },

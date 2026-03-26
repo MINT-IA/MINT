@@ -38,6 +38,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   double _annualReturn = 4.0;
 
   Map<String, double>? _result;
+  bool _hasUserInteracted = false;
 
   final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
   late final TextEditingController _contributionCtrl;
@@ -151,6 +152,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         annualReturn: _annualReturn,
       );
     });
+    if (!_hasUserInteracted) return;
     final screenReturn = ScreenReturn.completed(
       route: '/pilier-3a',
       updatedFields: {'simulated3aAmount': _annualContribution},
@@ -306,6 +308,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           onChanged: (text) {
             final parsed = double.tryParse(text.replaceAll(RegExp(r"[^0-9.]"), ''));
             if (parsed != null) {
+              _hasUserInteracted = true;
               _annualContribution = parsed.clamp(0, _plafond3a);
               _calculate();
             }
@@ -347,6 +350,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               label: Text('${(rate * 100).round()}\u00a0%'),
               selected: isSelected,
               onSelected: (_) {
+                _hasUserInteracted = true;
                 setState(() => _marginalTaxRate = rate);
                 _calculate();
               },
@@ -409,6 +413,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               label: Text('${rate.toStringAsFixed(0)}\u00a0%'),
               selected: isSelected,
               onSelected: (_) {
+                _hasUserInteracted = true;
                 setState(() => _annualReturn = rate);
                 _calculate();
               },

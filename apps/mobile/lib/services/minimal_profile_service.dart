@@ -149,8 +149,8 @@ class MinimalProfileService {
       isPropertyOwner: effectivePropertyOwner,
       existing3a: effective3a,
       existingLpp: effectiveLpp,
-      employmentStatus: effectiveEmployment,
-      nationalityGroup: nationalityGroup ?? 'CH',
+      employmentStatus: employmentStatus ?? effectiveEmployment,
+      nationalityGroup: nationalityGroup,
       plafond3a: plafond3a,
       estimatedFields: estimatedFields,
     );
