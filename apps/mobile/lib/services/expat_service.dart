@@ -36,6 +36,12 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
   //  FRONTALIER — SOURCE TAX (Bareme C) BY CANTON
   // ════════════════════════════════════════════════════════════
+  //
+  // LIMITATION: Mobile source tax uses simplified flat rates per canton.
+  // Backend frontalier_service.py uses progressive brackets with cantonal multipliers.
+  // For precise calculations, the backend endpoint /expat/frontalier/source-tax should
+  // be called. This local service is for educational quick estimates only.
+  // TODO: Wire mobile to backend API for authoritative source tax calculations.
 
   static const Map<String, double> sourceTaxRates = {
     'GE': 0.1548,

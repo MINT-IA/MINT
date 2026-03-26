@@ -41,10 +41,12 @@ class ChiffreChocSelector {
     if (profile.replacementRate < 0.55 && profile.grossMonthlySalary > 0) {
       final gapFormatted = _formatChf(profile.retirementGapMonthly);
       final pct = (profile.replacementRate * 100).round();
-      final subtitle = profile.employmentStatus == 'independant'
+      final isIndep = profile.employmentStatus == 'independant';
+      final plafond = profile.plafond3a;
+      final subtitle = isIndep && plafond != null
           ? 'Sans 2e pilier obligatoire, ton ecart de retraite est plus important. '
               'Avec seulement $pct% de remplacement, il te manquerait $gapFormatted/mois. '
-              'Le 3e pilier (max CHF\u00A0${_formatChfPlain(profile.plafond3a)}/an) est ton principal levier.'
+              'Le 3e pilier (max CHF\u00A0${_formatChfPlain(plafond)}/an) est ton principal levier.'
           : '\u00c0 la retraite, tu pourrais recevoir environ $pct% de ton revenu actuel. '
               'Il te manquerait $gapFormatted chaque mois. '
               'Decouvre comment reduire cet ecart.';
@@ -62,7 +64,7 @@ class ChiffreChocSelector {
     // Priority 3: Tax saving 3a (> 1500 CHF/year — aligned with backend)
     if (profile.existing3a <= 0 && profile.taxSaving3a > 1500) {
       final savingFormatted = _formatChf(profile.taxSaving3a);
-      final plafondText = _formatChfPlain(profile.plafond3a);
+      final plafondText = profile.plafond3a != null ? _formatChfPlain(profile.plafond3a!) : '?';
       return ChiffreChoc(
         type: ChiffreChocType.taxSaving3a,
         value: '$savingFormatted/an',
@@ -98,6 +100,9 @@ class ChiffreChocSelector {
         profile.lppMonthlyRente <= 0 &&
         profile.grossMonthlySalary > 0) {
       final gapFormatted = _formatChf(profile.retirementGapMonthly);
+      final plafondStr = profile.plafond3a != null
+          ? _formatChfPlain(profile.plafond3a!)
+          : '?';
       return ChiffreChoc(
         type: ChiffreChocType.retirementGap,
         value: '$gapFormatted/mois',
@@ -106,15 +111,15 @@ class ChiffreChocSelector {
         subtitle:
             'En tant qu\'independant\u00b7e sans LPP, seule l\'AVS te couvre. '
             'Il te manquerait $gapFormatted chaque mois a la retraite. '
-            'Le 3e pilier (max CHF\u00A0${_formatChfPlain(profile.plafond3a)}/an) et '
+            'Le 3e pilier (max CHF\u00A0$plafondStr/an) et '
             'une LPP facultative peuvent combler cet ecart.',
         iconName: 'warning_amber',
         colorKey: 'error',
       );
     }
 
-    // Non-Swiss expat: AVS gap warning
-    if (profile.nationalityGroup != 'CH' && profile.avsMonthlyRente < 1500) {
+    // Non-Swiss expat: AVS gap warning (only when nationality is known)
+    if (profile.nationalityGroup != null && profile.nationalityGroup != 'CH' && profile.avsMonthlyRente < 1500) {
       final avsFormatted = _formatChf(profile.avsMonthlyRente);
       final subtitle = profile.nationalityGroup == 'EU'
           ? 'Tes annees de cotisation en Europe comptent aussi grace aux '

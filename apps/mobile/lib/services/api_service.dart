@@ -509,11 +509,12 @@ class ApiService {
       isPropertyOwner: isPropertyOwner ?? false,
       existing3a: existing3a ?? 0,
       existingLpp: existingLpp ?? 0,
-      // These fields are not returned by the API — derived locally from profile data.
-      // Use the API value if present, otherwise fall back to sensible defaults.
-      employmentStatus: _readString(response, const ['employmentStatus', 'employment_status'], fallback: 'employee'),
-      nationalityGroup: _readString(response, const ['nationalityGroup', 'nationality_group'], fallback: 'CH'),
-      plafond3a: _readDouble(response, const ['plafond3a', 'plafond_3a'], fallback: 7258.0),
+      // These fields are NOT served by the backend API — null means unknown.
+      // When the API does return them, use the value; otherwise leave null
+      // so consuming screens can handle missing data gracefully.
+      employmentStatus: _readStringOrNull(response, const ['employmentStatus', 'employment_status']),
+      nationalityGroup: _readStringOrNull(response, const ['nationalityGroup', 'nationality_group']),
+      plafond3a: _readDoubleOrNull(response, const ['plafond3a', 'plafond_3a']),
       estimatedFields: _readStringList(
         response,
         const ['estimatedFields', 'estimated_fields'],
@@ -801,6 +802,17 @@ class ApiService {
     return fallback;
   }
 
+  static String? _readStringOrNull(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is String) return value;
+    }
+    return null;
+  }
+
   static double _readDouble(
     Map<String, dynamic> data,
     List<String> keys, {
@@ -811,6 +823,17 @@ class ApiService {
       if (value is num) return value.toDouble();
     }
     return fallback;
+  }
+
+  static double? _readDoubleOrNull(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is num) return value.toDouble();
+    }
+    return null;
   }
 
   static int _readInt(
