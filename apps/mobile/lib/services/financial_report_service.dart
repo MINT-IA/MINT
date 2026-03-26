@@ -642,6 +642,9 @@ class FinancialReportService {
     );
 
     final refAgeAvs = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    // F6-2: isFemale/birthYear not passed — UserProfile (wizard answers) does not
+    // capture gender. Defaults to male reference age (65). Acceptable for this
+    // report-level estimate; gender-aware age is used in CoachProfile-based screens.
     final userRente = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
       retirementAge: refAgeAvs,
@@ -653,6 +656,9 @@ class FinancialReportService {
     if (profile.isMarried) {
       // Spouse rente: use same gross salary assumption (no spouse salary available)
       // TODO: Accept spouse income for more accurate couple AVS computation.
+      // F6-2: isFemale/birthYear not passed for spouse — UserProfile has no
+      // spouse gender field. Defaults to male reference age. Same limitation
+      // as user rente above (wizard answers model lacks gender).
       final spouseRente = AvsCalculator.computeMonthlyRente(
         currentAge: profile.age, // Approximate: same age assumed for spouse
         retirementAge: refAgeAvs,

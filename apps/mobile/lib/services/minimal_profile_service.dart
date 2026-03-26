@@ -78,6 +78,9 @@ class MinimalProfileService {
     final avsGrossSalary = isSansEmploi
         ? reg('lpp.entry_threshold', lppSeuilEntree) // minimum contribution base
         : grossSalary;
+    // F6-2: isFemale/birthYear not passed — MinimalProfileService inputs
+    // do not include gender. This is the local fallback for quick estimates;
+    // defaults to male reference age (65). Acceptable for onboarding snapshots.
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: age,
       retirementAge: effectiveRetAge,

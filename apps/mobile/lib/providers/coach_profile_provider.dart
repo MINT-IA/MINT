@@ -520,6 +520,48 @@ class CoachProfileProvider extends ChangeNotifier {
     ReportPersistenceService.setMiniOnboardingCompleted(true);
   }
 
+  /// Create a NEW local CoachProfile from backend data when no local profile
+  /// exists (Scenario B: backend-only user, no wizard completed).
+  ///
+  /// Called when auth is logged in, local profile is null, but GET /profiles/me
+  /// returns data. Creates a minimal partial profile so the user is not stuck
+  /// in onboarding redirect.
+  void createFromRemoteProfile(Map<String, dynamic> remote) {
+    if (_profile != null) return; // Already has local profile, use merge instead
+
+    final birthYear = remote['birth_year'] as int? ??
+        remote['birthYear'] as int?;
+    final canton = remote['canton'] as String?;
+    final grossYearly = (remote['income_gross_yearly'] as num?)?.toDouble() ??
+        (remote['incomeGrossYearly'] as num?)?.toDouble();
+    final gender = remote['gender'] as String?;
+    final employmentStatus = remote['employment_status'] as String? ??
+        remote['employmentStatus'] as String?;
+
+    // Only create if we have at least one meaningful field from backend
+    if (birthYear == null && canton == null && grossYearly == null) return;
+
+    final salaireBrutMensuel = grossYearly != null ? grossYearly / 12 : 0.0;
+    final effectiveBirthYear = birthYear ?? (DateTime.now().year - 40);
+
+    _profile = CoachProfile(
+      birthYear: effectiveBirthYear,
+      canton: canton ?? '',
+      salaireBrutMensuel: salaireBrutMensuel,
+      gender: gender,
+      employmentStatus: employmentStatus ?? 'salarie',
+      goalA: GoalA(
+        type: GoalAType.retraite,
+        targetDate: DateTime(effectiveBirthYear + 65),
+        label: 'Retraite',
+      ),
+    );
+    _isPartialProfile = true;
+    _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
   /// Merge remote profile data from backend GET /profiles/me.
   ///
   /// Best-effort: fills in fields that are null locally but present in

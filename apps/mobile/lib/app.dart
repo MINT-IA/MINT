@@ -1062,16 +1062,21 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             if (auth.isLoggedIn && !provider.isLoaded) {
               provider.loadFromWizard();
             }
-            // F5-1: Best-effort hydration from backend profile.
-            // Merges remote data into local profile (local takes priority).
+            // F5-1 + F6-1: Best-effort hydration from backend profile.
+            // Scenario A: Local profile exists → merge (local takes priority).
+            // Scenario B: Local profile is NULL but backend has one → create from remote.
             // Only attempted once per session to avoid redundant API calls.
-            if (auth.isLoggedIn && provider.isLoaded && provider.hasProfile && !provider.remoteHydrationDone) {
+            if (auth.isLoggedIn && provider.isLoaded && !provider.remoteHydrationDone) {
               provider.markRemoteHydrationDone();
               ApiService.getMyProfile().then((remoteData) {
                 if (remoteData != null) {
-                  provider.mergeFromRemoteProfile(remoteData);
+                  if (provider.hasProfile) {
+                    provider.mergeFromRemoteProfile(remoteData);
+                  } else {
+                    provider.createFromRemoteProfile(remoteData);
+                  }
                 }
-              });
+              }).catchError((_) {});
             }
             return provider;
           },
