@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SERVICE — Sprint S19 / Chomage (LACI) + Premier emploi
@@ -210,8 +211,11 @@ class FirstJobService {
         ),
     ];
 
-    // 3a recommendation
-    const economie3a = pilier3aPlafondAvecLpp * 0.25; // ~25% marginal tax estimate
+    // 3a recommendation — canton-aware marginal rate
+    final economie3a = RetirementTaxCalculator.estimate3aTaxSaving(
+      grossAnnualSalary: annuel,
+      canton: canton,
+    );
 
     // LAMal franchise comparison
     final franchiseData = _calculateFranchiseOptions(age, canton);
