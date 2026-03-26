@@ -644,6 +644,8 @@ class CrossPillarCalculator {
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
         grossAnnualSalary: grossAnnual,
+        isFemale: profile.gender == 'F' ? true : null,
+        birthYear: profile.gender == 'F' ? profile.birthYear : null,
       );
 
       final lppBalance = profile.prevoyance.avoirLppTotal ?? 0.0;

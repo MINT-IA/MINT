@@ -37,16 +37,19 @@ void main() {
       });
     });
 
-    test('ConsentType enum has all 5 expected values (V12-7)', () {
-      // V12-7: The ConsentType enum must match all consent categories.
-      // Dashboard shows 3, but the full enum includes analytics + ragQueries.
-      expect(ConsentType.values.length, 5);
+    test('ConsentType enum has all 7 expected values (F2-5)', () {
+      // F2-5: The ConsentType enum must match all consent categories.
+      // Dashboard shows 3, but the full enum includes analytics, ragQueries,
+      // openBanking, and documentUpload.
+      expect(ConsentType.values.length, 7);
       expect(ConsentType.values, containsAll([
         ConsentType.byokDataSharing,
         ConsentType.snapshotStorage,
         ConsentType.notifications,
         ConsentType.analytics,
         ConsentType.ragQueries,
+        ConsentType.openBanking,
+        ConsentType.documentUpload,
       ]));
     });
 

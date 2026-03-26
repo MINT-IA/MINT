@@ -84,13 +84,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await prefs.setString('cgu_accepted_at', DateTime.now().toIso8601String());
 
       if (!mounted) return;
-      final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
-      if (redirect != null && redirect.startsWith('/')) {
-        context.go(Uri.decodeComponent(redirect));
-      } else if (authProvider.requiresEmailVerification) {
+      // F2-2: Email verification MUST happen before any redirect.
+      // Flow: register -> verify-email -> redirect (not register -> redirect -> 403)
+      if (authProvider.requiresEmailVerification) {
         context.go('/auth/verify-email');
       } else {
-        context.go('/home');
+        final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+        if (redirect != null && redirect.startsWith('/')) {
+          context.go(Uri.decodeComponent(redirect));
+        } else {
+          context.go('/home');
+        }
       }
     }
   }

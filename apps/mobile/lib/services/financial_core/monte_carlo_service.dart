@@ -117,6 +117,8 @@ class MonteCarloProjectionService {
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
         grossAnnualSalary: profile.revenuBrutAnnuel,
+        isFemale: profile.gender == 'F' ? true : null,
+        birthYear: profile.gender == 'F' ? profile.birthYear : null,
       );
 
       // ── AVS conjoint ──────────────────────────────────────

@@ -807,6 +807,7 @@ class ForecasterService {
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
 
     // AVS user — RAMD-based, with arrivalAge/lacunes (LAVS art. 34)
+    // F2-4: Pass gender + birthYear for AVS21 transitional reference age
     final avsUserMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
       retirementAge: retirementAge,
@@ -814,6 +815,8 @@ class ForecasterService {
       anneesContribuees: profile.prevoyance.anneesContribuees,
       lacunes: profile.prevoyance.lacunesAVS ?? 0,
       grossAnnualSalary: grossAnnualSalary,
+      isFemale: profile.gender == 'F' ? true : null,
+      birthYear: profile.gender == 'F' ? profile.birthYear : null,
     );
 
     // AVS conjoint — pass anneesContribuees (LAVS art. 29bis)

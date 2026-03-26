@@ -194,4 +194,75 @@ void main() {
       expect(r, closeTo(avsRenteMaxMensuelle * 12, 0.01));
     });
   });
+
+  // F2-7: AVS21 gender-aware reference age tests (LAVS art. 21 al. 1)
+  group('AvsCalculator — AVS21 gender-aware reference age', () {
+    test('woman born 1960 → reference age 64 (pre-AVS21)', () {
+      final refAge = avsReferenceAge(birthYear: 1960, isFemale: true);
+      expect(refAge, equals(64));
+    });
+
+    test('woman born 1961 → reference age 64 (transitional +3 months)', () {
+      final refAge = avsReferenceAge(birthYear: 1961, isFemale: true);
+      expect(refAge, equals(64));
+    });
+
+    test('woman born 1962 → reference age 64 (transitional +6 months)', () {
+      final refAge = avsReferenceAge(birthYear: 1962, isFemale: true);
+      expect(refAge, equals(64));
+    });
+
+    test('woman born 1963 → reference age 65 (transitional +9 months)', () {
+      final refAge = avsReferenceAge(birthYear: 1963, isFemale: true);
+      expect(refAge, equals(65));
+    });
+
+    test('woman born 1964+ → reference age 65 (full AVS21 alignment)', () {
+      final refAge = avsReferenceAge(birthYear: 1964, isFemale: true);
+      expect(refAge, equals(65));
+    });
+
+    test('computeMonthlyRente uses gender-aware refAge for woman born 1960', () {
+      // Woman born 1960 retiring at 64 → no penalty (refAge = 64)
+      final renteAt64 = AvsCalculator.computeMonthlyRente(
+        currentAge: 55,
+        retirementAge: 64,
+        grossAnnualSalary: 100000,
+        isFemale: true,
+        birthYear: 1960,
+      );
+      // Woman born 1960 retiring at 65 → same income, no early penalty
+      final renteAt65 = AvsCalculator.computeMonthlyRente(
+        currentAge: 55,
+        retirementAge: 65,
+        grossAnnualSalary: 100000,
+        isFemale: true,
+        birthYear: 1960,
+      );
+      // At 64 she is at her refAge → no penalty, but one fewer contribution year
+      // At 65 she is 1 year past refAge → deferral bonus
+      expect(renteAt65, greaterThan(renteAt64));
+    });
+
+    test('computeMonthlyRente: man at 64 has penalty, woman born 1960 at 64 does not', () {
+      // Man retiring at 64 → 1 year early penalty (refAge 65)
+      final renteMan = AvsCalculator.computeMonthlyRente(
+        currentAge: 55,
+        retirementAge: 64,
+        grossAnnualSalary: 100000,
+        isFemale: false,
+        birthYear: 1960,
+      );
+      // Woman born 1960 retiring at 64 → no penalty (refAge 64)
+      final renteWoman = AvsCalculator.computeMonthlyRente(
+        currentAge: 55,
+        retirementAge: 64,
+        grossAnnualSalary: 100000,
+        isFemale: true,
+        birthYear: 1960,
+      );
+      // Woman gets more because no early retirement penalty
+      expect(renteWoman, greaterThan(renteMan));
+    });
+  });
 }
