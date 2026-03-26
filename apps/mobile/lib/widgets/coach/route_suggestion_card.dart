@@ -190,6 +190,7 @@ class RouteSuggestionCard extends StatelessWidget {
     // (explicit input changes take priority over a generic "completed").
     if (outcome != ScreenOutcome.changedInputs) {
       final tracked = await ScreenCompletionTracker.lastOutcome(screenId);
+      if (!context.mounted) return;
       if (tracked != null) {
         outcome = tracked;
       }

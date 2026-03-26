@@ -42959,6 +42959,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Action impossible pour le moment. Réessaie dans quelques instants.'**
   String get authErrorGeneric;
+
+  /// No description provided for @ageYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'{age} ans'**
+  String ageYears(int age);
+
+  /// No description provided for @coachMintLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach MINT'**
+  String get coachMintLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

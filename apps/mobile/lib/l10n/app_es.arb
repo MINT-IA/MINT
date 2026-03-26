@@ -11347,5 +11347,15 @@
   "authErrorInvalid": "La informaci\u00f3n ingresada no es v\u00e1lida.",
   "authErrorExpired": "Este enlace ha expirado. Solicita uno nuevo.",
   "authErrorNotVerified": "Tu correo a\u00fan no est\u00e1 verificado. Verifica tu correo e int\u00e9ntalo de nuevo.",
-  "authErrorGeneric": "Acci\u00f3n no disponible. Int\u00e9ntalo en unos instantes."
+  "authErrorGeneric": "Acci\u00f3n no disponible. Int\u00e9ntalo en unos instantes.",
+
+  "ageYears": "{age} a\u00f1os",
+  "@ageYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "coachMintLabel": "Coach MINT"
 }

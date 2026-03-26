@@ -24390,4 +24390,12 @@ class SDe extends S {
   @override
   String get authErrorGeneric =>
       'Aktion derzeit nicht möglich. Versuche es in Kürze erneut.';
+
+  @override
+  String ageYears(int age) {
+    return '$age Jahre';
+  }
+
+  @override
+  String get coachMintLabel => 'Coach MINT';
 }

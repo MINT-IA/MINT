@@ -11382,5 +11382,15 @@
   "authErrorInvalid": "The entered information is invalid.",
   "authErrorExpired": "This reset link has expired. Request a new one.",
   "authErrorNotVerified": "Your email is not yet verified. Check your email and try again.",
-  "authErrorGeneric": "Action not possible right now. Try again shortly."
+  "authErrorGeneric": "Action not possible right now. Try again shortly.",
+
+  "ageYears": "{age} years",
+  "@ageYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "coachMintLabel": "Coach MINT"
 }

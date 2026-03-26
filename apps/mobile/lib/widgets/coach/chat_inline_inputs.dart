@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -109,7 +110,7 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
                   final isSelected = age == _selected;
                   return Center(
                     child: Text(
-                      '$age ans',
+                      S.of(context)!.ageYears(age),
                       style: MintTextStyles.headlineMedium(
                         color: isSelected
                             ? MintColors.textPrimary
@@ -138,7 +139,7 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
-                'OK',
+                MaterialLocalizations.of(context).okButtonLabel,
                 style: MintTextStyles.titleMedium(color: MintColors.white),
               ),
             ),
@@ -274,7 +275,7 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
-                'OK',
+                MaterialLocalizations.of(context).okButtonLabel,
                 style: MintTextStyles.titleMedium(color: MintColors.white),
               ),
             ),

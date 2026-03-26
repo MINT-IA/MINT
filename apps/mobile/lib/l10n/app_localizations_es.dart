@@ -24352,4 +24352,12 @@ class SEs extends S {
   @override
   String get authErrorGeneric =>
       'Acción no disponible. Inténtalo en unos instantes.';
+
+  @override
+  String ageYears(int age) {
+    return '$age años';
+  }
+
+  @override
+  String get coachMintLabel => 'Coach MINT';
 }

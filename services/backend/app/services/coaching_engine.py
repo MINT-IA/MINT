@@ -88,6 +88,11 @@ class CoachingEngine:
 
     # LPP constants
     COORDINATION_DEDUCTION = LPP_DEDUCTION_COORDINATION
+    # NOTE: Uses AVS_AGE_REFERENCE_HOMME (65) for all users.
+    # Women born before 1964 may have transitional retirement age (64-65).
+    # The profile does not currently include gender — when it does, use
+    # gender-aware reference age from AVS21 reform tables.
+    # TODO: Add gender-aware retirement age when CoachingProfile includes gender.
     RETIREMENT_AGE = 65
     PROJECTED_ANNUAL_RETURN = 0.015  # 1.5%
 

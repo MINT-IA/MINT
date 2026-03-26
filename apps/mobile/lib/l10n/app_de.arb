@@ -11354,5 +11354,15 @@
   "authErrorInvalid": "Die eingegebenen Daten sind ung\u00fcltig.",
   "authErrorExpired": "Dieser Link ist abgelaufen. Fordere einen neuen an.",
   "authErrorNotVerified": "Deine E-Mail ist noch nicht best\u00e4tigt. Best\u00e4tige deine E-Mail und versuche es erneut.",
-  "authErrorGeneric": "Aktion derzeit nicht m\u00f6glich. Versuche es in K\u00fcrze erneut."
+  "authErrorGeneric": "Aktion derzeit nicht m\u00f6glich. Versuche es in K\u00fcrze erneut.",
+
+  "ageYears": "{age} Jahre",
+  "@ageYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "coachMintLabel": "Coach MINT"
 }
