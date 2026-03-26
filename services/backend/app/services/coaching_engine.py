@@ -27,6 +27,7 @@ from datetime import date
 from typing import List, Optional
 
 from app.constants.social_insurance import (
+    AVS_AGE_REFERENCE_HOMME,
     LPP_DEDUCTION_COORDINATION,
     PILIER_3A_PLAFOND_AVEC_LPP,
     PILIER_3A_PLAFOND_SANS_LPP,
@@ -88,12 +89,10 @@ class CoachingEngine:
 
     # LPP constants
     COORDINATION_DEDUCTION = LPP_DEDUCTION_COORDINATION
-    # NOTE: Uses AVS_AGE_REFERENCE_HOMME (65) for all users.
-    # Women born before 1964 may have transitional retirement age (64-65).
-    # The profile does not currently include gender — when it does, use
-    # gender-aware reference age from AVS21 reform tables.
-    # TODO: Add gender-aware retirement age when CoachingProfile includes gender.
-    RETIREMENT_AGE = 65
+    # F3-3: Uses AVS_AGE_REFERENCE_HOMME from constants (not hardcoded 65).
+    # When CoachingProfile gains a gender field, replace with gender-aware
+    # lookup: AVS21 transitional cohorts (women born 1961-1963) have ref age 64.
+    RETIREMENT_AGE = AVS_AGE_REFERENCE_HOMME
     PROJECTED_ANNUAL_RETURN = 0.015  # 1.5%
 
     # LPP age-based contribution rates (LPP art. 16)

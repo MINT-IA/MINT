@@ -12,7 +12,7 @@ void main() {
   // =========================================================================
   //
   // Tests the ConsentDashboardScreen which uses PrivacyService to display
-  // 6 data consent categories (1 required, 5 optional) with switches,
+  // 8 data consent categories (1 required, 7 optional) with switches,
   // export/revoke buttons, disclaimer, and legal sources.
   //
   // V12-4: _loadConsents now reads from ConsentManager (SharedPreferences),
@@ -48,7 +48,7 @@ void main() {
       expect(find.text('CENTRE DE CONTRÔLE DATA'), findsOneWidget);
     });
 
-    testWidgets('displays all 6 category cards', (WidgetTester tester) async {
+    testWidgets('displays all 8 category cards (F3-4)', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle();
 
@@ -77,9 +77,9 @@ void main() {
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle();
 
-      // 5 optional categories => 5 switches
+      // 7 optional categories => 7 switches (F3-4)
       // Switch.adaptive renders as Switch on test platform
-      expect(find.byType(Switch), findsNWidgets(5));
+      expect(find.byType(Switch), findsNWidgets(7));
     });
 
     testWidgets('section headers are displayed', (WidgetTester tester) async {

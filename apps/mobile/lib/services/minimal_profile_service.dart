@@ -64,7 +64,9 @@ class MinimalProfileService {
         ?? (isIndependantNoLpp ? 0.0 : _estimateLppBalance(age, grossSalary));
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
-    final effectiveRetAge = targetRetirementAge ?? 65;
+    // F3-3: Default retirement age uses avsAgeReferenceHomme (65) from constants.
+    // Gender-aware age requires profile gender which is not available in minimal inputs.
+    final effectiveRetAge = targetRetirementAge ?? avsAgeReferenceHomme;
 
     // --- AVS monthly rente (financial_core) ---
     // Sans emploi: use minimum AVS contribution salary

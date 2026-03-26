@@ -1,9 +1,13 @@
-/// Consent Manager — Sprint S40.
+/// Consent Manager — Sprint S40 + F3-4 audit fix.
 ///
-/// Manages 3 independent, granular consents (nLPD compliant):
+/// Manages 7 independent, granular consents (nLPD compliant):
 ///   1. BYOK data sharing (CoachContext -> LLM provider)
 ///   2. Snapshot storage (longitudinal tracking)
 ///   3. Notifications (personalized push)
+///   4. Analytics (anonymous event tracking)
+///   5. RAG queries (coach knowledge-base queries)
+///   6. Open Banking (bLink/SFTI connection)
+///   7. Document Upload (OCR scanning)
 ///
 /// Each consent: independent, revocable immediately.
 /// All OFF by default (privacy by design, nLPD art. 6).
@@ -21,11 +25,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 //  CONSENT MANAGER — S40 / Reengagement + Consent
 // ────────────────────────────────────────────────────────────
 //
-// Trois consentements granulaires, independants, revocables :
+// Sept consentements granulaires, independants, revocables :
 //
 // 1. byokDataSharing  — Envoi des donnees agregees au fournisseur IA
 // 2. snapshotStorage   — Conservation de l'historique de projections
 // 3. notifications     — Rappels personnalises avec chiffres
+// 4. analytics         — Statistiques anonymisees
+// 5. ragQueries        — Questions posees au coach IA
+// 6. openBanking       — Connexion lecture seule aux comptes
+// 7. documentUpload    — Certificats et releves analyses par OCR
 //
 // Tous OFF par defaut (privacy by design).
 // Revocation immediate sans consequence sur le service de base.
@@ -92,9 +100,9 @@ class ConsentState {
   }
 }
 
-/// Dashboard grouping all 3 consents with legal references.
+/// Dashboard grouping all 7 consents with legal references.
 class ConsentDashboard {
-  /// The 3 independent consent states.
+  /// The 7 independent consent states (one per ConsentType).
   final List<ConsentState> consents;
 
   /// Legal disclaimer (nLPD art. 6).
@@ -181,7 +189,10 @@ class ConsentManager {
     return SharedPreferences.getInstance();
   }
 
-  /// Returns default consent dashboard (all OFF).
+  /// Returns default consent dashboard with ALL 7 consent types (all OFF).
+  ///
+  /// F3-4: Dashboard MUST include every ConsentType value so that
+  /// loadDashboard() can persist/restore all consent states.
   ///
   /// Pass [l] to get localized labels; falls back to French strings if null.
   static ConsentDashboard getDefaultDashboard({S? l}) {
@@ -213,6 +224,41 @@ class ConsentManager {
               '(3a, impots, check-in).',
           neverSent: 'Aucune notification ne contient ton salaire, '
               'tes soldes ou tes donnees sensibles.',
+        ),
+        const ConsentState(
+          type: ConsentType.analytics,
+          enabled: false,
+          label: 'Analyse d\'utilisation',
+          detail: 'Statistiques anonymisees pour ameliorer l\'app.',
+          neverSent: 'Aucune donnee personnelle n\'est incluse '
+              'dans les statistiques agregees.',
+        ),
+        const ConsentState(
+          type: ConsentType.ragQueries,
+          enabled: false,
+          label: 'Questions a l\'assistant',
+          detail: 'Historique des questions posees au coach IA '
+              '(BYOK — ta propre cle API).',
+          neverSent: 'Les questions ne contiennent ni ton salaire, '
+              'ni tes soldes, ni tes donnees sensibles.',
+        ),
+        const ConsentState(
+          type: ConsentType.openBanking,
+          enabled: false,
+          label: 'Donnees bancaires (bLink)',
+          detail: 'Connexion lecture seule a tes comptes bancaires '
+              'pour importer automatiquement tes transactions.',
+          neverSent: 'Tes identifiants bancaires ne transitent jamais '
+              'par nos serveurs. Seules les transactions sont importees.',
+        ),
+        const ConsentState(
+          type: ConsentType.documentUpload,
+          enabled: false,
+          label: 'Documents uploades',
+          detail: 'Certificats LPP, releves bancaires analyses par OCR '
+              'pour pre-remplir tes donnees de prevoyance.',
+          neverSent: 'Les documents originaux sont supprimes apres analyse. '
+              'Seules les donnees extraites sont conservees localement.',
         ),
       ],
       disclaimer: l?.consentDashboardDisclaimer ??

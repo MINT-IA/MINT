@@ -69,7 +69,9 @@ _NET_SALARY_FACTOR: float = 0.87
 # Approximate monthly expenses as fraction of net salary
 _EXPENSES_FACTOR: float = 0.85
 
-# Retirement reference age
+# Retirement reference age — uses constant, not hardcoded 65.
+# F3-3: When MinimalProfileInput gains a gender field, use gender-aware
+# avsReferenceAge (AVS21 LAVS art. 21 al. 1) for women born 1961-1963.
 _RETIREMENT_AGE: int = AVS_AGE_REFERENCE_HOMME  # 65
 
 # Default marginal tax rate for middle incomes (proxy)

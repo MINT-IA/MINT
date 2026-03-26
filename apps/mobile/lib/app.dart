@@ -1005,7 +1005,17 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuth()),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        // F3-1: ProfileProvider clears on logout to prevent cross-account bleed.
+        ChangeNotifierProxyProvider<AuthProvider, ProfileProvider>(
+          create: (_) => ProfileProvider(),
+          update: (_, auth, profileProvider) {
+            final provider = profileProvider ?? ProfileProvider();
+            if (!auth.isLoggedIn && provider.hasProfile) {
+              provider.clear();
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
@@ -1027,6 +1037,14 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           },
           update: (_, auth, coachProvider) {
             final provider = coachProvider ?? CoachProfileProvider();
+            if (!auth.isLoggedIn) {
+              // F3-1: Clear in-memory profile on logout to prevent
+              // cross-account data bleed in the same session.
+              if (provider.hasProfile) {
+                provider.clear();
+              }
+              return provider;
+            }
             // Reload wizard data when auth transitions to logged-in
             // and profile hasn't been loaded yet.
             if (auth.isLoggedIn && !provider.isLoaded) {
