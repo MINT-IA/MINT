@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/screens/consent_dashboard_screen.dart';
 import 'package:mint_mobile/services/privacy_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,7 +14,16 @@ void main() {
   // Tests the ConsentDashboardScreen which uses PrivacyService to display
   // 6 data consent categories (1 required, 5 optional) with switches,
   // export/revoke buttons, disclaimer, and legal sources.
+  //
+  // V12-4: _loadConsents now reads from ConsentManager (SharedPreferences),
+  // so tests must initialize the mock binding before async calls.
   // =========================================================================
+
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   Widget buildApp() {
     return const MaterialApp(
@@ -32,7 +42,7 @@ void main() {
   group('ConsentDashboardScreen - rendu initial', () {
     testWidgets('renders without error', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.text('CENTRE DE CONTRÔLE DATA'), findsOneWidget);
@@ -40,7 +50,7 @@ void main() {
 
     testWidgets('displays all 6 category cards', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Verify each category label is displayed
       for (final cat in PrivacyService.dataCategories) {
@@ -56,7 +66,7 @@ void main() {
     testWidgets('required category shows "Requis" tag',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // core_profile is the only required category => "Requis" tag
       expect(find.text('Requis'), findsOneWidget);
@@ -65,7 +75,7 @@ void main() {
     testWidgets('optional categories have switches',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // 5 optional categories => 5 switches
       // Switch.adaptive renders as Switch on test platform
@@ -74,7 +84,7 @@ void main() {
 
     testWidgets('section headers are displayed', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Consentements requis'), findsOneWidget);
       expect(find.text('Consentements optionnels'), findsOneWidget);
@@ -84,7 +94,7 @@ void main() {
   group('ConsentDashboardScreen - boutons', () {
     testWidgets('revoke all button exists', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(
         find.text('RÉVOQUER TOUS LES CONSENTEMENTS OPTIONNELS'),
@@ -94,7 +104,7 @@ void main() {
 
     testWidgets('export button exists', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(
         find.text('Exporter mes données (nLPD art. 28)'),
@@ -106,7 +116,7 @@ void main() {
   group('ConsentDashboardScreen - disclaimer et sources', () {
     testWidgets('disclaimer text is displayed', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // The disclaimer is from PrivacyService.disclaimer
       // Check for a distinctive substring rather than the full text
@@ -123,7 +133,7 @@ void main() {
     testWidgets('legal sources section is displayed',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Sources légales'), findsOneWidget);
 
@@ -141,7 +151,7 @@ void main() {
   group('ConsentDashboardScreen - security header', () {
     testWidgets('security message is displayed', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(
         find.textContaining('Tes données restent sur ton appareil'),
@@ -151,7 +161,7 @@ void main() {
 
     testWidgets('lock icon is displayed', (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.lock_person_outlined), findsOneWidget);
     });
@@ -161,7 +171,7 @@ void main() {
     testWidgets('each category shows description',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       for (final cat in PrivacyService.dataCategories) {
         final description = cat['description'] as String;
@@ -176,7 +186,7 @@ void main() {
     testWidgets('each category shows retention days tag',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       for (final cat in PrivacyService.dataCategories) {
         final retentionDays = cat['retentionDays'] as int;
@@ -191,7 +201,7 @@ void main() {
     testWidgets('each category shows legal basis tag',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       for (final cat in PrivacyService.dataCategories) {
         final legalBasis = cat['legalBasis'] as String;

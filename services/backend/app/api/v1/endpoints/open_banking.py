@@ -23,7 +23,7 @@ import logging
 import os
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
 from app.core.auth import require_current_user
 from app.models.user import User
@@ -63,10 +63,16 @@ _aggregator = AccountAggregator(
     categorizer=_categorizer,
 )
 
-# V3-4: Log warning — in-memory mode means consents are lost on restart.
+# V12-2: WARNING — In-memory storage. Data will not survive restart.
+# Feature-gated pending DB migration. Consents fall back to in-memory dict
+# when no DB session is provided (sandbox/tests).
 logger.warning(
-    "Open Banking running in-memory mode — consents will not survive restart"
+    "Open Banking: in-memory fallback active — consents/data will NOT survive "
+    "restart. Feature-gated pending DB migration."
 )
+
+# V12-2: Header injected on affected endpoints to signal in-memory mode.
+_IN_MEMORY_HEADER = ("X-Storage-Mode", "in-memory")
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -143,13 +149,14 @@ def get_status() -> OpenBankingStatusResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/consent", response_model=ConsentResponse)
-def create_consent(request: ConsentRequest, current_user: User = Depends(require_current_user)) -> ConsentResponse:
+def create_consent(request: ConsentRequest, response: Response, current_user: User = Depends(require_current_user)) -> ConsentResponse:
     """Create a new banking consent (nLPD-compliant).
 
     Requires explicit opt-in. Scopes must be explicitly chosen.
     Maximum duration: 90 days. Revocable at any time.
     """
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     try:
         consent = _consent_manager.create_consent(
@@ -173,13 +180,14 @@ def create_consent(request: ConsentRequest, current_user: User = Depends(require
 
 
 @router.delete("/consent/{consent_id}")
-def revoke_consent(consent_id: str, current_user: User = Depends(require_current_user)):
+def revoke_consent(consent_id: str, response: Response, current_user: User = Depends(require_current_user)):
     """Revoke a banking consent.
 
     The consent is immediately invalidated. All associated data access stops.
     This action is logged in the audit trail.
     """
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     # V3-4: IDOR guard — verify consent belongs to the current user.
     consent = _consent_manager.get_consent(consent_id)
@@ -200,9 +208,10 @@ def revoke_consent(consent_id: str, current_user: User = Depends(require_current
 
 
 @router.get("/consents", response_model=List[ConsentResponse])
-def list_consents(current_user: User = Depends(require_current_user)) -> List[ConsentResponse]:
+def list_consents(response: Response, current_user: User = Depends(require_current_user)) -> List[ConsentResponse]:
     """List active consents for the current person."""
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     consents = _consent_manager.get_active_consents(current_user.id)
 

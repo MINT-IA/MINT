@@ -14,6 +14,10 @@
 //   - Audit trail for every enrichment
 //
 // Sources: LPD art. 6, nLPD art. 5 let. f, LSFin art. 3
+//
+// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are global, not per-account.
+// Account isolation relies on purge at logout/deleteAccount (auth_provider.dart).
+// TODO: Prefix all keys with user ID for native multi-account isolation.
 // ────────────────────────────────────────────────────────────
 
 import 'dart:convert';

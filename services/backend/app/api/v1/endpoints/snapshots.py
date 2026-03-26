@@ -2,16 +2,23 @@
 Snapshots endpoints — Sprint S33: Financial Snapshots.
 
 POST   /api/v1/snapshots                    — Create snapshot
-GET    /api/v1/snapshots/{user_id}           — Get snapshots for a user
-DELETE /api/v1/snapshots/{user_id}           — Delete all snapshots (LPD compliance)
-GET    /api/v1/snapshots/{user_id}/evolution — Get evolution time series
+GET    /api/v1/snapshots                    — Get snapshots for authenticated user
+DELETE /api/v1/snapshots                    — Delete all snapshots (LPD compliance)
+GET    /api/v1/snapshots/evolution           — Get evolution time series
+
+WARNING (V12-3): When no DB session is provided, this service uses an in-memory
+fallback dict. Data will NOT survive restart. Feature-gated pending DB migration
+(see migrations/004_snapshots.sql). The endpoint layer adds an
+X-Storage-Mode: in-memory response header to signal this to clients.
 
 Sources:
     - LPD (Loi sur la protection des donnees) — right to erasure
 """
 
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
 from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
@@ -35,6 +42,17 @@ from app.services.snapshots import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+# V12-3: WARNING — In-memory storage. Data will not survive restart.
+# Feature-gated pending DB migration (see migrations/004_snapshots.sql).
+logger.warning(
+    "Snapshots: in-memory fallback active — snapshot data will NOT survive "
+    "restart. Feature-gated pending DB migration."
+)
+
+# V12-3: Header injected on affected endpoints to signal in-memory mode.
+_IN_MEMORY_HEADER = ("X-Storage-Mode", "in-memory")
 
 
 def _snapshot_to_response(snapshot) -> SnapshotResponse:
@@ -65,7 +83,7 @@ def _snapshot_to_response(snapshot) -> SnapshotResponse:
 
 @router.post("", response_model=SnapshotResponse)
 @limiter.limit("30/minute")
-def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, current_user: User = Depends(require_current_user)) -> SnapshotResponse:
+def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, response: Response, current_user: User = Depends(require_current_user)) -> SnapshotResponse:
     """Creer un snapshot financier.
 
     Capture l'etat financier de l'utilisateur a un moment donne,
@@ -75,6 +93,8 @@ def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, cur
     Returns:
         SnapshotResponse avec l'identifiant unique du snapshot.
     """
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
+
     # Consent guard: snapshot_storage consent required (nLPD)
     if not ConsentManager.is_consent_given(current_user.id, ConsentType.snapshot_storage):
         raise HTTPException(
@@ -101,6 +121,7 @@ def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, cur
 @limiter.limit("60/minute")
 def get_user_snapshots(
     request: Request,
+    response: Response,
     limit: int = Query(default=10, ge=1, le=100, description="Nombre max de snapshots"),
     current_user: User = Depends(require_current_user),
 ) -> SnapshotListResponse:
@@ -114,6 +135,7 @@ def get_user_snapshots(
     Returns:
         SnapshotListResponse avec la liste des snapshots.
     """
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
     snapshots = get_snapshots(user_id=current_user.id, limit=limit)
     return SnapshotListResponse(
         snapshots=[_snapshot_to_response(s) for s in snapshots],
@@ -123,7 +145,7 @@ def get_user_snapshots(
 
 @router.delete("", response_model=DeleteSnapshotsResponse)
 @limiter.limit("30/minute")
-def delete_user_snapshots(request: Request, current_user: User = Depends(require_current_user)) -> DeleteSnapshotsResponse:
+def delete_user_snapshots(request: Request, response: Response, current_user: User = Depends(require_current_user)) -> DeleteSnapshotsResponse:
     """Supprimer tous les snapshots de l'utilisateur authentifie.
 
     Conformite LPD (Loi sur la protection des donnees) — droit a l'effacement.
@@ -131,6 +153,7 @@ def delete_user_snapshots(request: Request, current_user: User = Depends(require
     Returns:
         DeleteSnapshotsResponse avec le nombre de snapshots supprimes.
     """
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
     count = delete_all_snapshots(user_id=current_user.id)
     return DeleteSnapshotsResponse(
         deleted_count=count,
@@ -142,6 +165,7 @@ def delete_user_snapshots(request: Request, current_user: User = Depends(require
 @limiter.limit("60/minute")
 def get_user_evolution(
     request: Request,
+    response: Response,
     field: str = Query(
         default="replacement_ratio",
         description="Metrique a suivre (replacement_ratio, months_liquidity, etc.)",
@@ -159,6 +183,7 @@ def get_user_evolution(
     Returns:
         EvolutionResponse avec la serie temporelle.
     """
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
     try:
         data_points = get_evolution(user_id=current_user.id, field=field)
         return EvolutionResponse(

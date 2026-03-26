@@ -21,6 +21,10 @@ import 'package:mint_mobile/models/coach_insight.dart';
 //   - metadata field is NOT injected into LLM prompts directly
 //
 // Pure static methods for testability (injectable SharedPreferences).
+//
+// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are global, not per-account.
+// Account isolation relies on purge at logout/deleteAccount (auth_provider.dart).
+// TODO: Prefix all keys with user ID for native multi-account isolation.
 // ────────────────────────────────────────────────────────────
 
 /// Persists and retrieves [CoachInsight] records across sessions.

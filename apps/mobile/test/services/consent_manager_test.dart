@@ -25,7 +25,7 @@ void main() {
       }
     });
 
-    test('default dashboard contains exactly 3 consent types', () {
+    test('default dashboard contains exactly 3 consent types (dashboard subset)', () {
       final dashboard = ConsentManager.getDefaultDashboard();
       expect(dashboard.consents.length, 3);
 
@@ -35,6 +35,19 @@ void main() {
         ConsentType.snapshotStorage,
         ConsentType.notifications,
       });
+    });
+
+    test('ConsentType enum has all 5 expected values (V12-7)', () {
+      // V12-7: The ConsentType enum must match all consent categories.
+      // Dashboard shows 3, but the full enum includes analytics + ragQueries.
+      expect(ConsentType.values.length, 5);
+      expect(ConsentType.values, containsAll([
+        ConsentType.byokDataSharing,
+        ConsentType.snapshotStorage,
+        ConsentType.notifications,
+        ConsentType.analytics,
+        ConsentType.ragQueries,
+      ]));
     });
 
     test('default dashboard includes nLPD disclaimer', () {
@@ -170,6 +183,18 @@ void main() {
         final result = await ConsentManager.isConsentGiven(type);
         expect(result, false, reason: '${type.name} must be false after revokeAll');
       }
+    });
+
+    test('all 5 ConsentType values persist and read back (V12-7)', () async {
+      // V12-7: Verify analytics and ragQueries work end-to-end, not just the original 3.
+      for (final type in ConsentType.values) {
+        await ConsentManager.updateConsent(type, true);
+        final result = await ConsentManager.isConsentGiven(type);
+        expect(result, true, reason: '${type.name} must persist as true');
+      }
+
+      // Clean up
+      await ConsentManager.revokeAll();
     });
 
     test('guardConsent returns same as isConsentGiven', () async {
