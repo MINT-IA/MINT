@@ -27,6 +27,7 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isLoaded = false;
   bool _isPartialProfile = false;
+  bool _remoteHydrationDone = false;
   int? _previousScore;
   List<Map<String, dynamic>> _scoreHistory = [];
   bool _profileUpdatedSinceBudget = false;
@@ -68,6 +69,12 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// True si le chargement a ete effectue au moins une fois.
   bool get isLoaded => _isLoaded;
+
+  /// True if remote profile hydration has already been attempted.
+  bool get remoteHydrationDone => _remoteHydrationDone;
+
+  /// Mark remote hydration as done (prevents duplicate API calls).
+  void markRemoteHydrationDone() => _remoteHydrationDone = true;
 
   /// True si un profil est disponible (wizard complete).
   bool get hasProfile => _profile != null;
@@ -511,6 +518,61 @@ class CoachProfileProvider extends ChangeNotifier {
     // Persist asynchronously so the dashboard can reload from storage
     ReportPersistenceService.saveAnswers(answers);
     ReportPersistenceService.setMiniOnboardingCompleted(true);
+  }
+
+  /// Merge remote profile data from backend GET /profiles/me.
+  ///
+  /// Best-effort: fills in fields that are null locally but present in
+  /// the remote profile. Does NOT overwrite local data with remote data.
+  /// This ensures wizard/chat-captured data takes priority.
+  void mergeFromRemoteProfile(Map<String, dynamic> remoteData) {
+    if (_profile == null) return;
+    final p = _profile!;
+
+    // Only merge fields where local is null/zero and remote has a value.
+    final updates = <String, dynamic>{};
+
+    if (p.birthYear == 0 && remoteData['birthYear'] != null) {
+      updates['birthYear'] = remoteData['birthYear'];
+    }
+    if (p.canton.isEmpty && remoteData['canton'] != null) {
+      updates['canton'] = remoteData['canton'] as String?;
+    }
+    if (p.gender == null && remoteData['gender'] != null) {
+      updates['gender'] = remoteData['gender'] as String?;
+    }
+    if (p.salaireBrutMensuel <= 0) {
+      final grossYearly = (remoteData['incomeGrossYearly'] as num?)?.toDouble();
+      if (grossYearly != null && grossYearly > 0) {
+        updates['salaireBrutMensuel'] = grossYearly / 12;
+      }
+    }
+    if (p.employmentStatus.isEmpty && remoteData['employmentStatus'] != null) {
+      updates['employmentStatus'] = remoteData['employmentStatus'] as String?;
+    }
+
+    if (updates.isEmpty) return;
+
+    // Apply updates via copyWith
+    _profile = p.copyWith(
+      birthYear: updates.containsKey('birthYear')
+          ? updates['birthYear'] as int
+          : null,
+      canton: updates.containsKey('canton')
+          ? updates['canton'] as String?
+          : null,
+      gender: updates.containsKey('gender')
+          ? updates['gender'] as String?
+          : null,
+      salaireBrutMensuel: updates.containsKey('salaireBrutMensuel')
+          ? updates['salaireBrutMensuel'] as double
+          : null,
+      employmentStatus: updates.containsKey('employmentStatus')
+          ? updates['employmentStatus'] as String?
+          : null,
+    );
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
   }
 
   /// Replace the current profile with an updated one and persist via answers.
@@ -1585,6 +1647,7 @@ class CoachProfileProvider extends ChangeNotifier {
     _profile = null;
     _isPartialProfile = false;
     _isLoaded = false;
+    _remoteHydrationDone = false;
     _previousScore = null;
     _scoreHistory = [];
     _lastAnswers = const {};

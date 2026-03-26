@@ -80,6 +80,7 @@ enum FinancialArchetype {
 class ConjointProfile {
   final String? firstName;
   final int? birthYear;
+  final String? gender; // 'M', 'F', or null (AVS21 reference age)
   final double? salaireBrutMensuel;
   final int nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
@@ -111,6 +112,7 @@ class ConjointProfile {
   const ConjointProfile({
     this.firstName,
     this.birthYear,
+    this.gender,
     this.salaireBrutMensuel,
     this.nombreDeMois = 12,
     this.bonusPourcentage,
@@ -173,6 +175,7 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int?,
+      gender: json['gender'] as String?,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble(),
       nombreDeMois: json['nombreDeMois'] ?? 12,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
@@ -193,6 +196,7 @@ class ConjointProfile {
   Map<String, dynamic> toJson() => {
         'firstName': firstName,
         'birthYear': birthYear,
+        'gender': gender,
         'salaireBrutMensuel': salaireBrutMensuel,
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
@@ -210,6 +214,7 @@ class ConjointProfile {
   ConjointProfile copyWith({
     String? firstName,
     int? birthYear,
+    String? gender,
     double? salaireBrutMensuel,
     int? nombreDeMois,
     double? bonusPourcentage,
@@ -234,6 +239,7 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
+      gender: gender ?? this.gender,
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
@@ -2257,6 +2263,7 @@ class CoachProfile {
       conjoint = ConjointProfile(
         firstName: answers['q_partner_firstname'] as String?,
         birthYear: partnerBirthYear,
+        gender: answers['q_partner_gender'] as String?,
         salaireBrutMensuel: partnerBrut,
         employmentStatus: conjEmployment,
         arrivalAge: conjointArrivalAge,
@@ -2629,6 +2636,7 @@ class CoachProfile {
       conjoint: const ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1981,
+        gender: 'F',
         salaireBrutMensuel: 5000,
         nombreDeMois: 12,
         nationality: 'US',

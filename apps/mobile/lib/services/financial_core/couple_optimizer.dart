@@ -336,6 +336,8 @@ class CoupleOptimizer {
       retirementAge: conjointRetirementAge,
       grossAnnualSalary: conjoint.revenuBrutAnnuel,
       arrivalAge: conjoint.arrivalAge,
+      isFemale: conjoint.gender == 'F' ? true : (conjoint.gender == 'M' ? false : null),
+      birthYear: conjoint.birthYear,
     );
 
     final isMarried = user.etatCivil == CoachCivilStatus.marie;

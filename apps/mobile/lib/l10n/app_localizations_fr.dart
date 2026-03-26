@@ -24357,4 +24357,7 @@ class SFr extends S {
 
   @override
   String get coachMintLabel => 'Coach MINT';
+
+  @override
+  String get consentNoActiveConsents => 'Aucun consentement actif';
 }

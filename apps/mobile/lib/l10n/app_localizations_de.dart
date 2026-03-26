@@ -24398,4 +24398,7 @@ class SDe extends S {
 
   @override
   String get coachMintLabel => 'Coach MINT';
+
+  @override
+  String get consentNoActiveConsents => 'Keine aktiven Einwilligungen';
 }

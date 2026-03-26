@@ -11392,5 +11392,6 @@
       }
     }
   },
-  "coachMintLabel": "Coach MINT"
+  "coachMintLabel": "Coach MINT",
+  "consentNoActiveConsents": "No active consents"
 }

@@ -115,22 +115,23 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
   void _exportData() {
     final l10n = S.of(context)!;
-    final summary = PrivacyService.generateExportSummary(
-      profileId: 'local',
-      profileData: {
-        'birthYear': 1990,
-        'canton': 'ZH',
-        'income': 80000,
-        'analyticsEnabled': _consents['analytics'],
-        'coachingEnabled': _consents['coaching_notifications'],
-        'openBankingConnected': _consents['open_banking'],
-        'documentsUploaded': _consents['document_upload'],
-        'ragQueriesUsed': _consents['rag_queries'],
-      },
-    );
 
-    final categories =
-        (summary['dataCategories'] as List).join(', ');
+    // F5-4: Build export from actual consent state instead of mock data.
+    final activeConsents = <String>[];
+    for (final entry in _consents.entries) {
+      if (entry.value) activeConsents.add(entry.key);
+    }
+
+    final exportData = {
+      'exportDate': DateTime.now().toIso8601String(),
+      'format': 'JSON',
+      'consents': {
+        for (final entry in _consents.entries) entry.key: entry.value,
+      },
+      'activeCategories': activeConsents,
+    };
+
+    final categories = activeConsents.join(', ');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -143,19 +144,21 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Format: ${summary['format']}',
+              Text('Format: ${exportData['format']}',
                   style: MintTextStyles.bodyMedium()),
               const SizedBox(height: MintSpacing.sm),
-              Text('Categories: $categories',
+              Text('Date: ${exportData['exportDate']}',
                   style: MintTextStyles.bodyMedium()),
               const SizedBox(height: MintSpacing.sm),
               Text(
-                summary['retentionPolicy'] as String,
-                style: MintTextStyles.labelSmall(),
+                categories.isEmpty
+                    ? l10n.consentNoActiveConsents
+                    : 'Categories: $categories',
+                style: MintTextStyles.bodyMedium(),
               ),
               const SizedBox(height: MintSpacing.sm + 4),
               Text(
-                summary['disclaimer'] as String,
+                PrivacyService.disclaimer,
                 style: MintTextStyles.micro(),
               ),
             ],

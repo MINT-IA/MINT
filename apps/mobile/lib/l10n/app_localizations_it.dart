@@ -24403,4 +24403,7 @@ class SIt extends S {
 
   @override
   String get coachMintLabel => 'Coach MINT';
+
+  @override
+  String get consentNoActiveConsents => 'Nessun consenso attivo';
 }
