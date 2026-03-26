@@ -24349,4 +24349,12 @@ class SFr extends S {
   @override
   String get authErrorGeneric =>
       'Action impossible pour le moment. Réessaie dans quelques instants.';
+
+  @override
+  String ageYears(int age) {
+    return '$age ans';
+  }
+
+  @override
+  String get coachMintLabel => 'Coach MINT';
 }

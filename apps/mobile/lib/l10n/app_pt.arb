@@ -11348,5 +11348,15 @@
   "authErrorInvalid": "As informa\u00e7\u00f5es inseridas s\u00e3o inv\u00e1lidas.",
   "authErrorExpired": "Este link expirou. Solicita um novo.",
   "authErrorNotVerified": "O teu e-mail ainda n\u00e3o foi verificado. Verifica o teu e-mail e tenta novamente.",
-  "authErrorGeneric": "A\u00e7\u00e3o indispon\u00edvel de momento. Tenta daqui a pouco."
+  "authErrorGeneric": "A\u00e7\u00e3o indispon\u00edvel de momento. Tenta daqui a pouco.",
+
+  "ageYears": "{age} anos",
+  "@ageYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "coachMintLabel": "Coach MINT"
 }

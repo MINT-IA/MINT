@@ -204,6 +204,9 @@ class MariageService:
             FiscalComparison avec le detail de la comparaison.
         """
         # --- Celibataires ---
+        # Simplification: child deduction split 50/50 between unmarried parents.
+        # In reality, LIFD art. 35 assigns the deduction to the custodial parent.
+        # This is acceptable for educational comparison (marriage vs single scenario).
         deduction_enfant_chacun = DEDUCTION_PAR_ENFANT * enfants / 2 if enfants > 0 else 0
         ri_1_single = max(0, revenu_1 - DEDUCTION_ASSURANCES_CELIBATAIRE - deduction_enfant_chacun)
         ri_2_single = max(0, revenu_2 - DEDUCTION_ASSURANCES_CELIBATAIRE - deduction_enfant_chacun)

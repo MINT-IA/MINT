@@ -24235,4 +24235,12 @@ class SEn extends S {
   @override
   String get authErrorGeneric =>
       'Action not possible right now. Try again shortly.';
+
+  @override
+  String ageYears(int age) {
+    return '$age years';
+  }
+
+  @override
+  String get coachMintLabel => 'Coach MINT';
 }

@@ -24309,4 +24309,12 @@ class SPt extends S {
   @override
   String get authErrorGeneric =>
       'Ação indisponível de momento. Tenta daqui a pouco.';
+
+  @override
+  String ageYears(int age) {
+    return '$age anos';
+  }
+
+  @override
+  String get coachMintLabel => 'Coach MINT';
 }

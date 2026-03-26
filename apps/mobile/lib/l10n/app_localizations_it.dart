@@ -24395,4 +24395,12 @@ class SIt extends S {
   @override
   String get authErrorGeneric =>
       'Azione non disponibile al momento. Riprova tra qualche istante.';
+
+  @override
+  String ageYears(int age) {
+    return '$age anni';
+  }
+
+  @override
+  String get coachMintLabel => 'Coach MINT';
 }

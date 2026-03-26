@@ -153,6 +153,7 @@ class CapCard extends StatelessWidget {
       case CtaMode.route:
         if (cap.ctaRoute != null) {
           context.push<void>(cap.ctaRoute!).then((_) {
+            if (!context.mounted) return;
             _trackAbandonmentIfNeeded();
           });
         }
@@ -172,6 +173,7 @@ class CapCard extends StatelessWidget {
           _ => '/onboarding/enrichment',
         };
         context.push<void>(route).then((_) {
+          if (!context.mounted) return;
           _trackAbandonmentIfNeeded();
         });
     }
