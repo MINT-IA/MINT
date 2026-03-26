@@ -23,6 +23,10 @@ Future<void> main() async {
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();
 
+  // Load last-synced regulatory constants from disk so reg() has data
+  // from the previous session before any calculator runs.
+  await RegulatorySyncService.loadFromDisk();
+
   // Initialize SLM plugin runtime once at startup (5s — model check is I/O).
   try {
     final ready = await SlmDownloadService.instance

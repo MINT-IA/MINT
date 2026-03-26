@@ -238,7 +238,7 @@ TÂCHE : Guide l'utilisateur pour compléter le bloc "$blockType".
       '3a' => 'DONNÉES CONNUES :\n'
           '- Nombre de comptes 3a : ${ctx.knownValues['nombre_3a']?.toInt() ?? 0}\n'
           '- Total épargne 3a : ${ctx.knownValues['epargne_3a'] != null ? '${_toRange(ctx.knownValues['epargne_3a'])} CHF' : '0 CHF'}\n'
-          '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? pilier3aPlafondAvecLpp} CHF/an\n'
+          '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)} CHF/an\n'
           '\n'
           'OBJECTIF : Connaître le solde exact et le provider de chaque compte 3a.\n'
           'Un versement 3a est déductible des impôts. Impact sur confiance : +8 pts.',

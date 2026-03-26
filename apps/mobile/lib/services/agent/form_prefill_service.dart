@@ -346,9 +346,9 @@ class FormPrefillService {
   /// Salarié avec LPP: CHF 7'258. Indépendant sans LPP: CHF 36'288.
   static double _plafond3a(CoachProfile profile) {
     if (profile.employmentStatus == 'independant' && !_hasLpp(profile)) {
-      return pilier3aPlafondSansLpp;
+      return reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
     }
-    return pilier3aPlafondAvecLpp;
+    return reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
   }
 
   /// Check if profile has LPP (via avoir or caisse).

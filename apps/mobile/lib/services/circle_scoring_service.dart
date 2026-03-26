@@ -151,7 +151,7 @@ class CircleScoringService {
     // 2. 3a - Versement maximum
     final contribution3a = _parseDouble(answers['q_3a_annual_contribution']);
     final isSalaried = answers['q_employment_status'] == 'employee';
-    final maxContribution = isSalaried ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
+    final maxContribution = isSalaried ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
     ItemStatus contributionStatus;
     if (contribution3a != null && contribution3a >= maxContribution * 0.9) {

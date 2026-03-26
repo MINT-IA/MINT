@@ -129,13 +129,13 @@ class CoachingService {
   // ──────────────────────────────────────────────────────────
 
   /// 3a ceiling for salaried employees (2025/2026, OPP3 art. 7).
-  static const double _plafond3aSalarie = pilier3aPlafondAvecLpp;
+  static double get _plafond3aSalarie => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   /// 3a ceiling for self-employed without LPP (2025/2026, OPP3 art. 7).
-  static const double _plafond3aIndependant = pilier3aPlafondSansLpp;
+  static double get _plafond3aIndependant => reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
   /// Swiss legal retirement age (post-AVS21 reform, unified at 65).
-  static const int _ageRetraite = avsAgeReferenceHomme;
+  static int get _ageRetraite => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
   // Cantonal marginal tax rates removed — replaced by
   // RetirementTaxCalculator.estimateMarginalRate(income, canton)
@@ -619,11 +619,13 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
 
     // Rough estimate: LPP contribution gap using age-based bonification (LPP art. 16)
     final lppRate = getLppBonificationRate(profile.age);
-    final salaireCoordonne = (profile.revenuAnnuel - lppDeductionCoordination).clamp(0, lppSalaireCoordMax.toDouble());
+    final deductionCoord = reg('lpp.coordination_deduction', lppDeductionCoordination);
+    final maxCoord = reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
+    final salaireCoordonne = (profile.revenuAnnuel - deductionCoord).clamp(0, maxCoord);
     final cotisLppAnnuelle = salaireCoordonne * lppRate;
     final cotisPleinTemps =
-        (profile.revenuAnnuel / (profile.tauxActivite / 100) - lppDeductionCoordination)
-                .clamp(0, lppSalaireCoordMax.toDouble()) *
+        (profile.revenuAnnuel / (profile.tauxActivite / 100) - deductionCoord)
+                .clamp(0, maxCoord) *
             lppRate;
     final gap = cotisPleinTemps - cotisLppAnnuelle;
 
@@ -654,7 +656,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   ) {
     if (profile.employmentStatus != EmploymentStatus.independant) return;
 
-    const plafond3a = _plafond3aIndependant;
+    final plafond3a = _plafond3aIndependant;
     final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = plafond3a * tauxMarginal;
 

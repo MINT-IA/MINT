@@ -174,12 +174,12 @@ class RetirementProjectionService {
   static const Color colorSalary = MintColors.amber;
 
   // ── Constantes ──────────────────────────────────────────
-  static const double _avsIndexationRate = avsIndexationRate;
-  static const double _inflationRate = defaultInflationRate;
+  static double get _avsIndexationRate => reg('projection.avs_indexation_rate', avsIndexationRate);
+  static double get _inflationRate => reg('projection.inflation_rate', defaultInflationRate);
   static const int _projectionYears = 25;
-  static const int _lifeExpectancy = defaultLifeExpectancy;
+  static int get _lifeExpectancy => reg('projection.life_expectancy', defaultLifeExpectancy.toDouble()).toInt();
   static const double _pillar3aAnnualizationYears = 20.0;
-  static const double _safeWithdrawalRate = defaultSafeWithdrawalRate;
+  static double get _safeWithdrawalRate => reg('projection.safe_withdrawal_rate', defaultSafeWithdrawalRate);
 
   // ════════════════════════════════════════════════════════════
   //  PUBLIC API
@@ -194,7 +194,7 @@ class RetirementProjectionService {
     double lppCapitalPct = 0.0,
     S? l,
   }) {
-    final conjAge = retirementAgeConjoint ?? avsAgeReferenceHomme;
+    final conjAge = retirementAgeConjoint ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final expenses =
         depensesMensuelles ?? _estimateRetirementExpenses(profile);
 
@@ -442,7 +442,7 @@ class RetirementProjectionService {
       final conjPrev = profile.conjoint!.prevoyance;
       final conjBuyback = _conjointLppBuyback(profile);
       final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
-        baseRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
+        baseRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         retirementAge: ageConjoint,
       );
       final conjGrossAnnualForLpp =
@@ -455,7 +455,7 @@ class RetirementProjectionService {
         retirementAge: ageConjoint,
         grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
-        conversionRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
+        conversionRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         monthlyBuyback: conjBuyback,
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -479,7 +479,7 @@ class RetirementProjectionService {
 
     // ── 3a ───────────────────────────────────────────────
     final isIndepSansLpp = profile.employmentStatus == 'independant' &&
-        profile.revenuBrutAnnuel < lppSeuilEntree;
+        profile.revenuBrutAnnuel < reg('lpp.entry_threshold', lppSeuilEntree);
     final threeACapitalBrut = _project3aToRetirement(
       currentBalance: profile.prevoyance.totalEpargne3a +
           (profile.conjoint?.prevoyance?.totalEpargne3a ?? 0),
@@ -545,8 +545,8 @@ class RetirementProjectionService {
     // independant sans LPP (OPP3 art. 7). Couple = 2× plafond ONLY
     // if conjoint can contribute (e.g. FATCA US persons cannot).
     final plafondIndividuel = isIndependantSansLpp
-        ? pilier3aPlafondSansLpp
-        : pilier3aPlafondAvecLpp;
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final plafondMenage =
         (isCouple && conjointCanContribute3a) ? plafondIndividuel * 2 : plafondIndividuel;
     final annual3a = (monthly3a * 12).clamp(0.0, plafondMenage);
@@ -827,7 +827,7 @@ class RetirementProjectionService {
         retirementAge: ageConjoint,
         grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
-        conversionRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
+        conversionRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         monthlyBuyback: _conjointLppBuyback(profile),
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -841,7 +841,7 @@ class RetirementProjectionService {
             profile.etatCivil == CoachCivilStatus.marie;
         // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
         final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
-          baseRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
+          baseRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
           retirementAge: ageConjoint,
         );
         final lppConjMonthly = LppCalculator.blendedMonthly(
@@ -887,7 +887,7 @@ class RetirementProjectionService {
         : (firstRetirementAge - conjAge).clamp(0, 50);
 
     final isIndepSansLpp = profile.employmentStatus == 'independant' &&
-        profile.revenuBrutAnnuel < lppSeuilEntree;
+        profile.revenuBrutAnnuel < reg('lpp.entry_threshold', lppSeuilEntree);
     final threeACapitalBrut = _project3aToRetirement(
       currentBalance: profile.prevoyance.totalEpargne3a +
           (profile.conjoint?.prevoyance?.totalEpargne3a ?? 0),
@@ -981,7 +981,8 @@ class RetirementProjectionService {
       }
     }
 
-    final ref = sourcesForAge(avsAgeReferenceHomme);
+    final refAgeScen = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final ref = sourcesForAge(refAgeScen);
     final refTotal = ref.fold(0.0, (sum, s) => sum + s.monthlyAmount);
     final scenarios = <EarlyRetirementScenario>[];
 
@@ -990,16 +991,16 @@ class RetirementProjectionService {
       final total = sources.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
       double adjustmentPct = 0;
-      if (age < avsAgeReferenceHomme) {
-        adjustmentPct = -(avsReductionAnticipation * (avsAgeReferenceHomme - age) * 100);
-      } else if (age > avsAgeReferenceHomme) {
+      if (age < refAgeScen) {
+        adjustmentPct = -(reg('avs.early_retirement_reduction', avsReductionAnticipation) * (refAgeScen - age) * 100);
+      } else if (age > refAgeScen) {
         final bonus =
-            avsDeferralBonus[(age - avsAgeReferenceHomme).clamp(1, 5)];
+            avsDeferralBonus[(age - refAgeScen).clamp(1, 5)];
         adjustmentPct = (bonus ?? 0) * 100;
       }
 
       final yearsThis = _lifeExpectancy - age;
-      const yearsRef = _lifeExpectancy - avsAgeReferenceHomme;
+      final yearsRef = _lifeExpectancy - refAgeScen;
       final cumulative =
           (total * 12 * yearsThis) - (refTotal * 12 * yearsRef);
 
@@ -1128,7 +1129,7 @@ class RetirementProjectionService {
           ? profile.canton.toUpperCase()
           : 'ZH',
       currentAge: profile.age,
-      targetRetirementAge: profile.targetRetirementAge ?? avsAgeReferenceHomme,
+      targetRetirementAge: profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
       propertyMarketValue: profile.patrimoine.propertyMarketValue,
       mortgageBalance: profile.patrimoine.mortgageBalance,
       mortgageRate: profile.patrimoine.mortgageRate,

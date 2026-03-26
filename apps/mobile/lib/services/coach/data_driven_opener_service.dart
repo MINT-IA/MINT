@@ -108,7 +108,7 @@ class DataDrivenOpenerService {
   static const double _minSalaryForSavings = 1.0;
 
   /// 3a plafond for salariés with LPP access (OPP3 2025/2026).
-  static const double _plafond3aSalarie = pilier3aPlafondAvecLpp;
+  static double get _plafond3aSalarie => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   // ── Public API ────────────────────────────────────────────
 
@@ -202,7 +202,7 @@ class DataDrivenOpenerService {
     final isIndepNoLpp = state.archetype ==
             FinancialArchetype.independentNoLpp;
     final plafond = isIndepNoLpp
-        ? pilier3aPlafondSansLpp
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
         : _plafond3aSalarie;
 
     // If this year's balance already looks full, skip.
@@ -266,7 +266,7 @@ class DataDrivenOpenerService {
     final isIndepNoLpp = state.archetype ==
             FinancialArchetype.independentNoLpp;
     final plafond = isIndepNoLpp
-        ? pilier3aPlafondSansLpp
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
         : _plafond3aSalarie;
 
     return DataDrivenOpener(

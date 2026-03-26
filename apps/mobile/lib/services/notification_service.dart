@@ -209,7 +209,7 @@ class NotificationService {
     if (!has3a) return;
 
     // Check if 3a is already maxed for the year
-    final plafond3a = profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+    final plafond3a = profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final montant3aAnnuel = profile.total3aMensuel * 12;
     if (montant3aAnnuel >= plafond3a) return;
 

@@ -208,7 +208,7 @@ class CoachNarrativeService {
 
     // Tax saving potential (3a margin × estimated marginal rate)
     final plafond3a =
-        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
     final taxSaving = marge3a * 0.30; // ~30% marginal estimate
@@ -258,13 +258,14 @@ class CoachNarrativeService {
     double replacementRatio = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      if (salary > 0 && profile.age < avsAgeReferenceHomme) {
+      final refAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+      if (salary > 0 && profile.age < refAge) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
           currentAge: profile.age,
-          retirementAge: avsAgeReferenceHomme,
+          retirementAge: refAge,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
           conversionRate: profile.prevoyance.tauxConversion,
@@ -495,7 +496,7 @@ class CoachNarrativeService {
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
       final plafond =
-          profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+          profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
       final verseAnnuel = profile.total3aMensuel * 12;
       final marge = plafond - verseAnnuel;
       if (marge > 0) {
@@ -777,7 +778,7 @@ class CoachNarrativeService {
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
     final plafond3a =
-        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -908,13 +909,14 @@ class CoachNarrativeService {
     double replacementRate = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      if (salary > 0 && profile.age < avsAgeReferenceHomme) {
+      final refAge2 = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+      if (salary > 0 && profile.age < refAge2) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
           currentAge: profile.age,
-          retirementAge: avsAgeReferenceHomme,
+          retirementAge: refAge2,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
           conversionRate: profile.prevoyance.tauxConversion,
@@ -934,9 +936,10 @@ class CoachNarrativeService {
       buffer.writeln(
           '- Taux de remplacement estime : ~${(replacementRate * 100).toStringAsFixed(0)}%');
     }
-    if (retirementAge < avsAgeReferenceHomme) {
+    final refAgeEarly = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    if (retirementAge < refAgeEarly) {
       buffer.writeln(
-          '- Retraite anticipee : penalite AVS de ${((avsAgeReferenceHomme - retirementAge) * 6.8).toStringAsFixed(1)}% '
+          '- Retraite anticipee : penalite AVS de ${((refAgeEarly - retirementAge) * 6.8).toStringAsFixed(1)}% '
           '+ taux conversion LPP reduit');
     }
     buffer.writeln();
@@ -953,8 +956,9 @@ class CoachNarrativeService {
 
     // 3a not maxed out
     final cotisation3a = profile.total3aMensuel * 12;
-    if (cotisation3a < pilier3aPlafondAvecLpp && profile.prevoyance.canContribute3a) {
-      final marge = pilier3aPlafondAvecLpp - cotisation3a;
+    final plafond3aSnippet = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    if (cotisation3a < plafond3aSnippet && profile.prevoyance.canContribute3a) {
+      final marge = plafond3aSnippet - cotisation3a;
       snippets.add(
           'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
           'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
@@ -1008,7 +1012,7 @@ class CoachNarrativeService {
   /// "If you had started at 30 → +X CHF. But contributing Y more years → +Z CHF."
   /// Pure compound interest: annual 7258 CHF at 2% average return.
   static String? _buildTimeMachineInsight(CoachProfile profile) {
-    const plafond = pilier3aPlafondAvecLpp;
+    final plafond = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     const avgReturn = 0.02; // Conservative 3a average
 
     final retAge = profile.effectiveRetirementAge;

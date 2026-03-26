@@ -49,7 +49,7 @@ class LifecycleDetector {
 
     // Override: early retirement target approaching
     final targetRetirement =
-        profile.targetRetirementAge ?? avsAgeReferenceHomme;
+        profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsLeft = targetRetirement - age;
     if (age >= 50 && yearsLeft > 0 && yearsLeft <= 10) {
       return LifecyclePhase.transition;
@@ -80,7 +80,7 @@ class LifecycleDetector {
     }
 
     // Override: early retirement target approaching
-    final targetRetirement = targetRetirementAge ?? avsAgeReferenceHomme;
+    final targetRetirement = targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsLeft = targetRetirement - age;
     if (age >= 50 && yearsLeft > 0 && yearsLeft <= 10) {
       return LifecyclePhase.transition;
@@ -112,7 +112,7 @@ class LifecycleDetector {
     if (age < 35) return LifecyclePhase.construction;
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
-    if (age < avsAgeReferenceHomme) return LifecyclePhase.transition;
+    if (age < reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) return LifecyclePhase.transition;
     if (age < 75) return LifecyclePhase.retraite;
     return LifecyclePhase.transmission;
   }

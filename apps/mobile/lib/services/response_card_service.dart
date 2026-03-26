@@ -581,7 +581,7 @@ class ResponseCardService {
     final isIndep = profile.employmentStatus == 'independant';
     final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
     final plafond =
-        isIndep && !hasLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        isIndep && !hasLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
@@ -681,7 +681,7 @@ class ResponseCardService {
 
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
     final lppMonthly = lppAvoir > 0
-        ? (lppAvoir * lppTauxConversionSurobligDecimal / 12) // conservative 5.4% (suroblig estimate)
+        ? (lppAvoir * reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal) / 12) // conservative 5.4% (suroblig estimate)
         : 0.0;
 
     final totalMonthly = monthlyAvs + lppMonthly;
@@ -731,8 +731,8 @@ class ResponseCardService {
     final lacunes = (profile.arrivalAge! - 20).clamp(0, 44);
     if (lacunes <= 0) return null;
 
-    const fullRenteMonthly = avsRenteMaxAnnuelle / 12;
-    const reductionPerYear = fullRenteMonthly / 44;
+    final fullRenteMonthly = reg('avs.max_annual_pension', avsRenteMaxAnnuelle) / 12;
+    final reductionPerYear = fullRenteMonthly / 44;
     final monthlyLoss = reductionPerYear * lacunes;
 
     return ResponseCard(
@@ -801,7 +801,7 @@ class ResponseCardService {
     final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
     if (hasLpp) return null; // Covered by LPP card
 
-    const max3a = pilier3aPlafondSansLpp;
+    final max3a = reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
     final current3a = profile.prevoyance.totalEpargne3a;
 
     return ResponseCard(
@@ -844,8 +844,8 @@ class ResponseCardService {
     // Total deductible: 3a + rachat LPP potentiel
     final plafond3a = profile.employmentStatus == 'independant' &&
             (profile.prevoyance.avoirLppTotal ?? 0) <= 0
-        ? pilier3aPlafondSansLpp
-        : pilier3aPlafondAvecLpp;
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final rachat = profile.prevoyance.rachatMaximum ?? 0;
     final totalDeductible = plafond3a + rachat.clamp(0.0, 20000.0);
     final totalSaving = totalDeductible * marginalRate;

@@ -569,14 +569,14 @@ class ForecasterService {
       final conjAnnualSalary =
           (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
       // Partner is salaried with LPP if their salary exceeds the LPP threshold
-      if (conjAnnualSalary > lppSeuilEntree) {
+      if (conjAnnualSalary > reg('lpp.entry_threshold', lppSeuilEntree)) {
         // Check if partner 3a is already in planned contributions
         final hasPartner3a = profile.plannedContributions.any((c) =>
             c.category == '3a' &&
             conjFirstName.isNotEmpty &&
             c.id.toLowerCase().contains(conjFirstName));
         if (!hasPartner3a) {
-          partner3aMonthly = pilier3aPlafondAvecLpp / 12; // 604.83
+          partner3aMonthly = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12; // 604.83
         }
       }
     }
@@ -663,7 +663,7 @@ class ForecasterService {
     double partner3aBalance = 0;
 
     // 3a annual cap tracking
-    const plafond3a = pilier3aPlafondAvecLpp;
+    final plafond3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     double threeAYearContrib = 0;
     double partner3aYearContrib = 0;
     int currentYear = now.year;
@@ -853,11 +853,11 @@ class ForecasterService {
     //
     // See: CLAUDE.md §5, arbitrage_engine.dart for reference implementation.
     final userConvRateOblig = LppCalculator.adjustedConversionRate(
-      baseRate: lppTauxConversionMinDecimal, // 6.8% — obligatoire only
+      baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal), // 6.8% — obligatoire only
       retirementAge: retirementAge,
     );
     final userConvRateSurob = LppCalculator.adjustedConversionRate(
-      baseRate: profile.prevoyance.tauxConversionSuroblig ?? lppTauxConversionSurobligDecimal,
+      baseRate: profile.prevoyance.tauxConversionSuroblig ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
       retirementAge: retirementAge,
     );
     final double renteLppUser;
@@ -880,9 +880,10 @@ class ForecasterService {
       // Otherwise, use the conservative surobligatoire estimate (5.4%)
       // to avoid silently overstating with the minimum legal rate.
       final profileRate = profile.prevoyance.tauxConversion;
-      final isDefaultRate = (profileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+      final regConvMin = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+      final isDefaultRate = (profileRate - regConvMin).abs() < 0.001;
       final baseRate = isDefaultRate
-          ? lppTauxConversionSurobligDecimal
+          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
           : profileRate;
       final envelopingRate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
@@ -893,11 +894,11 @@ class ForecasterService {
 
     // Conjoint LPP — same oblig/suroblig logic
     final conjConvRateOblig = LppCalculator.adjustedConversionRate(
-      baseRate: lppTauxConversionMinDecimal,
+      baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
       retirementAge: conjRetirementAge,
     );
     final conjConvRateSurob = LppCalculator.adjustedConversionRate(
-      baseRate: profile.conjoint?.prevoyance?.tauxConversionSuroblig ?? lppTauxConversionSurobligDecimal,
+      baseRate: profile.conjoint?.prevoyance?.tauxConversionSuroblig ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
       retirementAge: conjRetirementAge,
     );
     final double renteLppConjoint;
@@ -912,11 +913,12 @@ class ForecasterService {
       renteLppConjoint = projectedConjOblig * conjConvRateOblig +
           projectedConjSurob * conjConvRateSurob;
     } else {
+      final regConvMin2 = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
       final conjProfileRate = profile.conjoint?.prevoyance?.tauxConversion
-          ?? lppTauxConversionMinDecimal;
-      final conjIsDefault = (conjProfileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+          ?? regConvMin2;
+      final conjIsDefault = (conjProfileRate - regConvMin2).abs() < 0.001;
       final conjBaseRate = conjIsDefault
-          ? lppTauxConversionSurobligDecimal
+          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
           : conjProfileRate;
       final conjEnvelopingRate = LppCalculator.adjustedConversionRate(
         baseRate: conjBaseRate,

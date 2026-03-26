@@ -69,7 +69,7 @@ class MinimalProfileService {
     // --- AVS monthly rente (financial_core) ---
     // Sans emploi: use minimum AVS contribution salary
     final avsGrossSalary = isSansEmploi
-        ? lppSeuilEntree.toDouble() // minimum contribution base
+        ? reg('lpp.entry_threshold', lppSeuilEntree) // minimum contribution base
         : grossSalary;
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: age,
@@ -87,13 +87,13 @@ class MinimalProfileService {
       // vs standard minimum 6.8% (LPP art. 14 al. 2).
       final effectiveConversionRate = lppCaisseType == 'complementaire'
           ? 0.058
-          : lppTauxConversionMin / 100;
+          : reg('lpp.conversion_rate_pct', lppTauxConversionMin) / 100;
       lppAnnualRente = LppCalculator.projectToRetirement(
         currentBalance: effectiveLpp,
         currentAge: age,
         retirementAge: effectiveRetAge,
         grossAnnualSalary: grossSalary,
-        caisseReturn: lppTauxInteretMin / 100,
+        caisseReturn: reg('lpp.min_interest_rate', lppTauxInteretMin) / 100,
         conversionRate: effectiveConversionRate,
       );
     }
@@ -115,8 +115,8 @@ class MinimalProfileService {
     // Salarié avec LPP: plafond 3a = 7'258 CHF
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(grossSalary, canton);
     final plafond3a = isIndependantNoLpp
-        ? min(grossSalary * 0.20, pilier3aPlafondSansLpp)
-        : pilier3aPlafondAvecLpp;
+        ? min(grossSalary * 0.20, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final taxSaving3a = marginalRate * plafond3a;
 
     // --- Liquidity analysis ---
@@ -161,13 +161,13 @@ class MinimalProfileService {
   /// Applies LPP art. 16 age-dependent bonification rates since age 25.
   /// Returns 0 if below LPP seuil d'entree (LPP art. 7).
   static double _estimateLppBalance(int age, double grossAnnualSalary) {
-    if (grossAnnualSalary < lppSeuilEntree) return 0.0;
+    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) return 0.0;
 
-    final salaireCoord = (grossAnnualSalary - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    final salaireCoord = (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
+        .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     double balance = 0;
     for (int a = 25; a < age && a < 65; a++) {
-      balance *= (1 + lppTauxInteretMin / 100);
+      balance *= (1 + reg('lpp.min_interest_rate', lppTauxInteretMin) / 100);
       balance += salaireCoord * getLppBonificationRate(a);
     }
     return balance;

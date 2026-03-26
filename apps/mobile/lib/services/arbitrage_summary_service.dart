@@ -220,7 +220,7 @@ class ArbitrageSummaryService {
       capitalObligatoire: lppAvoir * 0.6,
       capitalSurobligatoire: lppAvoir * 0.4,
       renteAnnuelleProposee: lppAvoir * convRate,
-      tauxConversionObligatoire: lppTauxConversionMinDecimal,
+      tauxConversionObligatoire: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
       tauxConversionSurobligatoire: convRate,
       canton: canton,
       isMarried: isMarried,
@@ -378,7 +378,7 @@ class ArbitrageSummaryService {
             : 0.25;
 
     final result = ArbitrageEngine.compareAllocationAnnuelle(
-      montantDisponible: pilier3aPlafondAvecLpp.toDouble(),
+      montantDisponible: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
       tauxMarginal: tauxMarginal,
       potentielRachatLpp: lacune,
       anneesAvantRetraite: anneesRetraite,
@@ -388,13 +388,13 @@ class ArbitrageSummaryService {
 
     // The chiffreChoc tells the story — extract monthly impact
     // 3a deduction gives immediate tax savings
-    final impact3a = pilier3aPlafondAvecLpp * tauxMarginal / 12;
+    final impact3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * tauxMarginal / 12;
 
     return ArbitrageSummaryItem(
       id: 'allocation_annuelle',
       title: 'Allocation annuelle',
       verdict:
-          '${formatChfWithPrefix(pilier3aPlafondAvecLpp.toDouble())} a placer — 3a, rachat LPP ou libre, les trajectoires divergent',
+          '${formatChfWithPrefix(reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))} a placer — 3a, rachat LPP ou libre, les trajectoires divergent',
       keyInsight:
           'Le 3e pilier offre une deduction fiscale immediate et un rendement '
           'net apres impot souvent superieur.',

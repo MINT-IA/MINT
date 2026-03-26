@@ -243,7 +243,7 @@ class PulseHeroEngine {
   // ── Optimiser ───────────────────────────────────────────
 
   static PulseHero _heroOptFiscal(CoachProfile p, S? l) {
-    final saving3a = (pilier3aPlafondAvecLpp * 0.25).round(); // ~25% marginal rate estimate
+    final saving3a = (reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * 0.25).round(); // ~25% marginal rate estimate
     return PulseHero(
       title: 'CHF ~${saving3a + 1500}/an',
       subtitle: l?.pulseOptFiscalSubtitle ?? 'laissés au fisc chaque année.',

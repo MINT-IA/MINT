@@ -238,7 +238,7 @@ class PrecisionService {
       final annualSalary = salaireBrut * 12;
       // Rough lower bound: 7% of coordinated salary per year (minimum)
       final salaireCoord =
-          (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, double.infinity);
+          (annualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination)).clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), double.infinity);
       final expectedMin = salaireCoord * 0.07 * yearsWorked * 0.5;
       // Upper bound: generous employer ~25% of full salary
       final expectedMax = annualSalary * 0.25 * yearsWorked;
@@ -323,7 +323,7 @@ class PrecisionService {
 
     // Check 5: Pillar 3a balance vs age
     if (pillar3a > 0 && age > 0) {
-      const maxAnnual = pilier3aPlafondAvecLpp;
+      final maxAnnual = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
       final maxYears3a = (age - 18).clamp(0, 47).toDouble();
       // Reasonable upper bound: max contribution each year + ~3% annual return
       final theoreticalMax = maxAnnual * maxYears3a * 1.4;
@@ -408,7 +408,7 @@ class PrecisionService {
     // --- LPP total estimation ---
     final yearsContrib = _lppYears(archetype, age);
     final salaireCoord =
-        (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, annualSalary * 0.8);
+        (annualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination)).clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), annualSalary * 0.8);
     double lppEstimate = 0;
     for (int a = (age - yearsContrib).round(); a < age; a++) {
       lppEstimate += salaireCoord * getLppBonificationRate(a);
@@ -436,7 +436,7 @@ class PrecisionService {
     // --- LPP obligatoire estimation ---
     if (archetype != 'independent_no_lpp') {
       // Obligatory part: use only statutory minimum salary coord
-      final coordMin = (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+      final coordMin = (annualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination)).clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
       double obligEstimate = 0;
       for (int a = (age - yearsContrib).round(); a < age; a++) {
         obligEstimate += coordMin * getLppBonificationRate(a);
@@ -484,7 +484,7 @@ class PrecisionService {
     // --- Pillar 3a balance ---
     final contributing3aYears = (age - 25).clamp(0, 40).toDouble();
     final estimated3a = contributing3aYears > 0
-        ? contributing3aYears * pilier3aPlafondAvecLpp * 0.6 // assume 60% utilization
+        ? contributing3aYears * reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * 0.6 // assume 60% utilization
         : 0.0;
     defaults.add(SmartDefault(
       fieldName: 'pillar_3a_balance',
@@ -521,7 +521,7 @@ class PrecisionService {
     ));
 
     // --- Tax saving 3a ---
-    final taxSaving3a = pilier3aPlafondAvecLpp * tauxEstimate;
+    final taxSaving3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * tauxEstimate;
     defaults.add(SmartDefault(
       fieldName: 'tax_saving_3a',
       value: _round(taxSaving3a),

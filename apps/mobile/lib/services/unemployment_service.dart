@@ -77,10 +77,10 @@ class UnemploymentService {
 
   /// Maximum gain assure mensuel (CHF 12'350).
   /// Derived from acPlafondSalaireAssure / 12.
-  static const double _gainAssureMax = acGainAssureMensuelMax;
+  static double get _gainAssureMax => reg('ac.max_monthly_insured_income', acGainAssureMensuelMax);
 
   /// Salary threshold for enhanced rate (CHF 3'797).
-  static const double _salaryThresholdEnhanced = acSeuilSalaireMajore;
+  static double get _salaryThresholdEnhanced => reg('ac.enhanced_rate_threshold', acSeuilSalaireMajore);
 
   /// Standard waiting period (5 days).
   static const int _delaiCarenceStandard = 5;
@@ -192,9 +192,9 @@ class UnemploymentService {
   /// SECO rules: 55+ with >= 22 months = senior = 520 days (LACI art. 27 al. 2).
   /// Uses centralized constants from social_insurance.dart.
   static int _calculateDuration(int age, int moisCotisation) {
-    if (age >= acAgeSeuillSenior && moisCotisation >= 22) return acJoursSenior; // 55+ = 520
-    if (age >= 25 && moisCotisation >= 18) return acJoursIntermediaireCotisation; // 260
-    if (moisCotisation >= 12) return acJoursMinCotisation; // 200
+    if (age >= reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble()).toInt() && moisCotisation >= 22) return reg('ac.senior_days', acJoursSenior.toDouble()).toInt(); // 55+ = 520
+    if (age >= 25 && moisCotisation >= 18) return reg('ac.intermediate_days', acJoursIntermediaireCotisation.toDouble()).toInt(); // 260
+    if (moisCotisation >= 12) return reg('ac.min_days', acJoursMinCotisation.toDouble()).toInt(); // 200
     return 0;
   }
 

@@ -49,7 +49,7 @@ class BudgetLivingEngine {
     //    a) Retired (age >= targetRetirementAge): budget based on actual rentes.
     //    b) Pre-retirement (has salary + valid age): full projection + gap.
     //    c) No usable data (zero salary and not retired): present-only.
-    final targetRetirementAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
+    final targetRetirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final isRetired = profile.age > 0 && profile.age >= targetRetirementAge;
 
     // Case a: user is already in retirement — show rente income, no gap.
@@ -207,7 +207,7 @@ class BudgetLivingEngine {
       final planned3aCount =
           profile.plannedContributions.where((c) => c.category == '3a').length;
       if (planned3aCount < 2) {
-        savings += pilier3aPlafondAvecLpp / 12;
+        savings += reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12;
       }
     }
 
@@ -303,7 +303,7 @@ class BudgetLivingEngine {
 
     // Cap 2: 3a max — if not already maxing out.
     final current3aMensuel = profile.total3aMensuel;
-    const plafondMensuel = pilier3aPlafondAvecLpp / 12;
+    final plafondMensuel = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12;
     final has3aGap = current3aMensuel < plafondMensuel * 0.95;
     if (has3aGap) {
       final additional3aMonthly = plafondMensuel - current3aMensuel;

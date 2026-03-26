@@ -129,8 +129,8 @@ class RecommendationsService {
   /// Recommandation : Pilier 3a
   static Recommendation _build3aRecommendation(Profile profile, {S? l}) {
     // Estimation économie fiscale (taux marginal ~25%)
-    const limit = pilier3aPlafondAvecLpp; // Limite 2025 avec LPP
-    const taxSavings = limit * 0.25;
+    final limit = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp); // Limite 2025 avec LPP
+    final taxSavings = limit * 0.25;
 
     return Recommendation(
       id: 'pillar3a',
@@ -147,7 +147,7 @@ class RecommendationsService {
         'Taux marginal 25%',
         'Versement maximal CHF ${limit.toStringAsFixed(0)}',
       ],
-      impact: const Impact(amountCHF: taxSavings, period: Period.yearly),
+      impact: Impact(amountCHF: taxSavings, period: Period.yearly),
       risks: ['Capital bloqué jusqu\'à la retraite'],
       alternatives: ['3a bancaire', '3a assurance', '3a titres'],
       evidenceLinks: [],

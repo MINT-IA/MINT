@@ -219,8 +219,8 @@ class StreakService {
         label: '3a au max',
         description: 'Versement 3a au plafond (7\'258 CHF)',
         icon: Icons.savings,
-        threshold: pilier3aPlafondAvecLpp,
-        isReached: annual3a >= pilier3aPlafondAvecLpp,
+        threshold: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+        isReached: annual3a >= reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
       ),
       MintMilestone(
         id: 'emergency_fund',
