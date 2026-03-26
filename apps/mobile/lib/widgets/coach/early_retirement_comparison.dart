@@ -39,6 +39,9 @@ class EarlyRetirementComparison extends StatelessWidget {
     final ages = [63, 64, 65, 67, 70];
     final rows = <_ComparisonRow>[];
 
+    // F3-3: Gender-aware AVS21 reference age for early retirement comparison.
+    final ercIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+
     for (final retAge in ages) {
       if (retAge <= profile.age) continue;
 
@@ -50,6 +53,8 @@ class EarlyRetirementComparison extends StatelessWidget {
         lacunes: profile.prevoyance.lacunesAVS ?? 0,
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
+        isFemale: ercIsFemale,
+        birthYear: profile.birthYear,
       );
 
       // ── User LPP ──

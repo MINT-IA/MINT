@@ -76,9 +76,13 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   }
 
   /// Maps PrivacyService category IDs to ConsentManager ConsentType.
-  /// F2-5: openBanking and documentUpload now have dedicated ConsentType values.
+  /// F3-4: All 7 ConsentType values are mapped from PrivacyService categories.
   ConsentType? _mapCategoryToConsentType(String categoryId) {
     switch (categoryId) {
+      case 'byok_data_sharing':
+        return ConsentType.byokDataSharing;
+      case 'snapshot_storage':
+        return ConsentType.snapshotStorage;
       case 'coaching_notifications':
         return ConsentType.notifications;
       case 'rag_queries':

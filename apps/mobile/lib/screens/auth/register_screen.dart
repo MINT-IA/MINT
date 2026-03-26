@@ -87,7 +87,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // F2-2: Email verification MUST happen before any redirect.
       // Flow: register -> verify-email -> redirect (not register -> redirect -> 403)
       if (authProvider.requiresEmailVerification) {
-        context.go('/auth/verify-email');
+        // F3-2: Preserve redirect through the email verification step.
+        final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+        if (redirect != null && redirect.startsWith('/')) {
+          context.go('/auth/verify-email?redirect=${Uri.encodeComponent(redirect)}');
+        } else {
+          context.go('/auth/verify-email');
+        }
       } else {
         final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
         if (redirect != null && redirect.startsWith('/')) {

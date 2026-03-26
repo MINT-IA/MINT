@@ -101,6 +101,11 @@ class AuthProvider extends ChangeNotifier {
         _isLoggedIn = true;
         _error = null;
       }
+      // F3-2: Restore email verification state from SharedPreferences.
+      // Survives cold start so the verify-email screen is shown again.
+      final prefs = await SharedPreferences.getInstance();
+      _requiresEmailVerification =
+          prefs.getBool('requires_email_verification') ?? false;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
       _isLoggedIn = false;
@@ -153,6 +158,12 @@ class AuthProvider extends ChangeNotifier {
       _displayName = response['display_name'] as String?;
       _error = null;
       _isLoading = false;
+
+      // F3-2: Persist email verification state so it survives cold start.
+      if (requiresVerification) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('requires_email_verification', true);
+      }
 
       if (_isLoggedIn) {
         await _migrateLocalDataIfNeeded();
@@ -295,6 +306,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await ApiService.confirmEmailVerification(token);
+      // F3-2: Clear persisted verification flag on success.
+      _requiresEmailVerification = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('requires_email_verification');
       _isLoading = false;
       notifyListeners();
       return true;

@@ -300,6 +300,8 @@ class RetirementProjectionService {
     final conjName = profile.conjoint?.firstName ?? 'Conjoint·e';
 
     // ── AVS ──────────────────────────────────────────────
+    // F3-3: Pass gender + birthYear for AVS21 gender-aware reference age.
+    final userIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
     final avsUserRaw = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
       retirementAge: ageUser,
@@ -307,6 +309,8 @@ class RetirementProjectionService {
       anneesContribuees: profile.prevoyance.anneesContribuees,
       arrivalAge: profile.arrivalAge,
       grossAnnualSalary: profile.revenuBrutAnnuel,
+      isFemale: userIsFemale,
+      birthYear: profile.birthYear,
     );
     // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
     final avsUser = AvsCalculator.annualRente(avsUserRaw) / 12;
@@ -719,6 +723,9 @@ class RetirementProjectionService {
     final userName = profile.firstName ?? 'Toi';
     final conjName = profile.conjoint?.firstName ?? 'Conjoint·e';
 
+    // F3-3: Gender-aware AVS21 reference age for staggered retirement.
+    final tpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+
     if (userRetiresFirst) {
       // User AVS (no couple cap — only user receives)
       // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
@@ -729,6 +736,8 @@ class RetirementProjectionService {
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
         grossAnnualSalary: profile.revenuBrutAnnuel,
+        isFemale: tpIsFemale,
+        birthYear: profile.birthYear,
       )) / 12;
       sources.add(RetirementIncomeSource(
         id: 'avs_user',

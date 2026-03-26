@@ -25,22 +25,25 @@ void main() {
       }
     });
 
-    test('default dashboard contains exactly 3 consent types (dashboard subset)', () {
+    test('default dashboard contains all 7 consent types (F3-4)', () {
       final dashboard = ConsentManager.getDefaultDashboard();
-      expect(dashboard.consents.length, 3);
+      expect(dashboard.consents.length, 7);
 
       final types = dashboard.consents.map((c) => c.type).toSet();
       expect(types, {
         ConsentType.byokDataSharing,
         ConsentType.snapshotStorage,
         ConsentType.notifications,
+        ConsentType.analytics,
+        ConsentType.ragQueries,
+        ConsentType.openBanking,
+        ConsentType.documentUpload,
       });
     });
 
     test('ConsentType enum has all 7 expected values (F2-5)', () {
-      // F2-5: The ConsentType enum must match all consent categories.
-      // Dashboard shows 3, but the full enum includes analytics, ragQueries,
-      // openBanking, and documentUpload.
+      // F2-5 + F3-4: The ConsentType enum must match all consent categories.
+      // Dashboard now includes all 7 types.
       expect(ConsentType.values.length, 7);
       expect(ConsentType.values, containsAll([
         ConsentType.byokDataSharing,
@@ -188,8 +191,8 @@ void main() {
       }
     });
 
-    test('all 5 ConsentType values persist and read back (V12-7)', () async {
-      // V12-7: Verify analytics and ragQueries work end-to-end, not just the original 3.
+    test('all 7 ConsentType values persist and read back (V12-7/F3-4)', () async {
+      // V12-7 + F3-4: Verify all 7 consent types work end-to-end.
       for (final type in ConsentType.values) {
         await ConsentManager.updateConsent(type, true);
         final result = await ConsentManager.isConsentGiven(type);

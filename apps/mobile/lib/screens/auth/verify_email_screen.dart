@@ -73,7 +73,13 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         content: Text(l10n.authVerifySuccess),
       ),
     );
-    context.go('/auth/login');
+    // F3-2: After verification, redirect to the original destination if provided.
+    final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+    if (redirect != null && redirect.startsWith('/')) {
+      context.go(Uri.decodeComponent(redirect));
+    } else {
+      context.go('/auth/login');
+    }
   }
 
   @override

@@ -712,24 +712,32 @@ class CrossPillarCalculator {
         : 0.0;
 
     // Action 3: +1 year of work (AVS deferral bonus)
-    // LAVS art. 39: +5.2% on individual rente per year deferred from 65
-    final avsMonthlyAt65 = AvsCalculator.computeMonthlyRente(
+    // F3-3: Use gender-aware avsReferenceAge instead of hardcoded 65/66.
+    final cpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+    final refAge = (cpIsFemale != null)
+        ? avsReferenceAge(birthYear: profile.birthYear, isFemale: cpIsFemale)
+        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final avsMonthlyAtRef = AvsCalculator.computeMonthlyRente(
       currentAge: currentAge,
-      retirementAge: reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
+      retirementAge: refAge,
       lacunes: profile.prevoyance.lacunesAVS ?? 0,
       anneesContribuees: profile.prevoyance.anneesContribuees,
       arrivalAge: profile.arrivalAge,
       grossAnnualSalary: grossAnnual,
+      isFemale: cpIsFemale,
+      birthYear: profile.birthYear,
     );
-    final avsMonthlyAt66 = AvsCalculator.computeMonthlyRente(
+    final avsMonthlyAtRefPlus1 = AvsCalculator.computeMonthlyRente(
       currentAge: currentAge,
-      retirementAge: 66,
+      retirementAge: refAge + 1,
       lacunes: profile.prevoyance.lacunesAVS ?? 0,
       anneesContribuees: profile.prevoyance.anneesContribuees,
       arrivalAge: profile.arrivalAge,
       grossAnnualSalary: grossAnnual,
+      isFemale: cpIsFemale,
+      birthYear: profile.birthYear,
     );
-    final extraYearMonthlyGain = avsMonthlyAt66 - avsMonthlyAt65;
+    final extraYearMonthlyGain = avsMonthlyAtRefPlus1 - avsMonthlyAtRef;
     final extraYearAnnualGain = extraYearMonthlyGain * 12;
 
     // Impact = total closing actions (conservative: only verifiable immediate gains)

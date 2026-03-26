@@ -3,7 +3,9 @@
 class PrivacyService {
   PrivacyService._();
 
-  /// Categories de traitement des donnees
+  /// Categories de traitement des donnees.
+  /// F3-4: Includes ALL 7 ConsentType values so the consent dashboard
+  /// displays every consent toggle to the user.
   static const List<Map<String, dynamic>> dataCategories = [
     {
       'id': 'core_profile',
@@ -12,6 +14,26 @@ class PrivacyService {
           'Donnees necessaires au fonctionnement de l\'app (age, canton, revenu).',
       'legalBasis': 'Execution du contrat (nLPD art. 31 al. 1)',
       'required': true,
+      'retentionDays': 365,
+    },
+    {
+      'id': 'byok_data_sharing',
+      'label': 'Personnalisation IA',
+      'description':
+          'Envoi de donnees financieres agregees a ton fournisseur IA '
+          'pour personnaliser les textes du coach.',
+      'legalBasis': 'Consentement (nLPD art. 6 al. 6)',
+      'required': false,
+      'retentionDays': 30,
+    },
+    {
+      'id': 'snapshot_storage',
+      'label': 'Historique de progression',
+      'description':
+          'Conservation de l\'historique de tes projections pour suivre '
+          'ta progression dans le temps.',
+      'legalBasis': 'Consentement (nLPD art. 6 al. 6)',
+      'required': false,
       'retentionDays': 365,
     },
     {
