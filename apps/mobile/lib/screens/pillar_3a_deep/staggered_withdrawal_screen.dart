@@ -19,6 +19,11 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 /// Permet de comparer l'impot en bloc vs echelonne et d'identifier
 /// le nombre optimal de comptes 3a.
 /// Base legale : OPP3, LIFD art. 38.
+///
+/// PREFILL: When navigated from coach via RouteSuggestionCard,
+/// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
+/// with pre-computed values. Currently reads from CoachProfileProvider.
+/// TODO: merge prefill with profile data for coach-optimized defaults.
 class StaggeredWithdrawalScreen extends StatefulWidget {
   const StaggeredWithdrawalScreen({super.key});
 
@@ -34,11 +39,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   double _revenuImposable = 120000;
   int _ageRetraitDebut = 60;
   int _ageRetraitFin = 64;
+  bool _hasUserInteracted = false;
 
   @override
   void initState() {
     super.initState();
-    _emitScreenReturn();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeFromProfile();
     });
@@ -87,10 +92,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         ageRetraitFin: _ageRetraitFin,
       );
 
-  // _emitScreenReturn is called from primary initState above
-  // (merged with profile initialization)
+  // _emitScreenReturn is called on user interaction (slider change, button tap).
+  // NOT on initState — prevents premature stream emission before user action.
 
   void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
     final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';
     final screenReturn = ScreenReturn.changedInputs(
       route: '/3a-deep/staggered-withdrawal',
@@ -243,22 +249,22 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           MintEntrance(child: Text(l.staggered3aParametres, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5))),
           const SizedBox(height: MintSpacing.md),
 
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) => setState(() => _avoirTotal = v))),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) { _hasUserInteracted = true; setState(() => _avoirTotal = v); _emitScreenReturn(); })),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) { setState(() => _nbComptes = v.round()); _emitScreenReturn(); })),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) { _hasUserInteracted = true; setState(() => _nbComptes = v.round()); _emitScreenReturn(); })),
           const SizedBox(height: MintSpacing.sm + 4),
 
           MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonDropdown(l)),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) => setState(() => _revenuImposable = v))),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) { _hasUserInteracted = true; setState(() => _revenuImposable = v); _emitScreenReturn(); })),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 59, max: 70, divisions: 11, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) { setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; }); _emitScreenReturn(); }),
+          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 59, max: 70, divisions: 11, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) { _hasUserInteracted = true; setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; }); _emitScreenReturn(); }),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 70, divisions: (70 - _ageRetraitDebut).clamp(1, 11), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) { setState(() => _ageRetraitFin = v.round()); _emitScreenReturn(); }),
+          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 70, divisions: (70 - _ageRetraitDebut).clamp(1, 11), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) { _hasUserInteracted = true; setState(() => _ageRetraitFin = v.round()); _emitScreenReturn(); }),
         ],
       ),
     );

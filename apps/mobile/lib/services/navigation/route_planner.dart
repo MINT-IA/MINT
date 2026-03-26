@@ -244,6 +244,16 @@ class RoutePlanner {
         );
 
       case ReadinessLevel.blocked:
+        // V11-6: If the entry has a fallbackRoute, redirect there instead of
+        // just listing missing fields. The fallback guides the user through
+        // a capture flow (e.g. onboarding, scan, chat prompt) rather than
+        // leaving them stuck with a list of missing data.
+        if (entry.fallbackRoute != null) {
+          return RouteDecision.openWithWarning(
+            entry.fallbackRoute!,
+            missingFields: readiness.missingFields,
+          );
+        }
         return RouteDecision.askFirst(readiness.missingFields);
     }
   }

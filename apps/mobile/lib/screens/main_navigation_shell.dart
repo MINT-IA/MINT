@@ -180,6 +180,26 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   @override
   Widget build(BuildContext context) {
+    // V11-3: Re-read ?tab= on every build so that subsequent go('/home?tab=3')
+    // calls actually update the tab, not just the first one.
+    try {
+      final rawTab =
+          GoRouterState.of(context).uri.queryParameters['tab'];
+      if (rawTab != null) {
+        final tabIndex = int.tryParse(rawTab) ?? 0;
+        if (tabIndex >= 0 && tabIndex < _tabs.length && tabIndex != _currentIndex) {
+          // Schedule the state update to avoid calling setState during build.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _currentIndex != tabIndex) {
+              setState(() => _currentIndex = tabIndex);
+            }
+          });
+        }
+      }
+    } catch (_) {
+      // No GoRouter in tree (unit tests).
+    }
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,

@@ -28,6 +28,11 @@ import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 /// Layout S55: enjeu d'abord, consequence avant controle, matiere chaude.
 /// Le resultat (prix max accessible) domine. Les sliders suivent.
 /// Base legale : directive ASB sur le credit hypothecaire.
+///
+/// PREFILL: When navigated from coach via RouteSuggestionCard,
+/// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
+/// with pre-computed values. Currently reads from CoachProfileProvider.
+/// TODO: merge prefill with profile data for coach-optimized defaults.
 class AffordabilityScreen extends StatefulWidget {
   const AffordabilityScreen({super.key});
 
@@ -36,17 +41,19 @@ class AffordabilityScreen extends StatefulWidget {
 }
 
 class _AffordabilityScreenState extends State<AffordabilityScreen> {
+  bool _hasUserInteracted = false;
+
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('mortgage');
-    _emitScreenReturn();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeFromProfile();
     });
   }
 
   void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
     final result = _result;
     final screenReturn = ScreenReturn.changedInputs(
       route: '/mortgage/affordability',
@@ -287,7 +294,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         max: 300000,
                         divisions: 50,
                         formatValue: (_) => 'CHF\u00a0${formatChf(_revenuBrut)}',
-                        onChanged: (v) { setState(() => _revenuBrut = v); _emitScreenReturn(); },
+                        onChanged: (v) { _hasUserInteracted = true; setState(() => _revenuBrut = v); _emitScreenReturn(); },
                       ),
                       const SizedBox(height: MintSpacing.md),
 
@@ -299,7 +306,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         max: 3000000,
                         divisions: 56,
                         formatValue: (_) => 'CHF\u00a0${formatChf(_prixAchat)}',
-                        onChanged: (v) { setState(() => _prixAchat = v); _emitScreenReturn(); },
+                        onChanged: (v) { _hasUserInteracted = true; setState(() => _prixAchat = v); _emitScreenReturn(); },
                       ),
                       const SizedBox(height: MintSpacing.md),
 
@@ -312,7 +319,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         divisions: 100,
                         formatValue: (_) =>
                             'CHF\u00a0${formatChf(_epargneDispo)}',
-                        onChanged: (v) { setState(() => _epargneDispo = v); _emitScreenReturn(); },
+                        onChanged: (v) { _hasUserInteracted = true; setState(() => _epargneDispo = v); _emitScreenReturn(); },
                       ),
 
                       // Progressive disclosure: 3a + LPP behind toggle
@@ -352,7 +359,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           divisions: 60,
                           formatValue: (_) =>
                               'CHF\u00a0${formatChf(_avoir3a)}',
-                          onChanged: (v) { setState(() => _avoir3a = v); _emitScreenReturn(); },
+                          onChanged: (v) { _hasUserInteracted = true; setState(() => _avoir3a = v); _emitScreenReturn(); },
                         ),
                         const SizedBox(height: MintSpacing.md),
                         MintPremiumSlider(
@@ -363,7 +370,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           divisions: 100,
                           formatValue: (_) =>
                               'CHF\u00a0${formatChf(_avoirLpp)}',
-                          onChanged: (v) { setState(() => _avoirLpp = v); _emitScreenReturn(); },
+                          onChanged: (v) { _hasUserInteracted = true; setState(() => _avoirLpp = v); _emitScreenReturn(); },
                         ),
                       ],
                     ],

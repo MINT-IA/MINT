@@ -171,9 +171,11 @@ final _router = GoRouter(
     // Check if current path is protected
     final isProtected = protectedPrefixes.any((p) => path.startsWith(p));
 
-    // If protected and not logged in, redirect to register with return URL
+    // If protected and not logged in, redirect to register with return URL.
+    // V11-5: Use state.uri.toString() (not just path) to preserve query params
+    // (e.g. /couple/accept?code=XYZ).
     if (isProtected && !isLoggedIn) {
-      return '/auth/register?redirect=${Uri.encodeComponent(path)}';
+      return '/auth/register?redirect=${Uri.encodeComponent(state.uri.toString())}';
     }
 
     // Routes that REQUIRE a completed profile (financial screens)
@@ -203,6 +205,16 @@ final _router = GoRouter(
         if (!path.startsWith('/onboarding')) {
           return '/onboarding/smart';
         }
+      }
+    }
+
+    // V11-4: Consume pending notification route at the router level.
+    // The shell may not be mounted yet (auth/onboarding gates), so consuming
+    // here ensures the deep link fires regardless of shell lifecycle.
+    if (state.uri.path == '/' || state.uri.path == '/home') {
+      final pendingRoute = NotificationService.consumePendingRoute();
+      if (pendingRoute != null && pendingRoute.isNotEmpty) {
+        return pendingRoute;
       }
     }
 

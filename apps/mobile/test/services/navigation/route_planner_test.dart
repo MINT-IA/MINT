@@ -319,11 +319,15 @@ void main() {
       expect(decision.missingFields, contains('salaireBrut'));
     });
 
-    test('budget_overview without salary → askFirst', () {
+    test('budget_overview without salary → redirects to fallbackRoute', () {
       final profile = _minimalProfile();
       final planner = RoutePlanner(registry: registry, profile: profile);
       final decision = planner.plan('budget_overview', confidence: 0.9);
-      expect(decision.action, RouteAction.askFirst);
+      // V11-6: When blocked AND fallbackRoute is set, the planner redirects
+      // to the fallback route (openWithWarning) instead of askFirst.
+      expect(decision.action, RouteAction.openWithWarning);
+      expect(decision.route, '/onboarding/quick-start');
+      expect(decision.missingFields, isNotEmpty);
     });
 
     test('askFirst decision has no route', () {

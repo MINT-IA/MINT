@@ -81,23 +81,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       );
 
   bool _prefilled = false;
+  bool _hasUserInteracted = false;
 
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('lpp_deep');
-    ScreenCompletionTracker.markCompletedWithReturn(
-      'rachat_echelonne',
-      ScreenReturn.completed(
-        route: '/lpp-deep/rachat-echelonne',
-        updatedFields: {
-          'rachatOptimalAnnuel': _rachatMax / _horizon,
-          'rachatEconomieFiscale': _result.delta,
-        },
-        confidenceDelta: 0.02,
-        nextCapSuggestion: 'pilier_3a',
-      ),
-    );
     _heroController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -148,8 +137,26 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   void _onInputChanged() {
+    _hasUserInteracted = true;
     _heroController.forward(from: 0);
     setState(() {});
+    _emitScreenReturn();
+  }
+
+  void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'rachat_echelonne',
+      ScreenReturn.completed(
+        route: '/lpp-deep/rachat-echelonne',
+        updatedFields: {
+          'rachatOptimalAnnuel': _rachatMax / _horizon,
+          'rachatEconomieFiscale': _result.delta,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'pilier_3a',
+      ),
+    );
   }
 
   @override
