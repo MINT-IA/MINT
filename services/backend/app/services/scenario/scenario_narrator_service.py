@@ -78,7 +78,7 @@ _TEMPLATES = {
     "optimiste": (
         "Scenario favorable (rendement {pct}%/an) : CHF {capital} en capital, "
         "soit environ CHF {monthly}/mois. Ce scenario suppose des conditions "
-        "de marche favorables. Aucun rendement n'est garanti au sens strict "
+        "de marche favorables. Aucun rendement n'est acquis au sens strict "
         "— les projections restent des estimations."
     ),
 }

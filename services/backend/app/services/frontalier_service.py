@@ -255,10 +255,11 @@ class FrontalierResult:
 # ---------------------------------------------------------------------------
 
 DISCLAIMER = (
+    "Outil educatif — ne constitue pas un conseil (LSFin). "
     "Cette analyse est indicative et basee sur les regles generales "
     "applicables aux travailleurs frontaliers. Les regles fiscales et de "
     "prevoyance dependent de votre situation individuelle et peuvent "
-    "evoluer. Consultez un fiscaliste specialise en droit international "
+    "evoluer. Consultez un·e specialiste en droit international "
     "pour une analyse personnalisee."
 )
 

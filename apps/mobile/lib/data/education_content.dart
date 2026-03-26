@@ -69,7 +69,7 @@ class EducationContentData {
         options: ['5\'000 CHF', '7\'258 CHF', '10\'000 CHF', '36\'288 CHF'],
         correctIndex: 1,
         explanation:
-            'Le plafond 2025 est de 7\'258 CHF/an pour les salarie\u00b7es '
+            'Le plafond 2025/2026 est de 7\'258 CHF/an pour les salarie\u00b7es '
             'affilie\u00b7es a une caisse de pension (LPP). Le montant de '
             '36\'288 CHF concerne les independant\u00b7es sans LPP (OPP3 art. 7).',
       ),
@@ -360,14 +360,14 @@ class EducationContentData {
           'deductions legales pour reduire ta facture fiscale.',
       keyFacts: [
         'L\'impot federal est le meme partout (max ~11.5%), mais cantonal et communal varient enormement',
-        'Le versement 3a est la deduction la plus rentable : jusqu\'a 7\'258 CHF deductibles (2025)',
+        'Le versement 3a est la deduction la plus rentable : jusqu\'a 7\'258 CHF deductibles (2025/2026)',
         'Le rachat LPP est 100% deductible du revenu imposable (LPP art. 79b)',
         'Les frais effectifs (trajets, repas, formation) peuvent depasser le forfait',
         'Un demenagement dans un canton fiscalement avantageux peut faire economiser des milliers de CHF/an',
       ],
       quiz: QuizQuestion(
         question:
-            'Combien peux-tu deduire de tes impots avec un versement 3a en 2025 ?',
+            'Combien peux-tu deduire de tes impots avec un versement 3a en 2025/2026 ?',
         options: [
           '5\'000 CHF',
           '6\'883 CHF',
@@ -376,7 +376,7 @@ class EducationContentData {
         ],
         correctIndex: 2,
         explanation:
-            'Le plafond 3a pour un salarie avec LPP est de 7\'258 CHF en 2025 '
+            'Le plafond 3a pour un salarie avec LPP est de 7\'258 CHF en 2025/2026 '
             '(OPP3 art. 7). C\'est la deduction fiscale la plus simple et la '
             'plus efficace a mettre en place.',
       ),

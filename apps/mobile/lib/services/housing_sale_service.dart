@@ -212,7 +212,7 @@ class HousingSaleService {
 
     if (remboursementEplLpp > 0 || remboursementEpl3a > 0) {
       alerts.add(
-        'Obligation de remboursement EPL : tu dois rembourser '
+        'Obligation de remboursement EPL : le remboursement est requis pour '
         'les fonds de prévoyance utilisés pour l\'achat '
         '(LPP art. 30d, OPP2 art. 30e).',
       );

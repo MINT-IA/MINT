@@ -75,6 +75,11 @@ class ComplianceGuard:
         "nous te conseillons",
         "il est optimal",
         "la solution idéale",
+        # Product recommendation terms (GAP #3: named products/ISINs)
+        "idéal",
+        "idéale",
+        # Superlative form of "meilleur" (GAP #4: "le mieux" bypass)
+        "le mieux",
     ]
 
     # Pre-compiled word-boundary patterns (French-aware: includes À-ÿ).
@@ -137,6 +142,11 @@ class ComplianceGuard:
         "nous te conseillons": "une approche envisageable serait",
         "il est optimal": "il pourrait être pertinent",
         "la solution idéale": "une approche adaptée",
+        # Product recommendation terms
+        "idéal": "adapté",
+        "idéale": "adaptée",
+        # Superlative form
+        "le mieux": "une option pertinente",
     }
 
     # ═══════════════════════════════════════════════════════════════════

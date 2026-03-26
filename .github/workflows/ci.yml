@@ -75,7 +75,7 @@ jobs:
       - name: Changed-lines coverage (PRs only, ≥80%)
         if: github.event_name == 'pull_request'
         working-directory: .
-        run: diff-cover services/backend/coverage.xml --compare-branch=origin/${{ github.base_ref }} --fail-under=80 --exclude '**/rag/*.py'
+        run: diff-cover services/backend/coverage.xml --compare-branch=origin/${{ github.base_ref }} --fail-under=80
 
       - name: OpenAPI contract check
         env:
@@ -204,8 +204,13 @@ jobs:
           echo "Running Flutter tests — shard: ${{ matrix.shard }}"
           echo "Test directories: ${{ matrix.test_dirs }}"
           # Collect test files from shard directories, excluding _archive
-          find ${{ matrix.test_dirs }} -name '*_test.dart' -not -path 'test/_archive/*' -print0 \
-            | sort -z \
+          # Also include root-level test/*.dart files in the services shard
+          {
+            find ${{ matrix.test_dirs }} -name '*_test.dart' -not -path 'test/_archive/*' -print0
+            if [ "${{ matrix.shard }}" = "services" ]; then
+              find test/ -maxdepth 1 -name '*_test.dart' -print0
+            fi
+          } | sort -z \
             | xargs -0 flutter test --concurrency=4 --reporter compact
 
   # ─── Gate: all checks must pass ──────────────────────────────

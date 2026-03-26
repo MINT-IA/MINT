@@ -878,7 +878,7 @@ class CoachNarrativeService {
     buffer.writeln(
         '8. Cite les sources legales quand pertinent (LPP art. X, LIFD art. Y)');
     buffer.writeln(
-        '9. Ton educatif, jamais prescriptif. "Tu pourrais" et non "Tu dois"');
+        '9. Ton educatif, JAMAIS prescriptif. Utilise "Tu pourrais" au conditionnel');
     buffer.writeln('10. Reponds UNIQUEMENT en JSON valide');
     buffer.writeln(
         '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');

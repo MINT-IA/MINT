@@ -179,7 +179,9 @@ class CoachOrchestrator {
     String? memoryBlock,
   }) async {
     // Build system prompt with optional memory block injection (S58).
-    const basePrompt = PromptRegistry.baseSystemPrompt;
+    // Pan5-1: Use PromptRegistry.chatSystemPrompt (enriched, context-aware)
+    // instead of bare baseSystemPrompt for chat interactions.
+    final basePrompt = PromptRegistry.chatSystemPrompt(ctx);
     final systemPrompt = (memoryBlock != null && memoryBlock.isNotEmpty)
         ? '$basePrompt\n\n$memoryBlock'
         : basePrompt;

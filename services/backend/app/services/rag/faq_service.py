@@ -82,7 +82,7 @@ _FAQ_DATA: list[FaqEntry] = [
         answer=(
             "La rente AVS dépend du nombre d'années de cotisation (44 ans = rente complète) "
             "et de ton revenu annuel moyen déterminant (RAMD). "
-            "La rente minimale est de CHF 1'260/mois, la maximale de CHF 2'520/mois (2025). "
+            "La rente minimale est de CHF 1'260/mois, la maximale de CHF 2'520/mois (2025/2026). "
             "Pour un couple, le total est plafonné à 150% de la rente maximale (CHF 3'780/mois). "
             "Tu peux consulter ton extrait de compte AVS sur le portail ahv-iv.ch "
             "pour obtenir une estimation personnalisée."
@@ -236,9 +236,9 @@ _FAQ_DATA: list[FaqEntry] = [
     # =======================================================================
     FaqEntry(
         id="faq_3a_plafond_2025",
-        question="Quel est le plafond de versement pilier 3a en 2025?",
+        question="Quel est le plafond de versement pilier 3a en 2025/2026 ?",
         answer=(
-            "Pour 2025, les plafonds du pilier 3a sont: "
+            "Pour 2025/2026, les plafonds du pilier 3a sont : "
             "- Salarié avec LPP: CHF 7'258/an "
             "- Indépendant sans LPP: 20% du revenu net, maximum CHF 36'288/an. "
             "Les versements sont déductibles du revenu imposable (LIFD art. 33 al. 1 let. e). "
@@ -323,7 +323,7 @@ _FAQ_DATA: list[FaqEntry] = [
             "La déduction 3a réduit ton revenu imposable, pas directement l'impôt. "
             "L'économie dépend de ton taux marginal d'imposition. "
             "Exemple: pour un contribuable à Zurich avec un revenu de 100'000 CHF, "
-            "un versement de CHF 7'258 (plafond 2025) peut générer une économie fiscale "
+            "un versement de CHF 7'258 (plafond 2025/2026) peut générer une économie fiscale "
             "de CHF 2'000 à CHF 2'800 selon canton et commune. "
             "L'impact est plus fort pour les hauts revenus (taux marginal élevé) "
             "et dans les cantons à taux élevé comme GE ou VD."
@@ -617,7 +617,7 @@ _FAQ_DATA: list[FaqEntry] = [
         question="Mon travail à temps partiel affecte-t-il ma prévoyance LPP?",
         answer=(
             "Oui. Le salaire coordonné LPP est calculé comme: "
-            "salaire annuel - déduction de coordination (CHF 26'460 en 2025). "
+            "salaire annuel - déduction de coordination (CHF 26'460 en 2025/2026). "
             "Pour un temps partiel à 50%, si ton salaire est de CHF 40'000, "
             "ton salaire coordonné LPP est CHF 13'540 seulement. "
             "Les bonifications de vieillesse (art. 16 LPP) sont calculées sur ce montant réduit. "
@@ -814,10 +814,10 @@ _FAQ_DATA: list[FaqEntry] = [
     # =======================================================================
     FaqEntry(
         id="faq_taux_interet_lpp",
-        question="Quel est le taux d'intérêt minimal garanti sur mon LPP?",
+        question="Quel est le taux d'intérêt minimal légal applicable à mon LPP ?",
         answer=(
             "Le taux d'intérêt minimal LPP est fixé chaque année par le Conseil fédéral. "
-            "Pour 2025, il est de 1.25% sur la part obligatoire (LPP art. 15). "
+            "Pour 2025/2026, il est de 1.25% sur la part obligatoire (LPP art. 15). "
             "Certaines caisses offrent un taux supérieur sur la part surobligatoire "
             "(ton certificat annuel indique le taux appliqué). "
             "Ce taux ne doit pas être confondu avec le taux de conversion de 6.8% "
@@ -868,7 +868,7 @@ _FAQ_DATA: list[FaqEntry] = [
             "2) Coordonner les retraits 3a pour étaler la taxation "
             "3) Évaluer si le capital LPP d'un époux est mieux géré ensemble "
             "4) Anticiper le plafonnement à 150% de la rente AVS maximale. "
-            "La rente de couple est plafonnée à CHF 3'780/mois (2025). "
+            "La rente de couple est plafonnée à CHF 3'780/mois (2025/2026). "
             "Il est utile de modéliser plusieurs scénarios avant de décider."
         ),
         category=KnowledgeCategory.AVS,

@@ -344,7 +344,7 @@ class CrossValidationService {
         block: 'lpp',
         message:
             'En tant que salarie·e avec un revenu au-dessus du seuil '
-            'LPP (${_fmtChf(lppSeuilEntree)}), tu devrais avoir un '
+            'LPP (${_fmtChf(lppSeuilEntree)}), tu pourrais avoir un '
             'avoir de prevoyance.',
         severity: AlertSeverity.info,
         suggestion:
