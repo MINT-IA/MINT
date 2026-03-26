@@ -38,6 +38,11 @@ enum LifeEventType {
   debtCrisis,
 }
 
+/// Age-based data-collection policy.
+///
+/// Canonical rule (unified across all classifiers):
+/// Retirement = avsAgeReferenceHomme (65). Pre-retirement = 5 years before.
+/// See also: LifecycleDetector, LifecyclePhaseService.
 class AgeBandPolicy {
   final AgeBand band;
   final String label;

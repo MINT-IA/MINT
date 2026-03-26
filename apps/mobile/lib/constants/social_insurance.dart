@@ -105,6 +105,24 @@ const int avsAgeReferenceHomme = 65;
 /// Age de reference AVS femmes (depuis reforme AVS 21).
 const int avsAgeReferenceFemme = 65;
 
+/// AVS21 reference age by gender and birth year (LAVS art. 21 al. 1).
+///
+/// Women born 1961-1963 have transitional reference ages:
+/// - Born 1960 or earlier: 64 (pre-AVS21)
+/// - Born 1961: 64 years 3 months (simplified to 64 for annual calc)
+/// - Born 1962: 64 years 6 months (simplified to 64 for annual calc)
+/// - Born 1963: 64 years 9 months (simplified to 65 for annual calc)
+/// - Born 1964+: 65 (full AVS21 alignment)
+/// Men: 65 (unchanged).
+int avsReferenceAge({required int birthYear, required bool isFemale}) {
+  if (!isFemale) return avsAgeReferenceHomme; // 65
+  if (birthYear <= 1960) return 64;
+  if (birthYear == 1961) return 64; // +3 months (simplified to 64)
+  if (birthYear == 1962) return 64; // +6 months (simplified to 64)
+  if (birthYear == 1963) return 65; // +9 months (simplified to 65)
+  return avsAgeReferenceFemme; // 65
+}
+
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
 const double avsReductionAnticipation = 0.068;
 

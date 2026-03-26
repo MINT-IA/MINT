@@ -67,9 +67,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         }
         final targetAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
         // Withdrawal typically starts 5 years before retirement
-        final computedDebut = (targetAge - 5).clamp(60, avsAgeReferenceHomme);
+        // 3a withdrawal: 59-70 (OPP3 art. 3 al. 1 + deferral).
+        final computedDebut = (targetAge - 5).clamp(59, 70);
         _ageRetraitDebut = computedDebut;
-        _ageRetraitFin = targetAge.clamp(computedDebut, avsAgeReferenceHomme);
+        _ageRetraitFin = targetAge.clamp(computedDebut, 70);
       });
     } catch (_) {
       // Provider not in tree (tests) — keep defaults
@@ -254,10 +255,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) => setState(() => _revenuImposable = v))),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 60, max: 65, divisions: 5, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) { setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; }); _emitScreenReturn(); }),
+          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 59, max: 70, divisions: 11, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) { setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; }); _emitScreenReturn(); }),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 65, divisions: (65 - _ageRetraitDebut).clamp(1, 6), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) { setState(() => _ageRetraitFin = v.round()); _emitScreenReturn(); }),
+          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 70, divisions: (70 - _ageRetraitDebut).clamp(1, 11), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) { setState(() => _ageRetraitFin = v.round()); _emitScreenReturn(); }),
         ],
       ),
     );

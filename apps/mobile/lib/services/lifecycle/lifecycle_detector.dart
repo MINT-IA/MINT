@@ -98,21 +98,22 @@ class LifecycleDetector {
 
   /// Core age-to-phase mapping.
   ///
-  /// Boundaries:
+  /// Canonical rule (unified across all classifiers):
+  /// - Retirement = avsAgeReferenceHomme (65). Pre-retirement = 5 years before (60).
   /// - < 25  → demarrage
   /// - 25-34 → construction
   /// - 35-44 → acceleration
   /// - 45-54 → consolidation
-  /// - 55-60 → transition (pre-retirement countdown)
-  /// - 61-67 → retraite
-  /// - > 67  → transmission
+  /// - 55-64 → transition (pre-retirement: starts ~5 years before ref age)
+  /// - 65-74 → retraite (starts at avsAgeReferenceHomme)
+  /// - 75+   → transmission
   static LifecyclePhase _phaseFromAge(int age) {
     if (age < 25) return LifecyclePhase.demarrage;
     if (age < 35) return LifecyclePhase.construction;
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
-    if (age <= 60) return LifecyclePhase.transition;
-    if (age <= 67) return LifecyclePhase.retraite;
+    if (age < avsAgeReferenceHomme) return LifecyclePhase.transition;
+    if (age < 75) return LifecyclePhase.retraite;
     return LifecyclePhase.transmission;
   }
 }

@@ -312,27 +312,32 @@ class MariageService:
             sources = ["CC art. 221 (communaute de biens)"]
 
         else:  # participation_acquets (defaut)
-            # Simplification : on considere tout le patrimoine comme acquets
-            # (biens propres = 0, ce qui est le cas le plus courant)
-            acquets_1 = patrimoine_1
-            acquets_2 = patrimoine_2
-            total_acquets = acquets_1 + acquets_2
-            part_1 = patrimoine_1 + (acquets_2 - acquets_1) / 2 if total_acquets > 0 else patrimoine_1
-            part_2 = patrimoine_2 + (acquets_1 - acquets_2) / 2 if total_acquets > 0 else patrimoine_2
-            # Simplification : 50/50 des acquets totaux
+            # Simplification: assumes all patrimoine is acquêts (gains during
+            # marriage). True "biens propres" (pre-marriage assets + inheritances
+            # + donations, CC art. 198) distinction requires pre-marriage asset
+            # data not available in current profile. The 50/50 split on total
+            # patrimoine is therefore a worst-case educational scenario.
+            # CC art. 196-220 (participation aux acquêts).
             part_1 = total / 2
             part_2 = total / 2
             description = (
-                "Participation aux acquets (CC art. 181) : regime ordinaire par "
-                "defaut. Chacun garde ses biens propres (herites, apportes). "
-                "Les acquets (biens acquis pendant le mariage) sont partages 50/50."
+                "Participation aux acquets (CC art. 196-220) : regime ordinaire par "
+                "defaut. En theorie, chacun garde ses biens propres (herites, recus par "
+                "donation, apportes avant le mariage — CC art. 198) et seuls les acquets "
+                "(biens acquis pendant le mariage) sont partages 50/50."
             )
             explication = (
-                f"Acquets totaux estimes CHF {total:,.0f} divises en 2 = "
+                f"Simplification: MINT ne dispose pas de la repartition biens propres/acquets. "
+                f"L'estimation considere la totalite du patrimoine "
+                f"(CHF {total:,.0f}) comme acquets et le divise en 2 = "
                 f"CHF {part_1:,.0f} chacun. "
-                f"Note: les biens propres (heritage, biens d'avant mariage) ne sont pas partages."
+                f"Si tu possedes des biens propres (heritage, biens d'avant mariage), "
+                f"ta part reelle serait plus elevee."
             )
-            sources = ["CC art. 181 (participation aux acquets — regime ordinaire)"]
+            sources = [
+                "CC art. 196-220 (participation aux acquets — regime ordinaire)",
+                "CC art. 198 (definition des biens propres)",
+            ]
 
         return RegimeMatrimonial(
             regime=regime,

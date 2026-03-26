@@ -18,6 +18,11 @@ class AvsCalculator {
   /// - Income level via RAMD proxy — LAVS art. 34, echelle 44
   /// - Early retirement penalty (6.8%/yr from 63) — LAVS art. 40
   /// - Deferral bonus (up to +31.5% at 70) — LAVS art. 39
+  /// - Gender-aware reference age for AVS21 (LAVS art. 21 al. 1)
+  ///
+  /// [isFemale] and [birthYear] are optional — when provided, the
+  /// reference age accounts for AVS21 transitional cohorts (women
+  /// born 1961-1963). When omitted, defaults to 65 (male/unknown).
   static double computeMonthlyRente({
     required int currentAge,
     required int retirementAge,
@@ -25,7 +30,14 @@ class AvsCalculator {
     int? anneesContribuees,
     int? arrivalAge,
     double grossAnnualSalary = 0,
+    bool? isFemale,
+    int? birthYear,
   }) {
+    // Determine gender-aware reference age (AVS21, LAVS art. 21 al. 1)
+    final refAge = (isFemale != null && birthYear != null)
+        ? avsReferenceAge(birthYear: birthYear, isFemale: isFemale)
+        : avsAgeReferenceHomme;
+
     // 1. Contribution years
     int currentYears;
     if (anneesContribuees != null) {
@@ -48,15 +60,15 @@ class AvsCalculator {
     final baseRente = renteFromRAMD(grossAnnualSalary);
     double rente = baseRente * gapFactor;
 
-    // 3. Early/late retirement adjustments
+    // 3. Early/late retirement adjustments relative to gender-aware refAge
     if (retirementAge < 63) {
       // AVS anticipation only possible from 63 (LAVS art. 40)
       return 0.0;
-    } else if (retirementAge < avsAgeReferenceHomme) {
-      final yearsEarly = avsAgeReferenceHomme - retirementAge;
+    } else if (retirementAge < refAge) {
+      final yearsEarly = refAge - retirementAge;
       rente *= (1.0 - avsReductionAnticipation * yearsEarly);
-    } else if (retirementAge > avsAgeReferenceHomme) {
-      final yearsLate = (retirementAge - avsAgeReferenceHomme).clamp(1, 5);
+    } else if (retirementAge > refAge) {
+      final yearsLate = (retirementAge - refAge).clamp(1, 5);
       final bonus = avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!;
       rente *= (1.0 + bonus);
     }

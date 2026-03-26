@@ -306,7 +306,7 @@ class EducationalInsertService {
             'Les retraits de la même année sont additionnés pour le calcul du taux (impôt progressif).',
             'La stratégie d\'échelonnement : ouvrir 4-5 comptes dès le départ et les retirer sur 4-5 années différentes (à partir de 59/60 ans).',
             'Les retraits 3a et LPP en capital de la même année se cumulent pour l\'imposition.',
-            'L\'âge de retrait anticipé est 59 ans (femmes) / 60 ans (hommes) sans condition (OPP3 art. 3 al. 1).',
+            'L\'âge de retrait anticipé est 5 ans avant l\'âge de référence AVS\u00a0: 60 ans (hommes), 59 ans (femmes nées avant 1964) ou 60 ans (femmes nées dès 1964) — OPP3 art. 3 al. 1.',
           ],
           disclaimer:
               'Information à caractère éducatif. L\'économie d\'impôt dépend du canton '

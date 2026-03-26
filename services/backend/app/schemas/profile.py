@@ -41,6 +41,9 @@ class ProfileBase(BaseModel):
     hasVoluntaryLpp: Optional[bool] = None
     primaryActivity: Optional[str] = None
 
+    # ⭐ Genre (AVS21 transitional reference ages — LAVS art. 21 al. 1)
+    gender: Optional[str] = None  # 'M', 'F', or None (unknown)
+
     # ⭐ Nouveaux champs pour AVS
     hasAvsGaps: Optional[bool] = None
     avsContributionYears: Optional[int] = None
@@ -71,6 +74,7 @@ class ProfileUpdate(BaseModel):
     factfindCompletionIndex: Optional[float] = None
 
     # ⭐ Nouveaux champs
+    gender: Optional[str] = None
     employmentStatus: Optional[str] = None
     has2ndPillar: Optional[bool] = None
     legalForm: Optional[str] = None

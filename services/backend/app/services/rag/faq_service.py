@@ -254,7 +254,7 @@ _FAQ_DATA: list[FaqEntry] = [
         question="Quand puis-je retirer mon pilier 3a?",
         answer=(
             "Le pilier 3a peut être retiré dans les cas suivants (OPP3 art. 3): "
-            "- 5 ans avant l'âge de retraite AVS (dès 60 ans pour les hommes, 60 ans pour les femmes) "
+            "- 5 ans avant l'âge de référence AVS (dès 60 ans pour les hommes ; 59 ans pour les femmes nées avant 1964, 60 ans dès 1964) "
             "- Achat d'un logement principal (EPL) "
             "- Début d'une activité indépendante "
             "- Départ définitif de Suisse (si hors UE/AELE) "
