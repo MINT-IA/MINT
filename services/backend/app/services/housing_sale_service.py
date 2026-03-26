@@ -369,7 +369,7 @@ class HousingSaleService:
 
         if data.epl_lpp_utilise > 0 or data.epl_3a_utilise > 0:
             checklist.append(
-                "Tu DOIS rembourser l'EPL LPP/3a sur le produit de la vente "
+                "Le remboursement de l'EPL LPP/3a est requis sur le produit de la vente "
                 "(OPP2 art. 30d)"
             )
             checklist.append(

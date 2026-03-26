@@ -420,7 +420,7 @@ class ComplianceGuardrails:
                         + "\n--- FIN CONTEXTE CANTONAL ---\n\n"
                         "Utilise ces données cantonales pour personnaliser tes réponses "
                         "fiscales et immobilières. "
-                        "Données approximatives — sources officielles 2024/2025 (LSFin)."
+                        "Données approximatives — estimations basées sur les données publiques cantonales 2024/2025 (LSFin)."
                     )
             except ImportError:
                 pass

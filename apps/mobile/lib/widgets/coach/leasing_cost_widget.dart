@@ -340,7 +340,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : CO art. 255 (leasing). '
-      'Rendement simulé à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}% — ne garantit pas de rendement futur.',
+      'Rendement simulé à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}% — ne présage pas du rendement futur.',
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

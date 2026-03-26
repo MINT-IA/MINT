@@ -155,7 +155,7 @@ class EducationalInsertService {
             'Le concubinage n\'offre aucune protection légale automatique (pas de part réservataire, pas de droit aux acquêts).',
             'Le divorce entraîne un partage du 2e pilier imposé par la loi (LPP art. 22).',
             'Le mariage entraîne une imposition commune (LIFD art. 9 al. 1) — avantage ou pénalité selon les revenus.',
-            'Le PACS (partenariat enregistré) donne les mêmes droits fiscaux et successoraux que le mariage (LPart art. 1).',
+            'Le partenariat enregistré n\'est plus accessible depuis le 1er juillet 2022 (mariage pour tous). Les partenariats existants restent valables avec des effets proches du mariage, mais pas identiques (LPart art. 1).',
           ],
           disclaimer:
               'Information à caractère éducatif. Chaque situation familiale est unique. '

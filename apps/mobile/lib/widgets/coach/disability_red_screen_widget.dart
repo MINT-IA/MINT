@@ -230,7 +230,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Tu dois avoir CHF ${_fmt(emergencyNeeded)} d\'épargne de sécurité '
+            'Il te faudrait CHF ${_fmt(emergencyNeeded)} d\'épargne de sécurité '
             'pour tenir jusqu\'à la décision AI.',
             style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
           ),

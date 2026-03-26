@@ -102,7 +102,7 @@ _FEDERAL_SOURCES: list[KnowledgeSource] = [
     ),
     KnowledgeSource(
         id="avs_taux_cotisation_fr",
-        title="Taux de cotisation AVS 2025",
+        title="Taux de cotisation AVS 2025/2026",
         category=KnowledgeCategory.AVS,
         legal_refs=["LAVS art. 8", "LAVS art. 9"],
         last_updated=date(2025, 1, 1),
@@ -158,7 +158,7 @@ _FEDERAL_SOURCES: list[KnowledgeSource] = [
     ),
     KnowledgeSource(
         id="avs_cotisation_max_fr",
-        title="Rente AVS maximale 2025 — CHF 2'520/mois",
+        title="Rente AVS maximale 2025/2026 — CHF 2'520/mois",
         category=KnowledgeCategory.AVS,
         legal_refs=["LAVS art. 34"],
         last_updated=date(2025, 1, 1),
@@ -217,7 +217,7 @@ _FEDERAL_SOURCES: list[KnowledgeSource] = [
     ),
     KnowledgeSource(
         id="lpp_seuil_acces_fr",
-        title="Seuil d'accès LPP 2025 — CHF 22'680",
+        title="Seuil d'accès LPP 2025/2026 — CHF 22'680",
         category=KnowledgeCategory.LPP,
         legal_refs=["LPP art. 7", "LPP art. 8"],
         last_updated=date(2025, 1, 1),
@@ -268,7 +268,7 @@ _FEDERAL_SOURCES: list[KnowledgeSource] = [
     # -----------------------------------------------------------------------
     KnowledgeSource(
         id="3a_plafond_salarie_fr",
-        title="Pilier 3a — plafond salarié 2025: CHF 7'258",
+        title="Pilier 3a — plafond salarié 2025/2026 : CHF 7'258",
         category=KnowledgeCategory.PILLAR_3A,
         legal_refs=["OPP3 art. 7", "LIFD art. 33 al. 1 let. e"],
         last_updated=date(2025, 1, 1),
@@ -276,7 +276,7 @@ _FEDERAL_SOURCES: list[KnowledgeSource] = [
     ),
     KnowledgeSource(
         id="3a_plafond_independant_fr",
-        title="Pilier 3a — plafond indépendant 2025: 20% / max CHF 36'288",
+        title="Pilier 3a — plafond indépendant 2025/2026 : 20% / max CHF 36'288",
         category=KnowledgeCategory.PILLAR_3A,
         legal_refs=["OPP3 art. 7 al. 1 let. b"],
         last_updated=date(2025, 1, 1),
@@ -520,7 +520,7 @@ _FEDERAL_SOURCES: list[KnowledgeSource] = [
     ),
     KnowledgeSource(
         id="family_garde_enfants_deduction_fr",
-        title="Déduction pour frais de garde — plafond 2025",
+        title="Déduction pour frais de garde — plafond 2025/2026",
         category=KnowledgeCategory.FAMILY,
         legal_refs=["LIFD art. 33 al. 3"],
         last_updated=date(2025, 1, 1),

@@ -29,23 +29,37 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Presence of any term reduces the compliance axis score.
 const _bannedTerms = <String>[
+  // Aligned with ComplianceGuard.bannedTerms (CLAUDE.md § 6)
   'garanti',
   'garantis',
   'garantie',
+  'garanties',
   'certain',
   'certaine',
-  'assur\u00e9',
-  'assur\u00e9e',
+  'certains',
+  'certaines',
+  'assuré',
+  'assurée',
+  'assurés',
+  'assurées',
   'sans risque',
   'optimal',
   'optimale',
   'optimaux',
+  'optimales',
   'meilleur',
   'meilleure',
   'meilleurs',
   'meilleures',
   'parfait',
   'parfaite',
+  'parfaits',
+  'parfaites',
+  'conseiller',
+  'conseillère',
+  'idéal',
+  'idéale',
+  'le mieux',
 ];
 
 /// Disclaimer fragments that indicate compliance awareness.

@@ -45,6 +45,8 @@ GUARDRAIL_FILES = {
     "compliance_guard.py",
     "guardrails.py",
     "educational_content_service.py",
+    "claude_coach_service.py",         # system prompt with banned terms list
+    "coach_tools.py",                  # tool schema with banned terms reminder
     # Dart
     "compliance_guard.dart",
     "coach_checkin_screen.dart",
@@ -188,7 +190,6 @@ class TestComplianceDart:
                 result[rel] = v
         return result
 
-    @pytest.mark.xfail(reason="Pre-existing violations — compliance debt backlog", strict=False)
     def test_no_banned_words(self, violations):
         if violations:
             lines = []
@@ -214,7 +215,6 @@ class TestCompliancePython:
                 result[rel] = v
         return result
 
-    @pytest.mark.xfail(reason="Pre-existing violations — compliance debt backlog", strict=False)
     def test_no_banned_words(self, violations):
         if violations:
             lines = []
@@ -228,12 +228,23 @@ class TestCompliancePython:
 class TestDisclaimerPresence:
     """Services with 'disclaimer' field should mention 'éducatif' or 'LSFin'."""
 
-    @pytest.mark.xfail(reason="13 services missing — compliance debt backlog", strict=False)
+    # Structural files that declare/re-export 'disclaimer' as a field name
+    # or section label — they don't produce user-facing disclaimer text.
+    _STRUCTURAL_FILES = {
+        "__init__.py",           # re-exports only
+        "arbitrage_models.py",   # dataclass field declaration
+        "onboarding_models.py",  # dataclass field declaration
+        "coaching_engine.py",    # docstring reference
+        "ingester.py",           # section label list
+    }
+
     def test_disclaimer_content(self):
         services_dir = PROJECT_ROOT / "services" / "backend" / "app" / "services"
         files = _collect_files([services_dir], ".py")
         missing = []
         for f in files:
+            if f.name in self._STRUCTURAL_FILES:
+                continue
             try:
                 content = f.read_text(encoding="utf-8", errors="ignore")
             except (OSError, UnicodeDecodeError):

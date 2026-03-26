@@ -23,8 +23,9 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 
 DISCLAIMER = (
-    "Données cantonales approximatives — sources officieuses 2024/2025. "
-    "Pour une planification précise, consulte les publications officielles "
+    "Données cantonales approximatives — estimations basées sur les données "
+    "publiques cantonales 2024/2025. "
+    "Pour une planification précise, consulte les publications "
     "de ton canton ou un·e spécialiste fiscal·e. "
     "Outil éducatif — ne constitue pas un conseil (LSFin)."
 )

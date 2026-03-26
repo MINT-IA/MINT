@@ -222,8 +222,9 @@ class SuccessionSimulator:
             checklist=checklist,
             alerts=alerts,
             disclaimer=(
-                "Estimation indicative. Consultez un avocat specialise "
-                "en droit de la famille."
+                "Outil educatif — ne constitue pas un conseil (LSFin). "
+                "Estimation indicative. Consultez un·e specialiste "
+                "en droit successoral."
             ),
         )
 

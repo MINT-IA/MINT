@@ -141,7 +141,7 @@ class SaleSurprisesWidget extends StatelessWidget {
         title: 'Remploi — 2 ans pour racheter',
         detail:
             'Si tu ne rachètes pas dans les 2 ans, l\'impôt sur le gain n\'est pas différé. '
-            'Tu dois ${formatChfWithPrefix(_gainTax)}.',
+            'Montant dû\u00a0: ${formatChfWithPrefix(_gainTax)}.',
         amount: _gainTax,
         color: MintColors.scoreCritique,
         ref: 'LIFD art. 12 al. 3',

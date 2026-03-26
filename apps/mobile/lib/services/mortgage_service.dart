@@ -350,7 +350,7 @@ class SaronVsFixedCalculator {
           : 'Le fixe revient environ CHF ${formatChf(-economieSaronStable)} moins cher sur $duree ans',
       disclaimer:
           'Simulation a titre educatif. Le SARON peut varier a la hausse '
-          'comme a la baisse. L\'historique ne garantit pas l\'avenir. '
+          'comme a la baisse. L\'historique ne presage pas de l\'avenir. '
           'Les taux indicatifs 2026 sont des moyennes de marche et varient '
           'selon les etablissements et le profil emprunteur. '
           'Ne constitue pas un conseil hypothecaire.',
