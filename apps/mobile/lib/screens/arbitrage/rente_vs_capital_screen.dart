@@ -91,6 +91,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
 
+  // ── F2-6: Gate ScreenReturn behind user interaction ──
+  bool _hasUserInteracted = false;
+
   // ── New fields ──
   double? _avsRenteMensuelle;
   final _rachatAnnuelCtrl = TextEditingController(text: '0');
@@ -231,6 +234,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     _recalculateAsync();
   }
 
+  /// F2-6: User-triggered recalculation — marks interaction before recalc.
+  /// Used by all user-facing onChanged handlers.
+  void _userRecalculate() {
+    _hasUserInteracted = true;
+    _recalculateAsync();
+  }
+
   Future<void> _recalculateAsync() async {
     final requestId = ++_requestCounter;
     final ageRetraite = _ageRetraiteSlider.value.round();
@@ -351,6 +361,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   void _emitScreenReturn(ArbitrageResult result) {
+    // F2-6: Only emit ScreenReturn after user has actively interacted.
+    // Prevents premature completion on initial auto-fill + auto-calc.
+    if (!_hasUserInteracted) return;
     final mode = _inputMode == _InputMode.certificate
         ? 'certificate'
         : 'estimate';
@@ -657,7 +670,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 selected: {_inputMode},
                 onSelectionChanged: (v) {
                   setState(() => _inputMode = v.first);
-                  _recalculate();
+                  _userRecalculate();
                 },
                 style: ButtonStyle(
                   textStyle: WidgetStatePropertyAll(
@@ -833,7 +846,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                           );
                         }).toList(),
                         onChanged: (v) {
-                          if (v != null) { _canton = v; _recalculate(); }
+                          if (v != null) { _canton = v; _userRecalculate(); }
                         },
                       ),
                     ),
@@ -852,7 +865,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: Switch(
                       value: _isMarried,
                       activeTrackColor: MintColors.primary,
-                      onChanged: (v) { _isMarried = v; _recalculate(); },
+                      onChanged: (v) { _isMarried = v; _userRecalculate(); },
                     ),
                   ),
                 ],
@@ -884,7 +897,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               selected: isSelected,
               onSelected: (_) {
                 _ageRetraiteSlider.value = age.toDouble();
-                _recalculate();
+                _userRecalculate();
               },
               selectedColor: MintColors.primary.withValues(alpha: 0.15),
               backgroundColor: MintColors.surface,
@@ -945,7 +958,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               horizontal: MintSpacing.md, vertical: 14,
             ),
           ),
-          onChanged: (_) => _recalculate(),
+          onChanged: (_) => _userRecalculate(),
         ),
       ],
     );
@@ -1205,7 +1218,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 selected: isSelected,
                 onSelected: (_) {
                   setState(() => _lifeExpectancy = age.toDouble());
-                  _recalculate();
+                  _userRecalculate();
                 },
                 selectedColor: MintColors.primary.withValues(alpha: 0.15),
                 backgroundColor: MintColors.surface,
@@ -1549,7 +1562,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           values: _hypotheses,
           onChanged: (updated) {
             _hypotheses = updated;
-            _recalculate();
+            _userRecalculate();
           },
         ),
         const SizedBox(height: MintSpacing.lg),
@@ -1818,7 +1831,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
             ),
           ),
-          onChanged: (_) => _recalculate(),
+          onChanged: (_) => _userRecalculate(),
         ),
       ],
     );
@@ -1842,7 +1855,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               child: Switch(
                 value: _hasEpl,
                 activeTrackColor: MintColors.primary,
-                onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
+                onChanged: (v) => setState(() { _hasEpl = v; _userRecalculate(); }),
               ),
             ),
           ],
@@ -1870,7 +1883,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
               ),
             ),
-            onChanged: (_) => _recalculate(),
+            onChanged: (_) => _userRecalculate(),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(

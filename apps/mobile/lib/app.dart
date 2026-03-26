@@ -178,6 +178,12 @@ final _router = GoRouter(
       return '/auth/register?redirect=${Uri.encodeComponent(state.uri.toString())}';
     }
 
+    // F2-2: If logged in but email not yet verified, force verification first.
+    // Prevents access to protected/profile screens before email confirmation.
+    if (isLoggedIn && auth.requiresEmailVerification && !path.startsWith('/auth/')) {
+      return '/auth/verify-email';
+    }
+
     // Routes that REQUIRE a completed profile (financial screens)
     // An authenticated user without a profile sees empty/broken screens.
     // Redirect to quick onboarding so they complete the 3-question wizard first.
@@ -998,7 +1004,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuth()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {
@@ -1009,11 +1015,26 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        ChangeNotifierProvider(create: (_) {
-          final provider = CoachProfileProvider();
-          provider.loadFromWizard();
-          return provider;
-        }),
+        // F2-3: CoachProfileProvider re-hydrates from wizard data when auth
+        // state changes (e.g. after checkAuth() restores a session on cold start).
+        // When a backend getProfile endpoint is added, this proxy should also
+        // fetch and merge the remote profile.
+        ChangeNotifierProxyProvider<AuthProvider, CoachProfileProvider>(
+          create: (_) {
+            final provider = CoachProfileProvider();
+            provider.loadFromWizard();
+            return provider;
+          },
+          update: (_, auth, coachProvider) {
+            final provider = coachProvider ?? CoachProfileProvider();
+            // Reload wizard data when auth transitions to logged-in
+            // and profile hasn't been loaded yet.
+            if (auth.isLoggedIn && !provider.isLoaded) {
+              provider.loadFromWizard();
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();

@@ -47,6 +47,12 @@ enum ConsentType {
 
   /// RAG queries: knowledge-base queries for coach personalization.
   ragQueries,
+
+  /// Open Banking: bLink/SFTI connection for transaction import.
+  openBanking,
+
+  /// Document Upload: OCR scanning and certificate storage.
+  documentUpload,
 }
 
 /// State of a single consent toggle.

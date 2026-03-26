@@ -73,6 +73,9 @@ class Profile {
   final bool? hasVoluntaryLpp; // Pour indépendants
   final String? primaryActivity; // Pour mixtes: 'employee' ou 'self_employed'
 
+  // ⭐ Genre (AVS21 transitional reference age, LAVS art. 21 al. 1)
+  final String? gender; // 'M', 'F', or null
+
   // ⭐ Nouveaux champs pour AVS
   final bool? hasAvsGaps;
   final int? avsContributionYears;
@@ -105,6 +108,7 @@ class Profile {
     this.selfEmployedNetIncome,
     this.hasVoluntaryLpp,
     this.primaryActivity,
+    this.gender,
     this.hasAvsGaps,
     this.avsContributionYears,
     this.spouseAvsContributionYears,
@@ -194,6 +198,7 @@ class Profile {
       selfEmployedNetIncome: json['selfEmployedNetIncome']?.toDouble(),
       hasVoluntaryLpp: json['hasVoluntaryLpp'],
       primaryActivity: json['primaryActivity'],
+      gender: json['gender'] as String?,
       hasAvsGaps: json['hasAvsGaps'],
       avsContributionYears: json['avsContributionYears'],
       spouseAvsContributionYears: json['spouseAvsContributionYears'],
@@ -226,6 +231,7 @@ class Profile {
       'selfEmployedNetIncome': selfEmployedNetIncome,
       'hasVoluntaryLpp': hasVoluntaryLpp,
       'primaryActivity': primaryActivity,
+      'gender': gender,
       'hasAvsGaps': hasAvsGaps,
       'avsContributionYears': avsContributionYears,
       'spouseAvsContributionYears': spouseAvsContributionYears,
@@ -257,6 +263,7 @@ class Profile {
     double? selfEmployedNetIncome,
     bool? hasVoluntaryLpp,
     String? primaryActivity,
+    String? gender,
     bool? hasAvsGaps,
     int? avsContributionYears,
     int? spouseAvsContributionYears,
@@ -288,6 +295,7 @@ class Profile {
           selfEmployedNetIncome ?? this.selfEmployedNetIncome,
       hasVoluntaryLpp: hasVoluntaryLpp ?? this.hasVoluntaryLpp,
       primaryActivity: primaryActivity ?? this.primaryActivity,
+      gender: gender ?? this.gender,
       hasAvsGaps: hasAvsGaps ?? this.hasAvsGaps,
       avsContributionYears: avsContributionYears ?? this.avsContributionYears,
       spouseAvsContributionYears:

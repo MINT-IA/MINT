@@ -76,8 +76,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   }
 
   /// Maps PrivacyService category IDs to ConsentManager ConsentType.
-  /// V12-4 audit fix: corrected mappings for open_banking and document_upload.
-  /// V6-3 audit fix: align toggles to correct ConsentType keys.
+  /// F2-5: openBanking and documentUpload now have dedicated ConsentType values.
   ConsentType? _mapCategoryToConsentType(String categoryId) {
     switch (categoryId) {
       case 'coaching_notifications':
@@ -86,13 +85,10 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         return ConsentType.ragQueries;
       case 'analytics':
         return ConsentType.analytics;
-      // V12-4: Corrected mappings — byokDataSharing maps to BYOK, not open_banking.
-      // open_banking and document_upload don't have direct ConsentType equivalents
-      // in the current 5-type enum, so we reuse the closest semantic match.
       case 'open_banking':
-        return ConsentType.byokDataSharing;
+        return ConsentType.openBanking;
       case 'document_upload':
-        return ConsentType.snapshotStorage;
+        return ConsentType.documentUpload;
       default:
         return null;
     }
