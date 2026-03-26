@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/data/commune_data.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 /// Point d'entrée de l'application MINT
 ///
@@ -66,6 +67,10 @@ Future<void> main() async {
     }),
     FeatureFlags.refreshFromBackend().catchError((e) {
       if (kDebugMode) debugPrint('Err Flags: $e');
+    }),
+    RegulatorySyncService.fetchConstants().catchError((e) {
+      if (kDebugMode) debugPrint('Err Regulatory: $e');
+      return <String, double>{};
     }),
   ]);
 
