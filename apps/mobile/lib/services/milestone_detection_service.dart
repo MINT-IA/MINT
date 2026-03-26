@@ -127,10 +127,10 @@ class MilestoneDetectionService {
   static const _achievedKey = 'achieved_milestones_v1';
 
   /// Plafond 3a salarie (OPP3 art. 7, 2025/2026).
-  static const _plafond3aSalarie = pilier3aPlafondAvecLpp;
+  static double get _plafond3aSalarie => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   /// Plafond 3a independant sans LPP (20% revenu net, max OPP3 art. 7).
-  static const _plafond3aIndependant = pilier3aPlafondSansLpp;
+  static double get _plafond3aIndependant => reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
   /// Detecte les nouveaux milestones (pas encore celebres).
   ///

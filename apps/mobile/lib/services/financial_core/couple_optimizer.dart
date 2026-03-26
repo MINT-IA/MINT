@@ -262,7 +262,7 @@ class CoupleOptimizer {
     }
 
     final canton = user.canton;
-    const ceiling = pilier3aPlafondAvecLpp;
+    final ceiling = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final children3a = user.nombreEnfants;
 
     final userSaving = userIncome > 0

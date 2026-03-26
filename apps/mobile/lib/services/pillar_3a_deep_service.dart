@@ -259,7 +259,7 @@ class RealReturnCalculator {
     final clampedRendement = rendementBrut.clamp(-0.99, 0.15);
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
     final clampedDuree = dureeAnnees.clamp(0, 45);
-    final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
+    final clampedVersement = versementAnnuel.clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
 
     // rGross = taux effectif du placement 3a (brut - frais, pas d'inflation)
     final rGross = max(-0.99, clampedRendement - clampedFrais);
@@ -534,7 +534,7 @@ class ProviderComparator {
   }) {
     final clampedAge = age.clamp(18, 70);
     final clampedDuree = duree.clamp(1, 50);
-    final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
+    final clampedVersement = versementAnnuel.clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
 
     final List<ProviderResult> results = [];
     double maxCapital = 0;

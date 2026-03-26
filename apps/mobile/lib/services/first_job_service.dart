@@ -131,7 +131,7 @@ class FirstJobService {
 
   /// LPP maximum coordinated salary.
   /// Uses centralized constant from social_insurance.dart.
-  static const double _lppMaxCoordinated = lppSalaireCoordMax;
+  static double get _lppMaxCoordinated => reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
 
   /// LAMal franchise options.
   static const List<int> _lamalFranchises = [300, 500, 1000, 1500, 2000, 2500];
@@ -156,18 +156,20 @@ class FirstJobService {
     // Deductions
     final avs = brut * _avsAiApgRate;
     // AC: standard rate up to ceiling, solidarity 0.5% on excess (LACI art. 3)
-    final ac = annuel <= acPlafondSalaireAssure
-        ? brut * acCotisationSalarie
-        : (acPlafondSalaireAssure * acCotisationSalarie +
-              (annuel - acPlafondSalaireAssure) * 0.005) /
+    final acCeil = reg('ac.salary_ceiling', acPlafondSalaireAssure);
+    final acEmpRate = reg('ac.employee_rate', acCotisationSalarie);
+    final ac = annuel <= acCeil
+        ? brut * acEmpRate
+        : (acCeil * acEmpRate +
+              (annuel - acCeil) * 0.005) /
             12;
     final aanp = brut * _aanpRate;
 
     // LPP
     double lppEmploye = 0;
-    if (annuel >= lppSeuilEntree && age >= 25) {
-      double coordinated = annuel - lppDeductionCoordination;
-      coordinated = max(coordinated, lppSalaireCoordMin);
+    if (annuel >= reg('lpp.entry_threshold', lppSeuilEntree) && age >= 25) {
+      double coordinated = annuel - reg('lpp.coordination_deduction', lppDeductionCoordination);
+      coordinated = max(coordinated, reg('lpp.min_coordinated_salary', lppSalaireCoordMin));
       coordinated = min(coordinated, _lppMaxCoordinated);
       final lppRate = getLppBonificationRate(age);
       lppEmploye = (coordinated * lppRate) / 12 / 2; // employee half
@@ -236,8 +238,8 @@ class FirstJobService {
       cotisationsEmployeur: employeurTotal,
       deductionItems: deductionItems,
       eligible3a: true,
-      plafondAnnuel3a: pilier3aPlafondAvecLpp,
-      montantMensuelSuggere3a: pilier3aPlafondAvecLpp / 12,
+      plafondAnnuel3a: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+      montantMensuelSuggere3a: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12,
       economieFiscaleEstimee3a: economie3a,
       alerte3a: 'Évite les 3a liés à une assurance-vie\u00a0! '
           'Privilégie un 3a fintech avec frais < 0,5\u00a0%.',

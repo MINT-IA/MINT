@@ -80,7 +80,7 @@ class CrossValidationService {
     if (profile.employmentStatus != 'salarie') return;
 
     final grossAnnual = profile.revenuBrutAnnuel;
-    if (grossAnnual < lppSeuilEntree) return;
+    if (grossAnnual < reg('lpp.entry_threshold', lppSeuilEntree)) return;
 
     // Estimate theoretical LPP: sum bonifications from start age to current age
     final startAge = profile.arrivalAge != null
@@ -90,14 +90,14 @@ class CrossValidationService {
     if (currentAge <= startAge) return;
 
     final salaireCoord =
-        (grossAnnual - lppDeductionCoordination).clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+        (grossAnnual - reg('lpp.coordination_deduction', lppDeductionCoordination)).clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
 
     double theoreticalLpp = 0;
     for (int age = startAge; age < currentAge; age++) {
       final rate = getLppBonificationRate(age);
       theoreticalLpp += salaireCoord * rate;
       // Simple compound: apply minimum interest
-      theoreticalLpp *= (1 + lppTauxInteretMin / 100);
+      theoreticalLpp *= (1 + reg('lpp.min_interest_rate', lppTauxInteretMin) / 100);
     }
 
     if (theoreticalLpp <= 0) return;
@@ -151,9 +151,9 @@ class CrossValidationService {
             profile.prevoyance.avoirLppTotal! <= 0);
 
     final plafond = isIndependantNoLpp
-        ? min(profile.revenuBrutAnnuel * pilier3aTauxRevenuSansLpp,
-              pilier3aPlafondSansLpp)
-        : pilier3aPlafondAvecLpp;
+        ? min(profile.revenuBrutAnnuel * reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp),
+              reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     // If user has planned 3a contributions, check against ceiling
     final planned3aAnnuel = profile.plannedContributions
@@ -170,9 +170,9 @@ class CrossValidationService {
         severity: AlertSeverity.error,
         suggestion: isIndependantNoLpp
             ? 'En tant qu\'independant·e sans LPP, le plafond est de '
-              '20% du revenu net, max ${_fmtChf(pilier3aPlafondSansLpp)}.'
+              '20% du revenu net, max ${_fmtChf(reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}.'
             : 'En tant que salarie·e avec LPP, le plafond est de '
-              '${_fmtChf(pilier3aPlafondAvecLpp)}/an.',
+              '${_fmtChf(reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))}/an.',
       ));
     }
   }
@@ -337,14 +337,14 @@ class CrossValidationService {
 
     // Employee with salary above threshold but no LPP declared
     if (status == 'salarie' &&
-        profile.revenuBrutAnnuel >= lppSeuilEntree &&
+        profile.revenuBrutAnnuel >= reg('lpp.entry_threshold', lppSeuilEntree) &&
         (lpp == null || lpp <= 0) &&
         profile.age >= 25) {
       alerts.add(ValidationAlert(
         block: 'lpp',
         message:
             'En tant que salarie·e avec un revenu au-dessus du seuil '
-            'LPP (${_fmtChf(lppSeuilEntree)}), tu pourrais avoir un '
+            'LPP (${_fmtChf(reg('lpp.entry_threshold', lppSeuilEntree))}), tu pourrais avoir un '
             'avoir de prevoyance.',
         severity: AlertSeverity.info,
         suggestion:

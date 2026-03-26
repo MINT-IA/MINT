@@ -23,6 +23,14 @@ Future<void> main() async {
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();
 
+  // STARTUP CONTRACT:
+  // 1. loadFromDisk() is BLOCKING — loads last-session cache from SharedPreferences
+  //    so reg() has data before any calculator runs.
+  // 2. fetchConstants() is FIRE-AND-FORGET — updates cache from backend API.
+  //    If it completes before a calculator runs, reg() returns fresh data.
+  //    If not, reg() returns last-session data (or hardcoded fallback on first install).
+  await RegulatorySyncService.loadFromDisk();
+
   // Initialize SLM plugin runtime once at startup (5s — model check is I/O).
   try {
     final ready = await SlmDownloadService.instance

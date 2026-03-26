@@ -12,17 +12,49 @@
 ///   - CLAUDE.md §2 (Architecture), §4 (Backend = source of truth)
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Syncs regulatory constants from the backend.
 /// Falls back to local social_insurance.dart if backend unavailable.
 class RegulatorySyncService {
+  /// SharedPreferences key for persisted regulatory cache.
+  static const String _spKey = 'regulatory_cache';
+
   /// Cached constants from last successful sync.
   static Map<String, double>? _cachedConstants;
 
   /// Timestamp of last successful sync.
   static DateTime? _lastSyncAt;
+
+  /// True when cache was loaded from SharedPreferences (disk),
+  /// false when fetched fresh from the backend API.
+  static bool _isFromDisk = false;
+
+  /// Load cached constants from SharedPreferences (disk).
+  ///
+  /// Call this BEFORE [fetchConstants] at app startup so that [reg()]
+  /// has access to last-synced values immediately, even before the
+  /// network call completes.
+  static Future<void> loadFromDisk() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_spKey);
+      if (raw != null) {
+        _cachedConstants = Map<String, double>.from(
+          (jsonDecode(raw) as Map).map(
+            (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
+          ),
+        );
+        _isFromDisk = true;
+      }
+    } catch (e) {
+      debugPrint('RegulatorySyncService: loadFromDisk failed — $e');
+    }
+  }
 
   /// Fetch all regulatory constants from the backend API.
   ///
@@ -35,6 +67,15 @@ class RegulatorySyncService {
       if (constants.isNotEmpty) {
         _cachedConstants = constants;
         _lastSyncAt = DateTime.now();
+        _isFromDisk = false;
+
+        // Persist to SharedPreferences for cold-start access.
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_spKey, jsonEncode(constants));
+        } catch (e) {
+          debugPrint('RegulatorySyncService: persist to SP failed — $e');
+        }
       }
       return constants;
     } catch (e) {
@@ -76,6 +117,18 @@ class RegulatorySyncService {
   /// Timestamp of last successful sync (null if never synced).
   static DateTime? get lastSyncAt => _lastSyncAt;
 
+  /// Whether the current cache was loaded from disk (SharedPreferences)
+  /// rather than freshly fetched from the backend API.
+  static bool get isFromDisk => _isFromDisk;
+
+  /// Summary of the current sync state, useful for debug UIs and diagnostics.
+  static Map<String, dynamic> syncStatus() => {
+        'hasSynced': hasSynced,
+        'lastSyncAt': _lastSyncAt?.toIso8601String(),
+        'cachedCount': _cachedConstants?.length ?? 0,
+        'isFromDisk': _isFromDisk,
+      };
+
   /// Check freshness of the regulatory data.
   ///
   /// Returns list of stale parameter keys, or empty list if all fresh.
@@ -100,6 +153,15 @@ class RegulatorySyncService {
   static void clearCache() {
     _cachedConstants = null;
     _lastSyncAt = null;
+    _isFromDisk = false;
+  }
+
+  /// Inject mock constants into the cache (useful for testing).
+  @visibleForTesting
+  static void setMockCache(Map<String, double> constants) {
+    _cachedConstants = Map<String, double>.from(constants);
+    _lastSyncAt = DateTime.now();
+    _isFromDisk = false;
   }
 
   /// Parse the /regulatory/constants response into a flat key -> value map.

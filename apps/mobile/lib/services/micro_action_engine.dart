@@ -133,7 +133,7 @@ class MicroActionEngine {
 
     // ── Compute personalized 3a data for TemporalPriority ──
     final plafond =
-        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond - verse3a).clamp(0.0, plafond);
     final taxSaving3a = marge3a * 0.30; // ~30% marginal estimate

@@ -285,15 +285,16 @@ class FinancialReportService {
     // Use LPP constants for coordinated salary (LPP art. 8)
     // Guard: if gross < seuil d'accès LPP (22'680), no LPP coverage
     final double coordinatedSalary;
-    if (annualGrossApprox < lppSeuilEntree) {
+    if (annualGrossApprox < reg('lpp.entry_threshold', lppSeuilEntree)) {
       coordinatedSalary = 0.0; // Not eligible for LPP
     } else {
-      coordinatedSalary = (annualGrossApprox - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin.toDouble(), lppSalaireCoordMax.toDouble());
+      coordinatedSalary = (annualGrossApprox - reg('lpp.coordination_deduction', lppDeductionCoordination))
+          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     }
+    final refAgeReport = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     for (int year = 0; year < profile.yearsToRetirement; year++) {
       final ageThisYear = profile.age + year;
-      if (ageThisYear >= 25 && ageThisYear <= avsAgeReferenceHomme) {
+      if (ageThisYear >= 25 && ageThisYear <= refAgeReport) {
         final rate = getLppBonificationRate(ageThisYear);
         estimatedLppGrowth += coordinatedSalary * rate;
       }
@@ -312,7 +313,7 @@ class FinancialReportService {
     // Financial report is a simplified view without certificate data access.
     // Use surobligatoire estimate (5.4%) as conservative educational default
     // rather than 6.8% which overstates for most caisses.
-    final monthlyLppRent = (lppCapital * lppTauxConversionSurobligDecimal) / 12;
+    final monthlyLppRent = (lppCapital * reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)) / 12;
 
     return RetirementProjection(
       yearsUntilRetirement: profile.yearsToRetirement,
@@ -336,7 +337,7 @@ class FinancialReportService {
         (answers['q_3a_providers'] as List?)?.cast<String>() ?? ['bank'];
 
     final contribution = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
-    final maxContribution = profile.isSalaried ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
+    final maxContribution = profile.isSalaried ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
     // Projections par provider (simplifié)
     final projections = <String, double>{
@@ -640,9 +641,10 @@ class FinancialReportService {
       age: profile.age,
     );
 
+    final refAgeAvs = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final userRente = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
-      retirementAge: avsAgeReferenceHomme,
+      retirementAge: refAgeAvs,
       lacunes: profile.avsGapYears ?? 0,
       anneesContribuees: profile.contributionYears,
       grossAnnualSalary: grossAnnualSalary,
@@ -653,7 +655,7 @@ class FinancialReportService {
       // TODO: Accept spouse income for more accurate couple AVS computation.
       final spouseRente = AvsCalculator.computeMonthlyRente(
         currentAge: profile.age, // Approximate: same age assumed for spouse
-        retirementAge: avsAgeReferenceHomme,
+        retirementAge: refAgeAvs,
         lacunes: profile.spouseAvsGapYears ?? 0,
         anneesContribuees: profile.spouseContributionYears,
         grossAnnualSalary: grossAnnualSalary,

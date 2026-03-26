@@ -90,7 +90,7 @@ class Retroactive3aCalculator {
     double? revenuNetAnnuel,
     int referenceYear = 2026,
   }) {
-    final effectiveGap = gapYears.clamp(1, pilier3aMaxRetroactiveYears);
+    final effectiveGap = gapYears.clamp(1, reg('pillar3a.max_retroactive_years', pilier3aMaxRetroactiveYears.toDouble()).toInt());
     // Clamp taux marginal to valid range to prevent absurd results.
     final effectiveTaux = tauxMarginal.clamp(0.0, 0.60);
 
@@ -112,10 +112,10 @@ class Retroactive3aCalculator {
         // Grand 3a (sans LPP): 20% of net income, capped at the year's grand limit.
         // Scale the historical "petit" limit to the "grand" equivalent for that year.
         final grandLimitForYear =
-            baseLimit * (pilier3aPlafondSansLpp / pilier3aPlafondAvecLpp);
+            baseLimit * (reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) / reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
         if (revenuNetAnnuel != null) {
           // Apply the 20% income rule: min(20% income, grand limit).
-          effectiveLimit = (revenuNetAnnuel * pilier3aTauxRevenuSansLpp)
+          effectiveLimit = (revenuNetAnnuel * reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp))
               .clamp(0, grandLimitForYear);
         } else {
           // No income provided — use the max grand limit (conservative estimate).
@@ -130,12 +130,12 @@ class Retroactive3aCalculator {
     // Current year contribution (not retroactive, but part of total).
     double currentYearLimit;
     if (hasLpp) {
-      currentYearLimit = pilier3aPlafondAvecLpp;
+      currentYearLimit = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     } else if (revenuNetAnnuel != null) {
       currentYearLimit =
-          (revenuNetAnnuel * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp);
+          (revenuNetAnnuel * reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp)).clamp(0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
     } else {
-      currentYearLimit = pilier3aPlafondSansLpp;
+      currentYearLimit = reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
     }
     final totalContribution = totalRetroactive + currentYearLimit;
 

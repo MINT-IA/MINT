@@ -1026,9 +1026,9 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
   /// Determine 3a plafond based on employment status and LPP.
   static double _plafond3a(CoachProfile profile) {
     if (profile.employmentStatus == 'independant' && !_hasLpp(profile)) {
-      return pilier3aPlafondSansLpp;
+      return reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
     }
-    return pilier3aPlafondAvecLpp;
+    return reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
   }
 
   /// Check if profile has LPP.
