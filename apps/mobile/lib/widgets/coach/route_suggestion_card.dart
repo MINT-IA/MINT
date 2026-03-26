@@ -154,21 +154,60 @@ class RouteSuggestionCard extends StatelessWidget {
     );
   }
 
+  /// Maps GoRouter routes to the screenId used by ScreenCompletionTracker.
+  ///
+  /// Screens register their results under specific IDs that may not match the
+  /// route path directly. This canonical map ensures the card reads the same
+  /// key the screen writes to.
+  static const _routeToScreenId = <String, String>{
+    '/mortgage/affordability': 'affordability',
+    '/3a-deep/staggered-withdrawal': 'staggered_withdrawal',
+    '/lpp-deep/rachat-echelonne': 'rachat_echelonne',
+    '/assurances/lamal': 'lamal_franchise',
+    '/invalidite': 'disability_gap',
+    '/rente-vs-capital': 'rente_vs_capital',
+    '/divorce': 'divorce_simulator',
+    '/retraite': 'retirement_dashboard',
+    '/budget': 'budget',
+    '/3a': 'pillar_3a',
+    '/lpp-deep/libre-passage': 'libre_passage',
+    '/lpp-deep/epl': 'epl',
+    '/mortgage/amortization': 'amortization',
+    '/mortgage/epl-combined': 'epl_combined',
+    '/mortgage/imputed-rental': 'imputed_rental',
+    '/mortgage/saron-vs-fixed': 'saron_vs_fixed',
+    '/decaissement': 'decaissement',
+    '/fiscal': 'fiscal_comparator',
+  };
+
+  /// Resolve the canonical screenId for the given route.
+  ///
+  /// Falls back to the path-derived heuristic (strip leading slash, replace
+  /// non-alphanumeric characters with underscores) when no explicit mapping
+  /// exists.
+  static String _resolveScreenId(String route) {
+    return _routeToScreenId[route] ??
+        route.replaceAll(RegExp(r'^/'), '').replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+  }
+
   Future<void> _navigateAndReturn(BuildContext context) async {
     // Snapshot profile state and wall-clock time before navigation.
     final hashBefore = profileHashFn?.call();
     final entryTime = DateTime.now();
 
-    // Derive a screen ID from the route by stripping leading slash and
-    // replacing non-alphanumeric characters with underscores.
-    final screenId =
-        route.replaceAll(RegExp(r'^/'), '').replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+    // Resolve the canonical screen ID used by ScreenCompletionTracker.
+    final screenId = _resolveScreenId(route);
+
+    // Clear stale tracker entry BEFORE navigating so old results don't
+    // contaminate the return-contract detection.
+    await ScreenCompletionTracker.clear(screenId);
 
     // Navigate — context.push awaited synchronously. Any async work involving
     // ScreenCompletionTracker happens after the mounted check below so that
     // context is never accessed across an async gap.
     // Pass prefill data via `extra` so the target screen can pre-populate
     // fields with known profile values (screens opt in by reading extra).
+    if (!context.mounted) return;
     final extra = prefill != null ? {'prefill': prefill} : null;
     await context.push(route, extra: extra); // ignore: use_build_context_synchronously — guarded by mounted check immediately below
 

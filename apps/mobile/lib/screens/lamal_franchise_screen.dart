@@ -34,6 +34,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   double _primeMensuelle = 350;
   double _depensesSante = 2000;
   bool _isChild = false;
+  bool _hasUserInteracted = false;
 
   LamalFranchiseResult? _result;
 
@@ -75,6 +76,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         isChild: _isChild,
       );
     });
+    if (!_hasUserInteracted) return;
     final optimalEconomie = _result?.comparaison
             .where((c) => c.isOptimal)
             .map((c) => c.economieVs300)
@@ -273,6 +275,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: GestureDetector(
                 onTap: () {
                   if (_isChild) {
+                    _hasUserInteracted = true;
                     _isChild = false;
                     _compute();
                   }
@@ -318,6 +321,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: GestureDetector(
                 onTap: () {
                   if (!_isChild) {
+                    _hasUserInteracted = true;
                     _isChild = true;
                     _compute();
                   }
@@ -372,6 +376,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         divisions: 40,
         formatValue: (v) => LamalFranchiseService.formatChf(v),
         onChanged: (value) {
+          _hasUserInteracted = true;
           _primeMensuelle = value;
           _compute();
         },
@@ -397,6 +402,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 : MintColors.success,
         formatValue: (v) => LamalFranchiseService.formatChf(v),
         onChanged: (value) {
+          _hasUserInteracted = true;
           _depensesSante = value;
           _compute();
         },

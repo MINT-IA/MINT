@@ -36,6 +36,11 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 ///
 /// NEVER ranks options. Side-by-side comparison only.
 /// All text in French, informal "tu". No banned terms.
+///
+/// PREFILL: When navigated from coach via RouteSuggestionCard,
+/// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
+/// with pre-computed values. Currently reads from CoachProfileProvider.
+/// TODO: merge prefill with profile data for coach-optimized defaults.
 class RenteVsCapitalScreen extends StatefulWidget {
   const RenteVsCapitalScreen({super.key});
 

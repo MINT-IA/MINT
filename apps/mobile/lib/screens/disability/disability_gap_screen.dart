@@ -37,6 +37,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   double _savings = 30000;
   bool _hasIjm = true;
   bool _seededFromProfile = false;
+  bool _hasUserInteracted = false;
 
   @override
   void didChangeDependencies() {
@@ -54,6 +55,10 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         if (savings > 0) _savings = savings.clamp(0.0, 500000.0);
       });
     }
+  }
+
+  void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
     ScreenCompletionTracker.markCompletedWithReturn(
       'disability_gap',
       ScreenReturn.completed(
@@ -368,7 +373,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             max: 25000,
             divisions: 46,
             format: (v) => "CHF ${_fmtChf(v)}",
-            onChanged: (v) => setState(() => _grossMonthly = v),
+            onChanged: (v) { _hasUserInteracted = true; setState(() => _grossMonthly = v); _emitScreenReturn(); },
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
@@ -378,7 +383,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             max: 64,
             divisions: 46,
             format: (v) => S.of(context)!.disabilityGapAgeLabel(v.toInt()),
-            onChanged: (v) => setState(() => _age = v.toInt()),
+            onChanged: (v) { _hasUserInteracted = true; setState(() => _age = v.toInt()); _emitScreenReturn(); },
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
@@ -388,7 +393,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             max: 200000,
             divisions: 40,
             format: (v) => "CHF ${_fmtChf(v)}",
-            onChanged: (v) => setState(() => _savings = v),
+            onChanged: (v) { _hasUserInteracted = true; setState(() => _savings = v); _emitScreenReturn(); },
           ),
           const SizedBox(height: 16),
           Row(
@@ -402,7 +407,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
               ),
               Switch(
                 value: _hasIjm,
-                onChanged: (v) => setState(() => _hasIjm = v),
+                onChanged: (v) { _hasUserInteracted = true; setState(() => _hasIjm = v); _emitScreenReturn(); },
                 activeTrackColor: MintColors.primary,
               ),
             ],
