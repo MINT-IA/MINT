@@ -19,7 +19,7 @@ Read these files first:
 - `services/backend/app/services/rules_engine.py` — Core calculation engine
 - `services/backend/app/schemas/` — All Pydantic v2 schemas
 - `services/backend/app/api/v1/endpoints/` — API endpoints
-- `tools/openapi/mint.openapi.yaml` — API contract (keep in sync)
+- `tools/openapi/mint.openapi.canonical.json` — API contract (keep in sync)
 - `SOT.md` — Source of Truth for data models
 - `rules.md` — Project-wide rules
 
@@ -76,14 +76,14 @@ def compute_xxx(
 3. Wire in `endpoints/scenarios.py` → `_compute_scenario_outputs()`
 4. Add response schema in `schemas/scenario.py`
 5. Write tests with hardcoded expected values
-6. Update `tools/openapi/mint.openapi.yaml`
+6. Update `tools/openapi/mint.openapi.canonical.json`
 7. Update `SOT.md`
 
 ### Adding Profile Fields
 
 1. Add to `ProfileBase` in `schemas/profile.py`
 2. Add to `ProfileUpdate` if user-modifiable
-3. Update `tools/openapi/mint.openapi.yaml`
+3. Update `tools/openapi/mint.openapi.canonical.json`
 4. Update `SOT.md`
 
 ## Testing Patterns

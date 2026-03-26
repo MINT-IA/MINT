@@ -2456,6 +2456,27 @@ class CoachProfile {
     }
   }
 
+  /// Map internal French employment status to canonical English (backend Profile API dialect).
+  /// Use when syncing CoachProfile data back to the backend Profile endpoint.
+  static String employmentStatusToCanonical(String status) => switch (status) {
+        'salarie' => 'employee',
+        'independant' => 'self_employed',
+        'retraite' => 'retired',
+        'etudiant' => 'student',
+        'mixte' => 'mixed',
+        _ => status,
+      };
+
+  /// Map canonical English employment status (backend Profile API) to internal French.
+  /// Use when receiving data from the backend Profile endpoint.
+  static String employmentStatusFromCanonical(String status) => switch (status) {
+        'employee' => 'salarie',
+        'self_employed' => 'independant',
+        'retired' => 'retraite',
+        'student' => 'etudiant',
+        _ => status,
+      };
+
   static GoalA _parseGoalA(String? raw, int birthYear,
       {int? targetRetirementAge}) {
     final effectiveAge = targetRetirementAge ?? 65;
