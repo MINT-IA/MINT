@@ -867,8 +867,8 @@ class ArbitrageEngine {
   /// Compare renting + investing surplus vs buying property.
   ///
   /// Option A: Rent, invest the down payment at market return.
-  /// Option B: Buy with 80% mortgage, 1% amortization/year,
-  ///   1% maintenance/year, valeur locative taxable.
+  /// Option B: Buy with 80% mortgage, amortize 2nd rank (80->65% LTV)
+  ///   over 15 years, 1% maintenance/year, valeur locative taxable.
   ///
   /// Legal basis: FINMA affordability (5% theoretical rate),
   ///   LIFD art. 21 (valeur locative), LIFD art. 33 (interest deduction).
@@ -897,6 +897,11 @@ class ArbitrageEngine {
     double hypotheque = prixBien - fondsPropres;
     double valeurBien = prixBien;
 
+    // 2nd rank: from 80% LTV to 65% LTV over max 15 years
+    final seuil1erRang = prixBien * 0.65;
+    final deuxiemeRang = math.max(0.0, hypotheque - seuil1erRang);
+    final amortAnnuel2ndRank = deuxiemeRang > 0 ? deuxiemeRang / 15 : 0.0;
+
     // First pass: compute annual proprio costs to get the cashflow delta
     final annualProprioCharges = <double>[];
     double tempHyp = hypotheque;
@@ -908,7 +913,8 @@ class ArbitrageEngine {
       }
       tempVal *= (1 + appreciationImmo);
       final interets = tempHyp * tauxHypotheque;
-      final amortissement = prixBien * 0.01;
+      // Amortization: 2nd rank only, stops when mortgage reaches 1st rank level
+      final amortissement = tempHyp > seuil1erRang ? amortAnnuel2ndRank : 0.0;
       final entretien = prixBien * tauxEntretien;
       final tauxVL = HousingCostCalculator.getValeurLocativeRate(canton);
       final valeurLocative = tempVal * tauxVL;
@@ -922,7 +928,7 @@ class ArbitrageEngine {
               12
           : 0.0;
       annualProprioCharges.add(interets + amortissement + entretien + taxImpact);
-      tempHyp = math.max(0, tempHyp - amortissement);
+      tempHyp = math.max(seuil1erRang, tempHyp - amortissement);
     }
 
     // ── Option A: Rent + Invest ──
@@ -975,8 +981,9 @@ class ArbitrageEngine {
         continue;
       }
       valeurBien *= (1 + appreciationImmo);
-      final amortissement = prixBien * 0.01;
-      hypotheque = math.max(0, hypotheque - amortissement);
+      // Amortization: 2nd rank only, stops when mortgage reaches 1st rank level
+      final amortissement = hypotheque > seuil1erRang ? amortAnnuel2ndRank : 0.0;
+      hypotheque = math.max(seuil1erRang, hypotheque - amortissement);
 
       buySnapshots.add(YearlySnapshot(
         year: startYear + y,

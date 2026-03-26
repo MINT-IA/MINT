@@ -7277,6 +7277,7 @@
         "type": "object"
       },
       "EmploymentStatus": {
+        "description": "Coaching-internal French dialect. Profile API uses English ('employee', 'self_employed', 'retired').\nIf integrating with Profile API, map: salarie↔employee, independant↔self_employed, retraite↔retired.",
         "enum": [
           "salarie",
           "independant",

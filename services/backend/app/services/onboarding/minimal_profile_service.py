@@ -237,9 +237,15 @@ def _estimate_lpp_from_age_25(
 def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
     """Approximate marginal tax rate based on cantonal capital tax rates.
 
+    NOTE: This is a rough approximation (capital_tax_rate * 3.5).
+    The canonical marginal rate computation is in the mobile
+    RetirementTaxCalculator.estimateMarginalRate() using AFC 2024 data.
+    This approximation is acceptable for onboarding chiffre-choc
+    (educational, with +/-5% tolerance). Final displays in the mobile
+    app MUST use RetirementTaxCalculator, not this backend approximation.
+
     Uses TAUX_IMPOT_RETRAIT_CAPITAL as a proxy for cantonal tax burden,
-    scaled by income level. This is a rough approximation suitable for
-    the simplified onboarding context.
+    scaled by income level.
 
     Args:
         gross_salary: Annual gross salary.
@@ -252,7 +258,7 @@ def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
 
     # Scale from capital withdrawal rate to income tax approximation
     # Capital withdrawal rates are ~5-8%, income marginal rates are ~15-40%
-    # Use a multiplier of ~3.5x as rough proxy
+    # Use a multiplier of ~3.5x as rough proxy (see note above)
     income_factor = base_rate * 3.5
 
     # Adjust for income level

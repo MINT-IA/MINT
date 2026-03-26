@@ -188,11 +188,13 @@ class UnemploymentService {
   }
 
   /// Calculate the number of daily indemnities based on age and contributions.
+  ///
+  /// SECO rules: 55+ with >= 22 months = senior = 520 days (LACI art. 27 al. 2).
+  /// Uses centralized constants from social_insurance.dart.
   static int _calculateDuration(int age, int moisCotisation) {
-    if (age >= 60 && moisCotisation >= 22) return 520;
-    if (age >= 55 && moisCotisation >= 22) return 400;
-    if (age >= 25 && moisCotisation >= 18) return 260;
-    if (moisCotisation >= 12) return 200;
+    if (age >= acAgeSeuillSenior && moisCotisation >= 22) return acJoursSenior; // 55+ = 520
+    if (age >= 25 && moisCotisation >= 18) return acJoursIntermediaireCotisation; // 260
+    if (moisCotisation >= 12) return acJoursMinCotisation; // 200
     return 0;
   }
 
