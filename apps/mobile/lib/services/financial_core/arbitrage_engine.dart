@@ -279,7 +279,7 @@ class ArbitrageEngine {
       assumptionHigh: retraitHigh,
     );
 
-    final tcObligLow = math.max(lppTauxConversionMinDecimal, tauxConversionObligatoire - 0.005);
+    final tcObligLow = math.max(reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal), tauxConversionObligatoire - 0.005);
     final tcObligHigh = tauxConversionObligatoire + 0.005;
     _addTornadoSensitivity(
       sensitivity,
@@ -1962,7 +1962,7 @@ class ArbitrageEngine {
         continue;
       }
       // 3a contribution
-      final contribution = math.min(montantAnnuel, pilier3aPlafondAvecLpp);
+      final contribution = math.min(montantAnnuel, reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
       balance3a += contribution;
       balance3a *= (1 + rendement3a);
 

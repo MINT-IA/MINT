@@ -36,25 +36,27 @@ class AvsCalculator {
     // Determine gender-aware reference age (AVS21, LAVS art. 21 al. 1)
     final refAge = (isFemale != null && birthYear != null)
         ? avsReferenceAge(birthYear: birthYear, isFemale: isFemale)
-        : avsAgeReferenceHomme;
+        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
     // 1. Contribution years
+    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+
     int currentYears;
     if (anneesContribuees != null) {
       currentYears = anneesContribuees;
     } else if (arrivalAge != null && arrivalAge > 20) {
       currentYears =
-          (currentAge - arrivalAge).clamp(0, avsDureeCotisationComplete);
+          (currentAge - arrivalAge).clamp(0, fullYears);
     } else {
       currentYears =
-          (currentAge - 20).clamp(0, avsDureeCotisationComplete);
+          (currentAge - 20).clamp(0, fullYears);
     }
     final futureYears = (retirementAge - currentAge).clamp(0, 50);
     final totalYears =
-        (currentYears + futureYears).clamp(0, avsDureeCotisationComplete);
+        (currentYears + futureYears).clamp(0, fullYears);
     final effectiveYears =
-        (totalYears - lacunes).clamp(0, avsDureeCotisationComplete);
-    final gapFactor = effectiveYears / avsDureeCotisationComplete;
+        (totalYears - lacunes).clamp(0, fullYears);
+    final gapFactor = effectiveYears / fullYears;
 
     // 2. RAMD-based rente (LAVS art. 34, echelle 44)
     final baseRente = renteFromRAMD(grossAnnualSalary);
@@ -66,7 +68,7 @@ class AvsCalculator {
       return 0.0;
     } else if (retirementAge < refAge) {
       final yearsEarly = refAge - retirementAge;
-      rente *= (1.0 - avsReductionAnticipation * yearsEarly);
+      rente *= (1.0 - reg('avs.anticipation_reduction', avsReductionAnticipation) * yearsEarly);
     } else if (retirementAge > refAge) {
       final yearsLate = (retirementAge - refAge).clamp(1, 5);
       final bonus = avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!;
@@ -85,12 +87,15 @@ class AvsCalculator {
   /// gapFactor in computeMonthlyRente already handles contribution years.
   static double renteFromRAMD(double grossAnnualSalary) {
     if (grossAnnualSalary <= 0) return 0.0;
-    if (grossAnnualSalary >= avsRAMDMax) return avsRenteMaxMensuelle;
-    if (grossAnnualSalary <= avsRAMDMin) return avsRenteMinMensuelle;
+    final ramdMax = reg('avs.ramd_max', avsRAMDMax);
+    final ramdMin = reg('avs.ramd_min', avsRAMDMin);
+    final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
+    final renteMin = reg('avs.min_monthly_pension', avsRenteMinMensuelle);
+    if (grossAnnualSalary >= ramdMax) return renteMax;
+    if (grossAnnualSalary <= ramdMin) return renteMin;
     final fraction =
-        (grossAnnualSalary - avsRAMDMin) / (avsRAMDMax - avsRAMDMin);
-    return avsRenteMinMensuelle +
-        (avsRenteMaxMensuelle - avsRenteMinMensuelle) * fraction;
+        (grossAnnualSalary - ramdMin) / (ramdMax - ramdMin);
+    return renteMin + (renteMax - renteMin) * fraction;
   }
 
   /// Couple AVS with married cap (LAVS art. 35).
@@ -103,12 +108,13 @@ class AvsCalculator {
     required bool isMarried,
   }) {
     final total = avsUser + avsConjoint;
-    if (isMarried && total > avsRenteCoupleMaxMensuelle) {
-      final ratio = avsRenteCoupleMaxMensuelle / total;
+    final coupleMax = reg('avs.couple_max_monthly', avsRenteCoupleMaxMensuelle);
+    if (isMarried && total > coupleMax) {
+      final ratio = coupleMax / total;
       return (
         user: avsUser * ratio,
         conjoint: avsConjoint * ratio,
-        total: avsRenteCoupleMaxMensuelle,
+        total: coupleMax,
       );
     }
     return (user: avsUser, conjoint: avsConjoint, total: total);
@@ -140,7 +146,8 @@ class AvsCalculator {
   /// Use this instead of inline `gap / 44 * 100` calculations.
   static double reductionPercentageFromGap(int gap) {
     if (gap <= 0) return 0.0;
-    return (gap / avsDureeCotisationComplete * 100);
+    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+    return (gap / fullYears * 100);
   }
 
   /// Returns the estimated monthly AVS rente loss for a given gap.
@@ -149,6 +156,8 @@ class AvsCalculator {
   /// Use this instead of inline `2520 * gap / 44` calculations.
   static double monthlyLossFromGap(int gap) {
     if (gap <= 0) return 0.0;
-    return avsRenteMaxMensuelle * gap / avsDureeCotisationComplete;
+    final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
+    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+    return renteMax * gap / fullYears;
   }
 }
