@@ -131,6 +131,8 @@ class MonteCarloProjectionService {
           anneesContribuees: conjoint.prevoyance?.anneesContribuees,
           arrivalAge: conjoint.arrivalAge,
           grossAnnualSalary: conjoint.revenuBrutAnnuel,
+          isFemale: conjoint.gender == 'F' ? true : (conjoint.gender == 'M' ? false : null),
+          birthYear: conjoint.birthYear,
         );
       }
 

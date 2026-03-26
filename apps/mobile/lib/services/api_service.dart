@@ -238,6 +238,18 @@ class ApiService {
     }
   }
 
+  // ========== PROFILE ENDPOINTS ==========
+
+  /// Fetch the authenticated user's profile from the backend.
+  /// Returns null if the request fails (best-effort hydration).
+  static Future<Map<String, dynamic>?> getMyProfile() async {
+    try {
+      return await get('/profiles/me');
+    } catch (_) {
+      return null;
+    }
+  }
+
   // ========== AUTH ENDPOINTS ==========
 
   /// Register a new user

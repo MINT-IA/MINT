@@ -11358,5 +11358,6 @@
       }
     }
   },
-  "coachMintLabel": "Coach MINT"
+  "coachMintLabel": "Coach MINT",
+  "consentNoActiveConsents": "Sem consentimentos ativos"
 }

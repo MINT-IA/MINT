@@ -42971,6 +42971,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Coach MINT'**
   String get coachMintLabel;
+
+  /// No description provided for @consentNoActiveConsents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun consentement actif'**
+  String get consentNoActiveConsents;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

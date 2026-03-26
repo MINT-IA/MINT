@@ -47,6 +47,36 @@ def test_get_profile_not_found(client):
     assert response.status_code == 404
 
 
+def test_get_my_profile(client):
+    """Test getting the authenticated user's profile via /profiles/me."""
+    # Create a profile (linked to the test user via auth override)
+    payload = {
+        "householdType": "single",
+        "goal": "retire",
+        "birthYear": 1985,
+        "canton": "VD",
+        "gender": "F",
+    }
+    create_response = client.post("/api/v1/profiles", json=payload)
+    assert create_response.status_code == 200
+
+    # Fetch via /me endpoint
+    response = client.get("/api/v1/profiles/me")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["householdType"] == "single"
+    assert data["goal"] == "retire"
+    assert data["birthYear"] == 1985
+    assert data["canton"] == "VD"
+    assert data["gender"] == "F"
+
+
+def test_get_my_profile_not_found(client):
+    """Test /profiles/me returns 404 when user has no profile."""
+    response = client.get("/api/v1/profiles/me")
+    assert response.status_code == 404
+
+
 def test_update_profile(client):
     """Test updating a profile."""
     # Create

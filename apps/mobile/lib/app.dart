@@ -38,6 +38,7 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
@@ -1038,10 +1039,8 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        // F2-3: CoachProfileProvider re-hydrates from wizard data when auth
-        // state changes (e.g. after checkAuth() restores a session on cold start).
-        // When a backend getProfile endpoint is added, this proxy should also
-        // fetch and merge the remote profile.
+        // F5-1: CoachProfileProvider re-hydrates from wizard data when auth
+        // state changes, then merges remote profile data from GET /profiles/me.
         ChangeNotifierProxyProvider<AuthProvider, CoachProfileProvider>(
           create: (_) {
             final provider = CoachProfileProvider();
@@ -1062,6 +1061,17 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             // and profile hasn't been loaded yet.
             if (auth.isLoggedIn && !provider.isLoaded) {
               provider.loadFromWizard();
+            }
+            // F5-1: Best-effort hydration from backend profile.
+            // Merges remote data into local profile (local takes priority).
+            // Only attempted once per session to avoid redundant API calls.
+            if (auth.isLoggedIn && provider.isLoaded && provider.hasProfile && !provider.remoteHydrationDone) {
+              provider.markRemoteHydrationDone();
+              ApiService.getMyProfile().then((remoteData) {
+                if (remoteData != null) {
+                  provider.mergeFromRemoteProfile(remoteData);
+                }
+              });
             }
             return provider;
           },

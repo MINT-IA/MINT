@@ -26579,6 +26579,33 @@
         ]
       }
     },
+    "/api/v1/profiles/me": {
+      "get": {
+        "description": "Get the authenticated user's profile.\nReturns the most recently updated profile linked to the current user.",
+        "operationId": "get_my_profile_api_v1_profiles_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Profile",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
     "/api/v1/profiles/{profile_id}": {
       "get": {
         "description": "Get a profile by ID.\nIf profile belongs to a user, verify ownership.",

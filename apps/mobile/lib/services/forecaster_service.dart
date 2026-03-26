@@ -833,6 +833,8 @@ class ForecasterService {
         anneesContribuees: profile.conjoint!.prevoyance?.anneesContribuees,
         lacunes: profile.conjoint!.prevoyance?.lacunesAVS ?? 0,
         grossAnnualSalary: conjSalary,
+        isFemale: profile.conjoint!.gender == 'F' ? true : (profile.conjoint!.gender == 'M' ? false : null),
+        birthYear: profile.conjoint!.birthYear,
       );
     }
 
