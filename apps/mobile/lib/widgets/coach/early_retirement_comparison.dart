@@ -78,6 +78,8 @@ class EarlyRetirementComparison extends StatelessWidget {
         // Conjoint retires at their own effective age; project at same retAge
         // only if it's above their current age
         if (retAge > conjAge) {
+          // F6-2: Pass conjoint gender/birthYear for AVS21 transitional age.
+          final conjIsFemale = conj.gender == 'F' ? true : (conj.gender == 'M' ? false : null);
           avsConjMonthly = AvsCalculator.computeMonthlyRente(
             currentAge: conjAge,
             retirementAge: retAge.clamp(conjAge + 1, 70),
@@ -85,6 +87,8 @@ class EarlyRetirementComparison extends StatelessWidget {
             lacunes: conj.prevoyance?.lacunesAVS ?? 0,
             anneesContribuees: conj.prevoyance?.anneesContribuees,
             arrivalAge: conj.arrivalAge,
+            isFemale: conjIsFemale,
+            birthYear: conj.birthYear,
           );
           final conjLpp = conj.prevoyance?.avoirLppTotal ?? 0;
           if (conjLpp > 0) {
