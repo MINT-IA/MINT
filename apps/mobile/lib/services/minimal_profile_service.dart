@@ -38,6 +38,11 @@ class MinimalProfileService {
     String? lppCaisseType,
     double? totalDebts,
     double? monthlyDebtService,
+    /// Gender: 'M', 'F', or null. Passed to AvsCalculator for AVS21
+    /// reference age (LAVS art. 21 al. 1). Null defaults to male (65).
+    String? gender,
+    /// Birth year — used with [gender] for AVS21 transitional cohorts.
+    int? birthYear,
   }) {
     final estimatedFields = <String>[];
 
@@ -69,22 +74,27 @@ class MinimalProfileService {
         ?? (isIndependantNoLpp ? 0.0 : _estimateLppBalance(age, grossSalary));
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
-    // F3-3: Default retirement age uses avsAgeReferenceHomme (65) from constants.
-    // Gender-aware age requires profile gender which is not available in minimal inputs.
-    final effectiveRetAge = targetRetirementAge ?? avsAgeReferenceHomme;
+    // F7-2: Use gender-aware retirement age when gender + birth year are provided.
+    // Falls back to male reference age (65) when gender is unknown.
+    final effectiveBirthYear = birthYear ?? (DateTime.now().year - age);
+    final effectiveRetAge = targetRetirementAge
+        ?? (gender != null
+            ? avsReferenceAge(birthYear: effectiveBirthYear, isFemale: gender == 'F')
+            : avsAgeReferenceHomme);
 
     // --- AVS monthly rente (financial_core) ---
     // Sans emploi: use minimum AVS contribution salary
     final avsGrossSalary = isSansEmploi
         ? reg('lpp.entry_threshold', lppSeuilEntree) // minimum contribution base
         : grossSalary;
-    // F6-2: isFemale/birthYear not passed — MinimalProfileService inputs
-    // do not include gender. This is the local fallback for quick estimates;
-    // defaults to male reference age (65). Acceptable for onboarding snapshots.
+    // F7-2: Pass gender and birthYear when available so AvsCalculator
+    // uses AVS21 reference age (64F / 65M — LAVS art. 21 al. 1).
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: age,
       retirementAge: effectiveRetAge,
       grossAnnualSalary: avsGrossSalary,
+      isFemale: gender != null ? gender == 'F' : null,
+      birthYear: gender != null ? effectiveBirthYear : null,
     );
 
     // --- LPP projection (financial_core) ---

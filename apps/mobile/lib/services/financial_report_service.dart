@@ -150,6 +150,7 @@ class FinancialReportService {
       employmentStatus: answers['q_employment_status'] as String? ?? 'employee',
       monthlyNetIncome:
           _parseDouble(answers['q_net_income_period_chf']) ?? 5000,
+      gender: answers['q_gender'] as String?,
       // Nouvelle logique AVS (triage lacunes)
       avsGapYears: _calculateAvsGaps(answers, birthYear),
       spouseAvsGapYears: _calculateSpouseAvsGaps(answers, birthYear),
@@ -641,30 +642,39 @@ class FinancialReportService {
       age: profile.age,
     );
 
-    final refAgeAvs = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-    // F6-2: isFemale/birthYear not passed — UserProfile (wizard answers) does not
-    // capture gender. Defaults to male reference age (65). Acceptable for this
-    // report-level estimate; gender-aware age is used in CoachProfile-based screens.
+    // F7-2: Pass gender and birthYear so AvsCalculator uses the correct
+    // AVS21 reference age (64F / 65M — LAVS art. 21 al. 1).
+    final isFemale = profile.gender == 'F';
+    final refAgeAvs = profile.gender != null
+        ? avsReferenceAge(birthYear: profile.birthYear, isFemale: isFemale)
+        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final userRente = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
       retirementAge: refAgeAvs,
       lacunes: profile.avsGapYears ?? 0,
       anneesContribuees: profile.contributionYears,
       grossAnnualSalary: grossAnnualSalary,
+      isFemale: profile.gender != null ? isFemale : null,
+      birthYear: profile.gender != null ? profile.birthYear : null,
     );
 
     if (profile.isMarried) {
       // Spouse rente: use same gross salary assumption (no spouse salary available)
       // TODO: Accept spouse income for more accurate couple AVS computation.
-      // F6-2: isFemale/birthYear not passed for spouse — UserProfile has no
-      // spouse gender field. Defaults to male reference age. Same limitation
-      // as user rente above (wizard answers model lacks gender).
+      // F7-2: Spouse gender is inferred as opposite of user for AVS21.
+      // If user gender unknown, both default to male reference age (65).
+      final spouseIsFemale = profile.gender == 'M';
+      final spouseRefAge = profile.gender != null
+          ? avsReferenceAge(birthYear: profile.birthYear, isFemale: spouseIsFemale)
+          : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
       final spouseRente = AvsCalculator.computeMonthlyRente(
         currentAge: profile.age, // Approximate: same age assumed for spouse
-        retirementAge: refAgeAvs,
+        retirementAge: spouseRefAge,
         lacunes: profile.spouseAvsGapYears ?? 0,
         anneesContribuees: profile.spouseContributionYears,
         grossAnnualSalary: grossAnnualSalary,
+        isFemale: profile.gender != null ? spouseIsFemale : null,
+        birthYear: profile.gender != null ? profile.birthYear : null,
       );
 
       // Apply married couple cap (LAVS art. 35 — 150% of individual max)
