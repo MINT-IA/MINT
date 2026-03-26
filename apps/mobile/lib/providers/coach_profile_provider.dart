@@ -28,6 +28,7 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _isLoaded = false;
   bool _isPartialProfile = false;
   bool _remoteHydrationDone = false;
+  bool _isHydrating = false;
   int? _previousScore;
   List<Map<String, dynamic>> _scoreHistory = [];
   bool _profileUpdatedSinceBudget = false;
@@ -73,8 +74,26 @@ class CoachProfileProvider extends ChangeNotifier {
   /// True if remote profile hydration has already been attempted.
   bool get remoteHydrationDone => _remoteHydrationDone;
 
+  /// True while an async hydration from backend is in progress.
+  /// GoRouter uses this to avoid redirecting to onboarding prematurely.
+  bool get isHydrating => _isHydrating;
+
   /// Mark remote hydration as done (prevents duplicate API calls).
   void markRemoteHydrationDone() => _remoteHydrationDone = true;
+
+  /// Signal that async hydration has started.
+  /// GoRouter (via refreshListenable) re-evaluates redirects on notify.
+  void startHydrating() {
+    _isHydrating = true;
+    notifyListeners();
+  }
+
+  /// Signal that async hydration has completed (success or error).
+  /// GoRouter (via refreshListenable) re-evaluates redirects on notify.
+  void finishHydrating() {
+    _isHydrating = false;
+    notifyListeners();
+  }
 
   /// True si un profil est disponible (wizard complete).
   bool get hasProfile => _profile != null;
@@ -1690,6 +1709,7 @@ class CoachProfileProvider extends ChangeNotifier {
     _isPartialProfile = false;
     _isLoaded = false;
     _remoteHydrationDone = false;
+    _isHydrating = false;
     _previousScore = null;
     _scoreHistory = [];
     _lastAnswers = const {};

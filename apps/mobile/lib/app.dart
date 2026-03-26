@@ -153,9 +153,9 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 // F4-1: Router is now a function so it can receive AuthProvider as
 // refreshListenable. GoRouter re-evaluates redirects whenever
 // AuthProvider notifies (e.g. after checkAuth() restores a session).
-GoRouter _createRouter(AuthProvider authProvider) => GoRouter(
+GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
   navigatorKey: _rootNavigatorKey,
-  refreshListenable: authProvider,
+  refreshListenable: refreshListenable,
   observers: [AnalyticsRouteObserver()],
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
@@ -210,8 +210,8 @@ GoRouter _createRouter(AuthProvider authProvider) => GoRouter(
       (p) => path.startsWith(p),
     );
     if (requiresProfile && isLoggedIn) {
-      final hasProfile = context.read<CoachProfileProvider>().hasProfile;
-      if (!hasProfile) {
+      final coachProfile = context.read<CoachProfileProvider>();
+      if (!coachProfile.hasProfile && !coachProfile.isHydrating) {
         // Skip if already on the onboarding flow
         if (!path.startsWith('/onboarding')) {
           return '/onboarding/smart';
@@ -978,14 +978,20 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   // F4-1: AuthProvider created here so it can be passed both to
   // MultiProvider (for descendant widgets) and to GoRouter as
   // refreshListenable (so redirects re-evaluate on auth state change).
+  // F7-1: CoachProfileProvider also created here so GoRouter re-evaluates
+  // when hydration state changes (isHydrating → false after API response).
   late final AuthProvider _authProvider;
+  late final CoachProfileProvider _coachProfileProvider;
   late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
     _authProvider = AuthProvider()..checkAuth();
-    _router = _createRouter(_authProvider);
+    _coachProfileProvider = CoachProfileProvider()..loadFromWizard();
+    _router = _createRouter(
+      Listenable.merge([_authProvider, _coachProfileProvider]),
+    );
     WidgetsBinding.instance.addObserver(this);
     AnalyticsService().init();
     NotificationService().init();
@@ -1041,12 +1047,10 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         // F5-1: CoachProfileProvider re-hydrates from wizard data when auth
         // state changes, then merges remote profile data from GET /profiles/me.
+        // F7-1: Instance created at _MintAppState level (for refreshListenable),
+        // re-used here via ChangeNotifierProxyProvider for auth-reactive updates.
         ChangeNotifierProxyProvider<AuthProvider, CoachProfileProvider>(
-          create: (_) {
-            final provider = CoachProfileProvider();
-            provider.loadFromWizard();
-            return provider;
-          },
+          create: (_) => _coachProfileProvider,
           update: (_, auth, coachProvider) {
             final provider = coachProvider ?? CoachProfileProvider();
             if (!auth.isLoggedIn) {
@@ -1066,8 +1070,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             // Scenario A: Local profile exists → merge (local takes priority).
             // Scenario B: Local profile is NULL but backend has one → create from remote.
             // Only attempted once per session to avoid redundant API calls.
+            // F7-1: startHydrating/finishHydrating bracket the async call so
+            // GoRouter does NOT redirect to onboarding while fetch is in flight.
             if (auth.isLoggedIn && provider.isLoaded && !provider.remoteHydrationDone) {
               provider.markRemoteHydrationDone();
+              provider.startHydrating();
               ApiService.getMyProfile().then((remoteData) {
                 if (remoteData != null) {
                   if (provider.hasProfile) {
@@ -1076,7 +1083,10 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
                     provider.createFromRemoteProfile(remoteData);
                   }
                 }
-              }).catchError((_) {});
+                provider.finishHydrating();
+              }).catchError((_) {
+                provider.finishHydrating();
+              });
             }
             return provider;
           },
