@@ -20206,7 +20206,7 @@
     },
     "/api/v1/analytics/events": {
       "post": {
-        "description": "Batch analytics event ingestion endpoint.\n\nThis endpoint accepts multiple analytics events at once for efficient bulk insertion.\nNo authentication required - supports anonymous tracking with optional user_id linkage.\n\nArgs:\n    batch: Batch of analytics events to store\n    db: Database session\n\nReturns:\n    AnalyticsEventBatchResponse with count of events stored",
+        "description": "Batch analytics event ingestion endpoint.\n\nRequires authentication. The authenticated user's ID is used as user_id\nfor all events (V6-1 audit fix: prevents fake user_id injection).\n\nArgs:\n    batch: Batch of analytics events to store\n    current_user: Authenticated user from JWT token\n    db: Database session\n\nReturns:\n    AnalyticsEventBatchResponse with count of events stored",
         "operationId": "post_analytics_events_api_v1_analytics_events_post",
         "requestBody": {
           "content": {
@@ -20240,6 +20240,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Post Analytics Events",
         "tags": [
           "analytics"
@@ -20248,7 +20253,7 @@
     },
     "/api/v1/analytics/funnel": {
       "get": {
-        "description": "Get funnel conversion analysis.\n\nCalculates conversion rates through a series of event steps.\nSteps parameter should be comma-separated event names.\n\nArgs:\n    steps: Comma-separated list of event names representing funnel steps\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    FunnelQueryResponse with step counts and conversion rates\n\nExample:\n    GET /analytics/funnel?steps=landing_view,onboarding_start,wizard_started,wizard_completed",
+        "description": "Get funnel conversion analysis.\n\nAdmin-only endpoint (V6-1 audit fix): exposes global product data.\n\nCalculates conversion rates through a series of event steps.\nSteps parameter should be comma-separated event names.\n\nArgs:\n    steps: Comma-separated list of event names representing funnel steps\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    FunnelQueryResponse with step counts and conversion rates\n\nExample:\n    GET /analytics/funnel?steps=landing_view,onboarding_start,wizard_started,wizard_completed",
         "operationId": "get_funnel_analysis_api_v1_analytics_funnel_get",
         "parameters": [
           {
@@ -20340,7 +20345,7 @@
     },
     "/api/v1/analytics/summary": {
       "get": {
-        "description": "Get analytics summary with key metrics.\n\nReturns aggregated statistics including total events, unique sessions,\nand breakdowns by category and screen name.\n\nArgs:\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    AnalyticsSummaryResponse with summary statistics",
+        "description": "Get analytics summary with key metrics.\n\nAdmin-only endpoint (V6-1 audit fix): exposes global product data.\n\nReturns aggregated statistics including total events, unique sessions,\nand breakdowns by category and screen name.\n\nArgs:\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    AnalyticsSummaryResponse with summary statistics",
         "operationId": "get_analytics_summary_api_v1_analytics_summary_get",
         "parameters": [
           {
@@ -22263,6 +22268,11 @@
             "description": "Successful Response"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get Feature Flags",
         "tags": [
           "Config"
@@ -26747,7 +26757,7 @@
     },
     "/api/v1/rag/status": {
       "get": {
-        "description": "Check RAG system status.\n\nReturns vector store readiness, document count, and available collections.",
+        "description": "Check RAG system status.\n\nReturns vector store readiness, document count, and available collections.\nRequires authentication to prevent reconnaissance of internal state.",
         "operationId": "rag_status_api_v1_rag_status_get",
         "responses": {
           "200": {
@@ -26761,6 +26771,11 @@
             "description": "Successful Response"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Rag Status",
         "tags": [
           "rag"
@@ -27741,7 +27756,7 @@
     },
     "/api/v1/sync/claim-local-data": {
       "post": {
-        "description": "One-shot migration of local mobile data to the authenticated user's cloud profile.\n\nIdempotency strategy: upsert on latest profile for (user_id, device_id claim marker).",
+        "description": "One-shot migration of local mobile data to the authenticated user's cloud profile.\n\nMerge policy: Last write wins, version-gated. Same or older version is a no-op.\nIf the existing profile already contains a localDataClaim whose localDataVersion\nis >= the incoming version, we skip the overwrite and return the existing data.\nThis prevents stale replays from older devices or retry storms.",
         "operationId": "claim_local_data_api_v1_sync_claim_local_data_post",
         "requestBody": {
           "content": {
