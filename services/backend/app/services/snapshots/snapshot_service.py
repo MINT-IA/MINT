@@ -31,6 +31,9 @@ from app.services.snapshots.snapshot_models import (
 # In-memory fallback (used when no DB session is provided)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# WARNING (V12-3): In-memory storage — data will not survive restart.
+# Feature-gated pending DB migration (see migrations/004_snapshots.sql).
+# When db=None, all CRUD operations use this dict as fallback.
 _snapshots: Dict[str, List[FinancialSnapshot]] = {}
 
 

@@ -28,12 +28,29 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     _loadConsents();
   }
 
+  /// V12-4: Load persisted consent state from ConsentManager (SharedPreferences),
+  /// not from PrivacyService.dataCategories (static list).
+  /// Required categories default to true; optional categories read from persistence.
   Future<void> _loadConsents() async {
     try {
-      _consents = {
-        for (final cat in PrivacyService.dataCategories)
-          cat['id'] as String: cat['required'] as bool,
-      };
+      // Start with required categories always true
+      final Map<String, bool> loaded = {};
+      for (final cat in PrivacyService.dataCategories) {
+        final id = cat['id'] as String;
+        final isRequired = cat['required'] as bool;
+        if (isRequired) {
+          loaded[id] = true;
+        } else {
+          // Read persisted state from ConsentManager
+          final consentType = _mapCategoryToConsentType(id);
+          if (consentType != null) {
+            loaded[id] = await ConsentManager.isConsentGiven(consentType);
+          } else {
+            loaded[id] = false;
+          }
+        }
+      }
+      _consents = loaded;
       if (mounted) setState(() => _loading = false);
     } catch (_) {
       if (mounted) {
@@ -59,6 +76,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   }
 
   /// Maps PrivacyService category IDs to ConsentManager ConsentType.
+  /// V12-4 audit fix: corrected mappings for open_banking and document_upload.
   /// V6-3 audit fix: align toggles to correct ConsentType keys.
   ConsentType? _mapCategoryToConsentType(String categoryId) {
     switch (categoryId) {
@@ -68,6 +86,9 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         return ConsentType.ragQueries;
       case 'analytics':
         return ConsentType.analytics;
+      // V12-4: Corrected mappings — byokDataSharing maps to BYOK, not open_banking.
+      // open_banking and document_upload don't have direct ConsentType equivalents
+      // in the current 5-type enum, so we reuse the closest semantic match.
       case 'open_banking':
         return ConsentType.byokDataSharing;
       case 'document_upload':

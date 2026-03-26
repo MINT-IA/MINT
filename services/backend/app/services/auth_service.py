@@ -13,7 +13,9 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 # V5-8b: In-memory set of used refresh token JTIs.
-# TODO: Replace with DB table or Redis for production persistence.
+# TODO (V12-6): Persist used JTIs to database/Redis for multi-worker + restart safety.
+# For now, in-memory set with max size limit to prevent unbounded growth.
+_MAX_JTI_SET_SIZE = 10_000
 _used_refresh_jtis: Set[str] = set()
 
 # Password hashing context
@@ -155,8 +157,17 @@ def decode_refresh_token(token: str) -> Optional[Dict[str, Any]]:
                 )
                 return None
             _used_refresh_jtis.add(jti)
-            # TODO: Replace in-memory set with DB/Redis for production.
-            # Prune old entries periodically to prevent unbounded growth.
+            # V12-6: Evict when set exceeds max size to prevent unbounded growth.
+            # Clearing all is acceptable — worst case is a brief replay window
+            # for tokens that were already used. In production, use DB/Redis.
+            if len(_used_refresh_jtis) > _MAX_JTI_SET_SIZE:
+                logger.warning(
+                    "V12-6: JTI set exceeded %d entries, clearing to prevent "
+                    "unbounded memory growth. Migrate to DB/Redis for production.",
+                    _MAX_JTI_SET_SIZE,
+                )
+                _used_refresh_jtis.clear()
+                _used_refresh_jtis.add(jti)  # Re-add the current one
 
         return payload
     except jwt.ExpiredSignatureError:

@@ -2,6 +2,10 @@
 ///
 /// Lightweight store using SharedPreferences (consistent with MINT pattern).
 /// Stores conversation messages as JSON and maintains an index of metadata.
+///
+/// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are global, not per-account.
+/// Account isolation relies on purge at logout/deleteAccount (auth_provider.dart).
+/// TODO: Prefix all keys with user ID for native multi-account isolation.
 library;
 
 import 'dart:convert';
