@@ -61,6 +61,7 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "get_cross_pillar_analysis",
     "get_cap_status",
     "get_couple_optimization",
+    "get_regulatory_constant",
 ]
 
 # ---------------------------------------------------------------------------
@@ -514,6 +515,44 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "type": "object",
             "properties": {},
             "required": [],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # get_regulatory_constant — INTERNAL: look up Swiss regulatory constants
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "get_regulatory_constant",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Look up a Swiss financial regulatory constant from the official "
+            "registry (LPP, AVS, 3a, mortgage, capital tax, LAMal, etc.). "
+            "Use this when you need an exact legal value to answer the user's "
+            "question — for example pillar 3a limits, LPP conversion rate, AVS "
+            "pension amounts, or cantonal capital withdrawal tax rates. "
+            "This tool is handled internally by the backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "description": (
+                        "The constant key, e.g. 'pillar3a.max_with_lpp', "
+                        "'avs.max_monthly_pension', 'lpp.conversion_rate', "
+                        "'mortgage.theoretical_rate', 'capital_tax.cantonal.VS'. "
+                        "Use dotted notation matching the registry keys."
+                    ),
+                },
+                "canton": {
+                    "type": "string",
+                    "description": (
+                        "Canton code for cantonal parameters (e.g. 'VS', 'ZH', 'GE'). "
+                        "Only needed for capital_tax.cantonal.* keys. Optional."
+                    ),
+                },
+            },
+            "required": ["key"],
         },
     },
     # ─────────────────────────────────────────────────────────────────

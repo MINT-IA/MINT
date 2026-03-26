@@ -5359,7 +5359,7 @@
         "type": "object"
       },
       "DataDeletionRequest": {
-        "description": "Requete pour la suppression des donnees personnelles (nLPD art. 32).",
+        "description": "Requete pour la suppression des donnees personnelles (nLPD art. 32).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients.",
         "properties": {
           "mode": {
             "$ref": "#/components/schemas/DeletionMode",
@@ -5367,10 +5367,16 @@
             "description": "Mode de suppression: immediate ou avec delai de grace (30 jours)"
           },
           "profileId": {
-            "description": "Identifiant unique du profil utilisateur",
-            "minLength": 1,
-            "title": "Profileid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
+            "title": "Profileid"
           },
           "raison": {
             "anyOf": [
@@ -5385,9 +5391,6 @@
             "title": "Raison"
           }
         },
-        "required": [
-          "profileId"
-        ],
         "title": "DataDeletionRequest",
         "type": "object"
       },
@@ -5493,7 +5496,7 @@
         "type": "object"
       },
       "DataExportRequest": {
-        "description": "Requete pour l'export des donnees personnelles (nLPD art. 25).",
+        "description": "Requete pour l'export des donnees personnelles (nLPD art. 25).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients.",
         "properties": {
           "includeAnalytics": {
             "default": true,
@@ -5520,15 +5523,18 @@
             "type": "boolean"
           },
           "profileId": {
-            "description": "Identifiant unique du profil utilisateur",
-            "minLength": 1,
-            "title": "Profileid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
+            "title": "Profileid"
           }
         },
-        "required": [
-          "profileId"
-        ],
         "title": "DataExportRequest",
         "type": "object"
       },
@@ -19866,8 +19872,8 @@
         "title": "EtatCivil",
         "type": "string"
       },
-      "h_be51dd6254bd__ConsentUpdateRequest": {
-        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).",
+      "h_d9c8615890ff__ConsentUpdateRequest": {
+        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients.",
         "properties": {
           "categorie": {
             "$ref": "#/components/schemas/ConsentCategory",
@@ -19879,14 +19885,19 @@
             "type": "boolean"
           },
           "profileId": {
-            "description": "Identifiant unique du profil utilisateur",
-            "minLength": 1,
-            "title": "Profileid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
+            "title": "Profileid"
           }
         },
         "required": [
-          "profileId",
           "categorie",
           "estActif"
         ],
@@ -26355,19 +26366,8 @@
     },
     "/api/v1/privacy/consent-status": {
       "get": {
-        "description": "Retourne le statut actuel de tous les consentements.\n\nConforme a nLPD art. 6 (principes de traitement) et art. 7 (Privacy by Design).\nPar defaut, seul le traitement contractuel (core_profile) est actif.\n\nSources: nLPD art. 6, 7.",
+        "description": "Retourne le statut actuel de tous les consentements.\n\nConforme a nLPD art. 6 (principes de traitement) et art. 7 (Privacy by Design).\nPar defaut, seul le traitement contractuel (core_profile) est actif.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied path param\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 6, 7.",
         "operationId": "get_consent_status_api_v1_privacy_consent_status_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "profile_id",
-            "required": true,
-            "schema": {
-              "title": "Profile Id",
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -26378,16 +26378,6 @@
               }
             },
             "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
           }
         },
         "security": [
@@ -26403,13 +26393,13 @@
     },
     "/api/v1/privacy/consent-update": {
       "post": {
-        "description": "Met a jour un consentement pour une categorie de traitement.\n\nLe retrait du consentement est un droit fondamental (nLPD art. 6 al. 7).\nLe consentement pour core_profile (base contractuelle) ne peut pas etre retire.\n\nSources: nLPD art. 6 al. 7.",
+        "description": "Met a jour un consentement pour une categorie de traitement.\n\nLe retrait du consentement est un droit fondamental (nLPD art. 6 al. 7).\nLe consentement pour core_profile (base contractuelle) ne peut pas etre retire.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied profile_id\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 6 al. 7.",
         "operationId": "update_consent_api_v1_privacy_consent_update_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/h_be51dd6254bd__ConsentUpdateRequest"
+                "$ref": "#/components/schemas/h_d9c8615890ff__ConsentUpdateRequest"
               }
             }
           },
@@ -26450,7 +26440,7 @@
     },
     "/api/v1/privacy/delete": {
       "post": {
-        "description": "Supprime les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 6 al. 4 et art. 32.\nPropose une suppression immediate ou avec un delai de grace de 30 jours.\n\nSources: nLPD art. 6, 32; CO art. 127; OPDo art. 20-22.",
+        "description": "Supprime les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 6 al. 4 et art. 32.\nPropose une suppression immediate ou avec un delai de grace de 30 jours.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied profile_id\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 6, 32; CO art. 127; OPDo art. 20-22.",
         "operationId": "delete_user_data_api_v1_privacy_delete_post",
         "requestBody": {
           "content": {
@@ -26497,7 +26487,7 @@
     },
     "/api/v1/privacy/export": {
       "post": {
-        "description": "Exporte toutes les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).\nRetourne un JSON lisible par machine avec toutes les donnees et metadonnees.\n\nSources: nLPD art. 25, 28; OPDo art. 16-19.",
+        "description": "Exporte toutes les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).\nRetourne un JSON lisible par machine avec toutes les donnees et metadonnees.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied profile_id\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 25, 28; OPDo art. 16-19.",
         "operationId": "export_user_data_api_v1_privacy_export_post",
         "requestBody": {
           "content": {
@@ -27069,6 +27059,192 @@
         "summary": "Generer les messages de reengagement personnalises",
         "tags": [
           "Reengagement S40"
+        ]
+      }
+    },
+    "/api/v1/regulatory/constants": {
+      "get": {
+        "description": "List all regulatory constants, optionally filtered by category or canton.\n\nReturns:\n    JSON with \"count\" and \"constants\" (list of parameter dicts).",
+        "operationId": "list_constants_api_v1_regulatory_constants_get",
+        "parameters": [
+          {
+            "description": "Filter by category prefix: avs, lpp, pillar3a, mortgage, capital_tax, ai, apg, ac, lamal",
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category prefix: avs, lpp, pillar3a, mortgage, capital_tax, ai, apg, ac, lamal",
+              "title": "Category"
+            }
+          },
+          {
+            "description": "Filter by canton code (e.g. ZH, GE, VS). Only returns cantonal parameters.",
+            "in": "query",
+            "name": "canton",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by canton code (e.g. ZH, GE, VS). Only returns cantonal parameters.",
+              "title": "Canton"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response List Constants Api V1 Regulatory Constants Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Constants",
+        "tags": [
+          "Regulatory Core",
+          "regulatory"
+        ]
+      }
+    },
+    "/api/v1/regulatory/constants/{key}": {
+      "get": {
+        "description": "Get a single regulatory constant by key.\n\nArgs:\n    key: Dotted parameter key (e.g. \"pillar3a.max_with_lpp\", \"avs.max_monthly_pension\").\n    canton: Optional canton code for cantonal parameters.\n\nReturns:\n    The parameter as a JSON dict.\n\nRaises:\n    404 if the key is not found.",
+        "operationId": "get_constant_api_v1_regulatory_constants__key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Canton code for cantonal parameters (e.g. ZH, GE).",
+            "in": "query",
+            "name": "canton",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Canton code for cantonal parameters (e.g. ZH, GE).",
+              "title": "Canton"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Constant Api V1 Regulatory Constants  Key  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Constant",
+        "tags": [
+          "Regulatory Core",
+          "regulatory"
+        ]
+      }
+    },
+    "/api/v1/regulatory/freshness": {
+      "get": {
+        "description": "Check which parameters are stale and need review.\n\nReturns:\n    JSON with \"stale_count\" and \"stale_parameters\" (list of parameter dicts).",
+        "operationId": "check_freshness_api_v1_regulatory_freshness_get",
+        "parameters": [
+          {
+            "description": "Maximum number of days since last review before a parameter is considered stale.",
+            "in": "query",
+            "name": "max_age_days",
+            "required": false,
+            "schema": {
+              "default": 90,
+              "description": "Maximum number of days since last review before a parameter is considered stale.",
+              "title": "Max Age Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Check Freshness Api V1 Regulatory Freshness Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Check Freshness",
+        "tags": [
+          "Regulatory Core",
+          "regulatory"
         ]
       }
     },
