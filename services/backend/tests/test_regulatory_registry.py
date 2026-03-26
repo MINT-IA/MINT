@@ -707,3 +707,89 @@ class TestCoachToolsIntegration:
         assert "canton" in schema["properties"]
         assert schema["required"] == ["key"]
         assert tool["category"] == "read"
+
+
+# ---------------------------------------------------------------------------
+# 15. Freshness — all parameters reviewed within 180 days
+# ---------------------------------------------------------------------------
+
+
+class TestFreshness180Days:
+    """All parameters must have reviewed_at within 180 days of today."""
+
+    def test_all_reviewed_within_180_days(self, registry):
+        """Every parameter must have been reviewed in the last 180 days."""
+        today = date.today()
+        for param in registry.get_all():
+            assert param.reviewed_at is not None, (
+                f"Missing reviewed_at for {param.key}"
+            )
+            age_days = (today - param.reviewed_at).days
+            assert age_days <= 180, (
+                f"Parameter {param.key} is stale: reviewed {age_days} days ago "
+                f"(max 180). reviewed_at={param.reviewed_at}"
+            )
+
+
+# ---------------------------------------------------------------------------
+# 16. No active parameter with effective_to in the past
+# ---------------------------------------------------------------------------
+
+
+class TestNoExpiredActiveParameters:
+    """No active (non-historical) parameter should have effective_to in the past."""
+
+    def test_no_active_param_expired(self, registry):
+        """Active parameters must not have effective_to < today.
+
+        Historical parameters (e.g. pillar3a.historical_limits.2020) are
+        expected to have effective_to in the past — they are excluded.
+        """
+        today = date.today()
+        expired = []
+        for param in registry.get_all():
+            # Skip historical parameters (they have intentional effective_to)
+            if ".historical_limits." in param.key:
+                continue
+            if param.effective_to is not None and param.effective_to < today:
+                expired.append(
+                    f"{param.key} (effective_to={param.effective_to})"
+                )
+        assert expired == [], (
+            f"Active parameters with effective_to in the past: {expired}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# 17. Warning for parameters older than 90 days (informational, not failure)
+# ---------------------------------------------------------------------------
+
+
+class TestFreshness90DaysWarning:
+    """Print a WARNING for parameters reviewed more than 90 days ago.
+
+    This test NEVER fails — it only prints warnings to help maintainers
+    identify parameters that may need review soon.
+    """
+
+    def test_warn_params_older_than_90_days(self, registry, capsys):
+        """Informational: list parameters reviewed >90 days ago."""
+        today = date.today()
+        warnings = []
+        for param in registry.get_all():
+            if param.reviewed_at is None:
+                warnings.append(f"  {param.key}: reviewed_at is None")
+            elif (today - param.reviewed_at).days > 90:
+                age = (today - param.reviewed_at).days
+                warnings.append(
+                    f"  {param.key}: reviewed {age} days ago "
+                    f"(reviewed_at={param.reviewed_at})"
+                )
+        if warnings:
+            print(f"\n[WARNING] {len(warnings)} parameters reviewed >90 days ago:")
+            for w in warnings:
+                print(w)
+        else:
+            print("\n[OK] All parameters reviewed within 90 days.")
+        # This test always passes — it's informational only
+        assert True
