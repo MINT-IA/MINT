@@ -2076,7 +2076,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   /// Render the result of a guided sequence step into the chat.
   ///
-  /// Called from _onRealtimeScreenReturn (canonical) or _handleSequenceFallback.
+  /// Called from _onRealtimeScreenReturn (canonical) or _handleRouteReturnAsync (fallback).
   void _renderSequenceAction(SequenceHandlerResult result) {
     if (!mounted) return;
 
