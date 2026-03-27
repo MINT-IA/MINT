@@ -1,8 +1,9 @@
 # Sequence Phase 2 — Completion Plan
 
 > Date : 2026-03-27
-> Statut : **TODO** — fondations posées, orchestration chat à finaliser
-> Prérequis : Phase 1 (modèles, coordinator, store) + Phase 2 partielle (handler, widget, startSequence hook)
+> Statut : **INCOMPLETE** — fondations solides, orchestration chat encore incomplète
+> Ce document distingue honnêtement ce qui est livré, ce qui est branché
+> mais pas production-ready, et ce qui reste à faire.
 
 ---
 
@@ -18,8 +19,10 @@
 | SequenceProgressCard (widget) | Done | `widgets/coach/sequence_progress_card.dart` |
 | CapMemory.stepProposals | Done | `services/cap_memory_store.dart` |
 | ScreenReturn.stepOutputs | Done | `models/screen_return.dart` |
-| startSequence hook en production | Done | `screens/coach/coach_chat_screen.dart` |
-| 60+ tests | Done | `test/services/sequence/`, `test/widgets/coach/`, `test/services/cap_memory_step_proposals_test.dart` |
+| startSequence callsite in chat | **Partial** | `screens/coach/coach_chat_screen.dart:1487` — fire-and-forget, no runId/stepId in navigation |
+| Chat dedup + legacy bypass | **Partial** | `_activeSequenceStepKey` guard — works when realtime fires, but contrat is incomplete (no eventId) |
+| 60+ tests | Done (service-level) | `test/services/sequence/`, `test/widgets/coach/`, `test/services/cap_memory_step_proposals_test.dart` |
+| E2E integration test | **Missing** | No test covers chat → handler → coordinator → store round-trip |
 
 ## Ce qui manque (architecture cible)
 
