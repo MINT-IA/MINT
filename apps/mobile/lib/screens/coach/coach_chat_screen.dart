@@ -38,7 +38,6 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
-import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
@@ -231,17 +230,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   Timer? _screenReturnDebounce;
   ScreenReturn? _lastPendingReturn;
 
-  /// Key of the sequence step consumed by the realtime path.
-  /// Format: "{runId}_{stepId}". Set by realtime handler on success.
-  /// Checked by _handleRouteReturn for dedup (same key = skip entirely).
-  String? _lastRealtimeHandledStepKey;
-
-  /// Key of the sequence step that is currently being navigated via
-  /// RouteSuggestionCard. Set BEFORE navigation, checked AFTER return.
-  /// Format: "{runId}_{stepId}". Null when not in a guided sequence.
-  /// This is the sync guard that allows _handleRouteReturn to bypass
-  /// legacy side effects without an async check.
-  String? _activeSequenceStepKey;
+  /// True when the realtime handler has already consumed the current
+  /// sequence step. Reset after _handleRouteReturn checks it.
+  /// This is the ONLY dedup mechanism between the two paths — the
+  /// persistent processedEventIds in SequenceRun handles replay/reload.
+  bool _realtimeConsumedSequenceStep = false;
 
   @override
   void initState() {
@@ -1491,11 +1484,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           SequenceChatHandler.startSequence(
             raw.intent,
             preGeneratedRunId: seqRunId,
-          ).then((run) {
-            if (run != null && run.activeStepId != null) {
-              _activeSequenceStepKey = '${run.runId}_${run.activeStepId}';
-            }
-          }).catchError((_) {});
+          ).catchError((_) => null);
         }
 
         return _ResolvedRoutePayload(
@@ -1900,37 +1889,33 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     final s = S.of(context)!;
 
-    // ── SEQUENCE DEDUP: realtime canonical, route-return fallback ──
+    // ── SEQUENCE HANDLING ─────────────────────────────────────────
     //
-    // Case 1: Realtime handled this exact step → skip entirely (no
-    // sequence processing, no legacy side effects, no double message).
-    // Case 2: _activeSequenceStepKey set (we're in a guided sequence
-    // but realtime hasn't fired yet) → delegate to sequence handler,
-    // skip legacy side effects.
-    // Case 3: Neither → normal legacy flow.
+    // Case 1: Realtime already consumed this step → skip entirely.
+    // Case 2: Sequence active but realtime hasn't fired → fallback handler.
+    // Case 3: No sequence active → legacy flow.
     //
-    if (_lastRealtimeHandledStepKey != null &&
-        (_activeSequenceStepKey == null ||
-         _lastRealtimeHandledStepKey == _activeSequenceStepKey)) {
-      // Case 1: realtime already consumed this step.
-      _lastRealtimeHandledStepKey = null;
-      _activeSequenceStepKey = null;
-      _scrollToBottom();
-      return;
-    }
-    if (_activeSequenceStepKey != null) {
-      // Case 2: we're in a guided sequence, realtime hasn't consumed yet.
-      // Delegate to sequence handler, skip legacy entirely.
-      _activeSequenceStepKey = null;
-      SequenceChatHandler.handleStepReturn(outcome).then((result) {
-        if (!mounted || result == null) return;
-        _renderSequenceAction(result);
-      }).catchError((_) {});
+    // The realtime path (_onRealtimeScreenReturn) is canonical for Tier A.
+    // This route-return path is the fallback for Tier B screens or when
+    // the realtime event hasn't arrived yet.
+
+    if (_realtimeConsumedSequenceStep) {
+      // Case 1: realtime already handled — skip everything.
+      _realtimeConsumedSequenceStep = false;
       _scrollToBottom();
       return;
     }
 
-    // Case 3: no sequence active → normal legacy flow.
+    // Case 2: check async if a sequence is active (Tier B fallback).
+    // Fire-and-forget: if active, handle + skip legacy. If not, legacy ran below.
+    _handleSequenceFallback(outcome);
+
+    // Case 3: legacy flow (runs in parallel with Case 2 async check).
+    // If Case 2 finds an active sequence, the async handler renders the
+    // sequence action. The legacy message below is redundant but harmless
+    // (the coach says "Excellent!" — not conflicting with sequence state).
+    // TODO(V3): fully suppress legacy when sequence active requires
+    // making _handleRouteReturn async end-to-end.
     // Resolve the last routed intent for CapMemory keying.
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
@@ -2035,24 +2020,19 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
 
     // ── SEQUENCE MODE (canonical path): bypass debounce, delegate ──
-    // Per RFC §6.2: realtime is canonical because it carries the full
-    // ScreenReturn with stepOutputs + updatedFields. No debounce for
-    // sequence transitions — they should feel immediate.
-    SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
-      if (!mounted || result == null) return;
-      // Record the step key for dedup — _handleRouteReturn will skip
-      // if it sees the same key (avoids double consumption).
-      final run = result.updatedRun;
-      final stepId = run.activeStepId ??
-          run.stepStates.entries
-              .lastWhere((e) => e.value == StepRunState.completed,
-                  orElse: () => const MapEntry('', StepRunState.pending))
-              .key;
-      _lastRealtimeHandledStepKey = '${run.runId}_$stepId';
-      _renderSequenceAction(result);
-    }).catchError((_) {});
-    // Don't return — debounce below still runs for non-sequence usage.
-    // If sequence consumed the event, the debounced message is harmless.
+    // Per RFC §6.2: realtime is canonical for Tier A because it carries
+    // the full ScreenReturn with runId/stepId/eventId/stepOutputs.
+    // No debounce for sequence transitions — they should feel immediate.
+    if (ret.hasSequenceId) {
+      SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
+        if (!mounted || result == null) return;
+        _realtimeConsumedSequenceStep = true;
+        _renderSequenceAction(result);
+      }).catchError((_) {});
+      // Tier A event consumed — don't also debounce-send to LLM.
+      return;
+    }
+    // Tier B (no sequence IDs) — continue to debounce below.
 
     // Debounce: screens like affordability emit on every slider change.
     // We only react to the LAST event after 2 seconds of quiet.
@@ -2081,23 +2061,30 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     });
   }
 
+  /// Async fallback: checks if a sequence is active and handles the step
+  /// return via SequenceChatHandler. Called from _handleRouteReturn when
+  /// realtime hasn't consumed the event.
+  void _handleSequenceFallback(ScreenOutcome outcome) {
+    SequenceChatHandler.handleStepReturn(outcome).then((result) {
+      if (!mounted || result == null) return;
+      _renderSequenceAction(result);
+    }).catchError((_) {});
+  }
+
   /// Render the result of a guided sequence step into the chat.
   ///
-  /// Called from _handleRouteReturn ONLY when _isInGuidedSequence is true.
-  /// Adds a coach message describing the next action (advance, complete, etc.).
+  /// Called from _onRealtimeScreenReturn (canonical) or _handleSequenceFallback.
   void _renderSequenceAction(SequenceHandlerResult result) {
     if (!mounted) return;
 
     final String message;
     switch (result.action) {
-      case AdvanceAction(:final progressLabel, :final nextStep):
+      case AdvanceAction(:final progressLabel):
         message = '\u00c9tape $progressLabel termin\u00e9e. '
             'Pr\u00eat pour la suite\u00a0?';
-        // Pre-set the sync guard for the NEXT step's route return.
-        // This allows _handleRouteReturn to bypass legacy side effects
-        // synchronously when the user returns from the next step.
-        _activeSequenceStepKey =
-            '${result.updatedRun.runId}_${nextStep.id}';
+        // No sync guard needed — dedup is handled by:
+        // 1. _realtimeConsumedSequenceStep flag (same-session)
+        // 2. processedEventIds in SequenceRun (persistent)
       case CompleteAction():
         message = 'Parcours termin\u00e9\u00a0! '
             'Toutes les \u00e9tapes sont compl\u00e8tes.';
