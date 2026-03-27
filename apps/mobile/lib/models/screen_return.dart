@@ -146,7 +146,8 @@ class ScreenReturn {
       'outcome: $outcome, '
       'updatedFields: $updatedFields, '
       'confidenceDelta: $confidenceDelta, '
-      'nextCapSuggestion: $nextCapSuggestion'
+      'nextCapSuggestion: $nextCapSuggestion, '
+      'stepOutputs: $stepOutputs'
       ')';
 
   @override
@@ -157,7 +158,8 @@ class ScreenReturn {
         other.outcome == outcome &&
         other.confidenceDelta == confidenceDelta &&
         other.nextCapSuggestion == nextCapSuggestion &&
-        _mapEquals(other.updatedFields, updatedFields);
+        _mapEquals(other.updatedFields, updatedFields) &&
+        _mapEquals(other.stepOutputs, stepOutputs);
   }
 
   static bool _mapEquals(Map<String, dynamic>? a, Map<String, dynamic>? b) {
@@ -177,6 +179,12 @@ class ScreenReturn {
             ? null
             : Object.hashAll(
                 updatedFields!.entries
+                    .map((e) => Object.hash(e.key, e.value)),
+              ),
+        stepOutputs == null
+            ? null
+            : Object.hashAll(
+                stepOutputs!.entries
                     .map((e) => Object.hash(e.key, e.value)),
               ),
       );

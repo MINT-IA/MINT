@@ -184,39 +184,44 @@ class SequenceCoordinator {
     SequenceRun run,
     ScreenReturn stepReturn,
   ) {
-    // Find steps that depend on changed fields
-    final changedKeys = stepReturn.updatedFields?.keys.toSet() ?? {};
-    if (changedKeys.isEmpty) {
+    final hasChanges = stepReturn.updatedFields?.isNotEmpty ?? false;
+    if (!hasChanges) {
       return const PauseAction(canResume: true);
     }
 
-    // Find completed steps whose outputs might be affected
+    // V1: conservatively invalidate ALL completed steps when profile changes.
+    // We don't have a reverse mapping (profile field → step dependency),
+    // so any profile change could affect any step's outputs.
+    // This is safe: re-running a step with updated profile data is always
+    // better than silently using stale outputs.
     final invalidated = <String>[];
     for (final step in template.steps) {
-      if (run.stepStates[step.id] == StepRunState.completed) {
-        // If any of this step's output keys overlap with changed profile keys
-        final outputKeys = step.outputMapping.keys.toSet();
-        if (outputKeys.intersection(changedKeys).isNotEmpty) {
-          invalidated.add(step.id);
-        }
+      if (run.stepStates[step.id] == StepRunState.completed &&
+          run.stepOutputs.containsKey(step.id)) {
+        invalidated.add(step.id);
       }
     }
 
     if (invalidated.isEmpty) {
+      // Profile changed but no step had outputs → just pause for user decision
       return const PauseAction(canResume: true);
     }
 
     return ReEvaluateAction(invalidatedStepIds: invalidated);
   }
 
-  /// Find the next step that is pending or blocked (not completed/skipped).
+  /// Find the next step that is pending (not completed, skipped, or blocked).
+  ///
+  /// Blocked steps are NOT advanced to — they require prerequisite resolution
+  /// first. Without RoutePlanner/readiness integration in Phase 1, we simply
+  /// skip blocked steps and look for the next pending one.
   static SequenceStepDef? _findNextStep(
     SequenceTemplate template,
     SequenceRun run,
   ) {
     for (final step in template.steps) {
       final state = run.stepStates[step.id];
-      if (state == StepRunState.pending || state == StepRunState.blocked) {
+      if (state == StepRunState.pending) {
         // Skip inline summary steps (no screen to route to)
         if (step.intentTag == '_inline_summary') continue;
         return step;

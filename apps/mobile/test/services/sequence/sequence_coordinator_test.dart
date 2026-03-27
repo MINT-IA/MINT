@@ -234,7 +234,7 @@ void main() {
       expect((action as PauseAction).canResume, isTrue);
     });
 
-    test('changed inputs → re-evaluate affected steps', () {
+    test('changed inputs → re-evaluate all completed steps with outputs', () {
       final template = SequenceTemplate.housingPurchase;
       var run = _startRun(template);
       run = run.completeStep('housing_01_affordability', {
@@ -242,19 +242,40 @@ void main() {
       });
       run = run.activateStep('housing_02_epl');
 
+      // V1: any profile change conservatively invalidates all completed steps
+      // that have outputs, because we don't have reverse dependency mapping.
       final action = SequenceCoordinator.decide(
         template: template,
         run: run,
         stepReturn: const ScreenReturn.changedInputs(
           route: '/epl',
-          updatedFields: {'capacite_achat': 700000},
+          updatedFields: {'prevoyance.avoirLppTotal': 300000},
         ),
         proposalCount: 1,
       );
 
       expect(action, isA<ReEvaluateAction>());
+      // Step 1 had outputs → invalidated
       expect((action as ReEvaluateAction).invalidatedStepIds,
           contains('housing_01_affordability'));
+    });
+
+    test('changed inputs with no completed outputs → pause', () {
+      final template = SequenceTemplate.housingPurchase;
+      final run = _startRun(template);
+
+      final action = SequenceCoordinator.decide(
+        template: template,
+        run: run,
+        stepReturn: const ScreenReturn.changedInputs(
+          route: '/hypotheque',
+          updatedFields: {'canton': 'GE'},
+        ),
+        proposalCount: 1,
+      );
+
+      // No completed step has outputs → just pause
+      expect(action, isA<PauseAction>());
     });
 
     test('no active step → pause', () {
@@ -339,6 +360,63 @@ void main() {
       // Outputs from step 1 and step 2 are accumulated
       expect(complete.allOutputs.containsKey('housing_01_affordability'), isTrue);
       expect(complete.allOutputs.containsKey('housing_02_epl'), isTrue);
+    });
+  });
+
+  // ── Output sanitization ───────────────────────────────────────
+
+  group('Output sanitization', () {
+    test('completeStep filters non-primitive values', () {
+      var run = _startRun(SequenceTemplate.housingPurchase);
+      run = run.completeStep('housing_01_affordability', {
+        'capacite_achat': 850000.0,        // double — kept
+        'count': 3,                         // int — kept
+        'label': 'test',                    // String — kept
+        'flag': true,                       // bool — kept
+        'nested': {'a': 1},                 // Map — dropped
+        'list': [1, 2, 3],                  // List — dropped
+      });
+
+      final outputs = run.stepOutputs['housing_01_affordability']!;
+      expect(outputs['capacite_achat'], 850000.0);
+      expect(outputs['count'], 3);
+      expect(outputs['label'], 'test');
+      expect(outputs['flag'], true);
+      expect(outputs.containsKey('nested'), isFalse);
+      expect(outputs.containsKey('list'), isFalse);
+    });
+  });
+
+  // ── Blocked step handling ─────────────────────────────────────
+
+  group('Blocked steps', () {
+    test('blocked step is NOT advanced to', () {
+      final template = SequenceTemplate.housingPurchase;
+      var run = _startRun(template);
+      // Block step 2
+      final states = Map<String, StepRunState>.from(run.stepStates);
+      states['housing_02_epl'] = StepRunState.blocked;
+      run = SequenceRun(
+        runId: run.runId,
+        templateId: run.templateId,
+        startedAt: run.startedAt,
+        stepStates: states,
+      );
+
+      final action = SequenceCoordinator.decide(
+        template: template,
+        run: run,
+        stepReturn: const ScreenReturn.completed(
+          route: '/hypotheque',
+          stepOutputs: {'capacite_achat': 850000},
+        ),
+        proposalCount: 1,
+      );
+
+      // Should skip blocked step 2 and advance to step 3
+      expect(action, isA<AdvanceAction>());
+      final advance = action as AdvanceAction;
+      expect(advance.nextStep.id, 'housing_03_fiscal');
     });
   });
 }

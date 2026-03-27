@@ -82,14 +82,31 @@ class SequenceRun {
   // ── IMMUTABLE UPDATES ──────────────────────────────────────────
 
   /// Returns a copy with the given step marked as completed + outputs recorded.
+  ///
+  /// Outputs are validated: only JSON-serializable primitives (double, int,
+  /// String, bool) are accepted. Non-primitive values are silently dropped.
+  /// See RFC §6.3 for the persistence contract.
   SequenceRun completeStep(String stepId, Map<String, dynamic> outputs) {
     final newStates = Map<String, StepRunState>.from(stepStates);
     newStates[stepId] = StepRunState.completed;
     final newOutputs = Map<String, Map<String, dynamic>>.from(stepOutputs);
     if (outputs.isNotEmpty) {
-      newOutputs[stepId] = outputs;
+      newOutputs[stepId] = _sanitizeOutputs(outputs);
     }
     return _copyWith(stepStates: newStates, stepOutputs: newOutputs);
+  }
+
+  /// Filter outputs to only JSON-serializable primitives.
+  static Map<String, dynamic> _sanitizeOutputs(Map<String, dynamic> raw) {
+    final sanitized = <String, dynamic>{};
+    for (final entry in raw.entries) {
+      final v = entry.value;
+      if (v is double || v is int || v is String || v is bool) {
+        sanitized[entry.key] = v;
+      }
+      // Silently drop non-primitive values (Lists, Maps, objects)
+    }
+    return sanitized;
   }
 
   /// Returns a copy with the given step marked as skipped.
