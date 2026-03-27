@@ -39,6 +39,7 @@ import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/models/sequence_run.dart';
+import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -1476,11 +1477,20 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     switch (decision.action) {
       case RouteAction.openScreen:
       case RouteAction.openWithWarning:
-        // Route is resolved — keep the payload (route is baked into decision).
-        // We embed the resolved route and isPartial flag back into a new
-        // payload by augmenting contextMessage with a special suffix the
-        // renderer can read.  Since RouteToolPayload is immutable we encode
-        // the extra data directly on the message.
+        // ── SEQUENCE START: if this intent matches a sequence template,
+        // start the guided run BEFORE the user navigates.
+        // Fire-and-forget: the run is persisted in SequenceStore.
+        // _activeSequenceStepKey is set so _handleRouteReturn can
+        // bypass legacy side effects synchronously on return.
+        final template = SequenceTemplate.templateForIntent(raw.intent);
+        if (template != null) {
+          SequenceChatHandler.startSequence(raw.intent).then((run) {
+            if (run != null && run.activeStepId != null) {
+              _activeSequenceStepKey = '${run.runId}_${run.activeStepId}';
+            }
+          }).catchError((_) {});
+        }
+
         return _ResolvedRoutePayload(
           intent: raw.intent,
           confidence: raw.confidence,
