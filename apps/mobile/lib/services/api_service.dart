@@ -546,6 +546,7 @@ class ApiService {
     String? lppCaisseType,
     double? totalDebts,
     double? monthlyDebtService,
+    String? stressType,
   }) async {
     final response = await post('/onboarding/chiffre-choc', {
       'age': age,
@@ -560,6 +561,7 @@ class ApiService {
       if (totalDebts != null) 'total_debts': totalDebts,
       if (monthlyDebtService != null)
         'monthly_debt_service': monthlyDebtService,
+      if (stressType != null) 'stress_type': stressType,
     });
 
     final category = _readString(
@@ -584,6 +586,9 @@ class ApiService {
       'liquidity' => ChiffreChocType.liquidityAlert,
       'tax_saving' => ChiffreChocType.taxSaving3a,
       'retirement_gap' => ChiffreChocType.retirementGap,
+      'retirement_income' => ChiffreChocType.retirementIncome,
+      'compound_growth' => ChiffreChocType.compoundGrowth,
+      'hourly_rate' => ChiffreChocType.hourlyRate,
       _ => ChiffreChocType.retirementIncome,
     };
 
@@ -612,7 +617,29 @@ class ApiService {
           'info',
           '${_formatChf(primaryNumber)}/mois',
         ),
+      ChiffreChocType.compoundGrowth => (
+          'Ton avantage temps',
+          'trending_up',
+          'success',
+          _formatChf(primaryNumber),
+        ),
+      ChiffreChocType.hourlyRate => (
+          'Ton salaire reel',
+          'schedule',
+          'info',
+          'CHF\u00A0${primaryNumber.round()}/h',
+        ),
     };
+
+    // Read confidence_mode from API response (V2 contract)
+    final confidenceModeStr = _readString(
+      response,
+      const ['confidenceMode', 'confidence_mode'],
+      fallback: 'factual',
+    );
+    final confidenceMode = confidenceModeStr == 'pedagogical'
+        ? ChiffreChocConfidence.pedagogical
+        : ChiffreChocConfidence.factual;
 
     return ChiffreChoc(
       type: type,
@@ -624,6 +651,7 @@ class ApiService {
           : displayText,
       iconName: iconName,
       colorKey: colorKey,
+      confidenceMode: confidenceMode,
     );
   }
 

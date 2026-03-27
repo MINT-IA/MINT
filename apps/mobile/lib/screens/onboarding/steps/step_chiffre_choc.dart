@@ -265,6 +265,42 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                           ),
                           textAlign: TextAlign.center,
                         ),
+                        // Pedagogical caveat when data is estimated
+                        if (choc.confidenceMode ==
+                            ChiffreChocConfidence.pedagogical) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: MintColors.info.withAlpha(15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.info_outline,
+                                  size: 14,
+                                  color: MintColors.textMuted,
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    l.stepChocPedagogicalCaveat,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      color: MintColors.textMuted,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -511,11 +547,14 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
       return '${animValue.toStringAsFixed(1)} mois';
     }
 
+    // A4 fix: detect /h suffix for hourlyRate
     String suffix = '';
     if (raw.endsWith('/mois')) {
       suffix = '/mois';
     } else if (raw.endsWith('/an')) {
       suffix = '/an';
+    } else if (raw.endsWith('/h')) {
+      suffix = '/h';
     }
 
     return 'CHF\u00A0${formatChf(animValue)}$suffix';

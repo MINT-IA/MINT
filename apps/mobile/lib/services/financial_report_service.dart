@@ -151,6 +151,7 @@ class FinancialReportService {
       monthlyNetIncome:
           _parseDouble(answers['q_net_income_period_chf']) ?? 5000,
       gender: answers['q_gender'] as String?,
+      spouseGender: answers['q_spouse_gender'] as String?,
       // Nouvelle logique AVS (triage lacunes)
       avsGapYears: _calculateAvsGaps(answers, birthYear),
       spouseAvsGapYears: _calculateSpouseAvsGaps(answers, birthYear),
@@ -661,10 +662,12 @@ class FinancialReportService {
     if (profile.isMarried) {
       // Spouse rente: use same gross salary assumption (no spouse salary available)
       // TODO: Accept spouse income for more accurate couple AVS computation.
-      // F7-2: Spouse gender is inferred as opposite of user for AVS21.
-      // If user gender unknown, both default to male reference age (65).
-      final spouseIsFemale = profile.gender == 'M';
-      final spouseRefAge = profile.gender != null
+      // S57-F4: Use spouse's actual gender when available. Never infer from
+      // user gender — same-sex couples would get the wrong reference age.
+      // Fallback to male reference age (65) when spouse gender is unknown.
+      final spouseIsFemale = profile.spouseGender == 'F';
+      final hasSpouseGender = profile.spouseGender != null;
+      final spouseRefAge = hasSpouseGender
           ? avsReferenceAge(birthYear: profile.birthYear, isFemale: spouseIsFemale)
           : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
       final spouseRente = AvsCalculator.computeMonthlyRente(
@@ -673,8 +676,8 @@ class FinancialReportService {
         lacunes: profile.spouseAvsGapYears ?? 0,
         anneesContribuees: profile.spouseContributionYears,
         grossAnnualSalary: grossAnnualSalary,
-        isFemale: profile.gender != null ? spouseIsFemale : null,
-        birthYear: profile.gender != null ? profile.birthYear : null,
+        isFemale: hasSpouseGender ? spouseIsFemale : null,
+        birthYear: hasSpouseGender ? profile.birthYear : null,
       );
 
       // Apply married couple cap (LAVS art. 35 — 150% of individual max)

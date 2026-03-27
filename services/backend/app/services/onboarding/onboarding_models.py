@@ -39,6 +39,7 @@ class MinimalProfileInput:
     lpp_caisse_type: Optional[str] = None        # default: "base" (6.8% conversion rate)
     total_debts: Optional[float] = None          # default: 0
     monthly_debt_service: Optional[float] = None  # default: 0
+    stress_type: Optional[str] = None            # user's declared intention from onboarding
 
 
 @dataclass
@@ -67,6 +68,8 @@ class MinimalProfileResult:
     disclaimer: str
     sources: List[str]
     enrichment_prompts: List[str]
+    age: int = 30  # user's age — used by lifecycle-aware chiffre choc selector
+    gross_annual_salary: float = 0.0  # gross salary — used by hourly rate choc + archetype alerts
 
 
 @dataclass
@@ -80,8 +83,8 @@ class ChiffreChoc:
         - retirement_gap: monthly gap between retirement income and expenses
         - tax_saving: annual tax saving left on the table (3a)
         - liquidity: months of financial runway
-        - lpp_opportunity: LPP buyback potential
-        - mortgage_stress: mortgage affordability stress
+        - compound_growth: time advantage for young users (pure math)
+        - hourly_rate: net hourly rate breakdown (pure math)
     """
 
     category: str
@@ -92,3 +95,4 @@ class ChiffreChoc:
     disclaimer: str
     sources: List[str]
     confidence_score: float
+    confidence_mode: str = "factual"  # "factual" or "pedagogical"

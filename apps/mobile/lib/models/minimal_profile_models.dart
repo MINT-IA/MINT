@@ -139,6 +139,25 @@ enum ChiffreChocType {
 
   /// Retirement income projection (fallback / positive).
   retirementIncome,
+
+  /// Compound growth advantage for young users (pure math, always factual).
+  compoundGrowth,
+
+  /// Net hourly rate breakdown (pure math from salary, always factual).
+  hourlyRate,
+}
+
+/// Whether the chiffre choc is based on real data or estimates.
+///
+/// Governs the tone of the message:
+/// - [factual]: data is provided or pure math → precise language
+/// - [pedagogical]: key data is estimated → educational framing, no false precision
+enum ChiffreChocConfidence {
+  /// Based on provided data or pure math — can show precise numbers.
+  factual,
+
+  /// Based on estimated data — use educational framing, not false precision.
+  pedagogical,
 }
 
 /// A single impactful number to show the user.
@@ -166,6 +185,12 @@ class ChiffreChoc {
   /// Color suggestion key ('warning', 'success', 'info', 'error').
   final String colorKey;
 
+  /// Whether this chiffre choc is based on real data or estimates.
+  ///
+  /// When [pedagogical], the UI should frame the number as illustrative,
+  /// not as a precise projection. When [factual], precise language is appropriate.
+  final ChiffreChocConfidence confidenceMode;
+
   const ChiffreChoc({
     required this.type,
     required this.value,
@@ -174,5 +199,6 @@ class ChiffreChoc {
     required this.subtitle,
     required this.iconName,
     required this.colorKey,
+    this.confidenceMode = ChiffreChocConfidence.factual,
   });
 }

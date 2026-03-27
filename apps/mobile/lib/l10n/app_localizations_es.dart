@@ -23618,6 +23618,10 @@ class SEs extends S {
       'Herramienta educativa simplificada. No constituye asesoramiento financiero (LSFin). Fuentes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
 
   @override
+  String get stepChocPedagogicalCaveat =>
+      'Estimación ilustrativa basada en datos parciales. Enriquece tu perfil para cifras más precisas.';
+
+  @override
   String get stepJitTitle => 'Comprender en 30 segundos';
 
   @override
