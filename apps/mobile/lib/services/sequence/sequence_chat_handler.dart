@@ -96,19 +96,9 @@ class SequenceChatHandler {
       proposalCount: proposals,
     );
 
-    // Apply the action to the run state
+    // Apply action + persist + increment proposals for next step
     final updatedRun = _applyAction(action, run, outcome, stepOutputs);
-
-    // Persist
-    if (updatedRun.status == SequenceRunStatus.completed ||
-        updatedRun.status == SequenceRunStatus.abandoned) {
-      // Clear run + proposals
-      await SequenceStore.clear();
-      final clearedMem = capMem.clearProposalsForRun(run.runId);
-      await CapMemoryStore.save(clearedMem);
-    } else {
-      await SequenceStore.save(updatedRun);
-    }
+    await _persistAndTrackProposals(action, updatedRun, run.runId, capMem);
 
     return SequenceHandlerResult(
       action: action,
@@ -119,24 +109,46 @@ class SequenceChatHandler {
 
   /// Handle a realtime ScreenReturn from the stream.
   ///
-  /// Returns true if the sequence consumed this event (caller should
-  /// NOT proceed with debounced legacy behavior).
-  /// Returns false if no sequence is active (caller proceeds normally).
-  static Future<bool> handleRealtimeReturn(ScreenReturn ret) async {
+  /// Returns a [SequenceHandlerResult] if the sequence consumed this event
+  /// (caller should NOT proceed with debounced legacy behavior).
+  /// Returns null if no sequence is active (caller proceeds normally).
+  ///
+  /// Unlike handleStepReturn (which receives a simple outcome), this
+  /// receives a full ScreenReturn with stepOutputs and updatedFields.
+  /// It delegates to the same SequenceCoordinator for consistent decisions.
+  static Future<SequenceHandlerResult?> handleRealtimeReturn(
+    ScreenReturn ret,
+  ) async {
     final run = await SequenceStore.load();
-    if (run == null || !run.isActive) return false;
+    if (run == null || !run.isActive) return null;
 
-    // If the return has stepOutputs, update the run's active step
-    if (ret.hasStepOutputs && run.activeStepId != null) {
-      final updatedRun = run.completeStep(
-        run.activeStepId!,
-        ret.stepOutputs!,
-      );
-      await SequenceStore.save(updatedRun);
-    }
+    final template = _templateById(run.templateId);
+    if (template == null) return null;
 
-    // Signal to caller: this event was consumed by the sequence
-    return true;
+    // Load proposal count for anti-loop
+    final capMem = await CapMemoryStore.load();
+    final activeStepId = run.activeStepId;
+    final proposals = activeStepId != null
+        ? capMem.proposalCount(run.runId, activeStepId)
+        : 0;
+
+    // Delegate to coordinator
+    final action = SequenceCoordinator.decide(
+      template: template,
+      run: run,
+      stepReturn: ret,
+      proposalCount: proposals,
+    );
+
+    // Apply action + persist + increment proposals for next step
+    final updatedRun = _applyAction(action, run, ret.outcome, ret.stepOutputs);
+    await _persistAndTrackProposals(action, updatedRun, run.runId, capMem);
+
+    return SequenceHandlerResult(
+      action: action,
+      updatedRun: updatedRun,
+      template: template,
+    );
   }
 
   /// Start a new guided sequence from an intent tag.
@@ -213,6 +225,40 @@ class SequenceChatHandler {
 
       case ReEvaluateAction(:final invalidatedStepIds):
         return run.invalidateSteps(invalidatedStepIds);
+    }
+  }
+
+  /// Persist the run state and increment proposals for the next step.
+  ///
+  /// Called after BOTH handleStepReturn and handleRealtimeReturn.
+  static Future<void> _persistAndTrackProposals(
+    SequenceAction action,
+    SequenceRun updatedRun,
+    String runId,
+    CapMemory capMem,
+  ) async {
+    if (updatedRun.status == SequenceRunStatus.completed ||
+        updatedRun.status == SequenceRunStatus.abandoned) {
+      // Clear run + proposals
+      await SequenceStore.clear();
+      final clearedMem = capMem.clearProposalsForRun(runId);
+      await CapMemoryStore.save(clearedMem);
+    } else {
+      await SequenceStore.save(updatedRun);
+
+      // Increment proposal count for the next step (anti-loop tracking)
+      var updatedMem = capMem;
+      switch (action) {
+        case AdvanceAction(:final nextStep):
+          updatedMem = updatedMem.incrementProposal(runId, nextStep.id);
+        case RetryAction(:final stepId):
+          updatedMem = updatedMem.incrementProposal(runId, stepId);
+        default:
+          break;
+      }
+      if (updatedMem != capMem) {
+        await CapMemoryStore.save(updatedMem);
+      }
     }
   }
 

@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/screen_return.dart';
-import 'package:mint_mobile/models/sequence_run.dart';
-import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
@@ -45,15 +43,6 @@ void main() {
     test('returns null for unknown intent', () async {
       final run = await SequenceChatHandler.startSequence('unknown_intent');
       expect(run, isNull);
-    });
-
-    test('persists run to SequenceStore', () async {
-      await SequenceChatHandler.startSequence('optimize_3a');
-      // Note: templateForIntent maps 'simulator_3a' → optimize3a, not 'optimize_3a'
-      // But startSequence takes the intentTag, so let's use a valid one
-      final stored = await SequenceStore.load();
-      // Should be null because 'optimize_3a' doesn't match any intentTag
-      // Valid intents: 'simulator_3a', 'housing_purchase', 'retirement_choice', etc.
     });
 
     test('startSequence with valid intent persists', () async {
@@ -148,6 +137,31 @@ void main() {
       expect(stored, isNull);
     });
 
+    test('advance increments proposal for next step', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      // Complete step 1 → advances to step 2
+      await SequenceChatHandler.handleStepReturn(
+        ScreenOutcome.completed,
+        stepOutputs: {'capacite_achat': 850000.0},
+      );
+
+      // Step 2 should have 1 proposal (from the advance)
+      final capMem = await CapMemoryStore.load();
+      expect(capMem.proposalCount(run!.runId, 'housing_02_epl'), 1);
+    });
+
+    test('retry increments proposal for same step', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      // Abandon step 1 → retry
+      await SequenceChatHandler.handleStepReturn(ScreenOutcome.abandoned);
+
+      // Step 1 should now have 2 proposals (1 from start + 1 from retry)
+      final capMem = await CapMemoryStore.load();
+      expect(capMem.proposalCount(run!.runId, 'housing_01_affordability'), 2);
+    });
+
     test('changedInputs triggers re-evaluate', () async {
       await SequenceChatHandler.startSequence('housing_purchase');
 
@@ -172,32 +186,43 @@ void main() {
   });
 
   group('SequenceChatHandler.handleRealtimeReturn', () {
-    test('returns false when no sequence active', () async {
-      final consumed = await SequenceChatHandler.handleRealtimeReturn(
+    test('returns null when no sequence active', () async {
+      final result = await SequenceChatHandler.handleRealtimeReturn(
         const ScreenReturn.completed(route: '/hypotheque'),
       );
-      expect(consumed, isFalse);
+      expect(result, isNull);
     });
 
-    test('returns true and updates outputs when sequence active', () async {
+    test('delegates to coordinator when sequence active', () async {
       await SequenceChatHandler.startSequence('housing_purchase');
 
-      final consumed = await SequenceChatHandler.handleRealtimeReturn(
+      final result = await SequenceChatHandler.handleRealtimeReturn(
         const ScreenReturn.completed(
           route: '/hypotheque',
           stepOutputs: {'capacite_achat': 900000.0},
         ),
       );
 
-      expect(consumed, isTrue);
+      expect(result, isNotNull);
+      // Completed step 1 → should advance to step 2
+      expect(result!.action, isA<AdvanceAction>());
+      final advance = result.action as AdvanceAction;
+      expect(advance.nextStep.id, 'housing_02_epl');
+    });
 
-      // Verify outputs were stored
-      final stored = await SequenceStore.load();
-      expect(stored, isNotNull);
-      expect(
-        stored!.stepOutputs['housing_01_affordability']?['capacite_achat'],
-        900000.0,
+    test('realtime advance increments proposal for next step', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      await SequenceChatHandler.handleRealtimeReturn(
+        const ScreenReturn.completed(
+          route: '/hypotheque',
+          stepOutputs: {'capacite_achat': 850000.0},
+        ),
       );
+
+      // Next step (housing_02_epl) should have 1 proposal
+      final capMem = await CapMemoryStore.load();
+      expect(capMem.proposalCount(run!.runId, 'housing_02_epl'), 1);
     });
   });
 
