@@ -1,12 +1,22 @@
-// Financial core confidence: project-level scoring with bloc breakdown.
-// Used for projection confidence bands in simulators and forecasters.
+// ════════════════════════════════════════════════════════════════════════════
+// CONFIDENCE DOCTRINE (see docs/SOURCE_OF_TRUTH_MATRIX.md §3)
 //
-// NOTE: Three confidence systems coexist (V9-5):
-//   1. enhanced_confidence_service.py (backend) — 4-axis geometric mean, authoritative
-//   2. enhanced_confidence_service.dart (mobile) — 3-axis weighted average, offline fallback
-//   3. This file (financial_core) — project-level scoring with bloc breakdown
+// This scorer is the SOURCE OF TRUTH for PROJECTION CONFIDENCE.
+// It governs: simulator thresholds (≥40 to display), enrichment prompts
+// in the coach context, and BayesianProfileEnricher EVI ranking.
 //
-// TODO: Unify to single 4-axis model matching backend (SOT §3)
+// It is NOT the global confidence score. That role belongs to the
+// backend EnhancedConfidenceService (4-axis geometric mean via API).
+//
+// The 3 confidence systems and their governance:
+//   1. Backend enhanced_confidence_service.py → feature gates, global UI bars
+//   2. Mobile enhanced_confidence_service.dart → offline fallback of #1
+//   3. THIS FILE → projection quality, simulator display, EVI ranking
+//
+// When to use this: any time you need to decide "is this projection
+// reliable enough to show?" or "what data would improve it most?"
+// When NOT to use this: feature gates, global confidence badges, UI bars.
+// ════════════════════════════════════════════════════════════════════════════
 
 import 'dart:math' as math;
 
@@ -403,6 +413,11 @@ class ConfidenceScorer {
         : total >= 40
             ? 'medium'
             : 'low';
+
+    // NOTE: Prompts are emitted in component-check order, NOT sorted by impact.
+    // The EVI bridge (ContextInjectorService) and LowConfidenceCard sort their
+    // own copies when needed. Sorting here would change widget layout order
+    // and cause test viewport overflow in 800×600 test surfaces.
 
     return ProjectionConfidence(
       score: total,

@@ -352,10 +352,27 @@ class AuthProvider extends ChangeNotifier {
       await CapMemoryStore.clear();
       // Purge analytics queue
       await AnalyticsService().clearLocalQueue();
-      // Clear all SharedPreferences (nuclear option)
+      // Clear account-specific SharedPreferences while preserving device prefs.
+      // Save device-level prefs, clear everything, then restore them.
+      // This is safer than selective removal (new keys are auto-cleared).
+      // See SOURCE_OF_TRUTH_MATRIX.md §6 for governance.
       final prefs = await SharedPreferences.getInstance();
       await PrecomputedInsightsService.clear(prefs);
+      // Preserve device-level preferences across logout
+      final preservedLocale = prefs.getString('mint_locale');
+      final preservedB2bOrg = prefs.getString('_b2b_organization');
+      final preservedWhiteLabel = prefs.getString('_white_label_config');
       await prefs.clear();
+      // Restore device-level preferences
+      if (preservedLocale != null) {
+        await prefs.setString('mint_locale', preservedLocale);
+      }
+      if (preservedB2bOrg != null) {
+        await prefs.setString('_b2b_organization', preservedB2bOrg);
+      }
+      if (preservedWhiteLabel != null) {
+        await prefs.setString('_white_label_config', preservedWhiteLabel);
+      }
     } catch (e) {
       // Purge is best-effort — never block auth flow
       if (kDebugMode) {
