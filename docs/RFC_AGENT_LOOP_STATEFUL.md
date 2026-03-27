@@ -235,8 +235,10 @@ _onRealtimeScreenReturn(screenReturn);
 - Séquence pausée = resumable à la prochaine session
 
 ### 5.3 Pas de double message
-- Quand une `SequenceRun` est active, `_onRealtimeScreenReturn()` est gaté
-- Seul le `SequenceCoordinator` produit le message de transition
+- `_onRealtimeScreenReturn()` reste le point d'entrée unique
+- Quand une `SequenceRun` est active, sa **branche legacy** (message générique
+  + coach reaction) est bypassée au profit du `SequenceCoordinator`
+- Le handler realtime n'est PAS gaté — il est réorienté
 
 ### 5.4 Pas de séquences imbriquées
 - V1 : une seule `SequenceRun` active
@@ -255,24 +257,33 @@ _onRealtimeScreenReturn(screenReturn);
 `SequenceRun` ne rend **rien visible directement**. La projection sur le plan visible
 passe toujours par `CapSequenceEngine`.
 
-**Contrat** : `CapSequenceEngine.build()` accepte un paramètre optionnel `activeRun` :
+**Contrat** : `CapSequenceEngine.build()` garde sa signature actuelle et accepte
+un paramètre optionnel `activeRun` :
 
 ```dart
-/// Builds the visible CapSequence, optionally influenced by an active run.
+/// Current API (inchangée) :
+/// static CapSequence build({
+///   required CoachProfile profile,
+///   required CapMemory memory,
+///   required String goalIntentTag,
+///   required S l,
+/// })
 ///
-/// When [activeRun] is non-null, the engine projects the run state onto
-/// the CapStep statuses:
+/// Migration : ajouter un paramètre optionnel activeRun.
+/// Quand activeRun est non-null, le run state projette sur les CapStepStatus :
 ///   StepRunState.completed → CapStepStatus.completed
 ///   StepRunState.active    → CapStepStatus.current
 ///   StepRunState.skipped   → CapStepStatus.completed (grayed out in UI)
 ///   StepRunState.blocked   → CapStepStatus.blocked
 ///   StepRunState.pending   → CapStepStatus.upcoming
 ///
-/// When [activeRun] is null, behavior is identical to today (profile + memory only).
-static CapSequence build(
-  CoachProfile profile,
-  CapMemory memory, {
-  SequenceRun? activeRun,
+/// Quand activeRun est null : comportement identique à aujourd'hui.
+static CapSequence build({
+  required CoachProfile profile,
+  required CapMemory memory,
+  required String goalIntentTag,
+  required S l,
+  SequenceRun? activeRun,  // NOUVEAU — optionnel, backward-compatible
 })
 ```
 
@@ -289,18 +300,27 @@ Deux canaux existent dans `CoachChatScreen` :
 `_onRealtimeScreenReturn(ScreenReturn)` car il porte les `stepOutputs`.
 
 ```
-Séquence active :
-  ScreenReturn (avec stepOutputs) → _onRealtimeScreenReturn
-    → détecte activeRun → delegate SequenceCoordinator.decide()
-    → _handleRouteReturn IGNORÉ (gaté)
-
-Pas de séquence :
-  → comportement actuel inchangé (les deux canaux fonctionnent)
+_onRealtimeScreenReturn(ScreenReturn) {
+  if (activeSequenceRun != null) {
+    // SEQUENCE MODE: delegate to coordinator, bypass legacy reaction
+    // Debounce: BYPASSED — sequence transitions should feel immediate
+    final action = SequenceCoordinator.decide(...);
+    _applySequenceAction(action);
+    return;
+  }
+  // NORMAL MODE: existing behavior (debounced 2s, coach generic reaction)
+  _debouncedLegacyReaction(screenReturn);
+}
 ```
+
+**Debounce** : le debounce de 2s (existant pour les sliders/inputs fréquents)
+est **bypassé** quand une séquence est active. Les transitions entre étapes
+doivent être immédiates — l'utilisateur a déjà terminé un écran complet,
+pas juste bougé un slider.
 
 Le `RouteSuggestionCard` continue de construire un `ScreenReturn` comme aujourd'hui.
 La seule différence : quand une séquence est active, le coordinator consomme le
-`ScreenReturn` au lieu du handler legacy.
+`ScreenReturn` au lieu de la branche legacy.
 
 ### 6.3 Contrat de persistance
 
@@ -348,14 +368,19 @@ alors que `ScreenRegistry` utilise `intentTag` pour les identifiants sémantique
 
 **Résolution pour la RFC** :
 - `SequenceStepDef.intentTag` = **sémantique** (comme `ScreenRegistry`). Ex: `simulator_3a`
-- La résolution `intentTag → route` passe TOUJOURS par `ScreenRegistry.entryForIntent()`
+- La résolution `intentTag → route` passe TOUJOURS par `MintScreenRegistry.findByIntentStatic()`
 - `CapStep.intentTag` (champ existant) reste tel quel (dette acceptée, pas de renommage)
 - Un commentaire est ajouté : `/// LEGACY: contains GoRouter route, not semantic intent. See ROUTE_POLICY.md.`
 
 ```dart
 // Dans SequenceCoordinator, le mapping est explicite :
-final entry = MintScreenRegistry.entryForIntent(stepDef.intentTag);
-final route = entry?.route ?? stepDef.intentTag; // fallback si pas dans registry
+final entry = MintScreenRegistry.findByIntentStatic(stepDef.intentTag);
+if (entry == null) {
+  // FAIL-SAFE: unknown intent → pause sequence + log, never navigate blindly
+  debugPrint('[SequenceCoordinator] Unknown intent: ${stepDef.intentTag}');
+  return SequenceAction.pause(canResume: true);
+}
+final route = entry.route;
 ```
 
 ---
