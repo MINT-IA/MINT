@@ -38,6 +38,8 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
+import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
@@ -1866,6 +1868,16 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     final s = S.of(context)!;
 
+    // ── SEQUENCE MODE: delegate to coordinator if active ──────────
+    // Runs in parallel with the legacy flow below. Both are safe to
+    // execute concurrently: legacy handles CapMemory + fallback message,
+    // sequence handler adds progression message if a run is active.
+    // If no sequence is active, handleStepReturn returns null (no-op).
+    SequenceChatHandler.handleStepReturn(outcome).then((result) {
+      if (!mounted || result == null) return;
+      _renderSequenceAction(result);
+    }).catchError((_) {});
+
     // Resolve the last routed intent for CapMemory keying.
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
@@ -1969,6 +1981,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   void _onRealtimeScreenReturn(ScreenReturn ret) {
     if (!mounted) return;
 
+    // ── SEQUENCE MODE: bypass debounce, delegate immediately ──────
+    // Per RFC §6.2: sequence transitions should be immediate, not
+    // debounced. The handler returns null if no sequence is active.
+    SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
+      if (!mounted || result == null) return;
+      _renderSequenceAction(result);
+    }).catchError((_) {});
+    // Don't return — debounce below still runs for non-sequence screens.
+    // If sequence consumed the event, the debounced legacy message is
+    // harmless (coach says "Je viens de simuler...").
+
     // Debounce: screens like affordability emit on every slider change.
     // We only react to the LAST event after 2 seconds of quiet.
     _lastPendingReturn = ret;
@@ -1994,6 +2017,48 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
       _sendMessage(buf.toString());
     });
+  }
+
+  /// Render the result of a guided sequence step into the chat.
+  ///
+  /// Called from both _handleRouteReturn and _onRealtimeScreenReturn
+  /// when a sequence is active. Adds a coach message describing the
+  /// next action (advance, complete, pause, etc.).
+  void _renderSequenceAction(SequenceHandlerResult result) {
+    if (!mounted) return;
+
+    final String message;
+    switch (result.action) {
+      case AdvanceAction(:final progressLabel):
+        message = '\u00c9tape $progressLabel termin\u00e9e. '
+            'Pr\u00eat pour la suite\u00a0?';
+      case CompleteAction():
+        message = 'Parcours termin\u00e9\u00a0! '
+            'Toutes les \u00e9tapes sont compl\u00e8tes.';
+      case PauseAction():
+        message = 'On met le parcours en pause. '
+            'Tu pourras reprendre quand tu veux.';
+      case SkipAction():
+        message = 'On passe cette \u00e9tape pour le moment.';
+      case RetryAction():
+        message = 'Pas de souci. On peut r\u00e9essayer cette \u00e9tape.';
+      case ReEvaluateAction():
+        message = 'Tes donn\u00e9es ont chang\u00e9. '
+            'Je recalcule les \u00e9tapes concern\u00e9es.';
+    }
+
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: message,
+        timestamp: DateTime.now(),
+        tier: ChatTier.fallback,
+      ));
+    });
+    _scrollToBottom();
+    if (result.action is CompleteAction) {
+      _triggerMilestonePulse();
+    }
   }
 
   /// Prepend a visible memory reference phrase to a coach response.
