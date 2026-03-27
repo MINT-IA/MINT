@@ -229,9 +229,20 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   Timer? _screenReturnDebounce;
   ScreenReturn? _lastPendingReturn;
 
+  /// Cached flag: true when a guided sequence run is active.
+  /// Updated by startSequence/quitSequence/handleStepReturn.
+  /// SequenceStore remains the SOT — this is a sync cache to allow
+  /// _handleRouteReturn to decide synchronously (it's a void callback).
+  bool _isInGuidedSequence = false;
+
   @override
   void initState() {
     super.initState();
+
+    // Initialize guided sequence cache from store.
+    SequenceChatHandler.isSequenceActive().then((active) {
+      if (mounted) setState(() => _isInGuidedSequence = active);
+    }).catchError((_) {});
 
     // Emotional canvas animation (800-1200ms depending on mood).
     _canvasAnimController = AnimationController(
@@ -1869,15 +1880,22 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final s = S.of(context)!;
 
     // ── SEQUENCE MODE: delegate to coordinator if active ──────────
-    // Runs in parallel with the legacy flow below. Both are safe to
-    // execute concurrently: legacy handles CapMemory + fallback message,
-    // sequence handler adds progression message if a run is active.
-    // If no sequence is active, handleStepReturn returns null (no-op).
-    SequenceChatHandler.handleStepReturn(outcome).then((result) {
-      if (!mounted || result == null) return;
-      _renderSequenceAction(result);
-    }).catchError((_) {});
+    // handleStepReturn is the SOLE entry point for sequence progression
+    // from coach-initiated navigation (RouteSuggestionCard).
+    // _onRealtimeScreenReturn does NOT handle sequences.
+    //
+    // If a sequence is active (_isInGuidedSequence), we SKIP the legacy
+    // CapMemory + fallback message flow to avoid conflicting signals.
+    if (_isInGuidedSequence) {
+      SequenceChatHandler.handleStepReturn(outcome).then((result) {
+        if (!mounted || result == null) return;
+        _renderSequenceAction(result);
+      }).catchError((_) {});
+      _scrollToBottom();
+      return; // Skip ALL legacy side effects
+    }
 
+    // ── NORMAL MODE: legacy flow (no sequence active) ─────────────
     // Resolve the last routed intent for CapMemory keying.
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
@@ -1981,16 +1999,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   void _onRealtimeScreenReturn(ScreenReturn ret) {
     if (!mounted) return;
 
-    // ── SEQUENCE MODE: bypass debounce, delegate immediately ──────
-    // Per RFC §6.2: sequence transitions should be immediate, not
-    // debounced. The handler returns null if no sequence is active.
-    SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
-      if (!mounted || result == null) return;
-      _renderSequenceAction(result);
-    }).catchError((_) {});
-    // Don't return — debounce below still runs for non-sequence screens.
-    // If sequence consumed the event, the debounced legacy message is
-    // harmless (coach says "Je viens de simuler...").
+    // NOTE: Sequence handling is NOT done here. Only _handleRouteReturn
+    // processes guided sequences (via RouteSuggestionCard callback).
+    // This handler is for direct exploration (explore tab, deep links).
+    // See RFC_AGENT_LOOP_STATEFUL.md §6.2.
 
     // Debounce: screens like affordability emit on every slider change.
     // We only react to the LAST event after 2 seconds of quiet.
@@ -2021,9 +2033,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   /// Render the result of a guided sequence step into the chat.
   ///
-  /// Called from both _handleRouteReturn and _onRealtimeScreenReturn
-  /// when a sequence is active. Adds a coach message describing the
-  /// next action (advance, complete, pause, etc.).
+  /// Called from _handleRouteReturn ONLY when _isInGuidedSequence is true.
+  /// Adds a coach message describing the next action (advance, complete, etc.).
   void _renderSequenceAction(SequenceHandlerResult result) {
     if (!mounted) return;
 
@@ -2056,6 +2067,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       ));
     });
     _scrollToBottom();
+    // Update sequence cache when run ends
+    if (result.action is CompleteAction ||
+        result.action is PauseAction) {
+      _isInGuidedSequence = false;
+    }
     if (result.action is CompleteAction) {
       _triggerMilestonePulse();
     }
