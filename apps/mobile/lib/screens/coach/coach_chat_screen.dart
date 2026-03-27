@@ -43,6 +43,7 @@ import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_store.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
@@ -3100,26 +3101,51 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
+  /// True while navigating to a sequence step — prevents double-tap.
+  bool _isSequenceNavigating = false;
+
   /// Navigate to the next step in a guided sequence.
   ///
   /// Called when the user taps "Continue" on a SequenceProgressCard.
   /// Passes runId/stepId/prefill in GoRouter.extra so the Tier A screen
   /// can emit a rich ScreenReturn with sequence identity.
+  ///
+  /// Protected against double-tap and stale step navigation.
   void _navigateToSequenceStep(SequenceMessagePayload payload) {
     if (!mounted) return;
     if (payload.nextRoute == null) return;
+    if (_isSequenceNavigating) return; // Double-tap guard
 
-    final extra = <String, dynamic>{
-      if (payload.runId != null) 'runId': payload.runId,
-      if (payload.nextStepId != null) 'stepId': payload.nextStepId,
-      if (payload.prefill != null && payload.prefill!.isNotEmpty)
-        'prefill': payload.prefill,
-    };
+    // Stale step guard: verify this step is still the active one.
+    // Old SequenceProgressCards in the chat history carry outdated data.
+    SequenceStore.load().then((currentRun) {
+      if (!mounted) return;
+      if (currentRun == null || !currentRun.isActive) return;
+      if (payload.nextStepId != null &&
+          currentRun.activeStepId != null &&
+          currentRun.activeStepId != payload.nextStepId) {
+        // The run has moved past this step — don't navigate to stale route.
+        return;
+      }
 
-    context.push(
-      payload.nextRoute!,
-      extra: extra.isNotEmpty ? extra : null,
-    );
+      _isSequenceNavigating = true;
+
+      final extra = <String, dynamic>{
+        if (payload.runId != null) 'runId': payload.runId,
+        if (payload.nextStepId != null) 'stepId': payload.nextStepId,
+        if (payload.prefill != null && payload.prefill!.isNotEmpty)
+          'prefill': payload.prefill,
+      };
+
+      context.push(
+        payload.nextRoute!,
+        extra: extra.isNotEmpty ? extra : null,
+      ).then((_) {
+        _isSequenceNavigating = false;
+      }).catchError((_) {
+        _isSequenceNavigating = false;
+      });
+    }).catchError((_) {});
   }
 
   /// Resolve a goal label ARB key to a localized string.

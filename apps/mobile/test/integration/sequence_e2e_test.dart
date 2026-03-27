@@ -417,4 +417,85 @@ void main() {
       expect(reloaded.isActive, isTrue);
     });
   });
+
+  // ════════════════════════════════════════════════════════════════
+  //  ADVANCE ACTION DATA COMPLETENESS
+  // ════════════════════════════════════════════════════════════════
+
+  group('Service integration — AdvanceAction carries navigation data', () {
+    test('AdvanceAction has route resolved from ScreenRegistry', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      final result = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_nav_data',
+          stepOutputs: const {'capacite_achat': 850000.0},
+        ),
+      );
+
+      expect(result, isNotNull);
+      final advance = result!.action as AdvanceAction;
+
+      // Route must be a real GoRouter path (resolved from ScreenRegistry)
+      expect(advance.route, isNotEmpty);
+      expect(advance.route, startsWith('/'));
+
+      // nextStep must carry the step definition
+      expect(advance.nextStep.id, 'housing_02_epl');
+      expect(advance.nextStep.intentTag, 'early_pension_withdrawal');
+
+      // Prefill must contain mapped outputs from step 1
+      expect(advance.prefill, isNotEmpty);
+
+      // progressLabel must be meaningful
+      expect(advance.progressLabel, contains('/'));
+    });
+
+    test('AdvanceAction.prefill matches outputMapping contract', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      final result = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_prefill_contract',
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
+        ),
+      );
+
+      final advance = result!.action as AdvanceAction;
+      // Template outputMapping for step 1:
+      //   'capacite_achat' → 'montant_bien_cible'
+      //   'fonds_propres_requis' → 'montant_necessaire'
+      expect(advance.prefill['montant_bien_cible'], 850000.0);
+      expect(advance.prefill['montant_necessaire'], 170000.0);
+    });
+
+    test('run carries correct runId for navigation extra', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      final result = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_runid',
+          stepOutputs: const {'capacite_achat': 850000.0},
+        ),
+      );
+
+      // The updated run in the result carries the same runId
+      expect(result!.updatedRun.runId, run.runId);
+      // The next active step matches the AdvanceAction
+      final advance = result.action as AdvanceAction;
+      expect(result.updatedRun.activeStepId, advance.nextStep.id);
+    });
+  });
 }
