@@ -72,12 +72,23 @@ class ScreenReturn {
   /// 'lpp_rachat' if rachat data is missing.
   final String? nextCapSuggestion;
 
+  /// Structured outputs from this screen for guided sequence step transfer.
+  ///
+  /// Used by [SequenceCoordinator] to pre-fill the next step in a guided
+  /// sequence. Keys are domain-specific (e.g. 'capacite_achat', 'montant_epl').
+  /// Values must be JSON-serializable primitives (double, int, String, bool).
+  ///
+  /// Null when not in a guided sequence or screen doesn't produce outputs.
+  /// See: docs/RFC_AGENT_LOOP_STATEFUL.md §3.4, §6.3
+  final Map<String, dynamic>? stepOutputs;
+
   const ScreenReturn({
     required this.route,
     required this.outcome,
     this.updatedFields,
     this.confidenceDelta,
     this.nextCapSuggestion,
+    this.stepOutputs,
   });
 
   /// Convenience constructor for a completed return with no side effects.
@@ -86,12 +97,14 @@ class ScreenReturn {
     Map<String, dynamic>? updatedFields,
     double? confidenceDelta,
     String? nextCapSuggestion,
+    Map<String, dynamic>? stepOutputs,
   }) : this(
           route: route,
           outcome: ScreenOutcome.completed,
           updatedFields: updatedFields,
           confidenceDelta: confidenceDelta,
           nextCapSuggestion: nextCapSuggestion,
+          stepOutputs: stepOutputs,
         );
 
   /// Convenience constructor for an abandoned return.
@@ -124,13 +137,17 @@ class ScreenReturn {
   bool get hasNextCap =>
       nextCapSuggestion != null && nextCapSuggestion!.isNotEmpty;
 
+  /// Whether structured step outputs are provided.
+  bool get hasStepOutputs => stepOutputs != null && stepOutputs!.isNotEmpty;
+
   @override
   String toString() => 'ScreenReturn('
       'route: $route, '
       'outcome: $outcome, '
       'updatedFields: $updatedFields, '
       'confidenceDelta: $confidenceDelta, '
-      'nextCapSuggestion: $nextCapSuggestion'
+      'nextCapSuggestion: $nextCapSuggestion, '
+      'stepOutputs: $stepOutputs'
       ')';
 
   @override
@@ -141,7 +158,8 @@ class ScreenReturn {
         other.outcome == outcome &&
         other.confidenceDelta == confidenceDelta &&
         other.nextCapSuggestion == nextCapSuggestion &&
-        _mapEquals(other.updatedFields, updatedFields);
+        _mapEquals(other.updatedFields, updatedFields) &&
+        _mapEquals(other.stepOutputs, stepOutputs);
   }
 
   static bool _mapEquals(Map<String, dynamic>? a, Map<String, dynamic>? b) {
@@ -161,6 +179,12 @@ class ScreenReturn {
             ? null
             : Object.hashAll(
                 updatedFields!.entries
+                    .map((e) => Object.hash(e.key, e.value)),
+              ),
+        stepOutputs == null
+            ? null
+            : Object.hashAll(
+                stepOutputs!.entries
                     .map((e) => Object.hash(e.key, e.value)),
               ),
       );
