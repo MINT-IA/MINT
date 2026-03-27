@@ -19,6 +19,7 @@ import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/voice/regional_voice_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/coaching_preference.dart';
 
@@ -272,6 +273,15 @@ class ContextInjectorService {
       }
     }
 
+    // ── EVI Bridge — Enrichment priorities ─────────────────────
+    // Inject the top enrichment prompts ranked by Expected Value of
+    // Information so the coach can propose the most impactful next
+    // data capture action (scan, question, document).
+    String enrichmentBlock = '';
+    if (profile != null) {
+      enrichmentBlock = _buildEnrichmentBlock(profile);
+    }
+
     // ── Budget Vivant ─────────────────────────────────────────
     // Inject the BudgetSnapshot into the memory block so Claude can
     // reason about the user's real numbers (margin, retirement gap,
@@ -315,6 +325,7 @@ class ContextInjectorService {
       planBlock: planBlock,
       recentInsightsBlock: recentInsightsBlock,
       budgetBlock: budgetBlock,
+      enrichmentBlock: enrichmentBlock,
     );
 
     return EnrichedContext(
@@ -327,6 +338,69 @@ class ContextInjectorService {
       relevantScreens: relevantScreens,
       capSequencePlan: capSequencePlan,
     );
+  }
+
+  /// Maximum enrichment prompts surfaced in the memory block.
+  static const int _maxEnrichmentInContext = 3;
+
+  /// Build the EVI-ranked enrichment block for the coach system prompt.
+  ///
+  /// Uses [ConfidenceScorer] to get the top enrichment prompts ranked by
+  /// impact, then formats them so the coach can proactively propose
+  /// the most valuable next data capture action.
+  ///
+  /// The block tells Claude:
+  /// - Current confidence level
+  /// - Top 3 actions to improve it (with expected gain in points)
+  /// - Whether to route to /scan or ask a question
+  static String _buildEnrichmentBlock(CoachProfile profile) {
+    final confidence = ConfidenceScorer.score(profile);
+    final topPrompts = confidence.prompts.take(_maxEnrichmentInContext).toList();
+
+    if (topPrompts.isEmpty) return '';
+
+    final lines = <String>['ENRICHISSEMENT PRIORITAIRE\u00a0:'];
+    lines.add('Score de confiance actuel\u00a0: ${confidence.score.round()}/100 '
+        '(${confidence.level})');
+
+    if (confidence.score < ConfidenceScorer.minConfidenceForProjection) {
+      lines.add('IMPORTANT\u00a0: La confiance est trop basse pour des projections fiables. '
+          'Propose activement la meilleure action ci-dessous.');
+    }
+
+    for (final prompt in topPrompts) {
+      final route = _enrichmentRoute(prompt.category);
+      lines.add('- ${prompt.label} (+${prompt.impact}\u00a0pts) '
+          '\u2192 ${prompt.action}${route != null ? ' [route\u00a0: $route]' : ''}');
+    }
+
+    // Bayesian EVI ranking if available (more precise than component weights)
+    final bayesian = confidence.bayesianResult;
+    if (bayesian != null && bayesian.rankedPrompts.isNotEmpty) {
+      final topEvi = bayesian.rankedPrompts.first;
+      if (topEvi.field != topPrompts.first.category) {
+        // EVI suggests a different top priority — add a hint
+        lines.add('EVI prioritaire\u00a0: ${topEvi.label} '
+            '(incertitude actuelle\u00a0: \u00b1CHF\u00a0${topEvi.currentUncertainty.round()})');
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  /// Map enrichment category to the best route for data capture.
+  static String? _enrichmentRoute(String category) {
+    return switch (category) {
+      'lpp' => '/scan',
+      'avs' => '/scan/avs-guide',
+      '3a' => '/scan',
+      'patrimoine' => null, // Coach asks conversationally
+      'menage' => null, // Coach asks conversationally
+      'income' => null, // Coach asks conversationally
+      'objectif_retraite' => null, // Coach asks conversationally
+      'foreign_pension' => null,
+      _ => null,
+    };
   }
 
   /// Build the formatted nudges block for the memory block.
@@ -602,6 +676,7 @@ class ContextInjectorService {
     String planBlock = '',
     String recentInsightsBlock = '',
     String budgetBlock = '',
+    String enrichmentBlock = '',
   }) {
     final parts = <String>[];
 
@@ -643,6 +718,12 @@ class ContextInjectorService {
     if (budgetBlock.isNotEmpty) {
       parts.add('');
       parts.add(budgetBlock);
+    }
+
+    // EVI-ranked enrichment priorities (coach should propose these)
+    if (enrichmentBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(enrichmentBlock);
     }
 
     // Relevant screens for this phase (route_to_screen hints)
