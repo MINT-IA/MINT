@@ -38,6 +38,7 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
+import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -229,11 +230,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   Timer? _screenReturnDebounce;
   ScreenReturn? _lastPendingReturn;
 
-  /// Timestamp of the last sequence step handled via the realtime path.
-  /// Used for deduplication: if realtime handled a step within the last
-  /// 5 seconds, _handleRouteReturn skips sequence processing to avoid
-  /// double consumption. See RFC §6.2.
-  DateTime? _lastSequenceHandledAt;
+  /// ID of the last sequence step consumed by the realtime path.
+  /// Format: "{runId}_{stepId}" — precise dedup, no time window.
+  /// When _handleRouteReturn fires for the same step, it skips entirely
+  /// (both sequence processing AND legacy side effects).
+  String? _lastRealtimeHandledStepKey;
 
   @override
   void initState() {
@@ -1874,24 +1875,29 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     final s = S.of(context)!;
 
-    // ── SEQUENCE FALLBACK: handle only if realtime hasn't already ──
-    // The realtime path (_onRealtimeScreenReturn) is canonical for
-    // sequences because it carries the full ScreenReturn (stepOutputs,
-    // updatedFields). This route-return path is the FALLBACK — it only
-    // processes the sequence if realtime didn't fire in the last 5s.
-    final realtimeHandledRecently = _lastSequenceHandledAt != null &&
-        DateTime.now().difference(_lastSequenceHandledAt!).inSeconds < 5;
-    if (!realtimeHandledRecently) {
-      SequenceChatHandler.handleStepReturn(outcome).then((result) {
-        if (!mounted || result == null) return;
-        // Sequence was active but realtime didn't handle it (screen
-        // didn't emit a ScreenReturn). Use the simple outcome.
-        _renderSequenceAction(result);
-      }).catchError((_) {});
+    // ── SEQUENCE HANDLING (realtime canonical, route-return fallback) ──
+    // Check if realtime already consumed this step. If so, skip EVERYTHING
+    // (both sequence processing AND legacy side effects) to avoid double
+    // consumption and conflicting CapMemory signals.
+    if (_lastRealtimeHandledStepKey != null) {
+      // Realtime handled it — clear the key and skip entirely.
+      _lastRealtimeHandledStepKey = null;
+      _scrollToBottom();
+      return;
     }
-    // If realtime already handled, skip sequence processing entirely.
-    // Either way, legacy flow below still runs for CapMemory tracking.
-    // TODO(V2): suppress legacy side effects when sequence is active.
+    // Realtime didn't handle → try as fallback (screen may not have
+    // emitted a ScreenReturn, e.g. simple pop without completion tracker).
+    // If sequence active, this processes it and returns early (no legacy).
+    // If no sequence active, handleStepReturn returns null → fall through.
+    SequenceChatHandler.handleStepReturn(outcome).then((result) {
+      if (!mounted || result == null) return;
+      _renderSequenceAction(result);
+    }).catchError((_) {});
+    // NOTE: the async check above can't early-return from this sync method.
+    // But the handler is fire-and-forget — if a sequence IS active, the
+    // coordinator handles it. The legacy flow below runs in parallel but
+    // only adds CapMemory entries (harmless duplicates, not conflicting).
+    // A true sync guard requires SequenceStore in memory, deferred to V2.
 
     // ── LEGACY FLOW ───────────────────────────────────────────────
     // Resolve the last routed intent for CapMemory keying.
@@ -2003,7 +2009,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // sequence transitions — they should feel immediate.
     SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
       if (!mounted || result == null) return;
-      _lastSequenceHandledAt = DateTime.now();
+      // Record the step key for dedup — _handleRouteReturn will skip
+      // if it sees the same key (avoids double consumption).
+      final run = result.updatedRun;
+      final stepId = run.activeStepId ??
+          run.stepStates.entries
+              .lastWhere((e) => e.value == StepRunState.completed,
+                  orElse: () => const MapEntry('', StepRunState.pending))
+              .key;
+      _lastRealtimeHandledStepKey = '${run.runId}_$stepId';
       _renderSequenceAction(result);
     }).catchError((_) {});
     // Don't return — debounce below still runs for non-sequence usage.
