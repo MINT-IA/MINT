@@ -376,16 +376,16 @@ void main() {
       expect((outputs['label'] as String).length, 200); // Truncated to 200
     });
 
-    test('completeStep drops outputs exceeding size budget', () {
+    test('completeStep drops outputs exceeding per-step size budget', () {
       var run = _startRun(SequenceTemplate.housingPurchase);
-      // Create outputs that exceed 2KB
+      // Create outputs that exceed 2KB per step
       final bigOutputs = <String, dynamic>{};
-      for (int i = 0; i < 100; i++) {
-        bigOutputs['key_$i'] = 'x' * 200; // 100 × 200 = 20KB
+      for (int i = 0; i < 50; i++) {
+        bigOutputs['key_$i'] = 'x' * 200; // ~50 × 200 = 10KB+ JSON
       }
       run = run.completeStep('housing_01_affordability', bigOutputs);
-      // Outputs should be empty (exceeded budget)
-      expect(run.stepOutputs['housing_01_affordability'], isEmpty);
+      // Per-step sanitization returns empty → not stored
+      expect(run.stepOutputs.containsKey('housing_01_affordability'), isFalse);
     });
 
     test('completeStep filters non-primitive values', () {

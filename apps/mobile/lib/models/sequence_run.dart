@@ -85,13 +85,23 @@ class SequenceRun {
   ///
   /// Outputs are validated: only JSON-serializable primitives (double, int,
   /// String, bool) are accepted. Non-primitive values are silently dropped.
+  /// Per-step limit: 2KB JSON. Total run limit: 20KB JSON.
   /// See RFC §6.3 for the persistence contract.
   SequenceRun completeStep(String stepId, Map<String, dynamic> outputs) {
     final newStates = Map<String, StepRunState>.from(stepStates);
     newStates[stepId] = StepRunState.completed;
     final newOutputs = Map<String, Map<String, dynamic>>.from(stepOutputs);
     if (outputs.isNotEmpty) {
-      newOutputs[stepId] = _sanitizeOutputs(outputs);
+      final sanitized = _sanitizeOutputs(outputs);
+      if (sanitized.isNotEmpty) {
+        newOutputs[stepId] = sanitized;
+        // Enforce total run size limit
+        final totalSize = jsonEncode(newOutputs).length;
+        if (totalSize > _maxTotalOutputBytes) {
+          // Drop this step's outputs to stay within budget
+          newOutputs.remove(stepId);
+        }
+      }
     }
     return _copyWith(stepStates: newStates, stepOutputs: newOutputs);
   }
@@ -121,8 +131,8 @@ class SequenceRun {
       // Silently drop non-primitive values (Lists, Maps, objects)
     }
 
-    // Enforce per-step size limit
-    final encoded = sanitized.toString();
+    // Enforce per-step size limit (measured as JSON bytes)
+    final encoded = jsonEncode(sanitized);
     if (encoded.length > _maxStepOutputBytes) {
       // Drop outputs exceeding budget rather than corrupting persistence
       return {};
