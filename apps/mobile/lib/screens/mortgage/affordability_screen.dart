@@ -108,9 +108,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       },
       runId: _seqRunId,
       stepId: _seqStepId,
-      eventId: _seqRunId != null
-          ? 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}'
-          : null,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
     );
     ScreenCompletionTracker.markCompletedWithReturn(
       'affordability',
