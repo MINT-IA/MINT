@@ -1,6 +1,6 @@
 # RFC : Agent Loop Stateful — Multi-Screen Orchestration
 
-> Date : 2026-03-27 (V2 — réécrite après audit)
+> Date : 2026-03-27 (V2.3 — après 4 audits)
 > Statut : **DRAFT** — À valider avant implémentation
 > Auteur : Team Lead (S57)
 > Dépendances : ChiffreChoc V2, EVI Bridge, Confidence Doctrine (tous livrés)
@@ -264,7 +264,7 @@ Voir §6.2 pour le détail du canonical return path.
 
 ---
 
-## 6. Contrats de synchronisation (V2.1 — ajoutés post-audit)
+## 6. Contrats de synchronisation
 
 ### 6.1 SequenceRun → CapSequence (plan visible)
 
