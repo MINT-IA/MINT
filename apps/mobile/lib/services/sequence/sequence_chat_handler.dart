@@ -126,6 +126,9 @@ class SequenceChatHandler {
     // run, ignore it (delayed event from a previous run).
     if (ret.runId != null && ret.runId != run.runId) return null;
 
+    // Idempotence: if this exact event was already processed, skip.
+    if (run.isEventProcessed(ret.eventId)) return null;
+
     final template = _templateById(run.templateId);
     if (template == null) return null;
 
@@ -144,8 +147,11 @@ class SequenceChatHandler {
       proposalCount: proposals,
     );
 
-    // Apply action + persist + increment proposals for next step
-    final updatedRun = _applyAction(action, run, ret.outcome, ret.stepOutputs);
+    // Apply action + mark event processed + persist
+    var updatedRun = _applyAction(action, run, ret.outcome, ret.stepOutputs);
+    if (ret.eventId != null) {
+      updatedRun = updatedRun.markEventProcessed(ret.eventId!);
+    }
     await _persistAndTrackProposals(action, updatedRun, run.runId, capMem);
 
     return SequenceHandlerResult(
