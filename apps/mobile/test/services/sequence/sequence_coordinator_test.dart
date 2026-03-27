@@ -366,6 +366,28 @@ void main() {
   // ── Output sanitization ───────────────────────────────────────
 
   group('Output sanitization', () {
+    test('completeStep truncates long strings', () {
+      var run = _startRun(SequenceTemplate.housingPurchase);
+      final longString = 'x' * 300;
+      run = run.completeStep('housing_01_affordability', {
+        'label': longString,
+      });
+      final outputs = run.stepOutputs['housing_01_affordability']!;
+      expect((outputs['label'] as String).length, 200); // Truncated to 200
+    });
+
+    test('completeStep drops outputs exceeding size budget', () {
+      var run = _startRun(SequenceTemplate.housingPurchase);
+      // Create outputs that exceed 2KB
+      final bigOutputs = <String, dynamic>{};
+      for (int i = 0; i < 100; i++) {
+        bigOutputs['key_$i'] = 'x' * 200; // 100 × 200 = 20KB
+      }
+      run = run.completeStep('housing_01_affordability', bigOutputs);
+      // Outputs should be empty (exceeded budget)
+      expect(run.stepOutputs['housing_01_affordability'], isEmpty);
+    });
+
     test('completeStep filters non-primitive values', () {
       var run = _startRun(SequenceTemplate.housingPurchase);
       run = run.completeStep('housing_01_affordability', {
@@ -390,7 +412,7 @@ void main() {
   // ── Blocked step handling ─────────────────────────────────────
 
   group('Blocked steps', () {
-    test('blocked step is NOT advanced to', () {
+    test('blocked step causes pause (never silently skipped)', () {
       final template = SequenceTemplate.housingPurchase;
       var run = _startRun(template);
       // Block step 2
@@ -413,10 +435,9 @@ void main() {
         proposalCount: 1,
       );
 
-      // Should skip blocked step 2 and advance to step 3
-      expect(action, isA<AdvanceAction>());
-      final advance = action as AdvanceAction;
-      expect(advance.nextStep.id, 'housing_03_fiscal');
+      // Blocked step → pause sequence, user must resolve blocker
+      expect(action, isA<PauseAction>());
+      expect((action as PauseAction).canResume, isTrue);
     });
   });
 }

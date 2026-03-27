@@ -138,9 +138,14 @@ class SequenceCoordinator {
     final outputs = stepReturn.stepOutputs ?? {};
     final updatedRun = run.completeStep(currentStep.id, outputs);
 
-    // Find next non-completed, non-skipped step
+    // Find next actionable step
     final nextStepDef = _findNextStep(template, updatedRun);
     if (nextStepDef == null) {
+      // Either all done, or next step is blocked
+      if (_hasBlockedStep(template, updatedRun)) {
+        // Blocked → pause, user must resolve the blocker first
+        return const PauseAction(canResume: true);
+      }
       // All steps done
       return CompleteAction(allOutputs: updatedRun.stepOutputs);
     }
@@ -192,6 +197,8 @@ class SequenceCoordinator {
     // V1: conservatively invalidate ALL completed steps when profile changes.
     // We don't have a reverse mapping (profile field → step dependency),
     // so any profile change could affect any step's outputs.
+    // This is safe but coarse — may force unnecessary reruns in long sequences.
+    // TODO(P2): add inputDependencies to SequenceStepDef for targeted invalidation.
     // This is safe: re-running a step with updated profile data is always
     // better than silently using stale outputs.
     final invalidated = <String>[];
@@ -210,17 +217,26 @@ class SequenceCoordinator {
     return ReEvaluateAction(invalidatedStepIds: invalidated);
   }
 
-  /// Find the next step that is pending (not completed, skipped, or blocked).
+  /// Find the next actionable step (pending, not completed/skipped/blocked).
   ///
-  /// Blocked steps are NOT advanced to — they require prerequisite resolution
-  /// first. Without RoutePlanner/readiness integration in Phase 1, we simply
-  /// skip blocked steps and look for the next pending one.
+  /// Returns null in two cases:
+  /// - All steps are done → sequence complete
+  /// - Next step is blocked → caller should pause (returned via _blockedStepId)
+  ///
+  /// Blocked steps are NEVER skipped silently — they require prerequisite
+  /// resolution. The caller must check [_isNextStepBlocked] to differentiate
+  /// "complete" from "blocked".
   static SequenceStepDef? _findNextStep(
     SequenceTemplate template,
     SequenceRun run,
   ) {
     for (final step in template.steps) {
       final state = run.stepStates[step.id];
+      if (state == StepRunState.blocked) {
+        // A blocked step means the sequence cannot proceed — return null
+        // so the caller pauses. Never silently skip a required blocked step.
+        return null;
+      }
       if (state == StepRunState.pending) {
         // Skip inline summary steps (no screen to route to)
         if (step.intentTag == '_inline_summary') continue;
@@ -235,6 +251,14 @@ class SequenceCoordinator {
       return null; // Signal completion — summary handled by coach inline
     }
     return null;
+  }
+
+  /// Whether any remaining step (not completed/skipped) is blocked.
+  static bool _hasBlockedStep(SequenceTemplate template, SequenceRun run) {
+    for (final step in template.steps) {
+      if (run.stepStates[step.id] == StepRunState.blocked) return true;
+    }
+    return false;
   }
 
   /// Build prefill map for the next step from accumulated outputs.

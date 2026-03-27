@@ -96,16 +96,38 @@ class SequenceRun {
     return _copyWith(stepStates: newStates, stepOutputs: newOutputs);
   }
 
-  /// Filter outputs to only JSON-serializable primitives.
+  /// Maximum serialized size per step outputs (bytes).
+  static const int _maxStepOutputBytes = 2048;
+
+  /// Maximum total serialized size for all step outputs (bytes).
+  static const int _maxTotalOutputBytes = 20480;
+
+  /// Maximum string value length in outputs.
+  static const int _maxStringLength = 200;
+
+  /// Filter outputs to only JSON-serializable primitives within size bounds.
+  /// Enforces RFC §6.3 persistence contract.
   static Map<String, dynamic> _sanitizeOutputs(Map<String, dynamic> raw) {
     final sanitized = <String, dynamic>{};
     for (final entry in raw.entries) {
       final v = entry.value;
-      if (v is double || v is int || v is String || v is bool) {
+      if (v is double || v is int || v is bool) {
         sanitized[entry.key] = v;
+      } else if (v is String) {
+        // Truncate strings exceeding max length
+        sanitized[entry.key] =
+            v.length > _maxStringLength ? v.substring(0, _maxStringLength) : v;
       }
       // Silently drop non-primitive values (Lists, Maps, objects)
     }
+
+    // Enforce per-step size limit
+    final encoded = sanitized.toString();
+    if (encoded.length > _maxStepOutputBytes) {
+      // Drop outputs exceeding budget rather than corrupting persistence
+      return {};
+    }
+
     return sanitized;
   }
 
