@@ -1,8 +1,15 @@
-// Integration tests for the full guided sequence orchestration chain.
+// Service-level integration tests for the guided sequence orchestration chain.
 //
-// These tests prove the E2E flow works — not just isolated services.
+// These tests prove the handler + coordinator + store chain works together.
 // They exercise: startSequence → handleRealtimeReturn → coordinator →
 // store → prefill transfer → dedup → completion.
+//
+// NOTE: These are NOT widget-level E2E tests. They do not cover:
+// - CoachChatScreen._onRealtimeScreenReturn / _handleRouteReturnAsync
+// - RouteSuggestionCard navigation with GoRouter.extra
+// - ScreenCompletionTracker stream emission
+// - AffordabilityScreen Tier A PopScope emission
+// Widget-level E2E tests require a GoRouter mock + mounted CoachChatScreen.
 //
 // See: docs/RFC_AGENT_LOOP_STATEFUL.md, docs/SEQUENCE_PHASE2_COMPLETION_PLAN.md
 
@@ -25,7 +32,7 @@ void main() {
   //  FULL MULTI-STEP E2E FLOW
   // ════════════════════════════════════════════════════════════════
 
-  group('E2E — Housing purchase sequence (4 steps)', () {
+  group('Service integration — Housing purchase sequence (4 steps)', () {
     test('full flow: start → step 1 complete → advance → step 2 complete → advance → step 3 complete → sequence complete', () async {
       // ── START ──────────────────────────────────────────────────
       final run = await SequenceChatHandler.startSequence('housing_purchase');
@@ -130,7 +137,7 @@ void main() {
   //  DEDUP CHAIN
   // ════════════════════════════════════════════════════════════════
 
-  group('E2E — Dedup chain', () {
+  group('Service integration — Dedup chain', () {
     test('same eventId rejected on second call', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
@@ -203,8 +210,8 @@ void main() {
   //  TIER A vs TIER B
   // ════════════════════════════════════════════════════════════════
 
-  group('E2E — Tier A vs Tier B', () {
-    test('Tier A return (with IDs) is consumed by realtime handler', () async {
+  group('Service integration — Tier A vs Tier B', () {
+    test('Tier A return (with IDs) consumed by realtime handler', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
       final result = await SequenceChatHandler.handleRealtimeReturn(
@@ -221,27 +228,26 @@ void main() {
       expect(result!.action, isA<AdvanceAction>());
     });
 
-    test('Tier B return (no IDs) falls through realtime to fallback', () async {
-      await SequenceChatHandler.startSequence('housing_purchase');
-
-      // Tier B: no runId/stepId/eventId
-      final result = await SequenceChatHandler.handleRealtimeReturn(
-        const ScreenReturn.completed(
-          route: '/hypotheque',
-          // No runId, no stepId, no eventId — Tier B
-        ),
+    test('Tier B return (no IDs) NOT consumed by realtime handler in chat runtime', () async {
+      // In the real chat runtime, _onRealtimeScreenReturn checks
+      // ret.hasSequenceId BEFORE calling handleRealtimeReturn.
+      // A Tier B return (no IDs) does NOT reach the handler — it goes
+      // through the debounce/route-return fallback path instead.
+      //
+      // This test verifies the contract: hasSequenceId is the gate.
+      const tierBReturn = ScreenReturn.completed(
+        route: '/hypotheque',
+        // No runId, no stepId, no eventId — Tier B
       );
-
-      // Tier B without IDs: handler loads run, but no stepId guard triggered
-      // (ret.stepId is null). The handler still processes it as a generic
-      // completion of the active step.
-      expect(result, isNotNull);
+      expect(tierBReturn.hasSequenceId, isFalse);
+      // In the chat: if (!ret.hasSequenceId) → debounce path, not handler.
     });
 
-    test('fallback handleStepReturn works for Tier B', () async {
+    test('Tier B fallback: handleStepReturn works with simple outcome', () async {
       await SequenceChatHandler.startSequence('simulator_3a');
 
-      // Tier B fallback: only outcome, no rich ScreenReturn
+      // Tier B fallback path: _handleRouteReturnAsync calls handleStepReturn
+      // with just a ScreenOutcome (no rich ScreenReturn).
       final result = await SequenceChatHandler.handleStepReturn(
         ScreenOutcome.completed,
       );
@@ -255,7 +261,7 @@ void main() {
   //  OUTPUT TRANSFER
   // ════════════════════════════════════════════════════════════════
 
-  group('E2E — Output transfer across steps', () {
+  group('Service integration — Output transfer across steps', () {
     test('step 1 outputs flow to step 2 prefill via outputMapping', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
@@ -336,7 +342,7 @@ void main() {
   //  ABANDON + RETRY + QUIT
   // ════════════════════════════════════════════════════════════════
 
-  group('E2E — Abandon, retry, quit', () {
+  group('Service integration — Abandon, retry, quit', () {
     test('abandon once → retry, abandon twice → pause', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
@@ -385,7 +391,7 @@ void main() {
   //  PERSISTENCE ROUND-TRIP
   // ════════════════════════════════════════════════════════════════
 
-  group('E2E — Persistence survives reload', () {
+  group('Service integration — Persistence survives reload', () {
     test('run state survives store round-trip mid-sequence', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
