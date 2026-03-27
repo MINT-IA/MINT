@@ -55,9 +55,6 @@ class SDe extends S {
   String get startDiagnostic => 'Diagnose starten';
 
   @override
-  String get tabNow => 'JETZT';
-
-  @override
   String get tabExplore => 'Entdecken';
 
   @override
@@ -12261,9 +12258,6 @@ class SDe extends S {
   }
 
   @override
-  String get tabPulse => 'Pulse';
-
-  @override
   String get authGateDocScanTitle => 'Sichere deine Dokumente';
 
   @override
@@ -12983,12 +12977,6 @@ class SDe extends S {
 
   @override
   String get dossierCoupleSubtitle => 'Haushalt, Partner·in, Duo-Prognosen';
-
-  @override
-  String get dossierBilanTitle => 'Finanzbilanz';
-
-  @override
-  String get dossierBilanSubtitle => 'Überblick über dein Vermögen';
 
   @override
   String get dossierReglages => 'Einstellungen';

@@ -1036,7 +1036,17 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             return provider;
           },
         ),
-        ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, BudgetProvider>(
+          create: (_) => BudgetProvider(),
+          update: (_, auth, budgetProvider) {
+            final provider = budgetProvider ?? BudgetProvider();
+            if (!auth.isLoggedIn) {
+              // Clear budget data on logout to prevent cross-account bleed.
+              provider.clear();
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
           provider.loadSavedKey();

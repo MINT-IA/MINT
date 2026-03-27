@@ -195,12 +195,6 @@ abstract class S {
   /// **'Démarrer mon diagnostic'**
   String get startDiagnostic;
 
-  /// No description provided for @tabNow.
-  ///
-  /// In fr, this message translates to:
-  /// **'MAINTENANT'**
-  String get tabNow;
-
   /// No description provided for @tabExplore.
   ///
   /// In fr, this message translates to:
@@ -21706,12 +21700,6 @@ abstract class S {
   /// **'Fourchette typique : {low} – {high}'**
   String benchmarkTypicalRange(String low, String high);
 
-  /// No description provided for @tabPulse.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pulse'**
-  String get tabPulse;
-
   /// No description provided for @authGateDocScanTitle.
   ///
   /// In fr, this message translates to:
@@ -22978,18 +22966,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Foyer, conjoint·e, projections duo'**
   String get dossierCoupleSubtitle;
-
-  /// No description provided for @dossierBilanTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Bilan financier'**
-  String get dossierBilanTitle;
-
-  /// No description provided for @dossierBilanSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vue d\'ensemble de ton patrimoine'**
-  String get dossierBilanSubtitle;
 
   /// No description provided for @dossierReglages.
   ///

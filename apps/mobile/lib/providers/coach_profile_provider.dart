@@ -1704,6 +1704,9 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   /// Reset le profil (logout / reset).
+  ///
+  /// Clears both in-memory state AND persisted wizard data in SharedPreferences
+  /// to prevent cross-account data bleed on shared devices.
   void clear() {
     _profile = null;
     _isPartialProfile = false;
@@ -1713,6 +1716,9 @@ class CoachProfileProvider extends ChangeNotifier {
     _previousScore = null;
     _scoreHistory = [];
     _lastAnswers = const {};
+    // Fire-and-forget: clear persisted wizard answers + coach history
+    // to prevent cross-account bleed. In-memory state is already reset above.
+    ReportPersistenceService.clear();
     notifyListeners();
   }
 }

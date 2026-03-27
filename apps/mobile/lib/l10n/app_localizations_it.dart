@@ -56,9 +56,6 @@ class SIt extends S {
   String get startDiagnostic => 'Avvia la mia diagnosi';
 
   @override
-  String get tabNow => 'ADESSO';
-
-  @override
   String get tabExplore => 'Esplorare';
 
   @override
@@ -12253,9 +12250,6 @@ class SIt extends S {
   }
 
   @override
-  String get tabPulse => 'Pulse';
-
-  @override
   String get authGateDocScanTitle => 'Proteggi i tuoi documenti';
 
   @override
@@ -12970,12 +12964,6 @@ class SIt extends S {
 
   @override
   String get dossierCoupleSubtitle => 'Nucleo, coniuge, proiezioni duo';
-
-  @override
-  String get dossierBilanTitle => 'Bilancio finanziario';
-
-  @override
-  String get dossierBilanSubtitle => 'Panoramica del tuo patrimonio';
 
   @override
   String get dossierReglages => 'Impostazioni';

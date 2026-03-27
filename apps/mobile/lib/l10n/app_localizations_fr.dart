@@ -55,9 +55,6 @@ class SFr extends S {
   String get startDiagnostic => 'Démarrer mon diagnostic';
 
   @override
-  String get tabNow => 'MAINTENANT';
-
-  @override
   String get tabExplore => 'Explorer';
 
   @override
@@ -12247,9 +12244,6 @@ class SFr extends S {
   }
 
   @override
-  String get tabPulse => 'Pulse';
-
-  @override
   String get authGateDocScanTitle => 'Sécurise tes documents';
 
   @override
@@ -12965,12 +12959,6 @@ class SFr extends S {
 
   @override
   String get dossierCoupleSubtitle => 'Foyer, conjoint·e, projections duo';
-
-  @override
-  String get dossierBilanTitle => 'Bilan financier';
-
-  @override
-  String get dossierBilanSubtitle => 'Vue d\'ensemble de ton patrimoine';
 
   @override
   String get dossierReglages => 'Réglages';
