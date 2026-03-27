@@ -440,4 +440,74 @@ void main() {
       expect((action as PauseAction).canResume, isTrue);
     });
   });
+
+  // ── Idempotence (processedEventIds) ───────────────────────────
+
+  group('Idempotence — processedEventIds', () {
+    test('isEventProcessed returns false for unknown eventId', () {
+      final run = _startRun(SequenceTemplate.housingPurchase);
+      expect(run.isEventProcessed('evt_unknown'), isFalse);
+    });
+
+    test('isEventProcessed returns false for null eventId', () {
+      final run = _startRun(SequenceTemplate.housingPurchase);
+      expect(run.isEventProcessed(null), isFalse);
+    });
+
+    test('markEventProcessed adds and recognizes eventId', () {
+      var run = _startRun(SequenceTemplate.housingPurchase);
+      run = run.markEventProcessed('evt_123');
+      expect(run.isEventProcessed('evt_123'), isTrue);
+      expect(run.isEventProcessed('evt_456'), isFalse);
+    });
+
+    test('markEventProcessed evicts oldest when over limit', () {
+      var run = _startRun(SequenceTemplate.housingPurchase);
+      // Add 21 events — first should be evicted
+      for (int i = 0; i < 21; i++) {
+        run = run.markEventProcessed('evt_$i');
+      }
+      expect(run.processedEventIds.length, SequenceRun.maxProcessedEvents);
+      // First event should be gone (FIFO)
+      expect(run.isEventProcessed('evt_0'), isFalse);
+      // Last event should be present
+      expect(run.isEventProcessed('evt_20'), isTrue);
+    });
+
+    test('processedEventIds survives serialization round-trip', () {
+      var run = _startRun(SequenceTemplate.housingPurchase);
+      run = run.markEventProcessed('evt_abc');
+      run = run.markEventProcessed('evt_def');
+
+      final serialized = run.serialize();
+      final restored = SequenceRun.deserialize(serialized);
+
+      expect(restored, isNotNull);
+      expect(restored!.isEventProcessed('evt_abc'), isTrue);
+      expect(restored.isEventProcessed('evt_def'), isTrue);
+      expect(restored.isEventProcessed('evt_ghi'), isFalse);
+    });
+
+    test('empty processedEventIds not serialized to JSON', () {
+      final run = _startRun(SequenceTemplate.housingPurchase);
+      final json = run.toJson();
+      expect(json.containsKey('processedEventIds'), isFalse);
+    });
+
+    test('legacy run without processedEventIds deserializes safely', () {
+      // Simulates loading a run from before this field existed
+      final legacyJson = {
+        'runId': 'legacy_run',
+        'templateId': 'housing_purchase',
+        'startedAt': DateTime.now().toIso8601String(),
+        'stepStates': {'step_1': 'pending'},
+        'stepOutputs': <String, dynamic>{},
+        'status': 'active',
+        // No processedEventIds field
+      };
+      final run = SequenceRun.fromJson(legacyJson);
+      expect(run.processedEventIds, isEmpty);
+      expect(run.isEventProcessed('any'), isFalse);
+    });
+  });
 }
