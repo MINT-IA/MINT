@@ -2137,17 +2137,25 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
 
     // Build sequence UI payload for the renderer.
+    final bool isAdvance = result.action is AdvanceAction;
     final bool canQuit = result.action is! CompleteAction;
     final goalLabel = _resolveGoalLabel(result.template.goalLabelKey, l);
+
+    // Extract navigation data from AdvanceAction when available.
+    final advanceAction = isAdvance ? result.action as AdvanceAction : null;
 
     final seqPayload = SequenceMessagePayload(
       templateId: run.templateId,
       currentStepId: run.activeStepId,
       progressLabel: '${run.completedCount}/${run.totalCount}',
       status: analyticsEvent.replaceFirst('sequence_', ''),
-      canAdvance: false, // V1: no navigation CTA until route wiring
+      canAdvance: isAdvance,
       canQuit: canQuit,
       goalLabel: goalLabel,
+      nextRoute: advanceAction?.route,
+      nextStepId: advanceAction?.nextStep.id,
+      prefill: advanceAction?.prefill,
+      runId: run.runId,
     );
 
     setState(() {
@@ -3092,6 +3100,28 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
+  /// Navigate to the next step in a guided sequence.
+  ///
+  /// Called when the user taps "Continue" on a SequenceProgressCard.
+  /// Passes runId/stepId/prefill in GoRouter.extra so the Tier A screen
+  /// can emit a rich ScreenReturn with sequence identity.
+  void _navigateToSequenceStep(SequenceMessagePayload payload) {
+    if (!mounted) return;
+    if (payload.nextRoute == null) return;
+
+    final extra = <String, dynamic>{
+      if (payload.runId != null) 'runId': payload.runId,
+      if (payload.nextStepId != null) 'stepId': payload.nextStepId,
+      if (payload.prefill != null && payload.prefill!.isNotEmpty)
+        'prefill': payload.prefill,
+    };
+
+    context.push(
+      payload.nextRoute!,
+      extra: extra.isNotEmpty ? extra : null,
+    );
+  }
+
   /// Resolve a goal label ARB key to a localized string.
   static String _resolveGoalLabel(String key, S l) {
     return switch (key) {
@@ -3117,7 +3147,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       currentStepLabel: payload.status == 'completed'
           ? l.sequenceAllStepsComplete
           : l.sequenceStepLabel(completed + 1, total),
-      onAdvance: null, // V1: no navigation CTA until route wiring
+      onAdvance: (payload.canAdvance && payload.nextRoute != null) ? () {
+        _navigateToSequenceStep(payload);
+      } : null,
       onQuit: payload.canQuit ? () {
         SequenceChatHandler.quitSequence();
         if (mounted) {
