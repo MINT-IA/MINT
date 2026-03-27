@@ -1906,17 +1906,34 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       return;
     }
 
-    // Case 2: check async if a sequence is active (Tier B fallback).
-    // Fire-and-forget: if active, handle + skip legacy. If not, legacy ran below.
-    _handleSequenceFallback(outcome);
+    // Case 2+3: async decision — sequence fallback OR legacy flow.
+    // Wrapped in a Future so we can await the sequence check and only
+    // run the legacy flow if no sequence is active.
+    _handleRouteReturnAsync(outcome, s);
+  }
 
-    // Case 3: legacy flow (runs in parallel with Case 2 async check).
-    // If Case 2 finds an active sequence, the async handler renders the
-    // sequence action. The legacy message below is redundant but harmless
-    // (the coach says "Excellent!" — not conflicting with sequence state).
-    // TODO(V3): fully suppress legacy when sequence active requires
-    // making _handleRouteReturn async end-to-end.
-    // Resolve the last routed intent for CapMemory keying.
+  /// Async body of _handleRouteReturn — checks sequence first, then legacy.
+  ///
+  /// If a sequence is active and the fallback handler consumes the event,
+  /// legacy side effects are fully suppressed (no markCompleted, no message).
+  /// If no sequence is active, the legacy flow runs as before.
+  void _handleRouteReturnAsync(ScreenOutcome outcome, S s) async {
+    // Case 2: try sequence fallback first.
+    try {
+      final seqResult = await SequenceChatHandler.handleStepReturn(outcome);
+      if (seqResult != null) {
+        // Sequence consumed — render action, skip legacy entirely.
+        if (!mounted) return;
+        _renderSequenceAction(seqResult);
+        _scrollToBottom();
+        return;
+      }
+    } catch (_) {
+      // Fallback failed — proceed to legacy.
+    }
+
+    // Case 3: no sequence active — legacy flow.
+    if (!mounted) return;
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
         .map((m) => m.routePayload!.intent)
@@ -1924,13 +1941,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     switch (outcome) {
       case ScreenOutcome.completed:
-        // Mark action completed in CapMemory — closes the boucle vivante.
         if (lastRouted != null) {
           CapMemoryStore.load().then((mem) async {
             await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
           }).catchError((_) {});
         }
-        // Save cross-session insight.
         CoachMemoryService.saveInsight(CoachInsight(
           id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
           createdAt: DateTime.now(),
@@ -1938,6 +1953,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           summary: 'Completed screen from coach suggestion',
           type: InsightType.fact,
         )).catchError((_) {});
+        if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
@@ -1946,11 +1962,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             tier: ChatTier.fallback,
           ));
         });
-        // Emotional canvas: pulse sage green for milestone completion.
         _triggerMilestonePulse();
 
       case ScreenOutcome.abandoned:
-        // Record abandoned flow in CapMemory so engine avoids re-proposing too soon.
         if (lastRouted != null) {
           CapMemoryStore.load().then((mem) async {
             await CapMemoryStore.markAbandoned(
@@ -1960,7 +1974,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             );
           }).catchError((_) {});
         }
-        // Save cross-session insight about abandonment.
         CoachMemoryService.saveInsight(CoachInsight(
           id: 'route_abandoned_${DateTime.now().millisecondsSinceEpoch}',
           createdAt: DateTime.now(),
@@ -1968,6 +1981,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           summary: 'Abandoned screen from coach suggestion',
           type: InsightType.fact,
         )).catchError((_) {});
+        if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
@@ -1992,8 +2006,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           summary: 'User changed inputs on screen from coach suggestion',
           type: InsightType.fact,
         )).catchError((_) {});
-        // The profile provider already notified listeners when the user
-        // updated data on the target screen. No explicit refresh needed here.
+        if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
@@ -2059,16 +2072,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
       _sendMessage(buf.toString());
     });
-  }
-
-  /// Async fallback: checks if a sequence is active and handles the step
-  /// return via SequenceChatHandler. Called from _handleRouteReturn when
-  /// realtime hasn't consumed the event.
-  void _handleSequenceFallback(ScreenOutcome outcome) {
-    SequenceChatHandler.handleStepReturn(outcome).then((result) {
-      if (!mounted || result == null) return;
-      _renderSequenceAction(result);
-    }).catchError((_) {});
   }
 
   /// Render the result of a guided sequence step into the chat.
