@@ -248,7 +248,119 @@ _onRealtimeScreenReturn(screenReturn);
 
 ---
 
-## 6. Plan d'implémentation
+## 6. Contrats de synchronisation (V2.1 — ajoutés post-audit)
+
+### 6.1 SequenceRun → CapSequence (plan visible)
+
+`SequenceRun` ne rend **rien visible directement**. La projection sur le plan visible
+passe toujours par `CapSequenceEngine`.
+
+**Contrat** : `CapSequenceEngine.build()` accepte un paramètre optionnel `activeRun` :
+
+```dart
+/// Builds the visible CapSequence, optionally influenced by an active run.
+///
+/// When [activeRun] is non-null, the engine projects the run state onto
+/// the CapStep statuses:
+///   StepRunState.completed → CapStepStatus.completed
+///   StepRunState.active    → CapStepStatus.current
+///   StepRunState.skipped   → CapStepStatus.completed (grayed out in UI)
+///   StepRunState.blocked   → CapStepStatus.blocked
+///   StepRunState.pending   → CapStepStatus.upcoming
+///
+/// When [activeRun] is null, behavior is identical to today (profile + memory only).
+static CapSequence build(
+  CoachProfile profile,
+  CapMemory memory, {
+  SequenceRun? activeRun,
+})
+```
+
+**Règle** : `CapSequenceEngine` reste la SEULE source de `CapStepStatus`.
+`SequenceRun` est un **input**, pas un remplacement.
+
+### 6.2 Canonical return path
+
+Deux canaux existent dans `CoachChatScreen` :
+- `_handleRouteReturn(ScreenOutcome)` — retour simplifié depuis `RouteSuggestionCard`
+- `_onRealtimeScreenReturn(ScreenReturn)` — retour riche global (debounced)
+
+**Décision** : pendant une séquence guidée, le chemin canonique est
+`_onRealtimeScreenReturn(ScreenReturn)` car il porte les `stepOutputs`.
+
+```
+Séquence active :
+  ScreenReturn (avec stepOutputs) → _onRealtimeScreenReturn
+    → détecte activeRun → delegate SequenceCoordinator.decide()
+    → _handleRouteReturn IGNORÉ (gaté)
+
+Pas de séquence :
+  → comportement actuel inchangé (les deux canaux fonctionnent)
+```
+
+Le `RouteSuggestionCard` continue de construire un `ScreenReturn` comme aujourd'hui.
+La seule différence : quand une séquence est active, le coordinator consomme le
+`ScreenReturn` au lieu du handler legacy.
+
+### 6.3 Contrat de persistance
+
+#### stepOutputs
+
+```dart
+/// Allowed types in stepOutputs values:
+///   - double (CHF amounts, percentages, rates)
+///   - int (years, counts)
+///   - String (identifiers, labels — max 200 chars)
+///   - bool (decisions, flags)
+///
+/// NOT allowed:
+///   - Lists, nested Maps (flatten before storing)
+///   - Large blobs (images, documents)
+///   - Computed objects (re-derive from profile)
+///
+/// Total size budget per step: < 2 KB JSON.
+/// Total size budget per run: < 20 KB JSON.
+```
+
+Sérialisation : `jsonEncode(Map<String, dynamic>)` dans SharedPreferences sous la clé
+`mint_sequence_run`. Un seul run actif, écrasé à chaque mise à jour.
+
+#### proposalCount
+
+Ajout dans `CapMemory` (pas un nouveau store) :
+
+```dart
+/// Track how many times a step has been proposed to the user in the current run.
+/// Key: "{runId}_{stepId}", Value: count.
+/// Cleared when the run completes or is abandoned.
+/// NOT time-windowed — scoped to the run lifetime.
+final Map<String, int> stepProposals; // NOUVEAU dans CapMemory
+```
+
+Enregistré quand : juste AVANT que le `RouteSuggestionCard` s'affiche pour une étape.
+Incrémenté à chaque re-proposition (y compris après abandon + retry).
+Réinitialisé quand le `SequenceRun` passe à `completed` ou `abandoned`.
+
+### 6.4 intentTag vs route (clarification de nommage)
+
+**Problème hérité** : `CapStep.intentTag` contient des routes GoRouter (`/pilier-3a`),
+alors que `ScreenRegistry` utilise `intentTag` pour les identifiants sémantiques (`simulator_3a`).
+
+**Résolution pour la RFC** :
+- `SequenceStepDef.intentTag` = **sémantique** (comme `ScreenRegistry`). Ex: `simulator_3a`
+- La résolution `intentTag → route` passe TOUJOURS par `ScreenRegistry.entryForIntent()`
+- `CapStep.intentTag` (champ existant) reste tel quel (dette acceptée, pas de renommage)
+- Un commentaire est ajouté : `/// LEGACY: contains GoRouter route, not semantic intent. See ROUTE_POLICY.md.`
+
+```dart
+// Dans SequenceCoordinator, le mapping est explicite :
+final entry = MintScreenRegistry.entryForIntent(stepDef.intentTag);
+final route = entry?.route ?? stepDef.intentTag; // fallback si pas dans registry
+```
+
+---
+
+## 7. Plan d'implémentation
 
 ### Phase 1 : Modèles + Coordinator + Tests (1 sprint)
 - `SequenceTemplate`, `SequenceRun` models
@@ -270,7 +382,7 @@ _onRealtimeScreenReturn(screenReturn);
 
 ---
 
-## 7. Ce qu'on NE fait PAS
+## 8. Ce qu'on NE fait PAS
 
 - **Pas de nouveau modèle de plan** — `CapSequence` reste le seul plan visible
 - **Pas de sélection de séquence par le LLM** — le code mappe intent → template
@@ -280,7 +392,7 @@ _onRealtimeScreenReturn(screenReturn);
 
 ---
 
-## 8. Métriques de succès
+## 9. Métriques de succès
 
 | Métrique | Baseline | Cible |
 |---|---|---|
@@ -291,7 +403,7 @@ _onRealtimeScreenReturn(screenReturn);
 
 ---
 
-## 9. Décision requise
+## 10. Décision requise
 
 1. **Valider les 3 séquences V1** et leurs étapes
 2. **Confirmer** : `CapSequence` = plan visible unique, `SequenceRun` = runtime uniquement
