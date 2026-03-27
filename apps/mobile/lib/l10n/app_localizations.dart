@@ -42977,6 +42977,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Préparation retraite'**
   String get sequenceRetirementGoal;
+
+  /// No description provided for @sequenceAllStepsComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les étapes terminées'**
+  String get sequenceAllStepsComplete;
+
+  /// No description provided for @sequenceStepLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {current}/{total}'**
+  String sequenceStepLabel(int current, int total);
+
+  /// No description provided for @sequenceQuitConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours quitté.'**
+  String get sequenceQuitConfirm;
+
+  /// No description provided for @sequenceStepCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {progress} terminée. Prêt pour la suite ?'**
+  String sequenceStepCompleted(String progress);
+
+  /// No description provided for @sequenceCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours terminé ! Toutes les étapes sont complètes.'**
+  String get sequenceCompleted;
+
+  /// No description provided for @sequencePaused.
+  ///
+  /// In fr, this message translates to:
+  /// **'On met le parcours en pause. Tu pourras reprendre quand tu veux.'**
+  String get sequencePaused;
+
+  /// No description provided for @sequenceStepSkipped.
+  ///
+  /// In fr, this message translates to:
+  /// **'On passe cette étape pour le moment.'**
+  String get sequenceStepSkipped;
+
+  /// No description provided for @sequenceStepRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de souci. On peut réessayer cette étape.'**
+  String get sequenceStepRetry;
+
+  /// No description provided for @sequenceReEvaluate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données ont changé. Je recalcule les étapes concernées.'**
+  String get sequenceReEvaluate;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

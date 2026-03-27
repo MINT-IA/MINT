@@ -11359,5 +11359,16 @@
   "consentNoActiveConsents": "Sem consentimentos ativos",
   "sequenceHousingGoal": "Compra de im\u00f3vel",
   "sequence3aGoal": "Otimiza\u00e7\u00e3o pilar 3a",
-  "sequenceRetirementGoal": "Prepara\u00e7\u00e3o para reforma"
+  "sequenceRetirementGoal": "Prepara\u00e7\u00e3o para reforma",
+  "sequenceAllStepsComplete": "Todas as etapas conclu\u00eddas",
+  "sequenceStepLabel": "Etapa {current}/{total}",
+  "@sequenceStepLabel": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "sequenceQuitConfirm": "Percurso encerrado.",
+  "sequenceStepCompleted": "Etapa {progress} conclu\u00edda. Pronto para a pr\u00f3xima?",
+  "@sequenceStepCompleted": { "placeholders": { "progress": { "type": "String" } } },
+  "sequenceCompleted": "Percurso completo! Todas as etapas est\u00e3o conclu\u00eddas.",
+  "sequencePaused": "Percurso em pausa. Pode retomar quando quiser.",
+  "sequenceStepSkipped": "Vamos pular esta etapa por enquanto.",
+  "sequenceStepRetry": "Sem problema. Vamos tentar esta etapa novamente.",
+  "sequenceReEvaluate": "Os seus dados mudaram. Recalculando as etapas afetadas."
 }

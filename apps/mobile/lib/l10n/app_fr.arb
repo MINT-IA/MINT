@@ -11840,5 +11840,16 @@
   "consentNoActiveConsents": "Aucun consentement actif",
   "sequenceHousingGoal": "Achat immobilier",
   "sequence3aGoal": "Optimisation 3a",
-  "sequenceRetirementGoal": "Pr\u00e9paration retraite"
+  "sequenceRetirementGoal": "Pr\u00e9paration retraite",
+  "sequenceAllStepsComplete": "Toutes les \u00e9tapes termin\u00e9es",
+  "sequenceStepLabel": "\u00c9tape {current}/{total}",
+  "@sequenceStepLabel": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "sequenceQuitConfirm": "Parcours quitt\u00e9.",
+  "sequenceStepCompleted": "\u00c9tape {progress} termin\u00e9e. Pr\u00eat pour la suite\u00a0?",
+  "@sequenceStepCompleted": { "placeholders": { "progress": { "type": "String" } } },
+  "sequenceCompleted": "Parcours termin\u00e9\u00a0! Toutes les \u00e9tapes sont compl\u00e8tes.",
+  "sequencePaused": "On met le parcours en pause. Tu pourras reprendre quand tu veux.",
+  "sequenceStepSkipped": "On passe cette \u00e9tape pour le moment.",
+  "sequenceStepRetry": "Pas de souci. On peut r\u00e9essayer cette \u00e9tape.",
+  "sequenceReEvaluate": "Tes donn\u00e9es ont chang\u00e9. Je recalcule les \u00e9tapes concern\u00e9es."
 }

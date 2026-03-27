@@ -24321,4 +24321,38 @@ class SPt extends S {
 
   @override
   String get sequenceRetirementGoal => 'Preparação para reforma';
+
+  @override
+  String get sequenceAllStepsComplete => 'Todas as etapas concluídas';
+
+  @override
+  String sequenceStepLabel(int current, int total) {
+    return 'Etapa $current/$total';
+  }
+
+  @override
+  String get sequenceQuitConfirm => 'Percurso encerrado.';
+
+  @override
+  String sequenceStepCompleted(String progress) {
+    return 'Etapa $progress concluída. Pronto para a próxima?';
+  }
+
+  @override
+  String get sequenceCompleted =>
+      'Percurso completo! Todas as etapas estão concluídas.';
+
+  @override
+  String get sequencePaused => 'Percurso em pausa. Pode retomar quando quiser.';
+
+  @override
+  String get sequenceStepSkipped => 'Vamos pular esta etapa por enquanto.';
+
+  @override
+  String get sequenceStepRetry =>
+      'Sem problema. Vamos tentar esta etapa novamente.';
+
+  @override
+  String get sequenceReEvaluate =>
+      'Os seus dados mudaram. Recalculando as etapas afetadas.';
 }

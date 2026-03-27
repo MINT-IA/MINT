@@ -26,8 +26,8 @@ class SequenceMessagePayload {
   /// Whether the user can tap "Quit" to leave the sequence.
   final bool canQuit;
 
-  /// Goal label key (ARB key for the goal name).
-  final String goalLabelKey;
+  /// Resolved goal label (human-readable, already localized).
+  final String goalLabel;
 
   const SequenceMessagePayload({
     required this.templateId,
@@ -36,6 +36,6 @@ class SequenceMessagePayload {
     required this.status,
     required this.canAdvance,
     required this.canQuit,
-    required this.goalLabelKey,
+    required this.goalLabel,
   });
 }

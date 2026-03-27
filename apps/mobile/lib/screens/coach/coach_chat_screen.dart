@@ -2097,31 +2097,28 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
 
     final run = result.updatedRun;
+    final l = S.of(context)!;
     final String message;
     final String analyticsEvent;
 
     switch (result.action) {
       case AdvanceAction(:final progressLabel):
-        message = '\u00c9tape $progressLabel termin\u00e9e. '
-            'Pr\u00eat pour la suite\u00a0?';
+        message = l.sequenceStepCompleted(progressLabel);
         analyticsEvent = 'sequence_step_completed';
       case CompleteAction():
-        message = 'Parcours termin\u00e9\u00a0! '
-            'Toutes les \u00e9tapes sont compl\u00e8tes.';
+        message = l.sequenceCompleted;
         analyticsEvent = 'sequence_completed';
       case PauseAction():
-        message = 'On met le parcours en pause. '
-            'Tu pourras reprendre quand tu veux.';
+        message = l.sequencePaused;
         analyticsEvent = 'sequence_paused';
       case SkipAction():
-        message = 'On passe cette \u00e9tape pour le moment.';
+        message = l.sequenceStepSkipped;
         analyticsEvent = 'sequence_step_skipped';
       case RetryAction():
-        message = 'Pas de souci. On peut r\u00e9essayer cette \u00e9tape.';
+        message = l.sequenceStepRetry;
         analyticsEvent = 'sequence_step_retry';
       case ReEvaluateAction():
-        message = 'Tes donn\u00e9es ont chang\u00e9. '
-            'Je recalcule les \u00e9tapes concern\u00e9es.';
+        message = l.sequenceReEvaluate;
         analyticsEvent = 'sequence_re_evaluate';
     }
 
@@ -2141,7 +2138,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     // Build sequence UI payload for the renderer.
     final bool canQuit = result.action is! CompleteAction;
-    final l = S.of(context)!;
     final goalLabel = _resolveGoalLabel(result.template.goalLabelKey, l);
 
     final seqPayload = SequenceMessagePayload(
@@ -2151,7 +2147,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       status: analyticsEvent.replaceFirst('sequence_', ''),
       canAdvance: false, // V1: no navigation CTA until route wiring
       canQuit: canQuit,
-      goalLabelKey: goalLabel,
+      goalLabel: goalLabel,
     );
 
     setState(() {
@@ -3113,23 +3109,22 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final completed = int.tryParse(parts.firstOrNull ?? '') ?? 0;
     final total = int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0;
 
+    final l = S.of(context)!;
     return SequenceProgressCard(
       completedCount: completed,
       totalCount: total,
-      goalLabel: payload.goalLabelKey, // TODO: resolve via S.of(context)
+      goalLabel: payload.goalLabel,
       currentStepLabel: payload.status == 'completed'
-          ? 'Toutes les \u00e9tapes termin\u00e9es'
-          : '\u00c9tape ${completed + 1}/$total',
-      // onAdvance is null until V2 wires navigation to next step route.
-      // The card shows progress but does not offer a CTA to continue.
-      onAdvance: null,
+          ? l.sequenceAllStepsComplete
+          : l.sequenceStepLabel(completed + 1, total),
+      onAdvance: null, // V1: no navigation CTA until route wiring
       onQuit: payload.canQuit ? () {
         SequenceChatHandler.quitSequence();
         if (mounted) {
           setState(() {
             _messages.add(ChatMessage(
               role: 'assistant',
-              content: 'Parcours quitt\u00e9.',
+              content: l.sequenceQuitConfirm,
               timestamp: DateTime.now(),
               tier: ChatTier.fallback,
             ));
