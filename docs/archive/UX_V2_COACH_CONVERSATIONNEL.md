@@ -1,3 +1,7 @@
+> **SUPERSEDED** (2026-03-27) — Ce document décrit l'ancien modèle 3-tab coach-centric.
+> L'app utilise maintenant un shell 4-tab (Aujourd'hui | Mint | Explorer | Dossier).
+> Voir : `docs/NAVIGATION_GRAAL_V10.md` + `docs/MINT_UX_GRAAL_MASTERPLAN.md`
+
 # UX V2 — Coach Conversationnel : Spec Post-Audit
 
 > **Date** : 10 mars 2026 (S48)

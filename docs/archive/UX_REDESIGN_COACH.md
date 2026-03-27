@@ -1,3 +1,6 @@
+> **SUPERSEDED** (2026-03-27) — Propositions A-C historiques. L'app a implémenté une
+> variante de C (4-tab shell hybride). Voir : `docs/MINT_UX_GRAAL_MASTERPLAN.md`
+
 # UX REDESIGN — MINT Coach: Du Catalogue au Coach Financier
 
 > **Scope**: Design UX et experience utilisateur pour la transformation Coach.

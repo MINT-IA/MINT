@@ -55,9 +55,6 @@ class SPt extends S {
   String get startDiagnostic => 'Iniciar o meu diagnostico';
 
   @override
-  String get tabNow => 'AGORA';
-
-  @override
   String get tabExplore => 'Explorar';
 
   @override
@@ -12198,9 +12195,6 @@ class SPt extends S {
   }
 
   @override
-  String get tabPulse => 'Pulse';
-
-  @override
   String get authGateDocScanTitle => 'Protege os teus documentos';
 
   @override
@@ -12918,12 +12912,6 @@ class SPt extends S {
 
   @override
   String get dossierCoupleSubtitle => 'Lar, cônjuge, projeções duo';
-
-  @override
-  String get dossierBilanTitle => 'Balanço financeiro';
-
-  @override
-  String get dossierBilanSubtitle => 'Visão geral do teu património';
 
   @override
   String get dossierReglages => 'Definições';

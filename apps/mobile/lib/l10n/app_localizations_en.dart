@@ -55,9 +55,6 @@ class SEn extends S {
   String get startDiagnostic => 'Start my diagnostic';
 
   @override
-  String get tabNow => 'NOW';
-
-  @override
   String get tabExplore => 'Explore';
 
   @override
@@ -12183,9 +12180,6 @@ class SEn extends S {
   }
 
   @override
-  String get tabPulse => 'Pulse';
-
-  @override
   String get authGateDocScanTitle => 'Secure your documents';
 
   @override
@@ -12899,12 +12893,6 @@ class SEn extends S {
 
   @override
   String get dossierCoupleSubtitle => 'Household, partner, duo projections';
-
-  @override
-  String get dossierBilanTitle => 'Financial overview';
-
-  @override
-  String get dossierBilanSubtitle => 'Overview of your assets';
 
   @override
   String get dossierReglages => 'Settings';

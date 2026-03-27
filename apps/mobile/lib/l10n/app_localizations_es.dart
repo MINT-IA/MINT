@@ -55,9 +55,6 @@ class SEs extends S {
   String get startDiagnostic => 'Iniciar mi diagnostico';
 
   @override
-  String get tabNow => 'AHORA';
-
-  @override
   String get tabExplore => 'Explorar';
 
   @override
@@ -12248,9 +12245,6 @@ class SEs extends S {
   }
 
   @override
-  String get tabPulse => 'Pulse';
-
-  @override
   String get authGateDocScanTitle => 'Protege tus documentos';
 
   @override
@@ -12966,12 +12960,6 @@ class SEs extends S {
 
   @override
   String get dossierCoupleSubtitle => 'Hogar, cónyuge, proyecciones dúo';
-
-  @override
-  String get dossierBilanTitle => 'Balance financiero';
-
-  @override
-  String get dossierBilanSubtitle => 'Vista general de tu patrimonio';
 
   @override
   String get dossierReglages => 'Ajustes';

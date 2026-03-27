@@ -1,3 +1,6 @@
+> **SUPERSEDED** (2026-03-27) — Roadmap historique S31-S45.
+> L'exécution est maintenant suivie dans `docs/ROADMAP_V2.md` (S51+).
+
 # MINT_COACH_VIVANT_ROADMAP.md — Definitive Execution Plan
 
 > **Scope**: Plan d'execution sprint pour Coach Vivant (S31-S45 dependances, ordering, specs).

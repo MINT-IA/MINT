@@ -15,7 +15,6 @@
   "landingDiagnosticSubtitle": "Bilan 360° • 5 minutes",
   "landingResumeDiagnostic": "Reprendre mon diagnostic",
   "startDiagnostic": "Démarrer mon diagnostic",
-  "tabNow": "MAINTENANT",
   "tabExplore": "Explorer",
   "tabTrack": "SUIVRE",
   "budgetTitle": "Maîtriser mon Budget",
@@ -6168,7 +6167,6 @@
       }
     }
   },
-  "tabPulse": "Pulse",
   "authGateDocScanTitle": "Sécurise tes documents",
   "authGateDocScanMessage": "Tes certificats contiennent des données sensibles. Crée un compte pour les protéger avec un chiffrement de bout en bout.",
   "authGateSalaryTitle": "Protège tes données financières",
@@ -6497,8 +6495,6 @@
   "dossierDocumentsSubtitle": "Certificats, relevés, scans",
   "dossierCoupleTitle": "Couple",
   "dossierCoupleSubtitle": "Foyer, conjoint·e, projections duo",
-  "dossierBilanTitle": "Bilan financier",
-  "dossierBilanSubtitle": "Vue d'ensemble de ton patrimoine",
   "dossierReglages": "Réglages",
   "dossierConsentsTitle": "Consentements",
   "dossierConsentsSubtitle": "Vie privée et partage de données",
