@@ -100,7 +100,11 @@ class TestChiffreChocContract:
         assert resp.status_code == 200
         data = resp.json()
         # With real LPP data at 250k, ratio should be decent → retirement_income
-        assert data["category"] in ("retirement_income", "retirement_gap")
+        # MUST be retirement_income, NOT retirement_gap — this locks the F3 fix
+        assert data["category"] == "retirement_income", (
+            f"Expected retirement_income for OK ratio with stress_retraite, "
+            f"got {data['category']}. This is the exact divergence Finding 3 caught."
+        )
 
     def test_young_user_without_stress_gets_lifecycle_choc(self, client):
         """Age 22 without stress_type → compound_growth or tax_saving (not retirement_gap).

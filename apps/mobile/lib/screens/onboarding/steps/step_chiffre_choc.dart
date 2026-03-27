@@ -161,6 +161,9 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
       'trending_down' => Icons.trending_down_rounded,
       'savings' => Icons.savings_rounded,
       'account_balance' => Icons.account_balance_rounded,
+      'trending_up' => Icons.trending_up_rounded,
+      'schedule' => Icons.schedule_rounded,
+      'public' => Icons.public_rounded,
       _ => Icons.insights_rounded,
     };
   }
