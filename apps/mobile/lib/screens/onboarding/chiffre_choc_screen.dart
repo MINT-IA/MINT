@@ -89,6 +89,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final isPropertyOwner = extra['isPropertyOwner'] as bool?;
     final existing3a = (extra['existing3a'] as num?)?.toDouble();
     final existingLpp = (extra['existingLpp'] as num?)?.toDouble();
+    final stressType = extra['stressType'] as String?;
 
     try {
       final profile = await ApiService.computeMinimalProfile(
@@ -110,6 +111,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         isPropertyOwner: isPropertyOwner,
         existing3a: existing3a,
         existingLpp: existingLpp,
+        stressType: stressType,
       );
 
       if (!mounted) return;
@@ -133,7 +135,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
       if (!mounted) return;
       setState(() {
         _profile = profile;
-        _chiffreChoc = ChiffreChocSelector.select(profile);
+        _chiffreChoc = ChiffreChocSelector.select(profile, stressType: stressType);
       });
     }
 
@@ -182,6 +184,15 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
       ChiffreChocType.retirementIncome => (
         actText: l10n.chiffreChocAvantApresIncomeAct,
         noActText: l10n.chiffreChocAvantApresIncomeNoAct,
+      ),
+      // V2 types: reuse closest existing avant/après texts
+      ChiffreChocType.compoundGrowth => (
+        actText: l10n.chiffreChocAvantApresTaxAct,
+        noActText: l10n.chiffreChocAvantApresTaxNoAct,
+      ),
+      ChiffreChocType.hourlyRate => (
+        actText: l10n.chiffreChocAvantApresLiquidityAct,
+        noActText: l10n.chiffreChocAvantApresLiquidityNoAct,
       ),
     };
   }
@@ -365,6 +376,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                         ChiffreChocType.retirementGap => '/coach/cockpit',
                         ChiffreChocType.taxSaving3a => '/pilier-3a',
                         ChiffreChocType.retirementIncome => '/coach/cockpit',
+                        ChiffreChocType.compoundGrowth => '/pilier-3a',
+                        ChiffreChocType.hourlyRate => '/budget',
                       };
                       AnalyticsService().trackCTAClick(
                         'chiffre_choc_action',

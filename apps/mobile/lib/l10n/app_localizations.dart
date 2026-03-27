@@ -41651,6 +41651,12 @@ abstract class S {
   /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.'**
   String get stepChocDisclaimer;
 
+  /// No description provided for @stepChocPedagogicalCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation illustrative basée sur des données partielles. Enrichis ton profil pour des chiffres plus précis.'**
+  String get stepChocPedagogicalCaveat;
+
   /// No description provided for @stepJitTitle.
   ///
   /// In fr, this message translates to:

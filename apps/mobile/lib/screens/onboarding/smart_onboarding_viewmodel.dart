@@ -171,7 +171,13 @@ class SmartOnboardingViewModel extends ChangeNotifier {
 
   void setStressType(String? value) {
     stressType = value;
-    notifyListeners();
+    // A7 fix: recompute chiffre choc when user changes intention mid-flow.
+    // Without this, going back to stress selector and changing would show stale choc.
+    if (hasResult) {
+      compute();
+    } else {
+      notifyListeners();
+    }
   }
 
   void setHouseholdType(String? value) {
@@ -248,7 +254,7 @@ class SmartOnboardingViewModel extends ChangeNotifier {
         existingLpp: existingLpp,
       );
 
-      chiffreChoc = ChiffreChocSelector.select(profile!);
+      chiffreChoc = ChiffreChocSelector.select(profile!, stressType: stressType);
 
       // Confidence: number of estimated fields reduces the score.
       // Base: 3 provided fields (age, salary, canton) out of 8 total data points.

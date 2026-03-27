@@ -23572,6 +23572,10 @@ class SPt extends S {
       'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
 
   @override
+  String get stepChocPedagogicalCaveat =>
+      'Estimativa ilustrativa baseada em dados parciais. Enriqueça o seu perfil para valores mais precisos.';
+
+  @override
   String get stepJitTitle => 'Compreender em 30 segundos';
 
   @override

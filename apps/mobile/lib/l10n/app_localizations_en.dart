@@ -23503,6 +23503,10 @@ class SEn extends S {
       'Simplified educational tool. Does not constitute financial advice (FinSA). Sources: OASI art. 34, BVG art. 14-16, BVV3 art. 7.';
 
   @override
+  String get stepChocPedagogicalCaveat =>
+      'Illustrative estimate based on partial data. Enrich your profile for more precise figures.';
+
+  @override
   String get stepJitTitle => 'Understand in 30 seconds';
 
   @override

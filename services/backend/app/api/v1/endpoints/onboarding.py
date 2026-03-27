@@ -48,6 +48,7 @@ def _request_to_input(request: MinimalProfileRequest) -> MinimalProfileInput:
         lpp_caisse_type=request.lpp_caisse_type,
         total_debts=request.total_debts,
         monthly_debt_service=request.monthly_debt_service,
+        stress_type=request.stress_type,
     )
 
 
@@ -111,7 +112,7 @@ def compute_chiffre_choc(request: Request, body: MinimalProfileRequest) -> Chiff
     try:
         input_data = _request_to_input(body)
         profile = compute_minimal_profile(input_data)
-        choc = select_chiffre_choc(profile)
+        choc = select_chiffre_choc(profile, stress_type=input_data.stress_type)
 
         return ChiffreChocResponse(
             category=choc.category,
@@ -122,6 +123,7 @@ def compute_chiffre_choc(request: Request, body: MinimalProfileRequest) -> Chiff
             disclaimer=choc.disclaimer,
             sources=choc.sources,
             confidence_score=choc.confidence_score,
+            confidence_mode=choc.confidence_mode,
         )
 
     except ValueError:

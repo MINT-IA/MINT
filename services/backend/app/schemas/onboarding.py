@@ -80,6 +80,11 @@ class MinimalProfileRequest(OnboardingBaseModel):
         default=None, ge=0,
         description="Service de la dette mensuel en CHF",
     )
+    stress_type: Optional[str] = Field(
+        default=None,
+        pattern=r"^(stress_retraite|stress_impots|stress_budget|stress_patrimoine|stress_couple|stress_general)$",
+        description="Intention declaree par l'utilisateur a l'onboarding",
+    )
 
 
 # ===========================================================================
@@ -157,7 +162,7 @@ class ChiffreChocResponse(OnboardingBaseModel):
     """Chiffre choc: un nombre marquant avec contexte educatif."""
 
     category: str = Field(
-        ..., description="Categorie: retirement_gap, tax_saving, liquidity, lpp_opportunity, mortgage_stress",
+        ..., description="Categorie: retirement_gap, tax_saving, liquidity, compound_growth, hourly_rate",
     )
     primary_number: float = Field(
         ..., description="Le nombre principal marquant",
@@ -179,4 +184,8 @@ class ChiffreChocResponse(OnboardingBaseModel):
     )
     confidence_score: float = Field(
         ..., description="Score de confiance de la projection (0-100%)",
+    )
+    confidence_mode: str = Field(
+        default="factual",
+        description="Mode de confiance: 'factual' (donnees reelles) ou 'pedagogical' (estimation)",
     )

@@ -1056,9 +1056,10 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             if (!auth.isLoggedIn) {
               // F3-1: Clear in-memory profile on logout to prevent
               // cross-account data bleed in the same session.
-              if (provider.hasProfile) {
-                provider.clear();
-              }
+              // S57-F5: Always clear — even if hasProfile is false.
+              // Without this, _remoteHydrationDone and _isHydrating
+              // remain stale when logout happens during hydration.
+              provider.clear();
               return provider;
             }
             // Reload wizard data when auth transitions to logged-in
@@ -1114,6 +1115,10 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             final provider = mintState ?? MintStateProvider();
             if (coachProvider.profile != null) {
               provider.recompute(coachProvider.profile!);
+            } else {
+              // A9 fix: clear stale state on logout to prevent
+              // previous user's data lingering in MintUserState.
+              provider.clear();
             }
             return provider;
           },

@@ -23616,6 +23616,10 @@ class SFr extends S {
       'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
 
   @override
+  String get stepChocPedagogicalCaveat =>
+      'Estimation illustrative basée sur des données partielles. Enrichis ton profil pour des chiffres plus précis.';
+
+  @override
   String get stepJitTitle => 'Comprendre en 30 secondes';
 
   @override

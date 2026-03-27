@@ -522,4 +522,6 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         disclaimer=_DISCLAIMER,
         sources=list(_SOURCES),
         enrichment_prompts=enrichment_prompts,
+        age=input.age,
+        gross_annual_salary=input.gross_salary,
     )

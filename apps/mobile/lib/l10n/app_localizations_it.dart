@@ -23656,6 +23656,10 @@ class SIt extends S {
       'Strumento educativo semplificato. Non costituisce consulenza finanziaria (LSFin). Fonti: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
 
   @override
+  String get stepChocPedagogicalCaveat =>
+      'Stima illustrativa basata su dati parziali. Arricchisci il tuo profilo per cifre più precise.';
+
+  @override
   String get stepJitTitle => 'Capire in 30 secondi';
 
   @override

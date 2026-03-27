@@ -23655,6 +23655,10 @@ class SDe extends S {
       'Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.';
 
   @override
+  String get stepChocPedagogicalCaveat =>
+      'Illustrative Schätzung basierend auf unvollständigen Daten. Vervollständige dein Profil für genauere Zahlen.';
+
+  @override
   String get stepJitTitle => 'In 30 Sekunden verstehen';
 
   @override
