@@ -229,20 +229,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   Timer? _screenReturnDebounce;
   ScreenReturn? _lastPendingReturn;
 
-  /// Cached flag: true when a guided sequence run is active.
-  /// Updated by startSequence/quitSequence/handleStepReturn.
-  /// SequenceStore remains the SOT — this is a sync cache to allow
-  /// _handleRouteReturn to decide synchronously (it's a void callback).
-  bool _isInGuidedSequence = false;
+  /// Timestamp of the last sequence step handled via the realtime path.
+  /// Used for deduplication: if realtime handled a step within the last
+  /// 5 seconds, _handleRouteReturn skips sequence processing to avoid
+  /// double consumption. See RFC §6.2.
+  DateTime? _lastSequenceHandledAt;
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize guided sequence cache from store.
-    SequenceChatHandler.isSequenceActive().then((active) {
-      if (mounted) setState(() => _isInGuidedSequence = active);
-    }).catchError((_) {});
 
     // Emotional canvas animation (800-1200ms depending on mood).
     _canvasAnimController = AnimationController(
@@ -1879,23 +1874,26 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     final s = S.of(context)!;
 
-    // ── SEQUENCE MODE: delegate to coordinator if active ──────────
-    // handleStepReturn is the SOLE entry point for sequence progression
-    // from coach-initiated navigation (RouteSuggestionCard).
-    // _onRealtimeScreenReturn does NOT handle sequences.
-    //
-    // If a sequence is active (_isInGuidedSequence), we SKIP the legacy
-    // CapMemory + fallback message flow to avoid conflicting signals.
-    if (_isInGuidedSequence) {
+    // ── SEQUENCE FALLBACK: handle only if realtime hasn't already ──
+    // The realtime path (_onRealtimeScreenReturn) is canonical for
+    // sequences because it carries the full ScreenReturn (stepOutputs,
+    // updatedFields). This route-return path is the FALLBACK — it only
+    // processes the sequence if realtime didn't fire in the last 5s.
+    final realtimeHandledRecently = _lastSequenceHandledAt != null &&
+        DateTime.now().difference(_lastSequenceHandledAt!).inSeconds < 5;
+    if (!realtimeHandledRecently) {
       SequenceChatHandler.handleStepReturn(outcome).then((result) {
         if (!mounted || result == null) return;
+        // Sequence was active but realtime didn't handle it (screen
+        // didn't emit a ScreenReturn). Use the simple outcome.
         _renderSequenceAction(result);
       }).catchError((_) {});
-      _scrollToBottom();
-      return; // Skip ALL legacy side effects
     }
+    // If realtime already handled, skip sequence processing entirely.
+    // Either way, legacy flow below still runs for CapMemory tracking.
+    // TODO(V2): suppress legacy side effects when sequence is active.
 
-    // ── NORMAL MODE: legacy flow (no sequence active) ─────────────
+    // ── LEGACY FLOW ───────────────────────────────────────────────
     // Resolve the last routed intent for CapMemory keying.
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
@@ -1999,10 +1997,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   void _onRealtimeScreenReturn(ScreenReturn ret) {
     if (!mounted) return;
 
-    // NOTE: Sequence handling is NOT done here. Only _handleRouteReturn
-    // processes guided sequences (via RouteSuggestionCard callback).
-    // This handler is for direct exploration (explore tab, deep links).
-    // See RFC_AGENT_LOOP_STATEFUL.md §6.2.
+    // ── SEQUENCE MODE (canonical path): bypass debounce, delegate ──
+    // Per RFC §6.2: realtime is canonical because it carries the full
+    // ScreenReturn with stepOutputs + updatedFields. No debounce for
+    // sequence transitions — they should feel immediate.
+    SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
+      if (!mounted || result == null) return;
+      _lastSequenceHandledAt = DateTime.now();
+      _renderSequenceAction(result);
+    }).catchError((_) {});
+    // Don't return — debounce below still runs for non-sequence usage.
+    // If sequence consumed the event, the debounced message is harmless.
 
     // Debounce: screens like affordability emit on every slider change.
     // We only react to the LAST event after 2 seconds of quiet.
@@ -2068,10 +2073,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     });
     _scrollToBottom();
     // Update sequence cache when run ends
-    if (result.action is CompleteAction ||
-        result.action is PauseAction) {
-      _isInGuidedSequence = false;
-    }
     if (result.action is CompleteAction) {
       _triggerMilestonePulse();
     }
