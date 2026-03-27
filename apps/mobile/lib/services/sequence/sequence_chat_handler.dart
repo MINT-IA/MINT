@@ -122,11 +122,17 @@ class SequenceChatHandler {
     final run = await SequenceStore.load();
     if (run == null || !run.isActive) return null;
 
-    // Guard: if the return carries a runId that doesn't match the active
-    // run, ignore it (delayed event from a previous run).
+    // Guard 1: wrong run — delayed event from a previous run.
     if (ret.runId != null && ret.runId != run.runId) return null;
 
-    // Idempotence: if this exact event was already processed, skip.
+    // Guard 2: wrong step — stale event from a prior step in the SAME run.
+    // e.g. step A emits while run already advanced to step B.
+    if (ret.stepId != null && run.activeStepId != null &&
+        ret.stepId != run.activeStepId) {
+      return null;
+    }
+
+    // Guard 3: idempotence — this exact event was already processed.
     if (run.isEventProcessed(ret.eventId)) return null;
 
     final template = _templateById(run.templateId);
