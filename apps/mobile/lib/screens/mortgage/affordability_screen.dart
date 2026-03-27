@@ -74,8 +74,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   /// Emits a realtime ScreenReturn on every slider change (Tier B — no
   /// sequence IDs). The debounce in CoachChatScreen filters the noise.
   /// Sequence IDs are NOT included here to avoid premature step advancement.
+  /// Suppressed in sequence mode — terminal return on pop handles it.
   void _emitScreenReturn() {
     if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return; // Sequence mode: terminal only
     final result = _result;
     final screenReturn = ScreenReturn.changedInputs(
       route: '/hypotheque',

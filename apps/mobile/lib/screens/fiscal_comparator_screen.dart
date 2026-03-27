@@ -17,6 +17,7 @@ import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -77,6 +78,14 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   final Set<int> _moveChecked = {};
   bool _hasUserInteracted = false;
 
+  /// Sequence IDs read from GoRouter.extra (Tier A when present).
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  /// Capital withdrawal amount from preceding EPL step (via prefill).
+  double? _montantRetrait;
+
   @override
   void initState() {
     super.initState();
@@ -89,6 +98,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         if (mounted) setState(() {});
       });
     }
+    // GoRouterState requires the widget to be in the tree.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
   }
 
   /// Pre-fill from onboarding profile if available
@@ -117,6 +130,81 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       _fortune = profile.patrimoine.epargneLiquide + profile.patrimoine.investissements;
       _fortuneController.text = _fortune.toInt().toString();
     }
+  }
+
+  /// Read sequence runId/stepId/prefill from GoRouter.extra if present.
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  /// Apply prefill values from preceding sequence steps.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    final retrait = prefill['montant_retrait'];
+    if (retrait is num && retrait > 0) {
+      _montantRetrait = retrait.toDouble();
+    }
+  }
+
+  /// Emits a terminal ScreenReturn when the user leaves the screen.
+  /// If user didn't interact → abandoned. If interacted → completed.
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/fiscal',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn(
+        'fiscal_comparator',
+        screenReturn,
+      );
+      return;
+    }
+
+    // Compute capital withdrawal tax if we have the EPL amount from step 2.
+    final impotRetrait = _montantRetrait != null && _montantRetrait! > 0
+        ? RetirementTaxCalculator.capitalWithdrawalTax(
+            capitalBrut: _montantRetrait!,
+            canton: _canton,
+          )
+        : 0.0;
+
+    final screenReturn = ScreenReturn.completed(
+      route: '/fiscal',
+      stepOutputs: {'impot_retrait': impotRetrait},
+      updatedFields: {
+        'fiscalBestCanton': _allCantons.isNotEmpty
+            ? _allCantons.first['canton'] as String?
+            : null,
+        'fiscalMaxSavings': _allCantons.isNotEmpty
+            ? (_allCantons.last['chargeTotale'] as double) -
+                (_allCantons.first['chargeTotale'] as double)
+            : 0.0,
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      confidenceDelta: 0.02,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'fiscal_comparator',
+      screenReturn,
+    );
   }
 
   @override
@@ -176,6 +264,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       );
     });
     if (!_hasUserInteracted) return;
+    // In sequence mode, terminal return is emitted on pop (_emitFinalReturn).
+    // Suppress realtime emissions to avoid dual processing + legacy side effects.
+    if (_seqRunId != null) return;
     final bestCanton = _allCantons.isNotEmpty
         ? _allCantons.first['canton'] as String?
         : null;
@@ -203,19 +294,24 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MintColors.background,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          _buildAppBar(context, innerBoxIsScrolled),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildTab1MonImpot(),
-            _buildTab2AllCantons(),
-            _buildTab3Demenager(),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
+        backgroundColor: MintColors.background,
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            _buildAppBar(context, innerBoxIsScrolled),
           ],
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildTab1MonImpot(),
+              _buildTab2AllCantons(),
+              _buildTab3Demenager(),
+            ],
+          ),
         ),
       ),
     );
