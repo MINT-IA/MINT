@@ -11355,5 +11355,19 @@
     }
   },
   "coachMintLabel": "Coach MINT",
-  "consentNoActiveConsents": "Nessun consenso attivo"
+  "consentNoActiveConsents": "Nessun consenso attivo",
+  "sequenceHousingGoal": "Acquisto immobiliare",
+  "sequence3aGoal": "Ottimizzazione pilastro 3a",
+  "sequenceRetirementGoal": "Preparazione pensionamento",
+  "sequenceAllStepsComplete": "Tutte le fasi completate",
+  "sequenceStepLabel": "Fase {current}/{total}",
+  "@sequenceStepLabel": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "sequenceQuitConfirm": "Percorso abbandonato.",
+  "sequenceStepCompleted": "Fase {progress} completata. Pronto per la prossima?",
+  "@sequenceStepCompleted": { "placeholders": { "progress": { "type": "String" } } },
+  "sequenceCompleted": "Percorso completato! Tutte le fasi sono terminate.",
+  "sequencePaused": "Percorso in pausa. Puoi riprendere quando vuoi.",
+  "sequenceStepSkipped": "Saltiamo questa fase per il momento.",
+  "sequenceStepRetry": "Nessun problema. Riproviamo questa fase.",
+  "sequenceReEvaluate": "I tuoi dati sono cambiati. Ricalcolo le fasi interessate."
 }

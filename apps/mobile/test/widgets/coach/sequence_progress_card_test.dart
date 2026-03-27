@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/sequence_run.dart';
-import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
-
-SequenceRun startRun(SequenceTemplate template) {
-  return SequenceRun.start(
-    runId: 'test-run',
-    templateId: template.id,
-    stepIds: template.steps.map((s) => s.id).toList(),
-  );
-}
 
 Widget wrap(Widget child) {
   return MaterialApp(home: Scaffold(body: SingleChildScrollView(child: child)));
@@ -19,10 +9,9 @@ Widget wrap(Widget child) {
 void main() {
   group('SequenceProgressCard', () {
     testWidgets('renders goal label and progress', (tester) async {
-      final run = startRun(SequenceTemplate.housingPurchase);
-
-      await tester.pumpWidget(wrap(SequenceProgressCard(
-        run: run,
+      await tester.pumpWidget(wrap(const SequenceProgressCard(
+        completedCount: 0,
+        totalCount: 4,
         goalLabel: 'Achat immobilier',
         currentStepLabel: 'Calcule ta capacit\u00e9 d\'achat',
       )));
@@ -33,13 +22,13 @@ void main() {
     });
 
     testWidgets('shows advance CTA when onAdvance is set', (tester) async {
-      final run = startRun(SequenceTemplate.housingPurchase);
       var advanced = false;
 
       await tester.pumpWidget(wrap(SequenceProgressCard(
-        run: run,
+        completedCount: 1,
+        totalCount: 4,
         goalLabel: 'Achat immobilier',
-        currentStepLabel: '\u00c9tape 1',
+        currentStepLabel: '\u00c9tape 2/4',
         onAdvance: () => advanced = true,
       )));
 
@@ -50,10 +39,9 @@ void main() {
     });
 
     testWidgets('hides advance CTA when onAdvance is null', (tester) async {
-      final run = startRun(SequenceTemplate.housingPurchase);
-
-      await tester.pumpWidget(wrap(SequenceProgressCard(
-        run: run,
+      await tester.pumpWidget(wrap(const SequenceProgressCard(
+        completedCount: 0,
+        totalCount: 4,
         goalLabel: 'Test',
         currentStepLabel: 'Step',
         onAdvance: null,
@@ -63,11 +51,11 @@ void main() {
     });
 
     testWidgets('shows quit button when onQuit is set', (tester) async {
-      final run = startRun(SequenceTemplate.housingPurchase);
       var quit = false;
 
       await tester.pumpWidget(wrap(SequenceProgressCard(
-        run: run,
+        completedCount: 0,
+        totalCount: 4,
         goalLabel: 'Test',
         currentStepLabel: 'Step',
         onQuit: () => quit = true,
@@ -79,25 +67,21 @@ void main() {
       expect(quit, isTrue);
     });
 
-    testWidgets('progress updates when steps are completed', (tester) async {
-      var run = startRun(SequenceTemplate.optimize3a);
-      run = run.completeStep('3a_01_simulator', {'contribution': 7258});
-      run = run.activateStep('3a_02_withdrawal');
-
-      await tester.pumpWidget(wrap(SequenceProgressCard(
-        run: run,
-        goalLabel: 'Optimisation 3a',
-        currentStepLabel: 'Retrait \u00e9chelonn\u00e9',
+    testWidgets('progress bar reflects completion', (tester) async {
+      await tester.pumpWidget(wrap(const SequenceProgressCard(
+        completedCount: 2,
+        totalCount: 4,
+        goalLabel: 'Test',
+        currentStepLabel: '\u00c9tape 3/4',
       )));
 
-      expect(find.text('1/3'), findsOneWidget);
+      expect(find.text('2/4'), findsOneWidget);
     });
 
     testWidgets('route icon is present', (tester) async {
-      final run = startRun(SequenceTemplate.housingPurchase);
-
-      await tester.pumpWidget(wrap(SequenceProgressCard(
-        run: run,
+      await tester.pumpWidget(wrap(const SequenceProgressCard(
+        completedCount: 0,
+        totalCount: 3,
         goalLabel: 'Test',
         currentStepLabel: 'Step',
       )));

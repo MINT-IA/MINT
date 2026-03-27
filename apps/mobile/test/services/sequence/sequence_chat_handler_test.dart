@@ -226,6 +226,96 @@ void main() {
     });
   });
 
+  group('SequenceChatHandler.handleRealtimeReturn — guards', () {
+    test('returns null for wrong runId', () async {
+      await SequenceChatHandler.startSequence('housing_purchase');
+
+      final result = await SequenceChatHandler.handleRealtimeReturn(
+        const ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: 'wrong_run_id',
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_1',
+        ),
+      );
+
+      expect(result, isNull);
+    });
+
+    test('returns null for stale stepId (run already advanced)', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      // Advance to step 2 by completing step 1
+      await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_step1',
+          stepOutputs: const {'capacite_achat': 850000.0},
+        ),
+      );
+
+      // Now send a stale event from step 1 — should be ignored
+      final staleResult = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run.runId,
+          stepId: 'housing_01_affordability', // stale — run is on step 2
+          eventId: 'evt_step1_late',
+        ),
+      );
+
+      expect(staleResult, isNull);
+    });
+
+    test('returns null for duplicate eventId', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      // First call — should succeed
+      final first = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_unique_123',
+          stepOutputs: const {'capacite_achat': 850000.0},
+        ),
+      );
+      expect(first, isNotNull);
+
+      // Second call with same eventId — should be rejected
+      final duplicate = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_unique_123', // same eventId
+        ),
+      );
+      expect(duplicate, isNull);
+    });
+
+    test('markEventProcessed persists across handler calls', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_persist_check',
+          stepOutputs: const {'capacite_achat': 850000.0},
+        ),
+      );
+
+      // Load the run from store and verify eventId was persisted
+      final stored = await SequenceStore.load();
+      expect(stored, isNotNull);
+      expect(stored!.isEventProcessed('evt_persist_check'), isTrue);
+    });
+  });
+
   group('SequenceChatHandler.quitSequence', () {
     test('clears run and proposals', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');

@@ -11362,5 +11362,19 @@
     }
   },
   "coachMintLabel": "Coach MINT",
-  "consentNoActiveConsents": "Keine aktiven Einwilligungen"
+  "consentNoActiveConsents": "Keine aktiven Einwilligungen",
+  "sequenceHousingGoal": "Immobilienkauf",
+  "sequence3aGoal": "S\u00e4ule 3a Optimierung",
+  "sequenceRetirementGoal": "Pensionierungsvorbereitung",
+  "sequenceAllStepsComplete": "Alle Schritte abgeschlossen",
+  "sequenceStepLabel": "Schritt {current}/{total}",
+  "@sequenceStepLabel": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "sequenceQuitConfirm": "Sequenz beendet.",
+  "sequenceStepCompleted": "Schritt {progress} abgeschlossen. Bereit f\u00fcr den n\u00e4chsten?",
+  "@sequenceStepCompleted": { "placeholders": { "progress": { "type": "String" } } },
+  "sequenceCompleted": "Sequenz abgeschlossen! Alle Schritte sind erledigt.",
+  "sequencePaused": "Sequenz pausiert. Du kannst jederzeit fortfahren.",
+  "sequenceStepSkipped": "Diesen Schritt \u00fcberspringen wir vorerst.",
+  "sequenceStepRetry": "Kein Problem. Versuchen wir diesen Schritt nochmal.",
+  "sequenceReEvaluate": "Deine Daten haben sich ge\u00e4ndert. Betroffene Schritte werden neu berechnet."
 }

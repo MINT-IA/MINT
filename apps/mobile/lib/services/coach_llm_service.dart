@@ -1,6 +1,7 @@
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
+import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
@@ -188,6 +189,10 @@ class ChatMessage {
   /// show_score_gauge, ask_user_input, etc.
   final List<RagToolCall> richToolCalls;
 
+  /// Sequence progress payload for rendering a SequenceProgressCard.
+  /// Non-null when the message carries a guided sequence step transition.
+  final SequenceMessagePayload? sequencePayload;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -200,6 +205,7 @@ class ChatMessage {
     this.routePayload,
     this.documentPayload,
     this.richToolCalls = const [],
+    this.sequencePayload,
   });
 
   bool get isUser => role == 'user';
@@ -214,6 +220,9 @@ class ChatMessage {
 
   /// Whether this message carries rich tool calls for inline rendering.
   bool get hasRichToolCalls => richToolCalls.isNotEmpty;
+
+  /// Whether this message carries a sequence progress card.
+  bool get hasSequencePayload => sequencePayload != null;
 }
 
 /// Reponse du coach LLM

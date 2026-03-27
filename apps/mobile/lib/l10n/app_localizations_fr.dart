@@ -24352,4 +24352,48 @@ class SFr extends S {
 
   @override
   String get consentNoActiveConsents => 'Aucun consentement actif';
+
+  @override
+  String get sequenceHousingGoal => 'Achat immobilier';
+
+  @override
+  String get sequence3aGoal => 'Optimisation 3a';
+
+  @override
+  String get sequenceRetirementGoal => 'Préparation retraite';
+
+  @override
+  String get sequenceAllStepsComplete => 'Toutes les étapes terminées';
+
+  @override
+  String sequenceStepLabel(int current, int total) {
+    return 'Étape $current/$total';
+  }
+
+  @override
+  String get sequenceQuitConfirm => 'Parcours quitté.';
+
+  @override
+  String sequenceStepCompleted(String progress) {
+    return 'Étape $progress terminée. Prêt pour la suite ?';
+  }
+
+  @override
+  String get sequenceCompleted =>
+      'Parcours terminé ! Toutes les étapes sont complètes.';
+
+  @override
+  String get sequencePaused =>
+      'On met le parcours en pause. Tu pourras reprendre quand tu veux.';
+
+  @override
+  String get sequenceStepSkipped => 'On passe cette étape pour le moment.';
+
+  @override
+  String get sequenceStepRetry =>
+      'Pas de souci. On peut réessayer cette étape.';
+
+  @override
+  String get sequenceReEvaluate =>
+      'Tes données ont changé. Je recalcule les étapes concernées.';
 }

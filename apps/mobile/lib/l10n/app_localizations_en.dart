@@ -24238,4 +24238,45 @@ class SEn extends S {
 
   @override
   String get consentNoActiveConsents => 'No active consents';
+
+  @override
+  String get sequenceHousingGoal => 'Home purchase';
+
+  @override
+  String get sequence3aGoal => 'Pillar 3a optimization';
+
+  @override
+  String get sequenceRetirementGoal => 'Retirement preparation';
+
+  @override
+  String get sequenceAllStepsComplete => 'All steps completed';
+
+  @override
+  String sequenceStepLabel(int current, int total) {
+    return 'Step $current/$total';
+  }
+
+  @override
+  String get sequenceQuitConfirm => 'Sequence exited.';
+
+  @override
+  String sequenceStepCompleted(String progress) {
+    return 'Step $progress completed. Ready for the next one?';
+  }
+
+  @override
+  String get sequenceCompleted => 'Sequence complete! All steps are done.';
+
+  @override
+  String get sequencePaused => 'Sequence paused. You can resume anytime.';
+
+  @override
+  String get sequenceStepSkipped => 'Skipping this step for now.';
+
+  @override
+  String get sequenceStepRetry => 'No worries. Let\'s try this step again.';
+
+  @override
+  String get sequenceReEvaluate =>
+      'Your data changed. Recalculating affected steps.';
 }

@@ -24393,4 +24393,48 @@ class SDe extends S {
 
   @override
   String get consentNoActiveConsents => 'Keine aktiven Einwilligungen';
+
+  @override
+  String get sequenceHousingGoal => 'Immobilienkauf';
+
+  @override
+  String get sequence3aGoal => 'Säule 3a Optimierung';
+
+  @override
+  String get sequenceRetirementGoal => 'Pensionierungsvorbereitung';
+
+  @override
+  String get sequenceAllStepsComplete => 'Alle Schritte abgeschlossen';
+
+  @override
+  String sequenceStepLabel(int current, int total) {
+    return 'Schritt $current/$total';
+  }
+
+  @override
+  String get sequenceQuitConfirm => 'Sequenz beendet.';
+
+  @override
+  String sequenceStepCompleted(String progress) {
+    return 'Schritt $progress abgeschlossen. Bereit für den nächsten?';
+  }
+
+  @override
+  String get sequenceCompleted =>
+      'Sequenz abgeschlossen! Alle Schritte sind erledigt.';
+
+  @override
+  String get sequencePaused =>
+      'Sequenz pausiert. Du kannst jederzeit fortfahren.';
+
+  @override
+  String get sequenceStepSkipped => 'Diesen Schritt überspringen wir vorerst.';
+
+  @override
+  String get sequenceStepRetry =>
+      'Kein Problem. Versuchen wir diesen Schritt nochmal.';
+
+  @override
+  String get sequenceReEvaluate =>
+      'Deine Daten haben sich geändert. Betroffene Schritte werden neu berechnet.';
 }

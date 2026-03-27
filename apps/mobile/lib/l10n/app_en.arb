@@ -11390,5 +11390,19 @@
     }
   },
   "coachMintLabel": "Coach MINT",
-  "consentNoActiveConsents": "No active consents"
+  "consentNoActiveConsents": "No active consents",
+  "sequenceHousingGoal": "Home purchase",
+  "sequence3aGoal": "Pillar 3a optimization",
+  "sequenceRetirementGoal": "Retirement preparation",
+  "sequenceAllStepsComplete": "All steps completed",
+  "sequenceStepLabel": "Step {current}/{total}",
+  "@sequenceStepLabel": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "sequenceQuitConfirm": "Sequence exited.",
+  "sequenceStepCompleted": "Step {progress} completed. Ready for the next one?",
+  "@sequenceStepCompleted": { "placeholders": { "progress": { "type": "String" } } },
+  "sequenceCompleted": "Sequence complete! All steps are done.",
+  "sequencePaused": "Sequence paused. You can resume anytime.",
+  "sequenceStepSkipped": "Skipping this step for now.",
+  "sequenceStepRetry": "No worries. Let's try this step again.",
+  "sequenceReEvaluate": "Your data changed. Recalculating affected steps."
 }

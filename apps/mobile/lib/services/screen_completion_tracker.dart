@@ -177,12 +177,23 @@ class ScreenCompletionTracker {
       if (updatedFieldsRaw is Map) {
         updatedFields = Map<String, dynamic>.from(updatedFieldsRaw);
       }
+      // Rehydrate stepOutputs if present.
+      final stepOutputsRaw = map['stepOutputs'];
+      Map<String, dynamic>? stepOutputs;
+      if (stepOutputsRaw is Map) {
+        stepOutputs = Map<String, dynamic>.from(stepOutputsRaw);
+      }
+
       return ScreenReturn(
         route: route,
         outcome: outcome,
         updatedFields: updatedFields,
         confidenceDelta: confidenceDelta,
         nextCapSuggestion: nextCap,
+        stepOutputs: stepOutputs,
+        runId: map['runId'] as String?,
+        stepId: map['stepId'] as String?,
+        eventId: map['eventId'] as String?,
       );
     } catch (_) {
       return null;
@@ -233,6 +244,11 @@ class ScreenCompletionTracker {
             'confidenceDelta': screenReturn.confidenceDelta,
           if (screenReturn.nextCapSuggestion != null)
             'nextCapSuggestion': screenReturn.nextCapSuggestion,
+          if (screenReturn.stepOutputs != null)
+            'stepOutputs': screenReturn.stepOutputs,
+          if (screenReturn.runId != null) 'runId': screenReturn.runId,
+          if (screenReturn.stepId != null) 'stepId': screenReturn.stepId,
+          if (screenReturn.eventId != null) 'eventId': screenReturn.eventId,
         }),
       );
     } catch (_) {

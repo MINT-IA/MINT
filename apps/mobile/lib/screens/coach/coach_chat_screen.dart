@@ -37,9 +37,11 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
-import 'package:mint_mobile/models/sequence_run.dart';
+import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
+import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -231,17 +233,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   Timer? _screenReturnDebounce;
   ScreenReturn? _lastPendingReturn;
 
-  /// Key of the sequence step consumed by the realtime path.
-  /// Format: "{runId}_{stepId}". Set by realtime handler on success.
-  /// Checked by _handleRouteReturn for dedup (same key = skip entirely).
-  String? _lastRealtimeHandledStepKey;
-
-  /// Key of the sequence step that is currently being navigated via
-  /// RouteSuggestionCard. Set BEFORE navigation, checked AFTER return.
-  /// Format: "{runId}_{stepId}". Null when not in a guided sequence.
-  /// This is the sync guard that allows _handleRouteReturn to bypass
-  /// legacy side effects without an async check.
-  String? _activeSequenceStepKey;
+  /// True when the realtime handler has already consumed the current
+  /// sequence step. Reset after _handleRouteReturn checks it.
+  /// This is the ONLY dedup mechanism between the two paths — the
+  /// persistent processedEventIds in SequenceRun handles replay/reload.
+  bool _realtimeConsumedSequenceStep = false;
 
   @override
   void initState() {
@@ -1479,16 +1475,31 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       case RouteAction.openWithWarning:
         // ── SEQUENCE START: if this intent matches a sequence template,
         // start the guided run BEFORE the user navigates.
-        // Fire-and-forget: the run is persisted in SequenceStore.
-        // _activeSequenceStepKey is set so _handleRouteReturn can
-        // bypass legacy side effects synchronously on return.
+        // Generate runId synchronously so it's available in the payload
+        // (the RouteSuggestionCard passes it in GoRouter extra).
+        String? seqRunId;
+        String? seqStepId;
         final template = SequenceTemplate.templateForIntent(raw.intent);
         if (template != null) {
-          SequenceChatHandler.startSequence(raw.intent).then((run) {
-            if (run != null && run.activeStepId != null) {
-              _activeSequenceStepKey = '${run.runId}_${run.activeStepId}';
-            }
-          }).catchError((_) {});
+          seqRunId = '${template.id}_${DateTime.now().millisecondsSinceEpoch}';
+          seqStepId = template.steps.first.id;
+          // Fire-and-forget: persist the run + first proposal.
+          SequenceChatHandler.startSequence(
+            raw.intent,
+            preGeneratedRunId: seqRunId,
+          ).catchError((_) => null);
+          // Analytics
+          AnalyticsService().trackEvent(
+            'sequence_started',
+            category: 'sequence',
+            data: {
+              'run_id': seqRunId,
+              'template_id': template.id,
+              'intent': raw.intent,
+              'step_count': template.steps.length,
+            },
+            screenName: 'coach_chat',
+          );
         }
 
         return _ResolvedRoutePayload(
@@ -1498,6 +1509,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           resolvedRoute: decision.route!,
           isPartial: decision.action == RouteAction.openWithWarning,
           prefill: decision.prefill,
+          runId: seqRunId,
+          stepId: seqStepId,
         );
       case RouteAction.askFirst:
         // Missing critical data — add a coach message naming the specific fields.
@@ -1891,38 +1904,51 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     final s = S.of(context)!;
 
-    // ── SEQUENCE DEDUP: realtime canonical, route-return fallback ──
+    // ── SEQUENCE HANDLING ─────────────────────────────────────────
     //
-    // Case 1: Realtime handled this exact step → skip entirely (no
-    // sequence processing, no legacy side effects, no double message).
-    // Case 2: _activeSequenceStepKey set (we're in a guided sequence
-    // but realtime hasn't fired yet) → delegate to sequence handler,
-    // skip legacy side effects.
-    // Case 3: Neither → normal legacy flow.
+    // Case 1: Realtime already consumed this step → skip entirely.
+    // Case 2: Sequence active but realtime hasn't fired → fallback handler.
+    // Case 3: No sequence active → legacy flow.
     //
-    if (_lastRealtimeHandledStepKey != null &&
-        (_activeSequenceStepKey == null ||
-         _lastRealtimeHandledStepKey == _activeSequenceStepKey)) {
-      // Case 1: realtime already consumed this step.
-      _lastRealtimeHandledStepKey = null;
-      _activeSequenceStepKey = null;
-      _scrollToBottom();
-      return;
-    }
-    if (_activeSequenceStepKey != null) {
-      // Case 2: we're in a guided sequence, realtime hasn't consumed yet.
-      // Delegate to sequence handler, skip legacy entirely.
-      _activeSequenceStepKey = null;
-      SequenceChatHandler.handleStepReturn(outcome).then((result) {
-        if (!mounted || result == null) return;
-        _renderSequenceAction(result);
-      }).catchError((_) {});
+    // The realtime path (_onRealtimeScreenReturn) is canonical for Tier A.
+    // This route-return path is the fallback for Tier B screens or when
+    // the realtime event hasn't arrived yet.
+
+    if (_realtimeConsumedSequenceStep) {
+      // Case 1: realtime already handled — skip everything.
+      _realtimeConsumedSequenceStep = false;
       _scrollToBottom();
       return;
     }
 
-    // Case 3: no sequence active → normal legacy flow.
-    // Resolve the last routed intent for CapMemory keying.
+    // Case 2+3: async decision — sequence fallback OR legacy flow.
+    // Wrapped in a Future so we can await the sequence check and only
+    // run the legacy flow if no sequence is active.
+    _handleRouteReturnAsync(outcome, s);
+  }
+
+  /// Async body of _handleRouteReturn — checks sequence first, then legacy.
+  ///
+  /// If a sequence is active and the fallback handler consumes the event,
+  /// legacy side effects are fully suppressed (no markCompleted, no message).
+  /// If no sequence is active, the legacy flow runs as before.
+  void _handleRouteReturnAsync(ScreenOutcome outcome, S s) async {
+    // Case 2: try sequence fallback first.
+    try {
+      final seqResult = await SequenceChatHandler.handleStepReturn(outcome);
+      if (seqResult != null) {
+        // Sequence consumed — render action, skip legacy entirely.
+        if (!mounted) return;
+        _renderSequenceAction(seqResult);
+        _scrollToBottom();
+        return;
+      }
+    } catch (_) {
+      // Fallback failed — proceed to legacy.
+    }
+
+    // Case 3: no sequence active — legacy flow.
+    if (!mounted) return;
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
         .map((m) => m.routePayload!.intent)
@@ -1930,13 +1956,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     switch (outcome) {
       case ScreenOutcome.completed:
-        // Mark action completed in CapMemory — closes the boucle vivante.
         if (lastRouted != null) {
           CapMemoryStore.load().then((mem) async {
             await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
           }).catchError((_) {});
         }
-        // Save cross-session insight.
         CoachMemoryService.saveInsight(CoachInsight(
           id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
           createdAt: DateTime.now(),
@@ -1944,6 +1968,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           summary: 'Completed screen from coach suggestion',
           type: InsightType.fact,
         )).catchError((_) {});
+        if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
@@ -1952,11 +1977,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             tier: ChatTier.fallback,
           ));
         });
-        // Emotional canvas: pulse sage green for milestone completion.
         _triggerMilestonePulse();
 
       case ScreenOutcome.abandoned:
-        // Record abandoned flow in CapMemory so engine avoids re-proposing too soon.
         if (lastRouted != null) {
           CapMemoryStore.load().then((mem) async {
             await CapMemoryStore.markAbandoned(
@@ -1966,7 +1989,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             );
           }).catchError((_) {});
         }
-        // Save cross-session insight about abandonment.
         CoachMemoryService.saveInsight(CoachInsight(
           id: 'route_abandoned_${DateTime.now().millisecondsSinceEpoch}',
           createdAt: DateTime.now(),
@@ -1974,6 +1996,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           summary: 'Abandoned screen from coach suggestion',
           type: InsightType.fact,
         )).catchError((_) {});
+        if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
@@ -1998,8 +2021,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           summary: 'User changed inputs on screen from coach suggestion',
           type: InsightType.fact,
         )).catchError((_) {});
-        // The profile provider already notified listeners when the user
-        // updated data on the target screen. No explicit refresh needed here.
+        if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
@@ -2026,24 +2048,19 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
 
     // ── SEQUENCE MODE (canonical path): bypass debounce, delegate ──
-    // Per RFC §6.2: realtime is canonical because it carries the full
-    // ScreenReturn with stepOutputs + updatedFields. No debounce for
-    // sequence transitions — they should feel immediate.
-    SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
-      if (!mounted || result == null) return;
-      // Record the step key for dedup — _handleRouteReturn will skip
-      // if it sees the same key (avoids double consumption).
-      final run = result.updatedRun;
-      final stepId = run.activeStepId ??
-          run.stepStates.entries
-              .lastWhere((e) => e.value == StepRunState.completed,
-                  orElse: () => const MapEntry('', StepRunState.pending))
-              .key;
-      _lastRealtimeHandledStepKey = '${run.runId}_$stepId';
-      _renderSequenceAction(result);
-    }).catchError((_) {});
-    // Don't return — debounce below still runs for non-sequence usage.
-    // If sequence consumed the event, the debounced message is harmless.
+    // Per RFC §6.2: realtime is canonical for Tier A because it carries
+    // the full ScreenReturn with runId/stepId/eventId/stepOutputs.
+    // No debounce for sequence transitions — they should feel immediate.
+    if (ret.hasSequenceId) {
+      SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
+        if (!mounted || result == null) return;
+        _realtimeConsumedSequenceStep = true;
+        _renderSequenceAction(result);
+      }).catchError((_) {});
+      // Tier A event consumed — don't also debounce-send to LLM.
+      return;
+    }
+    // Tier B (no sequence IDs) — continue to debounce below.
 
     // Debounce: screens like affordability emit on every slider change.
     // We only react to the LAST event after 2 seconds of quiet.
@@ -2074,35 +2091,64 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   /// Render the result of a guided sequence step into the chat.
   ///
-  /// Called from _handleRouteReturn ONLY when _isInGuidedSequence is true.
-  /// Adds a coach message describing the next action (advance, complete, etc.).
+  /// Called from _onRealtimeScreenReturn (canonical) or _handleRouteReturnAsync (fallback).
+  /// Also logs analytics for each transition.
   void _renderSequenceAction(SequenceHandlerResult result) {
     if (!mounted) return;
 
+    final run = result.updatedRun;
+    final l = S.of(context)!;
     final String message;
+    final String analyticsEvent;
+
     switch (result.action) {
-      case AdvanceAction(:final progressLabel, :final nextStep):
-        message = '\u00c9tape $progressLabel termin\u00e9e. '
-            'Pr\u00eat pour la suite\u00a0?';
-        // Pre-set the sync guard for the NEXT step's route return.
-        // This allows _handleRouteReturn to bypass legacy side effects
-        // synchronously when the user returns from the next step.
-        _activeSequenceStepKey =
-            '${result.updatedRun.runId}_${nextStep.id}';
+      case AdvanceAction(:final progressLabel):
+        message = l.sequenceStepCompleted(progressLabel);
+        analyticsEvent = 'sequence_step_completed';
       case CompleteAction():
-        message = 'Parcours termin\u00e9\u00a0! '
-            'Toutes les \u00e9tapes sont compl\u00e8tes.';
+        message = l.sequenceCompleted;
+        analyticsEvent = 'sequence_completed';
       case PauseAction():
-        message = 'On met le parcours en pause. '
-            'Tu pourras reprendre quand tu veux.';
+        message = l.sequencePaused;
+        analyticsEvent = 'sequence_paused';
       case SkipAction():
-        message = 'On passe cette \u00e9tape pour le moment.';
+        message = l.sequenceStepSkipped;
+        analyticsEvent = 'sequence_step_skipped';
       case RetryAction():
-        message = 'Pas de souci. On peut r\u00e9essayer cette \u00e9tape.';
+        message = l.sequenceStepRetry;
+        analyticsEvent = 'sequence_step_retry';
       case ReEvaluateAction():
-        message = 'Tes donn\u00e9es ont chang\u00e9. '
-            'Je recalcule les \u00e9tapes concern\u00e9es.';
+        message = l.sequenceReEvaluate;
+        analyticsEvent = 'sequence_re_evaluate';
     }
+
+    // Analytics — fire-and-forget, never blocks UI.
+    AnalyticsService().trackEvent(
+      analyticsEvent,
+      category: 'sequence',
+      data: {
+        'run_id': run.runId,
+        'template_id': run.templateId,
+        'progress': run.progress,
+        'step_count': run.totalCount,
+        'completed_count': run.completedCount,
+      },
+      screenName: 'coach_chat',
+    );
+
+    // Build sequence UI payload for the renderer.
+    final bool canQuit = result.action is! CompleteAction;
+    final goalLabel = _resolveGoalLabel(result.template.goalLabelKey, l);
+
+    final seqPayload = SequenceMessagePayload(
+      templateId: run.templateId,
+      currentStepId: run.activeStepId,
+      progressLabel: '${run.completedCount}/${run.totalCount}',
+      status: analyticsEvent.replaceFirst('sequence_', ''),
+      canAdvance: false, // V1: no navigation CTA until route wiring
+      canQuit: canQuit,
+      goalLabel: goalLabel,
+    );
 
     setState(() {
       _messages.add(ChatMessage(
@@ -2110,10 +2156,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         content: message,
         timestamp: DateTime.now(),
         tier: ChatTier.fallback,
+        sequencePayload: seqPayload,
       ));
     });
     _scrollToBottom();
-    // Update sequence cache when run ends
     if (result.action is CompleteAction) {
       _triggerMilestonePulse();
     }
@@ -2867,6 +2913,14 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               child: _buildRouteSuggestionCard(msg.routePayload!),
             ),
           ],
+          // Sequence Progress Card — guided sequence step transition
+          if (!isStreamingThis && msg.hasSequencePayload) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 8),
+              child: _buildSequenceCard(msg.sequencePayload!),
+            ),
+          ],
           // Document Card — generate_document tool_use (Agent Autonome)
           if (!isStreamingThis && msg.hasDocumentPayload) ...[
             const SizedBox(height: MintSpacing.sm),
@@ -3038,6 +3092,48 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
+  /// Resolve a goal label ARB key to a localized string.
+  static String _resolveGoalLabel(String key, S l) {
+    return switch (key) {
+      'sequenceHousingGoal' => l.sequenceHousingGoal,
+      'sequence3aGoal' => l.sequence3aGoal,
+      'sequenceRetirementGoal' => l.sequenceRetirementGoal,
+      _ => key, // Fallback to raw key if unknown
+    };
+  }
+
+  /// Builds the [SequenceProgressCard] for a message carrying a sequence payload.
+  Widget _buildSequenceCard(SequenceMessagePayload payload) {
+    // Parse progress label "2/4" → completedCount=2, totalCount=4.
+    final parts = payload.progressLabel.split('/');
+    final completed = int.tryParse(parts.firstOrNull ?? '') ?? 0;
+    final total = int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0;
+
+    final l = S.of(context)!;
+    return SequenceProgressCard(
+      completedCount: completed,
+      totalCount: total,
+      goalLabel: payload.goalLabel,
+      currentStepLabel: payload.status == 'completed'
+          ? l.sequenceAllStepsComplete
+          : l.sequenceStepLabel(completed + 1, total),
+      onAdvance: null, // V1: no navigation CTA until route wiring
+      onQuit: payload.canQuit ? () {
+        SequenceChatHandler.quitSequence();
+        if (mounted) {
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content: l.sequenceQuitConfirm,
+              timestamp: DateTime.now(),
+              tier: ChatTier.fallback,
+            ));
+          });
+        }
+      } : null,
+    );
+  }
+
   /// Builds the [RouteSuggestionCard] for a message carrying a route payload.
   ///
   /// Casts [payload] to [_ResolvedRoutePayload] to get the route + isPartial
@@ -3051,6 +3147,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       route: payload.resolvedRoute,
       isPartial: payload.isPartial,
       prefill: payload.prefill,
+      runId: payload.runId,
+      stepId: payload.stepId,
       onReturn: _handleRouteReturn,
       profileHashFn: () {
         final profile = context.read<CoachProfileProvider>().profile;
@@ -3391,6 +3489,14 @@ class _ResolvedRoutePayload extends RouteToolPayload {
   /// pre-populate fields with known profile data.
   final Map<String, dynamic>? prefill;
 
+  /// Sequence run ID — set when this route is part of a guided sequence.
+  /// Null for non-sequence navigation.
+  final String? runId;
+
+  /// Sequence step ID — set when this route is part of a guided sequence.
+  /// Null for non-sequence navigation.
+  final String? stepId;
+
   const _ResolvedRoutePayload({
     required super.intent,
     required super.confidence,
@@ -3398,6 +3504,8 @@ class _ResolvedRoutePayload extends RouteToolPayload {
     required this.resolvedRoute,
     required this.isPartial,
     this.prefill,
+    this.runId,
+    this.stepId,
   });
 }
 

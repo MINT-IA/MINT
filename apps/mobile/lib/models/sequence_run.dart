@@ -46,12 +46,24 @@ class SequenceRun {
   /// Overall run status.
   final SequenceRunStatus status;
 
+  /// Set of event IDs already processed by the sequence handler.
+  /// Used for idempotent dedup: if an eventId is in this set, the
+  /// handler skips it (no double consumption across realtime + fallback).
+  /// Bounded to [maxProcessedEvents] entries (FIFO eviction).
+  /// Cleared when the run completes or is abandoned.
+  /// See RFC_AGENT_LOOP_STATEFUL.md §6.3 (Phase 2 Completion).
+  final Set<String> processedEventIds;
+
+  /// Maximum number of processed event IDs to retain.
+  static const int maxProcessedEvents = 20;
+
   const SequenceRun({
     required this.runId,
     required this.templateId,
     required this.startedAt,
     required this.stepStates,
     this.stepOutputs = const {},
+    this.processedEventIds = const {},
     this.status = SequenceRunStatus.active,
   });
 
@@ -77,6 +89,21 @@ class SequenceRun {
       if (entry.value == StepRunState.active) return entry.key;
     }
     return null;
+  }
+
+  /// Whether the given [eventId] has already been processed.
+  bool isEventProcessed(String? eventId) =>
+      eventId != null && processedEventIds.contains(eventId);
+
+  /// Return a copy with [eventId] added to the processed set.
+  /// Evicts the oldest entry if the set exceeds [maxProcessedEvents].
+  SequenceRun markEventProcessed(String eventId) {
+    final updated = Set<String>.from(processedEventIds)..add(eventId);
+    // FIFO eviction: remove oldest entries if over limit.
+    while (updated.length > maxProcessedEvents) {
+      updated.remove(updated.first);
+    }
+    return _copyWith(processedEventIds: updated);
   }
 
   // ── IMMUTABLE UPDATES ──────────────────────────────────────────
@@ -182,6 +209,7 @@ class SequenceRun {
     Map<String, StepRunState>? stepStates,
     Map<String, Map<String, dynamic>>? stepOutputs,
     SequenceRunStatus? status,
+    Set<String>? processedEventIds,
   }) {
     return SequenceRun(
       runId: runId,
@@ -190,6 +218,7 @@ class SequenceRun {
       stepStates: stepStates ?? this.stepStates,
       stepOutputs: stepOutputs ?? this.stepOutputs,
       status: status ?? this.status,
+      processedEventIds: processedEventIds ?? this.processedEventIds,
     );
   }
 
@@ -226,6 +255,8 @@ class SequenceRun {
         'stepStates': stepStates.map((k, v) => MapEntry(k, v.name)),
         'stepOutputs': stepOutputs,
         'status': status.name,
+        if (processedEventIds.isNotEmpty)
+          'processedEventIds': processedEventIds.toList(),
       };
 
   factory SequenceRun.fromJson(Map<String, dynamic> json) {
@@ -241,6 +272,11 @@ class SequenceRun {
           ) ??
           const {},
       status: SequenceRunStatus.values.byName(json['status'] as String),
+      processedEventIds:
+          (json['processedEventIds'] as List<dynamic>?)
+              ?.cast<String>()
+              .toSet() ??
+          const {},
     );
   }
 

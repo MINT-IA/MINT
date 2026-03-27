@@ -122,6 +122,19 @@ class SequenceChatHandler {
     final run = await SequenceStore.load();
     if (run == null || !run.isActive) return null;
 
+    // Guard 1: wrong run — delayed event from a previous run.
+    if (ret.runId != null && ret.runId != run.runId) return null;
+
+    // Guard 2: wrong step — stale event from a prior step in the SAME run.
+    // e.g. step A emits while run already advanced to step B.
+    if (ret.stepId != null && run.activeStepId != null &&
+        ret.stepId != run.activeStepId) {
+      return null;
+    }
+
+    // Guard 3: idempotence — this exact event was already processed.
+    if (run.isEventProcessed(ret.eventId)) return null;
+
     final template = _templateById(run.templateId);
     if (template == null) return null;
 
@@ -140,8 +153,11 @@ class SequenceChatHandler {
       proposalCount: proposals,
     );
 
-    // Apply action + persist + increment proposals for next step
-    final updatedRun = _applyAction(action, run, ret.outcome, ret.stepOutputs);
+    // Apply action + mark event processed + persist
+    var updatedRun = _applyAction(action, run, ret.outcome, ret.stepOutputs);
+    if (ret.eventId != null) {
+      updatedRun = updatedRun.markEventProcessed(ret.eventId!);
+    }
     await _persistAndTrackProposals(action, updatedRun, run.runId, capMem);
 
     return SequenceHandlerResult(
@@ -154,12 +170,17 @@ class SequenceChatHandler {
   /// Start a new guided sequence from an intent tag.
   ///
   /// Returns the created run, or null if no template matches.
-  static Future<SequenceRun?> startSequence(String intentTag) async {
+  /// [preGeneratedRunId] — optional pre-generated runId for sync availability
+  /// in the caller (e.g. to pass to RouteSuggestionCard before await).
+  static Future<SequenceRun?> startSequence(
+    String intentTag, {
+    String? preGeneratedRunId,
+  }) async {
     final template = SequenceTemplate.templateForIntent(intentTag);
     if (template == null) return null;
 
     final run = SequenceRun.start(
-      runId: '${template.id}_${DateTime.now().millisecondsSinceEpoch}',
+      runId: preGeneratedRunId ?? '${template.id}_${DateTime.now().millisecondsSinceEpoch}',
       templateId: template.id,
       stepIds: template.steps.map((s) => s.id).toList(),
     );

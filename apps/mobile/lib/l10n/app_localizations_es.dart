@@ -24355,4 +24355,47 @@ class SEs extends S {
 
   @override
   String get consentNoActiveConsents => 'Sin consentimientos activos';
+
+  @override
+  String get sequenceHousingGoal => 'Compra de vivienda';
+
+  @override
+  String get sequence3aGoal => 'Optimización pilar 3a';
+
+  @override
+  String get sequenceRetirementGoal => 'Preparación jubilación';
+
+  @override
+  String get sequenceAllStepsComplete => 'Todas las etapas completadas';
+
+  @override
+  String sequenceStepLabel(int current, int total) {
+    return 'Etapa $current/$total';
+  }
+
+  @override
+  String get sequenceQuitConfirm => 'Recorrido abandonado.';
+
+  @override
+  String sequenceStepCompleted(String progress) {
+    return 'Etapa $progress completada. ¿Listo para la siguiente?';
+  }
+
+  @override
+  String get sequenceCompleted =>
+      'Recorrido completado. Todas las etapas están terminadas.';
+
+  @override
+  String get sequencePaused =>
+      'Recorrido en pausa. Puedes retomarlo cuando quieras.';
+
+  @override
+  String get sequenceStepSkipped => 'Saltamos esta etapa por el momento.';
+
+  @override
+  String get sequenceStepRetry => 'Sin problema. Reintentemos esta etapa.';
+
+  @override
+  String get sequenceReEvaluate =>
+      'Tus datos han cambiado. Recalculando las etapas afectadas.';
 }

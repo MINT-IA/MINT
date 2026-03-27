@@ -191,4 +191,66 @@ void main() {
       expect(outcome, isNull);
     });
   });
+
+  // ── Tier A: Sequence identity round-trip ──────────────────────
+
+  group('Tier A — sequence identity persistence', () {
+    test('markCompletedWithReturn persists runId/stepId/eventId', () async {
+      final prefs = await SharedPreferences.getInstance();
+
+      const screenReturn = ScreenReturn.completed(
+        route: '/hypotheque',
+        runId: 'housing_123',
+        stepId: 'housing_01_affordability',
+        eventId: 'evt_housing_123_1711000000',
+        stepOutputs: {'capacite_achat': 850000.0, 'fonds_propres': 170000.0},
+      );
+
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'affordability',
+        screenReturn,
+        prefs: prefs,
+      );
+
+      final restored = await ScreenCompletionTracker.lastReturn(
+        'affordability',
+        prefs: prefs,
+      );
+
+      expect(restored, isNotNull);
+      expect(restored!.runId, 'housing_123');
+      expect(restored.stepId, 'housing_01_affordability');
+      expect(restored.eventId, 'evt_housing_123_1711000000');
+      expect(restored.stepOutputs?['capacite_achat'], 850000.0);
+      expect(restored.stepOutputs?['fonds_propres'], 170000.0);
+      expect(restored.outcome, ScreenOutcome.completed);
+      expect(restored.route, '/hypotheque');
+    });
+
+    test('lastReturn without sequence IDs returns null fields', () async {
+      final prefs = await SharedPreferences.getInstance();
+
+      const screenReturn = ScreenReturn.completed(
+        route: '/budget',
+        // No runId/stepId/eventId — Tier B legacy
+      );
+
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'budget',
+        screenReturn,
+        prefs: prefs,
+      );
+
+      final restored = await ScreenCompletionTracker.lastReturn(
+        'budget',
+        prefs: prefs,
+      );
+
+      expect(restored, isNotNull);
+      expect(restored!.runId, isNull);
+      expect(restored.stepId, isNull);
+      expect(restored.eventId, isNull);
+      expect(restored.stepOutputs, isNull);
+    });
+  });
 }

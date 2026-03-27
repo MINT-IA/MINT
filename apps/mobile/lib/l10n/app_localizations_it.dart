@@ -24398,4 +24398,47 @@ class SIt extends S {
 
   @override
   String get consentNoActiveConsents => 'Nessun consenso attivo';
+
+  @override
+  String get sequenceHousingGoal => 'Acquisto immobiliare';
+
+  @override
+  String get sequence3aGoal => 'Ottimizzazione pilastro 3a';
+
+  @override
+  String get sequenceRetirementGoal => 'Preparazione pensionamento';
+
+  @override
+  String get sequenceAllStepsComplete => 'Tutte le fasi completate';
+
+  @override
+  String sequenceStepLabel(int current, int total) {
+    return 'Fase $current/$total';
+  }
+
+  @override
+  String get sequenceQuitConfirm => 'Percorso abbandonato.';
+
+  @override
+  String sequenceStepCompleted(String progress) {
+    return 'Fase $progress completata. Pronto per la prossima?';
+  }
+
+  @override
+  String get sequenceCompleted =>
+      'Percorso completato! Tutte le fasi sono terminate.';
+
+  @override
+  String get sequencePaused =>
+      'Percorso in pausa. Puoi riprendere quando vuoi.';
+
+  @override
+  String get sequenceStepSkipped => 'Saltiamo questa fase per il momento.';
+
+  @override
+  String get sequenceStepRetry => 'Nessun problema. Riproviamo questa fase.';
+
+  @override
+  String get sequenceReEvaluate =>
+      'I tuoi dati sono cambiati. Ricalcolo le fasi interessate.';
 }

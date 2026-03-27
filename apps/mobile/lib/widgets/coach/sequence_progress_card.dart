@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -15,12 +14,15 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 /// - "Quitter le parcours" secondary action
 ///
 /// Pure presentational widget — no side effects, no providers.
-/// All data comes from [template] and [run].
+/// Accepts display data directly (no SequenceRun dependency).
 ///
-/// See: docs/RFC_AGENT_LOOP_STATEFUL.md §3.6, Phase 2
+/// See: docs/RFC_AGENT_LOOP_STATEFUL.md §7
 class SequenceProgressCard extends StatelessWidget {
-  /// The current runtime state.
-  final SequenceRun run;
+  /// Number of completed steps.
+  final int completedCount;
+
+  /// Total number of steps.
+  final int totalCount;
 
   /// Label of the current step (resolved from ARB by caller).
   final String currentStepLabel;
@@ -36,7 +38,8 @@ class SequenceProgressCard extends StatelessWidget {
 
   const SequenceProgressCard({
     super.key,
-    required this.run,
+    required this.completedCount,
+    required this.totalCount,
     required this.currentStepLabel,
     required this.goalLabel,
     this.onAdvance,
@@ -45,9 +48,7 @@ class SequenceProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final completed = run.completedCount;
-    final total = run.totalCount;
-    final progress = run.progress;
+    final progress = totalCount > 0 ? completedCount / totalCount : 0.0;
 
     return MintSurface(
       padding: const EdgeInsets.all(20),
@@ -84,7 +85,7 @@ class SequenceProgressCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  '$completed/$total',
+                  '$completedCount/$totalCount',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
