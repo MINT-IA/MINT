@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -41,12 +42,52 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   int _ageRetraitFin = 64;
   bool _hasUserInteracted = false;
 
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
       _initializeFromProfile();
     });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('staggered_withdrawal',
+        ScreenReturn.abandoned(
+          route: '/3a-deep/staggered-withdrawal',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final result = _result;
+    ScreenCompletionTracker.markCompletedWithReturn('staggered_withdrawal',
+      ScreenReturn.completed(
+        route: '/3a-deep/staggered-withdrawal',
+        stepOutputs: {'gain_echelonnement': result.economie},
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   void _initializeFromProfile() {
@@ -97,6 +138,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
   void _emitScreenReturn() {
     if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return;
     final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';
     final screenReturn = ScreenReturn.changedInputs(
       route: '/3a-deep/staggered-withdrawal',
@@ -114,7 +156,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.surface,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -162,7 +208,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             ),
           ),
         ],
-      ))),
+      )))),
     );
   }
 
@@ -292,7 +338,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                     .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),
                 onChanged: (v) {
-                  if (v != null) setState(() => _canton = v);
+                  if (v != null) {
+                    _hasUserInteracted = true;
+                    setState(() => _canton = v);
+                    _emitScreenReturn();
+                  }
                 },
               ),
             ),

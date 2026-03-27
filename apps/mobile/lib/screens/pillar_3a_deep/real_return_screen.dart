@@ -7,9 +7,12 @@ import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -31,6 +34,11 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   double _rendementBrut = 0.045;
   double _fraisGestion = 0.005;
   int _dureeAnnees = 30;
+  bool _hasUserInteracted = false;
+
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
 
   RealReturnResult get _result => RealReturnCalculator.calculate(
         versementAnnuel: _versementAnnuel,
@@ -44,8 +52,44 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
       _initializeFromProfile();
     });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('real_return_3a',
+        ScreenReturn.abandoned(
+          route: '/3a-deep/real-return',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    // Last step of 3a template — no outputMapping, but emit completed
+    // so the coordinator knows the sequence is done.
+    ScreenCompletionTracker.markCompletedWithReturn('real_return_3a',
+      ScreenReturn.completed(
+        route: '/3a-deep/real-return',
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   void _initializeFromProfile() {
@@ -76,7 +120,11 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
         backgroundColor: MintColors.white,
@@ -114,7 +162,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           _buildDisclaimer(result.disclaimer),
           const SizedBox(height: MintSpacing.xl),
         ],
-      ))),
+      )))),
     );
   }
 
@@ -193,7 +241,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             divisions: 125,
             format: 'CHF\u00a0${formatChf(_versementAnnuel)}',
             onChanged: (v) =>
-                setState(() => _versementAnnuel = (v / 50).round() * 50.0),
+                setState(() { _hasUserInteracted = true; _versementAnnuel = (v / 50).round() * 50.0; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -204,7 +252,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 0.50,
             divisions: 50,
             format: '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
-            onChanged: (v) => setState(() => _tauxMarginal = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _tauxMarginal = v; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -215,7 +263,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 0.08,
             divisions: 14,
             format: '${(_rendementBrut * 100).toStringAsFixed(1)}\u00a0%',
-            onChanged: (v) => setState(() => _rendementBrut = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _rendementBrut = v; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -226,7 +274,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 0.02,
             divisions: 20,
             format: '${(_fraisGestion * 100).toStringAsFixed(2)}\u00a0%',
-            onChanged: (v) => setState(() => _fraisGestion = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _fraisGestion = v; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -237,7 +285,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 40,
             divisions: 35,
             format: l.realReturnYearsSuffix(_dureeAnnees),
-            onChanged: (v) => setState(() => _dureeAnnees = v.round()),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _dureeAnnees = v.round(); }),
           ),
         ],
       ),

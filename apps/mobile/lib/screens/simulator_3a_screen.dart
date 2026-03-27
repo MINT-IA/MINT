@@ -40,6 +40,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   Map<String, double>? _result;
   bool _hasUserInteracted = false;
 
+  /// Sequence IDs read from GoRouter.extra (Tier A when present).
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
   late final TextEditingController _contributionCtrl;
 
@@ -56,6 +61,47 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     _initializeFromProfile();
     _contributionCtrl.text = _annualContribution.round().toString();
     _calculate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('simulator_3a',
+        ScreenReturn.abandoned(
+          route: '/pilier-3a',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final economieFiscale = _result?['annualTaxSaved'] ?? 0.0;
+    ScreenCompletionTracker.markCompletedWithReturn('simulator_3a',
+      ScreenReturn.completed(
+        route: '/pilier-3a',
+        stepOutputs: {
+          'contribution_annuelle': _annualContribution,
+          'economie_fiscale': economieFiscale,
+        },
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   @override
@@ -153,6 +199,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       );
     });
     if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final screenReturn = ScreenReturn.completed(
       route: '/pilier-3a',
       updatedFields: {'simulated3aAmount': _annualContribution},
@@ -169,7 +216,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     final l = S.of(context)!;
     final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         backgroundColor: MintColors.white,
@@ -209,7 +260,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ))),
+      )))),
     );
   }
 
