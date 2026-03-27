@@ -89,6 +89,14 @@ class RouteSuggestionCard extends StatelessWidget {
   /// [ScreenOutcome.changedInputs].
   final String Function()? profileHashFn;
 
+  /// Sequence run ID — passed to the screen via extra for Tier A emission.
+  /// Null when not in a guided sequence.
+  final String? runId;
+
+  /// Sequence step ID — passed to the screen via extra for Tier A emission.
+  /// Null when not in a guided sequence.
+  final String? stepId;
+
   const RouteSuggestionCard({
     super.key,
     required this.contextMessage,
@@ -97,6 +105,8 @@ class RouteSuggestionCard extends StatelessWidget {
     this.prefill,
     this.onReturn,
     this.profileHashFn,
+    this.runId,
+    this.stepId,
   });
 
   @override
@@ -208,7 +218,16 @@ class RouteSuggestionCard extends StatelessWidget {
     // Pass prefill data via `extra` so the target screen can pre-populate
     // fields with known profile values (screens opt in by reading extra).
     if (!context.mounted) return;
-    final extra = prefill != null ? {'prefill': prefill} : null;
+    // Build navigation extra with prefill + optional sequence IDs.
+    // Screens read runId/stepId from extra to emit Tier A ScreenReturns.
+    Map<String, dynamic>? extra;
+    if (prefill != null || runId != null) {
+      extra = {
+        if (prefill != null) 'prefill': prefill,
+        if (runId != null) 'runId': runId,
+        if (stepId != null) 'stepId': stepId,
+      };
+    }
     await context.push(route, extra: extra); // ignore: use_build_context_synchronously — guarded by mounted check immediately below
 
     if (!context.mounted) return;

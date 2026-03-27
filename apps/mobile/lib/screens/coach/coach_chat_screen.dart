@@ -1479,12 +1479,19 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       case RouteAction.openWithWarning:
         // ── SEQUENCE START: if this intent matches a sequence template,
         // start the guided run BEFORE the user navigates.
-        // Fire-and-forget: the run is persisted in SequenceStore.
-        // _activeSequenceStepKey is set so _handleRouteReturn can
-        // bypass legacy side effects synchronously on return.
+        // Generate runId synchronously so it's available in the payload
+        // (the RouteSuggestionCard passes it in GoRouter extra).
+        String? seqRunId;
+        String? seqStepId;
         final template = SequenceTemplate.templateForIntent(raw.intent);
         if (template != null) {
-          SequenceChatHandler.startSequence(raw.intent).then((run) {
+          seqRunId = '${template.id}_${DateTime.now().millisecondsSinceEpoch}';
+          seqStepId = template.steps.first.id;
+          // Fire-and-forget: persist the run + first proposal.
+          SequenceChatHandler.startSequence(
+            raw.intent,
+            preGeneratedRunId: seqRunId,
+          ).then((run) {
             if (run != null && run.activeStepId != null) {
               _activeSequenceStepKey = '${run.runId}_${run.activeStepId}';
             }
@@ -1498,6 +1505,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           resolvedRoute: decision.route!,
           isPartial: decision.action == RouteAction.openWithWarning,
           prefill: decision.prefill,
+          runId: seqRunId,
+          stepId: seqStepId,
         );
       case RouteAction.askFirst:
         // Missing critical data — add a coach message naming the specific fields.
@@ -3051,6 +3060,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       route: payload.resolvedRoute,
       isPartial: payload.isPartial,
       prefill: payload.prefill,
+      runId: payload.runId,
+      stepId: payload.stepId,
       onReturn: _handleRouteReturn,
       profileHashFn: () {
         final profile = context.read<CoachProfileProvider>().profile;
@@ -3391,6 +3402,14 @@ class _ResolvedRoutePayload extends RouteToolPayload {
   /// pre-populate fields with known profile data.
   final Map<String, dynamic>? prefill;
 
+  /// Sequence run ID — set when this route is part of a guided sequence.
+  /// Null for non-sequence navigation.
+  final String? runId;
+
+  /// Sequence step ID — set when this route is part of a guided sequence.
+  /// Null for non-sequence navigation.
+  final String? stepId;
+
   const _ResolvedRoutePayload({
     required super.intent,
     required super.confidence,
@@ -3398,6 +3417,8 @@ class _ResolvedRoutePayload extends RouteToolPayload {
     required this.resolvedRoute,
     required this.isPartial,
     this.prefill,
+    this.runId,
+    this.stepId,
   });
 }
 
