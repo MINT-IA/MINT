@@ -95,8 +95,8 @@ class SequenceRun {
       final sanitized = _sanitizeOutputs(outputs);
       if (sanitized.isNotEmpty) {
         newOutputs[stepId] = sanitized;
-        // Enforce total run size limit
-        final totalSize = jsonEncode(newOutputs).length;
+        // Enforce total run size limit (UTF-8 bytes, not chars)
+        final totalSize = utf8.encode(jsonEncode(newOutputs)).length;
         if (totalSize > _maxTotalOutputBytes) {
           // Drop this step's outputs to stay within budget
           newOutputs.remove(stepId);
@@ -131,8 +131,8 @@ class SequenceRun {
       // Silently drop non-primitive values (Lists, Maps, objects)
     }
 
-    // Enforce per-step size limit (measured as JSON bytes)
-    final encoded = jsonEncode(sanitized);
+    // Enforce per-step size limit (measured as UTF-8 bytes)
+    final encoded = utf8.encode(jsonEncode(sanitized));
     if (encoded.length > _maxStepOutputBytes) {
       // Drop outputs exceeding budget rather than corrupting persistence
       return {};
