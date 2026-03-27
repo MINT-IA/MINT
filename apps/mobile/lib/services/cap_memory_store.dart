@@ -44,6 +44,13 @@ class CapMemory {
   /// Used by feedback pill to show "Impact recalculé" accurately.
   final DateTime? lastCompletedDate;
 
+  /// Tracks how many times each step was proposed in a guided sequence run.
+  /// Key: "{runId}_{stepId}", Value: proposal count.
+  /// Cleared when the run completes or is abandoned.
+  /// Used by SequenceCoordinator for anti-loop (max 2 proposals per step).
+  /// See RFC_AGENT_LOOP_STATEFUL.md §6.3.
+  final Map<String, int> stepProposals;
+
   const CapMemory({
     this.lastCapServed,
     this.lastCapDate,
@@ -53,7 +60,27 @@ class CapMemory {
     this.declaredGoals = const [],
     this.recentFrictionContext,
     this.lastCompletedDate,
+    this.stepProposals = const {},
   });
+
+  /// Get the proposal count for a step in a specific run.
+  int proposalCount(String runId, String stepId) =>
+      stepProposals['${runId}_$stepId'] ?? 0;
+
+  /// Return a copy with an incremented proposal count for a step.
+  CapMemory incrementProposal(String runId, String stepId) {
+    final key = '${runId}_$stepId';
+    final updated = Map<String, int>.from(stepProposals);
+    updated[key] = (updated[key] ?? 0) + 1;
+    return copyWith(stepProposals: updated);
+  }
+
+  /// Return a copy with all step proposals for a given run cleared.
+  CapMemory clearProposalsForRun(String runId) {
+    final updated = Map<String, int>.from(stepProposals)
+      ..removeWhere((key, _) => key.startsWith('${runId}_'));
+    return copyWith(stepProposals: updated);
+  }
 
   /// Copy with explicit null clearing support.
   ///
@@ -68,6 +95,7 @@ class CapMemory {
     List<String>? declaredGoals,
     Object? recentFrictionContext = _undefined,
     Object? lastCompletedDate = _undefined,
+    Map<String, int>? stepProposals,
   }) {
     return CapMemory(
       lastCapServed: lastCapServed == _undefined
@@ -88,6 +116,7 @@ class CapMemory {
       lastCompletedDate: lastCompletedDate == _undefined
           ? this.lastCompletedDate
           : lastCompletedDate as DateTime?,
+      stepProposals: stepProposals ?? this.stepProposals,
     );
   }
 
@@ -103,6 +132,7 @@ class CapMemory {
           'recentFrictionContext': recentFrictionContext,
         if (lastCompletedDate != null)
           'lastCompletedDate': lastCompletedDate!.toIso8601String(),
+        if (stepProposals.isNotEmpty) 'stepProposals': stepProposals,
       };
 
   factory CapMemory.fromJson(Map<String, dynamic> json) => CapMemory(
@@ -124,6 +154,11 @@ class CapMemory {
         lastCompletedDate: json['lastCompletedDate'] != null
             ? DateTime.tryParse(json['lastCompletedDate'] as String)
             : null,
+        stepProposals:
+            (json['stepProposals'] as Map<String, dynamic>?)?.map(
+                  (k, v) => MapEntry(k, (v as num).toInt()),
+                ) ??
+                const {},
       );
 }
 
