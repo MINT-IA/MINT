@@ -24,7 +24,7 @@ Le coach peut aujourd'hui router vers **un seul écran** à la fois. Quand l'uti
 | `CapSequence` + `CapStep` | Plan visible (Pulse, Dossier, coach context) | Inchangé — reste le seul plan |
 | `ScreenReturn` | Contrat de retour écran | +`stepOutputs` (données structurées) |
 | `RoutePlanner` | Intent → readiness → route décision | +awareness du run actif |
-| `CapMemory` | Historique des actions | +`activeRunId` pour gater le realtime |
+| `CapMemory` | Historique des actions | +`stepProposals` pour l'anti-boucle |
 | `CapSequenceEngine` | Construit les plans | +`SequenceTemplate` pour les parcours guidés |
 
 **Ce qui est NOUVEAU (et uniquement ça) :**
@@ -156,8 +156,8 @@ class SequenceCoordinator {
         return SequenceAction.complete();
 
       case ScreenOutcome.abandoned:
-        // Anti-boucle: count proposals (not completions)
-        final proposals = memory.proposalCount(currentStepDef.id);
+        // Anti-boucle: count proposals scoped to this run (not completions)
+        final proposals = memory.proposalCount(run.runId, currentStepDef.id);
         if (proposals >= 2) {
           // Skip this step, try next
           if (currentStepDef.isOptional) {
@@ -176,19 +176,25 @@ class SequenceCoordinator {
 }
 ```
 
-### 3.6 Integration CoachChatScreen — gater le realtime
+### 3.6 Integration CoachChatScreen
+
+`_onRealtimeScreenReturn(ScreenReturn)` reste le **seul point d'entrée** pour
+les retours d'écrans. Sa branche legacy est bypassée quand un run est actif :
 
 ```dart
-// Dans _handleRouteReturn :
-if (_hasActiveSequenceRun()) {
-  // Guided sequence mode — delegate to SequenceCoordinator
+// Dans _onRealtimeScreenReturn (point d'entrée unique) :
+final activeRun = await SequenceStore.load();
+if (activeRun != null && activeRun.status == SequenceRunStatus.active) {
+  // SEQUENCE MODE: bypass debounce + legacy reaction, delegate to coordinator
   final action = SequenceCoordinator.decide(...);
   _applySequenceAction(action);
-  return; // Skip _onRealtimeScreenReturn — no double message
+  return;
 }
-// Normal mode — existing behavior
-_onRealtimeScreenReturn(screenReturn);
+// NORMAL MODE: existing debounced behavior (inchangé)
+_debouncedLegacyReaction(screenReturn);
 ```
+
+Voir §6.2 pour le détail du canonical return path.
 
 ---
 
@@ -247,6 +253,14 @@ _onRealtimeScreenReturn(screenReturn);
 ### 5.5 Cohérence des données
 - Si un output d'étape N est invalidé (profil changé), les étapes N+1..K sont re-évaluées
 - Les étapes invalidées passent à `pending` (pas supprimées)
+
+### 5.6 Source de vérité du run actif
+- `SequenceStore` (SharedPreferences, clé `mint_sequence_run`) est la **seule source
+  de vérité** pour savoir si un run est actif et quel est son état
+- `CapMemory` NE stocke PAS de `activeRunId` — pas de double vérité
+- Le check `activeRun != null` dans le coach passe toujours par `SequenceStore.load()`
+- `CapMemory.stepProposals` est indexé par `{runId}_{stepId}` — il dépend du runId
+  mais ne le gouverne pas
 
 ---
 
