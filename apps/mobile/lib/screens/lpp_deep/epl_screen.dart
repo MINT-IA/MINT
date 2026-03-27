@@ -8,6 +8,8 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -26,6 +28,16 @@ class EplScreen extends StatefulWidget {
 }
 
 class _EplScreenState extends State<EplScreen> {
+  bool _hasUserInteracted = false;
+
+  /// Sequence IDs read from GoRouter.extra (Tier A when present).
+  /// Null when navigated without sequence context (Tier B legacy).
+  String? _seqRunId;
+  String? _seqStepId;
+
+  /// Guard: ensures _emitFinalReturn fires exactly once.
+  bool _finalReturnEmitted = false;
+
   double _avoirTotal = 300000;
   int _age = 40;
   double _montantSouhaite = 100000;
@@ -56,8 +68,83 @@ class _EplScreenState extends State<EplScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
       _initializeFromProfile();
     });
+  }
+
+  /// Read sequence runId/stepId/prefill from GoRouter.extra if present.
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  /// Apply prefill values from preceding sequence step.
+  /// Mapping: montant_bien_cible → target property price (informational),
+  /// montant_necessaire → fonds propres requis (can inform withdrawal amount).
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    final fonds = prefill['montant_necessaire'];
+    if (fonds is num && fonds > 0) {
+      setState(() {
+        // Suggest the required own funds as default withdrawal amount.
+        _montantSouhaite = fonds.toDouble().clamp(20000, 500000);
+      });
+    }
+  }
+
+  /// Emits a terminal ScreenReturn when the user leaves the screen.
+  /// If in a guided sequence (Tier A), includes runId/stepId/eventId
+  /// and stepOutputs for the SequenceCoordinator to advance the run.
+  /// If user didn't interact → abandoned (so coordinator can retry).
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      // User opened screen but left without interacting → abandoned.
+      // The coordinator will offer a retry instead of leaving sequence stuck.
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/epl',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('epl', screenReturn);
+      return;
+    }
+
+    final result = _result;
+    final eplImpact = LppCalculator.computeEplImpact(
+      currentBalance: _avoirTotal,
+      eplAmount: result.montantSouhaiteApplicable,
+      eplRepaid: 0,
+      currentAge: _age,
+      retirementAge: avsAgeReferenceHomme,
+      grossAnnualSalary: _grossAnnualSalary,
+      caisseReturn: lppTauxInteretMin / 100,
+      conversionRate: lppTauxConversionMinDecimal,
+    );
+    final screenReturn = ScreenReturn.completed(
+      route: '/epl',
+      stepOutputs: {
+        'montant_epl': result.montantSouhaiteApplicable,
+        'impact_rente': eplImpact.monthlyGapFromEpl,
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('epl', screenReturn);
   }
 
   void _initializeFromProfile() {
@@ -100,7 +187,11 @@ class _EplScreenState extends State<EplScreen> {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.white,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -166,7 +257,7 @@ class _EplScreenState extends State<EplScreen> {
           ),
         ],
       ))),
-    );
+    ));
   }
 
   Widget _buildIntroCard(S l) {
@@ -215,7 +306,7 @@ class _EplScreenState extends State<EplScreen> {
             max: 800000,
             divisions: 160,
             format: 'CHF ${formatChf(_avoirTotal)}',
-            onChanged: (v) => setState(() => _avoirTotal = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirTotal = v; }),
           )),
           const SizedBox(height: MintSpacing.sm + 4),
 
@@ -227,7 +318,7 @@ class _EplScreenState extends State<EplScreen> {
             max: 65,
             divisions: 40,
             format: l.eplLabelAgeFormat(_age),
-            onChanged: (v) => setState(() => _age = v.round()),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _age = v.round(); }),
           )),
           const SizedBox(height: MintSpacing.sm + 4),
 
@@ -239,7 +330,7 @@ class _EplScreenState extends State<EplScreen> {
             max: 500000,
             divisions: 96,
             format: 'CHF ${formatChf(_montantSouhaite)}',
-            onChanged: (v) => setState(() => _montantSouhaite = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _montantSouhaite = v; }),
           )),
           const SizedBox(height: MintSpacing.sm + 4),
 
@@ -265,7 +356,7 @@ class _EplScreenState extends State<EplScreen> {
                     );
                   }).toList(),
                   onChanged: (v) {
-                    if (v != null) setState(() => _canton = v);
+                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
                   },
                 ),
               ),
@@ -299,6 +390,7 @@ class _EplScreenState extends State<EplScreen> {
                   value: _aRachete,
                   activeTrackColor: MintColors.primary,
                   onChanged: (v) => setState(() {
+                    _hasUserInteracted = true;
                     _aRachete = v;
                     if (!v) _anneesSDepuisRachat = 0;
                   }),
@@ -317,7 +409,7 @@ class _EplScreenState extends State<EplScreen> {
               divisions: 5,
               format: l.eplLabelAnneesSDepuisRachatFormat(_anneesSDepuisRachat, _anneesSDepuisRachat > 1 ? 's' : ''),
               onChanged: (v) =>
-                  setState(() => _anneesSDepuisRachat = v.round()),
+                  setState(() { _hasUserInteracted = true; _anneesSDepuisRachat = v.round(); }),
             ),
           ],
         ],

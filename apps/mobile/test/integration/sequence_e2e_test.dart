@@ -498,4 +498,84 @@ void main() {
       expect(result.updatedRun.activeStepId, advance.nextStep.id);
     });
   });
+
+  // ════════════════════════════════════════════════════════════════
+  //  ABANDONED-ON-NO-INTERACTION (stuck sequence bug fix)
+  // ════════════════════════════════════════════════════════════════
+
+  group('Service integration — Abandoned emits retry, not stuck', () {
+    test('abandoned ScreenReturn on step 1 triggers RetryAction', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      // User opened affordability screen but popped without interacting.
+      // Screen emits ScreenReturn.abandoned() with sequence IDs.
+      final result = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.abandoned(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_no_interaction_1',
+        ),
+      );
+
+      expect(result, isNotNull);
+      // First abandon → retry (not pause, not stuck)
+      expect(result!.action, isA<RetryAction>());
+    });
+
+    test('abandoned on step 2 (EPL) triggers RetryAction', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      // Complete step 1 first
+      await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_step1_ok',
+          stepOutputs: const {'capacite_achat': 850000.0, 'fonds_propres_requis': 170000.0},
+        ),
+      );
+
+      // User opened EPL screen but popped without interacting.
+      final result = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.abandoned(
+          route: '/epl',
+          runId: run.runId,
+          stepId: 'housing_02_epl',
+          eventId: 'evt_no_interaction_epl',
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.action, isA<RetryAction>());
+    });
+
+    test('double abandoned on same step → pause (not infinite loop)', () async {
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+
+      // First abandon → retry
+      await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.abandoned(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_abandon_1',
+        ),
+      );
+
+      // Second abandon → pause (anti-loop)
+      final result = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.abandoned(
+          route: '/hypotheque',
+          runId: run.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_abandon_2',
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.action, isA<PauseAction>());
+    });
+  });
 }
