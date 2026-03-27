@@ -230,11 +230,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   Timer? _screenReturnDebounce;
   ScreenReturn? _lastPendingReturn;
 
-  /// ID of the last sequence step consumed by the realtime path.
-  /// Format: "{runId}_{stepId}" — precise dedup, no time window.
-  /// When _handleRouteReturn fires for the same step, it skips entirely
-  /// (both sequence processing AND legacy side effects).
+  /// Key of the sequence step consumed by the realtime path.
+  /// Format: "{runId}_{stepId}". Set by realtime handler on success.
+  /// Checked by _handleRouteReturn for dedup (same key = skip entirely).
   String? _lastRealtimeHandledStepKey;
+
+  /// Key of the sequence step that is currently being navigated via
+  /// RouteSuggestionCard. Set BEFORE navigation, checked AFTER return.
+  /// Format: "{runId}_{stepId}". Null when not in a guided sequence.
+  /// This is the sync guard that allows _handleRouteReturn to bypass
+  /// legacy side effects without an async check.
+  String? _activeSequenceStepKey;
 
   @override
   void initState() {
@@ -1875,31 +1881,37 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     final s = S.of(context)!;
 
-    // ── SEQUENCE HANDLING (realtime canonical, route-return fallback) ──
-    // Check if realtime already consumed this step. If so, skip EVERYTHING
-    // (both sequence processing AND legacy side effects) to avoid double
-    // consumption and conflicting CapMemory signals.
-    if (_lastRealtimeHandledStepKey != null) {
-      // Realtime handled it — clear the key and skip entirely.
+    // ── SEQUENCE DEDUP: realtime canonical, route-return fallback ──
+    //
+    // Case 1: Realtime handled this exact step → skip entirely (no
+    // sequence processing, no legacy side effects, no double message).
+    // Case 2: _activeSequenceStepKey set (we're in a guided sequence
+    // but realtime hasn't fired yet) → delegate to sequence handler,
+    // skip legacy side effects.
+    // Case 3: Neither → normal legacy flow.
+    //
+    if (_lastRealtimeHandledStepKey != null &&
+        (_activeSequenceStepKey == null ||
+         _lastRealtimeHandledStepKey == _activeSequenceStepKey)) {
+      // Case 1: realtime already consumed this step.
       _lastRealtimeHandledStepKey = null;
+      _activeSequenceStepKey = null;
       _scrollToBottom();
       return;
     }
-    // Realtime didn't handle → try as fallback (screen may not have
-    // emitted a ScreenReturn, e.g. simple pop without completion tracker).
-    // If sequence active, this processes it and returns early (no legacy).
-    // If no sequence active, handleStepReturn returns null → fall through.
-    SequenceChatHandler.handleStepReturn(outcome).then((result) {
-      if (!mounted || result == null) return;
-      _renderSequenceAction(result);
-    }).catchError((_) {});
-    // NOTE: the async check above can't early-return from this sync method.
-    // But the handler is fire-and-forget — if a sequence IS active, the
-    // coordinator handles it. The legacy flow below runs in parallel but
-    // only adds CapMemory entries (harmless duplicates, not conflicting).
-    // A true sync guard requires SequenceStore in memory, deferred to V2.
+    if (_activeSequenceStepKey != null) {
+      // Case 2: we're in a guided sequence, realtime hasn't consumed yet.
+      // Delegate to sequence handler, skip legacy entirely.
+      _activeSequenceStepKey = null;
+      SequenceChatHandler.handleStepReturn(outcome).then((result) {
+        if (!mounted || result == null) return;
+        _renderSequenceAction(result);
+      }).catchError((_) {});
+      _scrollToBottom();
+      return;
+    }
 
-    // ── LEGACY FLOW ───────────────────────────────────────────────
+    // Case 3: no sequence active → normal legacy flow.
     // Resolve the last routed intent for CapMemory keying.
     final lastRouted = _messages.reversed
         .where((m) => m.hasRoutePayload)
@@ -2059,9 +2071,14 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     final String message;
     switch (result.action) {
-      case AdvanceAction(:final progressLabel):
+      case AdvanceAction(:final progressLabel, :final nextStep):
         message = '\u00c9tape $progressLabel termin\u00e9e. '
             'Pr\u00eat pour la suite\u00a0?';
+        // Pre-set the sync guard for the NEXT step's route return.
+        // This allows _handleRouteReturn to bypass legacy side effects
+        // synchronously when the user returns from the next step.
+        _activeSequenceStepKey =
+            '${result.updatedRun.runId}_${nextStep.id}';
       case CompleteAction():
         message = 'Parcours termin\u00e9\u00a0! '
             'Toutes les \u00e9tapes sont compl\u00e8tes.';
