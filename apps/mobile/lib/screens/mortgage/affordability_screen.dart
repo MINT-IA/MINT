@@ -43,20 +43,42 @@ class AffordabilityScreen extends StatefulWidget {
 class _AffordabilityScreenState extends State<AffordabilityScreen> {
   bool _hasUserInteracted = false;
 
+  /// Sequence IDs read from GoRouter.extra (Tier A when present).
+  /// Null when navigated without sequence context (Tier B legacy).
+  String? _seqRunId;
+  String? _seqStepId;
+
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('mortgage');
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
       _initializeFromProfile();
     });
   }
 
+  /// Read sequence runId/stepId from GoRouter.extra if present.
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  /// Emits a realtime ScreenReturn on every slider change (Tier B — no
+  /// sequence IDs). The debounce in CoachChatScreen filters the noise.
+  /// Sequence IDs are NOT included here to avoid premature step advancement.
   void _emitScreenReturn() {
     if (!_hasUserInteracted) return;
     final result = _result;
     final screenReturn = ScreenReturn.changedInputs(
-      route: '/mortgage/affordability',
+      route: '/hypotheque',
       updatedFields: {'maxAffordablePrice': result.prixMaxAccessible},
       confidenceDelta: 0.02,
     );
@@ -65,6 +87,39 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       screenReturn,
     );
   }
+
+  /// Emits a terminal ScreenReturn when the user leaves the screen.
+  /// If in a guided sequence (Tier A), includes runId/stepId/eventId
+  /// and stepOutputs for the SequenceCoordinator to advance the run.
+  /// Emits the terminal Tier A ScreenReturn exactly once.
+  /// Called from PopScope.onPopInvokedWithResult when the user leaves.
+  /// Guards: _seqRunId non-null, user interacted, not already emitted.
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    if (!_hasUserInteracted) return;
+    _finalReturnEmitted = true;
+    final result = _result;
+    final screenReturn = ScreenReturn.completed(
+      route: '/hypotheque',
+      stepOutputs: {
+        'capacite_achat': result.prixMaxAccessible,
+        'fonds_propres_requis': result.fondsPropresRequis,
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: _seqRunId != null
+          ? 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}'
+          : null,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'affordability',
+      screenReturn,
+    );
+  }
+
+  /// Guard: ensures _emitFinalReturn fires exactly once.
+  bool _finalReturnEmitted = false;
 
   double _revenuBrut = 120000;
   double _prixAchat = 800000;
@@ -117,7 +172,11 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.porcelaine,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -417,6 +476,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           ),
         ],
       ))),
+    ),
     );
   }
 
