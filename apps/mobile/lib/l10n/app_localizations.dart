@@ -42959,6 +42959,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Aucun consentement actif'**
   String get consentNoActiveConsents;
+
+  /// No description provided for @sequenceHousingGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat immobilier'**
+  String get sequenceHousingGoal;
+
+  /// No description provided for @sequence3aGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation 3a'**
+  String get sequence3aGoal;
+
+  /// No description provided for @sequenceRetirementGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation retraite'**
+  String get sequenceRetirementGoal;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -24398,4 +24398,13 @@ class SIt extends S {
 
   @override
   String get consentNoActiveConsents => 'Nessun consenso attivo';
+
+  @override
+  String get sequenceHousingGoal => 'Acquisto immobiliare';
+
+  @override
+  String get sequence3aGoal => 'Ottimizzazione pilastro 3a';
+
+  @override
+  String get sequenceRetirementGoal => 'Preparazione pensionamento';
 }

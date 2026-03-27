@@ -11837,5 +11837,8 @@
     }
   },
   "coachMintLabel": "Coach MINT",
-  "consentNoActiveConsents": "Aucun consentement actif"
+  "consentNoActiveConsents": "Aucun consentement actif",
+  "sequenceHousingGoal": "Achat immobilier",
+  "sequence3aGoal": "Optimisation 3a",
+  "sequenceRetirementGoal": "Pr\u00e9paration retraite"
 }

@@ -24238,4 +24238,13 @@ class SEn extends S {
 
   @override
   String get consentNoActiveConsents => 'No active consents';
+
+  @override
+  String get sequenceHousingGoal => 'Home purchase';
+
+  @override
+  String get sequence3aGoal => 'Pillar 3a optimization';
+
+  @override
+  String get sequenceRetirementGoal => 'Retirement preparation';
 }

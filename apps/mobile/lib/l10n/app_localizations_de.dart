@@ -24393,4 +24393,13 @@ class SDe extends S {
 
   @override
   String get consentNoActiveConsents => 'Keine aktiven Einwilligungen';
+
+  @override
+  String get sequenceHousingGoal => 'Immobilienkauf';
+
+  @override
+  String get sequence3aGoal => 'Säule 3a Optimierung';
+
+  @override
+  String get sequenceRetirementGoal => 'Pensionierungsvorbereitung';
 }

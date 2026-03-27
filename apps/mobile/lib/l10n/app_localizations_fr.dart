@@ -24352,4 +24352,13 @@ class SFr extends S {
 
   @override
   String get consentNoActiveConsents => 'Aucun consentement actif';
+
+  @override
+  String get sequenceHousingGoal => 'Achat immobilier';
+
+  @override
+  String get sequence3aGoal => 'Optimisation 3a';
+
+  @override
+  String get sequenceRetirementGoal => 'Préparation retraite';
 }

@@ -2140,16 +2140,18 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
 
     // Build sequence UI payload for the renderer.
-    final bool canAdvance = result.action is AdvanceAction;
     final bool canQuit = result.action is! CompleteAction;
+    final l = S.of(context)!;
+    final goalLabel = _resolveGoalLabel(result.template.goalLabelKey, l);
+
     final seqPayload = SequenceMessagePayload(
       templateId: run.templateId,
       currentStepId: run.activeStepId,
       progressLabel: '${run.completedCount}/${run.totalCount}',
       status: analyticsEvent.replaceFirst('sequence_', ''),
-      canAdvance: canAdvance,
+      canAdvance: false, // V1: no navigation CTA until route wiring
       canQuit: canQuit,
-      goalLabelKey: result.template.goalLabelKey,
+      goalLabelKey: goalLabel,
     );
 
     setState(() {
@@ -3094,6 +3096,16 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
+  /// Resolve a goal label ARB key to a localized string.
+  static String _resolveGoalLabel(String key, S l) {
+    return switch (key) {
+      'sequenceHousingGoal' => l.sequenceHousingGoal,
+      'sequence3aGoal' => l.sequence3aGoal,
+      'sequenceRetirementGoal' => l.sequenceRetirementGoal,
+      _ => key, // Fallback to raw key if unknown
+    };
+  }
+
   /// Builds the [SequenceProgressCard] for a message carrying a sequence payload.
   Widget _buildSequenceCard(SequenceMessagePayload payload) {
     // Parse progress label "2/4" → completedCount=2, totalCount=4.
@@ -3108,9 +3120,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       currentStepLabel: payload.status == 'completed'
           ? 'Toutes les \u00e9tapes termin\u00e9es'
           : '\u00c9tape ${completed + 1}/$total',
-      onAdvance: payload.canAdvance ? () {
-        // TODO(V2): navigate to next step route via RoutePlanner
-      } : null,
+      // onAdvance is null until V2 wires navigation to next step route.
+      // The card shows progress but does not offer a CTA to continue.
+      onAdvance: null,
       onQuit: payload.canQuit ? () {
         SequenceChatHandler.quitSequence();
         if (mounted) {

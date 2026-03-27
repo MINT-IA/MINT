@@ -24312,4 +24312,13 @@ class SPt extends S {
 
   @override
   String get consentNoActiveConsents => 'Sem consentimentos ativos';
+
+  @override
+  String get sequenceHousingGoal => 'Compra de imóvel';
+
+  @override
+  String get sequence3aGoal => 'Otimização pilar 3a';
+
+  @override
+  String get sequenceRetirementGoal => 'Preparação para reforma';
 }

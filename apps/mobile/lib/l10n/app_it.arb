@@ -11355,5 +11355,8 @@
     }
   },
   "coachMintLabel": "Coach MINT",
-  "consentNoActiveConsents": "Nessun consenso attivo"
+  "consentNoActiveConsents": "Nessun consenso attivo",
+  "sequenceHousingGoal": "Acquisto immobiliare",
+  "sequence3aGoal": "Ottimizzazione pilastro 3a",
+  "sequenceRetirementGoal": "Preparazione pensionamento"
 }

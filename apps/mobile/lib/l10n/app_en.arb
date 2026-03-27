@@ -11390,5 +11390,8 @@
     }
   },
   "coachMintLabel": "Coach MINT",
-  "consentNoActiveConsents": "No active consents"
+  "consentNoActiveConsents": "No active consents",
+  "sequenceHousingGoal": "Home purchase",
+  "sequence3aGoal": "Pillar 3a optimization",
+  "sequenceRetirementGoal": "Retirement preparation"
 }
