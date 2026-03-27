@@ -1,6 +1,6 @@
 # RFC : Agent Loop Stateful — Multi-Screen Orchestration
 
-> Date : 2026-03-27
+> Date : 2026-03-27 (V2 — réécrite après audit)
 > Statut : **DRAFT** — À valider avant implémentation
 > Auteur : Team Lead (S57)
 > Dépendances : ChiffreChoc V2, EVI Bridge, Confidence Doctrine (tous livrés)
@@ -9,336 +9,291 @@
 
 ## 1. Problème
 
-Le coach peut aujourd'hui router vers **un seul écran** à la fois. Quand l'utilisateur dit "je veux acheter un appart", le coach ouvre `/hypotheque` et s'arrête là. Il ne peut pas enchaîner : accessibilité → gap fonds propres → EPL → fiscalité retrait.
-
-Ce qui manque :
-- **Pas de mémoire de séquence** — chaque écran est indépendant
-- **Pas de transfert d'outputs** — l'écran 2 ne sait pas ce que l'écran 1 a calculé
-- **Pas de progression visible** — l'utilisateur ne voit pas "étape 2/4"
-- **Pas de branching** — le même parcours pour tous les archétypes
-- **Pas d'anti-boucle** — si l'écran échoue, rien n'empêche de re-router dessus
+Le coach peut aujourd'hui router vers **un seul écran** à la fois. Quand l'utilisateur dit "je veux acheter un appart", le coach ouvre `/hypotheque` et s'arrête. Il ne peut pas enchaîner : accessibilité → EPL → fiscalité retrait → résumé.
 
 ---
 
-## 2. Ce qui existe déjà
+## 2. Principe directeur : étendre, pas réinventer
 
-| Composant | Ce qu'il fait | Limitation |
+> L'audit a identifié un risque critique : créer un second système de plans
+> parallèle à `CapSequence`. Cette RFC V2 l'évite en **réutilisant les
+> abstractions existantes** et en ajoutant uniquement une couche runtime.
+
+| Existant | Rôle (inchangé) | Extension RFC |
 |---|---|---|
-| `RoutePlanner` | Intent → readiness gate → route décision | Stateless, 1 écran à la fois |
-| `ScreenRegistry` | 60+ écrans routables, requiredFields, prefill | Pas de graphe de dépendances |
-| `CapSequenceEngine` | Plan multi-étapes (retraite, budget, logement) | Hardcodé, pas de branching archetype |
-| `CapMemory` | Tracks completedActions, abandonedFlows | Flat list, pas de contexte par étape |
-| `ScreenReturn` | outcome (completed/abandoned/changedInputs) | Pas de données de sortie structurées |
-| `CoachChatScreen._handleRouteReturn` | Réagit au retour d'un écran | Pas de chaînage vers l'écran suivant |
-| `CoachOrchestrator` agent loop | tool_use → execute → re-call LLM | Pas de state machine de parcours |
+| `CapSequence` + `CapStep` | Plan visible (Pulse, Dossier, coach context) | Inchangé — reste le seul plan |
+| `ScreenReturn` | Contrat de retour écran | +`stepOutputs` (données structurées) |
+| `RoutePlanner` | Intent → readiness → route décision | +awareness du run actif |
+| `CapMemory` | Historique des actions | +`activeRunId` pour gater le realtime |
+| `CapSequenceEngine` | Construit les plans | +`SequenceTemplate` pour les parcours guidés |
+
+**Ce qui est NOUVEAU (et uniquement ça) :**
+- `SequenceTemplate` — définition statique d'un parcours (étapes, output mapping)
+- `SequenceRun` — état runtime d'un parcours en cours (léger, persisté en SharedPreferences)
+- `SequenceCoordinator` — logique de décision (étend, ne remplace pas, le flux existant)
 
 ---
 
-## 3. Design proposé
+## 3. Architecture
 
-### 3.1 Concept : Guided Sequence
+### 3.1 Sélection de séquence : le CODE décide, pas le LLM
 
-```
-Utilisateur : "Je veux acheter un bien immobilier"
-    ↓
-Coach (LLM) : "OK, voyons ça en 4 étapes."
-    ↓
-[SequenceCard: "Parcours achat immobilier" — 0/4 étapes]
-    ↓
-Étape 1 : /hypotheque (accessibilité) → output: {capaciteAchat: 850000, fondsNecessaires: 170000}
-    ↓
-Étape 2 : /epl (EPL) → prefill: {fondsNecessaires: 170000} → output: {eplMontant: 50000}
-    ↓
-Étape 3 : /fiscalite/retrait-capital → prefill: {montantRetrait: 50000} → output: {impotRetrait: 3200}
-    ↓
-Étape 4 : Coach résumé → "Capacité 850k, EPL 50k, impôt 3200. Ton plan est prêt."
-    ↓
-[SequenceCard: "Parcours achat immobilier" — 4/4 ✓]
-```
-
-### 3.2 Nouveau modèle : GuidedSequence
+**Règle absolue** (alignée avec `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md`) :
+- Le LLM retourne une **intention** (ex: `housing_purchase`)
+- Le **code** mappe l'intention → `SequenceTemplate` correspondant
+- Le LLM ne connaît **jamais** les IDs de séquence
 
 ```dart
-/// A multi-screen guided sequence toward a goal.
-class GuidedSequence {
-  final String id;                    // 'housing_purchase_2026'
-  final String goalLabel;             // 'Achat immobilier'
-  final List<SequenceStep> steps;     // Ordered steps
-  final String archetypeFilter;       // 'all' | 'swiss_native' | 'expat_us'
-  final DateTime createdAt;
-  final SequenceStatus status;        // active | completed | abandoned | paused
+/// Maps a user intent to a guided sequence template.
+/// Pure function — the LLM never sees sequence IDs.
+static SequenceTemplate? templateForIntent(String intentTag) {
+  return switch (intentTag) {
+    'housing_purchase' => SequenceTemplate.housingPurchase,
+    'retirement_choice' || 'retirement_projection' => SequenceTemplate.retirementPrep,
+    'simulator_3a' || 'tax_optimization_3a' => SequenceTemplate.optimize3a,
+    _ => null, // Single-screen intent — no sequence
+  };
+}
+```
+
+### 3.2 SequenceTemplate — Définition statique
+
+```dart
+/// Static definition of a guided multi-screen sequence.
+/// Immutable. Defined in code, not generated by LLM.
+class SequenceTemplate {
+  final String id;                    // 'housing_purchase'
+  final String goalLabelKey;          // ARB key: 'sequenceHousingGoal'
+  final List<SequenceStepDef> steps;  // Ordered step definitions
+  final String? archetypeFilter;      // null = all, 'expat_us' = only expats
+
+  /// Pre-defined V1 templates (3 parcours).
+  static const housingPurchase = SequenceTemplate(...);
+  static const retirementPrep = SequenceTemplate(...);
+  static const optimize3a = SequenceTemplate(...);
 }
 
-class SequenceStep {
+class SequenceStepDef {
   final String id;                    // 'housing_01_affordability'
   final int order;
-  final String intentTag;             // 'housing_purchase' (maps to ScreenRegistry)
-  final String route;                 // '/hypotheque'
-  final StepStatus status;            // pending | active | completed | skipped | blocked
-  final Map<String, dynamic> inputFromPrior;  // Pre-filled from previous step outputs
-  final Map<String, dynamic> output;  // Captured on completion
-  final StepBlockReason? blockReason;
-  final String? fallbackRoute;        // If blocked, where to redirect
-}
-
-enum StepStatus { pending, active, completed, skipped, blocked }
-
-enum StepBlockReason {
-  prerequisiteIncomplete,   // Step N-1 must complete first
-  insufficientData,         // Need document scan or profile enrichment
-  archetypeNotApplicable,   // Step not relevant for this archetype
-  userDeclined,             // User explicitly skipped
+  final String intentTag;             // Maps to ScreenRegistry entry
+  final String titleKey;              // ARB key
+  final Map<String, String> outputMapping; // Maps output keys to next step input keys
+  final bool isOptional;              // Can be skipped without blocking
 }
 ```
 
-### 3.3 Persistence : SequenceStore
+### 3.3 SequenceRun — État runtime (léger)
 
 ```dart
-/// Persists active sequences in SharedPreferences.
-/// Lightweight — one sequence active at a time.
-class SequenceStore {
-  static const _key = 'mint_active_sequence';
+/// Runtime state of an active guided sequence.
+/// Persisted in SharedPreferences. One active run at a time.
+class SequenceRun {
+  final String templateId;            // 'housing_purchase'
+  final String runId;                 // UUID, created when sequence starts
+  final DateTime startedAt;
+  final Map<String, StepRunState> stepStates; // step ID → state
+  final Map<String, Map<String, dynamic>> stepOutputs; // step ID → outputs
+  final SequenceRunStatus status;     // active | paused | completed | abandoned
 
-  Future<GuidedSequence?> load();
-  Future<void> save(GuidedSequence sequence);
-  Future<void> clear();
+  /// Progress fraction (0.0 – 1.0).
+  double get progress => completedCount / stepStates.length;
+  int get completedCount => stepStates.values
+      .where((s) => s == StepRunState.completed || s == StepRunState.skipped)
+      .length;
+}
 
-  /// Record step completion with output data.
-  Future<void> completeStep(String stepId, Map<String, dynamic> output);
+enum StepRunState { pending, active, completed, skipped, blocked }
+enum SequenceRunStatus { active, paused, completed, abandoned }
+```
 
-  /// Record step abandonment with friction context.
-  Future<void> abandonStep(String stepId, String frictionContext);
+### 3.4 ScreenReturn étendu (pas remplacé)
+
+```dart
+/// Extension du contrat existant — ajout d'outputs structurés.
+class ScreenReturn {
+  // ... (tous les champs existants inchangés)
+
+  /// Structured outputs from this screen for sequence step transfer.
+  /// Example: {'capacite_achat': 850000, 'fonds_propres_requis': 170000}
+  /// Null when not in a guided sequence or screen doesn't produce outputs.
+  final Map<String, dynamic>? stepOutputs;  // NOUVEAU
 }
 ```
 
-### 3.4 Orchestration : SequenceAgent
+### 3.5 SequenceCoordinator — Logique de décision
 
 ```dart
-/// Decides what happens after each step return.
+/// Decides what happens after each step in a guided sequence.
 ///
-/// Pure function — no side effects, fully testable.
-class SequenceAgent {
+/// NOT a pure function — needs profile + readiness context.
+/// Integrates with RoutePlanner, not parallel to it.
+class SequenceCoordinator {
 
-  /// Given current sequence state + step outcome, decide next action.
-  static SequenceAction decide(GuidedSequence sequence, ScreenReturn stepReturn) {
-    final currentStep = sequence.steps.firstWhere((s) => s.status == StepStatus.active);
+  /// Decide the next action after a step returns.
+  static SequenceAction decide({
+    required SequenceTemplate template,
+    required SequenceRun run,
+    required ScreenReturn stepReturn,
+    required CoachProfile profile,
+    required RoutePlanner planner,  // For readiness checks
+    required CapMemory memory,      // For anti-loop history
+  }) {
+    final currentStepDef = template.steps
+        .firstWhere((s) => run.stepStates[s.id] == StepRunState.active);
 
     switch (stepReturn.outcome) {
       case ScreenOutcome.completed:
-        // Mark step completed, find next non-blocked step
-        final nextStep = _findNextStep(sequence, currentStep);
+        // Merge outputs
+        final outputs = stepReturn.stepOutputs ?? {};
+        // Find next step + check readiness via RoutePlanner
+        final nextStep = _findNextReady(template, run, profile, planner);
         if (nextStep != null) {
-          return SequenceAction.advance(
-            nextStep: nextStep,
-            prefill: _buildPrefill(sequence, nextStep),
-            progressLabel: '${_completedCount(sequence) + 1}/${sequence.steps.length}',
-          );
+          // Build prefill from accumulated outputs via outputMapping
+          final prefill = _buildPrefill(template, run, nextStep, outputs);
+          return SequenceAction.advance(nextStep: nextStep, prefill: prefill);
         }
-        return SequenceAction.complete(summary: _buildSummary(sequence));
+        return SequenceAction.complete();
 
       case ScreenOutcome.abandoned:
-        // Don't re-propose same step immediately — offer alternatives
-        return SequenceAction.pause(
-          message: 'Pas de souci. On peut continuer plus tard.',
-          canResume: true,
-        );
+        // Anti-boucle: count proposals (not completions)
+        final proposals = memory.proposalCount(currentStepDef.id);
+        if (proposals >= 2) {
+          // Skip this step, try next
+          if (currentStepDef.isOptional) {
+            return SequenceAction.skip(stepId: currentStepDef.id);
+          }
+          return SequenceAction.pause(canResume: true);
+        }
+        return SequenceAction.retry(stepId: currentStepDef.id);
 
       case ScreenOutcome.changedInputs:
-        // Re-evaluate: prior step outputs may be invalidated
-        return SequenceAction.reEvaluate(
-          invalidatedSteps: _findInvalidated(sequence, stepReturn.updatedFields),
-        );
+        // Re-evaluate readiness of remaining steps
+        final invalidated = _findInvalidatedSteps(template, run, stepReturn);
+        return SequenceAction.reEvaluate(invalidatedSteps: invalidated);
     }
   }
-
-  /// Anti-boucle : never propose the same step more than 2x in a session.
-  static bool _shouldSkip(GuidedSequence sequence, SequenceStep step) {
-    final attempts = sequence.steps
-        .where((s) => s.id == step.id && s.status == StepStatus.completed)
-        .length;
-    return attempts >= 2;
-  }
-}
-
-/// What the agent decides after a step.
-sealed class SequenceAction {
-  const SequenceAction._();
-
-  /// Advance to the next step (auto or user-prompted).
-  const factory SequenceAction.advance({
-    required SequenceStep nextStep,
-    required Map<String, dynamic> prefill,
-    required String progressLabel,
-  }) = _Advance;
-
-  /// Sequence complete — show summary.
-  const factory SequenceAction.complete({required String summary}) = _Complete;
-
-  /// User abandoned — pause and offer resumption.
-  const factory SequenceAction.pause({
-    required String message,
-    required bool canResume,
-  }) = _Pause;
-
-  /// Profile changed — re-evaluate affected steps.
-  const factory SequenceAction.reEvaluate({
-    required List<String> invalidatedSteps,
-  }) = _ReEvaluate;
 }
 ```
 
-### 3.5 Coach Chat intégration
-
-L'intégration dans `CoachChatScreen` :
-
-```
-1. Coach détecte l'intention multi-étapes (LLM retourne un tool_use avec sequence_id)
-2. SequenceStore.load() — reprendre une séquence existante ou en créer une nouvelle
-3. Afficher SequenceProgressCard (barre de progression + étape courante)
-4. Ouvrir l'écran de l'étape courante (via RoutePlanner, avec prefill des outputs précédents)
-5. Au retour : SequenceAgent.decide() → action
-6. Si advance → afficher message de transition + ouvrir étape suivante
-7. Si complete → afficher résumé + célébration
-8. Si pause → stocker dans SequenceStore pour reprise future
-9. Si reEvaluate → recalculer les étapes affectées
-```
-
-### 3.6 Output transfer entre étapes
-
-Le mécanisme de transfert d'outputs entre écrans :
+### 3.6 Integration CoachChatScreen — gater le realtime
 
 ```dart
-/// Each simulator screen can return structured outputs via ScreenReturn.
-/// The SequenceAgent merges these outputs into the prefill of the next step.
-///
-/// Example flow:
-/// Step 1 (/hypotheque) returns: {capacite_achat: 850000, fonds_propres_requis: 170000}
-/// Step 2 (/epl) receives prefill: {montant_necessaire: 170000}
-/// Step 2 (/epl) returns: {montant_epl: 50000, impact_rente: -200}
-/// Step 3 (/fiscal) receives prefill: {montant_retrait: 50000}
-```
-
-Chaque `SequenceStep` déclare un `outputMapping` :
-
-```dart
-/// Maps output keys from this step to input keys of the next step.
-/// Example: {'capacite_achat': 'montant_bien_cible', 'fonds_propres_requis': 'montant_necessaire'}
-final Map<String, String> outputMapping;
+// Dans _handleRouteReturn :
+if (_hasActiveSequenceRun()) {
+  // Guided sequence mode — delegate to SequenceCoordinator
+  final action = SequenceCoordinator.decide(...);
+  _applySequenceAction(action);
+  return; // Skip _onRealtimeScreenReturn — no double message
+}
+// Normal mode — existing behavior
+_onRealtimeScreenReturn(screenReturn);
 ```
 
 ---
 
-## 4. Séquences pré-définies (V1)
-
-Pour le premier prototype, 3 séquences hardcodées :
+## 4. Séquences V1 (3 parcours)
 
 ### 4.1 Achat immobilier (4 étapes)
 
-| Étape | Route | Input de l'étape précédente | Output |
+| # | Intent | Route | Output → Next Input |
 |---|---|---|---|
-| 1. Accessibilité | `/hypotheque` | — | capacité_achat, fonds_propres_requis |
-| 2. EPL | `/epl` | fonds_propres_requis | montant_epl, impact_rente |
-| 3. Fiscalité retrait | `/fiscalite/retrait-capital` | montant_epl | impot_retrait |
-| 4. Résumé coach | (inline) | tous les outputs | — |
+| 1 | `housing_purchase` | `/hypotheque` | `capacite_achat`, `fonds_propres_requis` → step 2 `montant_necessaire` |
+| 2 | `early_pension_withdrawal` | `/epl` | `montant_epl`, `impact_rente` → step 3 `montant_retrait` |
+| 3 | `cantonal_fiscal_comparator` | `/fiscal` | `impot_retrait` |
+| 4 | (coach inline) | — | Résumé des 3 outputs |
 
 ### 4.2 Optimisation 3a (3 étapes)
 
-| Étape | Route | Input | Output |
+| # | Intent | Route | Output → Next Input |
 |---|---|---|---|
-| 1. Simulateur 3a | `/pilier-3a` | — | contribution_annuelle, economie_fiscale |
-| 2. Retrait échelonné | `/3a-deep/staggered-withdrawal` | contribution_annuelle | gain_echelonnement |
-| 3. Rendement réel | `/3a-deep/real-return` | contribution_annuelle | rendement_net_inflation |
+| 1 | `simulator_3a` | `/pilier-3a` | `contribution_annuelle`, `economie_fiscale` |
+| 2 | `tax_optimization_3a` | `/3a-deep/staggered-withdrawal` | `gain_echelonnement` |
+| 3 | `real_return_3a` | `/3a-deep/real-return` | `rendement_net_inflation` |
 
 ### 4.3 Préparation retraite (5 étapes)
 
-| Étape | Route | Input | Output |
+| # | Intent | Route | Output → Next Input |
 |---|---|---|---|
-| 1. Projection | `/retraite` | — | taux_remplacement, gap_mensuel |
-| 2. Rente vs Capital | `/rente-vs-capital` | gap_mensuel | decision_mixte |
-| 3. Rachat LPP | `/rachat-lpp` | gap_mensuel | economie_rachat |
-| 4. Décaissement | `/decaissement` | decision_mixte | calendrier_optimal |
-| 5. Résumé coach | (inline) | tous | — |
+| 1 | `retirement_projection` | `/retraite` | `taux_remplacement`, `gap_mensuel` |
+| 2 | `retirement_choice` | `/rente-vs-capital` | `decision_mixte` |
+| 3 | `lpp_buyback` | `/rachat-lpp` | `economie_rachat` |
+| 4 | `withdrawal_sequencing` | `/decaissement` | `calendrier_optimal` |
+| 5 | (coach inline) | — | Résumé complet |
 
 ---
 
-## 5. Anti-patterns et garde-fous
+## 5. Garde-fous
 
 ### 5.1 Anti-boucle
-- Jamais plus de 2 tentatives sur la même étape dans une session
-- Si l'utilisateur abandonne 2 fois → step marqué `skipped`, on passe au suivant
+- Compter les **propositions** d'une étape (via `CapMemory.proposalCount`), pas les completions
+- Seuil : 2 propositions abandonnées → skip (si optional) ou pause (si required)
 
 ### 5.2 Anti-forçage
-- L'utilisateur peut toujours quitter la séquence ("Je veux faire autre chose")
-- Le coach propose, ne force jamais
-- Séquence pausée = resumable, pas perdue
+- Toujours "Prêt pour l'étape suivante ?" — jamais d'auto-navigation
+- Bouton "Quitter le parcours" toujours visible
+- Séquence pausée = resumable à la prochaine session
 
-### 5.3 Cohérence des données
-- Si un output de l'étape 1 est invalidé (profil changé), les étapes suivantes sont re-évaluées
-- Le `SequenceAgent.reEvaluate()` marque les étapes affectées comme `pending`
+### 5.3 Pas de double message
+- Quand une `SequenceRun` est active, `_onRealtimeScreenReturn()` est gaté
+- Seul le `SequenceCoordinator` produit le message de transition
 
 ### 5.4 Pas de séquences imbriquées
-- V1 : une seule séquence active à la fois
-- Si l'utilisateur lance une nouvelle séquence, l'ancienne est pausée
+- V1 : une seule `SequenceRun` active
+- Lancer une nouvelle séquence pause l'ancienne
+
+### 5.5 Cohérence des données
+- Si un output d'étape N est invalidé (profil changé), les étapes N+1..K sont re-évaluées
+- Les étapes invalidées passent à `pending` (pas supprimées)
 
 ---
 
 ## 6. Plan d'implémentation
 
-### Phase 1 : Modèles + Store (1 sprint)
-- `GuidedSequence`, `SequenceStep`, `SequenceAction` models
+### Phase 1 : Modèles + Coordinator + Tests (1 sprint)
+- `SequenceTemplate`, `SequenceRun` models
+- `SequenceCoordinator.decide()` (avec profile + planner + memory en input)
+- `ScreenReturn` + `stepOutputs` field
 - `SequenceStore` (SharedPreferences)
-- `SequenceAgent.decide()` (pure function)
-- Tests unitaires (20+)
+- 3 templates V1 hardcodés
+- 25+ tests unitaires
 
 ### Phase 2 : UI + Chat integration (1 sprint)
-- `SequenceProgressCard` widget (barre + étape courante)
-- `CoachChatScreen` : détection d'intention séquence + rendering
-- Modification de `_handleRouteReturn` pour chaîner les étapes
-- 1 parcours vertical fonctionnel (achat immobilier)
+- `SequenceProgressCard` widget
+- `CoachChatScreen` : gate realtime, delegate to coordinator
+- 1 parcours vertical E2E (achat immobilier)
 
-### Phase 3 : Archetype branching + output transfer (1 sprint)
-- `outputMapping` entre étapes
-- Branching par archétype (expat_us skip, indep_no_lpp adaptation)
-- 3 parcours complets
-- Tests d'intégration E2E
+### Phase 3 : Output transfer + archetype (1 sprint)
+- `outputMapping` câblé entre étapes réelles
+- Branching par archétype dans les templates
+- 3 parcours complets testés E2E
 
 ---
 
 ## 7. Ce qu'on NE fait PAS
 
-- **Pas de multi-séquence simultanée** — V1 = une seule active
-- **Pas de séquences dynamiques générées par le LLM** — V1 = 3 séquences hardcodées
-- **Pas d'auto-advance sans confirmation** — toujours "Prêt pour l'étape suivante ?"
-- **Pas de rollback complet** — si étape 1 est invalidée, on re-propose mais on ne supprime pas les données
+- **Pas de nouveau modèle de plan** — `CapSequence` reste le seul plan visible
+- **Pas de sélection de séquence par le LLM** — le code mappe intent → template
+- **Pas de séquences dynamiques** — V1 = 3 templates hardcodés
+- **Pas d'auto-advance** — toujours confirmation utilisateur
+- **Pas de remplacement de ScreenReturn** — extension avec `stepOutputs`
 
 ---
 
 ## 8. Métriques de succès
 
-| Métrique | Baseline (actuel) | Cible |
+| Métrique | Baseline | Cible |
 |---|---|---|
 | Écrans visités par session | ~1.5 | 3+ |
-| Taux de complétion d'un parcours complet | 0% (pas de parcours) | 40% |
-| Temps sur le parcours achat immo | — | < 10 min pour 4 étapes |
+| Taux de complétion parcours complet | 0% | 40% |
+| Temps parcours achat immo | — | < 10 min |
 | Taux d'abandon après étape 1 | — | < 30% |
 
 ---
 
-## 9. Risques
+## 9. Décision requise
 
-| Risque | Probabilité | Mitigation |
-|---|---|---|
-| Complexité du state machine | Élevée | SequenceAgent est une pure function, 100% testable |
-| Output mapping fragile entre écrans | Moyenne | Typage fort, tests de contrat par séquence |
-| UX trop directive ("tunnel") | Moyenne | Toujours proposer, jamais forcer. Bouton "Quitter le parcours" |
-| Régression sur le chat existant | Faible | Le chat sans séquence fonctionne exactement comme avant |
-
----
-
-## 10. Décision requise
-
-Avant de coder :
-1. **Approuver les 3 séquences V1** (achat immo, 3a, retraite)
-2. **Confirmer l'approche "propose, ne force pas"** — auto-advance avec confirmation
-3. **Valider le stockage SharedPreferences** vs backend pour l'état de séquence
-4. **Décider** : Phase 1 seule (modèles + tests) ou Phase 1+2 (modèles + UI) dans le prochain sprint ?
+1. **Valider les 3 séquences V1** et leurs étapes
+2. **Confirmer** : `CapSequence` = plan visible unique, `SequenceRun` = runtime uniquement
+3. **Confirmer** : SharedPreferences pour `SequenceRun` (pas backend)
+4. **Décider** : Phase 1 seule ou Phase 1+2 dans le prochain sprint ?
