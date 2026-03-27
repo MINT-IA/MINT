@@ -301,5 +301,166 @@ void main() {
       expect(r.toString(), contains('/rente-vs-capital'));
       expect(r.toString(), contains('completed'));
     });
+
+    test('includes sequence IDs when present', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        runId: 'run_123',
+        stepId: 'housing_01',
+        eventId: 'evt_abc',
+      );
+      expect(r.toString(), contains('run_123'));
+      expect(r.toString(), contains('housing_01'));
+      expect(r.toString(), contains('evt_abc'));
+    });
+  });
+
+  // ── Phase 2: Sequence identity fields ──────────────────────────
+
+  group('ScreenReturn — sequence identity', () {
+    test('hasSequenceId true when runId and stepId non-empty', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        runId: 'run_1',
+        stepId: 'step_1',
+      );
+      expect(r.hasSequenceId, isTrue);
+    });
+
+    test('hasSequenceId false when runId null', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        stepId: 'step_1',
+      );
+      expect(r.hasSequenceId, isFalse);
+    });
+
+    test('hasSequenceId false when stepId empty', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        runId: 'run_1',
+        stepId: '',
+      );
+      expect(r.hasSequenceId, isFalse);
+    });
+
+    test('hasSequenceId false when both null (Tier B)', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+      );
+      expect(r.hasSequenceId, isFalse);
+    });
+
+    test('hasEventId true when eventId non-empty', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        eventId: 'evt_123',
+      );
+      expect(r.hasEventId, isTrue);
+    });
+
+    test('hasEventId false when eventId null', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+      );
+      expect(r.hasEventId, isFalse);
+    });
+
+    test('hasEventId false when eventId empty', () {
+      const r = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        eventId: '',
+      );
+      expect(r.hasEventId, isFalse);
+    });
+
+    test('equality includes sequence fields', () {
+      const a = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        runId: 'run_1',
+        stepId: 'step_1',
+        eventId: 'evt_1',
+      );
+      const b = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        runId: 'run_1',
+        stepId: 'step_1',
+        eventId: 'evt_1',
+      );
+      const c = ScreenReturn(
+        route: '/hypotheque',
+        outcome: ScreenOutcome.completed,
+        runId: 'run_1',
+        stepId: 'step_1',
+        eventId: 'evt_2', // different eventId
+      );
+      expect(a, equals(b));
+      expect(a, isNot(equals(c)));
+      expect(a.hashCode, equals(b.hashCode));
+      expect(a.hashCode, isNot(equals(c.hashCode)));
+    });
+
+    test('equality treats null sequence fields as equal', () {
+      const a = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+      );
+      const b = ScreenReturn(
+        route: '/budget',
+        outcome: ScreenOutcome.completed,
+      );
+      expect(a, equals(b));
+    });
+
+    test('completed convenience constructor passes sequence fields', () {
+      const r = ScreenReturn.completed(
+        route: '/hypotheque',
+        runId: 'run_1',
+        stepId: 'step_1',
+        eventId: 'evt_1',
+        stepOutputs: {'capacite': 850000},
+      );
+      expect(r.runId, 'run_1');
+      expect(r.stepId, 'step_1');
+      expect(r.eventId, 'evt_1');
+      expect(r.outcome, ScreenOutcome.completed);
+    });
+
+    test('abandoned convenience constructor passes sequence fields', () {
+      const r = ScreenReturn.abandoned(
+        route: '/hypotheque',
+        runId: 'run_1',
+        stepId: 'step_1',
+        eventId: 'evt_2',
+      );
+      expect(r.runId, 'run_1');
+      expect(r.stepId, 'step_1');
+      expect(r.eventId, 'evt_2');
+      expect(r.outcome, ScreenOutcome.abandoned);
+    });
+
+    test('changedInputs convenience constructor passes sequence fields', () {
+      const r = ScreenReturn.changedInputs(
+        route: '/hypotheque',
+        updatedFields: {'canton': 'GE'},
+        runId: 'run_1',
+        stepId: 'step_1',
+        eventId: 'evt_3',
+      );
+      expect(r.runId, 'run_1');
+      expect(r.stepId, 'step_1');
+      expect(r.eventId, 'evt_3');
+      expect(r.outcome, ScreenOutcome.changedInputs);
+    });
   });
 }

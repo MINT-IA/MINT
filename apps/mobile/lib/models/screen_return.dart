@@ -186,7 +186,10 @@ class ScreenReturn {
   bool get hasStepOutputs => stepOutputs != null && stepOutputs!.isNotEmpty;
 
   /// Whether this return carries sequence identity (Tier A screen).
-  bool get hasSequenceId => runId != null && stepId != null;
+  /// Both runId and stepId must be non-null AND non-empty.
+  bool get hasSequenceId =>
+      runId != null && runId!.isNotEmpty &&
+      stepId != null && stepId!.isNotEmpty;
 
   /// Whether this return carries an idempotency event ID.
   bool get hasEventId => eventId != null && eventId!.isNotEmpty;
