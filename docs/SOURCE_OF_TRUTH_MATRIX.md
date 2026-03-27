@@ -88,8 +88,9 @@
 
 | Provider | Cleared au logout ? | Comment | Ref |
 |---|---|---|---|
-| `CoachProfileProvider` | **Oui** — inconditionnel | `clear()` dans app.dart (S57-F5) | `app.dart:1059` |
+| `CoachProfileProvider` | **Oui** — inconditionnel | `clear()` dans app.dart + `ReportPersistenceService.clear()` | `app.dart:1059`, `coach_profile_provider.dart:1707` |
 | `MintStateProvider` | **Oui** — quand profile == null | `clear()` dans update callback (S57-A9) | `app.dart:1119` |
-| `ProfileProvider` | Oui | Géré par ChangeNotifierProxyProvider | — |
-| `BudgetProvider` | **Non** | ChangeNotifierProvider simple, pas de proxy auth | **Gap identifié** — data non-sensible mais à surveiller |
-| `SharedPreferences` (wizard) | **Non** | Données locales persistent après logout | **Gap identifié** — risque cross-account sur device partagé |
+| `ProfileProvider` | **Oui** | Géré par ChangeNotifierProxyProvider | — |
+| `BudgetProvider` | **Oui** | ChangeNotifierProxyProvider, clear() au logout | `app.dart:1039` |
+| `SharedPreferences` (wizard) | **Oui** — ciblé | `ReportPersistenceService.clear()` efface wizard + coach history. Préserve : `mint_locale`, `_white_label_config`, `_b2b_organization` | `auth_provider.dart:341` |
+| `SharedPreferences` (device) | **Préservé** | Langue, B2B org, white-label config ne sont PAS effacés au logout | Intentionnel — ce sont des préférences device, pas compte |

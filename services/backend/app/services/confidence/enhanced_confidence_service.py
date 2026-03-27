@@ -1,6 +1,21 @@
 """
+# ════════════════════════════════════════════════════════════════════════════
+# CONFIDENCE DOCTRINE (see docs/SOURCE_OF_TRUTH_MATRIX.md §3)
+#
+# This service is the AUTHORITATIVE SOURCE OF TRUTH for confidence scoring.
+# It governs: feature gates, global UI confidence bars, enrichment ranking.
+#
+# The 3 confidence systems and their governance:
+#   1. THIS FILE → authoritative, 4-axis geometric mean, via /confidence API
+#   2. enhanced_confidence_service.dart (mobile) → offline fallback (3-axis)
+#   3. confidence_scorer.dart (financial_core) → projection quality only
+#
+# Any new confidence-related feature should consume this service via API.
+# The mobile fallback exists only for offline UX, not for decision-making.
+# ════════════════════════════════════════════════════════════════════════════
+
 Backend confidence: 4 axes (completeness, accuracy, freshness, understanding), geometric mean.
-Used by /confidence API endpoint. This is the authoritative confidence implementation.
+Used by /confidence API endpoint.
 
 Pure functions for multi-dimensional confidence measurement:
 - score_completeness: champs remplis, ponderes par importance
@@ -9,15 +24,6 @@ Pure functions for multi-dimensional confidence measurement:
 - score_understanding: comprehension financiere (literacy + engagement)
 - compute_confidence: moyenne geometrique 4 axes + feature gates + enrichment prompts
 - rank_enrichment_prompts: actions classees par impact sur le score
-
-Score global: moyenne geometrique sur 4 axes (completeness, accuracy, freshness, understanding).
-
-NOTE: Three confidence systems coexist (V9-5):
-  1. This file (backend) — 4-axis geometric mean, used by /confidence API endpoint
-  2. enhanced_confidence_service.dart (mobile) — 3-axis weighted average, used when backend unavailable
-  3. confidence_scorer.dart (financial_core) — project-level scoring with bloc breakdown
-
-TODO: Unify to single 4-axis model matching backend (SOT §3)
 
 Sources:
     - DATA_ACQUISITION_STRATEGY.md, section "Confidence Scoring Evolution"

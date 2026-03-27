@@ -1,12 +1,22 @@
-/// Mobile confidence: 3 axes (completeness, accuracy, freshness), weighted average.
-/// Used for UI display when backend is unavailable (offline fallback).
+/// ════════════════════════════════════════════════════════════════════════════
+/// CONFIDENCE DOCTRINE (see docs/SOURCE_OF_TRUTH_MATRIX.md §3)
 ///
-/// NOTE: Three confidence systems coexist (V9-5):
-///   1. enhanced_confidence_service.py (backend) — 4-axis geometric mean, authoritative
-///   2. This file (mobile) — 3-axis weighted average, offline fallback for UI display
-///   3. confidence_scorer.dart (financial_core) — project-level scoring with bloc breakdown
+/// This service is the OFFLINE FALLBACK for the backend EnhancedConfidence.
+/// It is NOT authoritative — the backend (4-axis geometric mean) is the SOT.
 ///
-/// TODO: Unify to single 4-axis model matching backend (SOT §3)
+/// Use this ONLY when: the backend /confidence API is unreachable (offline,
+/// timeout, error). The UI should prefer the backend score when available.
+///
+/// Divergence with backend: this uses 3 axes (no "understanding" axis)
+/// with weighted average. Backend uses 4 axes with geometric mean.
+/// This is acceptable for offline display but will produce slightly
+/// different scores. Known limitation, not a bug.
+///
+/// The 3 confidence systems and their governance:
+///   1. Backend enhanced_confidence_service.py → AUTHORITATIVE, feature gates
+///   2. THIS FILE → offline fallback for UI confidence bars
+///   3. confidence_scorer.dart (financial_core) → projection quality only
+/// ════════════════════════════════════════════════════════════════════════════
 ///
 /// Weights: completeness 40% + accuracy 35% + freshness 25% = overall
 ///

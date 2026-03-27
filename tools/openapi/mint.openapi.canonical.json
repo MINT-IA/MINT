@@ -11860,6 +11860,19 @@
             "description": "Service de la dette mensuel en CHF",
             "title": "Monthlydebtservice"
           },
+          "stressType": {
+            "anyOf": [
+              {
+                "pattern": "^(stress_retraite|stress_impots|stress_budget|stress_patrimoine|stress_couple|stress_general)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Intention declaree par l'utilisateur a l'onboarding",
+            "title": "Stresstype"
+          },
           "totalDebts": {
             "anyOf": [
               {
@@ -19549,6 +19562,72 @@
         "title": "YearlyWithdrawalEntryResponse",
         "type": "object"
       },
+      "h_04cb1ba1d85a__ChiffreChocResponse": {
+        "description": "Chiffre choc: un nombre marquant avec contexte educatif.",
+        "properties": {
+          "actionText": {
+            "description": "Call-to-action vers le module concerne",
+            "title": "Actiontext",
+            "type": "string"
+          },
+          "category": {
+            "description": "Categorie: retirement_gap, tax_saving, liquidity, compound_growth, hourly_rate",
+            "title": "Category",
+            "type": "string"
+          },
+          "confidenceMode": {
+            "default": "factual",
+            "description": "Mode de confiance: 'factual' (donnees reelles) ou 'pedagogical' (estimation)",
+            "title": "Confidencemode",
+            "type": "string"
+          },
+          "confidenceScore": {
+            "description": "Score de confiance de la projection (0-100%)",
+            "title": "Confidencescore",
+            "type": "number"
+          },
+          "disclaimer": {
+            "description": "Disclaimer legal (outil educatif, LSFin)",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "displayText": {
+            "description": "Texte d'accroche en francais (tu informel)",
+            "title": "Displaytext",
+            "type": "string"
+          },
+          "explanationText": {
+            "description": "Explication pedagogique",
+            "title": "Explanationtext",
+            "type": "string"
+          },
+          "primaryNumber": {
+            "description": "Le nombre principal marquant",
+            "title": "Primarynumber",
+            "type": "number"
+          },
+          "sources": {
+            "description": "References legales suisses",
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "category",
+          "primaryNumber",
+          "displayText",
+          "explanationText",
+          "actionText",
+          "disclaimer",
+          "sources",
+          "confidenceScore"
+        ],
+        "title": "ChiffreChocResponse",
+        "type": "object"
+      },
       "h_23998a381e30__ConsentUpdateRequest": {
         "description": "Request body for PATCH /reengagement/consent/{user_id}.",
         "properties": {
@@ -19643,66 +19722,6 @@
         ],
         "title": "EtatCivil",
         "type": "string"
-      },
-      "h_829c1a0e8779__ChiffreChocResponse": {
-        "description": "Chiffre choc: un nombre marquant avec contexte educatif.",
-        "properties": {
-          "actionText": {
-            "description": "Call-to-action vers le module concerne",
-            "title": "Actiontext",
-            "type": "string"
-          },
-          "category": {
-            "description": "Categorie: retirement_gap, tax_saving, liquidity, lpp_opportunity, mortgage_stress",
-            "title": "Category",
-            "type": "string"
-          },
-          "confidenceScore": {
-            "description": "Score de confiance de la projection (0-100%)",
-            "title": "Confidencescore",
-            "type": "number"
-          },
-          "disclaimer": {
-            "description": "Disclaimer legal (outil educatif, LSFin)",
-            "title": "Disclaimer",
-            "type": "string"
-          },
-          "displayText": {
-            "description": "Texte d'accroche en francais (tu informel)",
-            "title": "Displaytext",
-            "type": "string"
-          },
-          "explanationText": {
-            "description": "Explication pedagogique",
-            "title": "Explanationtext",
-            "type": "string"
-          },
-          "primaryNumber": {
-            "description": "Le nombre principal marquant",
-            "title": "Primarynumber",
-            "type": "number"
-          },
-          "sources": {
-            "description": "References legales suisses",
-            "items": {
-              "type": "string"
-            },
-            "title": "Sources",
-            "type": "array"
-          }
-        },
-        "required": [
-          "category",
-          "primaryNumber",
-          "displayText",
-          "explanationText",
-          "actionText",
-          "disclaimer",
-          "sources",
-          "confidenceScore"
-        ],
-        "title": "ChiffreChocResponse",
-        "type": "object"
       },
       "h_9602b9ec805b__EtatCivil": {
         "enum": [
@@ -25635,7 +25654,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/h_829c1a0e8779__ChiffreChocResponse"
+                  "$ref": "#/components/schemas/h_04cb1ba1d85a__ChiffreChocResponse"
                 }
               }
             },
