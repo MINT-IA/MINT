@@ -37,8 +37,11 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
+import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
+import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -1485,6 +1488,18 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             raw.intent,
             preGeneratedRunId: seqRunId,
           ).catchError((_) => null);
+          // Analytics
+          AnalyticsService().trackEvent(
+            'sequence_started',
+            category: 'sequence',
+            data: {
+              'run_id': seqRunId,
+              'template_id': template.id,
+              'intent': raw.intent,
+              'step_count': template.steps.length,
+            },
+            screenName: 'coach_chat',
+          );
         }
 
         return _ResolvedRoutePayload(
@@ -2077,31 +2092,65 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   /// Render the result of a guided sequence step into the chat.
   ///
   /// Called from _onRealtimeScreenReturn (canonical) or _handleRouteReturnAsync (fallback).
+  /// Also logs analytics for each transition.
   void _renderSequenceAction(SequenceHandlerResult result) {
     if (!mounted) return;
 
+    final run = result.updatedRun;
     final String message;
+    final String analyticsEvent;
+
     switch (result.action) {
       case AdvanceAction(:final progressLabel):
         message = '\u00c9tape $progressLabel termin\u00e9e. '
             'Pr\u00eat pour la suite\u00a0?';
-        // No sync guard needed — dedup is handled by:
-        // 1. _realtimeConsumedSequenceStep flag (same-session)
-        // 2. processedEventIds in SequenceRun (persistent)
+        analyticsEvent = 'sequence_step_completed';
       case CompleteAction():
         message = 'Parcours termin\u00e9\u00a0! '
             'Toutes les \u00e9tapes sont compl\u00e8tes.';
+        analyticsEvent = 'sequence_completed';
       case PauseAction():
         message = 'On met le parcours en pause. '
             'Tu pourras reprendre quand tu veux.';
+        analyticsEvent = 'sequence_paused';
       case SkipAction():
         message = 'On passe cette \u00e9tape pour le moment.';
+        analyticsEvent = 'sequence_step_skipped';
       case RetryAction():
         message = 'Pas de souci. On peut r\u00e9essayer cette \u00e9tape.';
+        analyticsEvent = 'sequence_step_retry';
       case ReEvaluateAction():
         message = 'Tes donn\u00e9es ont chang\u00e9. '
             'Je recalcule les \u00e9tapes concern\u00e9es.';
+        analyticsEvent = 'sequence_re_evaluate';
     }
+
+    // Analytics — fire-and-forget, never blocks UI.
+    AnalyticsService().trackEvent(
+      analyticsEvent,
+      category: 'sequence',
+      data: {
+        'run_id': run.runId,
+        'template_id': run.templateId,
+        'progress': run.progress,
+        'step_count': run.totalCount,
+        'completed_count': run.completedCount,
+      },
+      screenName: 'coach_chat',
+    );
+
+    // Build sequence UI payload for the renderer.
+    final bool canAdvance = result.action is AdvanceAction;
+    final bool canQuit = result.action is! CompleteAction;
+    final seqPayload = SequenceMessagePayload(
+      templateId: run.templateId,
+      currentStepId: run.activeStepId,
+      progressLabel: '${run.completedCount}/${run.totalCount}',
+      status: analyticsEvent.replaceFirst('sequence_', ''),
+      canAdvance: canAdvance,
+      canQuit: canQuit,
+      goalLabelKey: result.template.goalLabelKey,
+    );
 
     setState(() {
       _messages.add(ChatMessage(
@@ -2109,10 +2158,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         content: message,
         timestamp: DateTime.now(),
         tier: ChatTier.fallback,
+        sequencePayload: seqPayload,
       ));
     });
     _scrollToBottom();
-    // Update sequence cache when run ends
     if (result.action is CompleteAction) {
       _triggerMilestonePulse();
     }
@@ -2866,6 +2915,14 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               child: _buildRouteSuggestionCard(msg.routePayload!),
             ),
           ],
+          // Sequence Progress Card — guided sequence step transition
+          if (!isStreamingThis && msg.hasSequencePayload) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 8),
+              child: _buildSequenceCard(msg.sequencePayload!),
+            ),
+          ],
           // Document Card — generate_document tool_use (Agent Autonome)
           if (!isStreamingThis && msg.hasDocumentPayload) ...[
             const SizedBox(height: MintSpacing.sm),
@@ -3034,6 +3091,39 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           ).copyWith(fontWeight: FontWeight.w500),
         ),
       ],
+    );
+  }
+
+  /// Builds the [SequenceProgressCard] for a message carrying a sequence payload.
+  Widget _buildSequenceCard(SequenceMessagePayload payload) {
+    // Parse progress label "2/4" → completedCount=2, totalCount=4.
+    final parts = payload.progressLabel.split('/');
+    final completed = int.tryParse(parts.firstOrNull ?? '') ?? 0;
+    final total = int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0;
+
+    return SequenceProgressCard(
+      completedCount: completed,
+      totalCount: total,
+      goalLabel: payload.goalLabelKey, // TODO: resolve via S.of(context)
+      currentStepLabel: payload.status == 'completed'
+          ? 'Toutes les \u00e9tapes termin\u00e9es'
+          : '\u00c9tape ${completed + 1}/$total',
+      onAdvance: payload.canAdvance ? () {
+        // TODO(V2): navigate to next step route via RoutePlanner
+      } : null,
+      onQuit: payload.canQuit ? () {
+        SequenceChatHandler.quitSequence();
+        if (mounted) {
+          setState(() {
+            _messages.add(ChatMessage(
+              role: 'assistant',
+              content: 'Parcours quitt\u00e9.',
+              timestamp: DateTime.now(),
+              tier: ChatTier.fallback,
+            ));
+          });
+        }
+      } : null,
     );
   }
 
