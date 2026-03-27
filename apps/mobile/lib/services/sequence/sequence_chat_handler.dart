@@ -154,8 +154,6 @@ class SequenceChatHandler {
   /// Start a new guided sequence from an intent tag.
   ///
   /// Returns the created run, or null if no template matches.
-  /// Start a new guided sequence from an intent tag.
-  ///
   /// [preGeneratedRunId] — optional pre-generated runId for sync availability
   /// in the caller (e.g. to pass to RouteSuggestionCard before await).
   static Future<SequenceRun?> startSequence(
