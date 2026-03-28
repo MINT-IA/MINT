@@ -9777,6 +9777,15 @@ class SFr extends S {
   String get shellWelcomeBack => 'De retour. Tes chiffres sont à jour.';
 
   @override
+  String get seasonalLamalTitle => 'Nouvelles primes LAMal';
+
+  @override
+  String get seasonalLamalDesc => 'Les primes 2027 sont publiées. Vérifie si ta franchise est toujours optimale.';
+
+  @override
+  String proactiveContractDeadline(String label, String days) => 'Rappel : \$label arrive dans \$days jours. Pense à anticiper.';
+
+  @override
   String get extractionWhoseDocument => 'À qui est ce document ?';
 
   @override

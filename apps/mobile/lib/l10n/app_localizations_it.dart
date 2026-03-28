@@ -9807,6 +9807,15 @@ class SIt extends S {
   String get shellWelcomeBack => 'Bentornato. I tuoi numeri sono aggiornati.';
 
   @override
+  String get seasonalLamalTitle => 'Nuovi premi LAMal';
+
+  @override
+  String get seasonalLamalDesc => 'I premi 2027 sono pubblicati. Verifica se la tua franchigia è ancora ottimale.';
+
+  @override
+  String proactiveContractDeadline(String label, String days) => 'Promemoria: \$label scade tra \$days giorni. Pianifica in anticipo.';
+
+  @override
   String get extractionWhoseDocument => 'Di chi è questo documento?';
 
   @override

@@ -9781,6 +9781,15 @@ class SPt extends S {
   String get shellWelcomeBack => 'De volta. Os teus números estão atualizados.';
 
   @override
+  String get seasonalLamalTitle => 'Novos prémios LAMal';
+
+  @override
+  String get seasonalLamalDesc => 'Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é ótima.';
+
+  @override
+  String proactiveContractDeadline(String label, String days) => 'Lembrete: \$label vence em \$days dias. Planeia com antecedência.';
+
+  @override
   String get extractionWhoseDocument => 'De quem é este documento?';
 
   @override

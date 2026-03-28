@@ -9722,6 +9722,15 @@ class SEn extends S {
   String get shellWelcomeBack => 'Back. Your numbers are up to date.';
 
   @override
+  String get seasonalLamalTitle => 'New LAMal premiums';
+
+  @override
+  String get seasonalLamalDesc => '2027 premiums are published. Check if your franchise is still optimal.';
+
+  @override
+  String proactiveContractDeadline(String label, String days) => 'Reminder: \$label is due in \$days days. Plan ahead.';
+
+  @override
   String get extractionWhoseDocument => 'Whose document is this?';
 
   @override

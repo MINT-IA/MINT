@@ -9788,6 +9788,15 @@ class SDe extends S {
   String get shellWelcomeBack => 'Wieder da. Deine Zahlen sind aktuell.';
 
   @override
+  String get seasonalLamalTitle => 'Neue KVG-Prämien';
+
+  @override
+  String get seasonalLamalDesc => 'Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch optimal ist.';
+
+  @override
+  String proactiveContractDeadline(String label, String days) => 'Erinnerung: \$label läuft in \$days Tagen ab. Plane voraus.';
+
+  @override
   String get extractionWhoseDocument => 'Wessen Dokument ist das?';
 
   @override

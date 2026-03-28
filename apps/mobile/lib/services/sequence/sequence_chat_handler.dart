@@ -301,6 +301,7 @@ class SequenceChatHandler {
       SequenceTemplate.housingPurchase,
       SequenceTemplate.optimize3a,
       SequenceTemplate.retirementPrep,
+      SequenceTemplate.financialTension,
     ];
     for (final t in templates) {
       if (t.id == id) return t;
