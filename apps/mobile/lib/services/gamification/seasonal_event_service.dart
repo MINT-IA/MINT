@@ -31,6 +31,9 @@ enum SeasonalEventType {
 
   /// Oct : mois de la prevoyance (campagne suisse annuelle).
   retirementMonth,
+
+  /// Oct-Nov : changement de franchise LAMal (nouvelles primes publiees).
+  lamalFranchiseReview,
 }
 
 /// Evenement saisonnier actif sur une periode donnee.
@@ -199,6 +202,17 @@ class SeasonalEventService {
         startDate: DateTime(year, 11, 1),
         endDate: DateTime(year, 11, 30),
         intentTag: '3a-deep',
+      ),
+
+      // ── Octobre : LAMal franchise review (nouvelles primes) ──
+      SeasonalEvent(
+        id: '$year-lamal-franchise-oct',
+        titleKey: 'seasonalLamalTitle',
+        descriptionKey: 'seasonalLamalDesc',
+        type: SeasonalEventType.lamalFranchiseReview,
+        startDate: DateTime(year, 10, 1),
+        endDate: DateTime(year, 11, 30),
+        intentTag: 'lamal_franchise',
       ),
 
       // ── Decembre : deadline 3a (31 dec) ──────────────────────

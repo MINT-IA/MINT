@@ -11890,5 +11890,6 @@
   "chatDocExtractionFailed": "Je n'ai pas pu extraire de données de ce document. Essaie avec une photo plus nette ou un autre format.",
   "chatDocError": "Erreur lors de l'analyse du document. Réessaie.",
   "chatDocAttachTooltip": "Scanner un document",
-  "proactiveContractDeadline": "Rappel : {label} arrive dans {days} jours. Pense à anticiper."
+  "seasonalLamalTitle": "Nouvelles primes LAMal",
+  "seasonalLamalDesc": "Les primes 2027 sont publiées. Vérifie si ta franchise est toujours optimale."
 }

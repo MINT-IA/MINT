@@ -11443,5 +11443,6 @@
   "chatDocExtractionFailed": "I couldn't extract data from this document. Try with a clearer photo or different format.",
   "chatDocError": "Error analyzing document. Please try again.",
   "chatDocAttachTooltip": "Scan a document",
-  "proactiveContractDeadline": "Reminder: {label} is due in {days} days. Plan ahead."
+  "seasonalLamalTitle": "New LAMal premiums",
+  "seasonalLamalDesc": "2027 premiums are published. Check if your franchise is still optimal."
 }

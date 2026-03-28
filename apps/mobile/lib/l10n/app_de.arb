@@ -11415,5 +11415,6 @@
   "chatDocExtractionFailed": "Ich konnte keine Daten aus diesem Dokument extrahieren. Versuche es mit einem schärferen Foto.",
   "chatDocError": "Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.",
   "chatDocAttachTooltip": "Dokument scannen",
-  "proactiveContractDeadline": "Erinnerung: {label} läuft in {days} Tagen ab. Plane voraus."
+  "seasonalLamalTitle": "Neue KVG-Prämien",
+  "seasonalLamalDesc": "Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch optimal ist."
 }
