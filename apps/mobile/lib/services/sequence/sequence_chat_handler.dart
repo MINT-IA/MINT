@@ -305,6 +305,9 @@ class SequenceChatHandler {
       SequenceTemplate.preretraiteComplete,
       SequenceTemplate.coupleFinancier,
       SequenceTemplate.naissanceCouts,
+      SequenceTemplate.premiersPas,
+      SequenceTemplate.densification,
+      SequenceTemplate.retraiteActive,
     ];
     for (final t in templates) {
       if (t.id == id) return t;

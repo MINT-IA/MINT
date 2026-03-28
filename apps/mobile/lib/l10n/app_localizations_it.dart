@@ -9807,6 +9807,13 @@ class SIt extends S {
   String get shellWelcomeBack => 'Bentornato. I tuoi numeri sono aggiornati.';
 
   @override
+  String get sequencePremiersPasGoal => 'Understand my first salary';
+  @override
+  String get sequenceDensificationGoal => 'Protect and consolidate';
+  @override
+  String get sequenceRetraiteActiveGoal => 'Manage my retirement';
+
+  @override
   String get sequenceCoupleGoal => 'Coordinate finances together';
 
   @override
