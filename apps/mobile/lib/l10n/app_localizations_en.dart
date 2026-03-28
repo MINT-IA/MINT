@@ -9722,6 +9722,39 @@ class SEn extends S {
   String get shellWelcomeBack => 'Back. Your numbers are up to date.';
 
   @override
+  String get chatPickPhoto => 'Take a photo';
+
+  @override
+  String get chatPickGallery => 'Choose an image';
+
+  @override
+  String get chatPickFile => 'File (PDF, DOCX)';
+
+  @override
+  String get chatFileTooLarge => 'File too large (max 5 MB)';
+
+  @override
+  String get chatDocSent => 'Document sent for analysis';
+
+  @override
+  String get chatDocAnalysisIntro => 'I analyzed your document. Here\'s what I found:';
+
+  @override
+  String get chatDocUpdatePrompt => 'Would you like me to update your profile with this data?';
+
+  @override
+  String get chatDocExtractionFailed => 'I couldn\'t extract data from this document. Try with a clearer photo or different format.';
+
+  @override
+  String get chatDocError => 'Error analyzing document. Please try again.';
+
+  @override
+  String get chatDocAttachTooltip => 'Scan a document';
+
+  @override
+  String shellWelcomeBackDeltaPts(int delta) => 'Welcome back! Your accuracy improved by +\$delta pts since last visit.';
+
+  @override
   String get summaryCapaciteAchat => 'Purchasing capacity';
   @override
   String get summaryFondsPropres => 'Required own funds';
