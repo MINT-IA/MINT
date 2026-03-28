@@ -9781,6 +9781,49 @@ class SEs extends S {
   String get shellWelcomeBack => 'De vuelta. Tus números están al día.';
 
   @override
+  String get summaryCapaciteAchat => 'Capacidad de compra';
+  @override
+  String get summaryFondsPropres => 'Fondos propios necesarios';
+  @override
+  String get summaryRetraitEpl => 'Retiro EPL previsto';
+  @override
+  String get summaryImpactRente => 'Impacto en tu pensión';
+  @override
+  String get summaryImpotRetrait => 'Impuesto de retiro';
+  @override
+  String get summaryMontantNet => 'Monto neto después de impuestos';
+  @override
+  String get summaryVersementAnnuel => 'Aportación anual';
+  @override
+  String get summaryEconomieFiscale => 'Ahorro fiscal anual';
+  @override
+  String get summaryGainEchelonnement => 'Ganancia por retiros escalonados';
+  @override
+  String get summaryTauxRemplacement => 'Tasa de reemplazo';
+  @override
+  String get summaryEcartMensuel => 'Brecha mensual estimada';
+  @override
+  String get summaryEconomieRachat => 'Ahorro por recompra escalonada';
+  @override
+  String get summaryRatioEndettement => 'Ratio de endeudamiento';
+  @override
+  String get summaryMargeMensuelle => 'Margen mensual';
+  @override
+  String get summaryRevenuNet => 'Ingreso neto mensual';
+  @override
+  String get summaryChargesFixes => 'Cargas fijas totales';
+  @override
+  String get summaryHorizonLiberation => 'Horizonte de liberación';
+  @override
+  String get summaryVersementMensuel => 'Pago mensual';
+  @override
+  String get summaryDonneesLpp => 'Datos del certificado LPP';
+  @override
+  String get summaryEstimationSansCertificat => 'Estimación sin certificado';
+  @override
+  String get summaryChoixRenteCapital => 'Elección renta/capital';
+
+  @override
   String get shellRecommendationsUpdated => 'Recomendaciones actualizadas';
 
   @override

@@ -9788,6 +9788,49 @@ class SDe extends S {
   String get shellWelcomeBack => 'Wieder da. Deine Zahlen sind aktuell.';
 
   @override
+  String get summaryCapaciteAchat => 'Kaufkapazität';
+  @override
+  String get summaryFondsPropres => 'Erforderliche Eigenmittel';
+  @override
+  String get summaryRetraitEpl => 'Geplanter WEF-Bezug';
+  @override
+  String get summaryImpactRente => 'Auswirkung auf Ihre Rente';
+  @override
+  String get summaryImpotRetrait => 'Bezugssteuer';
+  @override
+  String get summaryMontantNet => 'Nettobetrag nach Steuern';
+  @override
+  String get summaryVersementAnnuel => 'Jährliche Einzahlung';
+  @override
+  String get summaryEconomieFiscale => 'Jährliche Steuerersparnis';
+  @override
+  String get summaryGainEchelonnement => 'Gewinn durch gestaffelten Bezug';
+  @override
+  String get summaryTauxRemplacement => 'Ersatzquote';
+  @override
+  String get summaryEcartMensuel => 'Geschätzte monatliche Lücke';
+  @override
+  String get summaryEconomieRachat => 'Ersparnis durch gestaffelten Einkauf';
+  @override
+  String get summaryRatioEndettement => 'Verschuldungsquote';
+  @override
+  String get summaryMargeMensuelle => 'Monatliche Marge';
+  @override
+  String get summaryRevenuNet => 'Monatliches Nettoeinkommen';
+  @override
+  String get summaryChargesFixes => 'Gesamte Fixkosten';
+  @override
+  String get summaryHorizonLiberation => 'Schuldenfreiheitshorizont';
+  @override
+  String get summaryVersementMensuel => 'Monatliche Zahlung';
+  @override
+  String get summaryDonneesLpp => 'BVG-Zertifikat Daten';
+  @override
+  String get summaryEstimationSansCertificat => 'Schätzung ohne Zertifikat';
+  @override
+  String get summaryChoixRenteCapital => 'Renten-/Kapitalwahl';
+
+  @override
   String get shellRecommendationsUpdated => 'Empfehlungen aktualisiert';
 
   @override

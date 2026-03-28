@@ -9722,6 +9722,49 @@ class SEn extends S {
   String get shellWelcomeBack => 'Back. Your numbers are up to date.';
 
   @override
+  String get summaryCapaciteAchat => 'Purchasing capacity';
+  @override
+  String get summaryFondsPropres => 'Required own funds';
+  @override
+  String get summaryRetraitEpl => 'Planned EPL withdrawal';
+  @override
+  String get summaryImpactRente => 'Impact on your pension';
+  @override
+  String get summaryImpotRetrait => 'Withdrawal tax';
+  @override
+  String get summaryMontantNet => 'Net amount after tax';
+  @override
+  String get summaryVersementAnnuel => 'Annual contribution';
+  @override
+  String get summaryEconomieFiscale => 'Annual tax savings';
+  @override
+  String get summaryGainEchelonnement => 'Gain from staggered withdrawals';
+  @override
+  String get summaryTauxRemplacement => 'Replacement rate';
+  @override
+  String get summaryEcartMensuel => 'Estimated monthly gap';
+  @override
+  String get summaryEconomieRachat => 'Savings from staggered buyback';
+  @override
+  String get summaryRatioEndettement => 'Debt ratio';
+  @override
+  String get summaryMargeMensuelle => 'Monthly margin';
+  @override
+  String get summaryRevenuNet => 'Monthly net income';
+  @override
+  String get summaryChargesFixes => 'Total fixed charges';
+  @override
+  String get summaryHorizonLiberation => 'Debt-free horizon';
+  @override
+  String get summaryVersementMensuel => 'Monthly payment';
+  @override
+  String get summaryDonneesLpp => 'LPP certificate data';
+  @override
+  String get summaryEstimationSansCertificat => 'Estimate without certificate';
+  @override
+  String get summaryChoixRenteCapital => 'Annuity/capital choice';
+
+  @override
   String get shellRecommendationsUpdated => 'Recommendations updated';
 
   @override
