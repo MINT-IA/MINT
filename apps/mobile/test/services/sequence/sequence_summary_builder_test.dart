@@ -137,7 +137,7 @@ void main() {
         templateId: 'financial_tension',
         allOutputs: {
           'tension_01_diagnostic': {
-            'ratio_endettement': 0.42,
+            'ratio_endettement': 42.0,
             'marge_mensuelle': -200.0,
           },
           'tension_02_budget': {
@@ -165,7 +165,7 @@ void main() {
         templateId: 'financial_tension',
         allOutputs: {
           'tension_01_diagnostic': {
-            'ratio_endettement': 0.55,
+            'ratio_endettement': 55.0,
             'marge_mensuelle': -350.0,
           },
         },

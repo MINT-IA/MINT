@@ -555,11 +555,11 @@ class ResponseCardService {
         prompts.add(l.rcSuggestedPromptAllegerImpots);
       case LifecyclePhase.acceleration:
         prompts.add(l.rcSuggestedPromptAllegerImpots);
-        if (!hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
+        if (hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
         prompts.add(l.rcSuggestedPromptVersement3a);
       case LifecyclePhase.consolidation:
         prompts.add(l.rcSuggestedPrompt50PlusRetirement);
-        if (!hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
+        if (hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
         prompts.add(l.rcSuggestedPromptRenteOuCapital);
       case LifecyclePhase.transition:
         prompts.add(l.rcSuggestedPrompt50PlusRetirement);
