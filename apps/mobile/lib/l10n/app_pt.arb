@@ -11408,5 +11408,6 @@
   "chatDocUpdatePrompt": "Queres que atualize o teu perfil com estes dados?",
   "chatDocExtractionFailed": "Não consegui extrair dados deste documento. Tenta com uma foto mais nítida.",
   "chatDocError": "Erro ao analisar o documento. Tenta novamente.",
-  "chatDocAttachTooltip": "Digitalizar um documento"
+  "chatDocAttachTooltip": "Digitalizar um documento",
+  "proactiveContractDeadline": "Lembrete: {label} vence em {days} dias. Planeia com antecedência."
 }

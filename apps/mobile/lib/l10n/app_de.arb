@@ -11414,5 +11414,6 @@
   "chatDocUpdatePrompt": "Möchtest du, dass ich dein Profil mit diesen Daten aktualisiere?",
   "chatDocExtractionFailed": "Ich konnte keine Daten aus diesem Dokument extrahieren. Versuche es mit einem schärferen Foto.",
   "chatDocError": "Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.",
-  "chatDocAttachTooltip": "Dokument scannen"
+  "chatDocAttachTooltip": "Dokument scannen",
+  "proactiveContractDeadline": "Erinnerung: {label} läuft in {days} Tagen ab. Plane voraus."
 }
