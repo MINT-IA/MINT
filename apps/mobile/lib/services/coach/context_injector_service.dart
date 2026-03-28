@@ -163,14 +163,16 @@ class ContextInjectorService {
       lifecycleBlock = adaptation.coachSystemPromptAddition +
           (literacyDirective.isNotEmpty ? '\n$literacyDirective' : '');
 
-      // Product cohort: suppressed topics (Anti-Bullshit Manifesto §6).
-      // Tells the LLM which subjects to NEVER suggest for this user.
+      // Product cohort: topic guidance (Anti-Bullshit Manifesto §6).
+      // Tells the LLM which subjects to NOT push proactively,
+      // but to respond pedagogically if the user asks explicitly.
       final cohortResult = ProductCohortService.resolve(profile);
       if (cohortResult.suppressedTopics.isNotEmpty) {
-        lifecycleBlock += '\n\nSUJETS INTERDITS pour cet utilisateur '
+        lifecycleBlock += '\n\nSUJETS À NE PAS POUSSER EN PRIORITÉ '
             '(cohorte ${cohortResult.cohort.name}):\n'
             '${cohortResult.suppressedTopics.map((t) => '- $t').join('\n')}\n'
-            'Ne JAMAIS suggérer ces sujets, même si l\'utilisateur demande.';
+            'Ne suggère PAS ces sujets en premier. Mais si l\'utilisateur '
+            'demande explicitement, réponds en mode pédagogique et factuel.';
       }
     }
 
