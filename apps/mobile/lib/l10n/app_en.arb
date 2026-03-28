@@ -4649,6 +4649,7 @@
   "drawerCeQueTuAuras": "What you'll have",
   "drawerCeQueTuAurasSubtitle": "Projected retirement income",
   "shellWelcomeBack": "Back. Your numbers are up to date.",
+  "shellWelcomeBackDelta": "Welcome back! Your accuracy improved by +{delta} pts since last visit.",
   "shellRecommendationsUpdated": "Recommendations updated",
   "pulseEnrichirTitle": "Scan your LPP certificate",
   "pulseEnrichirSubtitle": "Confidence → +{points} points",
