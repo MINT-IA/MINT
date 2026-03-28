@@ -14,6 +14,8 @@ import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -30,13 +32,60 @@ class DebtRatioScreen extends StatefulWidget {
 }
 
 class _DebtRatioScreenState extends State<DebtRatioScreen> {
+  bool _hasUserInteracted = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('debt');
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+      // Only mark as explored outside sequence mode (avoids analytics pollution).
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('debt');
+      }
       _initializeFromProfile();
     });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('debt_ratio',
+        ScreenReturn.abandoned(
+          route: '/debt/ratio',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final result = _result;
+    ScreenCompletionTracker.markCompletedWithReturn('debt_ratio',
+      ScreenReturn.completed(
+        route: '/debt/ratio',
+        stepOutputs: {
+          'ratio_endettement': result.ratio,
+          'marge_mensuelle': result.margeDisponible,
+        },
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   void _initializeFromProfile() {
@@ -85,7 +134,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   Widget build(BuildContext context) {
     final result = _result;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.white,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -149,7 +202,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             ),
           ),
         ],
-      ))),
+      )))),
     );
   }
 
@@ -261,7 +314,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 min: 2000,
                 max: 20000,
                 icon: Icons.account_balance_wallet_outlined,
-                onChanged: (v) => setState(() => _revenusMensuels = v),
+                onChanged: (v) => setState(() { _hasUserInteracted = true; _revenusMensuels = v; }),
               ),
             ),
             const SizedBox(width: MintSpacing.sm + 4),
@@ -278,7 +331,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     ? MintColors.error
                     : null,
                 onChanged: (v) =>
-                    setState(() => _chargesDetteMensuelles = v),
+                    setState(() { _hasUserInteracted = true; _chargesDetteMensuelles = v; }),
               ),
             ),
           ],
@@ -346,7 +399,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                         min: 0,
                         max: 5000,
                         icon: Icons.home_outlined,
-                        onChanged: (v) => setState(() => _loyer = v),
+                        onChanged: (v) => setState(() { _hasUserInteracted = true; _loyer = v; }),
                       ),
                     ),
                     const SizedBox(width: MintSpacing.sm + 4),
@@ -359,7 +412,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                         min: 0,
                         max: 3000,
                         icon: Icons.receipt_long_outlined,
-                        onChanged: (v) => setState(() => _autresCharges = v),
+                        onChanged: (v) => setState(() { _hasUserInteracted = true; _autresCharges = v; }),
                       ),
                     ),
                   ],
@@ -373,7 +426,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                         options: [S.of(context)!.debtRatioSeul, S.of(context)!.debtRatioEnCouple],
                         selectedIndex: _estCelibataire ? 0 : 1,
                         onChanged: (i) =>
-                            setState(() => _estCelibataire = i == 0),
+                            setState(() { _hasUserInteracted = true; _estCelibataire = i == 0; }),
                       ),
                     ),
                     const SizedBox(width: MintSpacing.sm + 4),
@@ -383,7 +436,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                         value: _nombreEnfants,
                         options: const [0, 1, 2, 3, 4],
                         onChanged: (v) =>
-                            setState(() => _nombreEnfants = v),
+                            setState(() { _hasUserInteracted = true; _nombreEnfants = v; }),
                       ),
                     ),
                   ],

@@ -51,9 +51,11 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('mortgage');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('mortgage');
+      }
       _initializeFromProfile();
     });
   }

@@ -9777,6 +9777,49 @@ class SFr extends S {
   String get shellWelcomeBack => 'De retour. Tes chiffres sont à jour.';
 
   @override
+  String get summaryCapaciteAchat => "Capacité d'achat";
+  @override
+  String get summaryFondsPropres => 'Fonds propres nécessaires';
+  @override
+  String get summaryRetraitEpl => 'Retrait EPL envisagé';
+  @override
+  String get summaryImpactRente => 'Impact sur ta rente';
+  @override
+  String get summaryImpotRetrait => 'Impôt sur le retrait';
+  @override
+  String get summaryMontantNet => 'Montant net après impôt';
+  @override
+  String get summaryVersementAnnuel => 'Versement annuel';
+  @override
+  String get summaryEconomieFiscale => 'Économie fiscale annuelle';
+  @override
+  String get summaryGainEchelonnement => 'Gain à échelonner les retraits';
+  @override
+  String get summaryTauxRemplacement => 'Taux de remplacement';
+  @override
+  String get summaryEcartMensuel => 'Écart mensuel estimé';
+  @override
+  String get summaryEconomieRachat => 'Économie via rachat échelonné';
+  @override
+  String get summaryRatioEndettement => "Ratio d'endettement";
+  @override
+  String get summaryMargeMensuelle => 'Marge mensuelle';
+  @override
+  String get summaryRevenuNet => 'Revenu net mensuel';
+  @override
+  String get summaryChargesFixes => 'Charges fixes totales';
+  @override
+  String get summaryHorizonLiberation => 'Horizon de libération';
+  @override
+  String get summaryVersementMensuel => 'Versement mensuel';
+  @override
+  String get summaryDonneesLpp => 'Données certificat LPP';
+  @override
+  String get summaryEstimationSansCertificat => 'Estimation sans certificat';
+  @override
+  String get summaryChoixRenteCapital => 'Choix rente/capital';
+
+  @override
   String get shellRecommendationsUpdated => 'Recommandations mises à jour';
 
   @override
@@ -24361,6 +24404,21 @@ class SFr extends S {
 
   @override
   String get sequenceRetirementGoal => 'Préparation retraite';
+
+  @override
+  String get sequenceTensionGoal => 'Sortir d\'une tension';
+
+  @override
+  String get sequenceTensionStep1 => 'Diagnostic endettement';
+
+  @override
+  String get sequenceTensionStep2 => 'Budget ru00e9el';
+
+  @override
+  String get sequenceTensionStep3 => 'Plan de remboursement';
+
+  @override
+  String get sequenceTensionStep4 => 'Ru00e9sumu00e9';
 
   @override
   String get sequenceAllStepsComplete => 'Toutes les étapes terminées';

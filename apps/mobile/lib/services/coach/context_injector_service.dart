@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
+import 'package:mint_mobile/services/product_cohort_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart'
     as lifecycle_v2;
@@ -161,6 +162,18 @@ class ContextInjectorService {
       final literacyDirective = _literacyDirective(profile.financialLiteracyLevel);
       lifecycleBlock = adaptation.coachSystemPromptAddition +
           (literacyDirective.isNotEmpty ? '\n$literacyDirective' : '');
+
+      // Product cohort: topic guidance (Anti-Bullshit Manifesto §6).
+      // Tells the LLM which subjects to NOT push proactively,
+      // but to respond pedagogically if the user asks explicitly.
+      final cohortResult = ProductCohortService.resolve(profile);
+      if (cohortResult.suppressedTopics.isNotEmpty) {
+        lifecycleBlock += '\n\nSUJETS À NE PAS POUSSER EN PRIORITÉ '
+            '(cohorte ${cohortResult.cohort.name}):\n'
+            '${cohortResult.suppressedTopics.map((t) => '- $t').join('\n')}\n'
+            'Ne suggère PAS ces sujets en premier. Mais si l\'utilisateur '
+            'demande explicitement, réponds en mode pédagogique et factuel.';
+      }
     }
 
     // Load cross-session insights from the new CoachMemoryService (S58).

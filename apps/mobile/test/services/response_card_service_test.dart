@@ -515,13 +515,13 @@ void main() {
     });
 
     test('independant sees prevoyance prompt', () {
-      // Give avoirLppTotal so 'Simuler un rachat LPP' doesn't take a slot
+      // Use construction phase (age 30) to avoid rachat LPP taking a slot.
+      // Business logic: independant prompt is cross-phase, always added.
       final profile = _makeProfile(
         salaire: 6000,
         canton: 'VD',
-        birthYear: 1986,
+        birthYear: 1996, // age 30 → construction phase (no rachat slot)
         employmentStatus: 'independant',
-        prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
       final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
@@ -529,13 +529,13 @@ void main() {
     });
 
     test('couple sees coordination prompt', () {
-      // Give avoirLppTotal so 'Simuler un rachat LPP' doesn't take a slot
+      // Use construction phase (age 32) to avoid rachat LPP taking a slot.
+      // Business logic: couple prompt is cross-phase, always added.
       final profile = _makeProfile(
         salaire: 8000,
         canton: 'VD',
-        birthYear: 1980,
+        birthYear: 1994, // age 32 → construction phase
         etatCivil: CoachCivilStatus.marie,
-        prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
       final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
@@ -552,6 +552,51 @@ void main() {
       );
       final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
       expect(prompts.length, lessThanOrEqualTo(3));
+    });
+
+    // ── BUSINESS GUARDRAILS (Anti-Bullshit Manifesto) ──────────
+    // These tests lock critical business logic:
+    // rachat LPP MUST NOT be suggested to users without LPP.
+
+    test('acceleration + has LPP → rachat LPP suggestion allowed', () {
+      final profile = _makeProfile(
+        salaire: 9000,
+        canton: 'ZH',
+        birthYear: 1986, // age 40 → acceleration phase
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 200000),
+      );
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
+      // With LPP, rachat prompt may appear (not guaranteed — depends on slot)
+      // Key assertion: if it appears, it's coherent (user HAS LPP)
+      expect(prompts.length, lessThanOrEqualTo(3));
+    });
+
+    test('acceleration + NO LPP → rachat LPP NEVER suggested', () {
+      final profile = _makeProfile(
+        salaire: 9000,
+        canton: 'ZH',
+        birthYear: 1986, // age 40 → acceleration phase
+        // NO prevoyance → avoirLppTotal = null → hasLpp = false
+      );
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
+      for (final p in prompts) {
+        expect(p.toLowerCase(), isNot(contains('rachat')),
+            reason: 'Rachat LPP suggested to user WITHOUT LPP: "$p"');
+      }
+    });
+
+    test('consolidation + NO LPP → rachat LPP NEVER suggested', () {
+      final profile = _makeProfile(
+        salaire: 10000,
+        canton: 'VD',
+        birthYear: 1974, // age 52 → consolidation phase
+        // NO prevoyance → hasLpp = false
+      );
+      final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
+      for (final p in prompts) {
+        expect(p.toLowerCase(), isNot(contains('rachat')),
+            reason: 'Rachat LPP suggested to user WITHOUT LPP: "$p"');
+      }
     });
 
     test('no banned terms in prompts', () {

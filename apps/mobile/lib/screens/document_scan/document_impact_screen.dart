@@ -6,7 +6,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -461,7 +463,26 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           height: 56,
           child: FilledButton.icon(
             onPressed: () {
-            // Navigate back to root dashboard via GoRouter
+            // Emit ScreenReturn so the coach chat can show a delta message.
+            final docLabel = switch (widget.result.documentType) {
+              DocumentType.lppCertificate => 'certificat LPP',
+              DocumentType.avsExtract => 'extrait AVS',
+              DocumentType.taxDeclaration => 'déclaration fiscale',
+              DocumentType.salaryCertificate => 'certificat de salaire',
+              _ => 'document',
+            };
+            ScreenCompletionTracker.markCompletedWithReturn(
+              'document_scan',
+              ScreenReturn.completed(
+                route: '/scan/impact',
+                updatedFields: {
+                  'scannedDocument': docLabel,
+                  'confidenceDelta': _deltaPoints,
+                  'newConfidence': _newConfidence,
+                },
+                confidenceDelta: _deltaPoints / 100.0,
+              ),
+            );
             context.go('/home');
           },
           icon: const Icon(Icons.dashboard_outlined, size: 22),

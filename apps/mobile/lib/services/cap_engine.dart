@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/product_cohort_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -385,6 +386,16 @@ class CapEngine {
         captureType: 'profile',
         confidenceLabel: l.capMissingPieceConfidenceLabel(confidence.score.round().toString()),
       );
+    }
+
+    // Filter out caps that conflict with the user's cohort (Anti-Bullshit §6).
+    // Uses explicit semantic mapping — NOT string.contains (fragile with camelCase IDs).
+    final cohortResult = ProductCohortService.resolve(profile);
+    if (cohortResult.suppressedTopics.isNotEmpty) {
+      candidates.removeWhere((c) {
+        final semantic = _capSemanticTopic(c.id);
+        return semantic != null && cohortResult.suppressedTopics.contains(semantic);
+      });
     }
 
     // Sort by priority and return the winner.
@@ -1192,4 +1203,64 @@ class _LifeEventMapping {
     required this.ctaLabel,
     required this.route,
   });
+}
+
+/// Maps cap IDs to semantic topics for cohort suppression.
+/// Explicit mapping avoids fragile string.contains matching
+/// (e.g., 'life_event_housingPurchase' must match 'housing_purchase').
+String? _capSemanticTopic(String capId) {
+  final lower = capId.toLowerCase();
+
+  // Retirement-related
+  if (lower.contains('retirement') || lower.contains('retraite') ||
+      lower.contains('rente') || lower.contains('decaissement')) {
+    return 'retirement_deep';
+  }
+  // Succession / estate
+  if (lower.contains('succession') || lower.contains('estate') ||
+      lower.contains('testament') || lower.contains('donation') ||
+      lower.contains('heritage')) {
+    return 'succession';
+  }
+  // LPP buyback
+  if (lower.contains('buyback') || lower.contains('rachat')) {
+    return 'lpp_buyback';
+  }
+  // Withdrawal sequencing
+  if (lower.contains('withdrawal') || lower.contains('decaissement')) {
+    return 'withdrawal_sequencing';
+  }
+  // Rente vs capital
+  if (lower.contains('rente_vs') || lower.contains('renteoucapital')) {
+    return 'rente_vs_capital';
+  }
+  // Housing
+  if (lower.contains('housing') || lower.contains('logement') ||
+      lower.contains('hypotheque') || lower.contains('immobilier')) {
+    return 'housing_purchase';
+  }
+  // First job
+  if (lower.contains('first_job') || lower.contains('premier_emploi') ||
+      lower.contains('firstjob')) {
+    return 'first_job';
+  }
+  // Unemployment
+  if (lower.contains('unemployment') || lower.contains('chomage')) {
+    return 'unemployment_basics';
+  }
+  // Birth / family young
+  if (lower.contains('birth') || lower.contains('naissance') ||
+      lower.contains('bebe')) {
+    return 'birth_costs';
+  }
+  // Job comparison
+  if (lower.contains('job_comparison') || lower.contains('comparaison_offre')) {
+    return 'job_comparison';
+  }
+  // Estate planning
+  if (lower.contains('estate_planning')) {
+    return 'estate_planning';
+  }
+
+  return null; // Unknown cap — never suppress
 }

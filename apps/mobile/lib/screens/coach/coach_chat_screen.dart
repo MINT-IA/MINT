@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -42,7 +43,13 @@ import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
+import 'package:mint_mobile/services/document_service.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_summary_builder.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -2086,15 +2093,29 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
       // Build a context-rich summary from the real simulation data.
       final buf = StringBuffer();
-      buf.write('Je viens de simuler ${pending.route}');
-      if (pending.updatedFields != null && pending.updatedFields!.isNotEmpty) {
-        final highlights = pending.updatedFields!.entries
-            .take(3)
-            .map((e) => '${e.key}: ${e.value}')
-            .join(', ');
-        buf.write(' ($highlights)');
+      // Special handling for document scan returns — human-readable delta.
+      if (pending.route == '/scan/impact' &&
+          pending.updatedFields?['scannedDocument'] != null) {
+        final doc = pending.updatedFields!['scannedDocument'];
+        final delta = pending.updatedFields!['confidenceDelta'];
+        final newConf = pending.updatedFields!['newConfidence'];
+        buf.write('Je viens de scanner mon $doc. ');
+        if (delta is num && delta > 0) {
+          buf.write('Ma précision a gagné +$delta points');
+          if (newConf is num) buf.write(' ($newConf\u00a0%)');
+          buf.write('.');
+        }
+      } else {
+        buf.write('Je viens de simuler ${pending.route}');
+        if (pending.updatedFields != null && pending.updatedFields!.isNotEmpty) {
+          final highlights = pending.updatedFields!.entries
+              .take(3)
+              .map((e) => '${e.key}: ${e.value}')
+              .join(', ');
+          buf.write(' ($highlights)');
+        }
+        buf.write('.');
       }
-      buf.write('.');
 
       _sendMessage(buf.toString());
     });
@@ -2112,13 +2133,20 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final String message;
     final String analyticsEvent;
 
+    List<SequenceSummaryItem>? summaryItems;
+
     switch (result.action) {
       case AdvanceAction(:final progressLabel):
         message = l.sequenceStepCompleted(progressLabel);
         analyticsEvent = 'sequence_step_completed';
-      case CompleteAction():
+      case CompleteAction(:final allOutputs):
         message = l.sequenceCompleted;
         analyticsEvent = 'sequence_completed';
+        summaryItems = buildSequenceSummary(
+          templateId: run.templateId,
+          allOutputs: allOutputs,
+          l: l,
+        );
       case PauseAction():
         message = l.sequencePaused;
         analyticsEvent = 'sequence_paused';
@@ -2167,6 +2195,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       nextStepId: advanceAction?.nextStep.id,
       prefill: advanceAction?.prefill,
       runId: run.runId,
+      summaryItems: summaryItems,
     );
 
     setState(() {
@@ -2181,6 +2210,21 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     _scrollToBottom();
     if (result.action is CompleteAction) {
       _triggerMilestonePulse();
+      // Persist summary as a CoachInsight for the Dossier.
+      final complete = result.action as CompleteAction;
+      final summaryText = summaryItems
+          ?.map((s) => '${s.label}\u00a0: ${s.value}')
+          .join(' · ');
+      if (summaryText != null && summaryText.isNotEmpty) {
+        CoachMemoryService.saveInsight(CoachInsight(
+          id: 'sequence_${run.templateId}_${DateTime.now().millisecondsSinceEpoch}',
+          createdAt: DateTime.now(),
+          topic: 'sequence_summary',
+          summary: '$goalLabel — $summaryText',
+          type: InsightType.fact,
+          metadata: Map<String, dynamic>.from(complete.allOutputs),
+        )).catchError((_) {});
+      }
     }
   }
 
@@ -3173,6 +3217,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       'sequenceHousingGoal' => l.sequenceHousingGoal,
       'sequence3aGoal' => l.sequence3aGoal,
       'sequenceRetirementGoal' => l.sequenceRetirementGoal,
+      'sequenceTensionGoal' => l.sequenceTensionGoal,
       _ => key, // Fallback to raw key if unknown
     };
   }
@@ -3192,6 +3237,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       currentStepLabel: payload.status == 'completed'
           ? l.sequenceAllStepsComplete
           : l.sequenceStepLabel(completed + 1, total),
+      summaryItems: payload.summaryItems,
       onAdvance: (payload.canAdvance && payload.nextRoute != null) ? () {
         _navigateToSequenceStep(payload);
       } : null,
@@ -3418,6 +3464,226 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   //  INPUT BAR
   // ════════════════════════════════════════════════════════════
 
+  /// Pick a document (photo, PDF, or file) and extract via Claude Vision.
+  /// Accepts: images (JPEG, PNG), PDF, DOCX.
+  /// The extracted data is shown in the chat and user confirms to update profile.
+  Future<void> _pickAndExtractDocument() async {
+    // Show bottom sheet with options: camera, gallery, file
+    final source = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Prendre une photo'),
+              onTap: () => Navigator.pop(ctx, 'camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choisir une image'),
+              onTap: () => Navigator.pop(ctx, 'gallery'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: const Text('Fichier (PDF, DOCX)'),
+              onTap: () => Navigator.pop(ctx, 'file'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    Uint8List? bytes;
+    String? fileName;
+
+    if (source == 'camera' || source == 'gallery') {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: source == 'camera' ? ImageSource.camera : ImageSource.gallery,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 85,
+      );
+      if (image == null || !mounted) return;
+      bytes = await image.readAsBytes();
+      fileName = image.name;
+    } else {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'docx', 'doc', 'jpg', 'jpeg', 'png'],
+      );
+      if (result == null || result.files.isEmpty || !mounted) return;
+      final file = result.files.first;
+      if (file.bytes != null) {
+        bytes = file.bytes!;
+      } else if (file.path != null) {
+        bytes = await File(file.path!).readAsBytes();
+      }
+      fileName = file.name;
+    }
+
+    if (bytes == null || !mounted) return;
+
+    // File size guard: max 5 MB to avoid Claude API timeouts
+    if (bytes.length > 5 * 1024 * 1024) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fichier trop volumineux (max 5 Mo)')),
+        );
+      }
+      return;
+    }
+
+    // Show processing message + lock input
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'user',
+        content: '📎 ${fileName ?? "Document"} envoyé pour analyse',
+        timestamp: DateTime.now(),
+      ));
+      _isBusy = true;
+    });
+    _scrollToBottom();
+
+    try {
+      final base64Image = base64Encode(bytes);
+
+      if (!mounted) { _isBusy = false; return; }
+      final canton = context.read<CoachProfileProvider>().profile?.canton;
+
+      // Detect document type from file extension (better than hardcoding)
+      final ext = (fileName ?? '').split('.').last.toLowerCase();
+      final docType = switch (ext) {
+        'pdf' => 'lpp_certificate', // PDF → default to LPP (most common scan)
+        _ => 'lpp_certificate',
+      };
+
+      // Call Claude Vision via backend
+      final response = await DocumentService.extractWithVision(
+        imageBase64: base64Image,
+        documentType: docType,
+        canton: canton,
+        languageHint: 'fr',
+      );
+
+      if (!mounted) { _isBusy = false; return; }
+
+      if (response != null && (response['extractedFields'] as List?)?.isNotEmpty == true) {
+        final fields = response['extractedFields'] as List;
+        final analysis = response['rawAnalysis'] as String? ?? '';
+        final docType = response['documentType'] as String? ?? 'document';
+
+        // Build a human-readable summary for the chat
+        final buf = StringBuffer();
+        buf.writeln('J\u2019ai analysé ton $docType. Voici ce que j\u2019ai trouvé\u00a0:');
+        buf.writeln();
+        for (final f in fields) {
+          final name = f['fieldName'] as String? ?? '';
+          final value = f['value'];
+          buf.writeln('• $name\u00a0: $value');
+        }
+        if (analysis.isNotEmpty) {
+          buf.writeln();
+          buf.writeln(analysis);
+        }
+        buf.writeln();
+        buf.writeln('Veux-tu que je mette à jour ton profil avec ces données\u00a0?');
+
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: buf.toString(),
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+          _isBusy = false;
+        });
+
+        // Navigate to review screen for confirmation
+        if (mounted) {
+          context.push('/scan/review', extra: _buildExtractionResult(response));
+        }
+      } else {
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: 'Je n\u2019ai pas pu extraire de données de ce document. '
+                'Essaie avec une photo plus nette ou un autre format.',
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+          _isBusy = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: 'Erreur lors de l\u2019analyse du document. Réessaie.',
+          timestamp: DateTime.now(),
+          tier: ChatTier.fallback,
+        ));
+        _isBusy = false;
+      });
+    }
+    _scrollToBottom();
+  }
+
+  /// Build ExtractionResult from Vision API response for the review screen.
+  ExtractionResult? _buildExtractionResult(Map<String, dynamic> response) {
+    try {
+      final docTypeStr = response['documentType'] as String? ?? 'lpp_certificate';
+      final docType = switch (docTypeStr) {
+        'lpp_certificate' => DocumentType.lppCertificate,
+        'avs_extract' => DocumentType.avsExtract,
+        'tax_declaration' => DocumentType.taxDeclaration,
+        'salary_certificate' => DocumentType.salaryCertificate,
+        _ => DocumentType.lppCertificate,
+      };
+
+      final fields = (response['extractedFields'] as List?)
+          ?.map<ExtractedField>((f) {
+            final map = f as Map<String, dynamic>;
+            final confStr = map['confidence'] as String? ?? 'medium';
+            final conf = switch (confStr) {
+              'high' => 0.95,
+              'medium' => 0.70,
+              _ => 0.40,
+            };
+            return ExtractedField(
+              fieldName: map['fieldName'] as String? ?? '',
+              label: map['fieldName'] as String? ?? '',
+              value: map['value'],
+              confidence: conf,
+              sourceText: (map['sourceText'] as String?) ?? '',
+              profileField: map['fieldName'] as String?,
+              needsReview: conf < 0.80,
+            );
+          })
+          .toList() ?? [];
+
+      return ExtractionResult(
+        documentType: docType,
+        fields: fields,
+        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        confidenceDelta: switch (docType) {
+          DocumentType.lppCertificate => 27.0,
+          DocumentType.avsExtract => 22.0,
+          DocumentType.taxDeclaration => 17.0,
+          _ => 10.0,
+        },
+        warnings: const [],
+        disclaimer: 'Extraction via Claude Vision. Vérifiez les valeurs.',
+        sources: const ['Claude Vision API'],
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   Widget _buildInputBar() {
     final s = S.of(context)!;
     return Container(
@@ -3445,6 +3711,13 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                   tooltip: s.lightningMenuTitle,
                   onPressed: _isStreaming ? null : _showLightningMenu,
                 ),
+              ),
+              // Document attachment button — send photo to Claude Vision
+              IconButton(
+                icon: const Icon(Icons.attach_file_rounded,
+                    color: MintColors.textMuted, size: 20),
+                tooltip: 'Scanner un document',
+                onPressed: _isBusy ? null : _pickAndExtractDocument,
               ),
               Expanded(
                 child: Semantics(

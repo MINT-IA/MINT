@@ -451,8 +451,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      String extractedText = '';
+      // Strategy: Claude Vision (backend) FIRST, MLKit OCR as fallback.
+      // Vision understands Swiss document context, OCR only reads text.
+      final visionResult = await _tryVisionExtraction(file);
+      if (visionResult != null && mounted) {
+        await context.push('/scan/review', extra: visionResult);
+        return;
+      }
 
+      // Fallback: local MLKit OCR (for offline or when Vision fails)
+      String extractedText = '';
       if (!kIsWeb) {
         final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
         try {
@@ -486,6 +494,76 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
+  }
+
+  /// Try Claude Vision extraction via backend API.
+  /// Returns ExtractionResult if successful, null otherwise.
+  Future<ExtractionResult?> _tryVisionExtraction(XFile file) async {
+    try {
+      final bytes = await file.readAsBytes();
+      final base64Image = base64Encode(bytes);
+
+      final canton = Provider.of<CoachProfileProvider>(context, listen: false)
+          .profile?.canton;
+
+      final response = await DocumentService.extractWithVision(
+        imageBase64: base64Image,
+        documentType: _selectedType.name,
+        canton: canton,
+        languageHint: 'fr',
+      );
+
+      if (response == null) return null;
+
+      final extractedFields = (response['extractedFields'] as List?)
+          ?.map<ExtractedField>((f) {
+            final map = f as Map<String, dynamic>;
+            final conf = _parseConfidence(map['confidence'] as String?);
+            return ExtractedField(
+              fieldName: map['fieldName'] as String? ?? '',
+              label: map['fieldName'] as String? ?? '',
+              value: map['value'],
+              confidence: conf,
+              sourceText: (map['sourceText'] as String?) ?? '',
+              profileField: map['fieldName'] as String?,
+              needsReview: conf < 0.80,
+            );
+          })
+          .toList();
+
+      if (extractedFields == null || extractedFields.isEmpty) return null;
+
+      return ExtractionResult(
+        documentType: _selectedType,
+        fields: extractedFields,
+        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        confidenceDelta: _confidenceDeltaForType(_selectedType),
+        warnings: const [],
+        disclaimer: 'Extraction via Claude Vision. Vérifiez les valeurs.',
+        sources: const ['Claude Vision API'],
+      );
+    } catch (_) {
+      return null; // Graceful fallback to OCR
+    }
+  }
+
+  double _parseConfidence(String? level) {
+    return switch (level) {
+      'high' => 0.95,
+      'medium' => 0.70,
+      'low' => 0.40,
+      _ => 0.50,
+    };
+  }
+
+  double _confidenceDeltaForType(DocumentType type) {
+    return switch (type) {
+      DocumentType.lppCertificate => 27.0,
+      DocumentType.avsExtract => 22.0,
+      DocumentType.taxDeclaration => 17.0,
+      DocumentType.salaryCertificate => 20.0,
+      _ => 10.0,
+    };
   }
 
   Future<void> _processOcrText(String text) async {

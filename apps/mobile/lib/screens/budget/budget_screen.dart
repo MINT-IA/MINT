@@ -55,6 +55,9 @@ class _BudgetScreenState extends State<BudgetScreen>
   late AnimationController _staggerController;
   late Animation<double> _staggerAnimation;
   bool _hasError = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
 
   /// BudgetSnapshot from BudgetLivingEngine — provides the authoritative
   /// hero number (monthlyFree) consistent with PulseScreen.
@@ -64,7 +67,6 @@ class _BudgetScreenState extends State<BudgetScreen>
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('budget');
     _staggerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -74,6 +76,10 @@ class _BudgetScreenState extends State<BudgetScreen>
       curve: Curves.easeOutCubic,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('budget');
+      }
       try {
         context.read<BudgetProvider>().setInputs(widget.inputs);
         _staggerController.forward();
@@ -113,6 +119,36 @@ class _BudgetScreenState extends State<BudgetScreen>
     });
   }
 
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    final inputs = widget.inputs;
+    final chargesTotal = inputs.housingCost + inputs.healthInsurance +
+        inputs.taxProvision + inputs.otherFixedCosts;
+    ScreenCompletionTracker.markCompletedWithReturn('budget',
+      ScreenReturn.completed(
+        route: '/budget',
+        stepOutputs: {
+          'revenu_net': inputs.netIncome,
+          'charges_totales': chargesTotal,
+        },
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
+
   @override
   void dispose() {
     _staggerController.dispose();
@@ -120,6 +156,7 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   void _emitScreenReturn(Map<String, dynamic> updatedFields) {
+    if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final screenReturn = ScreenReturn.changedInputs(
       route: '/budget',
       updatedFields: updatedFields,
@@ -149,7 +186,11 @@ class _BudgetScreenState extends State<BudgetScreen>
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
         backgroundColor: MintColors.porcelaine,
@@ -421,7 +462,7 @@ class _BudgetScreenState extends State<BudgetScreen>
             ),
           );
         },
-      ))),
+      )))),
     );
   }
 

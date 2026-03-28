@@ -91,7 +91,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('lpp_deep');
     _heroController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -109,6 +108,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           _seqStepId = extra['stepId'] as String?;
         }
       } catch (_) {}
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('lpp_deep');
+      }
     });
   }
 

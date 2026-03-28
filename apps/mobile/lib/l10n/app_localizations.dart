@@ -17558,6 +17558,28 @@ abstract class S {
   /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
 
+  String get summaryCapaciteAchat;
+  String get summaryFondsPropres;
+  String get summaryRetraitEpl;
+  String get summaryImpactRente;
+  String get summaryImpotRetrait;
+  String get summaryMontantNet;
+  String get summaryVersementAnnuel;
+  String get summaryEconomieFiscale;
+  String get summaryGainEchelonnement;
+  String get summaryTauxRemplacement;
+  String get summaryEcartMensuel;
+  String get summaryEconomieRachat;
+  String get summaryRatioEndettement;
+  String get summaryMargeMensuelle;
+  String get summaryRevenuNet;
+  String get summaryChargesFixes;
+  String get summaryHorizonLiberation;
+  String get summaryVersementMensuel;
+  String get summaryDonneesLpp;
+  String get summaryEstimationSansCertificat;
+  String get summaryChoixRenteCapital;
+
   /// No description provided for @shellRecommendationsUpdated.
   ///
   /// In fr, this message translates to:
@@ -42977,6 +42999,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Préparation retraite'**
   String get sequenceRetirementGoal;
+
+  /// No description provided for @sequenceTensionGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortir d\'une tension'**
+  String get sequenceTensionGoal;
+
+  /// No description provided for @sequenceTensionStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostic endettement'**
+  String get sequenceTensionStep1;
+
+  /// No description provided for @sequenceTensionStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget ru00e9el'**
+  String get sequenceTensionStep2;
+
+  /// No description provided for @sequenceTensionStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan de remboursement'**
+  String get sequenceTensionStep3;
+
+  /// No description provided for @sequenceTensionStep4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ru00e9sumu00e9'**
+  String get sequenceTensionStep4;
 
   /// No description provided for @sequenceAllStepsComplete.
   ///
