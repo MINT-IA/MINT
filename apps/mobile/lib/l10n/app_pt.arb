@@ -11410,5 +11410,9 @@
   "chatDocError": "Erro ao analisar o documento. Tenta novamente.",
   "chatDocAttachTooltip": "Digitalizar um documento",
   "seasonalLamalTitle": "Novos prémios LAMal",
-  "seasonalLamalDesc": "Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é ótima."
+  "seasonalLamalDesc": "Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é ótima.",
+  "extractionWhoseDocument": "De quem é este documento?",
+  "extractionWhoseDocumentBody": "Tens um perfil de casal. Este documento é teu ou do teu parceiro?",
+  "extractionDocMine": "É meu",
+  "extractionDocPartner": "É do meu parceiro"
 }

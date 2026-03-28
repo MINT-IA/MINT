@@ -9788,6 +9788,18 @@ class SDe extends S {
   String get shellWelcomeBack => 'Wieder da. Deine Zahlen sind aktuell.';
 
   @override
+  String get extractionWhoseDocument => 'Wessen Dokument ist das?';
+
+  @override
+  String get extractionWhoseDocumentBody => 'Du hast ein Paar-Profil. Gehört dieses Dokument dir oder deinem Partner?';
+
+  @override
+  String get extractionDocMine => 'Es ist meins';
+
+  @override
+  String get extractionDocPartner => 'Es gehört meinem Partner';
+
+  @override
   String get chatPickPhoto => 'Foto aufnehmen';
 
   @override

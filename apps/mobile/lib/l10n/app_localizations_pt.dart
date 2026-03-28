@@ -9781,6 +9781,18 @@ class SPt extends S {
   String get shellWelcomeBack => 'De volta. Os teus números estão atualizados.';
 
   @override
+  String get extractionWhoseDocument => 'De quem é este documento?';
+
+  @override
+  String get extractionWhoseDocumentBody => 'Tens um perfil de casal. Este documento é teu ou do teu parceiro?';
+
+  @override
+  String get extractionDocMine => 'É meu';
+
+  @override
+  String get extractionDocPartner => 'É do meu parceiro';
+
+  @override
   String get chatPickPhoto => 'Tirar uma foto';
 
   @override

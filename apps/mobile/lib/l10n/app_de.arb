@@ -11416,5 +11416,9 @@
   "chatDocError": "Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.",
   "chatDocAttachTooltip": "Dokument scannen",
   "seasonalLamalTitle": "Neue KVG-Prämien",
-  "seasonalLamalDesc": "Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch optimal ist."
+  "seasonalLamalDesc": "Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch optimal ist.",
+  "extractionWhoseDocument": "Wessen Dokument ist das?",
+  "extractionWhoseDocumentBody": "Du hast ein Paar-Profil. Gehört dieses Dokument dir oder deinem Partner?",
+  "extractionDocMine": "Es ist meins",
+  "extractionDocPartner": "Es gehört meinem Partner"
 }

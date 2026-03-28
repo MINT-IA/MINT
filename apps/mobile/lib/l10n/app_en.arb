@@ -11444,5 +11444,9 @@
   "chatDocError": "Error analyzing document. Please try again.",
   "chatDocAttachTooltip": "Scan a document",
   "seasonalLamalTitle": "New LAMal premiums",
-  "seasonalLamalDesc": "2027 premiums are published. Check if your franchise is still optimal."
+  "seasonalLamalDesc": "2027 premiums are published. Check if your franchise is still optimal.",
+  "extractionWhoseDocument": "Whose document is this?",
+  "extractionWhoseDocumentBody": "You have a couple profile. Is this document yours or your partner's?",
+  "extractionDocMine": "It's mine",
+  "extractionDocPartner": "It's my partner's"
 }
