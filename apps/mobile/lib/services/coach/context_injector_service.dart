@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
+import 'package:mint_mobile/services/product_cohort_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart'
     as lifecycle_v2;
@@ -161,6 +162,16 @@ class ContextInjectorService {
       final literacyDirective = _literacyDirective(profile.financialLiteracyLevel);
       lifecycleBlock = adaptation.coachSystemPromptAddition +
           (literacyDirective.isNotEmpty ? '\n$literacyDirective' : '');
+
+      // Product cohort: suppressed topics (Anti-Bullshit Manifesto §6).
+      // Tells the LLM which subjects to NEVER suggest for this user.
+      final cohortResult = ProductCohortService.resolve(profile);
+      if (cohortResult.suppressedTopics.isNotEmpty) {
+        lifecycleBlock += '\n\nSUJETS INTERDITS pour cet utilisateur '
+            '(cohorte ${cohortResult.cohort.name}):\n'
+            '${cohortResult.suppressedTopics.map((t) => '- $t').join('\n')}\n'
+            'Ne JAMAIS suggérer ces sujets, même si l\'utilisateur demande.';
+      }
     }
 
     // Load cross-session insights from the new CoachMemoryService (S58).

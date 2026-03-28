@@ -199,5 +199,14 @@ void main() {
       expect(result.suppressedTopics, contains('lpp_buyback'));
       expect(result.lifecycle.tone, LifecycleTone.simple);
     });
+
+    // 18th assertion: cross-cohort consistency check
+    test('densification has NO suppressed topics (full access to all tools)', () {
+      final fullAccess = _persona(birthYear: 1984, salaire: 10000);
+      final result = ProductCohortService.resolve(fullAccess);
+      expect(result.cohort, ProductCohort.densification);
+      expect(result.suppressedTopics, isEmpty,
+          reason: 'Densification (38-52) should have unrestricted access');
+    });
   });
 }

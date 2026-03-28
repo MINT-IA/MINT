@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/product_cohort_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -385,6 +386,14 @@ class CapEngine {
         captureType: 'profile',
         confidenceLabel: l.capMissingPieceConfidenceLabel(confidence.score.round().toString()),
       );
+    }
+
+    // Filter out caps that conflict with the user's cohort (Anti-Bullshit §6).
+    // A 22yo should never see succession as a priority cap.
+    final cohortResult = ProductCohortService.resolve(profile);
+    if (cohortResult.suppressedTopics.isNotEmpty) {
+      candidates.removeWhere((c) =>
+          cohortResult.suppressedTopics.any((topic) => c.id.contains(topic)));
     }
 
     // Sort by priority and return the winner.
