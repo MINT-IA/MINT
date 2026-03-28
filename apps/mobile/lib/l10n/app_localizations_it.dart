@@ -24409,6 +24409,21 @@ class SIt extends S {
   String get sequenceRetirementGoal => 'Preparazione pensionamento';
 
   @override
+  String get sequenceTensionGoal => 'Risolvere tensione finanziaria';
+
+  @override
+  String get sequenceTensionStep1 => 'Diagnosi debito';
+
+  @override
+  String get sequenceTensionStep2 => 'Budget reale';
+
+  @override
+  String get sequenceTensionStep3 => 'Piano di rimborso';
+
+  @override
+  String get sequenceTensionStep4 => 'Riepilogo';
+
+  @override
   String get sequenceAllStepsComplete => 'Tutte le fasi completate';
 
   @override

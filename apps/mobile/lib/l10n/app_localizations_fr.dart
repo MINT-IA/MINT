@@ -24363,6 +24363,21 @@ class SFr extends S {
   String get sequenceRetirementGoal => 'Préparation retraite';
 
   @override
+  String get sequenceTensionGoal => 'Sortir d\'une tension';
+
+  @override
+  String get sequenceTensionStep1 => 'Diagnostic endettement';
+
+  @override
+  String get sequenceTensionStep2 => 'Budget ru00e9el';
+
+  @override
+  String get sequenceTensionStep3 => 'Plan de remboursement';
+
+  @override
+  String get sequenceTensionStep4 => 'Ru00e9sumu00e9';
+
+  @override
   String get sequenceAllStepsComplete => 'Toutes les étapes terminées';
 
   @override
