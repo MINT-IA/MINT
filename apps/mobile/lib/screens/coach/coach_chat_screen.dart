@@ -1216,6 +1216,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             .trim();
       }
 
+      // Client-side compliance filter for BYOK path (backend handles its own).
+      // Strips banned terms that the LLM might generate without server-side guard.
+      baseMessage = _clientSideComplianceFilter(baseMessage);
+
       // Prepend visible memory reference when available (Cleo-style recall).
       final displayMessage = _prependMemoryRef(baseMessage, memoryRef);
 
@@ -2237,6 +2241,26 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   ///   - [ref] is null (no relevant past insight found).
   ///   - Localizations are unavailable.
   ///   - Resolution throws unexpectedly (graceful degradation).
+  /// Client-side compliance filter for BYOK responses.
+  /// The backend ComplianceGuard handles server-side responses.
+  /// This catches banned terms that might slip through BYOK path.
+  static String _clientSideComplianceFilter(String text) {
+    // CLAUDE.md §6: Banned Terms
+    const banned = [
+      'garanti', 'certain', 'assuré', 'sans risque',
+      'optimal', 'meilleur', 'parfait',
+    ];
+    var filtered = text;
+    for (final term in banned) {
+      // Replace absolute claims with softer language
+      filtered = filtered.replaceAll(
+        RegExp('\\b$term\\b', caseSensitive: false),
+        'envisageable',
+      );
+    }
+    return filtered;
+  }
+
   String _prependMemoryRef(String responseText, MemoryReference? ref) {
     if (ref == null) return responseText;
     try {

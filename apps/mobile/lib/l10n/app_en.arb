@@ -11472,5 +11472,6 @@
   "sequencePreretraiteStep8": "Succession",
   "sequencePreretraiteStep9": "Retirement budget",
   "sequencePreretraiteStep10": "Withdrawal plan",
-  "sequencePreretraiteStep11": "Summary"
+  "sequencePreretraiteStep11": "Summary",
+  "proactiveContractDeadline": "Reminder: {label} is due in {days} days. Plan ahead."
 }

@@ -643,7 +643,7 @@ async def extract_with_claude_vision(
 
     logger.info(
         "Vision extraction: user=%s type=%s canton=%s",
-        current_user.id,
+        str(current_user.id)[:8] + "...",  # Truncate PII
         body.document_type.value,
         body.canton,
     )
