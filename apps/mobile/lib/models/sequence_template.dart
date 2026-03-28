@@ -198,6 +198,110 @@ class SequenceTemplate {
     ],
   );
 
+  /// Pré-retraite complète (11 étapes) — cohorte 53-64.
+  ///
+  /// Parcours flagship pré-retraite selon COHORT_OS_SPEC.md.
+  /// Phase 1: Clarifier (scan LPP, AVS, 3a recap)
+  /// Phase 2: Arbitrer (rente vs capital, 3a retrait, hypothèque)
+  /// Phase 3: Préparer (rachat LPP, LAMal, succession)
+  /// Phase 4: Agir (budget post-retraite, résumé)
+  static const preretraiteComplete = SequenceTemplate(
+    id: 'preretraite_complete',
+    goalLabelKey: 'sequencePreretraiteGoal',
+    steps: [
+      // Phase 1: Clarifier
+      SequenceStepDef(
+        id: 'pre_01_projection',
+        order: 1,
+        intentTag: 'retirement_projection',
+        titleKey: 'sequencePreretraiteStep1',
+        outputMapping: {
+          'taux_remplacement': 'taux_remplacement',
+          'gap_mensuel': 'gap_mensuel',
+        },
+      ),
+      SequenceStepDef(
+        id: 'pre_02_3a',
+        order: 2,
+        intentTag: 'simulator_3a',
+        titleKey: 'sequencePreretraiteStep2',
+        outputMapping: {
+          'contribution_annuelle': 'contribution_annuelle',
+          'economie_fiscale': 'economie_fiscale',
+        },
+      ),
+      // Phase 2: Arbitrer
+      SequenceStepDef(
+        id: 'pre_03_choice',
+        order: 3,
+        intentTag: 'retirement_choice',
+        titleKey: 'sequencePreretraiteStep3',
+        outputMapping: {'decision_mixte': 'decision_mixte'},
+      ),
+      SequenceStepDef(
+        id: 'pre_04_withdrawal',
+        order: 4,
+        intentTag: 'tax_optimization_3a',
+        titleKey: 'sequencePreretraiteStep4',
+        outputMapping: {'gain_echelonnement': 'gain_echelonnement'},
+      ),
+      SequenceStepDef(
+        id: 'pre_05_mortgage',
+        order: 5,
+        intentTag: 'mortgage_amortization',
+        titleKey: 'sequencePreretraiteStep5',
+        isOptional: true,
+      ),
+      // Phase 3: Préparer
+      SequenceStepDef(
+        id: 'pre_06_buyback',
+        order: 6,
+        intentTag: 'lpp_buyback',
+        titleKey: 'sequencePreretraiteStep6',
+        outputMapping: {'economie_rachat': 'economie_rachat'},
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'pre_07_lamal',
+        order: 7,
+        intentTag: 'lamal_franchise',
+        titleKey: 'sequencePreretraiteStep7',
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'pre_08_succession',
+        order: 8,
+        intentTag: 'succession_patrimoine',
+        titleKey: 'sequencePreretraiteStep8',
+        isOptional: true,
+      ),
+      // Phase 4: Agir
+      SequenceStepDef(
+        id: 'pre_09_budget',
+        order: 9,
+        intentTag: 'budget_overview',
+        titleKey: 'sequencePreretraiteStep9',
+        outputMapping: {
+          'revenu_net': 'revenu_net_retraite',
+          'charges_totales': 'charges_retraite',
+        },
+      ),
+      SequenceStepDef(
+        id: 'pre_10_decaissement',
+        order: 10,
+        intentTag: 'withdrawal_sequencing',
+        titleKey: 'sequencePreretraiteStep10',
+      ),
+      SequenceStepDef(
+        id: 'pre_11_summary',
+        order: 11,
+        intentTag: '_inline_summary',
+        titleKey: 'sequencePreretraiteStep11',
+        isOptional: true,
+      ),
+    ],
+  );
+
   /// Sortir d'une tension financière (4 étapes)
   ///
   /// Parcours flagship #2 — douleur réelle, forte fréquence.
@@ -256,6 +360,7 @@ class SequenceTemplate {
     return switch (intentTag) {
       'housing_purchase' => housingPurchase,
       'retirement_choice' || 'retirement_projection' => retirementPrep,
+      'preretraite_complete' => preretraiteComplete,
       'simulator_3a' || 'tax_optimization_3a' => optimize3a,
       'debt_ratio' || 'debt_repayment' || 'debt_risk_check' => financialTension,
       _ => null,

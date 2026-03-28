@@ -9807,6 +9807,9 @@ class SIt extends S {
   String get shellWelcomeBack => 'Bentornato. I tuoi numeri sono aggiornati.';
 
   @override
+  String get sequencePreretraiteGoal => 'Prepare my retirement';
+
+  @override
   String get capCoachPromptDebt => 'Aiutami prioritize my debt repayment. Where should I start?';
 
   @override
