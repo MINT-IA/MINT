@@ -208,5 +208,25 @@ void main() {
       expect(result.suppressedTopics, isEmpty,
           reason: 'Densification (38-52) should have unrestricted access');
     });
+
+    // Audit fix: verify housing suppression catches camelCase life event IDs
+    test('72yo with housingPurchase event → housing_purchase is suppressed', () {
+      final christiane = _persona(
+        birthYear: 1954, salaire: 0, employment: 'retraite',
+      );
+      final result = ProductCohortService.resolve(christiane);
+      expect(result.suppressedTopics, contains('housing_purchase'),
+          reason: '72yo must suppress housing_purchase regardless of life events');
+    });
+
+    // Verify suppression is "don't push" not "refuse to help"
+    test('24yo suppresses retirement_deep but NOT all retirement', () {
+      final alex = _persona(birthYear: 2002);
+      final result = ProductCohortService.resolve(alex);
+      expect(result.suppressedTopics, contains('retirement_deep'));
+      // retirement_deep is suppressed, but basic education is not blocked
+      expect(result.suppressedTopics, isNot(contains('retirement_basic')),
+          reason: 'Basic retirement education should not be blocked');
+    });
   });
 }
