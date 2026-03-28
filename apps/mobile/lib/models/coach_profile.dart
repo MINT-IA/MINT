@@ -277,6 +277,7 @@ class PrevoyanceProfile {
 
   // --- AVS (from extraction) ---
   final double? ramd; // revenu annuel moyen determinant (AVS)
+  final int? bonificationsEducatives; // LAVS art. 29sexies (years of child-rearing credits)
 
   // --- 3a ---
   final int nombre3a; // nombre de comptes 3a
@@ -302,6 +303,7 @@ class PrevoyanceProfile {
     this.rendementCaisse = 0.02,
     this.salaireAssure,
     this.ramd,
+    this.bonificationsEducatives,
     this.nombre3a = 0,
     this.totalEpargne3a = 0,
     this.comptes3a = const [],
@@ -368,6 +370,7 @@ class PrevoyanceProfile {
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
       salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
       ramd: (json['ramd'] as num?)?.toDouble(),
+      bonificationsEducatives: json['bonificationsEducatives'] as int?,
       nombre3a: json['nombre3a'] ?? 0,
       totalEpargne3a: (json['totalEpargne3a'] as num?)?.toDouble() ?? 0,
       comptes3a: (json['comptes3a'] as List?)
@@ -397,6 +400,7 @@ class PrevoyanceProfile {
         'rendementCaisse': rendementCaisse,
         'salaireAssure': salaireAssure,
         'ramd': ramd,
+        'bonificationsEducatives': bonificationsEducatives,
         'nombre3a': nombre3a,
         'totalEpargne3a': totalEpargne3a,
         'comptes3a': comptes3a.map((c) => c.toJson()).toList(),
