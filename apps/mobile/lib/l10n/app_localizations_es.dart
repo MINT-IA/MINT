@@ -9781,6 +9781,15 @@ class SEs extends S {
   String get shellWelcomeBack => 'De vuelta. Tus números están al día.';
 
   @override
+  String get seasonalLamalTitle => 'Nuevas primas LAMal';
+
+  @override
+  String get seasonalLamalDesc => 'Las primas 2027 están publicadas. Verifica si tu franquicia sigue siendo óptima.';
+
+  @override
+  String proactiveContractDeadline(String label, String days) => 'Recordatorio: \$label vence en \$days días. Planifica con anticipación.';
+
+  @override
   String get extractionWhoseDocument => '¿De quién es este documento?';
 
   @override
