@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -42,8 +43,13 @@ import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
+import 'package:mint_mobile/services/document_service.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_summary_builder.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -3458,6 +3464,208 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   //  INPUT BAR
   // ════════════════════════════════════════════════════════════
 
+  /// Pick a document (photo, PDF, or file) and extract via Claude Vision.
+  /// Accepts: images (JPEG, PNG), PDF, DOCX.
+  /// The extracted data is shown in the chat and user confirms to update profile.
+  Future<void> _pickAndExtractDocument() async {
+    // Show bottom sheet with options: camera, gallery, file
+    final source = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Prendre une photo'),
+              onTap: () => Navigator.pop(ctx, 'camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choisir une image'),
+              onTap: () => Navigator.pop(ctx, 'gallery'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: const Text('Fichier (PDF, DOCX)'),
+              onTap: () => Navigator.pop(ctx, 'file'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    Uint8List? bytes;
+    String? fileName;
+
+    if (source == 'camera' || source == 'gallery') {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: source == 'camera' ? ImageSource.camera : ImageSource.gallery,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 85,
+      );
+      if (image == null || !mounted) return;
+      bytes = await image.readAsBytes();
+      fileName = image.name;
+    } else {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'docx', 'doc', 'jpg', 'jpeg', 'png'],
+      );
+      if (result == null || result.files.isEmpty || !mounted) return;
+      final file = result.files.first;
+      if (file.bytes != null) {
+        bytes = file.bytes!;
+      } else if (file.path != null) {
+        bytes = await File(file.path!).readAsBytes();
+      }
+      fileName = file.name;
+    }
+
+    if (bytes == null || !mounted) return;
+
+    // Show processing message
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'user',
+        content: '📎 ${fileName ?? "Document"} envoyé pour analyse',
+        timestamp: DateTime.now(),
+      ));
+      _isBusy = true;
+    });
+    _scrollToBottom();
+
+    try {
+      final base64Image = base64Encode(bytes);
+
+      final canton = context.read<CoachProfileProvider>().profile?.canton;
+
+      // Call Claude Vision via backend
+      final response = await DocumentService.extractWithVision(
+        imageBase64: base64Image,
+        documentType: 'lpp_certificate', // Default — Vision auto-detects
+        canton: canton,
+        languageHint: 'fr',
+      );
+
+      if (!mounted) return;
+
+      if (response != null && (response['extractedFields'] as List?)?.isNotEmpty == true) {
+        final fields = response['extractedFields'] as List;
+        final analysis = response['rawAnalysis'] as String? ?? '';
+        final docType = response['documentType'] as String? ?? 'document';
+
+        // Build a human-readable summary for the chat
+        final buf = StringBuffer();
+        buf.writeln('J\u2019ai analysé ton $docType. Voici ce que j\u2019ai trouvé\u00a0:');
+        buf.writeln();
+        for (final f in fields) {
+          final name = f['fieldName'] as String? ?? '';
+          final value = f['value'];
+          buf.writeln('• $name\u00a0: $value');
+        }
+        if (analysis.isNotEmpty) {
+          buf.writeln();
+          buf.writeln(analysis);
+        }
+        buf.writeln();
+        buf.writeln('Veux-tu que je mette à jour ton profil avec ces données\u00a0?');
+
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: buf.toString(),
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+          _isBusy = false;
+        });
+
+        // Navigate to review screen for confirmation
+        if (mounted) {
+          context.push('/scan/review', extra: _buildExtractionResult(response));
+        }
+      } else {
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content: 'Je n\u2019ai pas pu extraire de données de ce document. '
+                'Essaie avec une photo plus nette ou un autre format.',
+            timestamp: DateTime.now(),
+            tier: ChatTier.fallback,
+          ));
+          _isBusy = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: 'Erreur lors de l\u2019analyse du document. Réessaie.',
+          timestamp: DateTime.now(),
+          tier: ChatTier.fallback,
+        ));
+        _isBusy = false;
+      });
+    }
+    _scrollToBottom();
+  }
+
+  /// Build ExtractionResult from Vision API response for the review screen.
+  ExtractionResult? _buildExtractionResult(Map<String, dynamic> response) {
+    try {
+      final docTypeStr = response['documentType'] as String? ?? 'lpp_certificate';
+      final docType = switch (docTypeStr) {
+        'lpp_certificate' => DocumentType.lppCertificate,
+        'avs_extract' => DocumentType.avsExtract,
+        'tax_declaration' => DocumentType.taxDeclaration,
+        'salary_certificate' => DocumentType.salaryCertificate,
+        _ => DocumentType.lppCertificate,
+      };
+
+      final fields = (response['extractedFields'] as List?)
+          ?.map<ExtractedField>((f) {
+            final map = f as Map<String, dynamic>;
+            final confStr = map['confidence'] as String? ?? 'medium';
+            final conf = switch (confStr) {
+              'high' => 0.95,
+              'medium' => 0.70,
+              _ => 0.40,
+            };
+            return ExtractedField(
+              fieldName: map['fieldName'] as String? ?? '',
+              label: map['fieldName'] as String? ?? '',
+              value: map['value'],
+              confidence: conf,
+              sourceText: (map['sourceText'] as String?) ?? '',
+              profileField: map['fieldName'] as String?,
+              needsReview: conf < 0.80,
+            );
+          })
+          .toList() ?? [];
+
+      return ExtractionResult(
+        documentType: docType,
+        fields: fields,
+        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        confidenceDelta: switch (docType) {
+          DocumentType.lppCertificate => 27.0,
+          DocumentType.avsExtract => 22.0,
+          DocumentType.taxDeclaration => 17.0,
+          _ => 10.0,
+        },
+        warnings: const [],
+        disclaimer: 'Extraction via Claude Vision. Vérifiez les valeurs.',
+        sources: const ['Claude Vision API'],
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   Widget _buildInputBar() {
     final s = S.of(context)!;
     return Container(
@@ -3485,6 +3693,13 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                   tooltip: s.lightningMenuTitle,
                   onPressed: _isStreaming ? null : _showLightningMenu,
                 ),
+              ),
+              // Document attachment button — send photo to Claude Vision
+              IconButton(
+                icon: const Icon(Icons.attach_file_rounded,
+                    color: MintColors.textMuted, size: 20),
+                tooltip: 'Scanner un document',
+                onPressed: _isBusy ? null : _pickAndExtractDocument,
               ),
               Expanded(
                 child: Semantics(
