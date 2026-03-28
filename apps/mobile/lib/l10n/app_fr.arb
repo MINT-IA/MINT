@@ -11919,5 +11919,6 @@
   "sequencePreretraiteStep8": "Succession",
   "sequencePreretraiteStep9": "Budget retraite",
   "sequencePreretraiteStep10": "Décaissement",
-  "sequencePreretraiteStep11": "Résumé"
+  "sequencePreretraiteStep11": "Résumé",
+  "proactiveContractDeadline": "Rappel : {label} arrive dans {days} jours. Pense à anticiper."
 }

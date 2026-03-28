@@ -161,6 +161,7 @@ def extract_with_vision(
         response = client.messages.create(
             model=settings.COACH_MODEL,
             max_tokens=2000,
+            timeout=30.0,  # 30s timeout to prevent worker blocking
             system=system_prompt,
             messages=[
                 {
