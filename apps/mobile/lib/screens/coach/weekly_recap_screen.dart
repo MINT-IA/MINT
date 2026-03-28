@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/recap/recap_formatter.dart';
 import 'package:mint_mobile/services/recap/weekly_recap_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -65,6 +66,8 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
 
     try {
       final prefs = await SharedPreferences.getInstance();
+      // Mark recap as seen so the Monday proactive trigger doesn't re-fire.
+      await ProactiveTriggerService.markRecapSeen(prefs);
       final recap = await WeeklyRecapService.generate(
         profile: profile,
         prefs: prefs,
