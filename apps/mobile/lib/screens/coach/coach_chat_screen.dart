@@ -2087,15 +2087,29 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
       // Build a context-rich summary from the real simulation data.
       final buf = StringBuffer();
-      buf.write('Je viens de simuler ${pending.route}');
-      if (pending.updatedFields != null && pending.updatedFields!.isNotEmpty) {
-        final highlights = pending.updatedFields!.entries
-            .take(3)
-            .map((e) => '${e.key}: ${e.value}')
-            .join(', ');
-        buf.write(' ($highlights)');
+      // Special handling for document scan returns — human-readable delta.
+      if (pending.route == '/scan/impact' &&
+          pending.updatedFields?['scannedDocument'] != null) {
+        final doc = pending.updatedFields!['scannedDocument'];
+        final delta = pending.updatedFields!['confidenceDelta'];
+        final newConf = pending.updatedFields!['newConfidence'];
+        buf.write('Je viens de scanner mon $doc. ');
+        if (delta is num && delta > 0) {
+          buf.write('Ma précision a gagné +$delta points');
+          if (newConf is num) buf.write(' ($newConf\u00a0%)');
+          buf.write('.');
+        }
+      } else {
+        buf.write('Je viens de simuler ${pending.route}');
+        if (pending.updatedFields != null && pending.updatedFields!.isNotEmpty) {
+          final highlights = pending.updatedFields!.entries
+              .take(3)
+              .map((e) => '${e.key}: ${e.value}')
+              .join(', ');
+          buf.write(' ($highlights)');
+        }
+        buf.write('.');
       }
-      buf.write('.');
 
       _sendMessage(buf.toString());
     });
