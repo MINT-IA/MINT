@@ -14,6 +14,7 @@ import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
 
@@ -133,7 +134,18 @@ class SequenceChatHandler {
     }
 
     // Guard 3: idempotence — this exact event was already processed.
-    if (run.isEventProcessed(ret.eventId)) return null;
+    if (run.isEventProcessed(ret.eventId)) {
+      AnalyticsService().trackEvent(
+        'duplicate_event_dropped',
+        category: 'sequence',
+        data: {
+          'run_id': run.runId,
+          'step_id': ret.stepId,
+          'event_id': ret.eventId,
+        },
+      );
+      return null;
+    }
 
     final template = _templateById(run.templateId);
     if (template == null) return null;

@@ -1938,7 +1938,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     try {
       final seqResult = await SequenceChatHandler.handleStepReturn(outcome);
       if (seqResult != null) {
-        // Sequence consumed — render action, skip legacy entirely.
+        // Sequence consumed via fallback path (not realtime).
+        AnalyticsService().trackEvent(
+          'fallback_used',
+          category: 'sequence',
+          data: {
+            'run_id': seqResult.updatedRun.runId,
+            'step_id': seqResult.updatedRun.activeStepId,
+            'reason': 'realtime_not_received',
+          },
+          screenName: 'coach_chat',
+        );
         if (!mounted) return;
         _renderSequenceAction(seqResult);
         _scrollToBottom();
