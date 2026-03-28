@@ -991,3 +991,64 @@ async def coach_chat(
         tokens_used=loop_result["tokens_used"],
         system_prompt_used=True,
     )
+
+
+# ════════════════════════════════════════════════════════════
+#  INSIGHT SYNC — Mobile → Backend → pgvector
+# ════════════════════════════════════════════════════════════
+
+from pydantic import BaseModel as _BaseModel
+
+
+class _InsightSyncRequest(_BaseModel):
+    """Payload to embed a CoachInsight into the RAG vector store."""
+    insight_id: str
+    topic: str
+    summary: str
+    insight_type: str  # goal, decision, concern, fact
+    metadata: Optional[dict] = None
+    created_at: Optional[str] = None  # ISO8601
+
+
+class _InsightSyncResponse(_BaseModel):
+    embedded: bool
+    message: str
+
+
+@router.post("/sync-insight", response_model=_InsightSyncResponse)
+async def sync_insight(
+    body: _InsightSyncRequest,
+    current_user=Depends(require_current_user),
+):
+    """Sync a CoachInsight from mobile to the RAG vector store.
+
+    Called when the mobile app saves an insight (sequence completion,
+    document scan, coach conversation). The insight is embedded and
+    stored in pgvector so the coach can retrieve it semantically
+    in future sessions.
+
+    Privacy: summary must be PII-free (ranges only, no exact values).
+    """
+    from app.services.rag.insight_embedder import embed_insight
+    from datetime import datetime
+
+    created = None
+    if body.created_at:
+        try:
+            created = datetime.fromisoformat(body.created_at)
+        except (ValueError, TypeError):
+            pass
+
+    success = await embed_insight(
+        insight_id=body.insight_id,
+        topic=body.topic,
+        summary=body.summary,
+        insight_type=body.insight_type,
+        metadata=body.metadata,
+        created_at=created,
+    )
+
+    return _InsightSyncResponse(
+        embedded=success,
+        message="Insight embedded in RAG" if success else "Embedding skipped (no vector store)",
+    )

@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH MEMORY SERVICE — S58 / AI Memory
@@ -58,6 +62,37 @@ class CoachMemoryService {
 
     await _save(sp, insights);
     await prune(prefs: sp);
+
+    // Sync to backend RAG vector store (fire-and-forget, Phase 3.1).
+    // Embeds the insight so the coach can retrieve it semantically.
+    _syncToBackend(insight).catchError((_) {});
+  }
+
+  /// Sync insight to backend for RAG embedding (fire-and-forget).
+  static Future<void> _syncToBackend(CoachInsight insight) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return;
+
+      await http.post(
+        Uri.parse('$baseUrl/api/v1/coach/chat/sync-insight'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'insight_id': insight.id,
+          'topic': insight.topic,
+          'summary': insight.summary,
+          'insight_type': insight.type.name,
+          if (insight.metadata != null) 'metadata': insight.metadata,
+          'created_at': insight.createdAt.toUtc().toIso8601String(),
+        }),
+      );
+    } catch (_) {
+      // Fire-and-forget: sync failure is not user-facing.
+    }
   }
 
   // ── Read ─────────────────────────────────────────────────
