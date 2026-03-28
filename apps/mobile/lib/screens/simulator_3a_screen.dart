@@ -57,12 +57,14 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   void initState() {
     super.initState();
     _contributionCtrl = TextEditingController();
-    ReportPersistenceService.markSimulatorExplored('3a');
     _initializeFromProfile();
     _contributionCtrl.text = _annualContribution.round().toString();
     _calculate();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('3a');
+      }
     });
   }
 
