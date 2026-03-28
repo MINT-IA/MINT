@@ -224,7 +224,7 @@ List<SequenceSummaryItem> _buildTensionSummary(
     items.add(SequenceSummaryItem(
       icon: Icons.speed_outlined,
       label: l.summaryRatioEndettement,
-      value: '${(ratio * 100).toStringAsFixed(0)}\u00a0%',
+      value: '${ratio.toStringAsFixed(0)}\u00a0%',
     ));
   }
   final marge = step1?['marge_mensuelle'];
