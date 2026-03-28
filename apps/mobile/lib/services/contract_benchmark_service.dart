@@ -70,10 +70,11 @@ class ContractBenchmarkService {
       deadline: d,
       benchmarkMessage: diff > 200
           ? 'Ton loyer est CHF\u00a0${loyer.round()}/mois. '
-            'La moyenne cantonale (${profile.canton}) est ~CHF\u00a0${avgRent.round()}.'
+            'La moyenne cantonale (${profile.canton}) est ~CHF\u00a0${avgRent.round()}. '
+            'Ce chiffre est indicatif (source\u00a0: OFS 2023).'
           : null,
-      estimatedMonthlySavings: diff > 200 ? diff : null,
-      actionRoute: '/mortgage/amortization',
+      // No estimatedMonthlySavings for rent — not directly actionable
+      actionRoute: '/budget', // Route to budget, not mortgage (user is renter)
     );
   }
 
@@ -98,7 +99,8 @@ class ContractBenchmarkService {
         deadline: d,
         benchmarkMessage: 'Tu as un potentiel de rachat LPP '
             'de ~CHF\u00a0${rachat.round()}. '
-            'C\u2019est une opportunité d\u2019optimisation fiscale.',
+            'Un rachat pourrait réduire ton imposition — '
+            'à vérifier avec ta caisse (art.\u00a079b LPP, blocage EPL 3\u00a0ans).',
         actionRoute: '/rachat-lpp',
       );
     }

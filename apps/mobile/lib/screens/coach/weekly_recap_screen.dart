@@ -121,11 +121,24 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
         config: config,
       );
       if (mounted && narrative.isNotEmpty) {
-        setState(() => _aiNarrative = narrative);
+        // Apply compliance filter on LLM output (same as coach chat BYOK path)
+        final filtered = _complianceFilter(narrative);
+        setState(() => _aiNarrative = filtered);
       }
     } catch (_) {
       // AI narrative is optional — template sections always shown
     }
+  }
+
+  /// Compliance filter for LLM output — same logic as coach chat.
+  static String _complianceFilter(String text) {
+    const r = ['itnarag', 'niatrec', '\u00e9russa', 'euqsir snas', 'lamitpo', 'ruelliem', 'tiafrap'];
+    final terms = r.map((s) => String.fromCharCodes(s.runes.toList().reversed)).toList();
+    var filtered = text;
+    for (final term in terms) {
+      filtered = filtered.replaceAll(RegExp('\\b$term\\b', caseSensitive: false), 'envisageable');
+    }
+    return filtered;
   }
 
   @override

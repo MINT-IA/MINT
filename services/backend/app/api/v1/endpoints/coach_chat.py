@@ -1016,8 +1016,10 @@ class _InsightSyncResponse(_BaseModel):
 
 
 @router.post("/sync-insight", response_model=_InsightSyncResponse)
+@limiter.limit("30/minute")
 async def sync_insight(
     body: _InsightSyncRequest,
+    request: Request,
     current_user=Depends(require_current_user),
 ):
     """Sync a CoachInsight from mobile to the RAG vector store.
