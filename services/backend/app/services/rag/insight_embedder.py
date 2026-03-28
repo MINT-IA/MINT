@@ -54,8 +54,11 @@ async def embed_insight(
         import asyncpg
         import httpx
 
+        # Truncate summary to 8000 chars (OpenAI embedding max ~8191 tokens)
+        safe_summary = summary[:8000] if len(summary) > 8000 else summary
+
         # Generate embedding via OpenAI
-        embedding = await _generate_embedding(summary, openai_key)
+        embedding = await _generate_embedding(safe_summary, openai_key)
         if embedding is None:
             return False
 

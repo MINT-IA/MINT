@@ -31,6 +31,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/contract_alert_service.dart';
+import 'package:mint_mobile/services/contract_benchmark_service.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
@@ -170,7 +171,7 @@ class ProactiveTriggerService {
     trigger ??= _checkInactivityReturn(prefs, profile, currentDate);
     trigger ??= _checkConfidenceImproved(prefs, profile, currentDate);
     trigger ??= await _checkNewCapAvailable(prefs, currentDate);
-    trigger ??= await _checkContractDeadlines(currentDate);
+    trigger ??= await _checkContractDeadlines(currentDate, profile: profile);
 
     // ── Per-type engagement suppression ─────────────────────
     // If the user has consistently ignored this trigger type,
@@ -523,14 +524,27 @@ class ProactiveTriggerService {
   }
 
   /// Check if any contract deadline is approaching.
+  /// Enriches with benchmark data when profile available.
   static Future<ProactiveTrigger?> _checkContractDeadlines(
-    DateTime now,
-  ) async {
+    DateTime now, {
+    CoachProfile? profile,
+  }) async {
     final alerts = await ContractAlertService.getActiveAlerts(now);
     if (alerts.isEmpty) return null;
 
     final nearest = alerts.first;
     final days = nearest.daysRemaining(now);
+
+    // Enrich with benchmark if profile available
+    String? benchmarkHint;
+    if (profile != null) {
+      final enriched = await ContractBenchmarkService.enrichAlerts(
+        profile: profile,
+        now: now,
+      );
+      final match = enriched.where((e) => e.deadline.label == nearest.label).firstOrNull;
+      benchmarkHint = match?.benchmarkMessage;
+    }
 
     return ProactiveTrigger(
       type: ProactiveTriggerType.contractDeadlineApproaching,
@@ -538,6 +552,7 @@ class ProactiveTriggerService {
       params: {
         'label': nearest.label,
         'days': days.toString(),
+        if (benchmarkHint != null) 'benchmark': benchmarkHint,
       },
       triggeredAt: now,
     );

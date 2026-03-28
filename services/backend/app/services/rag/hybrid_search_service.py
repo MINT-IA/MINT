@@ -83,7 +83,9 @@ SELECT COALESCE(v.doc_id, k.doc_id) AS doc_id,
        (0.7 * COALESCE(v.vector_score, 0) + 0.3 * COALESCE(k.keyword_score, 0))
        * CASE
            WHEN COALESCE(v.doc_type, k.doc_type) = 'memory'
+                AND COALESCE(v.metadata, k.metadata) IS NOT NULL
                 AND COALESCE(v.metadata, k.metadata)::jsonb ? 'created_at'
+                AND COALESCE(v.metadata, k.metadata)::jsonb->>'created_at' ~ '^\d{4}-\d{2}-\d{2}'
                 AND (NOW() - (COALESCE(v.metadata, k.metadata)::jsonb->>'created_at')::timestamptz) < INTERVAL '30 days'
            THEN 1.2  -- 20% freshness boost for recent memories
            ELSE 1.0
