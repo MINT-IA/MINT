@@ -11442,5 +11442,6 @@
   "chatDocUpdatePrompt": "Would you like me to update your profile with this data?",
   "chatDocExtractionFailed": "I couldn't extract data from this document. Try with a clearer photo or different format.",
   "chatDocError": "Error analyzing document. Please try again.",
-  "chatDocAttachTooltip": "Scan a document"
+  "chatDocAttachTooltip": "Scan a document",
+  "proactiveContractDeadline": "Reminder: {label} is due in {days} days. Plan ahead."
 }

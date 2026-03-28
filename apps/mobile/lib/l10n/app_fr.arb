@@ -11889,5 +11889,6 @@
   "chatDocUpdatePrompt": "Veux-tu que je mette à jour ton profil avec ces données ?",
   "chatDocExtractionFailed": "Je n'ai pas pu extraire de données de ce document. Essaie avec une photo plus nette ou un autre format.",
   "chatDocError": "Erreur lors de l'analyse du document. Réessaie.",
-  "chatDocAttachTooltip": "Scanner un document"
+  "chatDocAttachTooltip": "Scanner un document",
+  "proactiveContractDeadline": "Rappel : {label} arrive dans {days} jours. Pense à anticiper."
 }
