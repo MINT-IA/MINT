@@ -159,6 +159,22 @@ List<SequenceSummaryItem> _buildRetirementSummary(
     ));
   }
 
+  // Step 2: Rente vs Capital choice
+  final step2 = outputs['ret_02_choice'];
+  final decision = step2?['decision_mixte'];
+  if (decision is String && decision.isNotEmpty) {
+    final label = switch (decision) {
+      'certificate' => 'Données certificat LPP',
+      'estimate' => 'Estimation sans certificat',
+      _ => 'Choix rente/capital\u00a0: $decision',
+    };
+    items.add(SequenceSummaryItem(
+      icon: Icons.check_circle_outline,
+      label: label,
+      value: '✓',
+    ));
+  }
+
   // Step 3: LPP buyback (optional)
   final step3 = outputs['ret_03_buyback'];
   final economie = step3?['economie_rachat'];

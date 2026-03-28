@@ -91,7 +91,7 @@ void main() {
   });
 
   group('buildSequenceSummary — retirement_prep', () {
-    test('produces items from complete outputs', () {
+    test('produces items from complete outputs including choice', () {
       final items = buildSequenceSummary(
         templateId: 'retirement_prep',
         allOutputs: {
@@ -99,17 +99,21 @@ void main() {
             'taux_remplacement': 65.0,
             'gap_mensuel': 2500.0,
           },
+          'ret_02_choice': {
+            'decision_mixte': 'certificate',
+          },
           'ret_03_buyback': {
             'economie_rachat': 12000.0,
           },
         },
       );
 
-      expect(items.length, 3);
+      expect(items.length, 4); // taux + gap + choice + buyback
       expect(items[0].label, contains('Taux'));
       expect(items[0].value, contains('65'));
       expect(items[1].label, contains('Écart'));
-      expect(items[2].label, contains('rachat'));
+      expect(items[2].label, contains('certificat'));
+      expect(items[3].label, contains('rachat'));
     });
 
     test('handles missing optional step', () {

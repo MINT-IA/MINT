@@ -2201,9 +2201,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           topic: 'sequence_summary',
           summary: '$goalLabel — $summaryText',
           type: InsightType.fact,
-          metadata: complete.allOutputs.map(
-            (k, v) => MapEntry(k, v.toString()),
-          ),
+          metadata: Map<String, dynamic>.from(complete.allOutputs),
         )).catchError((_) {});
       }
     }
