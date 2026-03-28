@@ -9777,6 +9777,18 @@ class SFr extends S {
   String get shellWelcomeBack => 'De retour. Tes chiffres sont à jour.';
 
   @override
+  String get extractionWhoseDocument => 'À qui est ce document ?';
+
+  @override
+  String get extractionWhoseDocumentBody => 'Tu as un profil couple. Ce document est pour toi ou ton/ta partenaire ?';
+
+  @override
+  String get extractionDocMine => 'C\'est le mien';
+
+  @override
+  String get extractionDocPartner => 'C\'est celui de mon/ma partenaire';
+
+  @override
   String get chatPickPhoto => 'Prendre une photo';
 
   @override

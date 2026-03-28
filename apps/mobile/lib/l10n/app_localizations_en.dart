@@ -9722,6 +9722,18 @@ class SEn extends S {
   String get shellWelcomeBack => 'Back. Your numbers are up to date.';
 
   @override
+  String get extractionWhoseDocument => 'Whose document is this?';
+
+  @override
+  String get extractionWhoseDocumentBody => 'You have a couple profile. Is this document yours or your partner\'s?';
+
+  @override
+  String get extractionDocMine => 'It\'s mine';
+
+  @override
+  String get extractionDocPartner => 'It\'s my partner\'s';
+
+  @override
   String get chatPickPhoto => 'Take a photo';
 
   @override

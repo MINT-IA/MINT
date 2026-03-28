@@ -9807,6 +9807,18 @@ class SIt extends S {
   String get shellWelcomeBack => 'Bentornato. I tuoi numeri sono aggiornati.';
 
   @override
+  String get extractionWhoseDocument => 'Di chi è questo documento?';
+
+  @override
+  String get extractionWhoseDocumentBody => 'Hai un profilo di coppia. Questo documento è tuo o del tuo partner?';
+
+  @override
+  String get extractionDocMine => 'È mio';
+
+  @override
+  String get extractionDocPartner => 'È del mio partner';
+
+  @override
   String get chatPickPhoto => 'Scattare una foto';
 
   @override

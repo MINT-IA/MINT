@@ -17557,6 +17557,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
+  String get extractionWhoseDocument;
+  String get extractionWhoseDocumentBody;
+  String get extractionDocMine;
+  String get extractionDocPartner;
   String get chatPickPhoto;
   String get chatPickGallery;
   String get chatPickFile;

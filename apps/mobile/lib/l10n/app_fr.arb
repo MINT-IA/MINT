@@ -11891,5 +11891,9 @@
   "chatDocError": "Erreur lors de l'analyse du document. Réessaie.",
   "chatDocAttachTooltip": "Scanner un document",
   "seasonalLamalTitle": "Nouvelles primes LAMal",
-  "seasonalLamalDesc": "Les primes 2027 sont publiées. Vérifie si ta franchise est toujours optimale."
+  "seasonalLamalDesc": "Les primes 2027 sont publiées. Vérifie si ta franchise est toujours optimale.",
+  "extractionWhoseDocument": "À qui est ce document ?",
+  "extractionWhoseDocumentBody": "Tu as un profil couple. Ce document est pour toi ou ton/ta partenaire ?",
+  "extractionDocMine": "C'est le mien",
+  "extractionDocPartner": "C'est celui de mon/ma partenaire"
 }

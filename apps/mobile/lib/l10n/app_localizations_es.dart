@@ -9781,6 +9781,18 @@ class SEs extends S {
   String get shellWelcomeBack => 'De vuelta. Tus números están al día.';
 
   @override
+  String get extractionWhoseDocument => '¿De quién es este documento?';
+
+  @override
+  String get extractionWhoseDocumentBody => 'Tienes un perfil de pareja. ¿Este documento es tuyo o de tu pareja?';
+
+  @override
+  String get extractionDocMine => 'Es mío';
+
+  @override
+  String get extractionDocPartner => 'Es de mi pareja';
+
+  @override
   String get chatPickPhoto => 'Tomar una foto';
 
   @override

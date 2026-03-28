@@ -11409,5 +11409,9 @@
   "chatDocError": "Errore nell'analisi del documento. Riprova.",
   "chatDocAttachTooltip": "Scansionare un documento",
   "seasonalLamalTitle": "Nuovi premi LAMal",
-  "seasonalLamalDesc": "I premi 2027 sono pubblicati. Verifica se la tua franchigia è ancora ottimale."
+  "seasonalLamalDesc": "I premi 2027 sono pubblicati. Verifica se la tua franchigia è ancora ottimale.",
+  "extractionWhoseDocument": "Di chi è questo documento?",
+  "extractionWhoseDocumentBody": "Hai un profilo di coppia. Questo documento è tuo o del tuo partner?",
+  "extractionDocMine": "È mio",
+  "extractionDocPartner": "È del mio partner"
 }

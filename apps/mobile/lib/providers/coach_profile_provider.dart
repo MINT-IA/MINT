@@ -1129,6 +1129,7 @@ class CoachProfileProvider extends ChangeNotifier {
     int? lacunesCotisation;
     double? renteEstimee;
     double? ramd;
+    int? bonificationsEduc;
 
     for (final field in fields) {
       if (field.profileField == null) continue;
@@ -1151,6 +1152,10 @@ class CoachProfileProvider extends ChangeNotifier {
         case 'avsRamd':
           if (value is double) ramd = value;
           if (value is int) ramd = value.toDouble();
+        case 'bonificationsEducatives':
+        case 'avsEducationCredits':
+          if (value is double) bonificationsEduc = value.round();
+          if (value is int) bonificationsEduc = value;
       }
     }
 
@@ -1176,10 +1181,20 @@ class CoachProfileProvider extends ChangeNotifier {
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
       librePassage: p.prevoyance.librePassage,
+      bonificationsEducatives:
+          bonificationsEduc ?? p.prevoyance.bonificationsEducatives,
+      projectedRenteLpp: p.prevoyance.projectedRenteLpp,
+      projectedCapital65: p.prevoyance.projectedCapital65,
+      disabilityCoverage: p.prevoyance.disabilityCoverage,
+      deathCoverage: p.prevoyance.deathCoverage,
     );
 
     // Tag data sources as certificate-confirmed
     final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (bonificationsEduc != null) {
+      updatedSources['prevoyance.bonificationsEducatives'] =
+          ProfileDataSource.certificate;
+    }
     if (anneesContrib != null) {
       updatedSources['prevoyance.anneesContribuees'] =
           ProfileDataSource.certificate;
