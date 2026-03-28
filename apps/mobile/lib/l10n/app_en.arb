@@ -11473,5 +11473,16 @@
   "sequencePreretraiteStep9": "Retirement budget",
   "sequencePreretraiteStep10": "Withdrawal plan",
   "sequencePreretraiteStep11": "Summary",
-  "proactiveContractDeadline": "Reminder: {label} is due in {days} days. Plan ahead."
+  "proactiveContractDeadline": "Reminder: {label} is due in {days} days. Plan ahead.",
+  "sequenceCoupleGoal": "Coordinate finances together",
+  "sequenceCoupleStep1": "Marriage or partnership",
+  "sequenceCoupleStep2": "Couple profile",
+  "sequenceCoupleStep3": "3a together",
+  "sequenceCoupleStep4": "Couple taxation",
+  "sequenceCoupleStep5": "Summary",
+  "sequenceNaissanceGoal": "Prepare for baby financially",
+  "sequenceNaissanceStep1": "Birth impact",
+  "sequenceNaissanceStep2": "Family budget",
+  "sequenceNaissanceStep3": "3a parent",
+  "sequenceNaissanceStep4": "Summary"
 }

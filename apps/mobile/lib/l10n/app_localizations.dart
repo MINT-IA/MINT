@@ -17557,6 +17557,8 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
+  String get sequenceCoupleGoal;
+  String get sequenceNaissanceGoal;
   String get sequencePreretraiteGoal;
   String get capCoachPromptDebt;
   String get capCoachPromptIndepNoLpp;

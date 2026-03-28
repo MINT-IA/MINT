@@ -351,6 +351,97 @@ class SequenceTemplate {
     ],
   );
 
+  /// Couple financier (5 étapes) — cohorte 28-37.
+  ///
+  /// Mariage vs concubinage, fiscalité couple, 3a couple,
+  /// coordination LPP, résumé.
+  static const coupleFinancier = SequenceTemplate(
+    id: 'couple_financier',
+    goalLabelKey: 'sequenceCoupleGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'couple_01_status',
+        order: 1,
+        intentTag: 'life_event_marriage',
+        titleKey: 'sequenceCoupleStep1',
+        outputMapping: {'impact_fiscal_couple': 'impact_fiscal_couple'},
+      ),
+      SequenceStepDef(
+        id: 'couple_02_household',
+        order: 2,
+        intentTag: 'household_couple',
+        titleKey: 'sequenceCoupleStep2',
+      ),
+      SequenceStepDef(
+        id: 'couple_03_3a',
+        order: 3,
+        intentTag: 'simulator_3a',
+        titleKey: 'sequenceCoupleStep3',
+        outputMapping: {
+          'contribution_annuelle': 'contribution_couple',
+          'economie_fiscale': 'economie_couple',
+        },
+      ),
+      SequenceStepDef(
+        id: 'couple_04_fiscal',
+        order: 4,
+        intentTag: 'cantonal_fiscal_comparator',
+        titleKey: 'sequenceCoupleStep4',
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'couple_05_summary',
+        order: 5,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceCoupleStep5',
+        isOptional: true,
+      ),
+    ],
+  );
+
+  /// Naissance & coûts (4 étapes) — cohorte 28-37.
+  ///
+  /// Impact budget naissance, déductions enfants, 3a famille, résumé.
+  static const naissanceCouts = SequenceTemplate(
+    id: 'naissance_couts',
+    goalLabelKey: 'sequenceNaissanceGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'naissance_01_impact',
+        order: 1,
+        intentTag: 'life_event_birth',
+        titleKey: 'sequenceNaissanceStep1',
+      ),
+      SequenceStepDef(
+        id: 'naissance_02_budget',
+        order: 2,
+        intentTag: 'budget_overview',
+        titleKey: 'sequenceNaissanceStep2',
+        outputMapping: {
+          'revenu_net': 'revenu_famille',
+          'charges_totales': 'charges_famille',
+        },
+      ),
+      SequenceStepDef(
+        id: 'naissance_03_3a',
+        order: 3,
+        intentTag: 'simulator_3a',
+        titleKey: 'sequenceNaissanceStep3',
+        outputMapping: {
+          'contribution_annuelle': 'contribution_parent',
+          'economie_fiscale': 'economie_parent',
+        },
+      ),
+      SequenceStepDef(
+        id: 'naissance_04_summary',
+        order: 4,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceNaissanceStep4',
+        isOptional: true,
+      ),
+    ],
+  );
+
   // ── INTENT → TEMPLATE MAPPING ─────────────────────────────────
 
   /// Maps a user intent to a guided sequence template.
@@ -361,6 +452,8 @@ class SequenceTemplate {
       'housing_purchase' => housingPurchase,
       'retirement_choice' || 'retirement_projection' => retirementPrep,
       'preretraite_complete' => preretraiteComplete,
+      'life_event_marriage' || 'life_event_concubinage' || 'household_couple' => coupleFinancier,
+      'life_event_birth' => naissanceCouts,
       'simulator_3a' || 'tax_optimization_3a' => optimize3a,
       'debt_ratio' || 'debt_repayment' || 'debt_risk_check' => financialTension,
       _ => null,

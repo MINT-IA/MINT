@@ -32,8 +32,56 @@ List<SequenceSummaryItem> buildSequenceSummary({
     'retirement_prep' => _buildRetirementSummary(allOutputs, loc),
     'financial_tension' => _buildTensionSummary(allOutputs, loc),
     'preretraite_complete' => _buildPreretraiteSummary(allOutputs, loc),
+    'couple_financier' => _buildCoupleSummary(allOutputs, loc),
+    'naissance_couts' => _buildNaissanceSummary(allOutputs, loc),
     _ => const [],
   };
+}
+
+List<SequenceSummaryItem> _buildCoupleSummary(
+  Map<String, Map<String, dynamic>> outputs, S l,
+) {
+  final items = <SequenceSummaryItem>[];
+
+  final step3 = outputs['couple_03_3a'];
+  final economieFiscale = step3?['economie_fiscale'];
+  if (economieFiscale is num && economieFiscale > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.discount_outlined,
+      label: l.summaryEconomieFiscale,
+      value: 'CHF\u00a0${formatChf(economieFiscale.toDouble())}',
+    ));
+  }
+
+  return items;
+}
+
+List<SequenceSummaryItem> _buildNaissanceSummary(
+  Map<String, Map<String, dynamic>> outputs, S l,
+) {
+  final items = <SequenceSummaryItem>[];
+
+  final step2 = outputs['naissance_02_budget'];
+  final charges = step2?['charges_totales'];
+  if (charges is num && charges > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.receipt_outlined,
+      label: l.summaryChargesFixes,
+      value: 'CHF\u00a0${formatChf(charges.toDouble())}',
+    ));
+  }
+
+  final step3 = outputs['naissance_03_3a'];
+  final economieFiscale = step3?['economie_fiscale'];
+  if (economieFiscale is num && economieFiscale > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.discount_outlined,
+      label: l.summaryEconomieFiscale,
+      value: 'CHF\u00a0${formatChf(economieFiscale.toDouble())}',
+    ));
+  }
+
+  return items;
 }
 
 /// Fallback labels (FR) for testing without a full localization context.

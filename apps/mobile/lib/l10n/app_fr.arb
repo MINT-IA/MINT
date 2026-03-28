@@ -11920,5 +11920,16 @@
   "sequencePreretraiteStep9": "Budget retraite",
   "sequencePreretraiteStep10": "Décaissement",
   "sequencePreretraiteStep11": "Résumé",
-  "proactiveContractDeadline": "Rappel : {label} arrive dans {days} jours. Pense à anticiper."
+  "proactiveContractDeadline": "Rappel : {label} arrive dans {days} jours. Pense à anticiper.",
+  "sequenceCoupleGoal": "Coordonner nos finances à deux",
+  "sequenceCoupleStep1": "Mariage ou concubinage",
+  "sequenceCoupleStep2": "Profil couple",
+  "sequenceCoupleStep3": "3a à deux",
+  "sequenceCoupleStep4": "Fiscalité couple",
+  "sequenceCoupleStep5": "Résumé",
+  "sequenceNaissanceGoal": "Préparer l'arrivée financièrement",
+  "sequenceNaissanceStep1": "Impact naissance",
+  "sequenceNaissanceStep2": "Budget famille",
+  "sequenceNaissanceStep3": "3a parent",
+  "sequenceNaissanceStep4": "Résumé"
 }
