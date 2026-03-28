@@ -351,6 +351,124 @@ class SequenceTemplate {
     ],
   );
 
+  /// Premiers pas financiers (3 étapes) — cohorte 18-27.
+  ///
+  /// Premier salaire → budget de base → 3a découverte.
+  static const premiersPas = SequenceTemplate(
+    id: 'premiers_pas',
+    goalLabelKey: 'sequencePremiersPasGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'pp_01_first_job',
+        order: 1,
+        intentTag: 'life_event_first_job',
+        titleKey: 'sequencePremiersPasStep1',
+      ),
+      SequenceStepDef(
+        id: 'pp_02_budget',
+        order: 2,
+        intentTag: 'budget_overview',
+        titleKey: 'sequencePremiersPasStep2',
+        outputMapping: {
+          'revenu_net': 'revenu_net',
+          'charges_totales': 'charges_totales',
+        },
+      ),
+      SequenceStepDef(
+        id: 'pp_03_3a',
+        order: 3,
+        intentTag: 'simulator_3a',
+        titleKey: 'sequencePremiersPasStep3',
+        outputMapping: {
+          'contribution_annuelle': 'contribution_annuelle',
+          'economie_fiscale': 'economie_fiscale',
+        },
+      ),
+    ],
+  );
+
+  /// Densification & protection (4 étapes) — cohorte 38-52.
+  ///
+  /// Projection retraite → protection invalidité → rachat LPP → résumé.
+  static const densification = SequenceTemplate(
+    id: 'densification',
+    goalLabelKey: 'sequenceDensificationGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'dens_01_projection',
+        order: 1,
+        intentTag: 'retirement_projection',
+        titleKey: 'sequenceDensificationStep1',
+        outputMapping: {
+          'taux_remplacement': 'taux_remplacement',
+          'gap_mensuel': 'gap_mensuel',
+        },
+      ),
+      SequenceStepDef(
+        id: 'dens_02_disability',
+        order: 2,
+        intentTag: 'disability_gap',
+        titleKey: 'sequenceDensificationStep2',
+      ),
+      SequenceStepDef(
+        id: 'dens_03_buyback',
+        order: 3,
+        intentTag: 'lpp_buyback',
+        titleKey: 'sequenceDensificationStep3',
+        outputMapping: {'economie_rachat': 'economie_rachat'},
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'dens_04_summary',
+        order: 4,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceDensificationStep4',
+        isOptional: true,
+      ),
+    ],
+  );
+
+  /// Retraite active (4 étapes) — cohorte 65-74.
+  ///
+  /// Budget retraite → succession → LAMal → résumé.
+  static const retraiteActive = SequenceTemplate(
+    id: 'retraite_active',
+    goalLabelKey: 'sequenceRetraiteActiveGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'ra_01_budget',
+        order: 1,
+        intentTag: 'budget_overview',
+        titleKey: 'sequenceRetraiteActiveStep1',
+        outputMapping: {
+          'revenu_net': 'revenu_retraite',
+          'charges_totales': 'charges_retraite',
+        },
+      ),
+      SequenceStepDef(
+        id: 'ra_02_succession',
+        order: 2,
+        intentTag: 'succession_patrimoine',
+        titleKey: 'sequenceRetraiteActiveStep2',
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'ra_03_lamal',
+        order: 3,
+        intentTag: 'lamal_franchise',
+        titleKey: 'sequenceRetraiteActiveStep3',
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'ra_04_summary',
+        order: 4,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceRetraiteActiveStep4',
+        isOptional: true,
+      ),
+    ],
+  );
+
   /// Couple financier (5 étapes) — cohorte 28-37.
   ///
   /// Mariage vs concubinage, fiscalité couple, 3a couple,
@@ -454,6 +572,9 @@ class SequenceTemplate {
       'preretraite_complete' => preretraiteComplete,
       'life_event_marriage' || 'life_event_concubinage' || 'household_couple' => coupleFinancier,
       'life_event_birth' => naissanceCouts,
+      'life_event_first_job' => premiersPas,
+      'disability_gap' || 'disability_insurance_flow' => densification,
+      'succession_patrimoine' => retraiteActive,
       'simulator_3a' || 'tax_optimization_3a' => optimize3a,
       'debt_ratio' || 'debt_repayment' || 'debt_risk_check' => financialTension,
       _ => null,

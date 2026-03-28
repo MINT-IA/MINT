@@ -11931,5 +11931,19 @@
   "sequenceNaissanceStep1": "Impact naissance",
   "sequenceNaissanceStep2": "Budget famille",
   "sequenceNaissanceStep3": "3a parent",
-  "sequenceNaissanceStep4": "Résumé"
+  "sequenceNaissanceStep4": "Résumé",
+  "sequencePremiersPasGoal": "Comprendre mon premier salaire",
+  "sequencePremiersPasStep1": "Premier emploi",
+  "sequencePremiersPasStep2": "Mon premier budget",
+  "sequencePremiersPasStep3": "Découvrir le 3a",
+  "sequenceDensificationGoal": "Protéger et densifier",
+  "sequenceDensificationStep1": "Projection retraite",
+  "sequenceDensificationStep2": "Protection invalidité",
+  "sequenceDensificationStep3": "Rachat LPP",
+  "sequenceDensificationStep4": "Résumé",
+  "sequenceRetraiteActiveGoal": "Piloter ma retraite",
+  "sequenceRetraiteActiveStep1": "Budget retraite",
+  "sequenceRetraiteActiveStep2": "Succession",
+  "sequenceRetraiteActiveStep3": "Franchise LAMal",
+  "sequenceRetraiteActiveStep4": "Résumé"
 }

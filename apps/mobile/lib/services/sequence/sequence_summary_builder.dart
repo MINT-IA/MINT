@@ -34,6 +34,9 @@ List<SequenceSummaryItem> buildSequenceSummary({
     'preretraite_complete' => _buildPreretraiteSummary(allOutputs, loc),
     'couple_financier' => _buildCoupleSummary(allOutputs, loc),
     'naissance_couts' => _buildNaissanceSummary(allOutputs, loc),
+    'premiers_pas' => _build3aSummary(allOutputs, loc), // Reuses 3a summary
+    'densification' => _buildRetirementSummary(allOutputs, loc), // Reuses retirement
+    'retraite_active' => _buildTensionSummary(allOutputs, loc), // Reuses budget summary
     _ => const [],
   };
 }

@@ -9781,6 +9781,13 @@ class SEs extends S {
   String get shellWelcomeBack => 'De vuelta. Tus números están al día.';
 
   @override
+  String get sequencePremiersPasGoal => 'Understand my first salary';
+  @override
+  String get sequenceDensificationGoal => 'Protect and consolidate';
+  @override
+  String get sequenceRetraiteActiveGoal => 'Manage my retirement';
+
+  @override
   String get sequenceCoupleGoal => 'Coordinate finances together';
 
   @override

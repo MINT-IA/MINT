@@ -11450,5 +11450,19 @@
   "sequenceNaissanceStep1": "Birth impact",
   "sequenceNaissanceStep2": "Family budget",
   "sequenceNaissanceStep3": "3a parent",
-  "sequenceNaissanceStep4": "Summary"
+  "sequenceNaissanceStep4": "Summary",
+  "sequencePremiersPasGoal": "Understand my first salary",
+  "sequencePremiersPasStep1": "First job",
+  "sequencePremiersPasStep2": "My first budget",
+  "sequencePremiersPasStep3": "Discover 3a",
+  "sequenceDensificationGoal": "Protect and consolidate",
+  "sequenceDensificationStep1": "Retirement projection",
+  "sequenceDensificationStep2": "Disability protection",
+  "sequenceDensificationStep3": "LPP buyback",
+  "sequenceDensificationStep4": "Summary",
+  "sequenceRetraiteActiveGoal": "Manage my retirement",
+  "sequenceRetraiteActiveStep1": "Retirement budget",
+  "sequenceRetraiteActiveStep2": "Succession",
+  "sequenceRetraiteActiveStep3": "LAMal franchise",
+  "sequenceRetraiteActiveStep4": "Summary"
 }
