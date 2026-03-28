@@ -43,6 +43,7 @@ import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_store.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
@@ -1937,7 +1938,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     try {
       final seqResult = await SequenceChatHandler.handleStepReturn(outcome);
       if (seqResult != null) {
-        // Sequence consumed — render action, skip legacy entirely.
+        // Sequence consumed via fallback path (not realtime).
+        AnalyticsService().trackEvent(
+          'fallback_used',
+          category: 'sequence',
+          data: {
+            'run_id': seqResult.updatedRun.runId,
+            'step_id': seqResult.updatedRun.activeStepId,
+            'reason': 'realtime_not_received',
+          },
+          screenName: 'coach_chat',
+        );
         if (!mounted) return;
         _renderSequenceAction(seqResult);
         _scrollToBottom();
@@ -2137,17 +2148,25 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
 
     // Build sequence UI payload for the renderer.
+    final bool isAdvance = result.action is AdvanceAction;
     final bool canQuit = result.action is! CompleteAction;
     final goalLabel = _resolveGoalLabel(result.template.goalLabelKey, l);
+
+    // Extract navigation data from AdvanceAction when available.
+    final advanceAction = isAdvance ? result.action as AdvanceAction : null;
 
     final seqPayload = SequenceMessagePayload(
       templateId: run.templateId,
       currentStepId: run.activeStepId,
       progressLabel: '${run.completedCount}/${run.totalCount}',
       status: analyticsEvent.replaceFirst('sequence_', ''),
-      canAdvance: false, // V1: no navigation CTA until route wiring
+      canAdvance: isAdvance,
       canQuit: canQuit,
       goalLabel: goalLabel,
+      nextRoute: advanceAction?.route,
+      nextStepId: advanceAction?.nextStep.id,
+      prefill: advanceAction?.prefill,
+      runId: run.runId,
     );
 
     setState(() {
@@ -3092,6 +3111,62 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
+  /// True while navigating to a sequence step — prevents double-tap.
+  bool _isSequenceNavigating = false;
+
+  /// Navigate to the next step in a guided sequence.
+  ///
+  /// Called when the user taps "Continue" on a SequenceProgressCard.
+  /// Passes runId/stepId/prefill in GoRouter.extra so the Tier A screen
+  /// can emit a rich ScreenReturn with sequence identity.
+  ///
+  /// Protected against double-tap and stale step navigation.
+  void _navigateToSequenceStep(SequenceMessagePayload payload) {
+    if (!mounted) return;
+    if (payload.nextRoute == null) return;
+    if (_isSequenceNavigating) return; // Double-tap guard
+    _isSequenceNavigating = true; // Lock BEFORE async — prevents race window
+
+    // Stale step guard: verify this step is still the active one.
+    // Old SequenceProgressCards in the chat history carry outdated data.
+    SequenceStore.load().then((currentRun) {
+      if (!mounted) { _isSequenceNavigating = false; return; }
+      if (currentRun == null || !currentRun.isActive) {
+        _isSequenceNavigating = false;
+        return;
+      }
+      // Sequence completed (no active step) — block stale card navigation.
+      if (currentRun.activeStepId == null) {
+        _isSequenceNavigating = false;
+        return;
+      }
+      if (payload.nextStepId != null &&
+          currentRun.activeStepId != payload.nextStepId) {
+        // The run has moved past this step — don't navigate to stale route.
+        _isSequenceNavigating = false;
+        return;
+      }
+
+      final extra = <String, dynamic>{
+        if (payload.runId != null) 'runId': payload.runId,
+        if (payload.nextStepId != null) 'stepId': payload.nextStepId,
+        if (payload.prefill != null && payload.prefill!.isNotEmpty)
+          'prefill': payload.prefill,
+      };
+
+      context.push(
+        payload.nextRoute!,
+        extra: extra.isNotEmpty ? extra : null,
+      ).then((_) {
+        _isSequenceNavigating = false;
+      }).catchError((_) {
+        _isSequenceNavigating = false;
+      });
+    }).catchError((_) {
+      _isSequenceNavigating = false; // Reset on store load failure
+    });
+  }
+
   /// Resolve a goal label ARB key to a localized string.
   static String _resolveGoalLabel(String key, S l) {
     return switch (key) {
@@ -3117,7 +3192,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       currentStepLabel: payload.status == 'completed'
           ? l.sequenceAllStepsComplete
           : l.sequenceStepLabel(completed + 1, total),
-      onAdvance: null, // V1: no navigation CTA until route wiring
+      onAdvance: (payload.canAdvance && payload.nextRoute != null) ? () {
+        _navigateToSequenceStep(payload);
+      } : null,
       onQuit: payload.canQuit ? () {
         SequenceChatHandler.quitSequence();
         if (mounted) {

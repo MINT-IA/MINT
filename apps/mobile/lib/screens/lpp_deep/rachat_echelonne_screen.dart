@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
@@ -83,6 +84,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   bool _prefilled = false;
   bool _hasUserInteracted = false;
 
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   @override
   void initState() {
     super.initState();
@@ -96,6 +101,40 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       curve: Curves.easeOutCubic,
     );
     _heroController.forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final extra = GoRouterState.of(context).extra;
+        if (extra is Map<String, dynamic>) {
+          _seqRunId = extra['runId'] as String?;
+          _seqStepId = extra['stepId'] as String?;
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('rachat_echelonne',
+        ScreenReturn.abandoned(
+          route: '/rachat-lpp',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final result = _result;
+    ScreenCompletionTracker.markCompletedWithReturn('rachat_echelonne',
+      ScreenReturn.completed(
+        route: '/rachat-lpp',
+        stepOutputs: {'economie_rachat': result.delta},
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   @override
@@ -145,10 +184,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
   void _emitScreenReturn() {
     if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return;
     ScreenCompletionTracker.markCompletedWithReturn(
       'rachat_echelonne',
       ScreenReturn.completed(
-        route: '/lpp-deep/rachat-echelonne',
+        route: '/rachat-lpp',
         updatedFields: {
           'rachatOptimalAnnuel': _rachatMax / _horizon,
           'rachatEconomieFiscale': _result.delta,
@@ -164,7 +204,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.surface,
       body: CustomScrollView(
         slivers: [
@@ -218,7 +262,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 

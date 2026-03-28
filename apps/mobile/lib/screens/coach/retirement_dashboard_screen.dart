@@ -31,6 +31,8 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -85,6 +87,11 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   bool _snapshotPersisted = false;
   bool _slmPromptChecked = false;
 
+  // ── Sequence (Tier A) ─────────────────────────────────
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   // ────────────────────────────────────────────────────────────
   //  LIFECYCLE
   // ────────────────────────────────────────────────────────────
@@ -97,6 +104,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _slmPromptChecked = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) SlmAutoPromptService.checkAndPrompt(context);
+        _readSequenceContext();
       });
     }
 
@@ -299,6 +307,51 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   // ────────────────────────────────────────────────────────────
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (_projection == null) {
+      // No profile / no projection computed → user saw State C (onboarding CTA).
+      // Emit abandoned so coordinator retries after profile enrichment.
+      ScreenCompletionTracker.markCompletedWithReturn('retirement_dashboard',
+        ScreenReturn.abandoned(
+          route: '/retraite',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final tauxRemplacement = _projection!.tauxRemplacementBase;
+    final revenuMensuelRetraite = _projection!.base.revenuAnnuelRetraite / 12;
+    final revenuMensuelActuel = (_profile?.revenuBrutAnnuel ?? 0.0) / 12;
+    final gapMensuel = revenuMensuelActuel > 0
+        ? revenuMensuelActuel - revenuMensuelRetraite
+        : 0.0;
+    ScreenCompletionTracker.markCompletedWithReturn('retirement_dashboard',
+      ScreenReturn.completed(
+        route: '/retraite',
+        stepOutputs: {
+          'taux_remplacement': tauxRemplacement,
+          'gap_mensuel': gapMensuel,
+        },
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
+
   //  BUILD — 3 STATES
   // ────────────────────────────────────────────────────────────
 
@@ -306,10 +359,16 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
 
-    if (!provider.hasProfile || _projection == null) {
-      return _buildStateC();
-    }
-    return _buildDashboard();
+    final child = (!provider.hasProfile || _projection == null)
+        ? _buildStateC()
+        : _buildDashboard();
+
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: child,
+    );
   }
 
   // ────────────────────────────────────────────────────────────

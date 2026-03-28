@@ -74,8 +74,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   /// Emits a realtime ScreenReturn on every slider change (Tier B — no
   /// sequence IDs). The debounce in CoachChatScreen filters the noise.
   /// Sequence IDs are NOT included here to avoid premature step advancement.
+  /// Suppressed in sequence mode — terminal return on pop handles it.
   void _emitScreenReturn() {
     if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return; // Sequence mode: terminal only
     final result = _result;
     final screenReturn = ScreenReturn.changedInputs(
       route: '/hypotheque',
@@ -93,12 +95,30 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   /// and stepOutputs for the SequenceCoordinator to advance the run.
   /// Emits the terminal Tier A ScreenReturn exactly once.
   /// Called from PopScope.onPopInvokedWithResult when the user leaves.
-  /// Guards: _seqRunId non-null, user interacted, not already emitted.
+  /// Guards: _seqRunId non-null, not already emitted.
+  /// If user didn't interact → abandoned (so coordinator can retry).
+  /// If user interacted → completed with outputs.
   void _emitFinalReturn() {
     if (_finalReturnEmitted) return;
     if (_seqRunId == null || _seqStepId == null) return;
-    if (!_hasUserInteracted) return;
     _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      // User opened screen but left without interacting → abandoned.
+      // The coordinator will offer a retry instead of leaving sequence stuck.
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/hypotheque',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn(
+        'affordability',
+        screenReturn,
+      );
+      return;
+    }
+
     final result = _result;
     final screenReturn = ScreenReturn.completed(
       route: '/hypotheque',
@@ -333,7 +353,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                                           ))
                                       .toList(),
                                   onChanged: (v) {
-                                    if (v != null) setState(() => _canton = v);
+                                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
                                   },
                                 ),
                               ),

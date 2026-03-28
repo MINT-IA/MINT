@@ -186,7 +186,7 @@ class SequenceTemplate {
         order: 4,
         intentTag: 'withdrawal_sequencing',
         titleKey: 'sequenceRetirementStep4',
-        outputMapping: {'calendrier_optimal': 'calendrier_optimal'},
+        // Educational screen — no computed outputs. Viewing = completed.
       ),
       SequenceStepDef(
         id: 'ret_05_summary',

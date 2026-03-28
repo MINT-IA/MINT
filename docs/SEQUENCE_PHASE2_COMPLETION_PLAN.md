@@ -1,13 +1,12 @@
 # Sequence Phase 2 — Completion Plan
 
-> Date : 2026-03-27
-> Statut : **INCOMPLETE** — fondations solides, orchestration chat encore incomplète
-> Ce document distingue honnêtement ce qui est livré, ce qui est branché
-> mais pas production-ready, et ce qui reste à faire.
+> Date : 2026-03-28
+> Statut : **COMPLETE** — toutes les étapes livrées, auditées, bugs corrigés.
+> PR #182 → dev (feature/S58-chantier1-sequence-live)
 
 ---
 
-## Ce qui est livré
+## Livraison complète
 
 | Composant | Statut | Fichier |
 |---|---|---|
@@ -18,129 +17,55 @@
 | SequenceChatHandler (bridge) | Done | `services/sequence/sequence_chat_handler.dart` |
 | SequenceProgressCard (widget) | Done | `widgets/coach/sequence_progress_card.dart` |
 | CapMemory.stepProposals | Done | `services/cap_memory_store.dart` |
-| ScreenReturn.stepOutputs | Done | `models/screen_return.dart` |
-| startSequence callsite in chat | **Partial** | `screens/coach/coach_chat_screen.dart:1487` — fire-and-forget, no runId/stepId in navigation |
-| Chat dedup + legacy bypass | **Partial** | `_activeSequenceStepKey` guard — works when realtime fires, but contrat is incomplete (no eventId) |
-| 60+ tests | Done (service-level) | `test/services/sequence/`, `test/widgets/coach/`, `test/services/cap_memory_step_proposals_test.dart` |
-| E2E integration test | **Missing** | No test covers chat → handler → coordinator → store round-trip |
+| ScreenReturn enrichi (runId/stepId/eventId/stepOutputs) | Done | `models/screen_return.dart` |
+| Navigation context (GoRouter.extra) | Done | `screens/coach/coach_chat_screen.dart` |
+| Realtime = chemin canonique | Done | `_onRealtimeScreenReturn` in chat |
+| Dédup par eventId | Done | `SequenceRun.isEventProcessed` |
+| Legacy side effects suppression | Done | Chat handler + realtime suppression in screens |
+| SequenceProgressCard dans le chat | Done | `_renderSequenceAction` + `_buildSequenceCard` |
+| Observabilité complète | Done | 8 events: started, step_completed, completed, paused, skipped, retry, fallback_used, duplicate_event_dropped |
+| 10 écrans Tier A migrés | Done | Voir tableau ci-dessous |
+| Service-level integration tests | Done | `test/integration/sequence_e2e_test.dart` (21 tests) |
 
-## Ce qui manque (architecture cible)
+## Écrans migrés (Tier A)
 
-### 1. ScreenReturn enrichi avec identifiants de séquence
+| Template | Step | Screen | Route | stepOutputs |
+|---|---|---|---|---|
+| housing_purchase | 1 | AffordabilityScreen | /hypotheque | capacite_achat, fonds_propres_requis |
+| housing_purchase | 2 | EplScreen | /epl | montant_epl, impact_rente |
+| housing_purchase | 3 | FiscalComparatorScreen | /fiscal | impot_retrait |
+| housing_purchase | 4 | _inline_summary | (inline) | — |
+| optimize_3a | 1 | Simulator3aScreen | /pilier-3a | contribution_annuelle, economie_fiscale |
+| optimize_3a | 2 | StaggeredWithdrawalScreen | /3a-deep/staggered-withdrawal | gain_echelonnement |
+| optimize_3a | 3 | RealReturnScreen | /3a-deep/real-return | (last step) |
+| retirement_prep | 1 | RetirementDashboardScreen | /retraite | taux_remplacement, gap_mensuel |
+| retirement_prep | 2 | RenteVsCapitalScreen | /rente-vs-capital | decision_mixte |
+| retirement_prep | 3 | RachatEchelonneScreen | /rachat-lpp | economie_rachat |
+| retirement_prep | 4 | OptimisationDecaissementScreen | /decaissement | (educational) |
+| retirement_prep | 5 | _inline_summary | (inline) | — |
 
-```dart
-class ScreenReturn {
-  // ... champs existants ...
-  final String? runId;      // Identifiant du run en cours
-  final String? stepId;     // Identifiant de l'étape dans le run
-  final String? eventId;    // UUID unique pour déduplication idempotente
-}
-```
+## Bugs trouvés et corrigés pendant l'audit
 
-**Pourquoi** : le realtime stream ne sait pas actuellement quel run/step a produit le ScreenReturn. Sans ces champs, la dédup est approximative.
-
-### 2. Passage du contexte séquence dans la navigation
-
-```dart
-await context.push(route, extra: {
-  'prefill': prefill,
-  'runId': run.runId,           // NOUVEAU
-  'stepId': step.id,            // NOUVEAU
-  'stepOrdinal': step.order,    // NOUVEAU
-});
-```
-
-Les écrans liseent ces champs et les incluent dans leur `ScreenReturn` émis.
-
-### 3. Realtime = chemin canonique UNIQUE
-
-`_onRealtimeScreenReturn` est le seul consumer de séquence. Il vérifie `runId + stepId + eventId` dans le ScreenReturn et délègue au coordinator.
-
-`_handleRouteReturn` ne traite les séquences que comme fallback explicite :
-- Si aucun ScreenReturn canonique n'a été reçu pour ce `runId + stepId`
-- Dans une fenêtre contrôlée
-- Ou si l'écran n'est pas encore migré au contrat riche (Tier B)
-
-### 4. Déduplication par eventId
-
-```dart
-// Dans SequenceStore ou un Set<String> borné en mémoire
-final _processedEventIds = <String>{};
-
-bool isDuplicate(String eventId) {
-  if (_processedEventIds.contains(eventId)) return true;
-  _processedEventIds.add(eventId);
-  // Trim to last 20 to avoid unbounded growth
-  if (_processedEventIds.length > 20) {
-    _processedEventIds.remove(_processedEventIds.first);
-  }
-  return false;
-}
-```
-
-### 5. State machine explicite
-
-Déjà en place dans `SequenceRun` et `SequenceCoordinator`. Pas de changement nécessaire — juste s'assurer qu'aucune transition implicite n'existe en dehors du coordinator.
-
-### 6. Suppression des side effects legacy en mode séquence
-
-Quand le coordinator a traité un retour, `_handleRouteReturn` ne doit PAS :
-- Appeler `CapMemoryStore.markCompleted/markAbandoned`
-- Sauvegarder un `CoachInsight`
-- Ajouter un message fallback
-- Déclencher un milestone pulse
-
-Ces actions sont gérées par le coordinator + `_renderSequenceAction`.
-
-### 7. Tiers d'écrans
-
-| Tier | Contrat | Écrans |
+| # | Sévérité | Description |
 |---|---|---|
-| **A** | ScreenReturn canonique avec `runId`, `stepId`, `eventId`, `stepOutputs` | Écrans migrés (Phase 3) |
-| **B** | ScreenReturn simple (pas de `runId`/`stepId`) | Écrans legacy, fallback via `_handleRouteReturn` |
+| 1 | HAUTE | Double-tap : deux context.push possibles sans guard |
+| 2 | HAUTE | Stale step : ancien "Continuer" navigue vers route obsolète |
+| 3 | HAUTE | Stuck sequence : pop sans interaction → aucun ScreenReturn émis |
+| 4 | HAUTE | Dual emission : realtime + terminal les deux dans le stream en mode séquence |
+| 5 | HAUTE | _isSequenceNavigating race : flag set APRÈS async load, pas avant |
+| 6 | HAUTE | catchError ne reset pas _isSequenceNavigating → navigation bloquée définitivement |
+| 7 | HAUTE | null activeStepId : séquence terminée mais navigation stale permise |
+| 8 | HAUTE | tauxRemplacementBase : comparait BRUT retirement vs NET current (inflated ~20-30%) |
+| 9 | MOYENNE | Route mismatch : RachatEchelonne emettait /lpp-deep/rachat-echelonne vs GoRouter /rachat-lpp |
+| 10 | MOYENNE | Route mismatch : OptimisationDecaissement emettait /optimisation-decaissement vs /decaissement |
+| 11 | MOYENNE | StaggeredWithdrawal : canton dropdown ne settait pas _hasUserInteracted |
+| 12 | MOYENNE | RealReturn : premier slider ne settait pas _hasUserInteracted |
+| 13 | MOYENNE | Affordability : canton dropdown ne settait pas _hasUserInteracted |
+| 14 | MOYENNE | RetirementDashboard : emettait completed avec 0 quand projection null |
+| 15 | MOYENNE | Template : phantom outputMapping 'calendrier_optimal' sur écran éducatif |
 
-### 8. Observabilité
+## Limitations V1 restantes (documentées)
 
-Logger chaque transition via `AnalyticsService.trackEvent()` :
-- `sequence_started` (runId, templateId)
-- `step_opened` (runId, stepId, route)
-- `step_completed` (runId, stepId, outputs count)
-- `step_abandoned` (runId, stepId)
-- `sequence_paused` (runId, reason)
-- `sequence_completed` (runId, step count, duration)
-- `fallback_used` (runId, stepId, reason)
-- `duplicate_event_dropped` (runId, stepId, eventId)
-
-### 9. SequenceProgressCard rendu dans le chat
-
-Quand `AdvanceAction` est rendu, le chat insère un `SequenceProgressCard` avec :
-- Barre de progression
-- Label de l'étape suivante
-- Bouton "Continuer" → navigue vers la route
-- Bouton "Quitter le parcours" → `SequenceChatHandler.quitSequence()`
-
----
-
-## Plan d'exécution
-
-| Étape | Effort | Risque |
-|---|---|---|
-| 1. Enrichir ScreenReturn (runId, stepId, eventId) | Petit | Backward-compatible (nullable) |
-| 2. Passer le contexte séquence dans RouteSuggestionCard.extra | Petit | Aucun — champs optionnels |
-| 3. Migrer 1 écran Tier A (/hypotheque) | Moyen | Limité à 1 écran |
-| 4. Implémenter dédup par eventId | Petit | Aucun |
-| 5. Supprimer legacy side effects en mode séquence | Moyen | Nécessite guard sync fiable |
-| 6. Rendre SequenceProgressCard dans le chat | Moyen | UI intégration |
-| 7. Ajouter observabilité | Petit | Fire-and-forget analytics |
-| 8. Migrer les 2 autres écrans (3a, retraite) | Moyen | Répétition de l'étape 3 |
-
----
-
-## Limitations V1 actuelles (documentées)
-
+- Les tests sont service-level integration, pas widget-level E2E (pas de GoRouter mock + mounted CoachChatScreen)
 - Le debounce 2s du realtime peut envoyer "Je viens de simuler..." après consommation séquence
-- Le fallback `_handleRouteReturn` laisse passer les legacy side effects si la séquence n'est pas encore démarrée (race condition sur tap ultra-rapide)
-- Pas de SequenceProgressCard rendu dans le chat (juste des messages texte)
-- Pas d'eventId pour dédup idempotente
-- Pas de logging d'observabilité
-- 8 strings hardcodées FR (dette i18n)
+- `step_opened` non émis (l'event serait dans la navigation, pas dans le handler)

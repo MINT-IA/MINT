@@ -8,7 +8,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -16,14 +19,56 @@ import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
-class OptimisationDecaissementScreen extends StatelessWidget {
+class OptimisationDecaissementScreen extends StatefulWidget {
   const OptimisationDecaissementScreen({super.key});
+
+  @override
+  State<OptimisationDecaissementScreen> createState() =>
+      _OptimisationDecaissementScreenState();
+}
+
+class _OptimisationDecaissementScreenState
+    extends State<OptimisationDecaissementScreen> {
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final extra = GoRouterState.of(context).extra;
+        if (extra is Map<String, dynamic>) {
+          _seqRunId = extra['runId'] as String?;
+          _seqStepId = extra['stepId'] as String?;
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+    // Educational screen — viewing it = completed. No "abandoned" path.
+    ScreenCompletionTracker.markCompletedWithReturn('optimisation_decaissement',
+      ScreenReturn.completed(
+        route: '/decaissement',
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.white,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -129,7 +174,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
             ),
           ),
         ],
-      ))),
+      )))),
     );
   }
 }

@@ -20,6 +20,7 @@ import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/precision/field_help_tooltip.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -94,6 +95,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ── F2-6: Gate ScreenReturn behind user interaction ──
   bool _hasUserInteracted = false;
 
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   // ── New fields ──
   double? _avsRenteMensuelle;
   final _rachatAnnuelCtrl = TextEditingController(text: '0');
@@ -105,6 +110,41 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   void initState() {
     super.initState();
     _recalculate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final extra = GoRouterState.of(context).extra;
+        if (extra is Map<String, dynamic>) {
+          _seqRunId = extra['runId'] as String?;
+          _seqStepId = extra['stepId'] as String?;
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _emitFinalReturnOnPop() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('rente_vs_capital',
+        ScreenReturn.abandoned(
+          route: '/rente-vs-capital',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    // decision_mixte: which option the user was viewing when they left
+    final mode = _inputMode == _InputMode.certificate ? 'certificate' : 'estimate';
+    ScreenCompletionTracker.markCompletedWithReturn('rente_vs_capital',
+      ScreenReturn.completed(
+        route: '/rente-vs-capital',
+        stepOutputs: {'decision_mixte': mode},
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   @override
@@ -364,6 +404,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     // F2-6: Only emit ScreenReturn after user has actively interacted.
     // Prevents premature completion on initial auto-fill + auto-calc.
     if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final mode = _inputMode == _InputMode.certificate
         ? 'certificate'
         : 'estimate';
@@ -416,7 +457,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ? const <TrajectoireOption>[]
         : _optionsAsAgeTrajectories(_result!.options);
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturnOnPop();
+      },
+      child: Scaffold(
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── SliverAppBar (white standard — Simulator screen) ──
@@ -524,7 +569,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
           ),
         ],
-      ))),
+      )))),
     );
   }
 
