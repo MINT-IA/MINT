@@ -80,7 +80,14 @@ SELECT COALESCE(v.doc_id, k.doc_id) AS doc_id,
        COALESCE(v.doc_type, k.doc_type) AS doc_type,
        COALESCE(v.vector_score, 0) AS vector_score,
        COALESCE(k.keyword_score, 0) AS keyword_score,
-       (0.7 * COALESCE(v.vector_score, 0) + 0.3 * COALESCE(k.keyword_score, 0)) AS fused_score
+       (0.7 * COALESCE(v.vector_score, 0) + 0.3 * COALESCE(k.keyword_score, 0))
+       * CASE
+           WHEN COALESCE(v.doc_type, k.doc_type) = 'memory'
+                AND COALESCE(v.metadata, k.metadata)::jsonb ? 'created_at'
+                AND (NOW() - (COALESCE(v.metadata, k.metadata)::jsonb->>'created_at')::timestamptz) < INTERVAL '30 days'
+           THEN 1.2  -- 20% freshness boost for recent memories
+           ELSE 1.0
+         END AS fused_score
 FROM vector_results v
 FULL OUTER JOIN keyword_results k ON v.doc_id = k.doc_id
 WHERE (0.7 * COALESCE(v.vector_score, 0) + 0.3 * COALESCE(k.keyword_score, 0)) >= %(min_score)s

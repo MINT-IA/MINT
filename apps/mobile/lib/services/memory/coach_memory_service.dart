@@ -76,7 +76,7 @@ class CoachMemoryService {
       if (token == null) return;
 
       await http.post(
-        Uri.parse('$baseUrl/api/v1/coach/chat/sync-insight'),
+        Uri.parse('$baseUrl/api/v1/coach/sync-insight'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
