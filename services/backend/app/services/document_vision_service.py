@@ -126,8 +126,8 @@ Réponds UNIQUEMENT en JSON valide, sans texte autour:
 def extract_with_vision(
     image_base64: str,
     doc_type: DocumentType,
-    canton: str | None = None,
-    language_hint: str | None = None,
+    canton: Optional[str] = None,
+    language_hint: Optional[str] = None,
 ) -> VisionExtractionResponse:
     """Extract structured data from a document image using Claude Vision.
 
