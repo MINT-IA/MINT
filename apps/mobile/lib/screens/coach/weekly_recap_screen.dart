@@ -7,6 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/recap/ai_recap_narrator.dart';
 import 'package:mint_mobile/services/recap/recap_formatter.dart';
 import 'package:mint_mobile/services/recap/weekly_recap_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -43,6 +47,7 @@ class WeeklyRecapScreen extends StatefulWidget {
 
 class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
   WeeklyRecap? _recap;
+  String? _aiNarrative;
   bool _loading = true;
   String? _errorKey;
 
@@ -77,6 +82,8 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
           _recap = recap;
           _loading = false;
         });
+        // Generate AI narrative in background (non-blocking)
+        _generateAiNarrative(recap, profile);
       }
     } catch (_) {
       if (mounted) {
@@ -85,6 +92,39 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
           _errorKey = 'recapEmpty';
         });
       }
+    }
+  }
+
+  Future<void> _generateAiNarrative(WeeklyRecap recap, CoachProfile profile) async {
+    try {
+      final byok = context.read<ByokProvider>();
+      if (!byok.isConfigured || byok.apiKey == null || byok.provider == null) {
+        // No LLM configured — use template fallback in narrator
+        final narrative = AiRecapNarrator.templateFallback(recap, profile);
+        if (mounted && narrative.isNotEmpty) {
+          setState(() => _aiNarrative = narrative);
+        }
+        return;
+      }
+      final providerEnum = switch (byok.provider!.toLowerCase()) {
+        'anthropic' || 'claude' => LlmProvider.anthropic,
+        'mistral' => LlmProvider.mistral,
+        _ => LlmProvider.openai,
+      };
+      final config = LlmConfig(
+        apiKey: byok.apiKey!,
+        provider: providerEnum,
+      );
+      final narrative = await AiRecapNarrator.narrate(
+        recap: recap,
+        profile: profile,
+        config: config,
+      );
+      if (mounted && narrative.isNotEmpty) {
+        setState(() => _aiNarrative = narrative);
+      }
+    } catch (_) {
+      // AI narrative is optional — template sections always shown
     }
   }
 
@@ -164,6 +204,22 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
           // ── Budget hero number ─────────────────────────
           if (recap.budget != null) ...[
             _buildBudgetHero(recap.budget!, l),
+            const SizedBox(height: MintSpacing.xl),
+          ],
+
+          // ── AI Narrative (when available) ──────────────
+          if (_aiNarrative != null) ...[
+            MintSurface(
+              padding: const EdgeInsets.all(MintSpacing.md + 4),
+              radius: 16,
+              elevated: true,
+              child: Text(
+                _aiNarrative!,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textPrimary,
+                ).copyWith(height: 1.6),
+              ),
+            ),
             const SizedBox(height: MintSpacing.xl),
           ],
 
