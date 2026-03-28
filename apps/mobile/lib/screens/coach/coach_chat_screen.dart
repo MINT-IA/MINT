@@ -3526,7 +3526,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     if (bytes == null || !mounted) return;
 
-    // Show processing message
+    // File size guard: max 5 MB to avoid Claude API timeouts
+    if (bytes.length > 5 * 1024 * 1024) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fichier trop volumineux (max 5 Mo)')),
+        );
+      }
+      return;
+    }
+
+    // Show processing message + lock input
     setState(() {
       _messages.add(ChatMessage(
         role: 'user',
@@ -3540,17 +3550,25 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     try {
       final base64Image = base64Encode(bytes);
 
+      if (!mounted) { _isBusy = false; return; }
       final canton = context.read<CoachProfileProvider>().profile?.canton;
+
+      // Detect document type from file extension (better than hardcoding)
+      final ext = (fileName ?? '').split('.').last.toLowerCase();
+      final docType = switch (ext) {
+        'pdf' => 'lpp_certificate', // PDF → default to LPP (most common scan)
+        _ => 'lpp_certificate',
+      };
 
       // Call Claude Vision via backend
       final response = await DocumentService.extractWithVision(
         imageBase64: base64Image,
-        documentType: 'lpp_certificate', // Default — Vision auto-detects
+        documentType: docType,
         canton: canton,
         languageHint: 'fr',
       );
 
-      if (!mounted) return;
+      if (!mounted) { _isBusy = false; return; }
 
       if (response != null && (response['extractedFields'] as List?)?.isNotEmpty == true) {
         final fields = response['extractedFields'] as List;
