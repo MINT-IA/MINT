@@ -863,6 +863,10 @@ class CoachProfileProvider extends ChangeNotifier {
     double? lacuneRachat;
     double? salaireAssure;
     double? rendementCaisseVal;
+    double? projectedRente;
+    double? projectedCapital;
+    double? disabilityCov;
+    double? deathCov;
 
     for (final field in fields) {
       if (field.profileField == null) continue;
@@ -886,6 +890,14 @@ class CoachProfileProvider extends ChangeNotifier {
           salaireAssure = value;
         case 'rendementCaisse':
           rendementCaisseVal = value / 100; // Stored as 2.0 → 0.02
+        case 'projectedRenteLpp':
+          projectedRente = value;
+        case 'projectedCapital65':
+          projectedCapital = value;
+        case 'disabilityCoverage':
+          disabilityCov = value;
+        case 'deathCoverage':
+          deathCov = value;
       }
     }
 
@@ -912,6 +924,11 @@ class CoachProfileProvider extends ChangeNotifier {
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
       librePassage: p.prevoyance.librePassage,
+      bonificationsEducatives: p.prevoyance.bonificationsEducatives,
+      projectedRenteLpp: projectedRente ?? p.prevoyance.projectedRenteLpp,
+      projectedCapital65: projectedCapital ?? p.prevoyance.projectedCapital65,
+      disabilityCoverage: disabilityCov ?? p.prevoyance.disabilityCoverage,
+      deathCoverage: deathCov ?? p.prevoyance.deathCoverage,
     );
 
     // Tag data sources as certificate-confirmed
@@ -992,6 +1009,113 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Inject PARTNER LPP certificate extraction into CoachProfile.conjoint.
+  ///
+  /// Identical field extraction to updateFromLppExtraction, but stores
+  /// in profile.conjoint.prevoyance instead of profile.prevoyance.
+  /// Ensures couple certificates are never mixed.
+  Future<void> updateFromPartnerLppExtraction(
+    List<ExtractedField> fields,
+  ) async {
+    if (_profile == null) return;
+    final p = _profile!;
+    if (p.conjoint == null) return; // No partner configured
+
+    double? avoirTotal;
+    double? avoirOblig;
+    double? avoirSuroblig;
+    double? tauxConvOblig;
+    double? tauxConvSuroblig;
+    double? lacuneRachat;
+    double? salaireAssure;
+    double? rendementCaisseVal;
+
+    for (final field in fields) {
+      if (field.profileField == null) continue;
+      final value = field.value;
+      if (value is! double) continue;
+      switch (field.profileField) {
+        case 'avoirLppTotal':
+          avoirTotal = value;
+        case 'lppObligatoire':
+          avoirOblig = value;
+        case 'lppSurobligatoire':
+          avoirSuroblig = value;
+        case 'tauxConversionOblig':
+          tauxConvOblig = value / 100;
+        case 'tauxConversionSuroblig':
+          tauxConvSuroblig = value / 100;
+        case 'buybackPotential':
+          lacuneRachat = value;
+        case 'lppInsuredSalary':
+          salaireAssure = value;
+        case 'rendementCaisse':
+          rendementCaisseVal = value / 100;
+      }
+    }
+
+    final existing = p.conjoint!.prevoyance ?? const PrevoyanceProfile();
+    final updatedPrev = PrevoyanceProfile(
+      anneesContribuees: existing.anneesContribuees,
+      lacunesAVS: existing.lacunesAVS,
+      renteAVSEstimeeMensuelle: existing.renteAVSEstimeeMensuelle,
+      avoirLppTotal: avoirTotal ?? existing.avoirLppTotal,
+      avoirLppObligatoire: avoirOblig ?? existing.avoirLppObligatoire,
+      avoirLppSurobligatoire: avoirSuroblig ?? existing.avoirLppSurobligatoire,
+      rachatMaximum: lacuneRachat ?? existing.rachatMaximum,
+      tauxConversion: tauxConvOblig ?? existing.tauxConversion,
+      tauxConversionSuroblig: tauxConvSuroblig ?? existing.tauxConversionSuroblig,
+      rendementCaisse: rendementCaisseVal ?? existing.rendementCaisse,
+      salaireAssure: salaireAssure ?? existing.salaireAssure,
+      ramd: existing.ramd,
+      nombre3a: existing.nombre3a,
+      totalEpargne3a: existing.totalEpargne3a,
+      comptes3a: existing.comptes3a,
+      canContribute3a: existing.canContribute3a,
+      librePassage: existing.librePassage,
+    );
+
+    final updatedConjoint = p.conjoint!.copyWith(prevoyance: updatedPrev);
+
+    // Tag data sources
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (avoirTotal != null) {
+      updatedSources['conjoint.prevoyance.avoirLppTotal'] =
+          ProfileDataSource.certificate;
+    }
+    if (tauxConvOblig != null) {
+      updatedSources['conjoint.prevoyance.tauxConversion'] =
+          ProfileDataSource.certificate;
+    }
+
+    // Stamp timestamps
+    final touchedFields = <String>[];
+    if (avoirTotal != null) touchedFields.add('conjoint.prevoyance.avoirLppTotal');
+    if (tauxConvOblig != null) touchedFields.add('conjoint.prevoyance.tauxConversion');
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
+    _profile = p.copyWith(
+      conjoint: updatedConjoint,
+      dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist partner LPP data
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (avoirTotal != null) answers['_coach_conjoint_avoir_lpp'] = avoirTotal;
+    if (tauxConvOblig != null) {
+      answers['_coach_conjoint_taux_conversion'] = tauxConvOblig;
+    }
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
+    answers['_coach_conjoint_lpp_source'] = 'document_scan';
+    await ReportPersistenceService.saveAnswers(answers);
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
   /// Met a jour le profil depuis l'extraction d'un extrait AVS.
   ///
   /// Mappe les champs AVS extraits vers PrevoyanceProfile.
@@ -1005,6 +1129,7 @@ class CoachProfileProvider extends ChangeNotifier {
     int? lacunesCotisation;
     double? renteEstimee;
     double? ramd;
+    int? bonificationsEduc;
 
     for (final field in fields) {
       if (field.profileField == null) continue;
@@ -1027,6 +1152,10 @@ class CoachProfileProvider extends ChangeNotifier {
         case 'avsRamd':
           if (value is double) ramd = value;
           if (value is int) ramd = value.toDouble();
+        case 'bonificationsEducatives':
+        case 'avsEducationCredits':
+          if (value is double) bonificationsEduc = value.round();
+          if (value is int) bonificationsEduc = value;
       }
     }
 
@@ -1052,10 +1181,20 @@ class CoachProfileProvider extends ChangeNotifier {
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
       librePassage: p.prevoyance.librePassage,
+      bonificationsEducatives:
+          bonificationsEduc ?? p.prevoyance.bonificationsEducatives,
+      projectedRenteLpp: p.prevoyance.projectedRenteLpp,
+      projectedCapital65: p.prevoyance.projectedCapital65,
+      disabilityCoverage: p.prevoyance.disabilityCoverage,
+      deathCoverage: p.prevoyance.deathCoverage,
     );
 
     // Tag data sources as certificate-confirmed
     final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (bonificationsEduc != null) {
+      updatedSources['prevoyance.bonificationsEducatives'] =
+          ProfileDataSource.certificate;
+    }
     if (anneesContrib != null) {
       updatedSources['prevoyance.anneesContribuees'] =
           ProfileDataSource.certificate;
@@ -1201,6 +1340,78 @@ class CoachProfileProvider extends ChangeNotifier {
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
     if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
     answers['_coach_tax_source'] = 'document_scan';
+    await ReportPersistenceService.saveAnswers(answers);
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
+  /// Inject salary certificate extraction into CoachProfile.
+  ///
+  /// Stores: salaireBrutMensuel, nombreDeMois, bonusPourcentage.
+  /// Tags dataSources as certificate. Stamps timestamps.
+  Future<void> updateFromSalaryExtraction(List<ExtractedField> fields) async {
+    if (_profile == null) return;
+
+    final p = _profile!;
+    double? salaireBrut;
+    int? nombreMois;
+    double? bonus;
+    double? tauxActivite;
+
+    for (final field in fields) {
+      if (field.profileField == null) continue;
+      switch (field.profileField) {
+        case 'salaireBrutMensuel':
+          if (field.value is num) salaireBrut = (field.value as num).toDouble();
+        case 'nombreMois' || 'nombreDeMois':
+          if (field.value is num) nombreMois = (field.value as num).toInt();
+        case 'bonus' || 'bonusPourcentage':
+          if (field.value is num) bonus = (field.value as num).toDouble();
+        case 'tauxActivite':
+          if (field.value is num) tauxActivite = (field.value as num).toDouble();
+      }
+    }
+
+    // Tag data sources
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (salaireBrut != null) {
+      updatedSources['salaireBrutMensuel'] = ProfileDataSource.certificate;
+    }
+    if (nombreMois != null) {
+      updatedSources['nombreDeMois'] = ProfileDataSource.certificate;
+    }
+
+    // Stamp timestamps
+    final touchedFields = <String>[];
+    if (salaireBrut != null) touchedFields.add('salaireBrutMensuel');
+    if (nombreMois != null) touchedFields.add('nombreDeMois');
+    if (bonus != null) touchedFields.add('bonusPourcentage');
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
+    _profile = p.copyWith(
+      salaireBrutMensuel: salaireBrut ?? p.salaireBrutMensuel,
+      nombreDeMois: nombreMois ?? p.nombreDeMois,
+      bonusPourcentage: bonus ?? p.bonusPourcentage,
+      dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (salaireBrut != null) {
+      answers['q_monthly_gross_salary_chf'] = salaireBrut;
+    }
+    if (nombreMois != null) {
+      answers['q_salary_months'] = nombreMois;
+    }
+    if (bonus != null) {
+      answers['q_bonus_percentage'] = bonus;
+    }
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
+    answers['_coach_salary_source'] = 'document_scan';
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;

@@ -11409,5 +11409,21 @@
   "chatDocError": "Error al analizar el documento. Inténtalo de nuevo.",
   "chatDocAttachTooltip": "Escanear un documento",
   "seasonalLamalTitle": "Nuevas primas LAMal",
-  "seasonalLamalDesc": "Las primas 2027 están publicadas. Verifica si tu franquicia sigue siendo óptima."
+  "seasonalLamalDesc": "Las primas 2027 están publicadas. Verifica si tu franquicia sigue siendo óptima.",
+  "extractionWhoseDocument": "¿De quién es este documento?",
+  "extractionWhoseDocumentBody": "Tienes un perfil de pareja. ¿Este documento es tuyo o de tu pareja?",
+  "extractionDocMine": "Es mío",
+  "extractionDocPartner": "Es de mi pareja",
+  "capCoachPromptMissingData": "Ayúdame understand why {category} is important for my situation.",
+  "capCoachPromptDebt": "Ayúdame prioritize my debt repayment. Where should I start?",
+  "capCoachPromptIndepNoLpp": "I'm self-employed without LPP. What pension options do I have?",
+  "capCoachPrompt3a": "Cómo much can I save with a 3a contribution this year?",
+  "capCoachPromptRachat": "Ayúdame understand if a LPP buyback makes sense for me.",
+  "capCoachPromptBudgetDeficit": "My budget is in deficit. Cómo can I find some breathing room?",
+  "capCoachPromptReplacement": "My replacement rate is {rate}%. Is that enough for retirement?",
+  "capCoachPromptUnemployment": "I'm unemployed. What are my financial options?",
+  "capCoachPromptDivorce": "I'm divorced. Cómo can I protect my financial situation?",
+  "capCoachPromptCoupleOptim": "Cómo can we optimize our pension planning as a couple?",
+  "capCoachPromptCouple": "We're a couple. Cómo should we coordinate our finances?",
+  "capCoachPromptMarried": "We're both working and married. Cómo can we optimize?"
 }

@@ -3241,8 +3241,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       onAdvance: (payload.canAdvance && payload.nextRoute != null) ? () {
         _navigateToSequenceStep(payload);
       } : null,
-      onQuit: payload.canQuit ? () {
-        SequenceChatHandler.quitSequence();
+      onQuit: payload.canQuit ? () async {
+        await SequenceChatHandler.quitSequence();
         if (mounted) {
           setState(() {
             _messages.add(ChatMessage(

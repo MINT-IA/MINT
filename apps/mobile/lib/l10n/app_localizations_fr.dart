@@ -9777,6 +9777,63 @@ class SFr extends S {
   String get shellWelcomeBack => 'De retour. Tes chiffres sont à jour.';
 
   @override
+  String get capCoachPromptDebt => 'Aide-moi à prioriser le remboursement de mes dettes. Par quoi commencer\u00a0?';
+
+  @override
+  String get capCoachPromptIndepNoLpp => "Je suis indépendant·e sans LPP. Aide-moi à comprendre l\u2019écart entre mon revenu et ce que l\u2019AI couvrirait en cas d\u2019invalidité.";
+
+  @override
+  String get capCoachPrompt3a => 'Combien je peux économiser avec un versement 3a cette année\u00a0?';
+
+  @override
+  String get capCoachPromptRachat => 'Aide-moi à comprendre si un rachat LPP est pertinent pour moi.';
+
+  @override
+  String get capCoachPromptBudgetDeficit => 'Mon budget est en déficit. Comment retrouver de l\'air\u00a0?';
+
+  @override
+  String get capCoachPromptUnemployment => 'Je suis en situation de chômage. Quelles sont mes options financières\u00a0?';
+
+  @override
+  String get capCoachPromptDivorce => 'Je suis divorcé·e. Comment protéger ma situation financière\u00a0?';
+
+  @override
+  String get capCoachPromptCoupleOptim => 'Comment optimiser notre prévoyance à deux\u00a0?';
+
+  @override
+  String get capCoachPromptCouple => 'Nous sommes en couple. Comment coordonner nos finances\u00a0?';
+
+  @override
+  String get capCoachPromptMarried => 'Nous sommes mariés et nous travaillons tous les deux. Comment optimiser\u00a0?';
+
+  @override
+  String capCoachPromptMissingData(String category) => 'Aide-moi à comprendre pourquoi \$category est important pour ma situation.';
+
+  @override
+  String capCoachPromptReplacement(String rate) => 'Mon taux de remplacement est de \$rate\u00a0%. Est-ce suffisant pour ma retraite\u00a0?';
+
+  @override
+  String get seasonalLamalTitle => 'Nouvelles primes LAMal';
+
+  @override
+  String get seasonalLamalDesc => 'Les primes 2027 sont publiées. Vérifie si ta franchise est toujours optimale.';
+
+  @override
+  String proactiveContractDeadline(String label, String days) => 'Rappel : \$label arrive dans \$days jours. Pense à anticiper.';
+
+  @override
+  String get extractionWhoseDocument => 'À qui est ce document ?';
+
+  @override
+  String get extractionWhoseDocumentBody => 'Tu as un profil couple. Ce document est pour toi ou ton/ta partenaire ?';
+
+  @override
+  String get extractionDocMine => 'C\'est le mien';
+
+  @override
+  String get extractionDocPartner => 'C\'est celui de mon/ma partenaire';
+
+  @override
   String get chatPickPhoto => 'Prendre une photo';
 
   @override

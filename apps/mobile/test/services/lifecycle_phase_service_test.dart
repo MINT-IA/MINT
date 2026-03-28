@@ -117,7 +117,7 @@ void main() {
       expect(result.tone, equals(LifecycleTone.encouraging));
     });
 
-    // ── Phase 3: Accélération (35-44) ───────────────────────────
+    // ── Phase 3: Accélération (38-44) ───────────────────────────
     test('age 40 → Accélération', () {
       final profile = makeProfile(birthYear: 1986);
       final result = LifecyclePhaseService.detect(profile, now: now);
@@ -177,8 +177,14 @@ void main() {
       expect(result.phase, equals(LifecyclePhase.construction));
     });
 
-    test('age 35 → Accélération (boundary)', () {
+    test('age 35 → Construction (spec §6: 28-37)', () {
       final profile = makeProfile(birthYear: 1991);
+      final result = LifecyclePhaseService.detect(profile, now: now);
+      expect(result.phase, equals(LifecyclePhase.construction));
+    });
+
+    test('age 38 → Accélération (boundary)', () {
+      final profile = makeProfile(birthYear: 1988);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.acceleration));
     });

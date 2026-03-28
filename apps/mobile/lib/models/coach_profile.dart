@@ -277,6 +277,13 @@ class PrevoyanceProfile {
 
   // --- AVS (from extraction) ---
   final double? ramd; // revenu annuel moyen determinant (AVS)
+  final int? bonificationsEducatives; // LAVS art. 29sexies (years of child-rearing credits)
+
+  // --- LPP certificate projections (from extraction, not computed) ---
+  final double? projectedRenteLpp; // Rente projetée à 65 (from certificate)
+  final double? projectedCapital65; // Capital projeté à 65 (from certificate)
+  final double? disabilityCoverage; // Prestation invalidité (from certificate)
+  final double? deathCoverage; // Prestation décès (from certificate)
 
   // --- 3a ---
   final int nombre3a; // nombre de comptes 3a
@@ -302,6 +309,11 @@ class PrevoyanceProfile {
     this.rendementCaisse = 0.02,
     this.salaireAssure,
     this.ramd,
+    this.bonificationsEducatives,
+    this.projectedRenteLpp,
+    this.projectedCapital65,
+    this.disabilityCoverage,
+    this.deathCoverage,
     this.nombre3a = 0,
     this.totalEpargne3a = 0,
     this.comptes3a = const [],
@@ -368,6 +380,11 @@ class PrevoyanceProfile {
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
       salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
       ramd: (json['ramd'] as num?)?.toDouble(),
+      bonificationsEducatives: json['bonificationsEducatives'] as int?,
+      projectedRenteLpp: (json['projectedRenteLpp'] as num?)?.toDouble(),
+      projectedCapital65: (json['projectedCapital65'] as num?)?.toDouble(),
+      disabilityCoverage: (json['disabilityCoverage'] as num?)?.toDouble(),
+      deathCoverage: (json['deathCoverage'] as num?)?.toDouble(),
       nombre3a: json['nombre3a'] ?? 0,
       totalEpargne3a: (json['totalEpargne3a'] as num?)?.toDouble() ?? 0,
       comptes3a: (json['comptes3a'] as List?)
@@ -397,6 +414,11 @@ class PrevoyanceProfile {
         'rendementCaisse': rendementCaisse,
         'salaireAssure': salaireAssure,
         'ramd': ramd,
+        'bonificationsEducatives': bonificationsEducatives,
+        'projectedRenteLpp': projectedRenteLpp,
+        'projectedCapital65': projectedCapital65,
+        'disabilityCoverage': disabilityCoverage,
+        'deathCoverage': deathCoverage,
         'nombre3a': nombre3a,
         'totalEpargne3a': totalEpargne3a,
         'comptes3a': comptes3a.map((c) => c.toJson()).toList(),

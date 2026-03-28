@@ -466,6 +466,29 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             _fields.length;
   }
 
+  /// Ask user whose document this is (for couple profiles).
+  /// Returns true if this is the partner's document.
+  Future<bool> _askWhoseDocument() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(S.of(ctx)!.extractionWhoseDocument),
+        content: Text(S.of(ctx)!.extractionWhoseDocumentBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(S.of(ctx)!.extractionDocMine),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(S.of(ctx)!.extractionDocPartner),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   // ── Confirm and navigate ─────────────────────────────────
 
   Future<void> _onConfirmAll() async {
@@ -493,14 +516,28 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       previousConfidence = currentConfidence.score.round();
     }
 
+    // For couple profiles: ask whose document this is before injecting.
+    final isCouple = coachProvider.hasProfile &&
+        coachProvider.profile!.conjoint != null;
+    final isPartnerDoc = isCouple &&
+        (widget.result.documentType == DocumentType.lppCertificate ||
+         widget.result.documentType == DocumentType.salaryCertificate) &&
+        await _askWhoseDocument();
+
     // Inject extracted data and AWAIT persistence before navigating
     switch (widget.result.documentType) {
       case DocumentType.lppCertificate:
-        await coachProvider.updateFromLppExtraction(_fields);
+        if (isPartnerDoc) {
+          await coachProvider.updateFromPartnerLppExtraction(_fields);
+        } else {
+          await coachProvider.updateFromLppExtraction(_fields);
+        }
       case DocumentType.avsExtract:
         await coachProvider.updateFromAvsExtraction(_fields);
       case DocumentType.taxDeclaration:
         await coachProvider.updateFromTaxExtraction(_fields);
+      case DocumentType.salaryCertificate:
+        await coachProvider.updateFromSalaryExtraction(_fields);
       default:
         break;
     }
