@@ -863,6 +863,10 @@ class CoachProfileProvider extends ChangeNotifier {
     double? lacuneRachat;
     double? salaireAssure;
     double? rendementCaisseVal;
+    double? projectedRente;
+    double? projectedCapital;
+    double? disabilityCov;
+    double? deathCov;
 
     for (final field in fields) {
       if (field.profileField == null) continue;
@@ -886,6 +890,14 @@ class CoachProfileProvider extends ChangeNotifier {
           salaireAssure = value;
         case 'rendementCaisse':
           rendementCaisseVal = value / 100; // Stored as 2.0 → 0.02
+        case 'projectedRenteLpp':
+          projectedRente = value;
+        case 'projectedCapital65':
+          projectedCapital = value;
+        case 'disabilityCoverage':
+          disabilityCov = value;
+        case 'deathCoverage':
+          deathCov = value;
       }
     }
 
@@ -912,6 +924,11 @@ class CoachProfileProvider extends ChangeNotifier {
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
       librePassage: p.prevoyance.librePassage,
+      bonificationsEducatives: p.prevoyance.bonificationsEducatives,
+      projectedRenteLpp: projectedRente ?? p.prevoyance.projectedRenteLpp,
+      projectedCapital65: projectedCapital ?? p.prevoyance.projectedCapital65,
+      disabilityCoverage: disabilityCov ?? p.prevoyance.disabilityCoverage,
+      deathCoverage: deathCov ?? p.prevoyance.deathCoverage,
     );
 
     // Tag data sources as certificate-confirmed
@@ -986,6 +1003,113 @@ class CoachProfileProvider extends ChangeNotifier {
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
     if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
     answers['_coach_lpp_source'] = 'document_scan';
+    await ReportPersistenceService.saveAnswers(answers);
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
+  /// Inject PARTNER LPP certificate extraction into CoachProfile.conjoint.
+  ///
+  /// Identical field extraction to updateFromLppExtraction, but stores
+  /// in profile.conjoint.prevoyance instead of profile.prevoyance.
+  /// Ensures couple certificates are never mixed.
+  Future<void> updateFromPartnerLppExtraction(
+    List<ExtractedField> fields,
+  ) async {
+    if (_profile == null) return;
+    final p = _profile!;
+    if (p.conjoint == null) return; // No partner configured
+
+    double? avoirTotal;
+    double? avoirOblig;
+    double? avoirSuroblig;
+    double? tauxConvOblig;
+    double? tauxConvSuroblig;
+    double? lacuneRachat;
+    double? salaireAssure;
+    double? rendementCaisseVal;
+
+    for (final field in fields) {
+      if (field.profileField == null) continue;
+      final value = field.value;
+      if (value is! double) continue;
+      switch (field.profileField) {
+        case 'avoirLppTotal':
+          avoirTotal = value;
+        case 'lppObligatoire':
+          avoirOblig = value;
+        case 'lppSurobligatoire':
+          avoirSuroblig = value;
+        case 'tauxConversionOblig':
+          tauxConvOblig = value / 100;
+        case 'tauxConversionSuroblig':
+          tauxConvSuroblig = value / 100;
+        case 'buybackPotential':
+          lacuneRachat = value;
+        case 'lppInsuredSalary':
+          salaireAssure = value;
+        case 'rendementCaisse':
+          rendementCaisseVal = value / 100;
+      }
+    }
+
+    final existing = p.conjoint!.prevoyance ?? const PrevoyanceProfile();
+    final updatedPrev = PrevoyanceProfile(
+      anneesContribuees: existing.anneesContribuees,
+      lacunesAVS: existing.lacunesAVS,
+      renteAVSEstimeeMensuelle: existing.renteAVSEstimeeMensuelle,
+      avoirLppTotal: avoirTotal ?? existing.avoirLppTotal,
+      avoirLppObligatoire: avoirOblig ?? existing.avoirLppObligatoire,
+      avoirLppSurobligatoire: avoirSuroblig ?? existing.avoirLppSurobligatoire,
+      rachatMaximum: lacuneRachat ?? existing.rachatMaximum,
+      tauxConversion: tauxConvOblig ?? existing.tauxConversion,
+      tauxConversionSuroblig: tauxConvSuroblig ?? existing.tauxConversionSuroblig,
+      rendementCaisse: rendementCaisseVal ?? existing.rendementCaisse,
+      salaireAssure: salaireAssure ?? existing.salaireAssure,
+      ramd: existing.ramd,
+      nombre3a: existing.nombre3a,
+      totalEpargne3a: existing.totalEpargne3a,
+      comptes3a: existing.comptes3a,
+      canContribute3a: existing.canContribute3a,
+      librePassage: existing.librePassage,
+    );
+
+    final updatedConjoint = p.conjoint!.copyWith(prevoyance: updatedPrev);
+
+    // Tag data sources
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (avoirTotal != null) {
+      updatedSources['conjoint.prevoyance.avoirLppTotal'] =
+          ProfileDataSource.certificate;
+    }
+    if (tauxConvOblig != null) {
+      updatedSources['conjoint.prevoyance.tauxConversion'] =
+          ProfileDataSource.certificate;
+    }
+
+    // Stamp timestamps
+    final touchedFields = <String>[];
+    if (avoirTotal != null) touchedFields.add('conjoint.prevoyance.avoirLppTotal');
+    if (tauxConvOblig != null) touchedFields.add('conjoint.prevoyance.tauxConversion');
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
+    _profile = p.copyWith(
+      conjoint: updatedConjoint,
+      dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist partner LPP data
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (avoirTotal != null) answers['_coach_conjoint_avoir_lpp'] = avoirTotal;
+    if (tauxConvOblig != null) {
+      answers['_coach_conjoint_taux_conversion'] = tauxConvOblig;
+    }
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
+    answers['_coach_conjoint_lpp_source'] = 'document_scan';
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
