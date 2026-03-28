@@ -3,6 +3,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -536,28 +537,41 @@ class ResponseCardService {
   /// Suggested prompts personnalises selon le profil.
   /// Un 50+ voit "Quand partir a la retraite ?" au lieu de "Mon score Fitness".
   static List<String> suggestedPrompts(CoachProfile profile, {required S l}) {
-    final age = profile.age;
     final isIndep = profile.employmentStatus == 'independant';
     final isCouple = profile.isCouple;
     final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
 
+    // Use LifecyclePhaseService for phase-aware suggestions
+    // instead of hardcoded age bands.
+    final phase = LifecyclePhaseService.detect(profile);
     final prompts = <String>[];
 
-    // Age-driven priorities
-    if (age >= 50) {
-      prompts.add(l.rcSuggestedPrompt50PlusRetirement);
-      prompts.add(l.rcSuggestedPromptRenteOuCapital);
-      if (!hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
-    } else if (age >= 35) {
-      prompts.add(l.rcSuggestedPromptAllegerImpots);
-      prompts.add(l.rcSuggestedPromptVersement3a);
-      if (!hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
-    } else {
-      prompts.add(l.rcSuggestedPromptCommencer3a);
-      prompts.add(l.rcSuggestedPrompt2ePilier);
+    switch (phase.phase) {
+      case LifecyclePhase.demarrage:
+        prompts.add(l.rcSuggestedPromptCommencer3a);
+        prompts.add(l.rcSuggestedPrompt2ePilier);
+      case LifecyclePhase.construction:
+        prompts.add(l.rcSuggestedPromptVersement3a);
+        prompts.add(l.rcSuggestedPromptAllegerImpots);
+      case LifecyclePhase.acceleration:
+        prompts.add(l.rcSuggestedPromptAllegerImpots);
+        if (!hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
+        prompts.add(l.rcSuggestedPromptVersement3a);
+      case LifecyclePhase.consolidation:
+        prompts.add(l.rcSuggestedPrompt50PlusRetirement);
+        if (!hasLpp) prompts.add(l.rcSuggestedPromptRachatLpp);
+        prompts.add(l.rcSuggestedPromptRenteOuCapital);
+      case LifecyclePhase.transition:
+        prompts.add(l.rcSuggestedPrompt50PlusRetirement);
+        prompts.add(l.rcSuggestedPromptRenteOuCapital);
+      case LifecyclePhase.retraite:
+        prompts.add(l.rcSuggestedPromptRenteOuCapital);
+        prompts.add(l.rcSuggestedPrompt50PlusRetirement);
+      case LifecyclePhase.transmission:
+        prompts.add(l.rcSuggestedPrompt50PlusRetirement);
     }
 
-    // Archetype-driven
+    // Archetype-driven (cross-phase)
     if (isIndep) {
       prompts.add(l.rcSuggestedPromptIndependant);
     }
