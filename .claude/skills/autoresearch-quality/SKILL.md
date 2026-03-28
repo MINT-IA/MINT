@@ -62,13 +62,48 @@ Stop: only avoid_print + constant_identifier_names remain
 
 ### Deep Audit Mode (F=0 + analyze clean)
 
-Read source files looking for real bugs tests don't catch:
-- Logic bugs (wrong formula, off-by-one, wrong constant)
-- Compliance violations (`grep -rn "garanti\|certain\|optimal" lib/`)
-- PII in logs, race conditions, missing input validation
-- Hardcoded values (`grep -rn "Color(0x" lib/screens/ lib/widgets/`)
+When all tests pass and analyze is clean, switch to **runtime path tracing**.
+The most frequent MINT bugs are invisible to `flutter test`:
 
-Severity: CRITICAL (wrong calc, compliance) → fix now. HIGH (validation, race) → fix if budget. MEDIUM+ → log only.
+**The 7-axis audit (per MINT_FINAL_EXECUTION_SYSTEM.md §14):**
+
+1. **Source of truth**: For each file touched, identify THE source of truth.
+   Is there a second source? If yes → bug. Check: `financial_core/` vs service, profile vs state.
+
+2. **Callsites**: Before fixing anything, list ALL consumers of the function/class.
+   A fix that works for one callsite but breaks another = regression.
+
+3. **Canonical path**: Trace the REAL runtime path:
+   `UI → navigation → GoRouter.extra → screen → ScreenReturn → handler → store`
+   Every link must be verified. A test that only covers the service misses the joint.
+
+4. **Fallbacks**: Search for legacy fallback code still alive in parallel.
+   `grep -rn "_handleRouteReturn\|fallback\|legacy" lib/screens/coach/`
+   If both canonical and fallback fire → double processing bug.
+
+5. **Side effects**: When fixing a handler, check: does fixing it trigger
+   unexpected CapMemory writes, CoachInsight saves, or milestone pulses?
+
+6. **Runtime joint**: The joint between two systems is where bugs live.
+   Screen → ScreenReturn → CoachChatScreen → SequenceChatHandler → SequenceStore.
+   Read BOTH sides of each joint. Check types match, keys match, routes match.
+
+7. **Auto-audit before commit**: List explicitly:
+   - the bug most likely still present
+   - the joint least proven
+   - the riskiest fallback
+   - any undemonstrated assumption
+
+**Concrete checks (read files, don't just grep):**
+
+- Route consistency: does every screen's `ScreenReturn.route` match its `GoRoute.path`?
+- Interaction tracking: does every `onChanged` callback set `_hasUserInteracted = true`?
+- PopScope timing: can `_emitFinalReturn` fire before `_readSequenceContext` has run?
+- Output mapping: do `stepOutputs` keys match `SequenceTemplate.outputMapping` keys?
+- Financial values: are gross/net/annual/monthly units consistent across the chain?
+- Flag reset: is every boolean guard (`_isNavigating`, `_finalReturnEmitted`) reset in ALL paths (success + error + unmount)?
+
+Severity: CRITICAL (wrong calc, runtime path) → fix now. HIGH (race, joint) → fix if budget. MEDIUM+ → log only.
 
 ## Experiment Log (append-only)
 
