@@ -62,8 +62,7 @@ class CapEngine {
         ctaLabel: top.action,
         ctaMode: CtaMode.capture,
         captureType: top.category,
-        coachPrompt: 'Aide-moi à comprendre pourquoi '
-            '${top.category} est important pour ma situation.',
+        coachPrompt: l.capCoachPromptMissingData(top.category),
         expectedImpact: l.capMissingPieceExpectedImpact(top.impact.toString()),
         confidenceLabel: l.capMissingPieceConfidenceLabel(confidence.score.round().toString()),
         blockingData: [top.category],
@@ -89,8 +88,7 @@ class CapEngine {
         ctaLabel: l.capDebtCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/debt/repayment',
-        coachPrompt: 'Aide-moi à prioriser le remboursement '
-            'de mes dettes. Par quoi commencer\u00a0?',
+        coachPrompt: l.capCoachPromptDebt,
         expectedImpact: l.capDebtExpectedImpact,
         sourceCards: const ['debt_ratio'],
       ));
@@ -139,9 +137,7 @@ class CapEngine {
           ctaLabel: l.capDisabilityGapCtaLabel,
           ctaMode: CtaMode.route,
           ctaRoute: '/invalidite',
-          coachPrompt: 'Je suis indépendant\u00b7e sans LPP. '
-              'Aide-moi à comprendre l\u2019écart entre mon revenu '
-              'et ce que l\u2019AI couvrirait en cas d\u2019invalidité.',
+          coachPrompt: l.capCoachPromptIndepNoLpp,
           expectedImpact: l.capDisabilityGapExpectedImpact,
           sourceCards: const ['disability'],
         ));
@@ -173,8 +169,7 @@ class CapEngine {
           ctaLabel: l.cap3aCtaLabel,
           ctaMode: CtaMode.route,
           ctaRoute: '/pilier-3a',
-          coachPrompt: 'Combien je peux économiser avec un versement 3a '
-              'cette année\u00a0? Quelles sont mes options\u00a0?',
+          coachPrompt: l.capCoachPrompt3a,
           expectedImpact: card.chiffreChoc.value > 0
               ? 'jusqu\u2019à ${card.chiffreChoc.formatted} d\u2019économie'
               : null,
@@ -201,8 +196,7 @@ class CapEngine {
         ctaLabel: l.capLppBuybackCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/rachat-lpp',
-        coachPrompt: 'Aide-moi à comprendre si un rachat LPP '
-            'est intéressant dans ma situation. Quel montant\u00a0?',
+        coachPrompt: l.capCoachPromptRachat,
         expectedImpact: l.capLppBuybackExpectedImpact,
         sourceCards: const ['lpp_buyback'],
       ));
@@ -234,8 +228,7 @@ class CapEngine {
           ctaLabel: l.capBudgetDeficitCtaLabel,
           ctaMode: CtaMode.route,
           ctaRoute: '/budget',
-          coachPrompt: 'Mon budget est en déficit. '
-              'Quels postes je pourrais ajuster en priorité\u00a0?',
+          coachPrompt: l.capCoachPromptBudgetDeficit,
           expectedImpact: l.capBudgetDeficitExpectedImpact,
           sourceCards: const ['budget'],
         ));
@@ -267,8 +260,7 @@ class CapEngine {
             ctaLabel: l.capReplacementRateCtaLabel,
             ctaMode: CtaMode.route,
             ctaRoute: '/rente-vs-capital',
-            coachPrompt: 'Mon taux de remplacement est de ${rate.round()}%. '
-                'Aide-moi à arbitrer entre 3a et rachat LPP.',
+            coachPrompt: l.capCoachPromptReplacement(rate.round().toString()),
             expectedImpact: l.capReplacementRateExpectedImpact,
             sourceCards: [card.id],
           ));
@@ -537,10 +529,7 @@ class CapEngine {
         ctaLabel: l.capChomageCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/unemployment',
-        coachPrompt: 'Je suis en situation de chômage. '
-            'Aide-moi à comprendre mes droits AC, '
-            'ce qui se passe avec ma LPP '
-            'et comment adapter mon budget maintenant.',
+        coachPrompt: l.capCoachPromptUnemployment,
         expectedImpact: l.capChomageExpectedImpact,
         sourceCards: const ['unemployment'],
       ));
@@ -569,9 +558,7 @@ class CapEngine {
         ctaLabel: l.capDivorceUrgencyCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/divorce',
-        coachPrompt: 'Je suis divorcé\u00b7e. '
-            'Aide-moi à clarifier l\u2019impact sur ma LPP, '
-            'mes impôts et mon budget.',
+        coachPrompt: l.capCoachPromptDivorce,
         expectedImpact: l.capDivorceUrgencyExpectedImpact,
         sourceCards: const ['divorce'],
       ));
@@ -893,8 +880,7 @@ class CapEngine {
         ctaLabel: l.capCouple3aCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/pilier-3a',
-        coachPrompt: 'Comment optimiser notre prévoyance à deux\u00a0? '
-            'Mon\u00b7ma conjoint\u00b7e n\u2019a pas encore de 3a.',
+        coachPrompt: l.capCoachPromptCoupleOptim,
         expectedImpact: l.capCouple3aExpectedImpact,
         sourceCards: const ['couple_3a'],
       ));
@@ -917,10 +903,7 @@ class CapEngine {
         whyNow: l.capCoupleLppBuybackWhyNow(_formatChfRound(conjointRachat)),
         ctaLabel: l.capCoupleLppBuybackCtaLabel,
         ctaMode: CtaMode.coach,
-        coachPrompt: 'Nous sommes en couple. '
-            'Aide-nous à comparer un rachat LPP sur mon profil '
-            'vs celui de mon\u00b7ma conjoint\u00b7e. '
-            'Qui a le TMI le plus élevé\u00a0?',
+        coachPrompt: l.capCoachPromptCouple,
         expectedImpact: l.capCoupleLppBuybackExpectedImpact,
         sourceCards: const ['couple_lpp_buyback'],
       ));
@@ -947,9 +930,7 @@ class CapEngine {
         ctaLabel: l.capCoupleAvsCapCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/rente-vs-capital',
-        coachPrompt: 'Nous sommes mariés et nous travaillons tous les deux. '
-            'Aide-nous à comprendre l\u2019impact du plafonnement AVS '
-            'à 150\u00a0% sur notre retraite.',
+        coachPrompt: l.capCoachPromptMarried,
         expectedImpact: l.capCoupleAvsCapExpectedImpact,
         sourceCards: const ['couple_avs'],
       ));

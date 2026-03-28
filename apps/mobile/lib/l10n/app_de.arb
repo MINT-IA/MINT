@@ -11420,5 +11420,17 @@
   "extractionWhoseDocument": "Wessen Dokument ist das?",
   "extractionWhoseDocumentBody": "Du hast ein Paar-Profil. Gehört dieses Dokument dir oder deinem Partner?",
   "extractionDocMine": "Es ist meins",
-  "extractionDocPartner": "Es gehört meinem Partner"
+  "extractionDocPartner": "Es gehört meinem Partner",
+  "capCoachPromptMissingData": "Hilf mir understand why {category} is important for my situation.",
+  "capCoachPromptDebt": "Hilf mir prioritize my debt repayment. Where should I start?",
+  "capCoachPromptIndepNoLpp": "I'm self-employed without LPP. What pension options do I have?",
+  "capCoachPrompt3a": "Wie much can I save with a 3a contribution this year?",
+  "capCoachPromptRachat": "Hilf mir understand if a LPP buyback makes sense for me.",
+  "capCoachPromptBudgetDeficit": "My budget is in deficit. Wie can I find some breathing room?",
+  "capCoachPromptReplacement": "My replacement rate is {rate}%. Is that enough for retirement?",
+  "capCoachPromptUnemployment": "I'm unemployed. What are my financial options?",
+  "capCoachPromptDivorce": "I'm divorced. Wie can I protect my financial situation?",
+  "capCoachPromptCoupleOptim": "Wie can we optimize our pension planning as a couple?",
+  "capCoachPromptCouple": "We're a couple. Wie should we coordinate our finances?",
+  "capCoachPromptMarried": "We're both working and married. Wie can we optimize?"
 }
