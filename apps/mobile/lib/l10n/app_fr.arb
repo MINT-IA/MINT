@@ -11907,5 +11907,18 @@
   "capCoachPromptDivorce": "Je suis divorcé·e. Comment protéger ma situation financière ?",
   "capCoachPromptCoupleOptim": "Comment optimiser notre prévoyance à deux ?",
   "capCoachPromptCouple": "Nous sommes en couple. Comment coordonner nos finances ?",
-  "capCoachPromptMarried": "Nous sommes mariés et nous travaillons tous les deux. Comment optimiser ?"
+  "capCoachPromptMarried": "Nous sommes mariés et nous travaillons tous les deux. Comment optimiser ?",
+  "sequencePreretraiteGoal": "Préparer ma retraite",
+  "sequencePreretraiteStep1": "Projection retraite",
+  "sequencePreretraiteStep2": "Bilan 3a",
+  "sequencePreretraiteStep3": "Rente ou capital",
+  "sequencePreretraiteStep4": "Retrait 3a optimal",
+  "sequencePreretraiteStep5": "Hypothèque",
+  "sequencePreretraiteStep6": "Rachat LPP",
+  "sequencePreretraiteStep7": "Franchise LAMal",
+  "sequencePreretraiteStep8": "Succession",
+  "sequencePreretraiteStep9": "Budget retraite",
+  "sequencePreretraiteStep10": "Décaissement",
+  "sequencePreretraiteStep11": "Résumé",
+  "proactiveContractDeadline": "Rappel : {label} arrive dans {days} jours. Pense à anticiper."
 }

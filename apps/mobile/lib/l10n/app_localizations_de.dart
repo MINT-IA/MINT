@@ -9788,6 +9788,9 @@ class SDe extends S {
   String get shellWelcomeBack => 'Wieder da. Deine Zahlen sind aktuell.';
 
   @override
+  String get sequencePreretraiteGoal => 'Prepare my retirement';
+
+  @override
   String get capCoachPromptDebt => 'Hilf mir prioritize my debt repayment. Where should I start?';
 
   @override

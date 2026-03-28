@@ -9781,6 +9781,9 @@ class SPt extends S {
   String get shellWelcomeBack => 'De volta. Os teus números estão atualizados.';
 
   @override
+  String get sequencePreretraiteGoal => 'Prepare my retirement';
+
+  @override
   String get capCoachPromptDebt => 'Ajuda-me prioritize my debt repayment. Where should I start?';
 
   @override
