@@ -501,6 +501,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         await coachProvider.updateFromAvsExtraction(_fields);
       case DocumentType.taxDeclaration:
         await coachProvider.updateFromTaxExtraction(_fields);
+      case DocumentType.salaryCertificate:
+        await coachProvider.updateFromSalaryExtraction(_fields);
       default:
         break;
     }

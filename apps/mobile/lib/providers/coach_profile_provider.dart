@@ -1207,6 +1207,78 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Inject salary certificate extraction into CoachProfile.
+  ///
+  /// Stores: salaireBrutMensuel, nombreDeMois, bonusPourcentage.
+  /// Tags dataSources as certificate. Stamps timestamps.
+  Future<void> updateFromSalaryExtraction(List<ExtractedField> fields) async {
+    if (_profile == null) return;
+
+    final p = _profile!;
+    double? salaireBrut;
+    int? nombreMois;
+    double? bonus;
+    double? tauxActivite;
+
+    for (final field in fields) {
+      if (field.profileField == null) continue;
+      switch (field.profileField) {
+        case 'salaireBrutMensuel':
+          if (field.value is num) salaireBrut = (field.value as num).toDouble();
+        case 'nombreMois' || 'nombreDeMois':
+          if (field.value is num) nombreMois = (field.value as num).toInt();
+        case 'bonus' || 'bonusPourcentage':
+          if (field.value is num) bonus = (field.value as num).toDouble();
+        case 'tauxActivite':
+          if (field.value is num) tauxActivite = (field.value as num).toDouble();
+      }
+    }
+
+    // Tag data sources
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (salaireBrut != null) {
+      updatedSources['salaireBrutMensuel'] = ProfileDataSource.certificate;
+    }
+    if (nombreMois != null) {
+      updatedSources['nombreDeMois'] = ProfileDataSource.certificate;
+    }
+
+    // Stamp timestamps
+    final touchedFields = <String>[];
+    if (salaireBrut != null) touchedFields.add('salaireBrutMensuel');
+    if (nombreMois != null) touchedFields.add('nombreDeMois');
+    if (bonus != null) touchedFields.add('bonusPourcentage');
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
+    _profile = p.copyWith(
+      salaireBrutMensuel: salaireBrut ?? p.salaireBrutMensuel,
+      nombreDeMois: nombreMois ?? p.nombreDeMois,
+      bonusPourcentage: bonus ?? p.bonusPourcentage,
+      dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (salaireBrut != null) {
+      answers['q_monthly_gross_salary_chf'] = salaireBrut;
+    }
+    if (nombreMois != null) {
+      answers['q_salary_months'] = nombreMois;
+    }
+    if (bonus != null) {
+      answers['q_bonus_percentage'] = bonus;
+    }
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
+    answers['_coach_salary_source'] = 'document_scan';
+    await ReportPersistenceService.saveAnswers(answers);
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
   /// Met a jour un ou plusieurs champs du profil depuis l'edition inline
   /// sur l'apercu financier. Persiste les answers wizard.
   ///

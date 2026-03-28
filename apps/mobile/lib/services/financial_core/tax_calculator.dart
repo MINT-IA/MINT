@@ -288,7 +288,14 @@ class RetirementTaxCalculator {
     String canton, {
     bool isMarried = false,
     int children = 0,
+    double? actualRate, // From tax declaration scan — overrides estimate
   }) {
+    // If user has scanned a tax declaration with the real marginal rate,
+    // use it directly instead of estimating. Data source: certificate (0.95).
+    if (actualRate != null && actualRate > 0 && actualRate < 0.5) {
+      return actualRate;
+    }
+
     final cantonCode = canton.toUpperCase();
 
     // Base rate from real cantonal data (fallback = Swiss average ~13%)
