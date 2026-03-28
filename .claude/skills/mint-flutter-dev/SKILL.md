@@ -130,8 +130,24 @@ Julien (50, CH, 100k, swiss_native) + Lauren (45, US/FATCA, 60k, expat_us). File
 
 - Never hardcode strings (prepare for i18n)
 - Never use `MintColors.text` (does not exist) — use `MintColors.textPrimary`
-- Wizard questions defined in `lib/data/wizard_questions_v2.dart`
-- Educational inserts in `lib/widgets/educational/`
-- Google Fonts: `GoogleFonts.spaceGrotesk()` for headers, `GoogleFonts.inter()` for body
+- Google Fonts: Montserrat (headings), Inter (body). Outfit is deprecated.
 - **ALWAYS use `financial_core/` calculators** — never duplicate AVS/LPP/Tax logic
 - Certificate extraction MUST persist to CoachProfile and trigger recalculation
+
+## Anti-Bug Discipline (per MINT_FINAL_EXECUTION_SYSTEM.md §13.7)
+
+Before ANY implementation:
+1. **Identify source of truth** — which file/model is authoritative?
+2. **List callsites** — who consumes what you're about to change?
+3. **Fix canonical path first** — don't patch a fallback if the real bug is upstream
+
+Before ANY commit:
+4. **Verify runtime path** — trace: UI → navigation → GoRouter.extra → screen → ScreenReturn → handler → store
+5. **Check all onChanged** — every slider, dropdown, switch, text field must set `_hasUserInteracted = true`
+6. **Check PopScope timing** — can `_emitFinalReturn` fire before `_readSequenceContext`?
+7. **Check route strings** — does `ScreenReturn.route` match `GoRoute.path` exactly?
+8. **Check flag resets** — every boolean guard must reset in ALL paths (success + error + unmount)
+9. **Check units** — are values gross/net, annual/monthly, ratio/percentage consistent?
+
+After ANY commit:
+10. **Auto-audit** — list: most likely remaining bug, least proven joint, riskiest fallback

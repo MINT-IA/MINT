@@ -6,6 +6,21 @@
 /// See: docs/RFC_AGENT_LOOP_STATEFUL.md §7
 library;
 
+import 'package:flutter/material.dart';
+
+/// One line in the sequence completion summary.
+class SequenceSummaryItem {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const SequenceSummaryItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+}
+
 /// Payload attached to a ChatMessage for rendering a SequenceProgressCard.
 class SequenceMessagePayload {
   /// Template ID (e.g. 'housing_purchase').
@@ -47,6 +62,10 @@ class SequenceMessagePayload {
   /// Passed in GoRouter.extra for Tier A identification.
   final String? runId;
 
+  /// Completion summary items (populated only when status == 'completed').
+  /// Each item shows one key result from the completed sequence.
+  final List<SequenceSummaryItem>? summaryItems;
+
   const SequenceMessagePayload({
     required this.templateId,
     this.currentStepId,
@@ -59,5 +78,6 @@ class SequenceMessagePayload {
     this.nextStepId,
     this.prefill,
     this.runId,
+    this.summaryItems,
   });
 }
