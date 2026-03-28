@@ -353,7 +353,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                                           ))
                                       .toList(),
                                   onChanged: (v) {
-                                    if (v != null) setState(() => _canton = v);
+                                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
                                   },
                                 ),
                               ),

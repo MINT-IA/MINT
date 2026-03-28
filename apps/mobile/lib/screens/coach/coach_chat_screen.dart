@@ -3115,20 +3115,27 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (!mounted) return;
     if (payload.nextRoute == null) return;
     if (_isSequenceNavigating) return; // Double-tap guard
+    _isSequenceNavigating = true; // Lock BEFORE async — prevents race window
 
     // Stale step guard: verify this step is still the active one.
     // Old SequenceProgressCards in the chat history carry outdated data.
     SequenceStore.load().then((currentRun) {
-      if (!mounted) return;
-      if (currentRun == null || !currentRun.isActive) return;
-      if (payload.nextStepId != null &&
-          currentRun.activeStepId != null &&
-          currentRun.activeStepId != payload.nextStepId) {
-        // The run has moved past this step — don't navigate to stale route.
+      if (!mounted) { _isSequenceNavigating = false; return; }
+      if (currentRun == null || !currentRun.isActive) {
+        _isSequenceNavigating = false;
         return;
       }
-
-      _isSequenceNavigating = true;
+      // Sequence completed (no active step) — block stale card navigation.
+      if (currentRun.activeStepId == null) {
+        _isSequenceNavigating = false;
+        return;
+      }
+      if (payload.nextStepId != null &&
+          currentRun.activeStepId != payload.nextStepId) {
+        // The run has moved past this step — don't navigate to stale route.
+        _isSequenceNavigating = false;
+        return;
+      }
 
       final extra = <String, dynamic>{
         if (payload.runId != null) 'runId': payload.runId,
@@ -3145,7 +3152,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       }).catchError((_) {
         _isSequenceNavigating = false;
       });
-    }).catchError((_) {});
+    }).catchError((_) {
+      _isSequenceNavigating = false; // Reset on store load failure
+    });
   }
 
   /// Resolve a goal label ARB key to a localized string.

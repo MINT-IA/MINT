@@ -299,28 +299,14 @@ class ForecasterService {
       targetDate: target,
     );
 
-    // Taux de remplacement base sur le scenario base
-    // Use household income (main + partner) when conjoint exists
-    final mainBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton,
-      age: profile.age,
-    );
-    final revenuNetMensuel = mainBreakdown.monthlyNetPayslip;
-    final conjoint = profile.conjoint;
-    final partnerNetMensuel = conjoint != null &&
-            conjoint.salaireBrutMensuel != null &&
-            conjoint.age != null
-        ? NetIncomeBreakdown.compute(
-            grossSalary: conjoint.salaireBrutMensuel! * 12,
-            canton: profile.canton,
-            age: conjoint.age!,
-          ).monthlyNetPayslip
-        : 0.0;
-    final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
+    // Taux de remplacement — both sides must use the same basis.
+    // revenuAnnuelRetraite is GROSS (AVS + LPP rente + 3a annualized + SWR).
+    // Compare against GROSS household income for consistency.
+    // Previously used householdNetAnnuel (NET) which inflated the ratio.
+    final householdGrossAnnuel = profile.revenuBrutAnnuelCouple;
     final tauxRemplacement = _safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
-      annualCurrentIncome: householdNetAnnuel,
+      annualCurrentIncome: householdGrossAnnuel,
     );
 
     // Milestones
