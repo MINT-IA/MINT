@@ -303,6 +303,8 @@ class SequenceChatHandler {
       SequenceTemplate.retirementPrep,
       SequenceTemplate.financialTension,
       SequenceTemplate.preretraiteComplete,
+      SequenceTemplate.coupleFinancier,
+      SequenceTemplate.naissanceCouts,
     ];
     for (final t in templates) {
       if (t.id == id) return t;

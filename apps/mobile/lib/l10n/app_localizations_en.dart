@@ -9722,6 +9722,12 @@ class SEn extends S {
   String get shellWelcomeBack => 'Back. Your numbers are up to date.';
 
   @override
+  String get sequenceCoupleGoal => 'Coordinate finances together';
+
+  @override
+  String get sequenceNaissanceGoal => 'Prepare for baby financially';
+
+  @override
   String get sequencePreretraiteGoal => 'Prepare my retirement';
 
   @override

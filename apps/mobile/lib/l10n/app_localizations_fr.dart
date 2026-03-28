@@ -9777,6 +9777,12 @@ class SFr extends S {
   String get shellWelcomeBack => 'De retour. Tes chiffres sont à jour.';
 
   @override
+  String get sequenceCoupleGoal => 'Coordonner nos finances à deux';
+
+  @override
+  String get sequenceNaissanceGoal => 'Préparer l\'arrivée financièrement';
+
+  @override
   String get sequencePreretraiteGoal => 'Préparer ma retraite';
 
   @override

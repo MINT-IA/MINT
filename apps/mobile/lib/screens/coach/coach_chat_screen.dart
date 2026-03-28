@@ -3248,6 +3248,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       'sequenceRetirementGoal' => l.sequenceRetirementGoal,
       'sequenceTensionGoal' => l.sequenceTensionGoal,
       'sequencePreretraiteGoal' => l.sequencePreretraiteGoal,
+      'sequenceCoupleGoal' => l.sequenceCoupleGoal,
+      'sequenceNaissanceGoal' => l.sequenceNaissanceGoal,
       _ => key, // Fallback to raw key if unknown
     };
   }

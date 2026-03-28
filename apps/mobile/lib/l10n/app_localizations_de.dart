@@ -9788,6 +9788,12 @@ class SDe extends S {
   String get shellWelcomeBack => 'Wieder da. Deine Zahlen sind aktuell.';
 
   @override
+  String get sequenceCoupleGoal => 'Coordinate finances together';
+
+  @override
+  String get sequenceNaissanceGoal => 'Prepare for baby financially';
+
+  @override
   String get sequencePreretraiteGoal => 'Prepare my retirement';
 
   @override
