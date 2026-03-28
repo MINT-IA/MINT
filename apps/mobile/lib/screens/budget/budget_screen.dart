@@ -67,7 +67,6 @@ class _BudgetScreenState extends State<BudgetScreen>
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('budget');
     _staggerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -78,6 +77,9 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('budget');
+      }
       try {
         context.read<BudgetProvider>().setInputs(widget.inputs);
         _staggerController.forward();
