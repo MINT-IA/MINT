@@ -40,9 +40,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('debt');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      // Only mark as explored outside sequence mode (avoids analytics pollution).
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('debt');
+      }
       _initializeFromProfile();
     });
   }
