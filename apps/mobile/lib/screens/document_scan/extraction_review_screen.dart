@@ -7,6 +7,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -503,6 +504,22 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       default:
         break;
     }
+
+    // ── Sync to backend (offline-first: failure never blocks UX) ──
+    final syncFields = _fields.map((f) {
+      final conf = f.confidence >= 0.8 ? 'high' : (f.confidence >= 0.5 ? 'medium' : 'low');
+      return <String, dynamic>{
+        'fieldName': f.profileField ?? f.label,
+        'value': f.value,
+        'confidence': conf,
+        if (f.sourceText != null) 'sourceText': f.sourceText,
+      };
+    }).toList();
+    DocumentService.sendScanConfirmation(
+      documentType: widget.result.documentType.name,
+      confirmedFields: syncFields,
+      overallConfidence: _overallConfidence,
+    ).catchError((_) => null); // Fire-and-forget
 
     if (!mounted) return;
 
