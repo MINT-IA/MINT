@@ -177,7 +177,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         if (!mounted) return;
         if (delta.isSignificant) {
           final msg = delta.confidenceDelta >= 3
-              ? 'De retour\u00a0! Ta précision a gagné +${delta.confidenceDelta.round()}\u00a0pts depuis ta dernière visite.'
+              ? S.of(context)!.shellWelcomeBackDeltaPts(delta.confidenceDelta.round())
               : S.of(context)!.shellWelcomeBack;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

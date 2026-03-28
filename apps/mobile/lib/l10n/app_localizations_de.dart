@@ -9788,6 +9788,39 @@ class SDe extends S {
   String get shellWelcomeBack => 'Wieder da. Deine Zahlen sind aktuell.';
 
   @override
+  String get chatPickPhoto => 'Foto aufnehmen';
+
+  @override
+  String get chatPickGallery => 'Bild auswählen';
+
+  @override
+  String get chatPickFile => 'Datei (PDF, DOCX)';
+
+  @override
+  String get chatFileTooLarge => 'Datei zu gross (max. 5 MB)';
+
+  @override
+  String get chatDocSent => 'Dokument zur Analyse gesendet';
+
+  @override
+  String get chatDocAnalysisIntro => 'Ich habe dein Dokument analysiert. Folgendes habe ich gefunden:';
+
+  @override
+  String get chatDocUpdatePrompt => 'Möchtest du, dass ich dein Profil mit diesen Daten aktualisiere?';
+
+  @override
+  String get chatDocExtractionFailed => 'Ich konnte keine Daten aus diesem Dokument extrahieren. Versuche es mit einem schärferen Foto.';
+
+  @override
+  String get chatDocError => 'Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.';
+
+  @override
+  String get chatDocAttachTooltip => 'Dokument scannen';
+
+  @override
+  String shellWelcomeBackDeltaPts(int delta) => 'Willkommen zurück! Deine Genauigkeit hat sich um +\$delta Pkt. verbessert.';
+
+  @override
   String get summaryCapaciteAchat => 'Kaufkapazität';
   @override
   String get summaryFondsPropres => 'Erforderliche Eigenmittel';

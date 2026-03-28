@@ -17557,6 +17557,17 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
+  String get chatPickPhoto;
+  String get chatPickGallery;
+  String get chatPickFile;
+  String get chatFileTooLarge;
+  String get chatDocSent;
+  String get chatDocAnalysisIntro;
+  String get chatDocUpdatePrompt;
+  String get chatDocExtractionFailed;
+  String get chatDocError;
+  String get chatDocAttachTooltip;
+  String shellWelcomeBackDeltaPts(int delta);
 
   String get summaryCapaciteAchat;
   String get summaryFondsPropres;

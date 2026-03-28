@@ -11431,5 +11431,18 @@
   "sequencePaused": "Sequence paused. You can resume anytime.",
   "sequenceStepSkipped": "Skipping this step for now.",
   "sequenceStepRetry": "No worries. Let's try this step again.",
-  "sequenceReEvaluate": "Your data changed. Recalculating affected steps."
+  "sequenceReEvaluate": "Your data changed. Recalculating affected steps.",
+  "shellWelcomeBackDeltaPts": "Welcome back! Your accuracy improved by +{delta} pts since last visit.",
+  "chatPickPhoto": "Take a photo",
+  "chatPickGallery": "Choose an image",
+  "chatPickFile": "File (PDF, DOCX)",
+  "chatFileTooLarge": "File too large (max 5 MB)",
+  "chatDocSent": "Document sent for analysis",
+  "chatDocAnalysisIntro": "I analyzed your document. Here's what I found:",
+  "chatDocUpdatePrompt": "Would you like me to update your profile with this data?",
+  "chatDocExtractionFailed": "I couldn't extract data from this document. Try with a clearer photo or different format.",
+  "chatDocError": "Error analyzing document. Please try again.",
+  "chatDocAttachTooltip": "Scan a document",
+  "seasonalLamalTitle": "New LAMal premiums",
+  "seasonalLamalDesc": "2027 premiums are published. Check if your franchise is still optimal."
 }

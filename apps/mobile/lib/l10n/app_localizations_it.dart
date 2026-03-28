@@ -9807,6 +9807,39 @@ class SIt extends S {
   String get shellWelcomeBack => 'Bentornato. I tuoi numeri sono aggiornati.';
 
   @override
+  String get chatPickPhoto => 'Scattare una foto';
+
+  @override
+  String get chatPickGallery => 'Scegliere un\'immagine';
+
+  @override
+  String get chatPickFile => 'File (PDF, DOCX)';
+
+  @override
+  String get chatFileTooLarge => 'File troppo grande (max 5 MB)';
+
+  @override
+  String get chatDocSent => 'Documento inviato per l\'analisi';
+
+  @override
+  String get chatDocAnalysisIntro => 'Ho analizzato il tuo documento. Ecco cosa ho trovato:';
+
+  @override
+  String get chatDocUpdatePrompt => 'Vuoi che aggiorni il tuo profilo con questi dati?';
+
+  @override
+  String get chatDocExtractionFailed => 'Non sono riuscito a estrarre dati da questo documento. Prova con una foto più nitida.';
+
+  @override
+  String get chatDocError => 'Errore nell\'analisi del documento. Riprova.';
+
+  @override
+  String get chatDocAttachTooltip => 'Scansionare un documento';
+
+  @override
+  String shellWelcomeBackDeltaPts(int delta) => 'Bentornato! La tua precisione è migliorata di +\$delta pts dall\'ultima visita.';
+
+  @override
   String get summaryCapaciteAchat => "Capacità d'acquisto";
   @override
   String get summaryFondsPropres => 'Fondi propri necessari';

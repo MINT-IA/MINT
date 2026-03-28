@@ -11397,5 +11397,18 @@
   "sequencePaused": "Percurso em pausa. Pode retomar quando quiser.",
   "sequenceStepSkipped": "Vamos pular esta etapa por enquanto.",
   "sequenceStepRetry": "Sem problema. Vamos tentar esta etapa novamente.",
-  "sequenceReEvaluate": "Os seus dados mudaram. Recalculando as etapas afetadas."
+  "sequenceReEvaluate": "Os seus dados mudaram. Recalculando as etapas afetadas.",
+  "shellWelcomeBackDeltaPts": "De volta! A sua precisão ganhou +{delta} pts desde a última visita.",
+  "chatPickPhoto": "Tirar uma foto",
+  "chatPickGallery": "Escolher uma imagem",
+  "chatPickFile": "Ficheiro (PDF, DOCX)",
+  "chatFileTooLarge": "Ficheiro demasiado grande (máx. 5 MB)",
+  "chatDocSent": "Documento enviado para análise",
+  "chatDocAnalysisIntro": "Analisei o teu documento. Eis o que encontrei:",
+  "chatDocUpdatePrompt": "Queres que atualize o teu perfil com estes dados?",
+  "chatDocExtractionFailed": "Não consegui extrair dados deste documento. Tenta com uma foto mais nítida.",
+  "chatDocError": "Erro ao analisar o documento. Tenta novamente.",
+  "chatDocAttachTooltip": "Digitalizar um documento",
+  "seasonalLamalTitle": "Novos prémios LAMal",
+  "seasonalLamalDesc": "Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é ótima."
 }

@@ -11403,5 +11403,18 @@
   "sequencePaused": "Sequenz pausiert. Du kannst jederzeit fortfahren.",
   "sequenceStepSkipped": "Diesen Schritt \u00fcberspringen wir vorerst.",
   "sequenceStepRetry": "Kein Problem. Versuchen wir diesen Schritt nochmal.",
-  "sequenceReEvaluate": "Deine Daten haben sich ge\u00e4ndert. Betroffene Schritte werden neu berechnet."
+  "sequenceReEvaluate": "Deine Daten haben sich ge\u00e4ndert. Betroffene Schritte werden neu berechnet.",
+  "shellWelcomeBackDeltaPts": "Willkommen zurück! Deine Genauigkeit hat sich um +{delta} Pkt. verbessert.",
+  "chatPickPhoto": "Foto aufnehmen",
+  "chatPickGallery": "Bild auswählen",
+  "chatPickFile": "Datei (PDF, DOCX)",
+  "chatFileTooLarge": "Datei zu gross (max. 5 MB)",
+  "chatDocSent": "Dokument zur Analyse gesendet",
+  "chatDocAnalysisIntro": "Ich habe dein Dokument analysiert. Folgendes habe ich gefunden:",
+  "chatDocUpdatePrompt": "Möchtest du, dass ich dein Profil mit diesen Daten aktualisiere?",
+  "chatDocExtractionFailed": "Ich konnte keine Daten aus diesem Dokument extrahieren. Versuche es mit einem schärferen Foto.",
+  "chatDocError": "Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.",
+  "chatDocAttachTooltip": "Dokument scannen",
+  "seasonalLamalTitle": "Neue KVG-Prämien",
+  "seasonalLamalDesc": "Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch optimal ist."
 }

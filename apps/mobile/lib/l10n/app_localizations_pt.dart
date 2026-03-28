@@ -9781,6 +9781,39 @@ class SPt extends S {
   String get shellWelcomeBack => 'De volta. Os teus números estão atualizados.';
 
   @override
+  String get chatPickPhoto => 'Tirar uma foto';
+
+  @override
+  String get chatPickGallery => 'Escolher uma imagem';
+
+  @override
+  String get chatPickFile => 'Ficheiro (PDF, DOCX)';
+
+  @override
+  String get chatFileTooLarge => 'Ficheiro demasiado grande (máx. 5 MB)';
+
+  @override
+  String get chatDocSent => 'Documento enviado para análise';
+
+  @override
+  String get chatDocAnalysisIntro => 'Analisei o teu documento. Eis o que encontrei:';
+
+  @override
+  String get chatDocUpdatePrompt => 'Queres que atualize o teu perfil com estes dados?';
+
+  @override
+  String get chatDocExtractionFailed => 'Não consegui extrair dados deste documento. Tenta com uma foto mais nítida.';
+
+  @override
+  String get chatDocError => 'Erro ao analisar o documento. Tenta novamente.';
+
+  @override
+  String get chatDocAttachTooltip => 'Digitalizar um documento';
+
+  @override
+  String shellWelcomeBackDeltaPts(int delta) => 'De volta! A sua precisão ganhou +\$delta pts desde a última visita.';
+
+  @override
   String get summaryCapaciteAchat => 'Capacidade de compra';
   @override
   String get summaryFondsPropres => 'Fundos próprios necessários';

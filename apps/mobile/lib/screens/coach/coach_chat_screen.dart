@@ -3476,17 +3476,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Prendre une photo'),
+              title: Text(S.of(ctx)!.chatPickPhoto),
               onTap: () => Navigator.pop(ctx, 'camera'),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choisir une image'),
+              title: Text(S.of(ctx)!.chatPickGallery),
               onTap: () => Navigator.pop(ctx, 'gallery'),
             ),
             ListTile(
               leading: const Icon(Icons.description_outlined),
-              title: const Text('Fichier (PDF, DOCX)'),
+              title: Text(S.of(ctx)!.chatPickFile),
               onTap: () => Navigator.pop(ctx, 'file'),
             ),
           ],
@@ -3530,7 +3530,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (bytes.length > 5 * 1024 * 1024) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fichier trop volumineux (max 5 Mo)')),
+          SnackBar(content: Text(S.of(context)!.chatFileTooLarge)),
         );
       }
       return;
@@ -3540,7 +3540,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     setState(() {
       _messages.add(ChatMessage(
         role: 'user',
-        content: '📎 ${fileName ?? "Document"} envoyé pour analyse',
+        content: '📎 ${fileName ?? "Document"} — ${S.of(context)!.chatDocSent}',
         timestamp: DateTime.now(),
       ));
       _isBusy = true;
@@ -3577,7 +3577,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
         // Build a human-readable summary for the chat
         final buf = StringBuffer();
-        buf.writeln('J\u2019ai analysé ton $docType. Voici ce que j\u2019ai trouvé\u00a0:');
+        buf.writeln('${S.of(context)!.chatDocAnalysisIntro}');
         buf.writeln();
         for (final f in fields) {
           final name = f['fieldName'] as String? ?? '';
@@ -3589,7 +3589,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           buf.writeln(analysis);
         }
         buf.writeln();
-        buf.writeln('Veux-tu que je mette à jour ton profil avec ces données\u00a0?');
+        buf.writeln(S.of(context)!.chatDocUpdatePrompt);
 
         setState(() {
           _messages.add(ChatMessage(
@@ -3609,8 +3609,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
-            content: 'Je n\u2019ai pas pu extraire de données de ce document. '
-                'Essaie avec une photo plus nette ou un autre format.',
+            content: S.of(context)!.chatDocExtractionFailed,
             timestamp: DateTime.now(),
             tier: ChatTier.fallback,
           ));
@@ -3622,7 +3621,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: 'Erreur lors de l\u2019analyse du document. Réessaie.',
+          content: S.of(context)!.chatDocError,
           timestamp: DateTime.now(),
           tier: ChatTier.fallback,
         ));
@@ -3716,7 +3715,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               IconButton(
                 icon: const Icon(Icons.attach_file_rounded,
                     color: MintColors.textMuted, size: 20),
-                tooltip: 'Scanner un document',
+                tooltip: S.of(context)!.chatDocAttachTooltip,
                 onPressed: _isBusy ? null : _pickAndExtractDocument,
               ),
               Expanded(

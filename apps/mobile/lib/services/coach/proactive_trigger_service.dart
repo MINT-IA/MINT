@@ -30,6 +30,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/contract_alert_service.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
@@ -63,6 +64,9 @@ enum ProactiveTriggerType {
 
   /// CapEngine has a new priority recommendation vs last shown cap.
   newCapAvailable,
+
+  /// A contract deadline is approaching (lease, insurance, LPP cert expiry).
+  contractDeadlineApproaching,
 }
 
 /// A proactive trigger returned by [ProactiveTriggerService.evaluate].
@@ -166,6 +170,7 @@ class ProactiveTriggerService {
     trigger ??= _checkInactivityReturn(prefs, profile, currentDate);
     trigger ??= _checkConfidenceImproved(prefs, profile, currentDate);
     trigger ??= await _checkNewCapAvailable(prefs, currentDate);
+    trigger ??= await _checkContractDeadlines(currentDate);
 
     // ── Per-type engagement suppression ─────────────────────
     // If the user has consistently ignored this trigger type,
@@ -515,5 +520,26 @@ class ProactiveTriggerService {
       if (daysOld >= 45) return 50;
       return 0;
     }
+  }
+
+  /// Check if any contract deadline is approaching.
+  static Future<ProactiveTrigger?> _checkContractDeadlines(
+    DateTime now,
+  ) async {
+    final alerts = await ContractAlertService.getActiveAlerts(now);
+    if (alerts.isEmpty) return null;
+
+    final nearest = alerts.first;
+    final days = nearest.daysRemaining(now);
+
+    return ProactiveTrigger(
+      type: ProactiveTriggerType.contractDeadlineApproaching,
+      messageKey: 'proactiveContractDeadline',
+      params: {
+        'label': nearest.label,
+        'days': days.toString(),
+      },
+      triggeredAt: now,
+    );
   }
 }
