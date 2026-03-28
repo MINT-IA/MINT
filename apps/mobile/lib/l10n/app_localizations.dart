@@ -17558,6 +17558,28 @@ abstract class S {
   /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
 
+  String get summaryCapaciteAchat;
+  String get summaryFondsPropres;
+  String get summaryRetraitEpl;
+  String get summaryImpactRente;
+  String get summaryImpotRetrait;
+  String get summaryMontantNet;
+  String get summaryVersementAnnuel;
+  String get summaryEconomieFiscale;
+  String get summaryGainEchelonnement;
+  String get summaryTauxRemplacement;
+  String get summaryEcartMensuel;
+  String get summaryEconomieRachat;
+  String get summaryRatioEndettement;
+  String get summaryMargeMensuelle;
+  String get summaryRevenuNet;
+  String get summaryChargesFixes;
+  String get summaryHorizonLiberation;
+  String get summaryVersementMensuel;
+  String get summaryDonneesLpp;
+  String get summaryEstimationSansCertificat;
+  String get summaryChoixRenteCapital;
+
   /// No description provided for @shellRecommendationsUpdated.
   ///
   /// In fr, this message translates to:

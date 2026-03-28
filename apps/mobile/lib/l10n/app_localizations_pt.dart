@@ -9781,6 +9781,49 @@ class SPt extends S {
   String get shellWelcomeBack => 'De volta. Os teus números estão atualizados.';
 
   @override
+  String get summaryCapaciteAchat => 'Capacidade de compra';
+  @override
+  String get summaryFondsPropres => 'Fundos próprios necessários';
+  @override
+  String get summaryRetraitEpl => 'Levantamento EPL previsto';
+  @override
+  String get summaryImpactRente => 'Impacto na sua pensão';
+  @override
+  String get summaryImpotRetrait => 'Imposto sobre levantamento';
+  @override
+  String get summaryMontantNet => 'Montante líquido após impostos';
+  @override
+  String get summaryVersementAnnuel => 'Contribuição anual';
+  @override
+  String get summaryEconomieFiscale => 'Poupança fiscal anual';
+  @override
+  String get summaryGainEchelonnement => 'Ganho com levantamentos escalonados';
+  @override
+  String get summaryTauxRemplacement => 'Taxa de substituição';
+  @override
+  String get summaryEcartMensuel => 'Diferença mensal estimada';
+  @override
+  String get summaryEconomieRachat => 'Poupança com recompra escalonada';
+  @override
+  String get summaryRatioEndettement => 'Rácio de endividamento';
+  @override
+  String get summaryMargeMensuelle => 'Margem mensal';
+  @override
+  String get summaryRevenuNet => 'Rendimento líquido mensal';
+  @override
+  String get summaryChargesFixes => 'Encargos fixos totais';
+  @override
+  String get summaryHorizonLiberation => 'Horizonte de libertação';
+  @override
+  String get summaryVersementMensuel => 'Pagamento mensal';
+  @override
+  String get summaryDonneesLpp => 'Dados do certificado LPP';
+  @override
+  String get summaryEstimationSansCertificat => 'Estimativa sem certificado';
+  @override
+  String get summaryChoixRenteCapital => 'Escolha renda/capital';
+
+  @override
   String get shellRecommendationsUpdated => 'Recomendações atualizadas';
 
   @override

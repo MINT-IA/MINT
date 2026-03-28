@@ -2139,6 +2139,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         summaryItems = buildSequenceSummary(
           templateId: run.templateId,
           allOutputs: allOutputs,
+          l: l,
         );
       case PauseAction():
         message = l.sequencePaused;

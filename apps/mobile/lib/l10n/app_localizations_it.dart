@@ -9807,6 +9807,49 @@ class SIt extends S {
   String get shellWelcomeBack => 'Bentornato. I tuoi numeri sono aggiornati.';
 
   @override
+  String get summaryCapaciteAchat => "Capacità d'acquisto";
+  @override
+  String get summaryFondsPropres => 'Fondi propri necessari';
+  @override
+  String get summaryRetraitEpl => 'Prelievo EPL previsto';
+  @override
+  String get summaryImpactRente => 'Impatto sulla rendita';
+  @override
+  String get summaryImpotRetrait => 'Imposta sul prelievo';
+  @override
+  String get summaryMontantNet => 'Importo netto dopo le imposte';
+  @override
+  String get summaryVersementAnnuel => 'Versamento annuale';
+  @override
+  String get summaryEconomieFiscale => 'Risparmio fiscale annuale';
+  @override
+  String get summaryGainEchelonnement => 'Guadagno da prelievi scaglionati';
+  @override
+  String get summaryTauxRemplacement => 'Tasso di sostituzione';
+  @override
+  String get summaryEcartMensuel => 'Divario mensile stimato';
+  @override
+  String get summaryEconomieRachat => 'Risparmio da riscatto scaglionato';
+  @override
+  String get summaryRatioEndettement => "Rapporto d'indebitamento";
+  @override
+  String get summaryMargeMensuelle => 'Margine mensile';
+  @override
+  String get summaryRevenuNet => 'Reddito netto mensile';
+  @override
+  String get summaryChargesFixes => 'Oneri fissi totali';
+  @override
+  String get summaryHorizonLiberation => 'Orizzonte di liberazione';
+  @override
+  String get summaryVersementMensuel => 'Pagamento mensile';
+  @override
+  String get summaryDonneesLpp => 'Dati certificato LPP';
+  @override
+  String get summaryEstimationSansCertificat => 'Stima senza certificato';
+  @override
+  String get summaryChoixRenteCapital => 'Scelta rendita/capitale';
+
+  @override
   String get shellRecommendationsUpdated => 'Raccomandazioni aggiornate';
 
   @override
