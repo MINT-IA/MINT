@@ -11409,5 +11409,6 @@
   "chatDocExtractionFailed": "Não consegui extrair dados deste documento. Tenta com uma foto mais nítida.",
   "chatDocError": "Erro ao analisar o documento. Tenta novamente.",
   "chatDocAttachTooltip": "Digitalizar um documento",
-  "proactiveContractDeadline": "Lembrete: {label} vence em {days} dias. Planeia com antecedência."
+  "seasonalLamalTitle": "Novos prémios LAMal",
+  "seasonalLamalDesc": "Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é ótima."
 }
