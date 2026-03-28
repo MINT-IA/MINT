@@ -86,13 +86,22 @@ class CoachMemoryService {
           'topic': insight.topic,
           'summary': insight.summary,
           'insight_type': insight.type.name,
-          if (insight.metadata != null) 'metadata': insight.metadata,
+          if (insight.metadata != null) 'metadata': _filterMetadata(insight.metadata!),
           'created_at': insight.createdAt.toUtc().toIso8601String(),
         }),
       );
     } catch (_) {
       // Fire-and-forget: sync failure is not user-facing.
     }
+  }
+
+  /// Filter metadata before sending to backend (defense-in-depth).
+  /// Only safe keys are transmitted — PII never leaves the device.
+  static Map<String, dynamic> _filterMetadata(Map<String, dynamic> meta) {
+    const safeKeys = {'templateId', 'stepCount', 'documentType', 'sequenceId'};
+    return Map.fromEntries(
+      meta.entries.where((e) => safeKeys.contains(e.key)),
+    );
   }
 
   // ── Read ─────────────────────────────────────────────────
