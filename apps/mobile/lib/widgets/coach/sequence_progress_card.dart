@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -36,6 +37,9 @@ class SequenceProgressCard extends StatelessWidget {
   /// Label for the goal (resolved from ARB by caller).
   final String goalLabel;
 
+  /// Summary items shown when the sequence is completed.
+  final List<SequenceSummaryItem>? summaryItems;
+
   const SequenceProgressCard({
     super.key,
     required this.completedCount,
@@ -44,6 +48,7 @@ class SequenceProgressCard extends StatelessWidget {
     required this.goalLabel,
     this.onAdvance,
     this.onQuit,
+    this.summaryItems,
   });
 
   @override
@@ -118,6 +123,38 @@ class SequenceProgressCard extends StatelessWidget {
               color: MintColors.textSecondary,
             ).copyWith(height: 1.4),
           ),
+
+          // ── Summary items (completion only) ───────────────
+          if (summaryItems != null && summaryItems!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Divider(height: 1, color: MintColors.lightBorder),
+            const SizedBox(height: 14),
+            ...summaryItems!.map((item) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                children: [
+                  Icon(item.icon, size: 18, color: MintColors.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      item.label,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    item.value,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            )),
+          ],
           const SizedBox(height: 16),
 
           // ── CTA: Advance ────────────────────────────────────

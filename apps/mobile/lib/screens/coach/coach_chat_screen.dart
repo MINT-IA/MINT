@@ -43,6 +43,7 @@ import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_summary_builder.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -2112,13 +2113,19 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final String message;
     final String analyticsEvent;
 
+    List<SequenceSummaryItem>? summaryItems;
+
     switch (result.action) {
       case AdvanceAction(:final progressLabel):
         message = l.sequenceStepCompleted(progressLabel);
         analyticsEvent = 'sequence_step_completed';
-      case CompleteAction():
+      case CompleteAction(:final allOutputs):
         message = l.sequenceCompleted;
         analyticsEvent = 'sequence_completed';
+        summaryItems = buildSequenceSummary(
+          templateId: run.templateId,
+          allOutputs: allOutputs,
+        );
       case PauseAction():
         message = l.sequencePaused;
         analyticsEvent = 'sequence_paused';
@@ -2167,6 +2174,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       nextStepId: advanceAction?.nextStep.id,
       prefill: advanceAction?.prefill,
       runId: run.runId,
+      summaryItems: summaryItems,
     );
 
     setState(() {
@@ -2181,6 +2189,23 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     _scrollToBottom();
     if (result.action is CompleteAction) {
       _triggerMilestonePulse();
+      // Persist summary as a CoachInsight for the Dossier.
+      final complete = result.action as CompleteAction;
+      final summaryText = summaryItems
+          ?.map((s) => '${s.label}\u00a0: ${s.value}')
+          .join(' · ');
+      if (summaryText != null && summaryText.isNotEmpty) {
+        CoachMemoryService.saveInsight(CoachInsight(
+          id: 'sequence_${run.templateId}_${DateTime.now().millisecondsSinceEpoch}',
+          createdAt: DateTime.now(),
+          topic: 'sequence_summary',
+          summary: '$goalLabel — $summaryText',
+          type: InsightType.fact,
+          metadata: complete.allOutputs.map(
+            (k, v) => MapEntry(k, v.toString()),
+          ),
+        )).catchError((_) {});
+      }
     }
   }
 
@@ -3192,6 +3217,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       currentStepLabel: payload.status == 'completed'
           ? l.sequenceAllStepsComplete
           : l.sequenceStepLabel(completed + 1, total),
+      summaryItems: payload.summaryItems,
       onAdvance: (payload.canAdvance && payload.nextRoute != null) ? () {
         _navigateToSequenceStep(payload);
       } : null,
