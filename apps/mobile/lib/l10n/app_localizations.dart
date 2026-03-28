@@ -42978,6 +42978,36 @@ abstract class S {
   /// **'Préparation retraite'**
   String get sequenceRetirementGoal;
 
+  /// No description provided for @sequenceTensionGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortir d\'une tension'**
+  String get sequenceTensionGoal;
+
+  /// No description provided for @sequenceTensionStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostic endettement'**
+  String get sequenceTensionStep1;
+
+  /// No description provided for @sequenceTensionStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget ru00e9el'**
+  String get sequenceTensionStep2;
+
+  /// No description provided for @sequenceTensionStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan de remboursement'**
+  String get sequenceTensionStep3;
+
+  /// No description provided for @sequenceTensionStep4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ru00e9sumu00e9'**
+  String get sequenceTensionStep4;
+
   /// No description provided for @sequenceAllStepsComplete.
   ///
   /// In fr, this message translates to:

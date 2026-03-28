@@ -24404,6 +24404,21 @@ class SDe extends S {
   String get sequenceRetirementGoal => 'Pensionierungsvorbereitung';
 
   @override
+  String get sequenceTensionGoal => 'Finanzielle Spannung lu00f6sen';
+
+  @override
+  String get sequenceTensionStep1 => 'Schuldendiagnose';
+
+  @override
+  String get sequenceTensionStep2 => 'Reales Budget';
+
+  @override
+  String get sequenceTensionStep3 => 'Ru00fcckzahlungsplan';
+
+  @override
+  String get sequenceTensionStep4 => 'Zusammenfassung';
+
+  @override
   String get sequenceAllStepsComplete => 'Alle Schritte abgeschlossen';
 
   @override

@@ -24366,6 +24366,21 @@ class SEs extends S {
   String get sequenceRetirementGoal => 'Preparación jubilación';
 
   @override
+  String get sequenceTensionGoal => 'Resolver tensiu00f3n financiera';
+
+  @override
+  String get sequenceTensionStep1 => 'Diagnu00f3stico de deuda';
+
+  @override
+  String get sequenceTensionStep2 => 'Presupuesto real';
+
+  @override
+  String get sequenceTensionStep3 => 'Plan de pago';
+
+  @override
+  String get sequenceTensionStep4 => 'Resumen';
+
+  @override
   String get sequenceAllStepsComplete => 'Todas las etapas completadas';
 
   @override

@@ -24249,6 +24249,21 @@ class SEn extends S {
   String get sequenceRetirementGoal => 'Retirement preparation';
 
   @override
+  String get sequenceTensionGoal => 'Resolve financial tension';
+
+  @override
+  String get sequenceTensionStep1 => 'Debt diagnostic';
+
+  @override
+  String get sequenceTensionStep2 => 'Real budget';
+
+  @override
+  String get sequenceTensionStep3 => 'Repayment plan';
+
+  @override
+  String get sequenceTensionStep4 => 'Summary';
+
+  @override
   String get sequenceAllStepsComplete => 'All steps completed';
 
   @override

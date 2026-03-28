@@ -24323,6 +24323,21 @@ class SPt extends S {
   String get sequenceRetirementGoal => 'Preparação para reforma';
 
   @override
+  String get sequenceTensionGoal => 'Resolver tensu00e3o financeira';
+
+  @override
+  String get sequenceTensionStep1 => 'Diagnu00f3stico de du00edvida';
+
+  @override
+  String get sequenceTensionStep2 => 'Oru00e7amento real';
+
+  @override
+  String get sequenceTensionStep3 => 'Plano de pagamento';
+
+  @override
+  String get sequenceTensionStep4 => 'Resumo';
+
+  @override
   String get sequenceAllStepsComplete => 'Todas as etapas concluídas';
 
   @override

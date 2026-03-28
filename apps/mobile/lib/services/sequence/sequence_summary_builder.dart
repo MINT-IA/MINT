@@ -26,6 +26,7 @@ List<SequenceSummaryItem> buildSequenceSummary({
     'housing_purchase' => _buildHousingSummary(allOutputs),
     'optimize_3a' => _build3aSummary(allOutputs),
     'retirement_prep' => _buildRetirementSummary(allOutputs),
+    'financial_tension' => _buildTensionSummary(allOutputs),
     _ => const [],
   };
 }
@@ -183,6 +184,74 @@ List<SequenceSummaryItem> _buildRetirementSummary(
       icon: Icons.trending_up_outlined,
       label: 'Économie via rachat échelonné',
       value: 'CHF\u00a0${formatChf(economie.toDouble())}',
+    ));
+  }
+
+  return items;
+}
+
+List<SequenceSummaryItem> _buildTensionSummary(
+  Map<String, Map<String, dynamic>> outputs,
+) {
+  final items = <SequenceSummaryItem>[];
+
+  // Step 1: Debt ratio diagnostic
+  final step1 = outputs['tension_01_diagnostic'];
+  final ratio = step1?['ratio_endettement'];
+  if (ratio is num && ratio > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.speed_outlined,
+      label: 'Ratio d\u2019endettement',
+      value: '${(ratio * 100).toStringAsFixed(0)}\u00a0%',
+    ));
+  }
+  final marge = step1?['marge_mensuelle'];
+  if (marge is num) {
+    items.add(SequenceSummaryItem(
+      icon: marge >= 0 ? Icons.check_circle_outline : Icons.warning_amber_outlined,
+      label: 'Marge mensuelle',
+      value: 'CHF\u00a0${formatChf(marge.toDouble())}',
+    ));
+  }
+
+  // Step 2: Budget
+  final step2 = outputs['tension_02_budget'];
+  final revenu = step2?['revenu_net'];
+  if (revenu is num && revenu > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.account_balance_wallet_outlined,
+      label: 'Revenu net mensuel',
+      value: 'CHF\u00a0${formatChf(revenu.toDouble())}',
+    ));
+  }
+  final charges = step2?['charges_totales'];
+  if (charges is num && charges > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.receipt_outlined,
+      label: 'Charges fixes totales',
+      value: 'CHF\u00a0${formatChf(charges.toDouble())}',
+    ));
+  }
+
+  // Step 3: Repayment
+  final step3 = outputs['tension_03_repayment'];
+  final horizon = step3?['horizon_mois'];
+  if (horizon is num && horizon > 0) {
+    final annees = horizon >= 12
+        ? '${(horizon / 12).toStringAsFixed(1)} ans'
+        : '${horizon.round()} mois';
+    items.add(SequenceSummaryItem(
+      icon: Icons.calendar_today_outlined,
+      label: 'Horizon de libération',
+      value: annees,
+    ));
+  }
+  final versement = step3?['versement_mensuel'];
+  if (versement is num && versement > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.payments_outlined,
+      label: 'Versement mensuel',
+      value: 'CHF\u00a0${formatChf(versement.toDouble())}',
     ));
   }
 

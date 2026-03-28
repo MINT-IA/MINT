@@ -131,6 +131,66 @@ void main() {
     });
   });
 
+  group('buildSequenceSummary — financial_tension', () {
+    test('produces items from complete tension outputs', () {
+      final items = buildSequenceSummary(
+        templateId: 'financial_tension',
+        allOutputs: {
+          'tension_01_diagnostic': {
+            'ratio_endettement': 0.42,
+            'marge_mensuelle': -200.0,
+          },
+          'tension_02_budget': {
+            'revenu_net': 6000.0,
+            'charges_totales': 4500.0,
+          },
+          'tension_03_repayment': {
+            'horizon_mois': 18.0,
+            'versement_mensuel': 800.0,
+          },
+        },
+      );
+
+      expect(items.length, 6);
+      expect(items[0].label, contains('Ratio'));
+      expect(items[0].value, contains('42'));
+      expect(items[1].label, contains('Marge'));
+      expect(items[4].label, contains('Horizon'));
+      expect(items[4].value, contains('1.5 ans'));
+      expect(items[5].label, contains('Versement'));
+    });
+
+    test('handles negative marge with warning icon', () {
+      final items = buildSequenceSummary(
+        templateId: 'financial_tension',
+        allOutputs: {
+          'tension_01_diagnostic': {
+            'ratio_endettement': 0.55,
+            'marge_mensuelle': -350.0,
+          },
+        },
+      );
+
+      expect(items.length, 2);
+      expect(items[1].icon, Icons.warning_amber_outlined);
+    });
+
+    test('handles short horizon in months', () {
+      final items = buildSequenceSummary(
+        templateId: 'financial_tension',
+        allOutputs: {
+          'tension_03_repayment': {
+            'horizon_mois': 8.0,
+            'versement_mensuel': 500.0,
+          },
+        },
+      );
+
+      expect(items.length, 2);
+      expect(items[0].value, contains('8 mois'));
+    });
+  });
+
   group('buildSequenceSummary — unknown template', () {
     test('returns empty for unknown template', () {
       final items = buildSequenceSummary(

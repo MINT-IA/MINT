@@ -198,6 +198,55 @@ class SequenceTemplate {
     ],
   );
 
+  /// Sortir d'une tension financière (4 étapes)
+  ///
+  /// Parcours flagship #2 — douleur réelle, forte fréquence.
+  /// Diagnostic → Budget → Plan de remboursement → Résumé.
+  /// Safe Mode: si ratio > 30%, 3a/LPP optimisations désactivées.
+  static const financialTension = SequenceTemplate(
+    id: 'financial_tension',
+    goalLabelKey: 'sequenceTensionGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'tension_01_diagnostic',
+        order: 1,
+        intentTag: 'debt_ratio',
+        titleKey: 'sequenceTensionStep1',
+        outputMapping: {
+          'ratio_endettement': 'ratio_endettement',
+          'marge_mensuelle': 'marge_mensuelle',
+        },
+      ),
+      SequenceStepDef(
+        id: 'tension_02_budget',
+        order: 2,
+        intentTag: 'budget_overview',
+        titleKey: 'sequenceTensionStep2',
+        outputMapping: {
+          'revenu_net': 'revenu_net',
+          'charges_totales': 'charges_totales',
+        },
+      ),
+      SequenceStepDef(
+        id: 'tension_03_repayment',
+        order: 3,
+        intentTag: 'debt_repayment',
+        titleKey: 'sequenceTensionStep3',
+        outputMapping: {
+          'horizon_mois': 'horizon_mois',
+          'versement_mensuel': 'versement_mensuel',
+        },
+      ),
+      SequenceStepDef(
+        id: 'tension_04_summary',
+        order: 4,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceTensionStep4',
+        isOptional: true,
+      ),
+    ],
+  );
+
   // ── INTENT → TEMPLATE MAPPING ─────────────────────────────────
 
   /// Maps a user intent to a guided sequence template.
@@ -208,6 +257,7 @@ class SequenceTemplate {
       'housing_purchase' => housingPurchase,
       'retirement_choice' || 'retirement_projection' => retirementPrep,
       'simulator_3a' || 'tax_optimization_3a' => optimize3a,
+      'debt_ratio' || 'debt_repayment' || 'debt_risk_check' => financialTension,
       _ => null,
     };
   }
