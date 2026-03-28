@@ -162,6 +162,34 @@ class NotificationService {
 
     // 4. Streak protection: 25th of each month if no check-in this month
     _scheduleStreakProtection(profile, now);
+
+    // 5. Weekly recap: Monday 10:00 — "Ton récap de la semaine est prêt"
+    _scheduleWeeklyRecap(now);
+  }
+
+  /// Weekly recap notification: fires every Monday at 10:00.
+  void _scheduleWeeklyRecap(tz.TZDateTime now) {
+    // Find next Monday
+    var nextMonday = now.add(Duration(days: (8 - now.weekday) % 7));
+    if (nextMonday.isBefore(now) || nextMonday.isAtSameMomentAs(now)) {
+      nextMonday = nextMonday.add(const Duration(days: 7));
+    }
+    final scheduledDate = tz.TZDateTime(
+      tz.local,
+      nextMonday.year,
+      nextMonday.month,
+      nextMonday.day,
+      10, // 10:00
+    );
+
+    _scheduleNotification(
+      id: 500, // Unique ID for weekly recap
+      title: 'Ton récap de la semaine',
+      body: 'Budget, progrès, prochaine étape — tout est prêt.',
+      scheduledDate: scheduledDate,
+      payload: '/coach/weekly-recap',
+      matchDateComponents: DateTimeComponents.dayOfWeekAndTime,
+    );
   }
 
   /// Monthly check-in reminder (1st of month, 10:00)
