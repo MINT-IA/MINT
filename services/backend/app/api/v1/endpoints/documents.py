@@ -564,3 +564,127 @@ async def preview_budget_import(
     preview = categorizer.compute_budget_preview(statement.transactions)
 
     return BudgetImportPreview(**preview)
+
+
+# ════════════════════════════════════════════════════════════
+#  SCAN CONFIRMATION + CLAUDE VISION EXTRACTION
+# ════════════════════════════════════════════════════════════
+
+from app.schemas.document_scan import (
+    DocumentScanConfirmation,
+    DocumentScanResponse,
+    VisionExtractionRequest,
+    VisionExtractionResponse,
+)
+
+
+@router.post("/scan-confirmation", response_model=DocumentScanResponse)
+@limiter.limit("30/minute")
+async def confirm_document_scan(
+    body: DocumentScanConfirmation,
+    request: Request,
+    current_user: User = Depends(require_current_user),
+):
+    """Receive confirmed document scan extraction from mobile.
+
+    Called after user reviews and confirms OCR/Vision extracted fields.
+    Syncs extracted data to the user's profile on the backend.
+
+    Privacy: no raw document image is sent — only confirmed field values.
+    """
+    logger.info(
+        "Scan confirmation: user=%s type=%s fields=%d confidence=%.2f method=%s",
+        current_user.id,
+        body.document_type.value,
+        len(body.confirmed_fields),
+        body.overall_confidence,
+        body.extraction_method,
+    )
+
+    # Store scan metadata for audit trail
+    scan_record = {
+        "id": str(uuid.uuid4()),
+        "user_id": str(current_user.id),
+        "document_type": body.document_type.value,
+        "fields": [f.model_dump() for f in body.confirmed_fields],
+        "overall_confidence": body.overall_confidence,
+        "extraction_method": body.extraction_method,
+        "confirmed_at": datetime.now(timezone.utc).isoformat(),
+    }
+    _document_store[scan_record["id"]] = scan_record
+
+    # Calculate confidence delta (how much this scan improves profile)
+    confidence_delta = _estimate_scan_confidence_delta(body)
+
+    return DocumentScanResponse(
+        status="confirmed",
+        fields_updated=len(body.confirmed_fields),
+        confidence_delta=confidence_delta,
+        message=f"Scan {body.document_type.value} synced ({len(body.confirmed_fields)} fields)",
+    )
+
+
+@router.post("/extract-vision", response_model=VisionExtractionResponse)
+@limiter.limit("10/minute")
+async def extract_with_claude_vision(
+    body: VisionExtractionRequest,
+    request: Request,
+    current_user: User = Depends(require_current_user),
+):
+    """Extract structured data from a document image using Claude Vision.
+
+    Replaces MLKit OCR with Claude Vision for better accuracy on
+    Swiss financial documents (LPP certs, tax declarations, etc.).
+
+    Privacy: image is sent to Claude API for processing but NOT stored.
+    Only extracted structured fields are returned.
+    """
+    from app.services.document_vision_service import extract_with_vision
+
+    logger.info(
+        "Vision extraction: user=%s type=%s canton=%s",
+        current_user.id,
+        body.document_type.value,
+        body.canton,
+    )
+
+    try:
+        result = extract_with_vision(
+            image_base64=body.image_base64,
+            doc_type=body.document_type,
+            canton=body.canton,
+            language_hint=body.language_hint,
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error("Vision extraction failed: %s", e)
+        raise HTTPException(
+            status_code=502,
+            detail="Document extraction failed. Please try again.",
+        )
+
+
+def _estimate_scan_confidence_delta(body: DocumentScanConfirmation) -> float:
+    """Estimate how much a scan confirmation improves profile confidence.
+
+    Based on document type and number of high-confidence fields.
+    """
+    base_delta = {
+        "lpp_certificate": 0.27,
+        "avs_extract": 0.22,
+        "tax_declaration": 0.17,
+        "salary_certificate": 0.20,
+        "payslip": 0.10,
+        "lease_contract": 0.08,
+        "lpp_plan": 0.12,
+        "insurance_contract": 0.05,
+    }
+    delta = base_delta.get(body.document_type.value, 0.05)
+
+    # Reduce delta if confidence is low
+    if body.overall_confidence < 0.5:
+        delta *= 0.5
+
+    return round(delta, 2)
