@@ -9781,6 +9781,42 @@ class SEs extends S {
   String get shellWelcomeBack => 'De vuelta. Tus números están al día.';
 
   @override
+  String get capCoachPromptDebt => 'Ayúdame prioritize my debt repayment. Where should I start?';
+
+  @override
+  String get capCoachPromptIndepNoLpp => 'Soy self-employed without LPP. What pension options do I have?';
+
+  @override
+  String get capCoachPrompt3a => 'How much can I save with a 3a contribution this year?';
+
+  @override
+  String get capCoachPromptRachat => 'Ayúdame understand if a LPP buyback makes sense for me.';
+
+  @override
+  String get capCoachPromptBudgetDeficit => 'My budget is in deficit. How can I find some breathing room?';
+
+  @override
+  String get capCoachPromptUnemployment => 'Soy unemployed. What are my financial options?';
+
+  @override
+  String get capCoachPromptDivorce => 'Soy divorced. How can I protect my financial situation?';
+
+  @override
+  String get capCoachPromptCoupleOptim => 'How can we optimize our pension planning as a couple?';
+
+  @override
+  String get capCoachPromptCouple => 'We\'re a couple. How should we coordinate our finances?';
+
+  @override
+  String get capCoachPromptMarried => 'We\'re both working and married. How can we optimize?';
+
+  @override
+  String capCoachPromptMissingData(String category) => 'Help me understand why \$category is important for my situation.';
+
+  @override
+  String capCoachPromptReplacement(String rate) => 'My replacement rate is \$rate%. Is that enough for retirement?';
+
+  @override
   String get seasonalLamalTitle => 'Nuevas primas LAMal';
 
   @override

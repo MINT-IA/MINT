@@ -11895,5 +11895,17 @@
   "extractionWhoseDocument": "À qui est ce document ?",
   "extractionWhoseDocumentBody": "Tu as un profil couple. Ce document est pour toi ou ton/ta partenaire ?",
   "extractionDocMine": "C'est le mien",
-  "extractionDocPartner": "C'est celui de mon/ma partenaire"
+  "extractionDocPartner": "C'est celui de mon/ma partenaire",
+  "capCoachPromptMissingData": "Aide-moi à comprendre pourquoi {category} est important pour ma situation.",
+  "capCoachPromptDebt": "Aide-moi à prioriser le remboursement de mes dettes. Par quoi commencer ?",
+  "capCoachPromptIndepNoLpp": "Je suis indépendant·e sans LPP. Quelles options de prévoyance ai-je ?",
+  "capCoachPrompt3a": "Combien je peux économiser avec un versement 3a cette année ?",
+  "capCoachPromptRachat": "Aide-moi à comprendre si un rachat LPP est pertinent pour moi.",
+  "capCoachPromptBudgetDeficit": "Mon budget est en déficit. Comment retrouver de l'air ?",
+  "capCoachPromptReplacement": "Mon taux de remplacement est de {rate}%. Est-ce suffisant pour ma retraite ?",
+  "capCoachPromptUnemployment": "Je suis en situation de chômage. Quelles sont mes options financières ?",
+  "capCoachPromptDivorce": "Je suis divorcé·e. Comment protéger ma situation financière ?",
+  "capCoachPromptCoupleOptim": "Comment optimiser notre prévoyance à deux ?",
+  "capCoachPromptCouple": "Nous sommes en couple. Comment coordonner nos finances ?",
+  "capCoachPromptMarried": "Nous sommes mariés et nous travaillons tous les deux. Comment optimiser ?"
 }

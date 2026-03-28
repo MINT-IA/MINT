@@ -17557,6 +17557,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
+  String get capCoachPromptDebt;
+  String get capCoachPromptIndepNoLpp;
+  String get capCoachPrompt3a;
+  String get capCoachPromptRachat;
+  String get capCoachPromptBudgetDeficit;
+  String get capCoachPromptUnemployment;
+  String get capCoachPromptDivorce;
+  String get capCoachPromptCoupleOptim;
+  String get capCoachPromptCouple;
+  String get capCoachPromptMarried;
+  String capCoachPromptMissingData(String category);
+  String capCoachPromptReplacement(String rate);
   String proactiveContractDeadline(String label, String days);
   String get extractionWhoseDocument;
   String get extractionWhoseDocumentBody;
