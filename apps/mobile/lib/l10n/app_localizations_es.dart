@@ -9781,6 +9781,39 @@ class SEs extends S {
   String get shellWelcomeBack => 'De vuelta. Tus números están al día.';
 
   @override
+  String get chatPickPhoto => 'Tomar una foto';
+
+  @override
+  String get chatPickGallery => 'Elegir una imagen';
+
+  @override
+  String get chatPickFile => 'Archivo (PDF, DOCX)';
+
+  @override
+  String get chatFileTooLarge => 'Archivo demasiado grande (máx. 5 MB)';
+
+  @override
+  String get chatDocSent => 'Documento enviado para análisis';
+
+  @override
+  String get chatDocAnalysisIntro => 'Analicé tu documento. Esto es lo que encontré:';
+
+  @override
+  String get chatDocUpdatePrompt => '¿Quieres que actualice tu perfil con estos datos?';
+
+  @override
+  String get chatDocExtractionFailed => 'No pude extraer datos de este documento. Intenta con una foto más nítida.';
+
+  @override
+  String get chatDocError => 'Error al analizar el documento. Inténtalo de nuevo.';
+
+  @override
+  String get chatDocAttachTooltip => 'Escanear un documento';
+
+  @override
+  String shellWelcomeBackDeltaPts(int delta) => '¡De vuelta! Tu precisión ganó +\$delta pts desde tu última visita.';
+
+  @override
   String get summaryCapaciteAchat => 'Capacidad de compra';
   @override
   String get summaryFondsPropres => 'Fondos propios necesarios';

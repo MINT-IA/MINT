@@ -11396,5 +11396,16 @@
   "sequencePaused": "Percorso in pausa. Puoi riprendere quando vuoi.",
   "sequenceStepSkipped": "Saltiamo questa fase per il momento.",
   "sequenceStepRetry": "Nessun problema. Riproviamo questa fase.",
-  "sequenceReEvaluate": "I tuoi dati sono cambiati. Ricalcolo le fasi interessate."
+  "sequenceReEvaluate": "I tuoi dati sono cambiati. Ricalcolo le fasi interessate.",
+  "shellWelcomeBackDeltaPts": "Bentornato! La tua precisione è migliorata di +{delta} pts dall'ultima visita.",
+  "chatPickPhoto": "Scattare una foto",
+  "chatPickGallery": "Scegliere un'immagine",
+  "chatPickFile": "File (PDF, DOCX)",
+  "chatFileTooLarge": "File troppo grande (max 5 MB)",
+  "chatDocSent": "Documento inviato per l'analisi",
+  "chatDocAnalysisIntro": "Ho analizzato il tuo documento. Ecco cosa ho trovato:",
+  "chatDocUpdatePrompt": "Vuoi che aggiorni il tuo profilo con questi dati?",
+  "chatDocExtractionFailed": "Non sono riuscito a estrarre dati da questo documento. Prova con una foto più nitida.",
+  "chatDocError": "Errore nell'analisi del documento. Riprova.",
+  "chatDocAttachTooltip": "Scansionare un documento"
 }

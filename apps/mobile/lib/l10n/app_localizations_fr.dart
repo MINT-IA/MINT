@@ -9777,6 +9777,39 @@ class SFr extends S {
   String get shellWelcomeBack => 'De retour. Tes chiffres sont à jour.';
 
   @override
+  String get chatPickPhoto => 'Prendre une photo';
+
+  @override
+  String get chatPickGallery => 'Choisir une image';
+
+  @override
+  String get chatPickFile => 'Fichier (PDF, DOCX)';
+
+  @override
+  String get chatFileTooLarge => 'Fichier trop volumineux (max 5 Mo)';
+
+  @override
+  String get chatDocSent => 'Document envoyé pour analyse';
+
+  @override
+  String get chatDocAnalysisIntro => 'J\'ai analysé ton document. Voici ce que j\'ai trouvé :';
+
+  @override
+  String get chatDocUpdatePrompt => 'Veux-tu que je mette à jour ton profil avec ces données ?';
+
+  @override
+  String get chatDocExtractionFailed => 'Je n\'ai pas pu extraire de données de ce document. Essaie avec une photo plus nette ou un autre format.';
+
+  @override
+  String get chatDocError => 'Erreur lors de l\'analyse du document. Réessaie.';
+
+  @override
+  String get chatDocAttachTooltip => 'Scanner un document';
+
+  @override
+  String shellWelcomeBackDeltaPts(int delta) => 'De retour\u00a0! Ta précision a gagné +\$delta\u00a0pts depuis ta dernière visite.';
+
+  @override
   String get summaryCapaciteAchat => "Capacité d'achat";
   @override
   String get summaryFondsPropres => 'Fonds propres nécessaires';

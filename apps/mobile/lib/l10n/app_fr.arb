@@ -11878,5 +11878,16 @@
   "sequencePaused": "On met le parcours en pause. Tu pourras reprendre quand tu veux.",
   "sequenceStepSkipped": "On passe cette \u00e9tape pour le moment.",
   "sequenceStepRetry": "Pas de souci. On peut r\u00e9essayer cette \u00e9tape.",
-  "sequenceReEvaluate": "Tes donn\u00e9es ont chang\u00e9. Je recalcule les \u00e9tapes concern\u00e9es."
+  "sequenceReEvaluate": "Tes donn\u00e9es ont chang\u00e9. Je recalcule les \u00e9tapes concern\u00e9es.",
+  "shellWelcomeBackDeltaPts": "De retour ! Ta précision a gagné +{delta} pts depuis ta dernière visite.",
+  "chatPickPhoto": "Prendre une photo",
+  "chatPickGallery": "Choisir une image",
+  "chatPickFile": "Fichier (PDF, DOCX)",
+  "chatFileTooLarge": "Fichier trop volumineux (max 5 Mo)",
+  "chatDocSent": "Document envoyé pour analyse",
+  "chatDocAnalysisIntro": "J'ai analysé ton document. Voici ce que j'ai trouvé :",
+  "chatDocUpdatePrompt": "Veux-tu que je mette à jour ton profil avec ces données ?",
+  "chatDocExtractionFailed": "Je n'ai pas pu extraire de données de ce document. Essaie avec une photo plus nette ou un autre format.",
+  "chatDocError": "Erreur lors de l'analyse du document. Réessaie.",
+  "chatDocAttachTooltip": "Scanner un document"
 }
