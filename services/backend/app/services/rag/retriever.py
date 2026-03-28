@@ -3,6 +3,14 @@ RAG retriever for MINT knowledge base.
 
 Enriches queries with profile context and retrieves relevant
 knowledge chunks from the vector store.
+
+Retrieval priority chain:
+    1. HybridSearchService (pgvector on Railway PostgreSQL) — production
+    2. MintVectorStore (ChromaDB) — dev/CI fallback
+    3. Empty results — FaqService handles ultimate fallback in orchestrator
+
+All methods are async to integrate cleanly with FastAPI's async pipeline.
+No asyncio.get_event_loop() or ThreadPoolExecutor bridges needed.
 """
 
 from __future__ import annotations
@@ -18,16 +26,19 @@ logger = logging.getLogger(__name__)
 class MintRetriever:
     """Retrieve relevant knowledge for user queries."""
 
-    def __init__(self, vector_store: MintVectorStore):
+    def __init__(self, vector_store: MintVectorStore, hybrid_search=None):
         """
         Initialize the retriever.
 
         Args:
-            vector_store: The MintVectorStore to query.
+            vector_store: The MintVectorStore (ChromaDB) for dev/CI.
+            hybrid_search: Optional HybridSearchService (pgvector) for production.
+                When provided and available, takes priority over ChromaDB.
         """
         self.vector_store = vector_store
+        self._hybrid = hybrid_search
 
-    def retrieve(
+    async def retrieve(
         self,
         query: str,
         profile_context: Optional[dict] = None,
@@ -37,6 +48,9 @@ class MintRetriever:
     ) -> list[dict]:
         """
         Retrieve relevant knowledge chunks for a query.
+
+        Priority chain: pgvector (production) → ChromaDB (dev/CI) → empty.
+        The orchestrator handles FaqService as the ultimate fallback.
 
         Args:
             query: The user's question.
@@ -52,18 +66,44 @@ class MintRetriever:
         Returns:
             List of result dicts with keys: id, text, metadata, distance, source.
         """
-        # Enrich the query with profile context
+        # Priority 1: HybridSearchService (pgvector — production)
+        if self._hybrid:
+            try:
+                hybrid_results = await self._hybrid.search(
+                    query, n_results=n_results,
+                )
+                if hybrid_results:
+                    formatted = []
+                    for r in hybrid_results:
+                        formatted.append({
+                            "id": r.doc_id,
+                            "text": r.content,
+                            "metadata": r.metadata,
+                            "distance": 1.0 - r.score,
+                            "source": {
+                                "title": r.title,
+                                "file": r.metadata.get("source", ""),
+                                "section": "",
+                            },
+                        })
+                    logger.info(
+                        "retriever used pgvector: %d results for %r",
+                        len(formatted), query[:40],
+                    )
+                    return formatted
+            except Exception as exc:
+                logger.warning(
+                    "pgvector retrieval failed, falling back to ChromaDB: %s", exc,
+                )
+
+        # Priority 2: ChromaDB (dev/CI fallback)
         enriched_query = self._enrich_query(query, profile_context)
 
-        # Build level filter based on literacy_level
-        # "beginner" gets both level 0 (simplified) and level 1 (full).
-        # "intermediate" and "advanced" get level 1 only.
         if literacy_level == "beginner":
             level_filter = {"level": {"$in": [0, 1]}}
         else:
             level_filter = {"level": 1}
 
-        # Merge with language filter when provided
         if language:
             where_filter: Optional[dict] = {
                 "$and": [
@@ -74,15 +114,13 @@ class MintRetriever:
         else:
             where_filter = level_filter
 
-        # Query the vector store with the combined filter
         results = self.vector_store.query(
             query_text=enriched_query,
             n_results=n_results,
-            language=None,  # language handled in where_filter above
+            language=None,
             where_filter=where_filter,
         )
 
-        # Format results with source information
         formatted = []
         for result in results:
             metadata = result.get("metadata", {})

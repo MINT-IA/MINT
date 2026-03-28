@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -8,6 +9,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// SLM Settings Screen — On-device AI model management.
 ///
@@ -37,20 +40,20 @@ class SlmSettingsScreen extends StatelessWidget {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
-          _buildPrivacyBanner(context, l10n),
+          MintEntrance(child: _buildPrivacyBanner(context, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildTierSelector(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTierSelector(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildModelCard(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildModelCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildStatusCard(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildStatusCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildInfoCard(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildInfoCard(context, slm, l10n)),
         ],
-      ),
+      ))),
     );
   }
 
@@ -82,13 +85,9 @@ class SlmSettingsScreen extends StatelessWidget {
     final active = slm.activeTier;
     final isDownloading = slm.downloadState == DownloadState.downloading;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -212,14 +211,10 @@ class SlmSettingsScreen extends StatelessWidget {
 
   Widget _buildModelCard(BuildContext context, SlmProvider slm, S l10n) {
     if (slm.modelInfo == null) {
-      return Container(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
-        child: const Center(child: CircularProgressIndicator()),
+      return const MintSurface(
+        padding: EdgeInsets.all(MintSpacing.lg),
+        radius: 16,
+        child: MintLoadingSkeleton(),
       );
     }
 
@@ -227,13 +222,9 @@ class SlmSettingsScreen extends StatelessWidget {
     final isDownloading = slm.downloadState == DownloadState.downloading;
     final isFailed = slm.downloadState == DownloadState.failed;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -631,13 +622,9 @@ class SlmSettingsScreen extends StatelessWidget {
         statusIcon = Icons.cloud_off;
     }
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -709,13 +696,9 @@ class SlmSettingsScreen extends StatelessWidget {
   }
 
   Widget _buildInfoCard(BuildContext context, SlmProvider slm, S l10n) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

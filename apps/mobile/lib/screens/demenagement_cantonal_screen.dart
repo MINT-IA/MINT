@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -10,6 +13,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Screen for simulating the financial impact of a cantonal move (Cat C — Life Event).
 ///
@@ -31,6 +35,44 @@ class _DemenagementCantonalScreenState
   String _cantonArrivee = 'VS';
   double _revenuBrut = 120000;
   String _situationFamiliale = 'marie';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Departure canton = user's CURRENT canton
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _cantonDepart = profile.canton;
+        }
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) {
+          _revenuBrut = revenu;
+        }
+        // Map etatCivil to situation familiale
+        switch (profile.etatCivil) {
+          case CoachCivilStatus.marie:
+            _situationFamiliale = 'marie';
+          case CoachCivilStatus.celibataire:
+          case CoachCivilStatus.divorce:
+          case CoachCivilStatus.veuf:
+          case CoachCivilStatus.concubinage:
+            _situationFamiliale = 'celibataire';
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   // Simplified cantonal tax burden index (relative, GE=100)
   static const _indiceFiscal = {
@@ -68,7 +110,7 @@ class _DemenagementCantonalScreenState
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
@@ -77,36 +119,36 @@ class _DemenagementCantonalScreenState
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 1 — L'ENJEU : delta fiscal hero
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              MintHeroNumber(
+              MintEntrance(child: MintHeroNumber(
                 value: '${estPositif ? '+\u00a0' : ''}'
                     '${formatChfWithPrefix(economieTotal)}',
                 caption: s.demenagementChiffreChocSousTitre,
                 color: estPositif ? MintColors.success : MintColors.error,
                 semanticsLabel: s.demenagementBilanTotal,
-              ),
+              )),
               const SizedBox(height: MintSpacing.sm),
-              Text(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                 s.demenagementChiffreChocDetail(_cantonDepart, _cantonArrivee),
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-              ),
+              )),
               const SizedBox(height: MintSpacing.xxl),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 2 — COMPARAISON : deux cantons cote a cote
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              _buildCantonComparison(s),
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCantonComparison(s)),
               const SizedBox(height: MintSpacing.xl),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 3 — DETAIL par poste (MintSignalRow)
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              _buildDetailParPoste(s),
+              MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDetailParPoste(s)),
               const SizedBox(height: MintSpacing.lg),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               // SECTION 4 — INSIGHT emotionnel
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              _buildInsight(s),
+              MintEntrance(delay: const Duration(milliseconds: 400), child: _buildInsight(s)),
               const SizedBox(height: MintSpacing.lg),
 
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -140,7 +182,7 @@ class _DemenagementCantonalScreenState
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 

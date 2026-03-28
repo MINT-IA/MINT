@@ -193,10 +193,10 @@ class IndependantsService {
   ];
 
   /// Cotisation minimale AVS/AI/APG for self-employed — use centralized constant.
-  static const double _cotisationMinimale = avsCotisationMinIndependant;
+  static double get _cotisationMinimale => reg('avs.min_self_employed_contribution', avsCotisationMinIndependant);
 
   /// AVS employee share rate (for comparison) — use centralized constant.
-  static const double _tauxAvsSalarie = avsCotisationSalarie;
+  static double get _tauxAvsSalarie => reg('avs.employee_rate', avsCotisationSalarie);
 
   /// IJM premium rates: {ageMin-ageMax: {delaiCarence: primeFor1000}}.
   static const Map<String, Map<int, double>> _ijmRates = {
@@ -208,16 +208,16 @@ class IndependantsService {
   };
 
   /// 3a ceiling for self-employed without LPP: 20% of net income, max 36288.
-  static const double _plafond3aGrand = pilier3aPlafondSansLpp;
+  static double get _plafond3aGrand => reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
   /// 3a ceiling for self-employed with LPP (same as salaried).
-  static const double _plafond3aPetit = pilier3aPlafondAvecLpp;
+  static double get _plafond3aPetit => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   /// LPP coordination deduction (2025).
-  static const double _deductionCoordination = lppDeductionCoordination;
+  static double get _deductionCoordination => reg('lpp.coordination_deduction', lppDeductionCoordination);
 
   /// LPP minimum coordinated salary.
-  static const double _minSalaireCoordonne = lppSalaireCoordMin;
+  static double get _minSalaireCoordonne => reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
 
   /// LPP age-based bonification rates (combined employee+employer).
   /// Used for reference and documentation; actual rates are applied
@@ -236,11 +236,11 @@ class IndependantsService {
   /// LPP conversion rate at retirement — minimum legal, obligatoire only.
   /// For independants with voluntary LPP, most plans have only obligatoire
   /// part, so 6.8% is a reasonable default (no surobligatoire split needed).
-  static const double _tauxConversion = lppTauxConversionMinDecimal;
+  static double get _tauxConversion => reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
 
   /// LPP maximum coordinated salary (LPP art. 8).
   /// Uses centralized constant from social_insurance.dart.
-  static const double _maxSalaireCoordonne = lppSalaireCoordMax;
+  static double get _maxSalaireCoordonne => reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
 
   /// LPP minimum interest rate (aligned with backend: 1.25%).
   static const double _projectedReturn = 0.0125;
@@ -319,7 +319,7 @@ class IndependantsService {
     int age,
     int delaiCarence,
   ) {
-    if (revenuMensuel <= 0 || age < 18 || age > 65) {
+    if (revenuMensuel <= 0 || age < 18 || age > reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) {
       return IjmResult(
         revenuMensuel: revenuMensuel,
         age: age,
@@ -403,7 +403,7 @@ class IndependantsService {
     bool affilieLpp,
     double tauxMarginal,
   ) {
-    const plafondSalarie = _plafond3aPetit;
+    final plafondSalarie = _plafond3aPetit;
 
     double plafond;
     if (affilieLpp) {
@@ -585,25 +585,14 @@ class IndependantsService {
     final anneesRestantes = max(65 - age, 0);
 
     // Without LPP: AVS only (LAVS art. 34, max rente = 2520 × 12)
-    final renteAvsMax = AvsCalculator.annualRente(avsRenteMaxMensuelle); // 32760 CHF (13 rentes)
+    final renteAvsMax = AvsCalculator.annualRente(reg('avs.max_monthly_pension', avsRenteMaxMensuelle)); // 32760 CHF (13 rentes)
     final projectionSansLpp = renteAvsMax;
 
-    // With LPP: project capital at retirement
+    // With LPP: project capital at retirement using centralized bonification rates
     double capitalLpp = 0;
     for (int i = 0; i < anneesRestantes; i++) {
       final ageYear = age + i;
-      double taux;
-      if (ageYear >= 55) {
-        taux = 0.18;
-      } else if (ageYear >= 45) {
-        taux = 0.15;
-      } else if (ageYear >= 35) {
-        taux = 0.10;
-      } else if (ageYear >= 25) {
-        taux = 0.07;
-      } else {
-        taux = 0;
-      }
+      final taux = getLppBonificationRate(ageYear);
       capitalLpp =
           capitalLpp * (1 + _projectedReturn) + salaireCoordonne * taux;
     }

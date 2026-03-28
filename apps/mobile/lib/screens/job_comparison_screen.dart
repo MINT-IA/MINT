@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -57,6 +65,49 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   double _currentCapitalDeces = 200000;
   double _currentRachatMax = 80000;
   bool _currentHasIjm = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        _age = profile.age;
+
+        // Current job: auto-fill from profile
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) {
+          _currentSalaireBrut = revenu;
+        }
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _currentAvoirVieillesse = lpp;
+        }
+        // Conversion rate from profile or legal minimum
+        final tc = profile.prevoyance.tauxConversion;
+        if (tc > 0 && tc < 1) {
+          _currentTauxConversion = tc * 100;
+        } else {
+          _currentTauxConversion = lppTauxConversionMin;
+        }
+        // Rachat maximum from profile
+        final rachat = profile.prevoyance.lacuneRachatRestante;
+        if (rachat > 0) {
+          _currentRachatMax = rachat;
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   // New job inputs
   double _newSalaireBrut = 95000;
@@ -115,6 +166,20 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       );
       _checklistState = List.filled(_result!.checklist.length, false);
     });
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'job_comparison',
+      ScreenReturn.completed(
+        route: '/simulator/job-comparison',
+        updatedFields: {
+          'jobComparisonDeltaNet': _result!.axes.isNotEmpty
+              ? _result!.axes.first.delta
+              : 0.0,
+          'jobComparisonLppDelta': _result!.annualPensionDelta,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'lpp_rachat',
+      ),
+    );
 
     // Smooth scroll to results
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -142,7 +207,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(
           horizontal: MintSpacing.lg,
@@ -151,13 +216,13 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            MintEntrance(child: _buildHeader()),
             const SizedBox(height: MintSpacing.lg),
-            _buildIntroCard(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: MintSpacing.lg),
-            _buildAgeSlider(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeSlider()),
             const SizedBox(height: MintSpacing.lg),
-            _buildJobSection(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildJobSection(
               title: S.of(context)!.jobCompareCurrentJob,
               expanded: _currentJobExpanded,
               onToggle: () =>
@@ -187,9 +252,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               onIjmChanged: (v) => setState(() => _currentHasIjm = v),
               accentColor: MintColors.primary,
               icon: Icons.business,
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
-            _buildJobSection(
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildJobSection(
               title: S.of(context)!.jobCompareNewJob,
               expanded: _newJobExpanded,
               onToggle: () =>
@@ -219,7 +284,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               onIjmChanged: (v) => setState(() => _newHasIjm = v),
               accentColor: MintColors.deepOrange,
               icon: Icons.work_outline,
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
             _buildCompareButton(),
             const SizedBox(height: MintSpacing.lg),
@@ -289,18 +354,15 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      ))),
     );
   }
 
   // --- Header ---
   Widget _buildHeader() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Row(
         children: [
           Container(
@@ -727,12 +789,10 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       child: Column(
         children: [
           // Header row
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 10),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(8),
-            ),
+            radius: 8,
             child: Row(
               children: [
                 Expanded(
@@ -1043,12 +1103,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
 
   // --- Expandable Tile ---
   Widget _buildExpandableTile(String title, String content) {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 16,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
@@ -1104,46 +1161,18 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-              ),
-            ),
-            Text(
-              format(value),
-              style: MintTextStyles.bodySmall(color: MintColors.primary),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: (v) {
-              setState(() {
-                onChanged(v);
-              });
-            },
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: format,
+      onChanged: (v) {
+        setState(() {
+          onChanged(v);
+        });
+      },
     );
   }
 }

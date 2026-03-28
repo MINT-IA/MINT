@@ -11,7 +11,9 @@ Sources:
     - LSFin art. 3 (obligation d'information)
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+
+from app.core.rate_limit import limiter
 
 from app.schemas.notifications import (
     CalendarNotificationRequest,
@@ -59,8 +61,10 @@ def _milestone_to_response(ms) -> MilestoneResponse:
 
 
 @router.post("/calendar", response_model=CalendarNotificationsResponse)
+@limiter.limit("30/minute")
 def generate_calendar_notifications(
-    request: CalendarNotificationRequest,
+    request: Request,
+    body: CalendarNotificationRequest,
 ) -> CalendarNotificationsResponse:
     """Generer les notifications calendaires (Tier 1).
 
@@ -71,8 +75,8 @@ def generate_calendar_notifications(
         CalendarNotificationsResponse avec la liste des notifications.
     """
     notifications = _scheduler.generate_calendar_notifications(
-        tax_saving_3a=request.tax_saving_3a,
-        today=request.today,
+        tax_saving_3a=body.tax_saving_3a,
+        today=body.today,
     )
     return CalendarNotificationsResponse(
         notifications=[_notif_to_response(n) for n in notifications],
@@ -81,8 +85,10 @@ def generate_calendar_notifications(
 
 
 @router.post("/events", response_model=EventNotificationsResponse)
+@limiter.limit("30/minute")
 def generate_event_notifications(
-    request: EventNotificationRequest,
+    request: Request,
+    body: EventNotificationRequest,
 ) -> EventNotificationsResponse:
     """Generer les notifications evenementielles (Tier 2).
 
@@ -93,9 +99,9 @@ def generate_event_notifications(
         EventNotificationsResponse avec la liste des notifications.
     """
     notifications = _scheduler.generate_event_notifications(
-        fri_delta=request.fri_delta,
-        profile_updated=request.profile_updated,
-        check_in_completed=request.check_in_completed,
+        fri_delta=body.fri_delta,
+        profile_updated=body.profile_updated,
+        check_in_completed=body.check_in_completed,
     )
     return EventNotificationsResponse(
         notifications=[_notif_to_response(n) for n in notifications],
@@ -104,8 +110,10 @@ def generate_event_notifications(
 
 
 @router.post("/milestones", response_model=MilestoneCheckResponse)
+@limiter.limit("30/minute")
 def check_milestones(
-    request: MilestoneCheckRequest,
+    request: Request,
+    body: MilestoneCheckRequest,
 ) -> MilestoneCheckResponse:
     """Detecter les milestones nouvellement franchis.
 
@@ -116,10 +124,10 @@ def check_milestones(
         MilestoneCheckResponse avec la liste des milestones detectes.
     """
     result = _milestone_detector.detect_milestones(
-        current=request.current_snapshot,
-        previous=request.previous_snapshot,
-        check_in_streak=request.check_in_streak,
-        arbitrage_count=request.arbitrage_count,
+        current=body.current_snapshot,
+        previous=body.previous_snapshot,
+        check_in_streak=body.check_in_streak,
+        arbitrage_count=body.arbitrage_count,
     )
     return MilestoneCheckResponse(
         new_milestones=[_milestone_to_response(m) for m in result.new_milestones],

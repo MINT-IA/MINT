@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -46,7 +47,8 @@ class BabyCostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalMonthly = items.fold<double>(0, (s, i) => s + i.monthlyCost);
+    final s = S.of(context)!;
+    final totalMonthly = items.fold<double>(0, (acc, i) => acc + i.monthlyCost);
     final totalLifetime = totalMonthly * 12 * yearsOfDependency;
     // Guard: items.first crasherait si la liste est vide.
     final BabyCostItem? creche = items.isEmpty
@@ -67,13 +69,13 @@ class BabyCostWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(totalMonthly, totalLifetime),
+            _buildHeader(s, totalMonthly, totalLifetime),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildBreakdown(),
+                  _buildBreakdown(s),
                   const SizedBox(height: 16),
                   _buildTotalBar(totalMonthly),
                   const SizedBox(height: 16),
@@ -91,7 +93,7 @@ class BabyCostWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(double totalMonthly, double totalLifetime) {
+  Widget _buildHeader(S s, double totalMonthly, double totalLifetime) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -107,7 +109,7 @@ class BabyCostWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Le coût du bonheur',
+                  s.babyCostTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -154,12 +156,12 @@ class BabyCostWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildBreakdown() {
+  Widget _buildBreakdown(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Décomposition mensuelle',
+          s.babyCostBreakdownTitle,
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),

@@ -8,6 +8,9 @@ POST /api/v1/privacy/consent-update — Mise a jour d'un consentement (nLPD art.
 
 All endpoints are stateless (no persistent data storage). Pure computation.
 In production, these would interact with the real database layer.
+
+V12-1: All endpoints use _user.id from JWT (require_current_user) instead of
+client-supplied profile_id to prevent IDOR vulnerabilities.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -51,19 +54,25 @@ def export_user_data(request: DataExportRequest, _user: User = Depends(require_c
     Conforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).
     Retourne un JSON lisible par machine avec toutes les donnees et metadonnees.
 
+    V12-1: Uses _user.id (from JWT) instead of client-supplied profile_id
+    to prevent IDOR (Insecure Direct Object Reference).
+
     Sources: nLPD art. 25, 28; OPDo art. 16-19.
     """
     service = PrivacyService()
 
+    # V12-1: Use authenticated user ID, never client-supplied profile_id.
+    user_id = _user.id
+
     # In production, these would be fetched from the database.
     # Here we simulate with sample data to demonstrate the structure.
     sample_profile = {
-        "profile_id": request.profile_id,
+        "profile_id": user_id,
         "status": "active",
     }
 
     result = service.export_user_data(
-        profile_id=request.profile_id,
+        profile_id=user_id,
         profile_data=sample_profile,
         sessions_data=[],
         reports_data=[],
@@ -115,13 +124,19 @@ def delete_user_data(request: DataDeletionRequest, _user: User = Depends(require
     Conforme a nLPD art. 6 al. 4 et art. 32.
     Propose une suppression immediate ou avec un delai de grace de 30 jours.
 
+    V12-1: Uses _user.id (from JWT) instead of client-supplied profile_id
+    to prevent IDOR (Insecure Direct Object Reference).
+
     Sources: nLPD art. 6, 32; CO art. 127; OPDo art. 20-22.
     """
     service = PrivacyService()
 
+    # V12-1: Use authenticated user ID, never client-supplied profile_id.
+    user_id = _user.id
+
     # In production, counts would come from the database
     result = service.delete_user_data(
-        profile_id=request.profile_id,
+        profile_id=user_id,
         mode=request.mode.value,
         nb_sessions=0,
         nb_reports=0,
@@ -162,19 +177,22 @@ def delete_user_data(request: DataDeletionRequest, _user: User = Depends(require
 # ---------------------------------------------------------------------------
 
 @router.get("/consent-status", response_model=ConsentStatusResponse)
-def get_consent_status(profile_id: str, _user: User = Depends(require_current_user)) -> ConsentStatusResponse:
+def get_consent_status(_user: User = Depends(require_current_user)) -> ConsentStatusResponse:
     """Retourne le statut actuel de tous les consentements.
 
     Conforme a nLPD art. 6 (principes de traitement) et art. 7 (Privacy by Design).
     Par defaut, seul le traitement contractuel (core_profile) est actif.
 
+    V12-1: Uses _user.id (from JWT) instead of client-supplied path param
+    to prevent IDOR (Insecure Direct Object Reference).
+
     Sources: nLPD art. 6, 7.
     """
     service = PrivacyService()
 
-    # In production, consents would be fetched from the database
+    # V12-1: Use authenticated user ID, never client-supplied profile_id.
     result = service.get_consent_status(
-        profile_id=profile_id,
+        profile_id=_user.id,
     )
 
     consentements_schema = [
@@ -215,18 +233,25 @@ def update_consent(request: ConsentUpdateRequest, _user: User = Depends(require_
     Le retrait du consentement est un droit fondamental (nLPD art. 6 al. 7).
     Le consentement pour core_profile (base contractuelle) ne peut pas etre retire.
 
+    V12-1: Uses _user.id (from JWT) instead of client-supplied profile_id
+    to prevent IDOR (Insecure Direct Object Reference).
+
     Sources: nLPD art. 6 al. 7.
     """
     service = PrivacyService()
 
+    # V12-1: Use authenticated user ID, never client-supplied profile_id.
     try:
         result = service.update_consent(
-            profile_id=request.profile_id,
+            profile_id=_user.id,
             categorie=request.categorie.value,
             est_actif=request.est_actif,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Consentement requis — base contractuelle obligatoire (nLPD art. 6)",
+        )
 
     return ConsentUpdateResponse(
         profile_id=result.profile_id,

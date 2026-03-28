@@ -23,14 +23,14 @@ class RetirementService {
   // All constants delegated to social_insurance.dart.
   // Kept as static getters for backward compatibility with callers
   // using RetirementService.avsMaxRenteAnnuelle etc.
-  static double get avsMaxRenteAnnuelle => avsRenteMaxAnnuelle;
+  static double get avsMaxRenteAnnuelle => reg('avs.max_annual_pension', avsRenteMaxAnnuelle);
   static double get avsCoupleFactor => 1.50;
-  static int get avsRetirementAge => avsAgeReferenceHomme;
-  static double get avsAnticipationPenaltyPerYear => avsReductionAnticipation;
-  static int get maxContributionYears => avsDureeCotisationComplete;
+  static int get avsRetirementAge => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+  static double get avsAnticipationPenaltyPerYear => reg('avs.early_retirement_reduction', avsReductionAnticipation);
+  static int get maxContributionYears => reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
   /// Minimum legal conversion rate — obligatoire part only (LPP art. 14).
   /// For full capital projections, use blended oblig/suroblig rates.
-  static double get lppConversionRate => lppTauxConversionMinDecimal;
+  static double get lppConversionRate => reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
   static Map<String, String> get cantonNames => cantonFullNames;
 
   /// Sorted canton codes (alphabetical). Delegates to social_insurance.dart.
@@ -52,7 +52,7 @@ class RetirementService {
   @Deprecated('Use AvsCalculator.computeMonthlyRente() from financial_core')
   static Map<String, dynamic> estimateAvs({
     required int ageActuel,
-    int ageRetraite = 65,
+    int ageRetraite = avsAgeReferenceHomme,
     bool isCouple = false,
     int anneesLacunes = 0,
     int esperanceVie = 87,
@@ -85,7 +85,7 @@ class RetirementService {
         effectiveYears > 0 ? effectiveYears / maxContributionYears : 0.0;
 
     // Calculate rente
-    final baseRente = avsRenteMaxMensuelle * gapFactor;
+    final baseRente = reg('avs.max_monthly_pension', avsRenteMaxMensuelle) * gapFactor;
     final renteMensuelle = baseRente * factor;
     final renteAnnuelle = AvsCalculator.annualRente(renteMensuelle);
 
@@ -94,7 +94,7 @@ class RetirementService {
     if (isCouple) {
       renteCouple = min(
         renteMensuelle * 2,
-        avsRenteMaxMensuelle * avsCoupleFactor,
+        reg('avs.max_monthly_pension', avsRenteMaxMensuelle) * avsCoupleFactor,
       );
     }
 
@@ -129,7 +129,7 @@ class RetirementService {
     required double capitalLpp,
     double? conversionRate,
     String canton = 'ZH',
-    int ageRetraite = 65,
+    int ageRetraite = avsAgeReferenceHomme,
     int esperanceVie = 87,
   }) {
     // Rente — use provided blended rate or minimum legal fallback

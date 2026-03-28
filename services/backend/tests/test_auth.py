@@ -615,8 +615,10 @@ def test_register_falls_back_when_verification_infra_fails(
             json={"email": "verify-fallback@example.com", "password": "pass12345"},
         )
         assert response.status_code == 201
-        # Fallback path should issue regular tokens instead of hard-failing.
-        assert response.json().get("requires_email_verification") is False
+        # Fail-soft: user gets tokens but is told verification is still needed.
+        # The mobile shows a "Vérifie ton email" banner.
+        assert response.json().get("requires_email_verification") is True
+        assert response.json().get("email_verified") is False
         assert response.json().get("access_token")
     finally:
         if previous is None:
@@ -882,7 +884,11 @@ def test_admin_onboarding_quality_returns_metrics(auth_client: TestClient):
             "event_data": "{\"time_spent_seconds\": 160}",
         },
     ]
-    ingest = auth_client.post("/api/v1/analytics/events", json={"events": events})
+    ingest = auth_client.post(
+        "/api/v1/analytics/events",
+        json={"events": events},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
     assert ingest.status_code == 201
 
     try:
@@ -952,7 +958,11 @@ def test_admin_onboarding_quality_cohorts_returns_breakdown(auth_client: TestCli
             "platform": "android",
         },
     ]
-    ingest = auth_client.post("/api/v1/analytics/events", json={"events": events})
+    ingest = auth_client.post(
+        "/api/v1/analytics/events",
+        json={"events": events},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
     assert ingest.status_code == 201
 
     try:
@@ -972,3 +982,34 @@ def test_admin_onboarding_quality_cohorts_returns_breakdown(auth_client: TestCli
             os.environ.pop("AUTH_ADMIN_EMAIL_ALLOWLIST", None)
         else:
             os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = previous_allowlist
+
+
+def test_refresh_token_happy_path(auth_client: TestClient):
+    """Register, then refresh the token — covers lines 381-419 of auth.py."""
+    reg = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "refresh-test@example.com", "password": "refreshpass123"},
+    )
+    assert reg.status_code in (200, 201)
+    body = reg.json()
+    refresh_token = body.get("refresh_token")
+    assert refresh_token is not None, "Register should return a refresh_token"
+
+    # Refresh
+    resp = auth_client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh_token},
+    )
+    assert resp.status_code == 200
+    new_body = resp.json()
+    assert "access_token" in new_body
+    assert "refresh_token" in new_body
+
+
+def test_refresh_token_invalid(auth_client: TestClient):
+    """Invalid refresh token should return 401."""
+    resp = auth_client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": "not-a-valid-jwt"},
+    )
+    assert resp.status_code == 401

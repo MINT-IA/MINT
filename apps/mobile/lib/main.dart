@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/data/commune_data.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 /// Point d'entrée de l'application MINT
 ///
@@ -21,6 +22,14 @@ Future<void> main() async {
 
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();
+
+  // STARTUP CONTRACT:
+  // 1. loadFromDisk() is BLOCKING — loads last-session cache from SharedPreferences
+  //    so reg() has data before any calculator runs.
+  // 2. fetchConstants() is FIRE-AND-FORGET — updates cache from backend API.
+  //    If it completes before a calculator runs, reg() returns fresh data.
+  //    If not, reg() returns last-session data (or hardcoded fallback on first install).
+  await RegulatorySyncService.loadFromDisk();
 
   // Initialize SLM plugin runtime once at startup (5s — model check is I/O).
   try {
@@ -67,12 +76,15 @@ Future<void> main() async {
     FeatureFlags.refreshFromBackend().catchError((e) {
       if (kDebugMode) debugPrint('Err Flags: $e');
     }),
+    RegulatorySyncService.fetchConstants().catchError((e) {
+      if (kDebugMode) debugPrint('Err Regulatory: $e');
+      return <String, double>{};
+    }),
   ]);
 
-  // Periodic refresh of server-driven feature flags (every 6 hours)
-  Timer.periodic(const Duration(hours: 6), (_) {
-    FeatureFlags.refreshFromBackend();
-  });
+  // Periodic refresh of server-driven feature flags (every 6 hours).
+  // Cancelled/restarted by WidgetsBindingObserver in app.dart on lifecycle changes.
+  FeatureFlags.startPeriodicRefresh();
 
   // Lancement immédiat de l'app (UX first!)
   runApp(const MintApp());

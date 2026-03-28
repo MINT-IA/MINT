@@ -7,6 +7,16 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Provider pour le profil Coach MINT.
 ///
+/// ARCHITECTURAL NOTE: Two profile models coexist by design:
+/// - ProfileProvider: syncs with backend API (source of truth for persisted data)
+/// - CoachProfileProvider: rich local model with wizard data, prevoyance, patrimoine
+///
+/// CoachProfile is the SUPERSET used by all simulators and the coach.
+/// Profile (API model) is used only for backend sync (create/update).
+///
+/// Synchronization: CoachProfile is built from Profile + local wizard data.
+/// There is no automatic sync from CoachProfile back to Profile.
+///
 /// Charge les reponses du wizard depuis SharedPreferences
 /// et construit un CoachProfile. Si aucun wizard n'a ete complete,
 /// [profile] est null et les ecrans Coach affichent un etat vide.
@@ -17,6 +27,8 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isLoaded = false;
   bool _isPartialProfile = false;
+  bool _remoteHydrationDone = false;
+  bool _isHydrating = false;
   int? _previousScore;
   List<Map<String, dynamic>> _scoreHistory = [];
   bool _profileUpdatedSinceBudget = false;
@@ -58,6 +70,30 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// True si le chargement a ete effectue au moins une fois.
   bool get isLoaded => _isLoaded;
+
+  /// True if remote profile hydration has already been attempted.
+  bool get remoteHydrationDone => _remoteHydrationDone;
+
+  /// True while an async hydration from backend is in progress.
+  /// GoRouter uses this to avoid redirecting to onboarding prematurely.
+  bool get isHydrating => _isHydrating;
+
+  /// Mark remote hydration as done (prevents duplicate API calls).
+  void markRemoteHydrationDone() => _remoteHydrationDone = true;
+
+  /// Signal that async hydration has started.
+  /// GoRouter (via refreshListenable) re-evaluates redirects on notify.
+  void startHydrating() {
+    _isHydrating = true;
+    notifyListeners();
+  }
+
+  /// Signal that async hydration has completed (success or error).
+  /// GoRouter (via refreshListenable) re-evaluates redirects on notify.
+  void finishHydrating() {
+    _isHydrating = false;
+    notifyListeners();
+  }
 
   /// True si un profil est disponible (wizard complete).
   bool get hasProfile => _profile != null;
@@ -501,6 +537,103 @@ class CoachProfileProvider extends ChangeNotifier {
     // Persist asynchronously so the dashboard can reload from storage
     ReportPersistenceService.saveAnswers(answers);
     ReportPersistenceService.setMiniOnboardingCompleted(true);
+  }
+
+  /// Create a NEW local CoachProfile from backend data when no local profile
+  /// exists (Scenario B: backend-only user, no wizard completed).
+  ///
+  /// Called when auth is logged in, local profile is null, but GET /profiles/me
+  /// returns data. Creates a minimal partial profile so the user is not stuck
+  /// in onboarding redirect.
+  void createFromRemoteProfile(Map<String, dynamic> remote) {
+    if (_profile != null) return; // Already has local profile, use merge instead
+
+    final birthYear = remote['birth_year'] as int? ??
+        remote['birthYear'] as int?;
+    final canton = remote['canton'] as String?;
+    final grossYearly = (remote['income_gross_yearly'] as num?)?.toDouble() ??
+        (remote['incomeGrossYearly'] as num?)?.toDouble();
+    final gender = remote['gender'] as String?;
+    final employmentStatus = remote['employment_status'] as String? ??
+        remote['employmentStatus'] as String?;
+
+    // Only create if we have at least one meaningful field from backend
+    if (birthYear == null && canton == null && grossYearly == null) return;
+
+    final salaireBrutMensuel = grossYearly != null ? grossYearly / 12 : 0.0;
+    final effectiveBirthYear = birthYear ?? (DateTime.now().year - 40);
+
+    _profile = CoachProfile(
+      birthYear: effectiveBirthYear,
+      canton: canton ?? '',
+      salaireBrutMensuel: salaireBrutMensuel,
+      gender: gender,
+      employmentStatus: employmentStatus ?? 'salarie',
+      goalA: GoalA(
+        type: GoalAType.retraite,
+        targetDate: DateTime(effectiveBirthYear + 65),
+        label: 'Retraite',
+      ),
+    );
+    _isPartialProfile = true;
+    _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
+  /// Merge remote profile data from backend GET /profiles/me.
+  ///
+  /// Best-effort: fills in fields that are null locally but present in
+  /// the remote profile. Does NOT overwrite local data with remote data.
+  /// This ensures wizard/chat-captured data takes priority.
+  void mergeFromRemoteProfile(Map<String, dynamic> remoteData) {
+    if (_profile == null) return;
+    final p = _profile!;
+
+    // Only merge fields where local is null/zero and remote has a value.
+    final updates = <String, dynamic>{};
+
+    if (p.birthYear == 0 && remoteData['birthYear'] != null) {
+      updates['birthYear'] = remoteData['birthYear'];
+    }
+    if (p.canton.isEmpty && remoteData['canton'] != null) {
+      updates['canton'] = remoteData['canton'] as String?;
+    }
+    if (p.gender == null && remoteData['gender'] != null) {
+      updates['gender'] = remoteData['gender'] as String?;
+    }
+    if (p.salaireBrutMensuel <= 0) {
+      final grossYearly = (remoteData['incomeGrossYearly'] as num?)?.toDouble();
+      if (grossYearly != null && grossYearly > 0) {
+        updates['salaireBrutMensuel'] = grossYearly / 12;
+      }
+    }
+    if (p.employmentStatus.isEmpty && remoteData['employmentStatus'] != null) {
+      updates['employmentStatus'] = remoteData['employmentStatus'] as String?;
+    }
+
+    if (updates.isEmpty) return;
+
+    // Apply updates via copyWith
+    _profile = p.copyWith(
+      birthYear: updates.containsKey('birthYear')
+          ? updates['birthYear'] as int
+          : null,
+      canton: updates.containsKey('canton')
+          ? updates['canton'] as String?
+          : null,
+      gender: updates.containsKey('gender')
+          ? updates['gender'] as String?
+          : null,
+      salaireBrutMensuel: updates.containsKey('salaireBrutMensuel')
+          ? updates['salaireBrutMensuel'] as double
+          : null,
+      employmentStatus: updates.containsKey('employmentStatus')
+          ? updates['employmentStatus'] as String?
+          : null,
+    );
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
   }
 
   /// Replace the current profile with an updated one and persist via answers.
@@ -1571,13 +1704,21 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   /// Reset le profil (logout / reset).
+  ///
+  /// Clears both in-memory state AND persisted wizard data in SharedPreferences
+  /// to prevent cross-account data bleed on shared devices.
   void clear() {
     _profile = null;
     _isPartialProfile = false;
     _isLoaded = false;
+    _remoteHydrationDone = false;
+    _isHydrating = false;
     _previousScore = null;
     _scoreHistory = [];
     _lastAnswers = const {};
+    // Fire-and-forget: clear persisted wizard answers + coach history
+    // to prevent cross-account bleed. In-memory state is already reset above.
+    ReportPersistenceService.clear();
     notifyListeners();
   }
 }

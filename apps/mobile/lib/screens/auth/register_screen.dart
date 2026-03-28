@@ -9,6 +9,8 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -82,13 +84,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await prefs.setString('cgu_accepted_at', DateTime.now().toIso8601String());
 
       if (!mounted) return;
-      final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
-      if (redirect != null && redirect.startsWith('/')) {
-        context.go(Uri.decodeComponent(redirect));
-      } else if (authProvider.requiresEmailVerification) {
-        context.go('/auth/verify-email');
+      // F2-2: Email verification MUST happen before any redirect.
+      // Flow: register -> verify-email -> redirect (not register -> redirect -> 403)
+      if (authProvider.requiresEmailVerification) {
+        // F3-2: Preserve redirect through the email verification step.
+        final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+        if (redirect != null && redirect.startsWith('/')) {
+          context.go('/auth/verify-email?redirect=${Uri.encodeComponent(redirect)}');
+        } else {
+          context.go('/auth/verify-email');
+        }
       } else {
-        context.go('/home');
+        final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+        if (redirect != null && redirect.startsWith('/')) {
+          context.go(Uri.decodeComponent(redirect));
+        } else {
+          context.go('/home');
+        }
       }
     }
   }
@@ -100,7 +112,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Form(
@@ -110,50 +122,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: MintSpacing.xl),
                 // Logo
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(MintSpacing.md),
-                    decoration: BoxDecoration(
-                      color: MintColors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: MintColors.black.withValues(alpha: 0.06),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
+                const MintEntrance(child: Center(
+                  child: MintSurface(
+                    padding: EdgeInsets.all(MintSpacing.md),
+                    radius: 24,
+                    elevated: true,
+                    child: Icon(
                       Icons.token_rounded,
                       color: MintColors.primary,
                       size: 48,
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
                 // Title
-                Text(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                   l10n.authRegisterTitle,
                   style: MintTextStyles.headlineLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.sm),
-                Text(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                   l10n.authRegisterSubtitle,
                   style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
-                Container(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: MintSurface(
                   padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: MintColors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: MintColors.primary.withValues(alpha: 0.18),
-                    ),
-                  ),
+                  radius: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -167,10 +164,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       _RegisterBenefitRow(text: l10n.authBenefitSync),
                     ],
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xxl),
                 // Email field
-                Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -191,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return null;
                     },
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
                 // First name field (required for coach personalization)
                 Semantics(
@@ -280,8 +277,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       hintText: l10n.authPasswordHintFull,
                       suffixIcon: Semantics(
                         label: _obscurePassword
-                            ? 'Afficher le mot de passe'
-                            : 'Masquer le mot de passe',
+                            ? l10n.authShowPassword
+                            : l10n.authHidePassword,
                         button: true,
                         child: IconButton(
                           icon: Icon(
@@ -348,8 +345,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           Semantics(
                             label: _obscureConfirmPassword
-                                ? 'Afficher le mot de passe'
-                                : 'Masquer le mot de passe',
+                                ? l10n.authShowPassword
+                                : l10n.authHidePassword,
                             button: true,
                             child: IconButton(
                               icon: Icon(
@@ -496,12 +493,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: MintSpacing.sm),
                 // Privacy reassurance text
-                Container(
+                MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.all(MintSpacing.md),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  radius: 12,
                   child: Row(
                     children: [
                       const Icon(
@@ -543,7 +538,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(width: MintSpacing.sm + 4),
                         Expanded(
                           child: Text(
-                            authProvider.error!,
+                            localizeAuthError(authProvider.error!, l10n),
                             style: MintTextStyles.bodyMedium(
                               color: MintColors.error,
                             ),
@@ -625,7 +620,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
-      ),
+      ))),
     );
   }
 }

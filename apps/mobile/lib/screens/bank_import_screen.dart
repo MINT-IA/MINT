@@ -9,6 +9,8 @@ import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Bank statement import screen with a 3-step flow:
 /// 1. Upload CSV/PDF
@@ -52,7 +54,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(s),
           SliverToBoxAdapter(
@@ -62,19 +64,19 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header
-                  Text(
+                  MintEntrance(child: Text(
                     s.bankImportTitle,
                     style: MintTextStyles.headlineLarge(),
-                  ),
+                  )),
                   const SizedBox(height: MintSpacing.sm),
-                  Text(
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     s.bankImportSubtitle,
                     style: MintTextStyles.bodyLarge(),
-                  ),
+                  )),
                   const SizedBox(height: MintSpacing.lg),
 
                   // Step 1: Upload
-                  _buildUploadCard(s),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildUploadCard(s)),
                   const SizedBox(height: 24),
 
                   // Uploading indicator
@@ -124,14 +126,14 @@ class _BankImportScreenState extends State<BankImportScreen> {
                   ],
 
                   // Privacy footer
-                  _buildPrivacyFooter(s),
+                  MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPrivacyFooter(s)),
                   const SizedBox(height: 40),
                 ],
               ),
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -210,10 +212,13 @@ class _BankImportScreenState extends State<BankImportScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _isUploading ? null : () => _pickAndUpload(),
+          Semantics(
+            button: true,
+            label: s.bankImportUploadButton,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _isUploading ? null : () => _pickAndUpload(),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.white,
                 foregroundColor: MintColors.info,
@@ -230,6 +235,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
               ),
             ),
           ),
+          ),
         ],
       ),
     );
@@ -240,13 +246,9 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildUploadingIndicator(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Row(
         children: [
           const SizedBox(
@@ -347,18 +349,13 @@ class _BankImportScreenState extends State<BankImportScreen> {
     final txCountStr =
         s.bankImportTransactionCount(result.transactions.length.toString());
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RÉSUMÉ',
+            s.bankImportSummaryHeader,
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
@@ -431,13 +428,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
     final sortedCategories = result.categorySummary.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -510,13 +502,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildRecurringCharges(S s, BankStatementResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -540,13 +527,11 @@ class _BankImportScreenState extends State<BankImportScreen> {
 
     return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(Icons.autorenew_rounded,
+        const MintSurface(
+          tone: MintSurfaceTone.porcelaine,
+          padding: EdgeInsets.all(8),
+          radius: 10,
+          child: Icon(Icons.autorenew_rounded,
               color: MintColors.textMuted, size: 18),
         ),
         const SizedBox(width: 12),
@@ -591,18 +576,13 @@ class _BankImportScreenState extends State<BankImportScreen> {
     const maxItems = 20;
     int itemCount = 0;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TRANSACTIONS',
+            s.bankImportTransactionsHeader,
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
@@ -624,7 +604,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           if (result.transactions.length > maxItems)
             Center(
               child: Text(
-                '... et ${result.transactions.length - maxItems} autres transactions',
+                s.bankImportMoreTransactions(result.transactions.length - maxItems),
                 style: const TextStyle(
                   fontSize: 13,
                   color: MintColors.textMuted,
@@ -644,12 +624,10 @@ class _BankImportScreenState extends State<BankImportScreen> {
     final color =
         _categoryColors[tx.category] ?? MintColors.categoryMisc;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         children: [
           Expanded(
@@ -704,20 +682,9 @@ class _BankImportScreenState extends State<BankImportScreen> {
     );
     final variableExpenses = preview.estimatedMonthlyExpenses - recurringTotal;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -904,7 +871,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       } catch (e) {
         if (!mounted) return;
         setState(() {
-          _error = 'Une erreur est survenue lors de l\'analyse du releve.';
+          _error = S.of(context)!.bankImportGenericError;
           _isUploading = false;
         });
       }

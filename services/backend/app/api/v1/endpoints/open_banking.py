@@ -19,13 +19,16 @@ Endpoints:
     POST /categorize                       — Re-categorize transactions
 """
 
+import logging
 import os
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
 from app.core.auth import require_current_user
 from app.models.user import User
+
+logger = logging.getLogger(__name__)
 from app.schemas.open_banking import (
     OpenBankingStatusResponse,
     ConsentRequest,
@@ -59,6 +62,17 @@ _aggregator = AccountAggregator(
     consent_manager=_consent_manager,
     categorizer=_categorizer,
 )
+
+# V12-2: WARNING — In-memory storage. Data will not survive restart.
+# Feature-gated pending DB migration. Consents fall back to in-memory dict
+# when no DB session is provided (sandbox/tests).
+logger.warning(
+    "Open Banking: in-memory fallback active — consents/data will NOT survive "
+    "restart. Feature-gated pending DB migration."
+)
+
+# V12-2: Header injected on affected endpoints to signal in-memory mode.
+_IN_MEMORY_HEADER = ("X-Storage-Mode", "in-memory")
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -135,13 +149,14 @@ def get_status() -> OpenBankingStatusResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/consent", response_model=ConsentResponse)
-def create_consent(request: ConsentRequest, current_user: User = Depends(require_current_user)) -> ConsentResponse:
+def create_consent(request: ConsentRequest, response: Response, current_user: User = Depends(require_current_user)) -> ConsentResponse:
     """Create a new banking consent (nLPD-compliant).
 
     Requires explicit opt-in. Scopes must be explicitly chosen.
     Maximum duration: 90 days. Revocable at any time.
     """
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     try:
         consent = _consent_manager.create_consent(
@@ -150,8 +165,8 @@ def create_consent(request: ConsentRequest, current_user: User = Depends(require
             bank_name=request.bankName,
             scopes=request.scopes,
         )
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Unprocessable input")
 
     return ConsentResponse(
         consentId=consent.consent_id,
@@ -165,13 +180,21 @@ def create_consent(request: ConsentRequest, current_user: User = Depends(require
 
 
 @router.delete("/consent/{consent_id}")
-def revoke_consent(consent_id: str, current_user: User = Depends(require_current_user)):
+def revoke_consent(consent_id: str, response: Response, current_user: User = Depends(require_current_user)):
     """Revoke a banking consent.
 
     The consent is immediately invalidated. All associated data access stops.
     This action is logged in the audit trail.
     """
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
+
+    # V3-4: IDOR guard — verify consent belongs to the current user.
+    consent = _consent_manager.get_consent(consent_id)
+    if not consent:
+        raise HTTPException(status_code=404, detail="Consentement non trouve.")
+    if consent.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Acces interdit.")
 
     success = _consent_manager.revoke_consent(consent_id)
     if not success:
@@ -185,9 +208,10 @@ def revoke_consent(consent_id: str, current_user: User = Depends(require_current
 
 
 @router.get("/consents", response_model=List[ConsentResponse])
-def list_consents(current_user: User = Depends(require_current_user)) -> List[ConsentResponse]:
+def list_consents(response: Response, current_user: User = Depends(require_current_user)) -> List[ConsentResponse]:
     """List active consents for the current person."""
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     consents = _consent_manager.get_active_consents(current_user.id)
 

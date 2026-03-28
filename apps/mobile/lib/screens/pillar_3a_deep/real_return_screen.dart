@@ -6,6 +6,15 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
 ///
@@ -25,6 +34,11 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   double _rendementBrut = 0.045;
   double _fraisGestion = 0.005;
   int _dureeAnnees = 30;
+  bool _hasUserInteracted = false;
+
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
 
   RealReturnResult get _result => RealReturnCalculator.calculate(
         versementAnnuel: _versementAnnuel,
@@ -35,38 +49,109 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       );
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+      _initializeFromProfile();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('real_return_3a',
+        ScreenReturn.abandoned(
+          route: '/3a-deep/real-return',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    // Last step of 3a template — no outputMapping, but emit completed
+    // so the coordinator knows the sequence is done.
+    ScreenCompletionTracker.markCompletedWithReturn('real_return_3a',
+      ScreenReturn.completed(
+        route: '/3a-deep/real-return',
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.revenuBrutAnnuel > 0) {
+        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        ).clamp(0.0, 0.50);
+        changed = true;
+      }
+      final yearsToRetirement = profile.anneesAvantRetraite;
+      if (yearsToRetirement >= 5 && yearsToRetirement <= 40) {
+        _dureeAnnees = yearsToRetirement;
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         title: Text(l.realReturnTitle, style: MintTextStyles.headlineMedium()),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
-          _buildChiffreChoc(result),
+          MintEntrance(child: _buildChiffreChoc(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Aha moment narrative
-          _buildAhaMoment(result),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAhaMoment(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection()),
           const SizedBox(height: MintSpacing.lg),
 
           // Resultat rendement
-          _buildRendementSection(result),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRendementSection(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison barres
-          _buildComparisonBars(result),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonBars(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail economie fiscale
@@ -77,7 +162,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           _buildDisclaimer(result.disclaimer),
           const SizedBox(height: MintSpacing.xl),
         ],
-      ),
+      )))),
     );
   }
 
@@ -139,13 +224,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildSlidersSection() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -160,7 +241,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             divisions: 125,
             format: 'CHF\u00a0${formatChf(_versementAnnuel)}',
             onChanged: (v) =>
-                setState(() => _versementAnnuel = (v / 50).round() * 50.0),
+                setState(() { _hasUserInteracted = true; _versementAnnuel = (v / 50).round() * 50.0; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -171,7 +252,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 0.50,
             divisions: 50,
             format: '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
-            onChanged: (v) => setState(() => _tauxMarginal = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _tauxMarginal = v; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -182,7 +263,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 0.08,
             divisions: 14,
             format: '${(_rendementBrut * 100).toStringAsFixed(1)}\u00a0%',
-            onChanged: (v) => setState(() => _rendementBrut = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _rendementBrut = v; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -193,7 +274,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 0.02,
             divisions: 20,
             format: '${(_fraisGestion * 100).toStringAsFixed(2)}\u00a0%',
-            onChanged: (v) => setState(() => _fraisGestion = v),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _fraisGestion = v; }),
           ),
           const SizedBox(height: MintSpacing.sm),
 
@@ -204,7 +285,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: 40,
             divisions: 35,
             format: l.realReturnYearsSuffix(_dureeAnnees),
-            onChanged: (v) => setState(() => _dureeAnnees = v.round()),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _dureeAnnees = v.round(); }),
           ),
         ],
       ),
@@ -220,53 +301,22 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Semantics(
-      label: '$label: $format',
-      slider: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              ),
-              Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-        ],
-      ),
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: (_) => format,
+      onChanged: onChanged,
     );
   }
 
   Widget _buildRendementSection(RealReturnResult result) {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -312,13 +362,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     final ratioEpargne =
         maxVal > 0 ? (result.capitalFinalEpargne / maxVal) : 0.0;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -403,13 +449,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildFiscalDetail(RealReturnResult result) {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

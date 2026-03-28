@@ -6,6 +6,12 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -51,9 +57,37 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _recalculateTax();
     _recalculate90Day();
     _recalculateCharges();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _taxCanton = profile.canton;
+        }
+        if (profile.salaireBrutMensuel > 0) {
+          _taxSalary = profile.salaireBrutMensuel;
+          _chargesSalary = profile.salaireBrutMensuel;
+        }
+        if (profile.nombreEnfants > 0) {
+          _taxChildren = profile.nombreEnfants;
+        }
+        if (profile.etatCivil == CoachCivilStatus.marie) {
+          _taxMaritalStatus = 1;
+        }
+      });
+      _recalculateTax();
+      _recalculateCharges();
+    } catch (_) {}
   }
 
   @override
@@ -125,7 +159,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       elevation: 0,
       scrolledUnderElevation: 0.5,
       leading: Semantics(
-        label: 'Retour',
+        label: S.of(context)!.semanticsBackButton,
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
@@ -163,7 +197,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _buildTaxInputsCard(),
+        MintEntrance(child: _buildTaxInputsCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_taxResult != null) ...[
           _buildTaxResultCard(),
@@ -174,11 +208,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (_taxResult!['isTessin'] == true)
             const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducationalTax,
-        ),
+        )),
         const SizedBox(height: MintSpacing.md + 4),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -186,14 +220,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   Widget _buildTaxInputsCard() {
     final sortedCodes = ExpatService.sortedCantonCodes;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -210,13 +239,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               Semantics(
                 label: S.of(context)!.frontalierCantonTravail,
                 button: true,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.sm + 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  radius: 10,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _taxCanton,
@@ -386,14 +413,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final annualTax = result['annualTax'] as double;
     final cantonNom = result['cantonNom'] as String;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -462,12 +484,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: MintSpacing.md),
 
           // Annual total
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            radius: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -579,7 +599,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _build90DayInputCard(),
+        MintEntrance(child: _build90DayInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_ruleResult != null) ...[
           _build90DayGauge(),
@@ -589,24 +609,19 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           _build90DayLegalRef(),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducational90Days,
-        ),
+        )),
         const SizedBox(height: MintSpacing.md + 4),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
 
   Widget _build90DayInputCard() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -671,14 +686,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         break;
     }
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
-      ),
       child: Column(
         children: [
           Row(
@@ -864,13 +874,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final result = _ruleResult!;
     final recommendation = result['recommendation'] as String;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -899,12 +906,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final result = _ruleResult!;
     final legalRef = result['legalReference'] as String;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.sm + 4),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -930,7 +935,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _buildChargesInputCard(),
+        MintEntrance(child: _buildChargesInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_chargesResult != null) ...[
           _buildChargesComparison(),
@@ -940,11 +945,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           _buildLamalSection(),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.frontalierEducationalCharges,
-        ),
+        )),
         const SizedBox(height: MintSpacing.md + 4),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -952,14 +957,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   Widget _buildChargesInputCard() {
     final countries = ExpatService.countryLabels.keys.toList();
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1044,14 +1044,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Container(
+          child: MintSurface(
+            tone: MintSurfaceTone.blanc,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-            ),
+            radius: 16,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1082,14 +1078,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         ),
         const SizedBox(width: MintSpacing.sm + 4),
         Expanded(
-          child: Container(
+          child: MintSurface(
+            tone: MintSurfaceTone.blanc,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-            ),
+            radius: 16,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1214,13 +1206,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   }
 
   Widget _buildLamalSection() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1262,12 +1251,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(MintSpacing.sm),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          radius: 8,
           child: Icon(icon, size: 16, color: MintColors.textSecondary),
         ),
         const SizedBox(width: MintSpacing.sm + 2),
@@ -1317,52 +1304,18 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       displayValue = ExpatService.formatChf(value);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: MintTextStyles.bodySmall(
-                    color: MintColors.textSecondary),
-              ),
-            ),
-            Text(
-              displayValue,
-              style: MintTextStyles.titleMedium(color: MintColors.primary)
-                  .copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-            overlayColor: MintColors.primary.withValues(alpha: 0.1),
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-          ),
-          child: Semantics(
-            label: label,
-            slider: true,
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions > 0 ? divisions : 1,
-              onChanged: (v) {
-                setState(() {
-                  onChanged((v / step).round() * step);
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions > 0 ? divisions : 1,
+      formatValue: (_) => displayValue,
+      onChanged: (v) {
+        setState(() {
+          onChanged((v / step).round() * step);
+        });
+      },
     );
   }
 
@@ -1375,7 +1328,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       children: [
         Semantics(
-          label: 'Diminuer',
+          label: S.of(context)!.semanticsDecrement,
           button: true,
           child: IconButton(
             onPressed: value > minVal
@@ -1397,7 +1350,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
         ),
         Semantics(
-          label: 'Augmenter',
+          label: S.of(context)!.semanticsIncrement,
           button: true,
           child: IconButton(
             onPressed: value < maxVal
@@ -1472,7 +1425,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
-              ExpatService.disclaimer,
+              S.of(context)!.frontalierDisclaimer,
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/services/backend_coach_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 
 // ────────────────────────────────────────────────────────────
-//  WIDGET RENDERER — S56
+//  WIDGET RENDERER — S56 (restored + adapted)
 // ────────────────────────────────────────────────────────────
 //
-//  Transforms a WidgetCall (from Claude tool_use) into a Flutter
+//  Transforms a RagToolCall (from Claude tool_use) into a Flutter
 //  widget for inline display in the coach chat.
 //
 //  Claude chooses the tool + params → Backend returns them →
@@ -32,26 +33,28 @@ class WidgetRenderer {
   /// the value as a chat message.
   static Widget? build(
     BuildContext context,
-    WidgetCall call, {
+    RagToolCall call, {
     void Function(String field, String value)? onInputSubmitted,
   }) {
-    switch (call.tool) {
+    switch (call.name) {
       case 'show_retirement_comparison':
-        return _buildRetirementComparison(context, call.params);
+        return _buildRetirementComparison(context, call.input);
       case 'show_budget_overview':
-        return _buildBudgetOverview(context, call.params);
+        return _buildBudgetOverview(context, call.input);
       case 'show_score_gauge':
-        return _buildScoreGauge(context, call.params);
+        return _buildScoreGauge(context, call.input);
       case 'show_fact_card':
-        return _buildFactCard(context, call.params);
+        return _buildFactCard(context, call.input);
       case 'show_choice_comparison':
-        return _buildChoiceComparison(context, call.params);
+        return _buildChoiceComparison(context, call.input);
       case 'show_pillar_breakdown':
-        return _buildPillarBreakdown(context, call.params);
+        return _buildPillarBreakdown(context, call.input);
       case 'show_budget_snapshot':
-        return _buildBudgetSnapshot(context, call.params);
+        return _buildBudgetSnapshot(context, call.input);
+      case 'show_comparison_card':
+        return _buildComparisonCard(context, call.input);
       case 'ask_user_input':
-        return _buildInputRequest(context, call.params, onInputSubmitted);
+        return _buildInputRequest(context, call.input, onInputSubmitted);
       default:
         return null;
     }
@@ -59,12 +62,13 @@ class WidgetRenderer {
 
   static Widget _buildRetirementComparison(
       BuildContext context, Map<String, dynamic> p) {
+    final l = S.of(context);
     return ChatComparisonCard(
-      title: 'Ton apercu retraite',
-      leftLabel: 'Aujourd\'hui',
-      leftValue: 'CHF ${_fmt(p['today_monthly'])}/mois',
-      rightLabel: 'A la retraite',
-      rightValue: 'CHF ${_fmt(p['retirement_monthly'])}/mois',
+      title: l?.widgetRetirementTitle ?? 'Ton aper\u00e7u retraite',
+      leftLabel: l?.widgetRetirementToday ?? 'Aujourd\u2019hui',
+      leftValue: 'CHF\u00a0${_fmt(p['today_monthly'])}/mois',
+      rightLabel: l?.widgetRetirementFuture ?? '\u00c0 la retraite',
+      rightValue: 'CHF\u00a0${_fmt(p['retirement_monthly'])}/mois',
       leftAmount: (p['today_monthly'] as num?)?.toDouble() ?? 0,
       rightAmount: (p['retirement_monthly'] as num?)?.toDouble() ?? 0,
       narrative: p['narrative'] as String?,
@@ -74,12 +78,13 @@ class WidgetRenderer {
 
   static Widget _buildBudgetOverview(
       BuildContext context, Map<String, dynamic> p) {
+    final l = S.of(context);
     return ChatComparisonCard(
-      title: 'Ton budget',
-      leftLabel: 'Revenus',
-      leftValue: 'CHF ${_fmt(p['income_monthly'])}/mois',
-      rightLabel: 'Depenses',
-      rightValue: 'CHF ${_fmt(p['expenses_monthly'])}/mois',
+      title: l?.widgetBudgetTitle ?? 'Ton budget',
+      leftLabel: l?.widgetBudgetIncome ?? 'Revenus',
+      leftValue: 'CHF\u00a0${_fmt(p['income_monthly'])}/mois',
+      rightLabel: l?.widgetBudgetExpenses ?? 'D\u00e9penses',
+      rightValue: 'CHF\u00a0${_fmt(p['expenses_monthly'])}/mois',
       leftAmount: (p['income_monthly'] as num?)?.toDouble() ?? 0,
       rightAmount: (p['expenses_monthly'] as num?)?.toDouble() ?? 0,
       narrative: p['narrative'] as String?,
@@ -90,10 +95,10 @@ class WidgetRenderer {
   static Widget _buildScoreGauge(
       BuildContext context, Map<String, dynamic> p) {
     return ChatGaugeCard(
-      title: p['title'] as String? ?? 'Score',
+      title: p['title'] as String? ?? S.of(context)?.widgetScoreFallback ?? 'Score',
       value: (p['value'] as num?)?.toDouble() ?? 0,
       maxValue: (p['max_value'] as num?)?.toDouble() ?? 100,
-      valueLabel: p['label'] as String? ?? '—',
+      valueLabel: p['label'] as String? ?? '\u2014',
       narrative: p['narrative'] as String?,
     );
   }
@@ -102,9 +107,9 @@ class WidgetRenderer {
       BuildContext context, Map<String, dynamic> p) {
     final route = p['route'] as String?;
     return ChatFactCard(
-      eyebrow: p['eyebrow'] as String? ?? '',
-      value: p['value'] as String? ?? '—',
-      description: p['description'] as String? ?? '',
+      eyebrow: p['eyebrow'] as String? ?? p['title'] as String? ?? '',
+      value: p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
+      description: p['description'] as String? ?? p['content'] as String? ?? '',
       onTap: route != null ? () => context.push(route) : null,
     );
   }
@@ -131,16 +136,37 @@ class WidgetRenderer {
     final p3a = (p['pillar_3a_monthly'] as num?)?.toDouble() ?? 0;
     final total = avs + lpp + p3a;
 
+    final l = S.of(context);
     return ChatComparisonCard(
-      title: 'Tes 3 piliers',
-      leftLabel: 'AVS + LPP',
-      leftValue: 'CHF ${_fmt(avs + lpp)}/mois',
-      rightLabel: '3e pilier',
-      rightValue: p3a > 0 ? 'CHF ${_fmt(p3a)}/mois' : 'Non declare',
+      title: l?.widgetPillarTitle ?? 'Tes 3 piliers',
+      leftLabel: l?.widgetPillarAvsLpp ?? 'AVS + LPP',
+      leftValue: 'CHF\u00a0${_fmt(avs + lpp)}/mois',
+      rightLabel: l?.widgetPillar3a ?? '3e pilier',
+      rightValue: p3a > 0 ? 'CHF\u00a0${_fmt(p3a)}/mois' : (l?.widgetPillarNotDeclared ?? 'Non d\u00e9clar\u00e9'),
       leftAmount: avs + lpp,
       rightAmount: p3a > 0 ? p3a : total * 0.1,
       narrative: p['narrative'] as String?,
       onTap: () => context.push('/retraite'),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  COMPARISON CARD — show_comparison_card tool
+  // ────────────────────────────────────────────────────────────
+
+  static Widget _buildComparisonCard(
+      BuildContext context, Map<String, dynamic> p) {
+    final route = p['route'] as String?;
+    return ChatComparisonCard(
+      title: p['title'] as String? ?? '',
+      leftLabel: p['left_label'] as String? ?? '',
+      leftValue: p['left_value'] as String? ?? '',
+      rightLabel: p['right_label'] as String? ?? '',
+      rightValue: p['right_value'] as String? ?? '',
+      leftAmount: (p['left_amount'] as num?)?.toDouble() ?? 0,
+      rightAmount: (p['right_amount'] as num?)?.toDouble() ?? 0,
+      narrative: p['narrative'] as String?,
+      onTap: route != null ? () => context.push(route) : null,
     );
   }
 
@@ -153,34 +179,46 @@ class WidgetRenderer {
     final presentFree = (p['present_free'] as num?)?.toDouble() ?? 0;
     final retirementFree = (p['retirement_free'] as num?)?.toDouble();
     final gap = (p['gap'] as num?)?.toDouble();
+    final confidence = (p['confidence'] as num?)?.toInt();
     final narrative = p['narrative'] as String?;
     final leverNow = p['lever_now'] as String?;
     final leverLater = p['lever_later'] as String?;
 
-    // If retirement data exists, show present vs retirement comparison.
-    // Otherwise, show present free as a fact card.
+    final l = S.of(context);
+
     if (retirementFree != null) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ChatComparisonCard(
-            title: 'Ton budget vivant',
-            leftLabel: 'Libre aujourd\u2019hui',
+            title: l?.budgetSnapshotTitle ?? 'Ton budget vivant',
+            leftLabel: l?.budgetSnapshotPresentLabel ?? 'Libre aujourd\u2019hui',
             leftValue: 'CHF\u00a0${_fmt(presentFree)}/mois',
-            rightLabel: 'Libre retraite',
+            rightLabel: l?.budgetSnapshotRetirementLabel ?? 'Libre retraite',
             rightValue: 'CHF\u00a0${_fmt(retirementFree)}/mois',
             leftAmount: presentFree,
             rightAmount: retirementFree,
             narrative: gap != null
-                ? '\u00c9cart\u00a0: CHF\u00a0${_fmt(gap.abs())}/mois'
+                ? '${l?.budgetSnapshotGapLabel ?? "\u00c9cart"}\u00a0: CHF\u00a0${_fmt(gap.abs())}/mois'
                 : narrative,
             onTap: () => context.push('/retraite'),
           ),
+          if (confidence != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ChatFactCard(
+                eyebrow: l?.budgetSnapshotConfidenceLabel ?? 'Fiabilit\u00e9',
+                value: '$confidence\u00a0%',
+                description: confidence < 50
+                    ? (l?.budgetSnapshotConfidenceLow ?? 'Ajoute des donn\u00e9es pour affiner.')
+                    : (l?.budgetSnapshotConfidenceOk ?? 'Estimation cr\u00e9dible.'),
+              ),
+            ),
           if (leverNow != null || leverLater != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ChatFactCard(
-                eyebrow: 'Levier',
+                eyebrow: l?.budgetSnapshotLeverLabel ?? 'Levier',
                 value: leverNow ?? leverLater ?? '',
                 description: leverLater != null && leverNow != null
                     ? leverLater
@@ -192,9 +230,9 @@ class WidgetRenderer {
     }
 
     return ChatFactCard(
-      eyebrow: 'Budget',
+      eyebrow: l?.widgetBudgetLabel ?? 'Budget',
       value: 'CHF\u00a0${_fmt(presentFree)}/mois',
-      description: narrative ?? 'Ton libre mensuel',
+      description: narrative ?? (l?.budgetSnapshotFreeLabel ?? 'Ton libre mensuel'),
       onTap: () => context.push('/budget'),
     );
   }
@@ -212,10 +250,14 @@ class WidgetRenderer {
     Map<String, dynamic> p,
     void Function(String field, String value)? onInputSubmitted,
   ) {
-    final field = p['field'] as String? ?? '';
-    final message = p['message'] as String?;
+    final field = p['field_key'] as String? ?? p['field'] as String? ?? '';
+    final message = p['prompt_text'] as String? ?? p['message'] as String?;
 
     switch (field) {
+      case 'name':
+        // Name is collected via normal text input, not a picker.
+        return null;
+
       case 'age':
         return ChatAgePicker(
           label: message,
@@ -226,10 +268,27 @@ class WidgetRenderer {
         );
 
       case 'salary':
+      case 'salaireBrut':
         return ChatAmountInput(
-          label: message ?? 'Ton revenu brut annuel',
+          label: message ?? S.of(context)?.onboardingSmartSalaryLabel ?? S.of(context)?.widgetInputSalaryFallback ?? 'Salary',
           onSubmitted: (amount) {
-            onInputSubmitted?.call('salary', '${amount.round()}');
+            onInputSubmitted?.call('salaireBrut', '${amount.round()}');
+          },
+        );
+
+      case 'avoirLpp':
+        return ChatAmountInput(
+          label: message ?? S.of(context)?.widgetInputLppLabel ?? 'Avoir LPP (CHF)',
+          onSubmitted: (amount) {
+            onInputSubmitted?.call('avoirLpp', '${amount.round()}');
+          },
+        );
+
+      case 'epargne3a':
+        return ChatAmountInput(
+          label: message ?? S.of(context)?.widgetInput3aLabel ?? '\u00c9pargne 3a (CHF)',
+          onSubmitted: (amount) {
+            onInputSubmitted?.call('epargne3a', '${amount.round()}');
           },
         );
 
@@ -274,6 +333,19 @@ class WidgetRenderer {
           choices: const ['0', '1', '2', '3', '4+'],
           onSelected: (choice) {
             onInputSubmitted?.call('children', choice);
+          },
+        );
+
+      case 'choice':
+        final choices = (p['choices'] as List<dynamic>?)
+            ?.map((c) => c.toString())
+            .toList();
+        if (choices == null || choices.isEmpty) return null;
+        return ChatChoiceButtons(
+          label: message,
+          choices: choices,
+          onSelected: (choice) {
+            onInputSubmitted?.call('choice', choice);
           },
         );
 

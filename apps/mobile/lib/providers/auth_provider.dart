@@ -1,7 +1,72 @@
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
+
+/// Error codes for authentication operations.
+///
+/// The provider sets an error code; the UI layer translates it to a
+/// localized message via `AppLocalizations`.
+enum AuthError {
+  /// Network unavailable or service unreachable.
+  networkUnavailable,
+
+  /// Email already registered.
+  emailAlreadyUsed,
+
+  /// Wrong email or password.
+  incorrectCredentials,
+
+  /// Registration temporarily unavailable.
+  registrationUnavailable,
+
+  /// Auth service not available on this environment.
+  serviceUnavailable,
+
+  /// Input data is invalid.
+  invalidInput,
+
+  /// Reset link has expired.
+  linkExpired,
+
+  /// Email not yet verified.
+  emailNotVerified,
+
+  /// Generic fallback error.
+  genericError,
+}
+
+/// Translate an [AuthError] code to a localized user-facing string.
+///
+/// Called by UI screens (login, register, profile) to display the error.
+String localizeAuthError(AuthError error, S l) {
+  switch (error) {
+    case AuthError.networkUnavailable:
+      return l.authErrorNetwork;
+    case AuthError.emailAlreadyUsed:
+      return l.authErrorEmailUsed;
+    case AuthError.incorrectCredentials:
+      return l.authErrorIncorrect;
+    case AuthError.registrationUnavailable:
+      return l.authErrorRegistration;
+    case AuthError.serviceUnavailable:
+      return l.authErrorService;
+    case AuthError.invalidInput:
+      return l.authErrorInvalid;
+    case AuthError.linkExpired:
+      return l.authErrorExpired;
+    case AuthError.emailNotVerified:
+      return l.authErrorNotVerified;
+    case AuthError.genericError:
+      return l.authErrorGeneric;
+  }
+}
 
 /// Provider for managing authentication state
 /// Handles login, register, logout, and auth persistence
@@ -11,7 +76,7 @@ class AuthProvider extends ChangeNotifier {
   String? _email;
   String? _displayName;
   bool _isLoading = false;
-  String? _error;
+  AuthError? _error;
   bool _requiresEmailVerification = false;
 
   bool get isLoggedIn => _isLoggedIn;
@@ -19,7 +84,7 @@ class AuthProvider extends ChangeNotifier {
   String? get email => _email;
   String? get displayName => _displayName;
   bool get isLoading => _isLoading;
-  String? get error => _error;
+  AuthError? get error => _error;
   bool get requiresEmailVerification => _requiresEmailVerification;
 
   /// Check stored auth on app startup
@@ -36,6 +101,11 @@ class AuthProvider extends ChangeNotifier {
         _isLoggedIn = true;
         _error = null;
       }
+      // F3-2: Restore email verification state from SharedPreferences.
+      // Survives cold start so the verify-email screen is shown again.
+      final prefs = await SharedPreferences.getInstance();
+      _requiresEmailVerification =
+          prefs.getBool('requires_email_verification') ?? false;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
       _isLoggedIn = false;
@@ -88,6 +158,12 @@ class AuthProvider extends ChangeNotifier {
       _displayName = response['display_name'] as String?;
       _error = null;
       _isLoading = false;
+
+      // F3-2: Persist email verification state so it survives cold start.
+      if (requiresVerification) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('requires_email_verification', true);
+      }
 
       if (_isLoggedIn) {
         await _migrateLocalDataIfNeeded();
@@ -153,6 +229,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       await ApiService.deleteAccount();
       await AuthService.logout();
+      // V6-4 audit fix: purge ALL local data on account deletion
+      await _purgeLocalData();
       _isLoggedIn = false;
       _userId = null;
       _email = null;
@@ -228,6 +306,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await ApiService.confirmEmailVerification(token);
+      // F3-2: Clear persisted verification flag on success.
+      _requiresEmailVerification = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('requires_email_verification');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -239,9 +321,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Logout
+  /// Logout — V6-4 audit fix: purge ALL local data to prevent
+  /// cross-account data bleed on shared devices.
   Future<void> logout() async {
     await AuthService.logout();
+    await _purgeLocalData();
     _isLoggedIn = false;
     _userId = null;
     _email = null;
@@ -249,6 +333,52 @@ class AuthProvider extends ChangeNotifier {
     _requiresEmailVerification = false;
     _error = null;
     notifyListeners();
+  }
+
+  /// V6-4 audit fix: purge ALL local data artifacts to prevent
+  /// cross-account data bleed on shared devices.
+  /// Same purge sequence as profile_screen.dart deleteAccount flow.
+  Future<void> _purgeLocalData() async {
+    try {
+      // Purge conversation history
+      final store = ConversationStore();
+      final conversations = await store.listConversations();
+      for (final conv in conversations) {
+        await store.deleteConversation(conv.id);
+      }
+      // Purge coach memory (insights)
+      await CoachMemoryService.clear();
+      // Purge CapEngine memory
+      await CapMemoryStore.clear();
+      // Purge analytics queue
+      await AnalyticsService().clearLocalQueue();
+      // Clear account-specific SharedPreferences while preserving device prefs.
+      // Save device-level prefs, clear everything, then restore them.
+      // This is safer than selective removal (new keys are auto-cleared).
+      // See SOURCE_OF_TRUTH_MATRIX.md §6 for governance.
+      final prefs = await SharedPreferences.getInstance();
+      await PrecomputedInsightsService.clear(prefs);
+      // Preserve device-level preferences across logout
+      final preservedLocale = prefs.getString('mint_locale');
+      final preservedB2bOrg = prefs.getString('_b2b_organization');
+      final preservedWhiteLabel = prefs.getString('_white_label_config');
+      await prefs.clear();
+      // Restore device-level preferences
+      if (preservedLocale != null) {
+        await prefs.setString('mint_locale', preservedLocale);
+      }
+      if (preservedB2bOrg != null) {
+        await prefs.setString('_b2b_organization', preservedB2bOrg);
+      }
+      if (preservedWhiteLabel != null) {
+        await prefs.setString('_white_label_config', preservedWhiteLabel);
+      }
+    } catch (e) {
+      // Purge is best-effort — never block auth flow
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local data purge failed: $e');
+      }
+    }
   }
 
   /// Migrate local anonymous data to the authenticated account.
@@ -276,10 +406,16 @@ class AuthProvider extends ChangeNotifier {
           existingOwner.isNotEmpty &&
           existingOwner != currentUserId) {
         // Different user's data — do NOT overwrite ownership.
-        debugPrint(
-          '[AuthProvider] Local data belongs to $existingOwner, '
-          'skipping migration for $currentUserId.',
-        );
+        // PRIVACY: never log raw user IDs — redact to first 4 chars only.
+        if (kDebugMode) {
+          final ownerTag = existingOwner.length > 4
+              ? '${existingOwner.substring(0, 4)}…'
+              : '****';
+          debugPrint(
+            '[AuthProvider] Local data belongs to different user ($ownerTag), '
+            'skipping migration.',
+          );
+        }
         return;
       }
 
@@ -291,7 +427,7 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
-      debugPrint('[AuthProvider] Local data migration failed: $e');
+      if (kDebugMode) debugPrint('[AuthProvider] Local data migration failed: $e');
     }
   }
 
@@ -301,7 +437,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _toUserFriendlyAuthError(Object error) {
+  AuthError _toUserFriendlyAuthError(Object error) {
     final raw = error.toString().replaceAll('Exception: ', '').trim();
     final lower = raw.toLowerCase();
 
@@ -311,39 +447,39 @@ class AuthProvider extends ChangeNotifier {
         lower.contains('connection refused') ||
         lower.contains('errno = 8') ||
         lower.contains('errno = 61')) {
-      return 'Connexion au service indisponible. Vérifie ton réseau et réessaie.';
+      return AuthError.networkUnavailable;
     }
 
     if (lower.contains('existe déjà')) {
-      return 'Cet e-mail est déjà utilisé. Connecte-toi ou réinitialise ton mot de passe.';
+      return AuthError.emailAlreadyUsed;
     }
 
     if (lower.contains('incorrect')) {
-      return 'E-mail ou mot de passe incorrect.';
+      return AuthError.incorrectCredentials;
     }
 
     if (lower.contains('registration failed') ||
         lower.contains('inscription impossible') ||
         lower.contains('service indisponible')) {
-      return 'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.';
+      return AuthError.registrationUnavailable;
     }
 
     if (lower.contains('authentication requise') ||
         lower.contains('unauthorized') ||
         lower.contains('forbidden')) {
-      return 'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.';
+      return AuthError.serviceUnavailable;
     }
 
     if (lower.contains('invalid') || lower.contains('invalide')) {
-      return 'Les informations saisies sont invalides.';
+      return AuthError.invalidInput;
     }
     if (lower.contains('expir')) {
-      return 'Ce lien de réinitialisation a expiré. Demande un nouveau lien.';
+      return AuthError.linkExpired;
     }
     if (lower.contains('non vérifié') || lower.contains('not verified')) {
-      return 'Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.';
+      return AuthError.emailNotVerified;
     }
 
-    return 'Action impossible pour le moment. Réessaie dans quelques instants.';
+    return AuthError.genericError;
   }
 }

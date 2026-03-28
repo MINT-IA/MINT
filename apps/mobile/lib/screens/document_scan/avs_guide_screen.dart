@@ -8,6 +8,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  AVS GUIDE SCREEN — Sprint S45
@@ -51,7 +53,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context, l),
           SliverPadding(
@@ -59,15 +61,15 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(l),
+                MintEntrance(child: _buildHeader(l)),
                 const SizedBox(height: 24),
-                _buildConfidenceImpact(l),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildConfidenceImpact(l)),
                 const SizedBox(height: 28),
-                _buildSteps(l),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSteps(l)),
                 const SizedBox(height: 28),
-                _buildOpenAhvButton(l),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildOpenAhvButton(l)),
                 const SizedBox(height: 16),
-                _buildScanButton(l),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildScanButton(l)),
                 if (kDebugMode) ...[
                   const SizedBox(height: 16),
                   _buildSimulateButton(l),
@@ -81,7 +83,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -264,11 +266,14 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   // ── Open ahv-iv.ch button ──────────────────────────────────
 
   Widget _buildOpenAhvButton(S l) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: FilledButton.icon(
-        onPressed: _onOpenAhv,
+    return Semantics(
+      button: true,
+      label: l.avsGuideOpenAhvButton,
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: FilledButton.icon(
+          onPressed: _onOpenAhv,
         icon: const Icon(Icons.open_in_new, size: 20),
         label: Text(
           l.avsGuideOpenAhvButton,
@@ -282,17 +287,21 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 
   // ── Scan button ────────────────────────────────────────────
 
   Widget _buildScanButton(S l) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: OutlinedButton.icon(
-        onPressed: _isProcessing ? null : _onScanExtract,
+    return Semantics(
+      button: true,
+      label: l.avsGuideScanButton,
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton.icon(
+          onPressed: _isProcessing ? null : _onScanExtract,
         icon: const Icon(Icons.document_scanner_outlined, size: 22),
         label: Text(
           l.avsGuideScanButton,
@@ -306,6 +315,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -405,13 +415,10 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   // ── Privacy note ──────────────────────────────────────────
 
   Widget _buildPrivacyNote(S l) {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

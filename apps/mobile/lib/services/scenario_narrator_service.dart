@@ -11,6 +11,8 @@
 // No prescriptive language, no banned terms.
 // All French, informal "tu".
 
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+
 // ────────────────────────────────────────────────────────────
 //  DATA CLASSES
 // ────────────────────────────────────────────────────────────
@@ -72,10 +74,11 @@ class ScenarioNarratorService {
     required double optimisteCapital,
     required double optimisteMonthly,
     String firstName = 'utilisateur',
+    S? l,
   }) {
     final scenarios = <NarratedScenario>[
       NarratedScenario(
-        label: 'Scenario prudent',
+        label: l?.scenarioLabelPrudent ?? 'Scenario prudent',
         annualReturnPct: 1.0,
         capitalFinal: prudentCapital,
         monthlyIncome: prudentMonthly,
@@ -86,7 +89,7 @@ class ScenarioNarratorService {
         ),
       ),
       NarratedScenario(
-        label: 'Scenario de reference',
+        label: l?.scenarioLabelReference ?? 'Scenario de reference',
         annualReturnPct: 4.5,
         capitalFinal: baseCapital,
         monthlyIncome: baseMonthly,
@@ -97,7 +100,7 @@ class ScenarioNarratorService {
         ),
       ),
       NarratedScenario(
-        label: 'Scenario favorable',
+        label: l?.scenarioLabelFavorable ?? 'Scenario favorable',
         annualReturnPct: 7.0,
         capitalFinal: optimisteCapital,
         monthlyIncome: optimisteMonthly,
@@ -111,7 +114,7 @@ class ScenarioNarratorService {
 
     return ScenarioNarrationResult(
       scenarios: scenarios,
-      disclaimer:
+      disclaimer: l?.scenarioDisclaimer ??
           'Outil educatif — ne constitue pas un conseil financier au sens '
           'de la LSFin. Les projections reposent sur des hypotheses de '
           'rendement et ne presagent pas des resultats futurs. '

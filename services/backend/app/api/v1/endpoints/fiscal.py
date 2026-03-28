@@ -8,8 +8,9 @@ POST /api/v1/fiscal/move       — Simulate tax savings from moving between cant
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.fiscal import (
     TaxEstimateRequest,
     TaxEstimateResponse,
@@ -34,7 +35,8 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 @router.post("/estimate", response_model=TaxEstimateResponse)
-def estimate_tax(request: TaxEstimateRequest) -> TaxEstimateResponse:
+@limiter.limit("30/minute")
+def estimate_tax(request: Request, body: TaxEstimateRequest) -> TaxEstimateResponse:
     """Estimate tax for a profile in a specific canton.
 
     Returns federal + cantonal/communal breakdown based on simplified
@@ -46,13 +48,13 @@ def estimate_tax(request: TaxEstimateRequest) -> TaxEstimateResponse:
 
     try:
         estimate = comparator.estimate_tax(
-            income=request.revenu_brut,
-            canton=request.canton,
-            civil_status=request.etat_civil,
-            children=request.nombre_enfants,
+            income=body.revenu_brut,
+            canton=body.canton,
+            civil_status=body.etat_civil,
+            children=body.nombre_enfants,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     return TaxEstimateResponse(
         canton=estimate.canton,
@@ -72,7 +74,8 @@ def estimate_tax(request: TaxEstimateRequest) -> TaxEstimateResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/compare", response_model=CantonComparisonResponse)
-def compare_cantons(request: CantonComparisonRequest) -> CantonComparisonResponse:
+@limiter.limit("30/minute")
+def compare_cantons(request: Request, body: CantonComparisonRequest) -> CantonComparisonResponse:
     """Rank all 26 cantons by tax burden for a given profile.
 
     Returns a sorted list from cheapest to most expensive canton,
@@ -83,9 +86,9 @@ def compare_cantons(request: CantonComparisonRequest) -> CantonComparisonRespons
     comparator = CantonalComparator()
 
     rankings = comparator.compare_all_cantons(
-        income=request.revenu_brut,
-        civil_status=request.etat_civil,
-        children=request.nombre_enfants,
+        income=body.revenu_brut,
+        civil_status=body.etat_civil,
+        children=body.nombre_enfants,
     )
 
     # Build response items
@@ -129,7 +132,8 @@ def compare_cantons(request: CantonComparisonRequest) -> CantonComparisonRespons
 # ---------------------------------------------------------------------------
 
 @router.post("/move", response_model=MoveSimulationResponse)
-def simulate_move(request: MoveSimulationRequest) -> MoveSimulationResponse:
+@limiter.limit("30/minute")
+def simulate_move(request: Request, body: MoveSimulationRequest) -> MoveSimulationResponse:
     """Simulate tax savings from moving between cantons.
 
     Returns annual, monthly, and 10-year cumulative savings,
@@ -141,14 +145,14 @@ def simulate_move(request: MoveSimulationRequest) -> MoveSimulationResponse:
 
     try:
         simulation = comparator.simulate_move(
-            income=request.revenu_brut,
-            canton_from=request.canton_depart,
-            canton_to=request.canton_arrivee,
-            civil_status=request.etat_civil,
-            children=request.nombre_enfants,
+            income=body.revenu_brut,
+            canton_from=body.canton_depart,
+            canton_to=body.canton_arrivee,
+            civil_status=body.etat_civil,
+            children=body.nombre_enfants,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     return MoveSimulationResponse(
         canton_depart=simulation.canton_depart,

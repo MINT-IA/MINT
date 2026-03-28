@@ -1,9 +1,13 @@
-/// Consent Manager — Sprint S40.
+/// Consent Manager — Sprint S40 + F3-4 audit fix.
 ///
-/// Manages 3 independent, granular consents (nLPD compliant):
+/// Manages 7 independent, granular consents (nLPD compliant):
 ///   1. BYOK data sharing (CoachContext -> LLM provider)
 ///   2. Snapshot storage (longitudinal tracking)
 ///   3. Notifications (personalized push)
+///   4. Analytics (anonymous event tracking)
+///   5. RAG queries (coach knowledge-base queries)
+///   6. Open Banking (bLink/SFTI connection)
+///   7. Document Upload (OCR scanning)
 ///
 /// Each consent: independent, revocable immediately.
 /// All OFF by default (privacy by design, nLPD art. 6).
@@ -14,21 +18,28 @@
 /// - LSFin art. 3 (information financiere)
 library;
 
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:shared_preferences/shared_preferences.dart';
+
 // ────────────────────────────────────────────────────────────
 //  CONSENT MANAGER — S40 / Reengagement + Consent
 // ────────────────────────────────────────────────────────────
 //
-// Trois consentements granulaires, independants, revocables :
+// Sept consentements granulaires, independants, revocables :
 //
 // 1. byokDataSharing  — Envoi des donnees agregees au fournisseur IA
 // 2. snapshotStorage   — Conservation de l'historique de projections
 // 3. notifications     — Rappels personnalises avec chiffres
+// 4. analytics         — Statistiques anonymisees
+// 5. ragQueries        — Questions posees au coach IA
+// 6. openBanking       — Connexion lecture seule aux comptes
+// 7. documentUpload    — Certificats et releves analyses par OCR
 //
 // Tous OFF par defaut (privacy by design).
 // Revocation immediate sans consequence sur le service de base.
 // ────────────────────────────────────────────────────────────
 
-/// The 3 independent consent types.
+/// The independent consent types.
 enum ConsentType {
   /// BYOK data sharing: CoachContext fields sent to LLM provider.
   byokDataSharing,
@@ -38,6 +49,18 @@ enum ConsentType {
 
   /// Notifications: personalized push with financial numbers.
   notifications,
+
+  /// Analytics: anonymous event tracking for product improvement.
+  analytics,
+
+  /// RAG queries: knowledge-base queries for coach personalization.
+  ragQueries,
+
+  /// Open Banking: bLink/SFTI connection for transaction import.
+  openBanking,
+
+  /// Document Upload: OCR scanning and certificate storage.
+  documentUpload,
 }
 
 /// State of a single consent toggle.
@@ -77,9 +100,9 @@ class ConsentState {
   }
 }
 
-/// Dashboard grouping all 3 consents with legal references.
+/// Dashboard grouping all 7 consents with legal references.
 class ConsentDashboard {
-  /// The 3 independent consent states.
+  /// The 7 independent consent states (one per ConsentType).
   final List<ConsentState> consents;
 
   /// Legal disclaimer (nLPD art. 6).
@@ -147,8 +170,10 @@ class ConsentManager {
   }
 
   /// Load dashboard with persisted consent state.
-  static Future<ConsentDashboard> loadDashboard() async {
-    final dashboard = getDefaultDashboard();
+  ///
+  /// Pass [l] to get localized labels; falls back to French strings if null.
+  static Future<ConsentDashboard> loadDashboard({S? l}) async {
+    final dashboard = getDefaultDashboard(l: l);
     final prefs = await _getPrefs();
     return ConsentDashboard(
       consents: dashboard.consents.map((c) {
@@ -160,22 +185,23 @@ class ConsentManager {
     );
   }
 
-  static Future<dynamic> _getPrefs() async {
-    // Lazy import to avoid hard dependency at top level
-    await Future.value(null); // SharedPreferences placeholder
-    // In production, use: SharedPreferences.getInstance()
-    // For now, use in-memory fallback
-    return _InMemoryPrefs.instance;
+  static Future<SharedPreferences> _getPrefs() async {
+    return SharedPreferences.getInstance();
   }
 
-  /// Returns default consent dashboard (all OFF).
-  static ConsentDashboard getDefaultDashboard() {
-    return const ConsentDashboard(
+  /// Returns default consent dashboard with ALL 7 consent types (all OFF).
+  ///
+  /// F3-4: Dashboard MUST include every ConsentType value so that
+  /// loadDashboard() can persist/restore all consent states.
+  ///
+  /// Pass [l] to get localized labels; falls back to French strings if null.
+  static ConsentDashboard getDefaultDashboard({S? l}) {
+    return ConsentDashboard(
       consents: [
         ConsentState(
           type: ConsentType.byokDataSharing,
           enabled: false,
-          label: 'Personnalisation IA',
+          label: l?.consentLabelByok ?? 'Personnalisation IA',
           detail: 'Envoyer tes donnees financieres agregees a ton fournisseur IA '
               'pour personnaliser les textes du coach.',
           neverSent: 'Ton salaire exact, tes soldes bancaires, ton employeur, '
@@ -184,7 +210,7 @@ class ConsentManager {
         ConsentState(
           type: ConsentType.snapshotStorage,
           enabled: false,
-          label: 'Historique de progression',
+          label: l?.consentLabelSnapshot ?? 'Historique de progression',
           detail: 'Conserver l\'historique de tes projections pour suivre '
               'ta progression dans le temps.',
           neverSent: 'Tes donnees brutes ne sont pas stockees. '
@@ -193,16 +219,52 @@ class ConsentManager {
         ConsentState(
           type: ConsentType.notifications,
           enabled: false,
-          label: 'Rappels personnalises',
+          label: l?.consentLabelNotifications ?? 'Rappels personnalises',
           detail: 'Recevoir des rappels avec tes chiffres personnels '
               '(3a, impots, check-in).',
           neverSent: 'Aucune notification ne contient ton salaire, '
               'tes soldes ou tes donnees sensibles.',
         ),
+        const ConsentState(
+          type: ConsentType.analytics,
+          enabled: false,
+          label: 'Analyse d\'utilisation',
+          detail: 'Statistiques anonymisees pour ameliorer l\'app.',
+          neverSent: 'Aucune donnee personnelle n\'est incluse '
+              'dans les statistiques agregees.',
+        ),
+        const ConsentState(
+          type: ConsentType.ragQueries,
+          enabled: false,
+          label: 'Questions a l\'assistant',
+          detail: 'Historique des questions posees au coach IA '
+              '(BYOK — ta propre cle API).',
+          neverSent: 'Les questions ne contiennent ni ton salaire, '
+              'ni tes soldes, ni tes donnees sensibles.',
+        ),
+        const ConsentState(
+          type: ConsentType.openBanking,
+          enabled: false,
+          label: 'Donnees bancaires (bLink)',
+          detail: 'Connexion lecture seule a tes comptes bancaires '
+              'pour importer automatiquement tes transactions.',
+          neverSent: 'Tes identifiants bancaires ne transitent jamais '
+              'par nos serveurs. Seules les transactions sont importees.',
+        ),
+        const ConsentState(
+          type: ConsentType.documentUpload,
+          enabled: false,
+          label: 'Documents uploades',
+          detail: 'Certificats LPP, releves bancaires analyses par OCR '
+              'pour pre-remplir tes donnees de prevoyance.',
+          neverSent: 'Les documents originaux sont supprimes apres analyse. '
+              'Seules les donnees extraites sont conservees localement.',
+        ),
       ],
-      disclaimer: 'Tes donnees t\'appartiennent. Chaque parametre est '
+      disclaimer: l?.consentDashboardDisclaimer ??
+          'Tes donnees t\'appartiennent. Chaque parametre est '
           'revocable a tout moment (nLPD art. 6).',
-      sources: [
+      sources: const [
         'LPD art. 6 (principes de traitement)',
         'nLPD art. 5 let. f (profilage)',
         'LSFin art. 3 (information financiere)',
@@ -252,16 +314,5 @@ class ConsentManager {
   }
 }
 
-/// In-memory SharedPreferences fallback (replaced by SharedPreferences in prod).
-class _InMemoryPrefs {
-  static final _InMemoryPrefs instance = _InMemoryPrefs._();
-  _InMemoryPrefs._();
-
-  final Map<String, dynamic> _store = {};
-
-  bool? getBool(String key) => _store[key] as bool?;
-
-  Future<void> setBool(String key, bool value) async {
-    _store[key] = value;
-  }
-}
+// In-memory fallback removed — consent now persists via SharedPreferences
+// to survive app restarts (V5-1 audit fix).

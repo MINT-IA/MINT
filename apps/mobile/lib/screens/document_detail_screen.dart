@@ -7,6 +7,8 @@ import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Detail screen for a single uploaded LPP document.
 ///
@@ -29,7 +31,7 @@ class DocumentDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context, s),
           SliverToBoxAdapter(
@@ -41,7 +43,7 @@ class DocumentDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -109,11 +111,11 @@ class DocumentDetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header with confidence
-        _buildConfidenceHeader(s, confidence, result),
+        MintEntrance(child: _buildConfidenceHeader(s, confidence, result)),
         const SizedBox(height: MintSpacing.lg + 4),
 
         // Category: Epargne
-        _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCategory(
           s,
           label: s.documentsCategoryEpargne,
           icon: Icons.savings_outlined,
@@ -122,24 +124,24 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s.documentsFieldAvoirObligatoire,
               lppFields?.avoirObligatoire,
-              'Montant accumul\u00e9 dans la part obligatoire LPP',
+              s.documentDetailExplanationObligatoire,
             ),
             _field(
               s.documentsFieldAvoirSurobligatoire,
               lppFields?.avoirSurobligatoire,
-              'Part au-del\u00e0 du minimum l\u00e9gal',
+              s.documentDetailExplanationSurobligatoire,
             ),
             _field(
               s.documentsFieldAvoirTotal,
               lppFields?.avoirVieillesseTotal,
-              'Total de ton capital de vieillesse',
+              s.documentDetailExplanationTotal,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Salaire
-        _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCategory(
           s,
           label: s.documentsCategorySalaire,
           icon: Icons.account_balance_wallet_outlined,
@@ -148,24 +150,24 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s.documentsFieldSalaireAssure,
               lppFields?.salaireAssure,
-              'Salaire sur lequel les cotisations sont calcul\u00e9es',
+              s.documentDetailExplanationSalaireAssure,
             ),
             _field(
               s.documentsFieldSalaireAvs,
               lppFields?.salaireAvs,
-              'Salaire d\u00e9terminant pour l\'AVS',
+              s.documentDetailExplanationSalaireAvs,
             ),
             _field(
               s.documentsFieldDeductionCoordination,
               lppFields?.deductionCoordination,
-              'Montant d\u00e9duit pour coordonner avec l\'AVS',
+              s.documentDetailExplanationDeduction,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Taux de conversion
-        _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCategory(
           s,
           label: s.documentsCategoryTaux,
           icon: Icons.percent,
@@ -174,24 +176,24 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldPercent(
               s.documentsFieldTauxObligatoire,
               lppFields?.tauxConversionObligatoire,
-              'L\u00e9gal minimum : 6.8%',
+              s.documentDetailExplanationTauxOblig,
             ),
             _fieldPercent(
               s.documentsFieldTauxSurobligatoire,
               lppFields?.tauxConversionSurobligatoire,
-              'Fix\u00e9 par ta caisse de pension',
+              s.documentDetailExplanationTauxSurob,
             ),
             _fieldPercent(
               s.documentsFieldTauxEnveloppe,
               lppFields?.tauxConversionEnveloppe,
-              'Taux moyen pond\u00e9r\u00e9',
+              s.documentDetailExplanationTauxEnv,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Couverture risque
-        _buildCategory(
+        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCategory(
           s,
           label: s.documentsCategoryRisque,
           icon: Icons.shield_outlined,
@@ -200,25 +202,25 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldYearly(
               s.documentsFieldRenteInvalidite,
               lppFields?.renteInvalidite,
-              'Rente en cas d\'incapacit\u00e9 de travail',
+              s.documentDetailExplanationInvalidite,
             ),
             _field(
               s.documentsFieldCapitalDeces,
               lppFields?.capitalDeces,
-              'Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s',
+              s.documentDetailExplanationDeces,
             ),
             _fieldYearly(
               s.documentsFieldRenteConjoint,
               lppFields?.renteConjoint,
-              'Rente vers\u00e9e au conjoint survivant',
+              s.documentDetailExplanationConjoint,
             ),
             _fieldYearly(
               s.documentsFieldRenteEnfant,
               lppFields?.renteEnfant,
-              'Rente vers\u00e9e par enfant',
+              s.documentDetailExplanationEnfant,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Rachat
@@ -231,7 +233,7 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s.documentsFieldRachatMax,
               lppFields?.rachatMaximum,
-              'Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance',
+              s.documentDetailExplanationRachat,
             ),
           ],
         ),
@@ -247,12 +249,12 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldYearly(
               s.documentsFieldCotisationEmploye,
               lppFields?.cotisationEmploye,
-              'Ta contribution annuelle',
+              s.documentDetailExplanationEmploye,
             ),
             _fieldYearly(
               s.documentsFieldCotisationEmployeur,
               lppFields?.cotisationEmployeur,
-              'Contribution de ton employeur',
+              s.documentDetailExplanationEmployeur,
             ),
           ],
         ),
@@ -265,11 +267,14 @@ class DocumentDetailScreen extends StatelessWidget {
         ],
 
         // Action buttons
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
+        Semantics(
+          button: true,
+          label: s.documentsConfirmButton,
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(s.documentDetailProfileUpdated),
                   backgroundColor: MintColors.success,
@@ -284,6 +289,7 @@ class DocumentDetailScreen extends StatelessWidget {
               s.documentsConfirmButton,
             ),
           ),
+        ),
         ),
         const SizedBox(height: MintSpacing.sm + 4),
         Center(
@@ -405,14 +411,9 @@ class DocumentDetailScreen extends StatelessWidget {
   }
 
   Widget _buildFieldCard(_FieldEntry field) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.sm),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

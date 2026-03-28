@@ -124,7 +124,7 @@ class WithdrawalSequencingService {
   /// [lppCapitalPct]: fraction du LPP retiree en capital (0.0 = 100% rente).
   static WithdrawalSequencingResult optimize({
     required CoachProfile profile,
-    int retirementAge = 65,
+    int retirementAge = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
   }) {
     final currentYear = DateTime.now().year;
@@ -281,7 +281,7 @@ class WithdrawalSequencingService {
         final effectiveConversion = LppCalculator.adjustedConversionRate(
           baseRate: profile.prevoyance.tauxConversion > 0
               ? profile.prevoyance.tauxConversion
-              : lppTauxConversionMinDecimal,
+              : reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
           retirementAge: retirementAge,
         );
         final projectedBalance = projectedLppRente / effectiveConversion;
@@ -396,7 +396,7 @@ class WithdrawalSequencingService {
     // OPP3 art. 3: retrait anticipe 3a possible 5 ans avant l'age AVS
     // de reference (65), soit au plus tot a 60 ans. La fenetre ne depend
     // PAS de l'age de retraite choisi par l'utilisateur.
-    const int avsReferenceAge = 65;
+    final int avsReferenceAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final earliestWithdrawalAge =
         (avsReferenceAge - 5).clamp(currentAge, 99); // = max(currentAge, 60)
     final latestWithdrawalAge =

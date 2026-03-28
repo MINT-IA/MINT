@@ -7,7 +7,6 @@ import 'package:mint_mobile/widgets/interactive_simulations.dart';
 import 'package:mint_mobile/services/educational_insert_service.dart';
 import 'package:mint_mobile/services/haptic_feedback_service.dart';
 
-// TODO: add Semantics for accessibility
 class WizardQuestionWidget extends StatefulWidget {
   final WizardQuestion question;
   final Function(dynamic) onAnswer;

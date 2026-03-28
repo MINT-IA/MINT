@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -212,6 +213,10 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     final prefix = widget.isApproximate ? '~' : '';
     final ageLabel = _scrubbedAge != null ? ' à $_scrubbedAge ans' : '';
 
+    // Uncertainty band: ±15% when confidence < 70 (isApproximate).
+    final lowBand = (income * 0.85).round();
+    final highBand = (income * 1.15).round();
+
     return Column(
       children: [
         if (_scrubbedAge != null)
@@ -225,6 +230,21 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
             style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800, height: 1.2),
           ),
         ),
+        // Uncertainty band — shown when confidence < 70%
+        if (widget.isApproximate && income > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              S.of(context)?.projectionUncertaintyBand(
+                formatChf(lowBand.toDouble()),
+                formatChf(highBand.toDouble()),
+              ) ?? 'CHF\u00a0${formatChf(lowBand.toDouble())}\u00a0—\u00a0${formatChf(highBand.toDouble())}\u00a0/\u00a0mois',
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
         if (widget.isCouple && widget.partnerMonthlyIncome != null)
           Padding(
             padding: const EdgeInsets.only(top: 4),

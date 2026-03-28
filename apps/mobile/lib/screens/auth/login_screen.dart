@@ -6,6 +6,8 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Form(
@@ -63,43 +65,34 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: MintSpacing.xl),
                 // Logo
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(MintSpacing.md),
-                    decoration: BoxDecoration(
-                      color: MintColors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: MintColors.black.withValues(alpha: 0.06),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
+                const MintEntrance(child: Center(
+                  child: MintSurface(
+                    padding: EdgeInsets.all(MintSpacing.md),
+                    radius: 24,
+                    elevated: true,
+                    child: Icon(
                       Icons.token_rounded,
                       color: MintColors.primary,
                       size: 48,
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
                 // Title
-                Text(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                   l10n.authLoginTitle,
                   style: MintTextStyles.headlineLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.sm),
-                Text(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                   l10n.authLoginSubtitle,
                   style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xxl),
                 // Email field
-                Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -120,10 +113,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
                 // Password field
-                Semantics(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authPassword,
                   textField: true,
                   child: TextFormField(
@@ -135,8 +128,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: Semantics(
                         label: _obscurePassword
-                            ? 'Afficher le mot de passe'
-                            : 'Masquer le mot de passe',
+                            ? l10n.authShowPassword
+                            : l10n.authHidePassword,
                         button: true,
                         child: IconButton(
                           icon: Icon(
@@ -159,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
                 // Error message
                 if (authProvider.error != null)
@@ -182,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(width: MintSpacing.sm + 4),
                         Expanded(
                           child: Text(
-                            authProvider.error!,
+                            localizeAuthError(authProvider.error!, l10n),
                             style: MintTextStyles.bodyMedium(
                               color: MintColors.error,
                             ),
@@ -257,10 +250,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       l10n.authNoAccount,
                       style: MintTextStyles.bodyMedium(),
-                    ),
+                      overflow: TextOverflow.ellipsis,
+                    )),
                     const SizedBox(width: MintSpacing.sm),
                     TextButton(
                       onPressed: () {
@@ -292,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
+      ))),
     );
   }
 }

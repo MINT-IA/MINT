@@ -80,6 +80,7 @@ enum FinancialArchetype {
 class ConjointProfile {
   final String? firstName;
   final int? birthYear;
+  final String? gender; // 'M', 'F', or null (AVS21 reference age)
   final double? salaireBrutMensuel;
   final int nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
@@ -111,6 +112,7 @@ class ConjointProfile {
   const ConjointProfile({
     this.firstName,
     this.birthYear,
+    this.gender,
     this.salaireBrutMensuel,
     this.nombreDeMois = 12,
     this.bonusPourcentage,
@@ -173,6 +175,7 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int?,
+      gender: json['gender'] as String?,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble(),
       nombreDeMois: json['nombreDeMois'] ?? 12,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
@@ -193,6 +196,7 @@ class ConjointProfile {
   Map<String, dynamic> toJson() => {
         'firstName': firstName,
         'birthYear': birthYear,
+        'gender': gender,
         'salaireBrutMensuel': salaireBrutMensuel,
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
@@ -210,6 +214,7 @@ class ConjointProfile {
   ConjointProfile copyWith({
     String? firstName,
     int? birthYear,
+    String? gender,
     double? salaireBrutMensuel,
     int? nombreDeMois,
     double? bonusPourcentage,
@@ -234,6 +239,7 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
+      gender: gender ?? this.gender,
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
@@ -313,6 +319,23 @@ class PrevoyanceProfile {
         .clamp(0, double.infinity);
   }
 
+  /// True when LPP data comes from a scanned certificate (not estimated).
+  ///
+  /// Checks for caisse-specific fields that only exist on real certificates:
+  /// salaireAssure, avoirLppObligatoire, or tauxConversionSuroblig.
+  /// When false, LPP projections use legal minimums and should display
+  /// a precision warning (taux de remplacement may be significantly higher).
+  bool get isLppFromCertificate =>
+      salaireAssure != null ||
+      avoirLppObligatoire != null ||
+      tauxConversionSuroblig != null;
+
+  /// True when LPP data exists but is estimated (not from certificate).
+  /// This is the condition where MINT should show "estimation basée sur
+  /// les minimums LPP" and prompt for certificate scan.
+  bool get isLppEstimated =>
+      avoirLppTotal != null && avoirLppTotal! > 0 && !isLppFromCertificate;
+
   /// Rendement moyen pondere des comptes 3a.
   /// Si aucun compte, retourne 0.02 (hypothese conservative).
   double get rendementMoyen3a {
@@ -380,6 +403,50 @@ class PrevoyanceProfile {
         'canContribute3a': canContribute3a,
         'librePassage': librePassage.map((lp) => lp.toJson()).toList(),
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrevoyanceProfile &&
+          runtimeType == other.runtimeType &&
+          anneesContribuees == other.anneesContribuees &&
+          lacunesAVS == other.lacunesAVS &&
+          renteAVSEstimeeMensuelle == other.renteAVSEstimeeMensuelle &&
+          nomCaisse == other.nomCaisse &&
+          avoirLppTotal == other.avoirLppTotal &&
+          avoirLppObligatoire == other.avoirLppObligatoire &&
+          avoirLppSurobligatoire == other.avoirLppSurobligatoire &&
+          rachatMaximum == other.rachatMaximum &&
+          rachatEffectue == other.rachatEffectue &&
+          tauxConversion == other.tauxConversion &&
+          tauxConversionSuroblig == other.tauxConversionSuroblig &&
+          rendementCaisse == other.rendementCaisse &&
+          salaireAssure == other.salaireAssure &&
+          ramd == other.ramd &&
+          nombre3a == other.nombre3a &&
+          totalEpargne3a == other.totalEpargne3a &&
+          canContribute3a == other.canContribute3a;
+
+  @override
+  int get hashCode => Object.hashAll([
+        anneesContribuees,
+        lacunesAVS,
+        renteAVSEstimeeMensuelle,
+        nomCaisse,
+        avoirLppTotal,
+        avoirLppObligatoire,
+        avoirLppSurobligatoire,
+        rachatMaximum,
+        rachatEffectue,
+        tauxConversion,
+        tauxConversionSuroblig,
+        rendementCaisse,
+        salaireAssure,
+        ramd,
+        nombre3a,
+        totalEpargne3a,
+        canContribute3a,
+      ]);
 }
 
 /// Compte 3a individuel
@@ -548,6 +615,36 @@ class PatrimoineProfile {
         'monthlyRent': monthlyRent,
         'propertyDescription': propertyDescription,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PatrimoineProfile &&
+          runtimeType == other.runtimeType &&
+          epargneLiquide == other.epargneLiquide &&
+          investissements == other.investissements &&
+          immobilier == other.immobilier &&
+          deviseInvestissements == other.deviseInvestissements &&
+          plateformeInvestissement == other.plateformeInvestissement &&
+          propertyMarketValue == other.propertyMarketValue &&
+          mortgageBalance == other.mortgageBalance &&
+          mortgageRate == other.mortgageRate &&
+          monthlyRent == other.monthlyRent &&
+          propertyDescription == other.propertyDescription;
+
+  @override
+  int get hashCode => Object.hashAll([
+        epargneLiquide,
+        investissements,
+        immobilier,
+        deviseInvestissements,
+        plateformeInvestissement,
+        propertyMarketValue,
+        mortgageBalance,
+        mortgageRate,
+        monthlyRent,
+        propertyDescription,
+      ]);
 }
 
 /// Dettes — enriched with rates, terms, monthly payments (S45).
@@ -1045,6 +1142,11 @@ class CoachProfile {
   /// Used by CoachingService for life event nudges.
   final String? familyChange;
 
+  /// Gender: 'M', 'F', or null (unknown).
+  /// Used for AVS21 transitional reference age calculation.
+  /// Women born 1961-1963 have transitional ages (LAVS art. 21 al. 1).
+  final String? gender;
+
   /// Target retirement age chosen by the user (58-70).
   /// Null means default (65 ans, age legal AVS).
   /// LAVS art. 40: anticipation possible des 63 ans.
@@ -1109,6 +1211,7 @@ class CoachProfile {
     this.arrivalAge,
     this.residencePermit,
     this.familyChange,
+    this.gender,
     this.targetRetirementAge,
     this.initialProjectionSnapshot,
     Map<String, ProfileDataSource> dataSources = const {},
@@ -1190,26 +1293,36 @@ class CoachProfile {
       identical(this, other) ||
       other is CoachProfile &&
           runtimeType == other.runtimeType &&
+          firstName == other.firstName &&
           birthYear == other.birthYear &&
           canton == other.canton &&
+          nationality == other.nationality &&
           salaireBrutMensuel == other.salaireBrutMensuel &&
           employmentStatus == other.employmentStatus &&
           etatCivil == other.etatCivil &&
           nombreEnfants == other.nombreEnfants &&
           targetRetirementAge == other.targetRetirementAge &&
+          prevoyance == other.prevoyance &&
+          patrimoine == other.patrimoine &&
+          conjoint == other.conjoint &&
           updatedAt == other.updatedAt;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
+        firstName,
         birthYear,
         canton,
+        nationality,
         salaireBrutMensuel,
         employmentStatus,
         etatCivil,
         nombreEnfants,
         targetRetirementAge,
+        prevoyance,
+        patrimoine,
+        conjoint,
         updatedAt,
-      );
+      ]);
 
   // ════════════════════════════════════════════════════════════════
   //  COMPUTED PROPERTIES
@@ -1345,6 +1458,18 @@ class CoachProfile {
     return FinancialArchetype.expatNonEu;
   }
 
+  /// Whether the main user can contribute to pillar 3a.
+  ///
+  /// Returns false for US citizens/green card holders (FATCA — most 3a
+  /// providers refuse US persons per LSFin compliance).
+  /// Also delegates to [PrevoyanceProfile.canContribute3a] which may be
+  /// set independently (e.g. when profile is loaded from a certificate).
+  bool get canContribute3a {
+    if (archetype == FinancialArchetype.expatUs) return false;
+    if (nationality == 'US') return false;
+    return prevoyance.canContribute3a;
+  }
+
   /// Est-ce un profil couple ?
   bool get isCouple =>
       etatCivil == CoachCivilStatus.marie ||
@@ -1381,6 +1506,7 @@ class CoachProfile {
     int? arrivalAge,
     String? residencePermit,
     String? familyChange,
+    String? gender,
     int? targetRetirementAge,
     Map<String, dynamic>? initialProjectionSnapshot,
     Map<String, ProfileDataSource>? dataSources,
@@ -1419,6 +1545,7 @@ class CoachProfile {
       arrivalAge: arrivalAge ?? this.arrivalAge,
       residencePermit: residencePermit ?? this.residencePermit,
       familyChange: familyChange ?? this.familyChange,
+      gender: gender ?? this.gender,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
       initialProjectionSnapshot:
           initialProjectionSnapshot ?? this.initialProjectionSnapshot,
@@ -1602,6 +1729,7 @@ class CoachProfile {
       arrivalAge: json['arrivalAge'] as int?,
       residencePermit: json['residencePermit'] as String?,
       familyChange: json['familyChange'] as String?,
+      gender: json['gender'] as String?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
       initialProjectionSnapshot:
           json['initialProjectionSnapshot'] as Map<String, dynamic>?,
@@ -1661,6 +1789,7 @@ class CoachProfile {
         'arrivalAge': arrivalAge,
         'residencePermit': residencePermit,
         'familyChange': familyChange,
+        'gender': gender,
         'targetRetirementAge': targetRetirementAge,
         'initialProjectionSnapshot': initialProjectionSnapshot,
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
@@ -2134,6 +2263,7 @@ class CoachProfile {
       conjoint = ConjointProfile(
         firstName: answers['q_partner_firstname'] as String?,
         birthYear: partnerBirthYear,
+        gender: answers['q_partner_gender'] as String?,
         salaireBrutMensuel: partnerBrut,
         employmentStatus: conjEmployment,
         arrivalAge: conjointArrivalAge,
@@ -2333,6 +2463,27 @@ class CoachProfile {
     }
   }
 
+  /// Map internal French employment status to canonical English (backend Profile API dialect).
+  /// Use when syncing CoachProfile data back to the backend Profile endpoint.
+  static String employmentStatusToCanonical(String status) => switch (status) {
+        'salarie' => 'employee',
+        'independant' => 'self_employed',
+        'retraite' => 'retired',
+        'etudiant' => 'student',
+        'mixte' => 'mixed',
+        _ => status,
+      };
+
+  /// Map canonical English employment status (backend Profile API) to internal French.
+  /// Use when receiving data from the backend Profile endpoint.
+  static String employmentStatusFromCanonical(String status) => switch (status) {
+        'employee' => 'salarie',
+        'self_employed' => 'independant',
+        'retired' => 'retraite',
+        'student' => 'etudiant',
+        _ => status,
+      };
+
   static GoalA _parseGoalA(String? raw, int birthYear,
       {int? targetRetirementAge}) {
     final effectiveAge = targetRetirementAge ?? 65;
@@ -2415,16 +2566,7 @@ class CoachProfile {
     final startAge = arrivalAge != null ? arrivalAge.clamp(25, 65) : 25;
     double total = 0;
     for (int a = startAge; a < age && a < 65; a++) {
-      double taux;
-      if (a < 35) {
-        taux = 0.07;
-      } else if (a < 45) {
-        taux = 0.10;
-      } else if (a < 55) {
-        taux = 0.15;
-      } else {
-        taux = 0.18;
-      }
+      final taux = getLppBonificationRate(a);
       total = total * 1.01 + salaireCoordonne * taux; // 1% rendement
     }
     return total;
@@ -2494,6 +2636,7 @@ class CoachProfile {
       conjoint: const ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1981,
+        gender: 'F',
         salaireBrutMensuel: 5000,
         nombreDeMois: 12,
         nationality: 'US',

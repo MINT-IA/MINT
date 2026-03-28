@@ -1,3 +1,23 @@
+// ════════════════════════════════════════════════════════════════════════════
+// CONFIDENCE DOCTRINE (see docs/SOURCE_OF_TRUTH_MATRIX.md §3)
+//
+// This scorer is the SOURCE OF TRUTH for PROJECTION CONFIDENCE.
+// It governs: simulator thresholds (≥40 to display), enrichment prompts
+// in the coach context, and BayesianProfileEnricher EVI ranking.
+//
+// It is NOT the global confidence score. That role belongs to the
+// backend EnhancedConfidenceService (4-axis geometric mean via API).
+//
+// The 3 confidence systems and their governance:
+//   1. Backend enhanced_confidence_service.py → feature gates, global UI bars
+//   2. Mobile enhanced_confidence_service.dart → offline fallback of #1
+//   3. THIS FILE → projection quality, simulator display, EVI ranking
+//
+// When to use this: any time you need to decide "is this projection
+// reliable enough to show?" or "what data would improve it most?"
+// When NOT to use this: feature gates, global confidence badges, UI bars.
+// ════════════════════════════════════════════════════════════════════════════
+
 import 'dart:math' as math;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -243,7 +263,7 @@ class ConfidenceScorer {
       total += _wTauxConversion; // Not applicable
     } else {
       final tauxConv = profile.prevoyance.tauxConversion;
-      if (tauxConv != lppTauxConversionMinDecimal) {
+      if ((tauxConv - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.0001) {
         total += _wTauxConversion;
       } else {
         total += 1;
@@ -353,7 +373,7 @@ class ConfidenceScorer {
         total -= 5; // AVS extrait missing: extra -5
       }
       if (!isIndepSansLpp &&
-          profile.prevoyance.tauxConversion == lppTauxConversionMinDecimal) {
+          (profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.0001) {
         total -= 3; // Default taux: extra -3
       }
 
@@ -393,6 +413,11 @@ class ConfidenceScorer {
         : total >= 40
             ? 'medium'
             : 'low';
+
+    // NOTE: Prompts are emitted in component-check order, NOT sorted by impact.
+    // The EVI bridge (ContextInjectorService) and LowConfidenceCard sort their
+    // own copies when needed. Sorting here would change widget layout order
+    // and cause test viewport overflow in 800×600 test surfaces.
 
     return ProjectionConfidence(
       score: total,
@@ -453,11 +478,21 @@ class ConfidenceScorer {
     // --- Composition menage ---
     final isCoupled = profile.etatCivil == CoachCivilStatus.marie ||
         profile.etatCivil == CoachCivilStatus.concubinage;
+    // Explicitly declared single/divorced/widowed: full points.
+    // Default celibataire (never explicitly set): partial points only (5),
+    // mirroring the logic in score().
+    final isExplicitlySingle = !isCoupled &&
+        (profile.etatCivil == CoachCivilStatus.divorce ||
+         profile.etatCivil == CoachCivilStatus.veuf);
     double menageScore;
     String menageStatus;
-    if (!isCoupled) {
+    if (isExplicitlySingle) {
       menageScore = _wMenage.toDouble();
       menageStatus = 'complete';
+    } else if (!isCoupled) {
+      // Default celibataire — not confirmed, give partial credit
+      menageScore = 5;
+      menageStatus = 'partial';
     } else if (profile.conjoint == null) {
       menageScore = 0;
       menageStatus = 'missing';
@@ -510,7 +545,7 @@ class ConfidenceScorer {
     if (isIndepSansLpp) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
-    } else if (profile.prevoyance.tauxConversion != lppTauxConversionMinDecimal) {
+    } else if ((profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.0001) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
     } else {
@@ -611,7 +646,7 @@ class ConfidenceScorer {
         );
       }
       if (!isIndepSansLpp &&
-          profile.prevoyance.tauxConversion == lppTauxConversionMinDecimal) {
+          (profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.0001) {
         final taux = blocs['taux_conversion']!;
         blocs['taux_conversion'] = BlockScore(
           score: (taux.score - 3).clamp(0, taux.maxScore),

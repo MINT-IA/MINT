@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Tab 2 — Explorer
@@ -40,60 +41,80 @@ class ExploreTab extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: MintSpacing.md),
-                _ExploreHubCard(
-                  title: l.exploreHubRetraiteTitle,
-                  narrative: l.exploreHubRetraiteSubtitle,
-                  tone: MintSurfaceTone.sauge,
-                  icon: Icons.beach_access_outlined,
-                  onTap: () => context.push('/explore/retraite'),
+                MintEntrance(
+                  child: _ExploreHubCard(
+                    title: l.exploreHubRetraiteTitle,
+                    narrative: l.exploreHubRetraiteSubtitle,
+                    tone: MintSurfaceTone.sauge,
+                    icon: Icons.beach_access_outlined,
+                    onTap: () => context.push('/explore/retraite'),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
-                _ExploreHubCard(
-                  title: l.exploreHubFamilleTitle,
-                  narrative: l.exploreHubFamilleSubtitle,
-                  tone: MintSurfaceTone.peche,
-                  icon: Icons.family_restroom_outlined,
-                  onTap: () => context.push('/explore/famille'),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 100),
+                  child: _ExploreHubCard(
+                    title: l.exploreHubFamilleTitle,
+                    narrative: l.exploreHubFamilleSubtitle,
+                    tone: MintSurfaceTone.peche,
+                    icon: Icons.family_restroom_outlined,
+                    onTap: () => context.push('/explore/famille'),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
-                _ExploreHubCard(
-                  title: l.exploreHubTravailTitle,
-                  narrative: l.exploreHubTravailSubtitle,
-                  tone: MintSurfaceTone.bleu,
-                  icon: Icons.work_outline,
-                  onTap: () => context.push('/explore/travail'),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 200),
+                  child: _ExploreHubCard(
+                    title: l.exploreHubTravailTitle,
+                    narrative: l.exploreHubTravailSubtitle,
+                    tone: MintSurfaceTone.bleu,
+                    icon: Icons.work_outline,
+                    onTap: () => context.push('/explore/travail'),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
-                _ExploreHubCard(
-                  title: l.exploreHubLogementTitle,
-                  narrative: l.exploreHubLogementSubtitle,
-                  tone: MintSurfaceTone.porcelaine,
-                  icon: Icons.home_outlined,
-                  onTap: () => context.push('/explore/logement'),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 300),
+                  child: _ExploreHubCard(
+                    title: l.exploreHubLogementTitle,
+                    narrative: l.exploreHubLogementSubtitle,
+                    tone: MintSurfaceTone.porcelaine,
+                    icon: Icons.home_outlined,
+                    onTap: () => context.push('/explore/logement'),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
-                _ExploreHubCard(
-                  title: l.exploreHubFiscaliteTitle,
-                  narrative: l.exploreHubFiscaliteSubtitle,
-                  tone: MintSurfaceTone.blanc,
-                  icon: Icons.receipt_long_outlined,
-                  onTap: () => context.push('/explore/fiscalite'),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 400),
+                  child: _ExploreHubCard(
+                    title: l.exploreHubFiscaliteTitle,
+                    narrative: l.exploreHubFiscaliteSubtitle,
+                    tone: MintSurfaceTone.blanc,
+                    icon: Icons.receipt_long_outlined,
+                    onTap: () => context.push('/explore/fiscalite'),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
-                _ExploreHubCard(
-                  title: l.exploreHubPatrimoineTitle,
-                  narrative: l.exploreHubPatrimoineSubtitle,
-                  tone: MintSurfaceTone.sauge,
-                  icon: Icons.account_balance_outlined,
-                  onTap: () => context.push('/explore/patrimoine'),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 500),
+                  child: _ExploreHubCard(
+                    title: l.exploreHubPatrimoineTitle,
+                    narrative: l.exploreHubPatrimoineSubtitle,
+                    tone: MintSurfaceTone.sauge,
+                    icon: Icons.account_balance_outlined,
+                    onTap: () => context.push('/explore/patrimoine'),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
-                _ExploreHubCard(
-                  title: l.exploreHubSanteTitle,
-                  narrative: l.exploreHubSanteSubtitle,
-                  tone: MintSurfaceTone.bleu,
-                  icon: Icons.health_and_safety_outlined,
-                  onTap: () => context.push('/explore/sante'),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 600),
+                  child: _ExploreHubCard(
+                    title: l.exploreHubSanteTitle,
+                    narrative: l.exploreHubSanteSubtitle,
+                    tone: MintSurfaceTone.bleu,
+                    icon: Icons.health_and_safety_outlined,
+                    onTap: () => context.push('/explore/sante'),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xxl),
               ],

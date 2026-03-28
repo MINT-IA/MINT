@@ -280,17 +280,17 @@ class ProviderCompareResponse(BaseModel):
     projections: List[ProviderProjectionResponse] = Field(
         ..., description="Projections par provider"
     )
-    meilleurCapital: str = Field(
-        ..., alias="meilleurCapital",
-        description="Nom du provider au meilleur capital final"
+    capitalPlusHaut: str = Field(
+        ..., alias="capitalPlusHaut",
+        description="Nom du provider au capital final le plus haut"
     )
-    pireCapital: str = Field(
-        ..., alias="pireCapital",
-        description="Nom du provider au pire capital final"
+    capitalPlusBas: str = Field(
+        ..., alias="capitalPlusBas",
+        description="Nom du provider au capital final le plus bas"
     )
     differenceMax: float = Field(
         ..., alias="differenceMax",
-        description="Difference max entre meilleur et pire (CHF)"
+        description="Ecart max entre le plus haut et le plus bas (CHF)"
     )
 
     # Input summary

@@ -128,7 +128,8 @@ class DivorceSimulator:
             checklist=checklist,
             alerts=alerts,
             disclaimer=(
-                "Estimation indicative. Consultez un avocat specialise "
+                "Outil educatif — ne constitue pas un conseil (LSFin). "
+                "Estimation indicative. Consultez un·e specialiste "
                 "en droit de la famille."
             ),
         )

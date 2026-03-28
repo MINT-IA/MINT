@@ -20,7 +20,8 @@ class AnalyticsService {
   AnalyticsService._internal();
 
   static const String _sessionIdKey = 'analytics_session_id';
-  static const String _consentKey = 'analytics_consent';
+  // V6-3 audit fix: aligned to ConsentManager canonical key (consent_analytics).
+  static const String _consentKey = 'consent_analytics';
   static const String _eventsQueueKey = 'analytics_events_queue';
   static const int _maxQueueSize = 50;
   static const int _flushThreshold = 10;
@@ -120,11 +121,11 @@ class AnalyticsService {
     }
 
     final event = {
-      'name': name,
-      'category': category,
+      'event_name': name,
+      'event_category': category,
       'timestamp': DateTime.now().toIso8601String(),
       'session_id': _sessionId,
-      if (data != null) 'data': data,
+      if (data != null) 'event_data': data,
       if (screenName != null) 'screen_name': screenName,
     };
 

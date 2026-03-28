@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -9,6 +10,8 @@ import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/milestone_detection_service.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ACHIEVEMENTS SCREEN — S55 / Daily Streaks + Achievements
@@ -101,13 +104,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             style: MintTextStyles.headlineMedium(),
           ),
         ),
-        body: Center(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
           child: Text(
             s.achievementsEmptyProfile,
             style: MintTextStyles.bodyMedium(),
             textAlign: TextAlign.center,
           ),
-        ),
+        ))),
       );
     }
 
@@ -130,17 +133,15 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_loading)
-              const Center(
-                child: Padding(
+              const Padding(
                   padding: EdgeInsets.all(MintSpacing.xl),
-                  child: CircularProgressIndicator(),
-                ),
+                  child: MintLoadingSkeleton(),
               )
             else if (_hasError)
               Container(
@@ -181,7 +182,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ],
           ],
         ),
-      ),
+      ))),
     );
   }
 
@@ -316,12 +317,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildStatChip(IconData icon, String label) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -560,27 +558,27 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
+            MintEntrance(child: Container(
               width: 40,
               height: 4,
               decoration: BoxDecoration(
                 color: MintColors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
-            Icon(badge.icon, size: 48, color: MintColors.warning),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Icon(badge.icon, size: 48, color: MintColors.warning)),
             const SizedBox(height: MintSpacing.md),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               badge.label,
               style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
               badge.description,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
           ],
         ),
@@ -703,14 +701,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildMilestoneCategoryCard(_MilestoneCategory category) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.md),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -788,14 +781,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildMilestoneTypeCategoryCard(_MilestoneCategory category) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.md),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -860,12 +848,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   // ════════════════════════════════════════════════════════════
 
   Widget _buildDisclaimer(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

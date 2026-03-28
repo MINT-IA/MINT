@@ -9,6 +9,11 @@ import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
 import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -52,7 +57,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   double _investissementsValorisants = 50000;
   double _fraisAcquisition = 30000;
   double _hypothequeRestante = 600000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _residencePrincipale = true;
   bool _projetRemploi = false;
   double _prixRemploi = 900000;
@@ -66,6 +71,36 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   List<bool> _checklistState = [];
 
   static List<String> get _cantons => sortedCantonCodes;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        final propertyValue = profile.patrimoine.immobilierEffectif;
+        if (propertyValue > 0) {
+          _prixAchat = propertyValue;
+          _prixVente = propertyValue * 1.25;
+        }
+        final mortgage = profile.patrimoine.mortgageBalance;
+        if (mortgage != null && mortgage > 0) {
+          _hypothequeRestante = mortgage;
+        }
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+      });
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -112,21 +147,21 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       appBar: AppBar(
         title: Text(S.of(context)!.housingSaleAppBarTitle),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            MintEntrance(child: _buildHeader()),
             const SizedBox(height: 24),
-            _buildIntroCard(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: 24),
-            _buildBienSection(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildBienSection()),
             const SizedBox(height: 12),
-            _buildFinancementSection(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFinancementSection()),
             const SizedBox(height: 12),
-            _buildEplSection(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildEplSection()),
             const SizedBox(height: 12),
             _buildRemploiSection(),
             const SizedBox(height: 24),
@@ -193,18 +228,15 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             const SizedBox(height: 40),
           ],
         ),
-      ),
+      ))),
     );
   }
 
   // ── Header ──
   Widget _buildHeader() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Row(
         children: [
           Container(
@@ -844,12 +876,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
 
   // ── Expandable Tile ──
   Widget _buildExpandableTile(String title, String content) {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 16,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
@@ -910,13 +939,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 8),
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.border),
-          ),
+          radius: 12,
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _canton,
@@ -995,47 +1021,18 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-              ),
-            ),
-            Text(
-              format(value),
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape:
-                const RoundSliderThumbShape(enabledThumbRadius: 8),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: (v) {
-              setState(() {
-                onChanged(v);
-              });
-            },
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: format,
+      onChanged: (v) {
+        setState(() {
+          onChanged(v);
+        });
+      },
     );
   }
 }

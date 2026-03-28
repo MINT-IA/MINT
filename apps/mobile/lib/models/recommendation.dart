@@ -1,6 +1,6 @@
 enum Period { monthly, yearly, oneoff }
 
-enum NextActionType { learn, simulate, checklist, partnerHandoff }
+enum NextActionType { learn, simulate, checklist, partnerHandoff, externalResource }
 
 class Impact {
   final double amountCHF;
@@ -34,15 +34,25 @@ class NextAction {
 
   factory NextAction.fromJson(Map<String, dynamic> json) {
     return NextAction(
-      type: NextActionType.values.firstWhere(
-        (e) => e.name == json['type'] || e.name == json['type']?.replaceAll('_', ''),
-        orElse: () => NextActionType.learn,
-      ),
+      type: _parseNextActionType(json['type']),
       label: json['label'] ?? '',
       deepLink: json['deepLink'],
       partnerId: json['partnerId'],
     );
   }
+}
+
+/// Parse snake_case or camelCase action type from backend JSON.
+NextActionType _parseNextActionType(dynamic raw) {
+  final s = raw?.toString() ?? '';
+  // Handle snake_case → camelCase mapping
+  if (s == 'external_resource') return NextActionType.externalResource;
+  if (s == 'partner_handoff') return NextActionType.partnerHandoff;
+  // Direct match by enum name (camelCase)
+  return NextActionType.values.firstWhere(
+    (e) => e.name == s || e.name == s.replaceAll('_', ''),
+    orElse: () => NextActionType.learn,
+  );
 }
 
 class EvidenceLink {

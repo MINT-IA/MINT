@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show PulseScreen, NavigationShellState;
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
@@ -22,6 +23,13 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 /// - DOSSIER     : Mes données (profil + documents + couple + réglages)
 ///
 /// Pas de FAB global — Capture est contextuel (bottom sheet depuis Aujourd'hui/Coach).
+///
+/// Deep-link support via query param:
+///   /home?tab=0  → Aujourd'hui
+///   /home?tab=1  → Coach
+///   /home?tab=2  → Explorer
+///   /home?tab=3  → Dossier
+/// Convenience aliases: /app/today, /app/coach, /app/explore, /app/dossier
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
 
@@ -34,6 +42,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   int _currentIndex = 0;
   final AnalyticsService _analytics = AnalyticsService();
   bool _budgetLoaded = false;
+  bool _tabIndexResolved = false;
 
   /// Timestamp when the app was last paused (backgrounded).
   DateTime? _lastPauseTime;
@@ -57,12 +66,28 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     NavigationShellState.register(_switchTabCallback);
+
+    // V5-5 audit fix: check for pending notification deep link on cold start.
+    // On cold start, didChangeAppLifecycleState(resumed) is never called,
+    // so we must also check here.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pendingRoute = NotificationService.consumePendingRoute();
+      if (pendingRoute != null && pendingRoute.isNotEmpty && mounted) {
+        GoRouter.of(context).go(pendingRoute);
+      }
+    });
   }
 
   void _switchTabCallback(int index) {
     if (index >= 0 && index < _tabs.length && mounted) {
       setState(() => _currentIndex = index);
       _analytics.trackScreenView('/${_tabNames[index]}');
+      // Sync URL for programmatic tab switches (e.g. from PulseScreen).
+      try {
+        GoRouter.of(context).go('/home?tab=$index');
+      } catch (_) {
+        // No GoRouter in tree (unit tests).
+      }
     }
   }
 
@@ -111,6 +136,27 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    // Resolve the initial tab from the ?tab= query parameter (deep-link support).
+    // Only runs once — subsequent route changes within the shell do NOT reset the tab.
+    // GoRouterState.of() throws a StateError when no GoRouter is present (e.g. in
+    // tests that use plain MaterialApp(home:)); we catch that and keep the default.
+    if (!_tabIndexResolved) {
+      _tabIndexResolved = true;
+      try {
+        final rawTab =
+            GoRouterState.of(context).uri.queryParameters['tab'];
+        if (rawTab != null) {
+          final tabIndex = int.tryParse(rawTab) ?? 0;
+          if (tabIndex >= 0 && tabIndex < _tabs.length) {
+            _currentIndex = tabIndex;
+          }
+        }
+      } catch (_) {
+        // No GoRouter in tree — keep default tab 0.
+      }
+    }
+
     if (!_budgetLoaded) {
       _budgetLoaded = true;
       final budgetProvider = context.read<BudgetProvider>();
@@ -134,6 +180,26 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   @override
   Widget build(BuildContext context) {
+    // V11-3: Re-read ?tab= on every build so that subsequent go('/home?tab=3')
+    // calls actually update the tab, not just the first one.
+    try {
+      final rawTab =
+          GoRouterState.of(context).uri.queryParameters['tab'];
+      if (rawTab != null) {
+        final tabIndex = int.tryParse(rawTab) ?? 0;
+        if (tabIndex >= 0 && tabIndex < _tabs.length && tabIndex != _currentIndex) {
+          // Schedule the state update to avoid calling setState during build.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _currentIndex != tabIndex) {
+              setState(() => _currentIndex = tabIndex);
+            }
+          });
+        }
+      }
+    } catch (_) {
+      // No GoRouter in tree (unit tests).
+    }
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -174,7 +240,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 currentIndex: _currentIndex,
                 icon: Icons.chat_bubble_outline,
                 activeIcon: Icons.chat_bubble,
-                label: l.tabCoach,
+                label: l.tabMint,
                 onTap: () => _onTap(1),
               ),
               _NavItem(
@@ -204,6 +270,14 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     if (_currentIndex == index) return;
     _analytics.trackTabSwitch(_tabNames[_currentIndex], _tabNames[index]);
     setState(() => _currentIndex = index);
+    // Keep the URL in sync so deep links and state restoration work after
+    // the initial mount.  We use `go` (not `push`) because the shell is
+    // the root destination — we replace the current URL, never stack.
+    try {
+      GoRouter.of(context).go('/home?tab=$index');
+    } catch (_) {
+      // No GoRouter in tree (unit tests with plain MaterialApp).
+    }
   }
 }
 
@@ -249,12 +323,13 @@ class _NavItem extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  style: MintTextStyles.labelSmall(
                     color: isActive
                         ? MintColors.primary
                         : MintColors.textSecondary,
+                  ).copyWith(
+                    fontSize: 10,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ],

@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -12,6 +13,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/conversation_tile.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ConversationHistoryScreen extends StatefulWidget {
   const ConversationHistoryScreen({super.key});
@@ -76,7 +78,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── App Bar ──
           SliverAppBar(
@@ -98,11 +100,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
           // ── Body ──
           if (_isLoading)
             const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: MintColors.primary,
-                ),
-              ),
+              child: MintLoadingSkeleton(),
             )
           else if (_error != null)
             SliverFillRemaining(
@@ -136,7 +134,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
               ),
             ),
         ],
-      ),
+      ))),
 
       // ── FAB: New conversation ──
       floatingActionButton: (!_isLoading && _error == null)
@@ -146,7 +144,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
               foregroundColor: MintColors.white,
               icon: const Icon(Icons.add),
               label: Text(
-                l10n.conversationNew, // TODO: add to ARB files
+                l10n.conversationNew,
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
             )
@@ -173,29 +171,32 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            MintEntrance(child: Icon(
               Icons.chat_outlined,
               size: 64,
               color: MintColors.textMuted.withValues(alpha: 0.5),
-            ),
+            )),
             const SizedBox(height: MintSpacing.md),
-            Text(
-              l10n.conversationEmptyTitle, // TODO: add to ARB files
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
+              l10n.conversationEmptyTitle,
               style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
-              l10n.conversationEmptySubtitle, // TODO: add to ARB files
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
+              l10n.conversationEmptySubtitle,
               style: MintTextStyles.bodyMedium(),
               textAlign: TextAlign.center,
-            ),
+            )),
             const SizedBox(height: MintSpacing.lg),
-            FilledButton.icon(
-              onPressed: onNewConversation,
-              icon: const Icon(Icons.add),
-              label: Text(
-                l10n.conversationStartFirst, // TODO: add to ARB files
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
+              button: true,
+              label: l10n.conversationStartFirst,
+              child: FilledButton.icon(
+                onPressed: onNewConversation,
+                icon: const Icon(Icons.add),
+                label: Text(
+                  l10n.conversationStartFirst,
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
@@ -207,6 +208,7 @@ class _EmptyState extends StatelessWidget {
                 ),
               ),
             ),
+            )),
           ],
         ),
       ),
@@ -240,7 +242,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md),
             Text(
-              l10n.conversationErrorTitle, // TODO: add to ARB files
+              l10n.conversationErrorTitle,
               style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
             ),
@@ -257,7 +259,7 @@ class _ErrorState extends StatelessWidget {
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: Text(
-                l10n.conversationRetry, // TODO: add to ARB files
+                l10n.conversationRetry,
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
               ),
               style: OutlinedButton.styleFrom(

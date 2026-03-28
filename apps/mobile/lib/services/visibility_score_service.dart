@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
@@ -123,7 +124,7 @@ class VisibilityScoreService {
   ///   - < 35 ans → liquidite/budget surponderee (30 pts)
   ///   - independant → securite surponderee (30 pts)
   ///   - expat → securite + fiscalite surponderees
-  static VisibilityScore compute(CoachProfile profile) {
+  static VisibilityScore compute(CoachProfile profile, {S? l}) {
     final (:blocs, :confidence) = ConfidenceScorer.scoreWithBlocs(profile);
 
     // ── Poids contextuels (Phase 1) ─────────────────────────
@@ -131,20 +132,20 @@ class VisibilityScoreService {
 
     // ── Regrouper les blocs en 4 axes ──────────────────────
     final liquidite = _computeLiquiditeAxis(blocs, profile,
-        maxScore: weights.liquidite);
+        maxScore: weights.liquidite, l: l);
     final fiscalite = _computeFiscaliteAxis(blocs, profile,
-        maxScore: weights.fiscalite);
+        maxScore: weights.fiscalite, l: l);
     final retraite = _computeRetraiteAxis(blocs, profile,
-        maxScore: weights.retraite);
+        maxScore: weights.retraite, l: l);
     final securite = _computeSecuriteAxis(blocs, profile,
-        maxScore: weights.securite);
+        maxScore: weights.securite, l: l);
 
     final axes = [liquidite, retraite, fiscalite, securite];
     final total = axes.fold<double>(0, (sum, a) => sum + a.score);
     final percentage = total.round().clamp(0, 100);
 
     // ── Narrative ──────────────────────────────────────────
-    final narrative = _generateNarrative(percentage, axes);
+    final narrative = _generateNarrative(percentage, axes, l: l);
 
     // ── Actions prioritaires (top 3 enrichment prompts) ───
     final actions = _buildActions(confidence.prompts);
@@ -161,10 +162,11 @@ class VisibilityScoreService {
   /// Calcule le score couple avec alerte point faible.
   static VisibilityScore computeCouple(
     CoachProfile userProfile,
-    CoachProfile conjointProfile,
-  ) {
-    final userScore = compute(userProfile);
-    final conjScore = compute(conjointProfile);
+    CoachProfile conjointProfile, {
+    S? l,
+  }) {
+    final userScore = compute(userProfile, l: l);
+    final conjScore = compute(conjointProfile, l: l);
 
     // Moyenne ponderee par revenu (revenuBrutAnnuel inclut 13e mois + bonus)
     final userRevenu = userProfile.revenuBrutAnnuel;
@@ -224,7 +226,7 @@ class VisibilityScoreService {
       total: coupleTotal,
       percentage: couplePercentage,
       axes: mergedAxes,
-      narrative: _generateNarrative(couplePercentage, mergedAxes),
+      narrative: _generateNarrative(couplePercentage, mergedAxes, l: l),
       actions: mergedActions,
       coupleMin: minScore.total,
       coupleWeakName: weakName,
@@ -308,6 +310,7 @@ class VisibilityScoreService {
     Map<String, BlockScore> blocs,
     CoachProfile profile, {
     double maxScore = 25,
+    S? l,
   }) {
     // Liquidite = revenu (12) + patrimoine (7) = 19 pts max dans scorer
     // Normalise sur maxScore (contextual)
@@ -326,16 +329,16 @@ class VisibilityScoreService {
 
     return VisibilityAxis(
       id: 'liquidite',
-      label: 'Liquidité',
+      label: l?.visibilityAxisLabelLiquidite ?? 'Liquidité',
       icon: 'wallet',
       score: normalized,
       maxScore: maxScore,
       status: status,
       hint: revenu == 0
-          ? 'Ajoute ton salaire pour commencer'
+          ? (l?.visibilityHintAddSalaire ?? 'Ajoute ton salaire pour commencer')
           : patrimoine == 0
-              ? 'Renseigne ton épargne et investissements'
-              : 'Tes données de liquidité sont complètes',
+              ? (l?.visibilityHintAddEpargne ?? 'Renseigne ton épargne et investissements')
+              : (l?.visibilityHintLiquiditeComplete ?? 'Tes données de liquidité sont complètes'),
     );
   }
 
@@ -343,6 +346,7 @@ class VisibilityScoreService {
     Map<String, BlockScore> blocs,
     CoachProfile profile, {
     double maxScore = 25,
+    S? l,
   }) {
     // Fiscalite = fiscalite bloc (max 15) + age_canton (8) = 23 pts max
     // Normalise sur maxScore (contextual)
@@ -361,16 +365,16 @@ class VisibilityScoreService {
 
     return VisibilityAxis(
       id: 'fiscalite',
-      label: 'Fiscalité',
+      label: l?.visibilityAxisLabelFiscalite ?? 'Fiscalité',
       icon: 'receipt',
       score: normalized,
       maxScore: maxScore,
       status: status,
       hint: ageCanton == 0
-          ? 'Indique ton âge et canton de résidence'
+          ? (l?.visibilityHintAddAgeCanton ?? 'Indique ton âge et canton de résidence')
           : fiscal < 8
-              ? 'Scanne ta déclaration fiscale'
-              : 'Tes données fiscales sont complètes',
+              ? (l?.visibilityHintScanFiscal ?? 'Scanne ta déclaration fiscale')
+              : (l?.visibilityHintFiscaliteComplete ?? 'Tes données fiscales sont complètes'),
     );
   }
 
@@ -378,6 +382,7 @@ class VisibilityScoreService {
     Map<String, BlockScore> blocs,
     CoachProfile profile, {
     double maxScore = 25,
+    S? l,
   }) {
     // Retraite = objectifRetraite (10) + lpp (18) + taux_conversion (5) +
     //            avs (10) + 3a (8) = 51 pts max
@@ -400,18 +405,18 @@ class VisibilityScoreService {
 
     String hint;
     if (lpp == 0) {
-      hint = 'Ajoute ton certificat LPP';
+      hint = l?.visibilityHintAddLpp ?? 'Ajoute ton certificat LPP';
     } else if (avs < 5) {
-      hint = 'Commande ton extrait AVS';
+      hint = l?.visibilityHintCommandeAvs ?? 'Commande ton extrait AVS';
     } else if (troisA < 4) {
-      hint = 'Renseigne tes comptes 3a';
+      hint = l?.visibilityHintAdd3a ?? 'Renseigne tes comptes 3a';
     } else {
-      hint = 'Tes données retraite sont complètes';
+      hint = l?.visibilityHintRetraiteComplete ?? 'Tes données retraite sont complètes';
     }
 
     return VisibilityAxis(
       id: 'retraite',
-      label: 'Retraite',
+      label: l?.visibilityAxisLabelRetraite ?? 'Retraite',
       icon: 'beach_access',
       score: normalized,
       maxScore: maxScore,
@@ -424,6 +429,7 @@ class VisibilityScoreService {
     Map<String, BlockScore> blocs,
     CoachProfile profile, {
     double maxScore = 25,
+    S? l,
   }) {
     // Securite = menage (15) + archetype (5) + foreign_pension (2) = 22 pts max
     // Normalise sur maxScore (contextual)
@@ -443,16 +449,16 @@ class VisibilityScoreService {
 
     return VisibilityAxis(
       id: 'securite',
-      label: 'Sécurité',
+      label: l?.visibilityAxisLabelSecurite ?? 'Sécurité',
       icon: 'shield',
       score: normalized,
       maxScore: maxScore,
       status: status,
       hint: menage == 0
-          ? 'Indique ta situation familiale'
+          ? (l?.visibilityHintAddFamille ?? 'Indique ta situation familiale')
           : archetype == 0
-              ? 'Complète ton statut professionnel'
-              : 'Tes données de sécurité sont complètes',
+              ? (l?.visibilityHintAddStatutPro ?? 'Complète ton statut professionnel')
+              : (l?.visibilityHintSecuriteComplete ?? 'Tes données de sécurité sont complètes'),
     );
   }
 
@@ -460,7 +466,7 @@ class VisibilityScoreService {
   //  NARRATIVE — phrase courte pour le dashboard
   // ════════════════════════════════════════════════════════════
 
-  static String _generateNarrative(int percentage, List<VisibilityAxis> axes) {
+  static String _generateNarrative(int percentage, List<VisibilityAxis> axes, {S? l}) {
     // Trouver l'axe le plus faible
     VisibilityAxis? weakest;
     for (final axis in axes) {
@@ -470,17 +476,24 @@ class VisibilityScoreService {
     }
 
     if (percentage >= 80) {
-      return 'Tu as une vision claire de ta situation. '
+      return l?.visibilityNarrativeHigh ??
+          'Tu as une vision claire de ta situation. '
           'Continue à maintenir tes données à jour.';
     } else if (percentage >= 60) {
-      return 'Bonne visibilité\u00a0! '
-          'Affine ta ${weakest?.label.toLowerCase() ?? 'situation'} pour aller plus loin.';
+      final axisLabel = weakest?.label.toLowerCase() ?? 'situation';
+      return l?.visibilityNarrativeMediumHigh(axisLabel) ??
+          'Bonne visibilité\u00a0! '
+          'Affine ta $axisLabel pour aller plus loin.';
     } else if (percentage >= 40) {
-      return 'Tu commences à y voir plus clair. '
-          'Concentre-toi sur ta ${weakest?.label.toLowerCase() ?? 'situation'}.';
+      final axisLabel = weakest?.label.toLowerCase() ?? 'situation';
+      return l?.visibilityNarrativeMedium(axisLabel) ??
+          'Tu commences à y voir plus clair. '
+          'Concentre-toi sur ta $axisLabel.';
     } else {
-      return 'Chaque information compte. '
-          'Commence par ${weakest?.hint.toLowerCase() ?? 'renseigner tes données'}.';
+      final hint = weakest?.hint.toLowerCase() ?? 'renseigner tes données';
+      return l?.visibilityNarrativeLow(hint) ??
+          'Chaque information compte. '
+          'Commence par $hint.';
     }
   }
 

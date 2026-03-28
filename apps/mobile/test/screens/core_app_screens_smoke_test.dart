@@ -27,6 +27,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -73,6 +74,8 @@ void main() {
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+        ChangeNotifierProvider<MintStateProvider>(
+            create: (_) => MintStateProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -125,12 +128,14 @@ void main() {
       expect(find.textContaining('LPP'), findsWidgets);
     });
 
-    testWidgets('shows settings section', (tester) async {
+    testWidgets('shows identity card (settings moved to SettingsSheet)',
+        (tester) async {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 2: settings section header
-      expect(find.textContaining('glages'), findsWidgets);
+      // Settings section removed (now in SettingsSheet via gear icon).
+      // Identity card should be present instead.
+      expect(find.byType(ProfileScreen), findsOneWidget);
     });
 
     testWidgets('shows delete data button', (tester) async {
@@ -489,9 +494,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // S52: 4-tab layout — Aujourd'hui, Coach, Explorer, Dossier
+      // S52: 4-tab layout — Aujourd'hui, MINT (Coach), Explorer, Dossier
       expect(find.textContaining('ujourd'), findsWidgets);
-      expect(find.text('Coach'), findsOneWidget);
+      expect(find.text('Mint'), findsOneWidget);
       expect(find.text('Explorer'), findsOneWidget);
       expect(find.text('Dossier'), findsOneWidget);
     });

@@ -8,6 +8,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// BYOK Settings Screen - Configure your own LLM API key.
 ///
@@ -57,31 +59,31 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Text(
+            MintEntrance(child: Text(
               s.byokTitle,
               style: MintTextStyles.headlineLarge(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               s.byokSubtitle,
               style: MintTextStyles.bodyLarge(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.xl),
 
             // Privacy card
-            _buildPrivacyCard(s),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrivacyCard(s)),
             const SizedBox(height: MintSpacing.xl),
 
             // Provider selector
-            _buildSectionLabel(s.byokProviderLabel),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSectionLabel(s.byokProviderLabel)),
             const SizedBox(height: MintSpacing.sm + 4),
-            _buildProviderSelector(s),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildProviderSelector(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // API Key input
@@ -100,7 +102,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
 
             // Feedback
             if (byok.testSuccess) _buildSuccessFeedback(s),
-            if (byok.testError != null) _buildErrorFeedback(byok.testError!),
+            if (byok.testError != null) _buildErrorFeedback(_localizeByokError(byok.testError!, byok.apiErrorMessage, s)),
             const SizedBox(height: MintSpacing.md),
 
             // Clear key (if configured)
@@ -112,7 +114,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             const SizedBox(height: MintSpacing.xxl - 8),
           ],
         ),
-      ),
+      ))),
     );
   }
 
@@ -124,13 +126,10 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
   }
 
   Widget _buildPrivacyCard(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -247,8 +246,8 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           ),
           suffixIcon: Semantics(
             label: _obscureKey
-                ? 'Afficher la clé'
-                : 'Masquer la clé',
+                ? S.of(context)!.byokShowKey
+                : S.of(context)!.byokHideKey,
             button: true,
             child: IconButton(
               icon: Icon(
@@ -290,7 +289,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
         children: [
           const Icon(Icons.open_in_new, size: 14, color: MintColors.info),
           const SizedBox(width: 6),
-          Text(
+          Flexible(child: Text(
             s.byokGetKeyOn(label),
             style: MintTextStyles.bodySmall(
               color: MintColors.info,
@@ -298,7 +297,8 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               decoration: TextDecoration.underline,
               decorationColor: MintColors.info,
             ),
-          ),
+            overflow: TextOverflow.ellipsis,
+          )),
         ],
       ),
     ),
@@ -462,6 +462,20 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
     );
   }
 
+  /// Translate a [ByokError] code to a localized user-facing string.
+  String _localizeByokError(ByokError error, String? apiMessage, S s) {
+    switch (error) {
+      case ByokError.saveFailed:
+        return s.byokErrorSaveFailed;
+      case ByokError.notConfigured:
+        return s.byokErrorNotConfigured;
+      case ByokError.connectionError:
+        return s.byokErrorConnection;
+      case ByokError.apiError:
+        return apiMessage ?? s.byokErrorConnection;
+    }
+  }
+
   Widget _buildErrorFeedback(String error) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
@@ -516,6 +530,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
 
             if (confirm == true) {
               await byok.clearKey();
+              if (!mounted) return;
               _apiKeyController.clear();
               setState(() => _selectedProvider = 'claude');
             }
@@ -534,13 +549,10 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       children: [
         _buildSectionLabel(s.byokLearnTitle),
         const SizedBox(height: MintSpacing.md),
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(MintSpacing.lg - 4),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.border),
-          ),
+          radius: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

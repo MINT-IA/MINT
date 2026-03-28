@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -51,7 +52,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Checklist nouveau job libre passage LPP actions urgentes',
+      label: S.of(context)!.jobChangeChecklistSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -102,12 +103,12 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Checklist changement de job',
+                  S.of(context)!.jobChangeChecklistTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tu as 30 jours pour vérifier que ton LPP a été transféré.',
+                  S.of(context)!.jobChangeChecklistSubtitle,
                   style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
@@ -126,7 +127,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '$_completedCount / ${widget.items.length} actions complétées',
+              S.of(context)!.jobChangeChecklistProgress(_completedCount, widget.items.length),
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Text(
@@ -253,13 +254,12 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Demande TOUJOURS le certificat LPP avant de signer',
+                  S.of(context)!.jobChangeChecklistAlertTitle,
                   style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Sans transfert du libre passage dans les délais, '
-                  'ton capital LPP peut finir à la Fondation supplétive à 0.05%.',
+                  S.of(context)!.jobChangeChecklistAlertBody,
                   style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
@@ -272,8 +272,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LPP art. 3 (libre passage), OLP art. 1-3.',
+      S.of(context)!.jobChangeChecklistDisclaimer,
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

@@ -198,7 +198,7 @@ async def upload_document(
     ):
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported file type: {file.content_type}. Only PDF files are accepted.",
+            detail="Unsupported file type. Only PDF files are accepted.",
         )
 
     # Check filename extension
@@ -213,7 +213,7 @@ async def upload_document(
     try:
         file_bytes = await file.read()
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
@@ -242,8 +242,8 @@ async def upload_document(
     try:
         parser = DocumentParser()
         parsed = parser.parse_pdf(file_bytes)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     if not parsed.full_text.strip():
         warnings.append("No text could be extracted from the PDF (scanned image?)")
@@ -416,7 +416,7 @@ async def upload_bank_statement(
     try:
         file_bytes = await file.read()
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
@@ -448,8 +448,8 @@ async def upload_bank_statement(
             statement = extractor.parse_csv(file_bytes)
         else:
             statement = extractor.parse_pdf(file_bytes)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     # Categorize transactions
     categorizer.categorize_transactions(statement.transactions)
@@ -527,7 +527,7 @@ async def preview_budget_import(
     try:
         file_bytes = await file.read()
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
@@ -557,8 +557,8 @@ async def preview_budget_import(
             statement = extractor.parse_csv(file_bytes)
         else:
             statement = extractor.parse_pdf(file_bytes)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     categorizer.categorize_transactions(statement.transactions)
     preview = categorizer.compute_budget_preview(statement.transactions)

@@ -6,6 +6,11 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -47,7 +52,7 @@ class _DonationScreenState extends State<DonationScreen> {
   double _montant = 100000;
   int _donateurAge = 55;
   String _lienParente = 'descendant';
-  String _canton = 'VD';
+  String _canton = 'ZH';
   String _typeDonation = 'especes';
   double _valeurImmobiliere = 500000;
   bool _avancementHoirie = true;
@@ -64,10 +69,10 @@ class _DonationScreenState extends State<DonationScreen> {
   static List<String> get _cantons => sortedCantonCodes;
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
-  static const _typesDonationLabels = {
-    'especes': 'Espèces / Liquidités',
-    'immobilier': 'Immobilier',
-    'titres': 'Titres / Valeurs mobilières',
+  Map<String, String> _typesDonationLabels(S s) => {
+    'especes': s.donationTypeEspeces,
+    'immobilier': s.donationTypeImmobilier,
+    'titres': s.donationTypeTitres,
   };
 
   static const _liensParente = [
@@ -79,11 +84,42 @@ class _DonationScreenState extends State<DonationScreen> {
     'tiers',
   ];
 
-  static const _regimesLabels = {
-    'participation_acquets': 'Participation aux acquêts',
-    'communaute_biens': 'Communauté de biens',
-    'separation_biens': 'Séparation de biens',
+  Map<String, String> _regimesLabels(S s) => {
+    'participation_acquets': s.donationRegimeParticipation,
+    'communaute_biens': s.donationRegimeCommunaute,
+    'separation_biens': s.donationRegimeSeparation,
   };
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+        if (profile.age > 0) {
+          _donateurAge = profile.age;
+        }
+        if (profile.nombreEnfants > 0) {
+          _nbEnfants = profile.nombreEnfants;
+        }
+        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
+        if (totalPatrimoine > 0) {
+          _fortuneTotaleDonateur = totalPatrimoine;
+        }
+      });
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -127,21 +163,21 @@ class _DonationScreenState extends State<DonationScreen> {
       appBar: AppBar(
         title: Text(S.of(context)!.donationAppBarTitle),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            MintEntrance(child: _buildHeader()),
             const SizedBox(height: 24),
-            _buildIntroCard(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: 24),
-            _buildDonationSection(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDonationSection()),
             const SizedBox(height: 12),
-            _buildSuccessionContextSection(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSuccessionContextSection()),
             const SizedBox(height: 24),
-            _buildSimulateButton(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSimulateButton()),
             const SizedBox(height: 24),
             if (_result != null) ...[
               Container(key: _resultsKey),
@@ -166,18 +202,15 @@ class _DonationScreenState extends State<DonationScreen> {
             const SizedBox(height: 40),
           ],
         ),
-      ),
+      ))),
     );
   }
 
   // ── Header ──
   Widget _buildHeader() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Row(
         children: [
           Container(
@@ -399,7 +432,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
             return Semantics(
-              label: _typesDonationLabels[type] ?? type,
+              label: _typesDonationLabels(S.of(context)!)[type] ?? type,
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -420,7 +453,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _typesDonationLabels[type] ?? type,
+                  _typesDonationLabels(S.of(context)!)[type] ?? type,
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -452,7 +485,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: regimes.map((regime) {
             final selected = _regimeMatrimonial == regime;
             return Semantics(
-              label: _regimesLabels[regime] ?? regime,
+              label: _regimesLabels(S.of(context)!)[regime] ?? regime,
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -473,7 +506,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _regimesLabels[regime] ?? regime,
+                  _regimesLabels(S.of(context)!)[regime] ?? regime,
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -641,7 +674,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationReserveBarLabel((reservePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -655,7 +688,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: quotitePct > 0.15
                       ? Text(
-                          'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationDisponibleBarLabel((quotitePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -779,12 +812,10 @@ class _DonationScreenState extends State<DonationScreen> {
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
           const SizedBox(height: 12),
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Row(
               children: [
                 const Icon(Icons.info_outline,
@@ -961,12 +992,9 @@ class _DonationScreenState extends State<DonationScreen> {
 
   // ── Expandable Tile ──
   Widget _buildExpandableTile(String title, String content) {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 16,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
@@ -1005,10 +1033,7 @@ class _DonationScreenState extends State<DonationScreen> {
           Expanded(
             child: Text(
               _result?.disclaimer ??
-                  'Cet outil éducatif fournit des estimations indicatives et '
-                      'ne constitue pas un conseil juridique, fiscal ou notarial '
-                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
-                      '(notaire) pour ta situation.',
+                  S.of(context)!.donationDisclaimerFallback,
               style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),
@@ -1027,13 +1052,10 @@ class _DonationScreenState extends State<DonationScreen> {
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         const SizedBox(height: MintSpacing.sm),
-        Container(
+        MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.border),
-          ),
+          radius: 12,
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _canton,
@@ -1112,47 +1134,18 @@ class _DonationScreenState extends State<DonationScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-              ),
-            ),
-            Text(
-              format(value),
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape:
-                const RoundSliderThumbShape(enabledThumbRadius: 8),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: (v) {
-              setState(() {
-                onChanged(v);
-              });
-            },
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: format,
+      onChanged: (v) {
+        setState(() {
+          onChanged(v);
+        });
+      },
     );
   }
 }

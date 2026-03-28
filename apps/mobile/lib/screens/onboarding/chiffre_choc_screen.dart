@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
@@ -12,6 +13,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Chiffre Choc screen — Category A (Hero).
 ///
@@ -20,6 +22,12 @@ import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 ///
 /// Sprint S31 (created) / S52 (upgraded to Design System v2).
 /// Receives age, grossSalary, canton via route extra.
+///
+/// ARCHITECTURE: Dual-engine onboarding
+/// Primary: Backend API (/onboarding/minimal-profile) — authoritative
+/// Fallback: Local MinimalProfileService.compute() — offline/error path
+/// The local engine uses simplified heuristics. When both run,
+/// the API result takes precedence. This is by design for offline support.
 class ChiffreChocScreen extends StatefulWidget {
   const ChiffreChocScreen({super.key});
 
@@ -81,6 +89,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final isPropertyOwner = extra['isPropertyOwner'] as bool?;
     final existing3a = (extra['existing3a'] as num?)?.toDouble();
     final existingLpp = (extra['existingLpp'] as num?)?.toDouble();
+    final stressType = extra['stressType'] as String?;
 
     try {
       final profile = await ApiService.computeMinimalProfile(
@@ -102,6 +111,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         isPropertyOwner: isPropertyOwner,
         existing3a: existing3a,
         existingLpp: existingLpp,
+        stressType: stressType,
       );
 
       if (!mounted) return;
@@ -125,7 +135,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
       if (!mounted) return;
       setState(() {
         _profile = profile;
-        _chiffreChoc = ChiffreChocSelector.select(profile);
+        _chiffreChoc = ChiffreChocSelector.select(profile, stressType: stressType);
       });
     }
 
@@ -175,6 +185,15 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         actText: l10n.chiffreChocAvantApresIncomeAct,
         noActText: l10n.chiffreChocAvantApresIncomeNoAct,
       ),
+      // V2 types: reuse closest existing avant/après texts
+      ChiffreChocType.compoundGrowth => (
+        actText: l10n.chiffreChocAvantApresTaxAct,
+        noActText: l10n.chiffreChocAvantApresTaxNoAct,
+      ),
+      ChiffreChocType.hourlyRate => (
+        actText: l10n.chiffreChocAvantApresLiquidityAct,
+        noActText: l10n.chiffreChocAvantApresLiquidityNoAct,
+      ),
     };
   }
 
@@ -191,8 +210,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final l10n = S.of(context)!;
 
     if (choc == null || profile == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const MintLoadingSkeleton())),
       );
     }
 
@@ -202,7 +221,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
           child: Column(
@@ -210,7 +229,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
               const SizedBox(height: MintSpacing.md),
 
               // Back button
-              Align(
+              MintEntrance(child: Align(
                 alignment: Alignment.centerLeft,
                 child: Semantics(
                   button: true,
@@ -221,11 +240,11 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     color: MintColors.textSecondary,
                   ),
                 ),
-              ),
+              )),
               const Spacer(flex: 3),
 
               // ── Hero: chiffre-choc ALONE at center, max air ──
-              FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: ScaleTransition(
                   scale: _scaleAnim,
@@ -254,12 +273,12 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     ],
                   ),
                 ),
-              ),
+              )),
 
               const SizedBox(height: MintSpacing.xxl),
 
               // ── Avant/Apres in MintSurface (craie) ──
-              FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Semantics(
                   button: true,
@@ -327,12 +346,12 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     ),
                   ),
                 ),
-              ),
+              )),
 
               const SizedBox(height: MintSpacing.md),
 
               // ── Confidence notice — premium component ──
-              FadeTransition(
+              MintEntrance(delay: const Duration(milliseconds: 300), child: FadeTransition(
                 opacity: _fadeAnim,
                 child: MintConfidenceNotice(
                   percent: (infoCount * 15).clamp(0, 100),
@@ -340,12 +359,12 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     infoCount.toString(),
                   ),
                 ),
-              ),
+              )),
 
               const Spacer(flex: 4),
 
               // ── Primary CTA — pill (StadiumBorder) ──
-              Semantics(
+              MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                 button: true,
                 label: l10n.chiffreChocAction,
                 child: SizedBox(
@@ -357,6 +376,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                         ChiffreChocType.retirementGap => '/coach/cockpit',
                         ChiffreChocType.taxSaving3a => '/pilier-3a',
                         ChiffreChocType.retirementIncome => '/coach/cockpit',
+                        ChiffreChocType.compoundGrowth => '/pilier-3a',
+                        ChiffreChocType.hourlyRate => '/budget',
                       };
                       AnalyticsService().trackCTAClick(
                         'chiffre_choc_action',
@@ -382,7 +403,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: MintSpacing.md),
 
               // ── Disclaimer (micro pattern) ──
@@ -395,7 +416,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 }

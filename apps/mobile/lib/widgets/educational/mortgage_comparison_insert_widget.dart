@@ -24,7 +24,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
       hypotheses: const [
         'Comparaison basée sur conditions marché 2024-2026',
         'SARON = Swiss Average Rate Overnight',
-        'Historique ne garantit pas l\'avenir',
+        'Historique ne présage pas de l\'avenir',
       ],
       onLearnMore: onLearnMore,
       content: Column(

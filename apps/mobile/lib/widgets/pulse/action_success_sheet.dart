@@ -175,7 +175,7 @@ class _ActionSuccessContent extends StatelessWidget {
             GestureDetector(
               onTap: data.nextRoute != null
                   ? () {
-                      Navigator.of(context).pop();
+                      context.pop();
                       context.push(data.nextRoute!);
                     }
                   : null,
@@ -215,7 +215,7 @@ class _ActionSuccessContent extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),

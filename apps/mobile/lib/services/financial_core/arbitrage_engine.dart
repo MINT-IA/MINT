@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -80,6 +82,7 @@ class ArbitrageEngine {
     int? currentAge,
     double? grossAnnualSalary,
     double? caisseReturn,
+    S? l,
   }) {
     final startYear = DateTime.now().year;
 
@@ -163,7 +166,7 @@ class ArbitrageEngine {
 
     final optionA = TrajectoireOption(
       id: 'full_rente',
-      label: '100 % Rente',
+      label: l?.arbitrageOptionFullRente ?? '100\u00a0% Rente',
       trajectory: renteTrajectory,
       terminalValue: renteTrajectory.last.netPatrimony,
       cumulativeTaxImpact: renteTrajectory.last.cumulativeTaxDelta,
@@ -171,7 +174,7 @@ class ArbitrageEngine {
 
     final optionB = TrajectoireOption(
       id: 'full_capital',
-      label: '100 % Capital',
+      label: l?.arbitrageOptionFullCapital ?? '100\u00a0% Capital',
       trajectory: capitalTrajectory,
       terminalValue: capitalTrajectory.last.netPatrimony,
       cumulativeTaxImpact: capitalTrajectory.last.cumulativeTaxDelta,
@@ -179,7 +182,7 @@ class ArbitrageEngine {
 
     final optionC = TrajectoireOption(
       id: 'mixed',
-      label: 'Mixte (oblig. rente + surob. capital)',
+      label: l?.arbitrageOptionMixed ?? 'Mixte (oblig. rente + surob. capital)',
       trajectory: mixedTrajectory,
       terminalValue: mixedTrajectory.last.netPatrimony,
       cumulativeTaxImpact: mixedTrajectory.last.cumulativeTaxDelta,
@@ -276,7 +279,7 @@ class ArbitrageEngine {
       assumptionHigh: retraitHigh,
     );
 
-    final tcObligLow = math.max(lppTauxConversionMinDecimal, tauxConversionObligatoire - 0.005);
+    final tcObligLow = math.max(reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal), tauxConversionObligatoire - 0.005);
     final tcObligHigh = tauxConversionObligatoire + 0.005;
     _addTornadoSensitivity(
       sensitivity,
@@ -471,12 +474,14 @@ class ArbitrageEngine {
     double potentielRachatLpp = 0,
     bool isPropertyOwner = false,
     double tauxHypothecaire = 0.015,
+    double mortgageBalance = 0,
     int anneesAvantRetraite = 20,
     double rendement3a = 0.02,
     double rendementLpp = 0.0125,
     double rendementMarche = 0.04,
-    String canton = 'VD',
+    String canton = 'ZH',
     Map<String, ProfileDataSource>? dataSources,
+    S? l,
   }) {
     final startYear = DateTime.now().year;
     final options = <TrajectoireOption>[];
@@ -536,10 +541,11 @@ class ArbitrageEngine {
         tauxMarginal: tauxMarginal,
         horizon: anneesAvantRetraite,
         startYear: startYear,
+        mortgageBalance: mortgageBalance,
       );
       options.add(TrajectoireOption(
         id: 'amort_indirect',
-        label: 'Amortissement indirect',
+        label: l?.arbitrageOptionAmortIndirect ?? 'Amortissement indirect',
         trajectory: trajectoryAmort,
         terminalValue: trajectoryAmort.last.netPatrimony,
         cumulativeTaxImpact: trajectoryAmort.last.cumulativeTaxDelta,
@@ -559,7 +565,7 @@ class ArbitrageEngine {
     );
     options.add(TrajectoireOption(
       id: 'invest_libre',
-      label: 'Investissement libre',
+      label: l?.arbitrageOptionInvestLibre ?? 'Investissement libre',
       trajectory: trajectoryLibre,
       terminalValue: trajectoryLibre.last.netPatrimony,
       cumulativeTaxImpact: trajectoryLibre.last.cumulativeTaxDelta,
@@ -649,10 +655,11 @@ class ArbitrageEngine {
           tauxMarginal: variantTauxMarginal,
           horizon: anneesAvantRetraite,
           startYear: startYear,
+          mortgageBalance: mortgageBalance,
         );
         variantOptions.add(TrajectoireOption(
           id: 'amort_indirect',
-          label: 'Amortissement indirect',
+          label: l?.arbitrageOptionAmortIndirect ?? 'Amortissement indirect',
           trajectory: trajectoryAmort,
           terminalValue: trajectoryAmort.last.netPatrimony,
           cumulativeTaxImpact: trajectoryAmort.last.cumulativeTaxDelta,
@@ -671,7 +678,7 @@ class ArbitrageEngine {
       );
       variantOptions.add(TrajectoireOption(
         id: 'invest_libre',
-        label: 'Investissement libre',
+        label: l?.arbitrageOptionInvestLibre ?? 'Investissement libre',
         trajectory: trajectoryLibre,
         terminalValue: trajectoryLibre.last.netPatrimony,
         cumulativeTaxImpact: trajectoryLibre.last.cumulativeTaxDelta,
@@ -860,8 +867,8 @@ class ArbitrageEngine {
   /// Compare renting + investing surplus vs buying property.
   ///
   /// Option A: Rent, invest the down payment at market return.
-  /// Option B: Buy with 80% mortgage, 1% amortization/year,
-  ///   1% maintenance/year, valeur locative taxable.
+  /// Option B: Buy with 80% mortgage, amortize 2nd rank (80->65% LTV)
+  ///   over 15 years, 1% maintenance/year, valeur locative taxable.
   ///
   /// Legal basis: FINMA affordability (5% theoretical rate),
   ///   LIFD art. 21 (valeur locative), LIFD art. 33 (interest deduction).
@@ -869,7 +876,7 @@ class ArbitrageEngine {
     required double capitalDisponible,
     required double loyerMensuelActuel,
     required double prixBien,
-    String canton = 'VD',
+    String canton = 'ZH',
     int horizonAnnees = 20,
     double rendementMarche = 0.04,
     double appreciationImmo = 0.015,
@@ -890,6 +897,11 @@ class ArbitrageEngine {
     double hypotheque = prixBien - fondsPropres;
     double valeurBien = prixBien;
 
+    // 2nd rank: from 80% LTV to 65% LTV over max 15 years
+    final seuil1erRang = prixBien * 0.65;
+    final deuxiemeRang = math.max(0.0, hypotheque - seuil1erRang);
+    final amortAnnuel2ndRank = deuxiemeRang > 0 ? deuxiemeRang / 15 : 0.0;
+
     // First pass: compute annual proprio costs to get the cashflow delta
     final annualProprioCharges = <double>[];
     double tempHyp = hypotheque;
@@ -901,9 +913,11 @@ class ArbitrageEngine {
       }
       tempVal *= (1 + appreciationImmo);
       final interets = tempHyp * tauxHypotheque;
-      final amortissement = prixBien * 0.01;
+      // Amortization: 2nd rank only, stops when mortgage reaches 1st rank level
+      final amortissement = tempHyp > seuil1erRang ? amortAnnuel2ndRank : 0.0;
       final entretien = prixBien * tauxEntretien;
-      final valeurLocative = tempVal * 0.035;
+      final tauxVL = HousingCostCalculator.getValeurLocativeRate(canton);
+      final valeurLocative = tempVal * tauxVL;
       final netTaxableIncome = valeurLocative - interets;
       final taxImpact = netTaxableIncome > 0
           ? RetirementTaxCalculator.estimateMonthlyIncomeTax(
@@ -914,7 +928,7 @@ class ArbitrageEngine {
               12
           : 0.0;
       annualProprioCharges.add(interets + amortissement + entretien + taxImpact);
-      tempHyp = math.max(0, tempHyp - amortissement);
+      tempHyp = math.max(seuil1erRang, tempHyp - amortissement);
     }
 
     // ── Option A: Rent + Invest ──
@@ -967,8 +981,9 @@ class ArbitrageEngine {
         continue;
       }
       valeurBien *= (1 + appreciationImmo);
-      final amortissement = prixBien * 0.01;
-      hypotheque = math.max(0, hypotheque - amortissement);
+      // Amortization: 2nd rank only, stops when mortgage reaches 1st rank level
+      final amortissement = hypotheque > seuil1erRang ? amortAnnuel2ndRank : 0.0;
+      hypotheque = math.max(seuil1erRang, hypotheque - amortissement);
 
       buySnapshots.add(YearlySnapshot(
         year: startYear + y,
@@ -1126,7 +1141,7 @@ class ArbitrageEngine {
     double rendementLpp = 0.0125,
     double rendementMarche = 0.04,
     double tauxConversion = lppTauxConversionMinDecimal,
-    String canton = 'VD',
+    String canton = 'ZH',
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
   }) {
@@ -1397,8 +1412,8 @@ class ArbitrageEngine {
   /// Legal basis: LIFD art. 38 (progressive capital withdrawal tax).
   static ArbitrageResult compareCalendrierRetraits({
     required List<RetirementAsset> assets,
-    int ageRetraite = 65,
-    String canton = 'VD',
+    int ageRetraite = avsAgeReferenceHomme,
+    String canton = 'ZH',
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
   }) {
@@ -1454,19 +1469,35 @@ class ArbitrageEngine {
     final withdrawalPlan =
         <({String type, double amount, int age, double tax})>[];
 
+    // Group assets by withdrawal year to compute progressive tax on combined total.
+    final yearGroups = <int, List<RetirementAsset>>{};
     for (final asset in sortedAssets) {
-      final tax = RetirementTaxCalculator.capitalWithdrawalTax(
-        capitalBrut: asset.amount,
+      yearGroups.putIfAbsent(asset.earliestWithdrawalAge, () => []).add(asset);
+    }
+
+    for (final entry in yearGroups.entries) {
+      final age = entry.key;
+      final groupAssets = entry.value;
+      final groupTotal = groupAssets.fold<double>(0, (s, a) => s + a.amount);
+
+      // Compute progressive tax on the combined year total
+      final groupTax = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: groupTotal,
         canton: canton,
         isMarried: isMarried,
       );
-      totalTaxEtale += tax;
-      withdrawalPlan.add((
-        type: asset.type,
-        amount: asset.amount,
-        age: asset.earliestWithdrawalAge,
-        tax: tax,
-      ));
+      totalTaxEtale += groupTax;
+
+      // Split tax proportionally back to each asset
+      for (final asset in groupAssets) {
+        final share = groupTotal > 0 ? asset.amount / groupTotal : 0.0;
+        withdrawalPlan.add((
+          type: asset.type,
+          amount: asset.amount,
+          age: age,
+          tax: groupTax * share,
+        ));
+      }
     }
 
     final netEtale = totalCapital - totalTaxEtale;
@@ -1868,10 +1899,10 @@ class ArbitrageEngine {
         ));
         continue;
       }
-      // Add annual contribution
-      balance += montantAnnuel;
-      // Apply return
+      // Apply return on last year's balance first (consistent with LPP calculator)
       balance *= (1 + rendement);
+      // Then add this year's contribution
+      balance += montantAnnuel;
 
       // Tax saving from deduction
       final taxSaving = deductible ? montantAnnuel * tauxMarginal : 0.0;
@@ -1913,6 +1944,7 @@ class ArbitrageEngine {
     required double tauxMarginal,
     required int horizon,
     required int startYear,
+    double mortgageBalance = 0,
   }) {
     final snapshots = <YearlySnapshot>[];
     double balance3a = 0;
@@ -1930,14 +1962,17 @@ class ArbitrageEngine {
         continue;
       }
       // 3a contribution
-      final contribution = math.min(montantAnnuel, pilier3aPlafondAvecLpp);
+      final contribution = math.min(montantAnnuel, reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
       balance3a += contribution;
       balance3a *= (1 + rendement3a);
 
       // Tax benefits: 3a deduction + maintained mortgage interest deduction
       final taxSaving3a = contribution * tauxMarginal;
-      // Mortgage interest deduction maintained (not amortized directly)
-      final interestDeduction = contribution * tauxHypothecaire * tauxMarginal;
+      // Mortgage interest deduction maintained (full mortgage balance stays,
+      // since capital goes to 3a instead of direct amortization)
+      final interestDeduction = mortgageBalance > 0
+          ? mortgageBalance * tauxHypothecaire * tauxMarginal
+          : 0.0;
       final totalSaving = taxSaving3a + interestDeduction;
       cumulativeSaving += totalSaving;
 

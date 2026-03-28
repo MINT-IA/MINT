@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -7,10 +9,13 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
 import 'package:mint_mobile/widgets/coach/prix_du_silence_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -71,9 +76,67 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   List<bool> _checklistState = [];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Conjoint 1 income from profile
+        final revenu1 = profile.revenuBrutAnnuel;
+        if (revenu1 > 0) _incomeConjoint1 = revenu1;
+
+        // Conjoint 2 income from conjoint profile
+        final conjoint = profile.conjoint;
+        if (conjoint != null) {
+          final revenu2 = conjoint.revenuBrutAnnuel;
+          if (revenu2 > 0) _incomeConjoint2 = revenu2;
+
+          // Conjoint 2 LPP
+          final lpp2 = conjoint.prevoyance?.avoirLppTotal;
+          if (lpp2 != null && lpp2 > 0) _lppConjoint2 = lpp2;
+
+          // Conjoint 2 3a
+          final epargne3a2 = conjoint.prevoyance?.totalEpargne3a;
+          if (epargne3a2 != null && epargne3a2 > 0) {
+            _pillar3aConjoint2 = epargne3a2;
+          }
+        }
+
+        // Conjoint 1 LPP
+        final lpp1 = profile.prevoyance.avoirLppTotal;
+        if (lpp1 != null && lpp1 > 0) _lppConjoint1 = lpp1;
+
+        // Conjoint 1 3a
+        final epargne3a1 = profile.prevoyance.totalEpargne3a;
+        if (epargne3a1 > 0) _pillar3aConjoint1 = epargne3a1;
+
+        // Children
+        if (profile.nombreEnfants > 0) {
+          _numberOfChildren = profile.nombreEnfants;
+        }
+
+        // Fortune commune = epargne liquide + investissements
+        final fortune = profile.patrimoine.epargneLiquide +
+            profile.patrimoine.investissements;
+        if (fortune > 0) _fortuneCommune = fortune;
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
   }
 
   void _simulate() {
@@ -95,6 +158,18 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       _result = DivorceService.simulate(input: input);
       _checklistState = List.filled(_result!.checklist.length, false);
     });
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'divorce_simulator',
+      ScreenReturn.completed(
+        route: '/divorce',
+        updatedFields: {
+          'divorceLppSplit': _result!.lppSplit.transferAmount,
+          'divorcePensionAlimentaire': _result!.pensionAlimentaireMonthly,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'budget_post_divorce',
+      ),
+    );
 
     // Smooth scroll to results
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -121,7 +196,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(
           horizontal: MintSpacing.lg,
@@ -139,15 +214,15 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               _buildIntroCard(),
               const SizedBox(height: MintSpacing.xl),
             ],
-            _buildSituationFamilialeSection(),
+            MintEntrance(child: _buildSituationFamilialeSection()),
             const SizedBox(height: MintSpacing.md),
-            _buildRevenusSection(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRevenusSection()),
             const SizedBox(height: MintSpacing.md),
-            _buildPrevoyanceSection(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrevoyanceSection()),
             const SizedBox(height: MintSpacing.md),
-            _buildPatrimoineSection(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPatrimoineSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildSimulateButton(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSimulateButton()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) ...[
               _buildLppSplitCard(),
@@ -179,7 +254,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             const SizedBox(height: MintSpacing.xl + MintSpacing.sm),
           ],
         ),
-      ),
+      ))),
     );
   }
 

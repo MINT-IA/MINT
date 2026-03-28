@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/consent_manager.dart';
 
 /// Tests for ConsentManager (Sprint S40).
@@ -6,6 +7,13 @@ import 'package:mint_mobile/services/consent_manager.dart';
 /// Validates LSFin/nLPD compliance, privacy by design (all OFF by default),
 /// consent state transitions, and BYOK field detail.
 void main() {
+  // V5-1: ConsentManager now uses SharedPreferences (not in-memory).
+  // Tests must initialize the mock binding before any async call.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
   group('ConsentManager — defaults (privacy by design)', () {
     test('all consents are OFF by default (nLPD art. 6)', () {
       final dashboard = ConsentManager.getDefaultDashboard();
@@ -17,16 +25,35 @@ void main() {
       }
     });
 
-    test('default dashboard contains exactly 3 consent types', () {
+    test('default dashboard contains all 7 consent types (F3-4)', () {
       final dashboard = ConsentManager.getDefaultDashboard();
-      expect(dashboard.consents.length, 3);
+      expect(dashboard.consents.length, 7);
 
       final types = dashboard.consents.map((c) => c.type).toSet();
       expect(types, {
         ConsentType.byokDataSharing,
         ConsentType.snapshotStorage,
         ConsentType.notifications,
+        ConsentType.analytics,
+        ConsentType.ragQueries,
+        ConsentType.openBanking,
+        ConsentType.documentUpload,
       });
+    });
+
+    test('ConsentType enum has all 7 expected values (F2-5)', () {
+      // F2-5 + F3-4: The ConsentType enum must match all consent categories.
+      // Dashboard now includes all 7 types.
+      expect(ConsentType.values.length, 7);
+      expect(ConsentType.values, containsAll([
+        ConsentType.byokDataSharing,
+        ConsentType.snapshotStorage,
+        ConsentType.notifications,
+        ConsentType.analytics,
+        ConsentType.ragQueries,
+        ConsentType.openBanking,
+        ConsentType.documentUpload,
+      ]));
     });
 
     test('default dashboard includes nLPD disclaimer', () {
@@ -132,7 +159,7 @@ void main() {
     });
   });
 
-  group('ConsentManager — persistence (in-memory fallback)', () {
+  group('ConsentManager — persistence (SharedPreferences)', () {
     test('isConsentGiven returns false by default', () async {
       // Reset state — use a fresh type that hasn't been set
       final result =
@@ -162,6 +189,18 @@ void main() {
         final result = await ConsentManager.isConsentGiven(type);
         expect(result, false, reason: '${type.name} must be false after revokeAll');
       }
+    });
+
+    test('all 7 ConsentType values persist and read back (V12-7/F3-4)', () async {
+      // V12-7 + F3-4: Verify all 7 consent types work end-to-end.
+      for (final type in ConsentType.values) {
+        await ConsentManager.updateConsent(type, true);
+        final result = await ConsentManager.isConsentGiven(type);
+        expect(result, true, reason: '${type.name} must persist as true');
+      }
+
+      // Clean up
+      await ConsentManager.revokeAll();
     });
 
     test('guardConsent returns same as isConsentGiven', () async {

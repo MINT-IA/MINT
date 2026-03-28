@@ -2,6 +2,24 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 
+/// Error codes for BYOK operations.
+///
+/// The provider sets an error code; the UI layer translates it to a
+/// localized message via `AppLocalizations`.
+enum ByokError {
+  /// Key save failed (secure storage write error).
+  saveFailed,
+
+  /// Provider or API key not configured before testing.
+  notConfigured,
+
+  /// Network / connection error during key test.
+  connectionError,
+
+  /// API returned an error (see [ByokProvider.apiErrorMessage] for detail).
+  apiError,
+}
+
 /// Manages BYOK (Bring Your Own Key) API key storage and state.
 ///
 /// Uses flutter_secure_storage for secure persistence of the user's
@@ -19,7 +37,8 @@ class ByokProvider extends ChangeNotifier {
   bool _isConfigured = false;
   bool _isLoading = false;
   bool _isTesting = false;
-  String? _testError;
+  ByokError? _testError;
+  String? _apiErrorMessage;
   bool _testSuccess = false;
 
   ByokProvider({
@@ -34,7 +53,10 @@ class ByokProvider extends ChangeNotifier {
   bool get isConfigured => _isConfigured;
   bool get isLoading => _isLoading;
   bool get isTesting => _isTesting;
-  String? get testError => _testError;
+  ByokError? get testError => _testError;
+
+  /// Detailed error message from the API (only set when [testError] == [ByokError.apiError]).
+  String? get apiErrorMessage => _apiErrorMessage;
   bool get testSuccess => _testSuccess;
 
   /// Masked display of the API key (e.g. "sk-...abc1")
@@ -94,7 +116,7 @@ class ByokProvider extends ChangeNotifier {
       if (kDebugMode) {
         debugPrint('ByokProvider: Error saving key: $e');
       }
-      _testError = 'Erreur lors de la sauvegarde.';
+      _testError = ByokError.saveFailed;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -128,7 +150,7 @@ class ByokProvider extends ChangeNotifier {
   /// Returns true if the key works, false otherwise.
   Future<bool> testKey() async {
     if (_apiKey == null || _provider == null) {
-      _testError = 'Configure d\'abord un fournisseur et une cl\u00e9.';
+      _testError = ByokError.notConfigured;
       _testSuccess = false;
       notifyListeners();
       return false;
@@ -151,11 +173,12 @@ class ByokProvider extends ChangeNotifier {
       return true;
     } on RagApiException catch (e) {
       _testSuccess = false;
-      _testError = e.message;
+      _testError = ByokError.apiError;
+      _apiErrorMessage = e.message;
       return false;
     } catch (e) {
       _testSuccess = false;
-      _testError = 'Erreur de connexion. V\u00e9rifie ta connexion internet.';
+      _testError = ByokError.connectionError;
       return false;
     } finally {
       _isTesting = false;
@@ -166,6 +189,7 @@ class ByokProvider extends ChangeNotifier {
   /// Reset test state (useful when navigating away).
   void resetTestState() {
     _testError = null;
+    _apiErrorMessage = null;
     _testSuccess = false;
     _isTesting = false;
     notifyListeners();

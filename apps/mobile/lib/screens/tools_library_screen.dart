@@ -5,6 +5,8 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Data model for a single tool entry.
 class _ToolItem {
@@ -522,7 +524,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // App Bar
           SliverAppBar(
@@ -533,7 +535,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
             scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
             ),
             title: Text(
               S.of(context)!.toolsAllTools,
@@ -557,7 +559,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: Row(
                 children: [
-                  Container(
+                  MintEntrance(child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
@@ -570,22 +572,19 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                  )),
                   const SizedBox(width: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: MintColors.surface,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    radius: 8,
                     child: Text(
                       S.of(context)!.toolsCategoryCount(_effectiveCategories.length.toString()),
                       style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                  )),
                   if (_searchQuery.isNotEmpty) ...[
                     const Spacer(),
                     TextButton(
@@ -631,17 +630,14 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
             child: SizedBox(height: 100),
           ),
         ],
-      ),
+      ))),
     );
   }
 
   Widget _buildSearchBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 16,
       child: TextField(
         controller: _searchController,
         onChanged: (value) => setState(() => _searchQuery = value),
@@ -739,12 +735,10 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       ),
                     ),
                   ),
-                  Container(
+                  MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
                     padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: MintColors.surface,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    radius: 8,
                     child: Text(
                       '${category.tools.length}',
                       style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
@@ -797,20 +791,10 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         child: InkWell(
           onTap: () => context.push(tool.route),
           borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: MintColors.card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.lightBorder),
-            boxShadow: [
-              BoxShadow(
-                color: MintColors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+          child: MintSurface(
+          padding: const EdgeInsets.all(14),
+          radius: 16,
+          elevated: true,
           child: Row(
             children: [
               Container(

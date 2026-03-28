@@ -169,7 +169,7 @@ class WizardQuestions {
         const WizardQuestion(
           id: 'q_has_3a',
           title: 'As-tu déjà un 3a ?',
-          subtitle: 'Le plafond déductible 2025 est de CHF 7\'258 (salariés).',
+          subtitle: 'Le plafond déductible 2025/2026 est de CHF 7\'258 (salariés).',
           type: QuestionType.choice,
           options: [
             QuestionOption(label: 'Oui', value: 'yes', icon: 'savings'),

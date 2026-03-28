@@ -8,6 +8,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ARBITRAGE BILAN SCREEN — S45 Phase 1
@@ -32,7 +34,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
     if (profile == null) {
       return Scaffold(
         appBar: AppBar(title: Text(S.of(context)!.arbitrageBilanTitle)),
-        body: Center(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
@@ -41,20 +43,20 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 const Icon(Icons.balance_outlined,
                     size: 48, color: MintColors.textMuted),
                 const SizedBox(height: 16),
-                Text(
+                MintEntrance(child: Text(
                   S.of(context)!.arbitrageBilanEmptyProfile,
                   textAlign: TextAlign.center,
                   style: MintTextStyles.bodyLarge(),
-                ),
+                )),
                 const SizedBox(height: 20),
-                FilledButton(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: FilledButton(
                   onPressed: () => context.push('/onboarding/quick'),
                   child: Text(S.of(context)!.reportCommencer),
-                ),
+                )),
               ],
             ),
           ),
-        ),
+        ))),
       );
     }
 
@@ -62,7 +64,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── AppBar ──
           SliverAppBar(
@@ -153,7 +155,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -203,13 +205,10 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 8),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
+        radius: 14,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -282,20 +281,10 @@ class _ArbitrageItemCard extends StatelessWidget {
       child: InkWell(
       onTap: () => context.push(item.route),
       borderRadius: BorderRadius.circular(16),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.lightBorder),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        radius: 16,
+        elevated: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -389,13 +378,10 @@ class _LockedItemCard extends StatelessWidget {
       child: InkWell(
       onTap: () => context.push(locked.enrichmentRoute),
       borderRadius: BorderRadius.circular(14),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 14,
         child: Row(
           children: [
             Container(

@@ -1,10 +1,22 @@
-/// Enhanced Confidence Scoring service (S46).
+/// ════════════════════════════════════════════════════════════════════════════
+/// CONFIDENCE DOCTRINE (see docs/SOURCE_OF_TRUTH_MATRIX.md §3)
 ///
-/// Evolves the confidence model from binary completeness to a
-/// 3-axis system: completeness + accuracy + freshness.
+/// This service is the OFFLINE FALLBACK for the backend EnhancedConfidence.
+/// It is NOT authoritative — the backend (4-axis geometric mean) is the SOT.
 ///
-/// Mirrors the backend enhanced confidence scoring (DATA_ACQUISITION_STRATEGY.md,
-/// section "Confidence Scoring Evolution").
+/// Use this ONLY when: the backend /confidence API is unreachable (offline,
+/// timeout, error). The UI should prefer the backend score when available.
+///
+/// Divergence with backend: this uses 3 axes (no "understanding" axis)
+/// with weighted average. Backend uses 4 axes with geometric mean.
+/// This is acceptable for offline display but will produce slightly
+/// different scores. Known limitation, not a bug.
+///
+/// The 3 confidence systems and their governance:
+///   1. Backend enhanced_confidence_service.py → AUTHORITATIVE, feature gates
+///   2. THIS FILE → offline fallback for UI confidence bars
+///   3. confidence_scorer.dart (financial_core) → projection quality only
+/// ════════════════════════════════════════════════════════════════════════════
 ///
 /// Weights: completeness 40% + accuracy 35% + freshness 25% = overall
 ///

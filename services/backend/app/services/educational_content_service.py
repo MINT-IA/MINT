@@ -303,7 +303,7 @@ _register(InsertContent(
         "Savoir que le concubinage n'offre aucune protection legale automatique (pas de part reservataire).",
         "Decouvrir que le divorce entraine un partage du 2e pilier impose par la loi (LPP art. 22).",
         "Comprendre l'impact fiscal du mariage : imposition commune (LIFD art. 9 al. 1).",
-        "Savoir que le PACS donne les memes droits fiscaux et successoraux que le mariage (LPart art. 1).",
+        "Savoir que le partenariat enregistre n'est plus accessible depuis le 1er juillet 2022 (mariage pour tous). Les partenariats existants restent valables avec des effets proches du mariage, mais pas identiques (LPart art. 1).",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -447,7 +447,7 @@ _register(InsertContent(
         "Savoir que les retraits de la meme annee sont additionnes pour le calcul du taux.",
         "Decouvrir la strategie d'echelonnement : ouvrir 4-5 comptes et les retirer sur 4-5 annees differentes.",
         "Comprendre que les retraits 3a et LPP en capital de la meme annee se cumulent pour l'imposition.",
-        "Savoir que l'age de retrait anticipe est 59 ans (femmes) / 60 ans (hommes) sans condition (OPP3 art. 3 al. 1).",
+        "Savoir que l'age de retrait anticipe est 5 ans avant l'age de reference AVS : 60 ans (hommes), 59 ans (femmes nees avant 1964) ou 60 ans (femmes nees des 1964) — OPP3 art. 3 al. 1.",
     ],
     disclaimer=DISCLAIMER,
     sources=[

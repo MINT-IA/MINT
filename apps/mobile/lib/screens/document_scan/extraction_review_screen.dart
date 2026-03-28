@@ -7,6 +7,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXTRACTION REVIEW SCREEN — Sprint S42-S43
@@ -47,7 +49,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -55,9 +57,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 8),
-                _buildOverallConfidenceBadge(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildOverallConfidenceBadge()),
                 const SizedBox(height: 20),
                 if (widget.result.warnings.isNotEmpty) ...[
                   _buildWarnings(),
@@ -68,15 +70,15 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                       child: _buildFieldCard(f),
                     )),
                 const SizedBox(height: 24),
-                _buildConfirmButton(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildConfirmButton()),
                 const SizedBox(height: 16),
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -212,25 +214,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         statusIcon = Icons.error_outline;
     }
 
-    return Container(
-      width: double.infinity,
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: field.needsReview
-              ? badgeColor.withValues(alpha: 0.4)
-              : MintColors.lightBorder,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      radius: 14,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -304,11 +291,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   // ── Confirm button ───────────────────────────────────────
 
   Widget _buildConfirmButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: FilledButton.icon(
-        onPressed: _onConfirmAll,
+    return Semantics(
+      button: true,
+      label: S.of(context)!.extractionReviewConfirmAll,
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: FilledButton.icon(
+          onPressed: _onConfirmAll,
         icon: const Icon(Icons.check_circle_outline, size: 22),
         label: Text(
           S.of(context)!.extractionReviewConfirmAll,
@@ -322,19 +312,17 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 
   // ── Disclaimer ───────────────────────────────────────────
 
   Widget _buildDisclaimer() {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -435,8 +423,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
         actions: [
           TextButton(
-            // Navigator.pop is acceptable here — dismissing a showDialog
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () => ctx.pop(),
             child: Text(
               S.of(context)!.extractionReviewCancel,
               style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
@@ -456,8 +443,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                   }
                 });
               }
-              // Navigator.pop is acceptable here — dismissing a showDialog
-              Navigator.of(ctx).pop();
+              ctx.pop();
             },
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,

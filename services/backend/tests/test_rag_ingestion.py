@@ -19,6 +19,7 @@ import os
 import shutil
 import tempfile
 
+import asyncio
 import pytest
 
 _chromadb_available = importlib.util.find_spec("chromadb") is not None
@@ -284,11 +285,11 @@ class TestLiteracyLevelFiltering:
         self._ingest_both(vector_store, biniveau_md_file, plain_md_file)
         retriever = MintRetriever(vector_store=vector_store)
 
-        results = retriever.retrieve(
+        results = asyncio.run(retriever.retrieve(
             "pilier 3a retraite impôt",
             n_results=20,
             literacy_level="beginner",
-        )
+        ))
 
         levels = {doc["metadata"].get("level") for doc in results}
         # Should contain at least one level-0 and at least one level-1 document
@@ -304,11 +305,11 @@ class TestLiteracyLevelFiltering:
         self._ingest_both(vector_store, biniveau_md_file, plain_md_file)
         retriever = MintRetriever(vector_store=vector_store)
 
-        results = retriever.retrieve(
+        results = asyncio.run(retriever.retrieve(
             "pilier 3a retraite impôt OPP3",
             n_results=20,
             literacy_level="intermediate",
-        )
+        ))
 
         for doc in results:
             level = doc["metadata"].get("level")
@@ -325,11 +326,11 @@ class TestLiteracyLevelFiltering:
         self._ingest_both(vector_store, biniveau_md_file, plain_md_file)
         retriever = MintRetriever(vector_store=vector_store)
 
-        results = retriever.retrieve(
+        results = asyncio.run(retriever.retrieve(
             "LIFD art 33 cotisations déductibles",
             n_results=20,
             literacy_level="advanced",
-        )
+        ))
 
         for doc in results:
             level = doc["metadata"].get("level")
@@ -347,7 +348,7 @@ class TestLiteracyLevelFiltering:
         retriever = MintRetriever(vector_store=vector_store)
 
         # Default call — no literacy_level arg
-        results = retriever.retrieve("pilier 3a retraite", n_results=20)
+        results = asyncio.run(retriever.retrieve("pilier 3a retraite", n_results=20))
 
         levels = {doc["metadata"].get("level") for doc in results}
         # Default is beginner: both levels should be retrievable

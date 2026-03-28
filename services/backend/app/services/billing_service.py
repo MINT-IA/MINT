@@ -330,7 +330,7 @@ def _stripe_post(path: str, data: dict[str, Any]) -> dict[str, Any]:
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Billing provider request failed: {exc}",
+            detail="External service unavailable",
         ) from exc
 
 
@@ -613,6 +613,11 @@ def _validate_apple_signed_payload(
     Lightweight consistency checks on Apple signed payload.
     Full cryptographic validation is done in the dedicated App Store Server
     integration phase. Here we at least ensure payload claims match request fields.
+
+    PRODUCTION TODO: Enable Apple receipt signature verification.
+    Current: verify_signature=False (foundation phase — suitable for TestFlight/sandbox).
+    Before App Store release: implement proper App Store Server API v2 verification.
+    See: https://developer.apple.com/documentation/appstoreserverapi
     """
     if not signed_payload:
         return
@@ -621,6 +626,7 @@ def _validate_apple_signed_payload(
     if not _JWT_COMPACT_RE.match(signed_payload):
         return
     try:
+        # PRODUCTION TODO: verify_signature must be True before App Store release.
         claims = jwt.decode(
             signed_payload,
             options={"verify_signature": False, "verify_exp": False},

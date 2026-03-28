@@ -269,7 +269,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
             ),
           ] else ...[
             Text(
-              '💰 Chiffre-choc : après ${hold.toStringAsFixed(1)} mois, tu dois emprunter ou vendre pour survivre.',
+              '💰 Chiffre-choc : après ${hold.toStringAsFixed(1)} mois, il te faudrait emprunter ou vendre pour tenir.',
               style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),

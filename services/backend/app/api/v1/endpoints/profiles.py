@@ -11,11 +11,62 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 from app.schemas.profile import Profile, ProfileCreate, ProfileUpdate
 from app.core.database import get_db
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, require_current_user
 from app.models.user import User
 from app.models.profile_model import ProfileModel
 
 router = APIRouter()
+
+
+@router.get("/me", response_model=Profile)
+def get_my_profile(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> Profile:
+    """
+    Get the authenticated user's profile.
+    Returns the most recently updated profile linked to the current user.
+    """
+    db_profile = (
+        db.query(ProfileModel)
+        .filter(ProfileModel.user_id == current_user.id)
+        .order_by(ProfileModel.updated_at.desc())
+        .first()
+    )
+
+    if not db_profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    data = db_profile.data
+    return Profile(
+        id=data["id"],
+        birthYear=data.get("birthYear"),
+        canton=data.get("canton"),
+        householdType=data["householdType"],
+        incomeNetMonthly=data.get("incomeNetMonthly"),
+        incomeGrossYearly=data.get("incomeGrossYearly"),
+        savingsMonthly=data.get("savingsMonthly"),
+        totalSavings=data.get("totalSavings"),
+        lppInsuredSalary=data.get("lppInsuredSalary"),
+        hasDebt=data.get("hasDebt", False),
+        goal=data.get("goal", "other"),
+        factfindCompletionIndex=data.get("factfindCompletionIndex", 0.0),
+        employmentStatus=data.get("employmentStatus"),
+        has2ndPillar=data.get("has2ndPillar"),
+        legalForm=data.get("legalForm"),
+        selfEmployedNetIncome=data.get("selfEmployedNetIncome"),
+        hasVoluntaryLpp=data.get("hasVoluntaryLpp"),
+        primaryActivity=data.get("primaryActivity"),
+        hasAvsGaps=data.get("hasAvsGaps"),
+        avsContributionYears=data.get("avsContributionYears"),
+        spouseAvsContributionYears=data.get("spouseAvsContributionYears"),
+        commune=data.get("commune"),
+        isChurchMember=data.get("isChurchMember", False),
+        pillar3aAnnual=data.get("pillar3aAnnual"),
+        wealthEstimate=data.get("wealthEstimate"),
+        gender=data.get("gender"),
+        createdAt=datetime.fromisoformat(data["createdAt"]),
+    )
 
 
 @router.post("", response_model=Profile)
@@ -75,6 +126,8 @@ def create_profile(
         commune=profile_create.commune,
         isChurchMember=profile_create.isChurchMember,
         pillar3aAnnual=profile_create.pillar3aAnnual,
+        wealthEstimate=profile_create.wealthEstimate,
+        gender=profile_create.gender,
         createdAt=now,
     )
 
@@ -128,6 +181,8 @@ def get_profile(
         commune=data.get("commune"),
         isChurchMember=data.get("isChurchMember", False),
         pillar3aAnnual=data.get("pillar3aAnnual"),
+        wealthEstimate=data.get("wealthEstimate"),
+        gender=data.get("gender"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
 
@@ -194,6 +249,8 @@ def update_profile(
         commune=data.get("commune"),
         isChurchMember=data.get("isChurchMember", False),
         pillar3aAnnual=data.get("pillar3aAnnual"),
+        wealthEstimate=data.get("wealthEstimate"),
+        gender=data.get("gender"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
 

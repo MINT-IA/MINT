@@ -1,23 +1,22 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
-/// Graphique en eventail (fan/ribbon chart) — projection stochastique
-/// du revenu de retraite sur 25-30 ans.
+/// Graphique en eventail (fan/ribbon chart) — projection du revenu
+/// de retraite sur 25-30 ans, en langage humain.
 ///
-/// Affiche 5 bandes de percentiles (P10, P25, P50, P75, P90) rayonnant
-/// depuis le point de depart a la retraite, avec une carte de synthese
-/// en dessous.
+/// Affiche 3 bandes visuelles :
+///   - Fourchette large (P10-P90) : MintColors.primary, alpha 0.08
+///   - Fourchette probable (P25-P75) : MintColors.primary, alpha 0.18
+///   - Scenario central (P50) : MintColors.primary, trait plein 2px
 ///
-/// Couleurs :
-///   - P10-P90 : MintColors.primary, alpha 0.12
-///   - P25-P75 : MintColors.primary, alpha 0.25
-///   - P50     : MintColors.primary, trait plein 2px
-///   - Ligne de reference : amber, pointille
+/// Au-dessus du graphique : nombre-hero (probabilite positive)
+/// et phrase humaine explicative.
 ///
 /// References : outil pedagogique (LSFin). Ne constitue pas un conseil.
 class MonteCarloChart extends StatelessWidget {
@@ -37,22 +36,50 @@ class MonteCarloChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (result.projection.isEmpty) return const SizedBox.shrink();
 
+    final l = S.of(context)!;
+    final successPct = ((1 - result.ruinProbability) * 100).round();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Titre ─────────────────────────────────────────────
+        // -- Titre --
         Text(
-          'Projection stochastique',
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
+          l.monteCarloTitle,
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary)
+              .copyWith(fontSize: 17, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
-          '${result.numSimulations} simulations avec rendements al\u00e9atoires',
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13, height: 1.4),
+          l.monteCarloSubtitle(result.numSimulations),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+              .copyWith(fontSize: 13, height: 1.4),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
-        // ── Chart ─────────────────────────────────────────────
+        // -- Hero number (positive probability) --
+        Center(
+          child: Column(
+            children: [
+              Text(
+                '$successPct\u00a0%',
+                style: MintTextStyles.displayMedium(
+                  color: _successColor(successPct),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                l.monteCarloHeroPhrase,
+                textAlign: TextAlign.center,
+                style: MintTextStyles.bodySmall(
+                  color: MintColors.textSecondary,
+                ).copyWith(fontSize: 13, height: 1.4),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // -- Chart --
         SizedBox(
           height: 260,
           child: LayoutBuilder(
@@ -69,46 +96,57 @@ class MonteCarloChart extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // ── Legende ───────────────────────────────────────────
-        _buildLegend(),
+        // -- Legende --
+        _buildLegend(l),
         const SizedBox(height: 16),
 
-        // ── Carte de synthese ─────────────────────────────────
-        _buildSummaryCard(),
+        // -- Carte de synthese --
+        _buildSummaryCard(l, successPct),
         const SizedBox(height: 12),
 
-        // ── Disclaimer ────────────────────────────────────────
+        // -- Disclaimer --
         Text(
-          'Les rendements pass\u00e9s ne pr\u00e9sagent pas les rendements '
-          'futurs. Simulation \u00e0 titre p\u00e9dagogique (LSFin).',
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
+          l.monteCarloDisclaimer,
+          style: MintTextStyles.micro(color: MintColors.textMuted)
+              .copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
         ),
       ],
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
-  //  LEGEND
-  // ════════════════════════════════════════════════════════════════
+  /// Color for the hero probability number.
+  Color _successColor(int pct) {
+    if (pct >= 75) return MintColors.success;
+    if (pct >= 50) return MintColors.warning;
+    return MintColors.error;
+  }
 
-  Widget _buildLegend() {
+  // ================================================================
+  //  LEGEND
+  // ================================================================
+
+  Widget _buildLegend(S l) {
     final items = <Widget>[
       _legendItem(
-        'P10\u2013P90',
-        MintColors.primary.withValues(alpha: 0.12),
-        border: MintColors.primary.withValues(alpha: 0.25),
+        l.monteCarloLegendWideBand,
+        MintColors.primary.withValues(alpha: 0.08),
+        border: MintColors.primary.withValues(alpha: 0.18),
       ),
       _legendItem(
-        'P25\u2013P75',
-        MintColors.primary.withValues(alpha: 0.25),
-        border: MintColors.primary.withValues(alpha: 0.40),
+        l.monteCarloLegendProbableBand,
+        MintColors.primary.withValues(alpha: 0.18),
+        border: MintColors.primary.withValues(alpha: 0.35),
       ),
-      _legendItem('M\u00e9diane (P50)', MintColors.primary, isLine: true),
+      _legendItem(
+        l.monteCarloLegendMedian,
+        MintColors.primary,
+        isLine: true,
+      ),
     ];
 
     if (currentMonthlyIncome != null) {
       items.add(_legendItem(
-        'Revenu actuel',
+        l.monteCarloLegendCurrentIncome,
         MintColors.amber,
         isLine: true,
         isDashed: true,
@@ -160,21 +198,19 @@ class MonteCarloChart extends StatelessWidget {
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
+  // ================================================================
   //  SUMMARY CARD
-  // ════════════════════════════════════════════════════════════════
+  // ================================================================
 
-  Widget _buildSummaryCard() {
-    final ruinPct = (result.ruinProbability * 100).round();
-
-    // Color coding for ruin probability
-    final Color ruinColor;
-    if (result.ruinProbability < 0.15) {
-      ruinColor = MintColors.success;
-    } else if (result.ruinProbability < 0.30) {
-      ruinColor = MintColors.warning;
+  Widget _buildSummaryCard(S l, int successPct) {
+    // Color coding for success probability
+    final Color successColor;
+    if (successPct >= 75) {
+      successColor = MintColors.success;
+    } else if (successPct >= 50) {
+      successColor = MintColors.warning;
     } else {
-      ruinColor = MintColors.error;
+      successColor = MintColors.error;
     }
 
     return Card(
@@ -188,29 +224,31 @@ class MonteCarloChart extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           children: [
-            // ── M\u00e9diane \u00e0 l'\u00e2ge de retraite ────────────────
+            // -- Scenario central a l'age de retraite --
             _summaryRow(
-              'M\u00e9diane \u00e0 ${result.retirementAge} ans',
+              l.monteCarloMedianAtAge(result.retirementAge),
               '${formatChfWithPrefix(result.medianAt65)}/mois',
             ),
             const SizedBox(height: 10),
 
-            // ── Intervalle probable ─────────────────────────
+            // -- Fourchette probable --
             _summaryRow(
-              'Intervalle probable\n(P10 \u2014 P90)',
+              l.monteCarloProbableRange,
               '${formatChfWithPrefix(result.p10At65)} \u2014 ${formatChfWithPrefix(result.p90At65)}',
             ),
             const SizedBox(height: 10),
 
-            // ── Risque d'epuisement ─────────────────────────
+            // -- Probabilite positive --
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   flex: 5,
                   child: Text(
-                    "Risque d'\u00e9puisement du\ncapital avant 90 ans",
-                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.35),
+                    l.monteCarloSuccessLabel,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary,
+                    ).copyWith(fontSize: 12, height: 1.35),
                   ),
                 ),
                 Expanded(
@@ -219,13 +257,15 @@ class MonteCarloChart extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        '$ruinPct%',
-                        style: MintTextStyles.bodyLarge(color: ruinColor).copyWith(fontSize: 16, fontWeight: FontWeight.w700),
+                        '$successPct\u00a0%',
+                        style: MintTextStyles.bodyLarge(color: successColor)
+                            .copyWith(
+                                fontSize: 16, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(width: 10),
                       SizedBox(
                         width: 80,
-                        child: _buildRuinBar(ruinPct, ruinColor),
+                        child: _buildSuccessBar(successPct, successColor),
                       ),
                     ],
                   ),
@@ -246,7 +286,8 @@ class MonteCarloChart extends StatelessWidget {
           flex: 5,
           child: Text(
             label,
-            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.35),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)
+                .copyWith(fontSize: 12, height: 1.35),
           ),
         ),
         Expanded(
@@ -254,15 +295,16 @@ class MonteCarloChart extends StatelessWidget {
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700, height: 1.35),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700, height: 1.35),
           ),
         ),
       ],
     );
   }
 
-  /// Mini horizontal bar for ruin probability visualization.
-  Widget _buildRuinBar(int pct, Color color) {
+  /// Mini horizontal bar for success probability visualization.
+  Widget _buildSuccessBar(int pct, Color color) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(3),
       child: SizedBox(
@@ -291,12 +333,11 @@ class MonteCarloChart extends StatelessWidget {
       ),
     );
   }
-
 }
 
-// ════════════════════════════════════════════════════════════════════
-//  CUSTOM PAINTER — Fan/ribbon chart
-// ════════════════════════════════════════════════════════════════════
+// ================================================================
+//  CUSTOM PAINTER — Fan/ribbon chart (3 bands)
+// ================================================================
 
 class _MonteCarloFanPainter extends CustomPainter {
   final List<MonteCarloPoint> points;
@@ -307,7 +348,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     this.currentMonthlyIncome,
   });
 
-  // ── Layout constants ─────────────────────────────────────────
+  // -- Layout constants --
   static const double _leftPadding = 68.0; // Space for Y-axis labels
   static const double _rightPadding = 12.0;
   static const double _topPadding = 8.0;
@@ -326,7 +367,7 @@ class _MonteCarloFanPainter extends CustomPainter {
 
     if (chartWidth <= 0 || chartHeight <= 0) return;
 
-    // ── Determine Y scale ─────────────────────────────────
+    // -- Determine Y scale --
     double yMin = double.infinity;
     double yMax = double.negativeInfinity;
     for (final p in points) {
@@ -346,13 +387,13 @@ class _MonteCarloFanPainter extends CustomPainter {
     yMax = yMax + yRange * 0.10;
     if (yMax <= yMin) yMax = yMin + 1000; // safety
 
-    // ── Determine X scale ─────────────────────────────────
-    final ageMin = points.first.age;
-    final ageMax = points.last.age;
+    // -- Determine X scale --
+    final ageMin = points.firstOrNull?.age ?? 0;
+    final ageMax = points.lastOrNull?.age ?? 0;
     final ageRange = ageMax - ageMin;
     if (ageRange <= 0) return;
 
-    // ── Helper closures ───────────────────────────────────
+    // -- Helper closures --
     double xForAge(int age) {
       return chartLeft + (age - ageMin) / ageRange * chartWidth;
     }
@@ -361,11 +402,11 @@ class _MonteCarloFanPainter extends CustomPainter {
       return chartBottom - (value - yMin) / (yMax - yMin) * chartHeight;
     }
 
-    // ── Grid lines ────────────────────────────────────────
+    // -- Grid lines --
     _drawGridLines(canvas, size, chartLeft, chartRight, chartTop, chartBottom,
         yMin, yMax, yForValue);
 
-    // ── P10-P90 band ──────────────────────────────────────
+    // -- Fourchette large (P10-P90) --
     _drawBand(
       canvas: canvas,
       points: points,
@@ -373,10 +414,10 @@ class _MonteCarloFanPainter extends CustomPainter {
       yForValue: yForValue,
       getLower: (p) => p.p10,
       getUpper: (p) => p.p90,
-      color: MintColors.primary.withValues(alpha: 0.12),
+      color: MintColors.primary.withValues(alpha: 0.08),
     );
 
-    // ── P25-P75 band ──────────────────────────────────────
+    // -- Fourchette probable (P25-P75) --
     _drawBand(
       canvas: canvas,
       points: points,
@@ -384,10 +425,10 @@ class _MonteCarloFanPainter extends CustomPainter {
       yForValue: yForValue,
       getLower: (p) => p.p25,
       getUpper: (p) => p.p75,
-      color: MintColors.primary.withValues(alpha: 0.25),
+      color: MintColors.primary.withValues(alpha: 0.18),
     );
 
-    // ── P50 median line ───────────────────────────────────
+    // -- Scenario central (P50 median line) --
     _drawPercentileLine(
       canvas: canvas,
       points: points,
@@ -398,7 +439,7 @@ class _MonteCarloFanPainter extends CustomPainter {
       strokeWidth: 2.0,
     );
 
-    // ── Current income reference line ─────────────────────
+    // -- Current income reference line --
     if (currentMonthlyIncome != null) {
       _drawReferenceLine(
         canvas: canvas,
@@ -409,14 +450,11 @@ class _MonteCarloFanPainter extends CustomPainter {
       );
     }
 
-    // ── X-axis labels ─────────────────────────────────────
+    // -- X-axis labels --
     _drawXAxisLabels(canvas, size, chartBottom, ageMin, ageMax, xForAge);
-
-    // ── Percentile labels on right edge ───────────────────
-    _drawPercentileLabels(canvas, chartRight, yForValue);
   }
 
-  // ── Grid lines with Y-axis labels ───────────────────────────
+  // -- Grid lines with Y-axis labels --
 
   void _drawGridLines(
     Canvas canvas,
@@ -456,7 +494,8 @@ class _MonteCarloFanPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+          style: MintTextStyles.micro(color: MintColors.textMuted)
+              .copyWith(fontSize: 10, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -464,7 +503,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     }
   }
 
-  // ── Draw a shaded band between two percentile lines ─────────
+  // -- Draw a shaded band between two percentile lines --
 
   void _drawBand({
     required Canvas canvas,
@@ -494,7 +533,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     canvas.drawPath(path, Paint()..color = color);
   }
 
-  // ── Draw a single percentile line ───────────────────────────
+  // -- Draw a single percentile line --
 
   void _drawPercentileLine({
     required Canvas canvas,
@@ -524,7 +563,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     );
   }
 
-  // ── Current income reference line (dashed, amber) ───────────
+  // -- Current income reference line (dashed, amber) --
 
   void _drawReferenceLine({
     required Canvas canvas,
@@ -554,7 +593,10 @@ class _MonteCarloFanPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: label,
-        style: MintTextStyles.micro(color: color).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+        style: MintTextStyles.micro(color: color).copyWith(
+            fontSize: 9,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -566,11 +608,12 @@ class _MonteCarloFanPainter extends CustomPainter {
       Rect.fromLTWH(labelX - 3, labelY - 1, tp.width + 6, tp.height + 2),
       const Radius.circular(3),
     );
-    canvas.drawRRect(bgRect, Paint()..color = MintColors.white.withValues(alpha: 0.85));
+    canvas.drawRRect(
+        bgRect, Paint()..color = MintColors.white.withValues(alpha: 0.85));
     tp.paint(canvas, Offset(labelX, labelY));
   }
 
-  // ── X-axis labels (ages) ────────────────────────────────────
+  // -- X-axis labels (ages) --
 
   void _drawXAxisLabels(
     Canvas canvas,
@@ -599,7 +642,8 @@ class _MonteCarloFanPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: '$age',
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+          style: MintTextStyles.micro(color: MintColors.textMuted)
+              .copyWith(fontSize: 10, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -619,7 +663,8 @@ class _MonteCarloFanPainter extends CustomPainter {
     final ansTp = TextPainter(
       text: TextSpan(
         text: 'ans',
-        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
+        style: MintTextStyles.micro(color: MintColors.textMuted)
+            .copyWith(fontSize: 9),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -627,58 +672,6 @@ class _MonteCarloFanPainter extends CustomPainter {
       canvas,
       Offset(size.width - _rightPadding - ansTp.width, chartBottom + 6),
     );
-  }
-
-  // ── Percentile labels on right edge of chart ────────────────
-
-  void _drawPercentileLabels(
-    Canvas canvas,
-    double chartRight,
-    double Function(double) yForValue,
-  ) {
-    if (points.isEmpty) return;
-
-    final last = points.last;
-    final labels = [
-      ('P90', last.p90),
-      ('P75', last.p75),
-      ('P50', last.p50),
-      ('P25', last.p25),
-      ('P10', last.p10),
-    ];
-
-    // Track positions to avoid overlapping labels
-    final usedYRanges = <(double, double)>[];
-
-    for (final (label, value) in labels) {
-      final y = yForValue(value);
-      final isBold = label == 'P50';
-
-      final tp = TextPainter(
-        text: TextSpan(
-          text: label,
-          style: MintTextStyles.micro(color: isBold ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 9, fontWeight: isBold ? FontWeight.w700 : FontWeight.w500, fontStyle: FontStyle.normal),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-
-      final labelY = y - tp.height / 2;
-      final labelBottom = labelY + tp.height;
-
-      // Check for overlap with already placed labels
-      bool overlaps = false;
-      for (final (usedTop, usedBottom) in usedYRanges) {
-        if (labelY < usedBottom + 2 && labelBottom > usedTop - 2) {
-          overlaps = true;
-          break;
-        }
-      }
-
-      if (!overlaps) {
-        tp.paint(canvas, Offset(chartRight + 2, labelY));
-        usedYRanges.add((labelY, labelBottom));
-      }
-    }
   }
 
   /// Determine a "nice" step value for grid lines.
@@ -699,9 +692,9 @@ class _MonteCarloFanPainter extends CustomPainter {
       old.currentMonthlyIncome != currentMonthlyIncome;
 }
 
-// ════════════════════════════════════════════════════════════════════
+// ================================================================
 //  LEGEND LINE PAINTER (for solid/dashed legend swatches)
-// ════════════════════════════════════════════════════════════════════
+// ================================================================
 
 class _LegendLinePainter extends CustomPainter {
   final Color color;

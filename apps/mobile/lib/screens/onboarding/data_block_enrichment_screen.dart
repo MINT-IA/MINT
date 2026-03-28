@@ -10,6 +10,8 @@ import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Data block enrichment screen — deep-edit a specific confidence bloc.
 ///
@@ -91,7 +93,7 @@ class _DataBlockEnrichmentScreenState
           style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
@@ -170,16 +172,16 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 16),
 
               // ── Disclaimer ───────────────────────────────────────
-              Text(
+              MintEntrance(child: Text(
                 S.of(context)!.dataBlockDisclaimer,
                 style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 16),
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 
@@ -240,13 +242,9 @@ class _DataBlockEnrichmentScreenState
       children: relevant.map((prompt) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: Container(
+          child: MintSurface(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: MintColors.card,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.lightBorder),
-            ),
+            radius: 12,
             child: Row(
               children: [
                 Container(

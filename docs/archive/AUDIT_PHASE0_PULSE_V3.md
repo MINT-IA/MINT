@@ -1,3 +1,7 @@
+> **SUPERSEDED** (2026-03-27) — Audit de l'ancien PulseScreen (S48).
+> L'écran Aujourd'hui a été refondu en S52+ (4-tab shell, CapEngine, BudgetSnapshot).
+> Voir : `docs/MINT_UX_GRAAL_MASTERPLAN.md`
+
 # AUDIT V3 — Phase 0 Pulse (S48) — PROD-READY
 
 > **Auditor**: Claude Code Senior Audit Team

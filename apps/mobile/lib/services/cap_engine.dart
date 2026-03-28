@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
@@ -36,6 +37,7 @@ class CapEngine {
   static CapDecision compute({
     required CoachProfile profile,
     required DateTime now,
+    required S l,
     CapMemory memory = const CapMemory(),
   }) {
     final candidates = <CapDecision>[];
@@ -54,16 +56,15 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('complete_${top.category}', memory, now),
         ),
-        headline: 'Confiance ${confidence.score.round()}\u00a0% — ${top.label}',
-        whyNow: 'Sans cette donnée, ta projection reste indicative. '
-            '${top.action} affinerait de +${top.impact}\u00a0pts.',
+        headline: l.capMissingPieceHeadline,
+        whyNow: l.capMissingPieceWhyNow(top.label),
         ctaLabel: top.action,
         ctaMode: CtaMode.capture,
         captureType: top.category,
         coachPrompt: 'Aide-moi à comprendre pourquoi '
             '${top.category} est important pour ma situation.',
-        expectedImpact: '+${top.impact} pts de confiance',
-        confidenceLabel: 'confiance ${confidence.score.round()}\u00a0%',
+        expectedImpact: l.capMissingPieceExpectedImpact(top.impact.toString()),
+        confidenceLabel: l.capMissingPieceConfidenceLabel(confidence.score.round().toString()),
         blockingData: [top.category],
         sourceCards: const [],
       ));
@@ -81,15 +82,15 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('debt_correct', memory, now),
         ),
-        headline: 'CHF\u00a0${_formatChfRound(profile.dettes.totalDettes)} de dette',
-        whyNow: 'Rembourser le taux le plus élevé d\u2019abord '
-            'libère de la marge chaque mois.',
-        ctaLabel: 'Voir mon plan',
+        headline: l.capDebtHeadline,
+        // Reframing rule: never show bad number alone — show the lever.
+        whyNow: l.capDebtWhyNow,
+        ctaLabel: l.capDebtCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/debt/repayment',
         coachPrompt: 'Aide-moi à prioriser le remboursement '
             'de mes dettes. Par quoi commencer\u00a0?',
-        expectedImpact: 'marge à retrouver',
+        expectedImpact: l.capDebtExpectedImpact,
         sourceCards: const ['debt_ratio'],
       ));
     }
@@ -109,13 +110,12 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('indep_no_lpp', memory, now),
         ),
-        headline: 'Ton 2e pilier\u00a0: CHF\u00a00',
-        whyNow: 'Sans LPP, ta retraite = AVS seule. '
-            'Un filet volontaire change la trajectoire.',
-        ctaLabel: 'Construire mon filet',
+        headline: l.capIndepNoLppHeadline,
+        whyNow: l.capIndepNoLppWhyNow,
+        ctaLabel: l.capIndepNoLppCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/independants/lpp-volontaire',
-        expectedImpact: 'retraite renforcée',
+        expectedImpact: l.capIndepNoLppExpectedImpact,
         sourceCards: const ['independant_coverage'],
       ));
 
@@ -133,16 +133,15 @@ class CapEngine {
             readiness: 1.0,
             recency: _recencyModifier('disability_gap', memory, now),
           ),
-          headline: 'Ton filet invalidité\u00a0: AI seule',
-          whyNow: 'Sans LPP, ton filet invalidité se limite '
-              'à l\u2019AI. L\u2019écart peut surprendre.',
-          ctaLabel: 'Voir l\u2019écart',
+          headline: l.capDisabilityGapHeadline,
+          whyNow: l.capDisabilityGapWhyNow,
+          ctaLabel: l.capDisabilityGapCtaLabel,
           ctaMode: CtaMode.route,
           ctaRoute: '/invalidite',
           coachPrompt: 'Je suis indépendant\u00b7e sans LPP. '
               'Aide-moi à comprendre l\u2019écart entre mon revenu '
               'et ce que l\u2019AI couvrirait en cas d\u2019invalidité.',
-          expectedImpact: 'comprendre le gap ~70\u00a0%',
+          expectedImpact: l.capDisabilityGapExpectedImpact,
           sourceCards: const ['disability'],
         ));
       }
@@ -152,8 +151,9 @@ class CapEngine {
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
     if (daysToYearEnd <= 90 && daysToYearEnd >= 0) {
-      final cards3a = ResponseCardService.generateForPulse(profile, limit: 5)
-          .where((c) => c.type == ResponseCardType.pillar3a)
+      final cards3a =
+          ResponseCardService.generateForPulse(profile, l: l, limit: 5)
+              .where((c) => c.type == ResponseCardType.pillar3a)
           .toList();
       if (cards3a.isNotEmpty) {
         final card = cards3a.first;
@@ -167,10 +167,9 @@ class CapEngine {
             readiness: 1.0,
             recency: _recencyModifier('pillar_3a', memory, now),
           ),
-          headline: '3a\u00a0: déduction fiscale avant le 31\u00a0déc.',
-          whyNow: 'Un versement 3a cette année réduit '
-              'directement ton impôt et renforce ta retraite.',
-          ctaLabel: 'Simuler mon 3a',
+          headline: l.cap3aHeadline,
+          whyNow: l.cap3aWhyNow,
+          ctaLabel: l.cap3aCtaLabel,
           ctaMode: CtaMode.route,
           ctaRoute: '/pilier-3a',
           coachPrompt: 'Combien je peux économiser avec un versement 3a '
@@ -196,15 +195,14 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('lpp_buyback', memory, now),
         ),
-        headline: 'Rachat LPP\u00a0: jusqu\u2019à ${_formatChfRound(rachatMax)} de déduction',
-        whyNow: 'Ce montant est déductible de ton revenu imposable. '
-            'L\u2019effet sur ta retraite et tes impôts est immédiat.',
-        ctaLabel: 'Simuler un rachat',
+        headline: l.capLppBuybackHeadline,
+        whyNow: l.capLppBuybackWhyNow(_formatChfRound(rachatMax)),
+        ctaLabel: l.capLppBuybackCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/rachat-lpp',
         coachPrompt: 'Aide-moi à comprendre si un rachat LPP '
             'est intéressant dans ma situation. Quel montant\u00a0?',
-        expectedImpact: 'déduction fiscale',
+        expectedImpact: l.capLppBuybackExpectedImpact,
         sourceCards: const ['lpp_buyback'],
       ));
     }
@@ -229,15 +227,15 @@ class CapEngine {
             readiness: 1.0,
             recency: _recencyModifier('budget_deficit', memory, now),
           ),
-          headline: 'Budget\u00a0: CHF\u00a0${_formatChfRound(libre.abs())}/mois à retrouver',
-          whyNow: 'Ton budget est en tension. '
-              'Ajuster un poste de dépense redonne de la marge.',
-          ctaLabel: 'Ajuster mon budget',
+          // Reframing: show the margin to recover, not just the red.
+          headline: l.capBudgetDeficitHeadline,
+          whyNow: l.capBudgetDeficitWhyNow,
+          ctaLabel: l.capBudgetDeficitCtaLabel,
           ctaMode: CtaMode.route,
           ctaRoute: '/budget',
           coachPrompt: 'Mon budget est en déficit. '
               'Quels postes je pourrais ajuster en priorité\u00a0?',
-          expectedImpact: 'marge mensuelle',
+          expectedImpact: l.capBudgetDeficitExpectedImpact,
           sourceCards: const ['budget'],
         ));
       }
@@ -246,7 +244,7 @@ class CapEngine {
     // ── 7. Replacement rate warning (45+) ──
     if (profile.age >= 45 && profile.salaireBrutMensuel > 0) {
       final rateCards =
-          ResponseCardService.generateForPulse(profile, limit: 5)
+          ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.replacementRate)
               .toList();
       if (rateCards.isNotEmpty) {
@@ -263,16 +261,14 @@ class CapEngine {
               readiness: 1.0,
               recency: _recencyModifier('replacement_rate', memory, now),
             ),
-            headline: '${rate.round()}\u00a0% de remplacement — les leviers existent',
-            whyNow:
-                'Un rachat LPP ou un versement 3a '
-                'change le calcul. Explore tes options.',
-            ctaLabel: 'Voir mes leviers retraite',
+            headline: l.capReplacementRateHeadline,
+            whyNow: l.capReplacementRateWhyNow(rate.round().toString()),
+            ctaLabel: l.capReplacementRateCtaLabel,
             ctaMode: CtaMode.route,
-            ctaRoute: '/explore/retraite',
+            ctaRoute: '/rente-vs-capital',
             coachPrompt: 'Mon taux de remplacement est de ${rate.round()}%. '
                 'Aide-moi à arbitrer entre 3a et rachat LPP.',
-            expectedImpact: '+4 à +7 pts',
+            expectedImpact: l.capReplacementRateExpectedImpact,
             sourceCards: [card.id],
           ));
         }
@@ -310,15 +306,12 @@ class CapEngine {
           recency: _recencyModifier('coverage_check', memory, now),
         ),
         headline: _isSeniorSalarie(profile)
-            ? 'Invalidité après 50 ans\u00a0: un angle mort\u00a0?'
-            : 'Ta couverture mérite un check',
+            ? l.capCoverageCheckSeniorHeadline
+            : l.capCoverageCheckHeadline,
         whyNow: _isSeniorSalarie(profile)
-            ? 'Après 50 ans, l\u2019écart entre revenu et rentes '
-                'AI\u00a0+\u00a0LPP peut dépasser 40\u00a0%. '
-                'Ton IJM couvre-t-elle le reste\u00a0?'
-            : 'IJM, AI, LPP invalidité — '
-                'vérifie que ton filet tient.',
-        ctaLabel: 'Vérifier',
+            ? l.capCoverageCheckSeniorWhyNow
+            : l.capCoverageCheckWhyNow,
+        ctaLabel: l.capCoverageCheckCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/invalidite',
         coachPrompt: _isSeniorSalarie(profile)
@@ -331,7 +324,7 @@ class CapEngine {
     }
 
     // ── 9. Life event preparation ──
-    final lifeEventCap = _tryLifeEventCap(profile, confidence.score, memory, now);
+    final lifeEventCap = _tryLifeEventCap(profile, confidence.score, memory, now, l);
     if (lifeEventCap != null) candidates.add(lifeEventCap);
 
     // ── 9b. Couple caps (ménage) ──
@@ -340,9 +333,17 @@ class CapEngine {
     // Priority intentionally lower than individual critical caps.
     if (profile.isCouple && profile.conjoint != null) {
       candidates.addAll(
-        _coupleCaps(profile, confidence.score, memory, now),
+        _coupleCaps(profile, confidence.score, memory, now, l),
       );
     }
+
+    // ── 9c. Top 10 Core Journeys — Tier 1 urgency caps ──
+    // Life-disruption situations always outrank tax optimization or 3a.
+    // Adds new urgency caps AND boosts existing aligned candidates.
+    candidates.addAll(
+      _top10UrgencyCaps(profile, confidence.score, memory, now, l),
+    );
+    _applyTop10UrgencyBoost(candidates, profile, memory, now);
 
     // ── 10. Goal alignment boost ──
     // If the user declared a GoalA, boost candidates that align with it.
@@ -350,7 +351,7 @@ class CapEngine {
 
     // ── 11. Honesty clause (spec §7) ──
     // If profile has no realistic lever, acknowledge it with tact.
-    final honestyCap = _tryHonestyCap(profile, confidence.score, memory, now);
+    final honestyCap = _tryHonestyCap(profile, confidence.score, memory, now, l);
     if (honestyCap != null) {
       // Honesty cap overrides weaker candidates — return immediately.
       // Only real critical caps (debt, missing data) should beat it,
@@ -364,7 +365,7 @@ class CapEngine {
     // ── 12. Fallback: best ResponseCard → Cap ──
     if (candidates.isEmpty) {
       final cards =
-          ResponseCardService.generateForPulse(profile, limit: 1);
+          ResponseCardService.generateForPulse(profile, l: l, limit: 1);
       if (cards.isNotEmpty) {
         final card = cards.first;
         candidates.add(_fromResponseCard(card, confidence.score, memory, now));
@@ -377,13 +378,12 @@ class CapEngine {
         id: 'fallback_enrich',
         kind: CapKind.complete,
         priorityScore: 1.0,
-        headline: 'Confiance ${confidence.score.round()}\u00a0% — enrichis ton profil',
-        whyNow: 'Chaque donnée ajoutée affine tes projections '
-            'et révèle des leviers concrets.',
-        ctaLabel: 'Enrichir',
+        headline: l.capFallbackHeadline,
+        whyNow: l.capFallbackWhyNow,
+        ctaLabel: l.capFallbackCtaLabel,
         ctaMode: CtaMode.capture,
         captureType: 'profile',
-        confidenceLabel: 'confiance ${confidence.score.round()}\u00a0%',
+        confidenceLabel: l.capMissingPieceConfidenceLabel(confidence.score.round().toString()),
       );
     }
 
@@ -427,6 +427,208 @@ class CapEngine {
     );
   }
 
+  // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────
+  //
+  //  Tier 1 = life disruption. These situations ALWAYS outrank
+  //  tax optimisation, 3a contributions, or LPP buyback.
+  //
+  //  Tier 1 signals (from docs/TOP_10_SWISS_CORE_JOURNEYS.md):
+  //  - Chômage / perte d'emploi  → employmentStatus == 'chomage'
+  //  - Invalidité / accident      → familyChange == 'disability'
+  //  - Dette / budget sous tension→ spending > net income
+  //                                 OR familyChange == 'debtCrisis'
+  //  - Divorce                    → etatCivil == divorce
+  //                                 OR familyChange == 'divorce'
+  //
+  //  Spec: docs/TOP_10_SWISS_CORE_JOURNEYS.md §2 (parcours 3, 4, 8, 11)
+
+  /// Returns a boost multiplier (0–100) for the current profile
+  /// based on Top 10 Core Journey urgency tier.
+  ///
+  /// - 100 → Tier 1 highest (chômage, immediate income disruption)
+  /// - 90  → Tier 1 high (debt crisis, spending > net)
+  /// - 80  → Tier 1 medium (divorce, LPP split + housing)
+  /// - 70  → Tier 1 low (disability life event)
+  /// - 0   → No Tier 1 signal
+  static int _top10UrgencyBoost(CoachProfile profile, CapMemory memory) {
+    // Chômage: immediate income disruption, highest urgency
+    if (profile.employmentStatus == 'chomage') { return 100; }
+
+    // Debt crisis: spending exceeds net income OR debtCrisis life event
+    if (_hasDebtCrisis(profile)) { return 90; }
+
+    // Divorce: LPP split, alimony, housing urgency
+    if (profile.etatCivil == CoachCivilStatus.divorce ||
+        profile.familyChange == 'divorce') { return 80; }
+
+    // Disability life event declared
+    if (profile.familyChange == 'disability') { return 70; }
+
+    return 0;
+  }
+
+  /// True when the profile shows a debt crisis signal:
+  /// - monthly spending exceeds estimated net income, OR
+  /// - user declared debtCrisis as current life event.
+  static bool _hasDebtCrisis(CoachProfile profile) {
+    if (profile.familyChange == 'debtCrisis') return true;
+
+    // Budget crisis: total expenses > net income
+    if (profile.totalDepensesMensuelles > 0 &&
+        profile.salaireBrutMensuel > 0) {
+      final netMensuel = NetIncomeBreakdown.compute(
+        grossSalary: profile.salaireBrutMensuel * 12,
+        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+        age: profile.age,
+      ).monthlyNetPayslip;
+      if (profile.totalDepensesMensuelles > netMensuel) return true;
+    }
+
+    return false;
+  }
+
+  /// Generate Tier 1 urgency caps not covered by the general heuristic.
+  ///
+  /// Currently adds:
+  /// - **chomage_urgency**: fires when [profile.employmentStatus] == 'chomage'.
+  ///   The general heuristic only fires a `jobLoss` life event cap when
+  ///   [profile.familyChange] == 'jobLoss'. Persistent chômage status has
+  ///   no dedicated cap today.
+  /// - **divorce_urgency**: fires when civil status is divorce.
+  ///   The life event cap fires on [profile.familyChange] == 'divorce'
+  ///   during the transition; this cap covers the ongoing status.
+  static List<CapDecision> _top10UrgencyCaps(
+    CoachProfile profile,
+    double confidenceScore,
+    CapMemory memory,
+    DateTime now,
+    S l,
+  ) {
+    final caps = <CapDecision>[];
+
+    // ── Chômage: secure the next 90 days ──
+    // employmentStatus == 'chomage' is a persistent state; the general
+    // life event cap only fires for the one-time familyChange event.
+    // This cap surfaces whenever chômage is the active employment status.
+    if (profile.employmentStatus == 'chomage') {
+      caps.add(CapDecision(
+        id: 'chomage_urgency',
+        kind: CapKind.secure,
+        priorityScore: _score(
+          impact: 1.0,
+          urgency: 1.0,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('chomage_urgency', memory, now),
+        ),
+        headline: l.capChomageHeadline,
+        whyNow: l.capChomageWhyNow,
+        ctaLabel: l.capChomageCtaLabel,
+        ctaMode: CtaMode.route,
+        ctaRoute: '/unemployment',
+        coachPrompt: 'Je suis en situation de chômage. '
+            'Aide-moi à comprendre mes droits AC, '
+            'ce qui se passe avec ma LPP '
+            'et comment adapter mon budget maintenant.',
+        expectedImpact: l.capChomageExpectedImpact,
+        sourceCards: const ['unemployment'],
+      ));
+    }
+
+    // ── Divorce: LPP split, alimony, housing ──
+    // Civil status divorce is a persistent condition; the life event
+    // 'divorce' cap fires only when familyChange is set (during transition).
+    // This cap covers users whose etatCivil is already divorce.
+    final isDivorced = profile.etatCivil == CoachCivilStatus.divorce;
+    final hasDivorceEvent = profile.familyChange == 'divorce';
+    if (isDivorced && !hasDivorceEvent) {
+      // hasDivorceEvent == true means _tryLifeEventCap already handles it.
+      caps.add(CapDecision(
+        id: 'divorce_urgency',
+        kind: CapKind.secure,
+        priorityScore: _score(
+          impact: 0.85,
+          urgency: 0.85,
+          confidencePenalty: _confPenalty(confidenceScore),
+          readiness: 1.0,
+          recency: _recencyModifier('divorce_urgency', memory, now),
+        ),
+        headline: l.capDivorceUrgencyHeadline,
+        whyNow: l.capDivorceUrgencyWhyNow,
+        ctaLabel: l.capDivorceUrgencyCtaLabel,
+        ctaMode: CtaMode.route,
+        ctaRoute: '/divorce',
+        coachPrompt: 'Je suis divorcé\u00b7e. '
+            'Aide-moi à clarifier l\u2019impact sur ma LPP, '
+            'mes impôts et mon budget.',
+        expectedImpact: l.capDivorceUrgencyExpectedImpact,
+        sourceCards: const ['divorce'],
+      ));
+    }
+
+    return caps;
+  }
+
+  /// Boost existing candidates whose content aligns with the active
+  /// Tier 1 Core Journey urgency.
+  ///
+  /// Multiplies [priorityScore] by `(1 + boost / 100)` — e.g. boost 100
+  /// doubles the score, boost 90 adds 90\u00a0%, ensuring Tier 1 caps
+  /// outrank all tax/optimization caps regardless of their base score.
+  static void _applyTop10UrgencyBoost(
+    List<CapDecision> candidates,
+    CoachProfile profile,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final boost = _top10UrgencyBoost(profile, memory);
+    if (boost == 0) return;
+
+    // Cap IDs that align with each Tier 1 scenario.
+    final Set<String> alignedIds = {};
+
+    if (profile.employmentStatus == 'chomage') {
+      alignedIds.addAll(const {'chomage_urgency', 'debt_correct', 'budget_deficit'});
+    }
+    if (_hasDebtCrisis(profile)) {
+      alignedIds.addAll(const {'debt_correct', 'budget_deficit', 'honesty_no_lever'});
+    }
+    if (profile.etatCivil == CoachCivilStatus.divorce ||
+        profile.familyChange == 'divorce') {
+      alignedIds.addAll(const {'divorce_urgency', 'life_event_divorce'});
+    }
+    if (profile.familyChange == 'disability') {
+      alignedIds.addAll(const {'disability_gap', 'coverage_check', 'life_event_disability'});
+    }
+
+    if (alignedIds.isEmpty) return;
+
+    final multiplier = 1.0 + boost / 100.0;
+    for (int i = 0; i < candidates.length; i++) {
+      final cap = candidates[i];
+      if (!alignedIds.contains(cap.id)) continue;
+      candidates[i] = CapDecision(
+        id: cap.id,
+        kind: cap.kind,
+        priorityScore: cap.priorityScore * multiplier,
+        headline: cap.headline,
+        whyNow: cap.whyNow,
+        ctaLabel: cap.ctaLabel,
+        ctaMode: cap.ctaMode,
+        ctaRoute: cap.ctaRoute,
+        coachPrompt: cap.coachPrompt,
+        captureType: cap.captureType,
+        expectedImpact: cap.expectedImpact,
+        confidenceLabel: cap.confidenceLabel,
+        blockingData: cap.blockingData,
+        supportingSignals: cap.supportingSignals,
+        sourceCards: cap.sourceCards,
+        isHonestyCap: cap.isHonestyCap,
+        acquiredAssets: cap.acquiredAssets,
+      );
+    }
+  }
+
   // ── LIFE EVENT ───────────────────────────────────────────
 
   /// Generate a Prepare cap if the user has declared a life event.
@@ -435,11 +637,12 @@ class CapEngine {
     double confidenceScore,
     CapMemory memory,
     DateTime now,
+    S l,
   ) {
     final event = profile.familyChange;
     if (event == null || event.isEmpty) return null;
 
-    final mapping = _lifeEventMapping(event);
+    final mapping = _lifeEventMapping(event, l);
     if (mapping == null) return null;
 
     return CapDecision(
@@ -461,108 +664,108 @@ class CapEngine {
     );
   }
 
-  static _LifeEventMapping? _lifeEventMapping(String event) {
+  static _LifeEventMapping? _lifeEventMapping(String event, S l) {
     return switch (event) {
-      'marriage' => const _LifeEventMapping(
-          headline: 'Mariage en vue',
-          whyNow: 'Impôts, AVS, LPP, succession — tout change.',
-          ctaLabel: 'Voir l\u2019impact',
+      'marriage' => _LifeEventMapping(
+          headline: l.capLeMarriageHeadline,
+          whyNow: l.capLeMarriageWhyNow,
+          ctaLabel: l.capLeMarriageCtaLabel,
           route: '/mariage',
         ),
-      'divorce' => const _LifeEventMapping(
-          headline: 'Divorce en cours',
-          whyNow: 'Partage LPP, pension, impôts — anticipe.',
-          ctaLabel: 'Simuler',
+      'divorce' => _LifeEventMapping(
+          headline: l.capLeDivorceHeadline,
+          whyNow: l.capLeDivorceWhyNow,
+          ctaLabel: l.capLeDivorceCtaLabel,
           route: '/divorce',
         ),
-      'birth' => const _LifeEventMapping(
-          headline: 'Naissance prévue',
-          whyNow: 'Allocations, déductions, budget — prépare-toi.',
-          ctaLabel: 'Voir l\u2019impact',
+      'birth' => _LifeEventMapping(
+          headline: l.capLeBirthHeadline,
+          whyNow: l.capLeBirthWhyNow,
+          ctaLabel: l.capLeBirthCtaLabel,
           route: '/naissance',
         ),
-      'housingPurchase' => const _LifeEventMapping(
-          headline: 'Achat immobilier',
-          whyNow: 'EPL, 3a, hypothèque — tout se joue maintenant.',
-          ctaLabel: 'Simuler ma capacité',
+      'housingPurchase' => _LifeEventMapping(
+          headline: l.capLeHousingPurchaseHeadline,
+          whyNow: l.capLeHousingPurchaseWhyNow,
+          ctaLabel: l.capLeHousingPurchaseCtaLabel,
           route: '/hypotheque',
         ),
-      'jobLoss' => const _LifeEventMapping(
-          headline: 'Perte d\u2019emploi',
-          whyNow: 'Chômage, LPP, budget — les 3 urgences.',
-          ctaLabel: 'Voir mes droits',
+      'jobLoss' => _LifeEventMapping(
+          headline: l.capLeJobLossHeadline,
+          whyNow: l.capLeJobLossWhyNow,
+          ctaLabel: l.capLeJobLossCtaLabel,
           route: '/unemployment',
         ),
-      'selfEmployment' => const _LifeEventMapping(
-          headline: 'Passage à l\u2019indépendance',
-          whyNow: 'LPP volontaire, 3a max, IJM — ton filet à reconstruire.',
-          ctaLabel: 'Vérifier ma couverture',
+      'selfEmployment' => _LifeEventMapping(
+          headline: l.capLeSelfEmploymentHeadline,
+          whyNow: l.capLeSelfEmploymentWhyNow,
+          ctaLabel: l.capLeSelfEmploymentCtaLabel,
           route: '/independants/lpp-volontaire',
         ),
-      'retirement' => const _LifeEventMapping(
-          headline: 'Retraite à l\u2019horizon',
-          whyNow: 'Capital ou rente, décaissement, timing — c\u2019est le moment.',
-          ctaLabel: 'Explorer mes options',
+      'retirement' => _LifeEventMapping(
+          headline: l.capLeRetirementHeadline,
+          whyNow: l.capLeRetirementWhyNow,
+          ctaLabel: l.capLeRetirementCtaLabel,
           route: '/rente-vs-capital',
         ),
-      'concubinage' => const _LifeEventMapping(
-          headline: 'Vie commune',
-          whyNow: 'Pas de cap AVS 150\u00a0%, pas de partage LPP automatique — anticipe.',
-          ctaLabel: 'Voir les différences',
+      'concubinage' => _LifeEventMapping(
+          headline: l.capLeConcubinageHeadline,
+          whyNow: l.capLeConcubinageWhyNow,
+          ctaLabel: l.capLeConcubinageCtaLabel,
           route: '/concubinage',
         ),
-      'deathOfRelative' => const _LifeEventMapping(
-          headline: 'Perte d\u2019un proche',
-          whyNow: 'Succession, rentes de survivant, délais — ce qui est urgent.',
-          ctaLabel: 'Voir les démarches',
+      'deathOfRelative' => _LifeEventMapping(
+          headline: l.capLeDeathOfRelativeHeadline,
+          whyNow: l.capLeDeathOfRelativeWhyNow,
+          ctaLabel: l.capLeDeathOfRelativeCtaLabel,
           route: '/deces-proche',
         ),
-      'newJob' => const _LifeEventMapping(
-          headline: 'Nouveau poste',
-          whyNow: 'LPP, libre passage, 3a — trois choses à vérifier.',
-          ctaLabel: 'Comparer',
+      'newJob' => _LifeEventMapping(
+          headline: l.capLeNewJobHeadline,
+          whyNow: l.capLeNewJobWhyNow,
+          ctaLabel: l.capLeNewJobCtaLabel,
           route: '/job-comparison',
         ),
-      'housingSale' => const _LifeEventMapping(
-          headline: 'Vente immobilière',
-          whyNow: 'Plus-value, remboursement EPL, réinvestissement — planifie.',
-          ctaLabel: 'Voir l\u2019impact',
+      'housingSale' => _LifeEventMapping(
+          headline: l.capLeHousingSaleHeadline,
+          whyNow: l.capLeHousingSaleWhyNow,
+          ctaLabel: l.capLeHousingSaleCtaLabel,
           route: '/housing-sale',
         ),
-      'inheritance' => const _LifeEventMapping(
-          headline: 'Héritage reçu',
-          whyNow: 'Impôts, intégration au patrimoine, rachat LPP — arbitre.',
-          ctaLabel: 'Voir mes options',
+      'inheritance' => _LifeEventMapping(
+          headline: l.capLeInheritanceHeadline,
+          whyNow: l.capLeInheritanceWhyNow,
+          ctaLabel: l.capLeInheritanceCtaLabel,
           route: '/explore/patrimoine',
         ),
-      'donation' => const _LifeEventMapping(
-          headline: 'Donation envisagée',
-          whyNow: 'Avancement d\u2019hoirie, fiscalité, rapport — anticipe.',
-          ctaLabel: 'Voir l\u2019impact',
+      'donation' => _LifeEventMapping(
+          headline: l.capLeDonationHeadline,
+          whyNow: l.capLeDonationWhyNow,
+          ctaLabel: l.capLeDonationCtaLabel,
           route: '/donation',
         ),
-      'disability' => const _LifeEventMapping(
-          headline: 'Risque invalidité',
-          whyNow: 'AI, LPP invalidité, IJM — vérifie ton filet.',
-          ctaLabel: 'Vérifier ma couverture',
+      'disability' => _LifeEventMapping(
+          headline: l.capLeDisabilityHeadline,
+          whyNow: l.capLeDisabilityWhyNow,
+          ctaLabel: l.capLeDisabilityCtaLabel,
           route: '/invalidite',
         ),
-      'cantonMove' => const _LifeEventMapping(
-          headline: 'Déménagement cantonal',
-          whyNow: 'Impôts, LAMal, charges — l\u2019impact peut surprendre.',
-          ctaLabel: 'Comparer les cantons',
+      'cantonMove' => _LifeEventMapping(
+          headline: l.capLeCantonMoveHeadline,
+          whyNow: l.capLeCantonMoveWhyNow,
+          ctaLabel: l.capLeCantonMoveCtaLabel,
           route: '/demenagement-cantonal',
         ),
-      'countryMove' => const _LifeEventMapping(
-          headline: 'Départ de Suisse',
-          whyNow: 'Libre passage, AVS, 3a — ce qui te suit, ce qui reste.',
-          ctaLabel: 'Voir les conséquences',
-          route: '/expatriation',
+      'countryMove' => _LifeEventMapping(
+          headline: l.capLeCountryMoveHeadline,
+          whyNow: l.capLeCountryMoveWhyNow,
+          ctaLabel: l.capLeCountryMoveCtaLabel,
+          route: '/expat',
         ),
-      'debtCrisis' => const _LifeEventMapping(
-          headline: 'Situation de dette',
-          whyNow: 'Prioriser, restructurer, protéger l\u2019essentiel — par étapes.',
-          ctaLabel: 'Voir mon plan',
+      'debtCrisis' => _LifeEventMapping(
+          headline: l.capLeDebtCrisisHeadline,
+          whyNow: l.capLeDebtCrisisWhyNow,
+          ctaLabel: l.capLeDebtCrisisCtaLabel,
           route: '/debt/repayment',
         ),
       _ => null,
@@ -654,6 +857,7 @@ class CapEngine {
     double confidenceScore,
     CapMemory memory,
     DateTime now,
+    S l,
   ) {
     final conjoint = profile.conjoint!;
     final caps = <CapDecision>[];
@@ -673,16 +877,14 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('couple_3a', memory, now),
         ),
-        headline: 'À deux, un levier de plus',
-        whyNow: 'Votre ménage peut déduire 2\u00a0\u00d7\u00a07\u2019258\u00a0CHF '
-            'en cotisant chacun au 3a. '
-            'Le compte de votre conjoint\u00b7e n\u2019est pas encore renseigné.',
-        ctaLabel: 'Simuler le 3a couple',
+        headline: l.capCouple3aHeadline,
+        whyNow: l.capCouple3aWhyNow,
+        ctaLabel: l.capCouple3aCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/pilier-3a',
         coachPrompt: 'Comment optimiser notre prévoyance à deux\u00a0? '
             'Mon\u00b7ma conjoint\u00b7e n\u2019a pas encore de 3a.',
-        expectedImpact: 'jusqu\u2019à 14\u2019516\u00a0CHF de déductions',
+        expectedImpact: l.capCouple3aExpectedImpact,
         sourceCards: const ['couple_3a'],
       ));
     }
@@ -700,17 +902,15 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('couple_lpp_buyback', memory, now),
         ),
-        headline: 'Rachat LPP\u00a0: le levier conjoint',
-        whyNow: 'Votre conjoint\u00b7e dispose d\u2019un rachat possible '
-            'de ${_formatChfRound(conjointRachat)}. '
-            'Prioriser le TMI le plus élevé maximise la déduction.',
-        ctaLabel: 'Comparer les rachats',
+        headline: l.capCoupleLppBuybackHeadline,
+        whyNow: l.capCoupleLppBuybackWhyNow(_formatChfRound(conjointRachat)),
+        ctaLabel: l.capCoupleLppBuybackCtaLabel,
         ctaMode: CtaMode.coach,
         coachPrompt: 'Nous sommes en couple. '
             'Aide-nous à comparer un rachat LPP sur mon profil '
             'vs celui de mon\u00b7ma conjoint\u00b7e. '
             'Qui a le TMI le plus élevé\u00a0?',
-        expectedImpact: 'optimisation fiscale ménage',
+        expectedImpact: l.capCoupleLppBuybackExpectedImpact,
         sourceCards: const ['couple_lpp_buyback'],
       ));
     }
@@ -731,17 +931,15 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('couple_avs_cap', memory, now),
         ),
-        headline: 'AVS couple\u00a0: le plafond 150\u00a0%',
-        whyNow: 'Marié\u00b7es, vos rentes AVS cumulées sont plafonnées '
-            'à 150\u00a0% de la rente maximale (LAVS art.\u00a035). '
-            'L\u2019écart peut atteindre ~10\u2019000\u00a0CHF/an.',
-        ctaLabel: 'Voir l\u2019impact AVS',
+        headline: l.capCoupleAvsCapHeadline,
+        whyNow: l.capCoupleAvsCapWhyNow,
+        ctaLabel: l.capCoupleAvsCapCtaLabel,
         ctaMode: CtaMode.route,
-        ctaRoute: '/retraite',
+        ctaRoute: '/rente-vs-capital',
         coachPrompt: 'Nous sommes mariés et nous travaillons tous les deux. '
             'Aide-nous à comprendre l\u2019impact du plafonnement AVS '
             'à 150\u00a0% sur notre retraite.',
-        expectedImpact: 'comprendre le delta ~10k/an',
+        expectedImpact: l.capCoupleAvsCapExpectedImpact,
         sourceCards: const ['couple_avs'],
       ));
     }
@@ -854,6 +1052,7 @@ class CapEngine {
     double confidenceScore,
     CapMemory memory,
     DateTime now,
+    S l,
   ) {
     final age = profile.age;
     final lpp = profile.prevoyance.avoirLppTotal ?? 0;
@@ -879,7 +1078,7 @@ class CapEngine {
       return null;
     }
 
-    final acquired = _acquiredAssets(profile);
+    final acquired = _acquiredAssets(profile, l);
 
     // Choose the right tone depending on the trigger
     String headline;
@@ -887,27 +1086,21 @@ class CapEngine {
     String coachPrompt;
 
     if (isDebtOverwhelmed) {
-      headline = 'Ta situation mérite un regard expert';
-      whyNow = 'Les leviers classiques ne suffisent pas ici. '
-          'Un\u00b7e spécialiste en désendettement peut '
-          't\u2019aider à construire un plan réaliste.';
+      headline = l.capHonestyDebtHeadline;
+      whyNow = l.capHonestyDebtWhyNow;
       coachPrompt = 'Ma dette dépasse largement mon revenu annuel. '
           'Les simulateurs ne suffisent plus. '
           'Oriente-moi vers un\u00b7e spécialiste en désendettement.';
     } else if (isCrossBorderLateLpp) {
-      headline = 'Faisons le point ensemble';
-      whyNow = 'À ton horizon, les leviers 2e pilier sont limités. '
-          'Un\u00b7e spécialiste frontalier peut identifier '
-          'des pistes que MINT ne couvre pas encore.';
+      headline = l.capHonestryCrossBorderHeadline;
+      whyNow = l.capHonestryCrossBorderWhyNow;
       coachPrompt = 'Je suis frontalier\u00b7ère proche de la retraite '
           'sans LPP. Quelles options réalistes existent\u00a0? '
           'Oriente-moi vers un\u00b7e spécialiste.';
     } else {
       // Senior no LPP
-      headline = 'Ton socle est là';
-      whyNow = 'Les leviers classiques ne changent pas beaucoup '
-          'la donne ici. Un\u00b7e spécialiste peut t\u2019aider '
-          'à voir plus loin.';
+      headline = l.capHonestyNoLppHeadline;
+      whyNow = l.capHonestyNoLppWhyNow;
       coachPrompt = 'J\u2019approche de la retraite avec peu de 2e pilier. '
           'Aide-moi à comprendre ce qui est acquis '
           'et oriente-moi vers un\u00b7e spécialiste.';
@@ -931,17 +1124,17 @@ class CapEngine {
       ),
       headline: headline,
       whyNow: whyNow,
-      ctaLabel: 'Parler au coach',
+      ctaLabel: l.capHonestyCtaLabel,
       ctaMode: CtaMode.coach,
       coachPrompt: coachPrompt,
-      expectedImpact: 'clarification',
+      expectedImpact: l.capHonestyExpectedImpact,
       sourceCards: const [],
     );
   }
 
   /// Build a list of what the user HAS acquired (for honesty cap).
   /// Shows the positive side even when levers are exhausted.
-  static List<String> _acquiredAssets(CoachProfile profile) {
+  static List<String> _acquiredAssets(CoachProfile profile, S l) {
     final assets = <String>[];
 
     // AVS is always acquired if contributed
@@ -949,25 +1142,27 @@ class CapEngine {
     if (avsYears > 0) {
       final renteAvs = profile.prevoyance.renteAVSEstimeeMensuelle;
       if (renteAvs != null && renteAvs > 0) {
-        assets.add('AVS\u00a0: ~${renteAvs.round()}\u00a0CHF/mois '
-            '($avsYears ans cotisés)');
+        assets.add(l.capAcquiredAvsWithRente(
+          renteAvs.round().toString(),
+          avsYears.toString(),
+        ));
       } else {
-        assets.add('AVS\u00a0: $avsYears années cotisées');
+        assets.add(l.capAcquiredAvsYearsOnly(avsYears.toString()));
       }
     } else {
-      assets.add('AVS\u00a0: droits en cours');
+      assets.add(l.capAcquiredAvsInProgress);
     }
 
     // LPP if any
     final lpp = profile.prevoyance.avoirLppTotal ?? 0;
     if (lpp > 0) {
-      assets.add('LPP\u00a0: ${_formatChfRound(lpp)} acquis');
+      assets.add(l.capAcquiredLpp(_formatChfRound(lpp)));
     }
 
     // 3a if any
     final epargne3a = profile.prevoyance.totalEpargne3a;
     if (epargne3a > 0) {
-      assets.add('3a\u00a0: ${_formatChfRound(epargne3a)} épargnés');
+      assets.add(l.capAcquired3a(_formatChfRound(epargne3a)));
     }
 
     return assets;

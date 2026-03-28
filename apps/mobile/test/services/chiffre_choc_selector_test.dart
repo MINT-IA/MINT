@@ -278,4 +278,148 @@ void main() {
       expect(result.type, ChiffreChocType.retirementIncome);
     });
   });
+
+  // ── V2: Stress-aligned selection ────────────────────────────
+
+  group('V2 — stressType influence', () {
+    test('stress_budget produces hourlyRate', () {
+      final profile = profile0(
+        age: 25,
+        replacementRate: 0.65,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+      );
+      final result = ChiffreChocSelector.select(profile, stressType: 'stress_budget');
+      expect(result.type, ChiffreChocType.hourlyRate);
+      expect(result.confidenceMode, ChiffreChocConfidence.factual);
+    });
+
+    test('stress_impots produces taxSaving3a', () {
+      final profile = profile0(
+        age: 30,
+        taxSaving3a: 2000,
+        replacementRate: 0.65,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+      );
+      final result = ChiffreChocSelector.select(profile, stressType: 'stress_impots');
+      expect(result.type, ChiffreChocType.taxSaving3a);
+    });
+
+    test('stress_retraite produces retirementGap when ratio low', () {
+      final profile = profile0(
+        age: 45,
+        replacementRate: 0.45,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+      );
+      final result = ChiffreChocSelector.select(profile, stressType: 'stress_retraite');
+      expect(result.type, ChiffreChocType.retirementGap);
+    });
+  });
+
+  // ── V2: Lifecycle-aware fallback ────────────────────────────
+
+  group('V2 — lifecycle fallback', () {
+    test('age 22 gets compoundGrowth (not retirement gap)', () {
+      final profile = profile0(
+        age: 22,
+        replacementRate: 0.65,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+        existing3a: 5000,
+        taxSaving3a: 500,
+      );
+      final result = ChiffreChocSelector.select(profile);
+      expect(result.type, ChiffreChocType.compoundGrowth);
+      expect(result.confidenceMode, ChiffreChocConfidence.factual);
+    });
+
+    test('age 32 with no 3a gets taxSaving3a', () {
+      final profile = profile0(
+        age: 32,
+        existing3a: 0,
+        taxSaving3a: 2000,
+        replacementRate: 0.65,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+      );
+      final result = ChiffreChocSelector.select(profile);
+      expect(result.type, ChiffreChocType.taxSaving3a);
+    });
+
+    test('age < 30 with low ratio still gets lifecycle (no retirement gap)', () {
+      final profile = profile0(
+        age: 25,
+        replacementRate: 0.40,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+        existing3a: 5000,
+        taxSaving3a: 500,
+      );
+      final result = ChiffreChocSelector.select(profile);
+      // Under 30: retirement gap is too abstract → lifecycle fallback
+      expect(result.type, ChiffreChocType.compoundGrowth);
+    });
+  });
+
+  // ── V2: Confidence gating ──────────────────────────────────
+
+  group('V2 — confidence mode', () {
+    test('retirement gap with estimated LPP is pedagogical', () {
+      final profile = profile0(
+        age: 49,
+        replacementRate: 0.45,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+        estimatedFields: ['existingLpp', 'currentSavings'],
+      );
+      final result = ChiffreChocSelector.select(profile);
+      expect(result.type, ChiffreChocType.retirementGap);
+      expect(result.confidenceMode, ChiffreChocConfidence.pedagogical);
+    });
+
+    test('retirement gap with real LPP is factual', () {
+      final profile = profile0(
+        age: 49,
+        replacementRate: 0.45,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+        estimatedFields: [],
+      );
+      final result = ChiffreChocSelector.select(profile);
+      expect(result.type, ChiffreChocType.retirementGap);
+      expect(result.confidenceMode, ChiffreChocConfidence.factual);
+    });
+
+    test('liquidity with estimated savings is skipped (>= 1 month)', () {
+      final profile = profile0(
+        liquidityMonths: 1.5,
+        nationalityGroup: 'CH',
+        replacementRate: 0.65,
+        age: 45,
+        existing3a: 5000,
+        taxSaving3a: 500,
+        estimatedFields: ['currentSavings'],
+      );
+      final result = ChiffreChocSelector.select(profile);
+      // Estimated savings + not severe → liquidity skipped
+      expect(result.type, isNot(ChiffreChocType.liquidityAlert));
+    });
+
+    test('compoundGrowth is always factual regardless of estimates', () {
+      final profile = profile0(
+        age: 22,
+        replacementRate: 0.65,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+        existing3a: 5000,
+        taxSaving3a: 500,
+        estimatedFields: ['existingLpp', 'currentSavings', 'existing3a'],
+      );
+      final result = ChiffreChocSelector.select(profile);
+      expect(result.type, ChiffreChocType.compoundGrowth);
+      expect(result.confidenceMode, ChiffreChocConfidence.factual);
+    });
+  });
 }

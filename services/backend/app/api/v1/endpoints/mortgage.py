@@ -10,8 +10,9 @@ POST /api/v1/mortgage/epl-combined      — Combined EPL (3a + LPP) for equity
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.mortgage import (
     MortgageAffordabilityRequest,
     MortgageAffordabilityResponse,
@@ -54,8 +55,10 @@ _epl_combined_service = EplCombinedService()
 # ---------------------------------------------------------------------------
 
 @router.post("/affordability", response_model=MortgageAffordabilityResponse)
+@limiter.limit("30/minute")
 def calculate_affordability(
-    request: MortgageAffordabilityRequest,
+    request: Request,
+    body: MortgageAffordabilityRequest,
 ) -> MortgageAffordabilityResponse:
     """Calculate mortgage affordability (Tragbarkeitsrechnung).
 
@@ -65,12 +68,12 @@ def calculate_affordability(
     Sources: Circulaire FINMA 2017/5; directives ASB.
     """
     result = _affordability_service.calculate_affordability(
-        revenu_brut_annuel=request.revenuBrutAnnuel,
-        epargne_disponible=request.epargneDisponible,
-        avoir_3a=request.avoir3a,
-        avoir_lpp=request.avoirLpp,
-        prix_achat=request.prixAchat,
-        canton=request.canton,
+        revenu_brut_annuel=body.revenuBrutAnnuel,
+        epargne_disponible=body.epargneDisponible,
+        avoir_3a=body.avoir3a,
+        avoir_lpp=body.avoirLpp,
+        prix_achat=body.prixAchat,
+        canton=body.canton,
     )
 
     return MortgageAffordabilityResponse(
@@ -106,8 +109,10 @@ def calculate_affordability(
 # ---------------------------------------------------------------------------
 
 @router.post("/saron-vs-fixed", response_model=SaronVsFixedResponse)
+@limiter.limit("30/minute")
 def compare_saron_vs_fixed(
-    request: SaronVsFixedRequest,
+    request: Request,
+    body: SaronVsFixedRequest,
 ) -> SaronVsFixedResponse:
     """Compare SARON vs fixed-rate mortgage costs.
 
@@ -117,11 +122,11 @@ def compare_saron_vs_fixed(
     Sources: Conventions bancaires suisses; SIX Swiss Exchange (SARON).
     """
     result = _saron_vs_fixed_service.compare(
-        montant_hypothecaire=request.montantHypothecaire,
-        duree_ans=request.dureeAns,
-        taux_saron_actuel=request.tauxSaronActuel,
-        marge_banque=request.margeBanque,
-        taux_fixe=request.tauxFixe,
+        montant_hypothecaire=body.montantHypothecaire,
+        duree_ans=body.dureeAns,
+        taux_saron_actuel=body.tauxSaronActuel,
+        marge_banque=body.margeBanque,
+        taux_fixe=body.tauxFixe,
     )
 
     return SaronVsFixedResponse(
@@ -168,8 +173,10 @@ def compare_saron_vs_fixed(
 # ---------------------------------------------------------------------------
 
 @router.post("/imputed-rental", response_model=ImputedRentalResponse)
+@limiter.limit("30/minute")
 def calculate_imputed_rental(
-    request: ImputedRentalRequest,
+    request: Request,
+    body: ImputedRentalRequest,
 ) -> ImputedRentalResponse:
     """Calculate imputed rental value (Eigenmietwert) and tax impact.
 
@@ -179,13 +186,13 @@ def calculate_imputed_rental(
     Sources: LIFD art. 21 al. 1 let. b; LIFD art. 32; LIFD art. 33.
     """
     result = _imputed_rental_service.calculate(
-        valeur_venale=request.valeurVenale,
-        canton=request.canton,
-        interets_hypothecaires_annuels=request.interetsHypothecairesAnnuels,
-        frais_entretien_annuels=request.fraisEntretienAnnuels,
-        prime_assurance_batiment=request.primeAssuranceBatiment,
-        age_bien_ans=request.ageBienAns,
-        taux_marginal_imposition=request.tauxMarginalImposition,
+        valeur_venale=body.valeurVenale,
+        canton=body.canton,
+        interets_hypothecaires_annuels=body.interetsHypothecairesAnnuels,
+        frais_entretien_annuels=body.fraisEntretienAnnuels,
+        prime_assurance_batiment=body.primeAssuranceBatiment,
+        age_bien_ans=body.ageBienAns,
+        taux_marginal_imposition=body.tauxMarginalImposition,
     )
 
     return ImputedRentalResponse(
@@ -219,8 +226,10 @@ def calculate_imputed_rental(
 # ---------------------------------------------------------------------------
 
 @router.post("/amortization", response_model=AmortizationComparisonResponse)
+@limiter.limit("30/minute")
 def compare_amortization(
-    request: AmortizationComparisonRequest,
+    request: Request,
+    body: AmortizationComparisonRequest,
 ) -> AmortizationComparisonResponse:
     """Compare direct vs indirect mortgage amortization.
 
@@ -230,13 +239,13 @@ def compare_amortization(
     Sources: OPP3 art. 1; LIFD art. 33; pratique bancaire suisse.
     """
     result = _amortization_service.compare(
-        montant_hypothecaire=request.montantHypothecaire,
-        taux_interet=request.tauxInteret,
-        duree_ans=request.dureeAns,
-        versement_annuel_amortissement=request.versementAnnuelAmortissement,
-        taux_marginal_imposition=request.tauxMarginalImposition,
-        rendement_3a=request.rendement3a,
-        canton=request.canton,
+        montant_hypothecaire=body.montantHypothecaire,
+        taux_interet=body.tauxInteret,
+        duree_ans=body.dureeAns,
+        versement_annuel_amortissement=body.versementAnnuelAmortissement,
+        taux_marginal_imposition=body.tauxMarginalImposition,
+        rendement_3a=body.rendement3a,
+        canton=body.canton,
     )
 
     return AmortizationComparisonResponse(
@@ -287,8 +296,10 @@ def compare_amortization(
 # ---------------------------------------------------------------------------
 
 @router.post("/epl-combined", response_model=EplCombinedResponse)
+@limiter.limit("30/minute")
 def calculate_epl_combined(
-    request: EplCombinedRequest,
+    request: Request,
+    body: EplCombinedRequest,
 ) -> EplCombinedResponse:
     """Calculate combined EPL equity (3a + LPP) for housing purchase.
 
@@ -298,17 +309,17 @@ def calculate_epl_combined(
     Sources: OPP3 art. 1; LPP art. 30a-30g; LPP art. 79b al. 3.
     """
     result = _epl_combined_service.calculate(
-        avoir_3a=request.avoir3a,
-        avoir_lpp_total=request.avoirLppTotal,
-        avoir_obligatoire=request.avoirObligatoire,
-        avoir_surobligatoire=request.avoirSurobligatoire,
-        age=request.age,
-        canton=request.canton,
-        epargne_cash=request.epargneCash,
-        prix_cible=request.prixCible,
-        a_rachete_recemment=request.aRacheteRecemment,
-        annees_depuis_dernier_rachat=request.anneesDernierRachat,
-        avoir_lpp_a_50_ans=request.avoirLppA50Ans,
+        avoir_3a=body.avoir3a,
+        avoir_lpp_total=body.avoirLppTotal,
+        avoir_obligatoire=body.avoirObligatoire,
+        avoir_surobligatoire=body.avoirSurobligatoire,
+        age=body.age,
+        canton=body.canton,
+        epargne_cash=body.epargneCash,
+        prix_cible=body.prixCible,
+        a_rachete_recemment=body.aRacheteRecemment,
+        annees_depuis_dernier_rachat=body.anneesDernierRachat,
+        avoir_lpp_a_50_ans=body.avoirLppA50Ans,
     )
 
     return EplCombinedResponse(

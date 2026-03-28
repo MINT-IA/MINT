@@ -3265,6 +3265,146 @@
         "title": "ClaimLocalDataResponse",
         "type": "object"
       },
+      "CoachChatRequest": {
+        "description": "Requete de chat coach.\n\nCombines BYOK LLM access with user profile context for personalized,\ntool-aware, RAG-enriched responses.\n\nPrivacy: profile_context and memory_block MUST NOT contain IBAN, full name,\nNPA, employer, or any directly identifying information.",
+        "properties": {
+          "apiKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cle API LLM de l'utilisateur (BYOK). Optionnel en beta: quand absent, le serveur utilise sa propre cle ANTHROPIC_API_KEY. Jamais stockee, jamais loggee par MINT.",
+            "title": "Apikey"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
+            "title": "Language",
+            "type": "string"
+          },
+          "memoryBlock": {
+            "anyOf": [
+              {
+                "maxLength": 8000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Bloc memoire serialise (CapMemory format). Contient le cycle de vie, les nudges actifs, la couleur regionale, et le plan en cours. Injecte dans le system prompt pour la personnalisation contextuelle.",
+            "title": "Memoryblock"
+          },
+          "message": {
+            "description": "Message de l'utilisateur au coach.",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Modele LLM specifique (utilise le defaut du provider si absent).",
+            "title": "Model"
+          },
+          "profileContext": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Contexte profil agrege (non identifiant). Cles autorisees: age, canton, archetype, fri_total, fri_delta, replacement_ratio, months_liquidity, tax_saving_potential, confidence_score, fiscal_season, upcoming_event, check_in_streak, primary_focus. Jamais: IBAN, nom complet, NPA, employeur.",
+            "title": "Profilecontext"
+          },
+          "provider": {
+            "default": "claude",
+            "description": "Fournisseur LLM: 'claude', 'openai', 'mistral'.",
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "CoachChatRequest",
+        "type": "object"
+      },
+      "CoachChatResponse": {
+        "description": "Reponse du coach chat.\n\nContient le texte genere + les appels d'outils eventuels +\nles sources RAG + les disclaimers de conformite.\n\nSources:\n    - LSFin art. 3 (information financiere)\n    - LPD art. 6 (protection des donnees)",
+        "properties": {
+          "disclaimers": {
+            "description": "Disclaimers de conformite ajoutes par ComplianceGuard.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Disclaimers",
+            "type": "array"
+          },
+          "message": {
+            "description": "Reponse textuelle du coach (validee par ComplianceGuard).",
+            "title": "Message",
+            "type": "string"
+          },
+          "sources": {
+            "description": "Sources de la base de connaissance utilisees (RAG retrieval).",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "systemPromptUsed": {
+            "default": true,
+            "description": "Indique si le system prompt coach a ete applique.",
+            "title": "Systempromptused",
+            "type": "boolean"
+          },
+          "tokensUsed": {
+            "default": 0,
+            "description": "Estimation de l'utilisation de tokens pour la requete.",
+            "minimum": 0.0,
+            "title": "Tokensused",
+            "type": "integer"
+          },
+          "toolCalls": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Appels d'outils retournes par le LLM (format Anthropic tool_use). Chaque element: {name: str, input: dict}. Le client Flutter execute l'action correspondante.",
+            "title": "Toolcalls"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "CoachChatResponse",
+        "type": "object"
+      },
       "CoachContextRequest": {
         "description": "Requete de contexte pour la generation de narratifs coach.",
         "properties": {
@@ -5219,7 +5359,7 @@
         "type": "object"
       },
       "DataDeletionRequest": {
-        "description": "Requete pour la suppression des donnees personnelles (nLPD art. 32).",
+        "description": "Requete pour la suppression des donnees personnelles (nLPD art. 32).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients.",
         "properties": {
           "mode": {
             "$ref": "#/components/schemas/DeletionMode",
@@ -5227,10 +5367,16 @@
             "description": "Mode de suppression: immediate ou avec delai de grace (30 jours)"
           },
           "profileId": {
-            "description": "Identifiant unique du profil utilisateur",
-            "minLength": 1,
-            "title": "Profileid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
+            "title": "Profileid"
           },
           "raison": {
             "anyOf": [
@@ -5245,9 +5391,6 @@
             "title": "Raison"
           }
         },
-        "required": [
-          "profileId"
-        ],
         "title": "DataDeletionRequest",
         "type": "object"
       },
@@ -5353,7 +5496,7 @@
         "type": "object"
       },
       "DataExportRequest": {
-        "description": "Requete pour l'export des donnees personnelles (nLPD art. 25).",
+        "description": "Requete pour l'export des donnees personnelles (nLPD art. 25).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients.",
         "properties": {
           "includeAnalytics": {
             "default": true,
@@ -5380,15 +5523,18 @@
             "type": "boolean"
           },
           "profileId": {
-            "description": "Identifiant unique du profil utilisateur",
-            "minLength": 1,
-            "title": "Profileid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
+            "title": "Profileid"
           }
         },
-        "required": [
-          "profileId"
-        ],
         "title": "DataExportRequest",
         "type": "object"
       },
@@ -7137,6 +7283,7 @@
         "type": "object"
       },
       "EmploymentStatus": {
+        "description": "Coaching-internal French dialect. Profile API uses English ('employee', 'self_employed', 'retired').\nIf integrating with Profile API, map: salarie↔employee, independant↔self_employed, retraite↔retired.",
         "enum": [
           "salarie",
           "independant",
@@ -11187,7 +11334,7 @@
         "description": "Response for LPP capital vs rente comparison.",
         "properties": {
           "breakevenAge": {
-            "description": "Age de breakeven (rente > capital net)",
+            "description": "Age de breakeven (rente nette > capital net)",
             "title": "Breakevenage",
             "type": "integer"
           },
@@ -11222,19 +11369,34 @@
             "type": "number"
           },
           "optionRenteAnnuelle": {
-            "description": "Rente annuelle a vie (CHF)",
+            "description": "Rente brute annuelle a vie (CHF)",
             "title": "Optionrenteannuelle",
             "type": "number"
           },
-          "optionRenteMensuelle": {
-            "description": "Rente mensuelle a vie (CHF)",
-            "title": "Optionrentemensuelle",
+          "optionRenteBruteMensuelle": {
+            "description": "Rente brute mensuelle a vie (CHF)",
+            "title": "Optionrentebrutemensuelle",
+            "type": "number"
+          },
+          "optionRenteNetteAnnuelle": {
+            "description": "Rente nette annuelle apres impot sur le revenu (CHF)",
+            "title": "Optionrentenetteannuelle",
+            "type": "number"
+          },
+          "optionRenteNetteMensuelle": {
+            "description": "Rente nette mensuelle apres impot sur le revenu (CHF)",
+            "title": "Optionrentenettemensuelle",
             "type": "number"
           },
           "recommandationNeutre": {
             "description": "Recommandation neutre sans biais",
             "title": "Recommandationneutre",
             "type": "string"
+          },
+          "renteImpotAnnuel": {
+            "description": "Impot annuel estime sur la rente (LIFD art. 22) (CHF)",
+            "title": "Renteimpotannuel",
+            "type": "number"
           },
           "sources": {
             "description": "Sources legales",
@@ -11247,8 +11409,11 @@
         },
         "required": [
           "capitalTotal",
-          "optionRenteMensuelle",
+          "optionRenteBruteMensuelle",
           "optionRenteAnnuelle",
+          "renteImpotAnnuel",
+          "optionRenteNetteMensuelle",
+          "optionRenteNetteAnnuelle",
           "optionCapitalBrut",
           "optionCapitalImpot",
           "optionCapitalNet",
@@ -11694,6 +11859,19 @@
             ],
             "description": "Service de la dette mensuel en CHF",
             "title": "Monthlydebtservice"
+          },
+          "stressType": {
+            "anyOf": [
+              {
+                "pattern": "^(stress_retraite|stress_impots|stress_budget|stress_patrimoine|stress_couple|stress_general)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Intention declaree par l'utilisateur a l'onboarding",
+            "title": "Stresstype"
           },
           "totalDebts": {
             "anyOf": [
@@ -13261,6 +13439,17 @@
             "title": "Factfindcompletionindex",
             "type": "number"
           },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
           "goal": {
             "$ref": "#/components/schemas/Goal",
             "default": "other"
@@ -13578,6 +13767,17 @@
             "title": "Factfindcompletionindex",
             "type": "number"
           },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
           "goal": {
             "$ref": "#/components/schemas/Goal",
             "default": "other"
@@ -13823,6 +14023,17 @@
               }
             ],
             "title": "Factfindcompletionindex"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
           },
           "goal": {
             "anyOf": [
@@ -14074,13 +14285,23 @@
             "title": "Baselegale",
             "type": "string"
           },
+          "capitalPlusBas": {
+            "description": "Nom du provider au capital final le plus bas",
+            "title": "Capitalplusbas",
+            "type": "string"
+          },
+          "capitalPlusHaut": {
+            "description": "Nom du provider au capital final le plus haut",
+            "title": "Capitalplushaut",
+            "type": "string"
+          },
           "chiffreChoc": {
             "description": "Chiffre choc",
             "title": "Chiffrechoc",
             "type": "string"
           },
           "differenceMax": {
-            "description": "Difference max entre meilleur et pire (CHF)",
+            "description": "Ecart max entre le plus haut et le plus bas (CHF)",
             "title": "Differencemax",
             "type": "number"
           },
@@ -14092,16 +14313,6 @@
           "duree": {
             "title": "Duree",
             "type": "integer"
-          },
-          "meilleurCapital": {
-            "description": "Nom du provider au meilleur capital final",
-            "title": "Meilleurcapital",
-            "type": "string"
-          },
-          "pireCapital": {
-            "description": "Nom du provider au pire capital final",
-            "title": "Pirecapital",
-            "type": "string"
           },
           "profilRisque": {
             "title": "Profilrisque",
@@ -14129,8 +14340,8 @@
         },
         "required": [
           "projections",
-          "meilleurCapital",
-          "pireCapital",
+          "capitalPlusHaut",
+          "capitalPlusBas",
           "differenceMax",
           "age",
           "versementAnnuel",
@@ -16180,6 +16391,14 @@
             "title": "Alertes",
             "type": "array"
           },
+          "capitalEpuisable": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Capital epuisable mensualise par source (3a). Ce n'est pas un revenu garanti.",
+            "title": "Capitalepuisable",
+            "type": "object"
+          },
           "checklist": {
             "description": "Checklist de preparation a la retraite",
             "items": {
@@ -16213,12 +16432,12 @@
             "title": "Pcpotentiellementeligible",
             "type": "boolean"
           },
-          "revenusMensuels": {
+          "revenusGarantis": {
             "additionalProperties": {
               "type": "number"
             },
-            "description": "Detail des revenus mensuels par source",
-            "title": "Revenusmensuels",
+            "description": "Revenus garantis mensuels par source (AVS, LPP, autres)",
+            "title": "Revenusgarantis",
             "type": "object"
           },
           "soldeMensuel": {
@@ -16240,13 +16459,14 @@
             "type": "number"
           },
           "totalRevenusMensuels": {
-            "description": "Total des revenus mensuels (CHF)",
+            "description": "Total des revenus mensuels (revenus garantis + capital epuisable) (CHF)",
             "title": "Totalrevenusmensuels",
             "type": "number"
           }
         },
         "required": [
-          "revenusMensuels",
+          "revenusGarantis",
+          "capitalEpuisable",
           "totalRevenusMensuels",
           "depensesMensuellesEstimees",
           "soldeMensuel",
@@ -19342,6 +19562,72 @@
         "title": "YearlyWithdrawalEntryResponse",
         "type": "object"
       },
+      "h_04cb1ba1d85a__ChiffreChocResponse": {
+        "description": "Chiffre choc: un nombre marquant avec contexte educatif.",
+        "properties": {
+          "actionText": {
+            "description": "Call-to-action vers le module concerne",
+            "title": "Actiontext",
+            "type": "string"
+          },
+          "category": {
+            "description": "Categorie: retirement_gap, tax_saving, liquidity, compound_growth, hourly_rate",
+            "title": "Category",
+            "type": "string"
+          },
+          "confidenceMode": {
+            "default": "factual",
+            "description": "Mode de confiance: 'factual' (donnees reelles) ou 'pedagogical' (estimation)",
+            "title": "Confidencemode",
+            "type": "string"
+          },
+          "confidenceScore": {
+            "description": "Score de confiance de la projection (0-100%)",
+            "title": "Confidencescore",
+            "type": "number"
+          },
+          "disclaimer": {
+            "description": "Disclaimer legal (outil educatif, LSFin)",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "displayText": {
+            "description": "Texte d'accroche en francais (tu informel)",
+            "title": "Displaytext",
+            "type": "string"
+          },
+          "explanationText": {
+            "description": "Explication pedagogique",
+            "title": "Explanationtext",
+            "type": "string"
+          },
+          "primaryNumber": {
+            "description": "Le nombre principal marquant",
+            "title": "Primarynumber",
+            "type": "number"
+          },
+          "sources": {
+            "description": "References legales suisses",
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "category",
+          "primaryNumber",
+          "displayText",
+          "explanationText",
+          "actionText",
+          "disclaimer",
+          "sources",
+          "confidenceScore"
+        ],
+        "title": "ChiffreChocResponse",
+        "type": "object"
+      },
       "h_23998a381e30__ConsentUpdateRequest": {
         "description": "Request body for PATCH /reengagement/consent/{user_id}.",
         "properties": {
@@ -19436,66 +19722,6 @@
         ],
         "title": "EtatCivil",
         "type": "string"
-      },
-      "h_829c1a0e8779__ChiffreChocResponse": {
-        "description": "Chiffre choc: un nombre marquant avec contexte educatif.",
-        "properties": {
-          "actionText": {
-            "description": "Call-to-action vers le module concerne",
-            "title": "Actiontext",
-            "type": "string"
-          },
-          "category": {
-            "description": "Categorie: retirement_gap, tax_saving, liquidity, lpp_opportunity, mortgage_stress",
-            "title": "Category",
-            "type": "string"
-          },
-          "confidenceScore": {
-            "description": "Score de confiance de la projection (0-100%)",
-            "title": "Confidencescore",
-            "type": "number"
-          },
-          "disclaimer": {
-            "description": "Disclaimer legal (outil educatif, LSFin)",
-            "title": "Disclaimer",
-            "type": "string"
-          },
-          "displayText": {
-            "description": "Texte d'accroche en francais (tu informel)",
-            "title": "Displaytext",
-            "type": "string"
-          },
-          "explanationText": {
-            "description": "Explication pedagogique",
-            "title": "Explanationtext",
-            "type": "string"
-          },
-          "primaryNumber": {
-            "description": "Le nombre principal marquant",
-            "title": "Primarynumber",
-            "type": "number"
-          },
-          "sources": {
-            "description": "References legales suisses",
-            "items": {
-              "type": "string"
-            },
-            "title": "Sources",
-            "type": "array"
-          }
-        },
-        "required": [
-          "category",
-          "primaryNumber",
-          "displayText",
-          "explanationText",
-          "actionText",
-          "disclaimer",
-          "sources",
-          "confidenceScore"
-        ],
-        "title": "ChiffreChocResponse",
-        "type": "object"
       },
       "h_9602b9ec805b__EtatCivil": {
         "enum": [
@@ -19665,8 +19891,8 @@
         "title": "EtatCivil",
         "type": "string"
       },
-      "h_be51dd6254bd__ConsentUpdateRequest": {
-        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).",
+      "h_d9c8615890ff__ConsentUpdateRequest": {
+        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients.",
         "properties": {
           "categorie": {
             "$ref": "#/components/schemas/ConsentCategory",
@@ -19678,14 +19904,19 @@
             "type": "boolean"
           },
           "profileId": {
-            "description": "Identifiant unique du profil utilisateur",
-            "minLength": 1,
-            "title": "Profileid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
+            "title": "Profileid"
           }
         },
         "required": [
-          "profileId",
           "categorie",
           "estActif"
         ],
@@ -20039,7 +20270,7 @@
     },
     "/api/v1/analytics/events": {
       "post": {
-        "description": "Batch analytics event ingestion endpoint.\n\nThis endpoint accepts multiple analytics events at once for efficient bulk insertion.\nNo authentication required - supports anonymous tracking with optional user_id linkage.\n\nArgs:\n    batch: Batch of analytics events to store\n    db: Database session\n\nReturns:\n    AnalyticsEventBatchResponse with count of events stored",
+        "description": "Batch analytics event ingestion endpoint.\n\nRequires authentication. The authenticated user's ID is used as user_id\nfor all events (V6-1 audit fix: prevents fake user_id injection).\n\nArgs:\n    batch: Batch of analytics events to store\n    current_user: Authenticated user from JWT token\n    db: Database session\n\nReturns:\n    AnalyticsEventBatchResponse with count of events stored",
         "operationId": "post_analytics_events_api_v1_analytics_events_post",
         "requestBody": {
           "content": {
@@ -20073,6 +20304,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Post Analytics Events",
         "tags": [
           "analytics"
@@ -20081,7 +20317,7 @@
     },
     "/api/v1/analytics/funnel": {
       "get": {
-        "description": "Get funnel conversion analysis.\n\nCalculates conversion rates through a series of event steps.\nSteps parameter should be comma-separated event names.\n\nArgs:\n    steps: Comma-separated list of event names representing funnel steps\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    FunnelQueryResponse with step counts and conversion rates\n\nExample:\n    GET /analytics/funnel?steps=landing_view,onboarding_start,wizard_started,wizard_completed",
+        "description": "Get funnel conversion analysis.\n\nAdmin-only endpoint (V6-1 audit fix): exposes global product data.\n\nCalculates conversion rates through a series of event steps.\nSteps parameter should be comma-separated event names.\n\nArgs:\n    steps: Comma-separated list of event names representing funnel steps\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    FunnelQueryResponse with step counts and conversion rates\n\nExample:\n    GET /analytics/funnel?steps=landing_view,onboarding_start,wizard_started,wizard_completed",
         "operationId": "get_funnel_analysis_api_v1_analytics_funnel_get",
         "parameters": [
           {
@@ -20173,7 +20409,7 @@
     },
     "/api/v1/analytics/summary": {
       "get": {
-        "description": "Get analytics summary with key metrics.\n\nReturns aggregated statistics including total events, unique sessions,\nand breakdowns by category and screen name.\n\nArgs:\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    AnalyticsSummaryResponse with summary statistics",
+        "description": "Get analytics summary with key metrics.\n\nAdmin-only endpoint (V6-1 audit fix): exposes global product data.\n\nReturns aggregated statistics including total events, unique sessions,\nand breakdowns by category and screen name.\n\nArgs:\n    days: Number of days to look back (default 7, ignored if start_date provided)\n    start_date: Optional start date for custom range\n    end_date: Optional end date for custom range (defaults to now)\n    db: Database session\n\nReturns:\n    AnalyticsSummaryResponse with summary statistics",
         "operationId": "get_analytics_summary_api_v1_analytics_summary_get",
         "parameters": [
           {
@@ -21436,6 +21672,53 @@
         ]
       }
     },
+    "/api/v1/coach/chat": {
+      "post": {
+        "description": "Coach chat endpoint — tools + system prompt + RAG + agent loop.\n\nCombines:\n    1. System prompt (lifecycle + regional voice + plan awareness)\n    2. Coach tools (route_to_screen, show_*, ask_user_input, retrieve_memories)\n    3. RAG retrieval (FAQ fallback + cantonal enrichment)\n    4. Agent loop (internal tool execute -> re-call LLM until end_turn)\n    5. ComplianceGuard filter on all LLM output\n\nInternal tools (INTERNAL_TOOL_NAMES):\n    - retrieve_memories: intercepted by the backend agent loop; searches\n      memory_block locally and returns tool_result to the LLM for the\n      next iteration.  Never forwarded to Flutter.\n\nThe API key is used for a single request and is never stored by MINT.\n\nReturns:\n    CoachChatResponse with message, optional tool_calls, sources,\n    disclaimers, and token usage.  tool_calls never contains internal tools.\n\nRaises:\n    400: Invalid request (missing fields, malformed provider).\n    401: Authentication required.\n    502: LLM API call failed.\n    503: RAG dependencies not installed.",
+        "operationId": "coach_chat_api_v1_coach_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CoachChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoachChatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Coach Chat",
+        "tags": [
+          "Coach Chat S56"
+        ]
+      }
+    },
     "/api/v1/coach/chiffre-choc": {
       "post": {
         "description": "Generer uniquement la recontextualisation du chiffre choc.\n\nReturns:\n    ComponentNarrativeResponse avec le chiffre choc reframe.",
@@ -22049,6 +22332,11 @@
             "description": "Successful Response"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get Feature Flags",
         "tags": [
           "Config"
@@ -24686,6 +24974,35 @@
         ]
       }
     },
+    "/api/v1/knowledge/status": {
+      "get": {
+        "description": "Return the status of the RAG knowledge base.\n\nCombines the full knowledge catalog with the update pipeline\nto produce a coverage and freshness report.\n\nReturns:\n    Dict with keys: total_sources, up_to_date, needs_update,\n    coverage_gaps.",
+        "operationId": "knowledge_status_api_v1_knowledge_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Knowledge Status Api V1 Knowledge Status Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Knowledge Status",
+        "tags": [
+          "Knowledge S67"
+        ]
+      }
+    },
     "/api/v1/life-events/divorce/checklist": {
       "get": {
         "description": "Get template checklist for divorce planning.\n\nStatic template — no personal data required.",
@@ -25337,7 +25654,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/h_829c1a0e8779__ChiffreChocResponse"
+                  "$ref": "#/components/schemas/h_04cb1ba1d85a__ChiffreChocResponse"
                 }
               }
             },
@@ -26068,19 +26385,8 @@
     },
     "/api/v1/privacy/consent-status": {
       "get": {
-        "description": "Retourne le statut actuel de tous les consentements.\n\nConforme a nLPD art. 6 (principes de traitement) et art. 7 (Privacy by Design).\nPar defaut, seul le traitement contractuel (core_profile) est actif.\n\nSources: nLPD art. 6, 7.",
+        "description": "Retourne le statut actuel de tous les consentements.\n\nConforme a nLPD art. 6 (principes de traitement) et art. 7 (Privacy by Design).\nPar defaut, seul le traitement contractuel (core_profile) est actif.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied path param\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 6, 7.",
         "operationId": "get_consent_status_api_v1_privacy_consent_status_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "profile_id",
-            "required": true,
-            "schema": {
-              "title": "Profile Id",
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -26091,16 +26397,6 @@
               }
             },
             "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
           }
         },
         "security": [
@@ -26116,13 +26412,13 @@
     },
     "/api/v1/privacy/consent-update": {
       "post": {
-        "description": "Met a jour un consentement pour une categorie de traitement.\n\nLe retrait du consentement est un droit fondamental (nLPD art. 6 al. 7).\nLe consentement pour core_profile (base contractuelle) ne peut pas etre retire.\n\nSources: nLPD art. 6 al. 7.",
+        "description": "Met a jour un consentement pour une categorie de traitement.\n\nLe retrait du consentement est un droit fondamental (nLPD art. 6 al. 7).\nLe consentement pour core_profile (base contractuelle) ne peut pas etre retire.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied profile_id\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 6 al. 7.",
         "operationId": "update_consent_api_v1_privacy_consent_update_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/h_be51dd6254bd__ConsentUpdateRequest"
+                "$ref": "#/components/schemas/h_d9c8615890ff__ConsentUpdateRequest"
               }
             }
           },
@@ -26163,7 +26459,7 @@
     },
     "/api/v1/privacy/delete": {
       "post": {
-        "description": "Supprime les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 6 al. 4 et art. 32.\nPropose une suppression immediate ou avec un delai de grace de 30 jours.\n\nSources: nLPD art. 6, 32; CO art. 127; OPDo art. 20-22.",
+        "description": "Supprime les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 6 al. 4 et art. 32.\nPropose une suppression immediate ou avec un delai de grace de 30 jours.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied profile_id\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 6, 32; CO art. 127; OPDo art. 20-22.",
         "operationId": "delete_user_data_api_v1_privacy_delete_post",
         "requestBody": {
           "content": {
@@ -26210,7 +26506,7 @@
     },
     "/api/v1/privacy/export": {
       "post": {
-        "description": "Exporte toutes les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).\nRetourne un JSON lisible par machine avec toutes les donnees et metadonnees.\n\nSources: nLPD art. 25, 28; OPDo art. 16-19.",
+        "description": "Exporte toutes les donnees personnelles d'un utilisateur.\n\nConforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).\nRetourne un JSON lisible par machine avec toutes les donnees et metadonnees.\n\nV12-1: Uses _user.id (from JWT) instead of client-supplied profile_id\nto prevent IDOR (Insecure Direct Object Reference).\n\nSources: nLPD art. 25, 28; OPDo art. 16-19.",
         "operationId": "export_user_data_api_v1_privacy_export_post",
         "requestBody": {
           "content": {
@@ -26297,6 +26593,33 @@
           }
         ],
         "summary": "Create Profile",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/api/v1/profiles/me": {
+      "get": {
+        "description": "Get the authenticated user's profile.\nReturns the most recently updated profile linked to the current user.",
+        "operationId": "get_my_profile_api_v1_profiles_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Profile",
         "tags": [
           "profiles"
         ]
@@ -26504,7 +26827,7 @@
     },
     "/api/v1/rag/status": {
       "get": {
-        "description": "Check RAG system status.\n\nReturns vector store readiness, document count, and available collections.",
+        "description": "Check RAG system status.\n\nReturns vector store readiness, document count, and available collections.\nRequires authentication to prevent reconnaissance of internal state.",
         "operationId": "rag_status_api_v1_rag_status_get",
         "responses": {
           "200": {
@@ -26518,6 +26841,11 @@
             "description": "Successful Response"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Rag Status",
         "tags": [
           "rag"
@@ -26666,21 +26994,10 @@
         ]
       }
     },
-    "/api/v1/reengagement/consent/{user_id}": {
+    "/api/v1/reengagement/consent/me": {
       "get": {
         "description": "Retourne les 3 consentements avec l'etat reel de l'utilisateur (pas les valeurs par defaut). nLPD art. 6.",
-        "operationId": "get_user_consent_api_v1_reengagement_consent__user_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "schema": {
-              "title": "User Id",
-              "type": "string"
-            }
-          }
-        ],
+        "operationId": "get_user_consent_api_v1_reengagement_consent_me_get",
         "responses": {
           "200": {
             "content": {
@@ -26691,37 +27008,21 @@
               }
             },
             "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
           }
         },
-        "summary": "Consentements d'un utilisateur",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consentements de l'utilisateur authentifie",
         "tags": [
           "Reengagement S40"
         ]
       },
       "patch": {
         "description": "Activer ou desactiver un consentement specifique. Chaque consentement est independant (nLPD art. 6).",
-        "operationId": "update_user_consent_api_v1_reengagement_consent__user_id__patch",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "schema": {
-              "title": "User Id",
-              "type": "string"
-            }
-          }
-        ],
+        "operationId": "update_user_consent_api_v1_reengagement_consent_me_patch",
         "requestBody": {
           "content": {
             "application/json": {
@@ -26754,6 +27055,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Modifier un consentement",
         "tags": [
           "Reengagement S40"
@@ -26799,6 +27105,192 @@
         "summary": "Generer les messages de reengagement personnalises",
         "tags": [
           "Reengagement S40"
+        ]
+      }
+    },
+    "/api/v1/regulatory/constants": {
+      "get": {
+        "description": "List all regulatory constants, optionally filtered by category or canton.\n\nReturns:\n    JSON with \"count\" and \"constants\" (list of parameter dicts).",
+        "operationId": "list_constants_api_v1_regulatory_constants_get",
+        "parameters": [
+          {
+            "description": "Filter by category prefix: avs, lpp, pillar3a, mortgage, capital_tax, ai, apg, ac, lamal",
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category prefix: avs, lpp, pillar3a, mortgage, capital_tax, ai, apg, ac, lamal",
+              "title": "Category"
+            }
+          },
+          {
+            "description": "Filter by canton code (e.g. ZH, GE, VS). Only returns cantonal parameters.",
+            "in": "query",
+            "name": "canton",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by canton code (e.g. ZH, GE, VS). Only returns cantonal parameters.",
+              "title": "Canton"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response List Constants Api V1 Regulatory Constants Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Constants",
+        "tags": [
+          "Regulatory Core",
+          "regulatory"
+        ]
+      }
+    },
+    "/api/v1/regulatory/constants/{key}": {
+      "get": {
+        "description": "Get a single regulatory constant by key.\n\nArgs:\n    key: Dotted parameter key (e.g. \"pillar3a.max_with_lpp\", \"avs.max_monthly_pension\").\n    canton: Optional canton code for cantonal parameters.\n\nReturns:\n    The parameter as a JSON dict.\n\nRaises:\n    404 if the key is not found.",
+        "operationId": "get_constant_api_v1_regulatory_constants__key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Canton code for cantonal parameters (e.g. ZH, GE).",
+            "in": "query",
+            "name": "canton",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Canton code for cantonal parameters (e.g. ZH, GE).",
+              "title": "Canton"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Constant Api V1 Regulatory Constants  Key  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Constant",
+        "tags": [
+          "Regulatory Core",
+          "regulatory"
+        ]
+      }
+    },
+    "/api/v1/regulatory/freshness": {
+      "get": {
+        "description": "Check which parameters are stale and need review.\n\nReturns:\n    JSON with \"stale_count\" and \"stale_parameters\" (list of parameter dicts).",
+        "operationId": "check_freshness_api_v1_regulatory_freshness_get",
+        "parameters": [
+          {
+            "description": "Maximum number of days since last review before a parameter is considered stale.",
+            "in": "query",
+            "name": "max_age_days",
+            "required": false,
+            "schema": {
+              "default": 90,
+              "description": "Maximum number of days since last review before a parameter is considered stale.",
+              "title": "Max Age Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Check Freshness Api V1 Regulatory Freshness Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Check Freshness",
+        "tags": [
+          "Regulatory Core",
+          "regulatory"
         ]
       }
     },
@@ -27345,62 +27837,9 @@
       }
     },
     "/api/v1/snapshots": {
-      "post": {
-        "description": "Creer un snapshot financier.\n\nCapture l'etat financier de l'utilisateur a un moment donne,\ndeclenche par un check-in trimestriel, un evenement de vie,\nou une mise a jour du profil.\n\nReturns:\n    SnapshotResponse avec l'identifiant unique du snapshot.",
-        "operationId": "create_financial_snapshot_api_v1_snapshots_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateSnapshotRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SnapshotResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Create Financial Snapshot",
-        "tags": [
-          "Snapshots S33"
-        ]
-      }
-    },
-    "/api/v1/snapshots/{user_id}": {
       "delete": {
-        "description": "Supprimer tous les snapshots d'un utilisateur.\n\nConformite LPD (Loi sur la protection des donnees) — droit a l'effacement.\n\nArgs:\n    user_id: Identifiant de l'utilisateur.\n\nReturns:\n    DeleteSnapshotsResponse avec le nombre de snapshots supprimes.",
-        "operationId": "delete_user_snapshots_api_v1_snapshots__user_id__delete",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "schema": {
-              "title": "User Id",
-              "type": "string"
-            }
-          }
-        ],
+        "description": "Supprimer tous les snapshots de l'utilisateur authentifie.\n\nConformite LPD (Loi sur la protection des donnees) — droit a l'effacement.\n\nReturns:\n    DeleteSnapshotsResponse avec le nombre de snapshots supprimes.",
+        "operationId": "delete_user_snapshots_api_v1_snapshots_delete",
         "responses": {
           "200": {
             "content": {
@@ -27411,36 +27850,22 @@
               }
             },
             "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Delete User Snapshots",
         "tags": [
           "Snapshots S33"
         ]
       },
       "get": {
-        "description": "Recuperer les snapshots d'un utilisateur.\n\nRetourne les snapshots les plus recents en premier (ordre chronologique inverse).\n\nArgs:\n    user_id: Identifiant de l'utilisateur.\n    limit: Nombre maximum de snapshots a retourner (defaut: 10, max: 100).\n\nReturns:\n    SnapshotListResponse avec la liste des snapshots.",
-        "operationId": "get_user_snapshots_api_v1_snapshots__user_id__get",
+        "description": "Recuperer les snapshots de l'utilisateur authentifie.\n\nRetourne les snapshots les plus recents en premier (ordre chronologique inverse).\n\nArgs:\n    limit: Nombre maximum de snapshots a retourner (defaut: 10, max: 100).\n\nReturns:\n    SnapshotListResponse avec la liste des snapshots.",
+        "operationId": "get_user_snapshots_api_v1_snapshots_get",
         "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "schema": {
-              "title": "User Id",
-              "type": "string"
-            }
-          },
           {
             "description": "Nombre max de snapshots",
             "in": "query",
@@ -27478,26 +27903,67 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get User Snapshots",
+        "tags": [
+          "Snapshots S33"
+        ]
+      },
+      "post": {
+        "description": "Creer un snapshot financier.\n\nCapture l'etat financier de l'utilisateur a un moment donne,\ndeclenche par un check-in trimestriel, un evenement de vie,\nou une mise a jour du profil.\n\nReturns:\n    SnapshotResponse avec l'identifiant unique du snapshot.",
+        "operationId": "create_financial_snapshot_api_v1_snapshots_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSnapshotRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Financial Snapshot",
         "tags": [
           "Snapshots S33"
         ]
       }
     },
-    "/api/v1/snapshots/{user_id}/evolution": {
+    "/api/v1/snapshots/evolution": {
       "get": {
-        "description": "Recuperer la serie temporelle d'une metrique financiere.\n\nRetourne les points de donnee en ordre chronologique (plus ancien en premier),\npour visualiser l'evolution dans le temps.\n\nArgs:\n    user_id: Identifiant de l'utilisateur.\n    field: Nom de la metrique a suivre.\n\nReturns:\n    EvolutionResponse avec la serie temporelle.",
-        "operationId": "get_user_evolution_api_v1_snapshots__user_id__evolution_get",
+        "description": "Recuperer la serie temporelle d'une metrique financiere.\n\nRetourne les points de donnee en ordre chronologique (plus ancien en premier),\npour visualiser l'evolution dans le temps.\n\nArgs:\n    field: Nom de la metrique a suivre.\n\nReturns:\n    EvolutionResponse avec la serie temporelle.",
+        "operationId": "get_user_evolution_api_v1_snapshots_evolution_get",
         "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "schema": {
-              "title": "User Id",
-              "type": "string"
-            }
-          },
           {
             "description": "Metrique a suivre (replacement_ratio, months_liquidity, etc.)",
             "in": "query",
@@ -27533,6 +27999,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Get User Evolution",
         "tags": [
           "Snapshots S33"
@@ -27541,7 +28012,7 @@
     },
     "/api/v1/sync/claim-local-data": {
       "post": {
-        "description": "One-shot migration of local mobile data to the authenticated user's cloud profile.\n\nIdempotency strategy: upsert on latest profile for (user_id, device_id claim marker).",
+        "description": "One-shot migration of local mobile data to the authenticated user's cloud profile.\n\nMerge policy: Last write wins, version-gated. Same or older version is a no-op.\nIf the existing profile already contains a localDataClaim whose localDataVersion\nis >= the incoming version, we skip the overwrite and return the existing data.\nThis prevents stale replays from older devices or retry storms.",
         "operationId": "claim_local_data_api_v1_sync_claim_local_data_post",
         "requestBody": {
           "content": {

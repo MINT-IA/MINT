@@ -9,8 +9,7 @@ class MintColors {
 
   
   // Selection / Highlight - Neutral & Premium
-  static const Color selectionBg = Color(0xFFF5F5F7); 
-  static const Color selectionBorder = Color(0xFF1D1D1F);
+  static const Color selectionBg = Color(0xFFF5F5F7);
   
   // Transparent
   static const Color transparent = Color(0x00000000);
@@ -19,8 +18,7 @@ class MintColors {
   static const Color background = Color(0xFFFFFFFF);
   static const Color appleSurface = Color(0xFFF5F5F7); 
   static const Color surface = Color(0xFFF5F5F7); 
-  static const Color cardGround = Color(0xFFFBFBFD);  static const Color glassBackground = Color(0xB3FFFFFF);
-  static const Color glassBorder = Color(0x33FFFFFF); 
+  static const Color cardGround = Color(0xFFFBFBFD);
   static const Color card = Color(0xFFFFFFFF);
   
   // Text
@@ -68,9 +66,10 @@ class MintColors {
   static const Color scoreGreen = scoreExcellent;
   static const Color scoreRed = scoreCritique;
 
-  // Coach (MINT Coach)
-  static const Color coachBubble = Color(0xFFF0F7FF);
-  static const Color coachAccent = Color(0xFF007AFF);
+  // Coach (MINT Coach) — warm cream, not cold support-chat blue.
+  // "Ami cultivé qui travaille dans la finance suisse."
+  static const Color coachBubble = Color(0xFFFCFBF8); // craie — warm
+  static const Color coachAccent = Color(0xFF3A3D44); // ardoise — premium slate
 
   // Extended palette (educational themes & life events)
   static const Color purple = Color(0xFF8B5CF6);
@@ -124,14 +123,10 @@ class MintColors {
   static const Color successionDark = Color(0xFF37474F); // Legal/succession header
   static const Color withdrawalOptim = Color(0xFF00695C); // Decaissement teal
   static const Color charcoal = Color(0xFF2D2D30); // Premium dark gradients
-  static const Color darkSurface = Color(0xFF2C2C2E); // Dark UI variant
 
   // Additional chart & visualization colors
-  static const Color emeraldDark = Color(0xFF059669); // alias categoryGreen
-  static const Color greenMaterial = Color(0xFF4CAF50); // alias centralScenario
   static const Color greenLight = Color(0xFFA5D6A7); // Light green segments
   static const Color blueDark = Color(0xFF1565C0); // Dark blue charts
-  static const Color blueLight = Color(0xFF0EA5E9); // Sky blue
   static const Color violetDeep = Color(0xFF9333EA); // Deep purple
   static const Color purpleDark = Color(0xFF6A1B9A); // Dark purple
   static const Color indigoDeep = Color(0xFF4338CA); // Deep indigo
@@ -139,12 +134,9 @@ class MintColors {
   static const Color roseDeep = Color(0xFFE91E63); // Rose/pink
   static const Color orangeMaterial = Color(0xFFF97316); // Orange-400
   static const Color amberLight = Color(0xFFFBBF24); // Amber-400
-  static const Color redMaterial = Color(0xFFF44336); // Material red
   static const Color redDark = Color(0xFFC62828); // Dark red
   static const Color redDeep = Color(0xFFE53935); // Deep red
   static const Color greenApple = Color(0xFF34C759); // iOS green
-  static const Color blueGoogle = Color(0xFF1A73E8); // Google blue
-  static const Color slateDark = Color(0xFF263238); // Blue-grey 900
 
   // Misc single-use (bank import, open banking, etc.)
   static const Color greyMedium = Color(0xFF9E9E9E); // Grey-500
@@ -155,7 +147,6 @@ class MintColors {
   static const Color ecruBg = Color(0xFFECEFF1); // Blue-grey 50
   static const Color indigoBg = Color(0xFFE8EAF6); // Indigo-50
   static const Color redBg = Color(0xFFFFCDD2); // Red-100
-  static const Color yellowLight = Color(0xFFFFEB3B); // Yellow-400
   static const Color yellowGold = Color(0xFFFFE082); // Amber-200
   static const Color amberWarm = Color(0xFFFFECB3); // Amber-100
   static const Color amberDark = Color(0xFF856404); // Dark amber text
@@ -176,18 +167,14 @@ class MintColors {
   static const Color purpleIos = Color(0xFF5856D6); // iOS purple
   static const Color darkNight = Color(0xFF1A1A2E); // Night dark
   static const Color darkDeep = Color(0xFF0D1117); // GitHub dark
-  static const Color darkApple = Color(0xFF1C1C1E); // Apple dark
   static const Color orangeFlat = Color(0xFFE67E22); // Orange flat-ui
   static const Color orangeNeon = Color(0xFFEE5A24); // Neon orange
-  static const Color orangeRetro = Color(0xFFFF6B35); // Retro orange
   static const Color pinkHot = Color(0xFFFF6482); // Hot pink
   static const Color redApple = Color(0xFFFF2D55); // Apple red
   static const Color greenDirect = Color(0xFF22C55E); // Green-500
   static const Color greenDark = Color(0xFF388E3C); // Green-700
-  static const Color greenBright2 = Color(0xFF34D058); // GitHub green
   static const Color greenMint = Color(0xFF32D74B); // iOS green mint
   static const Color greenClassic = Color(0xFF27AE60); // Flat green
-  static const Color greenForestMid = Color(0xFF2E7D5E); // Forest mid
   static const Color blueClassic = Color(0xFF2196F3); // Blue-500
   static const Color blueBright = Color(0xFF3B82F6); // Blue-500 tailwind
   static const Color tealDark = Color(0xFF004D40); // Teal-900
@@ -197,7 +184,6 @@ class MintColors {
   static const Color orangeSpice = Color(0xFFFFBE76); // Spice orange
   static const Color warningText = Color(0xFFF57F17); // Amber-900
   static const Color greyApple = Color(0xFF8E8E93); // Apple grey
-  static const Color greyNeutral = Color(0xFF9CA3AF); // Grey-400 cool
   static const Color redBgLight = Color(0xFFFFF1F1); // Very light red bg
   static const Color warningBgLight = Color(0xFFFFF3CD); // Warning banner bg
   static const Color warningBgWarm = Color(0xFFFEF3C7); // Warm warning bg
@@ -209,7 +195,6 @@ class MintColors {
   static const Color redWine = Color(0xFFCC3333); // Wine red
   static const Color redMedium = Color(0xFFD32F2F); // Material red-700
   static const Color greenPastel = Color(0xFF66BB6A); // Green-400
-  static const Color orangeFF = Color(0xFFFF9800); // Orange-500
   static const Color nearBlack = Color(0xFF0A0A0F); // Near-black overlay
   static const Color blueMaterial900 = Color(0xFF0D47A1); // Blue-900
 
@@ -219,17 +204,7 @@ class MintColors {
   static const Color white70 = Color(0xB3FFFFFF); // 70% white
   static const Color white60 = Color(0x99FFFFFF); // 60% white
   static const Color white54 = Color(0x8AFFFFFF); // 54% white
-  static const Color white38 = Color(0x61FFFFFF); // 38% white
   static const Color white30 = Color(0x4DFFFFFF); // 30% white
   static const Color white24 = Color(0x3DFFFFFF); // 24% white
-  static const Color black87 = Color(0xDD000000); // 87% black
-  static const Color black54 = Color(0x8A000000); // 54% black
-  static const Color black45 = Color(0x73000000); // 45% black
-  static const Color black26 = Color(0x42000000); // 26% black
-  static const Color black12 = Color(0x1F000000); // 12% black
 
-  // Landing / branding gradient
-  static const Color brandGreen = Color(0xFF1DB954); // Spotify-style green
-  static const Color brandGreenDark = Color(0xFF0A8F6C); // Dark brand green
-  static const Color landingSurface = Color(0xFFF5F6F7); // Landing page background
 }

@@ -8,22 +8,69 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
-class OptimisationDecaissementScreen extends StatelessWidget {
+class OptimisationDecaissementScreen extends StatefulWidget {
   const OptimisationDecaissementScreen({super.key});
+
+  @override
+  State<OptimisationDecaissementScreen> createState() =>
+      _OptimisationDecaissementScreenState();
+}
+
+class _OptimisationDecaissementScreenState
+    extends State<OptimisationDecaissementScreen> {
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final extra = GoRouterState.of(context).extra;
+        if (extra is Map<String, dynamic>) {
+          _seqRunId = extra['runId'] as String?;
+          _seqStepId = extra['stepId'] as String?;
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+    // Educational screen — viewing it = completed. No "abandoned" path.
+    ScreenCompletionTracker.markCompletedWithReturn('optimisation_decaissement',
+      ScreenReturn.completed(
+        route: '/decaissement',
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── AppBar white standard ──────────────────────────────
           SliverAppBar(
@@ -53,7 +100,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Principe ─────────────────────────────────
-                EduSectionTitle(text: l.optimDecaissementPrincipe),
+                MintEntrance(child: EduSectionTitle(text: l.optimDecaissementPrincipe)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _InfoCard(
                   icon: Icons.calendar_today_outlined,
@@ -75,18 +122,18 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Tableau illustratif ───────────────────────
-                EduSectionTitle(text: l.optimDecaissementIllustration),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: EduSectionTitle(text: l.optimDecaissementIllustration)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _WithdrawalTable(l: l),
                 const SizedBox(height: MintSpacing.sm),
-                Text(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                   l.optimDecaissementTableFootnote,
                   style: MintTextStyles.micro(),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Plan d'action ────────────────────────────
-                EduSectionTitle(text: l.optimDecaissementPlanTitle),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: EduSectionTitle(text: l.optimDecaissementPlanTitle)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _StepCard(
                   number: '1',
@@ -108,12 +155,12 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── CTA spécialiste ───────────────────────────
-                EduSpecialistCta(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: EduSpecialistCta(
                   icon: Icons.person_outline,
                   color: MintColors.withdrawalOptim,
                   title: l.optimDecaissementSpecialisteTitle,
                   body: l.optimDecaissementSpecialisteBody,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Sources légales ───────────────────────────
@@ -127,7 +174,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      )))),
     );
   }
 }
@@ -184,13 +231,10 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 14,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -225,12 +269,9 @@ class _WithdrawalTable extends StatelessWidget {
       (l.optimDecaissementTableRow3Spread, l.optimDecaissementTableRow3Amount, l.optimDecaissementTableRow3Tax),
     ];
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      radius: 14,
       child: Column(
         children: [
           // Header
@@ -293,13 +334,10 @@ class _StepCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 14,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -14,6 +14,8 @@ from enum import Enum
 # ---------------------------------------------------------------------------
 
 class EmploymentStatus(str, Enum):
+    """Coaching-internal French dialect. Profile API uses English ('employee', 'self_employed', 'retired').
+    If integrating with Profile API, map: salarie↔employee, independant↔self_employed, retraite↔retired."""
     salarie = "salarie"
     independant = "independant"
     retraite = "retraite"

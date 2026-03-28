@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Admin analytics dashboard — shows event summary + conversion funnel.
 ///
@@ -89,19 +92,17 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: _loading
-          ? const Center(
-              child: Padding(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: _loading
+          ? const Padding(
                 padding: EdgeInsets.only(top: 60),
-                child: CircularProgressIndicator(),
-              ),
+                child: MintLoadingSkeleton(),
             )
           : _error != null
               ? _buildError(l10n)
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(MintSpacing.lg - 4),
                   child: _buildContent(l10n),
-                ),
+                ))),
     );
   }
 
@@ -146,21 +147,21 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Period selector
-        _buildPeriodSelector(),
+        MintEntrance(child: _buildPeriodSelector()),
         const SizedBox(height: MintSpacing.lg),
 
         // KPI cards
-        _buildKpiRow(l10n),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildKpiRow(l10n)),
         const SizedBox(height: MintSpacing.lg),
 
         // Funnel
-        _buildSectionTitle(l10n.adminAnalyticsFunnel),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionTitle(l10n.adminAnalyticsFunnel)),
         const SizedBox(height: MintSpacing.sm + 4),
-        _buildFunnel(l10n),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFunnel(l10n)),
         const SizedBox(height: MintSpacing.lg),
 
         // Events by screen
-        _buildSectionTitle(l10n.adminAnalyticsByScreen),
+        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSectionTitle(l10n.adminAnalyticsByScreen)),
         const SizedBox(height: MintSpacing.sm + 4),
         _buildBreakdownCard(_byScreen, l10n),
         const SizedBox(height: MintSpacing.lg),
@@ -222,13 +223,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildKpiCard(String label, String value, IconData icon) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -257,12 +254,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   Widget _buildFunnel(S l10n) {
     if (_funnelSteps.isEmpty) {
-      return Container(
+      return MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.lg - 4),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Text(
           l10n.adminAnalyticsNoFunnel,
           style: MintTextStyles.bodyMedium(),
@@ -272,12 +267,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
     final firstCount = (_funnelSteps.first['count'] as int?) ?? 1;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      radius: 16,
       child: Column(
         children: _funnelSteps.asMap().entries.map((entry) {
           final i = entry.key;
@@ -352,12 +343,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   Widget _buildBreakdownCard(Map<String, dynamic> data, S l10n) {
     if (data.isEmpty) {
-      return Container(
+      return MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.lg - 4),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Text(
           l10n.adminAnalyticsNoData,
           style: MintTextStyles.bodyMedium(),
@@ -369,12 +358,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     final entries = data.entries.toList()
       ..sort((a, b) => ((b.value as int?) ?? 0).compareTo((a.value as int?) ?? 0));
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      radius: 16,
       child: Column(
         children: entries.asMap().entries.map((entry) {
           final i = entry.key;

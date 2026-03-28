@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/privacy_service.dart';
+import 'package:mint_mobile/services/consent_manager.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class ConsentDashboardScreen extends StatefulWidget {
   const ConsentDashboardScreen({super.key});
@@ -23,12 +28,29 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     _loadConsents();
   }
 
+  /// V12-4: Load persisted consent state from ConsentManager (SharedPreferences),
+  /// not from PrivacyService.dataCategories (static list).
+  /// Required categories default to true; optional categories read from persistence.
   Future<void> _loadConsents() async {
     try {
-      _consents = {
-        for (final cat in PrivacyService.dataCategories)
-          cat['id'] as String: cat['required'] as bool,
-      };
+      // Start with required categories always true
+      final Map<String, bool> loaded = {};
+      for (final cat in PrivacyService.dataCategories) {
+        final id = cat['id'] as String;
+        final isRequired = cat['required'] as bool;
+        if (isRequired) {
+          loaded[id] = true;
+        } else {
+          // Read persisted state from ConsentManager
+          final consentType = _mapCategoryToConsentType(id);
+          if (consentType != null) {
+            loaded[id] = await ConsentManager.isConsentGiven(consentType);
+          } else {
+            loaded[id] = false;
+          }
+        }
+      }
+      _consents = loaded;
       if (mounted) setState(() => _loading = false);
     } catch (_) {
       if (mounted) {
@@ -45,6 +67,35 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     if (cat == null) return;
     if (cat['required'] == true) return; // Cannot revoke required
     setState(() => _consents[categoryId] = value);
+
+    // Persist to ConsentManager (V5-1 audit fix: authoritative end-to-end)
+    final consentType = _mapCategoryToConsentType(categoryId);
+    if (consentType != null) {
+      ConsentManager.updateConsent(consentType, value);
+    }
+  }
+
+  /// Maps PrivacyService category IDs to ConsentManager ConsentType.
+  /// F3-4: All 7 ConsentType values are mapped from PrivacyService categories.
+  ConsentType? _mapCategoryToConsentType(String categoryId) {
+    switch (categoryId) {
+      case 'byok_data_sharing':
+        return ConsentType.byokDataSharing;
+      case 'snapshot_storage':
+        return ConsentType.snapshotStorage;
+      case 'coaching_notifications':
+        return ConsentType.notifications;
+      case 'rag_queries':
+        return ConsentType.ragQueries;
+      case 'analytics':
+        return ConsentType.analytics;
+      case 'open_banking':
+        return ConsentType.openBanking;
+      case 'document_upload':
+        return ConsentType.documentUpload;
+      default:
+        return null;
+    }
   }
 
   void _revokeAll() {
@@ -53,6 +104,8 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         _consents[cat['id'] as String] = false;
       }
     });
+    // Persist revocation to ConsentManager (V5-1 audit fix)
+    ConsentManager.revokeAll();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(S.of(context)!.consentAllRevoked),
@@ -62,22 +115,23 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
   void _exportData() {
     final l10n = S.of(context)!;
-    final summary = PrivacyService.generateExportSummary(
-      profileId: 'local',
-      profileData: {
-        'birthYear': 1990,
-        'canton': 'VD',
-        'income': 80000,
-        'analyticsEnabled': _consents['analytics'],
-        'coachingEnabled': _consents['coaching_notifications'],
-        'openBankingConnected': _consents['open_banking'],
-        'documentsUploaded': _consents['document_upload'],
-        'ragQueriesUsed': _consents['rag_queries'],
-      },
-    );
 
-    final categories =
-        (summary['dataCategories'] as List).join(', ');
+    // F5-4: Build export from actual consent state instead of mock data.
+    final activeConsents = <String>[];
+    for (final entry in _consents.entries) {
+      if (entry.value) activeConsents.add(entry.key);
+    }
+
+    final exportData = {
+      'exportDate': DateTime.now().toIso8601String(),
+      'format': 'JSON',
+      'consents': {
+        for (final entry in _consents.entries) entry.key: entry.value,
+      },
+      'activeCategories': activeConsents,
+    };
+
+    final categories = activeConsents.join(', ');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -90,19 +144,21 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Format: ${summary['format']}',
+              Text('Format: ${exportData['format']}',
                   style: MintTextStyles.bodyMedium()),
               const SizedBox(height: MintSpacing.sm),
-              Text('Categories: $categories',
+              Text('Date: ${exportData['exportDate']}',
                   style: MintTextStyles.bodyMedium()),
               const SizedBox(height: MintSpacing.sm),
               Text(
-                summary['retentionPolicy'] as String,
-                style: MintTextStyles.labelSmall(),
+                categories.isEmpty
+                    ? l10n.consentNoActiveConsents
+                    : 'Categories: $categories',
+                style: MintTextStyles.bodyMedium(),
               ),
               const SizedBox(height: MintSpacing.sm + 4),
               Text(
-                summary['disclaimer'] as String,
+                PrivacyService.disclaimer,
                 style: MintTextStyles.micro(),
               ),
             ],
@@ -110,7 +166,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () => ctx.pop(),
             child: Text(l10n.consentClose),
           ),
         ],
@@ -134,7 +190,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             style: MintTextStyles.headlineMedium(),
           ),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const MintLoadingSkeleton())),
       );
     }
 
@@ -150,7 +206,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             style: MintTextStyles.headlineMedium(),
           ),
         ),
-        body: Center(
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
           child: Container(
             padding: const EdgeInsets.all(MintSpacing.md),
             margin: const EdgeInsets.all(MintSpacing.lg),
@@ -172,7 +228,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
               ],
             ),
           ),
-        ),
+        ))),
       );
     }
 
@@ -191,41 +247,41 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSecurityHeader(l10n),
+            MintEntrance(child: _buildSecurityHeader(l10n)),
             const SizedBox(height: MintSpacing.lg),
-            _buildExportButton(l10n),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildExportButton(l10n)),
             const SizedBox(height: MintSpacing.xl),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               l10n.consentRequiredTitle,
               style: MintTextStyles.titleMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm + 4),
             ...consentStatus
                 .where((c) => c['required'] == true)
                 .map((c) => _buildCategoryCard(c, l10n)),
             const SizedBox(height: MintSpacing.lg),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
               l10n.consentOptionalTitle,
               style: MintTextStyles.titleMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm + 4),
             ...consentStatus
                 .where((c) => c['required'] == false)
                 .map((c) => _buildCategoryCard(c, l10n)),
             const SizedBox(height: MintSpacing.xl),
-            _buildRevokeAllButton(l10n),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRevokeAllButton(l10n)),
             const SizedBox(height: MintSpacing.lg),
             _buildDisclaimer(),
             const SizedBox(height: MintSpacing.md),
             _buildSources(l10n),
           ],
         ),
-      ),
+      ))),
     );
   }
 
@@ -283,13 +339,9 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg - 4),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -352,12 +404,10 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   }
 
   Widget _buildTag(String text) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      radius: 8,
       child: Text(
         text,
         style: MintTextStyles.labelSmall().copyWith(fontSize: 10),

@@ -169,14 +169,20 @@ def _build_propriete_option(
     cumulative_costs = 0.0
     cumulative_tax_savings = 0.0
 
+    # 2nd rank: from 80% LTV to 65% LTV over max 15 years
+    seuil_premier_rang = prix_bien * 0.65
+    deuxieme_rang = max(0.0, mortgage - seuil_premier_rang)
+    amort_annuel_2nd_rank = deuxieme_rang / 15 if deuxieme_rang > 0 else 0.0
+
     for year in range(1, horizon + 1):
         # Annual costs
         mortgage_interest = mortgage * taux_hypotheque
-        amortization = prix_bien * _FINMA_AMORTISSEMENT
+        # Amortization: 2nd rank only, over 15 years, then stops
+        amortization = amort_annuel_2nd_rank if mortgage > seuil_premier_rang else 0.0
         maintenance = prix_bien * taux_entretien
 
-        # Reduce mortgage by amortization (floor at 0)
-        mortgage = max(0.0, mortgage - amortization)
+        # Reduce mortgage by amortization (floor at 1st rank level)
+        mortgage = max(seuil_premier_rang, mortgage - amortization)
 
         # Total annual cost
         annual_cost = mortgage_interest + amortization + maintenance
@@ -333,10 +339,16 @@ def compare_location_vs_propriete(
         f"flexibilite et fiscalite."
     )
 
+    # Amortization: 2nd rank from 80% to 65% LTV over 15 years
+    initial_mortgage = prix_bien * (1 - _FONDS_PROPRES_MIN)
+    seuil_1er_rang = prix_bien * 0.65
+    deuxieme_rang_hyp = max(0.0, initial_mortgage - seuil_1er_rang)
+    amort_annuel_2nd_rank = deuxieme_rang_hyp / 15 if deuxieme_rang_hyp > 0 else 0.0
+
     # FINMA affordability check
     annual_theoretical_cost = (
-        prix_bien * (1 - _FONDS_PROPRES_MIN) * _FINMA_TAUX_THEORIQUE
-        + prix_bien * _FINMA_AMORTISSEMENT
+        initial_mortgage * _FINMA_TAUX_THEORIQUE
+        + amort_annuel_2nd_rank
         + prix_bien * _FINMA_FRAIS_ACCESSOIRES
     )
 
@@ -350,7 +362,7 @@ def compare_location_vs_propriete(
         f"Hypotheque: {(1 - _FONDS_PROPRES_MIN) * 100:.0f}% ({prix_bien * (1 - _FONDS_PROPRES_MIN):,.0f} CHF)",
         f"Taux hypothecaire reel: {taux_hypotheque * 100:.1f}%/an",
         f"Taux theorique FINMA: {_FINMA_TAUX_THEORIQUE * 100:.0f}% (Tragbarkeitsrechnung)",
-        f"Amortissement: {_FINMA_AMORTISSEMENT * 100:.0f}%/an du prix d'achat",
+        f"Amortissement: 2e rang (80% -> 65% LTV) sur 15 ans ({amort_annuel_2nd_rank:,.0f} CHF/an)",
         f"Frais d'entretien: {taux_entretien * 100:.0f}%/an du prix d'achat",
         f"Charges annuelles theoriques: {annual_theoretical_cost:,.0f} CHF (ratio FINMA)",
         f"Rendement marche (scenario location): {rendement_marche * 100:.1f}%/an",

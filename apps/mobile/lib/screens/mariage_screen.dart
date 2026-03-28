@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MARIAGE SCREEN — Category C (Life Event)
@@ -48,7 +49,7 @@ class _MariageScreenState extends State<MariageScreen>
   // ── Tab 1: Impots inputs ──────────────────────────────
   double _revenu1 = 80000;
   double _revenu2 = 60000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   int _nbEnfants = 0;
   Map<String, dynamic>? _fiscalResult;
 
@@ -68,7 +69,37 @@ class _MariageScreenState extends State<MariageScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _recalculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.revenuBrutAnnuel > 0) {
+          _revenu1 = profile.revenuBrutAnnuel;
+        }
+        if (profile.conjoint?.revenuBrutAnnuel != null &&
+            profile.conjoint!.revenuBrutAnnuel > 0) {
+          _revenu2 = profile.conjoint!.revenuBrutAnnuel;
+        }
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+        _nbEnfants = profile.nombreEnfants;
+        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
+        if (totalPatrimoine > 0) {
+          _patrimoine1 = totalPatrimoine * 0.6;
+          _patrimoine2 = totalPatrimoine * 0.4;
+        }
+      });
+      _recalculate();
+    } catch (_) {}
   }
 
   @override
@@ -166,7 +197,7 @@ class _MariageScreenState extends State<MariageScreen>
           _buildFiscalHeroCard(),
           const SizedBox(height: MintSpacing.xl),
         ],
-        _buildImpotsInputsCard(),
+        MintEntrance(child: _buildImpotsInputsCard()),
         const SizedBox(height: MintSpacing.xl),
         if (_fiscalResult != null) ...[
           MarriagePenaltyGauge(
@@ -177,11 +208,11 @@ class _MariageScreenState extends State<MariageScreen>
           _buildDeductionsBreakdown(),
           const SizedBox(height: MintSpacing.xl),
         ],
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
           S.of(context)!.mariageEducationalPenalty,
-        ),
+        )),
         const SizedBox(height: MintSpacing.xl),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }
@@ -256,12 +287,10 @@ class _MariageScreenState extends State<MariageScreen>
                   style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
-              Container(
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: MintColors.porcelaine,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                radius: 10,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _canton,
@@ -375,7 +404,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Regime cards
-        Row(
+        MintEntrance(child: Row(
           children: [
             const Icon(Icons.gavel, size: 16, color: MintColors.textMuted),
             const SizedBox(width: MintSpacing.sm),
@@ -384,31 +413,31 @@ class _MariageScreenState extends State<MariageScreen>
               style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm + 4),
-        _buildRegimeCard(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRegimeCard(
           index: 0,
           icon: Icons.handshake_outlined,
           title: S.of(context)!.mariageParticipation,
           subtitle: S.of(context)!.mariageParticipationSub,
           description: S.of(context)!.mariageParticipationDesc,
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm + 2),
-        _buildRegimeCard(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRegimeCard(
           index: 1,
           icon: Icons.lock_outline,
           title: S.of(context)!.mariageSeparation,
           subtitle: S.of(context)!.mariageSeparationSub,
           description: S.of(context)!.mariageSeparationDesc,
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm + 2),
-        _buildRegimeCard(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRegimeCard(
           index: 2,
           icon: Icons.group_outlined,
           title: S.of(context)!.mariageCommunaute,
           subtitle: S.of(context)!.mariageCommunauteSub,
           description: S.of(context)!.mariageCommunauteDesc,
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
 
         // Patrimoine sliders
@@ -626,18 +655,18 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Hero: total survivor monthly
-        MintResultHeroCard(
+        MintEntrance(child: MintResultHeroCard(
           eyebrow: S.of(context)!.mariageTabProtection,
           primaryValue: '${FamilyService.formatChf(totalSurvivor)}/mois',
           primaryLabel: S.of(context)!.mariageSurvivorMonthly,
           narrative: S.of(context)!.mariageProtectionIntro,
           accentColor: MintColors.success,
           tone: MintSurfaceTone.sauge,
-        ),
+        )),
         const SizedBox(height: MintSpacing.xl),
 
         // LPP slider
-        MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           child: MintPremiumSlider(
             label: S.of(context)!.mariageLppRenteLabel,
@@ -652,27 +681,27 @@ class _MariageScreenState extends State<MariageScreen>
               });
             },
           ),
-        ),
+        )),
         const SizedBox(height: MintSpacing.xl),
 
         // AVS survivor
-        _buildSurvivorCard(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSurvivorCard(
           icon: Icons.account_balance_outlined,
           label: S.of(context)!.mariageAvsSurvivor,
           subtitle: S.of(context)!.mariageAvsSurvivorSub,
           value: avsSurvivor,
           footnote: S.of(context)!.mariageAvsSurvivorFootnote,
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm + 4),
 
         // LPP survivor
-        _buildSurvivorCard(
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSurvivorCard(
           icon: Icons.savings_outlined,
           label: S.of(context)!.mariageLppSurvivor,
           subtitle: S.of(context)!.mariageLppSurvivorSub,
           value: lppSurvivor,
           footnote: S.of(context)!.mariageLppSurvivorFootnote,
-        ),
+        )),
         const SizedBox(height: MintSpacing.xl),
 
         // Married vs unmarried comparison
@@ -908,7 +937,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        MintSurface(
+        MintEntrance(child: MintSurface(
           tone: MintSurfaceTone.bleu,
           padding: const EdgeInsets.all(MintSpacing.md + 4),
           child: Row(
@@ -925,11 +954,11 @@ class _MariageScreenState extends State<MariageScreen>
               ),
             ],
           ),
-        ),
+        )),
         const SizedBox(height: MintSpacing.xl),
 
         // Progress bar
-        MintSurface(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
           tone: MintSurfaceTone.blanc,
           child: Column(
             children: [
@@ -967,7 +996,7 @@ class _MariageScreenState extends State<MariageScreen>
               ),
             ],
           ),
-        ),
+        )),
         const SizedBox(height: MintSpacing.xl),
 
         // Checklist items
@@ -982,7 +1011,7 @@ class _MariageScreenState extends State<MariageScreen>
         }),
         const SizedBox(height: MintSpacing.lg),
 
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
       ],
     );
   }

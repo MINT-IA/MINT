@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +14,9 @@ import 'package:mint_mobile/widgets/coach/lpp_vs_3a_decision_tree.dart';
 import 'package:mint_mobile/widgets/coach/fiscal_superpower_widget.dart';
 import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
@@ -34,19 +39,47 @@ class IndependantScreen extends StatefulWidget {
 class _IndependantScreenState extends State<IndependantScreen> {
   // ── State ──────────────────────────────────────────────────
   double _revenuNet = 80000;
-  final int _age = 42;
+  int _age = 42;
   bool _hasLpp = false;
   bool _hasIjm = false;
   bool _hasLaa = false;
   bool _has3a = false;
-  final String _canton = 'VD';
+  String _canton = 'ZH';
 
   IndependantResult? _result;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _compute();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // Age
+        final age = profile.age;
+        if (age >= 18 && age <= 70) _age = age;
+
+        // Canton
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _canton = profile.canton;
+        }
+
+        // Revenue
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) _revenuNet = revenu;
+      });
+      _compute();
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
   }
 
   void _compute() {
@@ -70,7 +103,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -78,17 +111,17 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: MintSpacing.lg),
-                _buildIntro(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Revenue input
-                _buildRevenueSection(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenueSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Coverage toggles
-                _buildCoverageToggles(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCoverageToggles()),
                 const SizedBox(height: MintSpacing.lg),
 
                 if (_result != null) ...[
@@ -159,7 +192,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 ],
 
                 // Disclaimer
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: MintSpacing.md),
 
                 _buildMintIndependantSection(),
@@ -172,7 +205,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -242,13 +275,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Intro ──────────────────────────────────────────────────
 
   Widget _buildIntro() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -267,12 +297,12 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── Jour J section (P6-A / S42) ───────────────────────────
 
-  static const _protections = [
-    ('AVS', '\ud83e\uddf1', 'Double ta cotisation'),
-    ('LPP', '\ud83c\udfe6', 'Dispara\u00eet \u2014 choix volontaire'),
-    ('LAA', '\ud83c\udfe5', 'Dispara\u00eet \u2014 accident hors travail'),
-    ('IJM', '\ud83e\ude7a', 'Dispara\u00eet \u2014 maladie 0 CHF'),
-    ('APG', '\ud83d\udc76', 'Dispara\u00eet \u2014 cong\u00e9 parental'),
+  List<(String, String, String)> _protections(S s) => [
+    ('AVS', '\ud83e\uddf1', s.indepProtAvs),
+    ('LPP', '\ud83c\udfe6', s.indepProtLpp),
+    ('LAA', '\ud83c\udfe5', s.indepProtLaa),
+    ('IJM', '\ud83e\ude7a', s.indepProtIjm),
+    ('APG', '\ud83d\udc76', s.indepProtApg),
   ];
 
   Widget _buildJourJSection() {
@@ -343,7 +373,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
 
-          ..._protections.map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
+          ..._protections(S.of(context)!).map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
 
           const SizedBox(height: MintSpacing.sm),
 
@@ -409,14 +439,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Revenue section ────────────────────────────────────────
 
   Widget _buildRevenueSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -425,52 +450,23 @@ class _IndependantScreenState extends State<IndependantScreen> {
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                IndependantService.formatChf(_revenuNet),
-                style: MintTextStyles.headlineMedium(),
-              ),
-              Text(
-                S.of(context)!.independantAgeLabel(_age),
-                style: MintTextStyles.bodySmall(
-                    color: MintColors.textSecondary),
-              ),
-            ],
+          Text(
+            S.of(context)!.independantAgeLabel(_age),
+            style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Semantics(
+          MintPremiumSlider(
             label: S.of(context)!.independantRevenueTitle,
-            value: IndependantService.formatChf(_revenuNet),
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: MintColors.primary,
-                inactiveTrackColor: MintColors.border,
-                thumbColor: MintColors.primary,
-                overlayColor: MintColors.primary.withValues(alpha: 0.1),
-                trackHeight: 4,
-              ),
-              child: Slider(
-                value: _revenuNet,
-                min: 20000,
-                max: 200000,
-                divisions: 36,
-                onChanged: (value) {
-                  _revenuNet = value;
-                  _compute();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('CHF\u00A020k',
-                  style: MintTextStyles.labelSmall()),
-              Text('CHF\u00A0200k',
-                  style: MintTextStyles.labelSmall()),
-            ],
+            value: _revenuNet,
+            min: 20000,
+            max: 200000,
+            divisions: 36,
+            formatValue: (v) => IndependantService.formatChf(v),
+            onChanged: (value) {
+              _revenuNet = value;
+              _compute();
+            },
           ),
         ],
       ),
@@ -480,14 +476,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Coverage toggles ───────────────────────────────────────
 
   Widget _buildCoverageToggles() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -637,16 +628,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
     return Semantics(
       label: '${gap.label}: $statusLabel',
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: statusColor.withValues(alpha: 0.3),
-            width: gap.isCovered ? 0.8 : 1.5,
-          ),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -715,14 +699,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
     final result = _result!;
     final cost = result.protectionCost;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -917,15 +896,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
         ...result.recommendations.asMap().entries.map((entry) {
           return Padding(
             padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-            child: Container(
+            child: MintSurface(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                    color: MintColors.border.withValues(alpha: 0.6),
-                    width: 0.8),
-              ),
+              radius: 14,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -991,29 +964,29 @@ class _IndependantScreenState extends State<IndependantScreen> {
             title: S.of(context)!.indepCaisseLpp,
             emoji: '\u{1F3DB}\uFE0F',
             subtitle: S.of(context)!.indepCaisseLppSub,
-            pros: const [
-              'Couverture invalidit\u00e9 incluse',
-              'Cotisations d\u00e9ductibles',
-              'Rente pr\u00e9vue \u00e0 la retraite',
+            pros: [
+              S.of(context)!.indepLppProInvalidite,
+              S.of(context)!.indepLppProDeductible,
+              S.of(context)!.indepLppProRente,
             ],
-            cons: const [
-              'Cotisations obligatoires \u00e9lev\u00e9es',
-              'Moins flexible',
+            cons: [
+              S.of(context)!.indepLppConCotisations,
+              S.of(context)!.indepLppConFlexible,
             ],
             annualTaxSavings: _revenuNet * 0.08,
           ),
           grand3aOption: DecisionOption(
             title: S.of(context)!.indepGrand3a,
             emoji: '\u{1F3E6}',
-            subtitle: '20% du revenu net, max CHF 36\'288/an',
-            pros: const [
-              'Flexibilit\u00e9 totale',
-              'D\u00e9duction fiscale maximale',
-              'Capital disponible \u00e0 60 ans',
+            subtitle: S.of(context)!.indepGrand3aSub,
+            pros: [
+              S.of(context)!.indepGrand3aProFlexibilite,
+              S.of(context)!.indepGrand3aProDeduction,
+              S.of(context)!.indepGrand3aProCapital,
             ],
-            cons: const [
-              'Pas de couverture invalidit\u00e9',
-              'Pas de rente pr\u00e9vue',
+            cons: [
+              S.of(context)!.indepGrand3aConInvalidite,
+              S.of(context)!.indepGrand3aConRente,
             ],
             annualTaxSavings:
                 (_revenuNet * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp) *
@@ -1027,19 +1000,19 @@ class _IndependantScreenState extends State<IndependantScreen> {
           desiredNetAnnual: desiredNet,
           layers: [
             RateLayer(
-                label: 'Imp\u00f4ts (estimation)',
+                label: S.of(context)!.indepLayerImpots,
                 amount: taxes,
                 emoji: '\u{1F3DB}\uFE0F'),
             RateLayer(
-                label: 'Charges sociales AVS/AI',
+                label: S.of(context)!.indepLayerChargesSociales,
                 amount: socialCharges,
                 emoji: '\u{1F6E1}\uFE0F'),
             RateLayer(
-                label: 'Frais professionnels',
+                label: S.of(context)!.indepLayerFraisPro,
                 amount: businessExp,
                 emoji: '\u{1F4BC}'),
             RateLayer(
-                label: 'Jours non facturables',
+                label: S.of(context)!.indepLayerJoursNonFact,
                 amount: unpaidDays,
                 emoji: '\u{1F4C5}'),
           ],
@@ -1051,26 +1024,24 @@ class _IndependantScreenState extends State<IndependantScreen> {
         FiscalSuperpowerWidget(
           taxRate: 0.25,
           superpowers: [
-            const FiscalSuperpower(
-              label: 'Pilier 3a grand versement',
+            FiscalSuperpower(
+              label: S.of(context)!.indepFiscal3a,
               emoji: '\u{1F3E6}',
               annualDeduction: 20000,
               taxSaving: 20000 * 0.25,
               legalRef: 'OPP3 art. 1',
-              note:
-                  'Max 20% du revenu net, plafonn\u00e9 \u00e0 CHF 36\'288/an sans LPP',
+              note: S.of(context)!.indepFiscal3aNote,
             ),
             FiscalSuperpower(
-              label: 'Frais professionnels effectifs',
+              label: S.of(context)!.indepFiscalFraisPro,
               emoji: '\u{1F4BC}',
               annualDeduction: desiredNet * 0.15,
               taxSaving: desiredNet * 0.15 * 0.25,
               legalRef: 'LIFD art. 27 al. 2',
-              note:
-                  'Loyer bureau, mat\u00e9riel, formation \u2014 d\u00e9ductibles au r\u00e9el',
+              note: S.of(context)!.indepFiscalFraisProNote,
             ),
-            const FiscalSuperpower(
-              label: 'Primes assurance maladie (LPP vol.)',
+            FiscalSuperpower(
+              label: S.of(context)!.indepFiscalPrimesLpp,
               emoji: '\u{1F6E1}\uFE0F',
               annualDeduction: 3600,
               taxSaving: 3600 * 0.25,
@@ -1085,32 +1056,32 @@ class _IndependantScreenState extends State<IndependantScreen> {
           grossIncome: _revenuNet,
           charges: [
             ChargeLine(
-              label: 'AVS / AI / APG',
-              employeeAmount: _revenuNet * 0.0530,
-              selfEmployedAmount: _revenuNet * 0.1010,
-              note: 'LAVS art. 8 \u2014 ind\u00e9p. paie les 2 parts',
+              label: S.of(context)!.indepChargeAvs,
+              employeeAmount: _revenuNet * avsCotisationSalarie,
+              selfEmployedAmount: _revenuNet * avsCotisationTotal,
+              note: 'LAVS art. 8',
             ),
             ChargeLine(
-              label: 'LPP (2e pilier)',
-              employeeAmount: _revenuNet * 0.070,
+              label: S.of(context)!.indepChargeLpp,
+              employeeAmount: _revenuNet * getLppBonificationRate(_age),
               selfEmployedAmount: 0,
-              note: 'Facultatif pour ind\u00e9pendant (LPP art. 4)',
+              note: S.of(context)!.indepChargeLppNote,
             ),
             ChargeLine(
-              label: 'Ch\u00f4mage (AC)',
-              employeeAmount: _revenuNet * 0.011,
+              label: S.of(context)!.indepChargeAc,
+              employeeAmount: _revenuNet * acCotisationSalarie,
               selfEmployedAmount: 0,
-              note: 'Pas d\'AC pour ind\u00e9pendant (LACI art. 2)',
+              note: S.of(context)!.indepChargeAcNote,
             ),
             ChargeLine(
-              label: 'Cotisations pro (IJM/LAA)',
+              label: S.of(context)!.indepChargePro,
               employeeAmount: _revenuNet * 0.020,
               selfEmployedAmount: _revenuNet * 0.040,
-              note: '\u00c0 charge enti\u00e8re de l\'ind\u00e9pendant',
+              note: S.of(context)!.indepChargeProNote,
             ),
           ],
-          totalEmployee: _revenuNet * (0.0530 + 0.070 + 0.011 + 0.020),
-          totalSelfEmployed: _revenuNet * (0.1010 + 0 + 0 + 0.040),
+          totalEmployee: _revenuNet * (avsCotisationSalarie + getLppBonificationRate(_age) + acCotisationSalarie + 0.020),
+          totalSelfEmployed: _revenuNet * (avsCotisationTotal + 0 + 0 + 0.040),
         ),
         const SizedBox(height: MintSpacing.lg),
 
@@ -1123,15 +1094,14 @@ class _IndependantScreenState extends State<IndependantScreen> {
               deadline: 'J+30',
               urgencyColor: MintColors.scoreCritique,
               actions: [
-                const PlanAction(
-                  label: 'Inscription caisse AVS ind\u00e9pendants',
-                  consequence:
-                      'Amendes r\u00e9troactives si d\u00e9lai d\u00e9pass\u00e9',
+                PlanAction(
+                  label: S.of(context)!.indepPlanInscriptionAvs,
+                  consequence: S.of(context)!.indepPlanInscriptionAvsConseq,
                   legalRef: 'LAVS art. 12',
                 ),
-                const PlanAction(
-                  label: 'Assurance accidents LAA (si pas LPP)',
-                  consequence: 'Pas de couverture accident professionnel',
+                PlanAction(
+                  label: S.of(context)!.indepPlanLaa,
+                  consequence: S.of(context)!.indepPlanLaaConseq,
                   legalRef: 'LAA art. 4',
                 ),
               ],
@@ -1142,16 +1112,13 @@ class _IndependantScreenState extends State<IndependantScreen> {
               deadline: 'J+60',
               urgencyColor: MintColors.scoreAttention,
               actions: [
-                const PlanAction(
-                  label:
-                      'Ouvrir compte 3a (d\u00e9duction jusqu\'\u00e0 CHF 36\'288)',
+                PlanAction(
+                  label: S.of(context)!.indepPlanOuvrir3a,
                   legalRef: 'OPP3',
                 ),
-                const PlanAction(
-                  label:
-                      '\u00c9valuer IJM (indemnit\u00e9 journali\u00e8re maladie)',
-                  consequence:
-                      'Perte de revenus d\u00e8s J+3 en cas de maladie',
+                PlanAction(
+                  label: S.of(context)!.indepPlanIjm,
+                  consequence: S.of(context)!.indepPlanIjmConseq,
                 ),
               ],
             ),
@@ -1161,12 +1128,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
               deadline: 'J+90',
               urgencyColor: MintColors.primary,
               actions: [
-                const PlanAction(
-                    label:
-                        'Frais professionnels d\u00e9ductibles \u2014 tenir registre'),
-                const PlanAction(
-                    label:
-                        'Acomptes imp\u00f4ts cantonaux \u2014 \u00e9viter les int\u00e9r\u00eats'),
+                PlanAction(
+                    label: S.of(context)!.indepPlanFraisPro),
+                PlanAction(
+                    label: S.of(context)!.indepPlanAcomptes),
               ],
             ),
           ],
@@ -1180,12 +1145,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget _buildDisclaimer() {
     return Semantics(
       label: S.of(context)!.independantDisclaimer,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -312,8 +312,8 @@ class FinancialFitnessService {
 
     // 1. 3a maximise (0-25 points)
     final plafond3a = profile.employmentStatus == 'independant'
-        ? pilier3aPlafondSansLpp
-        : pilier3aPlafondAvecLpp;
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final contribution3aAnnuelle = profile.total3aMensuel * 12;
     final ratio3a = plafond3a > 0 ? contribution3aAnnuelle / plafond3a : 0.0;
     final points3a = ratio3a >= 1.0

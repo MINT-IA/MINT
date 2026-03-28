@@ -11,7 +11,12 @@ import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -34,7 +39,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   int _horizon = 3;
 
   // --- Fiscal situation ---
-  String _canton = 'VD';
+  String _canton = 'ZH';
   String _civilStatus = 'single';
   bool _manualTauxOverride = false;
   double _manualTaux = 0.32;
@@ -77,6 +82,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       );
 
   bool _prefilled = false;
+  bool _hasUserInteracted = false;
+
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
 
   @override
   void initState() {
@@ -91,6 +101,40 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       curve: Curves.easeOutCubic,
     );
     _heroController.forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final extra = GoRouterState.of(context).extra;
+        if (extra is Map<String, dynamic>) {
+          _seqRunId = extra['runId'] as String?;
+          _seqStepId = extra['stepId'] as String?;
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('rachat_echelonne',
+        ScreenReturn.abandoned(
+          route: '/rachat-lpp',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final result = _result;
+    ScreenCompletionTracker.markCompletedWithReturn('rachat_echelonne',
+      ScreenReturn.completed(
+        route: '/rachat-lpp',
+        stepOutputs: {'economie_rachat': result.delta},
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   @override
@@ -132,8 +176,27 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   void _onInputChanged() {
+    _hasUserInteracted = true;
     _heroController.forward(from: 0);
     setState(() {});
+    _emitScreenReturn();
+  }
+
+  void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return;
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'rachat_echelonne',
+      ScreenReturn.completed(
+        route: '/rachat-lpp',
+        updatedFields: {
+          'rachatOptimalAnnuel': _rachatMax / _horizon,
+          'rachatEconomieFiscale': _result.delta,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'pilier_3a',
+      ),
+    );
   }
 
   @override
@@ -141,7 +204,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.surface,
       body: CustomScrollView(
         slivers: [
@@ -160,15 +227,15 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildIntroCard(l),
+                MintEntrance(child: _buildIntroCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildHeroChiffreChoc(result, l),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeroChiffreChoc(result, l)),
                 const SizedBox(height: MintSpacing.lg),
-                _buildLppSituationCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildLppSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildFiscalSituationCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFiscalSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildStrategieCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildStrategieCard(l)),
                 const SizedBox(height: MintSpacing.lg),
                 _buildComparisonSection(result, l),
                 const SizedBox(height: MintSpacing.lg),
@@ -195,18 +262,15 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 
   Widget _buildIntroCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -265,13 +329,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildLppSituationCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -288,13 +349,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   Widget _buildFiscalSituationCard(S l) {
     final displayRate = _effectiveTaux;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -308,13 +366,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               Text(l.rachatEchelonneCanton, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
               Semantics(
                 label: l.rachatEchelonneCanton,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: MintColors.border),
-                  ),
+                  radius: 8,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _canton,
@@ -337,12 +392,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(l.rachatEchelonneEtatCivil, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              Container(
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: MintColors.border),
-                ),
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                radius: 8,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -359,13 +411,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           const SizedBox(height: MintSpacing.lg),
 
           // Auto-calculated taux marginal
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.border),
-            ),
+            radius: 12,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -433,15 +482,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   const SizedBox(height: MintSpacing.sm),
                   Row(
                     children: [
-                      Expanded(
-                        child: MintCompactSlider(
-                          value: _manualTaux,
-                          min: 0.10,
-                          max: 0.45,
-                          divisions: 35,
-                          onChanged: (v) { _manualTaux = v; _onInputChanged(); },
-                        ),
-                      ),
+                      Expanded(child: MintCompactSlider(value: _manualTaux, min: 0.10, max: 0.45, divisions: 35, onChanged: (v) { _manualTaux = v; _onInputChanged(); })),
                       Semantics(
                         button: true,
                         label: l.rachatEchelonneAuto,
@@ -518,9 +559,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildStrategieCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -576,9 +618,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required bool isWinner, required String adaptedLabel, required String savingsLabel}) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isWinner ? color : MintColors.border, width: isWinner ? 2 : 1)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -602,9 +645,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildWaterfallSection(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -649,9 +693,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     double cumul = 0;
     for (final year in result.yearlyPlan) { cumul += year.montantRachat; cumulativeRachat.add(cumul); }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -660,9 +705,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           for (int i = 0; i < result.yearlyPlan.length; i++)
             _buildTimelineNode(year: result.yearlyPlan[i], index: i, total: result.yearlyPlan.length, lacunePercent: _rachatMax > 0 ? (cumulativeRachat[i] / _rachatMax * 100).clamp(0.0, 100.0) : 0.0, l: l),
           const SizedBox(height: MintSpacing.sm),
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12)),
+            radius: 12,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -708,10 +754,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
-            child: Container(
-              margin: EdgeInsets.only(bottom: isLast ? 0 : MintSpacing.sm + 4),
+            child: MintSurface(
+              tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: MintColors.border)),
+              radius: 12,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

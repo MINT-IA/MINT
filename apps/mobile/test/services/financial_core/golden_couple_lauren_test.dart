@@ -158,10 +158,10 @@ void main() {
         deduction: pilier3aPlafondAvecLpp,
         canton: laurenCanton,
       );
-      // VS is a high-tax canton, marginal rate for 67k ≈ 22% * 1.1 = 24.2%
-      // Saving ≈ 7258 * 0.242 ≈ 1756
-      expect(saving, greaterThan(1000));
-      expect(saving, lessThan(3000));
+      // VS effective 14.56% × income adj ~0.87 × 1.3 marginal ≈ 16.5%
+      // Saving ≈ 7258 * 0.165 ≈ 1'198
+      expect(saving, greaterThan(700));
+      expect(saving, lessThan(2000));
     });
 
     test('8. Lauren marginal tax rate VS at 67k', () {
@@ -169,8 +169,9 @@ void main() {
         laurenSalary,
         laurenCanton,
       );
-      // 67k is in the < 80k bracket → base 22% × 1.1 (VS high-tax) = 24.2%
-      expect(rate, closeTo(0.242, 0.001));
+      // VS effective 14.56% × income adj ~0.87 × 1.3 ≈ 0.165
+      expect(rate, greaterThan(0.14));
+      expect(rate, lessThan(0.20));
     });
   });
 

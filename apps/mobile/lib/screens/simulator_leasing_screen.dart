@@ -5,7 +5,12 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/leasing_cost_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
   const SimulatorLeasingScreen({super.key});
@@ -26,7 +31,26 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      // Leasing is a generic calculator — check if dettes.leasing informs
+      // a better monthly payment default
+      final leasingDebt = profile.dettes.mensualiteLeasing;
+      if (leasingDebt != null && leasingDebt > 0) {
+        _monthlyPayment = leasingDebt.clamp(100, 1500);
+        _calculate();
+      }
+    } catch (_) {
+      // Provider not available
+    }
   }
 
   void _calculate() {
@@ -49,42 +73,39 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         title: Text(S.of(context)!.leasingTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCoachSection(),
+            MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildInputSection(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
             const SizedBox(height: MintSpacing.xl),
             // ── P10-D : Le vrai coût du leasing ─────────────────
-            LeasingCostWidget(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: LeasingCostWidget(
               vehiclePrice: _monthlyPayment * _durationMonths / 0.55,
               monthlyLeasing: _monthlyPayment,
               leasingDurationMonths: _durationMonths,
               annualReturnRate: _alternativeRate / 100,
-            ),
+            )),
             const SizedBox(height: MintSpacing.xl),
-            _buildAlternativesSection(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAlternativesSection()),
             const SizedBox(height: MintSpacing.xxl),
-            _buildDisclaimer(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      ))),
     );
   }
 
   Widget _buildCoachSection() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -172,37 +193,14 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
-            Text(
-              format(value),
-              style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: format,
+      onChanged: onChanged,
     );
   }
 
@@ -220,9 +218,12 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         children: [
           Text(S.of(context)!.leasingCoutOpportunite20, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            _currencyFormat.format(opportunityCost20),
-            style: MintTextStyles.displayMedium(color: MintColors.error),
+          Semantics(
+            label: '${S.of(context)!.leasingCoutOpportunite20}: ${_currencyFormat.format(opportunityCost20)}',
+            child: Text(
+              _currencyFormat.format(opportunityCost20),
+              style: MintTextStyles.displayMedium(color: MintColors.error),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
           Text(
@@ -274,12 +275,10 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
           const SizedBox(width: MintSpacing.md),

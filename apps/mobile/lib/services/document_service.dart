@@ -924,6 +924,7 @@ class DocumentService {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
+        // Dynamic interpolation — not extracted
         message: 'Le fichier ($sizeMb Mo) depasse la limite de 20 Mo.',
       );
     }
@@ -964,6 +965,7 @@ class DocumentService {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
+        // Dynamic interpolation — not extracted
         message: 'Le fichier ($sizeMb Mo) depasse la limite de 10 Mo.',
       );
     }

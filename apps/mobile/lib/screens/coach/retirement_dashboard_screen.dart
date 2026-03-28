@@ -28,8 +28,11 @@ import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -84,6 +87,11 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   bool _snapshotPersisted = false;
   bool _slmPromptChecked = false;
 
+  // ── Sequence (Tier A) ─────────────────────────────────
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   // ────────────────────────────────────────────────────────────
   //  LIFECYCLE
   // ────────────────────────────────────────────────────────────
@@ -96,6 +104,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _slmPromptChecked = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) SlmAutoPromptService.checkAndPrompt(context);
+        _readSequenceContext();
       });
     }
 
@@ -237,10 +246,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final profile = _profile;
     if (profile == null) return;
 
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final taxSaving3a = profile.salaireBrutMensuel > 0
         ? pilier3aPlafondAvecLpp *
             RetirementTaxCalculator.estimateMarginalRate(
-                profile.salaireBrutMensuel * 12, profile.canton)
+                profile.salaireBrutMensuel * 12, profile.canton,
+                isMarried: isMarried, children: profile.nombreEnfants)
         : 0.0;
     final friScore = _score?.global.toDouble() ?? 0.0;
     final friDelta = (_score?.deltaVsPreviousMonth ?? 0).toDouble();
@@ -296,6 +307,51 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   // ────────────────────────────────────────────────────────────
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (_projection == null) {
+      // No profile / no projection computed → user saw State C (onboarding CTA).
+      // Emit abandoned so coordinator retries after profile enrichment.
+      ScreenCompletionTracker.markCompletedWithReturn('retirement_dashboard',
+        ScreenReturn.abandoned(
+          route: '/retraite',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final tauxRemplacement = _projection!.tauxRemplacementBase;
+    final revenuMensuelRetraite = _projection!.base.revenuAnnuelRetraite / 12;
+    final revenuMensuelActuel = (_profile?.revenuBrutAnnuel ?? 0.0) / 12;
+    final gapMensuel = revenuMensuelActuel > 0
+        ? revenuMensuelActuel - revenuMensuelRetraite
+        : 0.0;
+    ScreenCompletionTracker.markCompletedWithReturn('retirement_dashboard',
+      ScreenReturn.completed(
+        route: '/retraite',
+        stepOutputs: {
+          'taux_remplacement': tauxRemplacement,
+          'gap_mensuel': gapMensuel,
+        },
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
+
   //  BUILD — 3 STATES
   // ────────────────────────────────────────────────────────────
 
@@ -303,10 +359,16 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
 
-    if (!provider.hasProfile || _projection == null) {
-      return _buildStateC();
-    }
-    return _buildDashboard();
+    final child = (!provider.hasProfile || _projection == null)
+        ? _buildStateC()
+        : _buildDashboard();
+
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: child,
+    );
   }
 
   // ────────────────────────────────────────────────────────────
@@ -354,7 +416,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(profile.firstName),
           SliverPadding(
@@ -374,7 +436,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ],
 
                 // Position 1: Hero — Replacement rate arc (the single moment hero)
-                Center(
+                MintEntrance(child: Center(
                   child: MintProgressArc(
                     value: proj.tauxRemplacementBase,
                     maxValue: 100,
@@ -382,11 +444,11 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     subtitle: l.dashboardMetricReplacementRate,
                     size: 200,
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.md),
 
                 // Position 1b: Hero Zone — monthly income, sparkline, pillar bar
-                RetirementHeroZone(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: RetirementHeroZone(
                   monthlyIncome: isCouple && partnerMonthly != null
                       ? monthlyBase + partnerMonthly
                       : monthlyBase,
@@ -404,7 +466,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   partnerName: profile.conjoint?.firstName,
                   partnerMonthlyIncome: partnerMonthly,
                   onConfidenceTap: () => _showEnrichmentSheet(context),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── BELOW FOLD ──
@@ -423,7 +485,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   ),
 
                 // Position 2b: Pillar signal rows (AVS/LPP/3a — light, not heavy cards)
-                MintSurface(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: MintSurface(
                   tone: MintSurfaceTone.craie,
                   padding: const EdgeInsets.symmetric(
                     horizontal: MintSpacing.lg,
@@ -449,7 +511,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                         ),
                     ],
                   ),
-                ),
+                )),
                 const SizedBox(height: MintSpacing.xl),
 
                 // Position 2c: Confidence notice (premium)
@@ -486,7 +548,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -497,7 +559,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget _buildStateC() {
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(null),
           SliverPadding(
@@ -517,7 +579,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -689,15 +751,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       context.push('/data-block/${p.category}');
                     },
                     borderRadius: BorderRadius.circular(12),
-                    child: Container(
+                    child: MintSurface(
+                      tone: MintSurfaceTone.porcelaine,
                       padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: MintColors.border.withValues(alpha: 0.5),
-                        ),
-                      ),
+                      radius: 12,
                       child: Row(
                         children: [
                           Container(
@@ -840,13 +897,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       button: true,
       child: GestureDetector(
         onTap: () => context.push('/education/hub'),
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(MintSpacing.md),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-          ),
+          radius: 14,
           child: Row(
             children: [
               Container(
@@ -1027,22 +1081,10 @@ class _ActionCard extends StatelessWidget {
       child: GestureDetector(
         onTap:
             card.deeplink != null ? () => context.push(card.deeplink!) : null,
-        child: Container(
+        child: MintSurface(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: urgencyColor.withValues(alpha: 0.15),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: MintColors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+          radius: 14,
+          elevated: true,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

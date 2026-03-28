@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -135,7 +137,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Coach IA sur ton appareil',
+                    S.of(context)!.slmAutoPromptTitle,
                     style: MintTextStyles.titleMedium()
                         .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
@@ -145,8 +147,7 @@ class _SlmDownloadSheet extends StatelessWidget {
             const SizedBox(height: 12),
 
             Text(
-              'MINT peut installer un modele d\'IA directement sur ton telephone '
-              'pour des conseils personnalises — 100% prive, aucune donnee ne quitte ton appareil.',
+              S.of(context)!.slmAutoPromptBody,
               style: MintTextStyles.bodyMedium(),
             ),
             const SizedBox(height: 8),
@@ -165,7 +166,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                 const Icon(Icons.wifi, size: 16, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
-                  '~${SlmDownloadService.instance.estimatedDownloadMinutes} min en WiFi',
+                  S.of(context)!.slmWifiEstimate(SlmDownloadService.instance.estimatedDownloadMinutes),
                   style: MintTextStyles.bodySmall(),
                 ),
               ],
@@ -208,7 +209,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Coach IA installe ! Tes conseils seront personnalises.',
+                        S.of(context)!.slmAutoInstalledMsg,
                         style: MintTextStyles.bodySmall(color: MintColors.success)
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
@@ -220,7 +221,7 @@ class _SlmDownloadSheet extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     foregroundColor: Colors.white,
@@ -230,7 +231,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Continuer',
+                    S.of(context)!.milestoneContinueBtn,
                     style: MintTextStyles.bodyMedium()
                         .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
@@ -241,8 +242,7 @@ class _SlmDownloadSheet extends StatelessWidget {
             // Error message
             if (hasError && !isDownloading) ...[
               Text(
-                slm.lastError ??
-                    'Le telechargement a echoue. Tu peux reessayer depuis les reglages.',
+                slm.lastError ?? S.of(context)!.slmDownloadFailedMessage,
                 style: MintTextStyles.bodySmall(color: MintColors.error),
               ),
               const SizedBox(height: 12),
@@ -258,7 +258,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                       : () => slm.downloadModel(),
                   icon: const Icon(Icons.download),
                   label: Text(
-                    'Installer le coach IA',
+                    S.of(context)!.slmInstallBtn,
                     style: MintTextStyles.bodyMedium()
                         .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
@@ -276,7 +276,7 @@ class _SlmDownloadSheet extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -284,7 +284,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Plus tard',
+                    S.of(context)!.slmLaterBtn,
                     style: MintTextStyles.bodyMedium(),
                   ),
                 ),

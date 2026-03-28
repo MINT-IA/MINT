@@ -2,6 +2,10 @@
 ///
 /// Lightweight store using SharedPreferences (consistent with MINT pattern).
 /// Stores conversation messages as JSON and maintains an index of metadata.
+///
+/// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are global, not per-account.
+/// Account isolation relies on purge at logout/deleteAccount (auth_provider.dart).
+/// TODO: Prefix all keys with user ID for native multi-account isolation.
 library;
 
 import 'dart:convert';
@@ -200,6 +204,39 @@ class ConversationStore {
 
   // ── Private helpers ─────────────────────────────────────
 
+  // ── PII scrubbing (V3-5 audit) ───────────────────────────
+  //
+  // Regex-based redaction of amounts, emails, phone numbers,
+  // and common "mon salaire est de X" patterns from text that
+  // will be persisted as titles/summaries or injected into AI context.
+
+  /// Patterns for PII-like data to redact from persisted text.
+  static final _piiPatterns = [
+    // CHF amounts: "CHF 120'000", "120'000 CHF", "120000", "12'345.67"
+    RegExp(r"CHF\s*[\d'\.]+", caseSensitive: false),
+    RegExp(r"[\d'\.]{4,}\s*CHF", caseSensitive: false),
+    // Standalone large numbers (4+ digits, possibly formatted)
+    RegExp(r"\b\d{1,3}(?:['\s]\d{3})+(?:\.\d{1,2})?\b"),
+    RegExp(r"\b\d{4,}(?:\.\d{1,2})?\b"),
+    // "mon salaire est de X" / "je gagne X" patterns
+    RegExp(r'(salaire|gagne|touche|revenu)[^.]{0,20}[\d\s\x27\.]{4,}', caseSensitive: false),
+    // Email addresses
+    RegExp(r'\b[\w.+-]+@[\w-]+\.[\w.]+\b'),
+    // Swiss phone numbers: +41..., 07x...
+    RegExp(r'(?:\+41|0)\s*\d[\d\s]{7,}'),
+  ];
+
+  /// Scrub PII-like patterns from text for safe persistence.
+  static String scrubPii(String text) {
+    var result = text;
+    for (final pattern in _piiPatterns) {
+      result = result.replaceAll(pattern, '[***]');
+    }
+    // Collapse multiple consecutive redactions
+    result = result.replaceAll(RegExp(r'(\[\*\*\*\]\s*){2,}'), '[***] ');
+    return result.trim();
+  }
+
   /// Auto-generate title from first user message (first N chars).
   String _generateTitle(List<ChatMessage> messages) {
     final firstUserMsg = messages
@@ -211,8 +248,9 @@ class ConversationStore {
       return 'Conversation';
     }
 
-    if (firstUserMsg.length <= _maxTitleLength) return firstUserMsg;
-    return '${firstUserMsg.substring(0, _maxTitleLength)}...';
+    final scrubbed = scrubPii(firstUserMsg);
+    if (scrubbed.length <= _maxTitleLength) return scrubbed;
+    return '${scrubbed.substring(0, _maxTitleLength)}...';
   }
 
   /// Auto-generate summary from first exchange (user + assistant).
@@ -220,7 +258,7 @@ class ConversationStore {
     final userMsgs = messages.where((m) => m.role == 'user').toList();
     if (userMsgs.isEmpty) return null;
 
-    final first = userMsgs.first.content.trim();
+    final first = scrubPii(userMsgs.first.content.trim());
     if (first.length <= 120) return first;
     return '${first.substring(0, 120)}...';
   }
@@ -292,7 +330,6 @@ class ConversationStore {
         if (msg.suggestedActions != null)
           'suggestedActions': msg.suggestedActions,
         if (msg.disclaimers.isNotEmpty) 'disclaimers': msg.disclaimers,
-        if (msg.userQuery != null) 'userQuery': msg.userQuery,
       };
 
   ChatMessage _messageFromJson(Map<String, dynamic> json) {
@@ -314,7 +351,6 @@ class ConversationStore {
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      userQuery: json['userQuery'] as String?,
     );
   }
 }

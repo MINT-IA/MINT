@@ -186,15 +186,14 @@ void main() {
       expect(find.byType(GestureDetector), findsWidgets);
     });
 
-    testWidgets('Profile shows section headers (Mon dossier / Réglages)',
+    testWidgets('Profile shows Mon dossier section header (Réglages moved to SettingsSheet)',
         (tester) async {
       final coachProvider = buildFullCoachProvider();
       await tester.pumpWidget(buildProfileScreen(coachProvider: coachProvider));
       await tester.pump();
 
-      // Phase 2 redesign: two section headers in sentence case
+      // Réglages section removed — settings now in SettingsSheet via gear icon
       expect(find.text('Mon dossier'), findsOneWidget);
-      expect(find.textContaining('glages'), findsOneWidget); // Ré prefix may be trimmed
     });
   });
 

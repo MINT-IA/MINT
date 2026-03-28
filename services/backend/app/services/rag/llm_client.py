@@ -59,7 +59,8 @@ class LLMClient:
         system_prompt: str,
         user_message: str,
         context_chunks: list[str],
-    ) -> str:
+        tools: list[dict] | None = None,
+    ) -> str | dict:
         """
         Generate a response using the configured LLM.
 
@@ -67,9 +68,12 @@ class LLMClient:
             system_prompt: System prompt with guardrails.
             user_message: User's question.
             context_chunks: Retrieved knowledge base chunks for context.
+            tools: Optional list of tool definitions (Anthropic format).
+                   When provided and the LLM returns tool_use blocks,
+                   the response is a dict with "text" and "tool_calls" keys.
 
         Returns:
-            Generated text response.
+            str if no tool calls, or dict with "text" and "tool_calls" keys.
         """
         # Build the context-augmented user message
         augmented_message = self._build_augmented_message(
@@ -77,7 +81,9 @@ class LLMClient:
         )
 
         if self.provider == "claude":
-            return await self._call_claude(system_prompt, augmented_message)
+            return await self._call_claude(
+                system_prompt, augmented_message, tools=tools
+            )
         elif self.provider == "openai":
             return await self._call_openai(system_prompt, augmented_message)
         elif self.provider == "mistral":
@@ -102,8 +108,18 @@ class LLMClient:
             f"Question de l'utilisateur :\n{user_message}"
         )
 
-    async def _call_claude(self, system_prompt: str, user_message: str) -> str:
-        """Call the Anthropic Claude API."""
+    async def _call_claude(
+        self,
+        system_prompt: str,
+        user_message: str,
+        tools: list[dict] | None = None,
+    ) -> str | dict:
+        """Call the Anthropic Claude API, optionally with tool definitions.
+
+        When tools are provided and the response contains tool_use blocks,
+        returns a dict: {"text": str, "tool_calls": [{"name": ..., "input": ...}]}.
+        Otherwise returns a plain string.
+        """
         try:
             from anthropic import AsyncAnthropic
         except ImportError:
@@ -111,19 +127,54 @@ class LLMClient:
                 "anthropic package not installed. Install with: pip install -e '.[rag]'"
             )
 
-        client = AsyncAnthropic(api_key=self.api_key)
+        client = AsyncAnthropic(api_key=self.api_key, timeout=60.0)
         try:
-            response = await client.messages.create(
-                model=self.model,
-                max_tokens=2048,
-                system=system_prompt,
-                messages=[
+            kwargs: dict = {
+                "model": self.model,
+                "max_tokens": 2048,
+                "system": system_prompt,
+                "messages": [
                     {"role": "user", "content": user_message},
                 ],
-            )
+            }
+            if tools:
+                kwargs["tools"] = tools
+
+            response = await client.messages.create(**kwargs)
+
             if not response.content:
                 raise ValueError("Claude returned an empty response")
-            return response.content[0].text
+
+            # Parse response: extract text and tool_use blocks separately.
+            text_parts: list[str] = []
+            tool_calls: list[dict] = []
+            for block in response.content:
+                if block.type == "text":
+                    text_parts.append(block.text)
+                elif block.type == "tool_use":
+                    tool_calls.append({
+                        "name": block.name,
+                        "input": block.input,
+                    })
+
+            text = "\n".join(text_parts)
+
+            # Extract actual token usage from the Anthropic response
+            actual_usage = None
+            if hasattr(response, "usage") and response.usage:
+                actual_usage = (
+                    response.usage.input_tokens + response.usage.output_tokens
+                )
+
+            if tool_calls:
+                result: dict = {"text": text, "tool_calls": tool_calls}
+                if actual_usage is not None:
+                    result["usage_tokens"] = actual_usage
+                return result
+            # Return dict with usage when available, plain string otherwise
+            if actual_usage is not None:
+                return {"text": text, "usage_tokens": actual_usage}
+            return text
         except Exception as e:
             logger.error("Claude API call failed: %s", e)
             raise
@@ -206,7 +257,7 @@ class LLMClient:
                 "anthropic package not installed. Install with: pip install -e '.[rag]'"
             )
 
-        client = AsyncAnthropic(api_key=self.api_key)
+        client = AsyncAnthropic(api_key=self.api_key, timeout=60.0)
         try:
             response = await client.messages.create(
                 model=self.model,

@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DOCUMENT IMPACT SCREEN — Sprint S42-S43
@@ -142,7 +143,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: AnimatedBuilder(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: AnimatedBuilder(
         animation: Listenable.merge([_masterController, _pulseController]),
         builder: (context, _) {
           return SafeArea(
@@ -153,15 +154,15 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                 child: Column(
                   children: [
                     const SizedBox(height: MintSpacing.xxl),
-                    _buildTitle(),
+                    MintEntrance(child: _buildTitle()),
                     const SizedBox(height: MintSpacing.xl + 4),
-                    _buildConfidenceCircle(),
+                    MintEntrance(delay: const Duration(milliseconds: 100), child: _buildConfidenceCircle()),
                     const SizedBox(height: MintSpacing.lg),
-                    _buildDeltaBadge(),
+                    MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDeltaBadge()),
                     const SizedBox(height: MintSpacing.xl),
-                    _buildChiffreChoc(),
+                    MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChiffreChoc()),
                     const SizedBox(height: MintSpacing.lg),
-                    _buildFieldList(),
+                    MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFieldList()),
                     const SizedBox(height: MintSpacing.xl),
                     _buildCtaButton(context),
                     const SizedBox(height: MintSpacing.md),
@@ -173,7 +174,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             ),
           );
         },
-      ),
+      ))),
     );
   }
 
@@ -452,11 +453,14 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   Widget _buildCtaButton(BuildContext context) {
     return Opacity(
       opacity: _ctaFadeIn.value,
-      child: SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: FilledButton.icon(
-          onPressed: () {
+      child: Semantics(
+        button: true,
+        label: S.of(context)!.docImpactReturnDashboard,
+        child: SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: FilledButton.icon(
+            onPressed: () {
             // Navigate back to root dashboard via GoRouter
             context.go('/home');
           },
@@ -473,6 +477,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             ),
           ),
         ),
+      ),
       ),
     );
   }

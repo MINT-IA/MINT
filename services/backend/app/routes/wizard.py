@@ -1,11 +1,12 @@
-import uuid
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Dict, Any, List
 from datetime import datetime, timedelta, timezone
 from app.models.session import Session
+from app.models.user import User
 from app.database import get_db
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
 from sqlalchemy.orm import Session as DBSession
 
 router = APIRouter(prefix="/sessions", tags=["wizard"])
@@ -50,9 +51,11 @@ class TimelineItem:
 
 
 @router.post("/wizard")
+@limiter.limit("30/minute")
 async def create_wizard_session(
-    data: WizardAnswers,
     request: Request,
+    data: WizardAnswers,
+    current_user: User = Depends(require_current_user),
     db: DBSession = Depends(get_db),
 ):
     """
@@ -78,10 +81,8 @@ async def create_wizard_session(
         timeline_items = _generate_timeline_items(data.answers)
 
         # 5. Créer la session
-        # Extract user_id from auth header, fallback to generated UUID
-        user_id = request.headers.get("X-User-Id") or str(uuid.uuid4())
         session = Session(
-            user_id=user_id,
+            user_id=current_user.id,
             created_at=datetime.now(timezone.utc),
             answers=data.answers,
             precision_index=precision_index,
@@ -111,14 +112,17 @@ async def create_wizard_session(
             "next_most_valuable_info": _get_next_info(data.answers, precision_index),
         }
 
-    except Exception as e:
+    except Exception:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/sessions/{session_id}/timeline")
+@limiter.limit("60/minute")
 async def get_timeline(
+    request: Request,
     session_id: int,
+    current_user: User = Depends(require_current_user),
     db: DBSession = Depends(get_db),
 ):
     """
@@ -149,9 +153,12 @@ async def get_timeline(
 
 
 @router.post("/sessions/{session_id}/timeline/{item_id}/complete")
+@limiter.limit("30/minute")
 async def complete_timeline_item(
+    request: Request,
     session_id: int,
     item_id: int,
+    current_user: User = Depends(require_current_user),
     db: DBSession = Depends(get_db),
 ):
     """
@@ -176,10 +183,13 @@ async def complete_timeline_item(
 
 
 @router.post("/sessions/{session_id}/life-event")
+@limiter.limit("30/minute")
 async def trigger_life_event(
+    request: Request,
     session_id: int,
     event_type: str,
     event_data: Dict[str, Any],
+    current_user: User = Depends(require_current_user),
     db: DBSession = Depends(get_db),
 ):
     """

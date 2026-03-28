@@ -208,12 +208,23 @@ class TestLppConversion:
     """Tests for LppConversionService.compare()."""
 
     def test_rente_calculation(self, lpp_service):
-        """Rente should be capital * 6.8% / 12 monthly."""
+        """Gross rente should be capital * 6.8% / 12 monthly."""
         result = lpp_service.compare(capital_lpp=500_000)
         expected_annual = 500_000 * LPP_CONVERSION_RATE
         expected_monthly = round(expected_annual / 12, 2)
         assert result.option_rente_annuelle == expected_annual
-        assert result.option_rente_mensuelle == expected_monthly
+        assert result.option_rente_brute_mensuelle == expected_monthly
+
+    def test_rente_income_tax(self, lpp_service):
+        """Rente should be taxed as income (LIFD art. 22)."""
+        result = lpp_service.compare(capital_lpp=500_000, taux_marginal_revenu=0.25)
+        expected_annual = 500_000 * LPP_CONVERSION_RATE
+        expected_tax = round(expected_annual * 0.25, 2)
+        assert result.rente_impot_annuel == expected_tax
+        assert result.option_rente_nette_annuelle == round(expected_annual - expected_tax, 2)
+        assert result.option_rente_nette_mensuelle == round((expected_annual - expected_tax) / 12, 2)
+        # Net rente should be less than gross rente
+        assert result.option_rente_nette_mensuelle < result.option_rente_brute_mensuelle
 
     def test_capital_tax_zurich(self, lpp_service):
         """ZH capital tax should use the correct base rate."""
@@ -523,7 +534,10 @@ class TestRetirementEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "capitalTotal" in data
-        assert "optionRenteMensuelle" in data
+        assert "optionRenteBruteMensuelle" in data
+        assert "renteImpotAnnuel" in data
+        assert "optionRenteNetteMensuelle" in data
+        assert "optionRenteNetteAnnuelle" in data
         assert "optionCapitalNet" in data
         assert "breakevenAge" in data
         assert "recommandationNeutre" in data
@@ -545,7 +559,8 @@ class TestRetirementEndpoints:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "revenusMensuels" in data
+        assert "revenusGarantis" in data
+        assert "capitalEpuisable" in data
         assert "soldeMensuel" in data
         assert "tauxRemplacement" in data
         assert "pcPotentiellementEligible" in data

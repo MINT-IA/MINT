@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Screen for accepting a household invitation code.
 ///
@@ -42,11 +43,12 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
   @override
   Widget build(BuildContext context) {
     final household = context.watch<HouseholdProvider>();
+    final l = S.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Rejoindre un ménage',
+          l.acceptInvitationTitle,
           style: MintTextStyles.titleMedium(),
         ),
         backgroundColor: MintColors.white,
@@ -54,41 +56,41 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
       ),
-      body: Padding(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Padding(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: _accepted
-            ? _buildSuccess(context)
-            : _buildForm(context, household),
-      ),
+            ? _buildSuccess(context, l)
+            : _buildForm(context, household, l),
+      ))),
     );
   }
 
-  Widget _buildForm(BuildContext context, HouseholdProvider household) {
+  Widget _buildForm(BuildContext context, HouseholdProvider household, S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 32),
         const Icon(Icons.people, size: 64, color: MintColors.primary),
         const SizedBox(height: 24),
-        Text(
-          'Entre le code recu de ton/ta partenaire',
+        MintEntrance(child: Text(
+          l.acceptInvitationPrompt,
           textAlign: TextAlign.center,
           style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm),
-        Text(
-          'Le code est valable 72 heures apres l\'envoi.',
+        MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
+          l.acceptInvitationCodeValidity,
           textAlign: TextAlign.center,
           style: MintTextStyles.bodyMedium(),
-        ),
+        )),
         const SizedBox(height: 32),
-        TextField(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: TextField(
           controller: _codeController,
           textAlign: TextAlign.center,
           textCapitalization: TextCapitalization.characters,
           style: MintTextStyles.headlineLarge().copyWith(fontSize: 28, letterSpacing: 6),
           decoration: InputDecoration(
-            hintText: 'CODE',
+            hintText: l.householdAcceptCodeHint,
             hintStyle: MintTextStyles.headlineLarge(color: MintColors.greyBorder).copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w300,
@@ -102,7 +104,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
               vertical: 20,
             ),
           ),
-        ),
+        )),
         if (household.error != null) ...[
           const SizedBox(height: 12),
           Text(
@@ -112,10 +114,13 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
         ],
         const SizedBox(height: 24),
-        FilledButton(
-          onPressed: household.isLoading
-              ? null
-              : () async {
+        MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
+          button: true,
+          label: l.acceptInvitationJoin,
+          child: FilledButton(
+            onPressed: household.isLoading
+                ? null
+                : () async {
                   final code = _codeController.text.trim();
                   if (code.isEmpty) return;
                   household.clearError();
@@ -137,15 +142,16 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
                   ),
                 )
               : Text(
-                  'Rejoindre le menage',
+                  l.acceptInvitationJoin,
                   style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
         ),
+        )),
       ],
     );
   }
 
-  Widget _buildSuccess(BuildContext context) {
+  Widget _buildSuccess(BuildContext context, S l) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -164,20 +170,19 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Bienvenue dans le menage !',
+            l.acceptInvitationSuccess,
             style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: MintSpacing.md),
           Text(
-            'Tu as rejoint le menage Couple+. Tes projections '
-            'de retraite sont desormais liees.',
+            l.acceptInvitationSuccessBody,
             textAlign: TextAlign.center,
             style: MintTextStyles.bodyMedium(),
           ),
           const SizedBox(height: 32),
           FilledButton(
             onPressed: () => context.go('/couple'),
-            child: Text(S.of(context)!.acceptInvitationVoirMenage),
+            child: Text(l.acceptInvitationVoirMenage),
           ),
         ],
       ),

@@ -40,12 +40,12 @@ class LPPPlanInput {
   double get effectiveSalaireAssure {
     if (salaireAssure != null) return salaireAssure!;
     // Below LPP entry threshold: no coverage (LPP art. 7)
-    if (salaireBrut < lppSeuilEntree) return 0.0;
-    final coordination = deductionCoordination ?? lppDeductionCoordination;
+    if (salaireBrut < reg('lpp.entry_threshold', lppSeuilEntree)) return 0.0;
+    final coordination = deductionCoordination ?? reg('lpp.coordination_deduction', lppDeductionCoordination);
     final insured = salaireBrut - coordination;
     // Apply min/max coordinated salary (LPP art. 8 al. 2)
-    if (insured <= 0) return lppSalaireCoordMin;
-    return insured.clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    if (insured <= 0) return reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
+    return insured.clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
   }
 
   /// Total annual LPP contribution (employee + employer).
@@ -287,7 +287,7 @@ class JobComparisonService {
 
     // Compute pension delta
     final annualPensionDelta = deltaRente * 12;
-    // Assume 20 years of retirement (65 to 85)
+    // Assume 20 years of retirement (avsAgeReferenceHomme to 85)
     final lifetimePensionDelta = annualPensionDelta * 20;
 
     // Determine verdict
@@ -374,10 +374,11 @@ class JobComparisonService {
     );
   }
 
-  /// Project retirement capital at age 65 with annual contributions.
+  /// Project retirement capital at retirement age with annual contributions.
   /// Delegates to LppCalculator.projectToRetirement() from financial_core.
   static double _projectCapital(LPPPlanInput plan, int yearsToRetirement) {
-    final currentAge = 65 - yearsToRetirement;
+    final refAgeJob = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final currentAge = refAgeJob - yearsToRetirement;
     final salaireAssure = plan.effectiveSalaireAssure;
     // Compute effective bonification rate from plan's total contribution
     // (employee + employer) relative to the insured salary.
@@ -389,7 +390,7 @@ class JobComparisonService {
     return LppCalculator.projectToRetirement(
       currentBalance: plan.avoirVieillesse,
       currentAge: currentAge,
-      retirementAge: 65,
+      retirementAge: refAgeJob,
       grossAnnualSalary: plan.salaireBrut,
       caisseReturn: 0.0125, // BVG minimum interest rate
       conversionRate: 1.0, // Return raw capital, not rente

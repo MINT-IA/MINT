@@ -238,6 +238,18 @@ class ApiService {
     }
   }
 
+  // ========== PROFILE ENDPOINTS ==========
+
+  /// Fetch the authenticated user's profile from the backend.
+  /// Returns null if the request fails (best-effort hydration).
+  static Future<Map<String, dynamic>?> getMyProfile() async {
+    try {
+      return await get('/profiles/me');
+    } catch (_) {
+      return null;
+    }
+  }
+
   // ========== AUTH ENDPOINTS ==========
 
   /// Register a new user
@@ -509,9 +521,12 @@ class ApiService {
       isPropertyOwner: isPropertyOwner ?? false,
       existing3a: existing3a ?? 0,
       existingLpp: existingLpp ?? 0,
-      employmentStatus: _readString(response, const ['employmentStatus', 'employment_status'], fallback: 'salarie'),
-      nationalityGroup: _readString(response, const ['nationalityGroup', 'nationality_group'], fallback: 'CH'),
-      plafond3a: _readDouble(response, const ['plafond3a', 'plafond_3a']),
+      // These fields are NOT served by the backend API — null means unknown.
+      // When the API does return them, use the value; otherwise leave null
+      // so consuming screens can handle missing data gracefully.
+      employmentStatus: _readStringOrNull(response, const ['employmentStatus', 'employment_status']),
+      nationalityGroup: _readStringOrNull(response, const ['nationalityGroup', 'nationality_group']),
+      plafond3a: _readDoubleOrNull(response, const ['plafond3a', 'plafond_3a']),
       estimatedFields: _readStringList(
         response,
         const ['estimatedFields', 'estimated_fields'],
@@ -531,6 +546,7 @@ class ApiService {
     String? lppCaisseType,
     double? totalDebts,
     double? monthlyDebtService,
+    String? stressType,
   }) async {
     final response = await post('/onboarding/chiffre-choc', {
       'age': age,
@@ -545,6 +561,7 @@ class ApiService {
       if (totalDebts != null) 'total_debts': totalDebts,
       if (monthlyDebtService != null)
         'monthly_debt_service': monthlyDebtService,
+      if (stressType != null) 'stress_type': stressType,
     });
 
     final category = _readString(
@@ -569,6 +586,9 @@ class ApiService {
       'liquidity' => ChiffreChocType.liquidityAlert,
       'tax_saving' => ChiffreChocType.taxSaving3a,
       'retirement_gap' => ChiffreChocType.retirementGap,
+      'retirement_income' => ChiffreChocType.retirementIncome,
+      'compound_growth' => ChiffreChocType.compoundGrowth,
+      'hourly_rate' => ChiffreChocType.hourlyRate,
       _ => ChiffreChocType.retirementIncome,
     };
 
@@ -597,7 +617,29 @@ class ApiService {
           'info',
           '${_formatChf(primaryNumber)}/mois',
         ),
+      ChiffreChocType.compoundGrowth => (
+          'Ton avantage temps',
+          'trending_up',
+          'success',
+          _formatChf(primaryNumber),
+        ),
+      ChiffreChocType.hourlyRate => (
+          'Ton salaire reel',
+          'schedule',
+          'info',
+          'CHF\u00A0${primaryNumber.round()}/h',
+        ),
     };
+
+    // Read confidence_mode from API response (V2 contract)
+    final confidenceModeStr = _readString(
+      response,
+      const ['confidenceMode', 'confidence_mode'],
+      fallback: 'factual',
+    );
+    final confidenceMode = confidenceModeStr == 'pedagogical'
+        ? ChiffreChocConfidence.pedagogical
+        : ChiffreChocConfidence.factual;
 
     return ChiffreChoc(
       type: type,
@@ -609,6 +651,7 @@ class ApiService {
           : displayText,
       iconName: iconName,
       colorKey: colorKey,
+      confidenceMode: confidenceMode,
     );
   }
 
@@ -799,6 +842,17 @@ class ApiService {
     return fallback;
   }
 
+  static String? _readStringOrNull(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is String) return value;
+    }
+    return null;
+  }
+
   static double _readDouble(
     Map<String, dynamic> data,
     List<String> keys, {
@@ -809,6 +863,17 @@ class ApiService {
       if (value is num) return value.toDouble();
     }
     return fallback;
+  }
+
+  static double? _readDoubleOrNull(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is num) return value.toDouble();
+    }
+    return null;
   }
 
   static int _readInt(
@@ -943,7 +1008,10 @@ class ApiService {
     }
   }
 
-  // Méthodes spécifiques (legacy)
+  // Legacy methods — kept for backward compatibility.
+  // All data entry now goes through CoachProfile + chat.
+
+  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<Profile> createProfile({
     int? birthYear,
     String? canton,
@@ -957,7 +1025,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/profiles'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
       body: jsonEncode({
         'birthYear': birthYear,
         'canton': canton,
@@ -978,6 +1046,7 @@ class ApiService {
     }
   }
 
+  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<Session> createSession({
     required String profileId,
     required Map<String, dynamic> answers,
@@ -986,7 +1055,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/sessions'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
       body: jsonEncode({
         'profileId': profileId,
         'answers': answers,
@@ -1002,9 +1071,11 @@ class ApiService {
     }
   }
 
+  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<SessionReport> getSessionReport(String sessionId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/sessions/$sessionId/report'),
+      headers: await _authHeaders(),
     );
 
     if (response.statusCode == 200) {

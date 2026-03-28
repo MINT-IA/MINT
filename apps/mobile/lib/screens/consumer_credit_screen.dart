@@ -6,7 +6,12 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class ConsumerCreditSimulatorScreen extends StatefulWidget {
   const ConsumerCreditSimulatorScreen({super.key});
@@ -31,7 +36,29 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        final creditConso = profile.dettes.creditConsommation;
+        if (creditConso != null && creditConso > 0) {
+          _amount = creditConso;
+        }
+        final tauxConso = profile.dettes.tauxCreditConso;
+        if (tauxConso != null && tauxConso > 0) {
+          _annualRate = tauxConso;
+        }
+      });
+      _calculate();
+    } catch (_) {}
   }
 
   void _calculate() {
@@ -56,18 +83,18 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         // PDF export hidden — stub not yet implemented
         actions: const [],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCoachSection(),
+            MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildInputSection(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
             const SizedBox(height: MintSpacing.xl),
-            _buildGuidanceSection(),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildGuidanceSection()),
             const SizedBox(height: MintSpacing.xl),
             // ── P10-B : Avalanche vs Boule de neige ──────────────
             const DebtRepaymentWidget(
@@ -97,23 +124,20 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               extraMonthly: 150,
             ),
             const SizedBox(height: MintSpacing.xxl),
-            _buildDisclaimer(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.lg),
             const DebtToolsNav(currentRoute: '/simulator/credit'),
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      ))),
     );
   }
 
   Widget _buildCoachSection() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -208,40 +232,15 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     required void Function(double) onChanged,
     bool isWarning = false,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
-            Text(
-              format(value),
-              style: MintTextStyles.bodyMedium(
-                color: isWarning ? MintColors.error : MintColors.primary,
-              ).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-            activeTrackColor: isWarning ? MintColors.error : MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: isWarning ? MintColors.error : MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: format,
+      activeColor: isWarning ? MintColors.error : null,
+      onChanged: onChanged,
     );
   }
 
@@ -263,9 +262,12 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         children: [
           Text(S.of(context)!.creditTaMensualite, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            _currencyFormat.format(monthlyPayment),
-            style: MintTextStyles.displayMedium(),
+          Semantics(
+            label: '${S.of(context)!.creditTaMensualite}: ${_currencyFormat.format(monthlyPayment)}',
+            child: Text(
+              _currencyFormat.format(monthlyPayment),
+              style: MintTextStyles.displayMedium(),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
           const Divider(color: MintColors.border),
@@ -326,12 +328,10 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
           const SizedBox(width: MintSpacing.md),

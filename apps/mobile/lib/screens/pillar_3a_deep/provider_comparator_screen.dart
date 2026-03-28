@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran comparateur de providers 3a (fintech / banque / assurance).
 ///
@@ -26,6 +31,43 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   int _duree = 35;
   ProfilRisque _profilRisque = ProfilRisque.dynamique;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        _age = profile.age;
+        _duree = profile.anneesAvantRetraite.clamp(5, 45);
+        // Map riskTolerance string to ProfilRisque enum
+        final risk = profile.riskTolerance;
+        if (risk != null) {
+          switch (risk.toLowerCase()) {
+            case 'prudent':
+            case 'conservateur':
+              _profilRisque = ProfilRisque.prudent;
+            case 'equilibre':
+            case 'modere':
+              _profilRisque = ProfilRisque.equilibre;
+            case 'dynamique':
+            case 'agressif':
+              _profilRisque = ProfilRisque.dynamique;
+          }
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
+
   ProviderComparisonResult get _result => ProviderComparator.compare(
         age: _age,
         versementAnnuel: _versementAnnuel,
@@ -40,7 +82,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -82,7 +124,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -116,24 +158,20 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   }
 
   Widget _buildInputsSection(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.providerComparatorSectionParametres,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Age
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
             label: l.providerComparatorLabelAge,
             value: _age.toDouble(),
             min: 18,
@@ -142,13 +180,13 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             format: l.providerComparatorLabelAgeFormat(_age),
             onChanged: (v) => setState(() {
               _age = v.round();
-              _duree = (65 - _age).clamp(5, 45);
+              _duree = (avsAgeReferenceHomme - _age).clamp(5, 45);
             }),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Versement
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
             label: l.providerComparatorLabelVersement,
             value: _versementAnnuel,
             min: 1000,
@@ -156,11 +194,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             divisions: 62,
             format: 'CHF ${formatChf(_versementAnnuel)}',
             onChanged: (v) => setState(() => _versementAnnuel = v),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Duree
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSliderRow(
             label: l.providerComparatorLabelDuree,
             value: _duree.toDouble(),
             min: 5,
@@ -168,11 +206,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             divisions: 40,
             format: l.providerComparatorLabelDureeFormat(_duree),
             onChanged: (v) => setState(() => _duree = v.round()),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Profil de risque
-          _buildProfilRisque(l),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildProfilRisque(l)),
         ],
       ),
     );
@@ -242,29 +280,14 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-          ],
-        ),
-        Semantics(
-          label: label,
-          value: format,
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            activeColor: MintColors.primary,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: (_) => format,
+      onChanged: onChanged,
     );
   }
 

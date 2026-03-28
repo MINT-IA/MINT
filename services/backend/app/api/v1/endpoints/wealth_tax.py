@@ -11,8 +11,9 @@ All endpoints are stateless (no data storage). Pure computation on the fly.
 Sources: LHID art. 14, OFS Charge Fiscale 2024, lois fiscales cantonales.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.wealth_tax import (
     WealthTaxEstimateRequest,
     WealthTaxEstimateResponse,
@@ -42,7 +43,8 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 @router.post("/estimate", response_model=WealthTaxEstimateResponse)
-def estimate_wealth_tax(request: WealthTaxEstimateRequest) -> WealthTaxEstimateResponse:
+@limiter.limit("30/minute")
+def estimate_wealth_tax(request: Request, body: WealthTaxEstimateRequest) -> WealthTaxEstimateResponse:
     """Estimate wealth tax for a given fortune in a specific canton.
 
     Returns the fortune imposable (after exemption) and the estimated
@@ -54,12 +56,12 @@ def estimate_wealth_tax(request: WealthTaxEstimateRequest) -> WealthTaxEstimateR
 
     try:
         estimate = service.estimate_wealth_tax(
-            fortune=request.fortune_nette,
-            canton=request.canton,
-            civil_status=request.etat_civil,
+            fortune=body.fortune_nette,
+            canton=body.canton,
+            civil_status=body.etat_civil,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     return WealthTaxEstimateResponse(
         canton=estimate.canton,
@@ -79,7 +81,8 @@ def estimate_wealth_tax(request: WealthTaxEstimateRequest) -> WealthTaxEstimateR
 # ---------------------------------------------------------------------------
 
 @router.post("/compare", response_model=WealthTaxComparisonResponse)
-def compare_wealth_tax(request: WealthTaxComparisonRequest) -> WealthTaxComparisonResponse:
+@limiter.limit("30/minute")
+def compare_wealth_tax(request: Request, body: WealthTaxComparisonRequest) -> WealthTaxComparisonResponse:
     """Rank all 26 cantons by wealth tax burden for a given fortune.
 
     Returns a sorted list from cheapest to most expensive canton,
@@ -91,11 +94,11 @@ def compare_wealth_tax(request: WealthTaxComparisonRequest) -> WealthTaxComparis
 
     try:
         rankings = service.compare_all_cantons(
-            fortune=request.fortune_nette,
-            civil_status=request.etat_civil,
+            fortune=body.fortune_nette,
+            civil_status=body.etat_civil,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     # Build response items
     classement = [
@@ -138,7 +141,8 @@ def compare_wealth_tax(request: WealthTaxComparisonRequest) -> WealthTaxComparis
 # ---------------------------------------------------------------------------
 
 @router.post("/move", response_model=WealthTaxMoveResponse)
-def simulate_wealth_tax_move(request: WealthTaxMoveRequest) -> WealthTaxMoveResponse:
+@limiter.limit("30/minute")
+def simulate_wealth_tax_move(request: Request, body: WealthTaxMoveRequest) -> WealthTaxMoveResponse:
     """Simulate wealth tax savings from moving between cantons.
 
     Returns annual, monthly, and 10-year cumulative savings
@@ -150,13 +154,13 @@ def simulate_wealth_tax_move(request: WealthTaxMoveRequest) -> WealthTaxMoveResp
 
     try:
         simulation = service.simulate_move_wealth(
-            fortune=request.fortune_nette,
-            canton_from=request.canton_depart,
-            canton_to=request.canton_arrivee,
-            civil_status=request.etat_civil,
+            fortune=body.fortune_nette,
+            canton_from=body.canton_depart,
+            canton_to=body.canton_arrivee,
+            civil_status=body.etat_civil,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     return WealthTaxMoveResponse(
         canton_depart=simulation.canton_depart,
@@ -180,7 +184,8 @@ def simulate_wealth_tax_move(request: WealthTaxMoveRequest) -> WealthTaxMoveResp
 # ---------------------------------------------------------------------------
 
 @router.post("/church", response_model=ChurchTaxEstimateResponse)
-def estimate_church_tax(request: ChurchTaxEstimateRequest) -> ChurchTaxEstimateResponse:
+@limiter.limit("30/minute")
+def estimate_church_tax(request: Request, body: ChurchTaxEstimateRequest) -> ChurchTaxEstimateResponse:
     """Estimate church tax for a given cantonal tax in a specific canton.
 
     Church tax is calculated as a percentage of the cantonal income tax.
@@ -192,11 +197,11 @@ def estimate_church_tax(request: ChurchTaxEstimateRequest) -> ChurchTaxEstimateR
 
     try:
         estimate = service.estimate_church_tax(
-            cantonal_tax=request.impot_cantonal,
-            canton=request.canton,
+            cantonal_tax=body.impot_cantonal,
+            canton=body.canton,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     return ChurchTaxEstimateResponse(
         canton=estimate.canton,

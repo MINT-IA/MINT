@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -6,6 +8,11 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/retroactive_3a_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
 ///
@@ -20,7 +27,14 @@ class Retroactive3aScreen extends StatefulWidget {
 }
 
 class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
-  int _gapYears = 5;
+  /// Maximum retroactive years: capped at years since 2025 (first eligible year)
+  /// and at the OPP3 art. 7 maximum of 10.
+  static int get _maxRetroactiveYears {
+    final yearsSince2025 = DateTime.now().year - 2025;
+    return min(10, yearsSince2025).clamp(1, 10);
+  }
+
+  late int _gapYears = _maxRetroactiveYears.clamp(1, _maxRetroactiveYears);
   double _tauxMarginal = 0.30;
   bool _hasLpp = true;
 
@@ -33,12 +47,51 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
       );
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.revenuBrutAnnuel > 0) {
+        final rate = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        );
+        // Snap to nearest available rate in the dropdown
+        final closest = _taxRates.reduce((a, b) =>
+            (a - rate).abs() < (b - rate).abs() ? a : b);
+        _tauxMarginal = closest;
+        changed = true;
+      }
+      // Detect LPP affiliation from prevoyance data
+      if (profile.prevoyance.avoirLppTotal != null &&
+          profile.prevoyance.avoirLppTotal! > 0) {
+        _hasLpp = true;
+        changed = true;
+      } else if (profile.employmentStatus == 'independant') {
+        _hasLpp = false;
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final result = _result;
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -61,23 +114,23 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // 1. Hero Card
-                _buildHeroCard(),
+                MintEntrance(child: _buildHeroCard()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 2. Input Section
-                _buildInputSection(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 3. Chiffre Choc
-                _buildChiffreChocCard(result),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChiffreChocCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 4. Breakdown
-                _buildBreakdownSection(result),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildBreakdownSection(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 5. Avant / Apres
-                _buildImpactComparison(result),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildImpactComparison(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 6. Action Cards
@@ -91,20 +144,16 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
   // ── 1. Hero Card ──────────────────────────────────────────────
 
   Widget _buildHeroCard() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Row(
         children: [
           Container(
@@ -144,13 +193,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   // ── 2. Input Section ──────────────────────────────────────────
 
   Widget _buildInputSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -160,15 +205,40 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           ),
           const SizedBox(height: MintSpacing.md),
 
-          // Gap years slider
-          _buildSliderRow(
-            label: S.of(context)!.retroactive3aAnneesARattraper,
-            value: _gapYears.toDouble(),
-            min: 1,
-            max: 10,
-            divisions: 9,
-            format: '$_gapYears an${_gapYears > 1 ? "s" : ""}',
-            onChanged: (v) => setState(() => _gapYears = v.round()),
+          // Gap years chips — max is dynamic: min(10, currentYear - 2025)
+          // In 2026, only 2025 is retroactively available (max = 1).
+          Text(
+            S.of(context)!.retroactive3aYearsChipsLabel,
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Wrap(
+            spacing: MintSpacing.xs,
+            runSpacing: MintSpacing.xs,
+            children: List.generate(
+              _maxRetroactiveYears,
+              (i) {
+                final year = i + 1;
+                final isSelected = _gapYears == year;
+                return ChoiceChip(
+                  label: Text('$year'),
+                  selected: isSelected,
+                  onSelected: (_) => setState(() => _gapYears = year),
+                  selectedColor: MintColors.primary.withValues(alpha: 0.15),
+                  backgroundColor: MintColors.surface,
+                  labelStyle: MintTextStyles.bodySmall(
+                    color: isSelected ? MintColors.primary : MintColors.textPrimary,
+                  ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+                  side: BorderSide(
+                    color: isSelected ? MintColors.primary : MintColors.border,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                );
+              },
+            ),
           ),
           const SizedBox(height: MintSpacing.md),
 
@@ -260,9 +330,12 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 .copyWith(fontWeight: FontWeight.w700, letterSpacing: 1.0),
           ),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text(
-            'CHF\u00a0${formatChf(result.economiesFiscales)}',
-            style: MintTextStyles.displayMedium(color: MintColors.white),
+          Semantics(
+            label: 'CHF ${formatChf(result.economiesFiscales)}',
+            child: Text(
+              'CHF\u00a0${formatChf(result.economiesFiscales)}',
+              style: MintTextStyles.displayMedium(color: MintColors.white),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
@@ -278,13 +351,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   // ── 4. Breakdown Section ──────────────────────────────────────
 
   Widget _buildBreakdownSection(Retroactive3aResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -523,16 +592,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     required Color color,
     required bool isHighlighted,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isHighlighted ? color : MintColors.border,
-          width: isHighlighted ? 2 : 1,
-        ),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -604,13 +666,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     required String subtitle,
     required Color color,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -711,41 +769,4 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   // ── Shared helpers ────────────────────────────────────────────
 
-  Widget _buildSliderRow({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String format,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-            ),
-            Text(
-              format,
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
-                  .copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
 }

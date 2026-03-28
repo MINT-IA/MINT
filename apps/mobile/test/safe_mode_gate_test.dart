@@ -8,6 +8,7 @@ import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 
 void main() {
   // ────────────────────────────────────────────────────────────
@@ -375,14 +376,9 @@ void main() {
   // GROUP 3: buildLifeEventSuggestions logic
   // ────────────────────────────────────────────────────────────
   group('buildLifeEventSuggestions', () {
+    final sFr = SFr();
+
     test('returns max 5 suggestions', () {
-      // Profile that triggers many rules:
-      // concubinage -> Mariage + Concubinage (2)
-      // age <= 28 -> Premier emploi (3)
-      // independent -> Outils independant (4)
-      // income >= 5000 & age 25-50 -> Achat immobilier (5)
-      // high-tax canton GE -> Déménagement cantonal (6 - would be 6th)
-      // children > 0 -> Invalidite (7 - would be 7th)
       final suggestions = buildLifeEventSuggestions(
         age: 27,
         civilStatus: 'concubinage',
@@ -390,6 +386,7 @@ void main() {
         employmentStatus: 'independent',
         monthlyNetIncome: 8000,
         canton: 'GE',
+        s: sFr,
       );
 
       expect(suggestions.length, lessThanOrEqualTo(5));
@@ -403,10 +400,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 5000,
         canton: 'ZH',
+        s: sFr,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Mariage'));
+      expect(titles, contains(sFr.lifeEventSugMariage));
     });
 
     test('concubinage suggested for concubinage status', () {
@@ -417,10 +415,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 4000,
         canton: 'ZH',
+        s: sFr,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Concubinage'));
+      expect(titles, contains(sFr.lifeEventSugConcubinage));
     });
 
     test('naissance suggested for married with 0 children', () {
@@ -431,10 +430,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 6000,
         canton: 'ZH',
+        s: sFr,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Naissance'));
+      expect(titles, contains(sFr.lifeEventSugNaissance));
     });
 
     test('succession suggested for age >= 50 with children', () {
@@ -445,10 +445,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 6000,
         canton: 'ZH',
+        s: sFr,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Planification successorale'));
+      expect(titles, contains(sFr.lifeEventSugSuccession));
     });
 
     test('first job suggested for age <= 28', () {
@@ -459,10 +460,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 4000,
         canton: 'ZH',
+        s: sFr,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Premier emploi'));
+      expect(titles, contains(sFr.lifeEventSugPremierEmploi));
     });
 
     test('housing suggested for income >= 5000 and age 25-50', () {
@@ -473,10 +475,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 7000,
         canton: 'ZH',
+        s: sFr,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Achat immobilier'));
+      expect(titles, contains(sFr.lifeEventSugAchatImmo));
     });
 
     test('canton move suggested for high-tax cantons (GE, VD, NE, JU, BE, BS)',
@@ -491,12 +494,13 @@ void main() {
           employmentStatus: 'employee',
           monthlyNetIncome: 6000,
           canton: canton,
+          s: sFr,
         );
 
         final titles = suggestions.map((s) => s.title).toList();
         expect(
           titles,
-          contains('Déménagement cantonal'),
+          contains(sFr.lifeEventSugDemenagement),
           reason: 'Canton $canton should trigger canton move suggestion',
         );
       }
@@ -509,12 +513,13 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 6000,
         canton: 'ZG',
+        s: sFr,
       );
 
       final titlesLowTax = suggestionsLowTax.map((s) => s.title).toList();
       expect(
         titlesLowTax,
-        isNot(contains('Déménagement cantonal')),
+        isNot(contains(sFr.lifeEventSugDemenagement)),
         reason: 'Low-tax canton ZG should not trigger canton move suggestion',
       );
     });

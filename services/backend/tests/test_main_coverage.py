@@ -8,6 +8,7 @@ These tests target lines flagged by diff-cover as uncovered.
 import os
 from unittest.mock import patch, MagicMock
 
+import asyncio
 import pytest
 from fastapi.testclient import TestClient
 
@@ -322,7 +323,7 @@ class TestRetrieverUnit:
         ]
 
         retriever = MintRetriever(vector_store=mock_store)
-        results = retriever.retrieve("pilier 3a")
+        results = asyncio.run(retriever.retrieve("pilier 3a"))
 
         assert len(results) == 1
         assert results[0]["id"] == "doc1"
@@ -338,7 +339,7 @@ class TestRetrieverUnit:
         mock_store.query.return_value = []
 
         retriever = MintRetriever(vector_store=mock_store)
-        retriever.retrieve("test", language="de")
+        asyncio.run(retriever.retrieve("test", language="de"))
 
         mock_store.query.assert_called_once_with(
             query_text="test",
@@ -355,7 +356,7 @@ class TestRetrieverUnit:
         mock_store.query.return_value = []
 
         retriever = MintRetriever(vector_store=mock_store)
-        retriever.retrieve(
+        asyncio.run(retriever.retrieve(
             "question",
             profile_context={
                 "canton": "VD",
@@ -363,7 +364,7 @@ class TestRetrieverUnit:
                 "civil_status": "marié",
                 "employment_status": "salarié",
             },
-        )
+        ))
 
         call_args = mock_store.query.call_args
         enriched = call_args[1]["query_text"]
@@ -380,7 +381,7 @@ class TestRetrieverUnit:
         mock_store.query.return_value = []
 
         retriever = MintRetriever(vector_store=mock_store)
-        results = retriever.retrieve("anything")
+        results = asyncio.run(retriever.retrieve("anything"))
         assert results == []
 
 

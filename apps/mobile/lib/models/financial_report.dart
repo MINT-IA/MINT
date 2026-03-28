@@ -67,6 +67,15 @@ class UserProfile {
   final String employmentStatus;
   final double monthlyNetIncome;
 
+  /// Gender: 'M', 'F', or null (AVS21 reference age — LAVS art. 21 al. 1).
+  /// When null, AvsCalculator defaults to male reference age (65).
+  final String? gender;
+
+  /// Spouse gender: 'M', 'F', or null.
+  /// Used for AVS21 reference age of spouse. Never inferred from user gender
+  /// — same-sex couples have the same reference age.
+  final String? spouseGender;
+
   // Nouvelle logique AVS : lacunes calculées depuis le triage
   final int? avsGapYears;
   final int? spouseAvsGapYears;
@@ -85,6 +94,8 @@ class UserProfile {
     required this.childrenCount,
     required this.employmentStatus,
     required this.monthlyNetIncome,
+    this.gender,
+    this.spouseGender,
     this.avsGapYears,
     this.spouseAvsGapYears,
     this.contributionYears,

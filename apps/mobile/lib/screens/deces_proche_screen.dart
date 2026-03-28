@@ -4,6 +4,11 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Screen for navigating the financial impact of a relative's death in Switzerland.
 ///
@@ -20,11 +25,43 @@ class DecesProcheScreen extends StatefulWidget {
 class _DecesProcheScreenState extends State<DecesProcheScreen> {
   // ── Input state ──
   String _lienParente = 'conjoint';
-  String _canton = 'VD';
+  String _canton = 'ZH';
   double _fortuneDefunt = 500000;
-  final double _lppDefunt = 200000;
-  final double _pilier3aDefunt = 50000;
+  double _lppDefunt = 200000;
+  double _pilier3aDefunt = 50000;
   bool _testamentExiste = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
+        if (totalPatrimoine > 0) {
+          _fortuneDefunt = totalPatrimoine;
+        }
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _lppDefunt = lpp;
+        }
+        if (profile.prevoyance.totalEpargne3a > 0) {
+          _pilier3aDefunt = profile.prevoyance.totalEpargne3a;
+        }
+      });
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,30 +75,30 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Hero: chiffre choc ──
-              _buildChiffreChoc(s),
+              MintEntrance(child: _buildChiffreChoc(s)),
               const SizedBox(height: 24),
 
               // ── Urgences 48h ──
-              _buildUrgences48h(s),
+              MintEntrance(delay: const Duration(milliseconds: 100), child: _buildUrgences48h(s)),
               const SizedBox(height: 24),
 
               // ── Inputs ──
-              _buildInputs(s),
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputs(s)),
               const SizedBox(height: 24),
 
               // ── Timeline succession ──
-              _buildTimeline(s),
+              MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTimeline(s)),
               const SizedBox(height: 24),
 
               // ── Beneficiaires LPP / 3a ──
-              _buildBeneficiaires(s),
+              MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBeneficiaires(s)),
               const SizedBox(height: 24),
 
               // ── Impact fiscal ──
@@ -77,7 +114,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 
@@ -93,9 +130,12 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            '$delaiRepudiation',
-            style: MintTextStyles.displayLarge(color: MintColors.white),
+          Semantics(
+            label: '$delaiRepudiation ${s.decesProcheMoisRepudiation}',
+            child: Text(
+              '$delaiRepudiation',
+              style: MintTextStyles.displayLarge(color: MintColors.white),
+            ),
           ),
           Text(
             s.decesProcheMoisRepudiation,
@@ -190,19 +230,15 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         const SizedBox(height: 16),
 
         // Fortune du défunt
-        Text(s.decesProcheFortune,
-            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
-        Slider(
+        MintPremiumSlider(
+          label: s.decesProcheFortune,
           value: _fortuneDefunt,
           min: 0,
           max: 5000000,
           divisions: 100,
-          label: formatChfWithPrefix(_fortuneDefunt),
-
+          formatValue: (v) => formatChfWithPrefix(v),
           onChanged: (v) => setState(() => _fortuneDefunt = v),
         ),
-        Text(formatChfWithPrefix(_fortuneDefunt),
-            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 16),
 
         // Canton
@@ -255,13 +291,10 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 64,
+                MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  radius: 8,
                   child: Text(e.$3,
                       style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                       textAlign: TextAlign.center),
@@ -372,13 +405,10 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         ),
         const SizedBox(height: 12),
         ...actions.map(
-          (a) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
+          (a) => MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            radius: 10,
             child: Row(
               children: [
                 const Icon(Icons.check_circle_outline,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/haptic_feedback_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'dart:math' as math;
 import 'package:mint_mobile/constants/social_insurance.dart';
 
@@ -54,6 +55,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final prudenceValue =
         _calculateFutureValue(_monthlyContribution, 1.0, _years);
     final centralValue =
@@ -240,14 +242,14 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: MintColors.orangeRetroWarm),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, size: 16, color: MintColors.warning),
-                SizedBox(width: 8),
+                const Icon(Icons.info_outline, size: 16, color: MintColors.warning),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.',
-                    style: TextStyle(fontSize: 11, color: MintColors.warning),
+                    l.interactive3aDisclaimer,
+                    style: const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],

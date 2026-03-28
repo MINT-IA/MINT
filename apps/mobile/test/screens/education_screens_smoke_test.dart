@@ -74,7 +74,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.textContaining('action concrète'),
+        find.textContaining('action simple'),
         findsOneWidget,
       );
     });

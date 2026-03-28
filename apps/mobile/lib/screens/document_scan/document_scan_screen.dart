@@ -21,6 +21,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DOCUMENT SCAN SCREEN — production flow
@@ -76,7 +78,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -84,15 +86,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 24),
-                _buildDocumentTypeSelector(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDocumentTypeSelector()),
                 const SizedBox(height: 32),
-                _buildDocumentDescription(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDocumentDescription()),
                 const SizedBox(height: 32),
-                _buildCaptureButtons(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCaptureButtons()),
                 const SizedBox(height: 12),
-                _buildPasteTextButton(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPasteTextButton()),
                 if (kDebugMode) ...[
                   const SizedBox(height: 12),
                   _buildDebugExampleButton(),
@@ -104,7 +106,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -235,11 +237,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget _buildCaptureButtons() {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: FilledButton.icon(
-            onPressed: _isProcessing ? null : _onCameraPressed,
+        Semantics(
+          button: true,
+          label: S.of(context)!.documentScanTakePhoto,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: _isProcessing ? null : _onCameraPressed,
             icon: const Icon(
               kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
               size: 22,
@@ -261,12 +266,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
           ),
         ),
+        ),
         const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton.icon(
-            onPressed: _isProcessing ? null : _onGalleryPressed,
+        Semantics(
+          button: true,
+          label: S.of(context)!.docScanFromGallery,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton.icon(
+              onPressed: _isProcessing ? null : _onGalleryPressed,
             icon: const Icon(Icons.photo_library_outlined, size: 22),
             label: Text(
               S.of(context)!.docScanFromGallery,
@@ -280,6 +289,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               ),
             ),
           ),
+        ),
         ),
       ],
     );
@@ -331,13 +341,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Widget _buildPrivacyNote() {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -554,14 +561,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(ctx).pop(false),
+                      onPressed: () => ctx.pop(false),
                       child: Text(S.of(context)!.documentScanCancel),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: FilledButton(
-                      onPressed: () => Navigator.of(ctx).pop(true),
+                      onPressed: () => ctx.pop(true),
                       child: Text(S.of(context)!.documentScanAnalyze),
                     ),
                   ),
@@ -652,7 +659,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -664,7 +671,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _requestManualOcrText(
                       title: S.of(context)!.documentScanOcrTitle,
                       hint: S.of(context)!.documentScanOcrHint,
@@ -711,7 +718,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     context.go('/auth/register');
                   },
                   icon: const Icon(Icons.person_add_alt_1_outlined),
@@ -723,7 +730,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -772,7 +779,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () {
-                      Navigator.of(ctx).pop();
+                      ctx.pop();
                       _processImageViaVision(imageFile);
                     },
                     icon: const Icon(Icons.auto_awesome_outlined),
@@ -800,7 +807,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -812,7 +819,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _requestManualOcrText(
                       title: S.of(context)!.documentScanOcrTitle,
                       hint: S.of(context)!.documentScanOcrRetryHint,

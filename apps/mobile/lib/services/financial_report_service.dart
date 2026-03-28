@@ -1,6 +1,7 @@
 import 'dart:math' show pow;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 import '../models/financial_report.dart';
@@ -12,7 +13,7 @@ class FinancialReportService {
   final CircleScoringService _scoringService = CircleScoringService();
 
   /// Génère le rapport complet à partir des réponses du wizard
-  FinancialReport generateReport(Map<String, dynamic> answers) {
+  FinancialReport generateReport(Map<String, dynamic> answers, {S? l}) {
     // 1. Profil utilisateur
     final profile = _buildUserProfile(answers);
 
@@ -37,10 +38,11 @@ class FinancialReportService {
       taxSim: taxSim,
       lppStrategy: lppStrategy,
       pillar3aAnalysis: pillar3aAnalysis,
+      l: l,
     );
 
     // 8. Roadmap personnalisée
-    final roadmap = _buildRoadmap(healthScore, answers, profile);
+    final roadmap = _buildRoadmap(healthScore, answers, profile, l: l);
 
     // 9. Sources juridiques par cercle
     final sources = _buildJuridicalSources(healthScore);
@@ -50,6 +52,7 @@ class FinancialReportService {
       taxSim: taxSim,
       retirementProj: retirementProj,
       lppStrategy: lppStrategy,
+      l: l,
     );
 
     return FinancialReport(
@@ -104,31 +107,32 @@ class FinancialReportService {
     required TaxSimulation taxSim,
     RetirementProjection? retirementProj,
     LppBuybackStrategy? lppStrategy,
+    S? l,
   }) {
     final disclaimers = <String>[
-      'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
-      'Les montants sont des estimations basées sur les données déclarées.',
-      'Les performances passées ne préjugent pas des performances futures.',
+      l?.reportDisclaimerBase1 ?? 'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
+      l?.reportDisclaimerBase2 ?? 'Les montants sont des estimations basées sur les données déclarées.',
+      l?.reportDisclaimerBase3 ?? 'Les performances passées ne préjugent pas des performances futures.',
     ];
 
     // Disclaimer fiscal (toujours présent car taxSim est required)
     if (taxSim.totalTax > 0) {
       disclaimers.add(
-        'L\'estimation fiscale est approximative et ne remplace pas une déclaration d\'impôts.',
+        l?.reportDisclaimerFiscal ?? 'L\'estimation fiscale est approximative et ne remplace pas une déclaration d\'impôts.',
       );
     }
 
     // Disclaimer retraite
     if (retirementProj != null) {
       disclaimers.add(
-        'La projection retraite est indicative et dépend de l\'évolution législative (réformes AVS/LPP).',
+        l?.reportDisclaimerRetraite ?? 'La projection retraite est indicative et dépend de l\'évolution législative (réformes AVS/LPP).',
       );
     }
 
     // Disclaimer rachat LPP
     if (lppStrategy != null) {
       disclaimers.add(
-        'Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).',
+        l?.reportDisclaimerRachatLpp ?? 'Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).',
       );
     }
 
@@ -140,12 +144,14 @@ class FinancialReportService {
     return UserProfile(
       firstName: answers['q_firstname'] as String?,
       birthYear: birthYear,
-      canton: answers['q_canton'] as String? ?? 'VD',
+      canton: answers['q_canton'] as String? ?? 'ZH',
       civilStatus: answers['q_civil_status'] as String? ?? 'single',
       childrenCount: _parseInt(answers['q_children']) ?? 0,
       employmentStatus: answers['q_employment_status'] as String? ?? 'employee',
       monthlyNetIncome:
           _parseDouble(answers['q_net_income_period_chf']) ?? 5000,
+      gender: answers['q_gender'] as String?,
+      spouseGender: answers['q_spouse_gender'] as String?,
       // Nouvelle logique AVS (triage lacunes)
       avsGapYears: _calculateAvsGaps(answers, birthYear),
       spouseAvsGapYears: _calculateSpouseAvsGaps(answers, birthYear),
@@ -230,8 +236,10 @@ class FinancialReportService {
     final effectiveRate = _estimateEffectiveRate(
         taxableIncome, profile.canton, profile.isMarried);
     final totalTax = taxableIncome * effectiveRate;
-    final cantonalTax = totalTax * 0.75; // ~75% cantonal+communal
-    final federalTax = totalTax * 0.25; // ~25% fédéral
+    // Approximation: ~75% of Swiss income tax is cantonal+communal, ~25% federal.
+    // A precise split requires FiscalService per canton; acceptable for report overview.
+    final cantonalTax = totalTax * 0.75;
+    final federalTax = totalTax * 0.25;
 
     // Simulation avec rachat LPP (si montant disponible)
     final lppBuybackAvailable =
@@ -279,15 +287,16 @@ class FinancialReportService {
     // Use LPP constants for coordinated salary (LPP art. 8)
     // Guard: if gross < seuil d'accès LPP (22'680), no LPP coverage
     final double coordinatedSalary;
-    if (annualGrossApprox < lppSeuilEntree) {
+    if (annualGrossApprox < reg('lpp.entry_threshold', lppSeuilEntree)) {
       coordinatedSalary = 0.0; // Not eligible for LPP
     } else {
-      coordinatedSalary = (annualGrossApprox - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin.toDouble(), lppSalaireCoordMax.toDouble());
+      coordinatedSalary = (annualGrossApprox - reg('lpp.coordination_deduction', lppDeductionCoordination))
+          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     }
+    final refAgeReport = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     for (int year = 0; year < profile.yearsToRetirement; year++) {
       final ageThisYear = profile.age + year;
-      if (ageThisYear >= 25 && ageThisYear <= 65) {
+      if (ageThisYear >= 25 && ageThisYear <= refAgeReport) {
         final rate = getLppBonificationRate(ageThisYear);
         estimatedLppGrowth += coordinatedSalary * rate;
       }
@@ -306,7 +315,7 @@ class FinancialReportService {
     // Financial report is a simplified view without certificate data access.
     // Use surobligatoire estimate (5.4%) as conservative educational default
     // rather than 6.8% which overstates for most caisses.
-    final monthlyLppRent = (lppCapital * lppTauxConversionSurobligDecimal) / 12;
+    final monthlyLppRent = (lppCapital * reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)) / 12;
 
     return RetirementProjection(
       yearsUntilRetirement: profile.yearsToRetirement,
@@ -330,7 +339,7 @@ class FinancialReportService {
         (answers['q_3a_providers'] as List?)?.cast<String>() ?? ['bank'];
 
     final contribution = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
-    final maxContribution = profile.isSalaried ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
+    final maxContribution = profile.isSalaried ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
     // Projections par provider (simplifié)
     final projections = <String, double>{
@@ -379,8 +388,10 @@ class FinancialReportService {
     if (buybackAvailable < 10000) return null;
 
     final yearsToRetirement = profile.yearsToRetirement;
+    final isMarried = profile.civilStatus == 'marie';
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
-        profile.annualIncome, profile.canton);
+        profile.annualIncome, profile.canton,
+        isMarried: isMarried, children: profile.childrenCount);
 
     final plan = <AnnualBuyback>[];
     final currentYear = DateTime.now().year;
@@ -456,6 +467,7 @@ class FinancialReportService {
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
+    S? l,
   }) {
     final actions = <ActionItem>[];
 
@@ -466,6 +478,7 @@ class FinancialReportService {
         taxSim: taxSim,
         lppStrategy: lppStrategy,
         pillar3aAnalysis: pillar3aAnalysis,
+        l: l,
       );
       if (action != null) actions.add(action);
     }
@@ -478,12 +491,13 @@ class FinancialReportService {
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
+    S? l,
   }) {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
     if (recommendation.contains('premier compte 3a') || recommendation.contains('premier 3a')) {
-      return const ActionItem(
-        title: 'Ouvre ton premier 3a',
-        description: 'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
+      return ActionItem(
+        title: l?.reportActionTitle3aFirst ?? 'Ouvre ton premier 3a',
+        description: l?.reportActionDesc3aFirst ?? 'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
         priority: ActionPriority.high,
         potentialGainChf: 1500,
         category: ActionCategory.pillar3a,
@@ -504,8 +518,8 @@ class FinancialReportService {
       final computedGain = totalGain > 0 ? totalGain : 12000.0;
 
       return ActionItem(
-        title: 'Ouvre un 2e compte 3a fintech',
-        description:
+        title: l?.reportActionTitle3aSecond ?? 'Ouvre un 2e compte 3a fintech',
+        description: l?.reportActionDesc3aSecond ??
             'Optimise ta fiscalité au retrait et diversifie tes placements.',
         priority: ActionPriority.high,
         potentialGainChf: computedGain,
@@ -542,9 +556,9 @@ class FinancialReportService {
     }
 
     if (recommendation.contains('AVS')) {
-      return const ActionItem(
-        title: 'Vérifie ton compte AVS',
-        description: 'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
+      return ActionItem(
+        title: l?.reportActionTitleAvsCheck ?? 'Vérifie ton compte AVS',
+        description: l?.reportActionDescAvsCheck ?? 'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
         priority: ActionPriority.high,
         category: ActionCategory.avs,
         steps: [
@@ -556,9 +570,9 @@ class FinancialReportService {
     }
 
     if (recommendation.contains('dette') || recommendation.contains('crédit')) {
-      return const ActionItem(
-        title: 'Rembourse tes dettes de consommation',
-        description:
+      return ActionItem(
+        title: l?.reportActionTitleDette ?? 'Rembourse tes dettes de consommation',
+        description: l?.reportActionDescDette ??
             'C\'est le placement le plus rentable : tu économises 6-10% par an sur les intérêts.',
         priority: ActionPriority.critical,
         potentialGainChf: 2000,
@@ -572,9 +586,9 @@ class FinancialReportService {
     }
 
     if (recommendation.toLowerCase().contains('urgence')) {
-      return const ActionItem(
-        title: 'Constitue ton fonds d\'urgence',
-        description: 'Vise 3 mois de charges sur un compte épargne séparé.',
+      return ActionItem(
+        title: l?.reportActionTitleUrgence ?? 'Constitue ton fonds d\'urgence',
+        description: l?.reportActionDescUrgence ?? 'Vise 3 mois de charges sur un compte épargne séparé.',
         priority: ActionPriority.critical,
         category: ActionCategory.protection,
         steps: [
@@ -589,21 +603,21 @@ class FinancialReportService {
   }
 
   Roadmap _buildRoadmap(FinancialHealthScore healthScore,
-      Map<String, dynamic> answers, UserProfile profile) {
+      Map<String, dynamic> answers, UserProfile profile, {S? l}) {
     return Roadmap(phases: [
       RoadmapPhase(
-        title: 'Immédiat',
-        timeframe: 'Ce mois',
-        actions: _buildPriorityActions(healthScore)
+        title: l?.reportRoadmapPhaseImmediat ?? 'Immédiat',
+        timeframe: l?.reportRoadmapTimeframeImmediat ?? 'Ce mois',
+        actions: _buildPriorityActions(healthScore, l: l)
             .where((a) =>
                 a.priority == ActionPriority.critical ||
                 a.priority == ActionPriority.high)
             .toList(),
       ),
-      const RoadmapPhase(
-        title: 'Court Terme',
-        timeframe: '3-6 mois',
-        actions: [], // À compléter selon contexte
+      RoadmapPhase(
+        title: l?.reportRoadmapPhaseCourtTerme ?? 'Court Terme',
+        timeframe: l?.reportRoadmapTimeframeCourtTerme ?? '3-6 mois',
+        actions: const [], // À compléter selon contexte
       ),
     ]);
   }
@@ -612,13 +626,13 @@ class FinancialReportService {
 
   double _estimateEffectiveRate(
       double taxableIncome, String canton, bool isMarried) {
-    // TODO(P8-Phase2): migrate to FiscalService.estimateTax() for canton-aware rates
-    final baseRate = isMarried ? 0.12 : 0.15;
-
-    if (taxableIncome > 150000) return baseRate + 0.10;
-    if (taxableIncome > 100000) return baseRate + 0.05;
-    if (taxableIncome > 60000) return baseRate + 0.02;
-    return baseRate;
+    // Delegate to centralized marginal rate estimator (financial_core).
+    // RetirementTaxCalculator.estimateMarginalRate accounts for canton grouping
+    // and income-level brackets (AFC taux marginaux 2025).
+    final marginalRate =
+        RetirementTaxCalculator.estimateMarginalRate(taxableIncome, canton);
+    // Married couples benefit from splitting (~15% reduction, cf. LIFD art. 36).
+    return isMarried ? marginalRate * 0.85 : marginalRate;
   }
 
   double _estimateAvsRent(UserProfile profile) {
@@ -629,23 +643,41 @@ class FinancialReportService {
       age: profile.age,
     );
 
+    // F7-2: Pass gender and birthYear so AvsCalculator uses the correct
+    // AVS21 reference age (64F / 65M — LAVS art. 21 al. 1).
+    final isFemale = profile.gender == 'F';
+    final refAgeAvs = profile.gender != null
+        ? avsReferenceAge(birthYear: profile.birthYear, isFemale: isFemale)
+        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final userRente = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
-      retirementAge: 65,
+      retirementAge: refAgeAvs,
       lacunes: profile.avsGapYears ?? 0,
       anneesContribuees: profile.contributionYears,
       grossAnnualSalary: grossAnnualSalary,
+      isFemale: profile.gender != null ? isFemale : null,
+      birthYear: profile.gender != null ? profile.birthYear : null,
     );
 
     if (profile.isMarried) {
       // Spouse rente: use same gross salary assumption (no spouse salary available)
       // TODO: Accept spouse income for more accurate couple AVS computation.
+      // S57-F4: Use spouse's actual gender when available. Never infer from
+      // user gender — same-sex couples would get the wrong reference age.
+      // Fallback to male reference age (65) when spouse gender is unknown.
+      final spouseIsFemale = profile.spouseGender == 'F';
+      final hasSpouseGender = profile.spouseGender != null;
+      final spouseRefAge = hasSpouseGender
+          ? avsReferenceAge(birthYear: profile.birthYear, isFemale: spouseIsFemale)
+          : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
       final spouseRente = AvsCalculator.computeMonthlyRente(
         currentAge: profile.age, // Approximate: same age assumed for spouse
-        retirementAge: 65,
+        retirementAge: spouseRefAge,
         lacunes: profile.spouseAvsGapYears ?? 0,
         anneesContribuees: profile.spouseContributionYears,
         grossAnnualSalary: grossAnnualSalary,
+        isFemale: hasSpouseGender ? spouseIsFemale : null,
+        birthYear: hasSpouseGender ? profile.birthYear : null,
       );
 
       // Apply married couple cap (LAVS art. 35 — 150% of individual max)

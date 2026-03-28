@@ -115,10 +115,11 @@ class BudgetSandwichChart extends StatelessWidget {
                         color: marginColor,
                       ),
                       const SizedBox(width: 6),
-                      Text(
+                      Flexible(child: Text(
                         '${isPositive ? "Marge" : "D\u00e9ficit"}\u00a0: ${formatChfWithPrefix(margin.abs())}/mois',
                         style: MintTextStyles.titleMedium(color: marginColor).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
-                      ),
+                        overflow: TextOverflow.ellipsis,
+                      )),
                     ],
                   ),
                   const SizedBox(height: 4),

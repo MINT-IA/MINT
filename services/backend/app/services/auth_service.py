@@ -2,11 +2,21 @@
 Authentication service - handles password hashing and JWT token generation.
 """
 
+import logging
+import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Set
 import jwt
 from passlib.context import CryptContext
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
+
+# V5-8b: In-memory set of used refresh token JTIs.
+# TODO (V12-6): Persist used JTIs to database/Redis for multi-worker + restart safety.
+# For now, in-memory set with max size limit to prevent unbounded growth.
+_MAX_JTI_SET_SIZE = 10_000
+_used_refresh_jtis: Set[str] = set()
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -65,6 +75,9 @@ def create_refresh_token(user_id: str) -> str:
     """
     Create a long-lived refresh token for token rotation.
 
+    V5-8b audit fix: added jti (JWT ID) claim for replay detection,
+    and iat (issued-at) for age verification.
+
     Args:
         user_id: User's unique identifier
 
@@ -75,6 +88,7 @@ def create_refresh_token(user_id: str) -> str:
     payload = {
         "user_id": user_id,
         "type": "refresh",
+        "jti": str(uuid.uuid4()),
         "exp": expire,
         "iat": datetime.now(timezone.utc),
     }
@@ -112,6 +126,10 @@ def decode_refresh_token(token: str) -> Optional[Dict[str, Any]]:
     """
     Decode and verify a refresh token.
 
+    V5-8b audit fix: checks jti (JWT ID) for replay detection.
+    If a jti has already been used, the token is rejected and a warning
+    is logged (potential token replay attack).
+
     Args:
         token: JWT refresh token string
 
@@ -126,6 +144,31 @@ def decode_refresh_token(token: str) -> Optional[Dict[str, Any]]:
         )
         if payload.get("type") != "refresh":
             return None
+
+        # V5-8b: Check jti for replay detection
+        jti = payload.get("jti")
+        if jti:
+            if jti in _used_refresh_jtis:
+                logger.warning(
+                    "V5-8b: Refresh token reuse detected (jti=%s, user=%s). "
+                    "Possible token replay attack.",
+                    jti,
+                    payload.get("user_id"),
+                )
+                return None
+            _used_refresh_jtis.add(jti)
+            # V12-6: Evict when set exceeds max size to prevent unbounded growth.
+            # Clearing all is acceptable — worst case is a brief replay window
+            # for tokens that were already used. In production, use DB/Redis.
+            if len(_used_refresh_jtis) > _MAX_JTI_SET_SIZE:
+                logger.warning(
+                    "V12-6: JTI set exceeded %d entries, clearing to prevent "
+                    "unbounded memory growth. Migrate to DB/Redis for production.",
+                    _MAX_JTI_SET_SIZE,
+                )
+                _used_refresh_jtis.clear()
+                _used_refresh_jtis.add(jti)  # Re-add the current one
+
         return payload
     except jwt.ExpiredSignatureError:
         return None

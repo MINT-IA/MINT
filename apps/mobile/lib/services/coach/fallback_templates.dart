@@ -135,7 +135,7 @@ class FallbackTemplates {
 
     if (hasCertifiedData) {
       return 'Données certifiées — confiance ${confidence.toStringAsFixed(0)}\u00a0%. '
-          'Ce chiffre est fiable.';
+          'Estimation basée sur des données vérifiées.';
     }
     final enrichment = _topEnrichmentAction(ctx);
     return 'Confiance ${confidence.toStringAsFixed(0)}\u00a0%. '

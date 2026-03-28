@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -10,6 +11,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Household management screen — Couple+ tier.
 ///
@@ -58,13 +61,13 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: !auth.isLoggedIn
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: !auth.isLoggedIn
           ? _buildLoginPrompt(context)
           : !sub.isPaid
               ? _buildUpsellCard(context)
               : household.isLoading && !household.hasHousehold
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildContent(context, household),
+                  ? const MintLoadingSkeleton()
+                  : _buildContent(context, household))),
     );
   }
 
@@ -77,24 +80,24 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           children: [
             const Icon(Icons.lock_outline, size: 64, color: MintColors.greyBorderLight),
             const SizedBox(height: 16),
-            Text(
+            MintEntrance(child: Text(
               'Couple+',
               style: MintTextStyles.headlineMedium(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.sm),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               S.of(context)!.householdUpsellDescription,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),
-            ),
+            )),
             const SizedBox(height: 24),
-            FilledButton(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: FilledButton(
               onPressed: () {
                 final sub = context.read<SubscriptionProvider>();
                 sub.upgrade(SubscriptionTier.couplePlus);
               },
               child: Text(S.of(context)!.householdDiscoverCouplePlus),
-            ),
+            )),
           ],
         ),
       ),
@@ -204,10 +207,14 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               style: MintTextStyles.bodyMedium(),
             ),
             const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: () => setState(() => _showInviteForm = true),
-              icon: const Icon(Icons.person_add),
-              label: Text(S.of(context)!.householdInvitePartner),
+            Semantics(
+              button: true,
+              label: S.of(context)!.householdInvitePartner,
+              child: FilledButton.icon(
+                onPressed: () => setState(() => _showInviteForm = true),
+                icon: const Icon(Icons.person_add),
+                label: Text(S.of(context)!.householdInvitePartner),
+              ),
             ),
             if (_showInviteForm) ...[
               const SizedBox(height: 16),
@@ -445,13 +452,9 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               style: MintTextStyles.titleMedium(color: MintColors.greenDark),
             ),
             const SizedBox(height: 8),
-            Container(
+            MintSurface(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: MintColors.greenLight),
-              ),
+              radius: 12,
               child: Text(
                 household.pendingInviteCode!,
                 style: MintTextStyles.displayMedium(),

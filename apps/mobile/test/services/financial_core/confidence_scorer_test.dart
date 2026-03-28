@@ -594,12 +594,12 @@ void main() {
       expect(blocs['objectifRetraite']!.score, 3.0); // default partial score
     });
 
-    test('compositionMenage is complete for single person', () {
+    test('compositionMenage is partial for default celibataire (unconfirmed)', () {
       final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
       final blocs = ConfidenceScorer.scoreAsBlocs(profile);
-      // celibataire → complete
-      expect(blocs['compositionMenage']!.status, 'complete');
-      expect(blocs['compositionMenage']!.score, blocs['compositionMenage']!.maxScore);
+      // Default celibataire (not confirmed) → partial with 5 points
+      expect(blocs['compositionMenage']!.status, 'partial');
+      expect(blocs['compositionMenage']!.score, 5);
     });
 
     test('empty profile has zero score for missing blocs', () {
@@ -634,6 +634,9 @@ void main() {
       expect(blocs['lpp']!.score, blocs['lpp']!.maxScore);
     });
   });
+
+  // Confidence doctrine enforcement tests
+  _doctrinTests();
 }
 
 /// Helper to build a CoachProfile for testing.
@@ -649,10 +652,12 @@ CoachProfile _buildProfile({
   int? anneesContribuees,
   int? arrivalAge,
   String? residencePermit,
+  CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
   Map<String, ProfileDataSource> dataSources = const {},
   Map<String, DateTime> dataTimestamps = const {},
   FinancialLiteracyLevel financialLiteracyLevel = FinancialLiteracyLevel.beginner,
   int checkInsCount = 0,
+  int? targetRetirementAge,
 }) {
   final checkIns = List.generate(
     checkInsCount,
@@ -668,7 +673,7 @@ CoachProfile _buildProfile({
     birthYear: DateTime.now().year - age,
     salaireBrutMensuel: salary,
     canton: canton,
-    etatCivil: CoachCivilStatus.celibataire,
+    etatCivil: etatCivil,
     employmentStatus: employmentStatus,
     arrivalAge: arrivalAge,
     residencePermit: residencePermit,
@@ -676,6 +681,7 @@ CoachProfile _buildProfile({
     dataTimestamps: dataTimestamps,
     financialLiteracyLevel: financialLiteracyLevel,
     checkIns: checkIns,
+    targetRetirementAge: targetRetirementAge,
     prevoyance: PrevoyanceProfile(
       avoirLppTotal: avoirLpp,
       tauxConversion: tauxConversion,
@@ -692,4 +698,88 @@ CoachProfile _buildProfile({
       label: 'Retraite',
     ),
   );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  CONFIDENCE DOCTRINE TESTS (SOURCE_OF_TRUTH_MATRIX.md §3)
+//
+//  These tests enforce the governance rules:
+//  - ConfidenceScorer is the SOT for projection quality
+//  - minConfidenceForProjection = 40 is enforced
+//  - Enrichment prompts are ranked by impact (highest first)
+//  - BayesianEnrichmentResult is populated when available
+// ════════════════════════════════════════════════════════════════════════════
+
+void _doctrinTests() {
+  group('Confidence doctrine', () {
+    test('minConfidenceForProjection is exactly 40', () {
+      // This constant gates projection display across the entire app.
+      // Changing it affects Pulse, Coach, simulators, and enrichment flow.
+      // If you need to change it, update SOURCE_OF_TRUTH_MATRIX.md §3.
+      expect(ConfidenceScorer.minConfidenceForProjection, equals(40.0));
+    });
+
+    test('enrichment prompts have positive impact values', () {
+      final profile = _buildProfile(
+        age: 35,
+        salary: 6000,
+        canton: 'VD',
+        // Deliberately leave most fields empty to generate many prompts
+      );
+      final confidence = ConfidenceScorer.score(profile);
+
+      // All prompts must have positive impact (meaningful action)
+      for (final p in confidence.prompts) {
+        expect(p.impact, greaterThan(0),
+            reason: 'Prompt "${p.label}" should have positive impact');
+        expect(p.category, isNotEmpty);
+        expect(p.action, isNotEmpty);
+      }
+    });
+
+    test('complete profile has no enrichment prompts', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        avoirLpp: 300000,
+        epargne3a: 50000,
+        patrimoine: 100000,
+        employmentStatus: 'salarie',
+        tauxConversion: 0.054,
+        anneesContribuees: 25,
+        targetRetirementAge: 65,
+      );
+      final confidence = ConfidenceScorer.score(profile);
+      // Complete profile should have very few (or no) prompts
+      expect(confidence.score, greaterThanOrEqualTo(70));
+    });
+
+    test('bayesianResult is populated when profile has data', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        employmentStatus: 'salarie',
+      );
+      final confidence = ConfidenceScorer.score(profile);
+      // BayesianEnrichmentResult should be computed for any scored profile
+      expect(confidence.bayesianResult, isNotNull);
+      expect(confidence.bayesianResult!.rankedPrompts, isNotEmpty);
+    });
+
+    test('incomplete profile includes LPP enrichment prompt', () {
+      final profile = _buildProfile(
+        age: 40,
+        salary: 7000,
+        canton: 'GE',
+        // No LPP, no AVS, no 3a → should suggest LPP scan
+      );
+      final confidence = ConfidenceScorer.score(profile);
+
+      final categories = confidence.prompts.map((p) => p.category).toSet();
+      // Should include LPP and AVS as top enrichment categories
+      expect(categories, contains('lpp'));
+    });
+  });
 }

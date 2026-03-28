@@ -8,6 +8,12 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -34,7 +40,38 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _calculate();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.revenuBrutAnnuel > 0) {
+        _revenuNet = profile.revenuBrutAnnuel.clamp(0, 300000);
+        changed = true;
+      }
+      if (profile.revenuBrutAnnuel > 0) {
+        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        );
+        changed = true;
+      }
+      // Detect LPP affiliation from prevoyance data
+      if (profile.prevoyance.avoirLppTotal != null &&
+          profile.prevoyance.avoirLppTotal! > 0) {
+        _affilieLpp = true;
+        changed = true;
+      }
+      if (changed) _calculate();
+    } catch (_) {
+      // Provider not available
+    }
   }
 
   void _calculate() {
@@ -51,20 +88,20 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                _buildLppToggle(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildLppToggle()),
                 const SizedBox(height: 20),
-                _buildRevenuSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenuSlider()),
                 const SizedBox(height: 20),
-                _buildTauxSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTauxSlider()),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -76,13 +113,13 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                   _buildEducation(),
                   const SizedBox(height: 24),
                 ],
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -132,13 +169,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── LPP Toggle ─────────────────────────────────────────────
 
   Widget _buildLppToggle() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Row(
         children: [
           Expanded(
@@ -175,57 +207,19 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── Revenu Slider ──────────────────────────────────────────
 
   Widget _buildRevenuSlider() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.pillar3aIndepRevenuLabel,
-                style: MintTextStyles.titleMedium(),
-              ),
-              Text(
-                IndependantsService.formatChf(_revenuNet),
-                style: MintTextStyles.headlineMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: _revenuNet,
-              min: 0,
-              max: 300000,
-              divisions: 300,
-              onChanged: (v) {
-                _revenuNet = v;
-                _calculate();
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.pillar3aIndepCHF0, style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text(S.of(context)!.pillar3aIndepSliderMax300k, style: MintTextStyles.micro(color: MintColors.textMuted)),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: S.of(context)!.pillar3aIndepRevenuLabel,
+        value: _revenuNet,
+        min: 0,
+        max: 300000,
+        divisions: 300,
+        formatValue: (v) => IndependantsService.formatChf(v),
+        onChanged: (v) {
+          _revenuNet = v;
+          _calculate();
+        },
       ),
     );
   }
@@ -233,57 +227,19 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── Taux Marginal Slider ───────────────────────────────────
 
   Widget _buildTauxSlider() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.pillar3aIndepTauxLabel,
-                style: MintTextStyles.titleMedium(),
-              ),
-              Text(
-                '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
-                style: MintTextStyles.headlineMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: _tauxMarginal * 100,
-              min: 10,
-              max: 45,
-              divisions: 35,
-              onChanged: (v) {
-                _tauxMarginal = v / 100;
-                _calculate();
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.pillar3aIndepTaux10, style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text(S.of(context)!.pillar3aIndepTaux45, style: MintTextStyles.micro(color: MintColors.textMuted)),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: S.of(context)!.pillar3aIndepTauxLabel,
+        value: _tauxMarginal * 100,
+        min: 10,
+        max: 45,
+        divisions: 35,
+        formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+        onChanged: (v) {
+          _tauxMarginal = v / 100;
+          _calculate();
+        },
       ),
     );
   }
@@ -301,9 +257,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         ),
         child: Column(
           children: [
-            Text(
-              IndependantsService.formatChf(r.economieFiscale),
-              style: MintTextStyles.displayMedium(color: MintColors.primary),
+            Semantics(
+              label: IndependantsService.formatChf(r.economieFiscale),
+              child: Text(
+                IndependantsService.formatChf(r.economieFiscale),
+                style: MintTextStyles.displayMedium(color: MintColors.primary),
+              ),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
@@ -324,9 +283,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            IndependantsService.formatChf(r.avantageSurSalarie),
-            style: MintTextStyles.displayMedium(color: MintColors.white),
+          Semantics(
+            label: IndependantsService.formatChf(r.avantageSurSalarie),
+            child: Text(
+              IndependantsService.formatChf(r.avantageSurSalarie),
+              style: MintTextStyles.displayMedium(color: MintColors.white),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -343,13 +305,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
   Widget _buildResultSection() {
     final r = _result!;
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         children: [
           _buildResultRow(S.of(context)!.pillar3aIndepPlafondApplicableLabel, IndependantsService.formatChf(r.plafond)),
@@ -401,13 +358,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     final proj20Indep = plafondIndep * ((math.pow(1.04, 20) - 1) / 0.04);
     final proj20Salarie = petit * ((math.pow(1.04, 20) - 1) / 0.04);
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -615,12 +567,9 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintSurface(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              radius: 10,
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: 12),

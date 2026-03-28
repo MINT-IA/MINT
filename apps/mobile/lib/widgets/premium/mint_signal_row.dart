@@ -34,12 +34,16 @@ class MintSignalRow extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                label,
-                style: MintTextStyles.bodyMedium(
-                  color: MintColors.textSecondary,
+              Flexible(
+                child: Text(
+                  label,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: MintSpacing.sm),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

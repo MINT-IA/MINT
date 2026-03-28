@@ -172,10 +172,10 @@ class ConversationMemoryService {
     return fullText.length > 500 ? '${fullText.substring(0, 497)}...' : fullText;
   }
 
-  /// Sanitize a conversation title to prevent prompt injection.
+  /// Sanitize a conversation title to prevent prompt injection and PII leaks.
   ///
-  /// Strips system markers, triple-dash delimiters, and truncates
-  /// to 100 chars to prevent memory block manipulation.
+  /// Strips system markers, triple-dash delimiters, PII patterns,
+  /// and truncates to 100 chars to prevent memory block manipulation.
   static String _sanitizeTitle(String title) {
     var s = title;
     for (final marker in [
@@ -188,6 +188,8 @@ class ConversationMemoryService {
     }
     s = s.replaceAll(RegExp(r'(?<=\s|^)-{3,}(?=\s|$)'), '');
     s = s.replaceAll(RegExp(r'\s{3,}'), '  ').trim();
+    // V3-5: Scrub PII from titles injected into AI context.
+    s = ConversationStore.scrubPii(s);
     return s.length > 100 ? '${s.substring(0, 97)}...' : s;
   }
 }

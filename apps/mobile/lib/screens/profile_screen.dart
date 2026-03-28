@@ -5,20 +5,21 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
-import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
-import 'package:mint_mobile/providers/locale_provider.dart';
-import 'package:mint_mobile/widgets/language_selector_widget.dart';
-import 'package:mint_mobile/l10n/locale_helper.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -48,7 +49,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverToBoxAdapter(
@@ -59,7 +60,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   // ── Identity card (compact) ───────────────
                   if (coachProfile != null)
-                    _buildIdentityCard(context, coachProfile),
+                    MintEntrance(child: _buildIdentityCard(context, coachProfile)),
                   if (coachProfile != null)
                     const SizedBox(height: MintSpacing.md + MintSpacing.xs),
 
@@ -104,32 +105,14 @@ class ProfileScreen extends StatelessWidget {
                   ),
 
                   // ══════════════════════════════════════════
-                  //  SECTION: Réglages
+                  //  SECTION: Compte
                   // ══════════════════════════════════════════
-                  const SizedBox(height: MintSpacing.lg),
-                  _buildSectionHeader(l.profileSectionSettings),
-                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-
-                  // Language
-                  _buildLanguageSection(context),
-                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-
-                  // AI (BYOK + SLM)
-                  _buildAiSection(context),
-                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-
-                  // Security & Data
-                  _buildFactFindSection(
-                    title: l.profileConsentControl,
-                    status: l.profileConsentManage,
-                    isComplete: true,
-                    icon: Icons.lock_outline,
-                    onTap: () => context.push('/profile/consent'),
-                  ),
+                  // Settings (Langue, BYOK, SLM, Consent) are accessible
+                  // as rows in the Réglages section of the Dossier tab.
 
                   // Account (if logged in)
                   if (authProvider.isLoggedIn) ...[
-                    const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+                    const SizedBox(height: MintSpacing.lg),
                     _buildAuthSection(context, authProvider),
                   ],
 
@@ -142,7 +125,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -350,7 +333,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildIdentityCard(BuildContext context, dynamic profile) {
     final l = S.of(context)!;
-    final name = profile.firstName ?? l.profileDefaultName;
+    final rawName = profile.firstName as String?;
+    // If firstName is null, empty, or the generic default, skip it.
+    // Use a non-null local for the real name to enable type promotion.
+    final String? realName = (rawName != null &&
+            rawName.isNotEmpty &&
+            rawName != l.profileDefaultName)
+        ? rawName
+        : null;
     final age = profile.age;
     final canton = profile.canton as String;
     final status = profile.employmentStatus as String;
@@ -362,6 +352,23 @@ class ProfileScreen extends StatelessWidget {
       'retraite': l.identityStatusRetraite,
     }[status] ?? status;
 
+    // Build the title line: "Julien, 49 ans" or just "49 ans" if no real name.
+    final String titleLine;
+    if (realName != null && age != null) {
+      titleLine = l.profileNameAge(realName, age);
+    } else if (realName != null) {
+      titleLine = realName;
+    } else if (age != null) {
+      titleLine = '$age\u00a0ans';
+    } else {
+      titleLine = '';
+    }
+
+    // Avatar initial: first letter of name, or age digit, or "?"
+    final avatarText = realName != null
+        ? realName[0].toUpperCase()
+        : (age != null ? '${age ~/ 10}' : '?');
+
     return MintSurface(
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
@@ -371,7 +378,7 @@ class ProfileScreen extends StatelessWidget {
             radius: 22,
             backgroundColor: MintColors.primary.withValues(alpha: 0.08),
             child: Text(
-              name.isNotEmpty ? name[0].toUpperCase() : '?',
+              avatarText,
               style: MintTextStyles.titleMedium(
                 color: MintColors.primary,
               ),
@@ -382,12 +389,13 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  age != null ? l.profileNameAge(name, age) : name,
-                  style: MintTextStyles.titleMedium(
-                    color: MintColors.textPrimary,
+                if (titleLine.isNotEmpty)
+                  Text(
+                    titleLine,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
                   ),
-                ),
                 const SizedBox(height: 2),
                 Text(
                   canton.isNotEmpty
@@ -471,10 +479,15 @@ class ProfileScreen extends StatelessWidget {
   bool _shouldShowAnnualRefresh(CoachProfileProvider provider) {
     final profile = provider.profile;
     if (profile == null) return false;
+    // Use last check-in date, or profile createdAt as fallback.
+    // Never fall back to DateTime(birthYear) — that caused the "16515 days" bug.
     final lastUpdate = profile.checkIns.isNotEmpty
         ? profile.checkIns.last.month
-        : DateTime(profile.birthYear);
-    return DateTime.now().difference(lastUpdate).inDays >= 300;
+        : profile.createdAt;
+    final days = DateTime.now().difference(lastUpdate).inDays;
+    // Sanity guard: if days > 3650 (10y), data is corrupted — don't show.
+    if (days > 3650) return false;
+    return days >= 300;
   }
 
   int _staleDays(CoachProfileProvider provider) {
@@ -482,7 +495,7 @@ class ProfileScreen extends StatelessWidget {
     if (profile == null) return 0;
     final lastUpdate = profile.checkIns.isNotEmpty
         ? profile.checkIns.last.month
-        : DateTime(profile.birthYear);
+        : profile.createdAt;
     return DateTime.now().difference(lastUpdate).inDays;
   }
 
@@ -586,12 +599,11 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 if (reward != null)
-                  Container(
+                  MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
                     padding: const EdgeInsets.symmetric(
                         horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
-                    decoration: BoxDecoration(
-                        color: MintColors.porcelaine,
-                        borderRadius: BorderRadius.circular(8)),
+                    radius: 8,
                     child: Text(reward,
                         style: MintTextStyles.micro(
                           color: MintColors.primary,
@@ -607,36 +619,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAiSection(BuildContext context) {
-    final byok = context.watch<ByokProvider>();
-    final l = S.of(context)!;
-    return Column(
-      children: [
-        _buildFactFindSection(
-          title: l.profileAiByok,
-          status: byok.isConfigured
-              ? '${byok.providerLabel} \u2014 ${l.profileAiConfigured}'
-              : l.profileAiNotConfigured,
-          isComplete: byok.isConfigured,
-          icon: Icons.auto_awesome,
-          onTap: () => context.push('/profile/byok'),
-        ),
-        const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-        Builder(builder: (context) {
-          final slm = context.watch<SlmProvider>();
-          return _buildFactFindSection(
-            title: l.profileSlmTitle,
-            status: slm.isEngineAvailable
-                ? l.profileSlmReady
-                : l.profileSlmNotInstalled,
-            isComplete: slm.isEngineAvailable,
-            icon: Icons.smartphone,
-            onTap: () => context.push('/profile/slm'),
-          );
-        }),
-      ],
-    );
-  }
+  // AI (BYOK + SLM) section removed — now in SettingsSheet.
 
   Widget _buildDocumentsSection(BuildContext context) {
     final docProvider = context.watch<DocumentProvider>();
@@ -760,11 +743,11 @@ class ProfileScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
+            onPressed: () => ctx.pop(false),
             child: Text(S.of(context)!.profileDeleteCancel),
           ),
           FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
+            onPressed: () => ctx.pop(true),
             style: FilledButton.styleFrom(backgroundColor: MintColors.error),
             child: Text(S.of(context)!.profileDeleteConfirm),
           ),
@@ -777,10 +760,31 @@ class ProfileScreen extends StatelessWidget {
     final success = await authProvider.deleteAccount();
     if (!context.mounted) return;
 
+    // V5-2 audit fix: purge ALL local data artifacts on account deletion.
+    // This ensures conversation history, coach insights, cached data, and
+    // SharedPreferences are wiped — not just the server-side session.
+    if (success) {
+      final store = ConversationStore();
+      // Delete all conversations from local storage
+      final conversations = await store.listConversations();
+      for (final conv in conversations) {
+        await store.deleteConversation(conv.id);
+      }
+      await CoachMemoryService.clear();
+      await CapMemoryStore.clear();
+      final prefs = await SharedPreferences.getInstance();
+      await PrecomputedInsightsService.clear(prefs);
+      await prefs.clear(); // Nuclear option — clears all SharedPreferences
+    }
+
+    if (!context.mounted) return;
+
     final l = S.of(context)!;
     final message = success
         ? l.profileDeleteAccountSuccess
-        : (authProvider.error ?? l.profileDeleteAccountError);
+        : (authProvider.error != null
+            ? localizeAuthError(authProvider.error!, l)
+            : l.profileDeleteAccountError);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
     if (success) {
@@ -788,56 +792,7 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildLanguageSection(BuildContext context) {
-    final localeProvider = context.watch<LocaleProvider>();
-    final code = localeProvider.locale.languageCode;
-    final flag = MintLocales.flagOf(code);
-    final name = MintLocales.nameOf(code);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(S.of(context)!.profileLanguageTitle,
-            style: MintTextStyles.titleMedium(
-              color: MintColors.textPrimary,
-            )),
-        const SizedBox(height: MintSpacing.md),
-        Semantics(
-          label: '${S.of(context)!.profileChangeLanguage}: $name',
-          button: true,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () async {
-              final selected =
-                  await showLanguageSelector(context, localeProvider.locale);
-              if (selected != null && context.mounted) {
-                context.read<LocaleProvider>().setLocale(selected);
-              }
-            },
-            child: MintSurface(
-              tone: MintSurfaceTone.blanc,
-              padding: const EdgeInsets.all(MintSpacing.md),
-              child: Row(
-                children: [
-                  Text(flag, style: MintTextStyles.headlineMedium()),
-                  const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
-                  Expanded(
-                    child: Text(
-                      name,
-                      style: MintTextStyles.titleMedium(
-                        color: MintColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right, color: MintColors.textMuted),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  // Language section removed — now in SettingsSheet.
 
   Widget _buildDangerZone(BuildContext context) {
     final l = S.of(context)!;

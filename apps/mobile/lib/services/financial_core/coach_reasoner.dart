@@ -46,7 +46,7 @@ class CoachReasonerService {
 
     final age = DateTime.now().year - profile.birthYear;
     final yearsToRetirement =
-        ((profile.targetRetirementAge ?? 65) - age).clamp(0, 45);
+        ((profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) - age).clamp(0, 45);
     if (yearsToRetirement <= 0) {
       return ReasonerResult(
           recommendations: results, confidence: confidence);
@@ -107,8 +107,13 @@ class CoachReasonerService {
     if (lacune <= 0) return null;
 
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(revenuBrut, profile.canton);
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+      revenuBrut,
+      profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
+    );
 
     // Suggested annual buyback: spread over remaining years, min 5k, max 50k
     final annualBuyback = (lacune / yearsToRetirement)
@@ -118,7 +123,9 @@ class CoachReasonerService {
 
     // Compound growth of buyback at fund rate
     final r = prev.rendementCaisse;
-    final futureValue = annualBuyback * ((pow(1 + r, yearsToRetirement) - 1) / r);
+    final futureValue = r > 0
+        ? annualBuyback * ((pow(1 + r, yearsToRetirement) - 1) / r)
+        : annualBuyback * yearsToRetirement;
     final totalInvested = annualBuyback * yearsToRetirement;
     final investmentGain = futureValue - totalInvested;
 
@@ -201,7 +208,7 @@ class CoachReasonerService {
         profile.employmentStatus == 'independant' &&
         (prev.avoirLppTotal == null || prev.avoirLppTotal == 0);
     final maxAnnual =
-        isIndepNoLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        isIndepNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     // Estimate current annual contribution from existing accounts
     // If no contribution data, assume user contributes 0
@@ -213,13 +220,20 @@ class CoachReasonerService {
     if (gap < 500) return null; // trivial gap
 
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(revenuBrut, profile.canton);
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+      revenuBrut,
+      profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
+    );
     final annualTaxSaving = gap * marginalRate;
 
     // FV of annual contributions at estimated 3a return
     final r3a = prev.rendementMoyen3a;
-    final fv = gap * ((pow(1 + r3a, yearsToRetirement) - 1) / r3a);
+    final fv = r3a > 0
+        ? gap * ((pow(1 + r3a, yearsToRetirement) - 1) / r3a)
+        : gap * yearsToRetirement;
     final investmentGain = fv - gap * yearsToRetirement;
 
     final annualReturn = annualTaxSaving + investmentGain / yearsToRetirement;
@@ -288,7 +302,7 @@ class CoachReasonerService {
         profile.employmentStatus == 'independant' &&
         (prev.avoirLppTotal == null || prev.avoirLppTotal == 0);
     final maxAnnual =
-        isIndepNoLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        isIndepNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     // Estimate annual amortization: 1% of mortgage balance
     final annualAmorti = hypotheque * 0.01;
@@ -296,8 +310,13 @@ class CoachReasonerService {
     if (amountToRedirect < 1000) return null;
 
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(revenuBrut, profile.canton);
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+      revenuBrut,
+      profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
+    );
 
     // Tax advantage: direct amorti = no deduction, indirect = 3a deduction
     final taxSaving = amountToRedirect * marginalRate;
@@ -365,7 +384,7 @@ class CoachReasonerService {
     if (prev.nombre3a < 2) return null; // need >= 2 accounts to stagger
     if (prev.totalEpargne3a < 20000) return null; // trivial amounts
 
-    final retirementAge = profile.targetRetirementAge ?? 65;
+    final retirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 10) return null; // only relevant near retirement
 
@@ -452,7 +471,7 @@ class CoachReasonerService {
     if (totalLP < 20000) return null; // too small
     if (prev.librePassage.length >= 2) return null; // already split
 
-    final retirementAge = profile.targetRetirementAge ?? 65;
+    final retirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 15) return null; // not urgent yet
 

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SERVICE — Sprint S19 / Chomage (LACI) + Premier emploi
 // ────────────────────────────────────────────────────────────
@@ -74,10 +76,11 @@ class UnemploymentService {
   static const double _rateEnhanced = 0.80;
 
   /// Maximum gain assure mensuel (CHF 12'350).
-  static const double _gainAssureMax = 12350.0;
+  /// Derived from acPlafondSalaireAssure / 12.
+  static double get _gainAssureMax => reg('ac.max_monthly_insured_income', acGainAssureMensuelMax);
 
   /// Salary threshold for enhanced rate (CHF 3'797).
-  static const double _salaryThresholdEnhanced = 3797.0;
+  static double get _salaryThresholdEnhanced => reg('ac.enhanced_rate_threshold', acSeuilSalaireMajore);
 
   /// Standard waiting period (5 days).
   static const int _delaiCarenceStandard = 5;
@@ -185,11 +188,13 @@ class UnemploymentService {
   }
 
   /// Calculate the number of daily indemnities based on age and contributions.
+  ///
+  /// SECO rules: 55+ with >= 22 months = senior = 520 days (LACI art. 27 al. 2).
+  /// Uses centralized constants from social_insurance.dart.
   static int _calculateDuration(int age, int moisCotisation) {
-    if (age >= 60 && moisCotisation >= 22) return 520;
-    if (age >= 55 && moisCotisation >= 22) return 400;
-    if (age >= 25 && moisCotisation >= 18) return 260;
-    if (moisCotisation >= 12) return 200;
+    if (age >= reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble()).toInt() && moisCotisation >= 22) return reg('ac.senior_days', acJoursSenior.toDouble()).toInt(); // 55+ = 520
+    if (age >= 25 && moisCotisation >= 18) return reg('ac.intermediate_days', acJoursIntermediaireCotisation.toDouble()).toInt(); // 260
+    if (moisCotisation >= 12) return reg('ac.min_days', acJoursMinCotisation.toDouble()).toInt(); // 200
     return 0;
   }
 

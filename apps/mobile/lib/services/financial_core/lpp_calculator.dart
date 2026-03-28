@@ -43,7 +43,7 @@ class LppCalculator {
   static double adjustedConversionRate({
     required double baseRate,
     required int retirementAge,
-    int referenceAge = 65,
+    int referenceAge = avsAgeReferenceHomme,
     double reductionPerYear = lppEarlyRetirementRateReduction,
   }) {
     if (retirementAge >= referenceAge) return baseRate;
@@ -76,13 +76,14 @@ class LppCalculator {
     double? bonificationRateOverride,
     double? salaireAssureOverride,
   }) {
+    final seuil = reg('lpp.entry_threshold', lppSeuilEntree);
     final belowThreshold =
-        salaireAssureOverride == null && grossAnnualSalary < lppSeuilEntree;
+        salaireAssureOverride == null && grossAnnualSalary < seuil;
     final salaireBase = salaireAssureOverride ??
         (belowThreshold
             ? 0.0
-            : (grossAnnualSalary - lppDeductionCoordination)
-                .clamp(lppSalaireCoordMin, lppSalaireCoordMax));
+            : (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
+                .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax)));
 
     double balance = currentBalance;
     double buybackDone = 0;
@@ -123,12 +124,12 @@ class LppCalculator {
     double? salaireAssureOverride,
   }) {
     double newBalance = currentBalance * (1 + monthlyReturn);
-    if (salaireAssureOverride == null && grossAnnualSalary < lppSeuilEntree) {
+    if (salaireAssureOverride == null && grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
       return newBalance;
     }
     final salaireBase = salaireAssureOverride ??
-        (grossAnnualSalary - lppDeductionCoordination)
-            .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+        (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
+            .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     final bonifRate = bonificationRateOverride ?? getLppBonificationRate(age);
     return newBalance + salaireBase * bonifRate / 12;
   }
@@ -145,12 +146,12 @@ class LppCalculator {
     required String canton,
     bool isMarried = false,
     int? horizonYears,
-    int retirementAge = 65,
+    int retirementAge = avsAgeReferenceHomme,
   }) {
     if (lppCapitalPct <= 0 || annualRente <= 0) return annualRente / 12;
 
     // Back-calculate projected balance from annual rente
-    final effectiveRate = conversionRate > 0 ? conversionRate : lppTauxConversionMinDecimal;
+    final effectiveRate = conversionRate > 0 ? conversionRate : reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
     final projectedBalance = annualRente / effectiveRate;
 
     // Rente portion
@@ -161,7 +162,7 @@ class LppCalculator {
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
     final effectiveBaseRate =
-        isMarried ? baseRate * marriedCapitalTaxDiscount : baseRate;
+        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
     final tax = RetirementTaxCalculator.progressiveTax(
         capitalBrut, effectiveBaseRate);
     final capitalNet = capitalBrut - tax;
@@ -178,9 +179,9 @@ class LppCalculator {
 
   /// Compute salaire coordonne from gross annual salary (LPP art. 8).
   static double computeSalaireCoordonne(double grossAnnualSalary) {
-    if (grossAnnualSalary < lppSeuilEntree) return 0;
-    return (grossAnnualSalary - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) return 0;
+    return (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
+        .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -410,7 +411,7 @@ class LppCalculator {
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
     final effectiveRate =
-        isMarried ? baseRate * marriedCapitalTaxDiscount : baseRate;
+        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
 
     // Strategy 1: same year — combined capital taxed together
     final taxSameYear =

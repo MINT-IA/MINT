@@ -14,9 +14,9 @@
 // Displayed as "profils similaires dans ton canton" — never ranked.
 // Opt-in only (default: false).
 
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  MODELS
@@ -139,6 +139,10 @@ class CantonalBenchmarkService {
       'financier. Aucune donnée personnelle n\'est comparée à d\'autres '
       'utilisateurs. Outil éducatif\u00a0: ne constitue pas un conseil '
       'au sens de la LSFin.';
+
+  /// Localized disclaimer — use this when a BuildContext is available.
+  static String getDisclaimer(S? l) =>
+      l?.cantonalBenchmarkDisclaimer ?? _disclaimer;
 
   // ── Age group resolution ─────────────────────────────────────
 

@@ -36,6 +36,12 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
   //  FRONTALIER — SOURCE TAX (Bareme C) BY CANTON
   // ════════════════════════════════════════════════════════════
+  //
+  // LIMITATION: Mobile source tax uses simplified flat rates per canton.
+  // Backend frontalier_service.py uses progressive brackets with cantonal multipliers.
+  // For precise calculations, the backend endpoint /expat/frontalier/source-tax should
+  // be called. This local service is for educational quick estimates only.
+  // TODO: Wire mobile to backend API for authoritative source tax calculations.
 
   static const Map<String, double> sourceTaxRates = {
     'GE': 0.1548,
@@ -71,16 +77,16 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS/AI/APG employee share (%).
-  static const double avsAiApgRate = avsCotisationSalarie;
+  static double get avsAiApgRate => reg('avs.employee_rate', avsCotisationSalarie);
 
   /// AC employee share up to CHF 148'200.
-  static const double acRate = acCotisationSalarie;
+  static double get acRate => reg('ac.employee_rate', acCotisationSalarie);
 
   /// AC solidarite above CHF 148'200.
-  static const double acSolidariteRate = acCotisationSolidariteSalarie;
+  static double get acSolidariteRate => reg('ac.solidarity_rate', acCotisationSolidariteSalarie);
 
   /// AC ceiling.
-  static const double acCeiling = acPlafondSalaireAssure;
+  static double get acCeiling => reg('ac.salary_ceiling', acPlafondSalaireAssure);
 
   /// Quasi-resident threshold: 90% of worldwide income in CH.
   static const double quasiResidentThreshold = 0.90;
@@ -148,16 +154,16 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS voluntary minimum contribution per year.
-  static const double avsVoluntaryMin = avsVolontaireCotisationMin;
+  static double get avsVoluntaryMin => reg('avs.voluntary_min', avsVolontaireCotisationMin);
 
   /// AVS voluntary maximum contribution per year.
-  static const double avsVoluntaryMax = avsVolontaireCotisationMax;
+  static double get avsVoluntaryMax => reg('avs.voluntary_max', avsVolontaireCotisationMax);
 
   /// Rente reduction per missing year (~2.3% per year on 44 years).
-  static const double reductionPerMissingYear = 1.0 / avsDureeCotisationComplete;
+  static double get reductionPerMissingYear => 1.0 / reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble());
 
   /// Full contribution years for max AVS rente.
-  static const int fullContributionYears = avsDureeCotisationComplete;
+  static int get fullContributionYears => reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
 
   // ════════════════════════════════════════════════════════════
   //  NEIGHBOURING COUNTRY SOCIAL CHARGES (approx employee share)
@@ -448,7 +454,7 @@ class ExpatService {
     final chAc = chAcBase + chAcSolidarite;
 
     // Estimated LPP contribution (employee ~7% of coordinated salary)
-    final coordinatedSalary = max(0.0, min(annualSalary, lppSalaireMax) - lppDeductionCoordination);
+    final coordinatedSalary = max(0.0, min(annualSalary, reg('lpp.max_insured_salary', lppSalaireMax)) - reg('lpp.coordination_deduction', lppDeductionCoordination));
     final chLpp = coordinatedSalary * 0.07;
 
     final chTotal = chAvs + chAc + chLpp;
@@ -564,7 +570,7 @@ class ExpatService {
     final reductionPercent = (missingYears * reductionPerMissingYear * 100).clamp(0.0, 100.0);
 
     // Max monthly AVS rente (LAVS art. 34)
-    const maxRenteMensuelle = avsRenteMaxMensuelle;
+    final maxRenteMensuelle = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
     final estimatedRente = maxRenteMensuelle * completeness;
     final monthlyLoss = maxRenteMensuelle - estimatedRente;
 
@@ -720,7 +726,7 @@ class ExpatService {
 
     // CH effective rate (simplified)
     final chSourceRate = sourceTaxRates[canton] ?? 0.13;
-    const chSocialRate = avsAiApgRate + acRate; // ~6.4%
+    final chSocialRate = avsAiApgRate + acRate; // ~6.4%
     final chTotalRate = chSourceRate + chSocialRate;
     final chTotalTax = annualSalary * chTotalRate;
 

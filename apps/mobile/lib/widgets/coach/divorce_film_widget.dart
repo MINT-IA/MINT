@@ -365,7 +365,8 @@ class DivorceFilmWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12)),
+          Flexible(child: Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12), overflow: TextOverflow.ellipsis)),
+          const SizedBox(width: 8),
           Text(
             'CHF ${_fmt(amount)}/mois',
             style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w700),

@@ -11,6 +11,9 @@ import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
 import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -37,14 +40,14 @@ class _ExpatScreenState extends State<ExpatScreen>
   late TabController _tabController;
 
   // ── Tab 1: Forfait inputs ─────────────────────────────
-  String _forfaitCanton = 'VD';
+  String _forfaitCanton = 'ZH';
   double _livingExpenses = 1000000;
   double _actualIncome = 5000000;
   Map<String, dynamic>? _forfaitResult;
 
   // ── Tab 2: Depart inputs ──────────────────────────────
   DateTime _departureDate = DateTime.now().add(const Duration(days: 180));
-  String _departCanton = 'VD';
+  String _departCanton = 'ZH';
   double _pillar3aBalance = 80000;
   double _lppBalance = 250000;
   Map<String, dynamic>? _departResult;
@@ -59,9 +62,46 @@ class _ExpatScreenState extends State<ExpatScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _recalculateForfait();
     _recalculateDepart();
     _recalculateAvs();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.canton.isNotEmpty) {
+          _forfaitCanton = profile.canton;
+          _departCanton = profile.canton;
+        }
+        if (profile.prevoyance.totalEpargne3a > 0) {
+          _pillar3aBalance = profile.prevoyance.totalEpargne3a;
+        }
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) {
+          _lppBalance = lpp;
+        }
+        final depenses = profile.depenses.totalMensuel * 12;
+        if (depenses > 0) {
+          _livingExpenses = depenses;
+        }
+        if (profile.arrivalAge != null) {
+          final yearsInCh = profile.age - profile.arrivalAge!;
+          if (yearsInCh > 0) {
+            _yearsInCh = yearsInCh;
+          }
+        }
+      });
+      _recalculateForfait();
+      _recalculateDepart();
+      _recalculateAvs();
+    } catch (_) {}
   }
 
   @override
@@ -171,19 +211,19 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
-        _buildForfaitInputCard(),
+        MintEntrance(child: _buildForfaitInputCard()),
         const SizedBox(height: MintSpacing.lg),
         if (_forfaitResult != null) ...[
           _buildForfaitResultCard(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        _buildAbolishedWarning(),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAbolishedWarning()),
         const SizedBox(height: MintSpacing.lg),
-        _buildEducationalInsert(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(
           S.of(context)!.expatForfaitEducation,
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
-        _buildTopCantonSection(),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTopCantonSection()),
         const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
@@ -249,14 +289,10 @@ class _ExpatScreenState extends State<ExpatScreen>
       _forfaitCanton = eligibleCantons.first;
     }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -269,13 +305,10 @@ class _ExpatScreenState extends State<ExpatScreen>
                       color: MintColors.textPrimary),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                radius: 10,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _forfaitCanton,
@@ -364,14 +397,10 @@ class _ExpatScreenState extends State<ExpatScreen>
     final forfaitBase = result['forfaitBase'] as double;
     final isFavorable = result['isFavorable'] as bool;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -392,12 +421,10 @@ class _ExpatScreenState extends State<ExpatScreen>
           Row(
             children: [
               Expanded(
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.all(MintSpacing.md),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  radius: 16,
                   child: Column(
                     children: [
                       const Icon(Icons.receipt_long_outlined,
@@ -428,12 +455,10 @@ class _ExpatScreenState extends State<ExpatScreen>
               ),
               const SizedBox(width: MintSpacing.sm),
               Expanded(
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.all(MintSpacing.md),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  radius: 16,
                   child: Column(
                     children: [
                       const Icon(Icons.account_balance_outlined,
@@ -615,11 +640,11 @@ class _ExpatScreenState extends State<ExpatScreen>
             ),
           ),
 
-        _buildDepartInputCard(),
+        MintEntrance(child: _buildDepartInputCard()),
         const SizedBox(height: MintSpacing.lg),
-        _buildNoExitTaxBadge(),
+        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildNoExitTaxBadge()),
         const SizedBox(height: MintSpacing.lg),
-        ExpatCountdownWidget(
+        MintEntrance(delay: const Duration(milliseconds: 200), child: ExpatCountdownWidget(
           departureDate: _departureDate,
           deadlines: const [
             ExpatDeadline(
@@ -650,7 +675,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               isEuOnly: false,
             ),
           ],
-        ),
+        )),
         const SizedBox(height: MintSpacing.lg),
         if (_departResult != null) ...[
           _buildDepartTimeline(),
@@ -658,7 +683,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildDepartChecklist(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        _buildEducationalInsert(l.expatTab2EduInsert),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildEducationalInsert(l.expatTab2EduInsert)),
         const SizedBox(height: MintSpacing.lg),
         // ── P13-A : 5 choses que tu perds en partant ───────────
         const ExpatRightsLossWidget(
@@ -700,7 +725,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               label: 'LAMal \u2014 assurance maladie',
               emoji: '\u{1F3E5}',
               before: 'Couverture universelle en Suisse',
-              after: 'Tu dois t\'assurer dans le pays de r\u00e9sidence',
+              after: 'L\'assurance maladie s\'applique dans le pays de r\u00e9sidence',
               legalRef: 'LAMal art. 3',
               impact:
                   'La couverture internationale est souvent partielle et '
@@ -728,14 +753,10 @@ class _ExpatScreenState extends State<ExpatScreen>
     final l = S.of(context)!;
     final sortedCodes = ExpatService.sortedCantonCodes;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -776,14 +797,11 @@ class _ExpatScreenState extends State<ExpatScreen>
                       _recalculateDepart();
                     }
                   },
-                  child: Container(
+                  child: MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
                     padding: const EdgeInsets.symmetric(
                         horizontal: MintSpacing.md, vertical: MintSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: MintColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: MintColors.border),
-                    ),
+                    radius: 10,
                     child: Row(
                       children: [
                         const Icon(Icons.calendar_today,
@@ -813,13 +831,10 @@ class _ExpatScreenState extends State<ExpatScreen>
                       color: MintColors.textPrimary),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                radius: 10,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _departCanton,
@@ -941,13 +956,10 @@ class _ExpatScreenState extends State<ExpatScreen>
       },
     ];
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1046,13 +1058,10 @@ class _ExpatScreenState extends State<ExpatScreen>
     final result = _departResult!;
     final checklist = result['checklist'] as List<Map<String, dynamic>>;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1196,7 +1205,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
-        _buildAvsInputCard(),
+        MintEntrance(child: _buildAvsInputCard()),
         const SizedBox(height: MintSpacing.lg),
         if (_avsResult != null) ...[
           // ── Chiffre-choc hero for Tab 3 ──
@@ -1245,7 +1254,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildAvsRecommendation(),
           const SizedBox(height: MintSpacing.lg),
         ],
-        Builder(builder: (context) {
+        MintEntrance(delay: const Duration(milliseconds: 100), child: Builder(builder: (context) {
           final provider = context.read<CoachProfileProvider>();
           final profileAge =
               (provider.hasProfile && provider.profile!.age > 0)
@@ -1255,25 +1264,21 @@ class _ExpatScreenState extends State<ExpatScreen>
             currentContributionYears: _yearsInCh,
             currentAge: profileAge,
           );
-        }),
+        })),
         const SizedBox(height: MintSpacing.lg),
-        _buildEducationalInsert(l.expatAvsEducation),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildEducationalInsert(l.expatAvsEducation)),
         const SizedBox(height: MintSpacing.lg),
-        _buildDisclaimer(),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDisclaimer()),
       ],
     );
   }
 
   Widget _buildAvsInputCard() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1325,13 +1330,10 @@ class _ExpatScreenState extends State<ExpatScreen>
       ringColor = MintColors.error;
     }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         children: [
           Row(
@@ -1389,12 +1391,10 @@ class _ExpatScreenState extends State<ExpatScreen>
           ),
           const SizedBox(height: MintSpacing.lg),
 
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            radius: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1449,13 +1449,10 @@ class _ExpatScreenState extends State<ExpatScreen>
       );
     }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1492,12 +1489,10 @@ class _ExpatScreenState extends State<ExpatScreen>
             bold: true,
           ),
           const SizedBox(height: MintSpacing.sm),
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.sm),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Text(
               l.expatAvsReductionExplain(
                   (ExpatService.reductionPerMissingYear * 100)
@@ -1513,13 +1508,10 @@ class _ExpatScreenState extends State<ExpatScreen>
 
   Widget _buildAvsVoluntarySection() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1578,13 +1570,10 @@ class _ExpatScreenState extends State<ExpatScreen>
     final result = _avsResult!;
     final recommendation = result['recommendation'] as String;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1637,49 +1626,18 @@ class _ExpatScreenState extends State<ExpatScreen>
     return Semantics(
       label: label,
       value: displayValue,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: MintTextStyles.bodySmall(
-                      color: MintColors.textSecondary),
-                ),
-              ),
-              Text(
-                displayValue,
-                style:
-                    MintTextStyles.titleMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-              thumbShape:
-                  const RoundSliderThumbShape(enabledThumbRadius: 7),
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions > 0 ? divisions : 1,
-              onChanged: (v) {
-                setState(() {
-                  onChanged((v / step).round() * step);
-                });
-              },
-            ),
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: label,
+        value: value,
+        min: min,
+        max: max,
+        divisions: divisions > 0 ? divisions : 1,
+        formatValue: (_) => displayValue,
+        onChanged: (v) {
+          setState(() {
+            onChanged((v / step).round() * step);
+          });
+        },
       ),
     );
   }
@@ -1754,12 +1712,10 @@ class _ExpatScreenState extends State<ExpatScreen>
   Widget _buildDisclaimer() {
     return Semantics(
       label: ExpatService.disclaimer,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

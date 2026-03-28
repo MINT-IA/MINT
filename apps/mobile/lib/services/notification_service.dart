@@ -15,6 +15,7 @@ import 'dart:io' show Platform;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/consent_manager.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NOTIFICATION SERVICE — Local-only, zero backend
@@ -132,6 +133,13 @@ class NotificationService {
   }) async {
     if (kIsWeb || _plugin == null) return;
 
+    // V5-3 audit fix: check notification consent before scheduling.
+    // If user has not consented, skip all notification scheduling.
+    final hasConsent = await ConsentManager.isConsentGiven(
+      ConsentType.notifications,
+    );
+    if (!hasConsent) return;
+
     // Request permission if not already granted (deferred, not at startup).
     // This is the right place because scheduleCoachingReminders is only
     // called after a check-in, not during app init.
@@ -201,7 +209,7 @@ class NotificationService {
     if (!has3a) return;
 
     // Check if 3a is already maxed for the year
-    final plafond3a = profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+    final plafond3a = profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final montant3aAnnuel = profile.total3aMensuel * 12;
     if (montant3aAnnuel >= plafond3a) return;
 

@@ -127,10 +127,10 @@ class MilestoneDetectionService {
   static const _achievedKey = 'achieved_milestones_v1';
 
   /// Plafond 3a salarie (OPP3 art. 7, 2025/2026).
-  static const _plafond3aSalarie = pilier3aPlafondAvecLpp;
+  static double get _plafond3aSalarie => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   /// Plafond 3a independant sans LPP (20% revenu net, max OPP3 art. 7).
-  static const _plafond3aIndependant = pilier3aPlafondSansLpp;
+  static double get _plafond3aIndependant => reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
   /// Detecte les nouveaux milestones (pas encore celebres).
   ///
@@ -490,7 +490,7 @@ class MilestoneDetectionService {
         type: MilestoneType.friAbove50,
         celebrationText:
             'Score de solidite : ${curFri.toStringAsFixed(0)}/100. '
-            'Au-dessus de la mediane.',
+            'Tu progresses — seuil de 50 franchi.',
         concreteValue: '${curFri.toStringAsFixed(0)}/100',
         detectedAt: detectedAt,
       ));
@@ -501,7 +501,7 @@ class MilestoneDetectionService {
         type: MilestoneType.friAbove70,
         celebrationText:
             'Score de solidite : ${curFri.toStringAsFixed(0)}/100. '
-            'Au-dessus du seuil de 70.',
+            'Seuil de 70 atteint — bonne trajectoire.',
         concreteValue: '${curFri.toStringAsFixed(0)}/100',
         detectedAt: detectedAt,
       ));

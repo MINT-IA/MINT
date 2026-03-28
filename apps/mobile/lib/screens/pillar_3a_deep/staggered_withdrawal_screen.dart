@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du retrait 3a echelonne multi-comptes.
 ///
 /// Permet de comparer l'impot en bloc vs echelonne et d'identifier
 /// le nombre optimal de comptes 3a.
 /// Base legale : OPP3, LIFD art. 38.
+///
+/// PREFILL: When navigated from coach via RouteSuggestionCard,
+/// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
+/// with pre-computed values. Currently reads from CoachProfileProvider.
+/// TODO: merge prefill with profile data for coach-optimized defaults.
 class StaggeredWithdrawalScreen extends StatefulWidget {
   const StaggeredWithdrawalScreen({super.key});
 
@@ -22,10 +36,92 @@ class StaggeredWithdrawalScreen extends StatefulWidget {
 class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   double _avoirTotal = 300000;
   int _nbComptes = 3;
-  String _canton = 'VD';
+  String _canton = 'ZH';
   double _revenuImposable = 120000;
   int _ageRetraitDebut = 60;
   int _ageRetraitFin = 64;
+  bool _hasUserInteracted = false;
+
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+      _initializeFromProfile();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('staggered_withdrawal',
+        ScreenReturn.abandoned(
+          route: '/3a-deep/staggered-withdrawal',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final result = _result;
+    ScreenCompletionTracker.markCompletedWithReturn('staggered_withdrawal',
+      ScreenReturn.completed(
+        route: '/3a-deep/staggered-withdrawal',
+        stepOutputs: {'gain_echelonnement': result.economie},
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        final avoir3a = profile.prevoyance.totalEpargne3a;
+        if (avoir3a > 0) {
+          _avoirTotal = avoir3a;
+        }
+        final nb3a = profile.prevoyance.nombre3a;
+        if (nb3a > 0 && nb3a <= 5) {
+          _nbComptes = nb3a;
+        }
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _canton = profile.canton;
+        }
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) {
+          _revenuImposable = revenu;
+        }
+        final targetAge = profile.targetRetirementAge ?? avsAgeReferenceHomme;
+        // Withdrawal typically starts 5 years before retirement
+        // 3a withdrawal: 59-70 (OPP3 art. 3 al. 1 + deferral).
+        final computedDebut = (targetAge - 5).clamp(59, 70);
+        _ageRetraitDebut = computedDebut;
+        _ageRetraitFin = targetAge.clamp(computedDebut, 70);
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
 
   StaggeredWithdrawalResult get _result =>
       StaggeredWithdrawalSimulator.simulate(
@@ -37,14 +133,36 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         ageRetraitFin: _ageRetraitFin,
       );
 
+  // _emitScreenReturn is called on user interaction (slider change, button tap).
+  // NOT on initState — prevents premature stream emission before user action.
+
+  void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return;
+    final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';
+    final screenReturn = ScreenReturn.changedInputs(
+      route: '/3a-deep/staggered-withdrawal',
+      updatedFields: {'staggeredPlan': plan},
+      confidenceDelta: 0.03,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'staggered_withdrawal',
+      screenReturn,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 100,
@@ -90,7 +208,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             ),
           ),
         ],
-      ),
+      )))),
     );
   }
 
@@ -150,13 +268,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   }
 
   Widget _buildIntroCard(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -172,35 +286,31 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   }
 
   Widget _buildSlidersSection(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l.staggered3aParametres, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+          MintEntrance(child: Text(l.staggered3aParametres, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5))),
           const SizedBox(height: MintSpacing.md),
 
-          _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) => setState(() => _avoirTotal = v)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) { _hasUserInteracted = true; setState(() => _avoirTotal = v); _emitScreenReturn(); })),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) => setState(() => _nbComptes = v.round())),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) { _hasUserInteracted = true; setState(() => _nbComptes = v.round()); _emitScreenReturn(); })),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildCantonDropdown(l),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonDropdown(l)),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) => setState(() => _revenuImposable = v)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) { _hasUserInteracted = true; setState(() => _revenuImposable = v); _emitScreenReturn(); })),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 60, max: 65, divisions: 5, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) => setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; })),
+          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 59, max: 70, divisions: 11, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) { _hasUserInteracted = true; setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; }); _emitScreenReturn(); }),
           const SizedBox(height: MintSpacing.sm + 4),
 
-          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 65, divisions: (65 - _ageRetraitDebut).clamp(1, 6), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) => setState(() => _ageRetraitFin = v.round())),
+          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 70, divisions: (70 - _ageRetraitDebut).clamp(1, 11), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) { _hasUserInteracted = true; setState(() => _ageRetraitFin = v.round()); _emitScreenReturn(); }),
         ],
       ),
     );
@@ -228,7 +338,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                     .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),
                 onChanged: (v) {
-                  if (v != null) setState(() => _canton = v);
+                  if (v != null) {
+                    _hasUserInteracted = true;
+                    setState(() => _canton = v);
+                    _emitScreenReturn();
+                  }
                 },
               ),
             ),
@@ -247,22 +361,14 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-          ],
-        ),
-        Semantics(
-          label: label,
-          value: format,
-          child: Slider(value: value, min: min, max: max, divisions: divisions, activeColor: MintColors.primary, onChanged: onChanged),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: (_) => format,
+      onChanged: onChanged,
     );
   }
 
@@ -313,13 +419,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     required Color color,
     required bool isWinner,
   }) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isWinner ? color : MintColors.border, width: isWinner ? 2 : 1),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -336,13 +438,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   }
 
   Widget _buildYearlyPlanTable(StaggeredWithdrawalResult result, S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

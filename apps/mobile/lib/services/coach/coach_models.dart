@@ -88,7 +88,7 @@ class CoachContext {
     this.firstName = 'utilisateur',
     this.archetype = 'swiss_native',
     this.age = 30,
-    this.canton = 'VD',
+    this.canton = 'ZH',
     this.friTotal = 0.0,
     this.friDelta = 0.0,
     this.primaryFocus = '',

@@ -7,6 +7,12 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de comparaison amortissement direct vs indirect.
 ///
@@ -33,6 +39,42 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
       );
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      final mortgage = profile.patrimoine.mortgageBalance;
+      if (mortgage != null && mortgage > 0) {
+        _montantHypothecaire = mortgage.clamp(200000, 2000000);
+        changed = true;
+      }
+      final rate = profile.patrimoine.mortgageRate;
+      if (rate != null && rate > 0) {
+        _tauxInteret = (rate / 100).clamp(0.01, 0.05);
+        changed = true;
+      }
+      if (profile.revenuBrutAnnuel > 0) {
+        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
+          profile.revenuBrutAnnuel,
+          profile.canton,
+        ).clamp(0.15, 0.45);
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
     final result = _result;
@@ -48,27 +90,27 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Intro pedagogique
-          _buildIntroCard(s),
+          MintEntrance(child: _buildIntroCard(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          _buildChiffreChocCard(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          _buildChartSection(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(s),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison detaillee
-          _buildComparisonSection(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
@@ -82,18 +124,14 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           ),
           const SizedBox(height: MintSpacing.xl),
         ],
-      ),
+      ))),
     );
   }
 
   Widget _buildIntroCard(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -171,13 +209,9 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
     return Semantics(
       label: 'CHF ${formatChf(result.economieIndirect.abs())}',
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-        ),
+        radius: 16,
         child: Column(
           children: [
             Icon(Icons.compare_arrows, color: color, size: 40),
@@ -199,13 +233,9 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
   }
 
   Widget _buildChartSection(S s, AmortizationResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -360,12 +390,13 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
               ),
             ],
           ),
-          Slider(
+          MintPremiumSlider(
+            label: label,
             value: value,
             min: min,
             max: max,
             divisions: divisions,
-            activeColor: MintColors.primary,
+            formatValue: (_) => format,
             onChanged: onChanged,
           ),
         ],
@@ -374,13 +405,9 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
   }
 
   Widget _buildComparisonSection(S s, AmortizationResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

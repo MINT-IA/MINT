@@ -11,6 +11,7 @@ from fastapi import APIRouter, Request
 from app.core.rate_limit import limiter
 from pydantic import UUID4
 from app.schemas.scenario import Scenario, ScenarioCreate, ScenarioKind
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.rules_engine import (
     calculate_compound_interest,
     calculate_leasing_opportunity_cost,
@@ -41,7 +42,7 @@ def _compute_scenario_outputs(kind: ScenarioKind, inputs: dict) -> dict:
         )
     elif kind == ScenarioKind.pillar3a:
         return calculate_pillar3a_tax_benefit(
-            annual_contribution=inputs.get("annualContribution", 7056),
+            annual_contribution=inputs.get("annualContribution", PILIER_3A_PLAFOND_AVEC_LPP),
             marginal_tax_rate=inputs.get("marginalTaxRate", 0.25),
             years=inputs.get("years", 30),
             annual_return=inputs.get("annualReturn", 4.0),

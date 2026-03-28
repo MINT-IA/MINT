@@ -76,6 +76,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
 
     // Simuler un test de connexion
     await Future.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
 
     setState(() {
       _isTesting = false;

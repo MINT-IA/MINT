@@ -5,6 +5,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  OPEN BANKING HUB SCREEN — Sprint S14
@@ -30,28 +32,28 @@ class OpenBankingHubScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildFinmaGateBanner(context),
+                MintEntrance(child: _buildFinmaGateBanner(context)),
                 const SizedBox(height: 12),
-                _buildDemoModeBadge(context),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDemoModeBadge(context)),
                 const SizedBox(height: 16),
-                _buildHeader(context),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeader(context)),
                 const SizedBox(height: 24),
 
                 // Connected accounts
-                _buildSectionTitle(S.of(context)!.openBankingHubConnectedAccounts, Icons.account_balance),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSectionTitle(S.of(context)!.openBankingHubConnectedAccounts, Icons.account_balance)),
                 const SizedBox(height: 12),
                 ...accounts.map((acc) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _buildAccountCard(context, acc),
                     )),
-                _buildAddBankButton(context),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAddBankButton(context)),
                 const SizedBox(height: 28),
 
                 // Financial overview
@@ -95,7 +97,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -238,22 +240,10 @@ class OpenBankingHubScreen extends StatelessWidget {
   Widget _buildAccountCard(BuildContext context, BankAccount account) {
     final avatarColor = _bankColor(account.bankId);
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
+      elevated: true,
       child: Row(
         children: [
           // Bank avatar
@@ -350,14 +340,10 @@ class OpenBankingHubScreen extends StatelessWidget {
       message: S.of(context)!.openBankingAddBankDisabled,
       child: Opacity(
         opacity: 0.5,
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: MintColors.border.withValues(alpha: 0.4), width: 0.8),
-          ),
+          radius: 16,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -424,14 +410,9 @@ class OpenBankingHubScreen extends StatelessWidget {
     final expenses = summary['expenses'] ?? 0;
     final maxVal = income > expenses ? income : expenses;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         children: [
           // Income
@@ -521,14 +502,9 @@ class OpenBankingHubScreen extends StatelessWidget {
   Widget _buildTopCategories(BuildContext context, List<CategoryBreakdown> categories) {
     final top3 = categories.take(3).toList();
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -593,14 +569,9 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: InkWell(
       onTap: () => context.push(route),
       borderRadius: BorderRadius.circular(16),
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border:
-              Border.all(color: MintColors.border.withValues(alpha: 0.5), width: 0.8),
-        ),
+        radius: 16,
         child: Row(
           children: [
             Container(
@@ -641,12 +612,10 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   Widget _buildBlinkBadge(BuildContext context) {
     return Center(
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(10),
-        ),
+        radius: 10,
         child: Text(
           S.of(context)!.openBankingBlink,
           style: MintTextStyles.labelSmall(color: MintColors.textMuted),
