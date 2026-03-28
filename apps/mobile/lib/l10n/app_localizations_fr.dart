@@ -9777,6 +9777,9 @@ class SFr extends S {
   String get shellWelcomeBack => 'De retour. Tes chiffres sont à jour.';
 
   @override
+  String get sequencePreretraiteGoal => 'Préparer ma retraite';
+
+  @override
   String get capCoachPromptDebt => 'Aide-moi à prioriser le remboursement de mes dettes. Par quoi commencer\u00a0?';
 
   @override

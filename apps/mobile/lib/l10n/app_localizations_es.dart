@@ -9781,6 +9781,9 @@ class SEs extends S {
   String get shellWelcomeBack => 'De vuelta. Tus números están al día.';
 
   @override
+  String get sequencePreretraiteGoal => 'Prepare my retirement';
+
+  @override
   String get capCoachPromptDebt => 'Ayúdame prioritize my debt repayment. Where should I start?';
 
   @override

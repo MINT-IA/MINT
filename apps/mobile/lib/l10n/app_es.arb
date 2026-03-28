@@ -11425,5 +11425,17 @@
   "capCoachPromptDivorce": "I'm divorced. Cómo can I protect my financial situation?",
   "capCoachPromptCoupleOptim": "Cómo can we optimize our pension planning as a couple?",
   "capCoachPromptCouple": "We're a couple. Cómo should we coordinate our finances?",
-  "capCoachPromptMarried": "We're both working and married. Cómo can we optimize?"
+  "capCoachPromptMarried": "We're both working and married. Cómo can we optimize?",
+  "sequencePreretraiteGoal": "Prepare my retirement",
+  "sequencePreretraiteStep1": "Retirement projection",
+  "sequencePreretraiteStep2": "3a review",
+  "sequencePreretraiteStep3": "Annuity or capital",
+  "sequencePreretraiteStep4": "Optimal 3a withdrawal",
+  "sequencePreretraiteStep5": "Mortgage",
+  "sequencePreretraiteStep6": "LPP buyback",
+  "sequencePreretraiteStep7": "LAMal franchise",
+  "sequencePreretraiteStep8": "Succession",
+  "sequencePreretraiteStep9": "Retirement budget",
+  "sequencePreretraiteStep10": "Withdrawal plan",
+  "sequencePreretraiteStep11": "Summary"
 }

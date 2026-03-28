@@ -31,6 +31,7 @@ List<SequenceSummaryItem> buildSequenceSummary({
     'optimize_3a' => _build3aSummary(allOutputs, loc),
     'retirement_prep' => _buildRetirementSummary(allOutputs, loc),
     'financial_tension' => _buildTensionSummary(allOutputs, loc),
+    'preretraite_complete' => _buildPreretraiteSummary(allOutputs, loc),
     _ => const [],
   };
 }
@@ -272,6 +273,77 @@ List<SequenceSummaryItem> _buildTensionSummary(
       icon: Icons.payments_outlined,
       label: l.summaryVersementMensuel,
       value: 'CHF\u00a0${formatChf(versement.toDouble())}',
+    ));
+  }
+
+  return items;
+}
+
+List<SequenceSummaryItem> _buildPreretraiteSummary(
+  Map<String, Map<String, dynamic>> outputs, S l,
+) {
+  final items = <SequenceSummaryItem>[];
+
+  // Step 1: Projection
+  final step1 = outputs['pre_01_projection'];
+  final taux = step1?['taux_remplacement'];
+  if (taux is num && taux > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.speed_outlined,
+      label: l.summaryTauxRemplacement,
+      value: '${taux.toStringAsFixed(0)}\u00a0%',
+    ));
+  }
+  final gap = step1?['gap_mensuel'];
+  if (gap is num && gap > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.warning_amber_outlined,
+      label: l.summaryEcartMensuel,
+      value: 'CHF\u00a0${formatChf(gap.toDouble())}',
+    ));
+  }
+
+  // Step 2: 3a
+  final step2 = outputs['pre_02_3a'];
+  final economieFiscale = step2?['economie_fiscale'];
+  if (economieFiscale is num && economieFiscale > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.discount_outlined,
+      label: l.summaryEconomieFiscale,
+      value: 'CHF\u00a0${formatChf(economieFiscale.toDouble())}',
+    ));
+  }
+
+  // Step 3: Rente vs Capital choice
+  final step3 = outputs['pre_03_choice'];
+  final decision = step3?['decision_mixte'];
+  if (decision is String && decision.isNotEmpty) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.check_circle_outline,
+      label: l.summaryChoixRenteCapital,
+      value: '✓',
+    ));
+  }
+
+  // Step 4: 3a withdrawal optimization
+  final step4 = outputs['pre_04_withdrawal'];
+  final gainEch = step4?['gain_echelonnement'];
+  if (gainEch is num && gainEch > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.timeline_outlined,
+      label: l.summaryGainEchelonnement,
+      value: 'CHF\u00a0${formatChf(gainEch.toDouble())}',
+    ));
+  }
+
+  // Step 6: LPP buyback (optional)
+  final step6 = outputs['pre_06_buyback'];
+  final economieRachat = step6?['economie_rachat'];
+  if (economieRachat is num && economieRachat > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.trending_up_outlined,
+      label: l.summaryEconomieRachat,
+      value: 'CHF\u00a0${formatChf(economieRachat.toDouble())}',
     ));
   }
 
