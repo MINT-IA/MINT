@@ -594,7 +594,7 @@ async def confirm_document_scan(
     """
     logger.info(
         "Scan confirmation: user=%s type=%s fields=%d confidence=%.2f method=%s",
-        current_user.id,
+        str(current_user.id)[:8] + "...",  # Truncate PII
         body.document_type.value,
         len(body.confirmed_fields),
         body.overall_confidence,
@@ -604,7 +604,7 @@ async def confirm_document_scan(
     # Store scan metadata for audit trail
     scan_record = {
         "id": str(uuid.uuid4()),
-        "user_id": str(current_user.id),
+        "user_id": str(current_user.id)[:8],  # Truncated for privacy
         "document_type": body.document_type.value,
         "fields": [f.model_dump() for f in body.confirmed_fields],
         "overall_confidence": body.overall_confidence,

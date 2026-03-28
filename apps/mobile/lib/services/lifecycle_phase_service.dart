@@ -165,7 +165,7 @@ class LifecyclePhaseService {
 
     // Standard age-based detection
     if (age < 28) return LifecyclePhase.demarrage;
-    if (age < 35) return LifecyclePhase.construction;
+    if (age < 38) return LifecyclePhase.construction;  // Spec: 28-37 (§6)
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
     if (age < reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) return LifecyclePhase.transition;
