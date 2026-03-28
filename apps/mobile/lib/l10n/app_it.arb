@@ -4649,6 +4649,7 @@
   "drawerCeQueTuAuras": "Ciò che avrai",
   "drawerCeQueTuAurasSubtitle": "Reddito pensionistico proiettato",
   "shellWelcomeBack": "Bentornato. I tuoi numeri sono aggiornati.",
+  "shellWelcomeBackDelta": "Bentornato! La tua precisione u00e8 migliorata di +{delta} pts dall'ultima visita.",
   "shellRecommendationsUpdated": "Raccomandazioni aggiornate",
   "pulseEnrichirTitle": "Scansiona il tuo certificato LPP",
   "pulseEnrichirSubtitle": "Fiducia → +{points} punti",

@@ -11,6 +11,8 @@ import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/dossier_tab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/session_snapshot_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
@@ -102,6 +104,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
       _lastPauseTime = DateTime.now();
+      _saveSessionSnapshot();
     }
     if (state == AppLifecycleState.resumed) {
       // Check for deep link from notification tap
@@ -114,23 +117,95 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         });
       }
 
-      // Show welcome-back snackbar if away > 1 hour
+      // Show delta snackbar if away > 1 hour and state changed
       if (_lastPauseTime != null) {
         final away = DateTime.now().difference(_lastPauseTime!);
         if (away.inHours >= 1 && mounted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(S.of(context)!.shellWelcomeBack),
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            }
-          });
+          _showDeltaOnResume();
         }
       }
     }
+  }
+
+  /// Persist a lightweight snapshot of key metrics on app pause.
+  void _saveSessionSnapshot() {
+    try {
+      final coachProvider = context.read<CoachProfileProvider>();
+      if (!coachProvider.hasProfile) return;
+      final profile = coachProvider.profile!;
+      final confidence = ConfidenceScorer.score(profile);
+      SessionSnapshotService.save(SessionSnapshot(
+        confidenceScore: confidence.score,
+        monthlyRetirementIncome: 0, // Computed lazily on resume
+        fhsScore: 0, // FHS tracked separately via FhsDailyScore
+        savedAt: DateTime.now(),
+      ));
+    } catch (_) {}
+  }
+
+  /// On resume, compare current confidence vs saved snapshot.
+  void _showDeltaOnResume() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final previous = await SessionSnapshotService.load();
+      if (previous == null) {
+        // First session — show generic welcome back
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(S.of(context)!.shellWelcomeBack),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
+      try {
+        if (!mounted) return;
+        final coachProvider = context.read<CoachProfileProvider>();
+        if (!coachProvider.hasProfile) return;
+        final profile = coachProvider.profile!;
+        final currentConfidence = ConfidenceScorer.score(profile).score;
+        final delta = SessionSnapshotService.computeDelta(
+          previous: previous,
+          currentConfidence: currentConfidence,
+          currentMonthlyRetirement: 0,
+          currentFhs: 0,
+        );
+
+        if (!mounted) return;
+        if (delta.isSignificant) {
+          final msg = delta.confidenceDelta >= 3
+              ? 'De retour\u00a0! Ta précision a gagné +${delta.confidenceDelta.round()}\u00a0pts depuis ta dernière visite.'
+              : S.of(context)!.shellWelcomeBack;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(msg),
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(S.of(context)!.shellWelcomeBack),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } catch (_) {
+        // Fallback to generic welcome back
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(S.of(context)!.shellWelcomeBack),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    });
   }
 
   @override

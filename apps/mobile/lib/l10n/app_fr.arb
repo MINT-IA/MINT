@@ -4649,6 +4649,7 @@
   "drawerCeQueTuAuras": "Ce que tu auras",
   "drawerCeQueTuAurasSubtitle": "Revenu retraite projeté",
   "shellWelcomeBack": "De retour. Tes chiffres sont à jour.",
+  "shellWelcomeBackDelta": "De retouru00a0! Ta pru00e9cision a gagnu00e9 +{delta} pts depuis ta derniu00e8re visite.",
   "shellRecommendationsUpdated": "Recommandations mises à jour",
   "pulseEnrichirTitle": "Scanne ton certificat LPP",
   "pulseEnrichirSubtitle": "Confiance → +{points} points",
