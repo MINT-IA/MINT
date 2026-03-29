@@ -1,9 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -12,9 +10,8 @@ import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -49,7 +46,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   Map<String, dynamic>? _congeResult;
 
   // ── Tab 2: Allocations inputs ─────────────────────────
-  String _cantonAlloc = 'ZH';
+  String _cantonAlloc = 'VD';
   int _nbEnfantsAlloc = 1;
   Map<String, dynamic>? _allocResult;
   List<Map<String, dynamic>> _allocRanking = [];
@@ -67,9 +64,6 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
     _recalculateAll();
   }
 
@@ -77,39 +71,6 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  void _initializeFromProfile() {
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      setState(() {
-        // Tab 1: Conge — monthly salary
-        if (profile.salaireBrutMensuel > 0) {
-          _salaireMensuel = profile.salaireBrutMensuel;
-        }
-
-        // Tab 2: Allocations — canton and children
-        final canton = profile.canton;
-        if (FamilyService.cantonNames.containsKey(canton)) {
-          _cantonAlloc = canton;
-        }
-        if (profile.nombreEnfants > 0) {
-          _nbEnfantsAlloc = profile.nombreEnfants;
-        }
-
-        // Tab 3: Impact — annual income and children
-        final revenu = profile.revenuBrutAnnuel;
-        if (revenu > 0) _revenuImpact = revenu;
-        if (profile.nombreEnfants > 0) {
-          _nbEnfantsImpact = profile.nombreEnfants;
-        }
-      });
-      _recalculateAll();
-    } catch (_) {
-      // Provider not in tree (tests) — keep defaults
-    }
   }
 
   void _recalculateAll() {
@@ -151,10 +112,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            MintEntrance(child: _buildTab1Conge()),
-            MintEntrance(child: _buildTab2Allocations()),
-            MintEntrance(child: _buildTab3Impact()),
-            MintEntrance(child: _buildTab4Checklist()),
+            _buildTab1Conge(),
+            _buildTab2Allocations(),
+            _buildTab3Impact(),
+            _buildTab4Checklist(),
           ],
         ),
       ),
@@ -281,20 +242,19 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           ),
           const SizedBox(height: MintSpacing.lg),
 
-          // Salary slider
-          MintPremiumSlider(
+          // Salary input
+          MintAmountField(
             label: S.of(context)!.naissanceMonthlySalary,
             value: _salaireMensuel,
-            min: 2000,
-            max: 15000,
-            divisions: 52,
             formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
               setState(() {
-                _salaireMensuel = (v / 250).round() * 250.0;
+                _salaireMensuel = v;
                 _recalculateConge();
               });
             },
+            min: 2000,
+            max: 15000,
           ),
         ],
       ),
@@ -506,10 +466,12 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
-              MintSurface(
-                tone: MintSurfaceTone.porcelaine,
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                radius: 10,
+                decoration: BoxDecoration(
+                  color: MintColors.porcelaine,
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _cantonAlloc,
@@ -746,18 +708,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           tone: MintSurfaceTone.blanc,
           child: Column(
             children: [
-              MintPremiumSlider(
+              MintAmountField(
                 label: S.of(context)!.naissanceRevenuAnnuel,
                 value: _revenuImpact,
-                min: 30000,
-                max: 200000,
-                divisions: 34,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _revenuImpact = (v / 5000).round() * 5000.0;
+                    _revenuImpact = v;
                   });
                 },
+                min: 30000,
+                max: 200000,
               ),
               const SizedBox(height: MintSpacing.lg),
               Row(
@@ -781,18 +742,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 ],
               ),
               const SizedBox(height: MintSpacing.lg),
-              MintPremiumSlider(
+              MintAmountField(
                 label: S.of(context)!.naissanceFraisGarde,
                 value: _fraisGarde,
-                min: 0,
-                max: 3000,
-                divisions: 30,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _fraisGarde = (v / 100).round() * 100.0;
+                    _fraisGarde = v;
                   });
                 },
+                min: 0,
+                max: 3000,
               ),
             ],
           ),

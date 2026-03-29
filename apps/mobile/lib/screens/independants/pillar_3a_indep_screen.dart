@@ -7,13 +7,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -40,38 +36,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
     _calculate();
-  }
-
-  void _initializeFromProfile() {
-    try {
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile == null) return;
-      bool changed = false;
-      if (profile.revenuBrutAnnuel > 0) {
-        _revenuNet = profile.revenuBrutAnnuel.clamp(0, 300000);
-        changed = true;
-      }
-      if (profile.revenuBrutAnnuel > 0) {
-        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
-          profile.revenuBrutAnnuel,
-          profile.canton,
-        );
-        changed = true;
-      }
-      // Detect LPP affiliation from prevoyance data
-      if (profile.prevoyance.avoirLppTotal != null &&
-          profile.prevoyance.avoirLppTotal! > 0) {
-        _affilieLpp = true;
-        changed = true;
-      }
-      if (changed) _calculate();
-    } catch (_) {
-      // Provider not available
-    }
   }
 
   void _calculate() {
@@ -88,20 +53,20 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                MintEntrance(child: _buildHeader()),
+                _buildHeader(),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildLppToggle()),
+                _buildLppToggle(),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenuSlider()),
+                _buildRevenuSlider(),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTauxSlider()),
+                _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
@@ -113,13 +78,13 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                   _buildEducation(),
                   const SizedBox(height: 24),
                 ],
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
+                _buildDisclaimer(),
                 const SizedBox(height: 100),
               ]),
             ),
           ),
         ],
-      ))),
+      ),
     );
   }
 
@@ -169,8 +134,13 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── LPP Toggle ─────────────────────────────────────────────
 
   Widget _buildLppToggle() {
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -207,19 +177,25 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── Revenu Slider ──────────────────────────────────────────
 
   Widget _buildRevenuSlider() {
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
-      child: MintPremiumSlider(
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+      ),
+      child: MintAmountField(
         label: S.of(context)!.pillar3aIndepRevenuLabel,
         value: _revenuNet,
-        min: 0,
-        max: 300000,
-        divisions: 300,
         formatValue: (v) => IndependantsService.formatChf(v),
         onChanged: (v) {
-          _revenuNet = v;
-          _calculate();
+          setState(() {
+            _revenuNet = v;
+            _calculate();
+          });
         },
+        min: 0,
+        max: 300000,
       ),
     );
   }
@@ -227,8 +203,13 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   // ── Taux Marginal Slider ───────────────────────────────────
 
   Widget _buildTauxSlider() {
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+      ),
       child: MintPremiumSlider(
         label: S.of(context)!.pillar3aIndepTauxLabel,
         value: _tauxMarginal * 100,
@@ -237,8 +218,10 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         divisions: 35,
         formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
         onChanged: (v) {
-          _tauxMarginal = v / 100;
-          _calculate();
+          setState(() {
+            _tauxMarginal = v / 100;
+            _calculate();
+          });
         },
       ),
     );
@@ -257,12 +240,9 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         ),
         child: Column(
           children: [
-            Semantics(
-              label: IndependantsService.formatChf(r.economieFiscale),
-              child: Text(
-                IndependantsService.formatChf(r.economieFiscale),
-                style: MintTextStyles.displayMedium(color: MintColors.primary),
-              ),
+            Text(
+              IndependantsService.formatChf(r.economieFiscale),
+              style: MintTextStyles.displayMedium(color: MintColors.primary),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
@@ -283,12 +263,9 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       ),
       child: Column(
         children: [
-          Semantics(
-            label: IndependantsService.formatChf(r.avantageSurSalarie),
-            child: Text(
-              IndependantsService.formatChf(r.avantageSurSalarie),
-              style: MintTextStyles.displayMedium(color: MintColors.white),
-            ),
+          Text(
+            IndependantsService.formatChf(r.avantageSurSalarie),
+            style: MintTextStyles.displayMedium(color: MintColors.white),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -305,8 +282,13 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
   Widget _buildResultSection() {
     final r = _result!;
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         children: [
           _buildResultRow(S.of(context)!.pillar3aIndepPlafondApplicableLabel, IndependantsService.formatChf(r.plafond)),
@@ -358,8 +340,13 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     final proj20Indep = plafondIndep * ((math.pow(1.04, 20) - 1) / 0.04);
     final proj20Salarie = petit * ((math.pow(1.04, 20) - 1) / 0.04);
 
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -567,9 +554,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MintSurface(
+            Container(
               padding: const EdgeInsets.all(8),
-              radius: 10,
+              decoration: BoxDecoration(
+                color: MintColors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: 12),
