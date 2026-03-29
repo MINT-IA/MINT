@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -511,7 +512,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       label: label,
       button: true,
       child: GestureDetector(
-        onTap: () { _civilStatus = value; _onInputChanged(); },
+        onTap: () { HapticFeedback.lightImpact(); _civilStatus = value; _onInputChanged(); },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(

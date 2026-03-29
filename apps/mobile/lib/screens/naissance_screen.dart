@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -232,6 +233,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 ],
                 selected: {_isMother},
                 onSelectionChanged: (v) {
+                  HapticFeedback.lightImpact();
                   setState(() {
                     _isMother = v.first;
                     _recalculateConge();

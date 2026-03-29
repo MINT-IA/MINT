@@ -714,6 +714,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 ],
                 selected: {_inputMode},
                 onSelectionChanged: (v) {
+                  HapticFeedback.lightImpact();
                   setState(() => _inputMode = v.first);
                   _userRecalculate();
                 },

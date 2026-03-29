@@ -615,7 +615,10 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: _isSubmitting ? null : _onSubmit,
+        onPressed: _isSubmitting ? null : () {
+          HapticFeedback.lightImpact();
+          _onSubmit();
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: MintColors.coachAccent,
           foregroundColor: MintColors.white,

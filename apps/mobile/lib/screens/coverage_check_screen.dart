@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -299,6 +300,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       button: true,
       child: GestureDetector(
       onTap: () {
+        HapticFeedback.lightImpact();
         _statut = value;
         // Reset related switches when changing status
         if (value == 'independant') {
