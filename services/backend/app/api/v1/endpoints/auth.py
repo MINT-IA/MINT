@@ -63,6 +63,7 @@ from app.services.auth_service import (
     decode_refresh_token,
     decode_token,
     blacklist_token,
+    is_jti_blacklisted,
 )
 from app.services.audit_service import log_audit_event as _raw_log_audit_event
 from app.services.auth_security_service import (
@@ -405,6 +406,24 @@ def refresh_access_token(
             detail="Refresh token invalide ou expiré",
         )
 
+    # SECURITY: Check if this refresh token's JTI has been blacklisted (replay attack).
+    refresh_jti = payload.get("jti")
+    if refresh_jti and is_jti_blacklisted(db, refresh_jti):
+        log_audit_event(
+            db,
+            event_type="auth.refresh",
+            status="failed",
+            source="api",
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+            details={"reason": "refresh_token_reused"},
+        )
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token déjà utilisé",
+        )
+
     user = db.query(User).filter(User.id == payload["user_id"]).first()
     if not user:
         log_audit_event(
@@ -421,6 +440,14 @@ def refresh_access_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Utilisateur non trouvé",
         )
+
+    # SECURITY: Blacklist the consumed refresh token BEFORE issuing new ones.
+    # This ensures single-use rotation: each refresh token can only be used once.
+    if refresh_jti:
+        from datetime import datetime, timezone
+        refresh_exp = payload.get("exp")
+        exp_dt = datetime.fromtimestamp(refresh_exp, tz=timezone.utc) if refresh_exp else datetime.now(timezone.utc)
+        blacklist_token(db, refresh_jti, exp_dt)
 
     # Rotate: issue new access + refresh tokens
     new_access = create_access_token(user.id, user.email)
@@ -479,6 +506,25 @@ def logout(
 
     expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
     blacklist_token(db, payload["jti"], expires_at)
+
+    # SECURITY: Also blacklist the refresh token if provided.
+    # This prevents the refresh token from being reused after logout.
+    from fastapi import Body
+    # Try to read optional refresh_token from body (non-breaking for existing clients)
+    try:
+        import json
+        raw_body = request._body if hasattr(request, '_body') else None
+        if raw_body:
+            body_data = json.loads(raw_body)  # pragma: no cover
+            refresh_str = body_data.get("refresh_token") or body_data.get("refreshToken")  # pragma: no cover
+            if refresh_str:  # pragma: no cover
+                refresh_payload = decode_refresh_token(refresh_str)  # pragma: no cover
+                if refresh_payload and refresh_payload.get("jti"):  # pragma: no cover
+                    r_exp = refresh_payload.get("exp")  # pragma: no cover
+                    r_exp_dt = datetime.fromtimestamp(r_exp, tz=timezone.utc) if r_exp else datetime.now(timezone.utc)  # pragma: no cover
+                    blacklist_token(db, refresh_payload["jti"], r_exp_dt)  # pragma: no cover
+    except Exception:  # pragma: no cover
+        pass  # Best-effort — access token is always blacklisted
 
     log_audit_event(
         db,

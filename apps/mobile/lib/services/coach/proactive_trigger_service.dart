@@ -324,7 +324,7 @@ class ProactiveTriggerService {
     return ProactiveTrigger(
       type: ProactiveTriggerType.weeklyRecapAvailable,
       messageKey: 'proactiveWeeklyRecap',
-      intentTag: '/coach/weekly-recap',
+      intentTag: '/weekly-recap',  // Matches GoRouter route
       triggeredAt: now,
     );
   }

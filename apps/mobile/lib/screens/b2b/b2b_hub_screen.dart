@@ -353,7 +353,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
         Icons.school_outlined,
         l.b2bModuleEducation,
         l.b2bModuleEducationSubtitle,
-        '/explorer',
+        '/explore/retraite',  // Education hub entry (no root /explorer route)
       ),
       'wellness' => (
         Icons.favorite_outline,
@@ -371,7 +371,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
         Icons.account_balance_outlined,
         l.b2bModuleLpp,
         l.b2bModuleLppSubtitle,
-        '/lpp-deep',
+        '/rachat-lpp',  // LPP deep entry point (no /lpp-deep root route)
       ),
       _ => (
         Icons.extension_outlined,

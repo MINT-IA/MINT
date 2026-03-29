@@ -525,7 +525,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       final response = await DocumentService.extractWithVision(
         imageBase64: base64Image,
-        documentType: _selectedType.name,
+        // Convert camelCase enum to snake_case for backend contract.
+        documentType: _selectedType.name
+            .replaceAllMapped(RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
         canton: canton,
         languageHint: 'fr',
       );

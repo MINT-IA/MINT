@@ -45,6 +45,7 @@ import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/product_cohort_service.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_summary_builder.dart';
 import 'package:image_picker/image_picker.dart';
@@ -271,6 +272,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
     }
+    // FIX-171: Check for orphan sequence runs (app killed mid-sequence).
+    // Auto-abandon if stale (> 24h), otherwise show recovery card.
+    _checkOrphanSequence();
+
     // Voice (S63/Sprint E): initialize integration and probe availability.
     _voiceChatIntegration = VoiceChatIntegration(voice: _voiceService);
     _initVoiceAvailability();
@@ -280,6 +285,23 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   /// Probe STT / TTS availability — fires once on mount.
   /// Updates state only if mounted; degrades gracefully on error.
+  /// FIX-171: Recover from orphan sequence (app killed mid-sequence).
+  Future<void> _checkOrphanSequence() async {
+    try {
+      final run = await SequenceStore.load();
+      if (run == null || run.activeStepId == null) return;
+      // If the run is > 24 hours old, auto-abandon
+      final age = DateTime.now().difference(
+          DateTime.fromMillisecondsSinceEpoch(
+              int.tryParse(run.runId.split('_').last) ?? 0));
+      if (age.inHours > 24) {
+        await SequenceStore.clear();
+        debugPrint('[CoachChat] Abandoned stale sequence: ${run.runId}');
+      }
+      // Otherwise the existing sequence UI will pick it up naturally
+    } catch (_) {}
+  }
+
   Future<void> _initVoiceAvailability() async {
     try {
       final stt = await _voiceService.isAvailable();
@@ -787,12 +809,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // The async `.then()` callback would otherwise read a null field
     // because _proactiveTriggerType is cleared synchronously below.
     final triggerType = _proactiveTriggerType!;
+    // FIX-150: Error handler on engagement tracking.
     _getPrefs().then((prefs) async {
       var pref = CoachingPreference.load(prefs);
       pref = engaged
           ? pref.recordEngagement(triggerType)
           : pref.recordDismissal(triggerType);
       await pref.save(prefs);
+    }).catchError((e) {
+      debugPrint('[CoachChat] recordEngagement failed: $e');
     });
 
     // Clear — only track once per proactive greeting
@@ -1504,10 +1529,22 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           seqRunId = '${template.id}_${DateTime.now().millisecondsSinceEpoch}';
           seqStepId = template.steps.first.id;
           // Fire-and-forget: persist the run + first proposal.
+          // Pass cohort suppressed topics to block forbidden sequences.
+          Set<String>? suppressed;
+          try {
+            final cohortResult = ProductCohortService.resolve(_profile!);
+            suppressed = cohortResult.suppressedTopics;
+          } catch (_) {}
+          // FIX-149: Fire-and-forget with error logging (sync context — can't await).
+          // Cohort suppression check happens inside startSequence.
           SequenceChatHandler.startSequence(
             raw.intent,
             preGeneratedRunId: seqRunId,
-          ).catchError((_) => null);
+            suppressedTopics: suppressed,
+          ).catchError((e) {
+            debugPrint('[CoachChat] startSequence failed: $e');
+            return null;
+          });
           // Analytics
           AnalyticsService().trackEvent(
             'sequence_started',
@@ -1997,17 +2034,25 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     switch (outcome) {
       case ScreenOutcome.completed:
         if (lastRouted != null) {
-          CapMemoryStore.load().then((mem) async {
+          // FIX-148: await critical persistence (was fire-and-forget with swallowed errors).
+          try {
+            final mem = await CapMemoryStore.load();
             await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
-          }).catchError((_) {});
+          } catch (e) {
+            debugPrint('[CoachChat] markCompleted failed: $e');
+          }
         }
-        CoachMemoryService.saveInsight(CoachInsight(
-          id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
-          createdAt: DateTime.now(),
-          topic: 'screen_visit',
-          summary: 'Completed screen from coach suggestion',
-          type: InsightType.fact,
-        )).catchError((_) {});
+        try {
+          await CoachMemoryService.saveInsight(CoachInsight(
+            id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
+            createdAt: DateTime.now(),
+            topic: 'screen_visit',
+            summary: 'Completed screen from coach suggestion',
+            type: InsightType.fact,
+          ));
+        } catch (e) {
+          debugPrint('[CoachChat] saveInsight failed: $e');
+        }
         if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(
@@ -2359,6 +2404,12 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (lower.contains('impot') || lower.contains('fiscal')) {
       return '/fiscal';
     }
+    // Weekly recap chip
+    if (lower.contains('recap') || lower.contains('semaine') || lower.contains('/weekly')) {
+      return '/weekly-recap';
+    }
+    // Direct route intents (from ProactiveTriggerService intentTag)
+    if (action.startsWith('/')) return action;
     // No route → send as chat message
     return null;
   }

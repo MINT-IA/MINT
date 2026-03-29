@@ -75,7 +75,11 @@ class ProfileUpdate(BaseModel):
 
     # ⭐ Nouveaux champs
     gender: Optional[str] = None
-    employmentStatus: Optional[str] = None
+    # FIX-146: Accept both FR (salarie/independant) and EN (employee/self_employed)
+    employmentStatus: Optional[str] = Field(
+        None,
+        pattern=r"^(salarie|independant|retraite|employee|self_employed|retired|mixed|unemployed|student)$",
+    )
     has2ndPillar: Optional[bool] = None
     legalForm: Optional[str] = None
     selfEmployedNetIncome: Optional[float] = None

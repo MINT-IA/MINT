@@ -71,12 +71,13 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      // Mark recap as seen so the Monday proactive trigger doesn't re-fire.
-      await ProactiveTriggerService.markRecapSeen(prefs);
       final recap = await WeeklyRecapService.generate(
         profile: profile,
         prefs: prefs,
       );
+      // Mark recap as seen AFTER successful generation (not before).
+      // If generation fails, the trigger stays active for next attempt.
+      await ProactiveTriggerService.markRecapSeen(prefs);
       if (mounted) {
         setState(() {
           _recap = recap;

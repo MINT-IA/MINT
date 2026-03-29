@@ -180,12 +180,12 @@ class CoachReasonerService {
         const NextAction(
           type: NextActionType.simulate,
           label: 'Simuler un rachat échelonné',
-          deepLink: '/lpp-deep/rachat-echelonne',
+          deepLink: '/rachat-lpp',
         ),
         const NextAction(
           type: NextActionType.learn,
           label: 'Comprendre le rachat LPP',
-          deepLink: '/education/rachat-lpp',
+          deepLink: '/rachat-lpp',
         ),
       ],
     );
@@ -274,7 +274,7 @@ class CoachReasonerService {
         const NextAction(
           type: NextActionType.simulate,
           label: 'Comparer les fournisseurs 3a',
-          deepLink: '/3a-deep/provider-comparator',
+          deepLink: '/3a-deep/comparator',
         ),
       ],
     );
@@ -366,7 +366,7 @@ class CoachReasonerService {
         const NextAction(
           type: NextActionType.simulate,
           label: 'Simuler l\'amortissement indirect',
-          deepLink: '/mortgage/simulator',
+          deepLink: '/hypotheque',
         ),
       ],
     );

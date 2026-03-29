@@ -9,6 +9,8 @@ import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
@@ -30,10 +32,60 @@ class AffordabilityScreen extends StatefulWidget {
 }
 
 class _AffordabilityScreenState extends State<AffordabilityScreen> {
+  bool _hasUserInteracted = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('mortgage');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/hypotheque',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('affordability', screenReturn);
+      return;
+    }
+
+    final result = _result;
+    final screenReturn = ScreenReturn.completed(
+      route: '/hypotheque',
+      stepOutputs: {
+        'capacite_achat': result.prixMaxAccessible,
+        'fonds_propres_requis': result.fondsPropresRequis,
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('affordability', screenReturn);
   }
 
   double _revenuBrut = 120000;
@@ -64,7 +116,11 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.porcelaine,
       body: CustomScrollView(
         slivers: [
@@ -223,7 +279,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                                           ))
                                       .toList(),
                                   onChanged: (v) {
-                                    if (v != null) setState(() => _canton = v);
+                                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
                                   },
                                 ),
                               ),
@@ -238,7 +294,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         label: l.affordabilityGrossIncome,
                         value: _revenuBrut,
                         formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                        onChanged: (v) => setState(() => _revenuBrut = v),
+                        onChanged: (v) => setState(() { _hasUserInteracted = true; _revenuBrut = v; }),
                         min: 50000,
                         max: 300000,
                       ),
@@ -249,7 +305,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         label: l.affordabilityTargetPrice,
                         value: _prixAchat,
                         formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                        onChanged: (v) => setState(() => _prixAchat = v),
+                        onChanged: (v) => setState(() { _hasUserInteracted = true; _prixAchat = v; }),
                         min: 200000,
                         max: 3000000,
                       ),
@@ -260,7 +316,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         label: l.affordabilityAvailableSavings,
                         value: _epargneDispo,
                         formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                        onChanged: (v) => setState(() => _epargneDispo = v),
+                        onChanged: (v) => setState(() { _hasUserInteracted = true; _epargneDispo = v; }),
                         min: 0,
                         max: 500000,
                       ),
@@ -298,7 +354,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           label: l.affordabilityPillar3a,
                           value: _avoir3a,
                           formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                          onChanged: (v) => setState(() => _avoir3a = v),
+                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoir3a = v; }),
                           min: 0,
                           max: 300000,
                         ),
@@ -307,7 +363,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           label: l.affordabilityPillarLpp,
                           value: _avoirLpp,
                           formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                          onChanged: (v) => setState(() => _avoirLpp = v),
+                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirLpp = v; }),
                           min: 0,
                           max: 500000,
                         ),
@@ -356,7 +412,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildInsightCard(AffordabilityResult result, S l) {

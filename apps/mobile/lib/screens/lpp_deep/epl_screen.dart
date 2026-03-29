@@ -219,7 +219,7 @@ class _EplScreenState extends State<EplScreen> {
                   headline: 'Retrait EPL\u00a0: avantages et blocage 3 ans', // TODO: i18n
                   body: 'L\u2019art.\u00a030c LPP permet de retirer ton 2e pilier pour financer '
                       'un logement en propri\u00e9t\u00e9. Attention\u00a0: si tu as effectu\u00e9 des rachats, '
-                      'un d\u00e9lai de blocage de 3 ans s\u2019applique (OPP2 art.\u00a05).', // TODO: i18n
+                      'un d\u00e9lai de blocage de 3 ans s\u2019applique (LPP art.\u00a079b al.\u00a03).', // TODO: i18n
                   tone: MintSurfaceTone.bleu,
                   badge: '2e pilier \u2014 EPL', // TODO: i18n
                 )),

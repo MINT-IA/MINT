@@ -399,8 +399,9 @@ class CapEngine {
         id: 'no_cap_available',
         kind: CapKind.prepare,
         priorityScore: 0,
-        headline: l.capHonestyNoLppHeadline,
-        whyNow: l.capHonestyNoLppWhyNow,
+        // Neutral fallback — cohort-safe (FIX-155)
+        headline: l.capNoCapHeadline,
+        whyNow: l.capNoCapWhyNow,
         ctaLabel: l.capHonestyCtaLabel,
         ctaRoute: '/coach/chat',
         ctaMode: CtaMode.route,
@@ -1245,8 +1246,10 @@ String? _capSemanticTopic(String capId) {
       lower.contains('bebe')) {
     return 'birth_costs';
   }
-  // Job comparison
-  if (lower.contains('job_comparison') || lower.contains('comparaison_offre')) {
+  // Job comparison — includes life_event newJob caps
+  if (lower.contains('job_comparison') || lower.contains('comparaison_offre') ||
+      lower.contains('newjob') || lower.contains('new_job') ||
+      lower.contains('life_event_newjob')) {
     return 'job_comparison';
   }
   // Estate planning

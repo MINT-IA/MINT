@@ -83,6 +83,30 @@ DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
         {"name": "couvertureCapital", "type": "float", "label": "Couverture/capital", "range": (0, 10_000_000)},
         {"name": "franchise", "type": "float", "label": "Franchise", "range": (0, 10_000)},
     ],
+    # Mobile-originated document types
+    DocumentType.pillar_3a_attestation: [
+        {"name": "solde3a", "type": "float", "label": "Solde du compte 3a", "range": (0, 500_000)},
+        {"name": "versementAnnuel", "type": "float", "label": "Versement annuel", "range": (0, 40_000)},
+        {"name": "fournisseur", "type": "str", "label": "Fournisseur 3a", "range": None},
+    ],
+    DocumentType.insurance_policy: [
+        {"name": "primeMensuelle", "type": "float", "label": "Prime mensuelle", "range": (0, 5_000)},
+        {"name": "typeAssurance", "type": "str", "label": "Type d'assurance", "range": None},
+        {"name": "couverture", "type": "float", "label": "Couverture", "range": (0, 10_000_000)},
+    ],
+    DocumentType.lease: [
+        {"name": "loyerMensuel", "type": "float", "label": "Loyer mensuel", "range": (0, 20_000)},
+        {"name": "chargesAccessoires", "type": "float", "label": "Charges accessoires", "range": (0, 2_000)},
+        {"name": "dateDebut", "type": "str", "label": "Date de début du bail", "range": None},
+    ],
+    DocumentType.lamal_statement: [
+        {"name": "franchise", "type": "float", "label": "Franchise annuelle", "range": (0, 2_500)},
+        {"name": "primeAnnuelle", "type": "float", "label": "Prime annuelle", "range": (0, 30_000)},
+        {"name": "assureur", "type": "str", "label": "Assureur", "range": None},
+    ],
+    DocumentType.other: [
+        {"name": "description", "type": "str", "label": "Description du document", "range": None},
+    ],
 }
 
 

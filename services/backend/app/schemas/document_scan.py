@@ -23,6 +23,12 @@ class DocumentType(str, Enum):
     lease_contract = "lease_contract"
     lpp_plan = "lpp_plan"
     insurance_contract = "insurance_contract"
+    # Mobile-originated types (unified contract)
+    pillar_3a_attestation = "pillar_3a_attestation"
+    insurance_policy = "insurance_policy"
+    lease = "lease"
+    lamal_statement = "lamal_statement"
+    other = "other"
 
 
 class ConfidenceLevel(str, Enum):

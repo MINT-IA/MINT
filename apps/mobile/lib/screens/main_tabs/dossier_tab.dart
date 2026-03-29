@@ -396,7 +396,7 @@ class _DossierTabState extends State<DossierTab> {
                       icon: Icons.person_search_outlined,
                       title: l.dossierExpertSectionTitle,
                       subtitle: l.expertSubtitle,
-                      onTap: () => context.push('/expert'),
+                      onTap: () => context.push('/expert-tier'),
                       showDivider: false,
                     ),
                   ),
@@ -988,7 +988,7 @@ class _PlanSection extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () => context.push('/pulse'),
+              onPressed: () => context.go('/home'),
               style: TextButton.styleFrom(
                 foregroundColor: MintColors.primary,
                 padding: EdgeInsets.zero,
@@ -1032,7 +1032,7 @@ class _PlanSection extends StatelessWidget {
                     color: MintColors.textSecondary,
                   ),
                 ),
-                onPressed: () => context.push('/pulse'),
+                onPressed: () => context.go('/home'),
                 backgroundColor:
                     MintColors.textPrimary.withValues(alpha: 0.05),
                 side: BorderSide.none,

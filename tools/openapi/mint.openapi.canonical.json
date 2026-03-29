@@ -6909,7 +6909,12 @@
           "payslip",
           "lease_contract",
           "lpp_plan",
-          "insurance_contract"
+          "insurance_contract",
+          "pillar_3a_attestation",
+          "insurance_policy",
+          "lease",
+          "lamal_statement",
+          "other"
         ],
         "title": "DocumentType",
         "type": "string"
@@ -14202,6 +14207,7 @@
           "employmentStatus": {
             "anyOf": [
               {
+                "pattern": "^(salarie|independant|retraite|employee|self_employed|retired|mixed|unemployed|student)$",
                 "type": "string"
               },
               {
@@ -22173,6 +22179,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Chiffre Choc",
         "tags": [
           "Coach Narrative S35"
@@ -22215,6 +22226,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Greeting",
         "tags": [
           "Coach Narrative S35"
@@ -22257,6 +22273,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Narrative",
         "tags": [
           "Coach Narrative S35"
@@ -22299,6 +22320,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Score Summary",
         "tags": [
           "Coach Narrative S35"
@@ -22388,6 +22414,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Tip",
         "tags": [
           "Coach Narrative S35"

@@ -1062,3 +1062,29 @@ def test_coach_chat_rejects_whitespace_message(client: TestClient):
     )
     # 422 Unprocessable Entity from Pydantic validation
     assert response.status_code == 422
+
+
+def test_refresh_token_replay_rejected(auth_client: TestClient):
+    """FIX: Using the same refresh token twice should fail (single-use rotation)."""
+    # Register
+    reg = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "replay-test@example.com", "password": "pass12345"},
+    )
+    assert reg.status_code == 201
+    refresh = reg.json()["refresh_token"]
+
+    # First refresh — should succeed
+    r1 = auth_client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh},
+    )
+    assert r1.status_code == 200
+    assert r1.json()["access_token"]
+
+    # Second refresh with SAME token — should fail (already consumed)
+    r2 = auth_client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh},
+    )
+    assert r2.status_code == 401

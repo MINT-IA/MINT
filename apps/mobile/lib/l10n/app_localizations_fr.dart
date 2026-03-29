@@ -25043,4 +25043,11 @@ class SFr extends S {
   String semanticsRealReturnGain(String amount) {
     return 'Gain par rapport à l\'épargne : $amount francs';
   }
+
+  @override
+  String get capNoCapHeadline => 'Tu es sur la bonne voie';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Continue à explorer MINT pour approfondir ta situation.';
 }

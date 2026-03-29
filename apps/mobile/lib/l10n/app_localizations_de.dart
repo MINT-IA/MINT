@@ -550,7 +550,7 @@ class SDe extends S {
   String get advisorMiniMetricsExitStayRate => 'Stay-Rate nach Exit-Prompt';
 
   @override
-  String get advisorMiniMetricsAhaToStep3 => 'Step2 A-ha -> Step3';
+  String get advisorMiniMetricsAhaToStep3 => 'Schritt 2 A-ha → Schritt 3';
 
   @override
   String get advisorMiniMetricsQuickPicks => 'Quick Picks';
@@ -4331,7 +4331,7 @@ class SDe extends S {
   @override
   String profileCoachKnowledgeSummary(String profileState, String precision,
       String checkins, String scorePart) {
-    return '$profileState • Precision $precision% • Check-ins: $checkins$scorePart';
+    return '$profileState • Präzision $precision% • Check-ins: $checkins$scorePart';
   }
 
   @override
@@ -7985,7 +7985,7 @@ class SDe extends S {
   String get waterfallLppEmploye => 'LPP employé';
 
   @override
-  String get waterfallNetFicheDePaie => 'Net fiche de paie';
+  String get waterfallNetFicheDePaie => 'Netto-Lohnabrechnung';
 
   @override
   String get waterfallImpots => 'Impôts';
@@ -8018,69 +8018,69 @@ class SDe extends S {
   String get waterfallMargeLibre => 'Marge libre';
 
   @override
-  String get waterfallTitle => 'Cascade budgétaire';
+  String get waterfallTitle => 'Budget-Wasserfall';
 
   @override
   String get narrativeDefaultName => 'Tu';
 
   @override
   String narrativeCouplePositiveMargin(String margin) {
-    return 'Ensemble, vous avez une marge de $margin CHF/mois.';
+    return 'Zusammen habt ihr eine Marge von $margin CHF/Monat.';
   }
 
   @override
   String narrativeCoupleTightBudget(String margin) {
-    return 'Ensemble, votre budget est serré de $margin CHF/mois.';
+    return 'Zusammen ist euer Budget knapp um $margin CHF/Monat.';
   }
 
   @override
   String narrativeCoupleHighPatrimoine(String patrimoine) {
-    return 'Avec un patrimoine de $patrimoine CHF, vous avez des leviers.';
+    return 'Mit einem Vermögen von $patrimoine CHF habt ihr Spielraum.';
   }
 
   @override
   String narrativeHighHealth(String name) {
-    return '$name, tu es en bonne santé financière. Continue.';
+    return '$name, du bist in guter finanzieller Gesundheit. Weiter so.';
   }
 
   @override
   String narrativeHighHealthPatrimoine(String patrimoine) {
-    return 'Ton patrimoine de $patrimoine CHF te donne une belle marge de manœuvre.';
+    return 'Dein Vermögen von $patrimoine CHF gibt dir einen schönen Handlungsspielraum.';
   }
 
   @override
   String narrativeLowHealth(String name) {
-    return '$name, concentre-toi sur l\'essentiel. On va stabiliser ensemble.';
+    return '$name, konzentriere dich auf das Wesentliche. Wir stabilisieren das zusammen.';
   }
 
   @override
   String narrativeLowHealthPatrimoine(String patrimoine) {
-    return 'Ton patrimoine de $patrimoine CHF est un atout à protéger.';
+    return 'Dein Vermögen von $patrimoine CHF ist ein Trumpf, den es zu schützen gilt.';
   }
 
   @override
   String narrativeMediumHealth(String name) {
-    return '$name, tu as de bonnes bases. Quelques actions peuvent faire la différence.';
+    return '$name, du hast gute Grundlagen. Ein paar Massnahmen können den Unterschied machen.';
   }
 
   @override
   String narrativeMediumHealthPatrimoine(String patrimoine) {
-    return 'Ton patrimoine de $patrimoine CHF est un bon point de départ.';
+    return 'Dein Vermögen von $patrimoine CHF ist ein guter Ausgangspunkt.';
   }
 
   @override
   String narrativeConfidenceLabel(String score) {
-    return 'Confiance profil : $score%';
+    return 'Profilvertrauen: $score%';
   }
 
   @override
   String patrimoineCoupleTitleCouple(String firstName, String conjointName) {
-    return 'Patrimoine — $firstName & $conjointName';
+    return 'Vermögen — $firstName & $conjointName';
   }
 
   @override
   String patrimoineCoupleTitleSolo(String firstName) {
-    return 'Patrimoine — $firstName';
+    return 'Vermögen — $firstName';
   }
 
   @override
@@ -8114,10 +8114,10 @@ class SDe extends S {
   String get patrimoineLtvSaine => 'LTV saine';
 
   @override
-  String get patrimoineLtvAmortissement => 'Amortissement recommandé';
+  String get patrimoineLtvAmortissement => 'Empfohlene Amortisation';
 
   @override
-  String get patrimoineLtvElevee => 'LTV élevée — amortir';
+  String get patrimoineLtvElevee => 'Hoher LTV — amortisieren';
 
   @override
   String patrimoineLtvDisplay(String percent) {
@@ -8137,7 +8137,7 @@ class SDe extends S {
   String get patrimoineTotal => 'Total';
 
   @override
-  String get patrimoineBrut => 'Patrimoine brut';
+  String get patrimoineBrut => 'Bruttovermögen';
 
   @override
   String get patrimoineDettes => '−Dettes';
@@ -8147,67 +8147,67 @@ class SDe extends S {
 
   @override
   String patrimoineDont(String name, String amount) {
-    return 'dont $name ~CHF $amount';
+    return 'davon $name ~CHF $amount';
   }
 
   @override
   String get conjointProfilsLies => 'Profils liés';
 
   @override
-  String get conjointProfilConjoint => 'Profil conjoint·e';
+  String get conjointProfilConjoint => 'Partnerprofil';
 
   @override
   String conjointDeclaredStatus(String name) {
-    return '$name n\'a pas de compte MINT. Ses données sont estimées (🟡).';
+    return '$name hat kein MINT-Konto. Die Daten sind geschätzt (🟡).';
   }
 
   @override
   String conjointInvitedStatus(String name) {
-    return 'Invitation envoyée à $name. En attente de réponse.';
+    return 'Einladung an $name gesendet. Warte auf Antwort.';
   }
 
   @override
   String conjointLinkedStatus(String name) {
-    return '✅ Profils liés ! Les données de $name sont synchronisées.';
+    return '✅ Profile verknüpft! Die Daten von $name sind synchronisiert.';
   }
 
   @override
   String conjointInviteLabel(String name) {
-    return 'Inviter $name (5 questions, sans compte)';
+    return '$name einladen (5 Fragen, ohne Konto)';
   }
 
   @override
-  String get conjointLierProfils => 'Lier nos profils';
+  String get conjointLierProfils => 'Profile verknüpfen';
 
   @override
-  String get conjointRenvoyerInvitation => 'Renvoyer l\'invitation';
+  String get conjointRenvoyerInvitation => 'Einladung erneut senden';
 
   @override
-  String get conjointRegimeLabel => 'Régime matrimonial : ';
+  String get conjointRegimeLabel => 'Güterstand: ';
 
   @override
-  String get conjointRegimeParticipation => 'Participation aux acquêts';
+  String get conjointRegimeParticipation => 'Errungenschaftsbeteiligung';
 
   @override
-  String get conjointRegimeSeparation => 'Séparation de biens';
+  String get conjointRegimeSeparation => 'Gütertrennung';
 
   @override
-  String get conjointRegimeCommunaute => 'Communauté de biens';
+  String get conjointRegimeCommunaute => 'Gütergemeinschaft';
 
   @override
-  String get conjointRegimeDefault => '(défaut CC art. 196)';
+  String get conjointRegimeDefault => '(Standard ZGB Art. 196)';
 
   @override
   String get conjointModifier => 'modifier';
 
   @override
-  String get futurHorizonTitle => 'Horizon Retraite';
+  String get futurHorizonTitle => 'Horizont Pensionierung';
 
   @override
   String get futurCoupleLabel => 'Couple';
 
   @override
-  String get futurTauxRemplacement => 'Taux de remplacement';
+  String get futurTauxRemplacement => 'Ersatzquote';
 
   @override
   String get futurAgeRetraite => 'Age retraite';
@@ -8217,64 +8217,64 @@ class SDe extends S {
 
   @override
   String get futurRevenuMensuelProjection =>
-      'Revenu mensuel projeté à la retraite';
+      'Projiziertes Monatseinkommen bei Pensionierung';
 
   @override
   String get futurRenteAvs => 'Rente AVS';
 
   @override
-  String get futurRenteLpp => 'Rente LPP estimée';
+  String get futurRenteLpp => 'Geschätzte BVG-Rente';
 
   @override
-  String get futurPilier3aSwr => 'Pilier 3a (SWR 4%)';
+  String get futurPilier3aSwr => 'Säule 3a (SWR 4%)';
 
   @override
   String futurCapitalLabel(String amount) {
-    return 'Capital $amount';
+    return 'Kapital $amount';
   }
 
   @override
-  String get futurLibrePassageSwr => 'Libre passage (SWR 4%)';
+  String get futurLibrePassageSwr => 'Freizügigkeit (SWR 4%)';
 
   @override
-  String get futurInvestissementsSwr => 'Investissements (SWR 4%)';
+  String get futurInvestissementsSwr => 'Investitionen (SWR 4%)';
 
   @override
-  String get futurTotalCoupleProjecte => 'Total couple projeté';
+  String get futurTotalCoupleProjecte => 'Projiziertes Paar-Total';
 
   @override
-  String get futurTotalMensuelProjecte => 'Total mensuel projeté';
+  String get futurTotalMensuelProjecte => 'Projiziertes Monatstotal';
 
   @override
-  String get futurCapitalRetraite => 'Capital à la retraite';
+  String get futurCapitalRetraite => 'Kapital bei Pensionierung';
 
   @override
   String get futurCapitalTotal => 'Capital total (3a + LP + investissements)';
 
   @override
   String get futurCapitalTaxHint =>
-      'Le retrait en capital est taxé séparément (LIFD art. 38). Le SWR n\'est pas un revenu imposable.';
+      'Der Kapitalbezug wird separat besteuert (DBG Art. 38). Der SWR ist kein steuerbares Einkommen.';
 
   @override
   String futurMargeIncertitude(String pct) {
-    return 'Marge d\'incertitude (± $pct%)';
+    return 'Unsicherheitsmarge (± $pct%)';
   }
 
   @override
   String futurFourchette(String low, String high) {
-    return 'Fourchette : CHF $low – $high/mois';
+    return 'Spanne: CHF $low – $high/Monat';
   }
 
   @override
   String get futurCompleterProfil =>
-      'Complete ton profil pour affiner la projection.';
+      'Vervollständige dein Profil, um die Projektion zu verfeinern.';
 
   @override
   String get futurDisclaimer =>
-      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
+      'Bildungsorientierte Projektion — keine Beratung (FIDLEG). SWR 4% = 4%-Regel, Ergebnisse nicht garantiert. AHV/BVG-Renten geschätzt gemäss AHVG Art. 21-40, BVG Art. 14-16.';
 
   @override
-  String get futurExplorerDetails => 'Explorer les détails';
+  String get futurExplorerDetails => 'Details erkunden';
 
   @override
   String get financialSummaryTitle => 'FINANZÜBERSICHT';
@@ -10221,26 +10221,25 @@ class SDe extends S {
   String get avsGuideAppBarTitle => 'EXTRAIT AVS';
 
   @override
-  String get avsGuideHeaderTitle => 'Comment obtenir ton extrait AVS';
+  String get avsGuideHeaderTitle => 'So erhältst du deinen AHV-Auszug';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'L\'extrait de compte individuel (CI) contient tes années de cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. C\'est la clé pour une projection AVS fiable.';
+      'Der individuelle Kontoauszug (CI) enthält deine Beitragsjahre, dein Durchschnittseinkommen (RAMD) und allfällige Lücken. Er ist der Schlüssel für eine zuverlässige AHV-Projektion.';
 
   @override
   String avsGuideConfidencePoints(int points) {
-    return '+$points points de confiance';
+    return '+$points Vertrauenspunkte';
   }
 
   @override
-  String get avsGuideConfidenceSubtitle =>
-      'Années de cotisation, RAMD, lacunes';
+  String get avsGuideConfidenceSubtitle => 'Beitragsjahre, RAMD, Lücken';
 
   @override
   String get avsGuideStepsTitle => 'En 4 étapes';
 
   @override
-  String get avsGuideStep1Title => 'Va sur www.ahv-iv.ch';
+  String get avsGuideStep1Title => 'Gehe auf www.ahv-iv.ch';
 
   @override
   String get avsGuideStep1Subtitle =>
@@ -10248,32 +10247,32 @@ class SDe extends S {
 
   @override
   String get avsGuideStep2Title =>
-      'Connecte-toi avec ton eID ou crée un compte';
+      'Melde dich mit deiner eID an oder erstelle ein Konto';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'Tu auras besoin de ton numéro AVS (756.XXXX.XXXX.XX, sur ta carte d\'assurance-maladie).';
+      'Du benötigst deine AHV-Nummer (756.XXXX.XXXX.XX, auf deiner Krankenversicherungskarte).';
 
   @override
   String get avsGuideStep3Title =>
-      'Demande ton extrait de compte individuel (CI)';
+      'Fordere deinen individuellen Kontoauszug (CI) an';
 
   @override
   String get avsGuideStep3Subtitle =>
       'Cherche la section \"Extrait de compte\" ou \"Kontoauszug\". C\'est un document officiel qui récapitule toutes tes cotisations.';
 
   @override
-  String get avsGuideStep4Title => 'Tu le recevras par courrier ou PDF';
+  String get avsGuideStep4Title => 'Du erhältst ihn per Post oder als PDF';
 
   @override
   String get avsGuideStep4Subtitle =>
-      'Selon ta caisse, l\'extrait arrive en 5 à 10 jours ouvrables. Certaines caisses proposent un téléchargement PDF immédiat.';
+      'Je nach Kasse trifft der Auszug in 5 bis 10 Werktagen ein. Einige Kassen bieten einen sofortigen PDF-Download an.';
 
   @override
-  String get avsGuideOpenAhvButton => 'Ouvrir ahv-iv.ch';
+  String get avsGuideOpenAhvButton => 'ahv-iv.ch öffnen';
 
   @override
-  String get avsGuideScanButton => 'J\'ai déjà mon extrait → Scanner';
+  String get avsGuideScanButton => 'Ich habe meinen Auszug bereits → Scannen';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -10283,15 +10282,15 @@ class SDe extends S {
       'Pas d\'extrait AVS sous la main ? Teste le flux avec un exemple d\'extrait.';
 
   @override
-  String get avsGuideTestButton => 'Utiliser un exemple';
+  String get avsGuideTestButton => 'Beispiel verwenden';
 
   @override
   String get avsGuideFreeNote =>
-      'L\'extrait AVS est gratuit et disponible en 5 à 10 jours ouvrables. Tu peux aussi te rendre à ta caisse de compensation cantonale.';
+      'Der AHV-Auszug ist kostenlos und in 5 bis 10 Werktagen verfügbar. Du kannst auch deine kantonale Ausgleichskasse aufsuchen.';
 
   @override
   String get avsGuidePrivacyNote =>
-      'L\'image de ton extrait n\'est jamais stockée ni envoyée. L\'extraction se fait sur ton appareil. Seules les valeurs que tu confirmes sont conservées dans ton profil.';
+      'Dein Auszugsbild wird nie gespeichert oder gesendet. Die Extraktion erfolgt auf deinem Gerät. Nur die von dir bestätigten Werte werden in deinem Profil gespeichert.';
 
   @override
   String avsGuideSnackbarError(String url) {
@@ -10304,10 +10303,10 @@ class SDe extends S {
 
   @override
   String get dataBlockIncomplete =>
-      'Ce bloc est encore incomplet. Ouvre la section dédiée pour ajouter les données manquantes.';
+      'Dieser Bereich ist noch unvollständig. Öffne den entsprechenden Bereich, um fehlende Daten hinzuzufügen.';
 
   @override
-  String get dataBlockComplete => 'Ce bloc est complet.';
+  String get dataBlockComplete => 'Dieser Bereich ist vollständig.';
 
   @override
   String get dataBlockModeForm => 'Formulaire';
@@ -10332,7 +10331,7 @@ class SDe extends S {
       'Ton salaire brut est la base de toutes les projections : prévoyance, impôts, budget. Plus il est précis, plus tes résultats seront fiables.';
 
   @override
-  String get dataBlockRevenuCta => 'Préciser mon revenu';
+  String get dataBlockRevenuCta => 'Mein Einkommen angeben';
 
   @override
   String get dataBlockLppTitle => 'Prévoyance LPP';
@@ -10342,7 +10341,7 @@ class SDe extends S {
       'Ton avoir LPP (2e pilier) représente souvent le plus gros capital de ta prévoyance. Un certificat de prévoyance donne une valeur exacte plutôt qu\'une estimation.';
 
   @override
-  String get dataBlockLppCta => 'Ajouter mon certificat LPP';
+  String get dataBlockLppCta => 'Mein BVG-Zertifikat hinzufügen';
 
   @override
   String get dataBlockAvsTitle => 'Extrait AVS';
@@ -10352,7 +10351,7 @@ class SDe extends S {
       'L\'extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l\'étranger, années manquantes) réduisent ta rente AVS.';
 
   @override
-  String get dataBlockAvsCta => 'Commander mon extrait AVS';
+  String get dataBlockAvsCta => 'Meinen AHV-Auszug bestellen';
 
   @override
   String get dataBlock3aTitle => '3e pilier (3a)';
@@ -10372,37 +10371,37 @@ class SDe extends S {
       'Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.';
 
   @override
-  String get dataBlockPatrimoineCta => 'Renseigner mon patrimoine';
+  String get dataBlockPatrimoineCta => 'Mein Vermögen erfassen';
 
   @override
   String get dataBlockFiscaliteTitle => 'Fiscalité';
 
   @override
   String get dataBlockFiscaliteDesc =>
-      'Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d\'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu\'estimé (coefficient communal 60%-130%).';
+      'Deine Gemeinde, dein steuerbares Einkommen und dein Vermögen bestimmen deinen Grenzsteuersatz. Eine Steuererklärung oder Veranlagung gibt einen realen Satz statt einer Schätzung (Gemeindekoeffizient 60%-130%).';
 
   @override
-  String get dataBlockFiscaliteCta => 'Comparer ma fiscalité';
+  String get dataBlockFiscaliteCta => 'Meine Steuern vergleichen';
 
   @override
-  String get dataBlockObjectifTitle => 'Objectif retraite';
+  String get dataBlockObjectifTitle => 'Rentenziel';
 
   @override
   String get dataBlockObjectifDesc =>
       'À quel âge souhaites-tu arrêter de travailler ? Un objectif clair permet de calculer l\'effort d\'épargne nécessaire et les options (anticipation, retraite partielle).';
 
   @override
-  String get dataBlockObjectifCta => 'Voir ma projection';
+  String get dataBlockObjectifCta => 'Meine Projektion ansehen';
 
   @override
-  String get dataBlockMenageTitle => 'Composition du ménage';
+  String get dataBlockMenageTitle => 'Haushaltszusammensetzung';
 
   @override
   String get dataBlockMenageDesc =>
       'En couple, les projections changent : AVS plafonnée pour les mariés (LAVS art. 35), rente de survivant (LPP art. 19), optimisation fiscale à deux.';
 
   @override
-  String get dataBlockMenageCta => 'Gérer mon ménage';
+  String get dataBlockMenageCta => 'Meinen Haushalt verwalten';
 
   @override
   String get dataBlockUnknownTitle => 'Données';
@@ -10412,24 +10411,25 @@ class SDe extends S {
       'Ce lien de données n’est plus à jour. Utilise la section recommandée pour compléter ton profil.';
 
   @override
-  String get dataBlockUnknownCta => 'Ouvrir le diagnostic';
+  String get dataBlockUnknownCta => 'Diagnose öffnen';
 
   @override
   String get dataBlockDefaultTitle => 'Données';
 
   @override
   String get dataBlockDefaultDesc =>
-      'Complète ce bloc pour améliorer la précision de tes projections.';
+      'Vervollständige diesen Bereich, um die Genauigkeit deiner Projektionen zu verbessern.';
 
   @override
   String get dataBlockDefaultCta => 'Compléter';
 
   @override
-  String get renteVsCapitalAppBarTitle => 'Rente ou capital : ta décision';
+  String get renteVsCapitalAppBarTitle =>
+      'Rente oder Kapital: deine Entscheidung';
 
   @override
   String get renteVsCapitalIntro =>
-      'À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.';
+      'Bei der Pensionierung wählst du ein für alle Mal: ein Einkommen auf Lebenszeit oder dein Kapital in der Hand.';
 
   @override
   String get renteVsCapitalRenteLabel => 'Rente';
@@ -10443,7 +10443,7 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalCapitalExplanation =>
-      'Tu récupères tout ton avoir LPP d\'un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.';
+      'Du beziehst dein ganzes BVG-Guthaben auf einmal. Du legst es an und beziehst monatlich, was du brauchst. Totale Freiheit, aber das Risiko aufzubrauchen ist real.';
 
   @override
   String get renteVsCapitalMixteLabel => 'Mixte';
@@ -10453,33 +10453,33 @@ class SDe extends S {
       'La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.';
 
   @override
-  String get renteVsCapitalEstimateMode => 'Estimer pour moi';
+  String get renteVsCapitalEstimateMode => 'Für mich schätzen';
 
   @override
-  String get renteVsCapitalCertificateMode => 'J\'ai mon certificat';
+  String get renteVsCapitalCertificateMode => 'Ich habe mein Zertifikat';
 
   @override
   String get renteVsCapitalAge => 'Ton âge';
 
   @override
-  String get renteVsCapitalSalary => 'Ton salaire brut annuel (CHF)';
+  String get renteVsCapitalSalary => 'Dein jährlicher Bruttolohn (CHF)';
 
   @override
-  String get renteVsCapitalLppTotal => 'Ton avoir LPP actuel (CHF)';
+  String get renteVsCapitalLppTotal => 'Dein aktuelles BVG-Guthaben (CHF)';
 
   @override
   String renteVsCapitalEstimatedCapital(int age, String amount) {
-    return 'Capital estimé à $age ans : ~$amount';
+    return 'Geschätztes Kapital mit $age: ~$amount';
   }
 
   @override
   String renteVsCapitalEstimatedRente(String amount) {
-    return 'Rente estimée : ~$amount/an';
+    return 'Geschätzte Rente: ~$amount/Jahr';
   }
 
   @override
   String get renteVsCapitalProjectionSource =>
-      'Projection basée sur ton âge, salaire et LPP actuel';
+      'Projektion basierend auf deinem Alter, Lohn und aktuellem BVG';
 
   @override
   String get renteVsCapitalLppOblig => 'Avoir LPP obligatoire (certificat LPP)';
@@ -10493,10 +10493,10 @@ class SDe extends S {
       'Rente annuelle proposée (certificat LPP)';
 
   @override
-  String get renteVsCapitalTcOblig => 'Taux conv. oblig. (%)';
+  String get renteVsCapitalTcOblig => 'Oblig. Umwandlungssatz (%)';
 
   @override
-  String get renteVsCapitalTcSurob => 'Taux conv. surob. (%)';
+  String get renteVsCapitalTcSurob => 'Überoblig. Umwandlungssatz (%)';
 
   @override
   String get renteVsCapitalMaxPrecision =>
@@ -10509,7 +10509,7 @@ class SDe extends S {
   String get renteVsCapitalMarried => 'Marié·e';
 
   @override
-  String get renteVsCapitalRetirementAge => 'Retraite prévue à';
+  String get renteVsCapitalRetirementAge => 'Geplante Pensionierung mit';
 
   @override
   String renteVsCapitalAgeYears(int age) {
@@ -10545,7 +10545,7 @@ class SDe extends S {
 
   @override
   String renteVsCapitalDuration(String duration) {
-    return 'pendant $duration';
+    return 'während $duration';
   }
 
   @override
@@ -10580,7 +10580,7 @@ class SDe extends S {
       ' supplémentaires dans les deux cas (LAVS art. 29)';
 
   @override
-  String get renteVsCapitalLifeExpectancy => 'Et si je vis jusqu\'à...';
+  String get renteVsCapitalLifeExpectancy => 'Was wenn ich lebe bis...';
 
   @override
   String get renteVsCapitalLifeExpectancyRef =>
@@ -10611,22 +10611,22 @@ class SDe extends S {
   String get renteVsCapitalDeltaAdvance => 'd\'avance';
 
   @override
-  String get renteVsCapitalEducationalTitle => 'Ce que ça change concrètement';
+  String get renteVsCapitalEducationalTitle => 'Was sich konkret ändert';
 
   @override
   String get renteVsCapitalFiscalTitle => 'Fiscalité';
 
   @override
-  String get renteVsCapitalFiscalLeftSubtitle => 'Imposée chaque année';
+  String get renteVsCapitalFiscalLeftSubtitle => 'Jährlich besteuert';
 
   @override
-  String get renteVsCapitalFiscalRightSubtitle => 'Taxé une seule fois';
+  String get renteVsCapitalFiscalRightSubtitle => 'Nur einmal besteuert';
 
   @override
   String get renteVsCapitalFiscalOver30years => 'sur 30 ans';
 
   @override
-  String get renteVsCapitalFiscalAtRetrait => 'au retrait (LIFD art. 38)';
+  String get renteVsCapitalFiscalAtRetrait => 'beim Bezug (DBG Art. 38)';
 
   @override
   String renteVsCapitalFiscalCapitalSaves(String amount) {
@@ -10648,7 +10648,7 @@ class SDe extends S {
   String get renteVsCapitalInflationIn20Years => 'Dans 20 ans';
 
   @override
-  String get renteVsCapitalInflationPurchasingPower => 'pouvoir d\'achat';
+  String get renteVsCapitalInflationPurchasingPower => 'Kaufkraft';
 
   @override
   String renteVsCapitalInflationBottomText(int percent) {
@@ -10659,14 +10659,15 @@ class SDe extends S {
   String get renteVsCapitalTransmissionTitle => 'Transmission';
 
   @override
-  String get renteVsCapitalTransmissionLeftMarried => 'Ton conjoint reçoit';
+  String get renteVsCapitalTransmissionLeftMarried =>
+      'Dein·e Ehepartner·in erhält';
 
   @override
   String get renteVsCapitalTransmissionLeftSingle => 'À ton décès';
 
   @override
   String renteVsCapitalTransmissionLeftValueMarried(String amount) {
-    return '60 % = $amount/mois';
+    return '60 % = $amount/Monat';
   }
 
   @override
@@ -10676,17 +10677,16 @@ class SDe extends S {
   String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailSingle => 'pour tes héritiers';
+  String get renteVsCapitalTransmissionLeftDetailSingle => 'für deine Erben';
 
   @override
-  String get renteVsCapitalTransmissionRightSubtitle =>
-      'Tes héritiers reçoivent';
+  String get renteVsCapitalTransmissionRightSubtitle => 'Deine Erben erhalten';
 
   @override
   String get renteVsCapitalTransmissionRightValue => '100 %';
 
   @override
-  String get renteVsCapitalTransmissionRightDetail => 'du solde restant';
+  String get renteVsCapitalTransmissionRightDetail => 'des Restguthabens';
 
   @override
   String get renteVsCapitalTransmissionBottomMarried =>
@@ -10694,10 +10694,10 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalTransmissionBottomSingle =>
-      'Avec la rente, rien ne revient à tes proches.';
+      'Mit der Rente geht nichts an deine Angehörigen.';
 
   @override
-  String get renteVsCapitalAffinerTitle => 'Affiner ta simulation';
+  String get renteVsCapitalAffinerTitle => 'Simulation verfeinern';
 
   @override
   String get renteVsCapitalAffinerSubtitle => 'Pour ceux qui veulent creuser.';
@@ -10720,7 +10720,7 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'Les paramètres les plus influents sur l\'écart entre tes options.';
+      'Die einflussreichsten Parameter auf den Unterschied zwischen deinen Optionen.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Hypothèses de cette simulation';
@@ -10730,7 +10730,7 @@ class SDe extends S {
 
   @override
   String renteVsCapitalSources(String sources) {
-    return 'Sources : $sources';
+    return 'Quellen: $sources';
   }
 
   @override
@@ -10756,7 +10756,7 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20\'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.';
+      'Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20\'000 (BVV2 Art. 5). Blockiert den BVG-Einkauf für 3 Jahre.';
 
   @override
   String get renteVsCapitalEplLegalRef =>
@@ -10779,10 +10779,10 @@ class SDe extends S {
   String get frontalierTabCharges => 'Charges';
 
   @override
-  String get frontalierCantonTravail => 'Canton de travail';
+  String get frontalierCantonTravail => 'Arbeitskanton';
 
   @override
-  String get frontalierSalaireBrut => 'Salaire brut mensuel';
+  String get frontalierSalaireBrut => 'Monatlicher Bruttolohn';
 
   @override
   String get frontalierEtatCivil => 'État civil';
@@ -10794,7 +10794,7 @@ class SDe extends S {
   String get frontalierMarie => 'Marié(e)';
 
   @override
-  String get frontalierEnfantsCharge => 'Enfants à charge';
+  String get frontalierEnfantsCharge => 'Kinder zu Lasten';
 
   @override
   String get frontalierTauxEffectif => 'Taux effectif';
@@ -10806,43 +10806,43 @@ class SDe extends S {
   String get frontalierParMois => 'par mois';
 
   @override
-  String get frontalierQuasiResidentTitle => 'Quasi-résident (Genève)';
+  String get frontalierQuasiResidentTitle => 'Quasi-Resident (Genf)';
 
   @override
   String get frontalierQuasiResidentDesc =>
-      'Si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.';
+      'Wenn mehr als 90% deines weltweiten Einkommens aus der Schweiz stammen, kannst du die ordentliche Besteuerung mit Abzügen beantragen (3a, effektive Kosten usw.). Das kann deine Steuern erheblich senken.';
 
   @override
-  String get frontalierTessinTitle => 'Tessin — régime spécial';
+  String get frontalierTessinTitle => 'Tessin — Sonderregelung';
 
   @override
   String get frontalierEducationalTax =>
       'En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.';
 
   @override
-  String get frontalierJoursBureau => 'Jours au bureau en Suisse';
+  String get frontalierJoursBureau => 'Bürotage in der Schweiz';
 
   @override
   String get frontalierJoursHomeOffice => 'Jours en home office à l\'étranger';
 
   @override
-  String get frontalierJaugeRisque => 'JAUGE DE RISQUE';
+  String get frontalierJaugeRisque => 'RISIKOBAROMETER';
 
   @override
-  String get frontalierJoursHomeOfficeLabel => 'jours de home office';
+  String get frontalierJoursHomeOfficeLabel => 'Home-Office-Tage';
 
   @override
   String get frontalierRiskLow => 'Pas de risque';
 
   @override
-  String get frontalierRiskMedium => 'Zone d\'attention';
+  String get frontalierRiskMedium => 'Aufmerksamkeitszone';
 
   @override
   String get frontalierRiskHigh => 'Risque fiscal — l\'imposition bascule';
 
   @override
   String frontalierDaysRemaining(int days) {
-    return 'Il te reste $days jours de marge';
+    return 'Du hast noch $days Tage Spielraum';
   }
 
   @override
@@ -10857,26 +10857,26 @@ class SDe extends S {
 
   @override
   String frontalierChargesCountry(String country) {
-    return 'Charges $country';
+    return 'Abgaben $country';
   }
 
   @override
   String frontalierDuSalaire(String percent) {
-    return '$percent% du salaire';
+    return '$percent% des Lohns';
   }
 
   @override
   String frontalierChargesChMoins(String amount) {
-    return 'Charges CH moins élevées : $amount/an';
+    return 'CH-Abgaben tiefer: $amount/Jahr';
   }
 
   @override
   String frontalierChargesChPlus(String amount) {
-    return 'Charges CH plus élevées : +$amount/an';
+    return 'CH-Abgaben höher: +$amount/Jahr';
   }
 
   @override
-  String get frontalierAssuranceMaladie => 'ASSURANCE MALADIE';
+  String get frontalierAssuranceMaladie => 'KRANKENVERSICHERUNG';
 
   @override
   String get frontalierLamalTitle => 'LAMal (suisse)';
@@ -10886,31 +10886,31 @@ class SDe extends S {
       'Obligatoire si tu travailles en CH. Prime individuelle (~CHF 300-500/mois).';
 
   @override
-  String get frontalierCmuTitle => 'CMU/Sécu (France)';
+  String get frontalierCmuTitle => 'CMU/Sozialversicherung (Frankreich)';
 
   @override
   String get frontalierCmuDesc =>
       'Droit d\'option possible pour les frontaliers FR. Cotisation ~8% du revenu fiscal.';
 
   @override
-  String get frontalierAssurancePriveeTitle => 'Assurance privée (DE/IT/AT)';
+  String get frontalierAssurancePriveeTitle => 'Privatversicherung (DE/IT/AT)';
 
   @override
   String get frontalierAssurancePriveeDesc =>
-      'En Allemagne, option PKV pour hauts revenus. IT/AT : régime obligatoire du pays.';
+      'In Deutschland PKV-Option für Gutverdiener. IT/AT: obligatorisches Regime des Landes.';
 
   @override
   String get frontalierEducationalCharges =>
       'En tant que frontalier, tu cotises aux assurances sociales suisses (AVS/AI/APG, AC, LPP). Les taux sont généralement plus bas qu\'en France ou en Allemagne — mais la LAMal est à ta charge individuellement, ce qui peut compenser l\'avantage.';
 
   @override
-  String get frontalierPaysResidence => 'Pays de résidence';
+  String get frontalierPaysResidence => 'Wohnsitzland';
 
   @override
   String get frontalierLeSavaisTu => 'Le savais-tu ?';
 
   @override
-  String get concubinageAppBarTitle => 'Mariage vs Concubinage';
+  String get concubinageAppBarTitle => 'Heirat vs Konkubinat';
 
   @override
   String get concubinageTabComparateur => 'Comparateur';
@@ -10925,7 +10925,7 @@ class SDe extends S {
   String get concubinageRevenu2 => 'Revenu 2';
 
   @override
-  String get concubinagePatrimoineTotal => 'Patrimoine total';
+  String get concubinagePatrimoineTotal => 'Gesamtvermögen';
 
   @override
   String get concubinageCanton => 'Canton';
@@ -10943,43 +10943,42 @@ class SDe extends S {
   String get concubinageDetailFiscal => 'DÉTAIL FISCAL';
 
   @override
-  String get concubinageImpots2Celibataires => 'Impôts 2 célibataires';
+  String get concubinageImpots2Celibataires => 'Steuern als 2 Alleinstehende';
 
   @override
   String get concubinageImpotsMaries => 'Impôts mariés';
 
   @override
-  String get concubinagePenaliteMariage => 'Pénalité mariage';
+  String get concubinagePenaliteMariage => 'Heiratsstrafe';
 
   @override
   String get concubinageBonusMariage => 'Bonus mariage';
 
   @override
-  String get concubinageImpotSuccession => 'IMPÔT SUR LA SUCCESSION';
+  String get concubinageImpotSuccession => 'ERBSCHAFTSSTEUER';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Patrimoine transmis';
+  String get concubinagePatrimoineTransmis => 'Übertragenes Vermögen';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (exonéré)';
+  String get concubinageMarieExonere => 'CHF 0 (befreit)';
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Concubin-e (~$taux%)';
+    return 'Partner·in (~$taux%)';
   }
 
   @override
   String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'En concubinage, ton partenaire paierait $impot d\'impôt successoral sur un patrimoine de $patrimoine. Marié-e, il/elle serait totalement exonéré-e.';
+    return 'Im Konkubinat würde dein·e Partner·in $impot Erbschaftssteuer auf ein Vermögen von $patrimoine zahlen. Verheiratet wäre er/sie vollständig befreit.';
   }
 
   @override
-  String get concubinageNeutralTitle =>
-      'Aucune option n\'est universellement adaptée';
+  String get concubinageNeutralTitle => 'Keine Option passt für alle';
 
   @override
   String get concubinageNeutralDesc =>
-      'Le choix entre mariage et concubinage dépend de ta situation : revenus, patrimoine, enfants, canton, projet de vie. Le mariage offre plus de protections légales automatiques, le concubinage plus de flexibilité. Un·e spécialiste peut t\'aider à y voir plus clair.';
+      'Die Wahl zwischen Heirat und Konkubinat hängt von deiner Situation ab: Einkommen, Vermögen, Kinder, Kanton, Lebensentwurf. Die Ehe bietet mehr automatischen Rechtsschutz, das Konkubinat mehr Flexibilität. Ein·e Spezialist·in kann dir helfen, klarer zu sehen.';
 
   @override
   String get concubinageChecklistIntro =>
@@ -10991,28 +10990,28 @@ class SDe extends S {
   }
 
   @override
-  String get concubinageChecklist1Title => 'Rédiger un testament';
+  String get concubinageChecklist1Title => 'Testament verfassen';
 
   @override
   String get concubinageChecklist1Desc =>
       'Sans testament, ton partenaire n\'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.';
 
   @override
-  String get concubinageChecklist2Title => 'Clause bénéficiaire LPP';
+  String get concubinageChecklist2Title => 'BVG-Begünstigungsklausel';
 
   @override
   String get concubinageChecklist2Desc =>
       'Contacte ta caisse de pension pour inscrire ton/ta partenaire comme bénéficiaire. Sans cette clause, le capital décès LPP ne lui revient pas. La plupart des caisses acceptent le concubin sous conditions (ménage commun, etc.).';
 
   @override
-  String get concubinageChecklist3Title => 'Convention de concubinage';
+  String get concubinageChecklist3Title => 'Konkubinatsvertrag';
 
   @override
   String get concubinageChecklist3Desc =>
       'Un contrat écrit qui règle le partage des frais, la propriété des biens, et ce qui se passe en cas de séparation. Pas obligatoire, mais fortement recommandé — surtout si tu achètes un bien immobilier ensemble.';
 
   @override
-  String get concubinageChecklist4Title => 'Assurance-vie croisée';
+  String get concubinageChecklist4Title => 'Gegenseitige Lebensversicherung';
 
   @override
   String get concubinageChecklist4Desc =>
@@ -11026,7 +11025,7 @@ class SDe extends S {
       'Si tu deviens incapable de discernement (accident, maladie), ton/ta partenaire n\'a aucun pouvoir de représentation. Un mandat pour cause d\'inaptitude (CC art. 360 ss) lui donne ce droit.';
 
   @override
-  String get concubinageChecklist6Title => 'Directives anticipées';
+  String get concubinageChecklist6Title => 'Patientenverfügung';
 
   @override
   String get concubinageChecklist6Desc =>
@@ -11055,7 +11054,7 @@ class SDe extends S {
   String get concubinageCriteriaImpots => 'Impôts';
 
   @override
-  String get concubinageCriteriaPenaliteFiscale => 'Pénalité fiscale';
+  String get concubinageCriteriaPenaliteFiscale => 'Heiratsstrafe';
 
   @override
   String get concubinageCriteriaBonusFiscal => 'Bonus fiscal';
@@ -11070,39 +11069,40 @@ class SDe extends S {
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Exonéré (CC art. 462)';
+  String get concubinageCriteriaHeritageMarriage => 'Befreit (ZGB Art. 462)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
 
   @override
-  String get concubinageCriteriaProtection => 'Protection décès';
+  String get concubinageCriteriaProtection => 'Todesfallschutz';
 
   @override
-  String get concubinageCriteriaProtectionMarriage => 'AVS + LPP survivant';
+  String get concubinageCriteriaProtectionMarriage =>
+      'AHV + BVG Hinterlassenenleistungen';
 
   @override
   String get concubinageCriteriaProtectionConcubinage =>
-      'Aucune rente automatique';
+      'Keine automatische Rente';
 
   @override
   String get concubinageCriteriaFlexibilite => 'Flexibilité';
 
   @override
-  String get concubinageCriteriaFlexibiliteMarriage => 'Procédure judiciaire';
+  String get concubinageCriteriaFlexibiliteMarriage => 'Gerichtsverfahren';
 
   @override
   String get concubinageCriteriaFlexibiliteConcubinage =>
-      'Séparation simplifiée';
+      'Vereinfachte Trennung';
 
   @override
   String get concubinageCriteriaPension => 'Pension alim.';
 
   @override
-  String get concubinageCriteriaPensionMarriage => 'Protégée par le juge';
+  String get concubinageCriteriaPensionMarriage => 'Gerichtlich geschützt';
 
   @override
-  String get concubinageCriteriaPensionConcubinage => 'Accord préalable';
+  String get concubinageCriteriaPensionConcubinage => 'Vorgängige Vereinbarung';
 
   @override
   String get concubinageMarieExonereLabel => 'Marié·e';
@@ -17514,56 +17514,56 @@ class SDe extends S {
   String get timelineQuickFiscaliteSub => '26 Kantone vergleichen';
 
   @override
-  String get consentFinmaTitle => 'Fonctionnalité en préparation';
+  String get consentFinmaTitle => 'Funktion in Vorbereitung';
 
   @override
   String get consentFinmaDesc =>
-      'Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.';
+      'Regulatorische FINMA-Konsultation im Gange. Die angezeigten Daten dienen der Demonstration.';
 
   @override
   String get consentModeDemo => 'MODE DÉMO';
 
   @override
-  String get consentActiveSection => 'CONSENTEMENTS ACTIFS';
+  String get consentActiveSection => 'AKTIVE EINWILLIGUNGEN';
 
   @override
   String get consentAutorisations => 'Autorisations';
 
   @override
   String consentGrantedAtLabel(String date) {
-    return 'Accordé le $date';
+    return 'Erteilt am $date';
   }
 
   @override
   String consentExpiresAtLabel(String date) {
-    return 'Expire le $date';
+    return 'Läuft ab am $date';
   }
 
   @override
-  String get consentRevokedLabel => 'Consentement révoqué';
+  String get consentRevokedLabel => 'Einwilligung widerrufen';
 
   @override
-  String get consentNlpdTitle => 'Tes droits (nLPD)';
+  String get consentNlpdTitle => 'Deine Rechte (nDSG)';
 
   @override
   String get consentNlpdSubtitle =>
-      'Tes droits selon la nLPD (Loi fédérale sur la protection des données) :';
+      'Deine Rechte gemäss nDSG (Datenschutzgesetz):';
 
   @override
   String get consentNlpdPoint1 =>
-      '• Tu peux révoquer ton consentement à tout moment';
+      '• Du kannst deine Einwilligung jederzeit widerrufen';
 
   @override
   String get consentNlpdPoint2 =>
-      '• Tes données ne sont jamais partagées avec des tiers';
+      '• Deine Daten werden nie an Dritte weitergegeben';
 
   @override
   String get consentNlpdPoint3 =>
-      '• Accès en lecture seule — aucune opération financière';
+      '• Nur Lesezugriff — keine Finanztransaktionen';
 
   @override
   String get consentNlpdPoint4 =>
-      '• Durée maximale de consentement : 90 jours (renouvelable)';
+      '• Maximale Einwilligungsdauer: 90 Tage (erneuerbar)';
 
   @override
   String get consentStepBanque => 'Banque';
@@ -17575,29 +17575,30 @@ class SDe extends S {
   String get consentStepConfirmation => 'Confirmation';
 
   @override
-  String get consentSelectBankTitle => 'Choisir une banque';
+  String get consentSelectBankTitle => 'Bank auswählen';
 
   @override
-  String get consentSelectScopesTitle => 'Choisir les autorisations';
+  String get consentSelectScopesTitle => 'Berechtigungen auswählen';
 
   @override
   String consentSelectedBankLabel(String bank) {
-    return 'Banque sélectionnée : $bank';
+    return 'Ausgewählte Bank: $bank';
   }
 
   @override
-  String get consentScopeAccountsDesc => 'Comptes (liste de tes comptes)';
+  String get consentScopeAccountsDesc => 'Konten (Liste deiner Konten)';
 
   @override
-  String get consentScopeBalancesDesc => 'Soldes (solde actuel de tes comptes)';
+  String get consentScopeBalancesDesc =>
+      'Salden (aktueller Saldo deiner Konten)';
 
   @override
   String get consentScopeTransactionsDesc =>
-      'Transactions (historique des mouvements)';
+      'Transaktionen (Transaktionsverlauf)';
 
   @override
   String get consentReadOnlyInfo =>
-      'Accès en lecture seule. Aucune opération financière ne peut être effectuée.';
+      'Nur Lesezugriff. Es können keine Finanztransaktionen durchgeführt werden.';
 
   @override
   String get consentConfirmTitle => 'Confirmation';
@@ -17622,7 +17623,7 @@ class SDe extends S {
 
   @override
   String get consentConfirmDisclaimer =>
-      'En confirmant, tu autorises MINT à accéder aux données sélectionnées en lecture seule pour une durée de 90 jours. Tu peux révoquer ce consentement à tout moment.';
+      'Mit der Bestätigung autorisierst du MINT, auf die ausgewählten Daten im Lesemodus für 90 Tage zuzugreifen. Du kannst diese Einwilligung jederzeit widerrufen.';
 
   @override
   String get consentAnnuler => 'Annuler';
@@ -17653,46 +17654,46 @@ class SDe extends S {
 
   @override
   String get consentDisclaimer =>
-      'Cette fonctionnalité est en cours de développement. Les données affichées sont des exemples. L\'activation du service Open Banking est soumise à une consultation réglementaire préalable.';
+      'Diese Funktion befindet sich in Entwicklung. Die angezeigten Daten sind Beispieldaten. Die Aktivierung des Open-Banking-Dienstes unterliegt einer vorgängigen regulatorischen Prüfung.';
 
   @override
-  String get openBankingHubFinmaTitle => 'Fonctionnalité en préparation';
+  String get openBankingHubFinmaTitle => 'Funktion in Vorbereitung';
 
   @override
   String get openBankingHubFinmaDesc =>
-      'Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.';
+      'Regulatorische FINMA-Konsultation im Gange. Die angezeigten Daten dienen der Demonstration.';
 
   @override
-  String get openBankingHubSubtitle => 'Connecte tes comptes bancaires';
+  String get openBankingHubSubtitle => 'Verbinde deine Bankkonten';
 
   @override
-  String get openBankingHubConnectedAccounts => 'COMPTES CONNECTES';
+  String get openBankingHubConnectedAccounts => 'VERBUNDENE KONTEN';
 
   @override
-  String get openBankingHubApercu => 'APERCU FINANCIER';
+  String get openBankingHubApercu => 'FINANZÜBERSICHT';
 
   @override
   String get openBankingHubNavigation => 'NAVIGATION';
 
   @override
-  String get openBankingHubViewTransactions => 'Voir les transactions';
+  String get openBankingHubViewTransactions => 'Transaktionen anzeigen';
 
   @override
   String get openBankingHubViewTransactionsDesc =>
-      'Historique détaillé par catégorie';
+      'Detaillierter Verlauf nach Kategorie';
 
   @override
-  String get openBankingHubManageConsents => 'Gérer les consentements';
+  String get openBankingHubManageConsents => 'Einwilligungen verwalten';
 
   @override
   String get openBankingHubManageConsentsDesc =>
-      'Droits nLPD, révocation, scopes';
+      'nDSG-Rechte, Widerruf, Berechtigungen';
 
   @override
   String get openBankingHubSoldeTotal => 'Solde total';
 
   @override
-  String get openBankingHubComptesConnectes => '3 comptes connectés';
+  String get openBankingHubComptesConnectes => '3 verbundene Konten';
 
   @override
   String get openBankingHubRevenus => 'Revenus';
@@ -17707,16 +17708,16 @@ class SDe extends S {
   String get openBankingHubTop3Depenses => 'Top 3 dépenses';
 
   @override
-  String get openBankingHubAddBankLabel => 'Ajouter une banque';
+  String get openBankingHubAddBankLabel => 'Bank hinzufügen';
 
   @override
   String openBankingHubSyncMinutes(int minutes) {
-    return 'Il y a $minutes min';
+    return 'Vor $minutes Min.';
   }
 
   @override
   String openBankingHubSyncHours(int hours) {
-    return 'Il y a ${hours}h';
+    return 'Vor $hours Std.';
   }
 
   @override
@@ -17725,11 +17726,11 @@ class SDe extends S {
   }
 
   @override
-  String get transactionListFinmaTitle => 'Fonctionnalité en préparation';
+  String get transactionListFinmaTitle => 'Funktion in Vorbereitung';
 
   @override
   String get transactionListFinmaDesc =>
-      'Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.';
+      'Regulatorische FINMA-Konsultation im Gange. Die angezeigten Daten dienen der Demonstration.';
 
   @override
   String get transactionListThisMonth => 'Ce mois';
@@ -17738,7 +17739,7 @@ class SDe extends S {
   String get transactionListLastMonth => 'Mois précédent';
 
   @override
-  String get transactionListNoTransaction => 'Aucune transaction';
+  String get transactionListNoTransaction => 'Keine Transaktionen';
 
   @override
   String get transactionListRevenus => 'Revenus';
@@ -17759,16 +17760,16 @@ class SDe extends S {
   String get lppVolontaireRevenuMax250k => 'CHF 250’000';
 
   @override
-  String get lppVolontaireSalaireCoordLabel => 'Salaire coordonné';
+  String get lppVolontaireSalaireCoordLabel => 'Koordinierter Lohn';
 
   @override
-  String get lppVolontaireTauxBonifLabel => 'Taux bonification';
+  String get lppVolontaireTauxBonifLabel => 'Gutschriftensatz';
 
   @override
   String get lppVolontaireCotisationLabel => 'Cotisation /an';
 
   @override
-  String get lppVolontaireEconomieFiscaleLabel => 'Économie fiscale /an';
+  String get lppVolontaireEconomieFiscaleLabel => 'Steuerersparnis /Jahr';
 
   @override
   String get lppVolontaireTrancheAgeLabel => 'Tranche d’âge';
@@ -17783,16 +17784,16 @@ class SDe extends S {
   String get lppVolontaireTaux45 => '45 %';
 
   @override
-  String get pillar3aIndepPlafondApplicableLabel => 'Plafond applicable';
+  String get pillar3aIndepPlafondApplicableLabel => 'Anwendbare Obergrenze';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAnLabel => 'Économie fiscale /an';
+  String get pillar3aIndepEconomieFiscaleAnLabel => 'Steuerersparnis /Jahr';
 
   @override
-  String get pillar3aIndepPlafondSalarieLabel => 'Plafond salarié·e';
+  String get pillar3aIndepPlafondSalarieLabel => 'Obergrenze Angestellte·r';
 
   @override
-  String get pillar3aIndepEconomieSalarieLabel => 'Économie salarié·e';
+  String get pillar3aIndepEconomieSalarieLabel => 'Ersparnis als Angestellte·r';
 
   @override
   String get pillar3aIndepCHF0 => 'CHF 0';
@@ -25085,4 +25086,11 @@ class SDe extends S {
   String semanticsRealReturnGain(String amount) {
     return 'Gewinn im Vergleich zum Sparkonto: $amount Franken';
   }
+
+  @override
+  String get capNoCapHeadline => 'Du bist auf dem richtigen Weg';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Erkunde MINT weiter, um deine Situation zu vertiefen.';
 }
