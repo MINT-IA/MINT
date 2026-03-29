@@ -1728,22 +1728,32 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       case 'show_choice_comparison':
       case 'show_pillar_breakdown':
         if (!mounted) return;
+        // FIX-066: Filter all text fields in tool_use through compliance guard.
+        final sanitizedInput = Map<String, dynamic>.from(toolCall.input);
+        for (final key in ['title', 'description', 'context_message', 'prompt_text', 'label']) {
+          if (sanitizedInput[key] is String) {
+            sanitizedInput[key] = _clientSideComplianceFilter(sanitizedInput[key] as String);
+          }
+        }
+        final sanitizedTool = RagToolCall(name: toolCall.name, input: sanitizedInput);
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
             content: '',
             timestamp: DateTime.now(),
             tier: ChatTier.byok,
-            richToolCalls: [toolCall],
+            richToolCalls: [sanitizedTool],
           ));
         });
         _scrollToBottom();
 
       case 'ask_user_input':
         if (!mounted) return;
-        final promptText = toolCall.input['prompt_text'] as String?
+        final rawPrompt = toolCall.input['prompt_text'] as String?
             ?? toolCall.input['message'] as String?
             ?? '';
+        // FIX-066: Filter tool_use text through compliance guard.
+        final promptText = _clientSideComplianceFilter(rawPrompt);
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',

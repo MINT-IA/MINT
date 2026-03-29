@@ -14127,6 +14127,8 @@
           "birthYear": {
             "anyOf": [
               {
+                "maximum": 2025.0,
+                "minimum": 1900.0,
                 "type": "integer"
               },
               {
@@ -14257,6 +14259,7 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14268,6 +14271,7 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "number"
               },
               {

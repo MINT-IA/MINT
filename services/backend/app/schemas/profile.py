@@ -1,4 +1,4 @@
-from pydantic import BaseModel, UUID4, ConfigDict
+from pydantic import BaseModel, Field, UUID4, ConfigDict
 from enum import Enum
 from typing import Optional
 from datetime import datetime
@@ -61,11 +61,11 @@ class ProfileCreate(ProfileBase):
 
 
 class ProfileUpdate(BaseModel):
-    birthYear: Optional[int] = None
+    birthYear: Optional[int] = Field(None, ge=1900, le=2025)  # FIX-069
     canton: Optional[str] = None
     householdType: Optional[HouseholdType] = None
-    incomeNetMonthly: Optional[float] = None
-    incomeGrossYearly: Optional[float] = None
+    incomeNetMonthly: Optional[float] = Field(None, ge=0)  # FIX-069
+    incomeGrossYearly: Optional[float] = Field(None, ge=0)  # FIX-069
     savingsMonthly: Optional[float] = None
     totalSavings: Optional[float] = None
     lppInsuredSalary: Optional[float] = None

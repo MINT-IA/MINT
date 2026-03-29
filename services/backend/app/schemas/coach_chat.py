@@ -17,7 +17,7 @@ Sources:
 
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
 
@@ -51,6 +51,14 @@ class CoachChatRequest(CoachChatBaseModel):
         max_length=2000,
         description="Message de l'utilisateur au coach.",
     )
+
+    @field_validator('message')
+    @classmethod
+    def validate_message_not_whitespace(cls, v: str) -> str:
+        """FIX-070: Reject whitespace-only messages before hitting the LLM."""
+        if not v.strip():
+            raise ValueError('Le message ne peut pas être vide.')
+        return v.strip()
     api_key: Optional[str] = Field(
         None,
         description=(
