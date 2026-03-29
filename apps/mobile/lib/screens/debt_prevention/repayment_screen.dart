@@ -8,12 +8,6 @@ import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
-import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/models/screen_return.dart';
-import 'package:mint_mobile/services/screen_completion_tracker.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -43,10 +37,6 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   ];
 
   double _budgetMensuel = 800;
-  bool _hasUserInteracted = false;
-  String? _seqRunId;
-  String? _seqStepId;
-  bool _finalReturnEmitted = false;
 
   RepaymentComparisonResult? get _result {
     if (_dettes.isEmpty) return null;
@@ -67,109 +57,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _readSequenceContext();
-      _initializeFromProfile();
-    });
-  }
-
-  void _readSequenceContext() {
-    try {
-      final extra = GoRouterState.of(context).extra;
-      if (extra is Map<String, dynamic>) {
-        _seqRunId = extra['runId'] as String?;
-        _seqStepId = extra['stepId'] as String?;
-      }
-    } catch (_) {}
-  }
-
-  void _emitFinalReturn() {
-    if (_finalReturnEmitted) return;
-    if (_seqRunId == null || _seqStepId == null) return;
-    _finalReturnEmitted = true;
-
-    if (!_hasUserInteracted) {
-      ScreenCompletionTracker.markCompletedWithReturn('repayment',
-        ScreenReturn.abandoned(
-          route: '/debt/repayment',
-          runId: _seqRunId, stepId: _seqStepId,
-          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-        ));
-      return;
-    }
-
-    final result = _result;
-    // Use avalanche (best strategy) for the horizon
-    final horizonMois = result?.avalanche.moisJusquaLiberation ?? 0;
-    ScreenCompletionTracker.markCompletedWithReturn('repayment',
-      ScreenReturn.completed(
-        route: '/debt/repayment',
-        stepOutputs: {
-          'horizon_mois': horizonMois.toDouble(),
-          'versement_mensuel': _budgetMensuel,
-        },
-        runId: _seqRunId, stepId: _seqStepId,
-        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-      ));
-  }
-
-  void _initializeFromProfile() {
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      final dettes = profile.dettes;
-      if (!dettes.hasDette) return;
-      final entries = <_DebtInput>[];
-      if ((dettes.creditConsommation ?? 0) > 0) {
-        entries.add(_DebtInput(
-          nom: 'Crédit conso',
-          montant: dettes.creditConsommation!,
-          tauxAnnuel: dettes.tauxCreditConso ?? 9.9,
-          mensualiteMin: dettes.mensualiteCreditConso ?? 300,
-        ));
-      }
-      if ((dettes.leasing ?? 0) > 0) {
-        entries.add(_DebtInput(
-          nom: 'Leasing',
-          montant: dettes.leasing!,
-          tauxAnnuel: dettes.tauxLeasing ?? 4.5,
-          mensualiteMin: dettes.mensualiteLeasing ?? 250,
-        ));
-      }
-      if ((dettes.autresDettes ?? 0) > 0) {
-        entries.add(_DebtInput(
-          nom: 'Autres dettes',
-          montant: dettes.autresDettes!,
-          tauxAnnuel: 5.0,
-          mensualiteMin: 200,
-        ));
-      }
-      if (entries.isNotEmpty) {
-        setState(() {
-          _dettes
-            ..clear()
-            ..addAll(entries);
-          _budgetMensuel = entries.fold<double>(
-            0,
-            (s, d) => s + d.mensualiteMin,
-          ) * 1.2;
-        });
-      }
-    } catch (_) {}
-  }
-
-  @override
   Widget build(BuildContext context) {
     final result = _result;
 
-    return PopScope(
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) _emitFinalReturn();
-      },
-      child: Scaffold(
+    return Scaffold(
       backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
@@ -242,7 +133,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             ),
           ),
         ],
-      )),
+      ),
     );
   }
 
@@ -276,12 +167,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 .copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Semantics(
-            label: '${S.of(context)!.repaymentLibereDans}: ${strategiePrioritaire.moisJusquaLiberation} mois',
-            child: Text(
-              '${strategiePrioritaire.moisJusquaLiberation} mois',
-              style: MintTextStyles.displayMedium(color: color),
-            ),
+          Text(
+            '${strategiePrioritaire.moisJusquaLiberation} mois',
+            style: MintTextStyles.displayMedium(color: color),
           ),
           const SizedBox(height: 4),
           if (result.economieInterets > 0)
@@ -298,9 +186,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildDettesSection() {
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -348,10 +240,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   Widget _buildDebtCard(int index) {
     final dette = _dettes[index];
 
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
+    return Container(
       padding: const EdgeInsets.all(16),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -372,11 +266,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                       color: MintColors.textMuted.withValues(alpha: 0.5),
                     ),
                   ),
-                  onChanged: (v) => setState(() { _hasUserInteracted = true; dette.nom = v; }),
+                  onChanged: (v) => setState(() => dette.nom = v),
                 ),
               ),
               GestureDetector(
-                onTap: () => setState(() { _hasUserInteracted = true; _dettes.removeAt(index); }),
+                onTap: () => setState(() => _dettes.removeAt(index)),
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
@@ -405,7 +299,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     min: 500,
                     max: 100000,
                     prefix: 'CHF',
-                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.montant = v; }),
+                    onChanged: (v) => setState(() => dette.montant = v),
                   ),
                 ),
               ),
@@ -423,7 +317,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     prefix: '',
                     suffix: '%',
                     decimals: true,
-                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.tauxAnnuel = v; }),
+                    onChanged: (v) => setState(() => dette.tauxAnnuel = v),
                   ),
                 ),
               ),
@@ -440,7 +334,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     max: 3000,
                     prefix: 'CHF',
                     onChanged: (v) =>
-                        setState(() { _hasUserInteracted = true; dette.mensualiteMin = v; }),
+                        setState(() => dette.mensualiteMin = v),
                   ),
                 ),
               ),
@@ -457,14 +351,15 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     required String display,
     required VoidCallback onTap,
   }) {
-    return Semantics(
-      button: true,
-      label: '$label: $display',
-      child: GestureDetector(
-        onTap: onTap,
-        child: MintSurface(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        radius: 10,
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: MintColors.border),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -486,7 +381,6 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
         ),
       ),
-    ),
     );
   }
 
@@ -624,7 +518,6 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   void _addDebt() {
-    _hasUserInteracted = true;
     setState(() {
       _dettes.add(_DebtInput(
         nom: S.of(context)!.repaymentNewDebt,
@@ -636,11 +529,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildBudgetSection() {
-    return Semantics(
-      button: true,
-      label: S.of(context)!.repaymentBudgetLabel,
-      child: GestureDetector(
-        onTap: () => _showValueEditor(
+    return GestureDetector(
+      onTap: () => _showValueEditor(
         label: S.of(context)!.repaymentBudgetEditorLabel,
         currentValue: _budgetMensuel,
         min: 200,
@@ -648,9 +538,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         prefix: 'CHF',
         onChanged: (v) => setState(() => _budgetMensuel = v),
       ),
-      child: MintSurface(
+      child: Container(
         padding: const EdgeInsets.all(20),
-        radius: 16,
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
+        ),
         child: Row(
           children: [
             Container(
@@ -684,7 +578,6 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
         ),
       ),
-    ),
     );
   }
 
@@ -723,10 +616,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        MintSurface(
-          tone: MintSurfaceTone.porcelaine,
+        Container(
           padding: const EdgeInsets.all(14),
-          radius: 12,
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             children: [
               _buildComparisonRow(
@@ -766,13 +661,20 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     required double interets,
     required IconData icon,
   }) {
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(16),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MintColors.border,
+          width: 1,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MintEntrance(child: Row(
+          Row(
             children: [
               Icon(icon, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 6),
@@ -782,33 +684,33 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
               ),
             ],
-          )),
+          ),
           const SizedBox(height: 2),
-          MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
+          Text(
             subtitle,
             style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-          )),
+          ),
           const SizedBox(height: MintSpacing.sm + 4),
-          MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
+          Text(
             S.of(context)!.repaymentDurationDisplay(mois),
             style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
-          )),
+          ),
           const SizedBox(height: 4),
-          MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
+          Text(
             S.of(context)!.repaymentInteretsDisplay(formatChf(interets)),
             style: const TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
             ),
-          )),
+          ),
           const SizedBox(height: 8),
-          MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
+          Text(
             '✓ $pro',
             style: const TextStyle(
               fontSize: 10,
               color: MintColors.textSecondary,
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -877,9 +779,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       sampled.add(timeline.last);
     }
 
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -963,9 +869,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildEmptyState() {
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(32),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
       child: Column(
         children: [
           const Icon(Icons.account_balance_wallet_outlined,

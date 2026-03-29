@@ -11,6 +11,7 @@ import csv
 import io
 from fastapi import APIRouter, HTTPException, Depends, Request, status
 from fastapi import Query
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -38,6 +39,7 @@ from app.schemas.auth import (
     TokenResponse,
     UserResponse,
     RefreshTokenRequest,
+    LogoutResponse,
     EmailVerificationRequest,
     EmailVerificationConfirmRequest,
     EmailVerificationRequestResponse,
@@ -59,6 +61,8 @@ from app.services.auth_service import (
     create_access_token,
     create_refresh_token,
     decode_refresh_token,
+    decode_token,
+    blacklist_token,
 )
 from app.services.audit_service import log_audit_event as _raw_log_audit_event
 from app.services.auth_security_service import (
@@ -180,7 +184,6 @@ def register_user(
     verification_required = _email_verification_required()
     verification_token: Optional[str] = None
     verification_email_sent = False
-    _email_infra_failed = False
     if verification_required:
         try:
             verification_token = issue_email_verification_token(db, new_user.id)
@@ -189,19 +192,16 @@ def register_user(
                 token=verification_token,
             )
         except Exception as exc:
-            # Fail-soft: user gets tokens but email_verified stays False.
-            # The mobile shows a verification banner.
-            # We still create the user and issue tokens (UX requirement),
-            # but mark email_verification_required so the client can prompt.
+            # Degrade gracefully: never block registration on email-verification
+            # infrastructure issues (missing table/migration, SMTP, etc.).
             logger.warning(
                 "Email verification bootstrap failed during register; "
-                "continuing with tokens but email_verified=False: %s",
+                "continuing without mandatory verification: %s",
                 exc,
             )
             verification_required = False
             verification_token = None
             verification_email_sent = False
-            _email_infra_failed = True
     log_audit_event(
         db,
         event_type="auth.register",
@@ -240,7 +240,7 @@ def register_user(
             requires_email_verification=True,
         )
 
-    # Generate tokens — user always gets access (fail-soft pattern).
+    # Generate tokens
     token = create_access_token(new_user.id, new_user.email)
     refresh = create_refresh_token(new_user.id)
 
@@ -252,9 +252,7 @@ def register_user(
         user_id=new_user.id,
         email=new_user.email,
         email_verified=bool(new_user.email_verified),
-        # Fail-soft: when email infra failed, tell the client verification
-        # is still required so it can show a "Vérifie ton email" banner.
-        requires_email_verification=_email_infra_failed,
+        requires_email_verification=False,
     )
 
 
@@ -438,6 +436,53 @@ def refresh_access_token(
         email=user.email,
         email_verified=bool(user.email_verified),
     )
+
+
+_security_scheme = HTTPBearer(auto_error=False)
+
+
+@router.post("/logout", response_model=LogoutResponse)
+def logout(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(_security_scheme),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> LogoutResponse:
+    """
+    Logout by blacklisting the current token's JTI.
+
+    The token will be rejected on subsequent requests until it naturally expires,
+    at which point the blacklist entry is eligible for cleanup.
+    """
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token requis",
+        )
+
+    payload = decode_token(credentials.credentials)
+    if payload is None or "jti" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token invalide",
+        )
+
+    expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+    blacklist_token(db, payload["jti"], expires_at)
+
+    log_audit_event(
+        db,
+        event_type="auth.logout",
+        status="success",
+        source="api",
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+    )
+    db.commit()
+
+    return LogoutResponse(status="logged_out")
 
 
 @router.post("/password-reset/request", response_model=PasswordResetRequestResponse)

@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
 from app.core.config import settings
-from app.services.auth_service import decode_token
+from app.services.auth_service import decode_token, is_jti_blacklisted
 
 security = HTTPBearer(auto_error=False)
 
@@ -44,6 +44,14 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token invalide ou expiré"
+        )
+
+    # Check if token JTI has been blacklisted (revoked)
+    jti = payload.get("jti")
+    if jti and is_jti_blacklisted(db, jti):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token révoqué"
         )
 
     user = db.query(User).filter(User.id == payload["user_id"]).first()

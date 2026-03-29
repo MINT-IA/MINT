@@ -158,6 +158,11 @@ class AuthAdminOnboardingCohortsResponse(BaseModel):
     cohorts: list[AuthAdminOnboardingCohortRow]
 
 
+class LogoutResponse(BaseModel):
+    """Schema for logout response."""
+    status: str
+
+
 class TokenResponse(BaseModel):
     """Schema for JWT token response."""
     access_token: str
