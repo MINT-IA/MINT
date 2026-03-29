@@ -72,9 +72,22 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     // V5-5 audit fix: check for pending notification deep link on cold start.
     // On cold start, didChangeAppLifecycleState(resumed) is never called,
     // so we must also check here.
+    // FIX-051: Defer deep link until profile is loaded to avoid crash
+    // on screens that access profile data.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final pendingRoute = NotificationService.consumePendingRoute();
-      if (pendingRoute != null && pendingRoute.isNotEmpty && mounted) {
+      if (pendingRoute == null || pendingRoute.isEmpty || !mounted) return;
+      try {
+        final profileReady = context.read<CoachProfileProvider>().hasProfile;
+        if (profileReady) {
+          GoRouter.of(context).go(pendingRoute);
+        } else {
+          // Profile not loaded yet — store route and navigate when ready.
+          // The didChangeDependencies will pick it up on next profile update.
+          NotificationService.pendingRoute = pendingRoute;
+        }
+      } catch (_) {
+        // No provider in tree — navigate anyway (auth screens don't need profile).
         GoRouter.of(context).go(pendingRoute);
       }
     });
