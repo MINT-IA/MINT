@@ -1511,11 +1511,16 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             final cohortResult = ProductCohortService.resolve(_profile!);
             suppressed = cohortResult.suppressedTopics;
           } catch (_) {}
+          // FIX-149: Fire-and-forget with error logging (sync context — can't await).
+          // Cohort suppression check happens inside startSequence.
           SequenceChatHandler.startSequence(
             raw.intent,
             preGeneratedRunId: seqRunId,
             suppressedTopics: suppressed,
-          ).catchError((_) => null);
+          ).catchError((e) {
+            debugPrint('[CoachChat] startSequence failed: $e');
+            return null;
+          });
           // Analytics
           AnalyticsService().trackEvent(
             'sequence_started',
@@ -2005,17 +2010,25 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     switch (outcome) {
       case ScreenOutcome.completed:
         if (lastRouted != null) {
-          CapMemoryStore.load().then((mem) async {
+          // FIX-148: await critical persistence (was fire-and-forget with swallowed errors).
+          try {
+            final mem = await CapMemoryStore.load();
             await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
-          }).catchError((_) {});
+          } catch (e) {
+            debugPrint('[CoachChat] markCompleted failed: $e');
+          }
         }
-        CoachMemoryService.saveInsight(CoachInsight(
-          id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
-          createdAt: DateTime.now(),
-          topic: 'screen_visit',
-          summary: 'Completed screen from coach suggestion',
-          type: InsightType.fact,
-        )).catchError((_) {});
+        try {
+          await CoachMemoryService.saveInsight(CoachInsight(
+            id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
+            createdAt: DateTime.now(),
+            topic: 'screen_visit',
+            summary: 'Completed screen from coach suggestion',
+            type: InsightType.fact,
+          ));
+        } catch (e) {
+          debugPrint('[CoachChat] saveInsight failed: $e');
+        }
         if (!mounted) return;
         setState(() {
           _messages.add(ChatMessage(

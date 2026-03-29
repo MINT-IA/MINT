@@ -205,7 +205,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           title: 'Ton budget',
           subtitle: 'Renseigne ton salaire pour creer ton budget personnalise',
           ctaLabel: 'Ajouter mon salaire',
-          onCta: () => context.push('/onboarding'),
+          onCta: () => context.push('/onboarding/quick'),
         ),
       );
     }
