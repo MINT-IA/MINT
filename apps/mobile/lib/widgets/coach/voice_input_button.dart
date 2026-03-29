@@ -150,7 +150,7 @@ class _VoiceInputButtonState extends State<VoiceInputButton>
       case VoiceState.listening:
         semanticsLabel = l.voiceMicListening;
         icon = Icons.mic;
-        iconColor = Colors.white;
+        iconColor = MintColors.white;
         bgColor = MintColors.primary;
       case VoiceState.processing:
         semanticsLabel = l.voiceMicProcessing;

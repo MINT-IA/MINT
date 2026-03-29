@@ -36,7 +36,7 @@ Future<void> showGoalSelectorSheet(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: MintColors.transparent,
     builder: (_) => GoalSelectorSheet(
       profile: profile,
       currentIntentTag: currentIntentTag,

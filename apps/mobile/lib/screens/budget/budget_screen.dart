@@ -23,7 +23,6 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
-import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
