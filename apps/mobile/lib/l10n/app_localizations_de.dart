@@ -25099,4 +25099,208 @@ class SDe extends S {
   @override
   String get capNoCapWhyNow =>
       'Erkunde MINT weiter, um deine Situation zu vertiefen.';
+
+  @override
+  String get narrativeEplHeadline => 'EPL-Bezug: Vorteile und 3-Jahres-Sperre';
+
+  @override
+  String get narrativeEplBody =>
+      'Art. 30c BVG erlaubt den Bezug der 2. Säule zur Finanzierung von Wohneigentum. Achtung: Bei getätigten Einkäufen gilt eine 3-jährige Sperrfrist (BVG Art. 79b Abs. 3).';
+
+  @override
+  String get narrativeEplBadge => '2. Säule — WEF';
+
+  @override
+  String get narrativeRachatHeadline => 'Staffeln, um zu sparen';
+
+  @override
+  String get narrativeRachatBody =>
+      'Einen BVG-Einkauf über mehrere Jahre zu verteilen, erlaubt den Abzug jeder Tranche vom steuerbaren Einkommen (BVG Art. 79b). Die Steuerprogression macht diese Strategie oft vorteilhafter als eine Einmalzahlung.';
+
+  @override
+  String get narrativeRachatBadge => '2. Säule';
+
+  @override
+  String get rachatEchelonneEyebrow => 'Gestaffelter BVG-Einkauf';
+
+  @override
+  String rachatEchelonneNarrativeSavings(int horizon) {
+    return 'Den Einkauf über $horizon Jahre zu staffeln reduziert deine gesamte Steuerlast.';
+  }
+
+  @override
+  String get rachatEchelonneNarrativeNoSavings =>
+      'In deiner Situation ist ein Einkauf in einem Betrag vorteilhafter.';
+
+  @override
+  String get narrativeLibrePassageHeadline =>
+      'Freizügigkeit: 6 Monate zum Handeln';
+
+  @override
+  String get narrativeLibrePassageBody =>
+      'Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.';
+
+  @override
+  String get narrativeLibrePassageBadge => 'Freizügigkeit';
+
+  @override
+  String get narrativeAmortizationHeadline => 'Direkt oder indirekt?';
+
+  @override
+  String get narrativeAmortizationBody =>
+      'Die direkte Amortisation reduziert deine Schuld jedes Jahr. Die indirekte zahlt in eine Säule 3a ein, steuerlich absetzbar (BVV3). Je nach Grenzsteuersatz könnte die indirekte insgesamt günstiger sein.';
+
+  @override
+  String get narrativeAmortizationBadge => 'Amortisation';
+
+  @override
+  String get amortizationEyebrow => 'Direkte vs. indirekte Amortisation';
+
+  @override
+  String get amortizationSavingsLabel =>
+      'Ersparnis mit indirekter Amortisation';
+
+  @override
+  String get amortizationDifferenceLabel =>
+      'Differenz zwischen den beiden Strategien';
+
+  @override
+  String get narrativeSaronHeadline => 'SARON oder Festhypothek?';
+
+  @override
+  String get narrativeSaronBody =>
+      'Der SARON folgt dem Geldmarkt und kann sich jedes Quartal ändern. Ein Festzins sichert deine Zinsen für die gesamte Laufzeit. Je nach Risikotoleranz könnte der Unterschied zu deinem Vorteil sein… oder nicht.';
+
+  @override
+  String get narrativeSaronBadge => 'Hypothek';
+
+  @override
+  String get saronEyebrow => 'SARON vs. Festhypothek';
+
+  @override
+  String get saronSavingsLabel => 'potenzielle Ersparnis mit SARON';
+
+  @override
+  String get saronCostLabel => 'Mehrkosten mit SARON';
+
+  @override
+  String get narrativeRealReturnHeadline => 'Reale Rendite nach Inflation';
+
+  @override
+  String get narrativeRealReturnBody =>
+      'Die angezeigte Rendite sagt nicht alles. Nach Verwaltungskosten und Inflation kann der reale Gewinn abweichen. Die Steuerersparnis der Säule 3a (DBG Art. 33) verbessert die effektive Rendite erheblich.';
+
+  @override
+  String get narrativeRealReturnBadge => '3. Säule';
+
+  @override
+  String get narrativeRetroactive3aHeadline =>
+      'Bis zu 10 Jahre Säule 3a nachholen';
+
+  @override
+  String get narrativeRetroactive3aBody =>
+      'Ab 2026 erlaubt BVV3 Art. 7 die rückwirkende Einzahlung fehlender 3a-Beitragsjahre. Jede Zahlung ist vom steuerbaren Einkommen absetzbar (DBG Art. 33).';
+
+  @override
+  String get narrativeRetroactive3aBadge => '3. Säule';
+
+  @override
+  String get retroactive3aSavingsLabel =>
+      'Steuerersparnis mit Säule-3a-Nachzahlung';
+
+  @override
+  String get narrativeFirstJobHeadline => 'Dein erster Lohn erklärt';
+
+  @override
+  String get narrativeFirstJobBody =>
+      'Zwischen AHV (AHVG Art. 5), BVG (Art. 16), Quellensteuer und KVG macht dein Netto etwa 75–80 % des Brutto aus. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.';
+
+  @override
+  String get narrativeFirstJobBadge => 'Erste Stelle';
+
+  @override
+  String get narrativeMarriageHeadline => 'Finanzielle Auswirkungen der Ehe';
+
+  @override
+  String get narrativeMarriageBody =>
+      'Die Ehe verändert deine Besteuerung (DBG Art. 9), dein Güterrecht (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nach euren jeweiligen Einkommen könnte die steuerliche Auswirkung positiv oder negativ sein.';
+
+  @override
+  String get narrativeMarriageBadge => 'Ehe';
+
+  @override
+  String get narrativeBirthHeadline => 'Kosten und Hilfen bei der Geburt';
+
+  @override
+  String get narrativeBirthBody =>
+      'Der Mutterschaftsurlaub (EOG Art. 16b–d) deckt 14 Wochen zu 80 % des Lohns. Familienzulagen variieren je nach Kanton (FamZG Art. 3). Dieser Simulator schätzt die Gesamtauswirkung auf dein Budget.';
+
+  @override
+  String get narrativeBirthBadge => 'Geburt';
+
+  @override
+  String get narrativeCoverageHeadline => 'Überprüfe deine Deckung';
+
+  @override
+  String get narrativeCoverageBody =>
+      'KVG, Krankentaggeld, Privathaftpflicht, Hausratversicherung… Jede Versicherung deckt ein anderes Risiko. Diese Prüfung identifiziert Lücken basierend auf deiner Situation und deinem Kanton.';
+
+  @override
+  String get narrativeCoverageBadge => 'Versicherungen';
+
+  @override
+  String get narrativeDisabilityHeadline => 'Verstehe deine Invaliditätslücke';
+
+  @override
+  String get narrativeDisabilityBody =>
+      'Bei Invalidität durchläuft dein Einkommen 3 Phasen: Arbeitgeber (OR Art. 324a), Krankentaggeld, dann IV + BVG (IVG Art. 28, BVG Art. 23-26). Der Rückgang kann 40–60 % deines aktuellen Lohns erreichen.';
+
+  @override
+  String get narrativeDisabilityBadge => 'Invalidität';
+
+  @override
+  String get narrativeUnemploymentHeadline => 'Deine Arbeitslosenrechte';
+
+  @override
+  String get narrativeUnemploymentBody =>
+      'Das AVIG sieht eine Entschädigung von 70–80 % des versicherten Verdienstes vor (Art. 22). Die Dauer hängt von deinen Beitragsmonaten und deinem Alter ab (Art. 27). Dieser Simulator schätzt deine Ansprüche basierend auf deiner aktuellen Situation.';
+
+  @override
+  String get narrativeUnemploymentBadge => 'Arbeitslosigkeit';
+
+  @override
+  String get imputedRentalEyebrow => 'Eigenmietwert';
+
+  @override
+  String get imputedRentalSavingsLabel => 'Nettosteuerersparnis';
+
+  @override
+  String get imputedRentalTaxLabel => 'zusätzliche Steuern';
+
+  @override
+  String get semanticsBack => 'Zurück';
+
+  @override
+  String get semanticsDecrease => 'Verringern';
+
+  @override
+  String get semanticsIncrease => 'Erhöhen';
+
+  @override
+  String get realReturnPrimaryLabel =>
+      'reale Rendite nach Steuern und Inflation';
+
+  @override
+  String get realReturnNarrative =>
+      'Dank des Steuerabzugs bringt deine Säule 3a deutlich mehr als ein gewöhnliches Sparkonto.';
+
+  @override
+  String get retroactive3aEmptyTitle => 'Säule-3a-Nachzahlung';
+
+  @override
+  String get retroactive3aEmptySubtitle =>
+      'Gib dein Einkommen ein, um deine Steuerersparnis zu berechnen';
+
+  @override
+  String get retroactive3aEmptyCta => 'Mein Einkommen hinzufügen';
 }

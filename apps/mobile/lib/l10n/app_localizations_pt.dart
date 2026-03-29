@@ -25058,4 +25058,208 @@ class SPt extends S {
   @override
   String get capNoCapWhyNow =>
       'Continua a explorar o MINT para aprofundar a tua situação.';
+
+  @override
+  String get narrativeEplHeadline =>
+      'Levantamento EPL: vantagens e bloqueio de 3 anos';
+
+  @override
+  String get narrativeEplBody =>
+      'O art. 30c LPP permite retirar o 2º pilar para financiar habitação própria. Atenção: se fez recompras, aplica-se um bloqueio de 3 anos (LPP art. 79b par. 3).';
+
+  @override
+  String get narrativeEplBadge => '2º pilar — EPL';
+
+  @override
+  String get narrativeRachatHeadline => 'Escalonar para poupar';
+
+  @override
+  String get narrativeRachatBody =>
+      'Distribuir uma recompra LPP por vários anos permite deduzir cada parcela do rendimento tributável (LPP art. 79b). A progressividade fiscal torna esta estratégia frequentemente mais vantajosa do que um pagamento único.';
+
+  @override
+  String get narrativeRachatBadge => '2º pilar';
+
+  @override
+  String get rachatEchelonneEyebrow => 'Recompra LPP escalonada';
+
+  @override
+  String rachatEchelonneNarrativeSavings(int horizon) {
+    return 'Escalonar a recompra em $horizon anos reduz a tua carga fiscal total.';
+  }
+
+  @override
+  String get rachatEchelonneNarrativeNoSavings =>
+      'Na tua situação, a recompra em bloco é mais vantajosa.';
+
+  @override
+  String get narrativeLibrePassageHeadline =>
+      'Livre passagem: 6 meses para agir';
+
+  @override
+  String get narrativeLibrePassageBody =>
+      'Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.';
+
+  @override
+  String get narrativeLibrePassageBadge => 'Livre passagem';
+
+  @override
+  String get narrativeAmortizationHeadline => 'Direto ou indireto?';
+
+  @override
+  String get narrativeAmortizationBody =>
+      'A amortização direta reduz a tua dívida todos os anos. A indireta deposita num 3a, dedutível fiscalmente (OPP3). Dependendo da tua taxa marginal, a indireta pode custar-te menos no total.';
+
+  @override
+  String get narrativeAmortizationBadge => 'Amortização';
+
+  @override
+  String get amortizationEyebrow => 'Amortização direta vs indireta';
+
+  @override
+  String get amortizationSavingsLabel => 'de poupança com a indireta';
+
+  @override
+  String get amortizationDifferenceLabel =>
+      'de diferença entre as duas estratégias';
+
+  @override
+  String get narrativeSaronHeadline => 'SARON ou taxa fixa?';
+
+  @override
+  String get narrativeSaronBody =>
+      'O SARON segue o mercado monetário e pode mudar a cada trimestre. Uma taxa fixa bloqueia os teus juros durante todo o prazo. Dependendo da tua tolerância ao risco, a diferença pode jogar a teu favor… ou não.';
+
+  @override
+  String get narrativeSaronBadge => 'Hipoteca';
+
+  @override
+  String get saronEyebrow => 'SARON vs Taxa fixa';
+
+  @override
+  String get saronSavingsLabel => 'de poupança potencial com SARON';
+
+  @override
+  String get saronCostLabel => 'de custo adicional com SARON';
+
+  @override
+  String get narrativeRealReturnHeadline => 'Rendimento real após inflação';
+
+  @override
+  String get narrativeRealReturnBody =>
+      'O rendimento apresentado não diz tudo. Após comissões de gestão e inflação, o ganho real pode diferir. A poupança fiscal do 3a (LIFD art. 33) melhora consideravelmente o rendimento efetivo.';
+
+  @override
+  String get narrativeRealReturnBadge => '3º pilar';
+
+  @override
+  String get narrativeRetroactive3aHeadline => 'Recuperar até 10 anos de 3a';
+
+  @override
+  String get narrativeRetroactive3aBody =>
+      'A partir de 2026, a OPP3 art. 7 permite pagar retroativamente os anos de contribuição 3a em falta. Cada pagamento é dedutível do rendimento tributável (LIFD art. 33).';
+
+  @override
+  String get narrativeRetroactive3aBadge => '3º pilar';
+
+  @override
+  String get retroactive3aSavingsLabel =>
+      'de poupança fiscal com a recuperação 3a';
+
+  @override
+  String get narrativeFirstJobHeadline => 'O teu primeiro salário explicado';
+
+  @override
+  String get narrativeFirstJobBody =>
+      'Entre AVS (LAVS art. 5), LPP (art. 16), imposto na fonte e LAMal, o teu líquido representa cerca de 75-80 % do bruto. Compreender estas deduções é o primeiro passo para uma boa gestão.';
+
+  @override
+  String get narrativeFirstJobBadge => 'Primeiro emprego';
+
+  @override
+  String get narrativeMarriageHeadline => 'Impacto financeiro do casamento';
+
+  @override
+  String get narrativeMarriageBody =>
+      'O casamento modifica a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Dependendo dos vossos rendimentos respetivos, o impacto fiscal pode ser positivo ou negativo.';
+
+  @override
+  String get narrativeMarriageBadge => 'Casamento';
+
+  @override
+  String get narrativeBirthHeadline => 'Custos e apoios ao nascimento';
+
+  @override
+  String get narrativeBirthBody =>
+      'A licença de maternidade (LAPG art. 16b–d) cobre 14 semanas a 80 % do salário. Os abonos de família variam por cantão (LAFam art. 3). Este simulador estima o impacto global no teu orçamento.';
+
+  @override
+  String get narrativeBirthBadge => 'Nascimento';
+
+  @override
+  String get narrativeCoverageHeadline => 'Verifica a tua cobertura';
+
+  @override
+  String get narrativeCoverageBody =>
+      'LAMal, IJM, RC privada, seguro do lar… Cada seguro cobre um risco diferente. Este balanço identifica as lacunas conforme a tua situação e o teu cantão.';
+
+  @override
+  String get narrativeCoverageBadge => 'Seguros';
+
+  @override
+  String get narrativeDisabilityHeadline =>
+      'Compreende a tua lacuna de invalidez';
+
+  @override
+  String get narrativeDisabilityBody =>
+      'Em caso de invalidez, o teu rendimento passa por 3 fases: empregador (CO art. 324a), IJM, depois AI + LPP (LAI art. 28, LPP art. 23-26). A queda pode atingir 40-60 % do teu salário atual.';
+
+  @override
+  String get narrativeDisabilityBadge => 'Invalidez';
+
+  @override
+  String get narrativeUnemploymentHeadline => 'Os teus direitos de desemprego';
+
+  @override
+  String get narrativeUnemploymentBody =>
+      'A LACI prevê uma indemnização de 70-80 % do ganho segurado (art. 22). A duração depende dos teus meses de contribuição e da tua idade (art. 27). Este simulador estima os teus direitos com base na tua situação atual.';
+
+  @override
+  String get narrativeUnemploymentBadge => 'Desemprego';
+
+  @override
+  String get imputedRentalEyebrow => 'Valor de aluguer imputado';
+
+  @override
+  String get imputedRentalSavingsLabel => 'de poupança fiscal líquida';
+
+  @override
+  String get imputedRentalTaxLabel => 'de imposto adicional';
+
+  @override
+  String get semanticsBack => 'Voltar';
+
+  @override
+  String get semanticsDecrease => 'Diminuir';
+
+  @override
+  String get semanticsIncrease => 'Aumentar';
+
+  @override
+  String get realReturnPrimaryLabel =>
+      'rendimento real após impostos e inflação';
+
+  @override
+  String get realReturnNarrative =>
+      'Graças à dedução fiscal, o teu 3a rende muito mais do que uma conta poupança clássica.';
+
+  @override
+  String get retroactive3aEmptyTitle => 'Recuperação 3a';
+
+  @override
+  String get retroactive3aEmptySubtitle =>
+      'Insere o teu rendimento para calcular a tua poupança fiscal';
+
+  @override
+  String get retroactive3aEmptyCta => 'Adicionar o meu rendimento';
 }

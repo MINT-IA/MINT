@@ -24928,4 +24928,205 @@ class SEn extends S {
   @override
   String get capNoCapWhyNow =>
       'Keep exploring MINT to deepen your understanding.';
+
+  @override
+  String get narrativeEplHeadline => 'EPL withdrawal: benefits and 3-year lock';
+
+  @override
+  String get narrativeEplBody =>
+      'Art. 30c LPP allows you to withdraw your 2nd pillar to finance owner-occupied housing. Note: if you have made buy-backs, a 3-year lock period applies (LPP art. 79b para. 3).';
+
+  @override
+  String get narrativeEplBadge => '2nd pillar — EPL';
+
+  @override
+  String get narrativeRachatHeadline => 'Stagger to save';
+
+  @override
+  String get narrativeRachatBody =>
+      'Spreading an LPP buy-back over several years allows you to deduct each instalment from taxable income (LPP art. 79b). Tax progressivity often makes this strategy more advantageous than a single payment.';
+
+  @override
+  String get narrativeRachatBadge => '2nd pillar';
+
+  @override
+  String get rachatEchelonneEyebrow => 'Staggered LPP buy-back';
+
+  @override
+  String rachatEchelonneNarrativeSavings(int horizon) {
+    return 'Spreading the buy-back over $horizon years reduces your total tax burden.';
+  }
+
+  @override
+  String get rachatEchelonneNarrativeNoSavings =>
+      'In your situation, a lump-sum buy-back is more advantageous.';
+
+  @override
+  String get narrativeLibrePassageHeadline =>
+      'Vested benefits: 6 months to act';
+
+  @override
+  String get narrativeLibrePassageBody =>
+      'When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 3). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.';
+
+  @override
+  String get narrativeLibrePassageBadge => 'Vested benefits';
+
+  @override
+  String get narrativeAmortizationHeadline => 'Direct or indirect?';
+
+  @override
+  String get narrativeAmortizationBody =>
+      'Direct amortization reduces your debt each year. Indirect pays into a 3a, tax-deductible (OPP3). Depending on your marginal rate, indirect could cost you less overall.';
+
+  @override
+  String get narrativeAmortizationBadge => 'Amortization';
+
+  @override
+  String get amortizationEyebrow => 'Direct vs indirect amortization';
+
+  @override
+  String get amortizationSavingsLabel => 'savings with indirect';
+
+  @override
+  String get amortizationDifferenceLabel =>
+      'difference between the two strategies';
+
+  @override
+  String get narrativeSaronHeadline => 'SARON or fixed rate?';
+
+  @override
+  String get narrativeSaronBody =>
+      'SARON follows the money market and can change every quarter. A fixed rate locks in your interest for the entire term. Depending on your risk tolerance, the gap could work in your favour… or not.';
+
+  @override
+  String get narrativeSaronBadge => 'Mortgage';
+
+  @override
+  String get saronEyebrow => 'SARON vs Fixed rate';
+
+  @override
+  String get saronSavingsLabel => 'potential savings with SARON';
+
+  @override
+  String get saronCostLabel => 'additional cost with SARON';
+
+  @override
+  String get narrativeRealReturnHeadline => 'Real return after inflation';
+
+  @override
+  String get narrativeRealReturnBody =>
+      'The displayed return doesn’t tell the whole story. After management fees and inflation, the real gain may differ. The 3a tax saving (LIFD art. 33) significantly improves the effective return.';
+
+  @override
+  String get narrativeRealReturnBadge => '3rd pillar';
+
+  @override
+  String get narrativeRetroactive3aHeadline =>
+      'Catch up on up to 10 years of 3a';
+
+  @override
+  String get narrativeRetroactive3aBody =>
+      'From 2026, OPP3 art. 7 allows you to retroactively pay missed 3a contribution years. Each payment is deductible from taxable income (LIFD art. 33).';
+
+  @override
+  String get narrativeRetroactive3aBadge => '3rd pillar';
+
+  @override
+  String get retroactive3aSavingsLabel => 'tax savings with 3a catch-up';
+
+  @override
+  String get narrativeFirstJobHeadline => 'Your first salary explained';
+
+  @override
+  String get narrativeFirstJobBody =>
+      'Between AVS (LAVS art. 5), LPP (art. 16), withholding tax and LAMal, your net is about 75-80% of gross. Understanding these deductions is the first step to good financial management.';
+
+  @override
+  String get narrativeFirstJobBadge => 'First job';
+
+  @override
+  String get narrativeMarriageHeadline => 'Financial impact of marriage';
+
+  @override
+  String get narrativeMarriageBody =>
+      'Marriage changes your taxation (LIFD art. 9), your matrimonial regime (CC art. 181) and your survivor benefits (LAVS art. 23, LPP art. 19). Depending on your respective incomes, the tax impact could be positive or negative.';
+
+  @override
+  String get narrativeMarriageBadge => 'Marriage';
+
+  @override
+  String get narrativeBirthHeadline => 'Birth costs and benefits';
+
+  @override
+  String get narrativeBirthBody =>
+      'Maternity leave (LAPG art. 16b–d) covers 14 weeks at 80% of salary. Family allowances vary by canton (LAFam art. 3). This simulator estimates the overall impact on your budget.';
+
+  @override
+  String get narrativeBirthBadge => 'Birth';
+
+  @override
+  String get narrativeCoverageHeadline => 'Check your coverage';
+
+  @override
+  String get narrativeCoverageBody =>
+      'LAMal, daily allowance insurance, private liability, household insurance… Each insurance covers a different risk. This review identifies gaps based on your situation and canton.';
+
+  @override
+  String get narrativeCoverageBadge => 'Insurance';
+
+  @override
+  String get narrativeDisabilityHeadline => 'Understand your disability gap';
+
+  @override
+  String get narrativeDisabilityBody =>
+      'In case of disability, your income goes through 3 phases: employer (CO art. 324a), daily allowance insurance, then DI + LPP (LAI art. 28, LPP art. 23-26). The drop can reach 40-60% of your current salary.';
+
+  @override
+  String get narrativeDisabilityBadge => 'Disability';
+
+  @override
+  String get narrativeUnemploymentHeadline => 'Your unemployment rights';
+
+  @override
+  String get narrativeUnemploymentBody =>
+      'The LACI provides compensation of 70-80% of insured earnings (art. 22). Duration depends on your contribution months and age (art. 27). This simulator estimates your rights based on your current situation.';
+
+  @override
+  String get narrativeUnemploymentBadge => 'Unemployment';
+
+  @override
+  String get imputedRentalEyebrow => 'Imputed rental value';
+
+  @override
+  String get imputedRentalSavingsLabel => 'net tax savings';
+
+  @override
+  String get imputedRentalTaxLabel => 'additional tax';
+
+  @override
+  String get semanticsBack => 'Back';
+
+  @override
+  String get semanticsDecrease => 'Decrease';
+
+  @override
+  String get semanticsIncrease => 'Increase';
+
+  @override
+  String get realReturnPrimaryLabel => 'real return after taxes and inflation';
+
+  @override
+  String get realReturnNarrative =>
+      'Thanks to the tax deduction, your 3a yields much more than a standard savings account.';
+
+  @override
+  String get retroactive3aEmptyTitle => '3a catch-up';
+
+  @override
+  String get retroactive3aEmptySubtitle =>
+      'Enter your income to calculate your tax savings';
+
+  @override
+  String get retroactive3aEmptyCta => 'Add my income';
 }

@@ -228,12 +228,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 MintEntrance(child: MintNarrativeCard(
-                  headline: '\u00c9chelonner pour \u00e9conomiser', // TODO: i18n
-                  body: 'R\u00e9partir un rachat LPP sur plusieurs ann\u00e9es permet de d\u00e9duire '
-                      'chaque tranche du revenu imposable (LPP art.\u00a079b). '
-                      'La progressivit\u00e9 fiscale rend cette strat\u00e9gie souvent plus avantageuse qu\u2019un versement unique.', // TODO: i18n
+                  headline: S.of(context)!.narrativeRachatHeadline,
+                  body: S.of(context)!.narrativeRachatBody,
                   tone: MintSurfaceTone.sauge,
-                  badge: '2e pilier', // TODO: i18n
+                  badge: S.of(context)!.narrativeRachatBadge,
                 )),
                 const SizedBox(height: MintSpacing.md),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(l)),
@@ -296,7 +294,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     final showSavings = delta > 0;
 
     return MintResultHeroCard(
-      eyebrow: 'Rachat LPP \u00e9chelonn\u00e9', // TODO: i18n
+      eyebrow: l.rachatEchelonneEyebrow,
       primaryValue: showSavings
           ? 'CHF\u00a0${formatChf(delta)}'
           : 'CHF\u00a00',
@@ -304,9 +302,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ? l.rachatEchelonneSavingsCaption
           : l.rachatEchelonneBlocBetter,
       narrative: showSavings
-          ? '\u00c9chelonner le rachat sur $_horizon ans '
-            'r\u00e9duit ta charge fiscale totale.' // TODO: i18n
-          : 'Dans ta situation, le rachat en bloc est plus avantageux.', // TODO: i18n
+          ? l.rachatEchelonneNarrativeSavings(_horizon)
+          : l.rachatEchelonneNarrativeNoSavings,
       accentColor: showSavings ? MintColors.success : MintColors.textSecondary,
       tone: MintSurfaceTone.porcelaine,
     );

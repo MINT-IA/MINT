@@ -119,7 +119,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: Semantics(
-        label: 'Retour',
+        label: S.of(context)!.semanticsBack,
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),

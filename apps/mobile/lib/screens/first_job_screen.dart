@@ -153,12 +153,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 MintEntrance(child: MintNarrativeCard(
-                  headline: 'Ton premier salaire expliqu\u00e9', // TODO: i18n
-                  body: 'Entre AVS (LAVS art.\u00a05), LPP (art.\u00a016), imp\u00f4t \u00e0 la source '
-                      'et LAMal, ton net repr\u00e9sente environ 75-80\u00a0% du brut. '
-                      'Comprendre ces d\u00e9ductions, c\u2019est le premier pas vers une bonne gestion.', // TODO: i18n
+                  headline: S.of(context)!.narrativeFirstJobHeadline,
+                  body: S.of(context)!.narrativeFirstJobBody,
                   tone: MintSurfaceTone.sauge,
-                  badge: 'Premier emploi', // TODO: i18n
+                  badge: S.of(context)!.narrativeFirstJobBadge,
                 )),
                 const SizedBox(height: MintSpacing.md + 4),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeader()),

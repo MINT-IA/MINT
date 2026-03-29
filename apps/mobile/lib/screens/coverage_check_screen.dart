@@ -123,12 +123,10 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                 _buildDemoModeBadge(),
                 const SizedBox(height: 12),
                 MintEntrance(child: MintNarrativeCard(
-                  headline: 'V\u00e9rifie ta couverture', // TODO: i18n
-                  body: 'LAMal, IJM, RC priv\u00e9e, assurance m\u00e9nage\u2026 '
-                      'Chaque assurance couvre un risque diff\u00e9rent. '
-                      'Ce bilan identifie les lacunes selon ta situation et ton canton.', // TODO: i18n
+                  headline: S.of(context)!.narrativeCoverageHeadline,
+                  body: S.of(context)!.narrativeCoverageBody,
                   tone: MintSurfaceTone.bleu,
-                  badge: 'Assurances', // TODO: i18n
+                  badge: S.of(context)!.narrativeCoverageBadge,
                 )),
                 const SizedBox(height: 12),
                 _buildHeader(),

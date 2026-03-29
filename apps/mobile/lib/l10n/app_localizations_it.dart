@@ -25120,4 +25120,211 @@ class SIt extends S {
   @override
   String get capNoCapWhyNow =>
       'Continua a esplorare MINT per approfondire la tua situazione.';
+
+  @override
+  String get narrativeEplHeadline =>
+      'Prelievo EPL: vantaggi e blocco di 3 anni';
+
+  @override
+  String get narrativeEplBody =>
+      'L’art. 30c LPP consente di prelevare il 2º pilastro per finanziare un’abitazione di proprietà. Attenzione: se hai effettuato riscatti, si applica un blocco di 3 anni (LPP art. 79b cpv. 3).';
+
+  @override
+  String get narrativeEplBadge => '2º pilastro — EPL';
+
+  @override
+  String get narrativeRachatHeadline => 'Scaglionare per risparmiare';
+
+  @override
+  String get narrativeRachatBody =>
+      'Ripartire un riscatto LPP su più anni permette di dedurre ogni tranche dal reddito imponibile (LPP art. 79b). La progressività fiscale rende questa strategia spesso più vantaggiosa di un versamento unico.';
+
+  @override
+  String get narrativeRachatBadge => '2º pilastro';
+
+  @override
+  String get rachatEchelonneEyebrow => 'Riscatto LPP scaglionato';
+
+  @override
+  String rachatEchelonneNarrativeSavings(int horizon) {
+    return 'Scaglionare il riscatto su $horizon anni riduce il tuo carico fiscale totale.';
+  }
+
+  @override
+  String get rachatEchelonneNarrativeNoSavings =>
+      'Nella tua situazione, il riscatto in blocco è più vantaggioso.';
+
+  @override
+  String get narrativeLibrePassageHeadline =>
+      'Libero passaggio: 6 mesi per agire';
+
+  @override
+  String get narrativeLibrePassageBody =>
+      'Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 3). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.';
+
+  @override
+  String get narrativeLibrePassageBadge => 'Libero passaggio';
+
+  @override
+  String get narrativeAmortizationHeadline => 'Diretto o indiretto?';
+
+  @override
+  String get narrativeAmortizationBody =>
+      'L’ammortamento diretto riduce il tuo debito ogni anno. L’indiretto versa in un 3a, deducibile fiscalmente (OPP3). A seconda della tua aliquota marginale, l’indiretto potrebbe costarti meno in totale.';
+
+  @override
+  String get narrativeAmortizationBadge => 'Ammortamento';
+
+  @override
+  String get amortizationEyebrow => 'Ammortamento diretto vs indiretto';
+
+  @override
+  String get amortizationSavingsLabel => 'di risparmio con l’indiretto';
+
+  @override
+  String get amortizationDifferenceLabel =>
+      'di differenza tra le due strategie';
+
+  @override
+  String get narrativeSaronHeadline => 'SARON o tasso fisso?';
+
+  @override
+  String get narrativeSaronBody =>
+      'Il SARON segue il mercato monetario e può variare ogni trimestre. Un tasso fisso blocca i tuoi interessi per tutta la durata. A seconda della tua tolleranza al rischio, la differenza potrebbe giocare a tuo favore… o meno.';
+
+  @override
+  String get narrativeSaronBadge => 'Ipoteca';
+
+  @override
+  String get saronEyebrow => 'SARON vs Tasso fisso';
+
+  @override
+  String get saronSavingsLabel => 'di risparmio potenziale con SARON';
+
+  @override
+  String get saronCostLabel => 'di costo aggiuntivo con SARON';
+
+  @override
+  String get narrativeRealReturnHeadline =>
+      'Rendimento reale dopo l’inflazione';
+
+  @override
+  String get narrativeRealReturnBody =>
+      'Il rendimento mostrato non dice tutto. Dopo le spese di gestione e l’inflazione, il guadagno reale può differire. Il risparmio fiscale del 3a (LIFD art. 33) migliora notevolmente il rendimento effettivo.';
+
+  @override
+  String get narrativeRealReturnBadge => '3º pilastro';
+
+  @override
+  String get narrativeRetroactive3aHeadline =>
+      'Recuperare fino a 10 anni di 3a';
+
+  @override
+  String get narrativeRetroactive3aBody =>
+      'Dal 2026, l’OPP3 art. 7 consente di versare retroattivamente gli anni di contribuzione 3a mancati. Ogni versamento è deducibile dal reddito imponibile (LIFD art. 33).';
+
+  @override
+  String get narrativeRetroactive3aBadge => '3º pilastro';
+
+  @override
+  String get retroactive3aSavingsLabel =>
+      'di risparmio fiscale con il recupero 3a';
+
+  @override
+  String get narrativeFirstJobHeadline => 'Il tuo primo stipendio spiegato';
+
+  @override
+  String get narrativeFirstJobBody =>
+      'Tra AVS (LAVS art. 5), LPP (art. 16), imposta alla fonte e LAMal, il tuo netto rappresenta circa il 75-80 % del lordo. Capire queste deduzioni è il primo passo verso una buona gestione.';
+
+  @override
+  String get narrativeFirstJobBadge => 'Primo impiego';
+
+  @override
+  String get narrativeMarriageHeadline => 'Impatto finanziario del matrimonio';
+
+  @override
+  String get narrativeMarriageBody =>
+      'Il matrimonio modifica la tua imposizione (LIFD art. 9), il tuo regime matrimoniale (CC art. 181) e i tuoi diritti di superstite (LAVS art. 23, LPP art. 19). A seconda dei vostri rispettivi redditi, l’impatto fiscale potrebbe essere positivo o negativo.';
+
+  @override
+  String get narrativeMarriageBadge => 'Matrimonio';
+
+  @override
+  String get narrativeBirthHeadline => 'Costi e aiuti alla nascita';
+
+  @override
+  String get narrativeBirthBody =>
+      'Il congedo di maternità (LIPG art. 16b–d) copre 14 settimane all’80 % dello stipendio. Gli assegni familiari variano a seconda del cantone (LAFam art. 3). Questo simulatore stima l’impatto complessivo sul tuo budget.';
+
+  @override
+  String get narrativeBirthBadge => 'Nascita';
+
+  @override
+  String get narrativeCoverageHeadline => 'Verifica la tua copertura';
+
+  @override
+  String get narrativeCoverageBody =>
+      'LAMal, IJM, RC privata, assicurazione della casa… Ogni assicurazione copre un rischio diverso. Questo bilancio identifica le lacune in base alla tua situazione e al tuo cantone.';
+
+  @override
+  String get narrativeCoverageBadge => 'Assicurazioni';
+
+  @override
+  String get narrativeDisabilityHeadline =>
+      'Comprendi la tua lacuna invalidità';
+
+  @override
+  String get narrativeDisabilityBody =>
+      'In caso di invalidità, il tuo reddito passa attraverso 3 fasi: datore di lavoro (CO art. 324a), IJM, poi AI + LPP (LAI art. 28, LPP art. 23-26). Il calo può raggiungere il 40-60 % del tuo stipendio attuale.';
+
+  @override
+  String get narrativeDisabilityBadge => 'Invalidità';
+
+  @override
+  String get narrativeUnemploymentHeadline =>
+      'I tuoi diritti di disoccupazione';
+
+  @override
+  String get narrativeUnemploymentBody =>
+      'La LADI prevede un’indennità del 70-80 % del guadagno assicurato (art. 22). La durata dipende dai tuoi mesi di contribuzione e dalla tua età (art. 27). Questo simulatore stima i tuoi diritti in base alla tua situazione attuale.';
+
+  @override
+  String get narrativeUnemploymentBadge => 'Disoccupazione';
+
+  @override
+  String get imputedRentalEyebrow => 'Valore locativo';
+
+  @override
+  String get imputedRentalSavingsLabel => 'di risparmio fiscale netto';
+
+  @override
+  String get imputedRentalTaxLabel => 'di imposta aggiuntiva';
+
+  @override
+  String get semanticsBack => 'Indietro';
+
+  @override
+  String get semanticsDecrease => 'Diminuire';
+
+  @override
+  String get semanticsIncrease => 'Aumentare';
+
+  @override
+  String get realReturnPrimaryLabel =>
+      'rendimento reale dopo imposte e inflazione';
+
+  @override
+  String get realReturnNarrative =>
+      'Grazie alla deduzione fiscale, il tuo 3a rende molto di più di un conto risparmio classico.';
+
+  @override
+  String get retroactive3aEmptyTitle => 'Recupero 3a';
+
+  @override
+  String get retroactive3aEmptySubtitle =>
+      'Inserisci il tuo reddito per calcolare il tuo risparmio fiscale';
+
+  @override
+  String get retroactive3aEmptyCta => 'Aggiungi il mio reddito';
 }

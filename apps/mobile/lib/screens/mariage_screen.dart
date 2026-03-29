@@ -165,12 +165,10 @@ class _MariageScreenState extends State<MariageScreen>
       children: [
         // Narrative intro
         MintNarrativeCard(
-          headline: 'Impact financier du mariage', // TODO: i18n
-          body: 'Le mariage modifie ton imposition (LIFD art.\u00a09), ton r\u00e9gime matrimonial (CC art.\u00a0181) '
-              'et tes droits de survivant (LAVS art.\u00a023, LPP art.\u00a019). '
-              'Selon vos revenus respectifs, l\u2019impact fiscal pourrait \u00eatre positif ou n\u00e9gatif.', // TODO: i18n
+          headline: S.of(context)!.narrativeMarriageHeadline,
+          body: S.of(context)!.narrativeMarriageBody,
           tone: MintSurfaceTone.peche,
-          badge: 'Mariage', // TODO: i18n
+          badge: S.of(context)!.narrativeMarriageBadge,
         ),
         const SizedBox(height: MintSpacing.xl),
 

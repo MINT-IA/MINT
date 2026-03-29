@@ -103,12 +103,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
               delegate: SliverChildListDelegate([
                 // Narrative intro
                 MintEntrance(child: MintNarrativeCard(
-                  headline: 'Libre passage\u00a0: 6 mois pour agir', // TODO: i18n
-                  body: 'Lors d\u2019un changement d\u2019emploi, tu as 6 mois pour transf\u00e9rer ton avoir LPP '
-                      '(LFLP art.\u00a03). Pass\u00e9 ce d\u00e9lai, le capital est vers\u00e9 d\u2019office '
-                      'sur un compte de libre passage. Choisis le bon v\u00e9hicule d\u00e8s le d\u00e9part.', // TODO: i18n
+                  headline: S.of(context)!.narrativeLibrePassageHeadline,
+                  body: S.of(context)!.narrativeLibrePassageBody,
                   tone: MintSurfaceTone.bleu,
-                  badge: 'Libre passage', // TODO: i18n
+                  badge: S.of(context)!.narrativeLibrePassageBadge,
                 )),
                 const SizedBox(height: MintSpacing.md),
 
