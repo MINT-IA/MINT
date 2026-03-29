@@ -492,7 +492,9 @@ class InstitutionalApiService {
       return ConnectionStatus.expired;
     }
 
-    final valid = await _backend.isTokenValid(fund, encryptedToken);
+    // Decrypt before validation — backend expects the raw token, not the encrypted one.
+    final decryptedToken = _TokenEncryptor.decrypt(encryptedToken);
+    final valid = await _backend.isTokenValid(fund, decryptedToken);
     if (!valid) {
       _log('checkStatus', fund, false, 'Token expired');
       // Update stored status to expired
