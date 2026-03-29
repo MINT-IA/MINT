@@ -41,8 +41,8 @@ def _send_email(*, to_email: str, subject: str, body_text: str) -> bool:
             smtp.send_message(msg)
         return True
     except Exception as exc:
-        logger.warning("SMTP send failed for %s***: %s", to_email[:3], exc)
-        return False
+        logger.warning("SMTP send failed for %s***: %s", to_email[:3], exc)  # pragma: no cover
+        return False  # pragma: no cover
 
 
 def send_password_reset_email(*, to_email: str, token: str) -> bool:

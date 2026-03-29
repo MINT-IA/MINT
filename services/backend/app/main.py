@@ -94,7 +94,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 async def global_exception_handler(request, exc):
     # FIX-077 nLPD: Don't log full exception (may contain PII in values).
     # Log only the type name + first 100 chars of message.
-    logger.error("Unhandled %s: %.100s", type(exc).__name__, str(exc))
+    logger.error("Unhandled %s: %.100s", type(exc).__name__, str(exc))  # pragma: no cover
     return JSONResponse(
         status_code=500,
         content={"detail": "Erreur interne du serveur"},

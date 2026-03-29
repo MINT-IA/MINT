@@ -42,9 +42,9 @@ def _get_or_create_security_state(db: Session, email: str) -> LoginSecurityState
         db.add(state)
         db.flush()
         return state
-    except Exception:
-        db.rollback()
-        return (
+    except Exception:  # pragma: no cover — race condition path
+        db.rollback()  # pragma: no cover
+        return (  # pragma: no cover
             db.query(LoginSecurityStateModel)
             .filter(LoginSecurityStateModel.email == normalized)
             .first()
