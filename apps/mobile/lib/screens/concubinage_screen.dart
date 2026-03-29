@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,9 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
@@ -148,48 +152,72 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       children: [
         // Hero chiffre-choc — patrimoine exposed
         if (_patrimoine > 0) ...[
-          _buildHeroChiffreChoc(),
+          MintEntrance(child: _buildHeroChiffreChoc()),
           const SizedBox(height: MintSpacing.lg),
         ],
 
         // Inputs
-        _buildComparateurInputs(),
+        MintEntrance(
+          delay: const Duration(milliseconds: 100),
+          child: _buildComparateurInputs(),
+        ),
         const SizedBox(height: MintSpacing.lg),
 
         if (_comparisonResult != null) ...[
           // Decision matrix — animated comparison visualization
-          ConcubinageDecisionMatrix(
-            criteria: _matrixCriteria,
+          MintEntrance(
+            delay: const Duration(milliseconds: 150),
+            child: ConcubinageDecisionMatrix(
+              criteria: _matrixCriteria,
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
 
           // Score summary
-          _buildScoreSummary(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _buildScoreSummary(),
+          ),
           const SizedBox(height: MintSpacing.lg),
 
           // Fiscal detail
-          _buildFiscalDetailCard(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 250),
+            child: _buildFiscalDetailCard(),
+          ),
           const SizedBox(height: MintSpacing.lg),
 
           // Inheritance detail
-          _buildInheritanceCard(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 300),
+            child: _buildInheritanceCard(),
+          ),
           const SizedBox(height: MintSpacing.lg),
         ],
 
         // Educational insert — AVS cap 150% (LAVS art. 35)
-        _buildEducationalInsert(
-          S.of(context)!.concubinageEducationalAvs,
+        MintEntrance(
+          delay: const Duration(milliseconds: 350),
+          child: _buildEducationalInsert(
+            S.of(context)!.concubinageEducationalAvs,
+          ),
         ),
         const SizedBox(height: MintSpacing.md),
 
         // Educational insert — Succession
-        _buildEducationalInsert(
-          S.of(context)!.concubinageEducationalSuccession,
+        MintEntrance(
+          delay: const Duration(milliseconds: 400),
+          child: _buildEducationalInsert(
+            S.of(context)!.concubinageEducationalSuccession,
+          ),
         ),
         const SizedBox(height: MintSpacing.lg),
 
         // Neutral conclusion
-        _buildNeutralConclusion(),
+        MintEntrance(
+          delay: const Duration(milliseconds: 450),
+          child: _buildNeutralConclusion(),
+        ),
         const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
@@ -198,30 +226,25 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   }
 
   Widget _buildHeroChiffreChoc() {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(16),
+    return Semantics(
+      label: S.of(context)!.concubinageHeroChiffreChoc(
+        FamilyService.formatChf(_patrimoine),
       ),
-      child: Column(
-        children: [
-          Text(
-            S.of(context)!.concubinageHeroChiffreChoc(
-              FamilyService.formatChf(_patrimoine),
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.primary,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            MintHeroNumber(
+              value: FamilyService.formatChf(_patrimoine),
+              caption: S.of(context)!.concubinageHeroChiffreChocDesc,
+              color: MintColors.white,
             ),
-            style: MintTextStyles.displayMedium(color: MintColors.white)
-                .copyWith(fontSize: 28, fontWeight: FontWeight.w800),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: MintSpacing.xs + 2),
-          Text(
-            S.of(context)!.concubinageHeroChiffreChocDesc,
-            style: MintTextStyles.bodySmall(color: MintColors.white70)
-                .copyWith(height: 1.4),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -229,14 +252,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   Widget _buildComparateurInputs() {
     final sortedCodes = FamilyService.sortedCantonCodes;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -444,13 +462,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     final difference = fiscal['difference'] as double;
     final isPenalite = fiscal['isPenalite'] as bool;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -504,13 +518,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
     if (impot <= 0) return const SizedBox.shrink();
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -629,7 +639,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        Container(
+        MintEntrance(child: Container(
           padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
@@ -651,17 +661,15 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ],
           ),
         ),
+        ),
         const SizedBox(height: MintSpacing.lg),
 
         // LPP slider
-        Container(
-          padding: const EdgeInsets.all(MintSpacing.lg),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-          ),
+        MintEntrance(
+          delay: const Duration(milliseconds: 100),
+          child: MintSurface(
+          tone: MintSurfaceTone.blanc,
+          elevated: true,
           child: MintAmountField(
             label: S.of(context)!.concubinageProtectionLppSlider,
             value: _renteLpp,
@@ -675,10 +683,13 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             max: 8000,
           ),
         ),
+        ),
         const SizedBox(height: MintSpacing.lg),
 
         // Side-by-side chiffre-choc: Married vs Concubin survivor total
-        Row(
+        MintEntrance(
+          delay: const Duration(milliseconds: 150),
+          child: Row(
           children: [
             // Married survivor
             Expanded(
@@ -733,6 +744,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ),
           ],
         ),
+        ),
         const SizedBox(height: MintSpacing.sm),
         Text(
           S.of(context)!.concubinageProtectionSurvivorZero,
@@ -742,24 +754,36 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // Comparison table: married vs concubin
-        _buildProtectionComparison(),
+        MintEntrance(
+          delay: const Duration(milliseconds: 200),
+          child: _buildProtectionComparison(),
+        ),
         const SizedBox(height: MintSpacing.lg),
 
         // Educational insert — LPP survivor
-        _buildEducationalInsert(
-          S.of(context)!.concubinageEducationalLpp,
+        MintEntrance(
+          delay: const Duration(milliseconds: 250),
+          child: _buildEducationalInsert(
+            S.of(context)!.concubinageEducationalLpp,
+          ),
         ),
         const SizedBox(height: MintSpacing.lg),
 
         // Clause 3a widget
-        _buildClause3aSection(),
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildClause3aSection(),
+        ),
         const SizedBox(height: MintSpacing.lg),
 
         // Survivor pension widget (concubin mode)
-        SurvivorPensionWidget(
+        MintEntrance(
+          delay: const Duration(milliseconds: 350),
+          child: SurvivorPensionWidget(
           partnerAvsRente: avsRenteMaxMensuelle,
           partnerLppMonthly: _renteLpp,
           isConcubin: true,
+        ),
         ),
         const SizedBox(height: MintSpacing.lg),
 
@@ -894,7 +918,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        Container(
+        MintEntrance(child: Container(
           padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
@@ -916,10 +940,13 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ],
           ),
         ),
+        ),
         const SizedBox(height: MintSpacing.lg),
 
         // Progress bar
-        Container(
+        MintEntrance(
+          delay: const Duration(milliseconds: 100),
+          child: Container(
           padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.white,
@@ -958,6 +985,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
             ],
           ),
+        ),
         ),
         const SizedBox(height: MintSpacing.lg),
 
@@ -1023,6 +1051,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                         toggled: isChecked,
                         child: GestureDetector(
                           onTap: () {
+                            HapticFeedback.lightImpact();
                             setState(() {
                               if (isChecked) {
                                 _checkedItems.remove(index);
