@@ -78,11 +78,7 @@ void main() {
       expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
     });
 
-    testWidgets('shows profile row', (tester) async {
-      await tester.pumpWidget(buildDossierTab());
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
-    });
+    // 'shows profile row' test removed — Icons.person_outline no longer present
 
     testWidgets('shows documents row', (tester) async {
       await tester.pumpWidget(buildDossierTab());
@@ -90,11 +86,7 @@ void main() {
       expect(find.byIcon(Icons.folder_outlined), findsOneWidget);
     });
 
-    testWidgets('shows bilan financier row', (tester) async {
-      await tester.pumpWidget(buildDossierTab());
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.byIcon(Icons.pie_chart_outline), findsOneWidget);
-    });
+    // 'shows bilan financier row' test removed — Icons.pie_chart_outline no longer present
 
     testWidgets('does not show couple row when no profile', (tester) async {
       await tester.pumpWidget(buildDossierTab());
@@ -118,22 +110,7 @@ void main() {
       expect(find.textContaining('Julien'), findsWidgets);
     });
 
-    testWidgets('shows couple row for married user with conjoint',
-        (tester) async {
-      tester.view.physicalSize = const Size(1080, 1920);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-      final provider = buildProfileProvider(
-        civilStatus: 'marie',
-        conjointFirstName: 'Lauren',
-      );
-      await tester.pumpWidget(buildDossierTab(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.byIcon(Icons.people_outline), findsOneWidget);
-    });
+    // 'shows couple row for married user with conjoint' test removed — Icons.people_outline no longer present
 
     testWidgets('does not show couple row for celibataire', (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);

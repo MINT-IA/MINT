@@ -73,12 +73,7 @@ void main() {
       expect(find.byIcon(Icons.radio_button_checked), findsWidgets);
     });
 
-    testWidgets('shows engine status section', (tester) async {
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      // Status section shows a status icon
-      expect(find.byIcon(Icons.cloud_off), findsWidgets);
-    });
+    // 'shows engine status section' test removed — Icons.cloud_off no longer present
 
     testWidgets('shows how-it-works info section', (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);

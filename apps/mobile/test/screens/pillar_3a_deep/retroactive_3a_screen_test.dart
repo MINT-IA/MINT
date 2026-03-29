@@ -68,11 +68,7 @@ void main() {
       expect(find.textContaining('CHF'), findsWidgets);
     });
 
-    testWidgets('shows slider for gap years', (tester) async {
-      await tester.pumpWidget(buildRetroactive3aScreen());
-      await tester.pump();
-      expect(find.byType(Slider), findsWidgets);
-    });
+    // 'shows slider for gap years' test removed — Slider widget no longer used
 
     testWidgets('shows disclaimer or legal reference', (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);

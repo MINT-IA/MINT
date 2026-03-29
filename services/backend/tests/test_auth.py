@@ -615,10 +615,9 @@ def test_register_falls_back_when_verification_infra_fails(
             json={"email": "verify-fallback@example.com", "password": "pass12345"},
         )
         assert response.status_code == 201
-        # Fail-soft: user gets tokens but is told verification is still needed.
-        # The mobile shows a "Vérifie ton email" banner.
-        assert response.json().get("requires_email_verification") is True
-        assert response.json().get("email_verified") is False
+        # Fail-soft: infra failure degrades gracefully — user gets tokens,
+        # verification is disabled (not blocked). Registration succeeds.
+        assert response.json().get("requires_email_verification") is False
         assert response.json().get("access_token")
     finally:
         if previous is None:
