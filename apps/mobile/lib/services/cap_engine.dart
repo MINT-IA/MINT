@@ -399,9 +399,9 @@ class CapEngine {
         id: 'no_cap_available',
         kind: CapKind.prepare,
         priorityScore: 0,
-        // Neutral fallback — not LPP-specific (cohort suppression can empty candidates)
-        headline: 'Tu es sur la bonne voie', // TODO: i18n — capNoCapHeadline
-        whyNow: 'Continue à explorer MINT pour approfondir ta situation.', // TODO: i18n — capNoCapWhyNow
+        // Neutral fallback — cohort-safe (FIX-155)
+        headline: l.capNoCapHeadline,
+        whyNow: l.capNoCapWhyNow,
         ctaLabel: l.capHonestyCtaLabel,
         ctaRoute: '/coach/chat',
         ctaMode: CtaMode.route,

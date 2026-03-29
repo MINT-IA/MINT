@@ -11811,5 +11811,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "capNoCapHeadline": "Du bist auf dem richtigen Weg",
+  "capNoCapWhyNow": "Erkunde MINT weiter, um deine Situation zu vertiefen."
 }

@@ -25045,4 +25045,11 @@ class SEs extends S {
   String semanticsRealReturnGain(String amount) {
     return 'Ganancia respecto al ahorro: $amount francos';
   }
+
+  @override
+  String get capNoCapHeadline => 'Vas por buen camino';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Sigue explorando MINT para profundizar tu situación.';
 }

@@ -25016,4 +25016,11 @@ class SPt extends S {
   String semanticsRealReturnGain(String amount) {
     return 'Ganho comparado à poupança: $amount francos';
   }
+
+  @override
+  String get capNoCapHeadline => 'Estás no bom caminho';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Continua a explorar o MINT para aprofundar a tua situação.';
 }

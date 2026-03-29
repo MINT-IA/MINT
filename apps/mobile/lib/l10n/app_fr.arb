@@ -428,7 +428,7 @@
   "disabilityGapRiskHigh": "Risque élevé",
   "disabilityGapRiskMedium": "Risque modéré",
   "disabilityGapRiskLow": "Risque faible",
-  "disabilityGapDisclaimer": "Ces résultats sont des estimations indicatives basées sur les barèmes légaux. Ta couverture réelle dépend de ton contrat de travail, de ta caisse de pension et de tes assurances individuelles. Consulte ton employeur et un·e spécialiste qualifié·e.",
+  "disabilityGapDisclaimer": "Outil éducatif — ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures réelles dépendent de ton contrat de travail et de ta caisse de pension.",
   "disabilityGapIjmExpl": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80% de votre salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu'à l'éventuelle rente AI.",
   "disabilityGapCo324aExpl": "Selon l'art. 324a CO, l'employeur doit verser le salaire pendant une durée limitée en cas de maladie. Cette durée dépend des années de service et de l'échelle cantonale applicable (bernoise, zurichoise ou bâloise). Après cette période, seule l'IJM (si existante) prend le relais.",
   "authLogin": "Se connecter",
@@ -10508,22 +10508,22 @@
       }
     }
   },
-  "expertTierScreenTitle": "Consulter un\u00b7e sp\u00e9cialiste",
-  "expertTierFinancialPlanner": "Planificateur\u00b7rice financier\u00b7\u00e8re",
-  "expertTierFinancialPlannerDesc": "Retraite, pr\u00e9voyance, d\u00e9caissement, strat\u00e9gie patrimoniale globale",
+  "expertTierScreenTitle": "Consulter un·e spécialiste",
+  "expertTierFinancialPlanner": "Planificateur·rice financier·ère",
+  "expertTierFinancialPlannerDesc": "Retraite, prévoyance, décaissement, stratégie patrimoniale globale",
   "expertTierTaxSpecialist": "Fiscaliste",
-  "expertTierTaxSpecialistDesc": "Optimisation fiscale, rachat LPP, d\u00e9claration, planification inter-cantonale",
+  "expertTierTaxSpecialistDesc": "Optimisation fiscale, rachat LPP, déclaration, planification inter-cantonale",
   "expertTierNotary": "Notaire",
-  "expertTierNotaryDesc": "Succession, testament, donation, r\u00e9gime matrimonial, pacte successoral",
-  "expertTierPrice": "129\u00a0CHF\u00a0/\u00a0session",
-  "expertTierSelectCta": "Pr\u00e9parer mon dossier",
-  "expertTierDossierPreviewTitle": "Aper\u00e7u de ton dossier",
-  "expertTierDossierGenerating": "Pr\u00e9paration du dossier\u2026",
-  "expertTierDossierReady": "Dossier pr\u00eat",
+  "expertTierNotaryDesc": "Succession, testament, donation, régime matrimonial, pacte successoral",
+  "expertTierPrice": "129 CHF / session",
+  "expertTierSelectCta": "Préparer mon dossier",
+  "expertTierDossierPreviewTitle": "Aperçu de ton dossier",
+  "expertTierDossierGenerating": "Préparation du dossier…",
+  "expertTierDossierReady": "Dossier prêt",
   "expertTierRequestCta": "Demander un rendez-vous",
-  "expertTierComingSoonTitle": "Bient\u00f4t disponible",
-  "expertTierComingSoon": "La prise de rendez-vous arrive prochainement. Ton dossier est pr\u00eat\u00a0\u2014 tu pourras le transmettre d\u00e8s l\u2019ouverture du service.",
-  "expertTierCompleteness": "Profil complet \u00e0 {percent}\u00a0%",
+  "expertTierComingSoonTitle": "Bientôt disponible",
+  "expertTierComingSoon": "La prise de rendez-vous arrive prochainement. Ton dossier est prêt — tu pourras le transmettre dès l’ouverture du service.",
+  "expertTierCompleteness": "Profil complet à {percent} %",
   "@expertTierCompleteness": {
     "placeholders": {
       "percent": {
@@ -10531,20 +10531,20 @@
       }
     }
   },
-  "expertTierEstimated": "Estim\u00e9",
-  "expertTierMissingDataTitle": "Donn\u00e9es \u00e0 compl\u00e9ter",
-  "expertTierDisclaimerBanner": "MINT pr\u00e9pare le dossier, le\u00b7la sp\u00e9cialiste donne le conseil",
-  "expertTierBack": "Choisir un autre sp\u00e9cialiste",
+  "expertTierEstimated": "Estimé",
+  "expertTierMissingDataTitle": "Données à compléter",
+  "expertTierDisclaimerBanner": "MINT prépare le dossier, le·la spécialiste donne le conseil",
+  "expertTierBack": "Choisir un autre spécialiste",
   "expertTierOk": "Compris",
-  "docCardTitle": "Document pr\u00e9-rempli",
-  "docCardFiscalDeclaration": "D\u00e9claration fiscale",
+  "docCardTitle": "Document pré-rempli",
+  "docCardFiscalDeclaration": "Déclaration fiscale",
   "docCardPensionFundLetter": "Courrier caisse de pension",
   "docCardLppBuybackRequest": "Demande de rachat LPP",
-  "docCardDisclaimer": "V\u00e9rifie chaque champ. MINT ne soumet rien.",
+  "docCardDisclaimer": "Vérifie chaque champ. MINT ne soumet rien.",
   "docCardViewDocument": "Consulter le document",
-  "docCardValidationFailed": "La validation du document a \u00e9chou\u00e9.",
-  "docCardGenerating": "G\u00e9n\u00e9ration du document\u2026",
-  "docCardFieldCount": "{count} champs pr\u00e9-remplis",
+  "docCardValidationFailed": "La validation du document a échoué.",
+  "docCardGenerating": "Génération du document…",
+  "docCardFieldCount": "{count} champs pré-remplis",
   "@docCardFieldCount": {
     "placeholders": {
       "count": {
@@ -10552,12 +10552,12 @@
       }
     }
   },
-  "docCardReadOnly": "Lecture seule \u2014 \u00e0 compl\u00e9ter manuellement",
-  "sourceBadgeEstimated": "Estim\u00e9",
-  "sourceBadgeDeclared": "D\u00e9clar\u00e9",
-  "sourceBadgeCertified": "Certifi\u00e9",
+  "docCardReadOnly": "Lecture seule — à compléter manuellement",
+  "sourceBadgeEstimated": "Estimé",
+  "sourceBadgeDeclared": "Déclaré",
+  "sourceBadgeCertified": "Certifié",
   "monteCarloTitle": "Tes chances de vivre confortablement",
-  "monteCarloSubtitle": "{count} sc\u00e9narios simul\u00e9s",
+  "monteCarloSubtitle": "{count} scénarios simulés",
   "@monteCarloSubtitle": {
     "placeholders": {
       "count": {
@@ -10565,12 +10565,12 @@
       }
     }
   },
-  "monteCarloHeroPhrase": "de chances que ton capital tienne jusqu\u2019\u00e0 90 ans",
+  "monteCarloHeroPhrase": "de chances que ton capital tienne jusqu’à 90 ans",
   "monteCarloLegendWideBand": "Fourchette large",
   "monteCarloLegendProbableBand": "Fourchette probable",
-  "monteCarloLegendMedian": "Sc\u00e9nario central",
-  "monteCarloLegendCurrentIncome": "Ce que tu gagnes aujourd\u2019hui",
-  "monteCarloMedianAtAge": "Sc\u00e9nario central \u00e0 {age} ans",
+  "monteCarloLegendMedian": "Scénario central",
+  "monteCarloLegendCurrentIncome": "Ce que tu gagnes aujourd’hui",
+  "monteCarloMedianAtAge": "Scénario central à {age} ans",
   "@monteCarloMedianAtAge": {
     "placeholders": {
       "age": {
@@ -10579,13 +10579,13 @@
     }
   },
   "monteCarloProbableRange": "Fourchette probable",
-  "monteCarloSuccessLabel": "Probabilit\u00e9 que ton\ncapital tienne jusqu\u2019\u00e0 90 ans",
-  "monteCarloDisclaimer": "Les rendements pass\u00e9s ne pr\u00e9sagent pas les rendements futurs. Simulation \u00e0 titre p\u00e9dagogique (LSFin).",
-  "dossierIdentiteSection": "Identit\u00e9",
+  "monteCarloSuccessLabel": "Probabilité que ton\ncapital tienne jusqu’à 90 ans",
+  "monteCarloDisclaimer": "Les rendements passés ne présagent pas les rendements futurs. Simulation à titre pédagogique (LSFin).",
+  "dossierIdentiteSection": "Identité",
   "dossierDocumentsSection": "Documents",
   "dossierCoupleSection": "Couple",
-  "dossierPreferencesSection": "Pr\u00e9f\u00e9rences",
-  "dossierUpdatedAgo": "Mis \u00e0 jour il y a {days} jours",
+  "dossierPreferencesSection": "Préférences",
+  "dossierUpdatedAgo": "Mis à jour il y a {days} jours",
   "@dossierUpdatedAgo": {
     "placeholders": {
       "days": {
@@ -10593,7 +10593,7 @@
       }
     }
   },
-  "dossierUpdatedOn": "Mis \u00e0 jour le {date}",
+  "dossierUpdatedOn": "Mis à jour le {date}",
   "@dossierUpdatedOn": {
     "placeholders": {
       "date": {
@@ -10601,11 +10601,10 @@
       }
     }
   },
-  "dossierUpdatedToday": "Mis \u00e0 jour aujourd\u2019hui",
-  "dossierUpdatedYesterday": "Mis \u00e0 jour hier",
-  "exploreHubOtherTopics": "Autres th\u00e9matiques",
-
-  "bankImportSummaryHeader": "R\u00c9SUM\u00c9",
+  "dossierUpdatedToday": "Mis à jour aujourd’hui",
+  "dossierUpdatedYesterday": "Mis à jour hier",
+  "exploreHubOtherTopics": "Autres thématiques",
+  "bankImportSummaryHeader": "RÉSUMÉ",
   "bankImportTransactionsHeader": "TRANSACTIONS",
   "bankImportMoreTransactions": "... et {count} autres transactions",
   "@bankImportMoreTransactions": {
@@ -10615,141 +10614,145 @@
       }
     }
   },
-  "bankImportGenericError": "Une erreur est survenue lors de l\u2019analyse du relev\u00e9.",
-
+  "bankImportGenericError": "Une erreur est survenue lors de l’analyse du relevé.",
   "helpResourcesAppBarTitle": "AIDE EN CAS DE DETTE",
-  "helpResourcesIntroTitle": "Vous n\u2019\u00eates pas seul",
-  "helpResourcesIntroBody": "En Suisse, de nombreux services professionnels offrent un accompagnement gratuit et confidentiel pour les personnes confront\u00e9es \u00e0 des difficult\u00e9s financi\u00e8res. Demander de l\u2019aide est un acte de courage, pas un signe de faiblesse.",
-  "helpResourcesIntroNote": "Tous les liens ci-dessous m\u00e8nent vers des sites externes. MINT ne transmet aucune donn\u00e9e \u00e0 ces services.",
+  "helpResourcesIntroTitle": "Vous n’êtes pas seul",
+  "helpResourcesIntroBody": "En Suisse, de nombreux services professionnels offrent un accompagnement gratuit et confidentiel pour les personnes confrontées à des difficultés financières. Demander de l’aide est un acte de courage, pas un signe de faiblesse.",
+  "helpResourcesIntroNote": "Tous les liens ci-dessous mènent vers des sites externes. MINT ne transmet aucune donnée à ces services.",
   "helpResourcesDettesName": "Dettes Conseils Suisse",
-  "helpResourcesDettesDesc": "F\u00e9d\u00e9ration fa\u00eeti\u00e8re des services de conseil en dettes en Suisse. Conseil gratuit, confidentiel et professionnel. Plus de 30 services membres dans toute la Suisse.",
-  "helpResourcesCaritasName": "Caritas \u2014 Conseil en dettes",
-  "helpResourcesCaritasDesc": "Service d\u2019aide de Caritas Suisse pour les personnes en situation d\u2019endettement. Aide au d\u00e9sendettement, n\u00e9gociation avec les cr\u00e9anciers, accompagnement budg\u00e9taire personnalis\u00e9.",
+  "helpResourcesDettesDesc": "Fédération faîtière des services de conseil en dettes en Suisse. Conseil gratuit, confidentiel et professionnel. Plus de 30 services membres dans toute la Suisse.",
+  "helpResourcesCaritasName": "Caritas — Conseil en dettes",
+  "helpResourcesCaritasDesc": "Service d’aide de Caritas Suisse pour les personnes en situation d’endettement. Aide au désendettement, négociation avec les créanciers, accompagnement budgétaire personnalisé.",
   "helpResourcesFreeLabel": "GRATUIT",
   "helpResourcesCantonalHeader": "SERVICE CANTONAL",
   "helpResourcesCantonLabel": "Votre canton",
-  "helpResourcesNoService": "Aucun service cantonal r\u00e9f\u00e9renc\u00e9 pour ce canton. Contactez Dettes Conseils Suisse pour \u00eatre orient\u00e9.",
-  "helpResourcesPrivacyTitle": "Protection des donn\u00e9es (nLPD)",
-  "helpResourcesPrivacyBody": "MINT ne transmet aucune donn\u00e9e personnelle aux services r\u00e9f\u00e9renc\u00e9s ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet \u00e9cran reste strictement confidentielle et n\u2019est ni enregistr\u00e9e ni partag\u00e9e.",
-  "helpResourcesDisclaimer": "MINT fournit ces liens \u00e0 titre informatif et p\u00e9dagogique. Ces services sont ind\u00e9pendants de MINT. MINT ne fournit pas de conseil juridique ou financier. En cas de difficult\u00e9 financi\u00e8re, contactez directement les services sp\u00e9cialis\u00e9s.",
-
-  "successionUrgenceAction1": "D\u00e9clarer le d\u00e9c\u00e8s \u00e0 l\u2019\u00e9tat civil dans les 2 jours",
-  "successionUrgenceAction2": "Informer l\u2019employeur et les assurances (LAMal, LPP)",
-  "successionUrgenceAction3": "Bloquer les comptes bancaires conjoints si n\u00e9cessaire",
+  "helpResourcesNoService": "Aucun service cantonal référencé pour ce canton. Contactez Dettes Conseils Suisse pour être orienté.",
+  "helpResourcesPrivacyTitle": "Protection des données (nLPD)",
+  "helpResourcesPrivacyBody": "MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.",
+  "helpResourcesDisclaimer": "MINT fournit ces liens à titre informatif et pédagogique. Ces services sont indépendants de MINT. MINT ne fournit pas de conseil juridique ou financier. En cas de difficulté financière, contactez directement les services spécialisés.",
+  "successionUrgenceAction1": "Déclarer le décès à l’état civil dans les 2 jours",
+  "successionUrgenceAction2": "Informer l’employeur et les assurances (LAMal, LPP)",
+  "successionUrgenceAction3": "Bloquer les comptes bancaires conjoints si nécessaire",
   "successionUrgenceAction4": "Contacter le notaire si la personne avait un testament",
   "successionDemarchesAction1": "Demander les rentes de survivants AVS (LAVS art. 23)",
-  "successionDemarchesAction2": "Contacter la caisse LPP pour le capital d\u00e9c\u00e8s",
-  "successionDemarchesAction3": "R\u00e9silier les abonnements et contrats au nom du d\u00e9funt",
-  "successionDemarchesAction4": "Faire l\u2019inventaire des avoirs et dettes",
-  "successionDemarchesAction5": "Demander les certificats d\u2019h\u00e9ritiers au notaire",
-  "successionLegaleAction1": "Ouvrir la proc\u00e9dure de succession avec le notaire",
+  "successionDemarchesAction2": "Contacter la caisse LPP pour le capital décès",
+  "successionDemarchesAction3": "Résilier les abonnements et contrats au nom du défunt",
+  "successionDemarchesAction4": "Faire l’inventaire des avoirs et dettes",
+  "successionDemarchesAction5": "Demander les certificats d’héritiers au notaire",
+  "successionLegaleAction1": "Ouvrir la procédure de succession avec le notaire",
   "successionLegaleAction2": "Partager les biens selon le testament ou la loi (CC art. 537)",
-  "successionLegaleAction3": "D\u00e9poser la d\u00e9claration fiscale pour l\u2019ann\u00e9e du d\u00e9c\u00e8s",
-  "successionLegaleAction4": "Mettre \u00e0 jour les b\u00e9n\u00e9ficiaires de vos propres contrats",
-
-  "disabilityGapAct1Label": "ACTE 1 \u00b7 Employeur",
-  "disabilityGapAct1Detail": "80\u00a0% de ton salaire vers\u00e9 par ton employeur",
+  "successionLegaleAction3": "Déposer la déclaration fiscale pour l’année du décès",
+  "successionLegaleAction4": "Mettre à jour les bénéficiaires de vos propres contrats",
+  "disabilityGapAct1Label": "ACTE 1 · Employeur",
+  "disabilityGapAct1Detail": "80 % de ton salaire versé par ton employeur",
   "disabilityGapAct1Duration": "Semaines 1-26",
-  "disabilityGapAct2LabelIjm": "ACTE 2 \u00b7 IJM (assurance maladie)",
-  "disabilityGapAct2LabelNoIjm": "ACTE 2 \u00b7 Pas d\u2019IJM",
-  "disabilityGapAct2SubIjm": "Assurance collective \u2014 80% pendant 720 jours max",
-  "disabilityGapAct2SubNoIjm": "Sans IJM, tu passes directement \u00e0 l\u2019AI apr\u00e8s l\u2019employeur",
-  "disabilityGapAct2Duration": "Jusqu\u2019\u00e0 24 mois",
-  "disabilityGapAct2DetailIjm": "80% du salaire assur\u00e9",
-  "disabilityGapAct2DetailNoIjm": "Aucune couverture \u2014 d\u00e9lai AI en cours",
-  "disabilityGapAct3Label": "ACTE 3 \u00b7 AI + LPP (d\u00e9finitif)",
-  "disabilityGapAct3Duration": "Apr\u00e8s 24 mois",
+  "disabilityGapAct2LabelIjm": "ACTE 2 · IJM (assurance maladie)",
+  "disabilityGapAct2LabelNoIjm": "ACTE 2 · Pas d’IJM",
+  "disabilityGapAct2SubIjm": "Assurance collective — 80% pendant 720 jours max",
+  "disabilityGapAct2SubNoIjm": "Sans IJM, tu passes directement à l’AI après l’employeur",
+  "disabilityGapAct2Duration": "Jusqu’à 24 mois",
+  "disabilityGapAct2DetailIjm": "80% du salaire assuré",
+  "disabilityGapAct2DetailNoIjm": "Aucune couverture — délai AI en cours",
+  "disabilityGapAct3Label": "ACTE 3 · AI + LPP (définitif)",
+  "disabilityGapAct3Duration": "Après 24 mois",
   "disabilityGapAct3Detail": "AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois",
   "@disabilityGapAct3Detail": {
     "placeholders": {
-      "aiAmount": { "type": "String" },
-      "lppAmount": { "type": "String" },
-      "totalAmount": { "type": "String" }
+      "aiAmount": {
+        "type": "String"
+      },
+      "lppAmount": {
+        "type": "String"
+      },
+      "totalAmount": {
+        "type": "String"
+      }
     }
   },
-  "disabilityGapIjmCoverage": "80% pendant 720 jours \u2014 assurance collective",
-  "disabilityGapNoIjmCoverage": "Aucune IJM souscrite \u2014 risque maximal",
-  "disabilityGapAiDetail": "Max {amount} CHF/mois \u2014 d\u00e9lai ~14 mois",
+  "disabilityGapIjmCoverage": "80% pendant 720 jours — assurance collective",
+  "disabilityGapNoIjmCoverage": "Aucune IJM souscrite — risque maximal",
+  "disabilityGapAiDetail": "Max {amount} CHF/mois — délai ~14 mois",
   "@disabilityGapAiDetail": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "disabilityGapLppCovered": "Rente invalidit\u00e9 \u2248 40% salaire coordonn\u00e9 (LPP art. 23)",
-  "disabilityGapLppNotCovered": "Salaire sous le seuil LPP \u2014 pas de couverture 2e pilier",
-  "disabilityGapSavingsLabel": "R\u00e9serve d\u2019urgence",
+  "disabilityGapLppCovered": "Rente invalidité ≈ 40% salaire coordonné (LPP art. 23)",
+  "disabilityGapLppNotCovered": "Salaire sous le seuil LPP — pas de couverture 2e pilier",
+  "disabilityGapSavingsLabel": "Réserve d’urgence",
   "disabilityGapSavingsDetail": "{months} mois de charges couverts",
   "@disabilityGapSavingsDetail": {
     "placeholders": {
-      "months": { "type": "String" }
+      "months": {
+        "type": "String"
+      }
     }
   },
   "disabilityGapApgLabel": "APG / IJM (perte de gain)",
-  "disabilityGapAiLabel": "AI (assurance invalidit\u00e9)",
-  "disabilityGapLppLabel": "LPP invalidit\u00e9 (2e pilier)",
-  "disabilityGapDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures r\u00e9elles d\u00e9pendent de ton contrat de travail et de ta caisse de pension.",
-  "disabilityGapSources": "\u2022 LAI art. 28-29 (rente AI)\n\u2022 LPP art. 23-26 (invalidit\u00e9 2e pilier)\n\u2022 CO art. 324a (maintien salaire employeur)\n\u2022 LPGA art. 19 (d\u00e9lai de carence)",
+  "disabilityGapAiLabel": "AI (assurance invalidité)",
+  "disabilityGapLppLabel": "LPP invalidité (2e pilier)",
+  "disabilityGapSources": "• LAI art. 28-29 (rente AI)\n• LPP art. 23-26 (invalidité 2e pilier)\n• CO art. 324a (maintien salaire employeur)\n• LPGA art. 19 (délai de carence)",
   "disabilityGapAgeLabel": "{age} ans",
   "@disabilityGapAgeLabel": {
     "placeholders": {
-      "age": { "type": "int" }
+      "age": {
+        "type": "int"
+      }
     }
   },
-
-  "documentDetailExplanationObligatoire": "Montant accumul\u00e9 dans la part obligatoire LPP",
-  "documentDetailExplanationSurobligatoire": "Part au-del\u00e0 du minimum l\u00e9gal",
+  "documentDetailExplanationObligatoire": "Montant accumulé dans la part obligatoire LPP",
+  "documentDetailExplanationSurobligatoire": "Part au-delà du minimum légal",
   "documentDetailExplanationTotal": "Total de ton capital de vieillesse",
-  "documentDetailExplanationSalaireAssure": "Salaire sur lequel les cotisations sont calcul\u00e9es",
-  "documentDetailExplanationSalaireAvs": "Salaire d\u00e9terminant pour l\u2019AVS",
-  "documentDetailExplanationDeduction": "Montant d\u00e9duit pour coordonner avec l\u2019AVS",
-  "documentDetailExplanationTauxOblig": "L\u00e9gal minimum\u00a0: 6.8%",
-  "documentDetailExplanationTauxSurob": "Fix\u00e9 par ta caisse de pension",
-  "documentDetailExplanationTauxEnv": "Taux moyen pond\u00e9r\u00e9",
-  "documentDetailExplanationInvalidite": "Rente en cas d\u2019incapacit\u00e9 de travail",
-  "documentDetailExplanationDeces": "Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s",
-  "documentDetailExplanationConjoint": "Rente vers\u00e9e au conjoint survivant",
-  "documentDetailExplanationEnfant": "Rente vers\u00e9e par enfant",
-  "documentDetailExplanationRachat": "Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance",
+  "documentDetailExplanationSalaireAssure": "Salaire sur lequel les cotisations sont calculées",
+  "documentDetailExplanationSalaireAvs": "Salaire déterminant pour l’AVS",
+  "documentDetailExplanationDeduction": "Montant déduit pour coordonner avec l’AVS",
+  "documentDetailExplanationTauxOblig": "Légal minimum : 6.8%",
+  "documentDetailExplanationTauxSurob": "Fixé par ta caisse de pension",
+  "documentDetailExplanationTauxEnv": "Taux moyen pondéré",
+  "documentDetailExplanationInvalidite": "Rente en cas d’incapacité de travail",
+  "documentDetailExplanationDeces": "Montant versé aux bénéficiaires en cas de décès",
+  "documentDetailExplanationConjoint": "Rente versée au conjoint survivant",
+  "documentDetailExplanationEnfant": "Rente versée par enfant",
+  "documentDetailExplanationRachat": "Montant pouvant être racheté pour optimiser ta prévoyance",
   "documentDetailExplanationEmploye": "Ta contribution annuelle",
   "documentDetailExplanationEmployeur": "Contribution de ton employeur",
-
-  "disabilitySelfEmployedAlertLabel": "\ud83d\udea8  ALERTE IND\u00c9PENDANT",
-  "disabilitySelfEmployedTitle": "Ton filet n\u2019existe pas",
-  "disabilitySelfEmployedAppBarTitle": "Invalidit\u00e9 \u2014 Ind\u00e9pendant\u00b7e",
+  "disabilitySelfEmployedAlertLabel": "🚨  ALERTE INDÉPENDANT",
+  "disabilitySelfEmployedTitle": "Ton filet n’existe pas",
+  "disabilitySelfEmployedAppBarTitle": "Invalidité — Indépendant·e",
   "disabilitySelfEmployedRevenueTitle": "Ton revenu mensuel net",
-  "disabilitySelfEmployedRevenueHint": "Ajuste pour voir l\u2019impact sur ta situation r\u00e9elle",
+  "disabilitySelfEmployedRevenueHint": "Ajuste pour voir l’impact sur ta situation réelle",
   "disabilitySelfEmployedRevenueLabel": "Revenu net/mois",
-  "disabilitySelfEmployedInsuranceQuestion": "Tu as d\u00e9j\u00e0 une assurance perte de gain\u00a0?",
+  "disabilitySelfEmployedInsuranceQuestion": "Tu as déjà une assurance perte de gain ?",
   "disabilitySelfEmployedYes": "Oui",
   "disabilitySelfEmployedNo": "Non / Je ne sais pas",
-  "disabilitySelfEmployedApgTip": "Une APG individuelle d\u00e8s CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. C\u2019est le filet le plus efficace pour un\u00b7e ind\u00e9pendant\u00b7e.",
-  "disabilitySelfEmployedDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil en assurance. Un\u00b7e courtier\u00b7\u00e8re ind\u00e9pendant\u00b7e peut comparer les offres APG de diff\u00e9rents assureurs selon ton activit\u00e9 et ton revenu r\u00e9el.",
-  "disabilitySelfEmployedSources": "\u2022 LAMal art. 67-77 (assurance maladie perte de gain)\n\u2022 CO art. 324a (obligation employeur)\n\u2022 LAI art. 28 (rente AI)\n\u2022 LAVS art. 2 al. 3 (cotisation depuis l\u2019\u00e9tranger)",
-
-  "confidenceDashboardTitle": "Pr\u00e9cision de ton profil",
+  "disabilitySelfEmployedApgTip": "Une APG individuelle dès CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.",
+  "disabilitySelfEmployedDisclaimer": "Outil éducatif — ne constitue pas un conseil en assurance. Un·e courtier·ère indépendant·e peut comparer les offres APG de différents assureurs selon ton activité et ton revenu réel.",
+  "disabilitySelfEmployedSources": "• LAMal art. 67-77 (assurance maladie perte de gain)\n• CO art. 324a (obligation employeur)\n• LAI art. 28 (rente AI)\n• LAVS art. 2 al. 3 (cotisation depuis l’étranger)",
   "confidenceDashboardLevelExcellent": "Excellente",
   "confidenceDashboardLevelGood": "Bonne",
   "confidenceDashboardLevelFair": "Correcte",
-  "confidenceDashboardLevelImprove": "\u00c0 am\u00e9liorer",
+  "confidenceDashboardLevelImprove": "À améliorer",
   "confidenceDashboardLevelInsufficient": "Insuffisante",
-  "confidenceDashboardBreakdownTitle": "D\u00e9tail par axe",
-  "confidenceDashboardFeaturesTitle": "Fonctionnalit\u00e9s d\u00e9bloqu\u00e9es",
+  "confidenceDashboardBreakdownTitle": "Détail par axe",
+  "confidenceDashboardFeaturesTitle": "Fonctionnalités débloquées",
   "confidenceDashboardRequired": "{percent} % requis",
   "@confidenceDashboardRequired": {
     "placeholders": {
-      "percent": { "type": "String" }
+      "percent": {
+        "type": "String"
+      }
     }
   },
-  "confidenceDashboardEnrichTitle": "Am\u00e9liore ta pr\u00e9cision",
+  "confidenceDashboardEnrichTitle": "Améliore ta précision",
   "confidenceDashboardSourcesTitle": "Sources",
-
-  "cockpitDetailEmptyState": "Compl\u00e8te ton profil pour acc\u00e9der au cockpit d\u00e9taill\u00e9.",
+  "cockpitDetailEmptyState": "Complète ton profil pour accéder au cockpit détaillé.",
   "cockpitDetailEnrichProfile": "Enrichir mon profil",
-  "cockpitDetailDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
-  "toolBudgetSnapshotHint": "Voici un aper\u00e7u de ton budget actuel.",
+  "cockpitDetailDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
+  "toolBudgetSnapshotHint": "Voici un aperçu de ton budget actuel.",
   "toolScoreGaugeHint": "Voici ton score de confiance financière.",
-  "coachFactCardTitle": "Le savais-tu\u00a0?",
-
+  "coachFactCardTitle": "Le savais-tu ?",
   "firstJobPrimePerMonth": "{amount}/mois",
   "@firstJobPrimePerMonth": {
     "placeholders": {
@@ -10766,11 +10769,10 @@
       }
     }
   },
-
   "jobChangeChecklistSemantics": "Checklist nouveau job libre passage LPP actions urgentes",
   "jobChangeChecklistTitle": "Checklist changement de job",
-  "jobChangeChecklistSubtitle": "Tu as 30 jours pour v\u00e9rifier que ton LPP a \u00e9t\u00e9 transf\u00e9r\u00e9.",
-  "jobChangeChecklistProgress": "{completed} / {total} actions compl\u00e9t\u00e9es",
+  "jobChangeChecklistSubtitle": "Tu as 30 jours pour vérifier que ton LPP a été transféré.",
+  "jobChangeChecklistProgress": "{completed} / {total} actions complétées",
   "@jobChangeChecklistProgress": {
     "placeholders": {
       "completed": {
@@ -10782,9 +10784,8 @@
     }
   },
   "jobChangeChecklistAlertTitle": "Demande TOUJOURS le certificat LPP avant de signer",
-  "jobChangeChecklistAlertBody": "Sans transfert du libre passage dans les d\u00e9lais, ton capital LPP peut finir \u00e0 la Fondation suppl\u00e9tive \u00e0 0.05\u00a0%.",
-  "jobChangeChecklistDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LPP art.\u00a03 (libre passage), OLP art.\u00a01-3.",
-
+  "jobChangeChecklistAlertBody": "Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.",
+  "jobChangeChecklistDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.",
   "circleLabelEmergencyFund": "Fonds d'urgence",
   "circleLabelDettes": "Dettes",
   "circleLabelRevenu": "Revenu",
@@ -10795,50 +10796,43 @@
   "circleLabelAvs": "AVS",
   "circleLabelInvestissements": "Investissements",
   "circleLabelPatrimoineImmobilier": "Patrimoine immobilier",
-  "circleNameProtection": "Protection & S\u00e9curit\u00e9",
-  "circleNamePrevoyance": "Pr\u00e9voyance Fiscale",
+  "circleNameProtection": "Protection & Sécurité",
+  "circleNamePrevoyance": "Prévoyance Fiscale",
   "circleNameCroissance": "Croissance",
   "circleNameOptimisation": "Optimisation & Transmission",
-
-  "nudgeSalaryDayTitle": "Jour de salaire\u00a0!",
-  "nudgeSalaryDayMessage": "As-tu pens\u00e9 \u00e0 ton virement 3a ce mois-ci\u00a0? Chaque mois compte pour ta pr\u00e9voyance.",
+  "nudgeSalaryDayTitle": "Jour de salaire !",
+  "nudgeSalaryDayMessage": "As-tu pensé à ton virement 3a ce mois-ci ? Chaque mois compte pour ta prévoyance.",
   "nudgeSalaryDayAction": "Voir mon 3a",
-  "nudgeTaxDeadlineTitle": "D\u00e9claration fiscale",
-  "nudgeTaxDeadlineMessage": "V\u00e9rifie la date limite de d\u00e9claration fiscale dans ton canton. As-tu pens\u00e9 \u00e0 v\u00e9rifier tes d\u00e9ductions 3a et LPP\u00a0?",
-  "nudgeTaxDeadlineAction": "Simuler mes imp\u00f4ts",
-  "nudgeThreeADeadlineTitle": "Derni\u00e8re ligne droite pour ton 3a",
-  "nudgeThreeADeadlineMessageLastDay": "C'est le dernier jour pour verser sur ton 3a\u00a0!",
-  "nudgeThreeADeadlineAction": "Calculer mon \u00e9conomie",
+  "nudgeTaxDeadlineMessage": "Vérifie la date limite de déclaration fiscale dans ton canton. As-tu pensé à vérifier tes déductions 3a et LPP ?",
+  "nudgeTaxDeadlineAction": "Simuler mes impôts",
+  "nudgeThreeADeadlineTitle": "Dernière ligne droite pour ton 3a",
+  "nudgeThreeADeadlineMessageLastDay": "C'est le dernier jour pour verser sur ton 3a !",
+  "nudgeThreeADeadlineAction": "Calculer mon économie",
   "nudgeBirthdayDashboardAction": "Voir mon tableau de bord",
-  "nudgeAnniversaryTitle": "D\u00e9j\u00e0 1\u00a0an ensemble\u00a0!",
-  "nudgeAnniversaryMessage": "Tu utilises MINT depuis un an. C'est le moment id\u00e9al pour actualiser ton profil et mesurer tes progr\u00e8s.",
-  "nudgeAnniversaryAction": "Actualiser mon profil",
-  "nudgeLppBonifStartTitle": "D\u00e9but des cotisations LPP",
+  "nudgeLppBonifStartTitle": "Début des cotisations LPP",
   "nudgeLppBonifChangeTitle": "Changement de tranche LPP",
   "nudgeLppBonifAction": "Explorer le rachat",
-  "nudgeWeeklyCheckInTitle": "\u00c7a fait un moment\u00a0!",
-  "nudgeWeeklyCheckInMessage": "Ta situation financi\u00e8re \u00e9volue chaque semaine. Prends 2\u00a0minutes pour v\u00e9rifier ton tableau de bord.",
+  "nudgeWeeklyCheckInTitle": "Ça fait un moment !",
+  "nudgeWeeklyCheckInMessage": "Ta situation financière évolue chaque semaine. Prends 2 minutes pour vérifier ton tableau de bord.",
   "nudgeWeeklyCheckInAction": "Voir mon Pulse",
-  "nudgeStreakRiskTitle": "Ta s\u00e9rie est en danger\u00a0!",
-  "nudgeStreakRiskAction": "Continuer ma s\u00e9rie",
+  "nudgeStreakRiskTitle": "Ta série est en danger !",
+  "nudgeStreakRiskAction": "Continuer ma série",
   "nudgeGoalApproachingTitle": "Ton objectif approche",
   "nudgeGoalApproachingAction": "En parler au coach",
-  "nudgeFhsDroppedTitle": "Ton score sant\u00e9 a baiss\u00e9",
+  "nudgeFhsDroppedTitle": "Ton score santé a baissé",
   "nudgeFhsDroppedAction": "Comprendre la baisse",
-
-  "ragErrorInvalidKey": "La cl\u00e9 API est invalide ou expir\u00e9e.",
-  "ragErrorRateLimit": "Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.",
-  "ragErrorBadRequest": "Requ\u00eate invalide.",
-  "ragErrorServiceUnavailable": "Service temporairement indisponible. R\u00e9essaie plus tard.",
-  "ragErrorStatus": "Impossible de v\u00e9rifier le statut du syst\u00e8me RAG.",
-  "ragErrorVisionBadRequest": "Requ\u00eate vision invalide.",
-  "ragErrorImageTooLarge": "L'image d\u00e9passe la taille limite de 20\u00a0MB.",
-  "ragErrorRateLimitShort": "Limite de requ\u00eates atteinte.",
-
-  "paywallTitle": "D\u00e9bloque MINT Coach",
+  "ragErrorInvalidKey": "La clé API est invalide ou expirée.",
+  "ragErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
+  "ragErrorBadRequest": "Requête invalide.",
+  "ragErrorServiceUnavailable": "Service temporairement indisponible. Réessaie plus tard.",
+  "ragErrorStatus": "Impossible de vérifier le statut du système RAG.",
+  "ragErrorVisionBadRequest": "Requête vision invalide.",
+  "ragErrorImageTooLarge": "L'image dépasse la taille limite de 20 MB.",
+  "ragErrorRateLimitShort": "Limite de requêtes atteinte.",
+  "paywallTitle": "Débloque MINT Coach",
   "paywallSubtitle": "Ton coach financier personnel",
   "paywallTrialBadge": "Essai gratuit 14 jours",
-  "paywallSubscriptionActivated": "Abonnement {tier} activ\u00e9 avec succ\u00e8s.",
+  "paywallSubscriptionActivated": "Abonnement {tier} activé avec succès.",
   "@paywallSubscriptionActivated": {
     "placeholders": {
       "tier": {
@@ -10846,13 +10840,13 @@
       }
     }
   },
-  "paywallTrialActivated": "Essai gratuit activ\u00e9\u00a0! Profite de MINT Coach pendant 14 jours.",
+  "paywallTrialActivated": "Essai gratuit activé ! Profite de MINT Coach pendant 14 jours.",
   "paywallRestoreButton": "Restaurer un achat",
-  "paywallRestoreSuccess": "Abonnement restaur\u00e9 avec succ\u00e8s\u00a0!",
-  "paywallRestoreNoPurchase": "Aucun achat pr\u00e9c\u00e9dent trouv\u00e9.",
-  "paywallDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier. LSFin. Tu peux annuler \u00e0 tout moment depuis les r\u00e9glages de ton compte.",
+  "paywallRestoreSuccess": "Abonnement restauré avec succès !",
+  "paywallRestoreNoPurchase": "Aucun achat précédent trouvé.",
+  "paywallDisclaimer": "Outil éducatif — ne constitue pas un conseil financier. LSFin. Tu peux annuler à tout moment depuis les réglages de ton compte.",
   "paywallClose": "Fermer",
-  "paywallSelectTier": "S\u00e9lectionner {name}",
+  "paywallSelectTier": "Sélectionner {name}",
   "@paywallSelectTier": {
     "placeholders": {
       "name": {
@@ -10871,13 +10865,11 @@
   "paywallStartTrial": "Commencer l'essai gratuit",
   "paywallPricePerMonth": "/mois",
   "paywallFeatureTop": "Top",
-
-  "arbitrageOptionFullRente": "100\u00a0% Rente",
-  "arbitrageOptionFullCapital": "100\u00a0% Capital",
+  "arbitrageOptionFullRente": "100 % Rente",
+  "arbitrageOptionFullCapital": "100 % Capital",
   "arbitrageOptionMixed": "Mixte (oblig. rente + surob. capital)",
   "arbitrageOptionAmortIndirect": "Amortissement indirect",
   "arbitrageOptionInvestLibre": "Investissement libre",
-
   "tornadoLabelRendementCapital": "Ce que ton capital rapporte",
   "tornadoLabelTauxRetrait": "Retrait annuel du capital",
   "tornadoLabelConversionOblig": "Conversion LPP obligatoire",
@@ -10886,34 +10878,32 @@
   "tornadoLabelTauxMarginal": "Ton taux d'imposition",
   "tornadoLabelRendement3a": "Rendement de ton 3e pilier",
   "tornadoLabelRendementLpp": "Rendement de ta caisse LPP",
-  "tornadoLabelTauxHypothecaire": "Taux hypoth\u00e9caire",
-  "tornadoLabelAppreciationImmo": "Appr\u00e9ciation immo",
+  "tornadoLabelTauxHypothecaire": "Taux hypothécaire",
+  "tornadoLabelAppreciationImmo": "Appréciation immo",
   "tornadoLabelLoyerMensuel": "Loyer mensuel",
-  "tornadoLabelTauxImpotCapital": "Taux imp\u00f4t capital",
-  "tornadoLabelAgeRetraite": "\u00c2ge de retraite",
+  "tornadoLabelTauxImpotCapital": "Taux impôt capital",
+  "tornadoLabelAgeRetraite": "Âge de retraite",
   "tornadoLabelCapitalTotal": "Capital total",
-  "tornadoLabelAnneesAvantRetraite": "Ann\u00e9es avant retraite",
+  "tornadoLabelAnneesAvantRetraite": "Années avant retraite",
   "tornadoLabelBas": "Bas",
   "tornadoLabelHaut": "Haut",
-
   "educationalLearnMoreStressCheck": "Ton stress financier, en clair",
   "educationalLearnMoreLpp": "Comprendre le 2e pilier (LPP)",
-  "educationalLearnMoreTroisA": "Le 3e pilier en d\u00e9tail",
-  "educationalLearnMoreMortgage": "Types d'hypoth\u00e8ques en Suisse",
-  "educationalLearnMoreCredit": "Le cr\u00e9dit \u00e0 la consommation",
+  "educationalLearnMoreTroisA": "Le 3e pilier en détail",
+  "educationalLearnMoreMortgage": "Types d'hypothèques en Suisse",
+  "educationalLearnMoreCredit": "Le crédit à la consommation",
   "educationalLearnMoreLeasing": "Leasing vs achat",
-  "educationalLearnMoreEmergency": "Pourquoi un fonds d'urgence\u00a0?",
-  "educationalLearnMoreCivilStatus": "\u00c9tat civil et finances en Suisse",
-  "educationalLearnMoreEmployment": "Statut professionnel et pr\u00e9voyance",
-  "educationalLearnMoreHousing": "Locataire ou propri\u00e9taire\u00a0?",
-  "educationalLearnMoreCanton": "Fiscalit\u00e9 cantonale en Suisse",
-  "educationalLearnMoreLppBuyback": "Le rachat LPP, comment \u00e7a marche\u00a0?",
-  "educationalLearnMoreTroisaCount": "Strat\u00e9gie multi-comptes 3a",
-  "educationalLearnMoreInvestments": "Placements et fiscalit\u00e9 suisse",
+  "educationalLearnMoreEmergency": "Pourquoi un fonds d'urgence ?",
+  "educationalLearnMoreCivilStatus": "État civil et finances en Suisse",
+  "educationalLearnMoreEmployment": "Statut professionnel et prévoyance",
+  "educationalLearnMoreHousing": "Locataire ou propriétaire ?",
+  "educationalLearnMoreCanton": "Fiscalité cantonale en Suisse",
+  "educationalLearnMoreLppBuyback": "Le rachat LPP, comment ça marche ?",
+  "educationalLearnMoreTroisaCount": "Stratégie multi-comptes 3a",
+  "educationalLearnMoreInvestments": "Placements et fiscalité suisse",
   "educationalLearnMoreRealEstate": "Financer un achat immobilier",
-
-  "capMissingPieceHeadline": "Il manque une pi\u00e8ce",
-  "capMissingPieceWhyNow": "{label} \u2014 sans cette donn\u00e9e, ta projection reste floue.",
+  "capMissingPieceHeadline": "Il manque une pièce",
+  "capMissingPieceWhyNow": "{label} — sans cette donnée, ta projection reste floue.",
   "@capMissingPieceWhyNow": {
     "placeholders": {
       "label": {
@@ -10929,7 +10919,7 @@
       }
     }
   },
-  "capMissingPieceConfidenceLabel": "confiance {score}\u00a0%",
+  "capMissingPieceConfidenceLabel": "confiance {score} %",
   "@capMissingPieceConfidenceLabel": {
     "placeholders": {
       "score": {
@@ -10937,23 +10927,23 @@
       }
     }
   },
-  "capDebtHeadline": "Ta dette p\u00e8se",
-  "capDebtWhyNow": "Rembourser le taux le plus \u00e9lev\u00e9 d\u2019abord lib\u00e8re de la marge chaque mois.",
+  "capDebtHeadline": "Ta dette pèse",
+  "capDebtWhyNow": "Rembourser le taux le plus élevé d’abord libère de la marge chaque mois.",
   "capDebtCtaLabel": "Voir mon plan",
-  "capDebtExpectedImpact": "marge \u00e0 retrouver",
-  "capIndepNoLppHeadline": "Ton 2e pilier\u00a0: CHF\u00a00",
+  "capDebtExpectedImpact": "marge à retrouver",
+  "capIndepNoLppHeadline": "Ton 2e pilier : CHF 0",
   "capIndepNoLppWhyNow": "Sans LPP, ta retraite = AVS seule. Un filet volontaire change la trajectoire.",
   "capIndepNoLppCtaLabel": "Construire mon filet",
-  "capIndepNoLppExpectedImpact": "retraite renforc\u00e9e",
-  "capDisabilityGapHeadline": "Ton filet invalidit\u00e9\u00a0: AI seule",
-  "capDisabilityGapWhyNow": "Sans LPP, ton filet invalidit\u00e9 se limite \u00e0 l\u2019AI. L\u2019\u00e9cart peut surprendre.",
-  "capDisabilityGapCtaLabel": "Voir l\u2019\u00e9cart",
-  "capDisabilityGapExpectedImpact": "comprendre le gap ~70\u00a0%",
-  "cap3aHeadline": "Cette ann\u00e9e compte encore",
-  "cap3aWhyNow": "Un versement 3a peut encore all\u00e9ger tes imp\u00f4ts et renforcer ta retraite.",
+  "capIndepNoLppExpectedImpact": "retraite renforcée",
+  "capDisabilityGapHeadline": "Ton filet invalidité : AI seule",
+  "capDisabilityGapWhyNow": "Sans LPP, ton filet invalidité se limite à l’AI. L’écart peut surprendre.",
+  "capDisabilityGapCtaLabel": "Voir l’écart",
+  "capDisabilityGapExpectedImpact": "comprendre le gap ~70 %",
+  "cap3aHeadline": "Cette année compte encore",
+  "cap3aWhyNow": "Un versement 3a peut encore alléger tes impôts et renforcer ta retraite.",
   "cap3aCtaLabel": "Simuler mon 3a",
   "capLppBuybackHeadline": "Rachat LPP disponible",
-  "capLppBuybackWhyNow": "Tu peux racheter jusqu\u2019\u00e0 {amount} et d\u00e9duire de tes imp\u00f4ts.",
+  "capLppBuybackWhyNow": "Tu peux racheter jusqu’à {amount} et déduire de tes impôts.",
   "@capLppBuybackWhyNow": {
     "placeholders": {
       "amount": {
@@ -10962,13 +10952,13 @@
     }
   },
   "capLppBuybackCtaLabel": "Simuler un rachat",
-  "capLppBuybackExpectedImpact": "d\u00e9duction fiscale",
-  "capBudgetDeficitHeadline": "Ta marge \u00e0 retrouver",
-  "capBudgetDeficitWhyNow": "Ton budget serre. Ajuster une enveloppe peut redonner de l\u2019air.",
+  "capLppBuybackExpectedImpact": "déduction fiscale",
+  "capBudgetDeficitHeadline": "Ta marge à retrouver",
+  "capBudgetDeficitWhyNow": "Ton budget serre. Ajuster une enveloppe peut redonner de l’air.",
   "capBudgetDeficitCtaLabel": "Ajuster mon budget",
   "capBudgetDeficitExpectedImpact": "marge mensuelle",
   "capReplacementRateHeadline": "Ta retraite pince encore",
-  "capReplacementRateWhyNow": "{rate}\u00a0% de taux de remplacement. Un rachat ou un 3a change la trajectoire.",
+  "capReplacementRateWhyNow": "{rate} % de taux de remplacement. Un rachat ou un 3a change la trajectoire.",
   "@capReplacementRateWhyNow": {
     "placeholders": {
       "rate": {
@@ -10976,78 +10966,78 @@
       }
     }
   },
-  "capReplacementRateCtaLabel": "Explorer mes sc\u00e9narios",
-  "capReplacementRateExpectedImpact": "+4 \u00e0 +7 pts",
-  "capCoverageCheckSeniorHeadline": "Invalidit\u00e9 apr\u00e8s 50 ans\u00a0: un angle mort\u00a0?",
-  "capCoverageCheckHeadline": "Ta couverture m\u00e9rite un check",
-  "capCoverageCheckSeniorWhyNow": "Apr\u00e8s 50 ans, l\u2019\u00e9cart entre revenu et rentes AI\u00a0+\u00a0LPP peut d\u00e9passer 40\u00a0%. Ton IJM couvre-t-elle le reste\u00a0?",
-  "capCoverageCheckWhyNow": "IJM, AI, LPP invalidit\u00e9 \u2014 v\u00e9rifie que ton filet tient.",
-  "capCoverageCheckCtaLabel": "V\u00e9rifier",
-  "capChomageHeadline": "S\u00e9curiser les 90 prochains jours",
-  "capChomageWhyNow": "En ch\u00f4mage, trois urgences \u00e0 poser\u00a0: tes droits AC, l\u2019impact sur ta LPP et ton budget \u00e0 ajuster.",
+  "capReplacementRateCtaLabel": "Explorer mes scénarios",
+  "capReplacementRateExpectedImpact": "+4 à +7 pts",
+  "capCoverageCheckSeniorHeadline": "Invalidité après 50 ans : un angle mort ?",
+  "capCoverageCheckHeadline": "Ta couverture mérite un check",
+  "capCoverageCheckSeniorWhyNow": "Après 50 ans, l’écart entre revenu et rentes AI + LPP peut dépasser 40 %. Ton IJM couvre-t-elle le reste ?",
+  "capCoverageCheckWhyNow": "IJM, AI, LPP invalidité — vérifie que ton filet tient.",
+  "capCoverageCheckCtaLabel": "Vérifier",
+  "capChomageHeadline": "Sécuriser les 90 prochains jours",
+  "capChomageWhyNow": "En chômage, trois urgences à poser : tes droits AC, l’impact sur ta LPP et ton budget à ajuster.",
   "capChomageCtaLabel": "Voir mes droits",
-  "capChomageExpectedImpact": "stabilisation imm\u00e9diate",
-  "capDivorceUrgencyHeadline": "Divorce\u00a0: clarifier ce qui change",
-  "capDivorceUrgencyWhyNow": "Partage LPP, pension alimentaire, logement\u00a0\u2014 les impacts financiers m\u00e9ritent un point clair.",
-  "capDivorceUrgencyCtaLabel": "Simuler l\u2019impact",
-  "capDivorceUrgencyExpectedImpact": "clarification LPP + imp\u00f4ts",
+  "capChomageExpectedImpact": "stabilisation immédiate",
+  "capDivorceUrgencyHeadline": "Divorce : clarifier ce qui change",
+  "capDivorceUrgencyWhyNow": "Partage LPP, pension alimentaire, logement — les impacts financiers méritent un point clair.",
+  "capDivorceUrgencyCtaLabel": "Simuler l’impact",
+  "capDivorceUrgencyExpectedImpact": "clarification LPP + impôts",
   "capLeMarriageHeadline": "Mariage en vue",
-  "capLeMarriageWhyNow": "Imp\u00f4ts, AVS, LPP, succession \u2014 tout change.",
-  "capLeMarriageCtaLabel": "Voir l\u2019impact",
+  "capLeMarriageWhyNow": "Impôts, AVS, LPP, succession — tout change.",
+  "capLeMarriageCtaLabel": "Voir l’impact",
   "capLeDivorceHeadline": "Divorce en cours",
-  "capLeDivorceWhyNow": "Partage LPP, pension, imp\u00f4ts \u2014 anticipe.",
+  "capLeDivorceWhyNow": "Partage LPP, pension, impôts — anticipe.",
   "capLeDivorceCtaLabel": "Simuler",
-  "capLeBirthHeadline": "Naissance pr\u00e9vue",
-  "capLeBirthWhyNow": "Allocations, d\u00e9ductions, budget \u2014 pr\u00e9pare-toi.",
-  "capLeBirthCtaLabel": "Voir l\u2019impact",
+  "capLeBirthHeadline": "Naissance prévue",
+  "capLeBirthWhyNow": "Allocations, déductions, budget — prépare-toi.",
+  "capLeBirthCtaLabel": "Voir l’impact",
   "capLeHousingPurchaseHeadline": "Achat immobilier",
-  "capLeHousingPurchaseWhyNow": "EPL, 3a, hypoth\u00e8que \u2014 tout se joue maintenant.",
-  "capLeHousingPurchaseCtaLabel": "Simuler ma capacit\u00e9",
-  "capLeJobLossHeadline": "Perte d\u2019emploi",
-  "capLeJobLossWhyNow": "Ch\u00f4mage, LPP, budget \u2014 les 3 urgences.",
+  "capLeHousingPurchaseWhyNow": "EPL, 3a, hypothèque — tout se joue maintenant.",
+  "capLeHousingPurchaseCtaLabel": "Simuler ma capacité",
+  "capLeJobLossHeadline": "Perte d’emploi",
+  "capLeJobLossWhyNow": "Chômage, LPP, budget — les 3 urgences.",
   "capLeJobLossCtaLabel": "Voir mes droits",
-  "capLeSelfEmploymentHeadline": "Passage \u00e0 l\u2019ind\u00e9pendance",
-  "capLeSelfEmploymentWhyNow": "LPP volontaire, 3a max, IJM \u2014 ton filet \u00e0 reconstruire.",
-  "capLeSelfEmploymentCtaLabel": "V\u00e9rifier ma couverture",
-  "capLeRetirementHeadline": "Retraite \u00e0 l\u2019horizon",
-  "capLeRetirementWhyNow": "Capital ou rente, d\u00e9caissement, timing \u2014 c\u2019est le moment.",
+  "capLeSelfEmploymentHeadline": "Passage à l’indépendance",
+  "capLeSelfEmploymentWhyNow": "LPP volontaire, 3a max, IJM — ton filet à reconstruire.",
+  "capLeSelfEmploymentCtaLabel": "Vérifier ma couverture",
+  "capLeRetirementHeadline": "Retraite à l’horizon",
+  "capLeRetirementWhyNow": "Capital ou rente, décaissement, timing — c’est le moment.",
   "capLeRetirementCtaLabel": "Explorer mes options",
   "capLeConcubinageHeadline": "Vie commune",
-  "capLeConcubinageWhyNow": "Pas de cap AVS 150\u00a0%, pas de partage LPP automatique \u2014 anticipe.",
-  "capLeConcubinageCtaLabel": "Voir les diff\u00e9rences",
-  "capLeDeathOfRelativeHeadline": "Perte d\u2019un proche",
-  "capLeDeathOfRelativeWhyNow": "Succession, rentes de survivant, d\u00e9lais \u2014 ce qui est urgent.",
-  "capLeDeathOfRelativeCtaLabel": "Voir les d\u00e9marches",
+  "capLeConcubinageWhyNow": "Pas de cap AVS 150 %, pas de partage LPP automatique — anticipe.",
+  "capLeConcubinageCtaLabel": "Voir les différences",
+  "capLeDeathOfRelativeHeadline": "Perte d’un proche",
+  "capLeDeathOfRelativeWhyNow": "Succession, rentes de survivant, délais — ce qui est urgent.",
+  "capLeDeathOfRelativeCtaLabel": "Voir les démarches",
   "capLeNewJobHeadline": "Nouveau poste",
-  "capLeNewJobWhyNow": "LPP, libre passage, 3a \u2014 trois choses \u00e0 v\u00e9rifier.",
+  "capLeNewJobWhyNow": "LPP, libre passage, 3a — trois choses à vérifier.",
   "capLeNewJobCtaLabel": "Comparer",
-  "capLeHousingSaleHeadline": "Vente immobili\u00e8re",
-  "capLeHousingSaleWhyNow": "Plus-value, remboursement EPL, r\u00e9investissement \u2014 planifie.",
-  "capLeHousingSaleCtaLabel": "Voir l\u2019impact",
-  "capLeInheritanceHeadline": "H\u00e9ritage re\u00e7u",
-  "capLeInheritanceWhyNow": "Imp\u00f4ts, int\u00e9gration au patrimoine, rachat LPP \u2014 arbitre.",
+  "capLeHousingSaleHeadline": "Vente immobilière",
+  "capLeHousingSaleWhyNow": "Plus-value, remboursement EPL, réinvestissement — planifie.",
+  "capLeHousingSaleCtaLabel": "Voir l’impact",
+  "capLeInheritanceHeadline": "Héritage reçu",
+  "capLeInheritanceWhyNow": "Impôts, intégration au patrimoine, rachat LPP — arbitre.",
   "capLeInheritanceCtaLabel": "Voir mes options",
-  "capLeDonationHeadline": "Donation envisag\u00e9e",
-  "capLeDonationWhyNow": "Avancement d\u2019hoirie, fiscalit\u00e9, rapport \u2014 anticipe.",
-  "capLeDonationCtaLabel": "Voir l\u2019impact",
-  "capLeDisabilityHeadline": "Risque invalidit\u00e9",
-  "capLeDisabilityWhyNow": "AI, LPP invalidit\u00e9, IJM \u2014 v\u00e9rifie ton filet.",
-  "capLeDisabilityCtaLabel": "V\u00e9rifier ma couverture",
-  "capLeCantonMoveHeadline": "D\u00e9m\u00e9nagement cantonal",
-  "capLeCantonMoveWhyNow": "Imp\u00f4ts, LAMal, charges \u2014 l\u2019impact peut surprendre.",
+  "capLeDonationHeadline": "Donation envisagée",
+  "capLeDonationWhyNow": "Avancement d’hoirie, fiscalité, rapport — anticipe.",
+  "capLeDonationCtaLabel": "Voir l’impact",
+  "capLeDisabilityHeadline": "Risque invalidité",
+  "capLeDisabilityWhyNow": "AI, LPP invalidité, IJM — vérifie ton filet.",
+  "capLeDisabilityCtaLabel": "Vérifier ma couverture",
+  "capLeCantonMoveHeadline": "Déménagement cantonal",
+  "capLeCantonMoveWhyNow": "Impôts, LAMal, charges — l’impact peut surprendre.",
   "capLeCantonMoveCtaLabel": "Comparer les cantons",
-  "capLeCountryMoveHeadline": "D\u00e9part de Suisse",
-  "capLeCountryMoveWhyNow": "Libre passage, AVS, 3a \u2014 ce qui te suit, ce qui reste.",
-  "capLeCountryMoveCtaLabel": "Voir les cons\u00e9quences",
+  "capLeCountryMoveHeadline": "Départ de Suisse",
+  "capLeCountryMoveWhyNow": "Libre passage, AVS, 3a — ce qui te suit, ce qui reste.",
+  "capLeCountryMoveCtaLabel": "Voir les conséquences",
   "capLeDebtCrisisHeadline": "Situation de dette",
-  "capLeDebtCrisisWhyNow": "Prioriser, restructurer, prot\u00e9ger l\u2019essentiel \u2014 par \u00e9tapes.",
+  "capLeDebtCrisisWhyNow": "Prioriser, restructurer, protéger l’essentiel — par étapes.",
   "capLeDebtCrisisCtaLabel": "Voir mon plan",
-  "capCouple3aHeadline": "\u00c0 deux, un levier de plus",
-  "capCouple3aWhyNow": "Votre m\u00e9nage peut d\u00e9duire 2\u00a0\u00d7\u00a07\u2019258\u00a0CHF en cotisant chacun au 3a. Le compte de votre conjoint\u00b7e n\u2019est pas encore renseign\u00e9.",
+  "capCouple3aHeadline": "À deux, un levier de plus",
+  "capCouple3aWhyNow": "Votre ménage peut déduire 2 × 7’258 CHF en cotisant chacun au 3a. Le compte de votre conjoint·e n’est pas encore renseigné.",
   "capCouple3aCtaLabel": "Simuler le 3a couple",
-  "capCouple3aExpectedImpact": "jusqu\u2019\u00e0 14\u2019516\u00a0CHF de d\u00e9ductions",
-  "capCoupleLppBuybackHeadline": "Rachat LPP\u00a0: le levier conjoint",
-  "capCoupleLppBuybackWhyNow": "Votre conjoint\u00b7e dispose d\u2019un rachat possible de {amount}. Prioriser le TMI le plus \u00e9lev\u00e9 maximise la d\u00e9duction.",
+  "capCouple3aExpectedImpact": "jusqu’à 14’516 CHF de déductions",
+  "capCoupleLppBuybackHeadline": "Rachat LPP : le levier conjoint",
+  "capCoupleLppBuybackWhyNow": "Votre conjoint·e dispose d’un rachat possible de {amount}. Prioriser le TMI le plus élevé maximise la déduction.",
   "@capCoupleLppBuybackWhyNow": {
     "placeholders": {
       "amount": {
@@ -11056,23 +11046,23 @@
     }
   },
   "capCoupleLppBuybackCtaLabel": "Comparer les rachats",
-  "capCoupleLppBuybackExpectedImpact": "optimisation fiscale m\u00e9nage",
-  "capCoupleAvsCapHeadline": "AVS couple\u00a0: le plafond 150\u00a0%",
-  "capCoupleAvsCapWhyNow": "Mari\u00e9\u00b7es, vos rentes AVS cumul\u00e9es sont plafonn\u00e9es \u00e0 150\u00a0% de la rente maximale (LAVS art.\u00a035). L\u2019\u00e9cart peut atteindre ~10\u2019000\u00a0CHF/an.",
-  "capCoupleAvsCapCtaLabel": "Voir l\u2019impact AVS",
+  "capCoupleLppBuybackExpectedImpact": "optimisation fiscale ménage",
+  "capCoupleAvsCapHeadline": "AVS couple : le plafond 150 %",
+  "capCoupleAvsCapWhyNow": "Marié·es, vos rentes AVS cumulées sont plafonnées à 150 % de la rente maximale (LAVS art. 35). L’écart peut atteindre ~10’000 CHF/an.",
+  "capCoupleAvsCapCtaLabel": "Voir l’impact AVS",
   "capCoupleAvsCapExpectedImpact": "comprendre le delta ~10k/an",
-  "capHonestyDebtHeadline": "Ta situation m\u00e9rite un regard expert",
-  "capHonestyDebtWhyNow": "Les leviers classiques ne suffisent pas ici. Un\u00b7e sp\u00e9cialiste en d\u00e9sendettement peut t\u2019aider \u00e0 construire un plan r\u00e9aliste.",
+  "capHonestyDebtHeadline": "Ta situation mérite un regard expert",
+  "capHonestyDebtWhyNow": "Les leviers classiques ne suffisent pas ici. Un·e spécialiste en désendettement peut t’aider à construire un plan réaliste.",
   "capHonestryCrossBorderHeadline": "Faisons le point ensemble",
-  "capHonestryCrossBorderWhyNow": "\u00c0 ton horizon, les leviers 2e pilier sont limit\u00e9s. Un\u00b7e sp\u00e9cialiste frontalier peut identifier des pistes que MINT ne couvre pas encore.",
-  "capHonestyNoLppHeadline": "Ton socle est l\u00e0",
-  "capHonestyNoLppWhyNow": "Les leviers classiques ne changent pas beaucoup la donne ici. Un\u00b7e sp\u00e9cialiste peut t\u2019aider \u00e0 voir plus loin.",
+  "capHonestryCrossBorderWhyNow": "À ton horizon, les leviers 2e pilier sont limités. Un·e spécialiste frontalier peut identifier des pistes que MINT ne couvre pas encore.",
+  "capHonestyNoLppHeadline": "Ton socle est là",
+  "capHonestyNoLppWhyNow": "Les leviers classiques ne changent pas beaucoup la donne ici. Un·e spécialiste peut t’aider à voir plus loin.",
   "capHonestyCtaLabel": "Parler au coach",
   "capHonestyExpectedImpact": "clarification",
-  "capHonestyDebtCoachPrompt": "Ma dette dépasse largement mon revenu annuel. Les simulateurs ne suffisent plus. Oriente-moi vers un\u00b7e spécialiste en désendettement.",
-  "capHonestyCrossBorderCoachPrompt": "Je suis frontalier\u00b7ère proche de la retraite sans LPP. Quelles options réalistes existent\u00a0? Oriente-moi vers un\u00b7e spécialiste.",
-  "capHonestyNoLppCoachPrompt": "J\u2019approche de la retraite avec peu de 2e pilier. Aide-moi à comprendre ce qui est acquis et oriente-moi vers un\u00b7e spécialiste.",
-  "capAcquiredAvsWithRente": "AVS\u00a0: ~{rente}\u00a0CHF/mois ({years} ans cotis\u00e9s)",
+  "capHonestyDebtCoachPrompt": "Ma dette dépasse largement mon revenu annuel. Les simulateurs ne suffisent plus. Oriente-moi vers un·e spécialiste en désendettement.",
+  "capHonestyCrossBorderCoachPrompt": "Je suis frontalier·ère proche de la retraite sans LPP. Quelles options réalistes existent ? Oriente-moi vers un·e spécialiste.",
+  "capHonestyNoLppCoachPrompt": "J’approche de la retraite avec peu de 2e pilier. Aide-moi à comprendre ce qui est acquis et oriente-moi vers un·e spécialiste.",
+  "capAcquiredAvsWithRente": "AVS : ~{rente} CHF/mois ({years} ans cotisés)",
   "@capAcquiredAvsWithRente": {
     "placeholders": {
       "rente": {
@@ -11083,7 +11073,7 @@
       }
     }
   },
-  "capAcquiredAvsYearsOnly": "AVS\u00a0: {years} ann\u00e9es cotis\u00e9es",
+  "capAcquiredAvsYearsOnly": "AVS : {years} années cotisées",
   "@capAcquiredAvsYearsOnly": {
     "placeholders": {
       "years": {
@@ -11091,8 +11081,8 @@
       }
     }
   },
-  "capAcquiredAvsInProgress": "AVS\u00a0: droits en cours",
-  "capAcquiredLpp": "LPP\u00a0: {amount} acquis",
+  "capAcquiredAvsInProgress": "AVS : droits en cours",
+  "capAcquiredLpp": "LPP : {amount} acquis",
   "@capAcquiredLpp": {
     "placeholders": {
       "amount": {
@@ -11100,7 +11090,7 @@
       }
     }
   },
-  "capAcquired3a": "3a\u00a0: {amount} \u00e9pargn\u00e9s",
+  "capAcquired3a": "3a : {amount} épargnés",
   "@capAcquired3a": {
     "placeholders": {
       "amount": {
@@ -11108,178 +11098,166 @@
       }
     }
   },
-  "capFallbackHeadline": "Compl\u00e8te ton profil",
-  "capFallbackWhyNow": "Plus MINT te conna\u00eet, plus les leviers sont pr\u00e9cis.",
+  "capFallbackHeadline": "Complète ton profil",
+  "capFallbackWhyNow": "Plus MINT te connaît, plus les leviers sont précis.",
   "capFallbackCtaLabel": "Enrichir",
-
   "pulseIndepLppTitle": "CHF 0",
-  "pulseIndepLppSubtitle": "C\u2019est ton 2e pilier aujourd\u2019hui.",
-  "pulseIndepLppDetail": "Sans LPP, ta retraite = AVS seule\u00a0: ~CHF 1\u2019934/mois.",
+  "pulseIndepLppSubtitle": "C’est ton 2e pilier aujourd’hui.",
+  "pulseIndepLppDetail": "Sans LPP, ta retraite = AVS seule : ~CHF 1’934/mois.",
   "pulseIndepLppCta": "Construire mon filet",
-  "pulseDebtSubtitle": "de dettes \u00e0 rembourser.",
+  "pulseDebtSubtitle": "de dettes à rembourser.",
   "pulseDebtCta": "Voir mon plan",
-  "pulseComprSalaireSubtitle": "disparaissent de ton salaire avant m\u00eame d\u2019arriver.",
-  "pulseComprSalaireDetail": "AVS, LPP, AC, imp\u00f4ts \u2014 d\u00e9couvre o\u00f9 va chaque franc.",
+  "pulseComprSalaireSubtitle": "disparaissent de ton salaire avant même d’arriver.",
+  "pulseComprSalaireDetail": "AVS, LPP, AC, impôts — découvre où va chaque franc.",
   "pulseComprSalaireCta": "Comprendre ma fiche",
   "pulseComprSystemeTitle": "3 piliers",
-  "pulseComprSystemeSubtitle": "Le syst\u00e8me suisse en 1 minute.",
-  "pulseComprSystemeDetail": "AVS (\u00c9tat) + LPP (employeur) + 3a (toi) = ta retraite.",
-  "pulseComprSystemeCta": "D\u00e9couvrir",
-  "pulseComprSituationTitle": "Ta visibilit\u00e9 financi\u00e8re",
-  "pulseComprSituationSubtitle": "Que sais-tu vraiment de ta situation\u00a0?",
-  "pulseComprSituationDetail": "Compl\u00e8te ton profil pour affiner ton score.",
+  "pulseComprSystemeSubtitle": "Le système suisse en 1 minute.",
+  "pulseComprSystemeDetail": "AVS (État) + LPP (employeur) + 3a (toi) = ta retraite.",
+  "pulseComprSystemeCta": "Découvrir",
+  "pulseComprSituationTitle": "Ta visibilité financière",
+  "pulseComprSituationSubtitle": "Que sais-tu vraiment de ta situation ?",
+  "pulseComprSituationDetail": "Complète ton profil pour affiner ton score.",
   "pulseComprSituationCta": "Voir mon score",
-  "pulseProtRetraiteCapRenteTitle": "Capital ou Rente\u00a0?",
+  "pulseProtRetraiteCapRenteTitle": "Capital ou Rente ?",
   "pulseProtRetraiteCapRenteSubtitle": "Le choix qui change tout.",
-  "pulseProtRetraiteCapRenteDetail": "Compare les deux options avec tes chiffres r\u00e9els.",
+  "pulseProtRetraiteCapRenteDetail": "Compare les deux options avec tes chiffres réels.",
   "pulseProtRetraiteCapRenteCta": "Comparer",
-  "pulseProtRetraiteSubtitle": "conserv\u00e9 \u00e0 la retraite.",
-  "pulseProtRetraiteDetail": "M\u00e9diane suisse\u00a0: 60\u00a0%. O\u00f9 te situes-tu\u00a0?",
+  "pulseProtRetraiteSubtitle": "conservé à la retraite.",
+  "pulseProtRetraiteDetail": "Médiane suisse : 60 %. Où te situes-tu ?",
   "pulseProtRetraiteCta": "Voir ma projection",
-  "pulseProtFamilleSubtitle": "Votre retraite \u00e0 deux.",
-  "pulseProtFamilleDetail": "Anticipe le creux quand un seul est retrait\u00e9.",
+  "pulseProtFamilleSubtitle": "Votre retraite à deux.",
+  "pulseProtFamilleDetail": "Anticipe le creux quand un seul est retraité.",
   "pulseProtFamilleCta": "Voir la timeline",
-  "pulseProtUrgenceDebtSubtitle": "\u00e0 rembourser.",
-  "pulseProtUrgenceDebtDetail": "Commence par le taux le plus \u00e9lev\u00e9.",
+  "pulseProtUrgenceDebtSubtitle": "à rembourser.",
+  "pulseProtUrgenceDebtDetail": "Commence par le taux le plus élevé.",
   "pulseProtUrgenceDebtCta": "Mon plan de remboursement",
-  "pulseProtUrgenceTitle": "Ton filet de s\u00e9curit\u00e9",
-  "pulseProtUrgenceSubtitle": "Que se passe-t-il si tu ne peux plus travailler\u00a0?",
-  "pulseProtUrgenceDetail": "IJM, AI, LPP invalidit\u00e9 \u2014 v\u00e9rifie ta couverture.",
-  "pulseProtUrgenceCta": "V\u00e9rifier",
-  "pulseOptFiscalSubtitle": "laiss\u00e9s au fisc chaque ann\u00e9e.",
+  "pulseProtUrgenceTitle": "Ton filet de sécurité",
+  "pulseProtUrgenceSubtitle": "Que se passe-t-il si tu ne peux plus travailler ?",
+  "pulseProtUrgenceDetail": "IJM, AI, LPP invalidité — vérifie ta couverture.",
+  "pulseProtUrgenceCta": "Vérifier",
+  "pulseOptFiscalSubtitle": "laissés au fisc chaque année.",
   "pulseOptFiscalDetail": "3a + rachat LPP = tes leviers les plus puissants.",
-  "pulseOptFiscalCta": "R\u00e9cup\u00e9rer",
+  "pulseOptFiscalCta": "Récupérer",
   "pulseOptPatrimoineSubtitle": "Ton patrimoine total.",
-  "pulseOptPatrimoineDetail": "\u00c9pargne + LPP + 3a + investissements.",
-  "pulseOptPatrimoineCtaLabel": "D\u00e9tail",
-  "pulseOptCapRenteTitle": "Capital ou Rente\u00a0?",
-  "pulseOptCapRenteSubtitle": "La diff\u00e9rence peut d\u00e9passer CHF 200\u2019000.",
-  "pulseOptCapRenteDetail": "Tax\u00e9 une fois (capital) vs chaque ann\u00e9e (rente).",
+  "pulseOptPatrimoineDetail": "Épargne + LPP + 3a + investissements.",
+  "pulseOptPatrimoineCtaLabel": "Détail",
+  "pulseOptCapRenteTitle": "Capital ou Rente ?",
+  "pulseOptCapRenteSubtitle": "La différence peut dépasser CHF 200’000.",
+  "pulseOptCapRenteDetail": "Taxé une fois (capital) vs chaque année (rente).",
   "pulseOptCapRenteCta": "Comparer",
   "pulseNavExpatGapsSubtitle": "de cotisations manquent dans ton AVS.",
-  "pulseNavExpatGapsDetail": "Chaque ann\u00e9e manquante = -2.3\u00a0% de rente \u00e0 vie.",
+  "pulseNavExpatGapsDetail": "Chaque année manquante = -2.3 % de rente à vie.",
   "pulseNavExpatGapsCta": "Analyser mes lacunes",
-  "pulseNavExpatTitle": "Nouveau en Suisse\u00a0?",
-  "pulseNavExpatSubtitle": "Tes droits, tes lacunes, tes pi\u00e8ges \u00e0 \u00e9viter.",
-  "pulseNavExpatDetail": "AVS, LPP, 3a \u2014 tout ce qui compte d\u00e8s ton arriv\u00e9e.",
-  "pulseNavExpatCta": "D\u00e9couvrir",
+  "pulseNavExpatTitle": "Nouveau en Suisse ?",
+  "pulseNavExpatSubtitle": "Tes droits, tes lacunes, tes pièges à éviter.",
+  "pulseNavExpatDetail": "AVS, LPP, 3a — tout ce qui compte dès ton arrivée.",
+  "pulseNavExpatCta": "Découvrir",
   "pulseNavAchatTitle": "Acheter un bien",
-  "pulseNavAchatSubtitle": "Calcule ta capacit\u00e9 d\u2019achat.",
+  "pulseNavAchatSubtitle": "Calcule ta capacité d’achat.",
   "pulseNavAchatDetail": "Ton 3a et ton LPP = ta principale mise de fonds.",
   "pulseNavAchatCta": "Simuler",
   "pulseNavAchatCapSubtitle": "Le bien que tu pourrais viser.",
   "pulseNavAchatCapCta": "Simuler mon achat",
-  "pulseNavIndependantTitle": "Ind\u00e9pendant\u00b7e\u00a0?",
+  "pulseNavIndependantTitle": "Indépendant·e ?",
   "pulseNavIndependantSubtitle": "Sans employeur, ton filet = toi.",
-  "pulseNavIndependantDetail": "LPP volontaire, 3a max 36\u2019288/an, IJM obligatoire.",
-  "pulseNavIndependantCta": "V\u00e9rifier ma couverture",
-  "pulseNavEvenementTitle": "Un changement de vie\u00a0?",
-  "pulseNavEvenementSubtitle": "Chaque \u00e9v\u00e9nement a un impact financier.",
-  "pulseNavEvenementDetail": "Mariage, naissance, divorce, h\u00e9ritage, d\u00e9m\u00e9nagement...",
+  "pulseNavIndependantDetail": "LPP volontaire, 3a max 36’288/an, IJM obligatoire.",
+  "pulseNavIndependantCta": "Vérifier ma couverture",
+  "pulseNavEvenementTitle": "Un changement de vie ?",
+  "pulseNavEvenementSubtitle": "Chaque événement a un impact financier.",
+  "pulseNavEvenementDetail": "Mariage, naissance, divorce, héritage, déménagement...",
   "pulseNavEvenementCta": "Explorer",
-
   "reengagementTitleNewYear": "Nouveaux plafonds 3a",
-  "reengagementTitleTaxPrep": "D\u00e9claration fiscale",
+  "reengagementTitleTaxPrep": "Déclaration fiscale",
   "reengagementTitleTaxDeadline": "Deadline fiscale",
   "reengagementTitleThreeA": "Deadline 3a",
   "reengagementTitleThreeAFinal": "Dernier mois 3a",
-  "reengagementTitleQuarterlyFri": "Score de solidit\u00e9",
-
-  "assurancesAlerteDelai": "Rappel\u00a0: modification de franchise possible avant le 30 novembre de chaque ann\u00e9e pour l\u2019ann\u00e9e suivante.",
-  "assurancesDisclaimerLamal": "Cette analyse est indicative. Les primes varient selon l\u2019assureur, la r\u00e9gion et le mod\u00e8le d\u2019assurance. Consultez ta caisse maladie pour des chiffres exacts. Source\u00a0: LAMal art. 62-64, OAMal.",
-  "assurancesDisclaimerCoverage": "Cette analyse est indicative et ne constitue pas un conseil en assurance personnalis\u00e9. Les primes varient selon l\u2019assureur et ton profil. Consulte un\u00b7e sp\u00e9cialiste en assurances pour une \u00e9valuation compl\u00e8te.",
-
-  "recommendationsDisclaimer": "Suggestions p\u00e9dagogiques bas\u00e9es sur ton profil \u2014 outil \u00e9ducatif qui ne constitue pas un conseil financier personnalis\u00e9 au sens de la LSFin. Consultez un\u00b7e sp\u00e9cialiste pour une analyse adapt\u00e9e \u00e0 ta situation.",
-  "recommendationsTitleEmergencyFund": "Constituer un fonds d\u2019urgence",
+  "reengagementTitleQuarterlyFri": "Score de solidité",
+  "assurancesAlerteDelai": "Rappel : modification de franchise possible avant le 30 novembre de chaque année pour l’année suivante.",
+  "assurancesDisclaimerLamal": "Cette analyse est indicative. Les primes varient selon l’assureur, la région et le modèle d’assurance. Consultez ta caisse maladie pour des chiffres exacts. Source : LAMal art. 62-64, OAMal.",
+  "assurancesDisclaimerCoverage": "Cette analyse est indicative et ne constitue pas un conseil en assurance personnalisé. Les primes varient selon l’assureur et ton profil. Consulte un·e spécialiste en assurances pour une évaluation complète.",
+  "recommendationsDisclaimer": "Suggestions pédagogiques basées sur ton profil — outil éducatif qui ne constitue pas un conseil financier personnalisé au sens de la LSFin. Consultez un·e spécialiste pour une analyse adaptée à ta situation.",
+  "recommendationsTitleEmergencyFund": "Constituer un fonds d’urgence",
   "recommendationsTitlePillar3a": "Optimiser avec le 3a",
   "recommendationsTitleLppBuyback": "Simuler un rachat LPP",
   "recommendationsTitleCompoundInterest": "Le pouvoir du temps",
   "recommendationsTitleStartDiagnostic": "Commence ton diagnostic",
-
-  "cantonalBenchmarkDisclaimer": "Ces donn\u00e9es sont des ordres de grandeur issus de statistiques f\u00e9d\u00e9rales anonymis\u00e9es (OFS). Elles ne constituent pas un conseil financier. Aucune donn\u00e9e personnelle n\u2019est compar\u00e9e \u00e0 d\u2019autres utilisateurs. Outil \u00e9ducatif\u00a0: ne constitue pas un conseil au sens de la LSFin.",
-
-  "scenarioLabelPrudent": "Sc\u00e9nario prudent",
-  "scenarioLabelReference": "Sc\u00e9nario de r\u00e9f\u00e9rence",
-  "scenarioLabelFavorable": "Sc\u00e9nario favorable",
-  "scenarioDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. Les projections reposent sur des hypoth\u00e8ses de rendement et ne pr\u00e9sagent pas des r\u00e9sultats futurs. Consulte un\u00b7e sp\u00e9cialiste pour un plan personnalis\u00e9.",
-
-  "bayesianDisclaimer": "Estimations bay\u00e9siennes bas\u00e9es sur les statistiques suisses (OFS/BFS). Ces valeurs sont des approximations p\u00e9dagogiques, pas des certitudes. Ne constitue pas un conseil financier au sens de la LSFin.",
-
+  "cantonalBenchmarkDisclaimer": "Ces données sont des ordres de grandeur issus de statistiques fédérales anonymisées (OFS). Elles ne constituent pas un conseil financier. Aucune donnée personnelle n’est comparée à d’autres utilisateurs. Outil éducatif : ne constitue pas un conseil au sens de la LSFin.",
+  "scenarioLabelPrudent": "Scénario prudent",
+  "scenarioLabelReference": "Scénario de référence",
+  "scenarioLabelFavorable": "Scénario favorable",
+  "scenarioDisclaimer": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les projections reposent sur des hypothèses de rendement et ne présagent pas des résultats futurs. Consulte un·e spécialiste pour un plan personnalisé.",
+  "bayesianDisclaimer": "Estimations bayésiennes basées sur les statistiques suisses (OFS/BFS). Ces valeurs sont des approximations pédagogiques, pas des certitudes. Ne constitue pas un conseil financier au sens de la LSFin.",
   "consentLabelByok": "Personnalisation IA",
   "consentLabelSnapshot": "Historique de progression",
-  "consentLabelNotifications": "Rappels personnalis\u00e9s",
-  "consentDashboardDisclaimer": "Tes donn\u00e9es t\u2019appartiennent. Chaque param\u00e8tre est r\u00e9vocable \u00e0 tout moment (nLPD art. 6).",
-
+  "consentLabelNotifications": "Rappels personnalisés",
+  "consentDashboardDisclaimer": "Tes données t’appartiennent. Chaque paramètre est révocable à tout moment (nLPD art. 6).",
   "wizardValidationRequired": "Cette question est obligatoire",
-  "wizardAnswerNotProvided": "Non renseign\u00e9",
-
+  "wizardAnswerNotProvided": "Non renseigné",
   "arbitrageTitleRenteVsCapital": "Rente vs Capital",
   "arbitrageMissingLpp": "Ajoute ton avoir LPP pour voir cette comparaison",
   "arbitrageTitleCalendrierRetraits": "Calendrier de retraits",
   "arbitrageMissingLppAnd3a": "Ajoute ton avoir LPP et 3a pour voir le calendrier",
-  "arbitrageTitleRachatVsMarche": "Rachat LPP vs March\u00e9",
-  "arbitrageMissingLppCertificat": "Scanne ton certificat LPP pour conna\u00eetre ta lacune de rachat",
-
+  "arbitrageTitleRachatVsMarche": "Rachat LPP vs Marché",
+  "arbitrageMissingLppCertificat": "Scanne ton certificat LPP pour connaître ta lacune de rachat",
   "reportTitleBilanFlash": "Ton Bilan Flash",
-  "reportLabelSanteFinanciere": "Sant\u00e9 Financi\u00e8re",
-
-  "retirementProjectionDisclaimer": "Projection \u00e9ducative bas\u00e9e sur les bar\u00e8mes AVS/LPP 2025. Ne constitue pas un conseil financier ou en pr\u00e9voyance. Les montants sont des estimations qui peuvent varier selon l\u2019\u00e9volution l\u00e9gale et ta situation personnelle. Consulte un\u00b7e sp\u00e9cialiste pour un plan personnalis\u00e9. LSFin.",
+  "reportLabelSanteFinanciere": "Santé Financière",
+  "retirementProjectionDisclaimer": "Projection éducative basée sur les barèmes AVS/LPP 2025. Ne constitue pas un conseil financier ou en prévoyance. Les montants sont des estimations qui peuvent varier selon l’évolution légale et ta situation personnelle. Consulte un·e spécialiste pour un plan personnalisé. LSFin.",
   "retirementIncomeLabelPillar3a": "3e pilier",
   "retirementIncomeLabelPatrimoine": "Patrimoine libre",
-  "retirementPhaseLabelBothRetired": "Les deux \u00e0 la retraite",
+  "retirementPhaseLabelBothRetired": "Les deux à la retraite",
   "retirementPhaseLabelRetraite": "Retraite",
-  "forecasterDisclaimer": "Projections \u00e9ducatives bas\u00e9es sur des hypoth\u00e8ses de rendement. Ne constitue pas un conseil financier. Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs. Consulte un\u00b7e sp\u00e9cialiste pour un plan personnalis\u00e9. LSFin.",
-  "forecasterEtSiDisclaimer": "Simulation \u00ab\u00a0Et si...\u00a0\u00bb \u00e0 titre \u00e9ducatif uniquement. Hypoth\u00e8ses de rendement ajust\u00e9es manuellement. Ne constitue pas un conseil financier (LSFin). Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs.",
-  "lppRachatDisclaimerEchelonne": "Simulation p\u00e9dagogique bas\u00e9e sur les bar\u00e8mes cantonaux estim\u00e9s. Le rachat LPP est soumis \u00e0 acceptation par la caisse de pension. La d\u00e9duction annuelle est plafonn\u00e9e au revenu imposable. Blocage EPL de 3\u00a0ans apr\u00e8s chaque rachat (LPP art. 79b al. 3). Consulte ta caisse de pension et un\u00b7e sp\u00e9cialiste en pr\u00e9voyance avant toute d\u00e9cision.",
-  "lppLibrePassageDisclaimer": "Ces informations sont p\u00e9dagogiques et ne constituent pas un conseil juridique ou financier personnalis\u00e9. Les r\u00e8gles d\u00e9pendent de ta caisse de pension et de ta situation. Base l\u00e9gale\u00a0: LFLP, OLP. Consultez un ou une sp\u00e9cialiste en pr\u00e9voyance professionnelle.",
-  "lppEplDisclaimer": "Simulation p\u00e9dagogique \u00e0 titre indicatif. Le montant retirable exact d\u00e9pend du r\u00e8glement de ta caisse de pension et de ton avoir \u00e0 50\u00a0ans. L\u2019imp\u00f4t varie selon le canton et la situation personnelle. Base l\u00e9gale\u00a0: art. 30c LPP, OEPL. Consulte ta caisse de pension et un ou une sp\u00e9cialiste avant toute d\u00e9cision.",
-  "lppChecklistTitleDecompte": "Demander un d\u00e9compte de sortie",
-  "lppChecklistDescDecompte": "Exige un d\u00e9compte d\u00e9taill\u00e9 de ta caisse de pension avec la r\u00e9partition obligatoire / surobligatoire.",
-  "lppChecklistTitleTransfert30j": "Transf\u00e9rer ton avoir dans les 30\u00a0jours",
-  "lppChecklistDescTransfert30j": "L\u2019avoir doit \u00eatre transf\u00e9r\u00e9 \u00e0 la nouvelle caisse de pension. Communiquez les coordonn\u00e9es de la nouvelle caisse \u00e0 l\u2019ancienne.",
-  "lppChecklistAlertTransfertTitle": "D\u00e9lai de transfert bient\u00f4t \u00e9chu",
-  "lppChecklistAlertTransfertMsg": "Le transfert de ton avoir doit intervenir dans les 30\u00a0jours. Contacte ton ancienne caisse de pension rapidement.",
+  "forecasterDisclaimer": "Projections éducatives basées sur des hypothèses de rendement. Ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.",
+  "forecasterEtSiDisclaimer": "Simulation « Et si... » à titre éducatif uniquement. Hypothèses de rendement ajustées manuellement. Ne constitue pas un conseil financier (LSFin). Les rendements passés ne présagent pas des rendements futurs.",
+  "lppRachatDisclaimerEchelonne": "Simulation pédagogique basée sur les barèmes cantonaux estimés. Le rachat LPP est soumis à acceptation par la caisse de pension. La déduction annuelle est plafonnée au revenu imposable. Blocage EPL de 3 ans après chaque rachat (LPP art. 79b al. 3). Consulte ta caisse de pension et un·e spécialiste en prévoyance avant toute décision.",
+  "lppLibrePassageDisclaimer": "Ces informations sont pédagogiques et ne constituent pas un conseil juridique ou financier personnalisé. Les règles dépendent de ta caisse de pension et de ta situation. Base légale : LFLP, OLP. Consultez un ou une spécialiste en prévoyance professionnelle.",
+  "lppEplDisclaimer": "Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de ta caisse de pension et de ton avoir à 50 ans. L’impôt varie selon le canton et la situation personnelle. Base légale : art. 30c LPP, OEPL. Consulte ta caisse de pension et un ou une spécialiste avant toute décision.",
+  "lppChecklistTitleDecompte": "Demander un décompte de sortie",
+  "lppChecklistDescDecompte": "Exige un décompte détaillé de ta caisse de pension avec la répartition obligatoire / surobligatoire.",
+  "lppChecklistTitleTransfert30j": "Transférer ton avoir dans les 30 jours",
+  "lppChecklistDescTransfert30j": "L’avoir doit être transféré à la nouvelle caisse de pension. Communiquez les coordonnées de la nouvelle caisse à l’ancienne.",
+  "lppChecklistAlertTransfertTitle": "Délai de transfert bientôt échu",
+  "lppChecklistAlertTransfertMsg": "Le transfert de ton avoir doit intervenir dans les 30 jours. Contacte ton ancienne caisse de pension rapidement.",
   "lppChecklistTitleOuvrirLP": "Ouvrir un compte de libre passage",
-  "lppChecklistDescOuvrirLP": "Sans nouvel employeur, ton avoir doit \u00eatre plac\u00e9 sur un ou deux comptes de libre passage (max. 2 selon la loi).",
+  "lppChecklistDescOuvrirLP": "Sans nouvel employeur, ton avoir doit être placé sur un ou deux comptes de libre passage (max. 2 selon la loi).",
   "lppChecklistTitleChoisirLP": "Choisir entre compte bancaire et police de libre passage",
-  "lppChecklistDescChoisirLP": "Le compte bancaire offre plus de flexibilit\u00e9. La police d\u2019assurance peut inclure une couverture risque.",
-  "lppChecklistTitleVerifierDestination": "V\u00e9rifier les r\u00e8gles de retrait selon le pays de destination",
-  "lppChecklistDescVerifierDestination": "UE/AELE\u00a0: seule la part surobligatoire peut \u00eatre retir\u00e9e en esp\u00e8ces. La part obligatoire reste en Suisse. Hors UE/AELE\u00a0: retrait total possible.",
-  "lppChecklistTitleAnnoncerDepart": "Annoncer ton d\u00e9part \u00e0 la caisse de pension",
-  "lppChecklistDescAnnoncerDepart": "Informe ta caisse dans les 30\u00a0jours suivant ton d\u00e9part.",
-  "lppChecklistAlertTransfert6mTitle": "Transfert \u00e0 effectuer dans les 6\u00a0mois",
-  "lppChecklistAlertTransfert6mMsg": "Apr\u00e8s un d\u00e9part de Suisse, tu disposes de 6\u00a0mois pour transf\u00e9rer ton avoir ou ouvrir un compte de libre passage.",
-  "lppChecklistTitleChomage": "V\u00e9rifier tes droits au ch\u00f4mage",
-  "lppChecklistDescChomage": "En cas de ch\u00f4mage, ta pr\u00e9voyance professionnelle continue via la fondation institution suppl\u00e9tive (Fondation LPP).",
-  "lppChecklistTitleAvoirs": "Rechercher des avoirs oubli\u00e9s",
-  "lppChecklistDescAvoirs": "Utilisez la Centrale du 2e pilier (sfbvg.ch) pour rechercher d\u2019\u00e9ventuels avoirs de libre passage oubli\u00e9s.",
-  "lppChecklistTitleCouverture": "V\u00e9rifier la couverture risque transitoire",
-  "lppChecklistDescCouverture": "Pendant la p\u00e9riode de libre passage, la couverture d\u00e9c\u00e8s et invalidit\u00e9 peut \u00eatre r\u00e9duite. V\u00e9rifie tes contrats.",
-  "pillar3aStaggeredDisclaimer": "Simulation p\u00e9dagogique \u00e0 titre indicatif. L\u2019imp\u00f4t sur le retrait en capital d\u00e9pend du canton, de la commune, de la situation personnelle et du montant total retir\u00e9 dans l\u2019ann\u00e9e fiscale. Les taux utilis\u00e9s sont des moyennes cantonales simplifi\u00e9es. Base l\u00e9gale\u00a0: OPP3, LIFD art. 38. Consultez un ou une sp\u00e9cialiste en pr\u00e9voyance avant toute d\u00e9cision.",
-  "pillar3aRealReturnDisclaimer": "Simulation p\u00e9dagogique bas\u00e9e sur des hypoth\u00e8ses de rendement constant. Les rendements pass\u00e9s ne pr\u00e9jugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L\u2019\u00e9conomie fiscale d\u00e9pend de ton taux marginal r\u00e9el. Base l\u00e9gale\u00a0: OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une sp\u00e9cialiste avant toute d\u00e9cision.",
-  "pillar3aProviderDisclaimer": "Rendements pass\u00e9s ne pr\u00e9jugent pas des rendements futurs. Les frais et rendements moyens sont bas\u00e9s sur des donn\u00e9es historiques simplifi\u00e9es \u00e0 titre p\u00e9dagogique. Le choix d\u2019un prestataire 3a d\u00e9pend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n\u2019est pas un interm\u00e9diaire financier et ne fournit aucun conseil en placement. Consultez un ou une sp\u00e9cialiste.",
-  "reportDisclaimerBase1": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin.",
-  "reportDisclaimerBase2": "Les montants sont des estimations bas\u00e9es sur les donn\u00e9es d\u00e9clar\u00e9es.",
-  "reportDisclaimerBase3": "Les performances pass\u00e9es ne pr\u00e9jugent pas des performances futures.",
-  "reportDisclaimerFiscal": "L\u2019estimation fiscale est approximative et ne remplace pas une d\u00e9claration d\u2019imp\u00f4ts.",
-  "reportDisclaimerRetraite": "La projection retraite est indicative et d\u00e9pend de l\u2019\u00e9volution l\u00e9gislative (r\u00e9formes AVS/LPP).",
-  "reportDisclaimerRachatLpp": "Le rachat LPP est soumis \u00e0 un blocage de 3\u00a0ans pour les retraits EPL (LPP art. 79b al. 3).",
+  "lppChecklistDescChoisirLP": "Le compte bancaire offre plus de flexibilité. La police d’assurance peut inclure une couverture risque.",
+  "lppChecklistTitleVerifierDestination": "Vérifier les règles de retrait selon le pays de destination",
+  "lppChecklistDescVerifierDestination": "UE/AELE : seule la part surobligatoire peut être retirée en espèces. La part obligatoire reste en Suisse. Hors UE/AELE : retrait total possible.",
+  "lppChecklistTitleAnnoncerDepart": "Annoncer ton départ à la caisse de pension",
+  "lppChecklistDescAnnoncerDepart": "Informe ta caisse dans les 30 jours suivant ton départ.",
+  "lppChecklistAlertTransfert6mTitle": "Transfert à effectuer dans les 6 mois",
+  "lppChecklistAlertTransfert6mMsg": "Après un départ de Suisse, tu disposes de 6 mois pour transférer ton avoir ou ouvrir un compte de libre passage.",
+  "lppChecklistTitleChomage": "Vérifier tes droits au chômage",
+  "lppChecklistDescChomage": "En cas de chômage, ta prévoyance professionnelle continue via la fondation institution supplétive (Fondation LPP).",
+  "lppChecklistTitleAvoirs": "Rechercher des avoirs oubliés",
+  "lppChecklistDescAvoirs": "Utilisez la Centrale du 2e pilier (sfbvg.ch) pour rechercher d’éventuels avoirs de libre passage oubliés.",
+  "lppChecklistTitleCouverture": "Vérifier la couverture risque transitoire",
+  "lppChecklistDescCouverture": "Pendant la période de libre passage, la couverture décès et invalidité peut être réduite. Vérifie tes contrats.",
+  "pillar3aStaggeredDisclaimer": "Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consultez un ou une spécialiste en prévoyance avant toute décision.",
+  "pillar3aRealReturnDisclaimer": "Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’économie fiscale dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.",
+  "pillar3aProviderDisclaimer": "Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consultez un ou une spécialiste.",
+  "reportDisclaimerBase1": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.",
+  "reportDisclaimerBase2": "Les montants sont des estimations basées sur les données déclarées.",
+  "reportDisclaimerBase3": "Les performances passées ne préjugent pas des performances futures.",
+  "reportDisclaimerFiscal": "L’estimation fiscale est approximative et ne remplace pas une déclaration d’impôts.",
+  "reportDisclaimerRetraite": "La projection retraite est indicative et dépend de l’évolution législative (réformes AVS/LPP).",
+  "reportDisclaimerRachatLpp": "Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).",
   "reportActionTitle3aFirst": "Ouvre ton premier 3a",
-  "reportActionDesc3aFirst": "D\u00e9duis jusqu\u2019\u00e0 CHF\u00a07\u2019258/an de ton revenu imposable. \u00c9conomie imm\u00e9diate.",
+  "reportActionDesc3aFirst": "Déduis jusqu’à CHF 7’258/an de ton revenu imposable. Économie immédiate.",
   "reportActionTitle3aSecond": "Ouvre un 2e compte 3a fintech",
-  "reportActionDesc3aSecond": "Optimise ta fiscalit\u00e9 au retrait et diversifie tes placements.",
-  "reportActionTitleAvsCheck": "V\u00e9rifie ton compte AVS",
-  "reportActionDescAvsCheck": "\u00c9vite de perdre jusqu\u2019\u00e0 38\u2019000 CHF de rente \u00e0 vie.",
+  "reportActionDesc3aSecond": "Optimise ta fiscalité au retrait et diversifie tes placements.",
+  "reportActionTitleAvsCheck": "Vérifie ton compte AVS",
+  "reportActionDescAvsCheck": "Évite de perdre jusqu’à 38’000 CHF de rente à vie.",
   "reportActionTitleDette": "Rembourse tes dettes de consommation",
-  "reportActionDescDette": "C\u2019est le placement le plus rentable\u00a0: tu \u00e9conomises 6-10\u00a0% par an sur les int\u00e9r\u00eats.",
-  "reportActionTitleUrgence": "Constitue ton fonds d\u2019urgence",
-  "reportActionDescUrgence": "Vise 3\u00a0mois de charges sur un compte \u00e9pargne s\u00e9par\u00e9.",
-  "reportRoadmapPhaseImmediat": "Imm\u00e9diat",
+  "reportActionDescDette": "C’est le placement le plus rentable : tu économises 6-10 % par an sur les intérêts.",
+  "reportActionTitleUrgence": "Constitue ton fonds d’urgence",
+  "reportActionDescUrgence": "Vise 3 mois de charges sur un compte épargne séparé.",
+  "reportRoadmapPhaseImmediat": "Immédiat",
   "reportRoadmapTimeframeImmediat": "Ce mois",
   "reportRoadmapPhaseCourtTerme": "Court Terme",
   "reportRoadmapTimeframeCourtTerme": "3-6 mois",
-  "visibilityNarrativeHigh": "Tu as une vision claire de ta situation. Continue \u00e0 maintenir tes donn\u00e9es \u00e0 jour.",
-  "visibilityNarrativeMediumHigh": "Bonne visibilit\u00e9\u00a0! Affine ta {axisLabel} pour aller plus loin.",
+  "visibilityNarrativeHigh": "Tu as une vision claire de ta situation. Continue à maintenir tes données à jour.",
+  "visibilityNarrativeMediumHigh": "Bonne visibilité ! Affine ta {axisLabel} pour aller plus loin.",
   "@visibilityNarrativeMediumHigh": {
     "placeholders": {
       "axisLabel": {
@@ -11287,7 +11265,7 @@
       }
     }
   },
-  "visibilityNarrativeMedium": "Tu commences \u00e0 y voir plus clair. Concentre-toi sur ta {axisLabel}.",
+  "visibilityNarrativeMedium": "Tu commences à y voir plus clair. Concentre-toi sur ta {axisLabel}.",
   "@visibilityNarrativeMedium": {
     "placeholders": {
       "axisLabel": {
@@ -11303,344 +11281,356 @@
       }
     }
   },
-  "visibilityAxisLabelLiquidite": "Liquidit\u00e9",
-  "visibilityAxisLabelFiscalite": "Fiscalit\u00e9",
+  "visibilityAxisLabelLiquidite": "Liquidité",
+  "visibilityAxisLabelFiscalite": "Fiscalité",
   "visibilityAxisLabelRetraite": "Retraite",
-  "visibilityAxisLabelSecurite": "S\u00e9curit\u00e9",
+  "visibilityAxisLabelSecurite": "Sécurité",
   "visibilityHintAddSalaire": "Ajoute ton salaire pour commencer",
-  "visibilityHintAddEpargne": "Renseigne ton \u00e9pargne et investissements",
-  "visibilityHintLiquiditeComplete": "Tes donn\u00e9es de liquidit\u00e9 sont compl\u00e8tes",
-  "visibilityHintAddAgeCanton": "Indique ton \u00e2ge et canton de r\u00e9sidence",
-  "visibilityHintScanFiscal": "Scanne ta d\u00e9claration fiscale",
-  "visibilityHintFiscaliteComplete": "Tes donn\u00e9es fiscales sont compl\u00e8tes",
+  "visibilityHintAddEpargne": "Renseigne ton épargne et investissements",
+  "visibilityHintLiquiditeComplete": "Tes données de liquidité sont complètes",
+  "visibilityHintAddAgeCanton": "Indique ton âge et canton de résidence",
+  "visibilityHintScanFiscal": "Scanne ta déclaration fiscale",
+  "visibilityHintFiscaliteComplete": "Tes données fiscales sont complètes",
   "visibilityHintAddLpp": "Ajoute ton certificat LPP",
   "visibilityHintCommandeAvs": "Commande ton extrait AVS",
   "visibilityHintAdd3a": "Renseigne tes comptes 3a",
-  "visibilityHintRetraiteComplete": "Tes donn\u00e9es retraite sont compl\u00e8tes",
+  "visibilityHintRetraiteComplete": "Tes données retraite sont complètes",
   "visibilityHintAddFamille": "Indique ta situation familiale",
-  "visibilityHintAddStatutPro": "Compl\u00e8te ton statut professionnel",
-  "visibilityHintSecuriteComplete": "Tes donn\u00e9es de s\u00e9curit\u00e9 sont compl\u00e8tes",
-
-  "exploreHubRetraiteIntro": "Chaque ann\u00e9e qui passe change tes options. Voici o\u00f9 tu en es.",
-  "exploreHubFamilleIntro": "Mariage, naissance, s\u00e9paration\u00a0: chaque \u00e9tape a un impact financier.",
-  "exploreHubTravailIntro": "Ton statut professionnel d\u00e9termine tes droits. V\u00e9rifie-les.",
-  "exploreHubLogementIntro": "Acheter, louer, d\u00e9m\u00e9nager\u00a0: les chiffres avant la d\u00e9cision.",
-  "exploreHubFiscaliteIntro": "Chaque franc d\u00e9duit est un franc gagn\u00e9. Trouve tes leviers.",
-  "exploreHubPatrimoineIntro": "Ce que tu transmets m\u00e9rite autant d\u2019attention que ce que tu gagnes.",
-  "exploreHubSanteIntro": "Ta couverture te prot\u00e8ge\u00a0\u2014\u00a0ou te co\u00fbte trop. V\u00e9rifie.",
+  "visibilityHintAddStatutPro": "Complète ton statut professionnel",
+  "visibilityHintSecuriteComplete": "Tes données de sécurité sont complètes",
+  "exploreHubRetraiteIntro": "Chaque année qui passe change tes options. Voici où tu en es.",
+  "exploreHubFamilleIntro": "Mariage, naissance, séparation : chaque étape a un impact financier.",
+  "exploreHubTravailIntro": "Ton statut professionnel détermine tes droits. Vérifie-les.",
+  "exploreHubLogementIntro": "Acheter, louer, déménager : les chiffres avant la décision.",
+  "exploreHubFiscaliteIntro": "Chaque franc déduit est un franc gagné. Trouve tes leviers.",
+  "exploreHubPatrimoineIntro": "Ce que tu transmets mérite autant d’attention que ce que tu gagnes.",
+  "exploreHubSanteIntro": "Ta couverture te protège — ou te coûte trop. Vérifie.",
   "exploreTalkToMint": "En parler avec MINT",
-
-  "dossierSettingsTitle": "R\u00e9glages",
-  "dossierEnrichmentHint": "Pour am\u00e9liorer la pr\u00e9cision\u00a0:",
-
-  "pulseBudgetATitle": "Aujourd\u2019hui",
-  "pulseBudgetBTitle": "\u00c0 la retraite",
+  "dossierSettingsTitle": "Réglages",
+  "dossierEnrichmentHint": "Pour améliorer la précision :",
+  "pulseBudgetATitle": "Aujourd’hui",
+  "pulseBudgetBTitle": "À la retraite",
   "pulseBudgetRevenu": "Revenu",
   "pulseBudgetCharges": "Charges",
   "pulseBudgetLibre": "Libre",
   "pulseBudgetRetirementNet": "Net retraite",
-  "pulseBudgetGap": "\u00c9cart",
-
-  "sim3aTaxRateChipsLabel": "Taux marginal d\u2019imposition",
-  "sim3aReturnChipsLabel": "Rendement esp\u00e9r\u00e9",
-  "sim3aYearsAutoLabel": "Ann\u00e9es jusqu\u2019\u00e0 la retraite",
+  "pulseBudgetGap": "Écart",
+  "sim3aTaxRateChipsLabel": "Taux marginal d’imposition",
+  "sim3aReturnChipsLabel": "Rendement espéré",
+  "sim3aYearsAutoLabel": "Années jusqu’à la retraite",
   "sim3aContributionFieldLabel": "Cotisation annuelle",
-  "sim3aProfilePreFilled": "Pr\u00e9rempli depuis ton profil",
-  "sim3aProfileEstimatedRate": "Ton taux marginal estim\u00e9\u00a0: {rate}\u00a0% ({canton})",
+  "sim3aProfilePreFilled": "Prérempli depuis ton profil",
+  "sim3aProfileEstimatedRate": "Ton taux marginal estimé : {rate} % ({canton})",
   "@sim3aProfileEstimatedRate": {
     "placeholders": {
-      "rate": {"type": "String"},
-      "canton": {"type": "String"}
+      "rate": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
     }
   },
-  "sim3aYearsReadOnly": "{years} ans (calcul\u00e9 depuis ton \u00e2ge)",
+  "sim3aYearsReadOnly": "{years} ans (calculé depuis ton âge)",
   "@sim3aYearsReadOnly": {
     "placeholders": {
-      "years": {"type": "int"}
+      "years": {
+        "type": "int"
+      }
     }
   },
-
-  "renteVsCapitalRetirementAgeChips": "\u00c2ge de d\u00e9part \u00e0 la retraite",
-  "renteVsCapitalLifeExpectancyChips": "Esp\u00e9rance de vie",
-
+  "renteVsCapitalRetirementAgeChips": "Âge de départ à la retraite",
+  "renteVsCapitalLifeExpectancyChips": "Espérance de vie",
   "budgetEnvelopeFieldHint": "Montant en CHF",
-  "budgetEnvelopeFieldFuture": "\u00c9pargne future (CHF/mois)",
-  "budgetEnvelopeFieldVariables": "D\u00e9penses variables (CHF/mois)",
-
-  "retroactive3aYearsChipsLabel": "Ann\u00e9es \u00e0 rattraper",
-
-  "lightningMenuTitle": "Que veux-tu explorer\u00a0?",
-  "lightningMenuSubtitle": "MINT calcule, tu d\u00e9cides.",
-  "lightningMenuRetirementTitle": "Mon aper\u00e7u retraite",
-  "lightningMenuRetirementSubtitle": "Combien tu garderas \u00e0 la retraite",
-  "lightningMenuRetirementAction": "Combien \u00e0 la retraite\u00a0?",
+  "budgetEnvelopeFieldFuture": "Épargne future (CHF/mois)",
+  "budgetEnvelopeFieldVariables": "Dépenses variables (CHF/mois)",
+  "retroactive3aYearsChipsLabel": "Années à rattraper",
+  "lightningMenuTitle": "Que veux-tu explorer ?",
+  "lightningMenuSubtitle": "MINT calcule, tu décides.",
+  "lightningMenuRetirementTitle": "Mon aperçu retraite",
+  "lightningMenuRetirementSubtitle": "Combien tu garderas à la retraite",
+  "lightningMenuRetirementAction": "Combien à la retraite ?",
   "lightningMenuBudgetTitle": "Mon budget",
-  "lightningMenuBudgetSubtitle": "O\u00f9 part ton argent ce mois",
+  "lightningMenuBudgetSubtitle": "Où part ton argent ce mois",
   "lightningMenuBudgetAction": "Mon budget ce mois",
-  "lightningMenuRenteCapitalTitle": "Rente ou capital\u00a0?",
-  "lightningMenuRenteCapitalSubtitle": "Comparer les deux sc\u00e9narios",
-  "lightningMenuRenteCapitalAction": "Rente ou capital\u00a0?",
+  "lightningMenuRenteCapitalTitle": "Rente ou capital ?",
+  "lightningMenuRenteCapitalSubtitle": "Comparer les deux scénarios",
+  "lightningMenuRenteCapitalAction": "Rente ou capital ?",
   "lightningMenuScoreTitle": "Mon score fitness",
-  "lightningMenuScoreSubtitle": "Ta sant\u00e9 financi\u00e8re en un coup d\u2019\u0153il",
+  "lightningMenuScoreSubtitle": "Ta santé financière en un coup d’œil",
   "lightningMenuScoreAction": "Mon score financier",
-  "lightningMenuCoupleTitle": "Notre situation \u00e0 deux",
-  "lightningMenuCoupleSubtitle": "Pr\u00e9voyance et patrimoine en couple",
-  "lightningMenuCoupleAction": "Notre pr\u00e9voyance couple",
+  "lightningMenuCoupleTitle": "Notre situation à deux",
+  "lightningMenuCoupleSubtitle": "Prévoyance et patrimoine en couple",
+  "lightningMenuCoupleAction": "Notre prévoyance couple",
   "lightningMenuDebtTitle": "Sortir de la dette",
-  "lightningMenuDebtSubtitle": "Un plan pour r\u00e9duire tes charges",
-  "lightningMenuDebtAction": "Comment r\u00e9duire ma dette\u00a0?",
-  "lightningMenuIndependantTitle": "Mon filet ind\u00e9pendant",
+  "lightningMenuDebtSubtitle": "Un plan pour réduire tes charges",
+  "lightningMenuDebtAction": "Comment réduire ma dette ?",
+  "lightningMenuIndependantTitle": "Mon filet indépendant",
   "lightningMenuIndependantSubtitle": "Couverture et protection en solo",
-  "lightningMenuIndependantAction": "Ma couverture ind\u00e9pendant",
-  "lightningMenuRetirementPrepTitle": "Pr\u00e9parer ma retraite",
-  "lightningMenuRetirementPrepSubtitle": "Les derni\u00e8res ann\u00e9es comptent double",
+  "lightningMenuIndependantAction": "Ma couverture indépendant",
+  "lightningMenuRetirementPrepTitle": "Préparer ma retraite",
+  "lightningMenuRetirementPrepSubtitle": "Les dernières années comptent double",
   "lightningMenuRetirementPrepAction": "Mon plan retraite",
   "lightningMenuPayslipTitle": "Comprendre ma fiche de salaire",
-  "lightningMenuPayslipSubtitle": "Salaire brut, net, d\u00e9ductions\u00a0: tout s\u2019\u00e9claire",
+  "lightningMenuPayslipSubtitle": "Salaire brut, net, déductions : tout s’éclaire",
   "lightningMenuPayslipAction": "Explique-moi ma fiche de salaire",
-  "lightningMenuThreePillarsTitle": "C\u2019est quoi les 3\u00a0piliers\u00a0?",
-  "lightningMenuThreePillarsSubtitle": "Le syst\u00e8me suisse en 2\u00a0minutes",
-  "lightningMenuThreePillarsAction": "C\u2019est quoi les 3\u00a0piliers suisses\u00a0?",
+  "lightningMenuThreePillarsTitle": "C’est quoi les 3 piliers ?",
+  "lightningMenuThreePillarsSubtitle": "Le système suisse en 2 minutes",
+  "lightningMenuThreePillarsAction": "C’est quoi les 3 piliers suisses ?",
   "lightningMenuScanDocTitle": "Scanner un document",
-  "lightningMenuScanDocSubtitle": "Certificat LPP, fiche de salaire, imp\u00f4ts",
+  "lightningMenuScanDocSubtitle": "Certificat LPP, fiche de salaire, impôts",
   "lightningMenuFirstBudgetTitle": "Mon premier budget",
-  "lightningMenuFirstBudgetSubtitle": "Savoir o\u00f9 va ton argent chaque mois",
-  "lightningMenuFirstBudgetAction": "Aide-moi \u00e0 faire mon budget",
-  "lightningMenuTaxReliefTitle": "O\u00f9 all\u00e9ger mes imp\u00f4ts",
-  "lightningMenuTaxReliefSubtitle": "D\u00e9ductions et leviers fiscaux",
-  "lightningMenuTaxReliefAction": "Comment payer moins d\u2019imp\u00f4ts\u00a0?",
-  "lightningMenuCompleteProfileTitle": "Compl\u00e9ter mon profil",
-  "lightningMenuCompleteProfileSubtitle": "Plus tu pr\u00e9cises, plus MINT est juste",
+  "lightningMenuFirstBudgetSubtitle": "Savoir où va ton argent chaque mois",
+  "lightningMenuFirstBudgetAction": "Aide-moi à faire mon budget",
+  "lightningMenuTaxReliefTitle": "Où alléger mes impôts",
+  "lightningMenuTaxReliefSubtitle": "Déductions et leviers fiscaux",
+  "lightningMenuTaxReliefAction": "Comment payer moins d’impôts ?",
+  "lightningMenuCompleteProfileTitle": "Compléter mon profil",
+  "lightningMenuCompleteProfileSubtitle": "Plus tu précises, plus MINT est juste",
   "lightningMenuLppBuybackTitle": "Racheter du LPP",
-  "lightningMenuLppBuybackSubtitle": "Un levier fiscal souvent sous-estim\u00e9",
-  "lightningMenuLppBuybackAction": "Un rachat LPP, \u00e7a vaut le coup\u00a0?",
+  "lightningMenuLppBuybackSubtitle": "Un levier fiscal souvent sous-estimé",
+  "lightningMenuLppBuybackAction": "Un rachat LPP, ça vaut le coup ?",
   "lightningMenuLivingBudgetTitle": "Mon budget vivant",
-  "lightningMenuLivingBudgetSubtitle": "Ton \u00e9quilibre ce mois, mis \u00e0 jour",
-  "lightningMenuLivingBudgetAction": "O\u00f9 j\u2019en suis\u00a0?",
+  "lightningMenuLivingBudgetSubtitle": "Ton équilibre ce mois, mis à jour",
+  "lightningMenuLivingBudgetAction": "Où j’en suis ?",
   "budgetSnapshotTitle": "Ton budget vivant",
-  "budgetSnapshotPresentLabel": "Libre aujourd\u2019hui",
+  "budgetSnapshotPresentLabel": "Libre aujourd’hui",
   "budgetSnapshotRetirementLabel": "Libre retraite",
-  "budgetSnapshotGapLabel": "\u00c9cart",
-  "budgetSnapshotConfidenceLabel": "Fiabilit\u00e9",
-  "budgetSnapshotConfidenceLow": "Ajoute des donn\u00e9es pour affiner.",
-  "budgetSnapshotConfidenceOk": "Estimation cr\u00e9dible.",
+  "budgetSnapshotGapLabel": "Écart",
+  "budgetSnapshotConfidenceLabel": "Fiabilité",
+  "budgetSnapshotConfidenceLow": "Ajoute des données pour affiner.",
+  "budgetSnapshotConfidenceOk": "Estimation crédible.",
   "budgetSnapshotLeverLabel": "Levier",
   "budgetSnapshotFreeLabel": "Ton libre mensuel",
-  "onboardingSmartTitle": "D\u00e9couvre ta situation retraite en 30\u00a0secondes",
-  "onboardingSmartSubtitle": "Quelques infos suffisent pour un premier aper\u00e7u personnalis\u00e9.",
-  "onboardingSmartFirstNameLabel": "Comment on t\u2019appelle\u00a0?",
-  "onboardingSmartFirstNameHint": "Ton pr\u00e9nom (optionnel)",
+  "onboardingSmartTitle": "Découvre ta situation retraite en 30 secondes",
+  "onboardingSmartSubtitle": "Quelques infos suffisent pour un premier aperçu personnalisé.",
+  "onboardingSmartFirstNameLabel": "Comment on t’appelle ?",
+  "onboardingSmartFirstNameHint": "Ton prénom (optionnel)",
   "onboardingSmartAgeDirectInput": "Saisie directe",
-  "onboardingSmartSeeResult": "Voir mon r\u00e9sultat",
-  "onboardingSmartDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin). Les estimations sont bas\u00e9es sur les bar\u00e8mes 2025 et peuvent varier.",
-  "onboardingSmartAgePickerHint": "Choisis ton \u00e2ge",
-  "onboardingSmartCountryOrigin": "Ton pays d\u2019origine",
+  "onboardingSmartSeeResult": "Voir mon résultat",
+  "onboardingSmartDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Les estimations sont basées sur les barèmes 2025 et peuvent varier.",
+  "onboardingSmartAgePickerHint": "Choisis ton âge",
+  "onboardingSmartCountryOrigin": "Ton pays d’origine",
   "onboardingSmartCantonTitle": "Choisis ton canton",
-  "onboardingSmartCantonNotFound": "Aucun canton trouv\u00e9",
+  "onboardingSmartCantonNotFound": "Aucun canton trouvé",
   "onboardingSmartSalaryLabel": "Ton salaire brut annuel",
-  "onboardingSmartAgeLabel": "Ton \u00e2ge",
+  "onboardingSmartAgeLabel": "Ton âge",
   "onboardingSmartEmploymentLabel": "Ta situation professionnelle",
-  "onboardingSmartNationalityLabel": "Ta nationalit\u00e9",
+  "onboardingSmartNationalityLabel": "Ta nationalité",
   "onboardingSmartCantonLabel": "Ton canton",
-  "onboardingAgeInvalid": "\u00c2ge entre 18 et 75 requis",
-  "onboardingSmartCantonSearch": "Rechercher (ex\u00a0: VD, Vaud)",
+  "onboardingAgeInvalid": "Âge entre 18 et 75 requis",
+  "onboardingSmartCantonSearch": "Rechercher (ex : VD, Vaud)",
   "onboardingSmartSalaryPerYear": "CHF/an",
   "greetingMorning": "matin",
-  "greetingAfternoon": "apr\u00e8s-midi",
+  "greetingAfternoon": "après-midi",
   "greetingEvening": "soir",
   "authShowPassword": "Afficher le mot de passe",
   "authHidePassword": "Masquer le mot de passe",
-  "exploreHubRetraiteIntro55plus": "La retraite approche\u00a0: chaque d\u00e9cision compte double. Voici o\u00f9 tu en es.",
-  "exploreHubRetraiteIntro40plus": "Chaque ann\u00e9e qui passe change tes options. Voici o\u00f9 tu en es.",
-  "exploreHubRetraiteIntroYoung": "C\u2019est loin, mais c\u2019est maintenant que \u00e7a se joue. Voici pourquoi.",
-  "exploreHubTravailIntro55plus": "Fin de carri\u00e8re, retraite anticip\u00e9e, transition\u00a0: tes droits changent.",
-  "exploreHubTravailIntro40plus": "Ton statut professionnel d\u00e9termine tes droits. V\u00e9rifie-les.",
-  "exploreHubTravailIntroYoung": "Premier emploi, ind\u00e9pendant, frontalier\u00a0: chaque statut a ses r\u00e8gles.",
-  "exploreHubLogementIntro55plus": "Rester, vendre, transmettre\u00a0: les chiffres avant la d\u00e9cision.",
-  "exploreHubLogementIntro40plus": "Acheter, louer, d\u00e9m\u00e9nager\u00a0: les chiffres avant la d\u00e9cision.",
-  "exploreHubLogementIntroYoung": "Premi\u00e8re acquisition ou location\u00a0: comprendre les r\u00e8gles du jeu.",
-  "archetypeSwissNative": "R\u00e9sident\u00b7e suisse",
+  "exploreHubRetraiteIntro55plus": "La retraite approche : chaque décision compte double. Voici où tu en es.",
+  "exploreHubRetraiteIntro40plus": "Chaque année qui passe change tes options. Voici où tu en es.",
+  "exploreHubRetraiteIntroYoung": "C’est loin, mais c’est maintenant que ça se joue. Voici pourquoi.",
+  "exploreHubTravailIntro55plus": "Fin de carrière, retraite anticipée, transition : tes droits changent.",
+  "exploreHubTravailIntro40plus": "Ton statut professionnel détermine tes droits. Vérifie-les.",
+  "exploreHubTravailIntroYoung": "Premier emploi, indépendant, frontalier : chaque statut a ses règles.",
+  "exploreHubLogementIntro55plus": "Rester, vendre, transmettre : les chiffres avant la décision.",
+  "exploreHubLogementIntro40plus": "Acheter, louer, déménager : les chiffres avant la décision.",
+  "exploreHubLogementIntroYoung": "Première acquisition ou location : comprendre les règles du jeu.",
+  "archetypeSwissNative": "Résident·e suisse",
   "archetypeExpatEu": "Expat EU/AELE",
   "archetypeExpatNonEu": "Expat hors EU",
-  "archetypeExpatUs": "R\u00e9sident\u00b7e US (FATCA)",
-  "archetypeIndependentWithLpp": "Ind\u00e9pendant\u00b7e avec LPP",
-  "archetypeIndependentNoLpp": "Ind\u00e9pendant\u00b7e sans LPP",
-  "archetypeCrossBorder": "Frontalier\u00b7\u00e8re",
+  "archetypeExpatUs": "Résident·e US (FATCA)",
+  "archetypeIndependentWithLpp": "Indépendant·e avec LPP",
+  "archetypeIndependentNoLpp": "Indépendant·e sans LPP",
+  "archetypeCrossBorder": "Frontalier·ère",
   "archetypeReturningSwiss": "Suisse de retour",
-  "employmentSalarie": "Salari\u00e9\u00b7e",
-  "employmentIndependant": "Ind\u00e9pendant\u00b7e",
+  "employmentSalarie": "Salarié·e",
+  "employmentIndependant": "Indépendant·e",
   "employmentSansEmploi": "Sans emploi",
-  "employmentRetraite": "Retrait\u00e9\u00b7e",
+  "employmentRetraite": "Retraité·e",
   "nationalitySuisse": "Suisse",
   "nationalityEuAele": "EU/AELE",
   "nationalityAutre": "Autre",
-
-  "stepStressTitle": "Qu\u2019est-ce qui te pr\u00e9occupe le plus\u00a0?",
-  "stepStressSubtitle": "Choisis un th\u00e8me \u2014 on personnalise ton exp\u00e9rience.",
+  "stepStressTitle": "Qu’est-ce qui te préoccupe le plus ?",
+  "stepStressSubtitle": "Choisis un thème — on personnalise ton expérience.",
   "stepStressRetirement": "Ma retraite",
-  "stepStressRetirementSub": "Vais-je avoir assez pour vivre\u00a0?",
-  "stepStressTaxes": "Mes imp\u00f4ts",
-  "stepStressTaxesSub": "Est-ce que je paie trop\u00a0?",
+  "stepStressRetirementSub": "Vais-je avoir assez pour vivre ?",
+  "stepStressTaxes": "Mes impôts",
+  "stepStressTaxesSub": "Est-ce que je paie trop ?",
   "stepStressBudget": "Mon budget",
-  "stepStressBudgetSub": "O\u00f9 passe mon argent\u00a0?",
+  "stepStressBudgetSub": "Où passe mon argent ?",
   "stepStressWealth": "Mon patrimoine",
-  "stepStressWealthSub": "Comment le faire grandir\u00a0?",
+  "stepStressWealthSub": "Comment le faire grandir ?",
   "stepStressCouple": "En couple",
-  "stepStressCoupleSub": "Optimiser \u00e0 deux",
+  "stepStressCoupleSub": "Optimiser à deux",
   "stepStressCurious": "Juste curieux",
   "stepStressCuriousSub": "Je veux comprendre ma situation",
-  "stepStressDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).",
-
-  "stepNextTitle": "Ton premier bilan est pr\u00eat",
-  "stepNextConfidence": "Pr\u00e9cision actuelle\u00a0: {pct}\u00a0%. Plus tu compl\u00e8tes ton profil, plus les projections seront fiables.",
+  "stepStressDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin).",
+  "stepNextTitle": "Ton premier bilan est prêt",
+  "stepNextConfidence": "Précision actuelle : {pct} %. Plus tu complètes ton profil, plus les projections seront fiables.",
   "@stepNextConfidence": {
     "placeholders": {
-      "pct": { "type": "int" }
+      "pct": {
+        "type": "int"
+      }
     }
   },
   "stepNextEnrich": "Affiner mon profil",
   "stepNextDashboard": "Voir mon dashboard",
   "stepNextCheckin": "Faire mon premier check-in",
-  "stepNextDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art.\u00a034, LPP art.\u00a014-16, OPP3 art.\u00a07.",
-
+  "stepNextDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
   "stepTopActionsTitle": "Tes 3 actions prioritaires",
-  "stepTopActionsSubtitle": "Bas\u00e9es sur ta situation, voici par o\u00f9 commencer.",
-  "stepTopActionsEmpty": "Compl\u00e8te ton profil pour recevoir des actions personnalis\u00e9es.",
+  "stepTopActionsSubtitle": "Basées sur ta situation, voici par où commencer.",
+  "stepTopActionsEmpty": "Complète ton profil pour recevoir des actions personnalisées.",
   "stepTopActionsContinue": "Continuer",
   "stepTopActionsBack": "Retour",
-  "stepTopActionsImpact": "Impact estim\u00e9\u00a0: {amount}",
+  "stepTopActionsImpact": "Impact estimé : {amount}",
   "@stepTopActionsImpact": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "stepTopActionsDisclaimer": "Suggestions \u00e9ducatives. Ne constitue pas un conseil financier (LSFin). Consulte un\u00b7e sp\u00e9cialiste pour un plan personnalis\u00e9.",
-
-  "stepChocConfidenceInfo": "Estimation bas\u00e9e sur {count} informations. Plus tu pr\u00e9cises, plus c\u2019est fiable.",
+  "stepTopActionsDisclaimer": "Suggestions éducatives. Ne constitue pas un conseil financier (LSFin). Consulte un·e spécialiste pour un plan personnalisé.",
+  "stepChocConfidenceInfo": "Estimation basée sur {count} informations. Plus tu précises, plus c’est fiable.",
   "@stepChocConfidenceInfo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-  "stepChocConfidenceLabel": "Pr\u00e9cision\u00a0: {pct}\u00a0%",
+  "stepChocConfidenceLabel": "Précision : {pct} %",
   "@stepChocConfidenceLabel": {
     "placeholders": {
-      "pct": { "type": "int" }
+      "pct": {
+        "type": "int"
+      }
     }
   },
   "stepChocLiteracyTitle": "Pour personnaliser tes conseils",
-  "stepChocLiteracySubtitle": "3 questions rapides \u2014 aucune bonne ou mauvaise r\u00e9ponse.",
+  "stepChocLiteracySubtitle": "3 questions rapides — aucune bonne ou mauvaise réponse.",
   "stepChocLiteracyLpp": "Je connais le montant de mon avoir LPP",
-  "stepChocLiteracyConversion": "Je sais ce qu\u2019est le taux de conversion",
-  "stepChocLiteracy3a": "J\u2019ai d\u00e9j\u00e0 vers\u00e9 sur un compte 3a",
+  "stepChocLiteracyConversion": "Je sais ce qu’est le taux de conversion",
+  "stepChocLiteracy3a": "J’ai déjà versé sur un compte 3a",
   "stepChocYes": "Oui",
   "stepChocNo": "Non",
-  "stepChocAction": "Qu\u2019est-ce que je peux faire\u00a0?",
+  "stepChocAction": "Qu’est-ce que je peux faire ?",
   "stepChocEnrich": "Affiner mon profil",
   "stepChocDashboard": "Voir mon dashboard",
-  "stepChocDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art.\u00a034, LPP art.\u00a014-16, OPP3 art.\u00a07.",
-  "stepChocPedagogicalCaveat": "Estimation illustrative bas\u00e9e sur des donn\u00e9es partielles. Enrichis ton profil pour des chiffres plus pr\u00e9cis.",
-
+  "stepChocDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+  "stepChocPedagogicalCaveat": "Estimation illustrative basée sur des données partielles. Enrichis ton profil pour des chiffres plus précis.",
   "stepJitTitle": "Comprendre en 30 secondes",
   "stepJitSi": "SI",
   "stepJitAlors": "ALORS",
-  "stepJitAction": "Que puis-je faire\u00a0?",
+  "stepJitAction": "Que puis-je faire ?",
   "stepJitBack": "Retour",
-  "stepJitDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin).",
-  "stepJitLiquidityCond": "ton \u00e9pargne de s\u00e9curit\u00e9 couvre moins de 2 mois de charges",
-  "stepJitLiquidityCons": "un impr\u00e9vu (perte d\u2019emploi, r\u00e9paration urgente) peut te mettre en difficult\u00e9 financi\u00e8re rapidement.",
-  "stepJitLiquidityInsight": "Les experts recommandent 3 \u00e0 6 mois de charges fixes en r\u00e9serve. M\u00eame 100\u00a0CHF/mois sur un compte \u00e9pargne fait une diff\u00e9rence significative sur 12 mois.",
+  "stepJitDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).",
+  "stepJitLiquidityCond": "ton épargne de sécurité couvre moins de 2 mois de charges",
+  "stepJitLiquidityCons": "un imprévu (perte d’emploi, réparation urgente) peut te mettre en difficulté financière rapidement.",
+  "stepJitLiquidityInsight": "Les experts recommandent 3 à 6 mois de charges fixes en réserve. Même 100 CHF/mois sur un compte épargne fait une différence significative sur 12 mois.",
   "stepJitLiquiditySource": "Recommandation Budget-conseil Suisse",
-  "stepJitRetirementCond": "ton taux de remplacement \u00e0 la retraite est inf\u00e9rieur \u00e0 60\u00a0%",
-  "stepJitRetirementCons": "ton niveau de vie pourrait baisser significativement le jour o\u00f9 tu arr\u00eates de travailler.",
-  "stepJitRetirementInsight": "En Suisse, l\u2019AVS et la LPP couvrent en moyenne 60\u00a0% du dernier salaire. Le 3e pilier et l\u2019\u00e9pargne libre comblent le reste. Plus tu commences t\u00f4t, moins l\u2019effort mensuel est important.",
-  "stepJitRetirementSource": "LAVS art.\u00a034 / LPP art.\u00a014",
-  "stepJitTax3aCond": "tu ne verses pas le maximum dans ton 3e pilier chaque ann\u00e9e",
-  "stepJitTax3aCons": "tu passes \u00e0 c\u00f4t\u00e9 d\u2019une \u00e9conomie fiscale et d\u2019un capital retraite suppl\u00e9mentaire.",
-  "stepJitTax3aInsight": "Chaque franc vers\u00e9 en 3a est d\u00e9ductible du revenu imposable. Sur 20 ans, la diff\u00e9rence entre verser 0 et le plafond (7\u2019258\u00a0CHF) peut repr\u00e9senter plus de 200\u2019000\u00a0CHF.",
-  "stepJitTax3aSource": "OPP3 art.\u00a07 / LIFD art.\u00a033",
-  "stepJitIncomeCond": "ta projection de revenu \u00e0 la retraite est estim\u00e9e",
-  "stepJitIncomeCons": "conna\u00eetre ce montant te permet de planifier et d\u2019ajuster ta strat\u00e9gie de pr\u00e9voyance d\u00e8s maintenant.",
-  "stepJitIncomeInsight": "Le syst\u00e8me suisse \u00e0 3 piliers (AVS + LPP + 3a) couvre en moyenne 60\u00a0% du dernier salaire. Chaque pilier a ses r\u00e8gles et ses leviers d\u2019optimisation sp\u00e9cifiques.",
-  "stepJitIncomeSource": "LAVS art.\u00a034 / LPP art.\u00a014 / OPP3 art.\u00a07",
-  "stepJitDefaultCond": "tu n\u2019as pas encore un plan financier structur\u00e9",
-  "stepJitDefaultCons": "tu risques de passer \u00e0 c\u00f4t\u00e9 d\u2019opportunit\u00e9s d\u2019optimisation fiscale et de pr\u00e9voyance.",
-  "stepJitDefaultInsight": "Un bilan financier annuel permet d\u2019identifier les leviers les plus impactants\u00a0: 3a, rachat LPP, franchise LAMal, amortissement indirect.",
-  "stepJitDefaultSource": "Recommandation \u00e9ducative MINT",
-
+  "stepJitRetirementCond": "ton taux de remplacement à la retraite est inférieur à 60 %",
+  "stepJitRetirementCons": "ton niveau de vie pourrait baisser significativement le jour où tu arrêtes de travailler.",
+  "stepJitRetirementInsight": "En Suisse, l’AVS et la LPP couvrent en moyenne 60 % du dernier salaire. Le 3e pilier et l’épargne libre comblent le reste. Plus tu commences tôt, moins l’effort mensuel est important.",
+  "stepJitRetirementSource": "LAVS art. 34 / LPP art. 14",
+  "stepJitTax3aCond": "tu ne verses pas le maximum dans ton 3e pilier chaque année",
+  "stepJitTax3aCons": "tu passes à côté d’une économie fiscale et d’un capital retraite supplémentaire.",
+  "stepJitTax3aInsight": "Chaque franc versé en 3a est déductible du revenu imposable. Sur 20 ans, la différence entre verser 0 et le plafond (7’258 CHF) peut représenter plus de 200’000 CHF.",
+  "stepJitTax3aSource": "OPP3 art. 7 / LIFD art. 33",
+  "stepJitIncomeCond": "ta projection de revenu à la retraite est estimée",
+  "stepJitIncomeCons": "connaître ce montant te permet de planifier et d’ajuster ta stratégie de prévoyance dès maintenant.",
+  "stepJitIncomeInsight": "Le système suisse à 3 piliers (AVS + LPP + 3a) couvre en moyenne 60 % du dernier salaire. Chaque pilier a ses règles et ses leviers d’optimisation spécifiques.",
+  "stepJitIncomeSource": "LAVS art. 34 / LPP art. 14 / OPP3 art. 7",
+  "stepJitDefaultCond": "tu n’as pas encore un plan financier structuré",
+  "stepJitDefaultCons": "tu risques de passer à côté d’opportunités d’optimisation fiscale et de prévoyance.",
+  "stepJitDefaultInsight": "Un bilan financier annuel permet d’identifier les leviers les plus impactants : 3a, rachat LPP, franchise LAMal, amortissement indirect.",
+  "stepJitDefaultSource": "Recommandation éducative MINT",
   "stepOcrTitle": "Enrichis ton profil en 30 secondes",
   "stepOcrSkip": "Continuer sans document",
-  "stepOcrIntro": "Scanne un ou plusieurs documents pour que MINT calcule ta situation avec plus de pr\u00e9cision.",
+  "stepOcrIntro": "Scanne un ou plusieurs documents pour que MINT calcule ta situation avec plus de précision.",
   "stepOcrLppTitle": "Ta lettre de retraite LPP",
   "stepOcrLppSubtitle": "Avoir, taux de conversion, lacune de rachat",
-  "stepOcrLppBoost": "+27 pts de pr\u00e9cision",
+  "stepOcrLppBoost": "+27 pts de précision",
   "stepOcrAvsTitle": "Ton extrait AVS",
-  "stepOcrAvsSubtitle": "Ann\u00e9es de cotisation, lacunes, RAMD",
-  "stepOcrAvsBoost": "+22 pts de pr\u00e9cision",
-  "stepOcrTaxTitle": "Ta d\u00e9claration fiscale",
+  "stepOcrAvsSubtitle": "Années de cotisation, lacunes, RAMD",
+  "stepOcrAvsBoost": "+22 pts de précision",
+  "stepOcrTaxTitle": "Ta déclaration fiscale",
   "stepOcrTaxSubtitle": "Revenu imposable, fortune, taux marginal",
-  "stepOcrTaxBoost": "+17 pts de pr\u00e9cision",
+  "stepOcrTaxBoost": "+17 pts de précision",
   "stepOcr3aTitle": "Ton compte 3a",
-  "stepOcr3aSubtitle": "Solde, versements cumul\u00e9s, rendement",
-  "stepOcr3aBoost": "+7 pts de pr\u00e9cision",
-  "stepOcrScanned": "Scann\u00e9",
-  "stepOcrContinueWith": "Continuer ({count} document{plural} scann\u00e9{plural})",
+  "stepOcr3aSubtitle": "Solde, versements cumulés, rendement",
+  "stepOcr3aBoost": "+7 pts de précision",
+  "stepOcrScanned": "Scanné",
+  "stepOcrContinueWith": "Continuer ({count} document{plural} scanné{plural})",
   "@stepOcrContinueWith": {
     "placeholders": {
-      "count": { "type": "int" },
-      "plural": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
     }
   },
   "stepOcrContinueWithout": "Continuer sans document",
-  "stepOcrDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin). Documents trait\u00e9s sur ton appareil, aucune donn\u00e9e envoy\u00e9e (LPD art.\u00a06).",
-  "stepOcrLpdBanner": "Tes documents sont trait\u00e9s sur ton appareil. Rien n\u2019est envoy\u00e9 sur Internet.",
-  "stepOcrLpdTitle": "Traitement priv\u00e9 sur ton appareil",
-  "stepOcrLpdBody": "Ce document est analys\u00e9 directement sur ton t\u00e9l\u00e9phone.\nAucune donn\u00e9e n\u2019est envoy\u00e9e sur Internet.\nLes informations extraites sont supprim\u00e9es apr\u00e8s traitement.",
-  "stepOcrLpdLegal": "Base l\u00e9gale\u00a0: LPD art.\u00a06 \u2014 minimisation des donn\u00e9es.",
+  "stepOcrDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Documents traités sur ton appareil, aucune donnée envoyée (LPD art. 6).",
+  "stepOcrLpdBanner": "Tes documents sont traités sur ton appareil. Rien n’est envoyé sur Internet.",
+  "stepOcrLpdTitle": "Traitement privé sur ton appareil",
+  "stepOcrLpdBody": "Ce document est analysé directement sur ton téléphone.\nAucune donnée n’est envoyée sur Internet.\nLes informations extraites sont supprimées après traitement.",
+  "stepOcrLpdLegal": "Base légale : LPD art. 6 — minimisation des données.",
   "stepOcrLpdScan": "Scanner ce document",
   "stepOcrLpdCancel": "Annuler",
-  "stepOcrSnackSuccess": "{count} champ{plural} extrait{plural} avec succ\u00e8s",
+  "stepOcrSnackSuccess": "{count} champ{plural} extrait{plural} avec succès",
   "@stepOcrSnackSuccess": {
     "placeholders": {
-      "count": { "type": "int" },
-      "plural": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
     }
   },
-  "stepOcrSnackEmpty": "Document trait\u00e9 \u2014 aucun champ reconnu automatiquement",
-  "stepOcrSnackError": "Erreur lors du traitement\u00a0: {error}",
+  "stepOcrSnackEmpty": "Document traité — aucun champ reconnu automatiquement",
+  "stepOcrSnackError": "Erreur lors du traitement : {error}",
   "@stepOcrSnackError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
-  "stepOcrSnackWebOnly": "Scan d\u2019image non disponible sur web. Utilise l\u2019app mobile ou importe un fichier .txt.",
-
+  "stepOcrSnackWebOnly": "Scan d’image non disponible sur web. Utilise l’app mobile ou importe un fichier .txt.",
   "stepQuestionsAgeYears": "{age} ans",
   "@stepQuestionsAgeYears": {
     "placeholders": {
-      "age": { "type": "int" }
+      "age": {
+        "type": "int"
+      }
     }
   },
-  "stepQuestionsCountryUs": "\u00c9tats-Unis",
+  "stepQuestionsCountryUs": "États-Unis",
   "stepQuestionsCountryGb": "Royaume-Uni",
   "stepQuestionsCountryCa": "Canada",
   "stepQuestionsCountryIn": "Inde",
   "stepQuestionsCountryCn": "Chine",
-  "stepQuestionsCountryBr": "Br\u00e9sil",
+  "stepQuestionsCountryBr": "Brésil",
   "stepQuestionsCountryAu": "Australie",
   "stepQuestionsCountryJp": "Japon",
-
   "householdAcceptCodeHint": "CODE",
-
   "friInsufficientData": "Complète ton profil pour voir ton score",
-  "projectionUncertaintyBand": "CHF\u00a0{low}\u00a0—\u00a0{high}\u00a0/\u00a0mois",
+  "projectionUncertaintyBand": "CHF {low} — {high} / mois",
   "@projectionUncertaintyBand": {
     "placeholders": {
-      "low": {"type": "String"},
-      "high": {"type": "String"}
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
     }
   },
-
   "portfolioAppBarTitle": "Mon patrimoine",
   "portfolioValeurTotaleNette": "Valeur totale nette",
   "portfolioRepartitionEnveloppe": "Répartition par enveloppe",
@@ -11649,31 +11639,30 @@
   "portfolioReserveFondsUrgence": "Réservé (Fonds d'urgence)",
   "portfolioSafeModeLocked": "Priorité au désendettement",
   "portfolioSafeModeBody": "Les conseils d'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.",
-
   "byokShowKey": "Afficher la clé",
   "byokHideKey": "Masquer la clé",
-
   "themeDetailEssentiel60s": "L'essentiel en 60 secondes",
   "themeDetailTesteConnaissances": "Teste tes connaissances",
-  "themeDetailSavaisTu": "Le savais-tu\u00a0?",
+  "themeDetailSavaisTu": "Le savais-tu ?",
   "themeDetailSourcesLegales": "Sources légales",
   "themeDetailRappel": "Rappel",
-  "themeDetailBienVu": "Bien vu\u00a0!",
+  "themeDetailBienVu": "Bien vu !",
   "themeDetailPasToutAFait": "Pas tout à fait...",
-
   "emergencyFundTitle": "Ton filet de sécurité",
   "emergencyFundSubtitle": "Calcule ton fonds d'urgence idéal",
   "emergencyFundDisclaimer": "L'objectif de 3-6 mois est une recommandation générale. Ta situation personnelle peut nécessiter un montant différent.",
   "emergencyFundHyp1": "Charges fixes = loyer + assurances + abonnements + crédits",
-  "emergencyFundHyp2": "Objectif recommandé\u00a0: 3 mois (minimum) à 6 mois (confort)",
-  "emergencyFundHyp3": "Placement suggéré\u00a0: compte épargne accessible, non investi",
+  "emergencyFundHyp2": "Objectif recommandé : 3 mois (minimum) à 6 mois (confort)",
+  "emergencyFundHyp3": "Placement suggéré : compte épargne accessible, non investi",
   "emergencyFundChargesLabel": "Tes charges fixes mensuelles",
   "emergencyFundChargesDesc": "Loyer + assurances + abonnements + crédits",
   "emergencyFundObjectifLabel": "Objectif en mois de sécurité",
   "emergencyFundMoisUnit": "{count} mois",
   "@emergencyFundMoisUnit": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "emergencyFundMinimum": "Minimum",
@@ -11683,19 +11672,20 @@
   "emergencyFundManque": "Il te manque {amount}",
   "@emergencyFundManque": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "emergencyFundAtteint": "Objectif atteint\u00a0!",
+  "emergencyFundAtteint": "Objectif atteint !",
   "emergencyFundExplication": "Ce fonds te protège des imprévus (perte d'emploi, maladie, réparations) sans toucher à tes investissements.",
-
-  "lifeEventSuggestionsHeader": "Et ensuite\u00a0?",
+  "lifeEventSuggestionsHeader": "Et ensuite ?",
   "lifeEventSuggestionsSubheader": "Modules adaptés à ton profil",
   "lifeEventSuggestionsSimuler": "Simuler",
   "lifeEventSugMariage": "Mariage",
   "lifeEventSugMariageReason": "Découvre l'impact fiscal et sur la prévoyance",
   "lifeEventSugConcubinage": "Concubinage",
-  "lifeEventSugConcubinageReason": "Attention\u00a0: aucune protection légale automatique",
+  "lifeEventSugConcubinageReason": "Attention : aucune protection légale automatique",
   "lifeEventSugNaissance": "Naissance",
   "lifeEventSugNaissanceReason": "Simule l'impact financier d'un enfant",
   "lifeEventSugSuccession": "Planification successorale",
@@ -11703,7 +11693,7 @@
   "lifeEventSugDonation": "Donation entre vifs",
   "lifeEventSugDonationReason": "Anticipe ta succession et optimise la fiscalité",
   "lifeEventSugPremierEmploi": "Premier emploi",
-  "lifeEventSugPremierEmploiReason": "Pose les bases\u00a0: AVS, LPP, 3a et budget",
+  "lifeEventSugPremierEmploiReason": "Pose les bases : AVS, LPP, 3a et budget",
   "lifeEventSugChangementEmploi": "Changement d'emploi",
   "lifeEventSugChangementEmploiReason": "Compare ton LPP avant de signer un nouveau contrat",
   "lifeEventSugOutilsIndependant": "Outils indépendant",
@@ -11716,7 +11706,6 @@
   "lifeEventSugDemenagementReason": "Ton canton est parmi les plus imposés — compare les 26",
   "lifeEventSugInvalidite": "Invalidité",
   "lifeEventSugInvaliditeReason": "Vérifie ta couverture AI + LPP en cas d'accident",
-
   "indepProtAvs": "Double ta cotisation",
   "indepProtLpp": "Disparaît — choix volontaire",
   "indepProtLaa": "Disparaît — accident hors travail",
@@ -11727,7 +11716,7 @@
   "indepLppProRente": "Rente prévue à la retraite",
   "indepLppConCotisations": "Cotisations obligatoires élevées",
   "indepLppConFlexible": "Moins flexible",
-  "indepGrand3aSub": "20% du revenu net, max CHF\u00a036'288/an",
+  "indepGrand3aSub": "20% du revenu net, max CHF 36'288/an",
   "indepGrand3aProFlexibilite": "Flexibilité totale",
   "indepGrand3aProDeduction": "Déduction fiscale maximale",
   "indepGrand3aProCapital": "Capital disponible à 60 ans",
@@ -11738,7 +11727,7 @@
   "indepLayerFraisPro": "Frais professionnels",
   "indepLayerJoursNonFact": "Jours non facturables",
   "indepFiscal3a": "Pilier 3a grand versement",
-  "indepFiscal3aNote": "Max 20% du revenu net, plafonné à CHF\u00a036'288/an sans LPP",
+  "indepFiscal3aNote": "Max 20% du revenu net, plafonné à CHF 36'288/an sans LPP",
   "indepFiscalFraisPro": "Frais professionnels effectifs",
   "indepFiscalFraisProNote": "Loyer bureau, matériel, formation — déductibles au réel",
   "indepFiscalPrimesLpp": "Primes assurance maladie (LPP vol.)",
@@ -11753,12 +11742,11 @@
   "indepPlanInscriptionAvsConseq": "Amendes rétroactives si délai dépassé",
   "indepPlanLaa": "Assurance accidents LAA (si pas LPP)",
   "indepPlanLaaConseq": "Pas de couverture accident professionnel",
-  "indepPlanOuvrir3a": "Ouvrir compte 3a (déduction jusqu'à CHF\u00a036'288)",
+  "indepPlanOuvrir3a": "Ouvrir compte 3a (déduction jusqu'à CHF 36'288)",
   "indepPlanIjm": "Évaluer IJM (indemnité journalière maladie)",
   "indepPlanIjmConseq": "Perte de revenus dès J+3 en cas de maladie",
   "indepPlanFraisPro": "Frais professionnels déductibles — tenir registre",
   "indepPlanAcomptes": "Acomptes impôts cantonaux — éviter les intérêts",
-
   "donationTypeEspeces": "Espèces / Liquidités",
   "donationTypeImmobilier": "Immobilier",
   "donationTypeTitres": "Titres / Valeurs mobilières",
@@ -11768,70 +11756,79 @@
   "donationReserveBarLabel": "Réserve {pct}%",
   "@donationReserveBarLabel": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "donationDisponibleBarLabel": "Disponible {pct}%",
   "@donationDisponibleBarLabel": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "donationDisclaimerFallback": "Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Consulte un·e spécialiste (notaire) pour ta situation.",
-
-  "widgetRetirementTitle": "Ton aper\u00e7u retraite",
-  "widgetRetirementToday": "Aujourd\u2019hui",
-  "widgetRetirementFuture": "\u00c0 la retraite",
+  "widgetRetirementTitle": "Ton aperçu retraite",
+  "widgetRetirementToday": "Aujourd’hui",
+  "widgetRetirementFuture": "À la retraite",
   "widgetBudgetTitle": "Ton budget",
   "widgetBudgetIncome": "Revenus",
-  "widgetBudgetExpenses": "D\u00e9penses",
+  "widgetBudgetExpenses": "Dépenses",
   "widgetPillarTitle": "Tes 3 piliers",
   "widgetPillarAvsLpp": "AVS + LPP",
   "widgetPillar3a": "3e pilier",
-  "widgetPillarNotDeclared": "Non d\u00e9clar\u00e9",
+  "widgetPillarNotDeclared": "Non déclaré",
   "widgetBudgetLabel": "Budget",
   "widgetInputLppLabel": "Avoir LPP (CHF)",
-  "widgetInput3aLabel": "\u00c9pargne 3a (CHF)",
+  "widgetInput3aLabel": "Épargne 3a (CHF)",
   "widgetScoreFallback": "Score",
   "widgetInputSalaryFallback": "Salaire",
-
   "scoreGaugeLevelExcellent": "Excellent",
   "scoreGaugeLevelGood": "Bon",
   "scoreGaugeLevelAttention": "Attention",
   "scoreGaugeLevelCritical": "Critique",
-  "scoreGaugeTitle": "Forme financi\u00e8re",
-  "scoreGaugeSubtitle": "Score composite \u00b7 3 piliers",
-  "scoreGaugeGainTitle": "Ce qui t\u2019a fait monter",
+  "scoreGaugeTitle": "Forme financière",
+  "scoreGaugeSubtitle": "Score composite · 3 piliers",
+  "scoreGaugeGainTitle": "Ce qui t’a fait monter",
   "scoreGaugeNextTitle": "Pour monter encore",
-  "scoreGaugeDisclaimer": "Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.",
-  "scoreGaugeSemanticsLabel": "Score de forme financi\u00e8re. {score} sur 100. Niveau {level}. Budget {budget}, Pr\u00e9voyance {prevoyance}, Patrimoine {patrimoine}.",
+  "scoreGaugeDisclaimer": "Estimations éducatives — ne constitue pas un conseil financier.",
+  "scoreGaugeSemanticsLabel": "Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.",
   "@scoreGaugeSemanticsLabel": {
     "placeholders": {
-      "score": {"type": "String"},
-      "level": {"type": "String"},
-      "budget": {"type": "String"},
-      "prevoyance": {"type": "String"},
-      "patrimoine": {"type": "String"}
+      "score": {
+        "type": "String"
+      },
+      "level": {
+        "type": "String"
+      },
+      "budget": {
+        "type": "String"
+      },
+      "prevoyance": {
+        "type": "String"
+      },
+      "patrimoine": {
+        "type": "String"
+      }
     }
   },
   "scoreGaugeSectionBudget": "Budget",
-  "scoreGaugeSectionPrevoyance": "Pr\u00e9voyance",
+  "scoreGaugeSectionPrevoyance": "Prévoyance",
   "scoreGaugeSectionPatrimoine": "Patrimoine",
-
   "byokErrorSaveFailed": "Erreur lors de la sauvegarde.",
-  "byokErrorNotConfigured": "Configure d\u2019abord un fournisseur et une cl\u00e9.",
-  "byokErrorConnection": "Erreur de connexion. V\u00e9rifie ta connexion internet.",
-
-  "authErrorNetwork": "Connexion au service indisponible. V\u00e9rifie ton r\u00e9seau et r\u00e9essaie.",
-  "authErrorEmailUsed": "Cet e-mail est d\u00e9j\u00e0 utilis\u00e9. Connecte-toi ou r\u00e9initialise ton mot de passe.",
+  "byokErrorNotConfigured": "Configure d’abord un fournisseur et une clé.",
+  "byokErrorConnection": "Erreur de connexion. Vérifie ta connexion internet.",
+  "authErrorNetwork": "Connexion au service indisponible. Vérifie ton réseau et réessaie.",
+  "authErrorEmailUsed": "Cet e-mail est déjà utilisé. Connecte-toi ou réinitialise ton mot de passe.",
   "authErrorIncorrect": "E-mail ou mot de passe incorrect.",
-  "authErrorRegistration": "Inscription indisponible pour le moment. Utilise le mode local puis r\u00e9essaie plus tard.",
-  "authErrorService": "Le service de compte n\u2019est pas disponible sur cet environnement. Utilise le mode local.",
+  "authErrorRegistration": "Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.",
+  "authErrorService": "Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.",
   "authErrorInvalid": "Les informations saisies sont invalides.",
-  "authErrorExpired": "Ce lien de r\u00e9initialisation a expir\u00e9. Demande un nouveau lien.",
-  "authErrorNotVerified": "Ton e-mail n\u2019est pas encore v\u00e9rifi\u00e9. V\u00e9rifie ton e-mail puis r\u00e9essaie.",
-  "authErrorGeneric": "Action impossible pour le moment. R\u00e9essaie dans quelques instants.",
-
+  "authErrorExpired": "Ce lien de réinitialisation a expiré. Demande un nouveau lien.",
+  "authErrorNotVerified": "Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.",
+  "authErrorGeneric": "Action impossible pour le moment. Réessaie dans quelques instants.",
   "ageYears": "{age} ans",
   "@ageYears": {
     "placeholders": {
@@ -11844,7 +11841,7 @@
   "consentNoActiveConsents": "Aucun consentement actif",
   "sequenceHousingGoal": "Achat immobilier",
   "sequence3aGoal": "Optimisation 3a",
-  "sequenceRetirementGoal": "Pr\u00e9paration retraite",
+  "sequenceRetirementGoal": "Préparation retraite",
   "sequenceTensionGoal": "Sortir d'une tension",
   "sequenceTensionStep1": "Diagnostic endettement",
   "sequenceTensionStep2": "Budget ru00e9el",
@@ -11871,17 +11868,32 @@
   "summaryDonneesLpp": "Données certificat LPP",
   "summaryEstimationSansCertificat": "Estimation sans certificat",
   "summaryChoixRenteCapital": "Choix rente/capital",
-  "sequenceAllStepsComplete": "Toutes les \u00e9tapes termin\u00e9es",
-  "sequenceStepLabel": "\u00c9tape {current}/{total}",
-  "@sequenceStepLabel": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
-  "sequenceQuitConfirm": "Parcours quitt\u00e9.",
-  "sequenceStepCompleted": "\u00c9tape {progress} termin\u00e9e. Pr\u00eat pour la suite\u00a0?",
-  "@sequenceStepCompleted": { "placeholders": { "progress": { "type": "String" } } },
-  "sequenceCompleted": "Parcours termin\u00e9\u00a0! Toutes les \u00e9tapes sont compl\u00e8tes.",
+  "sequenceAllStepsComplete": "Toutes les étapes terminées",
+  "sequenceStepLabel": "Étape {current}/{total}",
+  "@sequenceStepLabel": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sequenceQuitConfirm": "Parcours quitté.",
+  "sequenceStepCompleted": "Étape {progress} terminée. Prêt pour la suite ?",
+  "@sequenceStepCompleted": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "sequenceCompleted": "Parcours terminé ! Toutes les étapes sont complètes.",
   "sequencePaused": "On met le parcours en pause. Tu pourras reprendre quand tu veux.",
-  "sequenceStepSkipped": "On passe cette \u00e9tape pour le moment.",
-  "sequenceStepRetry": "Pas de souci. On peut r\u00e9essayer cette \u00e9tape.",
-  "sequenceReEvaluate": "Tes donn\u00e9es ont chang\u00e9. Je recalcule les \u00e9tapes concern\u00e9es.",
+  "sequenceStepSkipped": "On passe cette étape pour le moment.",
+  "sequenceStepRetry": "Pas de souci. On peut réessayer cette étape.",
+  "sequenceReEvaluate": "Tes données ont changé. Je recalcule les étapes concernées.",
   "shellWelcomeBackDeltaPts": "De retour ! Ta précision a gagné +{delta} pts depuis ta dernière visite.",
   "chatPickPhoto": "Prendre une photo",
   "chatPickGallery": "Choisir une image",
@@ -11951,7 +11963,6 @@
   "sequenceRetraiteActiveStep4": "Résumé",
   "sequenceReadyNextStep": "Prêt pour l'étape suivante",
   "sequenceQuitButton": "Quitter le parcours",
-
   "notifChannelDescription": "Rappels de check-in, deadlines 3a, et notifications de coaching",
   "notifWeeklyRecapTitle": "Ton récap de la semaine",
   "notifWeeklyRecapBody": "Budget, progrès, prochaine étape — tout est prêt.",
@@ -11961,13 +11972,17 @@
   "notifDeadline3aBody3Months": "Il reste 3 mois pour verser sur ton 3a (CHF {remaining} de marge)",
   "@notifDeadline3aBody3Months": {
     "placeholders": {
-      "remaining": { "type": "String" }
+      "remaining": {
+        "type": "String"
+      }
     }
   },
   "notifDeadline3aBody46Days": "Il reste 46 jours pour maximiser ton 3a (CHF {remaining} de marge)",
   "@notifDeadline3aBody46Days": {
     "placeholders": {
-      "remaining": { "type": "String" }
+      "remaining": {
+        "type": "String"
+      }
     }
   },
   "notifDeadline3aBody16Days": "Il reste 16 jours pour verser sur ton 3a",
@@ -11980,57 +11995,66 @@
   "notifStreakProtectionBody": "Tu es à {streak} mois consécutifs — ne casse pas ta série !",
   "@notifStreakProtectionBody": {
     "placeholders": {
-      "streak": { "type": "String" }
+      "streak": {
+        "type": "String"
+      }
     }
   },
-
   "recapActiveWeek": "Cette semaine, tu as été actif {days} jour(s) sur MINT.",
   "@recapActiveWeek": {
     "placeholders": {
-      "days": { "type": "String" }
+      "days": {
+        "type": "String"
+      }
     }
   },
   "recapQuietWeek": "Cette semaine a été calme sur MINT.",
-  "recapSavings": "Ton épargne estimée est de CHF\u00a0{amount}.",
+  "recapSavings": "Ton épargne estimée est de CHF {amount}.",
   "@recapSavings": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "recapConfidenceUp": "Ta confiance a progressé de +{delta}\u00a0pts.",
+  "recapConfidenceUp": "Ta confiance a progressé de +{delta} pts.",
   "@recapConfidenceUp": {
     "placeholders": {
-      "delta": { "type": "String" }
+      "delta": {
+        "type": "String"
+      }
     }
   },
   "recapNextFocus": "La semaine prochaine, concentre-toi sur {focus}.",
   "@recapNextFocus": {
     "placeholders": {
-      "focus": { "type": "String" }
+      "focus": {
+        "type": "String"
+      }
     }
   },
-  "loadingGeneric": "Chargement\u2026",
-
+  "loadingGeneric": "Chargement…",
   "commonConfirm": "Confirmer",
-
   "b2bHubTitle": "Mon entreprise",
   "b2bHubInvalidCode": "Code invalide ou expiré",
-  "b2bHubLeaveTitle": "Quitter l\u2019organisation\u00a0?",
+  "b2bHubLeaveTitle": "Quitter l’organisation ?",
   "b2bHubLeaveBody": "Les modules réservés à ton entreprise ne seront plus accessibles.",
-  "b2bHubNarrativeHeadline": "Prévoyance d\u2019entreprise",
-  "b2bHubNarrativeBody": "Si ton employeur utilise MINT, entre le code d\u2019invitation pour accéder aux modules de prévoyance réservés à tes collaborateurs.",
-  "b2bHubInviteCodeLabel": "Code d\u2019invitation",
+  "b2bHubNarrativeHeadline": "Prévoyance d’entreprise",
+  "b2bHubNarrativeBody": "Si ton employeur utilise MINT, entre le code d’invitation pour accéder aux modules de prévoyance réservés à tes collaborateurs.",
+  "b2bHubInviteCodeLabel": "Code d’invitation",
   "b2bHubJoinButton": "Rejoindre",
-  "b2bHubJoinSemantics": "Rejoindre l\u2019organisation",
-  "b2bHubNoCodeHint": "Pas de code\u00a0? Demande à ton département RH.",
+  "b2bHubJoinSemantics": "Rejoindre l’organisation",
+  "b2bHubNoCodeHint": "Pas de code ? Demande à ton département RH.",
   "b2bHubEmployeeCount": "{count} collaborateurs",
   "@b2bHubEmployeeCount": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "b2bHubModulesTitle": "Tes modules",
-  "b2bHubLeaveButton": "Quitter l\u2019organisation",
+  "b2bHubLeaveButton": "Quitter l’organisation",
   "b2bModuleEducation": "Éducation financière",
   "b2bModuleEducationSubtitle": "Articles, concepts, et quiz adaptés à ta situation",
   "b2bModuleWellness": "Bien-être financier",
@@ -12039,148 +12063,202 @@
   "b2bModule3aSubtitle": "Optimisation et simulation du 3e pilier",
   "b2bModuleLpp": "Prévoyance LPP",
   "b2bModuleLppSubtitle": "Analyse détaillée de ta caisse de pension",
-
   "pensionFundTitle": "Données certifiées",
   "pensionFundConnectionError": "Connexion impossible pour le moment",
-  "pensionFundDisconnectTitle": "Déconnecter la caisse\u00a0?",
-  "pensionFundDisconnectBody": "Tes projections reviendront en mode \u00ab\u00a0estimé\u00a0\u00bb au lieu de \u00ab\u00a0certifié\u00a0\u00bb.",
+  "pensionFundDisconnectTitle": "Déconnecter la caisse ?",
+  "pensionFundDisconnectBody": "Tes projections reviendront en mode « estimé » au lieu de « certifié ».",
   "pensionFundDisconnectButton": "Déconnecter",
   "pensionFundNarrativeHeadline": "Import automatique",
-  "pensionFundNarrativeBody": "Connecte ta caisse de pension pour remplacer les estimations par tes données réelles. Lecture seule \u2014 MINT ne modifie rien.",
+  "pensionFundNarrativeBody": "Connecte ta caisse de pension pour remplacer les estimations par tes données réelles. Lecture seule — MINT ne modifie rien.",
   "pensionFundAvailableTitle": "Caisses disponibles",
   "pensionFundConnectedStatus": "{name}, connecté",
   "@pensionFundConnectedStatus": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "pensionFundDisconnectedStatus": "{name}, non connecté",
   "@pensionFundDisconnectedStatus": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "pensionFundSyncDate": "Synchro {date}",
   "@pensionFundSyncDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "pensionFundReconnectionNeeded": "Reconnexion nécessaire",
   "pensionFundAvailable": "Disponible",
   "pensionFundDisconnectTooltip": "Déconnecter",
   "pensionFundConnectButton": "Connecter",
-  "pensionFundDisclaimer": "MINT est un outil éducatif en lecture seule (LSFin art.\u00a03). Aucune transaction n\u2019est effectuée sur tes comptes. Tu peux te déconnecter à tout moment.",
-
+  "pensionFundDisclaimer": "MINT est un outil éducatif en lecture seule (LSFin art. 3). Aucune transaction n’est effectuée sur tes comptes. Tu peux te déconnecter à tout moment.",
   "semanticsBudgetStartButton": "Commencer la saisie du budget",
   "semanticsBenchmarkToggle": "Activer les comparaisons cantonales",
-  "semanticsBenchmarkMetric": "{label}\u00a0: {status}. Fourchette typique {low} à {high}",
+  "semanticsBenchmarkMetric": "{label} : {status}. Fourchette typique {low} à {high}",
   "@semanticsBenchmarkMetric": {
     "placeholders": {
-      "label": {"type": "String"},
-      "status": {"type": "String"},
-      "low": {"type": "String"},
-      "high": {"type": "String"}
+      "label": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
     }
   },
   "semanticsRecapPeriod": "Récapitulatif du {start} au {end}",
   "@semanticsRecapPeriod": {
     "placeholders": {
-      "start": {"type": "String"},
-      "end": {"type": "String"}
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
     }
   },
-  "semanticsRecapSection": "{title}\u00a0: {content}",
+  "semanticsRecapSection": "{title} : {content}",
   "@semanticsRecapSection": {
     "placeholders": {
-      "title": {"type": "String"},
-      "content": {"type": "String"}
+      "title": {
+        "type": "String"
+      },
+      "content": {
+        "type": "String"
+      }
     }
   },
   "semanticsRepaymentFreeIn": "Libéré dans {months} mois",
   "@semanticsRepaymentFreeIn": {
     "placeholders": {
-      "months": {"type": "int"}
+      "months": {
+        "type": "int"
+      }
     }
   },
   "semanticsRepaymentDeleteDebt": "Supprimer la dette {name}",
   "@semanticsRepaymentDeleteDebt": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
-  "semanticsRepaymentBudget": "Budget mensuel\u00a0: {amount} francs. Appuyer pour modifier",
+  "semanticsRepaymentBudget": "Budget mensuel : {amount} francs. Appuyer pour modifier",
   "@semanticsRepaymentBudget": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsRepaymentValidate": "Valider la valeur",
-  "semanticsRepaymentStrategy": "{title}\u00a0: {months} mois, intérêts {interest} francs",
+  "semanticsRepaymentStrategy": "{title} : {months} mois, intérêts {interest} francs",
   "@semanticsRepaymentStrategy": {
     "placeholders": {
-      "title": {"type": "String"},
-      "months": {"type": "int"},
-      "interest": {"type": "String"}
+      "title": {
+        "type": "String"
+      },
+      "months": {
+        "type": "int"
+      },
+      "interest": {
+        "type": "String"
+      }
     }
   },
-  "semanticsAvsDifference": "Différence annuelle\u00a0: {amount} francs",
+  "semanticsAvsDifference": "Différence annuelle : {amount} francs",
   "@semanticsAvsDifference": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "semanticsMetricLabelValue": "{label}\u00a0: {value}",
+  "semanticsMetricLabelValue": "{label} : {value}",
   "@semanticsMetricLabelValue": {
     "placeholders": {
-      "label": {"type": "String"},
-      "value": {"type": "String"}
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
     }
   },
-  "semanticsAvsTauxEffectif": "Taux effectif\u00a0: {rate} pourcent",
+  "semanticsAvsTauxEffectif": "Taux effectif : {rate} pourcent",
   "@semanticsAvsTauxEffectif": {
     "placeholders": {
-      "rate": {"type": "String"}
+      "rate": {
+        "type": "String"
+      }
     }
   },
-  "semanticsDividendeSaving": "Économie\u00a0: {amount} francs par an",
+  "semanticsDividendeSaving": "Économie : {amount} francs par an",
   "@semanticsDividendeSaving": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsDividendeAdjust": "Ajuste le split pour trouver une économie",
-  "semanticsDividendeRequalification": "Alerte\u00a0: risque de requalification fiscale si la part salaire est inférieure à 60 pourcent",
-  "semanticsLppCapitalisation": "Capitalisation annuelle\u00a0: {amount} francs",
+  "semanticsDividendeRequalification": "Alerte : risque de requalification fiscale si la part salaire est inférieure à 60 pourcent",
+  "semanticsLppCapitalisation": "Capitalisation annuelle : {amount} francs",
   "@semanticsLppCapitalisation": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "semanticsLppGain": "Gain avec LPP volontaire\u00a0: {amount} francs",
+  "semanticsLppGain": "Gain avec LPP volontaire : {amount} francs",
   "@semanticsLppGain": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semantics3aLppToggle": "Affilié LPP",
-  "semantics3aEconomieFiscale": "Économie fiscale\u00a0: {amount} francs",
+  "semantics3aEconomieFiscale": "Économie fiscale : {amount} francs",
   "@semantics3aEconomieFiscale": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "semantics3aAvantageSalarie": "Avantage sur salarié\u00a0: {amount} francs",
+  "semantics3aAvantageSalarie": "Avantage sur salarié : {amount} francs",
   "@semantics3aAvantageSalarie": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsCoachTabLabel": "Onglet Coach MINT",
-  "semanticsRealReturnGain": "Gain par rapport à l'épargne\u00a0: {amount} francs",
+  "semanticsRealReturnGain": "Gain par rapport à l'épargne : {amount} francs",
   "@semanticsRealReturnGain": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
-  }
+  },
+  "capNoCapHeadline": "Tu es sur la bonne voie",
+  "capNoCapWhyNow": "Continue à explorer MINT pour approfondir ta situation."
 }

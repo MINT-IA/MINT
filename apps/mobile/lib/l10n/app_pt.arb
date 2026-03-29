@@ -11811,5 +11811,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "capNoCapHeadline": "Estás no bom caminho",
+  "capNoCapWhyNow": "Continua a explorar o MINT para aprofundar a tua situação."
 }

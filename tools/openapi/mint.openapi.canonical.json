@@ -14207,6 +14207,7 @@
           "employmentStatus": {
             "anyOf": [
               {
+                "pattern": "^(salarie|independant|retraite|employee|self_employed|retired|mixed|unemployed|student)$",
                 "type": "string"
               },
               {

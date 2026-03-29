@@ -25097,4 +25097,11 @@ class SIt extends S {
   String semanticsRealReturnGain(String amount) {
     return 'Guadagno rispetto al risparmio: $amount franchi';
   }
+
+  @override
+  String get capNoCapHeadline => 'Sei sulla buona strada';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Continua a esplorare MINT per approfondire la tua situazione.';
 }

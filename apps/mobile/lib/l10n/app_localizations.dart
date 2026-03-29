@@ -44124,6 +44124,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Gain par rapport à l\'épargne : {amount} francs'**
   String semanticsRealReturnGain(String amount);
+
+  /// No description provided for @capNoCapHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es sur la bonne voie'**
+  String get capNoCapHeadline;
+
+  /// No description provided for @capNoCapWhyNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continue à explorer MINT pour approfondir ta situation.'**
+  String get capNoCapWhyNow;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

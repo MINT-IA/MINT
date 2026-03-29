@@ -24922,4 +24922,11 @@ class SEn extends S {
   String semanticsRealReturnGain(String amount) {
     return 'Gain compared to savings: $amount francs';
   }
+
+  @override
+  String get capNoCapHeadline => 'You\'re on the right track';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Keep exploring MINT to deepen your understanding.';
 }

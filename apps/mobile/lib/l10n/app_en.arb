@@ -11811,5 +11811,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "capNoCapHeadline": "You're on the right track",
+  "capNoCapWhyNow": "Keep exploring MINT to deepen your understanding."
 }

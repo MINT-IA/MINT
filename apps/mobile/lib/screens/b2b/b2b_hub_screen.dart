@@ -353,7 +353,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
         Icons.school_outlined,
         l.b2bModuleEducation,
         l.b2bModuleEducationSubtitle,
-        '/explorer',
+        '/explore/retraite',  // Education hub entry (no root /explorer route)
       ),
       'wellness' => (
         Icons.favorite_outline,

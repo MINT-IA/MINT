@@ -25086,4 +25086,11 @@ class SDe extends S {
   String semanticsRealReturnGain(String amount) {
     return 'Gewinn im Vergleich zum Sparkonto: $amount Franken';
   }
+
+  @override
+  String get capNoCapHeadline => 'Du bist auf dem richtigen Weg';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Erkunde MINT weiter, um deine Situation zu vertiefen.';
 }
