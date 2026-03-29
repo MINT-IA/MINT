@@ -558,12 +558,31 @@ class CoachLlmService {
     parts.add('- Mentionne les risques et points d\'attention.');
     parts.add('- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
 
+    // FIX-104: Add structured pillar fields for coach reasoning.
+    final yearsToRetirement = (profile.targetRetirementAge ?? 65) - profile.age;
     return {
       'canton': profile.canton,
       'age': profile.age,
       'civil_status': profile.etatCivil.name,
+      'employment_status': profile.employmentStatus,
+      'archetype': profile.nationality != null
+          ? (profile.nationality == 'US' ? 'expat_us' : 'swiss_native')
+          : 'swiss_native',
       if (profile.firstName != null) 'first_name': profile.firstName,
       'financial_summary': parts.join('\n'),
+      // Pillar fields (numeric, privacy-safe — ranges only)
+      if (profile.prevoyance.avoirLppTotal != null)
+        'lpp_balance_total': _toRange(profile.prevoyance.avoirLppTotal!),
+      if (profile.prevoyance.tauxConversion > 0)
+        'lpp_conversion_rate': '${(profile.prevoyance.tauxConversion * 100).toStringAsFixed(1)}%',
+      if (profile.prevoyance.lacuneRachatRestante > 0)
+        'lpp_buyback_potential': _toRange(profile.prevoyance.lacuneRachatRestante),
+      if (profile.prevoyance.renteAVSEstimeeMensuelle != null)
+        'avs_annual_estimate': _toRange(profile.prevoyance.renteAVSEstimeeMensuelle! * 12),
+      'avs_contribution_years': '${profile.prevoyance.anneesContribuees ?? (profile.age - 21).clamp(0, 44)}',
+      'marital_status': profile.etatCivil.name,
+      'months_to_retirement': '${(yearsToRetirement * 12).clamp(0, 600)}',
+      'number_of_children': '${profile.nombreEnfants}',
     };
   }
 

@@ -1384,6 +1384,9 @@ class CoachProfile {
   double get revenuBrutAnnuelCouple =>
       revenuBrutAnnuel + (conjoint?.revenuBrutAnnuel ?? 0);
 
+  /// FIX-101: Cross-border worker detection (permis G).
+  bool get isCrossBorder => residencePermit?.toUpperCase() == 'G';
+
   /// Total depenses fixes mensuelles
   double get totalDepensesMensuelles => depenses.totalMensuel;
 
@@ -1489,8 +1492,12 @@ class CoachProfile {
   /// Also delegates to [PrevoyanceProfile.canContribute3a] which may be
   /// set independently (e.g. when profile is loaded from a certificate).
   bool get canContribute3a {
+    // US citizens with FATCA: blocked (most Swiss providers refuse)
     if (archetype == FinancialArchetype.expatUs) return false;
     if (nationality == 'US') return false;
+    // FIX-102: Frontaliers GE can deduct 3a if quasi-resident (≥90% Swiss income)
+    // or if they have Swiss employment income (AVS-contributing salary).
+    if (isCrossBorder && revenuBrutAnnuel > 0) return true;
     return prevoyance.canContribute3a;
   }
 

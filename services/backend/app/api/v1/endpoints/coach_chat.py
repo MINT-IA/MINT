@@ -227,6 +227,11 @@ _PROFILE_SAFE_FIELDS = {
     # Cap/Plan context (consumed by get_cap_status internal tool):
     "cap_headline", "cap_why_now", "cap_cta", "cap_expected_impact",
     "sequence_completed", "sequence_total", "active_goal",
+    # FIX-104: Pillar fields for coach education (numeric, privacy-safe)
+    "lpp_balance_total", "lpp_conversion_rate", "lpp_buyback_potential",
+    "avs_annual_estimate", "avs_contribution_years",
+    "marital_status", "months_to_retirement", "number_of_children",
+    "years_since_last_buyback",
 }
 
 
