@@ -11913,6 +11913,20 @@
             "title": "Age",
             "type": "integer"
           },
+          "arrivalAge": {
+            "anyOf": [
+              {
+                "maximum": 70.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Age d'arrivee en Suisse (None = ne en Suisse)",
+            "title": "Arrivalage"
+          },
           "canton": {
             "description": "Code canton (2 lettres majuscules, ex: ZH, VD, GE)",
             "maxLength": 2,
@@ -12014,6 +12028,31 @@
             ],
             "description": "Service de la dette mensuel en CHF",
             "title": "Monthlydebtservice"
+          },
+          "nationalityCountry": {
+            "anyOf": [
+              {
+                "maxLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code ISO pays de nationalite (ex: FR, DE, US)",
+            "title": "Nationalitycountry"
+          },
+          "nationalityGroup": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Groupe de nationalite: CH, EU, non_EU, US",
+            "title": "Nationalitygroup"
           },
           "stressType": {
             "anyOf": [

@@ -378,11 +378,12 @@ class MonteCarloProjectionService {
         final libreReturnYear =
             _normalRandom(random, mean: 0.04, sd: 0.08);
 
-        // AVS indexee chaque annee — seulement apres le delai d'anticipation
+        // FIX-005: AVS indexation starts from the year AVS begins paying,
+        // not from year 0. Was over-indexing by 1-5% in early retirement.
         final avsUserThisYear = y >= yearsUntilAvsUser
-            ? avsUserMonthly * pow(1 + avsIndexation, y.toDouble())
+            ? avsUserMonthly * pow(1 + avsIndexation, (y - yearsUntilAvsUser).toDouble())
             : 0.0;
-        // Conjoint AVS: starts immediately (conjoint retires at 65)
+        // Conjoint AVS: indexation from year 0 (conjoint already retired)
         final avsConjointThisYear = hasConjoint
             ? avsConjointMonthly * pow(1 + avsIndexation, y.toDouble())
             : 0.0;

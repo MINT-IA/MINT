@@ -49,6 +49,10 @@ def _request_to_input(request: MinimalProfileRequest) -> MinimalProfileInput:
         total_debts=request.total_debts,
         monthly_debt_service=request.monthly_debt_service,
         stress_type=request.stress_type,
+        # FIX-093: Pass nationality fields for archetype detection.
+        nationality_group=request.nationality_group,
+        nationality_country=request.nationality_country,
+        arrival_age=request.arrival_age,
     )
 
 
