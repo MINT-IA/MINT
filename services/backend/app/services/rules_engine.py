@@ -150,18 +150,34 @@ def compute_disability_gap(
     # Phase 1: Employer coverage
     phase1_weeks = 0.0
     phase1_benefit = 0.0
-    if employment_status == "employee":
+    # FIX-162: Handle all employment statuses (was only employee/self_employed).
+    # Normalize FR → EN aliases
+    _status = employment_status.lower().strip()
+    if _status in ("salarie", "employee"):
+        _status = "employee"
+    elif _status in ("independant", "self_employed"):
+        _status = "self_employed"
+    elif _status in ("retraite", "retired"):
+        _status = "retired"
+
+    if _status == "employee":
         phase1_weeks = float(get_employer_coverage_weeks(canton, years_of_service))
         phase1_benefit = monthly_income  # 100% salary
+    elif _status == "retired":
+        # Retirees already covered by AI rente — no employer phase
+        alerts.append("Retraité·e : couvert·e par l'AI/AVS. L'invalidité s'applique différemment.")
+    elif _status == "student":
+        alerts.append("Étudiant·e : aucune couverture employeur ni IJM. Vérifier l'assurance accidents (LAA).")
+    elif _status == "unemployed":
+        alerts.append("Sans emploi : couverture via l'assurance-chômage (LACI art. 22). Vérifier la durée restante.")
     else:
-        alerts.append("Indépendant: aucune couverture employeur")
+        alerts.append("Indépendant·e : aucune couverture employeur")
     phase1_gap = monthly_income - phase1_benefit
 
     # Phase 2: IJM
     phase2_duration_months = 24.0
     phase2_benefit = 0.0
-    if (employment_status == "employee" and has_ijm_collective) or \
-       (employment_status == "self_employed" and has_ijm_collective):
+    if (_status in ("employee", "self_employed") and has_ijm_collective):
         phase2_benefit = monthly_income * 0.8
     else:
         alerts.append("Aucune IJM: après la période employeur, plus rien jusqu'à l'AI")
@@ -173,10 +189,14 @@ def compute_disability_gap(
     phase3_gap = monthly_income - phase3_benefit
 
     # Risk level
-    if employment_status == "self_employed" and not has_ijm_collective:
+    if _status == "self_employed" and not has_ijm_collective:
         risk_level = "critical"
         alerts.append("CRITIQUE: Indépendant sans IJM = aucune couverture pendant 24 mois")
-    elif employment_status == "employee" and not has_ijm_collective:
+    elif _status == "retired":
+        risk_level = "low"  # Already covered by AI/AVS
+    elif _status in ("student", "unemployed"):
+        risk_level = "high"
+    elif _status == "employee" and not has_ijm_collective:
         risk_level = "high"
         alerts.append(f"HAUT RISQUE: Après {int(phase1_weeks)} semaines, plus rien")
     elif phase3_gap > 3000:

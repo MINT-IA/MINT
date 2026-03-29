@@ -73,9 +73,8 @@ Future<void> main() async {
     CommuneData.load().catchError((e) {
       if (kDebugMode) debugPrint('Err Communes: $e');
     }),
-    FeatureFlags.refreshFromBackend().catchError((e) {
-      if (kDebugMode) debugPrint('Err Flags: $e');
-    }),
+    // FIX-164: Removed redundant FeatureFlags.refreshFromBackend()
+    // Already awaited at L58 with 2s timeout. Double call was overwriting results.
     RegulatorySyncService.fetchConstants().catchError((e) {
       if (kDebugMode) debugPrint('Err Regulatory: $e');
       return <String, double>{};
