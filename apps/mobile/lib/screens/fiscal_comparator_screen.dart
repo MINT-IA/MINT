@@ -16,6 +16,7 @@ import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
@@ -923,9 +924,11 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           ),
           child: Column(
             children: [
-              Text(
-                FiscalService.formatChf(ecartMax),
-                style: MintTextStyles.displayMedium(color: MintColors.white),
+              MintCountUp(
+                value: ecartMax,
+                prefix: 'CHF\u00a0',
+                color: MintColors.white,
+                showLigne: false,
               ),
               const SizedBox(height: 6),
               Text(

@@ -86,8 +86,10 @@ class MinimalProfileRequest(OnboardingBaseModel):
         description="Intention declaree par l'utilisateur a l'onboarding",
     )
     # FIX-093: Archetype detection fields (expat, cross-border, returning Swiss)
+    # FIX-130: Validate against known groups.
     nationality_group: Optional[str] = Field(
         default=None,
+        pattern=r"^(CH|EU|non_EU|US)$",
         description="Groupe de nationalite: CH, EU, non_EU, US",
     )
     nationality_country: Optional[str] = Field(

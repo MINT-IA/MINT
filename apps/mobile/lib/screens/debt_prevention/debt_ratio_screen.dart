@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -163,10 +164,13 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             ),
           ),
           const SizedBox(height: MintSpacing.sm),
-          MintHeroNumber(
-            value: '${result.ratio.toStringAsFixed(1)}%',
-            caption: S.of(context)!.debtRatioSubLabel,
+          MintCountUp(
+            value: result.ratio,
+            suffix: '\u00a0%',
+            decimals: 1,
             color: color,
+            showLigne: false,
+            contextText: S.of(context)!.debtRatioSubLabel,
             semanticsLabel: '${result.ratio.toStringAsFixed(1)}% — $label',
           ),
           const SizedBox(height: MintSpacing.sm),

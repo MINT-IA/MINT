@@ -22,6 +22,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
@@ -497,10 +498,12 @@ class _BudgetScreenState extends State<BudgetScreen>
         // Hero: budget libre — MintHeroNumber (consequence, not output)
         // Uses BudgetSnapshot.present.monthlyFree when available for
         // consistency with PulseScreen, falls back to plan.available.
-        MintHeroNumber(
-          value: 'CHF\u00a0${heroFree.toStringAsFixed(0)}',
-          caption: l.budgetChiffreChocCaption,
+        MintCountUp(
+          value: heroFree,
+          prefix: 'CHF\u00a0',
           color: heroColor,
+          showLigne: false,
+          contextText: l.budgetChiffreChocCaption,
           semanticsLabel:
               'CHF ${heroFree.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
         ),
