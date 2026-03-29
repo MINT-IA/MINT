@@ -492,8 +492,14 @@ class InstitutionalApiService {
       return ConnectionStatus.expired;
     }
 
-    // Decrypt before validation — backend expects the raw token, not the encrypted one.
-    final decryptedToken = _TokenEncryptor.decrypt(encryptedToken);
+    // FIX-178: Decrypt with try-catch — corrupted token shouldn't crash.
+    String decryptedToken;
+    try {
+      decryptedToken = _TokenEncryptor.decrypt(encryptedToken);
+    } catch (_) {
+      _log('checkStatus', fund, false, 'Token corrupted — cannot decrypt');
+      return ConnectionStatus.expired;
+    }
     final valid = await _backend.isTokenValid(fund, decryptedToken);
     if (!valid) {
       _log('checkStatus', fund, false, 'Token expired');
