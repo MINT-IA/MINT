@@ -24768,4 +24768,135 @@ class SPt extends S {
 
   @override
   String get loadingGeneric => 'A carregar…';
+
+  @override
+  String get commonConfirm => 'Confirmar';
+
+  @override
+  String get b2bHubTitle => 'A minha empresa';
+
+  @override
+  String get b2bHubInvalidCode => 'Código inválido ou expirado';
+
+  @override
+  String get b2bHubLeaveTitle => 'Sair da organização?';
+
+  @override
+  String get b2bHubLeaveBody =>
+      'Os módulos reservados à tua empresa deixarão de estar acessíveis.';
+
+  @override
+  String get b2bHubNarrativeHeadline => 'Previdência empresarial';
+
+  @override
+  String get b2bHubNarrativeBody =>
+      'Se o teu empregador utiliza o MINT, introduz o código de convite para aceder aos módulos de previdência reservados aos colaboradores.';
+
+  @override
+  String get b2bHubInviteCodeLabel => 'Código de convite';
+
+  @override
+  String get b2bHubJoinButton => 'Aderir';
+
+  @override
+  String get b2bHubJoinSemantics => 'Aderir à organização';
+
+  @override
+  String get b2bHubNoCodeHint =>
+      'Sem código? Pergunta ao teu departamento de RH.';
+
+  @override
+  String b2bHubEmployeeCount(String count) {
+    return '$count colaboradores';
+  }
+
+  @override
+  String get b2bHubModulesTitle => 'Os teus módulos';
+
+  @override
+  String get b2bHubLeaveButton => 'Sair da organização';
+
+  @override
+  String get b2bModuleEducation => 'Educação financeira';
+
+  @override
+  String get b2bModuleEducationSubtitle =>
+      'Artigos, conceitos e questionários adaptados à tua situação';
+
+  @override
+  String get b2bModuleWellness => 'Bem-estar financeiro';
+
+  @override
+  String get b2bModuleWellnessSubtitle =>
+      'Pontuação de saúde financeira e recomendações';
+
+  @override
+  String get b2bModule3a => 'Pilar 3a empresarial';
+
+  @override
+  String get b2bModule3aSubtitle => 'Otimização e simulação do terceiro pilar';
+
+  @override
+  String get b2bModuleLpp => 'Previdência profissional (LPP)';
+
+  @override
+  String get b2bModuleLppSubtitle =>
+      'Análise detalhada da tua caixa de pensões';
+
+  @override
+  String get pensionFundTitle => 'Dados certificados';
+
+  @override
+  String get pensionFundConnectionError => 'Ligação indisponível de momento';
+
+  @override
+  String get pensionFundDisconnectTitle => 'Desligar a caixa?';
+
+  @override
+  String get pensionFundDisconnectBody =>
+      'As tuas projeções voltarão ao modo «estimado» em vez de «certificado».';
+
+  @override
+  String get pensionFundDisconnectButton => 'Desligar';
+
+  @override
+  String get pensionFundNarrativeHeadline => 'Importação automática';
+
+  @override
+  String get pensionFundNarrativeBody =>
+      'Liga a tua caixa de pensões para substituir as estimativas pelos teus dados reais. Apenas leitura — o MINT não altera nada.';
+
+  @override
+  String get pensionFundAvailableTitle => 'Caixas disponíveis';
+
+  @override
+  String pensionFundConnectedStatus(String name) {
+    return '$name, ligado';
+  }
+
+  @override
+  String pensionFundDisconnectedStatus(String name) {
+    return '$name, não ligado';
+  }
+
+  @override
+  String pensionFundSyncDate(String date) {
+    return 'Sincro $date';
+  }
+
+  @override
+  String get pensionFundReconnectionNeeded => 'Reconexão necessária';
+
+  @override
+  String get pensionFundAvailable => 'Disponível';
+
+  @override
+  String get pensionFundDisconnectTooltip => 'Desligar';
+
+  @override
+  String get pensionFundConnectButton => 'Ligar';
+
+  @override
+  String get pensionFundDisclaimer =>
+      'O MINT é uma ferramenta educativa em modo de leitura (LSFin art. 3). Nenhuma transação é efetuada nas tuas contas. Podes desligar-te a qualquer momento.';
 }

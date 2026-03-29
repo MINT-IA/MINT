@@ -11,8 +11,15 @@ import 'package:mint_mobile/services/auth_service.dart';
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
+  final bool isOffline;
 
-  const ApiException(this.message, {this.statusCode});
+  const ApiException(this.message, {this.statusCode, this.isOffline = false});
+
+  /// FIX-071: User-friendly offline detection.
+  static ApiException offline() => const ApiException(
+    'Pas de connexion internet. Vérifie ton réseau et réessaie.', // TODO: i18n
+    isOffline: true,
+  );
 
   @override
   String toString() => message;

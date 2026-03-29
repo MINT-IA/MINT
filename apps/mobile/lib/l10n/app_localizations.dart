@@ -43757,6 +43757,234 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Chargement…'**
   String get loadingGeneric;
+
+  /// No description provided for @commonConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get commonConfirm;
+
+  /// No description provided for @b2bHubTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon entreprise'**
+  String get b2bHubTitle;
+
+  /// No description provided for @b2bHubInvalidCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code invalide ou expiré'**
+  String get b2bHubInvalidCode;
+
+  /// No description provided for @b2bHubLeaveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter l’organisation ?'**
+  String get b2bHubLeaveTitle;
+
+  /// No description provided for @b2bHubLeaveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les modules réservés à ton entreprise ne seront plus accessibles.'**
+  String get b2bHubLeaveBody;
+
+  /// No description provided for @b2bHubNarrativeHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance d’entreprise'**
+  String get b2bHubNarrativeHeadline;
+
+  /// No description provided for @b2bHubNarrativeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si ton employeur utilise MINT, entre le code d’invitation pour accéder aux modules de prévoyance réservés à tes collaborateurs.'**
+  String get b2bHubNarrativeBody;
+
+  /// No description provided for @b2bHubInviteCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’invitation'**
+  String get b2bHubInviteCodeLabel;
+
+  /// No description provided for @b2bHubJoinButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre'**
+  String get b2bHubJoinButton;
+
+  /// No description provided for @b2bHubJoinSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre l’organisation'**
+  String get b2bHubJoinSemantics;
+
+  /// No description provided for @b2bHubNoCodeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de code ? Demande à ton département RH.'**
+  String get b2bHubNoCodeHint;
+
+  /// No description provided for @b2bHubEmployeeCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} collaborateurs'**
+  String b2bHubEmployeeCount(String count);
+
+  /// No description provided for @b2bHubModulesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes modules'**
+  String get b2bHubModulesTitle;
+
+  /// No description provided for @b2bHubLeaveButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter l’organisation'**
+  String get b2bHubLeaveButton;
+
+  /// No description provided for @b2bModuleEducation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éducation financière'**
+  String get b2bModuleEducation;
+
+  /// No description provided for @b2bModuleEducationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Articles, concepts, et quiz adaptés à ta situation'**
+  String get b2bModuleEducationSubtitle;
+
+  /// No description provided for @b2bModuleWellness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien-être financier'**
+  String get b2bModuleWellness;
+
+  /// No description provided for @b2bModuleWellnessSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score de santé financière et recommandations'**
+  String get b2bModuleWellnessSubtitle;
+
+  /// No description provided for @b2bModule3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a entreprise'**
+  String get b2bModule3a;
+
+  /// No description provided for @b2bModule3aSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation et simulation du 3e pilier'**
+  String get b2bModule3aSubtitle;
+
+  /// No description provided for @b2bModuleLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance LPP'**
+  String get b2bModuleLpp;
+
+  /// No description provided for @b2bModuleLppSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse détaillée de ta caisse de pension'**
+  String get b2bModuleLppSubtitle;
+
+  /// No description provided for @pensionFundTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données certifiées'**
+  String get pensionFundTitle;
+
+  /// No description provided for @pensionFundConnectionError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion impossible pour le moment'**
+  String get pensionFundConnectionError;
+
+  /// No description provided for @pensionFundDisconnectTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter la caisse ?'**
+  String get pensionFundDisconnectTitle;
+
+  /// No description provided for @pensionFundDisconnectBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes projections reviendront en mode « estimé » au lieu de « certifié ».'**
+  String get pensionFundDisconnectBody;
+
+  /// No description provided for @pensionFundDisconnectButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter'**
+  String get pensionFundDisconnectButton;
+
+  /// No description provided for @pensionFundNarrativeHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Import automatique'**
+  String get pensionFundNarrativeHeadline;
+
+  /// No description provided for @pensionFundNarrativeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte ta caisse de pension pour remplacer les estimations par tes données réelles. Lecture seule — MINT ne modifie rien.'**
+  String get pensionFundNarrativeBody;
+
+  /// No description provided for @pensionFundAvailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caisses disponibles'**
+  String get pensionFundAvailableTitle;
+
+  /// No description provided for @pensionFundConnectedStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, connecté'**
+  String pensionFundConnectedStatus(String name);
+
+  /// No description provided for @pensionFundDisconnectedStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, non connecté'**
+  String pensionFundDisconnectedStatus(String name);
+
+  /// No description provided for @pensionFundSyncDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchro {date}'**
+  String pensionFundSyncDate(String date);
+
+  /// No description provided for @pensionFundReconnectionNeeded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconnexion nécessaire'**
+  String get pensionFundReconnectionNeeded;
+
+  /// No description provided for @pensionFundAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get pensionFundAvailable;
+
+  /// No description provided for @pensionFundDisconnectTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter'**
+  String get pensionFundDisconnectTooltip;
+
+  /// No description provided for @pensionFundConnectButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecter'**
+  String get pensionFundConnectButton;
+
+  /// No description provided for @pensionFundDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT est un outil éducatif en lecture seule (LSFin art. 3). Aucune transaction n’est effectuée sur tes comptes. Tu peux te déconnecter à tout moment.'**
+  String get pensionFundDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

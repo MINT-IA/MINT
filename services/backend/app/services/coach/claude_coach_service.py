@@ -187,13 +187,29 @@ CONNAISSANCES SUISSES (utilise ces faits quand pertinent) :
 """
 
 
-def build_system_prompt(ctx: Optional[CoachContext] = None) -> str:
+_LANGUAGE_NAMES = {
+    "fr": "français",
+    "de": "Deutsch (Hochdeutsch)",
+    "en": "English",
+    "it": "italiano",
+    "es": "español",
+    "pt": "português",
+}
+
+
+def build_system_prompt(
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+) -> str:
     """Build the full system prompt for the Claude coach.
 
     Args:
         ctx: Optional CoachContext with user-specific data. When provided,
              the prompt is enriched with the user's known values, archetype,
              and confidence score. When None, returns the base prompt only.
+        language: ISO 639-1 language code for the response language.
+             The base prompt stays in French (it works for Claude) but a
+             response language instruction is appended when language != 'fr'.
 
     Returns:
         The complete system prompt string to pass to the Anthropic API.
@@ -205,6 +221,20 @@ def build_system_prompt(ctx: Optional[CoachContext] = None) -> str:
         plan_awareness=_PLAN_AWARENESS,
         routing_rules=_TOOL_ROUTING_RULES,
     )
+
+    # FIX-081: Append response language instruction for non-French users.
+    # The base prompt remains in French (Claude understands it well) but the
+    # response MUST be in the user's language.
+    if language and language != "fr":
+        lang_name = _LANGUAGE_NAMES.get(language, language)
+        base += (
+            f"\n\nIMPORTANT — LANGUE DE RÉPONSE :\n"
+            f"L'utilisateur parle {lang_name}. "
+            f"Réponds TOUJOURS en {lang_name}. "
+            f"Adapte le tutoiement/vouvoiement aux conventions de la langue. "
+            f"Les références légales suisses restent en français (LPP, LIFD, etc.) "
+            f"mais les explications doivent être dans la langue de l'utilisateur."
+        )
 
     if ctx is None:
         return base

@@ -13,6 +13,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/institutional/institutional_api_service.dart';
 import 'package:mint_mobile/services/institutional/pension_fund_registry.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -55,7 +56,7 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Connexion impossible pour le moment')), // TODO: i18n
+          SnackBar(content: Text(S.of(context)!.pensionFundConnectionError)),
         );
         setState(() => _loading = false);
       }
@@ -68,20 +69,20 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Déconnecter la caisse\u00a0?', // TODO: i18n
+        title: Text(S.of(context)!.pensionFundDisconnectTitle,
             style: MintTextStyles.headlineMedium()),
         content: Text(
-          'Tes projections reviendront en mode "estimé" au lieu de "certifié".',
+          S.of(context)!.pensionFundDisconnectBody,
           style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
-        ), // TODO: i18n
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Annuler', style: MintTextStyles.bodyMedium()),
+            child: Text(S.of(context)!.commonCancel, style: MintTextStyles.bodyMedium()),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Déconnecter'),
+            child: Text(S.of(context)!.pensionFundDisconnectButton),
           ),
         ],
       ),
@@ -111,7 +112,7 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                   backgroundColor: MintColors.primary,
                   foregroundColor: MintColors.white,
                   flexibleSpace: FlexibleSpaceBar(
-                    title: Text('Données certifiées', // TODO: i18n
+                    title: Text(S.of(context)!.pensionFundTitle,
                         style: MintTextStyles.titleMedium(
                             color: MintColors.white)),
                     background: Container(
@@ -141,7 +142,7 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'Données certifiées', // TODO: i18n
+                              S.of(context)!.pensionFundTitle,
                               style: MintTextStyles.bodySmall(
                                   color: MintColors.white.withAlpha(153)),
                             ),
@@ -160,19 +161,17 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                       // Narrative intro
                       MintEntrance(
                         child: MintNarrativeCard(
-                          headline: 'Import automatique',
-                          body: 'Connecte ta caisse de pension pour remplacer '
-                              'les estimations par tes données réelles. '
-                              'Lecture seule — MINT ne modifie rien.',
+                          headline: S.of(context)!.pensionFundNarrativeHeadline,
+                          body: S.of(context)!.pensionFundNarrativeBody,
                           tone: MintSurfaceTone.porcelaine,
-                        ), // TODO: i18n
+                        ),
                       ),
                       const SizedBox(height: MintSpacing.xl),
 
                       // Section title
                       MintEntrance(
                         delay: const Duration(milliseconds: 100),
-                        child: Text('Caisses disponibles', // TODO: i18n
+                        child: Text(S.of(context)!.pensionFundAvailableTitle,
                             style: MintTextStyles.headlineMedium()),
                       ),
                       const SizedBox(height: MintSpacing.md),
@@ -215,8 +214,11 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
     final isError = conn?.status == ConnectionStatus.error ||
         conn?.status == ConnectionStatus.expired;
 
+    final l = S.of(context)!;
     return Semantics(
-      label: '${fund.name}, ${isConnected ? "connecté" : "non connecté"}',
+      label: isConnected
+          ? l.pensionFundConnectedStatus(fund.name)
+          : l.pensionFundDisconnectedStatus(fund.name),
       child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.md + 4),
         radius: 16,
@@ -261,16 +263,16 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                   const SizedBox(height: 3),
                   Text(
                     isConnected
-                        ? 'Synchro ${_formatDate(conn!.lastSync)}'
+                        ? l.pensionFundSyncDate(_formatDate(conn!.lastSync))
                         : isError
-                            ? 'Reconnexion nécessaire'
-                            : 'Disponible',
+                            ? l.pensionFundReconnectionNeeded
+                            : l.pensionFundAvailable,
                     style: MintTextStyles.micro(
                       color: isError
                           ? MintColors.error
                           : MintColors.textMuted,
                     ),
-                  ), // TODO: i18n
+                  ),
                 ],
               ),
             ),
@@ -281,7 +283,7 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                 icon: const Icon(Icons.link_off_rounded, size: 20),
                 color: MintColors.textMuted,
                 onPressed: () => _disconnect(fund.id),
-                tooltip: 'Déconnecter', // TODO: i18n
+                tooltip: l.pensionFundDisconnectTooltip,
               )
             else
               FilledButton(
@@ -293,7 +295,7 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text('Connecter', // TODO: i18n
+                child: Text(l.pensionFundConnectButton,
                     style: MintTextStyles.bodySmall(color: MintColors.white)
                         .copyWith(fontWeight: FontWeight.w600)),
               ),
@@ -316,12 +318,10 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
           const SizedBox(width: MintSpacing.sm + 2),
           Expanded(
             child: Text(
-              'MINT est un outil éducatif en lecture seule (LSFin art.\u00a03). '
-              'Aucune transaction n\u2019est effectuée sur tes comptes. '
-              'Tu peux te déconnecter à tout moment.',
+              S.of(context)!.pensionFundDisclaimer,
               style: MintTextStyles.micro(color: MintColors.textMuted)
                   .copyWith(height: 1.5),
-            ), // TODO: i18n
+            ),
           ),
         ],
       ),

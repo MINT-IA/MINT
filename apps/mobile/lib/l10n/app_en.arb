@@ -11586,5 +11586,66 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "commonConfirm": "Confirm",
+
+  "b2bHubTitle": "My company",
+  "b2bHubInvalidCode": "Invalid or expired code",
+  "b2bHubLeaveTitle": "Leave the organisation?",
+  "b2bHubLeaveBody": "Modules reserved for your company will no longer be accessible.",
+  "b2bHubNarrativeHeadline": "Employer pension plan",
+  "b2bHubNarrativeBody": "If your employer uses MINT, enter the invitation code to access pension modules reserved for employees.",
+  "b2bHubInviteCodeLabel": "Invitation code",
+  "b2bHubJoinButton": "Join",
+  "b2bHubJoinSemantics": "Join the organisation",
+  "b2bHubNoCodeHint": "No code? Ask your HR department.",
+  "b2bHubEmployeeCount": "{count} employees",
+  "@b2bHubEmployeeCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "b2bHubModulesTitle": "Your modules",
+  "b2bHubLeaveButton": "Leave the organisation",
+  "b2bModuleEducation": "Financial education",
+  "b2bModuleEducationSubtitle": "Articles, concepts, and quizzes tailored to your situation",
+  "b2bModuleWellness": "Financial wellness",
+  "b2bModuleWellnessSubtitle": "Financial health score and recommendations",
+  "b2bModule3a": "Company pillar 3a",
+  "b2bModule3aSubtitle": "Third pillar optimisation and simulation",
+  "b2bModuleLpp": "Occupational pension (LPP)",
+  "b2bModuleLppSubtitle": "Detailed analysis of your pension fund",
+
+  "pensionFundTitle": "Certified data",
+  "pensionFundConnectionError": "Connection not available at the moment",
+  "pensionFundDisconnectTitle": "Disconnect the fund?",
+  "pensionFundDisconnectBody": "Your projections will revert to estimated mode instead of certified.",
+  "pensionFundDisconnectButton": "Disconnect",
+  "pensionFundNarrativeHeadline": "Automatic import",
+  "pensionFundNarrativeBody": "Connect your pension fund to replace estimates with your actual data. Read-only \u2014 MINT does not modify anything.",
+  "pensionFundAvailableTitle": "Available funds",
+  "pensionFundConnectedStatus": "{name}, connected",
+  "@pensionFundConnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundDisconnectedStatus": "{name}, not connected",
+  "@pensionFundDisconnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundSyncDate": "Synced {date}",
+  "@pensionFundSyncDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "pensionFundReconnectionNeeded": "Reconnection required",
+  "pensionFundAvailable": "Available",
+  "pensionFundDisconnectTooltip": "Disconnect",
+  "pensionFundConnectButton": "Connect",
+  "pensionFundDisclaimer": "MINT is a read-only educational tool (FinSA art.\u00a03). No transactions are made on your accounts. You can disconnect at any time."
 }

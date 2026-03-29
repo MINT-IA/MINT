@@ -24691,4 +24691,134 @@ class SEn extends S {
 
   @override
   String get loadingGeneric => 'Loading…';
+
+  @override
+  String get commonConfirm => 'Confirm';
+
+  @override
+  String get b2bHubTitle => 'My company';
+
+  @override
+  String get b2bHubInvalidCode => 'Invalid or expired code';
+
+  @override
+  String get b2bHubLeaveTitle => 'Leave the organisation?';
+
+  @override
+  String get b2bHubLeaveBody =>
+      'Modules reserved for your company will no longer be accessible.';
+
+  @override
+  String get b2bHubNarrativeHeadline => 'Employer pension plan';
+
+  @override
+  String get b2bHubNarrativeBody =>
+      'If your employer uses MINT, enter the invitation code to access pension modules reserved for employees.';
+
+  @override
+  String get b2bHubInviteCodeLabel => 'Invitation code';
+
+  @override
+  String get b2bHubJoinButton => 'Join';
+
+  @override
+  String get b2bHubJoinSemantics => 'Join the organisation';
+
+  @override
+  String get b2bHubNoCodeHint => 'No code? Ask your HR department.';
+
+  @override
+  String b2bHubEmployeeCount(String count) {
+    return '$count employees';
+  }
+
+  @override
+  String get b2bHubModulesTitle => 'Your modules';
+
+  @override
+  String get b2bHubLeaveButton => 'Leave the organisation';
+
+  @override
+  String get b2bModuleEducation => 'Financial education';
+
+  @override
+  String get b2bModuleEducationSubtitle =>
+      'Articles, concepts, and quizzes tailored to your situation';
+
+  @override
+  String get b2bModuleWellness => 'Financial wellness';
+
+  @override
+  String get b2bModuleWellnessSubtitle =>
+      'Financial health score and recommendations';
+
+  @override
+  String get b2bModule3a => 'Company pillar 3a';
+
+  @override
+  String get b2bModule3aSubtitle => 'Third pillar optimisation and simulation';
+
+  @override
+  String get b2bModuleLpp => 'Occupational pension (LPP)';
+
+  @override
+  String get b2bModuleLppSubtitle => 'Detailed analysis of your pension fund';
+
+  @override
+  String get pensionFundTitle => 'Certified data';
+
+  @override
+  String get pensionFundConnectionError =>
+      'Connection not available at the moment';
+
+  @override
+  String get pensionFundDisconnectTitle => 'Disconnect the fund?';
+
+  @override
+  String get pensionFundDisconnectBody =>
+      'Your projections will revert to estimated mode instead of certified.';
+
+  @override
+  String get pensionFundDisconnectButton => 'Disconnect';
+
+  @override
+  String get pensionFundNarrativeHeadline => 'Automatic import';
+
+  @override
+  String get pensionFundNarrativeBody =>
+      'Connect your pension fund to replace estimates with your actual data. Read-only — MINT does not modify anything.';
+
+  @override
+  String get pensionFundAvailableTitle => 'Available funds';
+
+  @override
+  String pensionFundConnectedStatus(String name) {
+    return '$name, connected';
+  }
+
+  @override
+  String pensionFundDisconnectedStatus(String name) {
+    return '$name, not connected';
+  }
+
+  @override
+  String pensionFundSyncDate(String date) {
+    return 'Synced $date';
+  }
+
+  @override
+  String get pensionFundReconnectionNeeded => 'Reconnection required';
+
+  @override
+  String get pensionFundAvailable => 'Available';
+
+  @override
+  String get pensionFundDisconnectTooltip => 'Disconnect';
+
+  @override
+  String get pensionFundConnectButton => 'Connect';
+
+  @override
+  String get pensionFundDisclaimer =>
+      'MINT is a read-only educational tool (FinSA art. 3). No transactions are made on your accounts. You can disconnect at any time.';
 }

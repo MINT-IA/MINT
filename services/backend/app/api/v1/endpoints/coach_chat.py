@@ -283,13 +283,14 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
 def _build_system_prompt_with_memory(
     coach_ctx,
     memory_block: Optional[str],
+    language: str = "fr",
 ) -> str:
     """Build the system prompt and optionally append the sanitized memory block.
 
     The memory block is sanitized for PII and wrapped in prompt injection
     armor before being appended to the system prompt.
     """
-    prompt = build_system_prompt(ctx=coach_ctx)
+    prompt = build_system_prompt(ctx=coach_ctx, language=language)
     sanitized = _sanitize_memory_block(memory_block)
     if sanitized:
         prompt = prompt + "\n\n" + sanitized
@@ -927,7 +928,7 @@ async def coach_chat(
     # Step 2: Build system prompt (lifecycle + regional + plan + memory)
     # Memory block is PII-scrubbed and wrapped in prompt injection armor.
     # ------------------------------------------------------------------
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, body.memory_block)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, body.memory_block, language=body.language)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
