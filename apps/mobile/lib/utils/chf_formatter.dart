@@ -7,6 +7,8 @@
 ///   formatChf(4280.50)  → "4'281"
 ///   formatChfWithPrefix(4280.50) → "CHF 4'281"
 String formatChf(double value) {
+  // FIX-078: Guard against NaN and Infinity.
+  if (!value.isFinite) return '—';
   final intVal = value.round();
   final str = intVal.abs().toString();
   final buffer = StringBuffer();

@@ -198,6 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _displayNameController,
                     autofillHints: const [AutofillHints.givenName],
                     textCapitalization: TextCapitalization.words,
+                    maxLength: 50, // FIX-079
                     decoration: InputDecoration(
                       labelText: l10n.authFirstName,
                       prefixIcon: const Icon(Icons.person_outline),
