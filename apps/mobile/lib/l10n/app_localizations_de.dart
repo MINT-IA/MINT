@@ -24766,86 +24766,87 @@ class SDe extends S {
 
   @override
   String get notifChannelDescription =>
-      'Rappels de check-in, deadlines 3a, et notifications de coaching';
+      'Check-in-Erinnerungen, 3a-Fristen und Coaching-Benachrichtigungen';
 
   @override
-  String get notifWeeklyRecapTitle => 'Ton récap de la semaine';
+  String get notifWeeklyRecapTitle => 'Dein Wochenrückblick';
 
   @override
   String get notifWeeklyRecapBody =>
-      'Budget, progrès, prochaine étape — tout est prêt.';
+      'Budget, Fortschritt, nächster Schritt — alles bereit.';
 
   @override
-  String get notifCheckinTitle => 'Check-in mensuel';
+  String get notifCheckinTitle => 'Monatlicher Check-in';
 
   @override
-  String get notifCheckinBody => 'Confirme tes versements du mois en 2 min';
+  String get notifCheckinBody =>
+      'Bestätige deine monatlichen Einzahlungen in 2 Min.';
 
   @override
-  String get notifDeadline3aTitle => 'Deadline 3a';
+  String get notifDeadline3aTitle => '3a-Frist';
 
   @override
   String notifDeadline3aBody3Months(String remaining) {
-    return 'Il reste 3 mois pour verser sur ton 3a (CHF $remaining de marge)';
+    return 'Noch 3 Monate, um in deine 3a einzuzahlen (CHF $remaining Spielraum)';
   }
 
   @override
   String notifDeadline3aBody46Days(String remaining) {
-    return 'Il reste 46 jours pour maximiser ton 3a (CHF $remaining de marge)';
+    return 'Noch 46 Tage, um deine 3a zu maximieren (CHF $remaining Spielraum)';
   }
 
   @override
   String get notifDeadline3aBody16Days =>
-      'Il reste 16 jours pour verser sur ton 3a';
+      'Noch 16 Tage, um in deine 3a einzuzahlen';
 
   @override
   String get notifDeadline3aBodyLastDays =>
-      'Derniers jours ! Verse sur ton 3a avant le 31 décembre';
+      'Letzte Tage! Zahle vor dem 31. Dezember in deine 3a ein';
 
   @override
-  String get notifTaxDeadlineTitle => 'Déclaration fiscale';
+  String get notifTaxDeadlineTitle => 'Steuererklärung';
 
   @override
   String get notifTaxDeadlineBody44Days =>
-      'Déclaration fiscale dans 44 jours — pense à rassembler tes documents';
+      'Steuererklärung in 44 Tagen fällig — sammle deine Unterlagen';
 
   @override
   String get notifTaxDeadlineBody16Days =>
-      'Déclaration fiscale dans 16 jours — commence à la remplir';
+      'Steuererklärung in 16 Tagen fällig — fang an, sie auszufüllen';
 
   @override
   String get notifTaxDeadlineBodyLastWeek =>
-      'Déclaration à rendre avant le 31 mars — dernière semaine !';
+      'Steuererklärung bis 31. März fällig — letzte Woche!';
 
   @override
-  String get notifStreakProtectionTitle => 'Protège ta série';
+  String get notifStreakProtectionTitle => 'Schütze deine Serie';
 
   @override
   String notifStreakProtectionBody(String streak) {
-    return 'Tu es à $streak mois consécutifs — ne casse pas ta série !';
+    return 'Du bist bei $streak aufeinanderfolgenden Monaten — halte deine Serie!';
   }
 
   @override
   String recapActiveWeek(String days) {
-    return 'Cette semaine, tu as été actif $days jour(s) sur MINT.';
+    return 'Diese Woche warst du $days Tag(e) auf MINT aktiv.';
   }
 
   @override
-  String get recapQuietWeek => 'Cette semaine a été calme sur MINT.';
+  String get recapQuietWeek => 'Diese Woche war es ruhig auf MINT.';
 
   @override
   String recapSavings(String amount) {
-    return 'Ton épargne estimée est de CHF $amount.';
+    return 'Dein geschätztes Erspartes beträgt CHF $amount.';
   }
 
   @override
   String recapConfidenceUp(String delta) {
-    return 'Ta confiance a progressé de +$delta pts.';
+    return 'Dein Vertrauen ist um +$delta Pkt. gestiegen.';
   }
 
   @override
   String recapNextFocus(String focus) {
-    return 'La semaine prochaine, concentre-toi sur $focus.';
+    return 'Nächste Woche: konzentriere dich auf $focus.';
   }
 
   @override

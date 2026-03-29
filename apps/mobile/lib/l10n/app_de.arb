@@ -428,7 +428,7 @@
   "disabilityGapRiskHigh": "Hohes Risiko",
   "disabilityGapRiskMedium": "Mittleres Risiko",
   "disabilityGapRiskLow": "Geringes Risiko",
-  "disabilityGapDisclaimer": "Diese Ergebnisse sind unverbindliche Schätzungen basierend auf gesetzlichen Skalen. Deine tatsächliche Deckung hängt von deinem Arbeitsvertrag, deiner Pensionskasse und deinen individuellen Versicherungen ab. Wende dich an deinen Arbeitgeber und eine qualifizierte Fachperson.",
+  "disabilityGapDisclaimer": "Bildungstool — keine Versicherungsberatung im Sinne des FIDLEG. Deine tatsächliche Deckung hängt von deinem Arbeitsvertrag und deiner Pensionskasse ab.",
   "disabilityGapIjmExpl": "Das KTG (Krankentaggeld) ist eine Versicherung, die 80% Ihres Gehalts für maximal 720 Tage im Krankheitsfall abdeckt. Der Arbeitgeber ist nicht verpflichtet, sie abzuschliessen, aber viele tun dies über eine Kollektivversicherung. Ohne KTG erhalten Sie nach der gesetzlichen Lohnfortzahlungsfrist nichts mehr bis zur eventuellen IV-Rente.",
   "disabilityGapCo324aExpl": "Gemäss Art. 324a OR muss der Arbeitgeber das Gehalt für eine begrenzte Dauer im Krankheitsfall zahlen. Diese Dauer hängt von den Dienstjahren und der anwendbaren kantonalen Skala (Berner, Zürcher oder Basler) ab. Nach dieser Periode übernimmt nur noch das KTG (falls vorhanden).",
   "authLogin": "Anmelden",
@@ -5509,8 +5509,8 @@
   "nudge3aAction": "Meine Ersparnis berechnen",
   "nudgeBirthdayTitle": "Du wirst dieses Jahr {age} Jahre alt !",
   "nudgeBirthdayAction": "Mein Dashboard ansehen",
-  "nudgeAnniversaryTitle": "Schon 1 Jahr zusammen !",
-  "nudgeAnniversaryMessage": "Du nutzt MINT seit einem Jahr. Der ideale Moment, um dein Profil zu aktualisieren und deinen Fortschritt zu messen.",
+  "nudgeAnniversaryTitle": "Schon 1 Jahr zusammen!",
+  "nudgeAnniversaryMessage": "Du nutzt MINT seit einem Jahr. Das ist der ideale Zeitpunkt, dein Profil zu aktualisieren und deine Fortschritte zu messen.",
   "nudgeAnniversaryAction": "Mein Profil aktualisieren",
   "nudgeLppStartTitle": "Start der BVG-Beiträge",
   "nudgeLppChangeTitle": "BVG-Stufe geändert",
@@ -7813,7 +7813,7 @@
   "timelineSubheader": "Wesentliche Tools und Lebensereignisse — alles hier.",
   "timelineSectionTitle": "Lebensereignisse",
   "timelineSectionSubtitle": "Wähle ein Ereignis aus, um die finanziellen Auswirkungen zu simulieren.",
-  "confidenceDashboardTitle": "Profilgenauigkeit",
+  "confidenceDashboardTitle": "Präzision deines Profils",
   "confidenceDetailByAxis": "Detail pro Achse",
   "confidenceFeatureGates": "Freigeschaltete Funktionen",
   "confidenceImprove": "Verbessere deine Genauigkeit",
@@ -10159,21 +10159,21 @@
     }
   },
   "expertTierScreenTitle": "Fachperson konsultieren",
-  "expertTierFinancialPlanner": "Finanzplaner\u00b7in",
-  "expertTierFinancialPlannerDesc": "Pensionierung, Vorsorge, Auszahlungsstrategie, ganzheitliche Verm\u00f6gensplanung",
-  "expertTierTaxSpecialist": "Steuerberater\u00b7in",
-  "expertTierTaxSpecialistDesc": "Steueroptimierung, BVG-Einkauf, Steuererkl\u00e4rung, interkantonale Planung",
-  "expertTierNotary": "Notar\u00b7in",
-  "expertTierNotaryDesc": "Erbrecht, Testament, Schenkung, G\u00fcterrecht, Erbvertrag",
-  "expertTierPrice": "CHF\u00a0129\u00a0/\u00a0Sitzung",
+  "expertTierFinancialPlanner": "Finanzplaner·in",
+  "expertTierFinancialPlannerDesc": "Pensionierung, Vorsorge, Auszahlungsstrategie, ganzheitliche Vermögensplanung",
+  "expertTierTaxSpecialist": "Steuerberater·in",
+  "expertTierTaxSpecialistDesc": "Steueroptimierung, BVG-Einkauf, Steuererklärung, interkantonale Planung",
+  "expertTierNotary": "Notar·in",
+  "expertTierNotaryDesc": "Erbrecht, Testament, Schenkung, Güterrecht, Erbvertrag",
+  "expertTierPrice": "CHF 129 / Sitzung",
   "expertTierSelectCta": "Mein Dossier vorbereiten",
   "expertTierDossierPreviewTitle": "Vorschau deines Dossiers",
-  "expertTierDossierGenerating": "Dossier wird vorbereitet\u2026",
+  "expertTierDossierGenerating": "Dossier wird vorbereitet…",
   "expertTierDossierReady": "Dossier bereit",
   "expertTierRequestCta": "Termin anfragen",
-  "expertTierComingSoonTitle": "Bald verf\u00fcgbar",
-  "expertTierComingSoon": "Die Terminbuchung kommt bald. Dein Dossier ist bereit\u00a0\u2014\u00a0du kannst es \u00fcbermitteln, sobald der Service startet.",
-  "expertTierCompleteness": "Profil zu {percent}\u00a0% vollst\u00e4ndig",
+  "expertTierComingSoonTitle": "Bald verfügbar",
+  "expertTierComingSoon": "Die Terminbuchung kommt bald. Dein Dossier ist bereit — du kannst es übermitteln, sobald der Service startet.",
+  "expertTierCompleteness": "Profil zu {percent} % vollständig",
   "@expertTierCompleteness": {
     "placeholders": {
       "percent": {
@@ -10181,20 +10181,20 @@
       }
     }
   },
-  "expertTierEstimated": "Gesch\u00e4tzt",
+  "expertTierEstimated": "Geschätzt",
   "expertTierMissingDataTitle": "Fehlende Daten",
   "expertTierDisclaimerBanner": "MINT bereitet das Dossier vor, die Fachperson gibt die Beratung",
-  "expertTierBack": "Andere Fachperson w\u00e4hlen",
+  "expertTierBack": "Andere Fachperson wählen",
   "expertTierOk": "Verstanden",
-  "docCardTitle": "Vorgef\u00fclltes Dokument",
-  "docCardFiscalDeclaration": "Steuererkl\u00e4rung",
+  "docCardTitle": "Vorgefülltes Dokument",
+  "docCardFiscalDeclaration": "Steuererklärung",
   "docCardPensionFundLetter": "Brief an die Pensionskasse",
   "docCardLppBuybackRequest": "BVG-Einkaufsantrag",
-  "docCardDisclaimer": "Pr\u00fcfe jedes Feld. MINT reicht nie etwas ein.",
+  "docCardDisclaimer": "Prüfe jedes Feld. MINT reicht nie etwas ein.",
   "docCardViewDocument": "Dokument ansehen",
   "docCardValidationFailed": "Dokumentvalidierung fehlgeschlagen.",
-  "docCardGenerating": "Dokument wird erstellt\u2026",
-  "docCardFieldCount": "{count} vorgef\u00fcllte Felder",
+  "docCardGenerating": "Dokument wird erstellt…",
+  "docCardFieldCount": "{count} vorgefüllte Felder",
   "@docCardFieldCount": {
     "placeholders": {
       "count": {
@@ -10202,8 +10202,8 @@
       }
     }
   },
-  "docCardReadOnly": "Nur Lesen \u2014 manuell erg\u00e4nzen",
-  "sourceBadgeEstimated": "Gesch\u00e4tzt",
+  "docCardReadOnly": "Nur Lesen — manuell ergänzen",
+  "sourceBadgeEstimated": "Geschätzt",
   "sourceBadgeDeclared": "Deklariert",
   "sourceBadgeCertified": "Zertifiziert",
   "monteCarloTitle": "Deine Chancen auf einen komfortablen Ruhestand",
@@ -10230,9 +10230,9 @@
   },
   "monteCarloProbableRange": "Wahrscheinliche Spanne",
   "monteCarloSuccessLabel": "Wahrscheinlichkeit, dass dein\nKapital bis 90 reicht",
-  "monteCarloDisclaimer": "Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Ergebnisse. P\u00e4dagogische Simulation (LSFin).",
+  "monteCarloDisclaimer": "Vergangene Renditen sind kein Indikator für zukünftige Ergebnisse. Pädagogische Simulation (LSFin).",
   "exploreHubOtherTopics": "Weitere Themen",
-  "dossierIdentiteSection": "Identit\u00e4t",
+  "dossierIdentiteSection": "Identität",
   "dossierDocumentsSection": "Dokumente",
   "dossierCoupleSection": "Paar",
   "dossierPreferencesSection": "Einstellungen",
@@ -10254,135 +10254,164 @@
   },
   "dossierUpdatedToday": "Heute aktualisiert",
   "dossierUpdatedYesterday": "Gestern aktualisiert",
-
   "bankImportSummaryHeader": "ZUSAMMENFASSUNG",
   "bankImportTransactionsHeader": "TRANSAKTIONEN",
   "bankImportMoreTransactions": "... und {count} weitere Transaktionen",
-  "@bankImportMoreTransactions": { "placeholders": { "count": { "type": "int" } } },
+  "@bankImportMoreTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bankImportGenericError": "Bei der Analyse des Kontoauszugs ist ein Fehler aufgetreten.",
-
   "helpResourcesAppBarTitle": "SCHULDENHILFE",
   "helpResourcesIntroTitle": "Du bist nicht allein",
-  "helpResourcesIntroBody": "In der Schweiz bieten viele professionelle Dienste kostenlose und vertrauliche Unterst\u00fctzung f\u00fcr Menschen in finanziellen Schwierigkeiten. Hilfe zu suchen ist mutig, nicht schwach.",
-  "helpResourcesIntroNote": "Alle untenstehenden Links f\u00fchren zu externen Webseiten. MINT \u00fcbermittelt keine Daten an diese Dienste.",
+  "helpResourcesIntroBody": "In der Schweiz bieten viele professionelle Dienste kostenlose und vertrauliche Unterstützung für Menschen in finanziellen Schwierigkeiten. Hilfe zu suchen ist mutig, nicht schwach.",
+  "helpResourcesIntroNote": "Alle untenstehenden Links führen zu externen Webseiten. MINT übermittelt keine Daten an diese Dienste.",
   "helpResourcesDettesName": "Schuldenberatung Schweiz",
-  "helpResourcesDettesDesc": "Dachverband der Schuldenberatungsstellen in der Schweiz. Kostenlose, vertrauliche und professionelle Beratung. \u00dcber 30 Mitgliederstellen in der ganzen Schweiz.",
-  "helpResourcesCaritasName": "Caritas \u2014 Schuldenberatung",
-  "helpResourcesCaritasDesc": "Hilfsdienst der Caritas Schweiz f\u00fcr Personen in Verschuldung. Entschuldungshilfe, Verhandlung mit Gl\u00e4ubigern, personalisierte Budgetberatung.",
+  "helpResourcesDettesDesc": "Dachverband der Schuldenberatungsstellen in der Schweiz. Kostenlose, vertrauliche und professionelle Beratung. Über 30 Mitgliederstellen in der ganzen Schweiz.",
+  "helpResourcesCaritasName": "Caritas — Schuldenberatung",
+  "helpResourcesCaritasDesc": "Hilfsdienst der Caritas Schweiz für Personen in Verschuldung. Entschuldungshilfe, Verhandlung mit Gläubigern, personalisierte Budgetberatung.",
   "helpResourcesFreeLabel": "GRATIS",
   "helpResourcesCantonalHeader": "KANTONALER DIENST",
   "helpResourcesCantonLabel": "Dein Kanton",
-  "helpResourcesNoService": "Kein kantonaler Dienst f\u00fcr diesen Kanton erfasst. Kontaktiere Schuldenberatung Schweiz f\u00fcr eine Orientierung.",
+  "helpResourcesNoService": "Kein kantonaler Dienst für diesen Kanton erfasst. Kontaktiere Schuldenberatung Schweiz für eine Orientierung.",
   "helpResourcesPrivacyTitle": "Datenschutz (nDSG)",
-  "helpResourcesPrivacyBody": "MINT \u00fcbermittelt keine pers\u00f6nlichen Daten an die oben aufgef\u00fchrten Dienste. Externe Links \u00f6ffnen deinen Browser. Deine Nutzung dieses Bildschirms bleibt streng vertraulich.",
-  "helpResourcesDisclaimer": "MINT stellt diese Links zu Informations- und Bildungszwecken bereit. Diese Dienste sind unabh\u00e4ngig von MINT. MINT bietet keine rechtliche oder finanzielle Beratung.",
-
+  "helpResourcesPrivacyBody": "MINT übermittelt keine persönlichen Daten an die oben aufgeführten Dienste. Externe Links öffnen deinen Browser. Deine Nutzung dieses Bildschirms bleibt streng vertraulich.",
+  "helpResourcesDisclaimer": "MINT stellt diese Links zu Informations- und Bildungszwecken bereit. Diese Dienste sind unabhängig von MINT. MINT bietet keine rechtliche oder finanzielle Beratung.",
   "successionUrgenceAction1": "Todesfall beim Zivilstandsamt innerhalb von 2 Tagen melden",
   "successionUrgenceAction2": "Arbeitgeber und Versicherungen (KVG, BVG) informieren",
   "successionUrgenceAction3": "Gemeinsame Bankkonten bei Bedarf sperren",
   "successionUrgenceAction4": "Notar kontaktieren, falls ein Testament vorhanden war",
   "successionDemarchesAction1": "Hinterlassenenrenten AHV beantragen (AHVG Art. 23)",
-  "successionDemarchesAction2": "BVG-Kasse f\u00fcr Todesfallkapital kontaktieren",
-  "successionDemarchesAction3": "Abos und Vertr\u00e4ge auf den Namen des Verstorbenen k\u00fcndigen",
-  "successionDemarchesAction4": "Verm\u00f6gen und Schulden inventarisieren",
+  "successionDemarchesAction2": "BVG-Kasse für Todesfallkapital kontaktieren",
+  "successionDemarchesAction3": "Abos und Verträge auf den Namen des Verstorbenen kündigen",
+  "successionDemarchesAction4": "Vermögen und Schulden inventarisieren",
   "successionDemarchesAction5": "Erbscheine beim Notar beantragen",
-  "successionLegaleAction1": "Erbschaftsverfahren beim Notar er\u00f6ffnen",
-  "successionLegaleAction2": "Verm\u00f6gen gem\u00e4ss Testament oder Gesetz (ZGB Art. 537) aufteilen",
-  "successionLegaleAction3": "Steuererkl\u00e4rung f\u00fcr das Todesjahr einreichen",
-  "successionLegaleAction4": "Beg\u00fcnstigte Ihrer eigenen Vertr\u00e4ge aktualisieren",
-
-  "disabilityGapAct1Label": "AKT 1 \u00b7 Arbeitgeber",
-  "disabilityGapAct1Detail": "80\u00a0% deines Lohns durch den Arbeitgeber bezahlt",
+  "successionLegaleAction1": "Erbschaftsverfahren beim Notar eröffnen",
+  "successionLegaleAction2": "Vermögen gemäss Testament oder Gesetz (ZGB Art. 537) aufteilen",
+  "successionLegaleAction3": "Steuererklärung für das Todesjahr einreichen",
+  "successionLegaleAction4": "Begünstigte Ihrer eigenen Verträge aktualisieren",
+  "disabilityGapAct1Label": "AKT 1 · Arbeitgeber",
+  "disabilityGapAct1Detail": "80 % deines Lohns durch den Arbeitgeber bezahlt",
   "disabilityGapAct1Duration": "Wochen 1-26",
-  "disabilityGapAct2LabelIjm": "AKT 2 \u00b7 KTG (Krankentaggeld)",
-  "disabilityGapAct2LabelNoIjm": "AKT 2 \u00b7 Kein KTG",
-  "disabilityGapAct2SubIjm": "Kollektivversicherung \u2014 80% w\u00e4hrend max. 720 Tagen",
+  "disabilityGapAct2LabelIjm": "AKT 2 · KTG (Krankentaggeld)",
+  "disabilityGapAct2LabelNoIjm": "AKT 2 · Kein KTG",
+  "disabilityGapAct2SubIjm": "Kollektivversicherung — 80% während max. 720 Tagen",
   "disabilityGapAct2SubNoIjm": "Ohne KTG gehst du direkt zur IV nach dem Arbeitgeber",
   "disabilityGapAct2Duration": "Bis zu 24 Monate",
   "disabilityGapAct2DetailIjm": "80% des versicherten Lohns",
-  "disabilityGapAct2DetailNoIjm": "Keine Deckung \u2014 IV-Wartefrist l\u00e4uft",
-  "disabilityGapAct3Label": "AKT 3 \u00b7 IV + BVG (definitiv)",
+  "disabilityGapAct2DetailNoIjm": "Keine Deckung — IV-Wartefrist läuft",
+  "disabilityGapAct3Label": "AKT 3 · IV + BVG (definitiv)",
   "disabilityGapAct3Duration": "Nach 24 Monaten",
   "disabilityGapAct3Detail": "IV {aiAmount} + BVG {lppAmount} = {totalAmount} CHF/Monat",
-  "@disabilityGapAct3Detail": { "placeholders": { "aiAmount": { "type": "String" }, "lppAmount": { "type": "String" }, "totalAmount": { "type": "String" } } },
-  "disabilityGapIjmCoverage": "80% w\u00e4hrend 720 Tagen \u2014 Kollektivversicherung",
-  "disabilityGapNoIjmCoverage": "Kein KTG abgeschlossen \u2014 maximales Risiko",
-  "disabilityGapAiDetail": "Max {amount} CHF/Monat \u2014 ~14 Monate Wartezeit",
-  "@disabilityGapAiDetail": { "placeholders": { "amount": { "type": "String" } } },
-  "disabilityGapLppCovered": "Invalidit\u00e4tsrente \u2248 40% koordinierter Lohn (BVG Art. 23)",
-  "disabilityGapLppNotCovered": "Lohn unter BVG-Schwelle \u2014 keine 2. S\u00e4ule Deckung",
+  "@disabilityGapAct3Detail": {
+    "placeholders": {
+      "aiAmount": {
+        "type": "String"
+      },
+      "lppAmount": {
+        "type": "String"
+      },
+      "totalAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityGapIjmCoverage": "80% während 720 Tagen — Kollektivversicherung",
+  "disabilityGapNoIjmCoverage": "Kein KTG abgeschlossen — maximales Risiko",
+  "disabilityGapAiDetail": "Max {amount} CHF/Monat — ~14 Monate Wartezeit",
+  "@disabilityGapAiDetail": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityGapLppCovered": "Invaliditätsrente ≈ 40% koordinierter Lohn (BVG Art. 23)",
+  "disabilityGapLppNotCovered": "Lohn unter BVG-Schwelle — keine 2. Säule Deckung",
   "disabilityGapSavingsLabel": "Notreserve",
   "disabilityGapSavingsDetail": "{months} Monate Ausgaben gedeckt",
-  "@disabilityGapSavingsDetail": { "placeholders": { "months": { "type": "String" } } },
+  "@disabilityGapSavingsDetail": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
   "disabilityGapApgLabel": "KTG / EO (Erwerbsausfall)",
   "disabilityGapAiLabel": "IV (Invalidenversicherung)",
-  "disabilityGapLppLabel": "BVG Invalidit\u00e4t (2. S\u00e4ule)",
-  "disabilityGapDisclaimer": "Bildungstool \u2014 keine Versicherungsberatung im Sinne des FIDLEG. Deine tats\u00e4chliche Deckung h\u00e4ngt von deinem Arbeitsvertrag und deiner Pensionskasse ab.",
-  "disabilityGapSources": "\u2022 IVG Art. 28-29 (IV-Rente)\n\u2022 BVG Art. 23-26 (2. S\u00e4ule Invalidit\u00e4t)\n\u2022 OR Art. 324a (Lohnfortzahlung Arbeitgeber)\n\u2022 ATSG Art. 19 (Wartefrist)",
+  "disabilityGapLppLabel": "BVG Invalidität (2. Säule)",
+  "disabilityGapSources": "• IVG Art. 28-29 (IV-Rente)\n• BVG Art. 23-26 (2. Säule Invalidität)\n• OR Art. 324a (Lohnfortzahlung Arbeitgeber)\n• ATSG Art. 19 (Wartefrist)",
   "disabilityGapAgeLabel": "{age} Jahre",
-  "@disabilityGapAgeLabel": { "placeholders": { "age": { "type": "int" } } },
-
+  "@disabilityGapAgeLabel": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
   "documentDetailExplanationObligatoire": "Im obligatorischen BVG-Teil angesparter Betrag",
-  "documentDetailExplanationSurobligatoire": "Anteil \u00fcber dem gesetzlichen Minimum",
+  "documentDetailExplanationSurobligatoire": "Anteil über dem gesetzlichen Minimum",
   "documentDetailExplanationTotal": "Total deines Alterskapitals",
-  "documentDetailExplanationSalaireAssure": "Lohn, auf dem die Beitr\u00e4ge berechnet werden",
+  "documentDetailExplanationSalaireAssure": "Lohn, auf dem die Beiträge berechnet werden",
   "documentDetailExplanationSalaireAvs": "Massgebender AHV-Lohn",
-  "documentDetailExplanationDeduction": "F\u00fcr die Koordination mit der AHV abgezogener Betrag",
+  "documentDetailExplanationDeduction": "Für die Koordination mit der AHV abgezogener Betrag",
   "documentDetailExplanationTauxOblig": "Gesetzliches Minimum: 6.8%",
   "documentDetailExplanationTauxSurob": "Von deiner Pensionskasse festgelegt",
   "documentDetailExplanationTauxEnv": "Gewichteter Durchschnittssatz",
-  "documentDetailExplanationInvalidite": "Rente bei Arbeitsunf\u00e4higkeit",
-  "documentDetailExplanationDeces": "Betrag an Beg\u00fcnstigte im Todesfall",
-  "documentDetailExplanationConjoint": "Rente an den \u00fcberlebenden Ehegatten",
+  "documentDetailExplanationInvalidite": "Rente bei Arbeitsunfähigkeit",
+  "documentDetailExplanationDeces": "Betrag an Begünstigte im Todesfall",
+  "documentDetailExplanationConjoint": "Rente an den überlebenden Ehegatten",
   "documentDetailExplanationEnfant": "Rente pro Kind",
   "documentDetailExplanationRachat": "Einkaufbarer Betrag zur Optimierung deiner Vorsorge",
   "documentDetailExplanationEmploye": "Dein Jahresbeitrag",
   "documentDetailExplanationEmployeur": "Beitrag deines Arbeitgebers",
-
-  "disabilitySelfEmployedAlertLabel": "\ud83d\udea8  SELBST\u00c4NDIGEN-ALARM",
+  "disabilitySelfEmployedAlertLabel": "🚨  SELBSTÄNDIGEN-ALARM",
   "disabilitySelfEmployedTitle": "Dein Sicherheitsnetz existiert nicht",
-  "disabilitySelfEmployedAppBarTitle": "Invalidit\u00e4t \u2014 Selbstst\u00e4ndige",
+  "disabilitySelfEmployedAppBarTitle": "Invalidität — Selbstständige",
   "disabilitySelfEmployedRevenueTitle": "Dein monatliches Nettoeinkommen",
   "disabilitySelfEmployedRevenueHint": "Anpassen, um die Auswirkung auf deine reale Situation zu sehen",
   "disabilitySelfEmployedRevenueLabel": "Nettoeinkommen/Monat",
   "disabilitySelfEmployedInsuranceQuestion": "Hast du bereits eine Erwerbsausfallversicherung?",
   "disabilitySelfEmployedYes": "Ja",
   "disabilitySelfEmployedNo": "Nein / Weiss nicht",
-  "disabilitySelfEmployedApgTip": "Eine individuelle EO ab CHF 45/Monat kann 80% deines Einkommens w\u00e4hrend 720 Tagen decken. Das effektivste Sicherheitsnetz f\u00fcr Selbstst\u00e4ndige.",
-  "disabilitySelfEmployedDisclaimer": "Bildungstool \u2014 keine Versicherungsberatung. Ein unabh\u00e4ngiger Makler kann EO-Angebote verschiedener Versicherer vergleichen.",
-  "disabilitySelfEmployedSources": "\u2022 KVG Art. 67-77 (Krankentaggeld)\n\u2022 OR Art. 324a (Arbeitgeberpflicht)\n\u2022 IVG Art. 28 (IV-Rente)\n\u2022 AHVG Art. 2 Abs. 3 (Beitrag aus dem Ausland)",
-
-  "confidenceDashboardTitle": "Pr\u00e4zision deines Profils",
+  "disabilitySelfEmployedApgTip": "Eine individuelle EO ab CHF 45/Monat kann 80% deines Einkommens während 720 Tagen decken. Das effektivste Sicherheitsnetz für Selbstständige.",
+  "disabilitySelfEmployedDisclaimer": "Bildungstool — keine Versicherungsberatung. Ein unabhängiger Makler kann EO-Angebote verschiedener Versicherer vergleichen.",
+  "disabilitySelfEmployedSources": "• KVG Art. 67-77 (Krankentaggeld)\n• OR Art. 324a (Arbeitgeberpflicht)\n• IVG Art. 28 (IV-Rente)\n• AHVG Art. 2 Abs. 3 (Beitrag aus dem Ausland)",
   "confidenceDashboardLevelExcellent": "Ausgezeichnet",
   "confidenceDashboardLevelGood": "Gut",
   "confidenceDashboardLevelFair": "Ausreichend",
-  "confidenceDashboardLevelImprove": "Verbesserungsw\u00fcrdig",
-  "confidenceDashboardLevelInsufficient": "Ungen\u00fcgend",
+  "confidenceDashboardLevelImprove": "Verbesserungswürdig",
+  "confidenceDashboardLevelInsufficient": "Ungenügend",
   "confidenceDashboardBreakdownTitle": "Detail pro Achse",
   "confidenceDashboardFeaturesTitle": "Freigeschaltete Funktionen",
   "confidenceDashboardRequired": "{percent} % erforderlich",
-  "@confidenceDashboardRequired": { "placeholders": { "percent": { "type": "String" } } },
-  "confidenceDashboardEnrichTitle": "Verbessere deine Pr\u00e4zision",
+  "@confidenceDashboardRequired": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "confidenceDashboardEnrichTitle": "Verbessere deine Präzision",
   "confidenceDashboardSourcesTitle": "Quellen",
-
-  "cockpitDetailEmptyState": "Vervollst\u00e4ndige dein Profil, um auf das detaillierte Cockpit zuzugreifen.",
+  "cockpitDetailEmptyState": "Vervollständige dein Profil, um auf das detaillierte Cockpit zuzugreifen.",
   "cockpitDetailEnrichProfile": "Mein Profil anreichern",
   "cockpitDetailDisclaimer": "Vereinfachtes Bildungstool. Keine Finanzberatung (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7.",
   "toolBudgetSnapshotHint": "Hier ist eine Übersicht deines aktuellen Budgets.",
   "toolScoreGaugeHint": "Hier ist dein finanzieller Vertrauensscore.",
   "coachFactCardTitle": "Wusstest du?",
-
   "firstJobPrimePerMonth": "{amount}/Monat",
   "firstJobCoutMaxPerYear": "Max. {amount}/Jahr",
-
   "jobChangeChecklistSemantics": "Checkliste neuer Job BVG Freizügigkeit dringende Aufgaben",
   "jobChangeChecklistTitle": "Checkliste Jobwechsel",
   "jobChangeChecklistSubtitle": "Du hast 30 Tage, um zu prüfen, ob dein BVG übertragen wurde.",
   "jobChangeChecklistProgress": "{completed} / {total} Aufgaben erledigt",
   "jobChangeChecklistAlertTitle": "Fordere IMMER den BVG-Ausweis an, bevor du unterschreibst",
-  "jobChangeChecklistAlertBody": "Ohne Freizügigkeitsübertragung innerhalb der Frist kann dein BVG-Kapital bei der Auffangeinrichtung zu 0.05\u00a0% landen.",
-  "jobChangeChecklistDisclaimer": "Bildungstool \u00b7 keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art.\u00a03 (Freizügigkeit), FZV Art.\u00a01-3.",
-
+  "jobChangeChecklistAlertBody": "Ohne Freizügigkeitsübertragung innerhalb der Frist kann dein BVG-Kapital bei der Auffangeinrichtung zu 0.05 % landen.",
+  "jobChangeChecklistDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art. 3 (Freizügigkeit), FZV Art. 1-3.",
   "circleLabelEmergencyFund": "Notreserve",
   "circleLabelDettes": "Schulden",
   "circleLabelRevenu": "Einkommen",
@@ -10392,49 +10421,42 @@
   "circleLabelLppRachat": "BVG - Einkauf",
   "circleLabelAvs": "AHV",
   "circleLabelInvestissements": "Anlagen",
-  "circleLabelPatrimoineImmobilier": "Immobilienverm\u00f6gen",
+  "circleLabelPatrimoineImmobilier": "Immobilienvermögen",
   "circleNameProtection": "Schutz & Sicherheit",
   "circleNamePrevoyance": "Fiskalische Vorsorge",
   "circleNameCroissance": "Wachstum",
-  "circleNameOptimisation": "Optimierung & \u00dcbertragung",
-
+  "circleNameOptimisation": "Optimierung & Übertragung",
   "nudgeSalaryDayTitle": "Zahltag!",
-  "nudgeSalaryDayMessage": "Hast du an deine 3a-\u00dcberweisung diesen Monat gedacht? Jeder Monat z\u00e4hlt f\u00fcr deine Vorsorge.",
+  "nudgeSalaryDayMessage": "Hast du an deine 3a-Überweisung diesen Monat gedacht? Jeder Monat zählt für deine Vorsorge.",
   "nudgeSalaryDayAction": "Mein 3a ansehen",
-  "nudgeTaxDeadlineTitle": "Steuererkl\u00e4rung",
-  "nudgeTaxDeadlineMessage": "Pr\u00fcfe die Abgabefrist der Steuererkl\u00e4rung in deinem Kanton. Hast du deine 3a- und BVG-Abz\u00fcge gepr\u00fcft?",
+  "nudgeTaxDeadlineMessage": "Prüfe die Abgabefrist der Steuererklärung in deinem Kanton. Hast du deine 3a- und BVG-Abzüge geprüft?",
   "nudgeTaxDeadlineAction": "Meine Steuern simulieren",
-  "nudgeThreeADeadlineTitle": "Letzte Gelegenheit f\u00fcr dein 3a",
-  "nudgeThreeADeadlineMessageLastDay": "Heute ist der letzte Tag f\u00fcr eine Einzahlung in dein 3a!",
+  "nudgeThreeADeadlineTitle": "Letzte Gelegenheit für dein 3a",
+  "nudgeThreeADeadlineMessageLastDay": "Heute ist der letzte Tag für eine Einzahlung in dein 3a!",
   "nudgeThreeADeadlineAction": "Meine Ersparnis berechnen",
   "nudgeBirthdayDashboardAction": "Mein Dashboard ansehen",
-  "nudgeAnniversaryTitle": "Schon 1\u00a0Jahr zusammen!",
-  "nudgeAnniversaryMessage": "Du nutzt MINT seit einem Jahr. Das ist der ideale Zeitpunkt, dein Profil zu aktualisieren und deine Fortschritte zu messen.",
-  "nudgeAnniversaryAction": "Mein Profil aktualisieren",
-  "nudgeLppBonifStartTitle": "BVG-Beitr\u00e4ge beginnen",
-  "nudgeLppBonifChangeTitle": "\u00c4nderung der BVG-Stufe",
+  "nudgeLppBonifStartTitle": "BVG-Beiträge beginnen",
+  "nudgeLppBonifChangeTitle": "Änderung der BVG-Stufe",
   "nudgeLppBonifAction": "Einkauf erkunden",
   "nudgeWeeklyCheckInTitle": "Es ist eine Weile her!",
-  "nudgeWeeklyCheckInMessage": "Deine finanzielle Situation ver\u00e4ndert sich jede Woche. Nimm dir 2\u00a0Minuten, um dein Dashboard zu pr\u00fcfen.",
+  "nudgeWeeklyCheckInMessage": "Deine finanzielle Situation verändert sich jede Woche. Nimm dir 2 Minuten, um dein Dashboard zu prüfen.",
   "nudgeWeeklyCheckInAction": "Meinen Pulse ansehen",
   "nudgeStreakRiskTitle": "Deine Serie ist in Gefahr!",
   "nudgeStreakRiskAction": "Meine Serie fortsetzen",
-  "nudgeGoalApproachingTitle": "Dein Ziel n\u00e4hert sich",
+  "nudgeGoalApproachingTitle": "Dein Ziel nähert sich",
   "nudgeGoalApproachingAction": "Mit dem Coach sprechen",
   "nudgeFhsDroppedTitle": "Dein Gesundheitsscore ist gesunken",
-  "nudgeFhsDroppedAction": "Den R\u00fcckgang verstehen",
-
-  "ragErrorInvalidKey": "Der API-Schl\u00fcssel ist ung\u00fcltig oder abgelaufen.",
+  "nudgeFhsDroppedAction": "Den Rückgang verstehen",
+  "ragErrorInvalidKey": "Der API-Schlüssel ist ungültig oder abgelaufen.",
   "ragErrorRateLimit": "Anfragelimit erreicht. Bitte versuche es in einem Moment erneut.",
-  "ragErrorBadRequest": "Ung\u00fcltige Anfrage.",
-  "ragErrorServiceUnavailable": "Dienst vor\u00fcbergehend nicht verf\u00fcgbar. Bitte versuche es sp\u00e4ter erneut.",
-  "ragErrorStatus": "Der RAG-Systemstatus konnte nicht \u00fcberpr\u00fcft werden.",
-  "ragErrorVisionBadRequest": "Ung\u00fcltige Vision-Anfrage.",
-  "ragErrorImageTooLarge": "Das Bild \u00fcberschreitet das 20\u00a0MB-Gr\u00f6\u00dfenlimit.",
+  "ragErrorBadRequest": "Ungültige Anfrage.",
+  "ragErrorServiceUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
+  "ragErrorStatus": "Der RAG-Systemstatus konnte nicht überprüft werden.",
+  "ragErrorVisionBadRequest": "Ungültige Vision-Anfrage.",
+  "ragErrorImageTooLarge": "Das Bild überschreitet das 20 MB-Größenlimit.",
   "ragErrorRateLimitShort": "Anfragelimit erreicht.",
-
   "paywallTitle": "MINT Coach freischalten",
-  "paywallSubtitle": "Dein pers\u00f6nlicher Finanz-Coach",
+  "paywallSubtitle": "Dein persönlicher Finanz-Coach",
   "paywallTrialBadge": "14 Tage kostenlos testen",
   "paywallSubscriptionActivated": "{tier}-Abonnement erfolgreich aktiviert.",
   "@paywallSubscriptionActivated": {
@@ -10444,13 +10466,13 @@
       }
     }
   },
-  "paywallTrialActivated": "Kostenloser Test aktiviert! Genie\u00dfe MINT Coach f\u00fcr 14 Tage.",
+  "paywallTrialActivated": "Kostenloser Test aktiviert! Genieße MINT Coach für 14 Tage.",
   "paywallRestoreButton": "Kauf wiederherstellen",
   "paywallRestoreSuccess": "Abonnement erfolgreich wiederhergestellt!",
-  "paywallRestoreNoPurchase": "Kein fr\u00fcherer Kauf gefunden.",
-  "paywallDisclaimer": "Bildungstool \u2014 keine Finanzberatung. FIDLEG. Du kannst jederzeit in deinen Kontoeinstellungen k\u00fcndigen.",
-  "paywallClose": "Schlie\u00dfen",
-  "paywallSelectTier": "{name} ausw\u00e4hlen",
+  "paywallRestoreNoPurchase": "Kein früherer Kauf gefunden.",
+  "paywallDisclaimer": "Bildungstool — keine Finanzberatung. FIDLEG. Du kannst jederzeit in deinen Kontoeinstellungen kündigen.",
+  "paywallClose": "Schließen",
+  "paywallSelectTier": "{name} auswählen",
   "@paywallSelectTier": {
     "placeholders": {
       "name": {
@@ -10458,7 +10480,7 @@
       }
     }
   },
-  "paywallChooseTier": "{tier} w\u00e4hlen",
+  "paywallChooseTier": "{tier} wählen",
   "@paywallChooseTier": {
     "placeholders": {
       "tier": {
@@ -10469,20 +10491,18 @@
   "paywallStartTrial": "Kostenlose Testphase starten",
   "paywallPricePerMonth": "/Monat",
   "paywallFeatureTop": "Top",
-
-  "arbitrageOptionFullRente": "100\u00a0% Rente",
-  "arbitrageOptionFullCapital": "100\u00a0% Kapital",
-  "arbitrageOptionMixed": "Gemischt (obligat. Rente + \u00fcberobligat. Kapital)",
+  "arbitrageOptionFullRente": "100 % Rente",
+  "arbitrageOptionFullCapital": "100 % Kapital",
+  "arbitrageOptionMixed": "Gemischt (obligat. Rente + überobligat. Kapital)",
   "arbitrageOptionAmortIndirect": "Indirekte Amortisation",
   "arbitrageOptionInvestLibre": "Freie Anlage",
-
   "tornadoLabelRendementCapital": "Rendite deines Kapitals",
-  "tornadoLabelTauxRetrait": "J\u00e4hrliche Kapitalentnahme",
+  "tornadoLabelTauxRetrait": "Jährliche Kapitalentnahme",
   "tornadoLabelConversionOblig": "Obligatorische BVG-Umwandlung",
-  "tornadoLabelConversionSurob": "\u00dcberobligat. BVG-Umwandlung",
+  "tornadoLabelConversionSurob": "Überobligat. BVG-Umwandlung",
   "tornadoLabelRendementMarche": "Rendite deiner Anlagen",
   "tornadoLabelTauxMarginal": "Dein Steuersatz",
-  "tornadoLabelRendement3a": "Rendite deiner 3. S\u00e4ule",
+  "tornadoLabelRendement3a": "Rendite deiner 3. Säule",
   "tornadoLabelRendementLpp": "Rendite deiner BVG-Kasse",
   "tornadoLabelTauxHypothecaire": "Hypothekarzins",
   "tornadoLabelAppreciationImmo": "Immobilienzuwachs",
@@ -10493,10 +10513,9 @@
   "tornadoLabelAnneesAvantRetraite": "Jahre bis zur Rente",
   "tornadoLabelBas": "Niedrig",
   "tornadoLabelHaut": "Hoch",
-
-  "educationalLearnMoreStressCheck": "Dein finanzieller Stress, klar erkl\u00e4rt",
-  "educationalLearnMoreLpp": "Die 2. S\u00e4ule (BVG) verstehen",
-  "educationalLearnMoreTroisA": "Die 3. S\u00e4ule im Detail",
+  "educationalLearnMoreStressCheck": "Dein finanzieller Stress, klar erklärt",
+  "educationalLearnMoreLpp": "Die 2. Säule (BVG) verstehen",
+  "educationalLearnMoreTroisA": "Die 3. Säule im Detail",
   "educationalLearnMoreMortgage": "Hypothekenarten in der Schweiz",
   "educationalLearnMoreCredit": "Konsumkredit",
   "educationalLearnMoreLeasing": "Leasing vs. Kauf",
@@ -10506,305 +10525,292 @@
   "educationalLearnMoreHousing": "Mieten oder Eigentum?",
   "educationalLearnMoreCanton": "Kantonale Besteuerung in der Schweiz",
   "educationalLearnMoreLppBuyback": "BVG-Einkauf: Wie funktioniert das?",
-  "educationalLearnMoreTroisaCount": "Multi-Konto-Strategie f\u00fcr die 3. S\u00e4ule",
+  "educationalLearnMoreTroisaCount": "Multi-Konto-Strategie für die 3. Säule",
   "educationalLearnMoreInvestments": "Anlagen und Schweizer Besteuerung",
   "educationalLearnMoreRealEstate": "Eine Immobilie finanzieren",
-
   "capMissingPieceHeadline": "Ein Teil fehlt",
-  "capMissingPieceWhyNow": "{label} \u2014 ohne diese Angabe bleibt deine Prognose ungenau.",
+  "capMissingPieceWhyNow": "{label} — ohne diese Angabe bleibt deine Prognose ungenau.",
   "capMissingPieceExpectedImpact": "+{impact} Vertrauenspunkte",
-  "capMissingPieceConfidenceLabel": "Vertrauen {score}\u00a0%",
+  "capMissingPieceConfidenceLabel": "Vertrauen {score} %",
   "capDebtHeadline": "Deine Schulden lasten",
-  "capDebtWhyNow": "Zuerst den h\u00f6chsten Zinssatz abzahlen schafft jeden Monat Spielraum.",
+  "capDebtWhyNow": "Zuerst den höchsten Zinssatz abzahlen schafft jeden Monat Spielraum.",
   "capDebtCtaLabel": "Meinen Plan ansehen",
-  "capDebtExpectedImpact": "Spielraum zur\u00fcckgewinnen",
-  "capIndepNoLppHeadline": "Deine 2. S\u00e4ule\u00a0: CHF\u00a00",
-  "capIndepNoLppWhyNow": "Ohne BVG ist deine Rente = AHV allein. Ein freiwilliges Netz \u00e4ndert die Perspektive.",
+  "capDebtExpectedImpact": "Spielraum zurückgewinnen",
+  "capIndepNoLppHeadline": "Deine 2. Säule : CHF 0",
+  "capIndepNoLppWhyNow": "Ohne BVG ist deine Rente = AHV allein. Ein freiwilliges Netz ändert die Perspektive.",
   "capIndepNoLppCtaLabel": "Mein Netz aufbauen",
-  "capIndepNoLppExpectedImpact": "gest\u00e4rkte Rente",
-  "capDisabilityGapHeadline": "Dein Invalidit\u00e4tsnetz\u00a0: nur IV",
-  "capDisabilityGapWhyNow": "Ohne BVG beschr\u00e4nkt sich dein Invalidit\u00e4tsschutz auf die IV. Die L\u00fccke kann \u00fcberraschen.",
-  "capDisabilityGapCtaLabel": "L\u00fccke ansehen",
-  "capDisabilityGapExpectedImpact": "~70\u00a0% L\u00fccke verstehen",
-  "cap3aHeadline": "Dieses Jahr z\u00e4hlt noch",
-  "cap3aWhyNow": "Eine S\u00e4ule-3a-Einzahlung kann noch Steuern senken und deine Rente st\u00e4rken.",
+  "capIndepNoLppExpectedImpact": "gestärkte Rente",
+  "capDisabilityGapHeadline": "Dein Invaliditätsnetz : nur IV",
+  "capDisabilityGapWhyNow": "Ohne BVG beschränkt sich dein Invaliditätsschutz auf die IV. Die Lücke kann überraschen.",
+  "capDisabilityGapCtaLabel": "Lücke ansehen",
+  "capDisabilityGapExpectedImpact": "~70 % Lücke verstehen",
+  "cap3aHeadline": "Dieses Jahr zählt noch",
+  "cap3aWhyNow": "Eine Säule-3a-Einzahlung kann noch Steuern senken und deine Rente stärken.",
   "cap3aCtaLabel": "Mein 3a simulieren",
-  "capLppBuybackHeadline": "BVG-Einkauf verf\u00fcgbar",
+  "capLppBuybackHeadline": "BVG-Einkauf verfügbar",
   "capLppBuybackWhyNow": "Du kannst bis zu {amount} einkaufen und von den Steuern abziehen.",
   "capLppBuybackCtaLabel": "Einkauf simulieren",
   "capLppBuybackExpectedImpact": "Steuerabzug",
-  "capBudgetDeficitHeadline": "Dein Spielraum zur\u00fcckgewinnen",
+  "capBudgetDeficitHeadline": "Dein Spielraum zurückgewinnen",
   "capBudgetDeficitWhyNow": "Dein Budget ist eng. Eine Anpassung kann Luft verschaffen.",
   "capBudgetDeficitCtaLabel": "Budget anpassen",
   "capBudgetDeficitExpectedImpact": "monatlicher Spielraum",
   "capReplacementRateHeadline": "Deine Rente ist noch knapp",
-  "capReplacementRateWhyNow": "{rate}\u00a0% Ersatzquote. Ein Einkauf oder 3a \u00e4ndert die Perspektive.",
+  "capReplacementRateWhyNow": "{rate} % Ersatzquote. Ein Einkauf oder 3a ändert die Perspektive.",
   "capReplacementRateCtaLabel": "Szenarien erkunden",
   "capReplacementRateExpectedImpact": "+4 bis +7 Punkte",
-  "capCoverageCheckSeniorHeadline": "Invalidit\u00e4t nach 50\u00a0: ein blinder Fleck\u00a0?",
+  "capCoverageCheckSeniorHeadline": "Invalidität nach 50 : ein blinder Fleck ?",
   "capCoverageCheckHeadline": "Dein Schutz verdient einen Check",
-  "capCoverageCheckSeniorWhyNow": "Nach 50 kann die L\u00fccke zwischen Einkommen und IV\u00a0+\u00a0BVG-Leistungen 40\u00a0% \u00fcbersteigen. Deckt dein Taggeld den Rest\u00a0?",
-  "capCoverageCheckWhyNow": "Taggeld, IV, BVG-Invalidit\u00e4t \u2014 pr\u00fcfe dein Netz.",
-  "capCoverageCheckCtaLabel": "Pr\u00fcfen",
-  "capChomageHeadline": "Die n\u00e4chsten 90 Tage sichern",
-  "capChomageWhyNow": "Arbeitslos\u00a0: drei Priorit\u00e4ten \u2014 deine ALV-Rechte, der BVG-Einfluss und Budgetanpassung.",
+  "capCoverageCheckSeniorWhyNow": "Nach 50 kann die Lücke zwischen Einkommen und IV + BVG-Leistungen 40 % übersteigen. Deckt dein Taggeld den Rest ?",
+  "capCoverageCheckWhyNow": "Taggeld, IV, BVG-Invalidität — prüfe dein Netz.",
+  "capCoverageCheckCtaLabel": "Prüfen",
+  "capChomageHeadline": "Die nächsten 90 Tage sichern",
+  "capChomageWhyNow": "Arbeitslos : drei Prioritäten — deine ALV-Rechte, der BVG-Einfluss und Budgetanpassung.",
   "capChomageCtaLabel": "Meine Rechte ansehen",
   "capChomageExpectedImpact": "sofortige Stabilisierung",
-  "capDivorceUrgencyHeadline": "Scheidung\u00a0: kl\u00e4ren, was sich \u00e4ndert",
-  "capDivorceUrgencyWhyNow": "BVG-Teilung, Unterhalt, Wohnen\u00a0\u2014 die finanziellen Auswirkungen verdienen eine klare Bestandsaufnahme.",
+  "capDivorceUrgencyHeadline": "Scheidung : klären, was sich ändert",
+  "capDivorceUrgencyWhyNow": "BVG-Teilung, Unterhalt, Wohnen — die finanziellen Auswirkungen verdienen eine klare Bestandsaufnahme.",
   "capDivorceUrgencyCtaLabel": "Auswirkung simulieren",
-  "capDivorceUrgencyExpectedImpact": "BVG + Steuererkl\u00e4rung",
+  "capDivorceUrgencyExpectedImpact": "BVG + Steuererklärung",
   "capLeMarriageHeadline": "Heirat in Sicht",
-  "capLeMarriageWhyNow": "Steuern, AHV, BVG, Erbfolge \u2014 alles \u00e4ndert sich.",
+  "capLeMarriageWhyNow": "Steuern, AHV, BVG, Erbfolge — alles ändert sich.",
   "capLeMarriageCtaLabel": "Auswirkung ansehen",
   "capLeDivorceHeadline": "Scheidung im Gang",
-  "capLeDivorceWhyNow": "BVG-Teilung, Rente, Steuern \u2014 plane voraus.",
+  "capLeDivorceWhyNow": "BVG-Teilung, Rente, Steuern — plane voraus.",
   "capLeDivorceCtaLabel": "Simulieren",
   "capLeBirthHeadline": "Geburt erwartet",
-  "capLeBirthWhyNow": "Zulagen, Abz\u00fcge, Budget \u2014 bereite dich vor.",
+  "capLeBirthWhyNow": "Zulagen, Abzüge, Budget — bereite dich vor.",
   "capLeBirthCtaLabel": "Auswirkung ansehen",
   "capLeHousingPurchaseHeadline": "Immobilienkauf",
-  "capLeHousingPurchaseWhyNow": "WEF, 3a, Hypothek \u2014 jetzt entscheidet sich alles.",
-  "capLeHousingPurchaseCtaLabel": "Meine Kapazit\u00e4t simulieren",
+  "capLeHousingPurchaseWhyNow": "WEF, 3a, Hypothek — jetzt entscheidet sich alles.",
+  "capLeHousingPurchaseCtaLabel": "Meine Kapazität simulieren",
   "capLeJobLossHeadline": "Stellenverlust",
-  "capLeJobLossWhyNow": "ALV, BVG, Budget \u2014 die 3 Priorit\u00e4ten.",
+  "capLeJobLossWhyNow": "ALV, BVG, Budget — die 3 Prioritäten.",
   "capLeJobLossCtaLabel": "Meine Rechte ansehen",
-  "capLeSelfEmploymentHeadline": "Selbst\u00e4ndig werden",
-  "capLeSelfEmploymentWhyNow": "Freiwilliges BVG, max. 3a, Taggeld \u2014 dein Netz neu aufbauen.",
-  "capLeSelfEmploymentCtaLabel": "Schutz pr\u00fcfen",
+  "capLeSelfEmploymentHeadline": "Selbständig werden",
+  "capLeSelfEmploymentWhyNow": "Freiwilliges BVG, max. 3a, Taggeld — dein Netz neu aufbauen.",
+  "capLeSelfEmploymentCtaLabel": "Schutz prüfen",
   "capLeRetirementHeadline": "Rente am Horizont",
-  "capLeRetirementWhyNow": "Kapital oder Rente, Bezug, Timing \u2014 jetzt ist der Moment.",
+  "capLeRetirementWhyNow": "Kapital oder Rente, Bezug, Timing — jetzt ist der Moment.",
   "capLeRetirementCtaLabel": "Optionen erkunden",
   "capLeConcubinageHeadline": "Zusammenleben",
-  "capLeConcubinageWhyNow": "Keine AHV-Obergrenze 150\u00a0%, keine automatische BVG-Teilung \u2014 plane voraus.",
+  "capLeConcubinageWhyNow": "Keine AHV-Obergrenze 150 %, keine automatische BVG-Teilung — plane voraus.",
   "capLeConcubinageCtaLabel": "Unterschiede ansehen",
-  "capLeDeathOfRelativeHeadline": "Verlust eines Angeh\u00f6rigen",
-  "capLeDeathOfRelativeWhyNow": "Erbfolge, Hinterlassenenrenten, Fristen \u2014 was dringend ist.",
+  "capLeDeathOfRelativeHeadline": "Verlust eines Angehörigen",
+  "capLeDeathOfRelativeWhyNow": "Erbfolge, Hinterlassenenrenten, Fristen — was dringend ist.",
   "capLeDeathOfRelativeCtaLabel": "Schritte ansehen",
   "capLeNewJobHeadline": "Neue Stelle",
-  "capLeNewJobWhyNow": "BVG, Freiz\u00fcgigkeit, 3a \u2014 drei Dinge zu pr\u00fcfen.",
+  "capLeNewJobWhyNow": "BVG, Freizügigkeit, 3a — drei Dinge zu prüfen.",
   "capLeNewJobCtaLabel": "Vergleichen",
   "capLeHousingSaleHeadline": "Immobilienverkauf",
-  "capLeHousingSaleWhyNow": "Kapitalgewinn, WEF-R\u00fcckzahlung, Reinvestition \u2014 plane voraus.",
+  "capLeHousingSaleWhyNow": "Kapitalgewinn, WEF-Rückzahlung, Reinvestition — plane voraus.",
   "capLeHousingSaleCtaLabel": "Auswirkung ansehen",
   "capLeInheritanceHeadline": "Erbschaft erhalten",
-  "capLeInheritanceWhyNow": "Steuern, Verm\u00f6gensintegration, BVG-Einkauf \u2014 abw\u00e4gen.",
+  "capLeInheritanceWhyNow": "Steuern, Vermögensintegration, BVG-Einkauf — abwägen.",
   "capLeInheritanceCtaLabel": "Optionen ansehen",
   "capLeDonationHeadline": "Schenkung geplant",
-  "capLeDonationWhyNow": "Vorempfang auf Erbe, Besteuerung, Bericht \u2014 plane voraus.",
+  "capLeDonationWhyNow": "Vorempfang auf Erbe, Besteuerung, Bericht — plane voraus.",
   "capLeDonationCtaLabel": "Auswirkung ansehen",
-  "capLeDisabilityHeadline": "Invalidit\u00e4tsrisiko",
-  "capLeDisabilityWhyNow": "IV, BVG-Invalidit\u00e4t, Taggeld \u2014 pr\u00fcfe dein Netz.",
-  "capLeDisabilityCtaLabel": "Schutz pr\u00fcfen",
+  "capLeDisabilityHeadline": "Invaliditätsrisiko",
+  "capLeDisabilityWhyNow": "IV, BVG-Invalidität, Taggeld — prüfe dein Netz.",
+  "capLeDisabilityCtaLabel": "Schutz prüfen",
   "capLeCantonMoveHeadline": "Kantonswechsel",
-  "capLeCantonMoveWhyNow": "Steuern, KVG, Abgaben \u2014 der Einfluss kann \u00fcberraschen.",
+  "capLeCantonMoveWhyNow": "Steuern, KVG, Abgaben — der Einfluss kann überraschen.",
   "capLeCantonMoveCtaLabel": "Kantone vergleichen",
   "capLeCountryMoveHeadline": "Auswanderung aus der Schweiz",
-  "capLeCountryMoveWhyNow": "Freiz\u00fcgigkeit, AHV, 3a \u2014 was folgt dir, was bleibt.",
+  "capLeCountryMoveWhyNow": "Freizügigkeit, AHV, 3a — was folgt dir, was bleibt.",
   "capLeCountryMoveCtaLabel": "Konsequenzen ansehen",
   "capLeDebtCrisisHeadline": "Schuldensituation",
-  "capLeDebtCrisisWhyNow": "Priorisieren, umstrukturieren, das Wesentliche sch\u00fctzen \u2014 Schritt f\u00fcr Schritt.",
+  "capLeDebtCrisisWhyNow": "Priorisieren, umstrukturieren, das Wesentliche schützen — Schritt für Schritt.",
   "capLeDebtCrisisCtaLabel": "Meinen Plan ansehen",
-  "capCouple3aHeadline": "Zu zweit, ein zus\u00e4tzlicher Hebel",
-  "capCouple3aWhyNow": "Euer Haushalt kann 2\u00a0\u00d7\u00a07\u2019258\u00a0CHF abziehen, wenn jeder in die 3. S\u00e4ule einzahlt. Das Konto deines Partners ist noch nicht erfasst.",
+  "capCouple3aHeadline": "Zu zweit, ein zusätzlicher Hebel",
+  "capCouple3aWhyNow": "Euer Haushalt kann 2 × 7’258 CHF abziehen, wenn jeder in die 3. Säule einzahlt. Das Konto deines Partners ist noch nicht erfasst.",
   "capCouple3aCtaLabel": "Paar-3a simulieren",
-  "capCouple3aExpectedImpact": "bis zu 14\u2019516\u00a0CHF Abz\u00fcge",
-  "capCoupleLppBuybackHeadline": "BVG-Einkauf\u00a0: der Partner-Hebel",
-  "capCoupleLppBuybackWhyNow": "Dein Partner hat einen m\u00f6glichen Einkauf von {amount}. Den h\u00f6heren Grenzsteuersatz zu priorisieren maximiert den Abzug.",
-  "capCoupleLppBuybackCtaLabel": "Eink\u00e4ufe vergleichen",
+  "capCouple3aExpectedImpact": "bis zu 14’516 CHF Abzüge",
+  "capCoupleLppBuybackHeadline": "BVG-Einkauf : der Partner-Hebel",
+  "capCoupleLppBuybackWhyNow": "Dein Partner hat einen möglichen Einkauf von {amount}. Den höheren Grenzsteuersatz zu priorisieren maximiert den Abzug.",
+  "capCoupleLppBuybackCtaLabel": "Einkäufe vergleichen",
   "capCoupleLppBuybackExpectedImpact": "Haushalt-Steueroptimierung",
-  "capCoupleAvsCapHeadline": "Paar-AHV\u00a0: die 150\u00a0%-Grenze",
-  "capCoupleAvsCapWhyNow": "Verheiratet werden eure kumulierten AHV-Renten auf 150\u00a0% der Maximalrente begrenzt (AHVG Art.\u00a035). Die L\u00fccke kann ~10\u2019000\u00a0CHF/Jahr erreichen.",
+  "capCoupleAvsCapHeadline": "Paar-AHV : die 150 %-Grenze",
+  "capCoupleAvsCapWhyNow": "Verheiratet werden eure kumulierten AHV-Renten auf 150 % der Maximalrente begrenzt (AHVG Art. 35). Die Lücke kann ~10’000 CHF/Jahr erreichen.",
   "capCoupleAvsCapCtaLabel": "AHV-Auswirkung ansehen",
   "capCoupleAvsCapExpectedImpact": "~10k/Jahr Delta verstehen",
   "capHonestyDebtHeadline": "Deine Situation braucht einen Expertenblick",
   "capHonestyDebtWhyNow": "Klassische Hebel reichen hier nicht aus. Ein Schuldenberater kann dir helfen, einen realistischen Plan zu erstellen.",
   "capHonestryCrossBorderHeadline": "Lass uns gemeinsam Bilanz ziehen",
-  "capHonestryCrossBorderWhyNow": "An deinem Horizont sind die 2.-S\u00e4ule-Hebel begrenzt. Ein Grenzg\u00e4nger-Spezialist kann Wege finden, die MINT noch nicht abdeckt.",
+  "capHonestryCrossBorderWhyNow": "An deinem Horizont sind die 2.-Säule-Hebel begrenzt. Ein Grenzgänger-Spezialist kann Wege finden, die MINT noch nicht abdeckt.",
   "capHonestyNoLppHeadline": "Deine Basis ist vorhanden",
-  "capHonestyNoLppWhyNow": "Klassische Hebel \u00e4ndern hier nicht viel. Ein Spezialist kann dir helfen, weiter zu sehen.",
+  "capHonestyNoLppWhyNow": "Klassische Hebel ändern hier nicht viel. Ein Spezialist kann dir helfen, weiter zu sehen.",
   "capHonestyCtaLabel": "Mit dem Coach sprechen",
-  "capHonestyExpectedImpact": "Kl\u00e4rung",
+  "capHonestyExpectedImpact": "Klärung",
   "capHonestyDebtCoachPrompt": "Meine Schulden übersteigen mein Jahreseinkommen bei Weitem. Simulatoren reichen nicht mehr. Leite mich an eine Fachperson für Entschuldung weiter.",
   "capHonestyCrossBorderCoachPrompt": "Ich bin Grenzgänger·in kurz vor der Pension ohne BVG. Welche realistischen Optionen gibt es? Leite mich an eine Fachperson weiter.",
   "capHonestyNoLppCoachPrompt": "Ich nähere mich der Pension mit wenig 2. Säule. Hilf mir zu verstehen, was erworben ist, und leite mich an eine Fachperson weiter.",
-  "capAcquiredAvsWithRente": "AHV\u00a0: ~{rente}\u00a0CHF/Monat ({years} Jahre beigetragen)",
-  "capAcquiredAvsYearsOnly": "AHV\u00a0: {years} Jahre beigetragen",
-  "capAcquiredAvsInProgress": "AHV\u00a0: Anspruch l\u00e4uft",
-  "capAcquiredLpp": "BVG\u00a0: {amount} angespart",
-  "capAcquired3a": "3a\u00a0: {amount} gespart",
-  "capFallbackHeadline": "Profil vervollst\u00e4ndigen",
-  "capFallbackWhyNow": "Je mehr MINT \u00fcber dich wei\u00df, desto pr\u00e4ziser die Hebel.",
-  "capFallbackCtaLabel": "Erg\u00e4nzen",
-
+  "capAcquiredAvsWithRente": "AHV : ~{rente} CHF/Monat ({years} Jahre beigetragen)",
+  "capAcquiredAvsYearsOnly": "AHV : {years} Jahre beigetragen",
+  "capAcquiredAvsInProgress": "AHV : Anspruch läuft",
+  "capAcquiredLpp": "BVG : {amount} angespart",
+  "capAcquired3a": "3a : {amount} gespart",
+  "capFallbackHeadline": "Profil vervollständigen",
+  "capFallbackWhyNow": "Je mehr MINT über dich weiß, desto präziser die Hebel.",
+  "capFallbackCtaLabel": "Ergänzen",
   "pulseIndepLppTitle": "CHF 0",
-  "pulseIndepLppSubtitle": "Das ist deine 2. S\u00e4ule heute.",
-  "pulseIndepLppDetail": "Ohne BVG ist deine Rente = AHV allein\u00a0: ~CHF 1\u2019934/Monat.",
+  "pulseIndepLppSubtitle": "Das ist deine 2. Säule heute.",
+  "pulseIndepLppDetail": "Ohne BVG ist deine Rente = AHV allein : ~CHF 1’934/Monat.",
   "pulseIndepLppCta": "Mein Netz aufbauen",
-  "pulseDebtSubtitle": "Schulden zur\u00fcckzuzahlen.",
+  "pulseDebtSubtitle": "Schulden zurückzuzahlen.",
   "pulseDebtCta": "Meinen Plan ansehen",
   "pulseComprSalaireSubtitle": "verschwinden von deinem Lohn, bevor er ankommt.",
-  "pulseComprSalaireDetail": "AHV, BVG, ALV, Steuern \u2014 entdecke, wohin jeder Franken geht.",
+  "pulseComprSalaireDetail": "AHV, BVG, ALV, Steuern — entdecke, wohin jeder Franken geht.",
   "pulseComprSalaireCta": "Meinen Lohnausweis verstehen",
-  "pulseComprSystemeTitle": "3 S\u00e4ulen",
+  "pulseComprSystemeTitle": "3 Säulen",
   "pulseComprSystemeSubtitle": "Das Schweizer System in 1 Minute.",
   "pulseComprSystemeDetail": "AHV (Staat) + BVG (Arbeitgeber) + 3a (du) = deine Rente.",
   "pulseComprSystemeCta": "Entdecken",
   "pulseComprSituationTitle": "Deine finanzielle Sichtbarkeit",
-  "pulseComprSituationSubtitle": "Was wei\u00dft du wirklich \u00fcber deine Situation\u00a0?",
-  "pulseComprSituationDetail": "Vervollst\u00e4ndige dein Profil, um deinen Score zu verbessern.",
+  "pulseComprSituationSubtitle": "Was weißt du wirklich über deine Situation ?",
+  "pulseComprSituationDetail": "Vervollständige dein Profil, um deinen Score zu verbessern.",
   "pulseComprSituationCta": "Meinen Score sehen",
-  "pulseProtRetraiteCapRenteTitle": "Kapital oder Rente\u00a0?",
-  "pulseProtRetraiteCapRenteSubtitle": "Die Wahl, die alles \u00e4ndert.",
+  "pulseProtRetraiteCapRenteTitle": "Kapital oder Rente ?",
+  "pulseProtRetraiteCapRenteSubtitle": "Die Wahl, die alles ändert.",
   "pulseProtRetraiteCapRenteDetail": "Vergleiche beide Optionen mit deinen echten Zahlen.",
   "pulseProtRetraiteCapRenteCta": "Vergleichen",
   "pulseProtRetraiteSubtitle": "im Ruhestand erhalten.",
-  "pulseProtRetraiteDetail": "Schweizer Median\u00a0: 60\u00a0%. Wo stehst du\u00a0?",
+  "pulseProtRetraiteDetail": "Schweizer Median : 60 %. Wo stehst du ?",
   "pulseProtRetraiteCta": "Meine Prognose ansehen",
   "pulseProtFamilleSubtitle": "Eure Rente zu zweit.",
-  "pulseProtFamilleDetail": "Plane die L\u00fccke, wenn nur einer in Rente ist.",
+  "pulseProtFamilleDetail": "Plane die Lücke, wenn nur einer in Rente ist.",
   "pulseProtFamilleCta": "Timeline ansehen",
-  "pulseProtUrgenceDebtSubtitle": "zur\u00fcckzuzahlen.",
-  "pulseProtUrgenceDebtDetail": "Beginne mit dem h\u00f6chsten Zinssatz.",
-  "pulseProtUrgenceDebtCta": "Mein R\u00fcckzahlungsplan",
+  "pulseProtUrgenceDebtSubtitle": "zurückzuzahlen.",
+  "pulseProtUrgenceDebtDetail": "Beginne mit dem höchsten Zinssatz.",
+  "pulseProtUrgenceDebtCta": "Mein Rückzahlungsplan",
   "pulseProtUrgenceTitle": "Dein Sicherheitsnetz",
-  "pulseProtUrgenceSubtitle": "Was passiert, wenn du nicht mehr arbeiten kannst\u00a0?",
-  "pulseProtUrgenceDetail": "Taggeld, IV, BVG-Invalidit\u00e4t \u2014 pr\u00fcfe deine Absicherung.",
-  "pulseProtUrgenceCta": "Pr\u00fcfen",
-  "pulseOptFiscalSubtitle": "j\u00e4hrlich ans Finanzamt \u00fcberlassen.",
-  "pulseOptFiscalDetail": "3a + BVG-Einkauf = deine st\u00e4rksten Hebel.",
-  "pulseOptFiscalCta": "Zur\u00fcckgewinnen",
-  "pulseOptPatrimoineSubtitle": "Dein Gesamtverm\u00f6gen.",
+  "pulseProtUrgenceSubtitle": "Was passiert, wenn du nicht mehr arbeiten kannst ?",
+  "pulseProtUrgenceDetail": "Taggeld, IV, BVG-Invalidität — prüfe deine Absicherung.",
+  "pulseProtUrgenceCta": "Prüfen",
+  "pulseOptFiscalSubtitle": "jährlich ans Finanzamt überlassen.",
+  "pulseOptFiscalDetail": "3a + BVG-Einkauf = deine stärksten Hebel.",
+  "pulseOptFiscalCta": "Zurückgewinnen",
+  "pulseOptPatrimoineSubtitle": "Dein Gesamtvermögen.",
   "pulseOptPatrimoineDetail": "Ersparnisse + BVG + 3a + Anlagen.",
   "pulseOptPatrimoineCtaLabel": "Details",
-  "pulseOptCapRenteTitle": "Kapital oder Rente\u00a0?",
-  "pulseOptCapRenteSubtitle": "Der Unterschied kann CHF 200\u2019000 \u00fcberschreiten.",
-  "pulseOptCapRenteDetail": "Einmalig besteuert (Kapital) vs j\u00e4hrlich (Rente).",
+  "pulseOptCapRenteTitle": "Kapital oder Rente ?",
+  "pulseOptCapRenteSubtitle": "Der Unterschied kann CHF 200’000 überschreiten.",
+  "pulseOptCapRenteDetail": "Einmalig besteuert (Kapital) vs jährlich (Rente).",
   "pulseOptCapRenteCta": "Vergleichen",
   "pulseNavExpatGapsSubtitle": "fehlende AHV-Beitragsjahre.",
-  "pulseNavExpatGapsDetail": "Jedes fehlende Jahr = -2.3\u00a0% lebenslange Rente.",
-  "pulseNavExpatGapsCta": "Meine L\u00fccken analysieren",
-  "pulseNavExpatTitle": "Neu in der Schweiz\u00a0?",
-  "pulseNavExpatSubtitle": "Deine Rechte, deine L\u00fccken, deine Fallstricke.",
-  "pulseNavExpatDetail": "AHV, BVG, 3a \u2014 alles, was ab Ankunft z\u00e4hlt.",
+  "pulseNavExpatGapsDetail": "Jedes fehlende Jahr = -2.3 % lebenslange Rente.",
+  "pulseNavExpatGapsCta": "Meine Lücken analysieren",
+  "pulseNavExpatTitle": "Neu in der Schweiz ?",
+  "pulseNavExpatSubtitle": "Deine Rechte, deine Lücken, deine Fallstricke.",
+  "pulseNavExpatDetail": "AHV, BVG, 3a — alles, was ab Ankunft zählt.",
   "pulseNavExpatCta": "Entdecken",
   "pulseNavAchatTitle": "Immobilie kaufen",
-  "pulseNavAchatSubtitle": "Berechne deine Kaufkapazit\u00e4t.",
+  "pulseNavAchatSubtitle": "Berechne deine Kaufkapazität.",
   "pulseNavAchatDetail": "Dein 3a und BVG = deine Hauptanzahlung.",
   "pulseNavAchatCta": "Simulieren",
   "pulseNavAchatCapSubtitle": "Die Immobilie, die du anpeilen kannst.",
   "pulseNavAchatCapCta": "Meinen Kauf simulieren",
-  "pulseNavIndependantTitle": "Selbst\u00e4ndig\u00a0?",
+  "pulseNavIndependantTitle": "Selbständig ?",
   "pulseNavIndependantSubtitle": "Ohne Arbeitgeber bist du dein eigenes Netz.",
-  "pulseNavIndependantDetail": "Freiwilliges BVG, max. 3a 36\u2019288/Jahr, Taggeld obligatorisch.",
-  "pulseNavIndependantCta": "Schutz pr\u00fcfen",
-  "pulseNavEvenementTitle": "Eine Lebensver\u00e4nderung\u00a0?",
+  "pulseNavIndependantDetail": "Freiwilliges BVG, max. 3a 36’288/Jahr, Taggeld obligatorisch.",
+  "pulseNavIndependantCta": "Schutz prüfen",
+  "pulseNavEvenementTitle": "Eine Lebensveränderung ?",
   "pulseNavEvenementSubtitle": "Jedes Ereignis hat finanzielle Auswirkungen.",
   "pulseNavEvenementDetail": "Heirat, Geburt, Scheidung, Erbschaft, Umzug...",
   "pulseNavEvenementCta": "Erkunden",
-
   "reengagementTitleNewYear": "Neue 3a-Obergrenzen",
-  "reengagementTitleTaxPrep": "Steuererkl\u00e4rung",
+  "reengagementTitleTaxPrep": "Steuererklärung",
   "reengagementTitleTaxDeadline": "Steuerfrist",
   "reengagementTitleThreeA": "3a-Frist",
-  "reengagementTitleThreeAFinal": "Letzter Monat f\u00fcr 3a",
-  "reengagementTitleQuarterlyFri": "Stabilit\u00e4ts-Score",
-
-  "assurancesAlerteDelai": "Erinnerung\u00a0: Franchise\u00e4nderungen m\u00fcssen bis zum 30. November jedes Jahres f\u00fcr das Folgejahr vorgenommen werden.",
-  "assurancesDisclaimerLamal": "Diese Analyse ist indikativ. Pr\u00e4mien variieren je nach Versicherer, Region und Versicherungsmodell. Fragen Sie Ihre Krankenkasse f\u00fcr genaue Zahlen. Quelle\u00a0: KVG Art. 62-64, KVV.",
-  "assurancesDisclaimerCoverage": "Diese Analyse ist indikativ und stellt keine pers\u00f6nliche Versicherungsberatung dar. Pr\u00e4mien variieren je nach Versicherer und Ihrem Profil. Konsultieren Sie eine Fachperson f\u00fcr eine vollst\u00e4ndige Beurteilung.",
-
-  "recommendationsDisclaimer": "P\u00e4dagogische Vorschl\u00e4ge basierend auf Ihrem Profil \u2014 ein Werkzeug, das keine pers\u00f6nliche Finanzberatung im Sinne des FIDLEG darstellt. Konsultieren Sie eine Fachperson f\u00fcr eine auf Ihre Situation zugeschnittene Analyse.",
+  "reengagementTitleThreeAFinal": "Letzter Monat für 3a",
+  "reengagementTitleQuarterlyFri": "Stabilitäts-Score",
+  "assurancesAlerteDelai": "Erinnerung : Franchiseänderungen müssen bis zum 30. November jedes Jahres für das Folgejahr vorgenommen werden.",
+  "assurancesDisclaimerLamal": "Diese Analyse ist indikativ. Prämien variieren je nach Versicherer, Region und Versicherungsmodell. Fragen Sie Ihre Krankenkasse für genaue Zahlen. Quelle : KVG Art. 62-64, KVV.",
+  "assurancesDisclaimerCoverage": "Diese Analyse ist indikativ und stellt keine persönliche Versicherungsberatung dar. Prämien variieren je nach Versicherer und Ihrem Profil. Konsultieren Sie eine Fachperson für eine vollständige Beurteilung.",
+  "recommendationsDisclaimer": "Pädagogische Vorschläge basierend auf Ihrem Profil — ein Werkzeug, das keine persönliche Finanzberatung im Sinne des FIDLEG darstellt. Konsultieren Sie eine Fachperson für eine auf Ihre Situation zugeschnittene Analyse.",
   "recommendationsTitleEmergencyFund": "Notfallfonds aufbauen",
-  "recommendationsTitlePillar3a": "Mit S\u00e4ule 3a optimieren",
+  "recommendationsTitlePillar3a": "Mit Säule 3a optimieren",
   "recommendationsTitleLppBuyback": "BVG-Einkauf simulieren",
   "recommendationsTitleCompoundInterest": "Die Kraft der Zeit",
   "recommendationsTitleStartDiagnostic": "Diagnose starten",
-
-  "cantonalBenchmarkDisclaimer": "Diese Zahlen sind Gr\u00f6\u00dfenordnungen aus anonymisierten Bundesstatistiken (BFS). Sie stellen keine Finanzberatung dar. Keine pers\u00f6nlichen Daten werden mit anderen Nutzern verglichen. Bildungswerkzeug\u00a0: stellt keine Beratung im Sinne des FIDLEG dar.",
-
+  "cantonalBenchmarkDisclaimer": "Diese Zahlen sind Größenordnungen aus anonymisierten Bundesstatistiken (BFS). Sie stellen keine Finanzberatung dar. Keine persönlichen Daten werden mit anderen Nutzern verglichen. Bildungswerkzeug : stellt keine Beratung im Sinne des FIDLEG dar.",
   "scenarioLabelPrudent": "Vorsichtiges Szenario",
   "scenarioLabelReference": "Referenz-Szenario",
-  "scenarioLabelFavorable": "G\u00fcnstiges Szenario",
-  "scenarioDisclaimer": "Bildungswerkzeug \u2014 stellt keine Finanzberatung im Sinne des FIDLEG dar. Prognosen basieren auf Renditeannahmen und sagen keine zuk\u00fcnftigen Ergebnisse voraus. Konsultieren Sie eine Fachperson f\u00fcr einen pers\u00f6nlichen Plan.",
-
-  "bayesianDisclaimer": "Bayesianische Sch\u00e4tzungen basierend auf Schweizer Statistiken (BFS). Diese Werte sind p\u00e4dagogische Ann\u00e4herungen, keine Gewissheiten. Stellt keine Finanzberatung im Sinne des FIDLEG dar.",
-
+  "scenarioLabelFavorable": "Günstiges Szenario",
+  "scenarioDisclaimer": "Bildungswerkzeug — stellt keine Finanzberatung im Sinne des FIDLEG dar. Prognosen basieren auf Renditeannahmen und sagen keine zukünftigen Ergebnisse voraus. Konsultieren Sie eine Fachperson für einen persönlichen Plan.",
+  "bayesianDisclaimer": "Bayesianische Schätzungen basierend auf Schweizer Statistiken (BFS). Diese Werte sind pädagogische Annäherungen, keine Gewissheiten. Stellt keine Finanzberatung im Sinne des FIDLEG dar.",
   "consentLabelByok": "KI-Personalisierung",
   "consentLabelSnapshot": "Fortschrittsverlauf",
-  "consentLabelNotifications": "Pers\u00f6nliche Erinnerungen",
-  "consentDashboardDisclaimer": "Ihre Daten geh\u00f6ren Ihnen. Jede Einstellung ist jederzeit widerrufbar (nDSG Art. 6).",
-
+  "consentLabelNotifications": "Persönliche Erinnerungen",
+  "consentDashboardDisclaimer": "Ihre Daten gehören Ihnen. Jede Einstellung ist jederzeit widerrufbar (nDSG Art. 6).",
   "wizardValidationRequired": "Diese Frage ist Pflicht",
   "wizardAnswerNotProvided": "Nicht angegeben",
-
   "arbitrageTitleRenteVsCapital": "Rente vs Kapital",
-  "arbitrageMissingLpp": "F\u00fcge dein Pensionskassenguthaben hinzu, um diesen Vergleich zu sehen",
+  "arbitrageMissingLpp": "Füge dein Pensionskassenguthaben hinzu, um diesen Vergleich zu sehen",
   "arbitrageTitleCalendrierRetraits": "Bezugskalender",
-  "arbitrageMissingLppAnd3a": "F\u00fcge dein PK- und 3a-Guthaben hinzu, um den Kalender zu sehen",
+  "arbitrageMissingLppAnd3a": "Füge dein PK- und 3a-Guthaben hinzu, um den Kalender zu sehen",
   "arbitrageTitleRachatVsMarche": "PK-Einkauf vs Markt",
-  "arbitrageMissingLppCertificat": "Scanne dein PK-Zertifikat, um deine Einkaufsm\u00f6glichkeit zu kennen",
-
-  "reportTitleBilanFlash": "Deine Finanz\u00fcbersicht",
+  "arbitrageMissingLppCertificat": "Scanne dein PK-Zertifikat, um deine Einkaufsmöglichkeit zu kennen",
+  "reportTitleBilanFlash": "Deine Finanzübersicht",
   "reportLabelSanteFinanciere": "Finanzgesundheit",
-
-  "retirementProjectionDisclaimer": "P\u00e4dagogische Projektion basierend auf AHV/BVG-Tarifen 2025. Stellt keine Finanz- oder Vorsorgeberatung dar. Die Betr\u00e4ge sind Sch\u00e4tzungen, die je nach gesetzlichen \u00c4nderungen und Ihrer pers\u00f6nlichen Situation variieren k\u00f6nnen. Wenden Sie sich f\u00fcr einen pers\u00f6nlichen Plan an einen Spezialisten. FIDLEG.",
-  "retirementIncomeLabelPillar3a": "3. S\u00e4ule",
-  "retirementIncomeLabelPatrimoine": "Freies Verm\u00f6gen",
+  "retirementProjectionDisclaimer": "Pädagogische Projektion basierend auf AHV/BVG-Tarifen 2025. Stellt keine Finanz- oder Vorsorgeberatung dar. Die Beträge sind Schätzungen, die je nach gesetzlichen Änderungen und Ihrer persönlichen Situation variieren können. Wenden Sie sich für einen persönlichen Plan an einen Spezialisten. FIDLEG.",
+  "retirementIncomeLabelPillar3a": "3. Säule",
+  "retirementIncomeLabelPatrimoine": "Freies Vermögen",
   "retirementPhaseLabelBothRetired": "Beide in Rente",
   "retirementPhaseLabelRetraite": "Rente",
-  "forecasterDisclaimer": "P\u00e4dagogische Projektionen auf Basis von Renditeannahmen. Stellt keine Finanzberatung dar. Vergangene Renditen lassen keine R\u00fcckschl\u00fcsse auf zuk\u00fcnftige Renditen zu. Wenden Sie sich f\u00fcr einen pers\u00f6nlichen Plan an einen Spezialisten. FIDLEG.",
-  "forecasterEtSiDisclaimer": "Was-w\u00e4re-wenn-Simulation nur zu p\u00e4dagogischen Zwecken. Renditeannahmen manuell angepasst. Stellt keine Finanzberatung dar (FIDLEG). Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Renditen.",
-  "lppRachatDisclaimerEchelonne": "P\u00e4dagogische Simulation auf Basis gesch\u00e4tzter kantonaler Steuers\u00e4tze. Der BVG-Einkauf bedarf der Genehmigung durch die Pensionskasse. Der j\u00e4hrliche Abzug ist auf das steuerbare Einkommen begrenzt. EPL-Sperrfrist von 3\u00a0Jahren nach jedem Einkauf (BVG Art. 79b Abs. 3). Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.",
-  "lppLibrePassageDisclaimer": "Diese Informationen sind p\u00e4dagogischer Natur und stellen keine pers\u00f6nliche Rechts- oder Finanzberatung dar. Die Regeln h\u00e4ngen von Ihrer Pensionskasse und Ihrer Situation ab. Rechtsgrundlage: FZG, BVV2. Konsultieren Sie einen Spezialisten f\u00fcr berufliche Vorsorge.",
-  "lppEplDisclaimer": "P\u00e4dagogische Simulation zur Orientierung. Der genaue Auszahlungsbetrag h\u00e4ngt vom Reglement Ihrer Pensionskasse und Ihrem Guthaben im Alter 50 ab. Die Steuer variiert je nach Kanton und pers\u00f6nlicher Situation. Rechtsgrundlage: Art. 30c BVG, WEFV. Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.",
+  "forecasterDisclaimer": "Pädagogische Projektionen auf Basis von Renditeannahmen. Stellt keine Finanzberatung dar. Vergangene Renditen lassen keine Rückschlüsse auf zukünftige Renditen zu. Wenden Sie sich für einen persönlichen Plan an einen Spezialisten. FIDLEG.",
+  "forecasterEtSiDisclaimer": "Was-wäre-wenn-Simulation nur zu pädagogischen Zwecken. Renditeannahmen manuell angepasst. Stellt keine Finanzberatung dar (FIDLEG). Vergangene Renditen sind kein Indikator für zukünftige Renditen.",
+  "lppRachatDisclaimerEchelonne": "Pädagogische Simulation auf Basis geschätzter kantonaler Steuersätze. Der BVG-Einkauf bedarf der Genehmigung durch die Pensionskasse. Der jährliche Abzug ist auf das steuerbare Einkommen begrenzt. EPL-Sperrfrist von 3 Jahren nach jedem Einkauf (BVG Art. 79b Abs. 3). Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.",
+  "lppLibrePassageDisclaimer": "Diese Informationen sind pädagogischer Natur und stellen keine persönliche Rechts- oder Finanzberatung dar. Die Regeln hängen von Ihrer Pensionskasse und Ihrer Situation ab. Rechtsgrundlage: FZG, BVV2. Konsultieren Sie einen Spezialisten für berufliche Vorsorge.",
+  "lppEplDisclaimer": "Pädagogische Simulation zur Orientierung. Der genaue Auszahlungsbetrag hängt vom Reglement Ihrer Pensionskasse und Ihrem Guthaben im Alter 50 ab. Die Steuer variiert je nach Kanton und persönlicher Situation. Rechtsgrundlage: Art. 30c BVG, WEFV. Konsultieren Sie Ihre Pensionskasse und einen Spezialisten vor jeder Entscheidung.",
   "lppChecklistTitleDecompte": "Austrittsabrechnung anfordern",
-  "lppChecklistDescDecompte": "Fordern Sie eine detaillierte Abrechnung Ihrer Pensionskasse mit der obligatorischen/\u00fcberobligatorischen Aufteilung an.",
-  "lppChecklistTitleTransfert30j": "Guthaben innerhalb von 30\u00a0Tagen \u00fcbertragen",
-  "lppChecklistDescTransfert30j": "Das Guthaben muss auf die neue Pensionskasse \u00fcbertragen werden. Teilen Sie der alten Kasse die Koordinaten der neuen mit.",
-  "lppChecklistAlertTransfertTitle": "\u00dcbertragungsfrist l\u00e4uft bald ab",
-  "lppChecklistAlertTransfertMsg": "Das Guthaben muss innerhalb von 30\u00a0Tagen \u00fcbertragen werden. Kontaktieren Sie Ihre fr\u00fchere Pensionskasse umgehend.",
-  "lppChecklistTitleOuvrirLP": "Freiz\u00fcgigkeitskonto er\u00f6ffnen",
-  "lppChecklistDescOuvrirLP": "Ohne neuen Arbeitgeber muss Ihr Guthaben auf ein oder zwei Freiz\u00fcgigkeitskonten (max. 2 gem\u00e4ss Gesetz) \u00fcbertragen werden.",
-  "lppChecklistTitleChoisirLP": "Zwischen Bankkonto und Freiz\u00fcgigkeitspolice w\u00e4hlen",
-  "lppChecklistDescChoisirLP": "Das Bankkonto bietet mehr Flexibilit\u00e4t. Die Versicherungspolice kann eine Risikodeckung beinhalten.",
-  "lppChecklistTitleVerifierDestination": "Auszahlungsregeln f\u00fcr das Zielland pr\u00fcfen",
-  "lppChecklistDescVerifierDestination": "EU/EFTA: Nur der \u00fcberobligatorische Anteil kann bar ausgezahlt werden. Der obligatorische Anteil verbleibt in der Schweiz. Au\u00dferhalb EU/EFTA: Vollst\u00e4ndige Auszahlung m\u00f6glich.",
-  "lppChecklistTitleAnnoncerDepart": "Pensionskasse \u00fcber Wegzug informieren",
-  "lppChecklistDescAnnoncerDepart": "Informieren Sie Ihre Kasse innerhalb von 30\u00a0Tagen nach Ihrem Wegzug.",
-  "lppChecklistAlertTransfert6mTitle": "\u00dcbertragung innerhalb von 6\u00a0Monaten",
-  "lppChecklistAlertTransfert6mMsg": "Nach dem Verlassen der Schweiz haben Sie 6\u00a0Monate Zeit, Ihr Guthaben zu \u00fcbertragen oder ein Freiz\u00fcgigkeitskonto zu er\u00f6ffnen.",
-  "lppChecklistTitleChomage": "Arbeitslosenrechte pr\u00fcfen",
-  "lppChecklistDescChomage": "Bei Arbeitslosigkeit wird Ihre berufliche Vorsorge \u00fcber die Auffangeinrichtung (BVG) weitergedeckt.",
+  "lppChecklistDescDecompte": "Fordern Sie eine detaillierte Abrechnung Ihrer Pensionskasse mit der obligatorischen/überobligatorischen Aufteilung an.",
+  "lppChecklistTitleTransfert30j": "Guthaben innerhalb von 30 Tagen übertragen",
+  "lppChecklistDescTransfert30j": "Das Guthaben muss auf die neue Pensionskasse übertragen werden. Teilen Sie der alten Kasse die Koordinaten der neuen mit.",
+  "lppChecklistAlertTransfertTitle": "Übertragungsfrist läuft bald ab",
+  "lppChecklistAlertTransfertMsg": "Das Guthaben muss innerhalb von 30 Tagen übertragen werden. Kontaktieren Sie Ihre frühere Pensionskasse umgehend.",
+  "lppChecklistTitleOuvrirLP": "Freizügigkeitskonto eröffnen",
+  "lppChecklistDescOuvrirLP": "Ohne neuen Arbeitgeber muss Ihr Guthaben auf ein oder zwei Freizügigkeitskonten (max. 2 gemäss Gesetz) übertragen werden.",
+  "lppChecklistTitleChoisirLP": "Zwischen Bankkonto und Freizügigkeitspolice wählen",
+  "lppChecklistDescChoisirLP": "Das Bankkonto bietet mehr Flexibilität. Die Versicherungspolice kann eine Risikodeckung beinhalten.",
+  "lppChecklistTitleVerifierDestination": "Auszahlungsregeln für das Zielland prüfen",
+  "lppChecklistDescVerifierDestination": "EU/EFTA: Nur der überobligatorische Anteil kann bar ausgezahlt werden. Der obligatorische Anteil verbleibt in der Schweiz. Außerhalb EU/EFTA: Vollständige Auszahlung möglich.",
+  "lppChecklistTitleAnnoncerDepart": "Pensionskasse über Wegzug informieren",
+  "lppChecklistDescAnnoncerDepart": "Informieren Sie Ihre Kasse innerhalb von 30 Tagen nach Ihrem Wegzug.",
+  "lppChecklistAlertTransfert6mTitle": "Übertragung innerhalb von 6 Monaten",
+  "lppChecklistAlertTransfert6mMsg": "Nach dem Verlassen der Schweiz haben Sie 6 Monate Zeit, Ihr Guthaben zu übertragen oder ein Freizügigkeitskonto zu eröffnen.",
+  "lppChecklistTitleChomage": "Arbeitslosenrechte prüfen",
+  "lppChecklistDescChomage": "Bei Arbeitslosigkeit wird Ihre berufliche Vorsorge über die Auffangeinrichtung (BVG) weitergedeckt.",
   "lppChecklistTitleAvoirs": "Vergessene Guthaben suchen",
-  "lppChecklistDescAvoirs": "Nutzen Sie die Zentrale 2. S\u00e4ule (sfbvg.ch), um eventuelle vergessene Freiz\u00fcgigkeitsguthaben zu suchen.",
-  "lppChecklistTitleCouverture": "Vor\u00fcbergehende Risikodeckung pr\u00fcfen",
-  "lppChecklistDescCouverture": "W\u00e4hrend der Freiz\u00fcgigkeitsperiode kann der Tod- und Invalidit\u00e4tsschutz reduziert sein. Pr\u00fcfen Sie Ihre Vertr\u00e4ge.",
-  "pillar3aStaggeredDisclaimer": "P\u00e4dagogische Simulation zur Orientierung. Die Steuer auf Kapitalleistungen h\u00e4ngt vom Kanton, der Gemeinde, der pers\u00f6nlichen Situation und dem im Steuerjahr insgesamt bezogenen Betrag ab. Die verwendeten S\u00e4tze sind vereinfachte kantonale Durchschnittswerte. Rechtsgrundlage: BVV3, DBG Art. 38. Konsultieren Sie einen Spezialisten.",
-  "pillar3aRealReturnDisclaimer": "P\u00e4dagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Renditen. Geb\u00fchren und Renditen variieren je nach Anbieter. Die Steuerersparnis h\u00e4ngt von Ihrem tats\u00e4chlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.",
-  "pillar3aProviderDisclaimer": "Vergangene Renditen sind kein Indikator f\u00fcr zuk\u00fcnftige Renditen. Durchschnittliche Geb\u00fchren und Renditen basieren auf vereinfachten historischen Daten zu p\u00e4dagogischen Zwecken. Die Wahl eines 3a-Anbieters h\u00e4ngt von Ihrer pers\u00f6nlichen Situation, Ihrem Risikoprofil und Ihrem Anlagehorizont ab. MINT ist kein Finanzintermedi\u00e4r und gibt keine Anlageberatung. Konsultieren Sie einen Spezialisten.",
-  "reportDisclaimerBase1": "P\u00e4dagogisches Tool \u2014 stellt keine Finanzberatung im Sinne des FIDLEG dar.",
-  "reportDisclaimerBase2": "Die Betr\u00e4ge sind Sch\u00e4tzungen basierend auf den angegebenen Daten.",
-  "reportDisclaimerBase3": "Vergangene Leistungen sind kein Indikator f\u00fcr zuk\u00fcnftige Leistungen.",
-  "reportDisclaimerFiscal": "Die Steuersch\u00e4tzung ist approximativ und ersetzt keine Steuererkl\u00e4rung.",
-  "reportDisclaimerRetraite": "Die Rentenprojektion ist indikativ und h\u00e4ngt von gesetzlichen \u00c4nderungen ab (AHV/BVG-Reformen).",
-  "reportDisclaimerRachatLpp": "Der BVG-Einkauf unterliegt einer 3-j\u00e4hrigen Sperrfrist f\u00fcr WEF-Bez\u00fcge (BVG Art. 79b Abs. 3).",
-  "reportActionTitle3aFirst": "\u00d6ffne dein erstes 3a",
-  "reportActionDesc3aFirst": "Ziehe bis zu CHF\u00a07\u2019258/Jahr von deinem steuerbaren Einkommen ab. Sofortige Einsparung.",
-  "reportActionTitle3aSecond": "\u00d6ffne ein 2. Fintech-3a-Konto",
+  "lppChecklistDescAvoirs": "Nutzen Sie die Zentrale 2. Säule (sfbvg.ch), um eventuelle vergessene Freizügigkeitsguthaben zu suchen.",
+  "lppChecklistTitleCouverture": "Vorübergehende Risikodeckung prüfen",
+  "lppChecklistDescCouverture": "Während der Freizügigkeitsperiode kann der Tod- und Invaliditätsschutz reduziert sein. Prüfen Sie Ihre Verträge.",
+  "pillar3aStaggeredDisclaimer": "Pädagogische Simulation zur Orientierung. Die Steuer auf Kapitalleistungen hängt vom Kanton, der Gemeinde, der persönlichen Situation und dem im Steuerjahr insgesamt bezogenen Betrag ab. Die verwendeten Sätze sind vereinfachte kantonale Durchschnittswerte. Rechtsgrundlage: BVV3, DBG Art. 38. Konsultieren Sie einen Spezialisten.",
+  "pillar3aRealReturnDisclaimer": "Pädagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Gebühren und Renditen variieren je nach Anbieter. Die Steuerersparnis hängt von Ihrem tatsächlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.",
+  "pillar3aProviderDisclaimer": "Vergangene Renditen sind kein Indikator für zukünftige Renditen. Durchschnittliche Gebühren und Renditen basieren auf vereinfachten historischen Daten zu pädagogischen Zwecken. Die Wahl eines 3a-Anbieters hängt von Ihrer persönlichen Situation, Ihrem Risikoprofil und Ihrem Anlagehorizont ab. MINT ist kein Finanzintermediär und gibt keine Anlageberatung. Konsultieren Sie einen Spezialisten.",
+  "reportDisclaimerBase1": "Pädagogisches Tool — stellt keine Finanzberatung im Sinne des FIDLEG dar.",
+  "reportDisclaimerBase2": "Die Beträge sind Schätzungen basierend auf den angegebenen Daten.",
+  "reportDisclaimerBase3": "Vergangene Leistungen sind kein Indikator für zukünftige Leistungen.",
+  "reportDisclaimerFiscal": "Die Steuerschätzung ist approximativ und ersetzt keine Steuererklärung.",
+  "reportDisclaimerRetraite": "Die Rentenprojektion ist indikativ und hängt von gesetzlichen Änderungen ab (AHV/BVG-Reformen).",
+  "reportDisclaimerRachatLpp": "Der BVG-Einkauf unterliegt einer 3-jährigen Sperrfrist für WEF-Bezüge (BVG Art. 79b Abs. 3).",
+  "reportActionTitle3aFirst": "Öffne dein erstes 3a",
+  "reportActionDesc3aFirst": "Ziehe bis zu CHF 7’258/Jahr von deinem steuerbaren Einkommen ab. Sofortige Einsparung.",
+  "reportActionTitle3aSecond": "Öffne ein 2. Fintech-3a-Konto",
   "reportActionDesc3aSecond": "Optimiere deine Steuer beim Bezug und diversifiziere deine Anlagen.",
-  "reportActionTitleAvsCheck": "Pr\u00fcfe dein AHV-Konto",
-  "reportActionDescAvsCheck": "Vermeide den Verlust von bis zu CHF\u00a038\u2019000 lebenslanger Rente.",
+  "reportActionTitleAvsCheck": "Prüfe dein AHV-Konto",
+  "reportActionDescAvsCheck": "Vermeide den Verlust von bis zu CHF 38’000 lebenslanger Rente.",
   "reportActionTitleDette": "Tilge deine Konsumschulden",
-  "reportActionDescDette": "Das ist die rentabelste Investition: Du sparst 6-10\u00a0% pro Jahr an Zinsen.",
+  "reportActionDescDette": "Das ist die rentabelste Investition: Du sparst 6-10 % pro Jahr an Zinsen.",
   "reportActionTitleUrgence": "Bilde deinen Notfallfonds",
-  "reportActionDescUrgence": "Ziele auf 3\u00a0Monatsausgaben auf einem separaten Sparkonto.",
+  "reportActionDescUrgence": "Ziele auf 3 Monatsausgaben auf einem separaten Sparkonto.",
   "reportRoadmapPhaseImmediat": "Sofort",
   "reportRoadmapTimeframeImmediat": "Diesen Monat",
   "reportRoadmapPhaseCourtTerme": "Kurzfristig",
   "reportRoadmapTimeframeCourtTerme": "3-6 Monate",
-  "visibilityNarrativeHigh": "Du hast einen klaren \u00dcberblick \u00fcber deine Situation. Halte deine Daten aktuell.",
-  "visibilityNarrativeMediumHigh": "Gute Sichtbarkeit! Verfeinere dein\u00b7e {axisLabel} um weiter zu kommen.",
+  "visibilityNarrativeHigh": "Du hast einen klaren Überblick über deine Situation. Halte deine Daten aktuell.",
+  "visibilityNarrativeMediumHigh": "Gute Sichtbarkeit! Verfeinere dein·e {axisLabel} um weiter zu kommen.",
   "@visibilityNarrativeMediumHigh": {
     "placeholders": {
       "axisLabel": {
@@ -10812,7 +10818,7 @@
       }
     }
   },
-  "visibilityNarrativeMedium": "Du beginnst klarer zu sehen. Konzentriere dich auf dein\u00b7e {axisLabel}.",
+  "visibilityNarrativeMedium": "Du beginnst klarer zu sehen. Konzentriere dich auf dein·e {axisLabel}.",
   "@visibilityNarrativeMedium": {
     "placeholders": {
       "axisLabel": {
@@ -10820,7 +10826,7 @@
       }
     }
   },
-  "visibilityNarrativeLow": "Jede Information z\u00e4hlt. Beginne mit {hint}.",
+  "visibilityNarrativeLow": "Jede Information zählt. Beginne mit {hint}.",
   "@visibilityNarrativeLow": {
     "placeholders": {
       "hint": {
@@ -10828,76 +10834,74 @@
       }
     }
   },
-  "visibilityAxisLabelLiquidite": "Liquidit\u00e4t",
+  "visibilityAxisLabelLiquidite": "Liquidität",
   "visibilityAxisLabelFiscalite": "Steuern",
   "visibilityAxisLabelRetraite": "Rente",
   "visibilityAxisLabelSecurite": "Sicherheit",
-  "visibilityHintAddSalaire": "F\u00fcge dein Gehalt hinzu, um zu starten",
+  "visibilityHintAddSalaire": "Füge dein Gehalt hinzu, um zu starten",
   "visibilityHintAddEpargne": "Gib deine Ersparnisse und Anlagen an",
-  "visibilityHintLiquiditeComplete": "Deine Liquidit\u00e4tsdaten sind vollst\u00e4ndig",
+  "visibilityHintLiquiditeComplete": "Deine Liquiditätsdaten sind vollständig",
   "visibilityHintAddAgeCanton": "Gib dein Alter und Wohnkanton an",
-  "visibilityHintScanFiscal": "Scanne deine Steuererkl\u00e4rung",
-  "visibilityHintFiscaliteComplete": "Deine Steuerdaten sind vollst\u00e4ndig",
-  "visibilityHintAddLpp": "F\u00fcge dein BVG-Zertifikat hinzu",
+  "visibilityHintScanFiscal": "Scanne deine Steuererklärung",
+  "visibilityHintFiscaliteComplete": "Deine Steuerdaten sind vollständig",
+  "visibilityHintAddLpp": "Füge dein BVG-Zertifikat hinzu",
   "visibilityHintCommandeAvs": "Bestelle deinen AHV-Auszug",
   "visibilityHintAdd3a": "Gib deine 3a-Konten an",
-  "visibilityHintRetraiteComplete": "Deine Rentendaten sind vollst\u00e4ndig",
+  "visibilityHintRetraiteComplete": "Deine Rentendaten sind vollständig",
   "visibilityHintAddFamille": "Gib deine Familiensituation an",
-  "visibilityHintAddStatutPro": "Vervollst\u00e4ndige deinen Berufsstatus",
-  "visibilityHintSecuriteComplete": "Deine Sicherheitsdaten sind vollst\u00e4ndig",
-
-  "exploreHubRetraiteIntro": "Jedes Jahr ver\u00e4ndert deine Optionen. Hier stehst du.",
+  "visibilityHintAddStatutPro": "Vervollständige deinen Berufsstatus",
+  "visibilityHintSecuriteComplete": "Deine Sicherheitsdaten sind vollständig",
+  "exploreHubRetraiteIntro": "Jedes Jahr verändert deine Optionen. Hier stehst du.",
   "exploreHubFamilleIntro": "Heirat, Geburt, Trennung: Jeder Meilenstein hat finanzielle Auswirkungen.",
-  "exploreHubTravailIntro": "Dein Berufsstatus bestimmt deine Rechte. Pr\u00fcfe sie.",
+  "exploreHubTravailIntro": "Dein Berufsstatus bestimmt deine Rechte. Prüfe sie.",
   "exploreHubLogementIntro": "Kaufen, mieten, umziehen: Die Zahlen vor der Entscheidung.",
   "exploreHubFiscaliteIntro": "Jeder abgezogene Franken ist ein gewonnener Franken. Finde deine Hebel.",
   "exploreHubPatrimoineIntro": "Was du weitergibst, verdient genauso viel Aufmerksamkeit wie dein Einkommen.",
-  "exploreHubSanteIntro": "Deine Versicherung sch\u00fctzt dich \u2014 oder kostet zu viel. Pr\u00fcfe es.",
+  "exploreHubSanteIntro": "Deine Versicherung schützt dich — oder kostet zu viel. Prüfe es.",
   "exploreTalkToMint": "Mit MINT besprechen",
-
   "dossierSettingsTitle": "Einstellungen",
-  "dossierEnrichmentHint": "F\u00fcr mehr Genauigkeit:",
-
+  "dossierEnrichmentHint": "Für mehr Genauigkeit:",
   "pulseBudgetATitle": "Heute",
   "pulseBudgetBTitle": "Bei der Rente",
   "pulseBudgetRevenu": "Einkommen",
   "pulseBudgetCharges": "Ausgaben",
   "pulseBudgetLibre": "Frei",
   "pulseBudgetRetirementNet": "Netto Rente",
-  "pulseBudgetGap": "L\u00fccke",
-
+  "pulseBudgetGap": "Lücke",
   "sim3aTaxRateChipsLabel": "Grenzsteuersatz",
   "sim3aReturnChipsLabel": "Erwartete Rendite",
   "sim3aYearsAutoLabel": "Jahre bis zur Rente",
-  "sim3aContributionFieldLabel": "J\u00e4hrlicher Beitrag",
-  "sim3aProfilePreFilled": "Aus deinem Profil vorausgef\u00fcllt",
-  "sim3aProfileEstimatedRate": "Dein gesch\u00e4tzter Grenzsteuersatz: {rate}% ({canton})",
+  "sim3aContributionFieldLabel": "Jährlicher Beitrag",
+  "sim3aProfilePreFilled": "Aus deinem Profil vorausgefüllt",
+  "sim3aProfileEstimatedRate": "Dein geschätzter Grenzsteuersatz: {rate}% ({canton})",
   "@sim3aProfileEstimatedRate": {
     "placeholders": {
-      "rate": {"type": "String"},
-      "canton": {"type": "String"}
+      "rate": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
     }
   },
   "sim3aYearsReadOnly": "{years} Jahre (berechnet aus deinem Alter)",
   "@sim3aYearsReadOnly": {
     "placeholders": {
-      "years": {"type": "int"}
+      "years": {
+        "type": "int"
+      }
     }
   },
-
   "renteVsCapitalRetirementAgeChips": "Rentenalter",
   "renteVsCapitalLifeExpectancyChips": "Lebenserwartung",
-
   "budgetEnvelopeFieldHint": "Betrag in CHF",
   "budgetEnvelopeFieldFuture": "Sparen (CHF/Monat)",
   "budgetEnvelopeFieldVariables": "Variable Ausgaben (CHF/Monat)",
-
   "retroactive3aYearsChipsLabel": "Nachzuholende Jahre",
-
-  "lightningMenuTitle": "Was m\u00f6chtest du erkunden?",
+  "lightningMenuTitle": "Was möchtest du erkunden?",
   "lightningMenuSubtitle": "MINT rechnet, du entscheidest.",
-  "lightningMenuRetirementTitle": "Mein Renten\u00fcberblick",
-  "lightningMenuRetirementSubtitle": "Wie viel du im Ruhestand beh\u00e4ltst",
+  "lightningMenuRetirementTitle": "Mein Rentenüberblick",
+  "lightningMenuRetirementSubtitle": "Wie viel du im Ruhestand behältst",
   "lightningMenuRetirementAction": "Wie viel bei der Pensionierung?",
   "lightningMenuBudgetTitle": "Mein Budget",
   "lightningMenuBudgetSubtitle": "Wohin dein Geld diesen Monat geht",
@@ -10909,35 +10913,35 @@
   "lightningMenuScoreSubtitle": "Deine finanzielle Gesundheit auf einen Blick",
   "lightningMenuScoreAction": "Mein Finanzscore",
   "lightningMenuCoupleTitle": "Unsere Situation zu zweit",
-  "lightningMenuCoupleSubtitle": "Vorsorge und Verm\u00f6gen als Paar",
+  "lightningMenuCoupleSubtitle": "Vorsorge und Vermögen als Paar",
   "lightningMenuCoupleAction": "Unsere Paar-Vorsorge",
   "lightningMenuDebtTitle": "Schulden abbauen",
   "lightningMenuDebtSubtitle": "Ein Plan zur Reduktion deiner Lasten",
   "lightningMenuDebtAction": "Wie kann ich meine Schulden reduzieren?",
   "lightningMenuIndependantTitle": "Mein Sicherheitsnetz",
-  "lightningMenuIndependantSubtitle": "Absicherung als Selbst\u00e4ndiger",
-  "lightningMenuIndependantAction": "Meine Absicherung als Selbst\u00e4ndiger",
+  "lightningMenuIndependantSubtitle": "Absicherung als Selbständiger",
+  "lightningMenuIndependantAction": "Meine Absicherung als Selbständiger",
   "lightningMenuRetirementPrepTitle": "Pensionierung vorbereiten",
-  "lightningMenuRetirementPrepSubtitle": "Die letzten Jahre z\u00e4hlen doppelt",
+  "lightningMenuRetirementPrepSubtitle": "Die letzten Jahre zählen doppelt",
   "lightningMenuRetirementPrepAction": "Mein Pensionierungsplan",
   "lightningMenuPayslipTitle": "Meine Lohnabrechnung verstehen",
-  "lightningMenuPayslipSubtitle": "Brutto, Netto, Abz\u00fcge: alles klar",
-  "lightningMenuPayslipAction": "Erkl\u00e4r mir meine Lohnabrechnung",
-  "lightningMenuThreePillarsTitle": "Was sind die 3 S\u00e4ulen?",
+  "lightningMenuPayslipSubtitle": "Brutto, Netto, Abzüge: alles klar",
+  "lightningMenuPayslipAction": "Erklär mir meine Lohnabrechnung",
+  "lightningMenuThreePillarsTitle": "Was sind die 3 Säulen?",
   "lightningMenuThreePillarsSubtitle": "Das Schweizer System in 2 Minuten",
-  "lightningMenuThreePillarsAction": "Was sind die 3 Schweizer S\u00e4ulen?",
+  "lightningMenuThreePillarsAction": "Was sind die 3 Schweizer Säulen?",
   "lightningMenuScanDocTitle": "Dokument scannen",
   "lightningMenuScanDocSubtitle": "BVG-Ausweis, Lohnabrechnung, Steuern",
   "lightningMenuFirstBudgetTitle": "Mein erstes Budget",
   "lightningMenuFirstBudgetSubtitle": "Wissen, wohin dein Geld jeden Monat geht",
   "lightningMenuFirstBudgetAction": "Hilf mir, mein Budget zu erstellen",
   "lightningMenuTaxReliefTitle": "Wo Steuern senken",
-  "lightningMenuTaxReliefSubtitle": "Abz\u00fcge und Steuerhebel",
+  "lightningMenuTaxReliefSubtitle": "Abzüge und Steuerhebel",
   "lightningMenuTaxReliefAction": "Wie weniger Steuern zahlen?",
-  "lightningMenuCompleteProfileTitle": "Profil vervollst\u00e4ndigen",
+  "lightningMenuCompleteProfileTitle": "Profil vervollständigen",
   "lightningMenuCompleteProfileSubtitle": "Je genauer deine Daten, desto besser MINT",
   "lightningMenuLppBuybackTitle": "BVG-Einkauf",
-  "lightningMenuLppBuybackSubtitle": "Ein oft untersch\u00e4tzter Steuerhebel",
+  "lightningMenuLppBuybackSubtitle": "Ein oft unterschätzter Steuerhebel",
   "lightningMenuLppBuybackAction": "Lohnt sich ein BVG-Einkauf?",
   "lightningMenuLivingBudgetTitle": "Mein lebendes Budget",
   "lightningMenuLivingBudgetSubtitle": "Dein Gleichgewicht diesen Monat, aktualisiert",
@@ -10945,116 +10949,120 @@
   "budgetSnapshotTitle": "Dein lebendiges Budget",
   "budgetSnapshotPresentLabel": "Frei heute",
   "budgetSnapshotRetirementLabel": "Frei im Ruhestand",
-  "budgetSnapshotGapLabel": "L\u00fccke",
-  "budgetSnapshotConfidenceLabel": "Zuverl\u00e4ssigkeit",
-  "budgetSnapshotConfidenceLow": "F\u00fcge Daten hinzu, um zu pr\u00e4zisieren.",
-  "budgetSnapshotConfidenceOk": "Glaubw\u00fcrdige Sch\u00e4tzung.",
+  "budgetSnapshotGapLabel": "Lücke",
+  "budgetSnapshotConfidenceLabel": "Zuverlässigkeit",
+  "budgetSnapshotConfidenceLow": "Füge Daten hinzu, um zu präzisieren.",
+  "budgetSnapshotConfidenceOk": "Glaubwürdige Schätzung.",
   "budgetSnapshotLeverLabel": "Hebel",
   "budgetSnapshotFreeLabel": "Dein monatlich Frei",
-  "onboardingSmartTitle": "Entdecke deine Vorsorgelage in 30\u00a0Sekunden",
-  "onboardingSmartSubtitle": "Ein paar Angaben gen\u00fcgen f\u00fcr eine erste personalisierte \u00dcbersicht.",
+  "onboardingSmartTitle": "Entdecke deine Vorsorgelage in 30 Sekunden",
+  "onboardingSmartSubtitle": "Ein paar Angaben genügen für eine erste personalisierte Übersicht.",
   "onboardingSmartFirstNameLabel": "Wie heisst du?",
   "onboardingSmartFirstNameHint": "Dein Vorname (optional)",
   "onboardingSmartAgeDirectInput": "Direkteingabe",
   "onboardingSmartSeeResult": "Mein Ergebnis ansehen",
-  "onboardingSmartDisclaimer": "Bildungsinstrument \u2014 stellt keine Finanzberatung dar (FIDLEG). Sch\u00e4tzungen basieren auf den Tarifen 2025 und k\u00f6nnen variieren.",
-  "onboardingSmartAgePickerHint": "W\u00e4hle dein Alter",
+  "onboardingSmartDisclaimer": "Bildungsinstrument — stellt keine Finanzberatung dar (FIDLEG). Schätzungen basieren auf den Tarifen 2025 und können variieren.",
+  "onboardingSmartAgePickerHint": "Wähle dein Alter",
   "onboardingSmartCountryOrigin": "Dein Herkunftsland",
-  "onboardingSmartCantonTitle": "W\u00e4hle deinen Kanton",
+  "onboardingSmartCantonTitle": "Wähle deinen Kanton",
   "onboardingSmartCantonNotFound": "Kein Kanton gefunden",
   "onboardingSmartSalaryLabel": "Dein Brutto-Jahresgehalt",
   "onboardingSmartAgeLabel": "Dein Alter",
   "onboardingSmartEmploymentLabel": "Deine berufliche Situation",
-  "onboardingSmartNationalityLabel": "Deine Staatsangeh\u00f6rigkeit",
+  "onboardingSmartNationalityLabel": "Deine Staatsangehörigkeit",
   "onboardingSmartCantonLabel": "Dein Kanton",
   "onboardingAgeInvalid": "Alter muss zwischen 18 und 75 sein",
-  "onboardingSmartCantonSearch": "Suchen (z.B. ZH, Z\u00fcrich)",
+  "onboardingSmartCantonSearch": "Suchen (z.B. ZH, Zürich)",
   "onboardingSmartSalaryPerYear": "CHF/Jahr",
   "greetingMorning": "Morgen",
   "greetingAfternoon": "Nachmittag",
   "greetingEvening": "Abend",
   "authShowPassword": "Passwort anzeigen",
   "authHidePassword": "Passwort verbergen",
-  "exploreHubRetraiteIntro55plus": "Die Pensionierung r\u00fcckt n\u00e4her: Jede Entscheidung z\u00e4hlt doppelt. Hier stehst du.",
-  "exploreHubRetraiteIntro40plus": "Jedes Jahr ver\u00e4ndert deine Optionen. Hier stehst du.",
-  "exploreHubRetraiteIntroYoung": "Es ist weit weg, aber jetzt z\u00e4hlt es. Hier ist warum.",
-  "exploreHubTravailIntro55plus": "Karriereende, Fr\u00fchpensionierung, \u00dcbergang: Deine Rechte \u00e4ndern sich.",
-  "exploreHubTravailIntro40plus": "Dein beruflicher Status bestimmt deine Rechte. Pr\u00fcfe sie.",
-  "exploreHubTravailIntroYoung": "Erster Job, Selbstst\u00e4ndig, Grenzg\u00e4nger: Jeder Status hat seine Regeln.",
+  "exploreHubRetraiteIntro55plus": "Die Pensionierung rückt näher: Jede Entscheidung zählt doppelt. Hier stehst du.",
+  "exploreHubRetraiteIntro40plus": "Jedes Jahr verändert deine Optionen. Hier stehst du.",
+  "exploreHubRetraiteIntroYoung": "Es ist weit weg, aber jetzt zählt es. Hier ist warum.",
+  "exploreHubTravailIntro55plus": "Karriereende, Frühpensionierung, Übergang: Deine Rechte ändern sich.",
+  "exploreHubTravailIntro40plus": "Dein beruflicher Status bestimmt deine Rechte. Prüfe sie.",
+  "exploreHubTravailIntroYoung": "Erster Job, Selbstständig, Grenzgänger: Jeder Status hat seine Regeln.",
   "exploreHubLogementIntro55plus": "Bleiben, verkaufen, vererben: Die Zahlen vor der Entscheidung.",
   "exploreHubLogementIntro40plus": "Kaufen, mieten, umziehen: Die Zahlen vor der Entscheidung.",
   "exploreHubLogementIntroYoung": "Erstkauf oder Miete: Die Spielregeln verstehen.",
-  "archetypeSwissNative": "Schweizer Einwohner\u00b7in",
+  "archetypeSwissNative": "Schweizer Einwohner·in",
   "archetypeExpatEu": "EU/EFTA-Expat",
   "archetypeExpatNonEu": "Nicht-EU-Expat",
   "archetypeExpatUs": "US-Resident (FATCA)",
-  "archetypeIndependentWithLpp": "Selbstst\u00e4ndig mit BVG",
-  "archetypeIndependentNoLpp": "Selbstst\u00e4ndig ohne BVG",
-  "archetypeCrossBorder": "Grenzg\u00e4nger\u00b7in",
-  "archetypeReturningSwiss": "R\u00fcckkehrende\u00b7r Schweizer\u00b7in",
+  "archetypeIndependentWithLpp": "Selbstständig mit BVG",
+  "archetypeIndependentNoLpp": "Selbstständig ohne BVG",
+  "archetypeCrossBorder": "Grenzgänger·in",
+  "archetypeReturningSwiss": "Rückkehrende·r Schweizer·in",
   "employmentSalarie": "Angestellt",
-  "employmentIndependant": "Selbstst\u00e4ndig",
+  "employmentIndependant": "Selbstständig",
   "employmentSansEmploi": "Arbeitslos",
   "employmentRetraite": "Pensioniert",
   "nationalitySuisse": "Schweiz",
   "nationalityEuAele": "EU/EFTA",
   "nationalityAutre": "Andere",
-
-  "stepStressTitle": "Was besch\u00e4ftigt dich am meisten?",
-  "stepStressSubtitle": "W\u00e4hle ein Thema \u2014 wir personalisieren dein Erlebnis.",
+  "stepStressTitle": "Was beschäftigt dich am meisten?",
+  "stepStressSubtitle": "Wähle ein Thema — wir personalisieren dein Erlebnis.",
   "stepStressRetirement": "Meine Pension",
   "stepStressRetirementSub": "Werde ich genug zum Leben haben?",
   "stepStressTaxes": "Meine Steuern",
   "stepStressTaxesSub": "Zahle ich zu viel?",
   "stepStressBudget": "Mein Budget",
   "stepStressBudgetSub": "Wo geht mein Geld hin?",
-  "stepStressWealth": "Mein Verm\u00f6gen",
+  "stepStressWealth": "Mein Vermögen",
   "stepStressWealthSub": "Wie kann ich es vermehren?",
   "stepStressCouple": "Als Paar",
   "stepStressCoupleSub": "Gemeinsam optimieren",
   "stepStressCurious": "Einfach neugierig",
-  "stepStressCuriousSub": "Ich m\u00f6chte meine Situation verstehen",
-  "stepStressDisclaimer": "Bildungstool \u2014 stellt keine Finanzberatung dar (FIDLEG).",
-
+  "stepStressCuriousSub": "Ich möchte meine Situation verstehen",
+  "stepStressDisclaimer": "Bildungstool — stellt keine Finanzberatung dar (FIDLEG).",
   "stepNextTitle": "Deine erste Bilanz ist bereit",
-  "stepNextConfidence": "Aktuelle Genauigkeit: {pct}\u00a0%. Je mehr du dein Profil erg\u00e4nzt, desto zuverl\u00e4ssiger die Projektionen.",
+  "stepNextConfidence": "Aktuelle Genauigkeit: {pct} %. Je mehr du dein Profil ergänzt, desto zuverlässiger die Projektionen.",
   "@stepNextConfidence": {
     "placeholders": {
-      "pct": { "type": "int" }
+      "pct": {
+        "type": "int"
+      }
     }
   },
   "stepNextEnrich": "Mein Profil verfeinern",
   "stepNextDashboard": "Mein Dashboard ansehen",
   "stepNextCheckin": "Meinen ersten Check-in machen",
   "stepNextDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.",
-
   "stepTopActionsTitle": "Deine 3 wichtigsten Aktionen",
   "stepTopActionsSubtitle": "Basierend auf deiner Situation, hier ist der Anfang.",
-  "stepTopActionsEmpty": "Erg\u00e4nze dein Profil, um personalisierte Aktionen zu erhalten.",
+  "stepTopActionsEmpty": "Ergänze dein Profil, um personalisierte Aktionen zu erhalten.",
   "stepTopActionsContinue": "Weiter",
-  "stepTopActionsBack": "Zur\u00fcck",
-  "stepTopActionsImpact": "Gesch\u00e4tzter Impact: {amount}",
+  "stepTopActionsBack": "Zurück",
+  "stepTopActionsImpact": "Geschätzter Impact: {amount}",
   "@stepTopActionsImpact": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "stepTopActionsDisclaimer": "Bildungsvorschl\u00e4ge. Stellt keine Finanzberatung dar (FIDLEG). Konsultiere eine Fachperson f\u00fcr einen individuellen Plan.",
-
-  "stepChocConfidenceInfo": "Sch\u00e4tzung basierend auf {count} Angaben. Je genauer du bist, desto zuverl\u00e4ssiger.",
+  "stepTopActionsDisclaimer": "Bildungsvorschläge. Stellt keine Finanzberatung dar (FIDLEG). Konsultiere eine Fachperson für einen individuellen Plan.",
+  "stepChocConfidenceInfo": "Schätzung basierend auf {count} Angaben. Je genauer du bist, desto zuverlässiger.",
   "@stepChocConfidenceInfo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-  "stepChocConfidenceLabel": "Genauigkeit: {pct}\u00a0%",
+  "stepChocConfidenceLabel": "Genauigkeit: {pct} %",
   "@stepChocConfidenceLabel": {
     "placeholders": {
-      "pct": { "type": "int" }
+      "pct": {
+        "type": "int"
+      }
     }
   },
   "stepChocLiteracyTitle": "Um deine Beratung zu personalisieren",
-  "stepChocLiteracySubtitle": "3 kurze Fragen \u2014 keine richtige oder falsche Antwort.",
+  "stepChocLiteracySubtitle": "3 kurze Fragen — keine richtige oder falsche Antwort.",
   "stepChocLiteracyLpp": "Ich kenne den Betrag meines BVG-Guthabens",
   "stepChocLiteracyConversion": "Ich weiss, was der Umwandlungssatz ist",
   "stepChocLiteracy3a": "Ich habe bereits auf ein 3a-Konto eingezahlt",
@@ -11064,46 +11072,44 @@
   "stepChocEnrich": "Mein Profil verfeinern",
   "stepChocDashboard": "Mein Dashboard ansehen",
   "stepChocDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.",
-  "stepChocPedagogicalCaveat": "Illustrative Sch\u00e4tzung basierend auf unvollst\u00e4ndigen Daten. Vervollst\u00e4ndige dein Profil f\u00fcr genauere Zahlen.",
-
+  "stepChocPedagogicalCaveat": "Illustrative Schätzung basierend auf unvollständigen Daten. Vervollständige dein Profil für genauere Zahlen.",
   "stepJitTitle": "In 30 Sekunden verstehen",
   "stepJitSi": "WENN",
   "stepJitAlors": "DANN",
   "stepJitAction": "Was kann ich tun?",
-  "stepJitBack": "Zur\u00fcck",
+  "stepJitBack": "Zurück",
   "stepJitDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG).",
   "stepJitLiquidityCond": "deine Notfallersparnisse weniger als 2 Monate Ausgaben decken",
   "stepJitLiquidityCons": "ein unerwartetes Ereignis (Jobverlust, dringende Reparatur) kann dich schnell in finanzielle Schwierigkeiten bringen.",
-  "stepJitLiquidityInsight": "Experten empfehlen 3 bis 6 Monate Fixkosten als Reserve. Selbst CHF 100/Monat auf einem Sparkonto machen \u00fcber 12 Monate einen erheblichen Unterschied.",
+  "stepJitLiquidityInsight": "Experten empfehlen 3 bis 6 Monate Fixkosten als Reserve. Selbst CHF 100/Monat auf einem Sparkonto machen über 12 Monate einen erheblichen Unterschied.",
   "stepJitLiquiditySource": "Empfehlung Budgetberatung Schweiz",
-  "stepJitRetirementCond": "deine Ersatzquote bei der Pensionierung unter 60\u00a0% liegt",
-  "stepJitRetirementCons": "dein Lebensstandard k\u00f6nnte erheblich sinken, wenn du aufh\u00f6rst zu arbeiten.",
-  "stepJitRetirementInsight": "In der Schweiz decken AHV und BVG durchschnittlich 60\u00a0% des letzten Gehalts. Die 3. S\u00e4ule und freies Sparen \u00fcberbr\u00fccken den Rest. Je fr\u00fcher du anf\u00e4ngst, desto geringer der monatliche Aufwand.",
+  "stepJitRetirementCond": "deine Ersatzquote bei der Pensionierung unter 60 % liegt",
+  "stepJitRetirementCons": "dein Lebensstandard könnte erheblich sinken, wenn du aufhörst zu arbeiten.",
+  "stepJitRetirementInsight": "In der Schweiz decken AHV und BVG durchschnittlich 60 % des letzten Gehalts. Die 3. Säule und freies Sparen überbrücken den Rest. Je früher du anfängst, desto geringer der monatliche Aufwand.",
   "stepJitRetirementSource": "AHVG Art. 34 / BVG Art. 14",
-  "stepJitTax3aCond": "du nicht den Maximalbetrag in deine 3. S\u00e4ule einzahlst",
-  "stepJitTax3aCons": "du verpasst eine Steuerersparnis und zus\u00e4tzliches Alterskapital.",
-  "stepJitTax3aInsight": "Jeder in die S\u00e4ule 3a eingezahlte Franken ist steuerlich absetzbar. \u00dcber 20 Jahre kann der Unterschied zwischen 0 und dem Maximum (CHF 7'258) mehr als CHF 200'000 betragen.",
+  "stepJitTax3aCond": "du nicht den Maximalbetrag in deine 3. Säule einzahlst",
+  "stepJitTax3aCons": "du verpasst eine Steuerersparnis und zusätzliches Alterskapital.",
+  "stepJitTax3aInsight": "Jeder in die Säule 3a eingezahlte Franken ist steuerlich absetzbar. Über 20 Jahre kann der Unterschied zwischen 0 und dem Maximum (CHF 7'258) mehr als CHF 200'000 betragen.",
   "stepJitTax3aSource": "BVV3 Art. 7 / DBG Art. 33",
-  "stepJitIncomeCond": "dein prognostiziertes Einkommen im Ruhestand gesch\u00e4tzt wird",
-  "stepJitIncomeCons": "diesen Betrag zu kennen erm\u00f6glicht dir, deine Vorsorgestrategie jetzt zu planen und anzupassen.",
-  "stepJitIncomeInsight": "Das Schweizer 3-S\u00e4ulen-System (AHV + BVG + 3a) deckt durchschnittlich 60\u00a0% des letzten Gehalts. Jede S\u00e4ule hat eigene Regeln und spezifische Optimierungshebel.",
+  "stepJitIncomeCond": "dein prognostiziertes Einkommen im Ruhestand geschätzt wird",
+  "stepJitIncomeCons": "diesen Betrag zu kennen ermöglicht dir, deine Vorsorgestrategie jetzt zu planen und anzupassen.",
+  "stepJitIncomeInsight": "Das Schweizer 3-Säulen-System (AHV + BVG + 3a) deckt durchschnittlich 60 % des letzten Gehalts. Jede Säule hat eigene Regeln und spezifische Optimierungshebel.",
   "stepJitIncomeSource": "AHVG Art. 34 / BVG Art. 14 / BVV3 Art. 7",
   "stepJitDefaultCond": "du noch keinen strukturierten Finanzplan hast",
   "stepJitDefaultCons": "du riskierst, Steuer- und Vorsorge-Optimierungen zu verpassen.",
-  "stepJitDefaultInsight": "Eine j\u00e4hrliche Finanzbilanz identifiziert die wirkungsvollsten Hebel: 3a, BVG-Einkauf, Krankenkassen-Franchise, indirekte Amortisation.",
+  "stepJitDefaultInsight": "Eine jährliche Finanzbilanz identifiziert die wirkungsvollsten Hebel: 3a, BVG-Einkauf, Krankenkassen-Franchise, indirekte Amortisation.",
   "stepJitDefaultSource": "MINT Bildungsempfehlung",
-
   "stepOcrTitle": "Profil in 30 Sekunden anreichern",
   "stepOcrSkip": "Ohne Dokument fortfahren",
   "stepOcrIntro": "Scanne ein oder mehrere Dokumente, damit MINT deine Situation genauer berechnen kann.",
   "stepOcrLppTitle": "Dein BVG-Pensionsschreiben",
-  "stepOcrLppSubtitle": "Guthaben, Umwandlungssatz, Einkaufsl\u00fccke",
+  "stepOcrLppSubtitle": "Guthaben, Umwandlungssatz, Einkaufslücke",
   "stepOcrLppBoost": "+27 Genauigkeitspunkte",
   "stepOcrAvsTitle": "Dein AHV-Auszug",
-  "stepOcrAvsSubtitle": "Beitragsjahre, L\u00fccken, RAMD",
+  "stepOcrAvsSubtitle": "Beitragsjahre, Lücken, RAMD",
   "stepOcrAvsBoost": "+22 Genauigkeitspunkte",
-  "stepOcrTaxTitle": "Deine Steuererkl\u00e4rung",
-  "stepOcrTaxSubtitle": "Steuerbares Einkommen, Verm\u00f6gen, Grenzsteuersatz",
+  "stepOcrTaxTitle": "Deine Steuererklärung",
+  "stepOcrTaxSubtitle": "Steuerbares Einkommen, Vermögen, Grenzsteuersatz",
   "stepOcrTaxBoost": "+17 Genauigkeitspunkte",
   "stepOcr3aTitle": "Dein 3a-Konto",
   "stepOcr3aSubtitle": "Saldo, kumulierte Einzahlungen, Rendite",
@@ -11112,60 +11118,72 @@
   "stepOcrContinueWith": "Weiter ({count} Dokument{plural} gescannt)",
   "@stepOcrContinueWith": {
     "placeholders": {
-      "count": { "type": "int" },
-      "plural": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
     }
   },
   "stepOcrContinueWithout": "Ohne Dokument fortfahren",
-  "stepOcrDisclaimer": "Bildungstool \u2014 stellt keine Finanzberatung dar (FIDLEG). Dokumente werden auf deinem Ger\u00e4t verarbeitet, keine Daten gesendet (DSG Art. 6).",
-  "stepOcrLpdBanner": "Deine Dokumente werden auf deinem Ger\u00e4t verarbeitet. Nichts wird ins Internet gesendet.",
-  "stepOcrLpdTitle": "Private Verarbeitung auf deinem Ger\u00e4t",
-  "stepOcrLpdBody": "Dieses Dokument wird direkt auf deinem Telefon analysiert.\nKeine Daten werden \u00fcbers Internet gesendet.\nExtrahierte Informationen werden nach der Verarbeitung gel\u00f6scht.",
-  "stepOcrLpdLegal": "Rechtsgrundlage: DSG Art. 6 \u2014 Datenminimierung.",
+  "stepOcrDisclaimer": "Bildungstool — stellt keine Finanzberatung dar (FIDLEG). Dokumente werden auf deinem Gerät verarbeitet, keine Daten gesendet (DSG Art. 6).",
+  "stepOcrLpdBanner": "Deine Dokumente werden auf deinem Gerät verarbeitet. Nichts wird ins Internet gesendet.",
+  "stepOcrLpdTitle": "Private Verarbeitung auf deinem Gerät",
+  "stepOcrLpdBody": "Dieses Dokument wird direkt auf deinem Telefon analysiert.\nKeine Daten werden übers Internet gesendet.\nExtrahierte Informationen werden nach der Verarbeitung gelöscht.",
+  "stepOcrLpdLegal": "Rechtsgrundlage: DSG Art. 6 — Datenminimierung.",
   "stepOcrLpdScan": "Dieses Dokument scannen",
   "stepOcrLpdCancel": "Abbrechen",
   "stepOcrSnackSuccess": "{count} Feld{plural} erfolgreich extrahiert",
   "@stepOcrSnackSuccess": {
     "placeholders": {
-      "count": { "type": "int" },
-      "plural": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
     }
   },
-  "stepOcrSnackEmpty": "Dokument verarbeitet \u2014 kein Feld automatisch erkannt",
+  "stepOcrSnackEmpty": "Dokument verarbeitet — kein Feld automatisch erkannt",
   "stepOcrSnackError": "Verarbeitungsfehler: {error}",
   "@stepOcrSnackError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
-  "stepOcrSnackWebOnly": "Bildscan im Web nicht verf\u00fcgbar. Nutze die mobile App oder importiere eine .txt-Datei.",
-
+  "stepOcrSnackWebOnly": "Bildscan im Web nicht verfügbar. Nutze die mobile App oder importiere eine .txt-Datei.",
   "stepQuestionsAgeYears": "{age} Jahre",
   "@stepQuestionsAgeYears": {
     "placeholders": {
-      "age": { "type": "int" }
+      "age": {
+        "type": "int"
+      }
     }
   },
   "stepQuestionsCountryUs": "Vereinigte Staaten",
-  "stepQuestionsCountryGb": "Vereinigtes K\u00f6nigreich",
+  "stepQuestionsCountryGb": "Vereinigtes Königreich",
   "stepQuestionsCountryCa": "Kanada",
   "stepQuestionsCountryIn": "Indien",
   "stepQuestionsCountryCn": "China",
   "stepQuestionsCountryBr": "Brasilien",
   "stepQuestionsCountryAu": "Australien",
   "stepQuestionsCountryJp": "Japan",
-
   "householdAcceptCodeHint": "CODE",
-
   "friInsufficientData": "Vervollständige dein Profil, um deinen Score zu sehen",
-  "projectionUncertaintyBand": "CHF\u00a0{low}\u00a0—\u00a0{high}\u00a0/\u00a0Monat",
+  "projectionUncertaintyBand": "CHF {low} — {high} / Monat",
   "@projectionUncertaintyBand": {
     "placeholders": {
-      "low": {"type": "String"},
-      "high": {"type": "String"}
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
     }
   },
-
   "portfolioAppBarTitle": "Mein Vermögen",
   "portfolioValeurTotaleNette": "Nettovermögen",
   "portfolioRepartitionEnveloppe": "Aufteilung nach Hülle",
@@ -11174,10 +11192,8 @@
   "portfolioReserveFondsUrgence": "Reserviert (Notfallfonds)",
   "portfolioSafeModeLocked": "Priorität Schuldenabbau",
   "portfolioSafeModeBody": "Allokationsempfehlungen sind im Schutzmodus deaktiviert. Deine Priorität ist der Schuldenabbau vor der Umschichtung.",
-
   "byokShowKey": "Schlüssel anzeigen",
   "byokHideKey": "Schlüssel verbergen",
-
   "themeDetailEssentiel60s": "Das Wichtigste in 60 Sekunden",
   "themeDetailTesteConnaissances": "Teste dein Wissen",
   "themeDetailSavaisTu": "Wusstest du?",
@@ -11185,7 +11201,6 @@
   "themeDetailRappel": "Erinnerung",
   "themeDetailBienVu": "Gut erkannt!",
   "themeDetailPasToutAFait": "Nicht ganz...",
-
   "emergencyFundTitle": "Dein Sicherheitsnetz",
   "emergencyFundSubtitle": "Berechne deinen idealen Notfallfonds",
   "emergencyFundDisclaimer": "Das Ziel von 3-6 Monaten ist eine allgemeine Empfehlung. Deine persönliche Situation kann einen anderen Betrag erfordern.",
@@ -11198,7 +11213,9 @@
   "emergencyFundMoisUnit": "{count} Monate",
   "@emergencyFundMoisUnit": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "emergencyFundMinimum": "Minimum",
@@ -11208,12 +11225,13 @@
   "emergencyFundManque": "Es fehlen dir noch {amount}",
   "@emergencyFundManque": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "emergencyFundAtteint": "Ziel erreicht!",
   "emergencyFundExplication": "Dieser Fonds schützt dich vor unerwarteten Ereignissen (Jobverlust, Krankheit, Reparaturen) ohne deine Investitionen anzutasten.",
-
   "lifeEventSuggestionsHeader": "Und dann?",
   "lifeEventSuggestionsSubheader": "Module für dein Profil",
   "lifeEventSuggestionsSimuler": "Simulieren",
@@ -11241,7 +11259,6 @@
   "lifeEventSugDemenagementReason": "Dein Kanton gehört zu den am höchsten besteuerten — vergleiche alle 26",
   "lifeEventSugInvalidite": "Invalidität",
   "lifeEventSugInvaliditeReason": "Überprüfe deine IV + BVG Deckung bei Unfall",
-
   "indepProtAvs": "Verdopple deinen Beitrag",
   "indepProtLpp": "Entfällt — freiwillige Wahl",
   "indepProtLaa": "Entfällt — Unfall ausserhalb der Arbeit",
@@ -11252,7 +11269,7 @@
   "indepLppProRente": "Geplante Altersrente",
   "indepLppConCotisations": "Hohe Pflichtbeiträge",
   "indepLppConFlexible": "Weniger flexibel",
-  "indepGrand3aSub": "20% des Nettoeinkommens, max CHF\u00a036'288/Jahr",
+  "indepGrand3aSub": "20% des Nettoeinkommens, max CHF 36'288/Jahr",
   "indepGrand3aProFlexibilite": "Totale Flexibilität",
   "indepGrand3aProDeduction": "Maximaler Steuerabzug",
   "indepGrand3aProCapital": "Kapital ab 60 verfügbar",
@@ -11263,7 +11280,7 @@
   "indepLayerFraisPro": "Geschäftskosten",
   "indepLayerJoursNonFact": "Nicht fakturierbare Tage",
   "indepFiscal3a": "Säule 3a Grosseinzahlung",
-  "indepFiscal3aNote": "Max 20% des Nettoeinkommens, begrenzt auf CHF\u00a036'288/Jahr ohne BVG",
+  "indepFiscal3aNote": "Max 20% des Nettoeinkommens, begrenzt auf CHF 36'288/Jahr ohne BVG",
   "indepFiscalFraisPro": "Effektive Geschäftskosten",
   "indepFiscalFraisProNote": "Büromiete, Material, Weiterbildung — zum Effektivwert absetzbar",
   "indepFiscalPrimesLpp": "Krankenversicherungsprämien (freiwillige BVG)",
@@ -11278,12 +11295,11 @@
   "indepPlanInscriptionAvsConseq": "Rückwirkende Bussen bei Fristüberschreitung",
   "indepPlanLaa": "Unfallversicherung UVG (wenn kein BVG)",
   "indepPlanLaaConseq": "Kein Berufsunfall-Schutz",
-  "indepPlanOuvrir3a": "3a-Konto eröffnen (Abzug bis CHF\u00a036'288)",
+  "indepPlanOuvrir3a": "3a-Konto eröffnen (Abzug bis CHF 36'288)",
   "indepPlanIjm": "KTG evaluieren (Krankentaggeld)",
   "indepPlanIjmConseq": "Einkommensverlust ab Tag 3 bei Krankheit",
   "indepPlanFraisPro": "Abzugsfähige Geschäftskosten — Belege aufbewahren",
   "indepPlanAcomptes": "Kantonale Steuervorauszahlungen — Zinsen vermeiden",
-
   "donationTypeEspeces": "Bargeld / Liquidität",
   "donationTypeImmobilier": "Immobilien",
   "donationTypeTitres": "Wertpapiere / Mobiliarwerte",
@@ -11293,70 +11309,79 @@
   "donationReserveBarLabel": "Pflichtteil {pct}%",
   "@donationReserveBarLabel": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "donationDisponibleBarLabel": "Verfügbar {pct}%",
   "@donationDisponibleBarLabel": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "donationDisclaimerFallback": "Dieses Bildungstool liefert indikative Schätzungen und stellt keine persönliche Rechts-, Steuer- oder Notariatsberatung im Sinne des FIDLEG dar. Konsultiere einen Spezialisten (Notar) für deine Situation.",
-
-  "widgetRetirementTitle": "Deine Renten\u00fcbersicht",
+  "widgetRetirementTitle": "Deine Rentenübersicht",
   "widgetRetirementToday": "Heute",
   "widgetRetirementFuture": "Bei Pensionierung",
   "widgetBudgetTitle": "Dein Budget",
   "widgetBudgetIncome": "Einnahmen",
   "widgetBudgetExpenses": "Ausgaben",
-  "widgetPillarTitle": "Deine 3 S\u00e4ulen",
+  "widgetPillarTitle": "Deine 3 Säulen",
   "widgetPillarAvsLpp": "AHV + BVG",
-  "widgetPillar3a": "S\u00e4ule 3a",
+  "widgetPillar3a": "Säule 3a",
   "widgetPillarNotDeclared": "Nicht angegeben",
   "widgetBudgetLabel": "Budget",
   "widgetInputLppLabel": "BVG-Guthaben (CHF)",
-  "widgetInput3aLabel": "S\u00e4ule-3a-Ersparnisse (CHF)",
+  "widgetInput3aLabel": "Säule-3a-Ersparnisse (CHF)",
   "widgetScoreFallback": "Score",
   "widgetInputSalaryFallback": "Gehalt",
-
   "scoreGaugeLevelExcellent": "Ausgezeichnet",
   "scoreGaugeLevelGood": "Gut",
   "scoreGaugeLevelAttention": "Achtung",
   "scoreGaugeLevelCritical": "Kritisch",
   "scoreGaugeTitle": "Finanzielle Fitness",
-  "scoreGaugeSubtitle": "Gesamtscore \u00b7 3 S\u00e4ulen",
+  "scoreGaugeSubtitle": "Gesamtscore · 3 Säulen",
   "scoreGaugeGainTitle": "Was dich weitergebracht hat",
   "scoreGaugeNextTitle": "Um weiter zu steigen",
-  "scoreGaugeDisclaimer": "Bildungssch\u00e4tzungen \u2014 keine Finanzberatung.",
-  "scoreGaugeSemanticsLabel": "Finanzielle Fitness. {score} von 100. Stufe {level}. Budget {budget}, Vorsorge {prevoyance}, Verm\u00f6gen {patrimoine}.",
+  "scoreGaugeDisclaimer": "Bildungsschätzungen — keine Finanzberatung.",
+  "scoreGaugeSemanticsLabel": "Finanzielle Fitness. {score} von 100. Stufe {level}. Budget {budget}, Vorsorge {prevoyance}, Vermögen {patrimoine}.",
   "@scoreGaugeSemanticsLabel": {
     "placeholders": {
-      "score": {"type": "String"},
-      "level": {"type": "String"},
-      "budget": {"type": "String"},
-      "prevoyance": {"type": "String"},
-      "patrimoine": {"type": "String"}
+      "score": {
+        "type": "String"
+      },
+      "level": {
+        "type": "String"
+      },
+      "budget": {
+        "type": "String"
+      },
+      "prevoyance": {
+        "type": "String"
+      },
+      "patrimoine": {
+        "type": "String"
+      }
     }
   },
   "scoreGaugeSectionBudget": "Budget",
   "scoreGaugeSectionPrevoyance": "Vorsorge",
-  "scoreGaugeSectionPatrimoine": "Verm\u00f6gen",
-
-  "byokErrorSaveFailed": "Fehler beim Speichern des Schl\u00fcssels.",
-  "byokErrorNotConfigured": "Konfiguriere zuerst einen Anbieter und Schl\u00fcssel.",
-  "byokErrorConnection": "Verbindungsfehler. Pr\u00fcfe deine Internetverbindung.",
-
-  "authErrorNetwork": "Service nicht erreichbar. Pr\u00fcfe dein Netzwerk und versuche es erneut.",
-  "authErrorEmailUsed": "Diese E-Mail wird bereits verwendet. Melde dich an oder setze dein Passwort zur\u00fcck.",
+  "scoreGaugeSectionPatrimoine": "Vermögen",
+  "byokErrorSaveFailed": "Fehler beim Speichern des Schlüssels.",
+  "byokErrorNotConfigured": "Konfiguriere zuerst einen Anbieter und Schlüssel.",
+  "byokErrorConnection": "Verbindungsfehler. Prüfe deine Internetverbindung.",
+  "authErrorNetwork": "Service nicht erreichbar. Prüfe dein Netzwerk und versuche es erneut.",
+  "authErrorEmailUsed": "Diese E-Mail wird bereits verwendet. Melde dich an oder setze dein Passwort zurück.",
   "authErrorIncorrect": "E-Mail oder Passwort falsch.",
-  "authErrorRegistration": "Registrierung derzeit nicht verf\u00fcgbar. Nutze den lokalen Modus.",
-  "authErrorService": "Kontodienst in dieser Umgebung nicht verf\u00fcgbar. Nutze den lokalen Modus.",
-  "authErrorInvalid": "Die eingegebenen Daten sind ung\u00fcltig.",
+  "authErrorRegistration": "Registrierung derzeit nicht verfügbar. Nutze den lokalen Modus.",
+  "authErrorService": "Kontodienst in dieser Umgebung nicht verfügbar. Nutze den lokalen Modus.",
+  "authErrorInvalid": "Die eingegebenen Daten sind ungültig.",
   "authErrorExpired": "Dieser Link ist abgelaufen. Fordere einen neuen an.",
-  "authErrorNotVerified": "Deine E-Mail ist noch nicht best\u00e4tigt. Best\u00e4tige deine E-Mail und versuche es erneut.",
-  "authErrorGeneric": "Aktion derzeit nicht m\u00f6glich. Versuche es in K\u00fcrze erneut.",
-
+  "authErrorNotVerified": "Deine E-Mail ist noch nicht bestätigt. Bestätige deine E-Mail und versuche es erneut.",
+  "authErrorGeneric": "Aktion derzeit nicht möglich. Versuche es in Kürze erneut.",
   "ageYears": "{age} Jahre",
   "@ageYears": {
     "placeholders": {
@@ -11368,7 +11393,7 @@
   "coachMintLabel": "Coach MINT",
   "consentNoActiveConsents": "Keine aktiven Einwilligungen",
   "sequenceHousingGoal": "Immobilienkauf",
-  "sequence3aGoal": "S\u00e4ule 3a Optimierung",
+  "sequence3aGoal": "Säule 3a Optimierung",
   "sequenceRetirementGoal": "Pensionierungsvorbereitung",
   "sequenceTensionGoal": "Finanzielle Spannung lu00f6sen",
   "sequenceTensionStep1": "Schuldendiagnose",
@@ -11398,15 +11423,30 @@
   "summaryChoixRenteCapital": "Renten-/Kapitalwahl",
   "sequenceAllStepsComplete": "Alle Schritte abgeschlossen",
   "sequenceStepLabel": "Schritt {current}/{total}",
-  "@sequenceStepLabel": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "@sequenceStepLabel": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "sequenceQuitConfirm": "Sequenz beendet.",
-  "sequenceStepCompleted": "Schritt {progress} abgeschlossen. Bereit f\u00fcr den n\u00e4chsten?",
-  "@sequenceStepCompleted": { "placeholders": { "progress": { "type": "String" } } },
+  "sequenceStepCompleted": "Schritt {progress} abgeschlossen. Bereit für den nächsten?",
+  "@sequenceStepCompleted": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
   "sequenceCompleted": "Sequenz abgeschlossen! Alle Schritte sind erledigt.",
   "sequencePaused": "Sequenz pausiert. Du kannst jederzeit fortfahren.",
-  "sequenceStepSkipped": "Diesen Schritt \u00fcberspringen wir vorerst.",
+  "sequenceStepSkipped": "Diesen Schritt überspringen wir vorerst.",
   "sequenceStepRetry": "Kein Problem. Versuchen wir diesen Schritt nochmal.",
-  "sequenceReEvaluate": "Deine Daten haben sich ge\u00e4ndert. Betroffene Schritte werden neu berechnet.",
+  "sequenceReEvaluate": "Deine Daten haben sich geändert. Betroffene Schritte werden neu berechnet.",
   "shellWelcomeBackDeltaPts": "Willkommen zurück! Deine Genauigkeit hat sich um +{delta} Pkt. verbessert.",
   "chatPickPhoto": "Foto aufnehmen",
   "chatPickGallery": "Bild auswählen",
@@ -11476,5 +11516,75 @@
   "sequenceRetraiteActiveStep4": "Summary",
   "sequenceReadyNextStep": "Bereit für den nächsten Schritt",
   "sequenceQuitButton": "Parcours verlassen",
-  "loadingGeneric": "Wird geladen\u2026"
+  "loadingGeneric": "Wird geladen…",
+  "notifChannelDescription": "Check-in-Erinnerungen, 3a-Fristen und Coaching-Benachrichtigungen",
+  "notifCheckinBody": "Bestätige deine monatlichen Einzahlungen in 2 Min.",
+  "notifCheckinTitle": "Monatlicher Check-in",
+  "notifDeadline3aBody16Days": "Noch 16 Tage, um in deine 3a einzuzahlen",
+  "notifDeadline3aBody3Months": "Noch 3 Monate, um in deine 3a einzuzahlen (CHF {remaining} Spielraum)",
+  "notifDeadline3aBody46Days": "Noch 46 Tage, um deine 3a zu maximieren (CHF {remaining} Spielraum)",
+  "notifDeadline3aBodyLastDays": "Letzte Tage! Zahle vor dem 31. Dezember in deine 3a ein",
+  "notifDeadline3aTitle": "3a-Frist",
+  "notifStreakProtectionBody": "Du bist bei {streak} aufeinanderfolgenden Monaten — halte deine Serie!",
+  "notifStreakProtectionTitle": "Schütze deine Serie",
+  "notifTaxDeadlineBody16Days": "Steuererklärung in 16 Tagen fällig — fang an, sie auszufüllen",
+  "notifTaxDeadlineBody44Days": "Steuererklärung in 44 Tagen fällig — sammle deine Unterlagen",
+  "notifTaxDeadlineBodyLastWeek": "Steuererklärung bis 31. März fällig — letzte Woche!",
+  "notifTaxDeadlineTitle": "Steuererklärung",
+  "notifWeeklyRecapBody": "Budget, Fortschritt, nächster Schritt — alles bereit.",
+  "notifWeeklyRecapTitle": "Dein Wochenrückblick",
+  "recapActiveWeek": "Diese Woche warst du {days} Tag(e) auf MINT aktiv.",
+  "recapConfidenceUp": "Dein Vertrauen ist um +{delta} Pkt. gestiegen.",
+  "recapNextFocus": "Nächste Woche: konzentriere dich auf {focus}.",
+  "recapQuietWeek": "Diese Woche war es ruhig auf MINT.",
+  "recapSavings": "Dein geschätztes Erspartes beträgt CHF {amount}.",
+  "@notifDeadline3aBody3Months": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifDeadline3aBody46Days": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifStreakProtectionBody": {
+    "placeholders": {
+      "streak": {
+        "type": "String"
+      }
+    }
+  },
+  "@recapActiveWeek": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "@recapConfidenceUp": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "@recapNextFocus": {
+    "placeholders": {
+      "focus": {
+        "type": "String"
+      }
+    }
+  },
+  "@recapSavings": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

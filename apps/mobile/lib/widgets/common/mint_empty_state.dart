@@ -38,10 +38,14 @@ class MintEmptyState extends StatelessWidget {
                 textAlign: TextAlign.center),
             if (ctaLabel != null && onCta != null) ...[
               const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: onCta,
-                icon: const Icon(Icons.add),
-                label: Text(ctaLabel!),
+              Semantics(
+                button: true,
+                label: ctaLabel,
+                child: FilledButton.icon(
+                  onPressed: onCta,
+                  icon: const Icon(Icons.add),
+                  label: Text(ctaLabel!),
+                ),
               ),
             ],
           ],
