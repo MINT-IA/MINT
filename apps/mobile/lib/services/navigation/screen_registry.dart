@@ -393,6 +393,19 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: true,
   );
 
+  // FIX-172: preretraite_complete must exist in registry for LLM to suggest it.
+  // This is the flagship 11-step journey for pre-retirees (53-64 cohort).
+  static const ScreenEntry _preretraiteComplete = ScreenEntry(
+    route: '/retraite?mode=preretraite',
+    intentTag: 'preretraite_complete',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['salaireBrut', 'age', 'canton'],
+    optionalFields: ['avoirLpp', 'rachatMaximum'],
+    fallbackRoute: '/coach/chat?prompt=retraite',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
   static const ScreenEntry _pilier3a = ScreenEntry(
     route: '/pilier-3a',
     intentTag: 'simulator_3a',
@@ -1488,6 +1501,7 @@ class MintScreenRegistry extends ScreenRegistry {
     // B — Decision Canvas
     _renteVsCapital,
     _retraite,
+    _preretraiteComplete,
     _pilier3a,
     _staggeredWithdrawal,
     _fiscal,

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -37,6 +39,11 @@ class FirstJobScreen extends StatefulWidget {
 }
 
 class _FirstJobScreenState extends State<FirstJobScreen> {
+  bool _hasUserInteracted = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   double _salaire = 5000;
   int _age = 25;
   String _canton = 'ZH';
@@ -58,6 +65,47 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   void initState() {
     super.initState();
     _calculate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/premier-emploi',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
+      return;
+    }
+
+    final screenReturn = ScreenReturn.completed(
+      route: '/premier-emploi',
+      stepOutputs: {},
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
   }
 
   @override
@@ -90,7 +138,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.background,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -214,7 +266,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             ),
           ),
         ],
-      ))),
+      )))),
     );
   }
 
@@ -279,6 +331,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       max: 15000,
       divisions: 260,
       onChanged: (v) {
+        _hasUserInteracted = true;
         _salaire = v;
         _calculate();
       },
@@ -296,6 +349,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       max: 30,
       divisions: 12,
       onChanged: (v) {
+        _hasUserInteracted = true;
         _age = v.toInt();
         _calculate();
       },
@@ -364,6 +418,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) {
+                        _hasUserInteracted = true;
                         _canton = v;
                         _calculate();
                       }

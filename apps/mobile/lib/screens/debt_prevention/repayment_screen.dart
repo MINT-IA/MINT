@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -25,6 +27,61 @@ class RepaymentScreen extends StatefulWidget {
 }
 
 class _RepaymentScreenState extends State<RepaymentScreen> {
+  bool _hasUserInteracted = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/dette-remboursement',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('repayment', screenReturn);
+      return;
+    }
+
+    final result = _result;
+    final screenReturn = ScreenReturn.completed(
+      route: '/dette-remboursement',
+      stepOutputs: {
+        'horizon_mois': result?.avalanche.moisJusquaLiberation ?? 0,
+        'versement_mensuel': _budgetMensuel,
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('repayment', screenReturn);
+  }
+
   final List<_DebtInput> _dettes = [
     _DebtInput(
       nom: 'Credit conso',
@@ -64,7 +121,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   Widget build(BuildContext context) {
     final result = _result;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
@@ -138,7 +199,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildChiffreChoc(RepaymentComparisonResult result) {
@@ -274,7 +335,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                       color: MintColors.textMuted.withValues(alpha: 0.5),
                     ),
                   ),
-                  onChanged: (v) => setState(() => dette.nom = v),
+                  onChanged: (v) => setState(() { _hasUserInteracted = true; dette.nom = v; }),
                 ),
               ),
               Semantics(
@@ -311,7 +372,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     min: 500,
                     max: 100000,
                     prefix: 'CHF',
-                    onChanged: (v) => setState(() => dette.montant = v),
+                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.montant = v; }),
                   ),
                 ),
               ),
@@ -329,7 +390,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     prefix: '',
                     suffix: '%',
                     decimals: true,
-                    onChanged: (v) => setState(() => dette.tauxAnnuel = v),
+                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.tauxAnnuel = v; }),
                   ),
                 ),
               ),
@@ -346,7 +407,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     max: 3000,
                     prefix: 'CHF',
                     onChanged: (v) =>
-                        setState(() => dette.mensualiteMin = v),
+                        setState(() { _hasUserInteracted = true; dette.mensualiteMin = v; }),
                   ),
                 ),
               ),
@@ -552,7 +613,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         min: 200,
         max: 5000,
         prefix: 'CHF',
-        onChanged: (v) => setState(() => _budgetMensuel = v),
+        onChanged: (v) => setState(() { _hasUserInteracted = true; _budgetMensuel = v; }),
       ),
       child: Semantics(
         button: true,
