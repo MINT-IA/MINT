@@ -4339,6 +4339,15 @@
         "title": "ConfidenceDeltaResponse",
         "type": "object"
       },
+      "ConfidenceLevel": {
+        "enum": [
+          "high",
+          "medium",
+          "low"
+        ],
+        "title": "ConfidenceLevel",
+        "type": "string"
+      },
       "ConfidenceScoreRequest": {
         "description": "Requete pour le scoring de confiance complet.\n\nEnvoie le profil utilisateur et les sources des champs pour obtenir\nun score multi-dimensionnel avec feature gates et enrichment prompts.",
         "properties": {
@@ -6784,6 +6793,73 @@
         "title": "DocumentListResponse",
         "type": "object"
       },
+      "DocumentScanConfirmation": {
+        "description": "Payload from mobile after user confirms a document scan extraction.",
+        "properties": {
+          "confirmedFields": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractedFieldConfirmation"
+            },
+            "title": "Confirmedfields",
+            "type": "array"
+          },
+          "documentType": {
+            "$ref": "#/components/schemas/DocumentType"
+          },
+          "extractionMethod": {
+            "default": "ocr_mlkit",
+            "description": "How the data was extracted: ocr_mlkit, claude_vision, manual",
+            "title": "Extractionmethod",
+            "type": "string"
+          },
+          "overallConfidence": {
+            "description": "Overall extraction confidence (0-1)",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Overallconfidence",
+            "type": "number"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "documentType",
+          "confirmedFields",
+          "overallConfidence"
+        ],
+        "title": "DocumentScanConfirmation",
+        "type": "object"
+      },
+      "DocumentScanResponse": {
+        "description": "Response after scan confirmation is processed.",
+        "properties": {
+          "confidenceDelta": {
+            "default": 0.0,
+            "title": "Confidencedelta",
+            "type": "number"
+          },
+          "fieldsUpdated": {
+            "default": 0,
+            "title": "Fieldsupdated",
+            "type": "integer"
+          },
+          "message": {
+            "default": "Scan data synced to profile",
+            "title": "Message",
+            "type": "string"
+          },
+          "status": {
+            "default": "confirmed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "DocumentScanResponse",
+        "type": "object"
+      },
       "DocumentSummary": {
         "description": "Summary of an uploaded document.",
         "properties": {
@@ -6822,6 +6898,21 @@
         ],
         "title": "DocumentSummary",
         "type": "object"
+      },
+      "DocumentType": {
+        "description": "Supported document types for scanning.",
+        "enum": [
+          "lpp_certificate",
+          "avs_extract",
+          "tax_declaration",
+          "salary_certificate",
+          "payslip",
+          "lease_contract",
+          "lpp_plan",
+          "insurance_contract"
+        ],
+        "title": "DocumentType",
+        "type": "string"
       },
       "DocumentUploadResponse": {
         "description": "Response from a document upload and extraction.",
@@ -7790,6 +7881,56 @@
           "label"
         ],
         "title": "ExtractedDocumentField",
+        "type": "object"
+      },
+      "ExtractedFieldConfirmation": {
+        "description": "A single confirmed extracted field.",
+        "properties": {
+          "confidence": {
+            "$ref": "#/components/schemas/ConfidenceLevel",
+            "default": "medium"
+          },
+          "fieldName": {
+            "description": "Profile field name (e.g., avoirLppTotal)",
+            "title": "Fieldname",
+            "type": "string"
+          },
+          "sourceText": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Original text from document (for audit, not stored long-term)",
+            "title": "Sourcetext"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "description": "Confirmed value",
+            "title": "Value"
+          }
+        },
+        "required": [
+          "fieldName",
+          "value"
+        ],
+        "title": "ExtractedFieldConfirmation",
         "type": "object"
       },
       "ExtractedFieldResponse": {
@@ -11288,6 +11429,20 @@
           "sensitivity"
         ],
         "title": "LocationVsProprieteResponse",
+        "type": "object"
+      },
+      "LogoutResponse": {
+        "description": "Schema for logout response.",
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "LogoutResponse",
         "type": "object"
       },
       "LppConversionRequest": {
@@ -19150,6 +19305,93 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "VisionExtractionRequest": {
+        "description": "Request to extract data from a document image using Claude Vision.",
+        "properties": {
+          "canton": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "User's canton (helps contextualize fiscal documents)",
+            "title": "Canton"
+          },
+          "documentType": {
+            "$ref": "#/components/schemas/DocumentType"
+          },
+          "imageBase64": {
+            "description": "Base64-encoded document image (JPEG/PNG)",
+            "maxLength": 5000000,
+            "title": "Imagebase64",
+            "type": "string"
+          },
+          "languageHint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Expected language: fr, de, it",
+            "title": "Languagehint"
+          }
+        },
+        "required": [
+          "documentType",
+          "imageBase64"
+        ],
+        "title": "VisionExtractionRequest",
+        "type": "object"
+      },
+      "VisionExtractionResponse": {
+        "description": "Response from Claude Vision document extraction.",
+        "properties": {
+          "documentType": {
+            "$ref": "#/components/schemas/DocumentType"
+          },
+          "extractedFields": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractedFieldConfirmation"
+            },
+            "title": "Extractedfields",
+            "type": "array"
+          },
+          "extractionMethod": {
+            "default": "claude_vision",
+            "title": "Extractionmethod",
+            "type": "string"
+          },
+          "overallConfidence": {
+            "title": "Overallconfidence",
+            "type": "number"
+          },
+          "rawAnalysis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Claude's natural language analysis of the document",
+            "title": "Rawanalysis"
+          }
+        },
+        "required": [
+          "documentType",
+          "extractedFields",
+          "overallConfidence"
+        ],
+        "title": "VisionExtractionResponse",
+        "type": "object"
+      },
       "WealthTaxComparisonRequest": {
         "description": "Request for 26-canton wealth tax comparison.",
         "properties": {
@@ -19560,6 +19802,76 @@
           "netRecu"
         ],
         "title": "YearlyWithdrawalEntryResponse",
+        "type": "object"
+      },
+      "_InsightSyncRequest": {
+        "description": "Payload to embed a CoachInsight into the RAG vector store.",
+        "properties": {
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "insight_id": {
+            "title": "Insight Id",
+            "type": "string"
+          },
+          "insight_type": {
+            "title": "Insight Type",
+            "type": "string"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "topic": {
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "insight_id",
+          "topic",
+          "summary",
+          "insight_type"
+        ],
+        "title": "_InsightSyncRequest",
+        "type": "object"
+      },
+      "_InsightSyncResponse": {
+        "properties": {
+          "embedded": {
+            "title": "Embedded",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "embedded",
+          "message"
+        ],
+        "title": "_InsightSyncResponse",
         "type": "object"
       },
       "h_04cb1ba1d85a__ChiffreChocResponse": {
@@ -21196,6 +21508,33 @@
         ]
       }
     },
+    "/api/v1/auth/logout": {
+      "post": {
+        "description": "Logout by blacklisting the current token's JTI.\n\nThe token will be rejected on subsequent requests until it naturally expires,\nat which point the blacklist entry is eligible for cleanup.",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/v1/auth/me": {
       "get": {
         "description": "Get current authenticated user information.\n\nArgs:\n    current_user: Authenticated user from JWT token\n\nReturns:\n    UserResponse with user details",
@@ -21884,6 +22223,53 @@
         "summary": "Generate Score Summary",
         "tags": [
           "Coach Narrative S35"
+        ]
+      }
+    },
+    "/api/v1/coach/sync-insight": {
+      "post": {
+        "description": "Sync a CoachInsight from mobile to the RAG vector store.\n\nCalled when the mobile app saves an insight (sequence completion,\ndocument scan, coach conversation). The insight is embedded and\nstored in pgvector so the coach can retrieve it semantically\nin future sessions.\n\nPrivacy: summary must be PII-free (ranges only, no exact values).",
+        "operationId": "sync_insight_api_v1_coach_sync_insight_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_InsightSyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_InsightSyncResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Sync Insight",
+        "tags": [
+          "Coach Chat S56"
         ]
       }
     },
@@ -22671,6 +23057,100 @@
           }
         ],
         "summary": "List Documents",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/extract-vision": {
+      "post": {
+        "description": "Extract structured data from a document image using Claude Vision.\n\nReplaces MLKit OCR with Claude Vision for better accuracy on\nSwiss financial documents (LPP certs, tax declarations, etc.).\n\nPrivacy: image is sent to Claude API for processing but NOT stored.\nOnly extracted structured fields are returned.",
+        "operationId": "extract_with_claude_vision_api_v1_documents_extract_vision_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisionExtractionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisionExtractionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Extract With Claude Vision",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/scan-confirmation": {
+      "post": {
+        "description": "Receive confirmed document scan extraction from mobile.\n\nCalled after user reviews and confirms OCR/Vision extracted fields.\nSyncs extracted data to the user's profile on the backend.\n\nPrivacy: no raw document image is sent — only confirmed field values.",
+        "operationId": "confirm_document_scan_api_v1_documents_scan_confirmation_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentScanConfirmation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentScanResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm Document Scan",
         "tags": [
           "documents"
         ]
