@@ -22179,6 +22179,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Chiffre Choc",
         "tags": [
           "Coach Narrative S35"
@@ -22221,6 +22226,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Greeting",
         "tags": [
           "Coach Narrative S35"
@@ -22263,6 +22273,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Narrative",
         "tags": [
           "Coach Narrative S35"
@@ -22305,6 +22320,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Score Summary",
         "tags": [
           "Coach Narrative S35"
@@ -22394,6 +22414,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Tip",
         "tags": [
           "Coach Narrative S35"

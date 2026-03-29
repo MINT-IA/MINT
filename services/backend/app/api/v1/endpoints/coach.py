@@ -12,7 +12,11 @@ Sources:
     - LPD art. 6 (protection des donnees)
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
+
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
+from app.models.user import User
 
 from app.schemas.coach import (
     CoachContextRequest,
@@ -53,8 +57,9 @@ def _build_ctx(request: CoachContextRequest):
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/narrative", response_model=CoachNarrativeResponse)
-def generate_narrative(request: CoachContextRequest) -> CoachNarrativeResponse:
+def generate_narrative(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> CoachNarrativeResponse:
     """Generer les 4 composants narratifs du coach.
 
     Chaque composant est genere independamment et valide
@@ -78,8 +83,9 @@ def generate_narrative(request: CoachContextRequest) -> CoachNarrativeResponse:
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/greeting", response_model=ComponentNarrativeResponse)
-def generate_greeting(request: CoachContextRequest) -> ComponentNarrativeResponse:
+def generate_greeting(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
     """Generer uniquement le greeting personnalise.
 
     Returns:
@@ -97,8 +103,9 @@ def generate_greeting(request: CoachContextRequest) -> ComponentNarrativeRespons
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/score-summary", response_model=ComponentNarrativeResponse)
-def generate_score_summary(request: CoachContextRequest) -> ComponentNarrativeResponse:
+def generate_score_summary(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
     """Generer uniquement le resume du score FRI.
 
     Returns:
@@ -116,8 +123,9 @@ def generate_score_summary(request: CoachContextRequest) -> ComponentNarrativeRe
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/tip", response_model=ComponentNarrativeResponse)
-def generate_tip(request: CoachContextRequest) -> ComponentNarrativeResponse:
+def generate_tip(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
     """Generer uniquement le conseil educatif.
 
     Returns:
@@ -135,8 +143,9 @@ def generate_tip(request: CoachContextRequest) -> ComponentNarrativeResponse:
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/chiffre-choc", response_model=ComponentNarrativeResponse)
-def generate_chiffre_choc(request: CoachContextRequest) -> ComponentNarrativeResponse:
+def generate_chiffre_choc(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
     """Generer uniquement la recontextualisation du chiffre choc.
 
     Returns:
