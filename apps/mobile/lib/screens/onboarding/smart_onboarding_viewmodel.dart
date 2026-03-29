@@ -264,7 +264,7 @@ class SmartOnboardingViewModel extends ChangeNotifier {
       confidenceScore =
           (providedCount / totalFields * 100).clamp(0.0, 100.0);
     } catch (e) {
-      error = 'Erreur de calcul. Verifie tes données et réessaie.';
+      error = 'Erreur de calcul. Vérifie tes données et réessaie.'; // TODO: i18n — extract to ARB
       profile = null;
       chiffreChoc = null;
       confidenceScore = 0;

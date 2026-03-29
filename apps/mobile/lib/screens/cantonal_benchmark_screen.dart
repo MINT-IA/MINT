@@ -157,16 +157,20 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Switch.adaptive(
-            value: _optedIn,
-            activeTrackColor: MintColors.primary,
-            onChanged: (value) async {
-              await CantonalBenchmarkService.setOptedIn(value);
-              if (!mounted) return;
-              setState(() {
-                _optedIn = value;
-              });
-            },
+          Semantics(
+            toggled: _optedIn,
+            label: 'Activer les comparaisons cantonales', // TODO: i18n
+            child: Switch.adaptive(
+              value: _optedIn,
+              activeTrackColor: MintColors.primary,
+              onChanged: (value) async {
+                await CantonalBenchmarkService.setOptedIn(value);
+                if (!mounted) return;
+                setState(() {
+                  _optedIn = value;
+                });
+              },
+            ),
           ),
         ],
       ),
@@ -300,35 +304,38 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: MintSurface(
-        padding: const EdgeInsets.all(16),
-        radius: 16,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 20, color: color),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    metric.label,
-                    style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+      child: Semantics(
+        label: '${metric.label} : $text. Fourchette typique ${_fmt(metric.range.low)} à ${_fmt(metric.range.high)}', // TODO: i18n
+        child: MintSurface(
+          padding: const EdgeInsets.all(16),
+          radius: 16,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  ExcludeSemantics(child: Icon(icon, size: 20, color: color)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      metric.label,
+                      style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              text,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              S.of(context)!.benchmarkTypicalRange(_fmt(metric.range.low), _fmt(metric.range.high)),
-              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                text,
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                S.of(context)!.benchmarkTypicalRange(_fmt(metric.range.low), _fmt(metric.range.high)),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+              ),
+            ],
+          ),
         ),
       ),
     );

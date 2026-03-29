@@ -101,6 +101,18 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Loading indicator for initial document fetch
+            if (docProvider.isLoading)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+                child: Center(
+                  child: Text(
+                    S.of(context)!.loadingGeneric,
+                    style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+                  ),
+                ),
+              ),
+
             // 1. Header card
             MintEntrance(child: _buildHeaderCard(s, totalDocs)),
             const SizedBox(height: MintSpacing.lg),

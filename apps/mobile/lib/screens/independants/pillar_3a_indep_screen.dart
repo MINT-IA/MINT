@@ -161,13 +161,17 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               ],
             ),
           ),
-          Switch(
-            value: _affilieLpp,
-            onChanged: (v) {
-              _affilieLpp = v;
-              _calculate();
-            },
-            activeTrackColor: MintColors.success,
+          Semantics(
+            toggled: _affilieLpp,
+            label: 'Affilié LPP', // TODO: i18n
+            child: Switch(
+              value: _affilieLpp,
+              onChanged: (v) {
+                _affilieLpp = v;
+                _calculate();
+              },
+              activeTrackColor: MintColors.success,
+            ),
           ),
         ],
       ),
@@ -232,48 +236,54 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   Widget _buildChiffreChoc() {
     final r = _result!;
     if (r.avantageSurSalarie <= 0) {
-      return Container(
+      return Semantics(
+        label: 'Économie fiscale : ${IndependantsService.formatChf(r.economieFiscale)} francs', // TODO: i18n
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: MintColors.appleSurface,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            children: [
+              Text(
+                IndependantsService.formatChf(r.economieFiscale),
+                style: MintTextStyles.displayMedium(color: MintColors.primary),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                S.of(context)!.pillar3aIndepChiffreChocCaption,
+                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Semantics(
+      label: 'Avantage sur salarié : ${IndependantsService.formatChf(r.avantageSurSalarie)} francs', // TODO: i18n
+      child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: MintColors.appleSurface,
+          color: MintColors.success,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           children: [
             Text(
-              IndependantsService.formatChf(r.economieFiscale),
-              style: MintTextStyles.displayMedium(color: MintColors.primary),
+              IndependantsService.formatChf(r.avantageSurSalarie),
+              style: MintTextStyles.displayMedium(color: MintColors.white),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.pillar3aIndepChiffreChocCaption,
-              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+              S.of(context)!.pillar3aIndepChiffreChocAvantageSalarie(IndependantsService.formatChf(r.avantageSurSalarie)),
+              style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
               textAlign: TextAlign.center,
             ),
           ],
         ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.success,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Text(
-            IndependantsService.formatChf(r.avantageSurSalarie),
-            style: MintTextStyles.displayMedium(color: MintColors.white),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            S.of(context)!.pillar3aIndepChiffreChocAvantageSalarie(IndependantsService.formatChf(r.avantageSurSalarie)),
-            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
-            textAlign: TextAlign.center,
-          ),
-        ],
       ),
     );
   }
@@ -312,18 +322,21 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   }
 
   Widget _buildResultRow(String label, String value, {Color? color}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: MintTextStyles.bodyMedium(color: color ?? MintColors.textSecondary),
-        ),
-        Text(
-          value,
-          style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
-        ),
-      ],
+    return Semantics(
+      label: '$label : $value', // TODO: i18n
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: MintTextStyles.bodyMedium(color: color ?? MintColors.textSecondary),
+          ),
+          Text(
+            value,
+            style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
     );
   }
 

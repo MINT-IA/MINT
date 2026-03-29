@@ -11,6 +11,9 @@ class MintCoachTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CoachChatScreen(isEmbeddedInTab: true);
+    return Semantics(
+      label: 'Onglet Coach MINT', // TODO: i18n
+      child: const CoachChatScreen(isEmbeddedInTab: true),
+    );
   }
 }

@@ -217,29 +217,34 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     final r = _result!;
     final saving = r.economie;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: saving > 0 ? MintColors.success : MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Text(
-            IndependantsService.formatChf(saving),
-            style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            saving > 0
-                ? 'Le split adapté te fait économiser '
-                  '${IndependantsService.formatChf(saving)}/an '
-                  'par rapport à 100% salaire'
-                : 'Ajuste le split pour trouver une économie',
-            style: MintTextStyles.bodyMedium(color: saving > 0 ? MintColors.white.withValues(alpha: 0.9) : MintColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    return Semantics(
+      label: saving > 0
+          ? 'Économie : ${IndependantsService.formatChf(saving)} francs par an' // TODO: i18n
+          : 'Ajuste le split pour trouver une économie', // TODO: i18n
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: saving > 0 ? MintColors.success : MintColors.appleSurface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            Text(
+              IndependantsService.formatChf(saving),
+              style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              saving > 0
+                  ? 'Le split adapté te fait économiser '
+                    '${IndependantsService.formatChf(saving)}/an '
+                    'par rapport à 100% salaire'
+                  : 'Ajuste le split pour trouver une économie',
+              style: MintTextStyles.bodyMedium(color: saving > 0 ? MintColors.white.withValues(alpha: 0.9) : MintColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -247,7 +252,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   // ── Requalification Alert ──────────────────────────────────
 
   Widget _buildRequalificationAlert() {
-    return Container(
+    return Semantics(
+      label: 'Alerte : risque de requalification fiscale si la part salaire est inférieure à 60 pourcent', // TODO: i18n
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.08),
@@ -280,7 +287,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // ── Result Section ─────────────────────────────────────────
@@ -343,7 +350,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     String? subtitle,
     bool bold = false,
   }) {
-    return Row(
+    return Semantics(
+      label: '$label : $value', // TODO: i18n
+      child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -366,7 +375,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           style: MintTextStyles.bodyMedium(color: bold ? MintColors.primary : (color ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
-    );
+    ));
   }
 
   // ── Curve Chart ────────────────────────────────────────────
