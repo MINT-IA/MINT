@@ -136,7 +136,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     final r = _result!;
     if (r.differenceAnnuelle <= 0) return const SizedBox.shrink();
     return Semantics(
-      label: 'Différence annuelle : ${IndependantsService.formatChf(r.differenceAnnuelle)} francs', // TODO: i18n
+      label: S.of(context)!.semanticsAvsDifference(IndependantsService.formatChf(r.differenceAnnuelle)),
       child: Container(
         padding: const EdgeInsets.all(MintSpacing.lg),
         decoration: BoxDecoration(
@@ -186,7 +186,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
 
   Widget _buildMetricCard(String label, String value, IconData icon, {bool small = false}) {
     return Semantics(
-      label: '$label : $value', // TODO: i18n
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
       child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.md),
         radius: 16,
@@ -320,7 +320,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           Semantics(
-            label: 'Taux effectif : ${r.tauxEffectif.toStringAsFixed(2)} pourcent', // TODO: i18n
+            label: S.of(context)!.semanticsAvsTauxEffectif(r.tauxEffectif.toStringAsFixed(2)),
             child: Text(
               s.avsCotisationsTauxEffectifLabel(r.tauxEffectif.toStringAsFixed(2)),
               style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),

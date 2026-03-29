@@ -12070,5 +12070,117 @@
   "pensionFundAvailable": "Disponible",
   "pensionFundDisconnectTooltip": "Déconnecter",
   "pensionFundConnectButton": "Connecter",
-  "pensionFundDisclaimer": "MINT est un outil éducatif en lecture seule (LSFin art.\u00a03). Aucune transaction n\u2019est effectuée sur tes comptes. Tu peux te déconnecter à tout moment."
+  "pensionFundDisclaimer": "MINT est un outil éducatif en lecture seule (LSFin art.\u00a03). Aucune transaction n\u2019est effectuée sur tes comptes. Tu peux te déconnecter à tout moment.",
+
+  "semanticsBudgetStartButton": "Commencer la saisie du budget",
+  "semanticsBenchmarkToggle": "Activer les comparaisons cantonales",
+  "semanticsBenchmarkMetric": "{label}\u00a0: {status}. Fourchette typique {low} à {high}",
+  "@semanticsBenchmarkMetric": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "status": {"type": "String"},
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  },
+  "semanticsRecapPeriod": "Récapitulatif du {start} au {end}",
+  "@semanticsRecapPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "semanticsRecapSection": "{title}\u00a0: {content}",
+  "@semanticsRecapSection": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "content": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentFreeIn": "Libéré dans {months} mois",
+  "@semanticsRepaymentFreeIn": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "semanticsRepaymentDeleteDebt": "Supprimer la dette {name}",
+  "@semanticsRepaymentDeleteDebt": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentBudget": "Budget mensuel\u00a0: {amount} francs. Appuyer pour modifier",
+  "@semanticsRepaymentBudget": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentValidate": "Valider la valeur",
+  "semanticsRepaymentStrategy": "{title}\u00a0: {months} mois, intérêts {interest} francs",
+  "@semanticsRepaymentStrategy": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "int"},
+      "interest": {"type": "String"}
+    }
+  },
+  "semanticsAvsDifference": "Différence annuelle\u00a0: {amount} francs",
+  "@semanticsAvsDifference": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsMetricLabelValue": "{label}\u00a0: {value}",
+  "@semanticsMetricLabelValue": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
+  "semanticsAvsTauxEffectif": "Taux effectif\u00a0: {rate} pourcent",
+  "@semanticsAvsTauxEffectif": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  },
+  "semanticsDividendeSaving": "Économie\u00a0: {amount} francs par an",
+  "@semanticsDividendeSaving": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsDividendeAdjust": "Ajuste le split pour trouver une économie",
+  "semanticsDividendeRequalification": "Alerte\u00a0: risque de requalification fiscale si la part salaire est inférieure à 60 pourcent",
+  "semanticsLppCapitalisation": "Capitalisation annuelle\u00a0: {amount} francs",
+  "@semanticsLppCapitalisation": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsLppGain": "Gain avec LPP volontaire\u00a0: {amount} francs",
+  "@semanticsLppGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aLppToggle": "Affilié LPP",
+  "semantics3aEconomieFiscale": "Économie fiscale\u00a0: {amount} francs",
+  "@semantics3aEconomieFiscale": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aAvantageSalarie": "Avantage sur salarié\u00a0: {amount} francs",
+  "@semantics3aAvantageSalarie": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsCoachTabLabel": "Onglet Coach MINT",
+  "semanticsRealReturnGain": "Gain par rapport à l'épargne\u00a0: {amount} francs",
+  "@semanticsRealReturnGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  }
 }

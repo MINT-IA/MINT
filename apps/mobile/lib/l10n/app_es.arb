@@ -11647,5 +11647,117 @@
   "pensionFundAvailable": "Disponible",
   "pensionFundDisconnectTooltip": "Desconectar",
   "pensionFundConnectButton": "Conectar",
-  "pensionFundDisclaimer": "MINT es una herramienta educativa de solo lectura (LSFin art.\u00a03). No se realiza ninguna transacción en tus cuentas. Puedes desconectarte en cualquier momento."
+  "pensionFundDisclaimer": "MINT es una herramienta educativa de solo lectura (LSFin art.\u00a03). No se realiza ninguna transacción en tus cuentas. Puedes desconectarte en cualquier momento.",
+
+  "semanticsBudgetStartButton": "Comenzar a ingresar el presupuesto",
+  "semanticsBenchmarkToggle": "Activar comparaciones cantonales",
+  "semanticsBenchmarkMetric": "{label}: {status}. Rango típico de {low} a {high}",
+  "@semanticsBenchmarkMetric": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "status": {"type": "String"},
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  },
+  "semanticsRecapPeriod": "Resumen del {start} al {end}",
+  "@semanticsRecapPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "semanticsRecapSection": "{title}: {content}",
+  "@semanticsRecapSection": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "content": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentFreeIn": "Libre de deudas en {months} meses",
+  "@semanticsRepaymentFreeIn": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "semanticsRepaymentDeleteDebt": "Eliminar deuda {name}",
+  "@semanticsRepaymentDeleteDebt": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentBudget": "Presupuesto mensual: {amount} francos. Toca para editar",
+  "@semanticsRepaymentBudget": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentValidate": "Confirmar valor",
+  "semanticsRepaymentStrategy": "{title}: {months} meses, intereses {interest} francos",
+  "@semanticsRepaymentStrategy": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "int"},
+      "interest": {"type": "String"}
+    }
+  },
+  "semanticsAvsDifference": "Diferencia anual: {amount} francos",
+  "@semanticsAvsDifference": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsMetricLabelValue": "{label}: {value}",
+  "@semanticsMetricLabelValue": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
+  "semanticsAvsTauxEffectif": "Tasa efectiva: {rate} por ciento",
+  "@semanticsAvsTauxEffectif": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  },
+  "semanticsDividendeSaving": "Ahorro: {amount} francos por año",
+  "@semanticsDividendeSaving": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsDividendeAdjust": "Ajusta el split para encontrar ahorros",
+  "semanticsDividendeRequalification": "Alerta: riesgo de recalificación fiscal si la parte salarial es inferior al 60 por ciento",
+  "semanticsLppCapitalisation": "Capitalización anual: {amount} francos",
+  "@semanticsLppCapitalisation": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsLppGain": "Ganancia con LPP voluntario: {amount} francos",
+  "@semanticsLppGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aLppToggle": "Afiliado LPP",
+  "semantics3aEconomieFiscale": "Ahorro fiscal: {amount} francos",
+  "@semantics3aEconomieFiscale": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aAvantageSalarie": "Ventaja sobre asalariado: {amount} francos",
+  "@semantics3aAvantageSalarie": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsCoachTabLabel": "Pestaña Coach MINT",
+  "semanticsRealReturnGain": "Ganancia respecto al ahorro: {amount} francos",
+  "@semanticsRealReturnGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  }
 }

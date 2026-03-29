@@ -11647,5 +11647,117 @@
   "pensionFundAvailable": "Disponibile",
   "pensionFundDisconnectTooltip": "Disconnettere",
   "pensionFundConnectButton": "Connettere",
-  "pensionFundDisclaimer": "MINT è uno strumento educativo in sola lettura (LSFin art.\u00a03). Nessuna transazione viene effettuata sui tuoi conti. Puoi disconnetterti in qualsiasi momento."
+  "pensionFundDisclaimer": "MINT è uno strumento educativo in sola lettura (LSFin art.\u00a03). Nessuna transazione viene effettuata sui tuoi conti. Puoi disconnetterti in qualsiasi momento.",
+
+  "semanticsBudgetStartButton": "Inizia a inserire il budget",
+  "semanticsBenchmarkToggle": "Attiva confronti cantonali",
+  "semanticsBenchmarkMetric": "{label}: {status}. Intervallo tipico da {low} a {high}",
+  "@semanticsBenchmarkMetric": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "status": {"type": "String"},
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  },
+  "semanticsRecapPeriod": "Riepilogo dal {start} al {end}",
+  "@semanticsRecapPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "semanticsRecapSection": "{title}: {content}",
+  "@semanticsRecapSection": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "content": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentFreeIn": "Senza debiti in {months} mesi",
+  "@semanticsRepaymentFreeIn": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "semanticsRepaymentDeleteDebt": "Elimina debito {name}",
+  "@semanticsRepaymentDeleteDebt": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentBudget": "Budget mensile: {amount} franchi. Tocca per modificare",
+  "@semanticsRepaymentBudget": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentValidate": "Conferma valore",
+  "semanticsRepaymentStrategy": "{title}: {months} mesi, interessi {interest} franchi",
+  "@semanticsRepaymentStrategy": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "int"},
+      "interest": {"type": "String"}
+    }
+  },
+  "semanticsAvsDifference": "Differenza annuale: {amount} franchi",
+  "@semanticsAvsDifference": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsMetricLabelValue": "{label}: {value}",
+  "@semanticsMetricLabelValue": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
+  "semanticsAvsTauxEffectif": "Tasso effettivo: {rate} percento",
+  "@semanticsAvsTauxEffectif": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  },
+  "semanticsDividendeSaving": "Risparmio: {amount} franchi all'anno",
+  "@semanticsDividendeSaving": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsDividendeAdjust": "Regola lo split per trovare un risparmio",
+  "semanticsDividendeRequalification": "Avviso: rischio di riqualificazione fiscale se la quota salariale è inferiore al 60 percento",
+  "semanticsLppCapitalisation": "Capitalizzazione annuale: {amount} franchi",
+  "@semanticsLppCapitalisation": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsLppGain": "Guadagno con LPP volontaria: {amount} franchi",
+  "@semanticsLppGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aLppToggle": "Affiliato LPP",
+  "semantics3aEconomieFiscale": "Risparmio fiscale: {amount} franchi",
+  "@semantics3aEconomieFiscale": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aAvantageSalarie": "Vantaggio rispetto al dipendente: {amount} franchi",
+  "@semantics3aAvantageSalarie": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsCoachTabLabel": "Scheda Coach MINT",
+  "semanticsRealReturnGain": "Guadagno rispetto al risparmio: {amount} franchi",
+  "@semanticsRealReturnGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  }
 }

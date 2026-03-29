@@ -43985,6 +43985,145 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'MINT est un outil éducatif en lecture seule (LSFin art. 3). Aucune transaction n’est effectuée sur tes comptes. Tu peux te déconnecter à tout moment.'**
   String get pensionFundDisclaimer;
+
+  /// No description provided for @semanticsBudgetStartButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer la saisie du budget'**
+  String get semanticsBudgetStartButton;
+
+  /// No description provided for @semanticsBenchmarkToggle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les comparaisons cantonales'**
+  String get semanticsBenchmarkToggle;
+
+  /// No description provided for @semanticsBenchmarkMetric.
+  ///
+  /// In fr, this message translates to:
+  /// **'{label} : {status}. Fourchette typique {low} à {high}'**
+  String semanticsBenchmarkMetric(
+      String label, String status, String low, String high);
+
+  /// No description provided for @semanticsRecapPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récapitulatif du {start} au {end}'**
+  String semanticsRecapPeriod(String start, String end);
+
+  /// No description provided for @semanticsRecapSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} : {content}'**
+  String semanticsRecapSection(String title, String content);
+
+  /// No description provided for @semanticsRepaymentFreeIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libéré dans {months} mois'**
+  String semanticsRepaymentFreeIn(int months);
+
+  /// No description provided for @semanticsRepaymentDeleteDebt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la dette {name}'**
+  String semanticsRepaymentDeleteDebt(String name);
+
+  /// No description provided for @semanticsRepaymentBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget mensuel : {amount} francs. Appuyer pour modifier'**
+  String semanticsRepaymentBudget(String amount);
+
+  /// No description provided for @semanticsRepaymentValidate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider la valeur'**
+  String get semanticsRepaymentValidate;
+
+  /// No description provided for @semanticsRepaymentStrategy.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} : {months} mois, intérêts {interest} francs'**
+  String semanticsRepaymentStrategy(String title, int months, String interest);
+
+  /// No description provided for @semanticsAvsDifference.
+  ///
+  /// In fr, this message translates to:
+  /// **'Différence annuelle : {amount} francs'**
+  String semanticsAvsDifference(String amount);
+
+  /// No description provided for @semanticsMetricLabelValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{label} : {value}'**
+  String semanticsMetricLabelValue(String label, String value);
+
+  /// No description provided for @semanticsAvsTauxEffectif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux effectif : {rate} pourcent'**
+  String semanticsAvsTauxEffectif(String rate);
+
+  /// No description provided for @semanticsDividendeSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie : {amount} francs par an'**
+  String semanticsDividendeSaving(String amount);
+
+  /// No description provided for @semanticsDividendeAdjust.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajuste le split pour trouver une économie'**
+  String get semanticsDividendeAdjust;
+
+  /// No description provided for @semanticsDividendeRequalification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte : risque de requalification fiscale si la part salaire est inférieure à 60 pourcent'**
+  String get semanticsDividendeRequalification;
+
+  /// No description provided for @semanticsLppCapitalisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capitalisation annuelle : {amount} francs'**
+  String semanticsLppCapitalisation(String amount);
+
+  /// No description provided for @semanticsLppGain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gain avec LPP volontaire : {amount} francs'**
+  String semanticsLppGain(String amount);
+
+  /// No description provided for @semantics3aLppToggle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affilié LPP'**
+  String get semantics3aLppToggle;
+
+  /// No description provided for @semantics3aEconomieFiscale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie fiscale : {amount} francs'**
+  String semantics3aEconomieFiscale(String amount);
+
+  /// No description provided for @semantics3aAvantageSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avantage sur salarié : {amount} francs'**
+  String semantics3aAvantageSalarie(String amount);
+
+  /// No description provided for @semanticsCoachTabLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Onglet Coach MINT'**
+  String get semanticsCoachTabLabel;
+
+  /// No description provided for @semanticsRealReturnGain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gain par rapport à l\'épargne : {amount} francs'**
+  String semanticsRealReturnGain(String amount);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

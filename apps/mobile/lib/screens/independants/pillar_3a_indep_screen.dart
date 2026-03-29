@@ -166,7 +166,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           ),
           Semantics(
             toggled: _affilieLpp,
-            label: 'Affilié LPP', // TODO: i18n
+            label: S.of(context)!.semantics3aLppToggle,
             child: Switch(
               value: _affilieLpp,
               onChanged: (v) {
@@ -240,7 +240,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     final r = _result!;
     if (r.avantageSurSalarie <= 0) {
       return Semantics(
-        label: 'Économie fiscale : ${IndependantsService.formatChf(r.economieFiscale)} francs', // TODO: i18n
+        label: S.of(context)!.semantics3aEconomieFiscale(IndependantsService.formatChf(r.economieFiscale)),
         child: MintSurface(
           tone: MintSurfaceTone.porcelaine,
           padding: const EdgeInsets.all(24),
@@ -258,7 +258,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     }
 
     return Semantics(
-      label: 'Avantage sur salarié : ${IndependantsService.formatChf(r.avantageSurSalarie)} francs', // TODO: i18n
+      label: S.of(context)!.semantics3aAvantageSalarie(IndependantsService.formatChf(r.avantageSurSalarie)),
       child: MintSurface(
         tone: MintSurfaceTone.sauge,
         padding: const EdgeInsets.all(24),
@@ -310,7 +310,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
   Widget _buildResultRow(String label, String value, {Color? color}) {
     return Semantics(
-      label: '$label : $value', // TODO: i18n
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -218,8 +218,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
     return Semantics(
       label: saving > 0
-          ? 'Économie : ${IndependantsService.formatChf(saving)} francs par an' // TODO: i18n
-          : 'Ajuste le split pour trouver une économie', // TODO: i18n
+          ? S.of(context)!.semanticsDividendeSaving(IndependantsService.formatChf(saving))
+          : S.of(context)!.semanticsDividendeAdjust,
       child: MintSurface(
         tone: saving > 0 ? MintSurfaceTone.sauge : MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(24),
@@ -244,7 +244,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildRequalificationAlert() {
     return Semantics(
-      label: 'Alerte : risque de requalification fiscale si la part salaire est inférieure à 60 pourcent', // TODO: i18n
+      label: S.of(context)!.semanticsDividendeRequalification,
       child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -342,7 +342,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     bool bold = false,
   }) {
     return Semantics(
-      label: '$label : $value', // TODO: i18n
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
       child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,

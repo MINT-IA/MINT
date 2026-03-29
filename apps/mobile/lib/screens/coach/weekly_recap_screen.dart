@@ -257,7 +257,7 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
 
     return Semantics(
       header: true,
-      label: 'Récapitulatif du $startLabel au $endLabel', // TODO: i18n
+      label: S.of(context)!.semanticsRecapPeriod(startLabel, endLabel),
       child: Text(
         l.recapPeriod(startLabel, endLabel),
         style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
@@ -286,7 +286,7 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
     final tone = _toneForType(section.type);
 
     return Semantics(
-      label: '${section.title} : ${section.content}', // TODO: i18n
+      label: S.of(context)!.semanticsRecapSection(section.title, section.content),
       child: MintSurface(
         tone: tone,
         padding: const EdgeInsets.all(MintSpacing.md),

@@ -24981,4 +24981,108 @@ class SDe extends S {
   @override
   String get pensionFundDisclaimer =>
       'MINT ist ein Bildungstool im Nur-Lese-Modus (FIDLEG Art. 3). Es werden keine Transaktionen auf deinen Konten durchgeführt. Du kannst dich jederzeit trennen.';
+
+  @override
+  String get semanticsBudgetStartButton => 'Budgeteingabe starten';
+
+  @override
+  String get semanticsBenchmarkToggle => 'Kantonale Vergleiche aktivieren';
+
+  @override
+  String semanticsBenchmarkMetric(
+      String label, String status, String low, String high) {
+    return '$label: $status. Typische Spanne $low bis $high';
+  }
+
+  @override
+  String semanticsRecapPeriod(String start, String end) {
+    return 'Zusammenfassung vom $start bis $end';
+  }
+
+  @override
+  String semanticsRecapSection(String title, String content) {
+    return '$title: $content';
+  }
+
+  @override
+  String semanticsRepaymentFreeIn(int months) {
+    return 'Schuldenfrei in $months Monaten';
+  }
+
+  @override
+  String semanticsRepaymentDeleteDebt(String name) {
+    return 'Schuld $name löschen';
+  }
+
+  @override
+  String semanticsRepaymentBudget(String amount) {
+    return 'Monatsbudget: $amount Franken. Tippen zum Bearbeiten';
+  }
+
+  @override
+  String get semanticsRepaymentValidate => 'Wert bestätigen';
+
+  @override
+  String semanticsRepaymentStrategy(String title, int months, String interest) {
+    return '$title: $months Monate, Zinsen $interest Franken';
+  }
+
+  @override
+  String semanticsAvsDifference(String amount) {
+    return 'Jährliche Differenz: $amount Franken';
+  }
+
+  @override
+  String semanticsMetricLabelValue(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String semanticsAvsTauxEffectif(String rate) {
+    return 'Effektiver Satz: $rate Prozent';
+  }
+
+  @override
+  String semanticsDividendeSaving(String amount) {
+    return 'Ersparnis: $amount Franken pro Jahr';
+  }
+
+  @override
+  String get semanticsDividendeAdjust =>
+      'Split anpassen, um Einsparungen zu finden';
+
+  @override
+  String get semanticsDividendeRequalification =>
+      'Warnung: Risiko der steuerlichen Umqualifizierung, wenn der Gehaltsanteil unter 60 Prozent liegt';
+
+  @override
+  String semanticsLppCapitalisation(String amount) {
+    return 'Jährliche Kapitalisierung: $amount Franken';
+  }
+
+  @override
+  String semanticsLppGain(String amount) {
+    return 'Gewinn mit freiwilliger BVG: $amount Franken';
+  }
+
+  @override
+  String get semantics3aLppToggle => 'BVG-angeschlossen';
+
+  @override
+  String semantics3aEconomieFiscale(String amount) {
+    return 'Steuerersparnis: $amount Franken';
+  }
+
+  @override
+  String semantics3aAvantageSalarie(String amount) {
+    return 'Vorteil gegenüber Angestellten: $amount Franken';
+  }
+
+  @override
+  String get semanticsCoachTabLabel => 'MINT Coach Tab';
+
+  @override
+  String semanticsRealReturnGain(String amount) {
+    return 'Gewinn im Vergleich zum Sparkonto: $amount Franken';
+  }
 }

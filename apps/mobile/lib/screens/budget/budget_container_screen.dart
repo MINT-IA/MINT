@@ -56,7 +56,7 @@ class BudgetContainerScreen extends StatelessWidget {
               const SizedBox(height: 32),
               Semantics(
                 button: true,
-                label: 'Commencer la saisie du budget', // TODO: i18n
+                label: S.of(context)!.semanticsBudgetStartButton,
                 child: FilledButton.icon(
                   onPressed: () => context.push('/advisor/wizard?section=budget'),
                   icon: const Icon(Icons.play_arrow_rounded),

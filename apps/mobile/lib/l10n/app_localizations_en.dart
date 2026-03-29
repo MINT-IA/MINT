@@ -24821,4 +24821,107 @@ class SEn extends S {
   @override
   String get pensionFundDisclaimer =>
       'MINT is a read-only educational tool (FinSA art. 3). No transactions are made on your accounts. You can disconnect at any time.';
+
+  @override
+  String get semanticsBudgetStartButton => 'Start entering your budget';
+
+  @override
+  String get semanticsBenchmarkToggle => 'Enable cantonal comparisons';
+
+  @override
+  String semanticsBenchmarkMetric(
+      String label, String status, String low, String high) {
+    return '$label: $status. Typical range $low to $high';
+  }
+
+  @override
+  String semanticsRecapPeriod(String start, String end) {
+    return 'Recap from $start to $end';
+  }
+
+  @override
+  String semanticsRecapSection(String title, String content) {
+    return '$title: $content';
+  }
+
+  @override
+  String semanticsRepaymentFreeIn(int months) {
+    return 'Debt-free in $months months';
+  }
+
+  @override
+  String semanticsRepaymentDeleteDebt(String name) {
+    return 'Delete debt $name';
+  }
+
+  @override
+  String semanticsRepaymentBudget(String amount) {
+    return 'Monthly budget: $amount francs. Tap to edit';
+  }
+
+  @override
+  String get semanticsRepaymentValidate => 'Confirm value';
+
+  @override
+  String semanticsRepaymentStrategy(String title, int months, String interest) {
+    return '$title: $months months, interest $interest francs';
+  }
+
+  @override
+  String semanticsAvsDifference(String amount) {
+    return 'Annual difference: $amount francs';
+  }
+
+  @override
+  String semanticsMetricLabelValue(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String semanticsAvsTauxEffectif(String rate) {
+    return 'Effective rate: $rate percent';
+  }
+
+  @override
+  String semanticsDividendeSaving(String amount) {
+    return 'Savings: $amount francs per year';
+  }
+
+  @override
+  String get semanticsDividendeAdjust => 'Adjust the split to find savings';
+
+  @override
+  String get semanticsDividendeRequalification =>
+      'Alert: risk of tax requalification if salary share is below 60 percent';
+
+  @override
+  String semanticsLppCapitalisation(String amount) {
+    return 'Annual capitalisation: $amount francs';
+  }
+
+  @override
+  String semanticsLppGain(String amount) {
+    return 'Gain with voluntary LPP: $amount francs';
+  }
+
+  @override
+  String get semantics3aLppToggle => 'LPP affiliated';
+
+  @override
+  String semantics3aEconomieFiscale(String amount) {
+    return 'Tax savings: $amount francs';
+  }
+
+  @override
+  String semantics3aAvantageSalarie(String amount) {
+    return 'Advantage over employee: $amount francs';
+  }
+
+  @override
+  String get semanticsCoachTabLabel => 'MINT Coach tab';
+
+  @override
+  String semanticsRealReturnGain(String amount) {
+    return 'Gain compared to savings: $amount francs';
+  }
 }
