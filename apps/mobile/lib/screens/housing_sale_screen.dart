@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -6,7 +7,10 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/housing_sale_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
@@ -120,11 +124,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            MintEntrance(child: _buildHeader()),
             const SizedBox(height: 24),
-            _buildIntroCard(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: 24),
-            _buildBienSection(),
+            MintEntrance(delay: const Duration(milliseconds: 150), child: _buildBienSection()),
             const SizedBox(height: 12),
             _buildFinancementSection(),
             const SizedBox(height: 12),
@@ -136,20 +140,20 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             const SizedBox(height: 24),
             if (_result != null) ...[
               Container(key: _resultsKey),
-              _buildPlusValueCard(),
+              MintEntrance(child: _buildPlusValueCard()),
               const SizedBox(height: 24),
-              _buildTaxCard(),
+              MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTaxCard()),
               const SizedBox(height: 24),
               if (_result!.remploiReport > 0) ...[
-                _buildRemploiResultCard(),
+                MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRemploiResultCard()),
                 const SizedBox(height: 24),
               ],
               if (_result!.remboursementEplLpp > 0 ||
                   _result!.remboursementEpl3a > 0) ...[
-                _buildEplRepaymentCard(),
+                MintEntrance(delay: const Duration(milliseconds: 150), child: _buildEplRepaymentCard()),
                 const SizedBox(height: 24),
               ],
-              _buildProduitNetCard(),
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildProduitNetCard()),
               const SizedBox(height: 24),
               if (_result!.alerts.isNotEmpty) ...[
                 _buildAlertsSection(),
@@ -420,10 +424,16 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
 
   // ── Simulate Button ──
   Widget _buildSimulateButton() {
-    return SizedBox(
+    return Semantics(
+      button: true,
+      label: S.of(context)!.housingSaleCalculer,
+      child: SizedBox(
       width: double.infinity,
       child: FilledButton.icon(
-        onPressed: _simulate,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          _simulate();
+        },
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
           S.of(context)!.housingSaleCalculer,
@@ -438,7 +448,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   // ── Plus-Value Card ──
@@ -633,29 +643,15 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   Widget _buildProduitNetCard() {
     final r = _result!;
     final isPositive = r.produitNet >= 0;
-    return Container(
+    return MintSurface(
+      tone: isPositive ? MintSurfaceTone.porcelaine : MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: (isPositive ? MintColors.primary : MintColors.error)
-            .withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: (isPositive ? MintColors.primary : MintColors.error)
-              .withValues(alpha: 0.15),
-        ),
-      ),
       child: Column(
         children: [
-          Text(
-            S.of(context)!.housingSaleProduitNetTitle,
-            style: MintTextStyles.labelSmall(
-              color: isPositive ? MintColors.primary : MintColors.error,
-            ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _chfFmt(r.produitNet),
-            style: MintTextStyles.displayMedium(color: isPositive ? MintColors.primary : MintColors.error),
+          MintHeroNumber(
+            value: _chfFmt(r.produitNet),
+            caption: S.of(context)!.housingSaleProduitNetTitle,
+            color: isPositive ? MintColors.primary : MintColors.error,
           ),
           const SizedBox(height: 16),
           // Breakdown

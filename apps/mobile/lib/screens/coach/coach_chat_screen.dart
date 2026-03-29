@@ -1176,6 +1176,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   }) async {
     // Capture localizations before async gap (use_build_context_synchronously)
     final l = S.of(context)!;
+    final languageCode = Localizations.localeOf(context).languageCode;
     try {
       final config = preAwaitConfig ?? _buildConfig();
       final response = await CoachLlmService.chat(
@@ -1184,6 +1185,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         history: _messages,
         config: config,
         memoryBlock: memoryBlock,
+        language: languageCode,
       );
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;

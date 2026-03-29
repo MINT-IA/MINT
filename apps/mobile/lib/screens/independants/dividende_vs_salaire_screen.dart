@@ -7,7 +7,10 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DIVIDENDE VS SALAIRE SCREEN — Sprint S18
@@ -59,24 +62,24 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                _buildBeneficeSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBeneficeSlider()),
                 const SizedBox(height: 20),
                 _buildPartSalaireSlider(),
                 const SizedBox(height: 20),
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  MintEntrance(child: _buildChiffreChoc()),
                   const SizedBox(height: 24),
                   if (_result!.requalificationRisk) ...[
-                    _buildRequalificationAlert(),
+                    MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRequalificationAlert()),
                     const SizedBox(height: 20),
                   ],
-                  _buildResultSection(),
+                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildResultSection()),
                   const SizedBox(height: 24),
-                  _buildCurveChart(),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCurveChart()),
                   const SizedBox(height: 24),
                   _buildEducation(),
                   const SizedBox(height: 24),
@@ -200,13 +203,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   }
 
   Widget _buildInputCard({required Widget child}) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: child,
     );
   }
@@ -221,27 +220,19 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
       label: saving > 0
           ? 'Économie : ${IndependantsService.formatChf(saving)} francs par an' // TODO: i18n
           : 'Ajuste le split pour trouver une économie', // TODO: i18n
-      child: Container(
+      child: MintSurface(
+        tone: saving > 0 ? MintSurfaceTone.sauge : MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: saving > 0 ? MintColors.success : MintColors.appleSurface,
-          borderRadius: BorderRadius.circular(20),
-        ),
         child: Column(
           children: [
-            Text(
-              IndependantsService.formatChf(saving),
-              style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              saving > 0
+            MintHeroNumber(
+              value: IndependantsService.formatChf(saving),
+              caption: saving > 0
                   ? 'Le split adapté te fait économiser '
                     '${IndependantsService.formatChf(saving)}/an '
                     'par rapport à 100% salaire'
                   : 'Ajuste le split pour trouver une économie',
-              style: MintTextStyles.bodyMedium(color: saving > 0 ? MintColors.white.withValues(alpha: 0.9) : MintColors.textSecondary),
-              textAlign: TextAlign.center,
+              color: saving > 0 ? MintColors.success : MintColors.primary,
             ),
           ],
         ),

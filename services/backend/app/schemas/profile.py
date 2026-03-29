@@ -84,6 +84,10 @@ class ProfileUpdate(BaseModel):
     hasAvsGaps: Optional[bool] = None
     avsContributionYears: Optional[int] = None
     spouseAvsContributionYears: Optional[int] = None
+    # FIX-114: Couple financial fields for household calculations
+    spouseSalaryGrossAnnual: Optional[float] = Field(None, ge=0)
+    spouseEmploymentStatus: Optional[str] = None
+    householdGrossIncome: Optional[float] = Field(None, ge=0)
     commune: Optional[str] = None
     isChurchMember: Optional[bool] = None
     pillar3aAnnual: Optional[float] = None

@@ -11586,5 +11586,66 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "commonConfirm": "Confirmar",
+
+  "b2bHubTitle": "Mi empresa",
+  "b2bHubInvalidCode": "Código inválido o expirado",
+  "b2bHubLeaveTitle": "¿Salir de la organización?",
+  "b2bHubLeaveBody": "Los módulos reservados para tu empresa ya no estarán accesibles.",
+  "b2bHubNarrativeHeadline": "Previsión de empresa",
+  "b2bHubNarrativeBody": "Si tu empleador usa MINT, introduce el código de invitación para acceder a los módulos de previsión reservados para empleados.",
+  "b2bHubInviteCodeLabel": "Código de invitación",
+  "b2bHubJoinButton": "Unirse",
+  "b2bHubJoinSemantics": "Unirse a la organización",
+  "b2bHubNoCodeHint": "¿Sin código? Pregunta a tu departamento de RRHH.",
+  "b2bHubEmployeeCount": "{count} empleados",
+  "@b2bHubEmployeeCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "b2bHubModulesTitle": "Tus módulos",
+  "b2bHubLeaveButton": "Salir de la organización",
+  "b2bModuleEducation": "Educación financiera",
+  "b2bModuleEducationSubtitle": "Artículos, conceptos y cuestionarios adaptados a tu situación",
+  "b2bModuleWellness": "Bienestar financiero",
+  "b2bModuleWellnessSubtitle": "Puntuación de salud financiera y recomendaciones",
+  "b2bModule3a": "Pilar 3a de empresa",
+  "b2bModule3aSubtitle": "Optimización y simulación del tercer pilar",
+  "b2bModuleLpp": "Previsión profesional (LPP)",
+  "b2bModuleLppSubtitle": "Análisis detallado de tu caja de pensiones",
+
+  "pensionFundTitle": "Datos certificados",
+  "pensionFundConnectionError": "Conexión no disponible en este momento",
+  "pensionFundDisconnectTitle": "¿Desconectar la caja?",
+  "pensionFundDisconnectBody": "Tus proyecciones volverán al modo «estimado» en lugar de «certificado».",
+  "pensionFundDisconnectButton": "Desconectar",
+  "pensionFundNarrativeHeadline": "Importación automática",
+  "pensionFundNarrativeBody": "Conecta tu caja de pensiones para reemplazar las estimaciones con tus datos reales. Solo lectura \u2014 MINT no modifica nada.",
+  "pensionFundAvailableTitle": "Cajas disponibles",
+  "pensionFundConnectedStatus": "{name}, conectado",
+  "@pensionFundConnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundDisconnectedStatus": "{name}, no conectado",
+  "@pensionFundDisconnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundSyncDate": "Sincro {date}",
+  "@pensionFundSyncDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "pensionFundReconnectionNeeded": "Reconexión necesaria",
+  "pensionFundAvailable": "Disponible",
+  "pensionFundDisconnectTooltip": "Desconectar",
+  "pensionFundConnectButton": "Conectar",
+  "pensionFundDisclaimer": "MINT es una herramienta educativa de solo lectura (LSFin art.\u00a03). No se realiza ninguna transacción en tus cuentas. Puedes desconectarte en cualquier momento."
 }

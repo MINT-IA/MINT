@@ -269,6 +269,7 @@ class CoachLlmService {
     required LlmConfig config,
     String? memoryBlock,
     Map<String, dynamic>? enrichedContext,
+    String language = 'fr',
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
@@ -282,6 +283,7 @@ class CoachLlmService {
       ctx: coachCtx,
       byokConfig: config.hasApiKey ? config : null,
       memoryBlock: memoryBlock,
+      language: language,
     );
 
     // If orchestrator returned a non-fallback response (SLM or BYOK succeeded),
@@ -326,6 +328,7 @@ class CoachLlmService {
     required LlmConfig config,
     required List<ChatMessage> history,
     Map<String, dynamic>? enrichedContext,
+    String language = 'fr',
   }) async {
     final ragService = RagService();
     final String provider;
@@ -361,6 +364,7 @@ class CoachLlmService {
       provider: provider,
       model: config.model,
       profileContext: profileContext,
+      language: language,
     );
 
     // Validate through ComplianceGuard (5-layer) in addition to backend filtering.

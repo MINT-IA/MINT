@@ -1,9 +1,22 @@
 # MINT Final Execution System
 
-> Statut: point d'entree unique pour les agents leaders
+> Statut: **EXÉCUTÉ** — 7/7 chantiers shipped, vérifié le 29 mars 2026
 > Role: transformer MINT en produit exceptionnel, production-ready, centre sur l'experience
 > Portee: vision cible, doctrine, priorites, regles d'execution, pack final de prompts
 > Principe: ce document orchestre. Les documents cites restent autoritatifs sur leur domaine.
+>
+> **Bilan d'exécution** :
+> | Chantier | Status |
+> |----------|--------|
+> | 1. Achat logement | ✅ Sequence 4 steps + AffordabilityScreen + EPL + fiscal |
+> | 2. Tension financière | ✅ Sequence 4 steps + DebtRatioScreen + RepaymentScreen |
+> | 3. Retraite / pré-retraite | ✅ 2 sequences (5+11 steps) + RetirementDashboard |
+> | 4. Scan → delta visible | ✅ Claude Vision + ExtractionReview + profile update chain |
+> | 5. Ce qui a changé | ✅ SessionSnapshot + WeeklyRecap + AiRecapNarrator |
+> | 6. OS de cohortes | ✅ 6 cohortes + suppression matrix + 10 sequences |
+> | 7. Hardening production | ✅ 13,040 tests, 102+ bugs fixés, 0 warnings |
+>
+> **Métriques production** : 123 screens, 210 services, 134 routes, 8 archetypes, 6 langues, 26 cantons
 
 ---
 

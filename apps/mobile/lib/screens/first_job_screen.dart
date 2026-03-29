@@ -1,5 +1,6 @@
 import 'dart:math' show pow;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -1031,6 +1032,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               button: true,
               child: GestureDetector(
                 onTap: () {
+                  HapticFeedback.lightImpact();
                   setState(() => _salaire = s.value);
                   _calculate();
                 },

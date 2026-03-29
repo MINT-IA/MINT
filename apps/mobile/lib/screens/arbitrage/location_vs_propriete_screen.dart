@@ -427,7 +427,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             child: SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: _recalculate,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _recalculate();
+                },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   foregroundColor: MintColors.white,

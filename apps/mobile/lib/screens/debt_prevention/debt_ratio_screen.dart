@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -11,6 +12,9 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -72,30 +76,45 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc gauge
-                _buildGaugeSection(result),
+                MintEntrance(child: _buildGaugeSection(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Sliders
-                _buildSlidersSection(),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 100),
+                  child: _buildSlidersSection(),
+                ),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Minimum vital
-                _buildMinimumVitalCard(result),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 200),
+                  child: _buildMinimumVitalCard(result),
+                ),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Recommandations
-                _buildRecommandationsSection(result),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 300),
+                  child: _buildRecommandationsSection(result),
+                ),
                 const SizedBox(height: MintSpacing.md),
 
                 // CTA contextuel → Plan de remboursement
                 if (result.niveau != DebtRiskLevel.vert)
-                  _buildRepaymentCta(result),
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 400),
+                    child: _buildRepaymentCta(result),
+                  ),
                 if (result.niveau != DebtRiskLevel.vert)
                   const SizedBox(height: MintSpacing.lg),
 
                 // Aide professionnelle
                 if (result.niveau == DebtRiskLevel.rouge) ...[
-                  _buildAideProfessionnelleSection(),
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 450),
+                    child: _buildAideProfessionnelleSection(),
+                  ),
                   const SizedBox(height: MintSpacing.lg),
                 ],
 
@@ -127,13 +146,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       DebtRiskLevel.rouge => S.of(context)!.debtRatioLevelCritique,
     };
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      elevated: true,
       child: Column(
         children: [
           // Semi-circle gauge
@@ -148,11 +163,13 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             ),
           ),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            '${result.ratio.toStringAsFixed(1)}%',
-            style: MintTextStyles.displayMedium(color: color),
+          MintHeroNumber(
+            value: '${result.ratio.toStringAsFixed(1)}%',
+            caption: S.of(context)!.debtRatioSubLabel,
+            color: color,
+            semanticsLabel: '${result.ratio.toStringAsFixed(1)}% — $label',
           ),
-          const SizedBox(height: MintSpacing.xs),
+          const SizedBox(height: MintSpacing.sm),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
             decoration: BoxDecoration(
@@ -164,11 +181,6 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               style: MintTextStyles.bodySmall(color: color)
                   .copyWith(fontWeight: FontWeight.w700),
             ),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            S.of(context)!.debtRatioSubLabel,
-            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           // Legende
@@ -740,16 +752,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   Widget _buildMinimumVitalCard(DebtRatioResult result) {
     final isMenace = result.minimumVitalMenace;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isMenace ? MintColors.urgentBg : MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isMenace ? MintColors.coralLight : MintColors.border,
-          width: isMenace ? 2 : 1,
-        ),
-      ),
+    return MintSurface(
+      tone: isMenace ? MintSurfaceTone.peche : MintSurfaceTone.blanc,
+      elevated: isMenace,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -829,13 +834,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   }
 
   Widget _buildRecommandationsSection(DebtRatioResult result) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -876,7 +877,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       label: S.of(context)!.debtRatioCtaSemantics,
       button: true,
       child: InkWell(
-        onTap: () => context.push('/debt/repayment'),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          context.push('/debt/repayment');
+        },
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(20),

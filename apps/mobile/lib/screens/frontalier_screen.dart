@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -8,6 +9,8 @@ import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -165,19 +168,33 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _buildTaxInputsCard(),
+        MintEntrance(child: _buildTaxInputsCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_taxResult != null) ...[
-          _buildTaxResultCard(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _buildTaxResultCard(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          if (_taxCanton == 'GE') _buildQuasiResidentBadge(),
+          if (_taxCanton == 'GE')
+            MintEntrance(
+              delay: const Duration(milliseconds: 200),
+              child: _buildQuasiResidentBadge(),
+            ),
           if (_taxCanton == 'GE') const SizedBox(height: MintSpacing.md + 4),
-          if (_taxResult!['isTessin'] == true) _buildTessinNote(),
+          if (_taxResult!['isTessin'] == true)
+            MintEntrance(
+              delay: const Duration(milliseconds: 200),
+              child: _buildTessinNote(),
+            ),
           if (_taxResult!['isTessin'] == true)
             const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
-          S.of(context)!.frontalierEducationalTax,
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildEducationalInsert(
+            S.of(context)!.frontalierEducationalTax,
+          ),
         ),
         const SizedBox(height: MintSpacing.md + 4),
         _buildDisclaimer(),
@@ -188,14 +205,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   Widget _buildTaxInputsCard() {
     final sortedCodes = ExpatService.sortedCantonCodes;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -277,6 +289,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                   selected: _taxMaritalStatus == 0,
                   child: GestureDetector(
                     onTap: () {
+                      HapticFeedback.lightImpact();
                       _taxMaritalStatus = 0;
                       _recalculateTax();
                     },
@@ -317,6 +330,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                   selected: _taxMaritalStatus == 1,
                   child: GestureDetector(
                     onTap: () {
+                      HapticFeedback.lightImpact();
                       _taxMaritalStatus = 1;
                       _recalculateTax();
                     },
@@ -390,14 +404,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final annualTax = result['annualTax'] as double;
     final cantonNom = result['cantonNom'] as String;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -418,20 +427,23 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: MintSpacing.md + 4),
 
           // Monthly tax hero
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  ExpatService.formatChf(monthlyTax),
-                  style: MintTextStyles.displayMedium(),
-                ),
-                const SizedBox(height: MintSpacing.xs),
-                Text(
-                  S.of(context)!.frontalierParMois,
-                  style: MintTextStyles.bodyMedium(
-                      color: MintColors.textMuted),
-                ),
-              ],
+          Semantics(
+            label: '${ExpatService.formatChf(monthlyTax)} ${S.of(context)!.frontalierParMois}',
+            child: Center(
+              child: Column(
+                children: [
+                  Text(
+                    ExpatService.formatChf(monthlyTax),
+                    style: MintTextStyles.displayMedium(),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(
+                    S.of(context)!.frontalierParMois,
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textMuted),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: MintSpacing.md + 4),
@@ -583,18 +595,30 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _build90DayInputCard(),
+        MintEntrance(child: _build90DayInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_ruleResult != null) ...[
-          _build90DayGauge(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _build90DayGauge(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _build90DayRecommendation(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _build90DayRecommendation(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _build90DayLegalRef(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 250),
+            child: _build90DayLegalRef(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
-          S.of(context)!.frontalierEducational90Days,
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildEducationalInsert(
+            S.of(context)!.frontalierEducational90Days,
+          ),
         ),
         const SizedBox(height: MintSpacing.md + 4),
         _buildDisclaimer(),
@@ -698,9 +722,12 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: MintSpacing.md + 4),
 
           // Big number
-          Text(
-            '$riskDays',
-            style: MintTextStyles.displayLarge(color: gaugeColor),
+          Semantics(
+            label: '$riskDays ${S.of(context)!.frontalierJoursHomeOfficeLabel}',
+            child: Text(
+              '$riskDays',
+              style: MintTextStyles.displayLarge(color: gaugeColor),
+            ),
           ),
           Text(
             S.of(context)!.frontalierJoursHomeOfficeLabel,
@@ -934,18 +961,30 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        _buildChargesInputCard(),
+        MintEntrance(child: _buildChargesInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_chargesResult != null) ...[
-          _buildChargesComparison(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _buildChargesComparison(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _buildChargesDifferenceBadge(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _buildChargesDifferenceBadge(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _buildLamalSection(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 250),
+            child: _buildLamalSection(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        _buildEducationalInsert(
-          S.of(context)!.frontalierEducationalCharges,
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildEducationalInsert(
+            S.of(context)!.frontalierEducationalCharges,
+          ),
         ),
         const SizedBox(height: MintSpacing.md + 4),
         _buildDisclaimer(),
@@ -1001,6 +1040,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     selected: isSelected,
                     child: GestureDetector(
                       onTap: () {
+                        HapticFeedback.lightImpact();
                         _chargesCountry = country;
                         _recalculateCharges();
                       },

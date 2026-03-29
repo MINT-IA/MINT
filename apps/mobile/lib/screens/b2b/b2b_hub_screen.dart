@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/b2b/b2b_organization_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -58,7 +59,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Code invalide ou expiré')), // TODO: i18n
+          SnackBar(content: Text(S.of(context)!.b2bHubInvalidCode)),
         );
         setState(() => _loading = false);
       }
@@ -70,20 +71,20 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Quitter l\u2019organisation\u00a0?', // TODO: i18n
+        title: Text(S.of(context)!.b2bHubLeaveTitle,
             style: MintTextStyles.headlineMedium()),
         content: Text(
-          'Les modules réservés à ton entreprise ne seront plus accessibles.',
+          S.of(context)!.b2bHubLeaveBody,
           style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
-        ), // TODO: i18n
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Annuler', style: MintTextStyles.bodyMedium()),
+            child: Text(S.of(context)!.commonCancel, style: MintTextStyles.bodyMedium()),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirmer'),
+            child: Text(S.of(context)!.commonConfirm),
           ),
         ],
       ),
@@ -116,7 +117,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
           backgroundColor: MintColors.primary,
           foregroundColor: MintColors.white,
           flexibleSpace: FlexibleSpaceBar(
-            title: Text('Mon entreprise', // TODO: i18n
+            title: Text(S.of(context)!.b2bHubTitle,
                 style: MintTextStyles.titleMedium(color: MintColors.white)),
             background: Container(
               decoration: const BoxDecoration(
@@ -139,12 +140,10 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
             delegate: SliverChildListDelegate([
               MintEntrance(
                 child: MintNarrativeCard(
-                  headline: 'Prévoyance d\u2019entreprise',
-                  body: 'Si ton employeur utilise MINT, entre le code '
-                      'd\u2019invitation pour accéder aux modules de '
-                      'prévoyance réservés à tes collaborateurs.',
+                  headline: S.of(context)!.b2bHubNarrativeHeadline,
+                  body: S.of(context)!.b2bHubNarrativeBody,
                   tone: MintSurfaceTone.porcelaine,
-                ), // TODO: i18n
+                ),
               ),
               const SizedBox(height: MintSpacing.xl),
 
@@ -157,7 +156,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
                   elevated: true,
                   child: Column(
                     children: [
-                      Text('Code d\u2019invitation', // TODO: i18n
+                      Text(S.of(context)!.b2bHubInviteCodeLabel,
                           style: MintTextStyles.bodySmall(
                               color: MintColors.textMuted)),
                       const SizedBox(height: MintSpacing.md),
@@ -183,7 +182,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
                         width: double.infinity,
                         child: Semantics(
                           button: true,
-                          label: 'Rejoindre l\u2019organisation',
+                          label: S.of(context)!.b2bHubJoinSemantics,
                           child: FilledButton(
                             onPressed: _joinOrganization,
                             style: FilledButton.styleFrom(
@@ -192,7 +191,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            child: Text('Rejoindre', // TODO: i18n
+                            child: Text(S.of(context)!.b2bHubJoinButton,
                                 style: MintTextStyles.titleMedium(
                                     color: MintColors.white)),
                           ),
@@ -207,10 +206,10 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
               MintEntrance(
                 delay: const Duration(milliseconds: 400),
                 child: Text(
-                  'Pas de code\u00a0? Demande à ton département RH.',
+                  S.of(context)!.b2bHubNoCodeHint,
                   style: MintTextStyles.bodySmall(color: MintColors.textMuted),
                   textAlign: TextAlign.center,
-                ), // TODO: i18n
+                ),
               ),
             ]),
           ),
@@ -281,9 +280,9 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${org.employeeCount} collaborateurs',
+                              S.of(context)!.b2bHubEmployeeCount(org.employeeCount.toString()),
                               style: MintTextStyles.bodyMedium(),
-                            ), // TODO: i18n
+                            ),
                             const SizedBox(height: 2),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -310,7 +309,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
               // Section title
               MintEntrance(
                 delay: const Duration(milliseconds: 100),
-                child: Text('Tes modules', // TODO: i18n
+                child: Text(S.of(context)!.b2bHubModulesTitle,
                     style: MintTextStyles.headlineMedium()),
               ),
               const SizedBox(height: MintSpacing.md),
@@ -334,7 +333,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
                 child: TextButton(
                   onPressed: _leaveOrganization,
                   child: Text(
-                    'Quitter l\u2019organisation', // TODO: i18n
+                    S.of(context)!.b2bHubLeaveButton,
                     style: MintTextStyles.bodySmall(color: MintColors.textMuted),
                   ),
                 ),
@@ -348,29 +347,30 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
   }
 
   Widget _buildModuleCard(String module) {
+    final l = S.of(context)!;
     final (icon, label, subtitle, route) = switch (module) {
       'education' => (
         Icons.school_outlined,
-        'Éducation financière',
-        'Articles, concepts, et quiz adaptés à ta situation',
+        l.b2bModuleEducation,
+        l.b2bModuleEducationSubtitle,
         '/explorer',
       ),
       'wellness' => (
         Icons.favorite_outline,
-        'Bien-être financier',
-        'Score de santé financière et recommandations',
+        l.b2bModuleWellness,
+        l.b2bModuleWellnessSubtitle,
         '/home',
       ),
       '3a' => (
         Icons.savings_outlined,
-        'Pilier 3a entreprise',
-        'Optimisation et simulation du 3e pilier',
+        l.b2bModule3a,
+        l.b2bModule3aSubtitle,
         '/pilier-3a',
       ),
       'lpp' => (
         Icons.account_balance_outlined,
-        'Prévoyance LPP',
-        'Analyse détaillée de ta caisse de pension',
+        l.b2bModuleLpp,
+        l.b2bModuleLppSubtitle,
         '/lpp-deep',
       ),
       _ => (

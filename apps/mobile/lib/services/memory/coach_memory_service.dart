@@ -95,6 +95,21 @@ class CoachMemoryService {
     }
   }
 
+  /// FIX-068: Notify backend to remove orphaned embedding after local prune.
+  static Future<void> _syncRemoveToBackend(String insightId) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return;
+      await http.delete(
+        Uri.parse('$baseUrl/api/v1/coach/sync-insight/$insightId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+    } catch (_) {
+      // Fire-and-forget: cleanup failure is not user-facing.
+    }
+  }
+
   /// Filter metadata before sending to backend (defense-in-depth).
   /// Only safe keys are transmitted — PII never leaves the device.
   static Map<String, dynamic> _filterMetadata(Map<String, dynamic> meta) {
@@ -143,9 +158,15 @@ class CoachMemoryService {
 
     if (insights.length <= _maxInsights) return;
 
-    // Already sorted most-recent-first; keep head
+    // FIX-068: Identify pruned insights for backend cleanup.
     final pruned = insights.take(_maxInsights).toList();
+    final removed = insights.skip(_maxInsights).toList();
     await _save(sp, pruned);
+
+    // Fire-and-forget: notify backend to remove orphaned embeddings.
+    for (final insight in removed) {
+      _syncRemoveToBackend(insight.id).catchError((_) {});
+    }
   }
 
   /// Clear all stored insights.

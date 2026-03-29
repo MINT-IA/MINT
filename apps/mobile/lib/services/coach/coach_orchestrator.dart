@@ -177,6 +177,7 @@ class CoachOrchestrator {
     required CoachContext ctx,
     LlmConfig? byokConfig,
     String? memoryBlock,
+    String language = 'fr',
   }) async {
     // Build system prompt with optional memory block injection (S58).
     // Pan5-1: Use PromptRegistry.chatSystemPrompt (enriched, context-aware)
@@ -214,6 +215,7 @@ class CoachOrchestrator {
         config: byokConfig,
         ctx: ctx,
         memoryBlock: memoryBlock,
+        language: language,
       );
       if (byokResponse != null) return byokResponse;
     }
@@ -527,6 +529,7 @@ class CoachOrchestrator {
     required LlmConfig config,
     required CoachContext ctx,
     String? memoryBlock,
+    String language = 'fr',
   }) async {
     final ragService = RagService();
     final providerStr = _llmProviderString(config.provider);
@@ -570,6 +573,7 @@ class CoachOrchestrator {
               ...ctx.knownValues.map((k, v) =>
                   MapEntry(k, v.isFinite && v > 0 ? v : null)),
             },
+            language: language,
             // Pass tools so Claude can return route_to_screen tool_use blocks.
             tools: providerStr == 'claude' ? _coachTools : null,
           )

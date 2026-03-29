@@ -11586,5 +11586,66 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "commonConfirm": "Bestätigen",
+
+  "b2bHubTitle": "Mein Unternehmen",
+  "b2bHubInvalidCode": "Ungültiger oder abgelaufener Code",
+  "b2bHubLeaveTitle": "Organisation verlassen?",
+  "b2bHubLeaveBody": "Die für dein Unternehmen reservierten Module sind dann nicht mehr zugänglich.",
+  "b2bHubNarrativeHeadline": "Betriebliche Vorsorge",
+  "b2bHubNarrativeBody": "Wenn dein Arbeitgeber MINT nutzt, gib den Einladungscode ein, um auf die Vorsorgemodule für Mitarbeitende zuzugreifen.",
+  "b2bHubInviteCodeLabel": "Einladungscode",
+  "b2bHubJoinButton": "Beitreten",
+  "b2bHubJoinSemantics": "Organisation beitreten",
+  "b2bHubNoCodeHint": "Kein Code? Frag deine HR-Abteilung.",
+  "b2bHubEmployeeCount": "{count} Mitarbeitende",
+  "@b2bHubEmployeeCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "b2bHubModulesTitle": "Deine Module",
+  "b2bHubLeaveButton": "Organisation verlassen",
+  "b2bModuleEducation": "Finanzbildung",
+  "b2bModuleEducationSubtitle": "Artikel, Konzepte und Quizze passend zu deiner Situation",
+  "b2bModuleWellness": "Finanzielles Wohlbefinden",
+  "b2bModuleWellnessSubtitle": "Finanzieller Gesundheitsscore und Empfehlungen",
+  "b2bModule3a": "Säule 3a über den Arbeitgeber",
+  "b2bModule3aSubtitle": "Optimierung und Simulation der 3. Säule",
+  "b2bModuleLpp": "Berufliche Vorsorge (BVG)",
+  "b2bModuleLppSubtitle": "Detaillierte Analyse deiner Pensionskasse",
+
+  "pensionFundTitle": "Zertifizierte Daten",
+  "pensionFundConnectionError": "Verbindung momentan nicht möglich",
+  "pensionFundDisconnectTitle": "Pensionskasse trennen?",
+  "pensionFundDisconnectBody": "Deine Projektionen werden wieder auf den Modus «geschätzt» statt «zertifiziert» zurückgesetzt.",
+  "pensionFundDisconnectButton": "Trennen",
+  "pensionFundNarrativeHeadline": "Automatischer Import",
+  "pensionFundNarrativeBody": "Verbinde deine Pensionskasse, um Schätzungen durch deine echten Daten zu ersetzen. Nur Lesezugriff \u2014 MINT ändert nichts.",
+  "pensionFundAvailableTitle": "Verfügbare Kassen",
+  "pensionFundConnectedStatus": "{name}, verbunden",
+  "@pensionFundConnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundDisconnectedStatus": "{name}, nicht verbunden",
+  "@pensionFundDisconnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundSyncDate": "Synchro {date}",
+  "@pensionFundSyncDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "pensionFundReconnectionNeeded": "Erneute Verbindung erforderlich",
+  "pensionFundAvailable": "Verfügbar",
+  "pensionFundDisconnectTooltip": "Trennen",
+  "pensionFundConnectButton": "Verbinden",
+  "pensionFundDisclaimer": "MINT ist ein Bildungstool im Nur-Lese-Modus (FIDLEG Art.\u00a03). Es werden keine Transaktionen auf deinen Konten durchgeführt. Du kannst dich jederzeit trennen."
 }

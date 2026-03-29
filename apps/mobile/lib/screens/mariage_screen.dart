@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -511,7 +512,10 @@ class _MariageScreenState extends State<MariageScreen>
       button: true,
       selected: isSelected,
       child: GestureDetector(
-        onTap: () => setState(() => _selectedRegime = index),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          setState(() => _selectedRegime = index);
+        },
         child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(MintSpacing.md),

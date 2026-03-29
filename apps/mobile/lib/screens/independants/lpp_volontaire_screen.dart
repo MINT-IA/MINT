@@ -6,8 +6,11 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LPP VOLONTAIRE SCREEN — Sprint S18 / Independants complet
@@ -59,22 +62,22 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                _buildRevenuSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRevenuSlider()),
                 const SizedBox(height: 20),
                 _buildAgeSlider(),
                 const SizedBox(height: 20),
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  MintEntrance(child: _buildChiffreChoc()),
                   const SizedBox(height: 24),
-                  _buildResultCards(),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultCards()),
                   const SizedBox(height: 24),
-                  _buildRetirementComparison(),
+                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRetirementComparison()),
                   const SizedBox(height: 24),
-                  _buildAgeTable(),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeTable()),
                   const SizedBox(height: 24),
                   _buildEducation(),
                   const SizedBox(height: 24),
@@ -190,13 +193,9 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
   }
 
   Widget _buildInputCard({required Widget child}) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: child,
     );
   }
@@ -207,23 +206,15 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
     final r = _result!;
     return Semantics(
       label: 'Capitalisation annuelle : ${IndependantsService.formatChf(r.capitalisationAnnuelle)} francs', // TODO: i18n
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.peche,
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: MintColors.error,
-          borderRadius: BorderRadius.circular(20),
-        ),
         child: Column(
           children: [
-            Text(
-              IndependantsService.formatChf(r.capitalisationAnnuelle),
-              style: MintTextStyles.displayMedium(color: MintColors.white),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              S.of(context)!.lppVolontaireChiffreChocCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
-              style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
-              textAlign: TextAlign.center,
+            MintHeroNumber(
+              value: IndependantsService.formatChf(r.capitalisationAnnuelle),
+              caption: S.of(context)!.lppVolontaireChiffreChocCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
+              color: MintColors.error,
             ),
           ],
         ),

@@ -24851,4 +24851,134 @@ class SDe extends S {
 
   @override
   String get loadingGeneric => 'Wird geladen…';
+
+  @override
+  String get commonConfirm => 'Bestätigen';
+
+  @override
+  String get b2bHubTitle => 'Mein Unternehmen';
+
+  @override
+  String get b2bHubInvalidCode => 'Ungültiger oder abgelaufener Code';
+
+  @override
+  String get b2bHubLeaveTitle => 'Organisation verlassen?';
+
+  @override
+  String get b2bHubLeaveBody =>
+      'Die für dein Unternehmen reservierten Module sind dann nicht mehr zugänglich.';
+
+  @override
+  String get b2bHubNarrativeHeadline => 'Betriebliche Vorsorge';
+
+  @override
+  String get b2bHubNarrativeBody =>
+      'Wenn dein Arbeitgeber MINT nutzt, gib den Einladungscode ein, um auf die Vorsorgemodule für Mitarbeitende zuzugreifen.';
+
+  @override
+  String get b2bHubInviteCodeLabel => 'Einladungscode';
+
+  @override
+  String get b2bHubJoinButton => 'Beitreten';
+
+  @override
+  String get b2bHubJoinSemantics => 'Organisation beitreten';
+
+  @override
+  String get b2bHubNoCodeHint => 'Kein Code? Frag deine HR-Abteilung.';
+
+  @override
+  String b2bHubEmployeeCount(String count) {
+    return '$count Mitarbeitende';
+  }
+
+  @override
+  String get b2bHubModulesTitle => 'Deine Module';
+
+  @override
+  String get b2bHubLeaveButton => 'Organisation verlassen';
+
+  @override
+  String get b2bModuleEducation => 'Finanzbildung';
+
+  @override
+  String get b2bModuleEducationSubtitle =>
+      'Artikel, Konzepte und Quizze passend zu deiner Situation';
+
+  @override
+  String get b2bModuleWellness => 'Finanzielles Wohlbefinden';
+
+  @override
+  String get b2bModuleWellnessSubtitle =>
+      'Finanzieller Gesundheitsscore und Empfehlungen';
+
+  @override
+  String get b2bModule3a => 'Säule 3a über den Arbeitgeber';
+
+  @override
+  String get b2bModule3aSubtitle => 'Optimierung und Simulation der 3. Säule';
+
+  @override
+  String get b2bModuleLpp => 'Berufliche Vorsorge (BVG)';
+
+  @override
+  String get b2bModuleLppSubtitle =>
+      'Detaillierte Analyse deiner Pensionskasse';
+
+  @override
+  String get pensionFundTitle => 'Zertifizierte Daten';
+
+  @override
+  String get pensionFundConnectionError => 'Verbindung momentan nicht möglich';
+
+  @override
+  String get pensionFundDisconnectTitle => 'Pensionskasse trennen?';
+
+  @override
+  String get pensionFundDisconnectBody =>
+      'Deine Projektionen werden wieder auf den Modus «geschätzt» statt «zertifiziert» zurückgesetzt.';
+
+  @override
+  String get pensionFundDisconnectButton => 'Trennen';
+
+  @override
+  String get pensionFundNarrativeHeadline => 'Automatischer Import';
+
+  @override
+  String get pensionFundNarrativeBody =>
+      'Verbinde deine Pensionskasse, um Schätzungen durch deine echten Daten zu ersetzen. Nur Lesezugriff — MINT ändert nichts.';
+
+  @override
+  String get pensionFundAvailableTitle => 'Verfügbare Kassen';
+
+  @override
+  String pensionFundConnectedStatus(String name) {
+    return '$name, verbunden';
+  }
+
+  @override
+  String pensionFundDisconnectedStatus(String name) {
+    return '$name, nicht verbunden';
+  }
+
+  @override
+  String pensionFundSyncDate(String date) {
+    return 'Synchro $date';
+  }
+
+  @override
+  String get pensionFundReconnectionNeeded => 'Erneute Verbindung erforderlich';
+
+  @override
+  String get pensionFundAvailable => 'Verfügbar';
+
+  @override
+  String get pensionFundDisconnectTooltip => 'Trennen';
+
+  @override
+  String get pensionFundConnectButton => 'Verbinden';
+
+  @override
+  String get pensionFundDisclaimer =>
+      'MINT ist ein Bildungstool im Nur-Lese-Modus (FIDLEG Art. 3). Es werden keine Transaktionen auf deinen Konten durchgeführt. Du kannst dich jederzeit trennen.';
 }

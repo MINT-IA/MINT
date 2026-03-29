@@ -9,6 +9,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
 import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
@@ -173,19 +176,31 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
-        _buildForfaitInputCard(),
+        MintEntrance(child: _buildForfaitInputCard()),
         const SizedBox(height: MintSpacing.lg),
         if (_forfaitResult != null) ...[
-          _buildForfaitResultCard(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _buildForfaitResultCard(),
+          ),
           const SizedBox(height: MintSpacing.lg),
         ],
-        _buildAbolishedWarning(),
-        const SizedBox(height: MintSpacing.lg),
-        _buildEducationalInsert(
-          S.of(context)!.expatForfaitEducation,
+        MintEntrance(
+          delay: const Duration(milliseconds: 200),
+          child: _buildAbolishedWarning(),
         ),
         const SizedBox(height: MintSpacing.lg),
-        _buildTopCantonSection(),
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildEducationalInsert(
+            S.of(context)!.expatForfaitEducation,
+          ),
+        ),
+        const SizedBox(height: MintSpacing.lg),
+        MintEntrance(
+          delay: const Duration(milliseconds: 400),
+          child: _buildTopCantonSection(),
+        ),
         const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
@@ -251,14 +266,9 @@ class _ExpatScreenState extends State<ExpatScreen>
       _forfaitCanton = eligibleCantons.first;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -370,14 +380,9 @@ class _ExpatScreenState extends State<ExpatScreen>
     final forfaitBase = result['forfaitBase'] as double;
     final isFavorable = result['isFavorable'] as bool;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -586,46 +591,35 @@ class _ExpatScreenState extends State<ExpatScreen>
       children: [
         // ── Chiffre-choc hero for Tab 2 ──
         if (totalCapital > 0)
-          Padding(
-            padding: const EdgeInsets.only(bottom: MintSpacing.lg),
-            child: Semantics(
-              label: l.expatDepartChiffreChoc(
-                  ExpatService.formatChf(totalCapital)),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(MintSpacing.lg),
-                decoration: BoxDecoration(
-                  color: MintColors.info.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: MintColors.info.withValues(alpha: 0.15)),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      ExpatService.formatChf(totalCapital),
-                      style: MintTextStyles.displayMedium(
-                          color: MintColors.info),
-                    ),
-                    const SizedBox(height: MintSpacing.xs),
-                    Text(
-                      l.expatDepartChiffreChoc(
-                          ExpatService.formatChf(totalCapital)),
-                      style: MintTextStyles.bodySmall(
-                          color: MintColors.textSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+          MintEntrance(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: MintSpacing.lg),
+              child: MintResultHeroCard(
+                eyebrow: l.expatTabDeparture.toUpperCase(),
+                primaryValue: ExpatService.formatChf(totalCapital),
+                primaryLabel: l.expatDepartChiffreChoc(
+                    ExpatService.formatChf(totalCapital)),
+                narrative: l.expatDepartChiffreChoc(
+                    ExpatService.formatChf(totalCapital)),
+                accentColor: MintColors.info,
+                tone: MintSurfaceTone.bleu,
               ),
             ),
           ),
 
-        _buildDepartInputCard(),
+        MintEntrance(
+          delay: const Duration(milliseconds: 100),
+          child: _buildDepartInputCard(),
+        ),
         const SizedBox(height: MintSpacing.lg),
-        _buildNoExitTaxBadge(),
+        MintEntrance(
+          delay: const Duration(milliseconds: 150),
+          child: _buildNoExitTaxBadge(),
+        ),
         const SizedBox(height: MintSpacing.lg),
-        ExpatCountdownWidget(
+        MintEntrance(
+          delay: const Duration(milliseconds: 200),
+          child: ExpatCountdownWidget(
           departureDate: _departureDate,
           deadlines: const [
             ExpatDeadline(
@@ -657,17 +651,29 @@ class _ExpatScreenState extends State<ExpatScreen>
             ),
           ],
         ),
+        ),
         const SizedBox(height: MintSpacing.lg),
         if (_departResult != null) ...[
-          _buildDepartTimeline(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 250),
+            child: _buildDepartTimeline(),
+          ),
           const SizedBox(height: MintSpacing.lg),
-          _buildDepartChecklist(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 300),
+            child: _buildDepartChecklist(),
+          ),
           const SizedBox(height: MintSpacing.lg),
         ],
-        _buildEducationalInsert(l.expatTab2EduInsert),
+        MintEntrance(
+          delay: const Duration(milliseconds: 350),
+          child: _buildEducationalInsert(l.expatTab2EduInsert),
+        ),
         const SizedBox(height: MintSpacing.lg),
         // ── P13-A : 5 choses que tu perds en partant ───────────
-        const ExpatRightsLossWidget(
+        const MintEntrance(
+          delay: Duration(milliseconds: 400),
+          child: ExpatRightsLossWidget(
           destination: 'l\'\u00e9tranger',
           isEuDestination: false,
           rights: [
@@ -723,6 +729,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   'local s\'applique \u2014 souvent moins g\u00e9n\u00e9reux.',
             ),
           ],
+        ),
         ),
         const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
@@ -1206,53 +1213,47 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
-        _buildAvsInputCard(),
+        MintEntrance(child: _buildAvsInputCard()),
         const SizedBox(height: MintSpacing.lg),
         if (_avsResult != null) ...[
           // ── Chiffre-choc hero for Tab 3 ──
           if ((_avsResult!['annualLoss'] as double) > 0)
-            Padding(
-              padding: const EdgeInsets.only(bottom: MintSpacing.lg),
-              child: Semantics(
-                label: l.expatAvsChiffreChoc(ExpatService.formatChf(
-                    _avsResult!['annualLoss'] as double)),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(MintSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: MintColors.error.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                        color: MintColors.error.withValues(alpha: 0.15)),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        '-${ExpatService.formatChf(_avsResult!['annualLoss'] as double)}',
-                        style: MintTextStyles.displayMedium(
-                            color: MintColors.error),
-                      ),
-                      const SizedBox(height: MintSpacing.xs),
-                      Text(
-                        l.expatAvsChiffreChoc(ExpatService.formatChf(
-                            _avsResult!['annualLoss'] as double)),
-                        style: MintTextStyles.bodySmall(
-                            color: MintColors.textSecondary),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+            MintEntrance(
+              delay: const Duration(milliseconds: 100),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: MintSpacing.lg),
+                child: MintResultHeroCard(
+                  eyebrow: l.expatTabAvs.toUpperCase(),
+                  primaryValue: '-${ExpatService.formatChf(_avsResult!['annualLoss'] as double)}',
+                  primaryLabel: l.expatAvsChiffreChoc(ExpatService.formatChf(
+                      _avsResult!['annualLoss'] as double)),
+                  narrative: l.expatAvsChiffreChoc(ExpatService.formatChf(
+                      _avsResult!['annualLoss'] as double)),
+                  accentColor: MintColors.error,
+                  tone: MintSurfaceTone.porcelaine,
                 ),
               ),
             ),
 
-          _buildAvsRingChart(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _buildAvsRingChart(),
+          ),
           const SizedBox(height: MintSpacing.lg),
-          _buildAvsReductionCard(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 250),
+            child: _buildAvsReductionCard(),
+          ),
           const SizedBox(height: MintSpacing.lg),
-          _buildAvsVoluntarySection(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 300),
+            child: _buildAvsVoluntarySection(),
+          ),
           const SizedBox(height: MintSpacing.lg),
-          _buildAvsRecommendation(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 350),
+            child: _buildAvsRecommendation(),
+          ),
           const SizedBox(height: MintSpacing.lg),
         ],
         Builder(builder: (context) {

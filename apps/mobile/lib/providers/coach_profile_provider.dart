@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -638,13 +639,22 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Replace the current profile with an updated one and persist via answers.
   void updateProfile(CoachProfile updated) {
+    final previousStatus = _profile?.etatCivil;
     _profile = updated;
     _profileUpdatedSinceBudget = true;
     notifyListeners();
-    // FIX-045: Persist ALL profile fields (not just housing) so changes
-    // survive app restart. Previously only housing fields were persisted,
-    // causing silent data loss on canton, salary, LPP, 3a changes.
+    // FIX-045: Persist ALL profile fields.
     _persistFullProfile(updated);
+    // FIX-097: If civil status changed to non-coupled, dissolve household.
+    if (previousStatus != null &&
+        previousStatus != updated.etatCivil &&
+        updated.etatCivil != CoachCivilStatus.marie &&
+        updated.etatCivil != CoachCivilStatus.concubinage) {
+      // FIX-097: Clear local household state on divorce (fire-and-forget).
+      SharedPreferences.getInstance().then((sp) {
+        sp.remove('_household_data');
+      }).catchError((_) {});
+    }
   }
 
   Future<void> _persistFullProfile(CoachProfile profile) async {
@@ -868,10 +878,34 @@ class CoachProfileProvider extends ChangeNotifier {
   /// dans les answers wizard pour coherence au redemarrage.
   ///
   /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document A
+  /// FIX-095: Previous prevoyance backup for undo capability.
+  PrevoyanceProfile? _previousPrevoyance;
+
+  /// FIX-095: Get the previous prevoyance state (before last extraction).
+  PrevoyanceProfile? get previousPrevoyance => _previousPrevoyance;
+
+  /// FIX-094: Check if new LPP data diverges significantly from existing.
+  /// Returns the delta percentage if > 30%, null otherwise.
+  double? checkLppDivergence(List<ExtractedField> fields) {
+    if (_profile == null) return null;
+    final currentAvoir = _profile!.prevoyance.avoirLppTotal;
+    if (currentAvoir == null || currentAvoir <= 0) return null;
+    final newAvoir = fields
+        .where((f) => f.fieldName == 'avoirLppTotal' || f.fieldName == 'avoir_lpp_total')
+        .firstOrNull?.value;
+    if (newAvoir == null) return null;
+    final newVal = newAvoir is num ? newAvoir.toDouble() : double.tryParse(newAvoir.toString()) ?? 0;
+    if (newVal <= 0) return null;
+    final deltaPct = ((newVal - currentAvoir) / currentAvoir * 100).abs();
+    return deltaPct > 30 ? deltaPct : null;
+  }
+
   Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
     if (_profile == null) return;
 
     final p = _profile!;
+    // FIX-095: Save previous state for undo capability.
+    _previousPrevoyance = p.prevoyance;
 
     // Extract values from confirmed fields
     double? avoirTotal;

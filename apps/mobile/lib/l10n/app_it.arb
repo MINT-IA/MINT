@@ -11586,5 +11586,66 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "commonConfirm": "Confermare",
+
+  "b2bHubTitle": "La mia azienda",
+  "b2bHubInvalidCode": "Codice non valido o scaduto",
+  "b2bHubLeaveTitle": "Lasciare l\u2019organizzazione?",
+  "b2bHubLeaveBody": "I moduli riservati alla tua azienda non saranno più accessibili.",
+  "b2bHubNarrativeHeadline": "Previdenza aziendale",
+  "b2bHubNarrativeBody": "Se il tuo datore di lavoro utilizza MINT, inserisci il codice d\u2019invito per accedere ai moduli di previdenza riservati ai collaboratori.",
+  "b2bHubInviteCodeLabel": "Codice d\u2019invito",
+  "b2bHubJoinButton": "Aderire",
+  "b2bHubJoinSemantics": "Aderire all\u2019organizzazione",
+  "b2bHubNoCodeHint": "Nessun codice? Chiedi al tuo dipartimento HR.",
+  "b2bHubEmployeeCount": "{count} collaboratori",
+  "@b2bHubEmployeeCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "b2bHubModulesTitle": "I tuoi moduli",
+  "b2bHubLeaveButton": "Lasciare l\u2019organizzazione",
+  "b2bModuleEducation": "Educazione finanziaria",
+  "b2bModuleEducationSubtitle": "Articoli, concetti e quiz adattati alla tua situazione",
+  "b2bModuleWellness": "Benessere finanziario",
+  "b2bModuleWellnessSubtitle": "Punteggio di salute finanziaria e raccomandazioni",
+  "b2bModule3a": "Pilastro 3a aziendale",
+  "b2bModule3aSubtitle": "Ottimizzazione e simulazione del terzo pilastro",
+  "b2bModuleLpp": "Previdenza professionale (LPP)",
+  "b2bModuleLppSubtitle": "Analisi dettagliata della tua cassa pensione",
+
+  "pensionFundTitle": "Dati certificati",
+  "pensionFundConnectionError": "Connessione non disponibile al momento",
+  "pensionFundDisconnectTitle": "Disconnettere la cassa?",
+  "pensionFundDisconnectBody": "Le tue proiezioni torneranno in modalità «stimato» anziché «certificato».",
+  "pensionFundDisconnectButton": "Disconnettere",
+  "pensionFundNarrativeHeadline": "Importazione automatica",
+  "pensionFundNarrativeBody": "Collega la tua cassa pensione per sostituire le stime con i tuoi dati reali. Solo lettura \u2014 MINT non modifica nulla.",
+  "pensionFundAvailableTitle": "Casse disponibili",
+  "pensionFundConnectedStatus": "{name}, connesso",
+  "@pensionFundConnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundDisconnectedStatus": "{name}, non connesso",
+  "@pensionFundDisconnectedStatus": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pensionFundSyncDate": "Sincro {date}",
+  "@pensionFundSyncDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "pensionFundReconnectionNeeded": "Riconnessione necessaria",
+  "pensionFundAvailable": "Disponibile",
+  "pensionFundDisconnectTooltip": "Disconnettere",
+  "pensionFundConnectButton": "Connettere",
+  "pensionFundDisclaimer": "MINT è uno strumento educativo in sola lettura (LSFin art.\u00a03). Nessuna transazione viene effettuata sui tuoi conti. Puoi disconnetterti in qualsiasi momento."
 }
