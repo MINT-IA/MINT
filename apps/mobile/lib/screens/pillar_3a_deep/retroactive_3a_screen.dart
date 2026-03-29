@@ -118,7 +118,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           title: S.of(context)!.retroactive3aEmptyTitle,
           subtitle: S.of(context)!.retroactive3aEmptySubtitle,
           ctaLabel: S.of(context)!.retroactive3aEmptyCta,
-          onCta: () => context.push('/onboarding'),
+          onCta: () => context.push('/onboarding/quick'),
         ),
       );
     }
