@@ -272,6 +272,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
     }
+    // FIX-171: Check for orphan sequence runs (app killed mid-sequence).
+    // Auto-abandon if stale (> 24h), otherwise show recovery card.
+    _checkOrphanSequence();
+
     // Voice (S63/Sprint E): initialize integration and probe availability.
     _voiceChatIntegration = VoiceChatIntegration(voice: _voiceService);
     _initVoiceAvailability();
@@ -281,6 +285,23 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   /// Probe STT / TTS availability — fires once on mount.
   /// Updates state only if mounted; degrades gracefully on error.
+  /// FIX-171: Recover from orphan sequence (app killed mid-sequence).
+  Future<void> _checkOrphanSequence() async {
+    try {
+      final run = await SequenceStore.load();
+      if (run == null || run.activeStepId == null) return;
+      // If the run is > 24 hours old, auto-abandon
+      final age = DateTime.now().difference(
+          DateTime.fromMillisecondsSinceEpoch(
+              int.tryParse(run.runId.split('_').last) ?? 0));
+      if (age.inHours > 24) {
+        await SequenceStore.clear();
+        debugPrint('[CoachChat] Abandoned stale sequence: ${run.runId}');
+      }
+      // Otherwise the existing sequence UI will pick it up naturally
+    } catch (_) {}
+  }
+
   Future<void> _initVoiceAvailability() async {
     try {
       final stt = await _voiceService.isAvailable();
@@ -2383,6 +2404,12 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (lower.contains('impot') || lower.contains('fiscal')) {
       return '/fiscal';
     }
+    // Weekly recap chip
+    if (lower.contains('recap') || lower.contains('semaine') || lower.contains('/weekly')) {
+      return '/weekly-recap';
+    }
+    // Direct route intents (from ProactiveTriggerService intentTag)
+    if (action.startsWith('/')) return action;
     // No route → send as chat message
     return null;
   }

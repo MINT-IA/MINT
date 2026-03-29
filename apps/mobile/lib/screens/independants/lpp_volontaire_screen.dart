@@ -214,7 +214,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             MintHeroNumber(
               value: IndependantsService.formatChf(r.capitalisationAnnuelle),
               caption: S.of(context)!.lppVolontaireChiffreChocCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
-              color: MintColors.error,
+              color: MintColors.success,
             ),
           ],
         ),
@@ -359,7 +359,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             label: S.of(context)!.lppVolontaireSansLpp,
             value: r.projectionSansLpp,
             ratio: sansRatio,
-            color: MintColors.error,
+            color: MintColors.success,
           ),
           const SizedBox(height: 16),
 
