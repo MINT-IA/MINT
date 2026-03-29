@@ -5,12 +5,9 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
-import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -52,7 +49,7 @@ class _DonationScreenState extends State<DonationScreen> {
   double _montant = 100000;
   int _donateurAge = 55;
   String _lienParente = 'descendant';
-  String _canton = 'ZH';
+  String _canton = 'VD';
   String _typeDonation = 'especes';
   double _valeurImmobiliere = 500000;
   bool _avancementHoirie = true;
@@ -69,10 +66,10 @@ class _DonationScreenState extends State<DonationScreen> {
   static List<String> get _cantons => sortedCantonCodes;
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
-  Map<String, String> _typesDonationLabels(S s) => {
-    'especes': s.donationTypeEspeces,
-    'immobilier': s.donationTypeImmobilier,
-    'titres': s.donationTypeTitres,
+  static const _typesDonationLabels = {
+    'especes': 'Espèces / Liquidités',
+    'immobilier': 'Immobilier',
+    'titres': 'Titres / Valeurs mobilières',
   };
 
   static const _liensParente = [
@@ -84,42 +81,11 @@ class _DonationScreenState extends State<DonationScreen> {
     'tiers',
   ];
 
-  Map<String, String> _regimesLabels(S s) => {
-    'participation_acquets': s.donationRegimeParticipation,
-    'communaute_biens': s.donationRegimeCommunaute,
-    'separation_biens': s.donationRegimeSeparation,
+  static const _regimesLabels = {
+    'participation_acquets': 'Participation aux acquêts',
+    'communaute_biens': 'Communauté de biens',
+    'separation_biens': 'Séparation de biens',
   };
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
-  }
-
-  void _initializeFromProfile() {
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      setState(() {
-        if (profile.canton.isNotEmpty) {
-          _canton = profile.canton;
-        }
-        if (profile.age > 0) {
-          _donateurAge = profile.age;
-        }
-        if (profile.nombreEnfants > 0) {
-          _nbEnfants = profile.nombreEnfants;
-        }
-        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
-        if (totalPatrimoine > 0) {
-          _fortuneTotaleDonateur = totalPatrimoine;
-        }
-      });
-    } catch (_) {}
-  }
 
   @override
   void dispose() {
@@ -163,21 +129,21 @@ class _DonationScreenState extends State<DonationScreen> {
       appBar: AppBar(
         title: Text(S.of(context)!.donationAppBarTitle),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            MintEntrance(child: _buildHeader()),
+            _buildHeader(),
             const SizedBox(height: 24),
-            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
+            _buildIntroCard(),
             const SizedBox(height: 24),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDonationSection()),
+            _buildDonationSection(),
             const SizedBox(height: 12),
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSuccessionContextSection()),
+            _buildSuccessionContextSection(),
             const SizedBox(height: 24),
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSimulateButton()),
+            _buildSimulateButton(),
             const SizedBox(height: 24),
             if (_result != null) ...[
               Container(key: _resultsKey),
@@ -202,15 +168,18 @@ class _DonationScreenState extends State<DonationScreen> {
             const SizedBox(height: 40),
           ],
         ),
-      ))),
+      ),
     );
   }
 
   // ── Header ──
   Widget _buildHeader() {
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Row(
         children: [
           Container(
@@ -281,14 +250,13 @@ class _DonationScreenState extends State<DonationScreen> {
       accentColor: MintColors.indigo,
       child: Column(
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.donationMontantLabel,
             value: _montant,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _montant = v),
             min: 10000,
             max: 2000000,
-            divisions: 199,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _montant = v),
           ),
           const SizedBox(height: 16),
           _buildLienParenteChips(),
@@ -298,14 +266,13 @@ class _DonationScreenState extends State<DonationScreen> {
           _buildTypeDonationChips(),
           if (_typeDonation == 'immobilier') ...[
             const SizedBox(height: 16),
-            _buildSlider(
+            MintAmountField(
               label: S.of(context)!.donationValeurImmobiliere,
               value: _valeurImmobiliere,
+              formatValue: (v) => _chfFmt(v),
+              onChanged: (v) => setState(() => _valeurImmobiliere = v),
               min: 100000,
               max: 3000000,
-              divisions: 58,
-              format: (v) => _chfFmt(v),
-              onChanged: (v) => setState(() => _valeurImmobiliere = v),
             ),
           ],
           const SizedBox(height: 16),
@@ -328,35 +295,32 @@ class _DonationScreenState extends State<DonationScreen> {
       accentColor: MintColors.indigo,
       child: Column(
         children: [
-          _buildSlider(
+          MintPickerTile(
             label: S.of(context)!.donationAgeLabel,
-            value: _donateurAge.toDouble(),
-            min: 18,
-            max: 95,
-            divisions: 77,
-            format: (v) => '${v.toInt()} ans',
-            onChanged: (v) => setState(() => _donateurAge = v.toInt()),
+            value: _donateurAge,
+            minValue: 18,
+            maxValue: 95,
+            formatValue: (v) => '$v ans',
+            onChanged: (v) => setState(() => _donateurAge = v),
           ),
           const SizedBox(height: 16),
-          _buildSlider(
+          MintPickerTile(
             label: S.of(context)!.donationNbEnfants,
-            value: _nbEnfants.toDouble(),
-            min: 0,
-            max: 6,
-            divisions: 6,
-            format: (v) => '${v.toInt()}',
-            onChanged: (v) => setState(() => _nbEnfants = v.toInt()),
+            value: _nbEnfants,
+            minValue: 0,
+            maxValue: 6,
+            formatValue: (v) => '$v',
+            onChanged: (v) => setState(() => _nbEnfants = v),
           ),
           const SizedBox(height: 16),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.donationFortuneTotale,
             value: _fortuneTotaleDonateur,
-            min: 0,
-            max: 5000000,
-            divisions: 100,
-            format: (v) => _chfFmt(v),
+            formatValue: (v) => _chfFmt(v),
             onChanged: (v) =>
                 setState(() => _fortuneTotaleDonateur = v),
+            min: 0,
+            max: 5000000,
           ),
           const SizedBox(height: 16),
           _buildRegimeChips(),
@@ -432,7 +396,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
             return Semantics(
-              label: _typesDonationLabels(S.of(context)!)[type] ?? type,
+              label: _typesDonationLabels[type] ?? type,
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -453,7 +417,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _typesDonationLabels(S.of(context)!)[type] ?? type,
+                  _typesDonationLabels[type] ?? type,
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -485,7 +449,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: regimes.map((regime) {
             final selected = _regimeMatrimonial == regime;
             return Semantics(
-              label: _regimesLabels(S.of(context)!)[regime] ?? regime,
+              label: _regimesLabels[regime] ?? regime,
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -506,7 +470,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _regimesLabels(S.of(context)!)[regime] ?? regime,
+                  _regimesLabels[regime] ?? regime,
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -674,7 +638,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          S.of(context)!.donationReserveBarLabel((reservePct * 100).toStringAsFixed(0)),
+                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -688,7 +652,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: quotitePct > 0.15
                       ? Text(
-                          S.of(context)!.donationDisponibleBarLabel((quotitePct * 100).toStringAsFixed(0)),
+                          'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -812,10 +776,12 @@ class _DonationScreenState extends State<DonationScreen> {
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
           const SizedBox(height: 12),
-          MintSurface(
-            tone: MintSurfaceTone.porcelaine,
+          Container(
             padding: const EdgeInsets.all(12),
-            radius: 12,
+            decoration: BoxDecoration(
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Row(
               children: [
                 const Icon(Icons.info_outline,
@@ -992,9 +958,12 @@ class _DonationScreenState extends State<DonationScreen> {
 
   // ── Expandable Tile ──
   Widget _buildExpandableTile(String title, String content) {
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
-      radius: 16,
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
@@ -1033,7 +1002,10 @@ class _DonationScreenState extends State<DonationScreen> {
           Expanded(
             child: Text(
               _result?.disclaimer ??
-                  S.of(context)!.donationDisclaimerFallback,
+                  'Cet outil éducatif fournit des estimations indicatives et '
+                      'ne constitue pas un conseil juridique, fiscal ou notarial '
+                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
+                      '(notaire) pour ta situation.',
               style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),
@@ -1052,10 +1024,13 @@ class _DonationScreenState extends State<DonationScreen> {
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         const SizedBox(height: MintSpacing.sm),
-        MintSurface(
-          tone: MintSurfaceTone.porcelaine,
+        Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          radius: 12,
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.border),
+          ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _canton,
@@ -1124,28 +1099,4 @@ class _DonationScreenState extends State<DonationScreen> {
     );
   }
 
-  // ── Slider ──
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String Function(double) format,
-    required void Function(double) onChanged,
-  }) {
-    return MintPremiumSlider(
-      label: label,
-      value: value,
-      min: min,
-      max: max,
-      divisions: divisions,
-      formatValue: format,
-      onChanged: (v) {
-        setState(() {
-          onChanged(v);
-        });
-      },
-    );
-  }
 }
