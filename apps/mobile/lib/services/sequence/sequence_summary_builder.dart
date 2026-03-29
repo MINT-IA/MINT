@@ -34,9 +34,9 @@ List<SequenceSummaryItem> buildSequenceSummary({
     'preretraite_complete' => _buildPreretraiteSummary(allOutputs, loc),
     'couple_financier' => _buildCoupleSummary(allOutputs, loc),
     'naissance_couts' => _buildNaissanceSummary(allOutputs, loc),
-    'premiers_pas' => _build3aSummary(allOutputs, loc), // Reuses 3a summary
-    'densification' => _buildRetirementSummary(allOutputs, loc), // Reuses retirement
-    'retraite_active' => _buildTensionSummary(allOutputs, loc), // Reuses budget summary
+    'premiers_pas' => _buildPremiersPasSummary(allOutputs, loc),
+    'densification' => _buildDensificationSummary(allOutputs, loc),
+    'retraite_active' => _buildRetraiteActiveSummary(allOutputs, loc),
     _ => const [],
   };
 }
@@ -81,6 +81,101 @@ List<SequenceSummaryItem> _buildNaissanceSummary(
       icon: Icons.discount_outlined,
       label: l.summaryEconomieFiscale,
       value: 'CHF\u00a0${formatChf(economieFiscale.toDouble())}',
+    ));
+  }
+
+  return items;
+}
+
+List<SequenceSummaryItem> _buildPremiersPasSummary(
+  Map<String, Map<String, dynamic>> outputs, S l,
+) {
+  final items = <SequenceSummaryItem>[];
+
+  // Step 2: Budget
+  final step2 = outputs['pp_02_budget'];
+  final revenu = step2?['revenu_net'];
+  if (revenu is num && revenu > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.account_balance_wallet_outlined,
+      label: l.summaryRevenuNet,
+      value: 'CHF\u00a0${formatChf(revenu.toDouble())}',
+    ));
+  }
+
+  // Step 3: 3a
+  final step3 = outputs['pp_03_3a'];
+  final economie = step3?['economie_fiscale'];
+  if (economie is num && economie > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.discount_outlined,
+      label: l.summaryEconomieFiscale,
+      value: 'CHF\u00a0${formatChf(economie.toDouble())}',
+    ));
+  }
+
+  return items;
+}
+
+List<SequenceSummaryItem> _buildDensificationSummary(
+  Map<String, Map<String, dynamic>> outputs, S l,
+) {
+  final items = <SequenceSummaryItem>[];
+
+  // Step 1: Projection
+  final step1 = outputs['dens_01_projection'];
+  final taux = step1?['taux_remplacement'];
+  if (taux is num && taux > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.speed_outlined,
+      label: l.summaryTauxRemplacement,
+      value: '${taux.toStringAsFixed(0)}\u00a0%',
+    ));
+  }
+  final gap = step1?['gap_mensuel'];
+  if (gap is num && gap > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.warning_amber_outlined,
+      label: l.summaryEcartMensuel,
+      value: 'CHF\u00a0${formatChf(gap.toDouble())}',
+    ));
+  }
+
+  // Step 3: LPP buyback (optional)
+  final step3 = outputs['dens_03_buyback'];
+  final economie = step3?['economie_rachat'];
+  if (economie is num && economie > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.trending_up_outlined,
+      label: l.summaryEconomieRachat,
+      value: 'CHF\u00a0${formatChf(economie.toDouble())}',
+    ));
+  }
+
+  return items;
+}
+
+List<SequenceSummaryItem> _buildRetraiteActiveSummary(
+  Map<String, Map<String, dynamic>> outputs, S l,
+) {
+  final items = <SequenceSummaryItem>[];
+
+  // Step 1: Budget retraite
+  final step1 = outputs['ra_01_budget'];
+  final revenu = step1?['revenu_net'];
+  if (revenu is num && revenu > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.account_balance_wallet_outlined,
+      label: l.summaryRevenuNet,
+      value: 'CHF\u00a0${formatChf(revenu.toDouble())}',
+    ));
+  }
+  final charges = step1?['charges_totales'];
+  if (charges is num && charges > 0) {
+    items.add(SequenceSummaryItem(
+      icon: Icons.receipt_outlined,
+      label: l.summaryChargesFixes,
+      value: 'CHF\u00a0${formatChf(charges.toDouble())}',
     ));
   }
 

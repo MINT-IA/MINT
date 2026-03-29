@@ -575,6 +575,7 @@ class SequenceTemplate {
       'life_event_first_job' => premiersPas,
       'disability_gap' || 'disability_insurance_flow' => densification,
       'succession_patrimoine' => retraiteActive,
+      // 75+ uses retraiteActive (same journey, simplified)
       'simulator_3a' || 'tax_optimization_3a' => optimize3a,
       'debt_ratio' || 'debt_repayment' || 'debt_risk_check' => financialTension,
       _ => null,
