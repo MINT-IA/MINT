@@ -70,6 +70,8 @@ import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
 import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
 import 'package:mint_mobile/screens/expert/expert_tier_screen.dart';
 import 'package:mint_mobile/screens/coach/weekly_recap_screen.dart';
+import 'package:mint_mobile/screens/b2b/b2b_hub_screen.dart';
+import 'package:mint_mobile/screens/institutional/pension_fund_connect_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
@@ -874,6 +876,16 @@ final _router = GoRouter(
       path: '/expert-tier',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ExpertTierScreen(),
+    ),
+    GoRoute(
+      path: '/b2b',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const B2bHubScreen(),
+    ),
+    GoRoute(
+      path: '/pension-fund-connect',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PensionFundConnectScreen(),
     ),
     GoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
     GoRoute(path: '/advisor/wizard', redirect: (context, state) {
