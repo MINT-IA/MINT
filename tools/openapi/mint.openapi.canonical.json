@@ -14127,6 +14127,8 @@
           "birthYear": {
             "anyOf": [
               {
+                "maximum": 2025.0,
+                "minimum": 1900.0,
                 "type": "integer"
               },
               {
@@ -14257,6 +14259,7 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14268,6 +14271,7 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -26025,6 +26029,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Calendar Notifications",
         "tags": [
           "Notifications S36"
@@ -26067,6 +26076,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Generate Event Notifications",
         "tags": [
           "Notifications S36"
@@ -26109,6 +26123,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Check Milestones",
         "tags": [
           "Notifications S36"
@@ -28040,6 +28059,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Create Scenario",
         "tags": [
           "scenarios"
@@ -28088,6 +28112,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "List Scenarios",
         "tags": [
           "scenarios"

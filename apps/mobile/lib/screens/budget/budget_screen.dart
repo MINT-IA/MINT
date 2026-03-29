@@ -33,6 +33,7 @@ import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -186,6 +187,27 @@ class _BudgetScreenState extends State<BudgetScreen>
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    if (widget.inputs.netIncome <= 0) {
+      return Scaffold(
+        backgroundColor: MintColors.porcelaine,
+        appBar: AppBar(
+          backgroundColor: MintColors.porcelaine,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
+          surfaceTintColor: MintColors.transparent,
+          title: Text(l.budgetMonthlyTitle,
+              style: MintTextStyles.headlineMedium()),
+        ),
+        body: MintEmptyState(
+          icon: Icons.account_balance_wallet_outlined,
+          // TODO: i18n
+          title: 'Ton budget',
+          subtitle: 'Renseigne ton salaire pour creer ton budget personnalise',
+          ctaLabel: 'Ajouter mon salaire',
+          onCta: () => context.push('/onboarding'),
+        ),
+      );
+    }
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturn();

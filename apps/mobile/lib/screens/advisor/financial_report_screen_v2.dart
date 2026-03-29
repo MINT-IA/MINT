@@ -19,6 +19,7 @@ import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
@@ -50,6 +51,31 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (wizardAnswers.isEmpty) {
+      return Scaffold(
+        backgroundColor: MintColors.surface,
+        appBar: AppBar(
+          title: Text(S.of(context)!.reportTonPlanMint,
+              style: MintTextStyles.titleMedium(
+                  color: MintColors.textPrimary)),
+          backgroundColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () => context.go('/home'),
+          ),
+        ),
+        body: MintEmptyState(
+          icon: Icons.assessment_outlined,
+          // TODO: i18n
+          title: 'Ton bilan financier',
+          subtitle: 'Complete ton profil pour generer ton bilan personnalise',
+          ctaLabel: 'Completer mon profil',
+          onCta: () => context.go('/onboarding'),
+        ),
+      );
+    }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);

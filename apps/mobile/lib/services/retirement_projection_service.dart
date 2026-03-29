@@ -209,23 +209,12 @@ class RetirementProjectionService {
     final revenuMensuel =
         incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
-    // Pre-retirement income (net) via NetIncomeBreakdown
-    final userBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.revenuBrutAnnuel,
-      canton: profile.canton,
-      age: profile.age,
-    );
-    final conjBreakdown = profile.conjoint != null
-        ? NetIncomeBreakdown.compute(
-            grossSalary: profile.conjoint!.revenuBrutAnnuel,
-            canton: profile.canton,
-            age: profile.conjoint!.age ?? 45,
-          )
-        : null;
-    final revenuPreRetraite = userBreakdown.monthlyNetPayslip +
-        (conjBreakdown?.monthlyNetPayslip ?? 0);
+    // FIX-074: Use GROSS income for taux de remplacement (standard suisse).
+    // Was using NET, causing 12-point discrepancy vs ForecasterService.
+    final revenuBrutMensuel = profile.revenuBrutAnnuel / 12 +
+        (profile.conjoint?.revenuBrutAnnuel ?? 0) / 12;
     final tauxRemplacement =
-        revenuPreRetraite > 0 ? revenuMensuel / revenuPreRetraite * 100 : 0.0;
+        revenuBrutMensuel > 0 ? revenuMensuel / revenuBrutMensuel * 100 : 0.0;
 
     // 2. Couple phases
     final phases = _computePhases(
@@ -261,7 +250,7 @@ class RetirementProjectionService {
     return RetirementProjectionResult(
       revenuMensuelAt65: revenuMensuel,
       tauxRemplacement: tauxRemplacement,
-      revenuPreRetraiteMensuel: revenuPreRetraite,
+      revenuPreRetraiteMensuel: revenuBrutMensuel,
       isCouple: profile.isCouple && profile.conjoint != null,
       phases: phases,
       earlyRetirementComparisons: earlyComparisons,

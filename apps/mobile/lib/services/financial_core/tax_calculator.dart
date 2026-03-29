@@ -63,6 +63,9 @@ class NetIncomeBreakdown {
     required int age,
     String etatCivil = 'celibataire',
     int nombreEnfants = 0,
+    // FIX-101: Cross-border workers use withholding tax (impôt à la source),
+    // which is typically 10-20% lower than ordinary taxation.
+    bool isCrossBorder = false,
   }) {
     if (grossSalary <= 0) {
       return NetIncomeBreakdown(
@@ -88,14 +91,33 @@ class NetIncomeBreakdown {
           salaireCoord * totalBonif / 2; // ~50% part employe (LPP art. 66)
     }
 
-    // 3. Impot sur le revenu (via FiscalService, 26 cantons)
-    final taxResult = FiscalService.estimateTax(
-      revenuBrut: grossSalary,
-      canton: canton,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-    );
-    final incomeTax = (taxResult['chargeTotale'] as double?) ?? 0;
+    // 3. Impot sur le revenu
+    double incomeTax;
+    if (isCrossBorder) {
+      // FIX-101: Cross-border workers → impôt à la source (withholding tax).
+      // Simplified: cantonal withholding rate is typically ~4.5-10% of gross.
+      // Exact rates depend on canton + family situation + bilateral treaty.
+      // Educational estimate only — source: Administration fédérale des contributions.
+      const baseWithholdingRates = {
+        'GE': 0.145, 'VD': 0.135, 'VS': 0.105, 'NE': 0.125, 'JU': 0.115,
+        'FR': 0.120, 'BS': 0.130, 'BL': 0.125, 'AG': 0.110, 'ZH': 0.115,
+        'TI': 0.100, 'SG': 0.105, 'TG': 0.100, 'GR': 0.095,
+      };
+      final baseRate = baseWithholdingRates[canton.toUpperCase()] ?? 0.12;
+      // Family adjustment: married -20%, per child -5%
+      final familyFactor = (etatCivil == 'marie' ? 0.80 : 1.0) -
+          (nombreEnfants * 0.05).clamp(0.0, 0.20);
+      incomeTax = grossSalary * baseRate * familyFactor;
+    } else {
+      // Ordinary taxation (via FiscalService, 26 cantons)
+      final taxResult = FiscalService.estimateTax(
+        revenuBrut: grossSalary,
+        canton: canton,
+        etatCivil: etatCivil,
+        nombreEnfants: nombreEnfants,
+      );
+      incomeTax = (taxResult['chargeTotale'] as double?) ?? 0;
+    }
 
     return NetIncomeBreakdown(
       grossSalary: grossSalary,

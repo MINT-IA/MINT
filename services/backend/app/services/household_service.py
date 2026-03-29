@@ -59,14 +59,17 @@ def get_household_details(db: Session, user: User) -> dict:
     if not household:
         return {"household": None, "members": [], "role": None}
 
+    # FIX-032: single query with join instead of N+1 per member.
+    from sqlalchemy.orm import joinedload
     members = (
         db.query(HouseholdMemberModel)
         .filter(HouseholdMemberModel.household_id == household.id)
+        .options(joinedload(HouseholdMemberModel.user))
         .all()
     )
     member_list = []
     for m in members:
-        u = db.query(User).filter(User.id == m.user_id).first()
+        u = m.user  # pre-loaded via joinedload
         member_list.append({
             "user_id": m.user_id,
             "email": u.email if u else None,
@@ -279,7 +282,16 @@ def accept_invitation(db: Session, user: User, invitation_code: str) -> dict:
             detail="Cette invitation a expire",
         )
 
-    # Check household is not full (INV-5)
+    # FIX-062: Lock the household row to prevent TOCTOU race on member count.
+    # FOR UPDATE is PostgreSQL-only; skip on SQLite (test/dev).
+    from sqlalchemy import text
+    try:
+        db.execute(
+            text("SELECT 1 FROM households WHERE id = :hid FOR UPDATE"),
+            {"hid": str(member.household_id)},
+        )
+    except Exception:
+        pass  # SQLite doesn't support FOR UPDATE — acceptable in dev/test
     active_count = (
         db.query(HouseholdMemberModel)
         .filter(

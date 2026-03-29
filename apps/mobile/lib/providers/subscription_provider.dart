@@ -17,6 +17,7 @@ import 'package:mint_mobile/services/subscription_service.dart';
 /// ```
 class SubscriptionProvider extends ChangeNotifier {
   SubscriptionState _state;
+  DateTime _lastRefresh = DateTime.now();
 
   SubscriptionProvider()
       : _state = SubscriptionService.currentState() {
@@ -82,6 +83,15 @@ class SubscriptionProvider extends ChangeNotifier {
 
   Future<void> refreshFromBackend() async {
     _state = await SubscriptionService.refreshFromBackend();
+    _lastRefresh = DateTime.now();
     notifyListeners();
+  }
+
+  /// FIX-083: Refresh on app resume if last refresh was > 1 hour ago.
+  /// Prevents users staying "premium" hours after expiration.
+  Future<void> refreshIfStale() async {
+    if (DateTime.now().difference(_lastRefresh).inHours >= 1) {
+      await refreshFromBackend();
+    }
   }
 }

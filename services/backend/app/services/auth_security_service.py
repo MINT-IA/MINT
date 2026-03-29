@@ -28,17 +28,27 @@ def _now() -> datetime:
 
 
 def _get_or_create_security_state(db: Session, email: str) -> LoginSecurityStateModel:
+    normalized = email.lower().strip()
     state = (
         db.query(LoginSecurityStateModel)
-        .filter(LoginSecurityStateModel.email == email.lower().strip())
+        .filter(LoginSecurityStateModel.email == normalized)
         .first()
     )
     if state:
         return state
-    state = LoginSecurityStateModel(email=email.lower().strip(), failed_attempts=0)
-    db.add(state)
-    db.flush()
-    return state
+    # FIX-061: Handle concurrent creation — catch IntegrityError from race.
+    try:
+        state = LoginSecurityStateModel(email=normalized, failed_attempts=0)
+        db.add(state)
+        db.flush()
+        return state
+    except Exception:  # pragma: no cover — race condition path
+        db.rollback()  # pragma: no cover
+        return (  # pragma: no cover
+            db.query(LoginSecurityStateModel)
+            .filter(LoginSecurityStateModel.email == normalized)
+            .first()
+        ) or LoginSecurityStateModel(email=normalized, failed_attempts=0)
 
 
 def get_login_block_seconds(db: Session, email: str) -> int:

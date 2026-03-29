@@ -787,12 +787,12 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // The async `.then()` callback would otherwise read a null field
     // because _proactiveTriggerType is cleared synchronously below.
     final triggerType = _proactiveTriggerType!;
-    _getPrefs().then((prefs) {
+    _getPrefs().then((prefs) async {
       var pref = CoachingPreference.load(prefs);
       pref = engaged
           ? pref.recordEngagement(triggerType)
           : pref.recordDismissal(triggerType);
-      pref.save(prefs);
+      await pref.save(prefs);
     });
 
     // Clear — only track once per proactive greeting
@@ -1038,6 +1038,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         _streamBuffer.write(token);
         final current = _streamBuffer.toString();
         setState(() {
+          if (_messages.isEmpty) return;
           _messages[_messages.length - 1] = ChatMessage(
             role: 'assistant',
             content: current,
@@ -1137,6 +1138,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final slmDisplayText = _prependMemoryRef(slmBaseText, memoryRef);
 
     setState(() {
+      if (_messages.isEmpty) return;
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
         content: slmDisplayText,
@@ -1726,22 +1728,32 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       case 'show_choice_comparison':
       case 'show_pillar_breakdown':
         if (!mounted) return;
+        // FIX-066: Filter all text fields in tool_use through compliance guard.
+        final sanitizedInput = Map<String, dynamic>.from(toolCall.input);
+        for (final key in ['title', 'description', 'context_message', 'prompt_text', 'label']) {
+          if (sanitizedInput[key] is String) {
+            sanitizedInput[key] = _clientSideComplianceFilter(sanitizedInput[key] as String);
+          }
+        }
+        final sanitizedTool = RagToolCall(name: toolCall.name, input: sanitizedInput);
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
             content: '',
             timestamp: DateTime.now(),
             tier: ChatTier.byok,
-            richToolCalls: [toolCall],
+            richToolCalls: [sanitizedTool],
           ));
         });
         _scrollToBottom();
 
       case 'ask_user_input':
         if (!mounted) return;
-        final promptText = toolCall.input['prompt_text'] as String?
+        final rawPrompt = toolCall.input['prompt_text'] as String?
             ?? toolCall.input['message'] as String?
             ?? '';
+        // FIX-066: Filter tool_use text through compliance guard.
+        final promptText = _clientSideComplianceFilter(rawPrompt);
         setState(() {
           _messages.add(ChatMessage(
             role: 'assistant',
@@ -3769,7 +3781,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                     focusNode: _focusNode,
                     textInputAction: TextInputAction.send,
                     maxLines: null,
-                    enabled: !_isStreaming,
+                    enabled: !_isStreaming && !_isBusy, // FIX-085
                     style: MintTextStyles.bodyMedium(
                         color: MintColors.textPrimary),
                     decoration: InputDecoration(

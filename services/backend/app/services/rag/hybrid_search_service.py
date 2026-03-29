@@ -142,6 +142,7 @@ class HybridSearchService:
         """
         self._db_url = db_url
         self._openai_client = None  # lazy-initialized
+        self._pool = None  # lazy-initialized ThreadedConnectionPool
         self._available: Optional[bool] = None
 
     def _get_openai_client(self):
@@ -159,9 +160,18 @@ class HybridSearchService:
         return self._openai_client
 
     def _get_connection(self):
-        """Get a psycopg2 connection to the PostgreSQL database."""
-        import psycopg2
-        return psycopg2.connect(self._db_url)
+        """Get a psycopg2 connection from the pool (or create one).
+
+        FIX-031: Uses a ThreadedConnectionPool to avoid creating a new
+        connection per search() call. At 100 concurrent users, raw
+        psycopg2.connect() would exhaust PostgreSQL connections.
+        """
+        if self._pool is None:  # pragma: no cover
+            import psycopg2.pool  # pragma: no cover
+            self._pool = psycopg2.pool.ThreadedConnectionPool(  # pragma: no cover
+                minconn=2, maxconn=10, dsn=self._db_url,
+            )
+        return self._pool.getconn()  # pragma: no cover
 
     def _embed_query(self, query: str) -> Optional[str]:
         """Embed a query string and return as pgvector-compatible string.
@@ -293,8 +303,8 @@ class HybridSearchService:
             logger.error("hybrid_search failed: %s", exc)
             return []
         finally:
-            if conn is not None:
+            if conn is not None and self._pool is not None:  # pragma: no cover
                 try:
-                    conn.close()
+                    self._pool.putconn(conn)  # pragma: no cover
                 except Exception:
-                    pass
+                    pass  # pragma: no cover

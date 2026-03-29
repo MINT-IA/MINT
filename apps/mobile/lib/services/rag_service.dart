@@ -47,7 +47,10 @@ class RagResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
       toolCalls: (json['tool_calls'] as List<dynamic>?)
               ?.map((t) => RagToolCall.fromJson(t as Map<String, dynamic>))
               .toList() ??
@@ -139,7 +142,10 @@ class RagVisionResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -293,13 +299,24 @@ class RagService {
     if (model != null) body['model'] = model;
     if (profileContext != null) body['profile_context'] = profileContext;
 
-    final response = await http
-        .post(
-          uri,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 120));
+    // FIX-084: Retry on 429 (same pattern as query()).
+    const maxRetries = 2;
+    late http.Response response;
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 120));
+
+      if (response.statusCode == 429 && attempt < maxRetries) {
+        await Future<void>.delayed(Duration(seconds: (attempt + 1) * 2));
+        continue;
+      }
+      break;
+    }
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;

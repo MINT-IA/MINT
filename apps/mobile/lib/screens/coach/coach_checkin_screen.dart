@@ -265,6 +265,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     );
 
     // Re-schedule notifications with updated profile (new check-in resets reminders)
+    // Fire-and-forget: _onSubmit is synchronous, notification scheduling is best-effort.
     NotificationService().scheduleCoachingReminders(profile: updatedProfile);
 
     // ── Monthly briefing N vs N-1 (Coach Vivant) ──

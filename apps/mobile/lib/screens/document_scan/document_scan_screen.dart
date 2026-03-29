@@ -78,7 +78,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: Stack(
+        children: [
+          // FIX-064: Show linear progress during Vision extraction (10-30s on 3G)
+          if (_isProcessing)
+            const Positioned(
+              top: 0, left: 0, right: 0,
+              child: LinearProgressIndicator(minHeight: 3),
+            ),
+          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -107,6 +115,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           ),
         ],
       ))),
+        ],
+      ),
     );
   }
 
@@ -432,7 +442,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       await _processImageFile(XFile(localPath));
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanImportError(e.toString()));
+      _showErrorSnack(S.of(context)!.docScanImportError("Réessaie ou utilise un autre fichier."));
     }
   }
 
@@ -493,6 +503,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
+      _cleanupTempFile(file.path); // FIX-053
     }
   }
 
@@ -585,7 +596,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       await context.push('/scan/review', extra: result);
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanParsingError(e.toString()));
+      _showErrorSnack(S.of(context)!.docScanParsingError("Le fichier n'a pas pu être lu."));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -999,6 +1010,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     }
   }
 
+  /// FIX-053: Clean up temporary files created by _resolveLocalPath().
+  void _cleanupTempFile(String? path) {
+    if (path == null || !path.contains('mint_upload_')) return;
+    try {
+      final file = File(path);
+      if (file.existsSync()) file.deleteSync();
+    } catch (_) {
+      // Best-effort cleanup — don't crash on permission issues.
+    }
+  }
+
   Future<_PdfParseResult> _processPdfViaBackend(String path) async {
     if (kIsWeb || _selectedType != DocumentType.lppCertificate) {
       return _PdfParseResult(
@@ -1037,8 +1059,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         success: false,
         requiresAuthentication: requiresAuthentication,
         errorMessage: mounted
-            ? S.of(context)!.docScanPdfBackendError(e.toString())
-            : e.toString(),
+            ? S.of(context)!.docScanPdfBackendError('Le PDF n\u2019a pas pu être traité.') // FIX-057
+            : 'Erreur de traitement.',
       );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
@@ -1245,7 +1267,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       _showErrorSnack(e.message);
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanVisionError(e.toString()));
+      _showErrorSnack(S.of(context)!.docScanVisionError("L'analyse n'a pas abouti."));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }

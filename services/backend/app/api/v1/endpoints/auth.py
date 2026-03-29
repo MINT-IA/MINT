@@ -180,7 +180,17 @@ def register_user(
         updated_at=datetime.now(timezone.utc),
     )
 
-    db.add(new_user)
+    # FIX-063: Handle concurrent registration with same email.
+    from sqlalchemy.exc import IntegrityError as SAIntegrityError
+    try:
+        db.add(new_user)
+        db.flush()  # trigger IntegrityError early if email exists
+    except SAIntegrityError:  # pragma: no cover — concurrent race only
+        db.rollback()  # pragma: no cover
+        raise HTTPException(  # pragma: no cover
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Un utilisateur avec cet email existe déjà",
+        )
     verification_required = _email_verification_required()
     verification_token: Optional[str] = None
     verification_email_sent = False
@@ -581,6 +591,9 @@ def confirm_password_reset(
 
     user.hashed_password = hash_password(body.new_password)
     user.updated_at = datetime.now(timezone.utc)
+    # FIX-049: Invalidate all existing tokens by setting password_changed_at.
+    # Tokens issued before this timestamp are rejected by get_current_user().
+    user.password_changed_at = datetime.now(timezone.utc)
     clear_failed_logins(db, user.email)
     log_audit_event(
         db,
@@ -972,6 +985,27 @@ def delete_account(
             "anonymized_analytics_events": anonymized_analytics_events,
         },
     )
+
+    # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory).
+    # Orphaned embeddings would persist user data after account deletion.
+    try:  # pragma: no cover — requires asyncpg + PostgreSQL
+        import asyncpg  # pragma: no cover
+        import asyncio  # pragma: no cover
+        import os  # pragma: no cover
+        db_url = os.getenv("DATABASE_URL")  # pragma: no cover
+        if db_url:  # pragma: no cover
+            async def _purge():
+                conn = await asyncpg.connect(db_url)
+                try:
+                    await conn.execute(
+                        "DELETE FROM document_embeddings WHERE metadata::jsonb->>'user_id' = $1",
+                        user_id,
+                    )
+                finally:
+                    await conn.close()
+            asyncio.get_event_loop().run_until_complete(_purge())
+    except Exception as exc:
+        logger.warning("Failed to purge embeddings for user %s: %s", user_id[:8], exc)
 
     db.delete(current_user)
     db.commit()

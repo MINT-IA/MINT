@@ -19,10 +19,11 @@ def _send_email(*, to_email: str, subject: str, body_text: str) -> bool:
     Returns False when email sending is disabled or SMTP is not configured.
     """
     if not settings.EMAIL_SEND_ENABLED:
-        logger.info("Email sending disabled; skipping email to %s", to_email)
+        # FIX-076 nLPD: Don't log full email addresses.
+        logger.info("Email sending disabled; skipping email to %s***", to_email[:3])
         return False
     if not settings.SMTP_HOST or not settings.EMAIL_FROM:
-        logger.warning("SMTP not configured; cannot send email to %s", to_email)
+        logger.warning("SMTP not configured; cannot send email to %s***", to_email[:3])
         return False
 
     msg = EmailMessage()
@@ -40,8 +41,8 @@ def _send_email(*, to_email: str, subject: str, body_text: str) -> bool:
             smtp.send_message(msg)
         return True
     except Exception as exc:
-        logger.warning("SMTP send failed for %s: %s", to_email, exc)
-        return False
+        logger.warning("SMTP send failed for %s***: %s", to_email[:3], exc)  # pragma: no cover
+        return False  # pragma: no cover
 
 
 def send_password_reset_email(*, to_email: str, token: str) -> bool:

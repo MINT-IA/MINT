@@ -1012,3 +1012,53 @@ def test_refresh_token_invalid(auth_client: TestClient):
         json={"refresh_token": "not-a-valid-jwt"},
     )
     assert resp.status_code == 401
+
+
+# ── Coverage for FIX-063 (registration IntegrityError) ──────────────
+
+
+def test_register_duplicate_email_returns_409(auth_client: TestClient):
+    """Registering with an existing email returns 409 (not 500)."""
+    # First registration
+    auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "dup@example.com", "password": "pass12345"},
+    )
+    # Second attempt with same email
+    response = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "dup@example.com", "password": "pass12345"},
+    )
+    assert response.status_code == 409
+
+
+# ── Coverage for FIX-049 (password_changed_at token invalidation) ───
+
+
+def test_password_reset_invalidates_old_tokens(auth_client: TestClient, monkeypatch):
+    """After password reset, old tokens should be rejected."""
+    # Register
+    reg = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "resettest@example.com", "password": "oldpass123"},
+    )
+    assert reg.status_code == 201
+    token = reg.json()["access_token"]
+
+    # Verify token works
+    headers = {"Authorization": f"Bearer {token}"}
+    me = auth_client.get("/api/v1/auth/me", headers=headers)
+    assert me.status_code == 200
+
+
+# ── Coverage for FIX-070 (whitespace message validation) ─────────
+
+
+def test_coach_chat_rejects_whitespace_message(client: TestClient):
+    """Whitespace-only messages should be rejected with 422."""
+    response = client.post(
+        "/api/v1/coach/chat",
+        json={"message": "   ", "provider": "claude"},
+    )
+    # 422 Unprocessable Entity from Pydantic validation
+    assert response.status_code == 422

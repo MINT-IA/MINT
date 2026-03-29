@@ -165,8 +165,10 @@ class ConjointProfile {
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
-    // FATCA hard block: most providers refuse US persons (LSFin compliance).
-    final topCanContribute = json['canContribute3a'] ?? !isFatca;
+    // FIX-089: FATCA doesn't block 3a if the person has Swiss employment income
+    // (AVS-contributing salary in Switzerland). Only block if purely non-Swiss income.
+    final hasSwissIncome = ((json['revenuBrutAnnuel'] as num?)?.toDouble() ?? 0) > 0;
+    final topCanContribute = json['canContribute3a'] ?? (!isFatca || hasSwissIncome);
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
@@ -1382,6 +1384,9 @@ class CoachProfile {
   double get revenuBrutAnnuelCouple =>
       revenuBrutAnnuel + (conjoint?.revenuBrutAnnuel ?? 0);
 
+  /// FIX-101: Cross-border worker detection (permis G).
+  bool get isCrossBorder => residencePermit?.toUpperCase() == 'G';
+
   /// Total depenses fixes mensuelles
   double get totalDepensesMensuelles => depenses.totalMensuel;
 
@@ -1487,8 +1492,12 @@ class CoachProfile {
   /// Also delegates to [PrevoyanceProfile.canContribute3a] which may be
   /// set independently (e.g. when profile is loaded from a certificate).
   bool get canContribute3a {
+    // US citizens with FATCA: blocked (most Swiss providers refuse)
     if (archetype == FinancialArchetype.expatUs) return false;
     if (nationality == 'US') return false;
+    // FIX-102: Frontaliers GE can deduct 3a if quasi-resident (≥90% Swiss income)
+    // or if they have Swiss employment income (AVS-contributing salary).
+    if (isCrossBorder && revenuBrutAnnuel > 0) return true;
     return prevoyance.canContribute3a;
   }
 
@@ -1547,7 +1556,14 @@ class CoachProfile {
       nationality: nationality ?? this.nationality,
       etatCivil: etatCivil ?? this.etatCivil,
       nombreEnfants: nombreEnfants ?? this.nombreEnfants,
-      conjoint: conjoint ?? this.conjoint,
+      // FIX-035 LAVS art. 35: clear conjoint when civil status changes
+      // to non-coupled (divorce, veuvage, célibataire). Otherwise the
+      // AVS couple cap 150% keeps applying to a single person.
+      conjoint: (etatCivil != null &&
+              etatCivil != CoachCivilStatus.marie &&
+              etatCivil != CoachCivilStatus.concubinage)
+          ? null
+          : (conjoint ?? this.conjoint),
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,

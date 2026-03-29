@@ -6,9 +6,11 @@ MVP: In-memory storage (no persistence).
 import uuid
 from datetime import datetime, timezone
 from typing import Dict, List
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
+from app.models.user import User
 from pydantic import UUID4
 from app.schemas.scenario import Scenario, ScenarioCreate, ScenarioKind
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
@@ -63,7 +65,7 @@ def _compute_scenario_outputs(kind: ScenarioKind, inputs: dict) -> dict:
 
 @router.post("", response_model=Scenario)
 @limiter.limit("10/minute")
-def create_scenario(request: Request, scenario_create: ScenarioCreate) -> Scenario:
+def create_scenario(request: Request, scenario_create: ScenarioCreate, _user: User = Depends(require_current_user)) -> Scenario:
     """Create a new scenario with computed outputs."""
     scenario_id = uuid.uuid4()
     now = datetime.now(timezone.utc)
@@ -83,6 +85,6 @@ def create_scenario(request: Request, scenario_create: ScenarioCreate) -> Scenar
 
 
 @router.get("/{profile_id}", response_model=List[Scenario])
-def list_scenarios(profile_id: UUID4) -> List[Scenario]:
+def list_scenarios(profile_id: UUID4, _user: User = Depends(require_current_user)) -> List[Scenario]:
     """List all scenarios for a profile."""
     return [s for s in _scenarios.values() if s.profileId == profile_id]

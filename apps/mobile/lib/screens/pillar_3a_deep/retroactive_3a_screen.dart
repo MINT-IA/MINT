@@ -11,6 +11,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -37,6 +38,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   late int _gapYears = _maxRetroactiveYears.clamp(1, _maxRetroactiveYears);
   double _tauxMarginal = 0.30;
   bool _hasLpp = true;
+  bool _showEmptyState = false;
 
   static const _taxRates = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50];
 
@@ -56,8 +58,16 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   void _initializeFromProfile() {
     try {
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile == null) return;
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
+      final profile = provider.profile!;
+      if (profile.revenuBrutAnnuel <= 0) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
       bool changed = false;
       if (profile.revenuBrutAnnuel > 0) {
         final rate = RetirementTaxCalculator.estimateMarginalRate(
@@ -87,6 +97,30 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_showEmptyState) {
+      return Scaffold(
+        backgroundColor: MintColors.white,
+        appBar: AppBar(
+          backgroundColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: Text(S.of(context)!.retroactive3aTitle,
+              style: MintTextStyles.titleMedium()),
+        ),
+        body: MintEmptyState(
+          icon: Icons.savings_outlined,
+          // TODO: i18n
+          title: 'Rattrapage 3a',
+          subtitle: 'Renseigne ton revenu pour calculer ton economie fiscale',
+          ctaLabel: 'Ajouter mon revenu',
+          onCta: () => context.push('/onboarding'),
+        ),
+      );
+    }
     final result = _result;
 
     return Scaffold(

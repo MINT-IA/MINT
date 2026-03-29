@@ -283,12 +283,11 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
     await SmartOnboardingDraftService.clearDraft();
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Profil cree ! Tu peux tracker tes versements '
-            'mensuels dans l\'onglet Agir.',
+            'Profil créé\u00a0! Tu peux commencer à explorer MINT.', // TODO: i18n — extract to ARB
           ),
-          duration: Duration(seconds: 5),
+          duration: const Duration(seconds: 5),
         ),
       );
       context.go('/home');

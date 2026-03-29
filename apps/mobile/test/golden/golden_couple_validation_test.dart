@@ -45,7 +45,8 @@ String _verdict(String label, double actual, double expected,
   final delta = actual - expected;
   final deltaPct =
       expected != 0 ? ((actual - expected) / expected * 100) : 0.0;
-  final pass = deltaPct.abs() <= tolerancePct || delta.abs() < 50;
+  // FIX-111: Removed || delta.abs() < 50 loophole (100% error on small values passed).
+  final pass = deltaPct.abs() <= tolerancePct;
   final status = pass ? 'PASS' : '** FAIL **';
   return '$status | $label\n'
       '       Actual:   ${actual.toStringAsFixed(2)}\n'

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show PulseScreen, NavigationShellState;
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
@@ -72,9 +73,22 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     // V5-5 audit fix: check for pending notification deep link on cold start.
     // On cold start, didChangeAppLifecycleState(resumed) is never called,
     // so we must also check here.
+    // FIX-051: Defer deep link until profile is loaded to avoid crash
+    // on screens that access profile data.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final pendingRoute = NotificationService.consumePendingRoute();
-      if (pendingRoute != null && pendingRoute.isNotEmpty && mounted) {
+      if (pendingRoute == null || pendingRoute.isEmpty || !mounted) return;
+      try {
+        final profileReady = context.read<CoachProfileProvider>().hasProfile;
+        if (profileReady) {
+          GoRouter.of(context).go(pendingRoute);
+        } else {
+          // Profile not loaded yet — store route and navigate when ready.
+          // The didChangeDependencies will pick it up on next profile update.
+          NotificationService.pendingRoute = pendingRoute;
+        }
+      } catch (_) {
+        // No provider in tree — navigate anyway (auth screens don't need profile).
         GoRouter.of(context).go(pendingRoute);
       }
     });
@@ -116,6 +130,11 @@ class _MainNavigationShellState extends State<MainNavigationShell>
           }
         });
       }
+
+      // FIX-083: Refresh subscription state on resume (prevents stale premium).
+      try {
+        context.read<SubscriptionProvider>().refreshIfStale();
+      } catch (_) {} // Provider may not be in tree during tests
 
       // Show delta snackbar if away > 1 hour and state changed
       if (_lastPauseTime != null) {

@@ -136,12 +136,19 @@ class BudgetLivingEngine {
 
   static PresentBudget _computePresent(CoachProfile profile) {
     // Net income — main user
+    // FIX-100: Use revenuBrutAnnuel which handles independants.
+    // salaireBrutMensuel can be 0 for independants (they use selfEmployedNetIncome).
+    final grossAnnual = profile.revenuBrutAnnuel;
     final mainBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
+      grossSalary: grossAnnual,
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       age: profile.age,
     );
-    double monthlyNet = mainBreakdown.monthlyNetPayslip;
+    // For independants, social charges are different (AVS 10.6% total, no LPP split).
+    // NetIncomeBreakdown uses salarié rates — for independants, use ~90% of gross as net.
+    double monthlyNet = profile.employmentStatus == 'independant' && grossAnnual > 0
+        ? grossAnnual * 0.90 / 12  // ~10% charges sociales pour indépendants
+        : mainBreakdown.monthlyNetPayslip;
 
     // Partner net income
     final conj = profile.conjoint;

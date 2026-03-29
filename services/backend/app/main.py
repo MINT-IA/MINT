@@ -44,6 +44,16 @@ async def lifespan(app: FastAPI):
     from app import models as _models  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
+    # FIX-106: Validate DB connectivity at startup — fail fast if misconfigured.
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        logger.info("Database connectivity: OK")
+    except Exception as exc:
+        logger.critical("Database connectivity FAILED: %s", exc)
+        raise SystemExit(f"Cannot connect to database: {exc}") from exc
+
     # Optional auth hygiene: purge stale unverified accounts on startup.
     if settings.AUTH_AUTO_PURGE_ON_STARTUP:
         try:
@@ -67,6 +77,15 @@ async def lifespan(app: FastAPI):
                 db.close()
         except Exception as exc:
             logger.warning("Startup unverified purge failed (non-fatal): %s", exc)
+
+    # FIX-107: Validate SMTP config if email sending is enabled.
+    if settings.EMAIL_SEND_ENABLED:
+        if not settings.SMTP_HOST or not settings.EMAIL_FROM:
+            logger.critical(
+                "EMAIL_SEND_ENABLED=true but SMTP_HOST or EMAIL_FROM missing. "
+                "Users will not receive password reset / verification emails."
+            )
+            # Don't crash — degrade gracefully but log at CRITICAL level.
 
     # Auto-ingest education inserts into RAG vector store if empty
     _auto_ingest_rag()
@@ -92,7 +111,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Global exception handler — catch unhandled exceptions
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    # FIX-077 nLPD: Don't log full exception (may contain PII in values).
+    # Log only the type name + first 100 chars of message.
+    logger.error("Unhandled %s: %.100s", type(exc).__name__, str(exc))  # pragma: no cover
     return JSONResponse(
         status_code=500,
         content={"detail": "Erreur interne du serveur"},

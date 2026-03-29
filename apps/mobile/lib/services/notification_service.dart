@@ -14,8 +14,107 @@ import 'package:timezone/timezone.dart' as tz;
 import 'dart:io' show Platform;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/consent_manager.dart';
+
+// ────────────────────────────────────────────────────────────
+//  NOTIFICATION STRINGS — i18n-ready, resolved at call site
+// ────────────────────────────────────────────────────────────
+
+/// Holds all user-facing notification strings.
+///
+/// Since `flutter_local_notifications` has no [BuildContext], strings are
+/// resolved at the call site (where context IS available) and passed in.
+class NotificationStrings {
+  final String channelDescription;
+  final String weeklyRecapTitle;
+  final String weeklyRecapBody;
+  final String checkinTitle;
+  final String checkinBody;
+  final String deadline3aTitle;
+  final String deadline3aBody3Months;
+  final String deadline3aBody46Days;
+  final String deadline3aBody16Days;
+  final String deadline3aBodyLastDays;
+  final String taxDeadlineTitle;
+  final String taxDeadlineBody44Days;
+  final String taxDeadlineBody16Days;
+  final String taxDeadlineBodyLastWeek;
+  final String streakProtectionTitle;
+  final String streakProtectionBody;
+
+  const NotificationStrings({
+    required this.channelDescription,
+    required this.weeklyRecapTitle,
+    required this.weeklyRecapBody,
+    required this.checkinTitle,
+    required this.checkinBody,
+    required this.deadline3aTitle,
+    required this.deadline3aBody3Months,
+    required this.deadline3aBody46Days,
+    required this.deadline3aBody16Days,
+    required this.deadline3aBodyLastDays,
+    required this.taxDeadlineTitle,
+    required this.taxDeadlineBody44Days,
+    required this.taxDeadlineBody16Days,
+    required this.taxDeadlineBodyLastWeek,
+    required this.streakProtectionTitle,
+    required this.streakProtectionBody,
+  });
+
+  /// Create from [S] (AppLocalizations) at call site where context exists.
+  ///
+  /// Parameterized strings use `{remaining}` / `{streak}` as sentinel
+  /// placeholders — they are `.replaceAll()`'d with real values at
+  /// scheduling time.
+  factory NotificationStrings.fromL10n(S l) => NotificationStrings(
+        channelDescription: l.notifChannelDescription,
+        weeklyRecapTitle: l.notifWeeklyRecapTitle,
+        weeklyRecapBody: l.notifWeeklyRecapBody,
+        checkinTitle: l.notifCheckinTitle,
+        checkinBody: l.notifCheckinBody,
+        deadline3aTitle: l.notifDeadline3aTitle,
+        deadline3aBody3Months: l.notifDeadline3aBody3Months('{remaining}'),
+        deadline3aBody46Days: l.notifDeadline3aBody46Days('{remaining}'),
+        deadline3aBody16Days: l.notifDeadline3aBody16Days,
+        deadline3aBodyLastDays: l.notifDeadline3aBodyLastDays,
+        taxDeadlineTitle: l.notifTaxDeadlineTitle,
+        taxDeadlineBody44Days: l.notifTaxDeadlineBody44Days,
+        taxDeadlineBody16Days: l.notifTaxDeadlineBody16Days,
+        taxDeadlineBodyLastWeek: l.notifTaxDeadlineBodyLastWeek,
+        streakProtectionTitle: l.notifStreakProtectionTitle,
+        streakProtectionBody: l.notifStreakProtectionBody('{streak}'),
+      );
+
+  /// French defaults (fallback when no context available).
+  static const french = NotificationStrings(
+    channelDescription:
+        'Rappels de check-in, deadlines 3a, et notifications de coaching',
+    weeklyRecapTitle: 'Ton récap de la semaine',
+    weeklyRecapBody: 'Budget, progrès, prochaine étape — tout est prêt.',
+    checkinTitle: 'Check-in mensuel',
+    checkinBody: 'Confirme tes versements du mois en 2 min',
+    deadline3aTitle: 'Deadline 3a',
+    deadline3aBody3Months:
+        'Il reste 3 mois pour verser sur ton 3a (CHF {remaining} de marge)',
+    deadline3aBody46Days:
+        'Il reste 46 jours pour maximiser ton 3a (CHF {remaining} de marge)',
+    deadline3aBody16Days: 'Il reste 16 jours pour verser sur ton 3a',
+    deadline3aBodyLastDays:
+        'Derniers jours ! Verse sur ton 3a avant le 31 décembre',
+    taxDeadlineTitle: 'Déclaration fiscale',
+    taxDeadlineBody44Days:
+        'Déclaration fiscale dans 44 jours — pense à rassembler tes documents',
+    taxDeadlineBody16Days:
+        'Déclaration fiscale dans 16 jours — commence à la remplir',
+    taxDeadlineBodyLastWeek:
+        'Déclaration à rendre avant le 31 mars — dernière semaine !',
+    streakProtectionTitle: 'Protège ta série',
+    streakProtectionBody:
+        'Tu es à {streak} mois consécutifs — ne casse pas ta série !',
+  );
+}
 
 // ────────────────────────────────────────────────────────────
 //  NOTIFICATION SERVICE — Local-only, zero backend
@@ -32,8 +131,6 @@ class NotificationService {
   /// Android notification channel for coaching reminders
   static const _channelId = 'mint_coaching';
   static const _channelName = 'Coaching MINT';
-  static const _channelDescription =
-      'Rappels de check-in, deadlines 3a, et notifications de coaching';
 
   // ── Notification IDs (ranges to avoid collisions) ────────
   static const _idCheckinMonthly = 1000;
@@ -128,10 +225,21 @@ class NotificationService {
 
   /// Schedule coaching reminders based on user profile.
   /// Call this after each check-in and at app startup.
+  ///
+  /// [strings] — i18n-resolved notification text. Pass
+  /// `NotificationStrings.fromL10n(S.of(context)!)` when a [BuildContext] is
+  /// available. Falls back to [NotificationStrings.french] otherwise.
   Future<void> scheduleCoachingReminders({
     required CoachProfile profile,
+    NotificationStrings? strings,
   }) async {
     if (kIsWeb || _plugin == null) return;
+
+    // FIX-086: Ensure timezone is initialized before scheduling.
+    // init() is async and may not have completed when this is called.
+    if (!_isInitialized) await init();
+
+    final s = strings ?? NotificationStrings.french;
 
     // V5-3 audit fix: check notification consent before scheduling.
     // If user has not consented, skip all notification scheduling.
@@ -151,24 +259,24 @@ class NotificationService {
 
     // 1. Monthly check-in reminder: 1st of each month at 10:00
     //    ONLY if check-in not done for current month
-    _scheduleMonthlyCheckin(profile, now);
+    _scheduleMonthlyCheckin(profile, now, s);
 
     // 2. 3a deadline reminders: Oct 1, Nov 15, Dec 15, Dec 28
     //    ONLY if user has 3a AND not maxed
-    _schedule3aDeadlines(profile, now);
+    _schedule3aDeadlines(profile, now, s);
 
     // 3. Tax deadline reminders: Feb 15, Mar 15, Mar 25
-    _scheduleTaxDeadlines(now);
+    _scheduleTaxDeadlines(now, s);
 
     // 4. Streak protection: 25th of each month if no check-in this month
-    _scheduleStreakProtection(profile, now);
+    _scheduleStreakProtection(profile, now, s);
 
     // 5. Weekly recap: Monday 10:00 — "Ton récap de la semaine est prêt"
-    _scheduleWeeklyRecap(now);
+    _scheduleWeeklyRecap(now, s);
   }
 
   /// Weekly recap notification: fires every Monday at 10:00.
-  void _scheduleWeeklyRecap(tz.TZDateTime now) {
+  void _scheduleWeeklyRecap(tz.TZDateTime now, NotificationStrings s) {
     // Find next Monday
     var nextMonday = now.add(Duration(days: (8 - now.weekday) % 7));
     if (nextMonday.isBefore(now) || nextMonday.isAtSameMomentAs(now)) {
@@ -184,10 +292,10 @@ class NotificationService {
 
     _scheduleNotification(
       id: 500, // Unique ID for weekly recap
-      title: 'Ton récap de la semaine',
-      body: 'Budget, progrès, prochaine étape — tout est prêt.',
+      title: s.weeklyRecapTitle,
+      body: s.weeklyRecapBody,
       scheduledDate: scheduledDate,
-      payload: '/coach/weekly-recap',
+      payload: '/weekly-recap',
       matchDateComponents: DateTimeComponents.dayOfWeekAndTime,
     );
   }
@@ -196,6 +304,7 @@ class NotificationService {
   void _scheduleMonthlyCheckin(
     CoachProfile profile,
     tz.TZDateTime now,
+    NotificationStrings s,
   ) {
     // Check if current month check-in already done
     final hasCurrentMonthCheckin = profile.checkIns.any((ci) =>
@@ -217,8 +326,8 @@ class NotificationService {
     if (nextFirst.isAfter(now)) {
       _scheduleNotification(
         id: _idCheckinMonthly,
-        title: 'Check-in mensuel',
-        body: 'Confirme tes versements du mois en 2 min',
+        title: s.checkinTitle,
+        body: s.checkinBody,
         scheduledDate: nextFirst,
         payload: '/coach/checkin',
         matchDateComponents: DateTimeComponents.dayOfMonthAndTime,
@@ -230,6 +339,7 @@ class NotificationService {
   void _schedule3aDeadlines(
     CoachProfile profile,
     tz.TZDateTime now,
+    NotificationStrings s,
   ) {
     // Only schedule if user has 3a contributions
     final has3a = profile.prevoyance.nombre3a > 0 ||
@@ -247,22 +357,22 @@ class NotificationService {
       (
         month: 10,
         day: 1,
-        body: 'Il reste 3 mois pour verser sur ton 3a (CHF $restant de marge)',
+        body: s.deadline3aBody3Months.replaceAll('{remaining}', restant),
       ),
       (
         month: 11,
         day: 15,
-        body: 'Il reste 46 jours pour maximiser ton 3a (CHF $restant de marge)',
+        body: s.deadline3aBody46Days.replaceAll('{remaining}', restant),
       ),
       (
         month: 12,
         day: 15,
-        body: 'Il reste 16 jours pour verser sur ton 3a',
+        body: s.deadline3aBody16Days,
       ),
       (
         month: 12,
         day: 28,
-        body: 'Derniers jours ! Verse sur ton 3a avant le 31 decembre',
+        body: s.deadline3aBodyLastDays,
       ),
     ];
 
@@ -285,7 +395,7 @@ class NotificationService {
       if (scheduledDate.isAfter(now)) {
         _scheduleNotification(
           id: _id3aDeadlineBase + i,
-          title: 'Deadline 3a',
+          title: s.deadline3aTitle,
           body: d.body,
           scheduledDate: scheduledDate,
           payload: '/pilier-3a',
@@ -295,23 +405,11 @@ class NotificationService {
   }
 
   /// Tax deadline reminders: Feb 15, Mar 15, Mar 25
-  void _scheduleTaxDeadlines(tz.TZDateTime now) {
+  void _scheduleTaxDeadlines(tz.TZDateTime now, NotificationStrings s) {
     final deadlines = [
-      (
-        month: 2,
-        day: 15,
-        body: 'Declaration fiscale dans 44 jours — pense a rassembler tes documents',
-      ),
-      (
-        month: 3,
-        day: 15,
-        body: 'Declaration fiscale dans 16 jours — commence a la remplir',
-      ),
-      (
-        month: 3,
-        day: 25,
-        body: 'Declaration a rendre avant le 31 mars — derniere semaine !',
-      ),
+      (month: 2, day: 15, body: s.taxDeadlineBody44Days),
+      (month: 3, day: 15, body: s.taxDeadlineBody16Days),
+      (month: 3, day: 25, body: s.taxDeadlineBodyLastWeek),
     ];
 
     for (int i = 0; i < deadlines.length; i++) {
@@ -332,7 +430,7 @@ class NotificationService {
       if (scheduledDate.isAfter(now)) {
         _scheduleNotification(
           id: _idTaxDeadlineBase + i,
-          title: 'Declaration fiscale',
+          title: s.taxDeadlineTitle,
           body: d.body,
           scheduledDate: scheduledDate,
           payload: '/home',
@@ -345,6 +443,7 @@ class NotificationService {
   void _scheduleStreakProtection(
     CoachProfile profile,
     tz.TZDateTime now,
+    NotificationStrings s,
   ) {
     final streak = profile.streak;
     if (streak <= 0) return;
@@ -379,9 +478,8 @@ class NotificationService {
     if (scheduledDate.isAfter(now)) {
       _scheduleNotification(
         id: _idStreakProtection,
-        title: 'Protege ta serie',
-        body:
-            'Tu es a $streak mois consecutifs — ne casse pas ta serie !',
+        title: s.streakProtectionTitle,
+        body: s.streakProtectionBody.replaceAll('{streak}', '$streak'),
         scheduledDate: scheduledDate,
         payload: '/coach/checkin',
       );
@@ -403,7 +501,7 @@ class NotificationService {
     final androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
-      channelDescription: _channelDescription,
+      channelDescription: NotificationStrings.french.channelDescription,
       importance: Importance.high,
       priority: Priority.defaultPriority,
       styleInformation: BigTextStyleInformation(body),

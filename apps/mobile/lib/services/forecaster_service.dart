@@ -659,7 +659,8 @@ class ForecasterService {
     double totalRendement = 0;
 
     for (int m = 0; m < months; m++) {
-      final date = DateTime(now.year, now.month + m + 1);
+      // FIX-059: was m+1, causing all projections to be shifted by 1 month.
+      final date = DateTime(now.year, now.month + m);
 
       // Reset 3a cap at year boundary
       if (date.year != currentYear) {

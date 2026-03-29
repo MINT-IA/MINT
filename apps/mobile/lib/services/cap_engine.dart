@@ -203,13 +203,16 @@ class CapEngine {
     }
 
     // ── 6. Budget deficit → reframing rule ──
-    if (profile.totalDepensesMensuelles > 0 &&
-        profile.salaireBrutMensuel > 0) {
-      final netMensuel = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        age: profile.age,
-      ).monthlyNetPayslip;
+    // FIX-100: Use revenuBrutAnnuel (handles independants).
+    final grossAnnualForBudget = profile.revenuBrutAnnuel;
+    if (profile.totalDepensesMensuelles > 0 && grossAnnualForBudget > 0) {
+      final netMensuel = profile.employmentStatus == 'independant'
+          ? grossAnnualForBudget * 0.90 / 12
+          : NetIncomeBreakdown.compute(
+              grossSalary: grossAnnualForBudget,
+              canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+              age: profile.age,
+            ).monthlyNetPayslip;
       final libre = netMensuel - profile.totalDepensesMensuelles;
       if (libre < 0) {
         candidates.add(CapDecision(
@@ -391,6 +394,20 @@ class CapEngine {
     }
 
     // Sort by priority and return the winner.
+    if (candidates.isEmpty) {
+      return CapDecision(
+        id: 'no_cap_available',
+        kind: CapKind.prepare,
+        priorityScore: 0,
+        headline: l.capHonestyNoLppHeadline,
+        whyNow: l.capHonestyNoLppWhyNow,
+        ctaLabel: l.capHonestyCtaLabel,
+        ctaRoute: '/coach/chat',
+        ctaMode: CtaMode.route,
+        expectedImpact: l.capHonestyExpectedImpact,
+        coachPrompt: null,
+      );
+    }
     candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
 
     // Enrich the winner with supporting signals from other candidates.
