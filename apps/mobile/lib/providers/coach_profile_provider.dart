@@ -707,34 +707,6 @@ class CoachProfileProvider extends ChangeNotifier {
     ReportPersistenceService.saveAnswers(_lastAnswers);
   }
 
-  Future<void> _persistHousingFields(CoachProfile profile) async {
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (profile.housingStatus != null) {
-      answers['q_housing_status'] = profile.housingStatus;
-    } else {
-      answers.remove('q_housing_status');
-    }
-    final p = profile.patrimoine;
-    // Set or clear housing fields — avoids stale data when switching
-    // between owner and renter.
-    _setOrRemove(answers, 'q_property_market_value', p.propertyMarketValue);
-    _setOrRemove(answers, 'q_mortgage_balance', p.mortgageBalance);
-    _setOrRemove(answers, 'q_mortgage_rate', p.mortgageRate);
-    _setOrRemove(answers, 'q_monthly_rent', p.monthlyRent);
-    await ReportPersistenceService.saveAnswers(answers);
-  }
-
-  static void _setOrRemove(
-    Map<String, dynamic> map,
-    String key,
-    dynamic value,
-  ) {
-    if (value != null) {
-      map[key] = value;
-    } else {
-      map.remove(key);
-    }
-  }
 
   /// Ajoute un check-in mensuel au profil et le persiste.
   void addCheckIn(MonthlyCheckIn checkIn) {
@@ -1404,7 +1376,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double? salaireBrut;
     int? nombreMois;
     double? bonus;
-    double? tauxActivite;
+    double? tauxActivite; // ignore: unused_local_variable — extracted for future use
 
     for (final field in fields) {
       if (field.profileField == null) continue;

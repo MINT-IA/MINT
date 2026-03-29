@@ -549,7 +549,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         'fieldName': f.profileField ?? f.label,
         'value': f.value,
         'confidence': conf,
-        if (f.sourceText != null) 'sourceText': f.sourceText,
+        'sourceText': f.sourceText,
       };
     }).toList();
     DocumentService.sendScanConfirmation(

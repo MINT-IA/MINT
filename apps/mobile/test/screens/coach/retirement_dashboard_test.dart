@@ -18,25 +18,6 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  CoachProfileProvider buildProfileProvider({
-    String firstName = 'Julien',
-    int birthYear = 1977,
-    String canton = 'VS',
-    double salaire = 9078,
-    String civilStatus = 'marie',
-  }) {
-    final provider = CoachProfileProvider();
-    provider.updateFromAnswers({
-      'q_firstname': firstName,
-      'q_birth_year': birthYear,
-      'q_canton': canton,
-      'q_net_income_period_chf': salaire,
-      'q_civil_status': civilStatus,
-      'q_goal': 'retraite',
-    });
-    return provider;
-  }
-
   Widget buildDashboard({CoachProfileProvider? coachProvider}) {
     return MultiProvider(
       providers: [
