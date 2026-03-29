@@ -235,6 +235,10 @@ class NotificationService {
   }) async {
     if (kIsWeb || _plugin == null) return;
 
+    // FIX-086: Ensure timezone is initialized before scheduling.
+    // init() is async and may not have completed when this is called.
+    if (!_isInitialized) await init();
+
     final s = strings ?? NotificationStrings.french;
 
     // V5-3 audit fix: check notification consent before scheduling.

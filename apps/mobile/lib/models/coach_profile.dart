@@ -165,8 +165,10 @@ class ConjointProfile {
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
-    // FATCA hard block: most providers refuse US persons (LSFin compliance).
-    final topCanContribute = json['canContribute3a'] ?? !isFatca;
+    // FIX-089: FATCA doesn't block 3a if the person has Swiss employment income
+    // (AVS-contributing salary in Switzerland). Only block if purely non-Swiss income.
+    final hasSwissIncome = ((json['revenuBrutAnnuel'] as num?)?.toDouble() ?? 0) > 0;
+    final topCanContribute = json['canContribute3a'] ?? (!isFatca || hasSwissIncome);
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);

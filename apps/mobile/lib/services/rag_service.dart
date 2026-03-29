@@ -47,7 +47,10 @@ class RagResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
       toolCalls: (json['tool_calls'] as List<dynamic>?)
               ?.map((t) => RagToolCall.fromJson(t as Map<String, dynamic>))
               .toList() ??
@@ -139,7 +142,10 @@ class RagVisionResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
     );
   }
 }

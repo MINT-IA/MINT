@@ -116,11 +116,16 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        // FIX-087: null-safe field extraction — backend may omit fields.
+        final token = data['access_token'] as String?;
+        final userId = data['user_id'] as String?;
+        final email = data['email'] as String?;
+        if (token == null || userId == null) return false;
         await AuthService.saveToken(
-          data['access_token'],
-          data['user_id'],
-          data['email'],
-          refreshToken: data['refresh_token'],
+          token,
+          userId,
+          email ?? '',
+          refreshToken: data['refresh_token'] as String?,
         );
         return true;
       }
