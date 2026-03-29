@@ -180,7 +180,17 @@ def register_user(
         updated_at=datetime.now(timezone.utc),
     )
 
-    db.add(new_user)
+    # FIX-063: Handle concurrent registration with same email.
+    from sqlalchemy.exc import IntegrityError as SAIntegrityError
+    try:
+        db.add(new_user)
+        db.flush()  # trigger IntegrityError early if email exists
+    except SAIntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Un utilisateur avec cet email existe déjà",
+        )
     verification_required = _email_verification_required()
     verification_token: Optional[str] = None
     verification_email_sent = False

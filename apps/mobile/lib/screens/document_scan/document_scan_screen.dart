@@ -493,6 +493,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
+      _cleanupTempFile(file.path); // FIX-053
     }
   }
 
@@ -996,6 +997,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return tempFile.path;
     } catch (_) {
       return null;
+    }
+  }
+
+  /// FIX-053: Clean up temporary files created by _resolveLocalPath().
+  void _cleanupTempFile(String? path) {
+    if (path == null || !path.contains('mint_upload_')) return;
+    try {
+      final file = File(path);
+      if (file.existsSync()) file.deleteSync();
+    } catch (_) {
+      // Best-effort cleanup — don't crash on permission issues.
     }
   }
 

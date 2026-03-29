@@ -228,7 +228,8 @@ class NotificationSchedulerService {
 
     // ── Monthly check-in reminders (1st of each remaining month)
 
-    for (int month = now.month + 1; month <= 12; month++) {
+    // FIX-060: was month+1, skipping December when now.month=12.
+    for (int month = now.month; month <= 12; month++) {
       final first = DateTime(year, month, 1, 10, 0);
       if (first.isAfter(now)) {
         final monthName = _monthName(month);
