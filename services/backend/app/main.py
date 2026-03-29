@@ -44,6 +44,16 @@ async def lifespan(app: FastAPI):
     from app import models as _models  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
+    # FIX-106: Validate DB connectivity at startup — fail fast if misconfigured.
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        logger.info("Database connectivity: OK")
+    except Exception as exc:
+        logger.critical("Database connectivity FAILED: %s", exc)
+        raise SystemExit(f"Cannot connect to database: {exc}") from exc
+
     # Optional auth hygiene: purge stale unverified accounts on startup.
     if settings.AUTH_AUTO_PURGE_ON_STARTUP:
         try:
@@ -67,6 +77,15 @@ async def lifespan(app: FastAPI):
                 db.close()
         except Exception as exc:
             logger.warning("Startup unverified purge failed (non-fatal): %s", exc)
+
+    # FIX-107: Validate SMTP config if email sending is enabled.
+    if settings.EMAIL_SEND_ENABLED:
+        if not settings.SMTP_HOST or not settings.EMAIL_FROM:
+            logger.critical(
+                "EMAIL_SEND_ENABLED=true but SMTP_HOST or EMAIL_FROM missing. "
+                "Users will not receive password reset / verification emails."
+            )
+            # Don't crash — degrade gracefully but log at CRITICAL level.
 
     # Auto-ingest education inserts into RAG vector store if empty
     _auto_ingest_rag()
