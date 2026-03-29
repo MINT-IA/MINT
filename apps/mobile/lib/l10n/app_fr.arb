@@ -11069,6 +11069,9 @@
   "capHonestyNoLppWhyNow": "Les leviers classiques ne changent pas beaucoup la donne ici. Un\u00b7e sp\u00e9cialiste peut t\u2019aider \u00e0 voir plus loin.",
   "capHonestyCtaLabel": "Parler au coach",
   "capHonestyExpectedImpact": "clarification",
+  "capHonestyDebtCoachPrompt": "Ma dette dépasse largement mon revenu annuel. Les simulateurs ne suffisent plus. Oriente-moi vers un\u00b7e spécialiste en désendettement.",
+  "capHonestyCrossBorderCoachPrompt": "Je suis frontalier\u00b7ère proche de la retraite sans LPP. Quelles options réalistes existent\u00a0? Oriente-moi vers un\u00b7e spécialiste.",
+  "capHonestyNoLppCoachPrompt": "J\u2019approche de la retraite avec peu de 2e pilier. Aide-moi à comprendre ce qui est acquis et oriente-moi vers un\u00b7e spécialiste.",
   "capAcquiredAvsWithRente": "AVS\u00a0: ~{rente}\u00a0CHF/mois ({years} ans cotis\u00e9s)",
   "@capAcquiredAvsWithRente": {
     "placeholders": {
@@ -11891,7 +11894,7 @@
   "chatDocError": "Erreur lors de l'analyse du document. Réessaie.",
   "chatDocAttachTooltip": "Scanner un document",
   "seasonalLamalTitle": "Nouvelles primes LAMal",
-  "seasonalLamalDesc": "Les primes 2027 sont publiées. Vérifie si ta franchise est toujours optimale.",
+  "seasonalLamalDesc": "Les primes 2027 sont publiées. Vérifie si ta franchise est toujours adaptée à ta situation.",
   "extractionWhoseDocument": "À qui est ce document ?",
   "extractionWhoseDocumentBody": "Tu as un profil couple. Ce document est pour toi ou ton/ta partenaire ?",
   "extractionDocMine": "C'est le mien",
@@ -11912,7 +11915,7 @@
   "sequencePreretraiteStep1": "Projection retraite",
   "sequencePreretraiteStep2": "Bilan 3a",
   "sequencePreretraiteStep3": "Rente ou capital",
-  "sequencePreretraiteStep4": "Retrait 3a optimal",
+  "sequencePreretraiteStep4": "Retrait 3a échelonné",
   "sequencePreretraiteStep5": "Hypothèque",
   "sequencePreretraiteStep6": "Rachat LPP",
   "sequencePreretraiteStep7": "Franchise LAMal",
@@ -11945,5 +11948,7 @@
   "sequenceRetraiteActiveStep1": "Budget retraite",
   "sequenceRetraiteActiveStep2": "Succession",
   "sequenceRetraiteActiveStep3": "Franchise LAMal",
-  "sequenceRetraiteActiveStep4": "Résumé"
+  "sequenceRetraiteActiveStep4": "Résumé",
+  "sequenceReadyNextStep": "Prêt pour l'étape suivante",
+  "sequenceQuitButton": "Quitter le parcours"
 }

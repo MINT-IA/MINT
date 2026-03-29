@@ -1080,22 +1080,16 @@ class CapEngine {
     if (isDebtOverwhelmed) {
       headline = l.capHonestyDebtHeadline;
       whyNow = l.capHonestyDebtWhyNow;
-      coachPrompt = 'Ma dette dépasse largement mon revenu annuel. '
-          'Les simulateurs ne suffisent plus. '
-          'Oriente-moi vers un\u00b7e spécialiste en désendettement.';
+      coachPrompt = l.capHonestyDebtCoachPrompt;
     } else if (isCrossBorderLateLpp) {
       headline = l.capHonestryCrossBorderHeadline;
       whyNow = l.capHonestryCrossBorderWhyNow;
-      coachPrompt = 'Je suis frontalier\u00b7ère proche de la retraite '
-          'sans LPP. Quelles options réalistes existent\u00a0? '
-          'Oriente-moi vers un\u00b7e spécialiste.';
+      coachPrompt = l.capHonestyCrossBorderCoachPrompt;
     } else {
       // Senior no LPP
       headline = l.capHonestyNoLppHeadline;
       whyNow = l.capHonestyNoLppWhyNow;
-      coachPrompt = 'J\u2019approche de la retraite avec peu de 2e pilier. '
-          'Aide-moi à comprendre ce qui est acquis '
-          'et oriente-moi vers un\u00b7e spécialiste.';
+      coachPrompt = l.capHonestyNoLppCoachPrompt;
     }
 
     return CapDecision(

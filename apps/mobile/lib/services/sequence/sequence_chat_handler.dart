@@ -187,9 +187,17 @@ class SequenceChatHandler {
   static Future<SequenceRun?> startSequence(
     String intentTag, {
     String? preGeneratedRunId,
+    Set<String>? suppressedTopics,
   }) async {
     final template = SequenceTemplate.templateForIntent(intentTag);
     if (template == null) return null;
+
+    // X1: Cohort suppression — don't start a sequence whose topics
+    // are suppressed for the user's lifecycle cohort.
+    if (suppressedTopics != null &&
+        template.topics.intersection(suppressedTopics).isNotEmpty) {
+      return null;
+    }
 
     final run = SequenceRun.start(
       runId: preGeneratedRunId ?? '${template.id}_${DateTime.now().millisecondsSinceEpoch}',

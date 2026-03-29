@@ -69,11 +69,17 @@ class SequenceTemplate {
   /// Archetype filter. Null = available for all archetypes.
   final String? archetypeFilter;
 
+  /// Semantic topics covered by this sequence (for cohort suppression check).
+  /// If any topic is in the user's suppressedTopics, this sequence should not
+  /// be proposed (MINT_ANTI_BULLSHIT_MANIFESTO.md §6).
+  final Set<String> topics;
+
   const SequenceTemplate({
     required this.id,
     required this.goalLabelKey,
     required this.steps,
     this.archetypeFilter,
+    this.topics = const {},
   });
 
   // ── V1 PRE-DEFINED TEMPLATES ──────────────────────────────────
@@ -154,6 +160,7 @@ class SequenceTemplate {
   /// Préparation retraite (5 étapes)
   static const retirementPrep = SequenceTemplate(
     id: 'retirement_prep',
+    topics: {'retirement_deep', 'rente_vs_capital'},
     goalLabelKey: 'sequenceRetirementGoal',
     steps: [
       SequenceStepDef(
@@ -207,6 +214,7 @@ class SequenceTemplate {
   /// Phase 4: Agir (budget post-retraite, résumé)
   static const preretraiteComplete = SequenceTemplate(
     id: 'preretraite_complete',
+    topics: {'retirement_deep', 'withdrawal_sequencing', 'rente_vs_capital', 'lpp_buyback'},
     goalLabelKey: 'sequencePreretraiteGoal',
     steps: [
       // Phase 1: Clarifier
@@ -392,6 +400,7 @@ class SequenceTemplate {
   /// Projection retraite → protection invalidité → rachat LPP → résumé.
   static const densification = SequenceTemplate(
     id: 'densification',
+    topics: {'retirement_deep', 'lpp_buyback'},
     goalLabelKey: 'sequenceDensificationGoal',
     steps: [
       SequenceStepDef(
@@ -433,6 +442,7 @@ class SequenceTemplate {
   /// Budget retraite → succession → LAMal → résumé.
   static const retraiteActive = SequenceTemplate(
     id: 'retraite_active',
+    topics: {'succession', 'estate_planning'},
     goalLabelKey: 'sequenceRetraiteActiveGoal',
     steps: [
       SequenceStepDef(

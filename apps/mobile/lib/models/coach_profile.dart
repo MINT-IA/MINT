@@ -1699,11 +1699,11 @@ class CoachProfile {
   factory CoachProfile.fromJson(Map<String, dynamic> json) {
     return CoachProfile(
       firstName: json['firstName'] as String?,
-      birthYear: json['birthYear'] as int,
+      birthYear: (json['birthYear'] as int?) ?? 1980,
       dateOfBirth: json['dateOfBirth'] != null
           ? DateTime.tryParse(json['dateOfBirth'] as String)
           : null,
-      canton: json['canton'] as String,
+      canton: (json['canton'] as String?) ?? 'ZH',
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
       etatCivil: CoachCivilStatus.values.firstWhere(
@@ -1714,7 +1714,7 @@ class CoachProfile {
       conjoint: json['conjoint'] != null
           ? ConjointProfile.fromJson(json['conjoint'])
           : null,
-      salaireBrutMensuel: (json['salaireBrutMensuel'] as num).toDouble(),
+      salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
       nombreDeMois: json['nombreDeMois'] ?? 12,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
@@ -1730,7 +1730,9 @@ class CoachProfile {
       dettes: json['dettes'] != null
           ? DetteProfile.fromJson(json['dettes'])
           : const DetteProfile(),
-      goalA: GoalA.fromJson(json['goalA']),
+      goalA: json['goalA'] != null
+          ? GoalA.fromJson(json['goalA'])
+          : GoalA(type: GoalAType.retraite, targetDate: DateTime(2035), label: ''),
       goalsB:
           (json['goalsB'] as List?)?.map((g) => GoalB.fromJson(g)).toList() ??
               const [],
@@ -1766,13 +1768,16 @@ class CoachProfile {
           ) ??
           const {},
       dataTimestamps: (json['dataTimestamps'] as Map<String, dynamic>?)?.map(
-            (k, v) => MapEntry(k, DateTime.parse(v as String)),
+            (k, v) {
+              final dt = DateTime.tryParse(v as String? ?? '');
+              return MapEntry(k, dt ?? DateTime.now());
+            },
           ) ??
           const {},
       createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+          json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
       updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+          json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'] as String) : null,
       financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
         (e) => e.name == json['financialLiteracyLevel'],
         orElse: () => FinancialLiteracyLevel.beginner,

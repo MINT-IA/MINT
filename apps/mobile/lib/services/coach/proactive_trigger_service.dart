@@ -38,6 +38,7 @@ import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/models/coaching_preference.dart';
+import 'package:mint_mobile/services/sequence/sequence_store.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  MODELS
@@ -158,6 +159,12 @@ class ProactiveTriggerService {
 
     // ── Cooldown: respects user's coaching intensity preference ──
     if (_isCoolingDown(prefs, currentDate, coachingPref.cooldownDays)) {
+      return null;
+    }
+
+    // ── Guard: don't fire triggers while a sequence is active ──
+    final activeRun = await SequenceStore.load();
+    if (activeRun != null && activeRun.activeStepId != null) {
       return null;
     }
 

@@ -26,6 +26,7 @@ async def embed_insight(
     insight_type: str,
     metadata: Optional[dict] = None,
     created_at: Optional[datetime] = None,
+    user_id: Optional[str] = None,
 ) -> bool:
     """Embed a CoachInsight into the pgvector store.
 
@@ -62,6 +63,14 @@ async def embed_insight(
         if embedding is None:
             return False
 
+        # Validate embedding dimensions (text-embedding-3-small = 1536)
+        if len(embedding) != 1536:
+            logger.warning(
+                "Unexpected embedding dimension %d for insight %s (expected 1536)",
+                len(embedding), insight_id,
+            )
+            return False
+
         # Store in pgvector
         conn = await asyncpg.connect(database_url)
         try:
@@ -80,7 +89,7 @@ async def embed_insight(
                 f"[{insight_type}] {topic}",
                 summary,
                 str(embedding),
-                _build_metadata(topic, insight_type, metadata, created_at),
+                _build_metadata(topic, insight_type, metadata, created_at, user_id),
                 created_at or datetime.now(timezone.utc),
             )
             logger.info("Embedded insight %s (topic=%s)", insight_id, topic)
@@ -151,6 +160,7 @@ def _build_metadata(
     insight_type: str,
     metadata: Optional[dict],
     created_at: Optional[datetime],
+    user_id: Optional[str] = None,
 ) -> str:
     """Build JSONB metadata string for pgvector storage."""
     import json
@@ -160,6 +170,8 @@ def _build_metadata(
         "insight_type": insight_type,
         "is_memory": True,
     }
+    if user_id:
+        meta["user_id"] = user_id
     if created_at:
         meta["created_at"] = created_at.isoformat()
     if metadata:

@@ -803,11 +803,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty || _isBusy) return;
 
+    // Set busy immediately (synchronous) to prevent double-tap race.
+    _isBusy = true;
+
     // ── V3-1: handle pending write-tool confirmations ───────────
     if (_pendingGoalTag != null || _pendingStepId != null) {
       final confirmed = text.trim().toLowerCase() == 'confirmer';
       final cancelled = text.trim().toLowerCase() == 'annuler';
       if (confirmed || cancelled) {
+        _isBusy = false;
         await _handlePendingWriteConfirmation(confirmed);
         return;
       }
@@ -817,7 +821,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       _pendingStepId = null;
     }
 
-    setState(() => _isBusy = true);
+    setState(() {});
 
     try {
       await _sendMessageInner(text);
@@ -3638,7 +3642,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
         // Navigate to review screen for confirmation
         if (mounted) {
-          context.push('/scan/review', extra: _buildExtractionResult(response));
+          final extracted = _buildExtractionResult(response);
+          if (extracted != null) {
+            context.push('/scan/review', extra: extracted);
+          }
         }
       } else {
         setState(() {

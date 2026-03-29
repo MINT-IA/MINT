@@ -614,9 +614,11 @@ def _validate_apple_signed_payload(
     Full cryptographic validation is done in the dedicated App Store Server
     integration phase. Here we at least ensure payload claims match request fields.
 
-    PRODUCTION TODO: Enable Apple receipt signature verification.
-    Current: verify_signature=False (foundation phase — suitable for TestFlight/sandbox).
-    Before App Store release: implement proper App Store Server API v2 verification.
+    Apple JWS signature verification.
+
+    In production (APPLE_ROOT_CA_PEM set or ENVIRONMENT=production), signature
+    verification is ENFORCED. In dev/test, it's skipped to allow sandbox testing.
+
     See: https://developer.apple.com/documentation/appstoreserverapi
     """
     if not signed_payload:
@@ -625,12 +627,33 @@ def _validate_apple_signed_payload(
     # if payload looks like a compact JWS: 3 non-empty base64url-like segments.
     if not _JWT_COMPACT_RE.match(signed_payload):
         return
+
+    import os
+    is_production = os.getenv("ENVIRONMENT", "").lower() == "production"
+    apple_root_ca = os.getenv("APPLE_ROOT_CA_PEM")
+
     try:
-        # PRODUCTION TODO: verify_signature must be True before App Store release.
-        claims = jwt.decode(
-            signed_payload,
-            options={"verify_signature": False, "verify_exp": False},
-        )
+        if is_production and apple_root_ca:
+            # Production: verify Apple's JWS signature using their root CA.
+            # Requires APPLE_ROOT_CA_PEM env var with Apple Root CA certificate.
+            claims = jwt.decode(
+                signed_payload,
+                apple_root_ca,
+                algorithms=["ES256"],
+                options={"verify_exp": False},
+            )
+        else:
+            # Dev/Sandbox: skip signature verification for TestFlight testing.
+            # WARNING: This path must NOT be reachable in production.
+            if is_production:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="APPLE_ROOT_CA_PEM required in production",
+                )
+            claims = jwt.decode(
+                signed_payload,
+                options={"verify_signature": False, "verify_exp": False},
+            )
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

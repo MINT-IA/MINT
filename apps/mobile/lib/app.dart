@@ -33,12 +33,12 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
+import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
-import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
@@ -67,7 +67,6 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
-import 'package:mint_mobile/screens/expert/expert_tier_screen.dart';
 import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
@@ -98,13 +97,11 @@ import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
 import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
-import 'package:mint_mobile/screens/coach/weekly_recap_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
-import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
@@ -120,7 +117,6 @@ import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart'
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
-import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
@@ -150,12 +146,8 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 //    /invalidite, /divorce, /succession
 // ════════════════════════════════════════════════════════════
 
-// F4-1: Router is now a function so it can receive AuthProvider as
-// refreshListenable. GoRouter re-evaluates redirects whenever
-// AuthProvider notifies (e.g. after checkAuth() restores a session).
-GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
+final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  refreshListenable: refreshListenable,
   observers: [AnalyticsRouteObserver()],
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
@@ -176,57 +168,9 @@ GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
     // Check if current path is protected
     final isProtected = protectedPrefixes.any((p) => path.startsWith(p));
 
-    // If protected and not logged in, redirect to register with return URL.
-    // V11-5: Use state.uri.toString() (not just path) to preserve query params
-    // (e.g. /couple/accept?code=XYZ).
+    // If protected and not logged in, redirect to register with return URL
     if (isProtected && !isLoggedIn) {
-      return '/auth/register?redirect=${Uri.encodeComponent(state.uri.toString())}';
-    }
-
-    // F2-2: If logged in but email not yet verified, force verification first.
-    // Prevents access to protected/profile screens before email confirmation.
-    if (isLoggedIn && auth.requiresEmailVerification && !path.startsWith('/auth/')) {
-      return '/auth/verify-email';
-    }
-
-    // Routes that REQUIRE a completed profile (financial screens)
-    // An authenticated user without a profile sees empty/broken screens.
-    // Redirect to quick onboarding so they complete the 3-question wizard first.
-    const profileRequiredPrefixes = [
-      '/home',        // main tabs (Pulse, Coach, Explorer, Dossier)
-      '/coach',       // coach chat
-      '/retraite',    // retirement dashboard
-      '/rente-vs-capital',
-      '/budget',
-      '/fiscal',
-      '/3a',
-      '/lpp',
-      '/mortgage',
-      '/scan',
-      '/expert',      // expert tier (needs profile for dossier prep)
-      '/tools',       // tools library (needs profile for context)
-    ];
-    final requiresProfile = profileRequiredPrefixes.any(
-      (p) => path.startsWith(p),
-    );
-    if (requiresProfile && isLoggedIn) {
-      final coachProfile = context.read<CoachProfileProvider>();
-      if (!coachProfile.hasProfile && !coachProfile.isHydrating) {
-        // Skip if already on the onboarding flow
-        if (!path.startsWith('/onboarding')) {
-          return '/onboarding/smart';
-        }
-      }
-    }
-
-    // V11-4: Consume pending notification route at the router level.
-    // The shell may not be mounted yet (auth/onboarding gates), so consuming
-    // here ensures the deep link fires regardless of shell lifecycle.
-    if (state.uri.path == '/' || state.uri.path == '/home') {
-      final pendingRoute = NotificationService.consumePendingRoute();
-      if (pendingRoute != null && pendingRoute.isNotEmpty) {
-        return pendingRoute;
-      }
+      return '/auth/register?redirect=${Uri.encodeComponent(path)}';
     }
 
     return null; // No redirect needed
@@ -259,16 +203,6 @@ GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
     ),
-
-    // ── Tab deep-link aliases (non-chat-routable, behavior E) ────
-    // /home?tab=N is the canonical form; these are convenience aliases.
-    GoRoute(path: '/app/today',   redirect: (_, __) => '/home?tab=0'),
-    GoRoute(path: '/app/coach',   redirect: (_, __) => '/home?tab=1'),
-    GoRoute(path: '/app/explore', redirect: (_, __) => '/home?tab=2'),
-    GoRoute(path: '/app/dossier', redirect: (_, __) => '/home?tab=3'),
-
-    // /pulse → redirect to home tab 0 (Pulse is tab 0 of the shell)
-    GoRoute(path: '/pulse', redirect: (_, __) => '/home?tab=0'),
 
     // ── EXPLORER HUBS (7 thematic hubs) ──────────────────────
     GoRoute(
@@ -380,11 +314,6 @@ GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
       path: '/coach/history',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConversationHistoryScreen(),
-    ),
-    GoRoute(
-      path: '/coach/weekly-recap',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const WeeklyRecapScreen(),
     ),
     GoRoute(
       path: '/succession',
@@ -811,13 +740,6 @@ GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
       builder: (context, state) => const LocationVsProprieteScreen(),
     ),
 
-    // ── EXPERT TIER ───────────────────────────────────────────
-    GoRoute(
-      path: '/expert',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ExpertTierScreen(),
-    ),
-
     // ── ACHIEVEMENTS ──────────────────────────────────────────
     GoRoute(
       path: '/achievements',
@@ -825,10 +747,10 @@ GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
       builder: (context, state) => const AchievementsScreen(),
     ),
 
-    // ── WEEKLY RECAP ─────────────────────────────────────────────
+    // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
     GoRoute(
       path: '/weekly-recap',
-      redirect: (_, __) => '/coach/weekly-recap',
+      redirect: (_, __) => '/home',
     ),
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
@@ -839,11 +761,10 @@ GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    // DEPRECATED: /ask-mint consolidated into /coach/chat (S52 surface dedup).
-    // AskMintScreen kept for backwards compat but entry point redirects.
     GoRoute(
       path: '/ask-mint',
-      redirect: (_, __) => '/coach/chat',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AskMintScreen(),
     ),
     GoRoute(
       path: '/tools',
@@ -953,11 +874,7 @@ GoRouter _createRouter(Listenable refreshListenable) => GoRouter(
       return '/onboarding/quick?section=$section';
     }),
     GoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
-    GoRoute(
-      path: '/onboarding/smart',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const SmartOnboardingScreen(),
-    ),
+    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
     GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
     GoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
   ],
@@ -975,23 +892,9 @@ class MintApp extends StatefulWidget {
 }
 
 class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
-  // F4-1: AuthProvider created here so it can be passed both to
-  // MultiProvider (for descendant widgets) and to GoRouter as
-  // refreshListenable (so redirects re-evaluate on auth state change).
-  // F7-1: CoachProfileProvider also created here so GoRouter re-evaluates
-  // when hydration state changes (isHydrating → false after API response).
-  late final AuthProvider _authProvider;
-  late final CoachProfileProvider _coachProfileProvider;
-  late final GoRouter _router;
-
   @override
   void initState() {
     super.initState();
-    _authProvider = AuthProvider()..checkAuth();
-    _coachProfileProvider = CoachProfileProvider()..loadFromWizard();
-    _router = _createRouter(
-      Listenable.merge([_authProvider, _coachProfileProvider]),
-    );
     WidgetsBinding.instance.addObserver(this);
     AnalyticsService().init();
     NotificationService().init();
@@ -999,7 +902,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    _router.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -1008,15 +910,9 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
-      // A3: Cancel periodic timer to prevent battery drain in background.
-      FeatureFlags.stopPeriodicRefresh();
       if (SlmEngine.instance.isAvailable) {
         SlmEngine.instance.dispose();
       }
-    }
-    if (state == AppLifecycleState.resumed) {
-      // A3: Restart periodic refresh when app returns to foreground.
-      FeatureFlags.startPeriodicRefresh();
     }
   }
 
@@ -1024,29 +920,9 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: _authProvider),
-        // F3-1: ProfileProvider clears on logout to prevent cross-account bleed.
-        ChangeNotifierProxyProvider<AuthProvider, ProfileProvider>(
-          create: (_) => ProfileProvider(),
-          update: (_, auth, profileProvider) {
-            final provider = profileProvider ?? ProfileProvider();
-            if (!auth.isLoggedIn && provider.hasProfile) {
-              provider.clear();
-            }
-            return provider;
-          },
-        ),
-        ChangeNotifierProxyProvider<AuthProvider, BudgetProvider>(
-          create: (_) => BudgetProvider(),
-          update: (_, auth, budgetProvider) {
-            final provider = budgetProvider ?? BudgetProvider();
-            if (!auth.isLoggedIn) {
-              // Clear budget data on logout to prevent cross-account bleed.
-              provider.clear();
-            }
-            return provider;
-          },
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
           provider.loadSavedKey();
@@ -1055,53 +931,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        // F5-1: CoachProfileProvider re-hydrates from wizard data when auth
-        // state changes, then merges remote profile data from GET /profiles/me.
-        // F7-1: Instance created at _MintAppState level (for refreshListenable),
-        // re-used here via ChangeNotifierProxyProvider for auth-reactive updates.
-        ChangeNotifierProxyProvider<AuthProvider, CoachProfileProvider>(
-          create: (_) => _coachProfileProvider,
-          update: (_, auth, coachProvider) {
-            final provider = coachProvider ?? CoachProfileProvider();
-            if (!auth.isLoggedIn) {
-              // F3-1: Clear in-memory profile on logout to prevent
-              // cross-account data bleed in the same session.
-              // S57-F5: Always clear — even if hasProfile is false.
-              // Without this, _remoteHydrationDone and _isHydrating
-              // remain stale when logout happens during hydration.
-              provider.clear();
-              return provider;
-            }
-            // Reload wizard data when auth transitions to logged-in
-            // and profile hasn't been loaded yet.
-            if (auth.isLoggedIn && !provider.isLoaded) {
-              provider.loadFromWizard();
-            }
-            // F5-1 + F6-1: Best-effort hydration from backend profile.
-            // Scenario A: Local profile exists → merge (local takes priority).
-            // Scenario B: Local profile is NULL but backend has one → create from remote.
-            // Only attempted once per session to avoid redundant API calls.
-            // F7-1: startHydrating/finishHydrating bracket the async call so
-            // GoRouter does NOT redirect to onboarding while fetch is in flight.
-            if (auth.isLoggedIn && provider.isLoaded && !provider.remoteHydrationDone) {
-              provider.markRemoteHydrationDone();
-              provider.startHydrating();
-              ApiService.getMyProfile().then((remoteData) {
-                if (remoteData != null) {
-                  if (provider.hasProfile) {
-                    provider.mergeFromRemoteProfile(remoteData);
-                  } else {
-                    provider.createFromRemoteProfile(remoteData);
-                  }
-                }
-                provider.finishHydrating();
-              }).catchError((_) {
-                provider.finishHydrating();
-              });
-            }
-            return provider;
-          },
-        ),
+        ChangeNotifierProvider(create: (_) {
+          final provider = CoachProfileProvider();
+          provider.loadFromWizard();
+          return provider;
+        }),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();
@@ -1117,22 +951,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.init();
           return provider;
         }),
-        // MintStateProvider — unified user state.
-        // Recomputes whenever CoachProfileProvider emits a new profile.
-        ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
-          create: (_) => MintStateProvider(),
-          update: (_, coachProvider, mintState) {
-            final provider = mintState ?? MintStateProvider();
-            if (coachProvider.profile != null) {
-              provider.recompute(coachProvider.profile!);
-            } else {
-              // A9 fix: clear stale state on logout to prevent
-              // previous user's data lingering in MintUserState.
-              provider.clear();
-            }
-            return provider;
-          },
-        ),
       ],
       child: Builder(
         builder: (context) {
@@ -1142,7 +960,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             debugShowCheckedModeBanner: false,
             theme: _buildPremiumTheme(),
             themeMode: ThemeMode.light,
-            routerConfig: _router, // F4-1: instance router with refreshListenable
+            routerConfig: _router,
             localizationsDelegates: S.localizationsDelegates,
             supportedLocales: S.supportedLocales,
             locale: localeProvider.locale,
@@ -1162,9 +980,9 @@ ThemeData _buildPremiumTheme() {
     scaffoldBackgroundColor: MintColors.background,
     colorScheme: const ColorScheme.light(
       primary: MintColors.primary,
-      onPrimary: Colors.white,
+      onPrimary: MintColors.white,
       secondary: MintColors.accent,
-      onSecondary: Colors.white,
+      onSecondary: MintColors.white,
       surface: MintColors.appleSurface,
       onSurface: MintColors.textPrimary,
       error: MintColors.error,
@@ -1208,7 +1026,7 @@ ThemeData _buildPremiumTheme() {
       ),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
@@ -1233,7 +1051,7 @@ ThemeData _buildPremiumTheme() {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: MintColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: MintColors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -1293,8 +1111,8 @@ class _MintErrorScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Page introuvable'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
         elevation: 0,
       ),
       body: Center(
@@ -1304,12 +1122,12 @@ class _MintErrorScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.explore_off_outlined,
-                  size: 64, color: Colors.grey),
+                  size: 64, color: MintColors.greyApple),
               const SizedBox(height: 24),
               const Text(
                 'Cette page n\'existe pas ou a été déplacée.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.black87),
+                style: TextStyle(fontSize: 16, color: MintColors.textPrimary),
               ),
               const SizedBox(height: 24),
               FilledButton.icon(

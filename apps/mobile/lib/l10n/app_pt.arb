@@ -10619,6 +10619,9 @@
   "capHonestyNoLppWhyNow": "As alavancas cl\u00e1ssicas n\u00e3o mudam muito o quadro aqui. Um especialista pode ajudar-te a ver mais longe.",
   "capHonestyCtaLabel": "Falar com o coach",
   "capHonestyExpectedImpact": "esclarecimento",
+  "capHonestyDebtCoachPrompt": "A minha dívida ultrapassa largamente o meu rendimento anual. Os simuladores já não bastam. Encaminha-me para um especialista em desendividamento.",
+  "capHonestyCrossBorderCoachPrompt": "Sou fronteiriço/a perto da reforma sem LPP. Que opções realistas existem? Encaminha-me para um especialista.",
+  "capHonestyNoLppCoachPrompt": "Aproximo-me da reforma com pouco 2.º pilar. Ajuda-me a perceber o que adquiri e encaminha-me para um especialista.",
   "capAcquiredAvsWithRente": "AVS\u00a0: ~{rente}\u00a0CHF/m\u00eas ({years} anos contribu\u00eddos)",
   "capAcquiredAvsYearsOnly": "AVS\u00a0: {years} anos contribu\u00eddos",
   "capAcquiredAvsInProgress": "AVS\u00a0: direitos em curso",
@@ -11410,7 +11413,7 @@
   "chatDocError": "Erro ao analisar o documento. Tenta novamente.",
   "chatDocAttachTooltip": "Digitalizar um documento",
   "seasonalLamalTitle": "Novos prémios LAMal",
-  "seasonalLamalDesc": "Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é ótima.",
+  "seasonalLamalDesc": "Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é adequada à tua situação.",
   "extractionWhoseDocument": "De quem é este documento?",
   "extractionWhoseDocumentBody": "Tens um perfil de casal. Este documento é teu ou do teu parceiro?",
   "extractionDocMine": "É meu",
@@ -11431,7 +11434,7 @@
   "sequencePreretraiteStep1": "Retirement projection",
   "sequencePreretraiteStep2": "3a review",
   "sequencePreretraiteStep3": "Annuity or capital",
-  "sequencePreretraiteStep4": "Optimal 3a withdrawal",
+  "sequencePreretraiteStep4": "Levantamento 3a escalonado",
   "sequencePreretraiteStep5": "Mortgage",
   "sequencePreretraiteStep6": "LPP buyback",
   "sequencePreretraiteStep7": "LAMal franchise",
@@ -11464,5 +11467,7 @@
   "sequenceRetraiteActiveStep1": "Retirement budget",
   "sequenceRetraiteActiveStep2": "Succession",
   "sequenceRetraiteActiveStep3": "LAMal franchise",
-  "sequenceRetraiteActiveStep4": "Summary"
+  "sequenceRetraiteActiveStep4": "Summary",
+  "sequenceReadyNextStep": "Pronto para o próximo passo",
+  "sequenceQuitButton": "Abandonar o percurso"
 }
