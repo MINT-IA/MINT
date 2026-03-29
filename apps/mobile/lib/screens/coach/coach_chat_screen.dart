@@ -45,6 +45,7 @@ import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/product_cohort_service.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_summary_builder.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1504,9 +1505,16 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           seqRunId = '${template.id}_${DateTime.now().millisecondsSinceEpoch}';
           seqStepId = template.steps.first.id;
           // Fire-and-forget: persist the run + first proposal.
+          // Pass cohort suppressed topics to block forbidden sequences.
+          Set<String>? suppressed;
+          try {
+            final cohortResult = ProductCohortService.resolve(_profile!);
+            suppressed = cohortResult.suppressedTopics;
+          } catch (_) {}
           SequenceChatHandler.startSequence(
             raw.intent,
             preGeneratedRunId: seqRunId,
+            suppressedTopics: suppressed,
           ).catchError((_) => null);
           // Analytics
           AnalyticsService().trackEvent(

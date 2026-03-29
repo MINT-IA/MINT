@@ -6909,7 +6909,12 @@
           "payslip",
           "lease_contract",
           "lpp_plan",
-          "insurance_contract"
+          "insurance_contract",
+          "pillar_3a_attestation",
+          "insurance_policy",
+          "lease",
+          "lamal_statement",
+          "other"
         ],
         "title": "DocumentType",
         "type": "string"

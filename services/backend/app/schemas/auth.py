@@ -158,6 +158,11 @@ class AuthAdminOnboardingCohortsResponse(BaseModel):
     cohorts: list[AuthAdminOnboardingCohortRow]
 
 
+class LogoutRequest(BaseModel):
+    """Optional body for logout — allows blacklisting the refresh token too."""
+    refresh_token: Optional[str] = None
+
+
 class LogoutResponse(BaseModel):
     """Schema for logout response."""
     status: str
