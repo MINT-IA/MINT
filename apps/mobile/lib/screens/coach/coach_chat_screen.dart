@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -3606,7 +3605,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       final canton = context.read<CoachProfileProvider>().profile?.canton;
 
       // Detect document type from file extension (better than hardcoding)
-      final ext = (fileName ?? '').split('.').last.toLowerCase();
+      final ext = fileName.split('.').last.toLowerCase();
       final docType = switch (ext) {
         'pdf' => 'lpp_certificate', // PDF → default to LPP (most common scan)
         _ => 'lpp_certificate',
@@ -3625,11 +3624,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       if (response != null && (response['extractedFields'] as List?)?.isNotEmpty == true) {
         final fields = response['extractedFields'] as List;
         final analysis = response['rawAnalysis'] as String? ?? '';
-        final docType = response['documentType'] as String? ?? 'document';
-
         // Build a human-readable summary for the chat
         final buf = StringBuffer();
-        buf.writeln('${S.of(context)!.chatDocAnalysisIntro}');
+        buf.writeln(S.of(context)!.chatDocAnalysisIntro);
         buf.writeln();
         for (final f in fields) {
           final name = f['fieldName'] as String? ?? '';
