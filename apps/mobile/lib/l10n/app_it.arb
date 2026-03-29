@@ -10618,6 +10618,9 @@
   "capHonestyNoLppWhyNow": "Le leve classiche non cambiano molto il quadro qui. Uno specialista pu\u00f2 aiutarti a vedere pi\u00f9 lontano.",
   "capHonestyCtaLabel": "Parlare con il coach",
   "capHonestyExpectedImpact": "chiarimento",
+  "capHonestyDebtCoachPrompt": "Il mio debito supera ampiamente il mio reddito annuale. I simulatori non bastano più. Indirizzami verso uno specialista in disindebito.",
+  "capHonestyCrossBorderCoachPrompt": "Sono frontaliere/a vicino/a alla pensione senza LPP. Quali opzioni realistiche esistono? Indirizzami verso uno specialista.",
+  "capHonestyNoLppCoachPrompt": "Mi avvicino alla pensione con poco 2° pilastro. Aiutami a capire quanto acquisito e indirizzami verso uno specialista.",
   "capAcquiredAvsWithRente": "AVS\u00a0: ~{rente}\u00a0CHF/mese ({years} anni contribuiti)",
   "capAcquiredAvsYearsOnly": "AVS\u00a0: {years} anni contribuiti",
   "capAcquiredAvsInProgress": "AVS\u00a0: diritti in corso",
@@ -11409,7 +11412,7 @@
   "chatDocError": "Errore nell'analisi del documento. Riprova.",
   "chatDocAttachTooltip": "Scansionare un documento",
   "seasonalLamalTitle": "Nuovi premi LAMal",
-  "seasonalLamalDesc": "I premi 2027 sono pubblicati. Verifica se la tua franchigia è ancora ottimale.",
+  "seasonalLamalDesc": "I premi 2027 sono pubblicati. Verifica se la tua franchigia è ancora adatta alla tua situazione.",
   "extractionWhoseDocument": "Di chi è questo documento?",
   "extractionWhoseDocumentBody": "Hai un profilo di coppia. Questo documento è tuo o del tuo partner?",
   "extractionDocMine": "È mio",
@@ -11430,7 +11433,7 @@
   "sequencePreretraiteStep1": "Retirement projection",
   "sequencePreretraiteStep2": "3a review",
   "sequencePreretraiteStep3": "Annuity or capital",
-  "sequencePreretraiteStep4": "Optimal 3a withdrawal",
+  "sequencePreretraiteStep4": "Prelievo 3a scaglionato",
   "sequencePreretraiteStep5": "Mortgage",
   "sequencePreretraiteStep6": "LPP buyback",
   "sequencePreretraiteStep7": "LAMal franchise",
@@ -11463,5 +11466,7 @@
   "sequenceRetraiteActiveStep1": "Retirement budget",
   "sequenceRetraiteActiveStep2": "Succession",
   "sequenceRetraiteActiveStep3": "LAMal franchise",
-  "sequenceRetraiteActiveStep4": "Summary"
+  "sequenceRetraiteActiveStep4": "Summary",
+  "sequenceReadyNextStep": "Pronto per il prossimo passo",
+  "sequenceQuitButton": "Abbandonare il percorso"
 }

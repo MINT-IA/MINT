@@ -9788,153 +9788,9 @@ class SDe extends S {
   String get shellWelcomeBack => 'Wieder da. Deine Zahlen sind aktuell.';
 
   @override
-  String get sequencePremiersPasGoal => 'Understand my first salary';
-  @override
-  String get sequenceDensificationGoal => 'Protect and consolidate';
-  @override
-  String get sequenceRetraiteActiveGoal => 'Manage my retirement';
-
-  @override
-  String get sequenceCoupleGoal => 'Coordinate finances together';
-
-  @override
-  String get sequenceNaissanceGoal => 'Prepare for baby financially';
-
-  @override
-  String get sequencePreretraiteGoal => 'Prepare my retirement';
-
-  @override
-  String get capCoachPromptDebt => 'Hilf mir prioritize my debt repayment. Where should I start?';
-
-  @override
-  String get capCoachPromptIndepNoLpp => 'Ich bin self-employed without LPP. What pension options do I have?';
-
-  @override
-  String get capCoachPrompt3a => 'How much can I save with a 3a contribution this year?';
-
-  @override
-  String get capCoachPromptRachat => 'Hilf mir understand if a LPP buyback makes sense for me.';
-
-  @override
-  String get capCoachPromptBudgetDeficit => 'My budget is in deficit. How can I find some breathing room?';
-
-  @override
-  String get capCoachPromptUnemployment => 'Ich bin unemployed. What are my financial options?';
-
-  @override
-  String get capCoachPromptDivorce => 'Ich bin divorced. How can I protect my financial situation?';
-
-  @override
-  String get capCoachPromptCoupleOptim => 'How can we optimize our pension planning as a couple?';
-
-  @override
-  String get capCoachPromptCouple => 'We\'re a couple. How should we coordinate our finances?';
-
-  @override
-  String get capCoachPromptMarried => 'We\'re both working and married. How can we optimize?';
-
-  @override
-  String capCoachPromptMissingData(String category) => 'Help me understand why \$category is important for my situation.';
-
-  @override
-  String capCoachPromptReplacement(String rate) => 'My replacement rate is \$rate%. Is that enough for retirement?';
-
-  @override
-  String get seasonalLamalTitle => 'Neue KVG-Prämien';
-
-  @override
-  String get seasonalLamalDesc => 'Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch optimal ist.';
-
-  @override
-  String proactiveContractDeadline(String label, String days) => 'Erinnerung: \$label läuft in \$days Tagen ab. Plane voraus.';
-
-  @override
-  String get extractionWhoseDocument => 'Wessen Dokument ist das?';
-
-  @override
-  String get extractionWhoseDocumentBody => 'Du hast ein Paar-Profil. Gehört dieses Dokument dir oder deinem Partner?';
-
-  @override
-  String get extractionDocMine => 'Es ist meins';
-
-  @override
-  String get extractionDocPartner => 'Es gehört meinem Partner';
-
-  @override
-  String get chatPickPhoto => 'Foto aufnehmen';
-
-  @override
-  String get chatPickGallery => 'Bild auswählen';
-
-  @override
-  String get chatPickFile => 'Datei (PDF, DOCX)';
-
-  @override
-  String get chatFileTooLarge => 'Datei zu gross (max. 5 MB)';
-
-  @override
-  String get chatDocSent => 'Dokument zur Analyse gesendet';
-
-  @override
-  String get chatDocAnalysisIntro => 'Ich habe dein Dokument analysiert. Folgendes habe ich gefunden:';
-
-  @override
-  String get chatDocUpdatePrompt => 'Möchtest du, dass ich dein Profil mit diesen Daten aktualisiere?';
-
-  @override
-  String get chatDocExtractionFailed => 'Ich konnte keine Daten aus diesem Dokument extrahieren. Versuche es mit einem schärferen Foto.';
-
-  @override
-  String get chatDocError => 'Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.';
-
-  @override
-  String get chatDocAttachTooltip => 'Dokument scannen';
-
-  @override
-  String shellWelcomeBackDeltaPts(int delta) => 'Willkommen zurück! Deine Genauigkeit hat sich um +\$delta Pkt. verbessert.';
-
-  @override
-  String get summaryCapaciteAchat => 'Kaufkapazität';
-  @override
-  String get summaryFondsPropres => 'Erforderliche Eigenmittel';
-  @override
-  String get summaryRetraitEpl => 'Geplanter WEF-Bezug';
-  @override
-  String get summaryImpactRente => 'Auswirkung auf Ihre Rente';
-  @override
-  String get summaryImpotRetrait => 'Bezugssteuer';
-  @override
-  String get summaryMontantNet => 'Nettobetrag nach Steuern';
-  @override
-  String get summaryVersementAnnuel => 'Jährliche Einzahlung';
-  @override
-  String get summaryEconomieFiscale => 'Jährliche Steuerersparnis';
-  @override
-  String get summaryGainEchelonnement => 'Gewinn durch gestaffelten Bezug';
-  @override
-  String get summaryTauxRemplacement => 'Ersatzquote';
-  @override
-  String get summaryEcartMensuel => 'Geschätzte monatliche Lücke';
-  @override
-  String get summaryEconomieRachat => 'Ersparnis durch gestaffelten Einkauf';
-  @override
-  String get summaryRatioEndettement => 'Verschuldungsquote';
-  @override
-  String get summaryMargeMensuelle => 'Monatliche Marge';
-  @override
-  String get summaryRevenuNet => 'Monatliches Nettoeinkommen';
-  @override
-  String get summaryChargesFixes => 'Gesamte Fixkosten';
-  @override
-  String get summaryHorizonLiberation => 'Schuldenfreiheitshorizont';
-  @override
-  String get summaryVersementMensuel => 'Monatliche Zahlung';
-  @override
-  String get summaryDonneesLpp => 'BVG-Zertifikat Daten';
-  @override
-  String get summaryEstimationSansCertificat => 'Schätzung ohne Zertifikat';
-  @override
-  String get summaryChoixRenteCapital => 'Renten-/Kapitalwahl';
+  String shellWelcomeBackDelta(Object delta) {
+    return 'Willkommen zuru00fcck! Deine Genauigkeit hat sich um +$delta Pkt. verbessert.';
+  }
 
   @override
   String get shellRecommendationsUpdated => 'Empfehlungen aktualisiert';
@@ -22561,6 +22417,18 @@ class SDe extends S {
   String get capHonestyExpectedImpact => 'Klärung';
 
   @override
+  String get capHonestyDebtCoachPrompt =>
+      'Meine Schulden übersteigen mein Jahreseinkommen bei Weitem. Simulatoren reichen nicht mehr. Leite mich an eine Fachperson für Entschuldung weiter.';
+
+  @override
+  String get capHonestyCrossBorderCoachPrompt =>
+      'Ich bin Grenzgänger·in kurz vor der Pension ohne BVG. Welche realistischen Optionen gibt es? Leite mich an eine Fachperson weiter.';
+
+  @override
+  String get capHonestyNoLppCoachPrompt =>
+      'Ich nähere mich der Pension mit wenig 2. Säule. Hilf mir zu verstehen, was erworben ist, und leite mich an eine Fachperson weiter.';
+
+  @override
   String capAcquiredAvsWithRente(String rente, String years) {
     return 'AHV : ~$rente CHF/Monat ($years Jahre beigetragen)';
   }
@@ -24568,6 +24436,69 @@ class SDe extends S {
   String get sequenceTensionStep4 => 'Zusammenfassung';
 
   @override
+  String get summaryCapaciteAchat => 'Kaufkapazität';
+
+  @override
+  String get summaryFondsPropres => 'Erforderliche Eigenmittel';
+
+  @override
+  String get summaryRetraitEpl => 'Geplanter WEF-Bezug';
+
+  @override
+  String get summaryImpactRente => 'Auswirkung auf Ihre Rente';
+
+  @override
+  String get summaryImpotRetrait => 'Bezugssteuer';
+
+  @override
+  String get summaryMontantNet => 'Nettobetrag nach Steuern';
+
+  @override
+  String get summaryVersementAnnuel => 'Jährliche Einzahlung';
+
+  @override
+  String get summaryEconomieFiscale => 'Jährliche Steuerersparnis';
+
+  @override
+  String get summaryGainEchelonnement => 'Gewinn durch gestaffelten Bezug';
+
+  @override
+  String get summaryTauxRemplacement => 'Ersatzquote';
+
+  @override
+  String get summaryEcartMensuel => 'Geschätzte monatliche Lücke';
+
+  @override
+  String get summaryEconomieRachat => 'Ersparnis durch gestaffelten Einkauf';
+
+  @override
+  String get summaryRatioEndettement => 'Verschuldungsquote';
+
+  @override
+  String get summaryMargeMensuelle => 'Monatliche Marge';
+
+  @override
+  String get summaryRevenuNet => 'Monatliches Nettoeinkommen';
+
+  @override
+  String get summaryChargesFixes => 'Gesamte Fixkosten';
+
+  @override
+  String get summaryHorizonLiberation => 'Schuldenfreiheitshorizont';
+
+  @override
+  String get summaryVersementMensuel => 'Monatliche Zahlung';
+
+  @override
+  String get summaryDonneesLpp => 'BVG-Zertifikat Daten';
+
+  @override
+  String get summaryEstimationSansCertificat => 'Schätzung ohne Zertifikat';
+
+  @override
+  String get summaryChoixRenteCapital => 'Renten-/Kapitalwahl';
+
+  @override
   String get sequenceAllStepsComplete => 'Alle Schritte abgeschlossen';
 
   @override
@@ -24601,4 +24532,235 @@ class SDe extends S {
   @override
   String get sequenceReEvaluate =>
       'Deine Daten haben sich geändert. Betroffene Schritte werden neu berechnet.';
+
+  @override
+  String shellWelcomeBackDeltaPts(Object delta) {
+    return 'Willkommen zurück! Deine Genauigkeit hat sich um +$delta Pkt. verbessert.';
+  }
+
+  @override
+  String get chatPickPhoto => 'Foto aufnehmen';
+
+  @override
+  String get chatPickGallery => 'Bild auswählen';
+
+  @override
+  String get chatPickFile => 'Datei (PDF, DOCX)';
+
+  @override
+  String get chatFileTooLarge => 'Datei zu gross (max. 5 MB)';
+
+  @override
+  String get chatDocSent => 'Dokument zur Analyse gesendet';
+
+  @override
+  String get chatDocAnalysisIntro =>
+      'Ich habe dein Dokument analysiert. Folgendes habe ich gefunden:';
+
+  @override
+  String get chatDocUpdatePrompt =>
+      'Möchtest du, dass ich dein Profil mit diesen Daten aktualisiere?';
+
+  @override
+  String get chatDocExtractionFailed =>
+      'Ich konnte keine Daten aus diesem Dokument extrahieren. Versuche es mit einem schärferen Foto.';
+
+  @override
+  String get chatDocError =>
+      'Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.';
+
+  @override
+  String get chatDocAttachTooltip => 'Dokument scannen';
+
+  @override
+  String get seasonalLamalTitle => 'Neue KVG-Prämien';
+
+  @override
+  String get seasonalLamalDesc =>
+      'Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch zu deiner Situation passt.';
+
+  @override
+  String get extractionWhoseDocument => 'Wessen Dokument ist das?';
+
+  @override
+  String get extractionWhoseDocumentBody =>
+      'Du hast ein Paar-Profil. Gehört dieses Dokument dir oder deinem Partner?';
+
+  @override
+  String get extractionDocMine => 'Es ist meins';
+
+  @override
+  String get extractionDocPartner => 'Es gehört meinem Partner';
+
+  @override
+  String capCoachPromptMissingData(Object category) {
+    return 'Hilf mir understand why $category is important for my situation.';
+  }
+
+  @override
+  String get capCoachPromptDebt =>
+      'Hilf mir prioritize my debt repayment. Where should I start?';
+
+  @override
+  String get capCoachPromptIndepNoLpp =>
+      'I\'m self-employed without LPP. What pension options do I have?';
+
+  @override
+  String get capCoachPrompt3a =>
+      'Wie much can I save with a 3a contribution this year?';
+
+  @override
+  String get capCoachPromptRachat =>
+      'Hilf mir understand if a LPP buyback makes sense for me.';
+
+  @override
+  String get capCoachPromptBudgetDeficit =>
+      'My budget is in deficit. Wie can I find some breathing room?';
+
+  @override
+  String capCoachPromptReplacement(Object rate) {
+    return 'My replacement rate is $rate%. Is that enough for retirement?';
+  }
+
+  @override
+  String get capCoachPromptUnemployment =>
+      'I\'m unemployed. What are my financial options?';
+
+  @override
+  String get capCoachPromptDivorce =>
+      'I\'m divorced. Wie can I protect my financial situation?';
+
+  @override
+  String get capCoachPromptCoupleOptim =>
+      'Wie can we optimize our pension planning as a couple?';
+
+  @override
+  String get capCoachPromptCouple =>
+      'We\'re a couple. Wie should we coordinate our finances?';
+
+  @override
+  String get capCoachPromptMarried =>
+      'We\'re both working and married. Wie can we optimize?';
+
+  @override
+  String get sequencePreretraiteGoal => 'Prepare my retirement';
+
+  @override
+  String get sequencePreretraiteStep1 => 'Retirement projection';
+
+  @override
+  String get sequencePreretraiteStep2 => '3a review';
+
+  @override
+  String get sequencePreretraiteStep3 => 'Annuity or capital';
+
+  @override
+  String get sequencePreretraiteStep4 => 'Gestaffelter 3a-Bezug';
+
+  @override
+  String get sequencePreretraiteStep5 => 'Mortgage';
+
+  @override
+  String get sequencePreretraiteStep6 => 'LPP buyback';
+
+  @override
+  String get sequencePreretraiteStep7 => 'LAMal franchise';
+
+  @override
+  String get sequencePreretraiteStep8 => 'Succession';
+
+  @override
+  String get sequencePreretraiteStep9 => 'Retirement budget';
+
+  @override
+  String get sequencePreretraiteStep10 => 'Withdrawal plan';
+
+  @override
+  String get sequencePreretraiteStep11 => 'Summary';
+
+  @override
+  String proactiveContractDeadline(Object days, Object label) {
+    return 'Erinnerung: $label läuft in $days Tagen ab. Plane voraus.';
+  }
+
+  @override
+  String get sequenceCoupleGoal => 'Coordinate finances together';
+
+  @override
+  String get sequenceCoupleStep1 => 'Marriage or partnership';
+
+  @override
+  String get sequenceCoupleStep2 => 'Couple profile';
+
+  @override
+  String get sequenceCoupleStep3 => '3a together';
+
+  @override
+  String get sequenceCoupleStep4 => 'Couple taxation';
+
+  @override
+  String get sequenceCoupleStep5 => 'Summary';
+
+  @override
+  String get sequenceNaissanceGoal => 'Prepare for baby financially';
+
+  @override
+  String get sequenceNaissanceStep1 => 'Birth impact';
+
+  @override
+  String get sequenceNaissanceStep2 => 'Family budget';
+
+  @override
+  String get sequenceNaissanceStep3 => '3a parent';
+
+  @override
+  String get sequenceNaissanceStep4 => 'Summary';
+
+  @override
+  String get sequencePremiersPasGoal => 'Understand my first salary';
+
+  @override
+  String get sequencePremiersPasStep1 => 'First job';
+
+  @override
+  String get sequencePremiersPasStep2 => 'My first budget';
+
+  @override
+  String get sequencePremiersPasStep3 => 'Discover 3a';
+
+  @override
+  String get sequenceDensificationGoal => 'Protect and consolidate';
+
+  @override
+  String get sequenceDensificationStep1 => 'Retirement projection';
+
+  @override
+  String get sequenceDensificationStep2 => 'Disability protection';
+
+  @override
+  String get sequenceDensificationStep3 => 'LPP buyback';
+
+  @override
+  String get sequenceDensificationStep4 => 'Summary';
+
+  @override
+  String get sequenceRetraiteActiveGoal => 'Manage my retirement';
+
+  @override
+  String get sequenceRetraiteActiveStep1 => 'Retirement budget';
+
+  @override
+  String get sequenceRetraiteActiveStep2 => 'Succession';
+
+  @override
+  String get sequenceRetraiteActiveStep3 => 'LAMal franchise';
+
+  @override
+  String get sequenceRetraiteActiveStep4 => 'Summary';
+
+  @override
+  String get sequenceReadyNextStep => 'Bereit für den nächsten Schritt';
+
+  @override
+  String get sequenceQuitButton => 'Parcours verlassen';
 }

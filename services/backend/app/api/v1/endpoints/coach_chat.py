@@ -686,6 +686,7 @@ async def _run_agent_loop(
     language: str,
     memory_block: Optional[str],
     system_prompt: Optional[str] = None,
+    user_id: Optional[str] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -742,6 +743,7 @@ async def _run_agent_loop(
             language=language,
             tools=stripped_tools,
             system_prompt=system_prompt,
+            user_id=user_id,
         )
 
         # Accumulate metadata across iterations
@@ -940,6 +942,7 @@ async def coach_chat(
             language=body.language,
             memory_block=body.memory_block,
             system_prompt=system_prompt,
+            user_id=_user.id if _user else None,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
@@ -1041,6 +1044,9 @@ async def sync_insight(
         except (ValueError, TypeError):
             pass
 
+    # S2 security fix: bind insight to current user to prevent cross-user overwrites.
+    # user_id is stored in metadata and used as a filter in RAG retrieval.
+    uid = current_user.id if current_user else None
     success = await embed_insight(
         insight_id=body.insight_id,
         topic=body.topic,
@@ -1048,6 +1054,7 @@ async def sync_insight(
         insight_type=body.insight_type,
         metadata=body.metadata,
         created_at=created,
+        user_id=uid,
     )
 
     return _InsightSyncResponse(

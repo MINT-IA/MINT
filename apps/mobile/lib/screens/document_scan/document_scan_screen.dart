@@ -539,7 +539,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
         confidenceDelta: _confidenceDeltaForType(_selectedType),
         warnings: const [],
-        disclaimer: 'Extraction via Claude Vision. Vérifiez les valeurs.',
+        disclaimer: 'Extraction via Claude Vision. Vérifiez les valeurs.', // TODO: i18n — add documentVisionDisclaimer to ARBs
         sources: const ['Claude Vision API'],
       );
     } catch (_) {

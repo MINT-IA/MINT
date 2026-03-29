@@ -62,6 +62,7 @@ WITH vector_results AS (
            1 - (embedding <=> %(query_embedding)s::vector) AS vector_score
     FROM document_embeddings
     WHERE (%(doc_types)s IS NULL OR doc_type = ANY(%(doc_types)s))
+      AND (doc_type != 'memory' OR metadata::jsonb->>'user_id' = %(user_id)s OR %(user_id)s IS NULL)
     ORDER BY embedding <=> %(query_embedding)s::vector
     LIMIT %(n_results)s
 ),
@@ -71,6 +72,7 @@ keyword_results AS (
     FROM document_embeddings
     WHERE to_tsvector('french', content) @@ plainto_tsquery('french', %(query_text)s)
       AND (%(doc_types)s IS NULL OR doc_type = ANY(%(doc_types)s))
+      AND (doc_type != 'memory' OR metadata::jsonb->>'user_id' = %(user_id)s OR %(user_id)s IS NULL)
     LIMIT %(n_results)s
 )
 SELECT COALESCE(v.doc_id, k.doc_id) AS doc_id,
@@ -105,6 +107,7 @@ SELECT doc_id, title, content, metadata, doc_type,
 FROM document_embeddings
 WHERE to_tsvector('french', content) @@ plainto_tsquery('french', %(query_text)s)
   AND (%(doc_types)s IS NULL OR doc_type = ANY(%(doc_types)s))
+  AND (doc_type != 'memory' OR metadata::jsonb->>'user_id' = %(user_id)s OR %(user_id)s IS NULL)
 ORDER BY keyword_score DESC
 LIMIT %(n_results)s;
 """
@@ -207,6 +210,7 @@ class HybridSearchService:
         n_results: int = 5,
         doc_types: Optional[list[str]] = None,
         min_score: float = 0.1,
+        user_id: Optional[str] = None,
     ) -> list[SearchResult]:
         """Search using hybrid vector + keyword scoring.
 
@@ -240,6 +244,7 @@ class HybridSearchService:
                     "n_results": n_results,
                     "doc_types": doc_types,
                     "min_score": min_score,
+                    "user_id": user_id,
                 }
             else:
                 # Fallback: keyword-only (no embedding available)
@@ -248,6 +253,7 @@ class HybridSearchService:
                     "query_text": query,
                     "n_results": n_results,
                     "doc_types": doc_types,
+                    "user_id": user_id,
                 }
                 logger.info("hybrid_search falling back to keyword-only (no embedding)")
 

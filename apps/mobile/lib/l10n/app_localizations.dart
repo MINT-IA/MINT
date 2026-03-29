@@ -17557,62 +17557,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'De retour. Tes chiffres sont à jour.'**
   String get shellWelcomeBack;
-  String get sequenceRetraiteActiveGoal;
-  String get sequenceDensificationGoal;
-  String get sequencePremiersPasGoal;
-  String get sequenceCoupleGoal;
-  String get sequenceNaissanceGoal;
-  String get sequencePreretraiteGoal;
-  String get capCoachPromptDebt;
-  String get capCoachPromptIndepNoLpp;
-  String get capCoachPrompt3a;
-  String get capCoachPromptRachat;
-  String get capCoachPromptBudgetDeficit;
-  String get capCoachPromptUnemployment;
-  String get capCoachPromptDivorce;
-  String get capCoachPromptCoupleOptim;
-  String get capCoachPromptCouple;
-  String get capCoachPromptMarried;
-  String capCoachPromptMissingData(String category);
-  String capCoachPromptReplacement(String rate);
-  String proactiveContractDeadline(String label, String days);
-  String get extractionWhoseDocument;
-  String get extractionWhoseDocumentBody;
-  String get extractionDocMine;
-  String get extractionDocPartner;
-  String get chatPickPhoto;
-  String get chatPickGallery;
-  String get chatPickFile;
-  String get chatFileTooLarge;
-  String get chatDocSent;
-  String get chatDocAnalysisIntro;
-  String get chatDocUpdatePrompt;
-  String get chatDocExtractionFailed;
-  String get chatDocError;
-  String get chatDocAttachTooltip;
-  String shellWelcomeBackDeltaPts(int delta);
 
-  String get summaryCapaciteAchat;
-  String get summaryFondsPropres;
-  String get summaryRetraitEpl;
-  String get summaryImpactRente;
-  String get summaryImpotRetrait;
-  String get summaryMontantNet;
-  String get summaryVersementAnnuel;
-  String get summaryEconomieFiscale;
-  String get summaryGainEchelonnement;
-  String get summaryTauxRemplacement;
-  String get summaryEcartMensuel;
-  String get summaryEconomieRachat;
-  String get summaryRatioEndettement;
-  String get summaryMargeMensuelle;
-  String get summaryRevenuNet;
-  String get summaryChargesFixes;
-  String get summaryHorizonLiberation;
-  String get summaryVersementMensuel;
-  String get summaryDonneesLpp;
-  String get summaryEstimationSansCertificat;
-  String get summaryChoixRenteCapital;
+  /// No description provided for @shellWelcomeBackDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'De retouru00a0! Ta pru00e9cision a gagnu00e9 +{delta} pts depuis ta derniu00e8re visite.'**
+  String shellWelcomeBackDelta(Object delta);
 
   /// No description provided for @shellRecommendationsUpdated.
   ///
@@ -39523,6 +39473,24 @@ abstract class S {
   /// **'clarification'**
   String get capHonestyExpectedImpact;
 
+  /// No description provided for @capHonestyDebtCoachPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma dette dépasse largement mon revenu annuel. Les simulateurs ne suffisent plus. Oriente-moi vers un·e spécialiste en désendettement.'**
+  String get capHonestyDebtCoachPrompt;
+
+  /// No description provided for @capHonestyCrossBorderCoachPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis frontalier·ère proche de la retraite sans LPP. Quelles options réalistes existent ? Oriente-moi vers un·e spécialiste.'**
+  String get capHonestyCrossBorderCoachPrompt;
+
+  /// No description provided for @capHonestyNoLppCoachPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’approche de la retraite avec peu de 2e pilier. Aide-moi à comprendre ce qui est acquis et oriente-moi vers un·e spécialiste.'**
+  String get capHonestyNoLppCoachPrompt;
+
   /// No description provided for @capAcquiredAvsWithRente.
   ///
   /// In fr, this message translates to:
@@ -43064,6 +43032,132 @@ abstract class S {
   /// **'Ru00e9sumu00e9'**
   String get sequenceTensionStep4;
 
+  /// No description provided for @summaryCapaciteAchat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capacité d\'achat'**
+  String get summaryCapaciteAchat;
+
+  /// No description provided for @summaryFondsPropres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds propres nécessaires'**
+  String get summaryFondsPropres;
+
+  /// No description provided for @summaryRetraitEpl.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait EPL envisagé'**
+  String get summaryRetraitEpl;
+
+  /// No description provided for @summaryImpactRente.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact sur ta rente'**
+  String get summaryImpactRente;
+
+  /// No description provided for @summaryImpotRetrait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt sur le retrait'**
+  String get summaryImpotRetrait;
+
+  /// No description provided for @summaryMontantNet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant net après impôt'**
+  String get summaryMontantNet;
+
+  /// No description provided for @summaryVersementAnnuel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement annuel'**
+  String get summaryVersementAnnuel;
+
+  /// No description provided for @summaryEconomieFiscale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie fiscale annuelle'**
+  String get summaryEconomieFiscale;
+
+  /// No description provided for @summaryGainEchelonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gain à échelonner les retraits'**
+  String get summaryGainEchelonnement;
+
+  /// No description provided for @summaryTauxRemplacement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplacement'**
+  String get summaryTauxRemplacement;
+
+  /// No description provided for @summaryEcartMensuel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart mensuel estimé'**
+  String get summaryEcartMensuel;
+
+  /// No description provided for @summaryEconomieRachat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie via rachat échelonné'**
+  String get summaryEconomieRachat;
+
+  /// No description provided for @summaryRatioEndettement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio d\'endettement'**
+  String get summaryRatioEndettement;
+
+  /// No description provided for @summaryMargeMensuelle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge mensuelle'**
+  String get summaryMargeMensuelle;
+
+  /// No description provided for @summaryRevenuNet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu net mensuel'**
+  String get summaryRevenuNet;
+
+  /// No description provided for @summaryChargesFixes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges fixes totales'**
+  String get summaryChargesFixes;
+
+  /// No description provided for @summaryHorizonLiberation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horizon de libération'**
+  String get summaryHorizonLiberation;
+
+  /// No description provided for @summaryVersementMensuel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement mensuel'**
+  String get summaryVersementMensuel;
+
+  /// No description provided for @summaryDonneesLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données certificat LPP'**
+  String get summaryDonneesLpp;
+
+  /// No description provided for @summaryEstimationSansCertificat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation sans certificat'**
+  String get summaryEstimationSansCertificat;
+
+  /// No description provided for @summaryChoixRenteCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choix rente/capital'**
+  String get summaryChoixRenteCapital;
+
   /// No description provided for @sequenceAllStepsComplete.
   ///
   /// In fr, this message translates to:
@@ -43117,6 +43211,420 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tes données ont changé. Je recalcule les étapes concernées.'**
   String get sequenceReEvaluate;
+
+  /// No description provided for @shellWelcomeBackDeltaPts.
+  ///
+  /// In fr, this message translates to:
+  /// **'De retour ! Ta précision a gagné +{delta} pts depuis ta dernière visite.'**
+  String shellWelcomeBackDeltaPts(Object delta);
+
+  /// No description provided for @chatPickPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get chatPickPhoto;
+
+  /// No description provided for @chatPickGallery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une image'**
+  String get chatPickGallery;
+
+  /// No description provided for @chatPickFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier (PDF, DOCX)'**
+  String get chatPickFile;
+
+  /// No description provided for @chatFileTooLarge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier trop volumineux (max 5 Mo)'**
+  String get chatFileTooLarge;
+
+  /// No description provided for @chatDocSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document envoyé pour analyse'**
+  String get chatDocSent;
+
+  /// No description provided for @chatDocAnalysisIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai analysé ton document. Voici ce que j\'ai trouvé :'**
+  String get chatDocAnalysisIntro;
+
+  /// No description provided for @chatDocUpdatePrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veux-tu que je mette à jour ton profil avec ces données ?'**
+  String get chatDocUpdatePrompt;
+
+  /// No description provided for @chatDocExtractionFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas pu extraire de données de ce document. Essaie avec une photo plus nette ou un autre format.'**
+  String get chatDocExtractionFailed;
+
+  /// No description provided for @chatDocError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'analyse du document. Réessaie.'**
+  String get chatDocError;
+
+  /// No description provided for @chatDocAttachTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un document'**
+  String get chatDocAttachTooltip;
+
+  /// No description provided for @seasonalLamalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelles primes LAMal'**
+  String get seasonalLamalTitle;
+
+  /// No description provided for @seasonalLamalDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les primes 2027 sont publiées. Vérifie si ta franchise est toujours adaptée à ta situation.'**
+  String get seasonalLamalDesc;
+
+  /// No description provided for @extractionWhoseDocument.
+  ///
+  /// In fr, this message translates to:
+  /// **'À qui est ce document ?'**
+  String get extractionWhoseDocument;
+
+  /// No description provided for @extractionWhoseDocumentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as un profil couple. Ce document est pour toi ou ton/ta partenaire ?'**
+  String get extractionWhoseDocumentBody;
+
+  /// No description provided for @extractionDocMine.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est le mien'**
+  String get extractionDocMine;
+
+  /// No description provided for @extractionDocPartner.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est celui de mon/ma partenaire'**
+  String get extractionDocPartner;
+
+  /// No description provided for @capCoachPromptMissingData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide-moi à comprendre pourquoi {category} est important pour ma situation.'**
+  String capCoachPromptMissingData(Object category);
+
+  /// No description provided for @capCoachPromptDebt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide-moi à prioriser le remboursement de mes dettes. Par quoi commencer ?'**
+  String get capCoachPromptDebt;
+
+  /// No description provided for @capCoachPromptIndepNoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis indépendant·e sans LPP. Quelles options de prévoyance ai-je ?'**
+  String get capCoachPromptIndepNoLpp;
+
+  /// No description provided for @capCoachPrompt3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien je peux économiser avec un versement 3a cette année ?'**
+  String get capCoachPrompt3a;
+
+  /// No description provided for @capCoachPromptRachat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide-moi à comprendre si un rachat LPP est pertinent pour moi.'**
+  String get capCoachPromptRachat;
+
+  /// No description provided for @capCoachPromptBudgetDeficit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget est en déficit. Comment retrouver de l\'air ?'**
+  String get capCoachPromptBudgetDeficit;
+
+  /// No description provided for @capCoachPromptReplacement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon taux de remplacement est de {rate}%. Est-ce suffisant pour ma retraite ?'**
+  String capCoachPromptReplacement(Object rate);
+
+  /// No description provided for @capCoachPromptUnemployment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis en situation de chômage. Quelles sont mes options financières ?'**
+  String get capCoachPromptUnemployment;
+
+  /// No description provided for @capCoachPromptDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis divorcé·e. Comment protéger ma situation financière ?'**
+  String get capCoachPromptDivorce;
+
+  /// No description provided for @capCoachPromptCoupleOptim.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment optimiser notre prévoyance à deux ?'**
+  String get capCoachPromptCoupleOptim;
+
+  /// No description provided for @capCoachPromptCouple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous sommes en couple. Comment coordonner nos finances ?'**
+  String get capCoachPromptCouple;
+
+  /// No description provided for @capCoachPromptMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous sommes mariés et nous travaillons tous les deux. Comment optimiser ?'**
+  String get capCoachPromptMarried;
+
+  /// No description provided for @sequencePreretraiteGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer ma retraite'**
+  String get sequencePreretraiteGoal;
+
+  /// No description provided for @sequencePreretraiteStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection retraite'**
+  String get sequencePreretraiteStep1;
+
+  /// No description provided for @sequencePreretraiteStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan 3a'**
+  String get sequencePreretraiteStep2;
+
+  /// No description provided for @sequencePreretraiteStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital'**
+  String get sequencePreretraiteStep3;
+
+  /// No description provided for @sequencePreretraiteStep4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait 3a échelonné'**
+  String get sequencePreretraiteStep4;
+
+  /// No description provided for @sequencePreretraiteStep5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque'**
+  String get sequencePreretraiteStep5;
+
+  /// No description provided for @sequencePreretraiteStep6.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP'**
+  String get sequencePreretraiteStep6;
+
+  /// No description provided for @sequencePreretraiteStep7.
+  ///
+  /// In fr, this message translates to:
+  /// **'Franchise LAMal'**
+  String get sequencePreretraiteStep7;
+
+  /// No description provided for @sequencePreretraiteStep8.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succession'**
+  String get sequencePreretraiteStep8;
+
+  /// No description provided for @sequencePreretraiteStep9.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget retraite'**
+  String get sequencePreretraiteStep9;
+
+  /// No description provided for @sequencePreretraiteStep10.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décaissement'**
+  String get sequencePreretraiteStep10;
+
+  /// No description provided for @sequencePreretraiteStep11.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get sequencePreretraiteStep11;
+
+  /// No description provided for @proactiveContractDeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel : {label} arrive dans {days} jours. Pense à anticiper.'**
+  String proactiveContractDeadline(Object days, Object label);
+
+  /// No description provided for @sequenceCoupleGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coordonner nos finances à deux'**
+  String get sequenceCoupleGoal;
+
+  /// No description provided for @sequenceCoupleStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mariage ou concubinage'**
+  String get sequenceCoupleStep1;
+
+  /// No description provided for @sequenceCoupleStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil couple'**
+  String get sequenceCoupleStep2;
+
+  /// No description provided for @sequenceCoupleStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a à deux'**
+  String get sequenceCoupleStep3;
+
+  /// No description provided for @sequenceCoupleStep4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité couple'**
+  String get sequenceCoupleStep4;
+
+  /// No description provided for @sequenceCoupleStep5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get sequenceCoupleStep5;
+
+  /// No description provided for @sequenceNaissanceGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer l\'arrivée financièrement'**
+  String get sequenceNaissanceGoal;
+
+  /// No description provided for @sequenceNaissanceStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact naissance'**
+  String get sequenceNaissanceStep1;
+
+  /// No description provided for @sequenceNaissanceStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget famille'**
+  String get sequenceNaissanceStep2;
+
+  /// No description provided for @sequenceNaissanceStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a parent'**
+  String get sequenceNaissanceStep3;
+
+  /// No description provided for @sequenceNaissanceStep4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get sequenceNaissanceStep4;
+
+  /// No description provided for @sequencePremiersPasGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre mon premier salaire'**
+  String get sequencePremiersPasGoal;
+
+  /// No description provided for @sequencePremiersPasStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier emploi'**
+  String get sequencePremiersPasStep1;
+
+  /// No description provided for @sequencePremiersPasStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon premier budget'**
+  String get sequencePremiersPasStep2;
+
+  /// No description provided for @sequencePremiersPasStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir le 3a'**
+  String get sequencePremiersPasStep3;
+
+  /// No description provided for @sequenceDensificationGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéger et densifier'**
+  String get sequenceDensificationGoal;
+
+  /// No description provided for @sequenceDensificationStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection retraite'**
+  String get sequenceDensificationStep1;
+
+  /// No description provided for @sequenceDensificationStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection invalidité'**
+  String get sequenceDensificationStep2;
+
+  /// No description provided for @sequenceDensificationStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP'**
+  String get sequenceDensificationStep3;
+
+  /// No description provided for @sequenceDensificationStep4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get sequenceDensificationStep4;
+
+  /// No description provided for @sequenceRetraiteActiveGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Piloter ma retraite'**
+  String get sequenceRetraiteActiveGoal;
+
+  /// No description provided for @sequenceRetraiteActiveStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget retraite'**
+  String get sequenceRetraiteActiveStep1;
+
+  /// No description provided for @sequenceRetraiteActiveStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succession'**
+  String get sequenceRetraiteActiveStep2;
+
+  /// No description provided for @sequenceRetraiteActiveStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Franchise LAMal'**
+  String get sequenceRetraiteActiveStep3;
+
+  /// No description provided for @sequenceRetraiteActiveStep4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get sequenceRetraiteActiveStep4;
+
+  /// No description provided for @sequenceReadyNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prêt pour l\'étape suivante'**
+  String get sequenceReadyNextStep;
+
+  /// No description provided for @sequenceQuitButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter le parcours'**
+  String get sequenceQuitButton;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

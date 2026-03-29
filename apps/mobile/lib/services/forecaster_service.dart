@@ -522,7 +522,7 @@ class ForecasterService {
 
     // Conjoint balances
     double conjLppBalance = profile.conjoint?.prevoyance?.avoirLppTotal ?? 0;
-    double conjSavingsBalance = 0; // Conjoint savings → libre
+    double conjSavingsBalance = profile.conjoint?.patrimoine?.epargneLiquide ?? 0;
 
     // --- Monthly contributions (from planned) ---
     double monthly3a = profile.total3aMensuel;

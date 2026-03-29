@@ -11,6 +11,7 @@ Privacy: raw file bytes are never stored permanently. Only extracted fields
 are kept in the in-memory document store.
 """
 
+import asyncio
 import logging
 import os
 import uuid
@@ -42,6 +43,7 @@ MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 
 # In-memory document store (Phase 1 — will migrate to DB in Phase 2)
 _document_store: dict[str, dict] = {}
+_document_store_lock = asyncio.Lock()
 
 
 def _get_document_store() -> dict:
@@ -284,17 +286,18 @@ async def upload_document(
 
     # Store in memory (no raw PDF stored — privacy by design)
     now = datetime.now(timezone.utc).isoformat()
-    _document_store[doc_id] = {
-        "id": doc_id,
-        "user_id": _user.id,
-        "document_type": doc_type,
-        "upload_date": now,
-        "confidence": extracted.confidence,
-        "fields_found": extracted.extracted_fields_count,
-        "fields_total": extracted.total_fields_count,
-        "extracted_fields": extracted_dict,
-        "warnings": warnings,
-    }
+    async with _document_store_lock:
+        _document_store[doc_id] = {
+            "id": doc_id,
+            "user_id": _user.id,
+            "document_type": doc_type,
+            "upload_date": now,
+            "confidence": extracted.confidence,
+            "fields_found": extracted.extracted_fields_count,
+            "fields_total": extracted.total_fields_count,
+            "extracted_fields": extracted_dict,
+            "warnings": warnings,
+        }
 
     # Optionally index in RAG
     rag_indexed = False
@@ -389,7 +392,9 @@ async def delete_document(doc_id: str, _user: User = Depends(require_current_use
 
 
 @router.post("/upload-statement", response_model=BankStatementUploadResponse)
+@limiter.limit("10/minute")
 async def upload_bank_statement(
+    request: Request,  # Required by slowapi limiter
     file: UploadFile = File(...),
     _user: User = Depends(require_current_user),
 ):
@@ -611,7 +616,8 @@ async def confirm_document_scan(
         "extraction_method": body.extraction_method,
         "confirmed_at": datetime.now(timezone.utc).isoformat(),
     }
-    _document_store[scan_record["id"]] = scan_record
+    async with _document_store_lock:
+        _document_store[scan_record["id"]] = scan_record
 
     # Calculate confidence delta (how much this scan improves profile)
     confidence_delta = _estimate_scan_confidence_delta(body)

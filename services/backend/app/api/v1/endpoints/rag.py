@@ -99,6 +99,7 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
             model=body.model,
             profile_context=profile_ctx,
             language=body.language.value,
+            user_id=_user.id if _user else None,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")

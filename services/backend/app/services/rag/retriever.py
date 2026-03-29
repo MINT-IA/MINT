@@ -45,6 +45,7 @@ class MintRetriever:
         n_results: int = 5,
         language: Optional[str] = None,
         literacy_level: str = "beginner",
+        user_id: Optional[str] = None,
     ) -> list[dict]:
         """
         Retrieve relevant knowledge chunks for a query.
@@ -70,7 +71,7 @@ class MintRetriever:
         if self._hybrid:
             try:
                 hybrid_results = await self._hybrid.search(
-                    query, n_results=n_results,
+                    query, n_results=n_results, user_id=user_id,
                 )
                 if hybrid_results:
                     formatted = []

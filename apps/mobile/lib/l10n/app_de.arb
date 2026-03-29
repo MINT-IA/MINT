@@ -10625,6 +10625,9 @@
   "capHonestyNoLppWhyNow": "Klassische Hebel \u00e4ndern hier nicht viel. Ein Spezialist kann dir helfen, weiter zu sehen.",
   "capHonestyCtaLabel": "Mit dem Coach sprechen",
   "capHonestyExpectedImpact": "Kl\u00e4rung",
+  "capHonestyDebtCoachPrompt": "Meine Schulden übersteigen mein Jahreseinkommen bei Weitem. Simulatoren reichen nicht mehr. Leite mich an eine Fachperson für Entschuldung weiter.",
+  "capHonestyCrossBorderCoachPrompt": "Ich bin Grenzgänger·in kurz vor der Pension ohne BVG. Welche realistischen Optionen gibt es? Leite mich an eine Fachperson weiter.",
+  "capHonestyNoLppCoachPrompt": "Ich nähere mich der Pension mit wenig 2. Säule. Hilf mir zu verstehen, was erworben ist, und leite mich an eine Fachperson weiter.",
   "capAcquiredAvsWithRente": "AHV\u00a0: ~{rente}\u00a0CHF/Monat ({years} Jahre beigetragen)",
   "capAcquiredAvsYearsOnly": "AHV\u00a0: {years} Jahre beigetragen",
   "capAcquiredAvsInProgress": "AHV\u00a0: Anspruch l\u00e4uft",
@@ -11416,7 +11419,7 @@
   "chatDocError": "Fehler bei der Dokumentenanalyse. Bitte erneut versuchen.",
   "chatDocAttachTooltip": "Dokument scannen",
   "seasonalLamalTitle": "Neue KVG-Prämien",
-  "seasonalLamalDesc": "Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch optimal ist.",
+  "seasonalLamalDesc": "Die Prämien 2027 sind veröffentlicht. Prüfe, ob deine Franchise noch zu deiner Situation passt.",
   "extractionWhoseDocument": "Wessen Dokument ist das?",
   "extractionWhoseDocumentBody": "Du hast ein Paar-Profil. Gehört dieses Dokument dir oder deinem Partner?",
   "extractionDocMine": "Es ist meins",
@@ -11437,7 +11440,7 @@
   "sequencePreretraiteStep1": "Retirement projection",
   "sequencePreretraiteStep2": "3a review",
   "sequencePreretraiteStep3": "Annuity or capital",
-  "sequencePreretraiteStep4": "Optimal 3a withdrawal",
+  "sequencePreretraiteStep4": "Gestaffelter 3a-Bezug",
   "sequencePreretraiteStep5": "Mortgage",
   "sequencePreretraiteStep6": "LPP buyback",
   "sequencePreretraiteStep7": "LAMal franchise",
@@ -11470,5 +11473,7 @@
   "sequenceRetraiteActiveStep1": "Retirement budget",
   "sequenceRetraiteActiveStep2": "Succession",
   "sequenceRetraiteActiveStep3": "LAMal franchise",
-  "sequenceRetraiteActiveStep4": "Summary"
+  "sequenceRetraiteActiveStep4": "Summary",
+  "sequenceReadyNextStep": "Bereit für den nächsten Schritt",
+  "sequenceQuitButton": "Parcours verlassen"
 }

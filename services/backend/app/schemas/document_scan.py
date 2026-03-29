@@ -92,6 +92,7 @@ class VisionExtractionRequest(BaseModel):
     document_type: DocumentType
     image_base64: str = Field(
         ...,
+        max_length=5_000_000,  # ~3.75 MB raw image (base64 overhead ~33%)
         description="Base64-encoded document image (JPEG/PNG)",
     )
     canton: Optional[str] = Field(
