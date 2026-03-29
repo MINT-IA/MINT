@@ -490,8 +490,9 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 event_ts_raw = event.get("created")
                 event_ts = datetime.utcfromtimestamp(event_ts_raw) if event_ts_raw else _now()
 
-                # Monotone timestamp idempotence: skip stale events
-                if sub.last_event_at and sub.last_event_at > event_ts:
+                # FIX-082: Monotone timestamp with 5-min tolerance for clock skew.
+                # Was rejecting valid webhooks when event_ts lagged by seconds.
+                if sub.last_event_at and sub.last_event_at > event_ts + timedelta(minutes=5):
                     record.outcome = "skipped_stale"
                     record.is_processed = True
                     db.commit()

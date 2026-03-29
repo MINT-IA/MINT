@@ -3781,7 +3781,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                     focusNode: _focusNode,
                     textInputAction: TextInputAction.send,
                     maxLines: null,
-                    enabled: !_isStreaming,
+                    enabled: !_isStreaming && !_isBusy, // FIX-085
                     style: MintTextStyles.bodyMedium(
                         color: MintColors.textPrimary),
                     decoration: InputDecoration(

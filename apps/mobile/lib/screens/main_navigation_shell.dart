@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show PulseScreen, NavigationShellState;
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
@@ -129,6 +130,11 @@ class _MainNavigationShellState extends State<MainNavigationShell>
           }
         });
       }
+
+      // FIX-083: Refresh subscription state on resume (prevents stale premium).
+      try {
+        context.read<SubscriptionProvider>().refreshIfStale();
+      } catch (_) {} // Provider may not be in tree during tests
 
       // Show delta snackbar if away > 1 hour and state changed
       if (_lastPauseTime != null) {

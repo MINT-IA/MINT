@@ -69,6 +69,15 @@ class ComplianceGuard {
     'idéale',
     // Superlative form of "meilleur" (GAP #4: "le mieux" bypass)
     'le mieux',
+    // FIX-081: German banned terms (Deutschschweiz users)
+    'garantiert', 'sicher', 'ohne risiko', 'optimal', 'beste',
+    'perfekt', 'berater', 'du solltest', 'du musst', 'wir empfehlen',
+    // FIX-081: Italian banned terms (Svizzera italiana users)
+    'garantito', 'garantita', 'sicuro', 'senza rischio', 'ottimale',
+    'migliore', 'perfetto', 'perfetta', 'consigliamo', 'devi',
+    // FIX-081: English banned terms (expat users)
+    'guaranteed', 'risk-free', 'optimal', 'best', 'perfect',
+    'you should', 'you must', 'we recommend', 'ideal',
   ];
 
   static const Map<String, String> termReplacements = {
