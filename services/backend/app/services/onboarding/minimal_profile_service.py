@@ -56,6 +56,50 @@ from app.services.onboarding.onboarding_models import (
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# FIX-092: Archetype detection
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_US_CODES = {"US", "USA"}
+_EU_CODES = {
+    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
+    "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK",
+    "SI", "ES", "SE",
+}
+
+
+def _detect_archetype(input: MinimalProfileInput) -> str:
+    """Detect financial archetype from nationality + arrival data.
+
+    See CLAUDE.md §5 — 8 archetypes, each with different AVS/LPP treatment.
+    """
+    nat = (input.nationality_country or "").upper()
+    group = (input.nationality_group or "").upper()
+    arrival = input.arrival_age
+
+    # US citizens → FATCA archetype (regardless of arrival)
+    if nat in _US_CODES or group == "US":
+        return "expat_us"
+
+    # Swiss native: born in CH or arrived < 22 (full contribution years possible)
+    if nat == "CH" or group == "CH":
+        if arrival is not None and arrival >= 22:
+            return "returning_swiss"
+        return "swiss_native"
+
+    # No nationality data → default to swiss_native (backward compatible)
+    if not nat and not group:
+        return "swiss_native"
+
+    # Arrived late → expat (contribution gap)
+    is_eu = nat in _EU_CODES or group == "EU"
+    if arrival is not None and arrival >= 20:
+        return "expat_eu" if is_eu else "expat_non_eu"
+
+    # Arrived young or no arrival data → treat as integrated
+    return "expat_eu" if is_eu else "swiss_native"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Constants — derived from social_insurance.py
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -426,9 +470,11 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         estimated_fields.append("monthly_debt_service")
 
     # ── AVS projection ──────────────────────────────────────────────────────
-    # Contribution years: from age 21 to retirement (65), capped at 44
+    # FIX-092: Contribution years account for arrival age (expats).
+    # Swiss natives: from age 21. Expats: from arrival_age (if > 21).
     years_until_retirement = max(0, _RETIREMENT_AGE - input.age)
-    current_contribution_years = max(0, min(input.age - 21, AVS_DUREE_COTISATION_COMPLETE))
+    start_age = max(21, input.arrival_age or 21)
+    current_contribution_years = max(0, min(input.age - start_age, AVS_DUREE_COTISATION_COMPLETE))
     total_contribution_years = min(
         current_contribution_years + years_until_retirement,
         AVS_DUREE_COTISATION_COMPLETE,
@@ -518,7 +564,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         monthly_debt_impact=monthly_debt_impact,
         confidence_score=confidence_score,
         estimated_fields=estimated_fields,
-        archetype="swiss_native",
+        archetype=_detect_archetype(input),
         disclaimer=_DISCLAIMER,
         sources=list(_SOURCES),
         enrichment_prompts=enrichment_prompts,

@@ -40,6 +40,10 @@ class MinimalProfileInput:
     total_debts: Optional[float] = None          # default: 0
     monthly_debt_service: Optional[float] = None  # default: 0
     stress_type: Optional[str] = None            # user's declared intention from onboarding
+    # FIX-092/093: Archetype detection fields (expats, cross-border, etc.)
+    nationality_group: Optional[str] = None       # "CH", "EU", "non_EU", "US"
+    nationality_country: Optional[str] = None     # ISO 2-letter code
+    arrival_age: Optional[int] = None             # Age at arrival in Switzerland (None = born in CH)
 
 
 @dataclass
