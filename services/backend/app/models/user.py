@@ -21,6 +21,9 @@ class User(Base):
     role = Column(String, nullable=True, default=None)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # FIX-049: Tokens issued before this timestamp are rejected.
+    # Set on password change to invalidate all existing sessions.
+    password_changed_at = Column(DateTime, nullable=True)
 
     # Relationships
     profiles = relationship("ProfileModel", back_populates="user", cascade="all, delete-orphan")

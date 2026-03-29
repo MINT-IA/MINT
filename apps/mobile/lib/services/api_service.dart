@@ -147,8 +147,13 @@ class ApiService {
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      // FIX-048: After refresh failure + still 401, clear auth state.
+      // User must re-login. Don't leave stale token in secure storage.
+      await AuthService.logout();
+      throw ApiException('Session expirée — reconnecte-toi.', statusCode: 401);
     } else {
-      throw Exception('GET $endpoint failed: ${response.body}');
+      throw ApiException('GET $endpoint failed: ${response.body}', statusCode: response.statusCode);
     }
   }
 

@@ -89,7 +89,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.adminObsExportFailed}: $e')),
+        SnackBar(content: Text(l10n.adminObsExportFailed)),
       );
     }
   }

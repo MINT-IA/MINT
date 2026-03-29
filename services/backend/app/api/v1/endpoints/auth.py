@@ -581,6 +581,9 @@ def confirm_password_reset(
 
     user.hashed_password = hash_password(body.new_password)
     user.updated_at = datetime.now(timezone.utc)
+    # FIX-049: Invalidate all existing tokens by setting password_changed_at.
+    # Tokens issued before this timestamp are rejected by get_current_user().
+    user.password_changed_at = datetime.now(timezone.utc)
     clear_failed_logins(db, user.email)
     log_audit_event(
         db,

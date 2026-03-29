@@ -62,6 +62,18 @@ def get_current_user(
             detail="Utilisateur non trouvé"
         )
 
+    # FIX-049: Reject tokens issued before last password change.
+    # After password reset, all previously issued tokens are invalid.
+    token_iat = payload.get("iat")
+    if user.password_changed_at and token_iat:
+        from datetime import datetime, timezone
+        iat_dt = datetime.fromtimestamp(token_iat, tz=timezone.utc)
+        if iat_dt < user.password_changed_at.replace(tzinfo=timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token invalidé par changement de mot de passe"
+            )
+
     return user
 
 

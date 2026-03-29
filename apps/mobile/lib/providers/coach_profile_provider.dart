@@ -641,8 +641,53 @@ class CoachProfileProvider extends ChangeNotifier {
     _profile = updated;
     _profileUpdatedSinceBudget = true;
     notifyListeners();
-    // Persist housing fields into wizard answers for reload
-    _persistHousingFields(updated);
+    // FIX-045: Persist ALL profile fields (not just housing) so changes
+    // survive app restart. Previously only housing fields were persisted,
+    // causing silent data loss on canton, salary, LPP, 3a changes.
+    _persistFullProfile(updated);
+  }
+
+  Future<void> _persistFullProfile(CoachProfile profile) async {
+    final answers = await ReportPersistenceService.loadAnswers();
+    // Core fields
+    if (profile.canton.isNotEmpty) answers['q_canton'] = profile.canton;
+    answers['q_salaire'] = profile.salaireBrutMensuel;
+    answers['q_nombre_mois'] = profile.nombreDeMois;
+    if (profile.employmentStatus.isNotEmpty) {
+      answers['q_employment_status'] = profile.employmentStatus;
+    }
+    // Prevoyance
+    if (profile.prevoyance.avoirLppTotal != null) {
+      answers['q_avoir_lpp'] = profile.prevoyance.avoirLppTotal;
+    }
+    if (profile.prevoyance.nombre3a > 0) {
+      answers['q_nombre_3a'] = profile.prevoyance.nombre3a;
+    }
+    if (profile.prevoyance.totalEpargne3a > 0) {
+      answers['q_total_3a'] = profile.prevoyance.totalEpargne3a;
+    }
+    // Patrimoine
+    answers['q_epargne_liquide'] = profile.patrimoine.epargneLiquide;
+    answers['q_investissements'] = profile.patrimoine.investissements;
+    // Housing
+    _persistHousingFieldsSync(answers, profile);
+    // Target retirement
+    if (profile.targetRetirementAge != null) {
+      answers['q_target_retirement_age'] = profile.targetRetirementAge;
+    }
+    await ReportPersistenceService.saveAnswers(answers);
+  }
+
+  void _persistHousingFieldsSync(Map<String, dynamic> answers, CoachProfile profile) {
+    if (profile.housingStatus != null) {
+      answers['q_housing_status'] = profile.housingStatus;
+    }
+    if (profile.riskTolerance != null) {
+      answers['q_risk_tolerance'] = profile.riskTolerance;
+    }
+    if (profile.realEstateProject != null) {
+      answers['q_real_estate_project'] = profile.realEstateProject;
+    }
   }
 
   /// Update the user's primary focus/intention from Pulse screen.
