@@ -232,7 +232,7 @@
   "advisorMiniMetricsStarts": "Starts",
   "advisorMiniMetricsCompletionRate": "Completion-Rate",
   "advisorMiniMetricsExitStayRate": "Stay-Rate nach Exit-Prompt",
-  "advisorMiniMetricsAhaToStep3": "Step2 A-ha -> Step3",
+  "advisorMiniMetricsAhaToStep3": "Schritt 2 A-ha → Schritt 3",
   "advisorMiniMetricsQuickPicks": "Quick Picks",
   "advisorMiniMetricsAvgStepTime": "Ø Zeit pro Schritt",
   "advisorMiniMetricsReset": "Metriken resetten",
@@ -1880,7 +1880,7 @@
   "profileStateFull": "Profil complet",
   "profileStatePartial": "Profil partiel",
   "profileStateMissing": "Profil non renseigne",
-  "profileCoachKnowledgeSummary": "{profileState} • Precision {precision}% • Check-ins: {checkins}{scorePart}",
+  "profileCoachKnowledgeSummary": "{profileState} • Präzision {precision}% • Check-ins: {checkins}{scorePart}",
   "@profileCoachKnowledgeSummary": {
     "placeholders": {
       "profileState": {
@@ -3590,7 +3590,7 @@
   "waterfallBrutMensuel": "Brut mensuel",
   "waterfallAvsAc": "AVS / AC",
   "waterfallLppEmploye": "LPP employé",
-  "waterfallNetFicheDePaie": "Net fiche de paie",
+  "waterfallNetFicheDePaie": "Netto-Lohnabrechnung",
   "waterfallImpots": "Impôts",
   "waterfallDisponible": "Disponible",
   "waterfallLoyer": "Loyer",
@@ -3601,9 +3601,9 @@
   "waterfallPillar3a": "3a",
   "waterfallInvestissement": "Investissement",
   "waterfallMargeLibre": "Marge libre",
-  "waterfallTitle": "Cascade budgétaire",
+  "waterfallTitle": "Budget-Wasserfall",
   "narrativeDefaultName": "Tu",
-  "narrativeCouplePositiveMargin": "Ensemble, vous avez une marge de {margin} CHF/mois.",
+  "narrativeCouplePositiveMargin": "Zusammen habt ihr eine Marge von {margin} CHF/Monat.",
   "@narrativeCouplePositiveMargin": {
     "placeholders": {
       "margin": {
@@ -3611,7 +3611,7 @@
       }
     }
   },
-  "narrativeCoupleTightBudget": "Ensemble, votre budget est serré de {margin} CHF/mois.",
+  "narrativeCoupleTightBudget": "Zusammen ist euer Budget knapp um {margin} CHF/Monat.",
   "@narrativeCoupleTightBudget": {
     "placeholders": {
       "margin": {
@@ -3619,7 +3619,7 @@
       }
     }
   },
-  "narrativeCoupleHighPatrimoine": "Avec un patrimoine de {patrimoine} CHF, vous avez des leviers.",
+  "narrativeCoupleHighPatrimoine": "Mit einem Vermögen von {patrimoine} CHF habt ihr Spielraum.",
   "@narrativeCoupleHighPatrimoine": {
     "placeholders": {
       "patrimoine": {
@@ -3627,7 +3627,7 @@
       }
     }
   },
-  "narrativeHighHealth": "{name}, tu es en bonne santé financière. Continue.",
+  "narrativeHighHealth": "{name}, du bist in guter finanzieller Gesundheit. Weiter so.",
   "@narrativeHighHealth": {
     "placeholders": {
       "name": {
@@ -3635,7 +3635,7 @@
       }
     }
   },
-  "narrativeHighHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF te donne une belle marge de manœuvre.",
+  "narrativeHighHealthPatrimoine": "Dein Vermögen von {patrimoine} CHF gibt dir einen schönen Handlungsspielraum.",
   "@narrativeHighHealthPatrimoine": {
     "placeholders": {
       "patrimoine": {
@@ -3643,7 +3643,7 @@
       }
     }
   },
-  "narrativeLowHealth": "{name}, concentre-toi sur l'essentiel. On va stabiliser ensemble.",
+  "narrativeLowHealth": "{name}, konzentriere dich auf das Wesentliche. Wir stabilisieren das zusammen.",
   "@narrativeLowHealth": {
     "placeholders": {
       "name": {
@@ -3651,7 +3651,7 @@
       }
     }
   },
-  "narrativeLowHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF est un atout à protéger.",
+  "narrativeLowHealthPatrimoine": "Dein Vermögen von {patrimoine} CHF ist ein Trumpf, den es zu schützen gilt.",
   "@narrativeLowHealthPatrimoine": {
     "placeholders": {
       "patrimoine": {
@@ -3659,7 +3659,7 @@
       }
     }
   },
-  "narrativeMediumHealth": "{name}, tu as de bonnes bases. Quelques actions peuvent faire la différence.",
+  "narrativeMediumHealth": "{name}, du hast gute Grundlagen. Ein paar Massnahmen können den Unterschied machen.",
   "@narrativeMediumHealth": {
     "placeholders": {
       "name": {
@@ -3667,7 +3667,7 @@
       }
     }
   },
-  "narrativeMediumHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF est un bon point de départ.",
+  "narrativeMediumHealthPatrimoine": "Dein Vermögen von {patrimoine} CHF ist ein guter Ausgangspunkt.",
   "@narrativeMediumHealthPatrimoine": {
     "placeholders": {
       "patrimoine": {
@@ -3675,7 +3675,7 @@
       }
     }
   },
-  "narrativeConfidenceLabel": "Confiance profil : {score}%",
+  "narrativeConfidenceLabel": "Profilvertrauen: {score}%",
   "@narrativeConfidenceLabel": {
     "placeholders": {
       "score": {
@@ -3683,7 +3683,7 @@
       }
     }
   },
-  "patrimoineCoupleTitleCouple": "Patrimoine — {firstName} & {conjointName}",
+  "patrimoineCoupleTitleCouple": "Vermögen — {firstName} & {conjointName}",
   "@patrimoineCoupleTitleCouple": {
     "placeholders": {
       "firstName": {
@@ -3694,7 +3694,7 @@
       }
     }
   },
-  "patrimoineCoupleTitleSolo": "Patrimoine — {firstName}",
+  "patrimoineCoupleTitleSolo": "Vermögen — {firstName}",
   "@patrimoineCoupleTitleSolo": {
     "placeholders": {
       "firstName": {
@@ -3712,8 +3712,8 @@
   "patrimoineHypo": "−Hypo.",
   "patrimoineNet": "Net",
   "patrimoineLtvSaine": "LTV saine",
-  "patrimoineLtvAmortissement": "Amortissement recommandé",
-  "patrimoineLtvElevee": "LTV élevée — amortir",
+  "patrimoineLtvAmortissement": "Empfohlene Amortisation",
+  "patrimoineLtvElevee": "Hoher LTV — amortisieren",
   "patrimoineLtvDisplay": "LTV {percent}%",
   "@patrimoineLtvDisplay": {
     "placeholders": {
@@ -3726,10 +3726,10 @@
   "patrimoine3a": "3a",
   "patrimoineLibrePassage": "Libre pass.",
   "patrimoineTotal": "Total",
-  "patrimoineBrut": "Patrimoine brut",
+  "patrimoineBrut": "Bruttovermögen",
   "patrimoineDettes": "−Dettes",
   "patrimoineNetLabel": "Patrimoine net",
-  "patrimoineDont": "dont {name} ~CHF {amount}",
+  "patrimoineDont": "davon {name} ~CHF {amount}",
   "@patrimoineDont": {
     "placeholders": {
       "name": {
@@ -3741,8 +3741,8 @@
     }
   },
   "conjointProfilsLies": "Profils liés",
-  "conjointProfilConjoint": "Profil conjoint·e",
-  "conjointDeclaredStatus": "{name} n'a pas de compte MINT. Ses données sont estimées (🟡).",
+  "conjointProfilConjoint": "Partnerprofil",
+  "conjointDeclaredStatus": "{name} hat kein MINT-Konto. Die Daten sind geschätzt (🟡).",
   "@conjointDeclaredStatus": {
     "placeholders": {
       "name": {
@@ -3750,7 +3750,7 @@
       }
     }
   },
-  "conjointInvitedStatus": "Invitation envoyée à {name}. En attente de réponse.",
+  "conjointInvitedStatus": "Einladung an {name} gesendet. Warte auf Antwort.",
   "@conjointInvitedStatus": {
     "placeholders": {
       "name": {
@@ -3758,7 +3758,7 @@
       }
     }
   },
-  "conjointLinkedStatus": "✅ Profils liés ! Les données de {name} sont synchronisées.",
+  "conjointLinkedStatus": "✅ Profile verknüpft! Die Daten von {name} sind synchronisiert.",
   "@conjointLinkedStatus": {
     "placeholders": {
       "name": {
@@ -3766,7 +3766,7 @@
       }
     }
   },
-  "conjointInviteLabel": "Inviter {name} (5 questions, sans compte)",
+  "conjointInviteLabel": "{name} einladen (5 Fragen, ohne Konto)",
   "@conjointInviteLabel": {
     "placeholders": {
       "name": {
@@ -3774,24 +3774,24 @@
       }
     }
   },
-  "conjointLierProfils": "Lier nos profils",
-  "conjointRenvoyerInvitation": "Renvoyer l'invitation",
-  "conjointRegimeLabel": "Régime matrimonial : ",
-  "conjointRegimeParticipation": "Participation aux acquêts",
-  "conjointRegimeSeparation": "Séparation de biens",
-  "conjointRegimeCommunaute": "Communauté de biens",
-  "conjointRegimeDefault": "(défaut CC art. 196)",
+  "conjointLierProfils": "Profile verknüpfen",
+  "conjointRenvoyerInvitation": "Einladung erneut senden",
+  "conjointRegimeLabel": "Güterstand: ",
+  "conjointRegimeParticipation": "Errungenschaftsbeteiligung",
+  "conjointRegimeSeparation": "Gütertrennung",
+  "conjointRegimeCommunaute": "Gütergemeinschaft",
+  "conjointRegimeDefault": "(Standard ZGB Art. 196)",
   "conjointModifier": "modifier",
-  "futurHorizonTitle": "Horizon Retraite",
+  "futurHorizonTitle": "Horizont Pensionierung",
   "futurCoupleLabel": "Couple",
-  "futurTauxRemplacement": "Taux de remplacement",
+  "futurTauxRemplacement": "Ersatzquote",
   "futurAgeRetraite": "Age retraite",
   "futurConfiance": "Confiance",
-  "futurRevenuMensuelProjection": "Revenu mensuel projeté à la retraite",
+  "futurRevenuMensuelProjection": "Projiziertes Monatseinkommen bei Pensionierung",
   "futurRenteAvs": "Rente AVS",
-  "futurRenteLpp": "Rente LPP estimée",
-  "futurPilier3aSwr": "Pilier 3a (SWR 4%)",
-  "futurCapitalLabel": "Capital {amount}",
+  "futurRenteLpp": "Geschätzte BVG-Rente",
+  "futurPilier3aSwr": "Säule 3a (SWR 4%)",
+  "futurCapitalLabel": "Kapital {amount}",
   "@futurCapitalLabel": {
     "placeholders": {
       "amount": {
@@ -3799,14 +3799,14 @@
       }
     }
   },
-  "futurLibrePassageSwr": "Libre passage (SWR 4%)",
-  "futurInvestissementsSwr": "Investissements (SWR 4%)",
-  "futurTotalCoupleProjecte": "Total couple projeté",
-  "futurTotalMensuelProjecte": "Total mensuel projeté",
-  "futurCapitalRetraite": "Capital à la retraite",
+  "futurLibrePassageSwr": "Freizügigkeit (SWR 4%)",
+  "futurInvestissementsSwr": "Investitionen (SWR 4%)",
+  "futurTotalCoupleProjecte": "Projiziertes Paar-Total",
+  "futurTotalMensuelProjecte": "Projiziertes Monatstotal",
+  "futurCapitalRetraite": "Kapital bei Pensionierung",
   "futurCapitalTotal": "Capital total (3a + LP + investissements)",
-  "futurCapitalTaxHint": "Le retrait en capital est taxé séparément (LIFD art. 38). Le SWR n'est pas un revenu imposable.",
-  "futurMargeIncertitude": "Marge d'incertitude (± {pct}%)",
+  "futurCapitalTaxHint": "Der Kapitalbezug wird separat besteuert (DBG Art. 38). Der SWR ist kein steuerbares Einkommen.",
+  "futurMargeIncertitude": "Unsicherheitsmarge (± {pct}%)",
   "@futurMargeIncertitude": {
     "placeholders": {
       "pct": {
@@ -3814,7 +3814,7 @@
       }
     }
   },
-  "futurFourchette": "Fourchette : CHF {low} – {high}/mois",
+  "futurFourchette": "Spanne: CHF {low} – {high}/Monat",
   "@futurFourchette": {
     "placeholders": {
       "low": {
@@ -3825,9 +3825,9 @@
       }
     }
   },
-  "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
-  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
-  "futurExplorerDetails": "Explorer les détails",
+  "futurCompleterProfil": "Vervollständige dein Profil, um die Projektion zu verfeinern.",
+  "futurDisclaimer": "Bildungsorientierte Projektion — keine Beratung (FIDLEG). SWR 4% = 4%-Regel, Ergebnisse nicht garantiert. AHV/BVG-Renten geschätzt gemäss AHVG Art. 21-40, BVG Art. 14-16.",
+  "futurExplorerDetails": "Details erkunden",
   "financialSummaryTitle": "FINANZÜBERSICHT",
   "financialSummaryNoProfile": "Kein Profil erfasst",
   "financialSummaryStartDiagnostic": "Diagnose starten",
@@ -4906,9 +4906,9 @@
     }
   },
   "avsGuideAppBarTitle": "EXTRAIT AVS",
-  "avsGuideHeaderTitle": "Comment obtenir ton extrait AVS",
-  "avsGuideHeaderSubtitle": "L'extrait de compte individuel (CI) contient tes années de cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. C'est la clé pour une projection AVS fiable.",
-  "avsGuideConfidencePoints": "+{points} points de confiance",
+  "avsGuideHeaderTitle": "So erhältst du deinen AHV-Auszug",
+  "avsGuideHeaderSubtitle": "Der individuelle Kontoauszug (CI) enthält deine Beitragsjahre, dein Durchschnittseinkommen (RAMD) und allfällige Lücken. Er ist der Schlüssel für eine zuverlässige AHV-Projektion.",
+  "avsGuideConfidencePoints": "+{points} Vertrauenspunkte",
   "@avsGuideConfidencePoints": {
     "placeholders": {
       "points": {
@@ -4916,23 +4916,23 @@
       }
     }
   },
-  "avsGuideConfidenceSubtitle": "Années de cotisation, RAMD, lacunes",
+  "avsGuideConfidenceSubtitle": "Beitragsjahre, RAMD, Lücken",
   "avsGuideStepsTitle": "En 4 étapes",
-  "avsGuideStep1Title": "Va sur www.ahv-iv.ch",
+  "avsGuideStep1Title": "Gehe auf www.ahv-iv.ch",
   "avsGuideStep1Subtitle": "C'est le site officiel de l'AVS/AI. Tu peux aussi demander ton extrait directement à ta caisse de compensation.",
-  "avsGuideStep2Title": "Connecte-toi avec ton eID ou crée un compte",
-  "avsGuideStep2Subtitle": "Tu auras besoin de ton numéro AVS (756.XXXX.XXXX.XX, sur ta carte d'assurance-maladie).",
-  "avsGuideStep3Title": "Demande ton extrait de compte individuel (CI)",
+  "avsGuideStep2Title": "Melde dich mit deiner eID an oder erstelle ein Konto",
+  "avsGuideStep2Subtitle": "Du benötigst deine AHV-Nummer (756.XXXX.XXXX.XX, auf deiner Krankenversicherungskarte).",
+  "avsGuideStep3Title": "Fordere deinen individuellen Kontoauszug (CI) an",
   "avsGuideStep3Subtitle": "Cherche la section \"Extrait de compte\" ou \"Kontoauszug\". C'est un document officiel qui récapitule toutes tes cotisations.",
-  "avsGuideStep4Title": "Tu le recevras par courrier ou PDF",
-  "avsGuideStep4Subtitle": "Selon ta caisse, l'extrait arrive en 5 à 10 jours ouvrables. Certaines caisses proposent un téléchargement PDF immédiat.",
-  "avsGuideOpenAhvButton": "Ouvrir ahv-iv.ch",
-  "avsGuideScanButton": "J'ai déjà mon extrait → Scanner",
+  "avsGuideStep4Title": "Du erhältst ihn per Post oder als PDF",
+  "avsGuideStep4Subtitle": "Je nach Kasse trifft der Auszug in 5 bis 10 Werktagen ein. Einige Kassen bieten einen sofortigen PDF-Download an.",
+  "avsGuideOpenAhvButton": "ahv-iv.ch öffnen",
+  "avsGuideScanButton": "Ich habe meinen Auszug bereits → Scannen",
   "avsGuideTestMode": "MODE TEST",
   "avsGuideTestDescription": "Pas d'extrait AVS sous la main ? Teste le flux avec un exemple d'extrait.",
-  "avsGuideTestButton": "Utiliser un exemple",
-  "avsGuideFreeNote": "L'extrait AVS est gratuit et disponible en 5 à 10 jours ouvrables. Tu peux aussi te rendre à ta caisse de compensation cantonale.",
-  "avsGuidePrivacyNote": "L'image de ton extrait n'est jamais stockée ni envoyée. L'extraction se fait sur ton appareil. Seules les valeurs que tu confirmes sont conservées dans ton profil.",
+  "avsGuideTestButton": "Beispiel verwenden",
+  "avsGuideFreeNote": "Der AHV-Auszug ist kostenlos und in 5 bis 10 Werktagen verfügbar. Du kannst auch deine kantonale Ausgleichskasse aufsuchen.",
+  "avsGuidePrivacyNote": "Dein Auszugsbild wird nie gespeichert oder gesendet. Die Extraktion erfolgt auf deinem Gerät. Nur die von dir bestätigten Werte werden in deinem Profil gespeichert.",
   "avsGuideSnackbarError": "Impossible d'ouvrir {url}. Copie l'adresse et ouvre-la dans ton navigateur.",
   "@avsGuideSnackbarError": {
     "placeholders": {
@@ -4942,8 +4942,8 @@
     }
   },
   "dataBlockDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).",
-  "dataBlockIncomplete": "Ce bloc est encore incomplet. Ouvre la section dédiée pour ajouter les données manquantes.",
-  "dataBlockComplete": "Ce bloc est complet.",
+  "dataBlockIncomplete": "Dieser Bereich ist noch unvollständig. Öffne den entsprechenden Bereich, um fehlende Daten hinzuzufügen.",
+  "dataBlockComplete": "Dieser Bereich ist vollständig.",
   "dataBlockModeForm": "Formulaire",
   "dataBlockModeCoach": "Parle au coach",
   "dataBlockStatusComplete": "Complet",
@@ -4951,48 +4951,48 @@
   "dataBlockStatusMissing": "Manquant",
   "dataBlockRevenuTitle": "Revenu",
   "dataBlockRevenuDesc": "Ton salaire brut est la base de toutes les projections : prévoyance, impôts, budget. Plus il est précis, plus tes résultats seront fiables.",
-  "dataBlockRevenuCta": "Préciser mon revenu",
+  "dataBlockRevenuCta": "Mein Einkommen angeben",
   "dataBlockLppTitle": "Prévoyance LPP",
   "dataBlockLppDesc": "Ton avoir LPP (2e pilier) représente souvent le plus gros capital de ta prévoyance. Un certificat de prévoyance donne une valeur exacte plutôt qu'une estimation.",
-  "dataBlockLppCta": "Ajouter mon certificat LPP",
+  "dataBlockLppCta": "Mein BVG-Zertifikat hinzufügen",
   "dataBlockAvsTitle": "Extrait AVS",
   "dataBlockAvsDesc": "L'extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l'étranger, années manquantes) réduisent ta rente AVS.",
-  "dataBlockAvsCta": "Commander mon extrait AVS",
+  "dataBlockAvsCta": "Meinen AHV-Auszug bestellen",
   "dataBlock3aTitle": "3e pilier (3a)",
   "dataBlock3aDesc": "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un avantage fiscal. Renseigne les soldes actuels pour une vue complète.",
   "dataBlock3aCta": "Simuler mon 3a",
   "dataBlockPatrimoineTitle": "Patrimoine",
   "dataBlockPatrimoineDesc": "Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.",
-  "dataBlockPatrimoineCta": "Renseigner mon patrimoine",
+  "dataBlockPatrimoineCta": "Mein Vermögen erfassen",
   "dataBlockFiscaliteTitle": "Fiscalité",
-  "dataBlockFiscaliteDesc": "Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu'estimé (coefficient communal 60%-130%).",
-  "dataBlockFiscaliteCta": "Comparer ma fiscalité",
-  "dataBlockObjectifTitle": "Objectif retraite",
+  "dataBlockFiscaliteDesc": "Deine Gemeinde, dein steuerbares Einkommen und dein Vermögen bestimmen deinen Grenzsteuersatz. Eine Steuererklärung oder Veranlagung gibt einen realen Satz statt einer Schätzung (Gemeindekoeffizient 60%-130%).",
+  "dataBlockFiscaliteCta": "Meine Steuern vergleichen",
+  "dataBlockObjectifTitle": "Rentenziel",
   "dataBlockObjectifDesc": "À quel âge souhaites-tu arrêter de travailler ? Un objectif clair permet de calculer l'effort d'épargne nécessaire et les options (anticipation, retraite partielle).",
-  "dataBlockObjectifCta": "Voir ma projection",
-  "dataBlockMenageTitle": "Composition du ménage",
+  "dataBlockObjectifCta": "Meine Projektion ansehen",
+  "dataBlockMenageTitle": "Haushaltszusammensetzung",
   "dataBlockMenageDesc": "En couple, les projections changent : AVS plafonnée pour les mariés (LAVS art. 35), rente de survivant (LPP art. 19), optimisation fiscale à deux.",
-  "dataBlockMenageCta": "Gérer mon ménage",
+  "dataBlockMenageCta": "Meinen Haushalt verwalten",
   "dataBlockUnknownTitle": "Données",
   "dataBlockUnknownDesc": "Ce lien de données n’est plus à jour. Utilise la section recommandée pour compléter ton profil.",
-  "dataBlockUnknownCta": "Ouvrir le diagnostic",
+  "dataBlockUnknownCta": "Diagnose öffnen",
   "dataBlockDefaultTitle": "Données",
-  "dataBlockDefaultDesc": "Complète ce bloc pour améliorer la précision de tes projections.",
+  "dataBlockDefaultDesc": "Vervollständige diesen Bereich, um die Genauigkeit deiner Projektionen zu verbessern.",
   "dataBlockDefaultCta": "Compléter",
-  "renteVsCapitalAppBarTitle": "Rente ou capital : ta décision",
-  "renteVsCapitalIntro": "À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.",
+  "renteVsCapitalAppBarTitle": "Rente oder Kapital: deine Entscheidung",
+  "renteVsCapitalIntro": "Bei der Pensionierung wählst du ein für alle Mal: ein Einkommen auf Lebenszeit oder dein Kapital in der Hand.",
   "renteVsCapitalRenteLabel": "Rente",
   "renteVsCapitalRenteExplanation": "Ta caisse de pension te verse un montant fixe chaque mois, tant que tu vis — même si tu atteins 100 ans. En échange, tu ne récupères jamais ton capital.",
   "renteVsCapitalCapitalLabel": "Capital",
-  "renteVsCapitalCapitalExplanation": "Tu récupères tout ton avoir LPP d'un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
+  "renteVsCapitalCapitalExplanation": "Du beziehst dein ganzes BVG-Guthaben auf einmal. Du legst es an und beziehst monatlich, was du brauchst. Totale Freiheit, aber das Risiko aufzubrauchen ist real.",
   "renteVsCapitalMixteLabel": "Mixte",
   "renteVsCapitalMixteExplanation": "La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.",
-  "renteVsCapitalEstimateMode": "Estimer pour moi",
-  "renteVsCapitalCertificateMode": "J'ai mon certificat",
+  "renteVsCapitalEstimateMode": "Für mich schätzen",
+  "renteVsCapitalCertificateMode": "Ich habe mein Zertifikat",
   "renteVsCapitalAge": "Ton âge",
-  "renteVsCapitalSalary": "Ton salaire brut annuel (CHF)",
-  "renteVsCapitalLppTotal": "Ton avoir LPP actuel (CHF)",
-  "renteVsCapitalEstimatedCapital": "Capital estimé à {age} ans : ~{amount}",
+  "renteVsCapitalSalary": "Dein jährlicher Bruttolohn (CHF)",
+  "renteVsCapitalLppTotal": "Dein aktuelles BVG-Guthaben (CHF)",
+  "renteVsCapitalEstimatedCapital": "Geschätztes Kapital mit {age}: ~{amount}",
   "@renteVsCapitalEstimatedCapital": {
     "placeholders": {
       "age": {
@@ -5003,7 +5003,7 @@
       }
     }
   },
-  "renteVsCapitalEstimatedRente": "Rente estimée : ~{amount}/an",
+  "renteVsCapitalEstimatedRente": "Geschätzte Rente: ~{amount}/Jahr",
   "@renteVsCapitalEstimatedRente": {
     "placeholders": {
       "amount": {
@@ -5011,16 +5011,16 @@
       }
     }
   },
-  "renteVsCapitalProjectionSource": "Projection basée sur ton âge, salaire et LPP actuel",
+  "renteVsCapitalProjectionSource": "Projektion basierend auf deinem Alter, Lohn und aktuellem BVG",
   "renteVsCapitalLppOblig": "Avoir LPP obligatoire (certificat LPP)",
   "renteVsCapitalLppSurob": "Avoir LPP surobligatoire (certificat LPP)",
   "renteVsCapitalRenteProposed": "Rente annuelle proposée (certificat LPP)",
-  "renteVsCapitalTcOblig": "Taux conv. oblig. (%)",
-  "renteVsCapitalTcSurob": "Taux conv. surob. (%)",
+  "renteVsCapitalTcOblig": "Oblig. Umwandlungssatz (%)",
+  "renteVsCapitalTcSurob": "Überoblig. Umwandlungssatz (%)",
   "renteVsCapitalMaxPrecision": "Précision maximale — résultats basés sur tes vrais chiffres.",
   "renteVsCapitalCanton": "Canton",
   "renteVsCapitalMarried": "Marié·e",
-  "renteVsCapitalRetirementAge": "Retraite prévue à",
+  "renteVsCapitalRetirementAge": "Geplante Pensionierung mit",
   "renteVsCapitalAgeYears": "{age} ans",
   "@renteVsCapitalAgeYears": {
     "placeholders": {
@@ -5060,7 +5060,7 @@
   "renteVsCapitalHeroCapital": "CAPITAL",
   "renteVsCapitalPerMonth": "/mois",
   "renteVsCapitalForLife": "à vie",
-  "renteVsCapitalDuration": "pendant {duration}",
+  "renteVsCapitalDuration": "während {duration}",
   "@renteVsCapitalDuration": {
     "placeholders": {
       "duration": {
@@ -5106,7 +5106,7 @@
     }
   },
   "renteVsCapitalAvsSupplementary": " supplémentaires dans les deux cas (LAVS art. 29)",
-  "renteVsCapitalLifeExpectancy": "Et si je vis jusqu'à...",
+  "renteVsCapitalLifeExpectancy": "Was wenn ich lebe bis...",
   "renteVsCapitalLifeExpectancyRef": "Espérance de vie suisse : hommes 84 ans · femmes 87 ans",
   "renteVsCapitalChartTitle": "Capital restant vs revenus cumulés de la rente",
   "renteVsCapitalChartSubtitle": "Capital (vert) : ce qu'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l'âge auquel la rente a plus rapporté.",
@@ -5128,12 +5128,12 @@
     }
   },
   "renteVsCapitalDeltaAdvance": "d'avance",
-  "renteVsCapitalEducationalTitle": "Ce que ça change concrètement",
+  "renteVsCapitalEducationalTitle": "Was sich konkret ändert",
   "renteVsCapitalFiscalTitle": "Fiscalité",
-  "renteVsCapitalFiscalLeftSubtitle": "Imposée chaque année",
-  "renteVsCapitalFiscalRightSubtitle": "Taxé une seule fois",
+  "renteVsCapitalFiscalLeftSubtitle": "Jährlich besteuert",
+  "renteVsCapitalFiscalRightSubtitle": "Nur einmal besteuert",
   "renteVsCapitalFiscalOver30years": "sur 30 ans",
-  "renteVsCapitalFiscalAtRetrait": "au retrait (LIFD art. 38)",
+  "renteVsCapitalFiscalAtRetrait": "beim Bezug (DBG Art. 38)",
   "renteVsCapitalFiscalCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d'impôts.",
   "@renteVsCapitalFiscalCapitalSaves": {
     "placeholders": {
@@ -5153,7 +5153,7 @@
   "renteVsCapitalInflationTitle": "Inflation",
   "renteVsCapitalInflationToday": "Aujourd'hui",
   "renteVsCapitalInflationIn20Years": "Dans 20 ans",
-  "renteVsCapitalInflationPurchasingPower": "pouvoir d'achat",
+  "renteVsCapitalInflationPurchasingPower": "Kaufkraft",
   "renteVsCapitalInflationBottomText": "Ta rente LPP n'est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
   "@renteVsCapitalInflationBottomText": {
     "placeholders": {
@@ -5163,9 +5163,9 @@
     }
   },
   "renteVsCapitalTransmissionTitle": "Transmission",
-  "renteVsCapitalTransmissionLeftMarried": "Ton conjoint reçoit",
+  "renteVsCapitalTransmissionLeftMarried": "Dein·e Ehepartner·in erhält",
   "renteVsCapitalTransmissionLeftSingle": "À ton décès",
-  "renteVsCapitalTransmissionLeftValueMarried": "60 % = {amount}/mois",
+  "renteVsCapitalTransmissionLeftValueMarried": "60 % = {amount}/Monat",
   "@renteVsCapitalTransmissionLeftValueMarried": {
     "placeholders": {
       "amount": {
@@ -5175,23 +5175,23 @@
   },
   "renteVsCapitalTransmissionLeftValueSingle": "Rien",
   "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
-  "renteVsCapitalTransmissionLeftDetailSingle": "pour tes héritiers",
-  "renteVsCapitalTransmissionRightSubtitle": "Tes héritiers reçoivent",
+  "renteVsCapitalTransmissionLeftDetailSingle": "für deine Erben",
+  "renteVsCapitalTransmissionRightSubtitle": "Deine Erben erhalten",
   "renteVsCapitalTransmissionRightValue": "100 %",
-  "renteVsCapitalTransmissionRightDetail": "du solde restant",
+  "renteVsCapitalTransmissionRightDetail": "des Restguthabens",
   "renteVsCapitalTransmissionBottomMarried": "Avec la rente, seul·e ton conjoint·e reçoit 60 %. Rien pour les enfants.",
-  "renteVsCapitalTransmissionBottomSingle": "Avec la rente, rien ne revient à tes proches.",
-  "renteVsCapitalAffinerTitle": "Affiner ta simulation",
+  "renteVsCapitalTransmissionBottomSingle": "Mit der Rente geht nichts an deine Angehörigen.",
+  "renteVsCapitalAffinerTitle": "Simulation verfeinern",
   "renteVsCapitalAffinerSubtitle": "Pour ceux qui veulent creuser.",
   "renteVsCapitalHypRendement": "Ce que ton capital rapporte par an",
   "renteVsCapitalHypSwr": "Combien tu retires chaque année",
   "renteVsCapitalHypInflation": "Inflation",
   "renteVsCapitalTornadoToggle": "Voir le diagramme de sensibilité",
   "renteVsCapitalImpactTitle": "Qu'est-ce qui change le plus le résultat ?",
-  "renteVsCapitalImpactSubtitle": "Les paramètres les plus influents sur l'écart entre tes options.",
+  "renteVsCapitalImpactSubtitle": "Die einflussreichsten Parameter auf den Unterschied zwischen deinen Optionen.",
   "renteVsCapitalHypothesesTitle": "Hypothèses de cette simulation",
   "renteVsCapitalWarning": "Avertissement",
-  "renteVsCapitalSources": "Sources : {sources}",
+  "renteVsCapitalSources": "Quellen: {sources}",
   "@renteVsCapitalSources": {
     "placeholders": {
       "sources": {
@@ -5212,34 +5212,34 @@
   "renteVsCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
   "renteVsCapitalEplLabel": "Retrait EPL pour achat immobilier",
   "renteVsCapitalEplHint": "Montant retiré (min 20'000)",
-  "renteVsCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+  "renteVsCapitalEplTooltip": "Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20'000 (BVV2 Art. 5). Blockiert den BVG-Einkauf für 3 Jahre.",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
   "renteVsCapitalProfileAutoFill": "Valeurs pré-remplies depuis ton profil",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",
   "frontalierTab90Jours": "90 jours",
   "frontalierTabCharges": "Charges",
-  "frontalierCantonTravail": "Canton de travail",
-  "frontalierSalaireBrut": "Salaire brut mensuel",
+  "frontalierCantonTravail": "Arbeitskanton",
+  "frontalierSalaireBrut": "Monatlicher Bruttolohn",
   "frontalierEtatCivil": "État civil",
   "frontalierCelibataire": "Célibataire",
   "frontalierMarie": "Marié(e)",
-  "frontalierEnfantsCharge": "Enfants à charge",
+  "frontalierEnfantsCharge": "Kinder zu Lasten",
   "frontalierTauxEffectif": "Taux effectif",
   "frontalierTotalAnnuel": "Total annuel",
   "frontalierParMois": "par mois",
-  "frontalierQuasiResidentTitle": "Quasi-résident (Genève)",
-  "frontalierQuasiResidentDesc": "Si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.",
-  "frontalierTessinTitle": "Tessin — régime spécial",
+  "frontalierQuasiResidentTitle": "Quasi-Resident (Genf)",
+  "frontalierQuasiResidentDesc": "Wenn mehr als 90% deines weltweiten Einkommens aus der Schweiz stammen, kannst du die ordentliche Besteuerung mit Abzügen beantragen (3a, effektive Kosten usw.). Das kann deine Steuern erheblich senken.",
+  "frontalierTessinTitle": "Tessin — Sonderregelung",
   "frontalierEducationalTax": "En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l'état civil et le nombre d'enfants. À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.",
-  "frontalierJoursBureau": "Jours au bureau en Suisse",
+  "frontalierJoursBureau": "Bürotage in der Schweiz",
   "frontalierJoursHomeOffice": "Jours en home office à l'étranger",
-  "frontalierJaugeRisque": "JAUGE DE RISQUE",
-  "frontalierJoursHomeOfficeLabel": "jours de home office",
+  "frontalierJaugeRisque": "RISIKOBAROMETER",
+  "frontalierJoursHomeOfficeLabel": "Home-Office-Tage",
   "frontalierRiskLow": "Pas de risque",
-  "frontalierRiskMedium": "Zone d'attention",
+  "frontalierRiskMedium": "Aufmerksamkeitszone",
   "frontalierRiskHigh": "Risque fiscal — l'imposition bascule",
-  "frontalierDaysRemaining": "Il te reste {days} jours de marge",
+  "frontalierDaysRemaining": "Du hast noch {days} Tage Spielraum",
   "@frontalierDaysRemaining": {
     "placeholders": {
       "days": {
@@ -5250,7 +5250,7 @@
   "frontalierRecommandation": "RECOMMANDATION",
   "frontalierEducational90Days": "Depuis 2023, les accords amiables entre la Suisse et ses voisins fixent un seuil de tolérance pour le télétravail des frontaliers. Au-delà de 90 jours de home office par an, les cotisations sociales et l'imposition peuvent basculer vers le pays de résidence.",
   "frontalierChargesCh": "Charges CH",
-  "frontalierChargesCountry": "Charges {country}",
+  "frontalierChargesCountry": "Abgaben {country}",
   "@frontalierChargesCountry": {
     "placeholders": {
       "country": {
@@ -5258,7 +5258,7 @@
       }
     }
   },
-  "frontalierDuSalaire": "{percent}% du salaire",
+  "frontalierDuSalaire": "{percent}% des Lohns",
   "@frontalierDuSalaire": {
     "placeholders": {
       "percent": {
@@ -5266,7 +5266,7 @@
       }
     }
   },
-  "frontalierChargesChMoins": "Charges CH moins élevées : {amount}/an",
+  "frontalierChargesChMoins": "CH-Abgaben tiefer: {amount}/Jahr",
   "@frontalierChargesChMoins": {
     "placeholders": {
       "amount": {
@@ -5274,7 +5274,7 @@
       }
     }
   },
-  "frontalierChargesChPlus": "Charges CH plus élevées : +{amount}/an",
+  "frontalierChargesChPlus": "CH-Abgaben höher: +{amount}/Jahr",
   "@frontalierChargesChPlus": {
     "placeholders": {
       "amount": {
@@ -5282,35 +5282,35 @@
       }
     }
   },
-  "frontalierAssuranceMaladie": "ASSURANCE MALADIE",
+  "frontalierAssuranceMaladie": "KRANKENVERSICHERUNG",
   "frontalierLamalTitle": "LAMal (suisse)",
   "frontalierLamalDesc": "Obligatoire si tu travailles en CH. Prime individuelle (~CHF 300-500/mois).",
-  "frontalierCmuTitle": "CMU/Sécu (France)",
+  "frontalierCmuTitle": "CMU/Sozialversicherung (Frankreich)",
   "frontalierCmuDesc": "Droit d'option possible pour les frontaliers FR. Cotisation ~8% du revenu fiscal.",
-  "frontalierAssurancePriveeTitle": "Assurance privée (DE/IT/AT)",
-  "frontalierAssurancePriveeDesc": "En Allemagne, option PKV pour hauts revenus. IT/AT : régime obligatoire du pays.",
+  "frontalierAssurancePriveeTitle": "Privatversicherung (DE/IT/AT)",
+  "frontalierAssurancePriveeDesc": "In Deutschland PKV-Option für Gutverdiener. IT/AT: obligatorisches Regime des Landes.",
   "frontalierEducationalCharges": "En tant que frontalier, tu cotises aux assurances sociales suisses (AVS/AI/APG, AC, LPP). Les taux sont généralement plus bas qu'en France ou en Allemagne — mais la LAMal est à ta charge individuellement, ce qui peut compenser l'avantage.",
-  "frontalierPaysResidence": "Pays de résidence",
+  "frontalierPaysResidence": "Wohnsitzland",
   "frontalierLeSavaisTu": "Le savais-tu ?",
-  "concubinageAppBarTitle": "Mariage vs Concubinage",
+  "concubinageAppBarTitle": "Heirat vs Konkubinat",
   "concubinageTabComparateur": "Comparateur",
   "concubinageTabChecklist": "Checklist",
   "concubinageRevenu1": "Revenu 1",
   "concubinageRevenu2": "Revenu 2",
-  "concubinagePatrimoineTotal": "Patrimoine total",
+  "concubinagePatrimoineTotal": "Gesamtvermögen",
   "concubinageCanton": "Canton",
   "concubinageAvantages": "avantages",
   "concubinageMariage": "Mariage",
   "concubinageConcubinage": "Concubinage",
   "concubinageDetailFiscal": "DÉTAIL FISCAL",
-  "concubinageImpots2Celibataires": "Impôts 2 célibataires",
+  "concubinageImpots2Celibataires": "Steuern als 2 Alleinstehende",
   "concubinageImpotsMaries": "Impôts mariés",
-  "concubinagePenaliteMariage": "Pénalité mariage",
+  "concubinagePenaliteMariage": "Heiratsstrafe",
   "concubinageBonusMariage": "Bonus mariage",
-  "concubinageImpotSuccession": "IMPÔT SUR LA SUCCESSION",
-  "concubinagePatrimoineTransmis": "Patrimoine transmis",
-  "concubinageMarieExonere": "CHF 0 (exonéré)",
-  "concubinageConcubinTaux": "Concubin-e (~{taux}%)",
+  "concubinageImpotSuccession": "ERBSCHAFTSSTEUER",
+  "concubinagePatrimoineTransmis": "Übertragenes Vermögen",
+  "concubinageMarieExonere": "CHF 0 (befreit)",
+  "concubinageConcubinTaux": "Partner·in (~{taux}%)",
   "@concubinageConcubinTaux": {
     "placeholders": {
       "taux": {
@@ -5318,7 +5318,7 @@
       }
     }
   },
-  "concubinageWarningSuccession": "En concubinage, ton partenaire paierait {impot} d'impôt successoral sur un patrimoine de {patrimoine}. Marié-e, il/elle serait totalement exonéré-e.",
+  "concubinageWarningSuccession": "Im Konkubinat würde dein·e Partner·in {impot} Erbschaftssteuer auf ein Vermögen von {patrimoine} zahlen. Verheiratet wäre er/sie vollständig befreit.",
   "@concubinageWarningSuccession": {
     "placeholders": {
       "impot": {
@@ -5329,8 +5329,8 @@
       }
     }
   },
-  "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
-  "concubinageNeutralDesc": "Le choix entre mariage et concubinage dépend de ta situation : revenus, patrimoine, enfants, canton, projet de vie. Le mariage offre plus de protections légales automatiques, le concubinage plus de flexibilité. Un·e spécialiste peut t'aider à y voir plus clair.",
+  "concubinageNeutralTitle": "Keine Option passt für alle",
+  "concubinageNeutralDesc": "Die Wahl zwischen Heirat und Konkubinat hängt von deiner Situation ab: Einkommen, Vermögen, Kinder, Kanton, Lebensentwurf. Die Ehe bietet mehr automatischen Rechtsschutz, das Konkubinat mehr Flexibilität. Ein·e Spezialist·in kann dir helfen, klarer zu sehen.",
   "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
   "concubinageProtectionsCount": "{count}/{total} protections en place",
   "@concubinageProtectionsCount": {
@@ -5343,17 +5343,17 @@
       }
     }
   },
-  "concubinageChecklist1Title": "Rédiger un testament",
+  "concubinageChecklist1Title": "Testament verfassen",
   "concubinageChecklist1Desc": "Sans testament, ton partenaire n'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.",
-  "concubinageChecklist2Title": "Clause bénéficiaire LPP",
+  "concubinageChecklist2Title": "BVG-Begünstigungsklausel",
   "concubinageChecklist2Desc": "Contacte ta caisse de pension pour inscrire ton/ta partenaire comme bénéficiaire. Sans cette clause, le capital décès LPP ne lui revient pas. La plupart des caisses acceptent le concubin sous conditions (ménage commun, etc.).",
-  "concubinageChecklist3Title": "Convention de concubinage",
+  "concubinageChecklist3Title": "Konkubinatsvertrag",
   "concubinageChecklist3Desc": "Un contrat écrit qui règle le partage des frais, la propriété des biens, et ce qui se passe en cas de séparation. Pas obligatoire, mais fortement recommandé — surtout si tu achètes un bien immobilier ensemble.",
-  "concubinageChecklist4Title": "Assurance-vie croisée",
+  "concubinageChecklist4Title": "Gegenseitige Lebensversicherung",
   "concubinageChecklist4Desc": "Une assurance-vie où chacun est bénéficiaire de l'autre permet de compenser l'absence de rente AVS/LPP de survivant. Compare les offres — les primes dépendent de l'âge et du capital assuré.",
   "concubinageChecklist5Title": "Mandat pour cause d'inaptitude",
   "concubinageChecklist5Desc": "Si tu deviens incapable de discernement (accident, maladie), ton/ta partenaire n'a aucun pouvoir de représentation. Un mandat pour cause d'inaptitude (CC art. 360 ss) lui donne ce droit.",
-  "concubinageChecklist6Title": "Directives anticipées",
+  "concubinageChecklist6Title": "Patientenverfügung",
   "concubinageChecklist6Desc": "Un document qui précise tes volontés médicales en cas d'incapacité. Tu peux y désigner ton/ta partenaire comme personne de confiance pour les décisions médicales (CC art. 370 ss).",
   "concubinageChecklist7Title": "Compte joint pour les dépenses communes",
   "concubinageChecklist7Desc": "Un compte commun simplifie la gestion des dépenses partagées (loyer, courses, factures). Définissez clairement la contribution de chacun. En cas de séparation, le solde est partagé à 50/50 sauf convention contraire.",
@@ -5361,22 +5361,22 @@
   "concubinageChecklist8Desc": "Si tu es sur le bail avec ton/ta partenaire, vous êtes solidairement responsables. En cas de séparation, les deux doivent donner congé. Si un seul est titulaire, l'autre n'a aucun droit sur le logement.",
   "concubinageDisclaimer": "Informations simplifiées à but éducatif — ne constitue pas un conseil juridique ou fiscal. Les règles dépendent du canton, de la commune et de ta situation personnelle. Consulte un·e spécialiste juridique pour un avis personnalisé.",
   "concubinageCriteriaImpots": "Impôts",
-  "concubinageCriteriaPenaliteFiscale": "Pénalité fiscale",
+  "concubinageCriteriaPenaliteFiscale": "Heiratsstrafe",
   "concubinageCriteriaBonusFiscal": "Bonus fiscal",
   "concubinageCriteriaAvantageux": "Avantageux",
   "concubinageCriteriaDesavantageux": "Désavantageux",
   "concubinageCriteriaHeritage": "Héritage",
-  "concubinageCriteriaHeritageMarriage": "Exonéré (CC art. 462)",
+  "concubinageCriteriaHeritageMarriage": "Befreit (ZGB Art. 462)",
   "concubinageCriteriaHeritageConcubinage": "Impôt cantonal",
-  "concubinageCriteriaProtection": "Protection décès",
-  "concubinageCriteriaProtectionMarriage": "AVS + LPP survivant",
-  "concubinageCriteriaProtectionConcubinage": "Aucune rente automatique",
+  "concubinageCriteriaProtection": "Todesfallschutz",
+  "concubinageCriteriaProtectionMarriage": "AHV + BVG Hinterlassenenleistungen",
+  "concubinageCriteriaProtectionConcubinage": "Keine automatische Rente",
   "concubinageCriteriaFlexibilite": "Flexibilité",
-  "concubinageCriteriaFlexibiliteMarriage": "Procédure judiciaire",
-  "concubinageCriteriaFlexibiliteConcubinage": "Séparation simplifiée",
+  "concubinageCriteriaFlexibiliteMarriage": "Gerichtsverfahren",
+  "concubinageCriteriaFlexibiliteConcubinage": "Vereinfachte Trennung",
   "concubinageCriteriaPension": "Pension alim.",
-  "concubinageCriteriaPensionMarriage": "Protégée par le juge",
-  "concubinageCriteriaPensionConcubinage": "Accord préalable",
+  "concubinageCriteriaPensionMarriage": "Gerichtlich geschützt",
+  "concubinageCriteriaPensionConcubinage": "Vorgängige Vereinbarung",
   "concubinageMarieExonereLabel": "Marié·e",
   "frontalierChargesTotal": "Total",
   "frontalierJoursSuffix": "Tage",
@@ -8430,12 +8430,12 @@
   "timelineQuickPilier3aSub": "Steuerabzug optimieren",
   "timelineQuickFiscaliteTitle": "Besteuerung",
   "timelineQuickFiscaliteSub": "26 Kantone vergleichen",
-  "consentFinmaTitle": "Fonctionnalité en préparation",
-  "consentFinmaDesc": "Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.",
+  "consentFinmaTitle": "Funktion in Vorbereitung",
+  "consentFinmaDesc": "Regulatorische FINMA-Konsultation im Gange. Die angezeigten Daten dienen der Demonstration.",
   "consentModeDemo": "MODE DÉMO",
-  "consentActiveSection": "CONSENTEMENTS ACTIFS",
+  "consentActiveSection": "AKTIVE EINWILLIGUNGEN",
   "consentAutorisations": "Autorisations",
-  "consentGrantedAtLabel": "Accordé le {date}",
+  "consentGrantedAtLabel": "Erteilt am {date}",
   "@consentGrantedAtLabel": {
     "placeholders": {
       "date": {
@@ -8443,7 +8443,7 @@
       }
     }
   },
-  "consentExpiresAtLabel": "Expire le {date}",
+  "consentExpiresAtLabel": "Läuft ab am {date}",
   "@consentExpiresAtLabel": {
     "placeholders": {
       "date": {
@@ -8451,19 +8451,19 @@
       }
     }
   },
-  "consentRevokedLabel": "Consentement révoqué",
-  "consentNlpdTitle": "Tes droits (nLPD)",
-  "consentNlpdSubtitle": "Tes droits selon la nLPD (Loi fédérale sur la protection des données) :",
-  "consentNlpdPoint1": "• Tu peux révoquer ton consentement à tout moment",
-  "consentNlpdPoint2": "• Tes données ne sont jamais partagées avec des tiers",
-  "consentNlpdPoint3": "• Accès en lecture seule — aucune opération financière",
-  "consentNlpdPoint4": "• Durée maximale de consentement : 90 jours (renouvelable)",
+  "consentRevokedLabel": "Einwilligung widerrufen",
+  "consentNlpdTitle": "Deine Rechte (nDSG)",
+  "consentNlpdSubtitle": "Deine Rechte gemäss nDSG (Datenschutzgesetz):",
+  "consentNlpdPoint1": "• Du kannst deine Einwilligung jederzeit widerrufen",
+  "consentNlpdPoint2": "• Deine Daten werden nie an Dritte weitergegeben",
+  "consentNlpdPoint3": "• Nur Lesezugriff — keine Finanztransaktionen",
+  "consentNlpdPoint4": "• Maximale Einwilligungsdauer: 90 Tage (erneuerbar)",
   "consentStepBanque": "Banque",
   "consentStepAutorisations": "Autorisations",
   "consentStepConfirmation": "Confirmation",
-  "consentSelectBankTitle": "Choisir une banque",
-  "consentSelectScopesTitle": "Choisir les autorisations",
-  "consentSelectedBankLabel": "Banque sélectionnée : {bank}",
+  "consentSelectBankTitle": "Bank auswählen",
+  "consentSelectScopesTitle": "Berechtigungen auswählen",
+  "consentSelectedBankLabel": "Ausgewählte Bank: {bank}",
   "@consentSelectedBankLabel": {
     "placeholders": {
       "bank": {
@@ -8471,10 +8471,10 @@
       }
     }
   },
-  "consentScopeAccountsDesc": "Comptes (liste de tes comptes)",
-  "consentScopeBalancesDesc": "Soldes (solde actuel de tes comptes)",
-  "consentScopeTransactionsDesc": "Transactions (historique des mouvements)",
-  "consentReadOnlyInfo": "Accès en lecture seule. Aucune opération financière ne peut être effectuée.",
+  "consentScopeAccountsDesc": "Konten (Liste deiner Konten)",
+  "consentScopeBalancesDesc": "Salden (aktueller Saldo deiner Konten)",
+  "consentScopeTransactionsDesc": "Transaktionen (Transaktionsverlauf)",
+  "consentReadOnlyInfo": "Nur Lesezugriff. Es können keine Finanztransaktionen durchgeführt werden.",
   "consentConfirmTitle": "Confirmation",
   "consentConfirmBanque": "Banque",
   "consentConfirmAutorisations": "Autorisations",
@@ -8482,7 +8482,7 @@
   "consentConfirmDureeValue": "90 jours",
   "consentConfirmAcces": "Accès",
   "consentConfirmAccesValue": "Lecture seule",
-  "consentConfirmDisclaimer": "En confirmant, tu autorises MINT à accéder aux données sélectionnées en lecture seule pour une durée de 90 jours. Tu peux révoquer ce consentement à tout moment.",
+  "consentConfirmDisclaimer": "Mit der Bestätigung autorisierst du MINT, auf die ausgewählten Daten im Lesemodus für 90 Tage zuzugreifen. Du kannst diese Einwilligung jederzeit widerrufen.",
   "consentAnnuler": "Annuler",
   "consentScopeComptes": "Comptes",
   "consentScopeSoldes": "Soldes",
@@ -8492,25 +8492,25 @@
   "consentStatusExpire": "Expiré",
   "consentStatusRevoque": "Révoqué",
   "consentStatusInconnu": "Inconnu",
-  "consentDisclaimer": "Cette fonctionnalité est en cours de développement. Les données affichées sont des exemples. L'activation du service Open Banking est soumise à une consultation réglementaire préalable.",
-  "openBankingHubFinmaTitle": "Fonctionnalité en préparation",
-  "openBankingHubFinmaDesc": "Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.",
-  "openBankingHubSubtitle": "Connecte tes comptes bancaires",
-  "openBankingHubConnectedAccounts": "COMPTES CONNECTES",
-  "openBankingHubApercu": "APERCU FINANCIER",
+  "consentDisclaimer": "Diese Funktion befindet sich in Entwicklung. Die angezeigten Daten sind Beispieldaten. Die Aktivierung des Open-Banking-Dienstes unterliegt einer vorgängigen regulatorischen Prüfung.",
+  "openBankingHubFinmaTitle": "Funktion in Vorbereitung",
+  "openBankingHubFinmaDesc": "Regulatorische FINMA-Konsultation im Gange. Die angezeigten Daten dienen der Demonstration.",
+  "openBankingHubSubtitle": "Verbinde deine Bankkonten",
+  "openBankingHubConnectedAccounts": "VERBUNDENE KONTEN",
+  "openBankingHubApercu": "FINANZÜBERSICHT",
   "openBankingHubNavigation": "NAVIGATION",
-  "openBankingHubViewTransactions": "Voir les transactions",
-  "openBankingHubViewTransactionsDesc": "Historique détaillé par catégorie",
-  "openBankingHubManageConsents": "Gérer les consentements",
-  "openBankingHubManageConsentsDesc": "Droits nLPD, révocation, scopes",
+  "openBankingHubViewTransactions": "Transaktionen anzeigen",
+  "openBankingHubViewTransactionsDesc": "Detaillierter Verlauf nach Kategorie",
+  "openBankingHubManageConsents": "Einwilligungen verwalten",
+  "openBankingHubManageConsentsDesc": "nDSG-Rechte, Widerruf, Berechtigungen",
   "openBankingHubSoldeTotal": "Solde total",
-  "openBankingHubComptesConnectes": "3 comptes connectés",
+  "openBankingHubComptesConnectes": "3 verbundene Konten",
   "openBankingHubRevenus": "Revenus",
   "openBankingHubDepenses": "Dépenses",
   "openBankingHubEpargneNette": "Épargne nette",
   "openBankingHubTop3Depenses": "Top 3 dépenses",
-  "openBankingHubAddBankLabel": "Ajouter une banque",
-  "openBankingHubSyncMinutes": "Il y a {minutes} min",
+  "openBankingHubAddBankLabel": "Bank hinzufügen",
+  "openBankingHubSyncMinutes": "Vor {minutes} Min.",
   "@openBankingHubSyncMinutes": {
     "placeholders": {
       "minutes": {
@@ -8518,7 +8518,7 @@
       }
     }
   },
-  "openBankingHubSyncHours": "Il y a {hours}h",
+  "openBankingHubSyncHours": "Vor {hours} Std.",
   "@openBankingHubSyncHours": {
     "placeholders": {
       "hours": {
@@ -8534,29 +8534,29 @@
       }
     }
   },
-  "transactionListFinmaTitle": "Fonctionnalité en préparation",
-  "transactionListFinmaDesc": "Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.",
+  "transactionListFinmaTitle": "Funktion in Vorbereitung",
+  "transactionListFinmaDesc": "Regulatorische FINMA-Konsultation im Gange. Die angezeigten Daten dienen der Demonstration.",
   "transactionListThisMonth": "Ce mois",
   "transactionListLastMonth": "Mois précédent",
-  "transactionListNoTransaction": "Aucune transaction",
+  "transactionListNoTransaction": "Keine Transaktionen",
   "transactionListRevenus": "Revenus",
   "transactionListDepenses": "Dépenses",
   "transactionListEpargneNette": "Épargne nette",
   "transactionListTauxEpargne": "Taux d’épargne",
   "transactionListModeDemo": "MODE DÉMO",
   "lppVolontaireRevenuMax250k": "CHF 250’000",
-  "lppVolontaireSalaireCoordLabel": "Salaire coordonné",
-  "lppVolontaireTauxBonifLabel": "Taux bonification",
+  "lppVolontaireSalaireCoordLabel": "Koordinierter Lohn",
+  "lppVolontaireTauxBonifLabel": "Gutschriftensatz",
   "lppVolontaireCotisationLabel": "Cotisation /an",
-  "lppVolontaireEconomieFiscaleLabel": "Économie fiscale /an",
+  "lppVolontaireEconomieFiscaleLabel": "Steuerersparnis /Jahr",
   "lppVolontaireTrancheAgeLabel": "Tranche d’âge",
   "lppVolontaireCHF0": "CHF 0",
   "lppVolontaireTaux10": "10 %",
   "lppVolontaireTaux45": "45 %",
-  "pillar3aIndepPlafondApplicableLabel": "Plafond applicable",
-  "pillar3aIndepEconomieFiscaleAnLabel": "Économie fiscale /an",
-  "pillar3aIndepPlafondSalarieLabel": "Plafond salarié·e",
-  "pillar3aIndepEconomieSalarieLabel": "Économie salarié·e",
+  "pillar3aIndepPlafondApplicableLabel": "Anwendbare Obergrenze",
+  "pillar3aIndepEconomieFiscaleAnLabel": "Steuerersparnis /Jahr",
+  "pillar3aIndepPlafondSalarieLabel": "Obergrenze Angestellte·r",
+  "pillar3aIndepEconomieSalarieLabel": "Ersparnis als Angestellte·r",
   "pillar3aIndepCHF0": "CHF 0",
   "pillar3aIndepTaux10": "10 %",
   "pillar3aIndepTaux45": "45 %",
@@ -11587,9 +11587,7 @@
       }
     }
   },
-
   "commonConfirm": "Bestätigen",
-
   "b2bHubTitle": "Mein Unternehmen",
   "b2bHubInvalidCode": "Ungültiger oder abgelaufener Code",
   "b2bHubLeaveTitle": "Organisation verlassen?",
@@ -11603,7 +11601,9 @@
   "b2bHubEmployeeCount": "{count} Mitarbeitende",
   "@b2bHubEmployeeCount": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "b2bHubModulesTitle": "Deine Module",
@@ -11616,114 +11616,156 @@
   "b2bModule3aSubtitle": "Optimierung und Simulation der 3. Säule",
   "b2bModuleLpp": "Berufliche Vorsorge (BVG)",
   "b2bModuleLppSubtitle": "Detaillierte Analyse deiner Pensionskasse",
-
   "pensionFundTitle": "Zertifizierte Daten",
   "pensionFundConnectionError": "Verbindung momentan nicht möglich",
   "pensionFundDisconnectTitle": "Pensionskasse trennen?",
   "pensionFundDisconnectBody": "Deine Projektionen werden wieder auf den Modus «geschätzt» statt «zertifiziert» zurückgesetzt.",
   "pensionFundDisconnectButton": "Trennen",
   "pensionFundNarrativeHeadline": "Automatischer Import",
-  "pensionFundNarrativeBody": "Verbinde deine Pensionskasse, um Schätzungen durch deine echten Daten zu ersetzen. Nur Lesezugriff \u2014 MINT ändert nichts.",
+  "pensionFundNarrativeBody": "Verbinde deine Pensionskasse, um Schätzungen durch deine echten Daten zu ersetzen. Nur Lesezugriff — MINT ändert nichts.",
   "pensionFundAvailableTitle": "Verfügbare Kassen",
   "pensionFundConnectedStatus": "{name}, verbunden",
   "@pensionFundConnectedStatus": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "pensionFundDisconnectedStatus": "{name}, nicht verbunden",
   "@pensionFundDisconnectedStatus": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "pensionFundSyncDate": "Synchro {date}",
   "@pensionFundSyncDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "pensionFundReconnectionNeeded": "Erneute Verbindung erforderlich",
   "pensionFundAvailable": "Verfügbar",
   "pensionFundDisconnectTooltip": "Trennen",
   "pensionFundConnectButton": "Verbinden",
-  "pensionFundDisclaimer": "MINT ist ein Bildungstool im Nur-Lese-Modus (FIDLEG Art.\u00a03). Es werden keine Transaktionen auf deinen Konten durchgeführt. Du kannst dich jederzeit trennen.",
-
+  "pensionFundDisclaimer": "MINT ist ein Bildungstool im Nur-Lese-Modus (FIDLEG Art. 3). Es werden keine Transaktionen auf deinen Konten durchgeführt. Du kannst dich jederzeit trennen.",
   "semanticsBudgetStartButton": "Budgeteingabe starten",
   "semanticsBenchmarkToggle": "Kantonale Vergleiche aktivieren",
   "semanticsBenchmarkMetric": "{label}: {status}. Typische Spanne {low} bis {high}",
   "@semanticsBenchmarkMetric": {
     "placeholders": {
-      "label": {"type": "String"},
-      "status": {"type": "String"},
-      "low": {"type": "String"},
-      "high": {"type": "String"}
+      "label": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
     }
   },
   "semanticsRecapPeriod": "Zusammenfassung vom {start} bis {end}",
   "@semanticsRecapPeriod": {
     "placeholders": {
-      "start": {"type": "String"},
-      "end": {"type": "String"}
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
     }
   },
   "semanticsRecapSection": "{title}: {content}",
   "@semanticsRecapSection": {
     "placeholders": {
-      "title": {"type": "String"},
-      "content": {"type": "String"}
+      "title": {
+        "type": "String"
+      },
+      "content": {
+        "type": "String"
+      }
     }
   },
   "semanticsRepaymentFreeIn": "Schuldenfrei in {months} Monaten",
   "@semanticsRepaymentFreeIn": {
     "placeholders": {
-      "months": {"type": "int"}
+      "months": {
+        "type": "int"
+      }
     }
   },
   "semanticsRepaymentDeleteDebt": "Schuld {name} löschen",
   "@semanticsRepaymentDeleteDebt": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "semanticsRepaymentBudget": "Monatsbudget: {amount} Franken. Tippen zum Bearbeiten",
   "@semanticsRepaymentBudget": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsRepaymentValidate": "Wert bestätigen",
   "semanticsRepaymentStrategy": "{title}: {months} Monate, Zinsen {interest} Franken",
   "@semanticsRepaymentStrategy": {
     "placeholders": {
-      "title": {"type": "String"},
-      "months": {"type": "int"},
-      "interest": {"type": "String"}
+      "title": {
+        "type": "String"
+      },
+      "months": {
+        "type": "int"
+      },
+      "interest": {
+        "type": "String"
+      }
     }
   },
   "semanticsAvsDifference": "Jährliche Differenz: {amount} Franken",
   "@semanticsAvsDifference": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsMetricLabelValue": "{label}: {value}",
   "@semanticsMetricLabelValue": {
     "placeholders": {
-      "label": {"type": "String"},
-      "value": {"type": "String"}
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
     }
   },
   "semanticsAvsTauxEffectif": "Effektiver Satz: {rate} Prozent",
   "@semanticsAvsTauxEffectif": {
     "placeholders": {
-      "rate": {"type": "String"}
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "semanticsDividendeSaving": "Ersparnis: {amount} Franken pro Jahr",
   "@semanticsDividendeSaving": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsDividendeAdjust": "Split anpassen, um Einsparungen zu finden",
@@ -11731,33 +11773,43 @@
   "semanticsLppCapitalisation": "Jährliche Kapitalisierung: {amount} Franken",
   "@semanticsLppCapitalisation": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsLppGain": "Gewinn mit freiwilliger BVG: {amount} Franken",
   "@semanticsLppGain": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semantics3aLppToggle": "BVG-angeschlossen",
   "semantics3aEconomieFiscale": "Steuerersparnis: {amount} Franken",
   "@semantics3aEconomieFiscale": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semantics3aAvantageSalarie": "Vorteil gegenüber Angestellten: {amount} Franken",
   "@semantics3aAvantageSalarie": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "semanticsCoachTabLabel": "MINT Coach Tab",
   "semanticsRealReturnGain": "Gewinn im Vergleich zum Sparkonto: {amount} Franken",
   "@semanticsRealReturnGain": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   }
 }
