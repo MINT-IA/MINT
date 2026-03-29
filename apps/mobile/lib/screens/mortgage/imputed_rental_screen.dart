@@ -10,6 +10,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de calcul de la valeur locative et de son impact fiscal.
@@ -154,35 +155,17 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
   }
 
   Widget _buildChiffreChocCard(ImputedRentalResult result) {
-    final color = result.chiffreChocPositif
-        ? MintColors.success
-        : MintColors.error;
-    final icon = result.chiffreChocPositif
-        ? Icons.savings_outlined
-        : Icons.trending_up;
-
-    return Semantics(
-      label: 'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
-      child: MintSurface(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        radius: 16,
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 40),
-            const SizedBox(height: MintSpacing.sm + 4),
-            Text(
-              'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
-              style: MintTextStyles.displayMedium(color: color),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              result.chiffreChocTexte,
-              textAlign: TextAlign.center,
-              style: MintTextStyles.bodyMedium(),
-            ),
-          ],
-        ),
-      ),
+    return MintResultHeroCard(
+      eyebrow: 'Valeur locative', // TODO: i18n
+      primaryValue: 'CHF\u00a0${formatChf(result.impotSupplementaire.abs())}/an',
+      primaryLabel: result.chiffreChocPositif
+          ? 'd\u2019\u00e9conomie fiscale nette' // TODO: i18n
+          : 'd\u2019imp\u00f4t suppl\u00e9mentaire', // TODO: i18n
+      narrative: result.chiffreChocTexte,
+      accentColor: result.chiffreChocPositif
+          ? MintColors.success
+          : MintColors.error,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

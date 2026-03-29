@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de conseil en libre passage.
@@ -100,12 +101,23 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: 'Libre passage\u00a0: 6 mois pour agir', // TODO: i18n
+                  body: 'Lors d\u2019un changement d\u2019emploi, tu as 6 mois pour transf\u00e9rer ton avoir LPP '
+                      '(LFLP art.\u00a03). Pass\u00e9 ce d\u00e9lai, le capital est vers\u00e9 d\u2019office '
+                      'sur un compte de libre passage. Choisis le bon v\u00e9hicule d\u00e8s le d\u00e9part.', // TODO: i18n
+                  tone: MintSurfaceTone.bleu,
+                  badge: 'Libre passage', // TODO: i18n
+                )),
+                const SizedBox(height: MintSpacing.md),
+
                 // Situation selector
-                MintEntrance(child: _buildSituationSelector(l)),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSituationSelector(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // Profile inputs (age + avoir)
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildProfileInputs(l)),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildProfileInputs(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // New employer toggle — only for job change
@@ -122,7 +134,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // Checklist
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChecklistSection(result.checklist, l)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChecklistSection(result.checklist, l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Recommendations
@@ -132,7 +144,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // ── P7-D : Opération sauvetage 2e pilier ─────────
-                MintEntrance(delay: const Duration(milliseconds: 300), child: LppRescueWidget(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: LppRescueWidget(
                   lppBalance: _avoir,
                   daysElapsed: 10,
                   options: [
@@ -166,7 +178,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 const SizedBox(height: MintSpacing.lg),
 
                 // Link to sfbvg.ch
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCentrale2ePilier(l)),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildCentrale2ePilier(l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // nLPD / Privacy

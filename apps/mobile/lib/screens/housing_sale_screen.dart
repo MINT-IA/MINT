@@ -14,6 +14,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
@@ -648,10 +649,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          MintHeroNumber(
-            value: _chfFmt(r.produitNet),
-            caption: S.of(context)!.housingSaleProduitNetTitle,
+          MintCountUp(
+            value: r.produitNet,
+            prefix: 'CHF\u00a0',
             color: isPositive ? MintColors.primary : MintColors.error,
+            showLigne: false,
+            contextText: S.of(context)!.housingSaleProduitNetTitle,
           ),
           const SizedBox(height: 16),
           // Breakdown

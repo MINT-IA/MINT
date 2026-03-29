@@ -12045,6 +12045,7 @@
           "nationalityGroup": {
             "anyOf": [
               {
+                "pattern": "^(CH|EU|non_EU|US)$",
                 "type": "string"
               },
               {

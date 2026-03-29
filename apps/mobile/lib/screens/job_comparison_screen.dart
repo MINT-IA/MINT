@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -721,10 +722,12 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               ],
             ),
             const SizedBox(height: MintSpacing.md),
-            MintHeroNumber(
-              value: _deltaFmt(salaryDelta),
-              caption: S.of(context)!.jobCompareAxisSalary,
+            MintCountUp(
+              value: salaryDelta.abs(),
+              prefix: '${salaryDelta >= 0 ? '+' : '-'}CHF\u00a0',
               color: verdictColor,
+              showLigne: false,
+              contextText: S.of(context)!.jobCompareAxisSalary,
               semanticsLabel: '${_deltaFmt(salaryDelta)} CHF — ${r.verdictDetail}',
             ),
             const SizedBox(height: MintSpacing.md),

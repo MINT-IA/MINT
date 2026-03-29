@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -266,14 +267,23 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
-                MintEntrance(child: _buildInputsCard()),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: 'Comprendre ta lacune invalidit\u00e9', // TODO: i18n
+                  body: 'En cas d\u2019invalidit\u00e9, ton revenu passe par 3 phases\u00a0: '
+                      'employeur (CO art.\u00a0324a), IJM, puis AI + LPP (LAI art.\u00a028, LPP art.\u00a023-26). '
+                      'La chute peut atteindre 40\u00a0\u00e0\u00a060\u00a0% de ton salaire actuel.', // TODO: i18n
+                  tone: MintSurfaceTone.peche,
+                  badge: 'Invalidit\u00e9', // TODO: i18n
+                )),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: DisabilityCliffWidget(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputsCard()),
+                const SizedBox(height: 20),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCliffWidget(
                   grossMonthly: _grossMonthly,
                   acts: _acts,
                 )),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCountdownWidget(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityCountdownWidget(
                   monthlyExpenses: _grossMonthly * 0.70,
                   initialSavings: _savings,
                 )),
@@ -288,14 +298,14 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityScorecardWidget(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: DisabilityScorecardWidget(
                   items: _scorecardItems,
                   overallGrade: _overallGrade,
                   lifeDropPercent: _lifeDropPercent,
                 )),
                 const SizedBox(height: 20),
                 // ── Related sections (hub) ──
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRelatedSections()),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildRelatedSections()),
                 const SizedBox(height: 20),
                 EduDisclaimer(
                   text: S.of(context)!.disabilityGapDisclaimer,

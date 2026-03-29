@@ -14,6 +14,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/institutional/institutional_api_service.dart';
 import 'package:mint_mobile/services/institutional/pension_fund_registry.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -46,11 +47,25 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
     if (mounted) setState(() { _connections = connections; _loading = false; });
   }
 
+  // FIX-128: Institutional API not yet live — show "coming soon" instead of
+  // fake connection with mock_token. Will be wired when pilot agreements signed.
+  static const _isApiLive = false;
+
   Future<void> _connect(PensionFund fund) async {
+    if (!_isApiLive) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bientôt disponible — en attente des accords pilotes')), // TODO: i18n
+        );
+      }
+      return;
+    }
     HapticFeedback.lightImpact();
     setState(() => _loading = true);
     try {
-      await InstitutionalApiService.connect(fund: fund, authToken: "mock_token");
+      final token = await AuthService.getToken();
+      if (token == null) return;
+      await InstitutionalApiService.connect(fund: fund, authToken: token);
       HapticFeedback.mediumImpact();
       await _loadConnections();
     } catch (_) {

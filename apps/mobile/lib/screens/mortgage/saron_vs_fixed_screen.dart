@@ -11,6 +11,8 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran comparateur SARON vs Taux fixe.
@@ -78,24 +80,35 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
+          // Narrative intro
+          MintEntrance(child: MintNarrativeCard(
+            headline: 'SARON ou taux fixe\u00a0?', // TODO: i18n
+            body: 'Le SARON suit le march\u00e9 mon\u00e9taire et peut \u00e9voluer chaque trimestre. '
+                'Un taux fixe verrouille tes int\u00e9r\u00eats sur toute la dur\u00e9e. '
+                'Selon ta tol\u00e9rance au risque, l\u2019\u00e9cart pourrait jouer en ta faveur\u2026 ou non.', // TODO: i18n
+            tone: MintSurfaceTone.bleu,
+            badge: 'Hypoth\u00e8que', // TODO: i18n
+          )),
+          const SizedBox(height: MintSpacing.lg),
+
           // Chiffre choc
-          MintEntrance(child: _buildChiffreChocCard(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChartSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail couts
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCostComparisonSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCostComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
+          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildDisclaimer(result.disclaimer)),
           const SizedBox(height: MintSpacing.sm),
 
           // Source legale
@@ -110,28 +123,17 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
   }
 
   Widget _buildChiffreChocCard(SaronVsFixedResult result) {
-    return Semantics(
-      label: 'CHF ${formatChf(result.economieSaronStable.abs())}',
-      child: MintSurface(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        radius: 16,
-        child: Column(
-          children: [
-            const Icon(Icons.compare_arrows, color: MintColors.info, size: 40),
-            const SizedBox(height: MintSpacing.sm + 4),
-            Text(
-              'CHF ${formatChf(result.economieSaronStable.abs())}',
-              style: MintTextStyles.displayMedium(color: MintColors.info),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              result.chiffreChocTexte,
-              textAlign: TextAlign.center,
-              style: MintTextStyles.bodyMedium(),
-            ),
-          ],
-        ),
-      ),
+    return MintResultHeroCard(
+      eyebrow: 'SARON vs Taux fixe', // TODO: i18n
+      primaryValue: 'CHF\u00a0${formatChf(result.economieSaronStable.abs())}',
+      primaryLabel: result.economieSaronStable >= 0
+          ? 'd\u2019\u00e9conomie potentielle avec SARON' // TODO: i18n
+          : 'de co\u00fbt suppl\u00e9mentaire avec SARON', // TODO: i18n
+      narrative: result.chiffreChocTexte,
+      accentColor: result.economieSaronStable >= 0
+          ? MintColors.success
+          : MintColors.error,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

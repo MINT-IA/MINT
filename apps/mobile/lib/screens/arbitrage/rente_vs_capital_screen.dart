@@ -14,6 +14,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
@@ -1103,11 +1104,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       ),
                     ),
                     const SizedBox(height: MintSpacing.xs),
-                    Text(
-                      formatChf(renteMois),
-                      style: MintTextStyles.displayMedium().copyWith(
-                        fontSize: 26,
-                      ),
+                    MintCountUp(
+                      value: renteMois,
+                      prefix: 'CHF\u00a0',
+                      showLigne: false,
+                      fullReveal: false,
                     ),
                     Text(S.of(context)!.renteVsCapitalPerMonth,
                       style: MintTextStyles.bodySmall(color: MintColors.textSecondary),

@@ -14,6 +14,8 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
@@ -134,24 +136,35 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
+          // Narrative intro
+          MintEntrance(child: MintNarrativeCard(
+            headline: 'Rendement r\u00e9el apr\u00e8s inflation', // TODO: i18n
+            body: 'Le rendement affich\u00e9 ne dit pas tout. Apr\u00e8s frais de gestion et inflation, '
+                'le gain r\u00e9el peut diff\u00e9rer. L\u2019\u00e9conomie fiscale du 3a (LIFD art.\u00a033) '
+                'am\u00e9liore consid\u00e9rablement le rendement effectif.', // TODO: i18n
+            tone: MintSurfaceTone.sauge,
+            badge: '3e pilier', // TODO: i18n
+          )),
+          const SizedBox(height: MintSpacing.lg),
+
           // Chiffre choc
-          MintEntrance(child: _buildChiffreChoc(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChoc(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Aha moment narrative
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAhaMoment(result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAhaMoment(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection()),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection()),
           const SizedBox(height: MintSpacing.lg),
 
           // Resultat rendement
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRendementSection(result)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRendementSection(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison barres
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonBars(result)),
+          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildComparisonBars(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail economie fiscale
@@ -168,34 +181,16 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildChiffreChoc(RealReturnResult result) {
     final l = S.of(context)!;
-    return Semantics(
-      label: 'Rendement réel : ${result.rendementReel.toStringAsFixed(1)} pourcent', // TODO: i18n
-      child: Container(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.success.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.success.withValues(alpha: 0.15), width: 1.5),
-        ),
-        child: Column(
-          children: [
-            Text(
-              l.realReturnChiffreChocLabel,
-              style: MintTextStyles.bodySmall(color: MintColors.success),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
-              style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
-              style: MintTextStyles.bodySmall(color: MintColors.success),
-            ),
-          ],
-        ),
-      ),
+    return MintResultHeroCard(
+      eyebrow: l.realReturnChiffreChocLabel,
+      primaryValue: '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
+      primaryLabel: 'rendement r\u00e9el apr\u00e8s imp\u00f4ts et inflation', // TODO: i18n
+      secondaryValue: '${result.rendementNominal.toStringAsFixed(1)}\u00a0%',
+      secondaryLabel: l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
+      narrative: 'Gr\u00e2ce \u00e0 la d\u00e9duction fiscale, ton 3a '
+          'rapporte bien plus qu\u2019un compte \u00e9pargne classique.', // TODO: i18n
+      accentColor: MintColors.success,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

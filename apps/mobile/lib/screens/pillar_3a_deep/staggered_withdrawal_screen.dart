@@ -279,7 +279,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
-            '${l.staggered3aEconomie.toLowerCase()} — $_nbComptes ${l.staggered3aAns}',
+            '${l.staggered3aEconomie.toLowerCase()} \u2014 $_nbComptes ${l.staggered3aAns}',
             style: MintTextStyles.labelSmall(
               color: result.economie > 0
                   ? MintColors.categoryGreen

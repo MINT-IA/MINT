@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
@@ -213,6 +214,17 @@ class _EplScreenState extends State<EplScreen> {
             padding: const EdgeInsets.all(MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: 'Retrait EPL\u00a0: avantages et blocage 3 ans', // TODO: i18n
+                  body: 'L\u2019art.\u00a030c LPP permet de retirer ton 2e pilier pour financer '
+                      'un logement en propri\u00e9t\u00e9. Attention\u00a0: si tu as effectu\u00e9 des rachats, '
+                      'un d\u00e9lai de blocage de 3 ans s\u2019applique (OPP2 art.\u00a05).', // TODO: i18n
+                  tone: MintSurfaceTone.bleu,
+                  badge: '2e pilier \u2014 EPL', // TODO: i18n
+                )),
+                const SizedBox(height: MintSpacing.lg),
+
                 // Introduction
                 _buildIntroCard(l),
                 const SizedBox(height: MintSpacing.lg),

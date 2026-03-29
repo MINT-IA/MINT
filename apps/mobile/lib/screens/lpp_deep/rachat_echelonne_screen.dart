@@ -16,6 +16,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -47,7 +49,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
   // --- Animation ---
   late AnimationController _heroController;
-  late Animation<double> _heroAnimation;
 
   static const List<String> _cantonCodes = [
     'ZH', 'BE', 'LU', 'UR', 'SZ', 'OW', 'NW', 'GL', 'ZG', 'FR',
@@ -95,10 +96,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     _heroController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
-    );
-    _heroAnimation = CurvedAnimation(
-      parent: _heroController,
-      curve: Curves.easeOutCubic,
     );
     _heroController.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -230,15 +227,24 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                MintEntrance(child: _buildIntroCard(l)),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: '\u00c9chelonner pour \u00e9conomiser', // TODO: i18n
+                  body: 'R\u00e9partir un rachat LPP sur plusieurs ann\u00e9es permet de d\u00e9duire '
+                      'chaque tranche du revenu imposable (LPP art.\u00a079b). '
+                      'La progressivit\u00e9 fiscale rend cette strat\u00e9gie souvent plus avantageuse qu\u2019un versement unique.', // TODO: i18n
+                  tone: MintSurfaceTone.sauge,
+                  badge: '2e pilier', // TODO: i18n
+                )),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeroChiffreChoc(result, l)),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(l)),
+                const SizedBox(height: MintSpacing.md),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroChiffreChoc(result, l)),
                 const SizedBox(height: MintSpacing.lg),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildLppSituationCard(l)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFiscalSituationCard(l)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFiscalSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildStrategieCard(l)),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildStrategieCard(l)),
                 const SizedBox(height: MintSpacing.lg),
                 _buildComparisonSection(result, l),
                 const SizedBox(height: MintSpacing.lg),
@@ -289,45 +295,20 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     final delta = result.delta;
     final showSavings = delta > 0;
 
-    return AnimatedBuilder(
-      animation: _heroAnimation,
-      builder: (context, child) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: MintSpacing.lg),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: showSavings
-                  ? [MintColors.primary, MintColors.primary.withAlpha(180)]
-                  : [MintColors.textSecondary, MintColors.textMuted],
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                showSavings ? Icons.savings_outlined : Icons.info_outline,
-                color: MintColors.white.withAlpha(180),
-                size: 32,
-              ),
-              const SizedBox(height: MintSpacing.sm + 4),
-              Text(
-                showSavings
-                    ? 'CHF ${formatChf(delta * _heroAnimation.value)}'
-                    : 'CHF 0',
-                style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1),
-              ),
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                showSavings ? l.rachatEchelonneSavingsCaption : l.rachatEchelonneBlocBetter,
-                style: MintTextStyles.bodyMedium(color: MintColors.white.withAlpha(220)).copyWith(fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        );
-      },
+    return MintResultHeroCard(
+      eyebrow: 'Rachat LPP \u00e9chelonn\u00e9', // TODO: i18n
+      primaryValue: showSavings
+          ? 'CHF\u00a0${formatChf(delta)}'
+          : 'CHF\u00a00',
+      primaryLabel: showSavings
+          ? l.rachatEchelonneSavingsCaption
+          : l.rachatEchelonneBlocBetter,
+      narrative: showSavings
+          ? '\u00c9chelonner le rachat sur $_horizon ans '
+            'r\u00e9duit ta charge fiscale totale.' // TODO: i18n
+          : 'Dans ta situation, le rachat en bloc est plus avantageux.', // TODO: i18n
+      accentColor: showSavings ? MintColors.success : MintColors.textSecondary,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

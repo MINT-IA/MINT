@@ -174,7 +174,7 @@ void main() {
     testWidgets('displays parameters section with 5 sliders', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
       await tester.pump();
       // i18n: realReturnParams = "Parametres"
       expect(find.textContaining('aram'), findsWidgets);
@@ -183,7 +183,7 @@ void main() {
     testWidgets('has 5 Slider widgets', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
       await tester.pump();
       expect(find.byType(Slider), findsNWidgets(5));
     });
@@ -191,7 +191,7 @@ void main() {
     testWidgets('displays rendements compares section', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.drag(find.byType(ListView), const Offset(0, -800));
       await tester.pump();
       // i18n: realReturnCompared = "Rendements compares"
       expect(find.textContaining('endements'), findsWidgets);
@@ -200,7 +200,7 @@ void main() {
     testWidgets('displays capital final comparison bars', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.drag(find.byType(ListView), const Offset(0, -1000));
       await tester.pump();
       // i18n: realReturnFinalCapital contains "Capital final"
       expect(find.textContaining('apital final'), findsWidgets);
@@ -209,7 +209,7 @@ void main() {
     testWidgets('displays gain vs epargne classique', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.drag(find.byType(ListView), const Offset(0, -1000));
       await tester.pump();
       await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pump();
@@ -221,7 +221,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.drag(find.byType(ListView), const Offset(0, -1000));
       await tester.pump();
       expect(find.byType(LinearProgressIndicator), findsNWidgets(2));
     });
