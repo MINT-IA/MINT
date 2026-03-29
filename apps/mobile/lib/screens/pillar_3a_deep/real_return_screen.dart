@@ -14,6 +14,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
@@ -168,34 +169,16 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildChiffreChoc(RealReturnResult result) {
     final l = S.of(context)!;
-    return Semantics(
-      label: 'Rendement réel : ${result.rendementReel.toStringAsFixed(1)} pourcent', // TODO: i18n
-      child: Container(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.success.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.success.withValues(alpha: 0.15), width: 1.5),
-        ),
-        child: Column(
-          children: [
-            Text(
-              l.realReturnChiffreChocLabel,
-              style: MintTextStyles.bodySmall(color: MintColors.success),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
-              style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
-              style: MintTextStyles.bodySmall(color: MintColors.success),
-            ),
-          ],
-        ),
-      ),
+    return MintResultHeroCard(
+      eyebrow: l.realReturnChiffreChocLabel,
+      primaryValue: '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
+      primaryLabel: 'rendement r\u00e9el apr\u00e8s imp\u00f4ts et inflation', // TODO: i18n
+      secondaryValue: '${result.rendementNominal.toStringAsFixed(1)}\u00a0%',
+      secondaryLabel: l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
+      narrative: 'Gr\u00e2ce \u00e0 la d\u00e9duction fiscale, ton 3a '
+          'rapporte bien plus qu\u2019un compte \u00e9pargne classique.', // TODO: i18n
+      accentColor: MintColors.success,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

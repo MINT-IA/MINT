@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de comparaison amortissement direct vs indirect.
@@ -205,30 +206,16 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
   Widget _buildChiffreChocCard(S s, AmortizationResult result) {
     final isPositive = result.chiffreChocPositif;
-    final color = isPositive ? MintColors.success : MintColors.info;
 
-    return Semantics(
-      label: 'CHF ${formatChf(result.economieIndirect.abs())}',
-      child: MintSurface(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        radius: 16,
-        child: Column(
-          children: [
-            Icon(Icons.compare_arrows, color: color, size: 40),
-            const SizedBox(height: MintSpacing.sm + 4),
-            Text(
-              'CHF ${formatChf(result.economieIndirect.abs())}',
-              style: MintTextStyles.displayMedium(color: color),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              result.chiffreChocTexte,
-              textAlign: TextAlign.center,
-              style: MintTextStyles.bodyMedium(),
-            ),
-          ],
-        ),
-      ),
+    return MintResultHeroCard(
+      eyebrow: 'Amortissement direct vs indirect', // TODO: i18n
+      primaryValue: 'CHF\u00a0${formatChf(result.economieIndirect.abs())}',
+      primaryLabel: isPositive
+          ? 'd\u2019\u00e9conomie avec l\u2019indirect' // TODO: i18n
+          : 'de diff\u00e9rence entre les deux strat\u00e9gies', // TODO: i18n
+      narrative: result.chiffreChocTexte,
+      accentColor: isPositive ? MintColors.success : MintColors.info,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

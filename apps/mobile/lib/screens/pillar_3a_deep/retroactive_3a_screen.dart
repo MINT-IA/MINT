@@ -13,6 +13,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
@@ -349,36 +350,13 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   // ── 3. Chiffre Choc Card ──────────────────────────────────────
 
   Widget _buildChiffreChocCard(Retroactive3aResult result) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.xl - 4),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(
-            S.of(context)!.retroactive3aEconomiesFiscales,
-            style: MintTextStyles.labelSmall(color: MintColors.white60)
-                .copyWith(fontWeight: FontWeight.w700, letterSpacing: 1.0),
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Semantics(
-            label: 'CHF ${formatChf(result.economiesFiscales)}',
-            child: Text(
-              'CHF\u00a0${formatChf(result.economiesFiscales)}',
-              style: MintTextStyles.displayMedium(color: MintColors.white),
-            ),
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Text(
-            result.chiffreChoc,
-            textAlign: TextAlign.center,
-            style: MintTextStyles.bodySmall(color: MintColors.white70),
-          ),
-        ],
-      ),
+    return MintResultHeroCard(
+      eyebrow: S.of(context)!.retroactive3aEconomiesFiscales,
+      primaryValue: 'CHF\u00a0${formatChf(result.economiesFiscales)}',
+      primaryLabel: 'd\u2019\u00e9conomie fiscale avec le rattrapage 3a', // TODO: i18n
+      narrative: result.chiffreChoc,
+      accentColor: MintColors.success,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 
