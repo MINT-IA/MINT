@@ -126,9 +126,9 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
                   colors: [MintColors.primary, MintColors.primaryLight],
                 ),
               ),
-              child: const Center(
+              child: Center(
                 child: Icon(Icons.business_center_outlined,
-                    size: 64, color: Colors.white24),
+                    size: 64, color: MintColors.white.withAlpha(61)),
               ),
             ),
           ),

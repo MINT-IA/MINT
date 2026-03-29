@@ -63,6 +63,30 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
   }
 
   Future<void> _disconnect(PensionFund fund) async {
+    // FIX-123: Confirm before disconnecting — sensitive action.
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Déconnecter la caisse\u00a0?', // TODO: i18n
+            style: MintTextStyles.headlineMedium()),
+        content: Text(
+          'Tes projections reviendront en mode "estimé" au lieu de "certifié".',
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+        ), // TODO: i18n
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Annuler', style: MintTextStyles.bodyMedium()),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Déconnecter'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     await InstitutionalApiService.disconnect(fund: fund);
     await _loadConnections();
   }
@@ -91,12 +115,12 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                         style: MintTextStyles.titleMedium(
                             color: MintColors.white)),
                     background: Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFF0D2137), // Deep trust blue-black
+                            MintColors.primary.withAlpha(230),
                             MintColors.primary,
                           ],
                         ),
@@ -109,17 +133,17 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
                             Container(
                               width: 64, height: 64,
                               decoration: BoxDecoration(
-                                color: Colors.white10,
+                                color: MintColors.white.withAlpha(26),
                                 borderRadius: BorderRadius.circular(18),
                               ),
-                              child: const Icon(Icons.verified_user_outlined,
-                                  color: Colors.white54, size: 32),
+                              child: Icon(Icons.verified_user_outlined,
+                                  color: MintColors.white.withAlpha(138), size: 32),
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'Confiance 95\u00a0%',
+                              'Données certifiées', // TODO: i18n
                               style: MintTextStyles.bodySmall(
-                                  color: Colors.white60),
+                                  color: MintColors.white.withAlpha(153)),
                             ),
                           ],
                         ),
@@ -306,6 +330,7 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return '\u2014';
-    return '${date.day}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+    // FIX-125: Pad both day and month.
+    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
   }
 }
