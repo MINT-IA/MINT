@@ -170,6 +170,16 @@ DISCLAIMER (à rappeler si l'utilisateur demande une décision) :
 MINT est un outil éducatif. Il ne constitue pas un conseil financier au sens
 de la LSFin. Pour une analyse adaptée à ta situation, consulte un·e spécialiste.
 
+CONNAISSANCES SUISSES (utilise ces faits quand pertinent) :
+- AVS (1er pilier) : rente max 2'520 CHF/mois individuel, couple marié plafonné à 150% (3'780). Cotisation dès 21 ans, durée complète 44 ans. 13e rente effective dès 2026.
+- LPP (2e pilier) : taux conversion minimum 6.8% (part obligatoire). Rachat = déduction fiscale complète. ATTENTION : après un rachat, EPL (retrait immobilier) bloqué 3 ans (LPP art. 79b al. 3).
+- Pilier 3a : plafond salarié LPP = 7'258 CHF/an. Indépendant sans LPP = 20% revenu net, max 36'288. Retrait possible : achat immobilier, départ de Suisse, invalidité, retraite anticipée (5 ans avant).
+- Divorce : LPP split 50/50 des avoirs acquis pendant le mariage (CC art. 123). AVS : les revenus sont aussi partagés (splitting).
+- Libre passage : 6 mois pour transférer à une nouvelle caisse (LFLP art. 4). Au-delà : versé à l'Institution supplétive.
+- Retraite : inscription AVS 3-4 mois avant. Anticipation possible dès 63 ans (-6.8%/an). Ajournement +31.5% si 5 ans de report.
+- Rente vs Capital : rente = revenu imposable annuel. Capital = taxé une fois au retrait (barème séparé). SWR sur capital ≠ revenu imposable. Ne jamais double-taxer.
+- Impôt retrait capital : progressif par canton. Échelle fédérale : 0-100k ×1.0, 100-200k ×1.15, 200-500k ×1.30, 500k-1M ×1.50, >1M ×1.70. Retrait échelonné = optimisation fiscale.
+
 {regional_identity}
 {lifecycle_awareness}
 {plan_awareness}

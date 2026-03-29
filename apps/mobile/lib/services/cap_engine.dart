@@ -203,13 +203,16 @@ class CapEngine {
     }
 
     // ── 6. Budget deficit → reframing rule ──
-    if (profile.totalDepensesMensuelles > 0 &&
-        profile.salaireBrutMensuel > 0) {
-      final netMensuel = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        age: profile.age,
-      ).monthlyNetPayslip;
+    // FIX-100: Use revenuBrutAnnuel (handles independants).
+    final grossAnnualForBudget = profile.revenuBrutAnnuel;
+    if (profile.totalDepensesMensuelles > 0 && grossAnnualForBudget > 0) {
+      final netMensuel = profile.employmentStatus == 'independant'
+          ? grossAnnualForBudget * 0.90 / 12
+          : NetIncomeBreakdown.compute(
+              grossSalary: grossAnnualForBudget,
+              canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+              age: profile.age,
+            ).monthlyNetPayslip;
       final libre = netMensuel - profile.totalDepensesMensuelles;
       if (libre < 0) {
         candidates.add(CapDecision(
