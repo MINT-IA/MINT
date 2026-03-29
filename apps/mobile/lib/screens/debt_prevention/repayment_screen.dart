@@ -159,28 +159,31 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
       ),
-      child: Column(
-        children: [
-          Text(
-            S.of(context)!.repaymentLibereDans,
-            style: MintTextStyles.bodySmall(color: color)
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            '${strategiePrioritaire.moisJusquaLiberation} mois',
-            style: MintTextStyles.displayMedium(color: color),
-          ),
-          const SizedBox(height: 4),
-          if (result.economieInterets > 0)
+      child: Semantics(
+        label: 'Libéré dans ${strategiePrioritaire.moisJusquaLiberation} mois', // TODO: i18n
+        child: Column(
+          children: [
             Text(
-              S.of(context)!.repaymentDiffStrategies(formatChf(result.economieInterets)),
-              style: TextStyle(
-                fontSize: 12,
-                color: color,
-              ),
+              S.of(context)!.repaymentLibereDans,
+              style: MintTextStyles.bodySmall(color: color)
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
-        ],
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              '${strategiePrioritaire.moisJusquaLiberation} mois',
+              style: MintTextStyles.displayMedium(color: color),
+            ),
+            const SizedBox(height: 4),
+            if (result.economieInterets > 0)
+              Text(
+                S.of(context)!.repaymentDiffStrategies(formatChf(result.economieInterets)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -269,16 +272,20 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   onChanged: (v) => setState(() => dette.nom = v),
                 ),
               ),
-              GestureDetector(
-                onTap: () => setState(() => _dettes.removeAt(index)),
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: MintColors.redBg,
-                    borderRadius: BorderRadius.circular(8),
+              Semantics(
+                button: true,
+                label: 'Supprimer la dette ${dette.nom}', // TODO: i18n
+                child: GestureDetector(
+                  onTap: () => setState(() => _dettes.removeAt(index)),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: MintColors.redBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ExcludeSemantics(child: const Icon(Icons.close,
+                        color: MintColors.redMedium, size: 14)),
                   ),
-                  child: const Icon(Icons.close,
-                      color: MintColors.redMedium, size: 14),
                 ),
               ),
             ],
@@ -478,7 +485,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              SizedBox(
+              Semantics(
+                button: true,
+                label: 'Valider la valeur', // TODO: i18n
+                child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () {
@@ -508,7 +518,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 8),
             ],
           ),
@@ -538,44 +548,48 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         prefix: 'CHF',
         onChanged: (v) => setState(() => _budgetMensuel = v),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: MintColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+      child: Semantics(
+        button: true,
+        label: 'Budget mensuel : ${formatChf(_budgetMensuel)} francs. Appuyer pour modifier', // TODO: i18n
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              ExcludeSemantics(child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.payments_outlined,
+                    color: MintColors.primary, size: 22),
+              )),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.of(context)!.repaymentBudgetLabel,
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      S.of(context)!.repaymentBudgetDisplay(formatChf(_budgetMensuel)),
+                      style: MintTextStyles.headlineMedium(color: MintColors.primary),
+                    ),
+                  ],
+                ),
               ),
-              child: const Icon(Icons.payments_outlined,
-                  color: MintColors.primary, size: 22),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    S.of(context)!.repaymentBudgetLabel,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    S.of(context)!.repaymentBudgetDisplay(formatChf(_budgetMensuel)),
-                    style: MintTextStyles.headlineMedium(color: MintColors.primary),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.edit_outlined,
-                color: MintColors.textMuted, size: 18),
-          ],
+              ExcludeSemantics(child: const Icon(Icons.edit_outlined,
+                  color: MintColors.textMuted, size: 18)),
+            ],
+          ),
         ),
       ),
     );
@@ -661,7 +675,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     required double interets,
     required IconData icon,
   }) {
-    return Container(
+    return Semantics(
+      label: '$title : $mois mois, intérêts ${formatChf(interets)} francs', // TODO: i18n
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.white,
@@ -713,7 +729,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildComparisonRow(

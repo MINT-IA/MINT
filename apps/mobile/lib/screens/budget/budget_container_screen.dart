@@ -32,7 +32,7 @@ class BudgetContainerScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              MintEntrance(child: Container(
+              MintEntrance(child: ExcludeSemantics(child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.1),
@@ -40,7 +40,7 @@ class BudgetContainerScreen extends StatelessWidget {
                 ),
                 child: const Icon(Icons.account_balance_wallet_outlined,
                     size: 48, color: MintColors.primary),
-              )),
+              ))),
               const SizedBox(height: 24),
               MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                 S.of(context)!.budgetEmptyTitle,
@@ -54,16 +54,20 @@ class BudgetContainerScreen extends StatelessWidget {
                 style: MintTextStyles.bodyMedium(),
               )),
               const SizedBox(height: 32),
-              FilledButton.icon(
-                onPressed: () => context.push('/advisor/wizard?section=budget'),
-                icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(S.of(context)!.budgetEmptyAction),
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+              Semantics(
+                button: true,
+                label: 'Commencer la saisie du budget', // TODO: i18n
+                child: FilledButton.icon(
+                  onPressed: () => context.push('/advisor/wizard?section=budget'),
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: Text(S.of(context)!.budgetEmptyAction),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
                 ),
               ),
             ],

@@ -205,25 +205,28 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
   Widget _buildChiffreChoc() {
     final r = _result!;
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.error,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Text(
-            IndependantsService.formatChf(r.capitalisationAnnuelle),
-            style: MintTextStyles.displayMedium(color: MintColors.white),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            S.of(context)!.lppVolontaireChiffreChocCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
-            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    return Semantics(
+      label: 'Capitalisation annuelle : ${IndependantsService.formatChf(r.capitalisationAnnuelle)} francs', // TODO: i18n
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: MintColors.error,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            Text(
+              IndependantsService.formatChf(r.capitalisationAnnuelle),
+              style: MintTextStyles.displayMedium(color: MintColors.white),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              S.of(context)!.lppVolontaireChiffreChocCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
+              style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -294,28 +297,31 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
     Color? valueColor,
     bool fullWidth = false,
   }) {
-    final card = Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: MintColors.textMuted),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: (small ? MintTextStyles.bodyMedium(color: valueColor ?? MintColors.textPrimary) : MintTextStyles.headlineMedium(color: valueColor ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            label,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-          ),
-        ],
+    final card = Semantics(
+      label: '$label : $value', // TODO: i18n
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ExcludeSemantics(child: Icon(icon, size: 18, color: MintColors.textMuted)),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: (small ? MintTextStyles.bodyMedium(color: valueColor ?? MintColors.textPrimary) : MintTextStyles.headlineMedium(color: valueColor ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              label,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -376,23 +382,26 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           const SizedBox(height: 16),
 
           // Gap highlight
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.success.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.add_circle_outline, size: 16, color: MintColors.success),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    S.of(context)!.lppVolontaireGapLabel(IndependantsService.formatChf(gap)),
-                    style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+          Semantics(
+            label: 'Gain avec LPP volontaire : ${IndependantsService.formatChf(gap)} francs', // TODO: i18n
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MintColors.success.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  ExcludeSemantics(child: const Icon(Icons.add_circle_outline, size: 16, color: MintColors.success)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      S.of(context)!.lppVolontaireGapLabel(IndependantsService.formatChf(gap)),
+                      style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

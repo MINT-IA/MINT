@@ -43751,6 +43751,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'La semaine prochaine, concentre-toi sur {focus}.'**
   String recapNextFocus(String focus);
+
+  /// No description provided for @loadingGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement…'**
+  String get loadingGeneric;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

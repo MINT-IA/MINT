@@ -11503,5 +11503,6 @@
   "sequenceRetraiteActiveStep3": "LAMal franchise",
   "sequenceRetraiteActiveStep4": "Summary",
   "sequenceReadyNextStep": "Ready for the next step",
-  "sequenceQuitButton": "Quit journey"
+  "sequenceQuitButton": "Quit journey",
+  "loadingGeneric": "Loading\u2026"
 }

@@ -255,9 +255,13 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
     final startLabel = _shortDate(recap.weekStart);
     final endLabel = _shortDate(recap.weekEnd);
 
-    return Text(
-      l.recapPeriod(startLabel, endLabel),
-      style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+    return Semantics(
+      header: true,
+      label: 'Récapitulatif du $startLabel au $endLabel', // TODO: i18n
+      child: Text(
+        l.recapPeriod(startLabel, endLabel),
+        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+      ),
     );
   }
 
@@ -281,22 +285,25 @@ class _WeeklyRecapScreenState extends State<WeeklyRecapScreen> {
   Widget _buildSection(RecapSection section) {
     final tone = _toneForType(section.type);
 
-    return MintSurface(
-      tone: tone,
-      padding: const EdgeInsets.all(MintSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            section.title,
-            style: MintTextStyles.titleMedium(color: MintColors.textSecondary),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            section.content,
-            style: MintTextStyles.bodyMedium(),
-          ),
-        ],
+    return Semantics(
+      label: '${section.title} : ${section.content}', // TODO: i18n
+      child: MintSurface(
+        tone: tone,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              section.title,
+              style: MintTextStyles.titleMedium(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              section.content,
+              style: MintTextStyles.bodyMedium(),
+            ),
+          ],
+        ),
       ),
     );
   }

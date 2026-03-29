@@ -24847,4 +24847,7 @@ class SDe extends S {
   String recapNextFocus(String focus) {
     return 'La semaine prochaine, concentre-toi sur $focus.';
   }
+
+  @override
+  String get loadingGeneric => 'Wird geladen…';
 }

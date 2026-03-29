@@ -12008,5 +12008,6 @@
     "placeholders": {
       "focus": { "type": "String" }
     }
-  }
+  },
+  "loadingGeneric": "Chargement\u2026"
 }
