@@ -14285,6 +14285,18 @@
             ],
             "title": "Hasvoluntarylpp"
           },
+          "householdGrossIncome": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Householdgrossincome"
+          },
           "householdType": {
             "anyOf": [
               {
@@ -14406,6 +14418,29 @@
               }
             ],
             "title": "Spouseavscontributionyears"
+          },
+          "spouseEmploymentStatus": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spouseemploymentstatus"
+          },
+          "spouseSalaryGrossAnnual": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spousesalarygrossannual"
           },
           "totalSavings": {
             "anyOf": [
