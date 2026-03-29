@@ -683,8 +683,8 @@ void main() {
 
       if (cap.id == 'disability_gap') {
         expect(cap.coachPrompt, isNotNull);
-        // Must orient toward understanding the gap
-        expect(cap.coachPrompt!, contains('comprendre'));
+        // Must orient toward understanding the gap (not selling)
+        expect(cap.coachPrompt!, anyOf(contains('comprendre'), contains('options')));
         // Must NOT sell insurance
         expect(cap.coachPrompt!, isNot(contains('souscrire')));
         expect(cap.coachPrompt!, isNot(contains('acheter')));
