@@ -1547,7 +1547,14 @@ class CoachProfile {
       nationality: nationality ?? this.nationality,
       etatCivil: etatCivil ?? this.etatCivil,
       nombreEnfants: nombreEnfants ?? this.nombreEnfants,
-      conjoint: conjoint ?? this.conjoint,
+      // FIX-035 LAVS art. 35: clear conjoint when civil status changes
+      // to non-coupled (divorce, veuvage, célibataire). Otherwise the
+      // AVS couple cap 150% keeps applying to a single person.
+      conjoint: (etatCivil != null &&
+              etatCivil != CoachCivilStatus.marie &&
+              etatCivil != CoachCivilStatus.concubinage)
+          ? null
+          : (conjoint ?? this.conjoint),
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,

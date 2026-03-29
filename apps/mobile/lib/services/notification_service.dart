@@ -291,7 +291,7 @@ class NotificationService {
       title: s.weeklyRecapTitle,
       body: s.weeklyRecapBody,
       scheduledDate: scheduledDate,
-      payload: '/coach/weekly-recap',
+      payload: '/weekly-recap',
       matchDateComponents: DateTimeComponents.dayOfWeekAndTime,
     );
   }

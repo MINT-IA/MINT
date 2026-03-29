@@ -240,14 +240,19 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       }
     }
 
-    // Auto-sync budget when profile changes
-    final coachProvider = context.watch<CoachProfileProvider>();
-    if (coachProvider.profileUpdatedSinceBudget && coachProvider.hasProfile) {
+    // Auto-sync budget when profile changes.
+    // FIX-029: use context.select to only rebuild when the sync flag changes,
+    // not on every notifyListeners() from CoachProfileProvider.
+    final needsBudgetSync = context.select<CoachProfileProvider, bool>(
+      (p) => p.profileUpdatedSinceBudget && p.hasProfile,
+    );
+    if (needsBudgetSync) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
+          final coachProv = context.read<CoachProfileProvider>();
           final budgetProv = context.read<BudgetProvider>();
-          budgetProv.refreshFromProfile(coachProvider.profile!);
-          coachProvider.markBudgetSynced();
+          budgetProv.refreshFromProfile(coachProv.profile!);
+          coachProv.markBudgetSynced();
         }
       });
     }

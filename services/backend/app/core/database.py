@@ -17,7 +17,8 @@ if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     _engine_kwargs["connect_args"] = {"check_same_thread": False}
 elif "postgresql" in SQLALCHEMY_DATABASE_URL:
     # PostgreSQL: enable connection pooling for production
-    _engine_kwargs["pool_size"] = 10
+    _engine_kwargs["pool_size"] = 20
+    _engine_kwargs["max_overflow"] = 20
     _engine_kwargs["pool_recycle"] = 3600
     _engine_kwargs["pool_pre_ping"] = True
 
