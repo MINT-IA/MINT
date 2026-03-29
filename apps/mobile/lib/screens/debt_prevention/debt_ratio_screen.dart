@@ -15,7 +15,6 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
-import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
