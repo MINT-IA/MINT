@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 
 /// Tab 1 — Mint (Coach)
@@ -12,7 +13,7 @@ class MintCoachTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Onglet Coach MINT', // TODO: i18n
+      label: S.of(context)!.semanticsCoachTabLabel,
       child: const CoachChatScreen(isEmbeddedInTab: true),
     );
   }

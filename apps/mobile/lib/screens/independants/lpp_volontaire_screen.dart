@@ -205,7 +205,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
   Widget _buildChiffreChoc() {
     final r = _result!;
     return Semantics(
-      label: 'Capitalisation annuelle : ${IndependantsService.formatChf(r.capitalisationAnnuelle)} francs', // TODO: i18n
+      label: S.of(context)!.semanticsLppCapitalisation(IndependantsService.formatChf(r.capitalisationAnnuelle)),
       child: MintSurface(
         tone: MintSurfaceTone.peche,
         padding: const EdgeInsets.all(24),
@@ -289,7 +289,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
     bool fullWidth = false,
   }) {
     final card = Semantics(
-      label: '$label : $value', // TODO: i18n
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -374,7 +374,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
           // Gap highlight
           Semantics(
-            label: 'Gain avec LPP volontaire : ${IndependantsService.formatChf(gap)} francs', // TODO: i18n
+            label: S.of(context)!.semanticsLppGain(IndependantsService.formatChf(gap)),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

@@ -164,7 +164,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       tone: tone,
       padding: const EdgeInsets.all(24),
       child: Semantics(
-        label: 'Libéré dans ${strategiePrioritaire.moisJusquaLiberation} mois', // TODO: i18n
+        label: S.of(context)!.semanticsRepaymentFreeIn(strategiePrioritaire.moisJusquaLiberation),
         child: Column(
           children: [
             Text(
@@ -279,7 +279,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               ),
               Semantics(
                 button: true,
-                label: 'Supprimer la dette ${dette.nom}', // TODO: i18n
+                label: S.of(context)!.semanticsRepaymentDeleteDebt(dette.nom),
                 child: GestureDetector(
                   onTap: () => setState(() => _dettes.removeAt(index)),
                   child: Container(
@@ -492,7 +492,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               const SizedBox(height: 20),
               Semantics(
                 button: true,
-                label: 'Valider la valeur', // TODO: i18n
+                label: S.of(context)!.semanticsRepaymentValidate,
                 child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -556,7 +556,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       ),
       child: Semantics(
         button: true,
-        label: 'Budget mensuel : ${formatChf(_budgetMensuel)} francs. Appuyer pour modifier', // TODO: i18n
+        label: S.of(context)!.semanticsRepaymentBudget(formatChf(_budgetMensuel)),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -682,7 +682,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     required IconData icon,
   }) {
     return Semantics(
-      label: '$title : $mois mois, intérêts ${formatChf(interets)} francs', // TODO: i18n
+      label: S.of(context)!.semanticsRepaymentStrategy(title, mois, formatChf(interets)),
       child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

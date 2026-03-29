@@ -11647,5 +11647,117 @@
   "pensionFundAvailable": "Disponível",
   "pensionFundDisconnectTooltip": "Desligar",
   "pensionFundConnectButton": "Ligar",
-  "pensionFundDisclaimer": "O MINT é uma ferramenta educativa em modo de leitura (LSFin art.\u00a03). Nenhuma transação é efetuada nas tuas contas. Podes desligar-te a qualquer momento."
+  "pensionFundDisclaimer": "O MINT é uma ferramenta educativa em modo de leitura (LSFin art.\u00a03). Nenhuma transação é efetuada nas tuas contas. Podes desligar-te a qualquer momento.",
+
+  "semanticsBudgetStartButton": "Começar a inserir o orçamento",
+  "semanticsBenchmarkToggle": "Ativar comparações cantonais",
+  "semanticsBenchmarkMetric": "{label}: {status}. Intervalo típico de {low} a {high}",
+  "@semanticsBenchmarkMetric": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "status": {"type": "String"},
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  },
+  "semanticsRecapPeriod": "Resumo de {start} a {end}",
+  "@semanticsRecapPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "semanticsRecapSection": "{title}: {content}",
+  "@semanticsRecapSection": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "content": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentFreeIn": "Livre de dívidas em {months} meses",
+  "@semanticsRepaymentFreeIn": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "semanticsRepaymentDeleteDebt": "Eliminar dívida {name}",
+  "@semanticsRepaymentDeleteDebt": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentBudget": "Orçamento mensal: {amount} francos. Toca para editar",
+  "@semanticsRepaymentBudget": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentValidate": "Confirmar valor",
+  "semanticsRepaymentStrategy": "{title}: {months} meses, juros {interest} francos",
+  "@semanticsRepaymentStrategy": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "int"},
+      "interest": {"type": "String"}
+    }
+  },
+  "semanticsAvsDifference": "Diferença anual: {amount} francos",
+  "@semanticsAvsDifference": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsMetricLabelValue": "{label}: {value}",
+  "@semanticsMetricLabelValue": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
+  "semanticsAvsTauxEffectif": "Taxa efetiva: {rate} por cento",
+  "@semanticsAvsTauxEffectif": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  },
+  "semanticsDividendeSaving": "Poupança: {amount} francos por ano",
+  "@semanticsDividendeSaving": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsDividendeAdjust": "Ajusta o split para encontrar poupanças",
+  "semanticsDividendeRequalification": "Alerta: risco de requalificação fiscal se a parte salarial for inferior a 60 por cento",
+  "semanticsLppCapitalisation": "Capitalização anual: {amount} francos",
+  "@semanticsLppCapitalisation": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsLppGain": "Ganho com LPP voluntária: {amount} francos",
+  "@semanticsLppGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aLppToggle": "Afiliado LPP",
+  "semantics3aEconomieFiscale": "Poupança fiscal: {amount} francos",
+  "@semantics3aEconomieFiscale": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aAvantageSalarie": "Vantagem sobre assalariado: {amount} francos",
+  "@semantics3aAvantageSalarie": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsCoachTabLabel": "Aba Coach MINT",
+  "semanticsRealReturnGain": "Ganho comparado à poupança: {amount} francos",
+  "@semanticsRealReturnGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  }
 }

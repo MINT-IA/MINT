@@ -159,7 +159,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
           const SizedBox(width: 12),
           Semantics(
             toggled: _optedIn,
-            label: 'Activer les comparaisons cantonales', // TODO: i18n
+            label: S.of(context)!.semanticsBenchmarkToggle,
             child: Switch.adaptive(
               value: _optedIn,
               activeTrackColor: MintColors.primary,
@@ -305,7 +305,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Semantics(
-        label: '${metric.label} : $text. Fourchette typique ${_fmt(metric.range.low)} à ${_fmt(metric.range.high)}', // TODO: i18n
+        label: S.of(context)!.semanticsBenchmarkMetric(metric.label, text, _fmt(metric.range.low), _fmt(metric.range.high)),
         child: MintSurface(
           padding: const EdgeInsets.all(16),
           radius: 16,

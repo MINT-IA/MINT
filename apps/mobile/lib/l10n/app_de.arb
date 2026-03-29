@@ -11647,5 +11647,117 @@
   "pensionFundAvailable": "Verfügbar",
   "pensionFundDisconnectTooltip": "Trennen",
   "pensionFundConnectButton": "Verbinden",
-  "pensionFundDisclaimer": "MINT ist ein Bildungstool im Nur-Lese-Modus (FIDLEG Art.\u00a03). Es werden keine Transaktionen auf deinen Konten durchgeführt. Du kannst dich jederzeit trennen."
+  "pensionFundDisclaimer": "MINT ist ein Bildungstool im Nur-Lese-Modus (FIDLEG Art.\u00a03). Es werden keine Transaktionen auf deinen Konten durchgeführt. Du kannst dich jederzeit trennen.",
+
+  "semanticsBudgetStartButton": "Budgeteingabe starten",
+  "semanticsBenchmarkToggle": "Kantonale Vergleiche aktivieren",
+  "semanticsBenchmarkMetric": "{label}: {status}. Typische Spanne {low} bis {high}",
+  "@semanticsBenchmarkMetric": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "status": {"type": "String"},
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  },
+  "semanticsRecapPeriod": "Zusammenfassung vom {start} bis {end}",
+  "@semanticsRecapPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "semanticsRecapSection": "{title}: {content}",
+  "@semanticsRecapSection": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "content": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentFreeIn": "Schuldenfrei in {months} Monaten",
+  "@semanticsRepaymentFreeIn": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "semanticsRepaymentDeleteDebt": "Schuld {name} löschen",
+  "@semanticsRepaymentDeleteDebt": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentBudget": "Monatsbudget: {amount} Franken. Tippen zum Bearbeiten",
+  "@semanticsRepaymentBudget": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentValidate": "Wert bestätigen",
+  "semanticsRepaymentStrategy": "{title}: {months} Monate, Zinsen {interest} Franken",
+  "@semanticsRepaymentStrategy": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "int"},
+      "interest": {"type": "String"}
+    }
+  },
+  "semanticsAvsDifference": "Jährliche Differenz: {amount} Franken",
+  "@semanticsAvsDifference": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsMetricLabelValue": "{label}: {value}",
+  "@semanticsMetricLabelValue": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
+  "semanticsAvsTauxEffectif": "Effektiver Satz: {rate} Prozent",
+  "@semanticsAvsTauxEffectif": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  },
+  "semanticsDividendeSaving": "Ersparnis: {amount} Franken pro Jahr",
+  "@semanticsDividendeSaving": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsDividendeAdjust": "Split anpassen, um Einsparungen zu finden",
+  "semanticsDividendeRequalification": "Warnung: Risiko der steuerlichen Umqualifizierung, wenn der Gehaltsanteil unter 60 Prozent liegt",
+  "semanticsLppCapitalisation": "Jährliche Kapitalisierung: {amount} Franken",
+  "@semanticsLppCapitalisation": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsLppGain": "Gewinn mit freiwilliger BVG: {amount} Franken",
+  "@semanticsLppGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aLppToggle": "BVG-angeschlossen",
+  "semantics3aEconomieFiscale": "Steuerersparnis: {amount} Franken",
+  "@semantics3aEconomieFiscale": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aAvantageSalarie": "Vorteil gegenüber Angestellten: {amount} Franken",
+  "@semantics3aAvantageSalarie": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsCoachTabLabel": "MINT Coach Tab",
+  "semanticsRealReturnGain": "Gewinn im Vergleich zum Sparkonto: {amount} Franken",
+  "@semanticsRealReturnGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  }
 }

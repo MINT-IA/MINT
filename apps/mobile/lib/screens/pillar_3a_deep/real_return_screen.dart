@@ -389,7 +389,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           const SizedBox(height: MintSpacing.md),
           Semantics(
-            label: 'Gain par rapport à l\'épargne : ${formatChf(result.gainVsEpargne)} francs', // TODO: i18n
+            label: S.of(context)!.semanticsRealReturnGain(formatChf(result.gainVsEpargne)),
             child: Container(
               padding: const EdgeInsets.all(MintSpacing.sm),
               decoration: BoxDecoration(
@@ -487,7 +487,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   Widget _buildResultRow(String label, String value,
       {bool isBold = false, Color? color}) {
     return Semantics(
-      label: '$label : $value', // TODO: i18n
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
         child: Row(

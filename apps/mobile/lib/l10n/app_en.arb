@@ -11647,5 +11647,117 @@
   "pensionFundAvailable": "Available",
   "pensionFundDisconnectTooltip": "Disconnect",
   "pensionFundConnectButton": "Connect",
-  "pensionFundDisclaimer": "MINT is a read-only educational tool (FinSA art.\u00a03). No transactions are made on your accounts. You can disconnect at any time."
+  "pensionFundDisclaimer": "MINT is a read-only educational tool (FinSA art.\u00a03). No transactions are made on your accounts. You can disconnect at any time.",
+
+  "semanticsBudgetStartButton": "Start entering your budget",
+  "semanticsBenchmarkToggle": "Enable cantonal comparisons",
+  "semanticsBenchmarkMetric": "{label}: {status}. Typical range {low} to {high}",
+  "@semanticsBenchmarkMetric": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "status": {"type": "String"},
+      "low": {"type": "String"},
+      "high": {"type": "String"}
+    }
+  },
+  "semanticsRecapPeriod": "Recap from {start} to {end}",
+  "@semanticsRecapPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "semanticsRecapSection": "{title}: {content}",
+  "@semanticsRecapSection": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "content": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentFreeIn": "Debt-free in {months} months",
+  "@semanticsRepaymentFreeIn": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "semanticsRepaymentDeleteDebt": "Delete debt {name}",
+  "@semanticsRepaymentDeleteDebt": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentBudget": "Monthly budget: {amount} francs. Tap to edit",
+  "@semanticsRepaymentBudget": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsRepaymentValidate": "Confirm value",
+  "semanticsRepaymentStrategy": "{title}: {months} months, interest {interest} francs",
+  "@semanticsRepaymentStrategy": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "int"},
+      "interest": {"type": "String"}
+    }
+  },
+  "semanticsAvsDifference": "Annual difference: {amount} francs",
+  "@semanticsAvsDifference": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsMetricLabelValue": "{label}: {value}",
+  "@semanticsMetricLabelValue": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
+  "semanticsAvsTauxEffectif": "Effective rate: {rate} percent",
+  "@semanticsAvsTauxEffectif": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  },
+  "semanticsDividendeSaving": "Savings: {amount} francs per year",
+  "@semanticsDividendeSaving": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsDividendeAdjust": "Adjust the split to find savings",
+  "semanticsDividendeRequalification": "Alert: risk of tax requalification if salary share is below 60 percent",
+  "semanticsLppCapitalisation": "Annual capitalisation: {amount} francs",
+  "@semanticsLppCapitalisation": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsLppGain": "Gain with voluntary LPP: {amount} francs",
+  "@semanticsLppGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aLppToggle": "LPP affiliated",
+  "semantics3aEconomieFiscale": "Tax savings: {amount} francs",
+  "@semantics3aEconomieFiscale": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semantics3aAvantageSalarie": "Advantage over employee: {amount} francs",
+  "@semantics3aAvantageSalarie": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "semanticsCoachTabLabel": "MINT Coach tab",
+  "semanticsRealReturnGain": "Gain compared to savings: {amount} francs",
+  "@semanticsRealReturnGain": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  }
 }
