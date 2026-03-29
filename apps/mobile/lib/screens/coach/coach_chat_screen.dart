@@ -788,12 +788,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // The async `.then()` callback would otherwise read a null field
     // because _proactiveTriggerType is cleared synchronously below.
     final triggerType = _proactiveTriggerType!;
+    // FIX-150: Error handler on engagement tracking.
     _getPrefs().then((prefs) async {
       var pref = CoachingPreference.load(prefs);
       pref = engaged
           ? pref.recordEngagement(triggerType)
           : pref.recordDismissal(triggerType);
       await pref.save(prefs);
+    }).catchError((e) {
+      debugPrint('[CoachChat] recordEngagement failed: $e');
     });
 
     // Clear — only track once per proactive greeting
