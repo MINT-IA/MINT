@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
@@ -3855,6 +3856,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                     onPressed: _isBusy
                         ? null
                         : () {
+                            HapticFeedback.lightImpact();
                             // Typed send → deactivate voice mode.
                             _voiceModeActive = false;
                             _sendMessage(_controller.text);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -194,7 +195,10 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: () => Navigator.of(ctx).pop(true),
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.of(ctx).pop(true);
+                      },
                       child: Text(l.onboardingConsentAllow),
                     ),
                   ),

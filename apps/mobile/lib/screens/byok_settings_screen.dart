@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -346,6 +347,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             onPressed: byok.isLoading || _apiKeyController.text.isEmpty
                 ? null
                 : () async {
+                    HapticFeedback.lightImpact();
                     final messenger = ScaffoldMessenger.of(context);
                     await byok.saveKey(
                         _selectedProvider, _apiKeyController.text.trim());

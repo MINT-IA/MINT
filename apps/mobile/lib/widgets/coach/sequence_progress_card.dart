@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -167,7 +168,12 @@ class SequenceProgressCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: onAdvance,
+                onPressed: onAdvance == null
+                    ? null
+                    : () {
+                        HapticFeedback.lightImpact();
+                        onAdvance!();
+                      },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   foregroundColor: MintColors.white,

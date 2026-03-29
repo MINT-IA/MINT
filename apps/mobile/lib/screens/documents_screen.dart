@@ -10,6 +10,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -596,43 +597,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildEmptyState(S s) {
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
-      padding: const EdgeInsets.all(MintSpacing.xl),
-      child: Column(
-        children: [
-          Icon(Icons.folder_open_outlined,
-              size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
-          const SizedBox(height: MintSpacing.md),
-          Text(
-            s.vaultEmptyTitle,
-            style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            s.documentsEmptyVoice,
-            textAlign: TextAlign.center,
-            style: MintTextStyles.bodyMedium(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-          FilledButton.icon(
-            onPressed: () => _showUploadTypeSheet(s),
-            style: FilledButton.styleFrom(
-              backgroundColor: MintColors.primary,
-              foregroundColor: MintColors.white,
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: Text(
-              s.vaultUploadButton,
-              style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 14),
-            ),
-          ),
-        ],
-      ),
+    return MintEmptyState(
+      icon: Icons.folder_open_outlined,
+      title: s.vaultEmptyTitle,
+      subtitle: s.documentsEmptyVoice,
+      ctaLabel: s.vaultUploadButton,
+      onCta: () => _showUploadTypeSheet(s),
     );
   }
 

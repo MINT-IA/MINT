@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -1041,7 +1042,10 @@ Reponds uniquement avec le texte final.
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: _onSubmit,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          _onSubmit();
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: MintColors.primary,
           foregroundColor: MintColors.white,
