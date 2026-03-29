@@ -198,7 +198,7 @@ class CoupleOptimizer {
             income: userIncome,
             deduction: referenceAmount.clamp(0, userRachat),
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children,
           )
         : 0.0;
@@ -208,7 +208,7 @@ class CoupleOptimizer {
             income: conjointIncome,
             deduction: referenceAmount.clamp(0, conjointRachat),
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children,
           )
         : 0.0;
@@ -270,7 +270,7 @@ class CoupleOptimizer {
             income: userIncome,
             deduction: ceiling,
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children3a,
           )
         : 0.0;
@@ -280,7 +280,7 @@ class CoupleOptimizer {
             income: conjointIncome,
             deduction: ceiling,
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children3a,
           )
         : 0.0;

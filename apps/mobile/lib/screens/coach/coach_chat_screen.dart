@@ -337,9 +337,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     }
 
     if (!_profileInitialized) {
+      _profileInitialized = true;
       final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
-        _profileInitialized = true;
         _profile = coachProvider.profile!;
         _hasProfile = true;
         // Skip greeting when resuming an existing conversation.
@@ -787,12 +787,12 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // The async `.then()` callback would otherwise read a null field
     // because _proactiveTriggerType is cleared synchronously below.
     final triggerType = _proactiveTriggerType!;
-    _getPrefs().then((prefs) {
+    _getPrefs().then((prefs) async {
       var pref = CoachingPreference.load(prefs);
       pref = engaged
           ? pref.recordEngagement(triggerType)
           : pref.recordDismissal(triggerType);
-      pref.save(prefs);
+      await pref.save(prefs);
     });
 
     // Clear — only track once per proactive greeting
