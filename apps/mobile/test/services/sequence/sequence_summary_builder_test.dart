@@ -191,6 +191,71 @@ void main() {
     });
   });
 
+  // ══════════════════════════════════════════════════════════
+  //  NEW COHORT TEMPLATES — Step ID correctness
+  // ══════════════════════════════════════════════════════════
+
+  group('buildSequenceSummary — premiers_pas (18-27)', () {
+    test('produces items with correct step IDs', () {
+      final items = buildSequenceSummary(
+        templateId: 'premiers_pas',
+        allOutputs: {
+          'pp_02_budget': {'revenu_net': 5000.0},
+          'pp_03_3a': {'economie_fiscale': 1800.0},
+        },
+      );
+      expect(items.length, 2);
+      expect(items[0].label, contains('Revenu'));
+      expect(items[1].label, contains('fiscale'));
+    });
+  });
+
+  group('buildSequenceSummary — densification (38-52)', () {
+    test('produces items with correct step IDs', () {
+      final items = buildSequenceSummary(
+        templateId: 'densification',
+        allOutputs: {
+          'dens_01_projection': {
+            'taux_remplacement': 58.0,
+            'gap_mensuel': 3000.0,
+          },
+          'dens_03_buyback': {'economie_rachat': 15000.0},
+        },
+      );
+      expect(items.length, 3);
+      expect(items[0].label, contains('Taux'));
+      expect(items[0].value, contains('58'));
+      expect(items[2].label, contains('rachat'));
+    });
+  });
+
+  group('buildSequenceSummary — retraite_active (65-74)', () {
+    test('produces items with correct step IDs', () {
+      final items = buildSequenceSummary(
+        templateId: 'retraite_active',
+        allOutputs: {
+          'ra_01_budget': {
+            'revenu_net': 4500.0,
+            'charges_totales': 3200.0,
+          },
+        },
+      );
+      expect(items.length, 2);
+      expect(items[0].label, contains('Revenu'));
+      expect(items[1].label, contains('Charges'));
+    });
+
+    test('empty when no matching step outputs', () {
+      final items = buildSequenceSummary(
+        templateId: 'retraite_active',
+        allOutputs: {
+          'WRONG_STEP_ID': {'revenu_net': 4500.0},
+        },
+      );
+      expect(items, isEmpty);
+    });
+  });
+
   group('buildSequenceSummary — unknown template', () {
     test('returns empty for unknown template', () {
       final items = buildSequenceSummary(
