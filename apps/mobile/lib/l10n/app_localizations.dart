@@ -43625,6 +43625,132 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Quitter le parcours'**
   String get sequenceQuitButton;
+
+  /// No description provided for @notifChannelDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels de check-in, deadlines 3a, et notifications de coaching'**
+  String get notifChannelDescription;
+
+  /// No description provided for @notifWeeklyRecapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap de la semaine'**
+  String get notifWeeklyRecapTitle;
+
+  /// No description provided for @notifWeeklyRecapBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget, progrès, prochaine étape — tout est prêt.'**
+  String get notifWeeklyRecapBody;
+
+  /// No description provided for @notifCheckinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Check-in mensuel'**
+  String get notifCheckinTitle;
+
+  /// No description provided for @notifCheckinBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirme tes versements du mois en 2 min'**
+  String get notifCheckinBody;
+
+  /// No description provided for @notifDeadline3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deadline 3a'**
+  String get notifDeadline3aTitle;
+
+  /// No description provided for @notifDeadline3aBody3Months.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste 3 mois pour verser sur ton 3a (CHF {remaining} de marge)'**
+  String notifDeadline3aBody3Months(String remaining);
+
+  /// No description provided for @notifDeadline3aBody46Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste 46 jours pour maximiser ton 3a (CHF {remaining} de marge)'**
+  String notifDeadline3aBody46Days(String remaining);
+
+  /// No description provided for @notifDeadline3aBody16Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste 16 jours pour verser sur ton 3a'**
+  String get notifDeadline3aBody16Days;
+
+  /// No description provided for @notifDeadline3aBodyLastDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Derniers jours ! Verse sur ton 3a avant le 31 décembre'**
+  String get notifDeadline3aBodyLastDays;
+
+  /// No description provided for @notifTaxDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale'**
+  String get notifTaxDeadlineTitle;
+
+  /// No description provided for @notifTaxDeadlineBody44Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale dans 44 jours — pense à rassembler tes documents'**
+  String get notifTaxDeadlineBody44Days;
+
+  /// No description provided for @notifTaxDeadlineBody16Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale dans 16 jours — commence à la remplir'**
+  String get notifTaxDeadlineBody16Days;
+
+  /// No description provided for @notifTaxDeadlineBodyLastWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration à rendre avant le 31 mars — dernière semaine !'**
+  String get notifTaxDeadlineBodyLastWeek;
+
+  /// No description provided for @notifStreakProtectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protège ta série'**
+  String get notifStreakProtectionTitle;
+
+  /// No description provided for @notifStreakProtectionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es à {streak} mois consécutifs — ne casse pas ta série !'**
+  String notifStreakProtectionBody(String streak);
+
+  /// No description provided for @recapActiveWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette semaine, tu as été actif {days} jour(s) sur MINT.'**
+  String recapActiveWeek(String days);
+
+  /// No description provided for @recapQuietWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette semaine a été calme sur MINT.'**
+  String get recapQuietWeek;
+
+  /// No description provided for @recapSavings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton épargne estimée est de CHF {amount}.'**
+  String recapSavings(String amount);
+
+  /// No description provided for @recapConfidenceUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta confiance a progressé de +{delta} pts.'**
+  String recapConfidenceUp(String delta);
+
+  /// No description provided for @recapNextFocus.
+  ///
+  /// In fr, this message translates to:
+  /// **'La semaine prochaine, concentre-toi sur {focus}.'**
+  String recapNextFocus(String focus);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

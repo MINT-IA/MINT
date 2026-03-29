@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -41,6 +42,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   int _ageRetraitDebut = 60;
   int _ageRetraitFin = 64;
   bool _hasUserInteracted = false;
+  bool _showEmptyState = false;
 
   String? _seqRunId;
   String? _seqStepId;
@@ -93,8 +95,15 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   void _initializeFromProfile() {
     try {
       final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
+      if (!provider.hasProfile) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
       final profile = provider.profile!;
+      if (profile.prevoyance.totalEpargne3a <= 0 && profile.revenuBrutAnnuel <= 0) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
       setState(() {
         final avoir3a = profile.prevoyance.totalEpargne3a;
         if (avoir3a > 0) {
@@ -153,8 +162,30 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
     final l = S.of(context)!;
+
+    if (_showEmptyState && !_hasUserInteracted) {
+      return Scaffold(
+        backgroundColor: MintColors.surface,
+        appBar: AppBar(
+          backgroundColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          surfaceTintColor: MintColors.white,
+          title: Text(l.staggered3aTitle,
+              style: MintTextStyles.headlineMedium()),
+        ),
+        body: MintEmptyState(
+          icon: Icons.schedule_outlined,
+          // TODO: i18n
+          title: 'Retrait 3a echelonne',
+          subtitle: 'Renseigne ton epargne 3a pour optimiser tes retraits',
+          ctaLabel: 'Ajouter mon 3a',
+          onCta: () => context.push('/onboarding'),
+        ),
+      );
+    }
+
+    final result = _result;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {

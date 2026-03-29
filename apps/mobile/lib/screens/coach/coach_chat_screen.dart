@@ -337,9 +337,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     }
 
     if (!_profileInitialized) {
-      _profileInitialized = true;
       final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
+        _profileInitialized = true;
         _profile = coachProvider.profile!;
         _hasProfile = true;
         // Skip greeting when resuming an existing conversation.
@@ -1038,6 +1038,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         _streamBuffer.write(token);
         final current = _streamBuffer.toString();
         setState(() {
+          if (_messages.isEmpty) return;
           _messages[_messages.length - 1] = ChatMessage(
             role: 'assistant',
             content: current,
@@ -1137,6 +1138,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final slmDisplayText = _prependMemoryRef(slmBaseText, memoryRef);
 
     setState(() {
+      if (_messages.isEmpty) return;
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
         content: slmDisplayText,

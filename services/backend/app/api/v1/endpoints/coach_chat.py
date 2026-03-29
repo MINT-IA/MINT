@@ -393,10 +393,15 @@ def _execute_internal_tool(
     ctx = profile_context or {}
 
     if name == "retrieve_memories":
+        import re
+        raw_topic = tool_input.get("topic", "")
+        # BUG-B fix: sanitize topic to prevent prompt injection via LLM tool_use.
+        # Only allow word chars, spaces, hyphens, dots (Unicode-aware).
+        safe_topic = raw_topic if re.match(r'^[\w\s\-\.]{1,100}$', raw_topic, re.UNICODE) else ""
         return _handle_retrieve_memories(
-            topic=tool_input.get("topic", ""),
+            topic=safe_topic,
             memory_block=memory_block,
-            max_results=tool_input.get("max_results", 3),
+            max_results=min(tool_input.get("max_results", 3), 10),
         )
 
     if name == "get_budget_status":

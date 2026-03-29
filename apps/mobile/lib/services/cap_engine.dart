@@ -391,6 +391,20 @@ class CapEngine {
     }
 
     // Sort by priority and return the winner.
+    if (candidates.isEmpty) {
+      return CapDecision(
+        id: 'no_cap_available',
+        kind: CapKind.prepare,
+        priorityScore: 0,
+        headline: l.capHonestyNoLppHeadline,
+        whyNow: l.capHonestyNoLppWhyNow,
+        ctaLabel: l.capHonestyCtaLabel,
+        ctaRoute: '/coach/chat',
+        ctaMode: CtaMode.route,
+        expectedImpact: l.capHonestyExpectedImpact,
+        coachPrompt: null,
+      );
+    }
     candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
 
     // Enrich the winner with supporting signals from other candidates.

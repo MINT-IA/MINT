@@ -11950,5 +11950,63 @@
   "sequenceRetraiteActiveStep3": "Franchise LAMal",
   "sequenceRetraiteActiveStep4": "Résumé",
   "sequenceReadyNextStep": "Prêt pour l'étape suivante",
-  "sequenceQuitButton": "Quitter le parcours"
+  "sequenceQuitButton": "Quitter le parcours",
+
+  "notifChannelDescription": "Rappels de check-in, deadlines 3a, et notifications de coaching",
+  "notifWeeklyRecapTitle": "Ton récap de la semaine",
+  "notifWeeklyRecapBody": "Budget, progrès, prochaine étape — tout est prêt.",
+  "notifCheckinTitle": "Check-in mensuel",
+  "notifCheckinBody": "Confirme tes versements du mois en 2 min",
+  "notifDeadline3aTitle": "Deadline 3a",
+  "notifDeadline3aBody3Months": "Il reste 3 mois pour verser sur ton 3a (CHF {remaining} de marge)",
+  "@notifDeadline3aBody3Months": {
+    "placeholders": {
+      "remaining": { "type": "String" }
+    }
+  },
+  "notifDeadline3aBody46Days": "Il reste 46 jours pour maximiser ton 3a (CHF {remaining} de marge)",
+  "@notifDeadline3aBody46Days": {
+    "placeholders": {
+      "remaining": { "type": "String" }
+    }
+  },
+  "notifDeadline3aBody16Days": "Il reste 16 jours pour verser sur ton 3a",
+  "notifDeadline3aBodyLastDays": "Derniers jours ! Verse sur ton 3a avant le 31 décembre",
+  "notifTaxDeadlineTitle": "Déclaration fiscale",
+  "notifTaxDeadlineBody44Days": "Déclaration fiscale dans 44 jours — pense à rassembler tes documents",
+  "notifTaxDeadlineBody16Days": "Déclaration fiscale dans 16 jours — commence à la remplir",
+  "notifTaxDeadlineBodyLastWeek": "Déclaration à rendre avant le 31 mars — dernière semaine !",
+  "notifStreakProtectionTitle": "Protège ta série",
+  "notifStreakProtectionBody": "Tu es à {streak} mois consécutifs — ne casse pas ta série !",
+  "@notifStreakProtectionBody": {
+    "placeholders": {
+      "streak": { "type": "String" }
+    }
+  },
+
+  "recapActiveWeek": "Cette semaine, tu as été actif {days} jour(s) sur MINT.",
+  "@recapActiveWeek": {
+    "placeholders": {
+      "days": { "type": "String" }
+    }
+  },
+  "recapQuietWeek": "Cette semaine a été calme sur MINT.",
+  "recapSavings": "Ton épargne estimée est de CHF\u00a0{amount}.",
+  "@recapSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "recapConfidenceUp": "Ta confiance a progressé de +{delta}\u00a0pts.",
+  "@recapConfidenceUp": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "recapNextFocus": "La semaine prochaine, concentre-toi sur {focus}.",
+  "@recapNextFocus": {
+    "placeholders": {
+      "focus": { "type": "String" }
+    }
+  }
 }

@@ -8,6 +8,7 @@
 /// See: MINT_FINAL_EXECUTION_SYSTEM.md Phase 3.2
 library;
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/recap/weekly_recap_service.dart';
@@ -99,25 +100,36 @@ Format: texte brut, pas de markdown, pas de bullet points.''';
 
   /// Template-based fallback when LLM is unavailable.
   /// Public for use when BYOK is not configured.
-  static String templateFallback(WeeklyRecap recap, CoachProfile profile) {
+  ///
+  /// [l] — optional [S] (AppLocalizations) for i18n. When null, falls back to
+  /// hardcoded French so the app compiles without all 6 ARB files populated.
+  static String templateFallback(
+    WeeklyRecap recap,
+    CoachProfile profile, {
+    S? l,
+  }) {
     final buf = StringBuffer();
 
     if (recap.actions.isNotEmpty) {
-      buf.write('Cette semaine, tu as été actif ${recap.actions.length} jour(s) sur MINT. ');
+      final days = recap.actions.length.toString();
+      buf.write('${l?.recapActiveWeek(days) ?? 'Cette semaine, tu as été actif $days jour(s) sur MINT.'} ');
     } else {
-      buf.write('Cette semaine a été calme sur MINT. ');
+      buf.write('${l?.recapQuietWeek ?? 'Cette semaine a été calme sur MINT.'} ');
     }
 
     if (recap.budget != null && recap.budget!.savedAmount > 0) {
-      buf.write('Ton épargne estimée est de CHF\u00a0${formatChf(recap.budget!.savedAmount)}. ');
+      final amount = formatChf(recap.budget!.savedAmount);
+      buf.write('${l?.recapSavings(amount) ?? 'Ton épargne estimée est de CHF\u00a0$amount.'} ');
     }
 
     if (recap.progress != null && recap.progress!.delta > 0) {
-      buf.write('Ta confiance a progressé de +${recap.progress!.delta.round()}\u00a0pts. ');
+      final delta = recap.progress!.delta.round().toString();
+      buf.write('${l?.recapConfidenceUp(delta) ?? 'Ta confiance a progressé de +$delta\u00a0pts.'} ');
     }
 
     if (recap.nextWeekFocus != null) {
-      buf.write('La semaine prochaine, concentre-toi sur ${recap.nextWeekFocus}.');
+      final focus = recap.nextWeekFocus!;
+      buf.write(l?.recapNextFocus(focus) ?? 'La semaine prochaine, concentre-toi sur $focus.');
     }
 
     return buf.toString().trim();

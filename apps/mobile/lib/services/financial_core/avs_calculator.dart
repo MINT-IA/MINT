@@ -56,7 +56,7 @@ class AvsCalculator {
         (currentYears + futureYears).clamp(0, fullYears);
     final effectiveYears =
         (totalYears - lacunes).clamp(0, fullYears);
-    final gapFactor = effectiveYears / fullYears;
+    final gapFactor = fullYears > 0 ? effectiveYears / fullYears : 0.0;
 
     // 2. RAMD-based rente (LAVS art. 34, echelle 44)
     final baseRente = renteFromRAMD(grossAnnualSalary);
@@ -93,8 +93,9 @@ class AvsCalculator {
     final renteMin = reg('avs.min_monthly_pension', avsRenteMinMensuelle);
     if (grossAnnualSalary >= ramdMax) return renteMax;
     if (grossAnnualSalary <= ramdMin) return renteMin;
-    final fraction =
-        (grossAnnualSalary - ramdMin) / (ramdMax - ramdMin);
+    final range = ramdMax - ramdMin;
+    if (range <= 0) return renteMin;
+    final fraction = (grossAnnualSalary - ramdMin) / range;
     return renteMin + (renteMax - renteMin) * fraction;
   }
 

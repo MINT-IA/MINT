@@ -570,9 +570,9 @@ class TestWordingCompliance:
 
 
 class TestNotificationEndpoints:
-    """Test the REST API endpoints for notifications."""
+    """Test the REST API endpoints for notifications (auth required)."""
 
-    def test_post_calendar(self):
+    def test_post_calendar(self, client):
         """POST /api/v1/notifications/calendar should return notifications."""
         resp = client.post(
             "/api/v1/notifications/calendar",
@@ -585,7 +585,7 @@ class TestNotificationEndpoints:
         assert "disclaimer" in data
         assert "sources" in data
 
-    def test_post_events(self):
+    def test_post_events(self, client):
         """POST /api/v1/notifications/events should return event notifications."""
         resp = client.post(
             "/api/v1/notifications/events",
@@ -595,7 +595,7 @@ class TestNotificationEndpoints:
         data = resp.json()
         assert data["count"] >= 2
 
-    def test_post_events_empty(self):
+    def test_post_events_empty(self, client):
         """POST /api/v1/notifications/events with no triggers returns empty list."""
         resp = client.post(
             "/api/v1/notifications/events",
@@ -606,7 +606,7 @@ class TestNotificationEndpoints:
         assert data["count"] == 0
         assert data["notifications"] == []
 
-    def test_post_milestones(self):
+    def test_post_milestones(self, client):
         """POST /api/v1/notifications/milestones should detect milestones."""
         resp = client.post(
             "/api/v1/notifications/milestones",
@@ -620,7 +620,7 @@ class TestNotificationEndpoints:
         assert data["count"] >= 1
         assert "disclaimer" in data
 
-    def test_post_milestones_empty(self):
+    def test_post_milestones_empty(self, client):
         """POST /api/v1/notifications/milestones with no change returns empty."""
         resp = client.post(
             "/api/v1/notifications/milestones",
@@ -633,7 +633,7 @@ class TestNotificationEndpoints:
         data = resp.json()
         assert data["count"] == 0
 
-    def test_calendar_camel_case_response(self):
+    def test_calendar_camel_case_response(self, client):
         """API response should use camelCase field names."""
         resp = client.post(
             "/api/v1/notifications/calendar",
