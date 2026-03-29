@@ -14,6 +14,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -135,24 +136,35 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
+          // Narrative intro
+          MintEntrance(child: MintNarrativeCard(
+            headline: 'Rendement r\u00e9el apr\u00e8s inflation', // TODO: i18n
+            body: 'Le rendement affich\u00e9 ne dit pas tout. Apr\u00e8s frais de gestion et inflation, '
+                'le gain r\u00e9el peut diff\u00e9rer. L\u2019\u00e9conomie fiscale du 3a (LIFD art.\u00a033) '
+                'am\u00e9liore consid\u00e9rablement le rendement effectif.', // TODO: i18n
+            tone: MintSurfaceTone.sauge,
+            badge: '3e pilier', // TODO: i18n
+          )),
+          const SizedBox(height: MintSpacing.lg),
+
           // Chiffre choc
-          MintEntrance(child: _buildChiffreChoc(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChoc(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Aha moment narrative
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAhaMoment(result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAhaMoment(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection()),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection()),
           const SizedBox(height: MintSpacing.lg),
 
           // Resultat rendement
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRendementSection(result)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRendementSection(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison barres
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonBars(result)),
+          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildComparisonBars(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail economie fiscale

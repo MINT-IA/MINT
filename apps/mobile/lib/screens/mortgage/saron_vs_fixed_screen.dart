@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -79,24 +80,35 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
+          // Narrative intro
+          MintEntrance(child: MintNarrativeCard(
+            headline: 'SARON ou taux fixe\u00a0?', // TODO: i18n
+            body: 'Le SARON suit le march\u00e9 mon\u00e9taire et peut \u00e9voluer chaque trimestre. '
+                'Un taux fixe verrouille tes int\u00e9r\u00eats sur toute la dur\u00e9e. '
+                'Selon ta tol\u00e9rance au risque, l\u2019\u00e9cart pourrait jouer en ta faveur\u2026 ou non.', // TODO: i18n
+            tone: MintSurfaceTone.bleu,
+            badge: 'Hypoth\u00e8que', // TODO: i18n
+          )),
+          const SizedBox(height: MintSpacing.lg),
+
           // Chiffre choc
-          MintEntrance(child: _buildChiffreChocCard(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChartSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail couts
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCostComparisonSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCostComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(result.disclaimer)),
+          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildDisclaimer(result.disclaimer)),
           const SizedBox(height: MintSpacing.sm),
 
           // Source legale

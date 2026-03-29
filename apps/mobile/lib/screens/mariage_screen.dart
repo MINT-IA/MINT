@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
@@ -162,6 +163,17 @@ class _MariageScreenState extends State<MariageScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
+        // Narrative intro
+        MintNarrativeCard(
+          headline: 'Impact financier du mariage', // TODO: i18n
+          body: 'Le mariage modifie ton imposition (LIFD art.\u00a09), ton r\u00e9gime matrimonial (CC art.\u00a0181) '
+              'et tes droits de survivant (LAVS art.\u00a023, LPP art.\u00a019). '
+              'Selon vos revenus respectifs, l\u2019impact fiscal pourrait \u00eatre positif ou n\u00e9gatif.', // TODO: i18n
+          tone: MintSurfaceTone.peche,
+          badge: 'Mariage', // TODO: i18n
+        ),
+        const SizedBox(height: MintSpacing.xl),
+
         // Hero: impact fiscal couple (always visible)
         if (_fiscalResult != null) ...[
           _buildFiscalHeroCard(),

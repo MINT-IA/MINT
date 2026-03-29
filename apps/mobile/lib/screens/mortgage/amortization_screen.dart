@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -94,24 +95,35 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
+          // Narrative intro
+          MintEntrance(child: MintNarrativeCard(
+            headline: 'Direct ou indirect\u00a0?', // TODO: i18n
+            body: 'L\u2019amortissement direct r\u00e9duit ta dette chaque ann\u00e9e. '
+                'L\u2019indirect verse dans un 3a, d\u00e9ductible fiscalement (OPP3). '
+                'Selon ton taux marginal, l\u2019indirect pourrait te co\u00fbter moins cher au total.', // TODO: i18n
+            tone: MintSurfaceTone.bleu,
+            badge: 'Amortissement', // TODO: i18n
+          )),
+          const SizedBox(height: MintSpacing.lg),
+
           // Intro pedagogique
-          MintEntrance(child: _buildIntroCard(s)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChiffreChocCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChartSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison detaillee
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer

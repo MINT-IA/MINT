@@ -13,6 +13,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -148,24 +149,35 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // 0. Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: 'Rattraper jusqu\u2019\u00e0 10 ans de 3a', // TODO: i18n
+                  body: 'D\u00e8s 2026, l\u2019OPP3 art.\u00a07 permet de verser r\u00e9troactivement '
+                      'les ann\u00e9es de cotisation 3a manqu\u00e9es. '
+                      'Chaque versement est d\u00e9ductible du revenu imposable (LIFD art.\u00a033).', // TODO: i18n
+                  tone: MintSurfaceTone.sauge,
+                  badge: '3e pilier', // TODO: i18n
+                )),
+                const SizedBox(height: MintSpacing.lg),
+
                 // 1. Hero Card
-                MintEntrance(child: _buildHeroCard()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeroCard()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 2. Input Section
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 3. Chiffre Choc
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChiffreChocCard(result)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChiffreChocCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 4. Breakdown
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildBreakdownSection(result)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBreakdownSection(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 5. Avant / Apres
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildImpactComparison(result)),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildImpactComparison(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 6. Action Cards

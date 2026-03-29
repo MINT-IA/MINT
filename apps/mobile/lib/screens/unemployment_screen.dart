@@ -11,6 +11,7 @@ import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
 import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
@@ -102,6 +103,17 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Narrative intro
+            MintNarrativeCard(
+              headline: 'Tes droits au ch\u00f4mage', // TODO: i18n
+              body: 'La LACI pr\u00e9voit une indemnit\u00e9 de 70\u00a0\u00e0\u00a080\u00a0% du gain assur\u00e9 (art.\u00a022). '
+                  'La dur\u00e9e d\u00e9pend de tes mois de cotisation et de ton \u00e2ge (art.\u00a027). '
+                  'Ce simulateur estime tes droits selon ta situation actuelle.', // TODO: i18n
+              tone: MintSurfaceTone.bleu,
+              badge: 'Ch\u00f4mage', // TODO: i18n
+            ),
+            const SizedBox(height: MintSpacing.xl),
+
             // Hero: chute de revenu (shown when eligible)
             if (_result != null && _result!.eligible) ...[
               _buildChiffreChoc(),

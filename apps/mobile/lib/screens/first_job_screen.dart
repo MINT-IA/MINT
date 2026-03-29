@@ -17,6 +17,7 @@ import 'package:mint_mobile/widgets/coach/payslip_xray_widget.dart';
 import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -99,13 +100,22 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                MintEntrance(child: _buildHeader()),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: 'Ton premier salaire expliqu\u00e9', // TODO: i18n
+                  body: 'Entre AVS (LAVS art.\u00a05), LPP (art.\u00a016), imp\u00f4t \u00e0 la source '
+                      'et LAMal, ton net repr\u00e9sente environ 75-80\u00a0% du brut. '
+                      'Comprendre ces d\u00e9ductions, c\u2019est le premier pas vers une bonne gestion.', // TODO: i18n
+                  tone: MintSurfaceTone.sauge,
+                  badge: 'Premier emploi', // TODO: i18n
+                )),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSalaireSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSalaireSlider()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonAndActivity()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAgeSlider()),
+                const SizedBox(height: MintSpacing.md + 4),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCantonAndActivity()),
                 const SizedBox(height: MintSpacing.lg),
                 if (_result != null) ...[
                   _buildChiffreChoc(),

@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/assurances_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -120,6 +121,15 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildDemoModeBadge(),
+                const SizedBox(height: 12),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: 'V\u00e9rifie ta couverture', // TODO: i18n
+                  body: 'LAMal, IJM, RC priv\u00e9e, assurance m\u00e9nage\u2026 '
+                      'Chaque assurance couvre un risque diff\u00e9rent. '
+                      'Ce bilan identifie les lacunes selon ta situation et ton canton.', // TODO: i18n
+                  tone: MintSurfaceTone.bleu,
+                  badge: 'Assurances', // TODO: i18n
+                )),
                 const SizedBox(height: 12),
                 _buildHeader(),
                 const SizedBox(height: 20),

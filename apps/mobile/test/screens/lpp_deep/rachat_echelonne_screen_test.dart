@@ -63,6 +63,8 @@ void main() {
     testWidgets('shows slider inputs for rachat parameters', (tester) async {
       await tester.pumpWidget(buildRachatScreen());
       await tester.pump();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pump();
       expect(find.byType(Slider), findsWidgets);
     });
 

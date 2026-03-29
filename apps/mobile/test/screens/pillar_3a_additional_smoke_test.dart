@@ -94,6 +94,8 @@ void main() {
     testWidgets('shows chiffre choc with economies fiscales', (tester) async {
       await tester.pumpWidget(_buildScreen());
       await tester.pump();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pump();
       // i18n: retroactive3aEconomiesFiscales = "Économies fiscales estimées"
       expect(find.textContaining('conomies'), findsWidgets);
     });

@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -226,15 +227,24 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                MintEntrance(child: _buildIntroCard(l)),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: '\u00c9chelonner pour \u00e9conomiser', // TODO: i18n
+                  body: 'R\u00e9partir un rachat LPP sur plusieurs ann\u00e9es permet de d\u00e9duire '
+                      'chaque tranche du revenu imposable (LPP art.\u00a079b). '
+                      'La progressivit\u00e9 fiscale rend cette strat\u00e9gie souvent plus avantageuse qu\u2019un versement unique.', // TODO: i18n
+                  tone: MintSurfaceTone.sauge,
+                  badge: '2e pilier', // TODO: i18n
+                )),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeroChiffreChoc(result, l)),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(l)),
+                const SizedBox(height: MintSpacing.md),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroChiffreChoc(result, l)),
                 const SizedBox(height: MintSpacing.lg),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildLppSituationCard(l)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFiscalSituationCard(l)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFiscalSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildStrategieCard(l)),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildStrategieCard(l)),
                 const SizedBox(height: MintSpacing.lg),
                 _buildComparisonSection(result, l),
                 const SizedBox(height: MintSpacing.lg),

@@ -304,6 +304,8 @@ void main() {
     testWidgets('shows canton selector', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pump();
       expect(find.textContaining('Canton'), findsWidgets);
     });
 
