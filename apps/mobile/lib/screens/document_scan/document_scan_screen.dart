@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -254,7 +255,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             width: double.infinity,
             height: 56,
             child: FilledButton.icon(
-              onPressed: _isProcessing ? null : _onCameraPressed,
+              onPressed: _isProcessing
+                  ? null
+                  : () {
+                      HapticFeedback.lightImpact();
+                      _onCameraPressed();
+                    },
             icon: const Icon(
               kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
               size: 22,

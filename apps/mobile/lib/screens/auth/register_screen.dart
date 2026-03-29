@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -554,7 +555,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   label: l10n.authCreateAccount,
                   button: true,
                   child: FilledButton(
-                    onPressed: (_acceptedCgu && _confirmed18Plus && !authProvider.isLoading) ? _handleRegister : null,
+                    onPressed: (_acceptedCgu &&
+                            _confirmed18Plus &&
+                            !authProvider.isLoading)
+                        ? () {
+                            HapticFeedback.lightImpact();
+                            _handleRegister();
+                          }
+                        : null,
                     child: authProvider.isLoading
                         ? const SizedBox(
                             height: 20,

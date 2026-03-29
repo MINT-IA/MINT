@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -403,19 +404,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   // ── Empty State ────────────────────────────────────────────
 
   Widget _buildEmptyState() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          Icon(Icons.receipt_long_outlined,
-              size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
-          const SizedBox(height: 16),
-          Text(
-            S.of(context)!.transactionListNoTransaction,
-            style: MintTextStyles.titleMedium(color: MintColors.textMuted),
-          ),
-        ],
-      ),
+    return MintEmptyState(
+      icon: Icons.receipt_long_outlined,
+      title: S.of(context)!.transactionListNoTransaction,
+      subtitle: '', // No subtitle in original
     );
   }
 

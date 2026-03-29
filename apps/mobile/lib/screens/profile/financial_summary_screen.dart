@@ -17,6 +17,7 @@ import 'package:mint_mobile/widgets/profile/patrimoine_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/dettes_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/futur_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/enrichment_cta.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // NOTE: This screen is a deep-dive view. Primary display is now in PulseScreen
@@ -79,29 +80,12 @@ class FinancialSummaryScreen extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.person_off_outlined,
-                size: 48, color: MintColors.textMuted),
-            const SizedBox(height: 16),
-            Text(
-              S.of(context)!.financialSummaryNoProfile,
-              style: MintTextStyles.bodyLarge(),
-            ),
-            const SizedBox(height: 12),
-            Semantics(
-              button: true,
-              label: S.of(context)!.financialSummaryStartDiagnostic,
-              child: FilledButton(
-                onPressed: () => context.push('/onboarding/quick'),
-                child:
-                    Text(S.of(context)!.financialSummaryStartDiagnostic),
-              ),
-            ),
-          ],
-        ),
+      child: MintEmptyState(
+        icon: Icons.person_off_outlined,
+        title: S.of(context)!.financialSummaryNoProfile,
+        subtitle: '', // No subtitle in original
+        ctaLabel: S.of(context)!.financialSummaryStartDiagnostic,
+        onCta: () => context.push('/onboarding/quick'),
       ),
     );
   }

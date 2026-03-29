@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -190,7 +191,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   label: l10n.authLogin,
                   button: true,
                   child: FilledButton(
-                    onPressed: authProvider.isLoading ? null : _handleLogin,
+                    onPressed: authProvider.isLoading
+                        ? null
+                        : () {
+                            HapticFeedback.lightImpact();
+                            _handleLogin();
+                          },
                     child: authProvider.isLoading
                         ? const SizedBox(
                             height: 20,
