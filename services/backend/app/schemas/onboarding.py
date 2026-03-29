@@ -85,6 +85,19 @@ class MinimalProfileRequest(OnboardingBaseModel):
         pattern=r"^(stress_retraite|stress_impots|stress_budget|stress_patrimoine|stress_couple|stress_general)$",
         description="Intention declaree par l'utilisateur a l'onboarding",
     )
+    # FIX-093: Archetype detection fields (expat, cross-border, returning Swiss)
+    nationality_group: Optional[str] = Field(
+        default=None,
+        description="Groupe de nationalite: CH, EU, non_EU, US",
+    )
+    nationality_country: Optional[str] = Field(
+        default=None, max_length=3,
+        description="Code ISO pays de nationalite (ex: FR, DE, US)",
+    )
+    arrival_age: Optional[int] = Field(
+        default=None, ge=0, le=70,
+        description="Age d'arrivee en Suisse (None = ne en Suisse)",
+    )
 
 
 # ===========================================================================

@@ -1,6 +1,7 @@
 # MINT — Strategic Roadmap V2 (Benchmark-Driven)
 
-> Date: March 2026 | Version: 2.1 | Production: v0.9.1
+> Date: March 2026 | Version: 2.2 | Production: v1.0.0-rc1
+> Updated: 29 March 2026 — Phase 1-3 audit complete, 65+ bugs fixed, all features wired E2E
 > Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` (40+ apps, 18 research themes)
 > Execution method: Autoresearch Dev Agents (`visions/MINT_Autoresearch_Dev_Agents.md`)
 > Last sync: 2026-03-25 — status column added, deliverables corrected against code

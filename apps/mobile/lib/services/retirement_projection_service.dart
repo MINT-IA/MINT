@@ -722,7 +722,9 @@ class RetirementProjectionService {
     final tpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
 
     if (userRetiresFirst) {
-      // User AVS (no couple cap — only user receives)
+      // User AVS — no couple cap during transition (LAVS art. 35 al. 1).
+      // The cap (150%) applies only when BOTH spouses receive a pension.
+      // During transition, only the retired spouse receives → individual rente.
       // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
       final avsUser = AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
         currentAge: profile.age,

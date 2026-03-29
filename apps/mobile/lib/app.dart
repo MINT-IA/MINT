@@ -68,6 +68,8 @@ import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
 import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
+import 'package:mint_mobile/screens/expert/expert_tier_screen.dart';
+import 'package:mint_mobile/screens/coach/weekly_recap_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
@@ -750,7 +752,8 @@ final _router = GoRouter(
     // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
     GoRoute(
       path: '/weekly-recap',
-      redirect: (_, __) => '/home',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const WeeklyRecapScreen(),
     ),
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
@@ -867,6 +870,11 @@ final _router = GoRouter(
 
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
     GoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(
+      path: '/expert-tier',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExpertTierScreen(),
+    ),
     GoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
     GoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
