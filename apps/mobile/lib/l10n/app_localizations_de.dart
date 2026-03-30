@@ -25328,4 +25328,24 @@ class SDe extends S {
   @override
   String get onboardingIjmWarningBody =>
       'Als Selbständige·r hast du standardmässig kein Krankentaggeld. Ohne Abdeckung könnte eine Krankheit dein Einkommen ohne Entschädigung unterbrechen. Du hast zudem 6 Monate Zeit, dich freiwillig einer Pensionskasse anzuschliessen (BVG Art. 4).';
+
+  @override
+  String get rachatLppNotApplicableAfterRetirement =>
+      'Der BVG-Einkauf ist nach der Pensionierung nicht mehr möglich. Diese Simulation richtet sich an Erwerbstätige, die eine Vorsorgelücke schliessen möchten.';
+
+  @override
+  String get apiErrorOffline =>
+      'Keine Internetverbindung. Überprüfe dein Netzwerk und versuche es erneut.';
+
+  @override
+  String get apiErrorTimeout =>
+      'Der Server antwortet zu langsam. Versuche es erneut.';
+
+  @override
+  String get apiErrorSessionExpired =>
+      'Sitzung abgelaufen — bitte melde dich erneut an.';
+
+  @override
+  String get apiErrorServer =>
+      'Serverfehler. Versuche es in einem Moment erneut.';
 }

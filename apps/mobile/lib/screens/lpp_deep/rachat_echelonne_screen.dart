@@ -199,6 +199,14 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     );
   }
 
+  /// P1-13: LPP buyback is not applicable after retirement.
+  bool get _isRetired {
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return false;
+    return profile.age >= 65 || profile.employmentStatus == 'retraite';
+  }
+
   @override
   Widget build(BuildContext context) {
     final result = _result;
@@ -223,6 +231,33 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               style: MintTextStyles.headlineMedium(),
             ),
           ),
+          // P1-13: Show retirement notice instead of rachat simulator.
+          if (_isRetired)
+            SliverPadding(
+              padding: const EdgeInsets.all(MintSpacing.md),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  MintSurface(
+                    tone: MintSurfaceTone.sauge,
+                    child: Padding(
+                      padding: const EdgeInsets.all(MintSpacing.lg),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.info_outline, size: 48, color: MintColors.textMuted),
+                          const SizedBox(height: MintSpacing.md),
+                          Text(
+                            l.rachatLppNotApplicableAfterRetirement,
+                            style: MintTextStyles.bodyLarge(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          if (!_isRetired)
           SliverPadding(
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(

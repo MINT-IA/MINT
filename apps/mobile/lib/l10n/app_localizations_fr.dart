@@ -25276,4 +25276,23 @@ class SFr extends S {
   @override
   String get onboardingIjmWarningBody =>
       'En tant qu\'indépendant·e, tu n\'as pas d\'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t\'affilier volontairement à une caisse LPP (art. 4 LPP).';
+
+  @override
+  String get rachatLppNotApplicableAfterRetirement =>
+      'Le rachat LPP n\'est plus applicable après la retraite. Cette simulation concerne les personnes actives qui souhaitent combler une lacune de prévoyance.';
+
+  @override
+  String get apiErrorOffline =>
+      'Pas de connexion internet. Vérifie ton réseau et réessaie.';
+
+  @override
+  String get apiErrorTimeout =>
+      'Le serveur met trop de temps à répondre. Réessaie.';
+
+  @override
+  String get apiErrorSessionExpired => 'Session expirée — reconnecte-toi.';
+
+  @override
+  String get apiErrorServer =>
+      'Erreur serveur. Réessaie dans quelques instants.';
 }

@@ -10,18 +10,61 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
+/// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
+enum ApiErrorCode {
+  offline,
+  timeout,
+  sessionExpired,
+  serverError,
+  unknown,
+}
+
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
   final bool isOffline;
 
-  const ApiException(this.message, {this.statusCode, this.isOffline = false});
+  /// P2-18: Typed error code so the UI layer can map to i18n strings.
+  final ApiErrorCode errorCode;
+
+  const ApiException(
+    this.message, {
+    this.statusCode,
+    this.isOffline = false,
+    this.errorCode = ApiErrorCode.unknown,
+  });
 
   /// FIX-071: User-friendly offline detection.
   static ApiException offline() => const ApiException(
-    'Pas de connexion internet. Vérifie ton réseau et réessaie.', // TODO: i18n
+    'Network offline',
     isOffline: true,
+    errorCode: ApiErrorCode.offline,
   );
+
+  static const ApiException timeout = ApiException(
+    'Request timeout',
+    errorCode: ApiErrorCode.timeout,
+  );
+
+  static ApiException sessionExpired() => const ApiException(
+    'Session expired',
+    statusCode: 401,
+    errorCode: ApiErrorCode.sessionExpired,
+  );
+
+  /// P2-18: Resolve a user-facing message from AppLocalizations.
+  /// Call this in UI layers that have BuildContext.
+  String localizedMessage(dynamic l10n) {
+    // l10n is AppLocalizations — dynamic to avoid import cycle.
+    // UI consumers: `e.localizedMessage(AppLocalizations.of(context)!)`
+    return switch (errorCode) {
+      ApiErrorCode.offline => l10n.apiErrorOffline as String,
+      ApiErrorCode.timeout => l10n.apiErrorTimeout as String,
+      ApiErrorCode.sessionExpired => l10n.apiErrorSessionExpired as String,
+      ApiErrorCode.serverError => l10n.apiErrorServer as String,
+      ApiErrorCode.unknown => message,
+    };
+  }
 
   @override
   String toString() => message;
@@ -182,14 +225,14 @@ class ApiService {
         // FIX-048: After refresh failure + still 401, clear auth state.
         // User must re-login. Don't leave stale token in secure storage.
         await AuthService.logout();
-        throw ApiException('Session expirée — reconnecte-toi.', statusCode: 401);
+        throw ApiException.sessionExpired();
       } else {
         throw ApiException('GET $endpoint failed: ${response.body}', statusCode: response.statusCode);
       }
     } on SocketException {
       throw ApiException.offline();
     } on TimeoutException {
-      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
+      throw ApiException.timeout;
     }
   }
 
@@ -217,7 +260,7 @@ class ApiService {
     } on SocketException {
       throw ApiException.offline();
     } on TimeoutException {
-      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
+      throw ApiException.timeout;
     }
   }
 
@@ -246,7 +289,7 @@ class ApiService {
     } on SocketException {
       throw ApiException.offline();
     } on TimeoutException {
-      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
+      throw ApiException.timeout;
     }
   }
 
@@ -275,7 +318,7 @@ class ApiService {
     } on SocketException {
       throw ApiException.offline();
     } on TimeoutException {
-      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
+      throw ApiException.timeout;
     }
   }
 
@@ -299,7 +342,7 @@ class ApiService {
     } on SocketException {
       throw ApiException.offline();
     } on TimeoutException {
-      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
+      throw ApiException.timeout;
     }
   }
 

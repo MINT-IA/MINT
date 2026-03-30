@@ -11888,5 +11888,10 @@
   "onboardingPermitL": "Ausweis L (Kurzaufenthalt)",
   "onboardingPermitOther": "Andere",
   "onboardingIjmWarningTitle": "Krankentaggeld: zu prüfen",
-  "onboardingIjmWarningBody": "Als Selbständige·r hast du standardmässig kein Krankentaggeld. Ohne Abdeckung könnte eine Krankheit dein Einkommen ohne Entschädigung unterbrechen. Du hast zudem 6 Monate Zeit, dich freiwillig einer Pensionskasse anzuschliessen (BVG Art. 4)."
+  "onboardingIjmWarningBody": "Als Selbständige·r hast du standardmässig kein Krankentaggeld. Ohne Abdeckung könnte eine Krankheit dein Einkommen ohne Entschädigung unterbrechen. Du hast zudem 6 Monate Zeit, dich freiwillig einer Pensionskasse anzuschliessen (BVG Art. 4).",
+  "rachatLppNotApplicableAfterRetirement": "Der BVG-Einkauf ist nach der Pensionierung nicht mehr möglich. Diese Simulation richtet sich an Erwerbstätige, die eine Vorsorgelücke schliessen möchten.",
+  "apiErrorOffline": "Keine Internetverbindung. Überprüfe dein Netzwerk und versuche es erneut.",
+  "apiErrorTimeout": "Der Server antwortet zu langsam. Versuche es erneut.",
+  "apiErrorSessionExpired": "Sitzung abgelaufen — bitte melde dich erneut an.",
+  "apiErrorServer": "Serverfehler. Versuche es in einem Moment erneut."
 }

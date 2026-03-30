@@ -25287,4 +25287,24 @@ class SPt extends S {
   @override
   String get onboardingIjmWarningBody =>
       'Como trabalhador independente, não tens subsídio diário de doença (IJM) por defeito. Sem cobertura, uma doença poderia interromper os teus rendimentos sem compensação. Tens também 6 meses para te inscreveres voluntariamente num fundo de pensões (LPP art. 4).';
+
+  @override
+  String get rachatLppNotApplicableAfterRetirement =>
+      'A recompra LPP já não é aplicável após a reforma. Esta simulação destina-se a trabalhadores ativos que pretendem colmatar uma lacuna de previdência.';
+
+  @override
+  String get apiErrorOffline =>
+      'Sem ligação à internet. Verifica a tua rede e tenta novamente.';
+
+  @override
+  String get apiErrorTimeout =>
+      'O servidor está a demorar demasiado a responder. Tenta novamente.';
+
+  @override
+  String get apiErrorSessionExpired =>
+      'Sessão expirada — inicia sessão novamente.';
+
+  @override
+  String get apiErrorServer =>
+      'Erro do servidor. Tenta novamente dentro de momentos.';
 }
