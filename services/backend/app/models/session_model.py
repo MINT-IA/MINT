@@ -33,7 +33,7 @@ class SessionModel(Base):
     __tablename__ = "sessions"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    profile_id = Column(String, ForeignKey("profiles.id"), nullable=False)
+    profile_id = Column(String, ForeignKey("profiles.id"), nullable=False, index=True)
     data = Column(MutableDict.as_mutable(JSONEncodedDict), nullable=False)  # Store full session data as JSON
     created_at = Column(DateTime, default=datetime.utcnow)
 
