@@ -201,7 +201,7 @@
       }
     }
   },
-  "advisorMiniStep2AhaTaxQualitative": "Fiscalité en {canton} : {pressure} par rapport à la moyenne suisse",
+  "advisorMiniStep2AhaTaxQualitative": "Fiscalité en {canton} : {pressure} par rapport à l’indice fédéral",
   "@advisorMiniStep2AhaTaxQualitative": {
     "placeholders": {
       "canton": {
@@ -388,8 +388,8 @@
   "profileUser": "Utilisateur",
   "profileDeleteData": "Supprimer mes données locales",
   "rentVsCapitalTitle": "Rente vs Capital",
-  "rentVsCapitalDescription": "Comparez la rente viagère et le retrait en capital de votre 2e pilier",
-  "rentVsCapitalSubtitle": "Simulez votre 2e pilier • LPP",
+  "rentVsCapitalDescription": "Compare la rente viagère et le retrait en capital de ton 2e pilier",
+  "rentVsCapitalSubtitle": "Simulez ton 2e pilier • LPP",
   "rentVsCapitalAvoirOblig": "Avoir obligatoire",
   "rentVsCapitalAvoirSurob": "Avoir surobligatoire",
   "rentVsCapitalTauxConversion": "Taux de conversion surobligatoire",
@@ -406,7 +406,7 @@
   "rentVsCapitalPrudent": "Prudent (1\u00a0%)",
   "rentVsCapitalCentral": "Central (3\u00a0%)",
   "rentVsCapitalOptimiste": "Optimiste (5\u00a0%)",
-  "rentVsCapitalTauxConversionExpl": "Le taux de conversion détermine le montant de votre rente annuelle en fonction de votre avoir de vieillesse. Le taux légal minimum est de 6.8\u00a0% pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3\u00a0% et 6\u00a0%.",
+  "rentVsCapitalTauxConversionExpl": "Le taux de conversion détermine le montant de ta rente annuelle en fonction de ton avoir de vieillesse. Le taux légal minimum est de 6.8\u00a0% pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3\u00a0% et 6\u00a0%.",
   "rentVsCapitalChoixExpl": "La rente offre un revenu régulier à vie, mais s'arrête au décès (avec éventuellement une rente de survivant réduite). Le capital donne plus de flexibilité, mais comporte un risque d'épuisement si les rendements sont faibles ou la longévité élevée.",
   "rentVsCapitalDisclaimer": "Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consultez votre caisse de pension et un·e spécialiste qualifié·e avant toute décision.",
   "disabilityGapTitle": "Mon filet de sécurité",
@@ -429,7 +429,7 @@
   "disabilityGapRiskMedium": "Risque modéré",
   "disabilityGapRiskLow": "Risque faible",
   "disabilityGapDisclaimer": "Outil éducatif — ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures réelles dépendent de ton contrat de travail et de ta caisse de pension.",
-  "disabilityGapIjmExpl": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80\u00a0% de votre salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu'à l'éventuelle rente AI.",
+  "disabilityGapIjmExpl": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80\u00a0% de ton salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne reçois plus rien jusqu'à l'éventuelle rente AI.",
   "disabilityGapCo324aExpl": "Selon l'art. 324a CO, l'employeur doit verser le salaire pendant une durée limitée en cas de maladie. Cette durée dépend des années de service et de l'échelle cantonale applicable (bernoise, zurichoise ou bâloise). Après cette période, seule l'IJM (si existante) prend le relais.",
   "authLogin": "Se connecter",
   "authRegister": "Créer un compte",
@@ -787,14 +787,14 @@
   "successionExonere": "Exonéré",
   "successionTotalImpot": "Total impôt successoral",
   "succession3aOpp3": "Bénéficiaires 3a (OPP3 art. 2)",
-  "succession3aNote": "Le 3e pilier ne suit PAS votre testament. L'ordre de bénéficiaires est fixé par la loi.",
+  "succession3aNote": "Le 3e pilier ne suit PAS ton testament. L'ordre de bénéficiaires est fixé par la loi.",
   "successionPointsAttention": "Points d'attention",
   "successionChecklist": "Protection de mes proches",
   "successionChecklistSubtitle": "Actions à entreprendre",
   "successionEduQuotite": "Qu'est-ce que la quotité disponible ?",
-  "successionEduQuotiteBody": "La quotité disponible est la part de votre succession que vous pouvez librement attribuer par testament. Depuis 2023, la réserve des descendants est de 1/2.",
+  "successionEduQuotiteBody": "La quotité disponible est la part de ta succession que tu peux librement attribuer par testament. Depuis 2023, la réserve des descendants est de 1/2.",
   "successionEdu3a": "Le 3a et la succession : attention !",
-  "successionEdu3aBody": "Le 3e pilier est versé directement selon l'OPP3, pas selon votre testament.",
+  "successionEdu3aBody": "Le 3e pilier est versé directement selon l'OPP3, pas selon ton testament.",
   "successionEduConcubin": "Les concubins et la succession",
   "successionEduConcubinBody": "Les concubins n'ont aucun droit successoral légal. Sans testament, ils ne reçoivent rien.",
   "successionDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.",
@@ -1028,7 +1028,7 @@
   "segmentsGenderGapLacuneAnnuelle": "Lacune annuelle",
   "segmentsGenderGapLacuneTotale": "Lacune totale (~20 ans)",
   "segmentsGenderGapCoordinationTitle": "Comprendre la déduction de coordination",
-  "segmentsGenderGapCoordinationBody": "La déduction de coordination est un montant fixe de CHF 25'725 soustrait de votre salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que vous travailliez à 100\u00a0% ou à 50\u00a0%.",
+  "segmentsGenderGapCoordinationBody": "La déduction de coordination est un montant fixe de CHF 25'725 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100\u00a0% ou à 50\u00a0%.",
   "segmentsGenderGapSalaireBrut100": "Salaire brut à 100\u00a0%",
   "segmentsGenderGapSalaireCoord100": "Salaire coordonné à 100\u00a0%",
   "segmentsGenderGapSalaireBrutCurrent": "Salaire brut à {rate}\u00a0%",
@@ -1066,7 +1066,7 @@
   "segmentsFrontalierAppBar": "PARCOURS FRONTALIER",
   "segmentsFrontalierHeader": "Travailleur frontalier",
   "segmentsFrontalierHeaderSub": "Droits et obligations par pays",
-  "segmentsFrontalierIntro": "Les règles fiscales, de prévoyance et d'assurance varient selon votre pays de résidence et votre canton de travail.",
+  "segmentsFrontalierIntro": "Les règles fiscales, de prévoyance et d'assurance varient selon ton pays de résidence et ton canton de travail.",
   "segmentsFrontalierPaysLabel": "Pays de résidence",
   "segmentsFrontalierCantonLabel": "Canton de travail",
   "segmentsFrontalierRulesTitle": "RÈGLES APPLICABLES",
@@ -1075,7 +1075,7 @@
   "segmentsFrontalierCatLpp": "LPP / Libre passage",
   "segmentsFrontalierCatAvs": "AVS / Coordination",
   "segmentsFrontalierQuasiResidentTitle": "Statut quasi-résident (GE)",
-  "segmentsFrontalierQuasiResidentDesc": "Le statut de quasi-résident est accessible si au moins 90\u00a0% des revenus de votre ménage proviennent de Suisse.",
+  "segmentsFrontalierQuasiResidentDesc": "Le statut de quasi-résident est accessible si au moins 90\u00a0% des revenus de ton ménage proviennent de Suisse.",
   "segmentsFrontalierQuasiResidentCondition": "Condition : >= 90\u00a0% des revenus du ménage provenant de Suisse",
   "segmentsFrontalierChecklist": "Checklist frontalier",
   "segmentsFrontalierPaysFR": "France",
@@ -1128,7 +1128,7 @@
   "segmentsIndependantAlertLaa": "IMPORTANT : Sans assurance accident individuelle (LAA), les frais médicaux en cas d'accident ne sont pas couverts.",
   "segmentsIndependantAlertLpp": "Votre prévoyance repose uniquement sur l'AVS et le 3e pilier.",
   "segmentsIndependantAlert3a": "Vous ne profitez pas du 3e pilier. Plafond indépendant : CHF 36'288/an.",
-  "segmentsDemoMode": "Mode démo : profil exemple. Complétez votre diagnostic pour des résultats personnalisés.",
+  "segmentsDemoMode": "Mode démo : profil exemple. Complète ton diagnostic pour des résultats personnalisés.",
   "assurancesLamalTitle": "Optimiseur franchise LAMal",
   "assurancesLamalSubtitle": "Trouvez la franchise idéale selon vos frais de santé",
   "assurancesLamalPrimeMensuelle": "Prime mensuelle (franchise 300)",
@@ -1144,7 +1144,7 @@
   "assurancesLamalDelaiRappel": "Rappel : modification possible avant le 30 novembre",
   "assurancesLamalQuotePart": "Quote-part (10\u00a0%, max 700 CHF)",
   "assurancesCoverageTitle": "Check-up couverture",
-  "assurancesCoverageSubtitle": "Évaluez votre protection assurantielle",
+  "assurancesCoverageSubtitle": "Évaluez ta protection assurantielle",
   "assurancesCoverageScore": "Score de couverture",
   "assurancesCoverageLacunes": "Lacunes identifiées",
   "assurancesCoverageStatut": "Statut professionnel",
@@ -1175,7 +1175,7 @@
   "assurancesLamalTile": "Franchise LAMal",
   "assurancesLamalTileSub": "Trouvez la franchise idéale",
   "assurancesCoverageTile": "Check-up couverture",
-  "assurancesCoverageTileSub": "Évaluez votre protection assurantielle",
+  "assurancesCoverageTileSub": "Évaluez ta protection assurantielle",
   "openBankingTitle": "Open Banking",
   "openBankingSubtitle": "Connectez vos comptes bancaires",
   "openBankingFinmaGate": "Fonctionnalité en préparation — consultation réglementaire FINMA en cours",
@@ -1312,10 +1312,10 @@
   "lppDeepLibrePassagePrivacy": "Vos données restent sur votre appareil. Aucune information n'est transmise à des tiers. Conforme à la nLPD.",
   "lppDeepLibrePassageDisclaimer": "Ces informations sont pédagogiques et ne constituent pas un conseil juridique ou financier personnalisé. Les règles dépendent de votre caisse de pension et de votre situation. Base légale : LFLP, OLP.",
   "lppDeepEplTitle": "Retrait EPL",
-  "lppDeepEplSubtitle": "Financer un logement avec votre 2e pilier",
+  "lppDeepEplSubtitle": "Financer un logement avec ton 2e pilier",
   "lppDeepEplAppBar": "RETRAIT EPL",
   "lppDeepEplIntroTitle": "Retrait EPL — Propriété du logement",
-  "lppDeepEplIntroBody": "L'EPL permet d'utiliser votre avoir LPP pour financer l'achat d'un logement en propriété, amortir une hypothèque ou financer des rénovations. Montant minimum : CHF 20'000.",
+  "lppDeepEplIntroBody": "L'EPL permet d'utiliser ton avoir LPP pour financer l'achat d'un logement en propriété, amortir une hypothèque ou financer des rénovations. Montant minimum : CHF 20'000.",
   "lppDeepEplParams": "Paramètres",
   "lppDeepEplAvoirTotal": "Avoir LPP total",
   "lppDeepEplAge": "Âge",
@@ -3421,7 +3421,7 @@
   "fiscalChurchMember": "Membre d'une Église",
   "fiscalChurchTax": "Impôt ecclésiastique",
   "fiscalEffectiveRate": "Taux effectif estimé",
-  "fiscalBelowAverage": "Inférieur à la moyenne suisse (~{rate}\u00a0%)",
+  "fiscalBelowAverage": "Inférieur à l’indice fédéral (~{rate}\u00a0%)",
   "@fiscalBelowAverage": {
     "placeholders": {
       "rate": {
@@ -3429,7 +3429,7 @@
       }
     }
   },
-  "fiscalAboveAverage": "Supérieur à la moyenne suisse (~{rate}\u00a0%)",
+  "fiscalAboveAverage": "Supérieur à l’indice fédéral (~{rate}\u00a0%)",
   "@fiscalAboveAverage": {
     "placeholders": {
       "rate": {
@@ -4644,7 +4644,7 @@
   "heroGapMetaphorSmall": "C'est un café par jour de différence",
   "drawerCeQueTuAs": "Ce que tu as",
   "drawerCeQueTuAsSubtitle": "Patrimoine net",
-  "drawerCeQueTuDois": "Ce que tu dois",
+  "drawerCeQueTuDois": "Tes engagements",
   "drawerCeQueTuDoisSubtitle": "Dettes totales",
   "drawerCeQueTuAuras": "Ce que tu auras",
   "drawerCeQueTuAurasSubtitle": "Revenu retraite projeté",
@@ -9566,7 +9566,7 @@
       }
     }
   },
-  "benchmarkInsightTax": "La charge fiscale dans {canton} est {level} par rapport à la moyenne suisse",
+  "benchmarkInsightTax": "La charge fiscale dans {canton} est {level} par rapport à l’indice fédéral",
   "@benchmarkInsightTax": {
     "placeholders": {
       "canton": {

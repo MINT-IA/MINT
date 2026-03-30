@@ -942,7 +942,7 @@ abstract class S {
   /// No description provided for @advisorMiniStep2AhaTaxQualitative.
   ///
   /// In fr, this message translates to:
-  /// **'Fiscalité en {canton} : {pressure} par rapport à la moyenne suisse'**
+  /// **'Fiscalité en {canton} : {pressure} par rapport à l’indice fédéral'**
   String advisorMiniStep2AhaTaxQualitative(String canton, String pressure);
 
   /// No description provided for @advisorMiniStep2AhaPressureLow.
@@ -1512,13 +1512,13 @@ abstract class S {
   /// No description provided for @rentVsCapitalDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Comparez la rente viagère et le retrait en capital de votre 2e pilier'**
+  /// **'Compare la rente viagère et le retrait en capital de ton 2e pilier'**
   String get rentVsCapitalDescription;
 
   /// No description provided for @rentVsCapitalSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Simulez votre 2e pilier • LPP'**
+  /// **'Simulez ton 2e pilier • LPP'**
   String get rentVsCapitalSubtitle;
 
   /// No description provided for @rentVsCapitalAvoirOblig.
@@ -1620,7 +1620,7 @@ abstract class S {
   /// No description provided for @rentVsCapitalTauxConversionExpl.
   ///
   /// In fr, this message translates to:
-  /// **'Le taux de conversion détermine le montant de votre rente annuelle en fonction de votre avoir de vieillesse. Le taux légal minimum est de 6.8 % pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3 % et 6 %.'**
+  /// **'Le taux de conversion détermine le montant de ta rente annuelle en fonction de ton avoir de vieillesse. Le taux légal minimum est de 6.8 % pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3 % et 6 %.'**
   String get rentVsCapitalTauxConversionExpl;
 
   /// No description provided for @rentVsCapitalChoixExpl.
@@ -1758,7 +1758,7 @@ abstract class S {
   /// No description provided for @disabilityGapIjmExpl.
   ///
   /// In fr, this message translates to:
-  /// **'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de votre salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu\'à l\'éventuelle rente AI.'**
+  /// **'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne reçois plus rien jusqu\'à l\'éventuelle rente AI.'**
   String get disabilityGapIjmExpl;
 
   /// No description provided for @disabilityGapCo324aExpl.
@@ -3576,7 +3576,7 @@ abstract class S {
   /// No description provided for @succession3aNote.
   ///
   /// In fr, this message translates to:
-  /// **'Le 3e pilier ne suit PAS votre testament. L\'ordre de bénéficiaires est fixé par la loi.'**
+  /// **'Le 3e pilier ne suit PAS ton testament. L\'ordre de bénéficiaires est fixé par la loi.'**
   String get succession3aNote;
 
   /// No description provided for @successionPointsAttention.
@@ -3606,7 +3606,7 @@ abstract class S {
   /// No description provided for @successionEduQuotiteBody.
   ///
   /// In fr, this message translates to:
-  /// **'La quotité disponible est la part de votre succession que vous pouvez librement attribuer par testament. Depuis 2023, la réserve des descendants est de 1/2.'**
+  /// **'La quotité disponible est la part de ta succession que tu peux librement attribuer par testament. Depuis 2023, la réserve des descendants est de 1/2.'**
   String get successionEduQuotiteBody;
 
   /// No description provided for @successionEdu3a.
@@ -3618,7 +3618,7 @@ abstract class S {
   /// No description provided for @successionEdu3aBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le 3e pilier est versé directement selon l\'OPP3, pas selon votre testament.'**
+  /// **'Le 3e pilier est versé directement selon l\'OPP3, pas selon ton testament.'**
   String get successionEdu3aBody;
 
   /// No description provided for @successionEduConcubin.
@@ -4214,7 +4214,7 @@ abstract class S {
   /// No description provided for @segmentsGenderGapCoordinationBody.
   ///
   /// In fr, this message translates to:
-  /// **'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de votre salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que vous travailliez à 100 % ou à 50 %.'**
+  /// **'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100 % ou à 50 %.'**
   String get segmentsGenderGapCoordinationBody;
 
   /// No description provided for @segmentsGenderGapSalaireBrut100.
@@ -4358,7 +4358,7 @@ abstract class S {
   /// No description provided for @segmentsFrontalierIntro.
   ///
   /// In fr, this message translates to:
-  /// **'Les règles fiscales, de prévoyance et d\'assurance varient selon votre pays de résidence et votre canton de travail.'**
+  /// **'Les règles fiscales, de prévoyance et d\'assurance varient selon ton pays de résidence et ton canton de travail.'**
   String get segmentsFrontalierIntro;
 
   /// No description provided for @segmentsFrontalierPaysLabel.
@@ -4412,7 +4412,7 @@ abstract class S {
   /// No description provided for @segmentsFrontalierQuasiResidentDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Le statut de quasi-résident est accessible si au moins 90 % des revenus de votre ménage proviennent de Suisse.'**
+  /// **'Le statut de quasi-résident est accessible si au moins 90 % des revenus de ton ménage proviennent de Suisse.'**
   String get segmentsFrontalierQuasiResidentDesc;
 
   /// No description provided for @segmentsFrontalierQuasiResidentCondition.
@@ -4688,7 +4688,7 @@ abstract class S {
   /// No description provided for @segmentsDemoMode.
   ///
   /// In fr, this message translates to:
-  /// **'Mode démo : profil exemple. Complétez votre diagnostic pour des résultats personnalisés.'**
+  /// **'Mode démo : profil exemple. Complète ton diagnostic pour des résultats personnalisés.'**
   String get segmentsDemoMode;
 
   /// No description provided for @assurancesLamalTitle.
@@ -4784,7 +4784,7 @@ abstract class S {
   /// No description provided for @assurancesCoverageSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Évaluez votre protection assurantielle'**
+  /// **'Évaluez ta protection assurantielle'**
   String get assurancesCoverageSubtitle;
 
   /// No description provided for @assurancesCoverageScore.
@@ -4970,7 +4970,7 @@ abstract class S {
   /// No description provided for @assurancesCoverageTileSub.
   ///
   /// In fr, this message translates to:
-  /// **'Évaluez votre protection assurantielle'**
+  /// **'Évaluez ta protection assurantielle'**
   String get assurancesCoverageTileSub;
 
   /// No description provided for @openBankingTitle.
@@ -5708,7 +5708,7 @@ abstract class S {
   /// No description provided for @lppDeepEplSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Financer un logement avec votre 2e pilier'**
+  /// **'Financer un logement avec ton 2e pilier'**
   String get lppDeepEplSubtitle;
 
   /// No description provided for @lppDeepEplAppBar.
@@ -5726,7 +5726,7 @@ abstract class S {
   /// No description provided for @lppDeepEplIntroBody.
   ///
   /// In fr, this message translates to:
-  /// **'L\'EPL permet d\'utiliser votre avoir LPP pour financer l\'achat d\'un logement en propriété, amortir une hypothèque ou financer des rénovations. Montant minimum : CHF 20\'000.'**
+  /// **'L\'EPL permet d\'utiliser ton avoir LPP pour financer l\'achat d\'un logement en propriété, amortir une hypothèque ou financer des rénovations. Montant minimum : CHF 20\'000.'**
   String get lppDeepEplIntroBody;
 
   /// No description provided for @lppDeepEplParams.
@@ -13655,13 +13655,13 @@ abstract class S {
   /// No description provided for @fiscalBelowAverage.
   ///
   /// In fr, this message translates to:
-  /// **'Inférieur à la moyenne suisse (~{rate} %)'**
+  /// **'Inférieur à l’indice fédéral (~{rate} %)'**
   String fiscalBelowAverage(String rate);
 
   /// No description provided for @fiscalAboveAverage.
   ///
   /// In fr, this message translates to:
-  /// **'Supérieur à la moyenne suisse (~{rate} %)'**
+  /// **'Supérieur à l’indice fédéral (~{rate} %)'**
   String fiscalAboveAverage(String rate);
 
   /// No description provided for @fiscalBreakdownTitle.
@@ -17531,7 +17531,7 @@ abstract class S {
   /// No description provided for @drawerCeQueTuDois.
   ///
   /// In fr, this message translates to:
-  /// **'Ce que tu dois'**
+  /// **'Tes engagements'**
   String get drawerCeQueTuDois;
 
   /// No description provided for @drawerCeQueTuDoisSubtitle.
@@ -34077,7 +34077,7 @@ abstract class S {
   /// No description provided for @benchmarkInsightTax.
   ///
   /// In fr, this message translates to:
-  /// **'La charge fiscale dans {canton} est {level} par rapport à la moyenne suisse'**
+  /// **'La charge fiscale dans {canton} est {level} par rapport à l’indice fédéral'**
   String benchmarkInsightTax(String canton, String level);
 
   /// No description provided for @benchmarkInsightHousing.

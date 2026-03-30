@@ -481,7 +481,7 @@ class SFr extends S {
 
   @override
   String advisorMiniStep2AhaTaxQualitative(String canton, String pressure) {
-    return 'Fiscalité en $canton : $pressure par rapport à la moyenne suisse';
+    return 'Fiscalité en $canton : $pressure par rapport à l’indice fédéral';
   }
 
   @override
@@ -807,10 +807,10 @@ class SFr extends S {
 
   @override
   String get rentVsCapitalDescription =>
-      'Comparez la rente viagère et le retrait en capital de votre 2e pilier';
+      'Compare la rente viagère et le retrait en capital de ton 2e pilier';
 
   @override
-  String get rentVsCapitalSubtitle => 'Simulez votre 2e pilier • LPP';
+  String get rentVsCapitalSubtitle => 'Simulez ton 2e pilier • LPP';
 
   @override
   String get rentVsCapitalAvoirOblig => 'Avoir obligatoire';
@@ -862,7 +862,7 @@ class SFr extends S {
 
   @override
   String get rentVsCapitalTauxConversionExpl =>
-      'Le taux de conversion détermine le montant de votre rente annuelle en fonction de votre avoir de vieillesse. Le taux légal minimum est de 6.8 % pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3 % et 6 %.';
+      'Le taux de conversion détermine le montant de ta rente annuelle en fonction de ton avoir de vieillesse. Le taux légal minimum est de 6.8 % pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3 % et 6 %.';
 
   @override
   String get rentVsCapitalChoixExpl =>
@@ -936,7 +936,7 @@ class SFr extends S {
 
   @override
   String get disabilityGapIjmExpl =>
-      'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de votre salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu\'à l\'éventuelle rente AI.';
+      'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne reçois plus rien jusqu\'à l\'éventuelle rente AI.';
 
   @override
   String get disabilityGapCo324aExpl =>
@@ -1912,7 +1912,7 @@ class SFr extends S {
 
   @override
   String get succession3aNote =>
-      'Le 3e pilier ne suit PAS votre testament. L\'ordre de bénéficiaires est fixé par la loi.';
+      'Le 3e pilier ne suit PAS ton testament. L\'ordre de bénéficiaires est fixé par la loi.';
 
   @override
   String get successionPointsAttention => 'Points d\'attention';
@@ -1928,14 +1928,14 @@ class SFr extends S {
 
   @override
   String get successionEduQuotiteBody =>
-      'La quotité disponible est la part de votre succession que vous pouvez librement attribuer par testament. Depuis 2023, la réserve des descendants est de 1/2.';
+      'La quotité disponible est la part de ta succession que tu peux librement attribuer par testament. Depuis 2023, la réserve des descendants est de 1/2.';
 
   @override
   String get successionEdu3a => 'Le 3a et la succession : attention !';
 
   @override
   String get successionEdu3aBody =>
-      'Le 3e pilier est versé directement selon l\'OPP3, pas selon votre testament.';
+      'Le 3e pilier est versé directement selon l\'OPP3, pas selon ton testament.';
 
   @override
   String get successionEduConcubin => 'Les concubins et la succession';
@@ -2286,7 +2286,7 @@ class SFr extends S {
 
   @override
   String get segmentsGenderGapCoordinationBody =>
-      'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de votre salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que vous travailliez à 100 % ou à 50 %.';
+      'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100 % ou à 50 %.';
 
   @override
   String get segmentsGenderGapSalaireBrut100 => 'Salaire brut à 100 %';
@@ -2371,7 +2371,7 @@ class SFr extends S {
 
   @override
   String get segmentsFrontalierIntro =>
-      'Les règles fiscales, de prévoyance et d\'assurance varient selon votre pays de résidence et votre canton de travail.';
+      'Les règles fiscales, de prévoyance et d\'assurance varient selon ton pays de résidence et ton canton de travail.';
 
   @override
   String get segmentsFrontalierPaysLabel => 'Pays de résidence';
@@ -2400,7 +2400,7 @@ class SFr extends S {
 
   @override
   String get segmentsFrontalierQuasiResidentDesc =>
-      'Le statut de quasi-résident est accessible si au moins 90 % des revenus de votre ménage proviennent de Suisse.';
+      'Le statut de quasi-résident est accessible si au moins 90 % des revenus de ton ménage proviennent de Suisse.';
 
   @override
   String get segmentsFrontalierQuasiResidentCondition =>
@@ -2553,7 +2553,7 @@ class SFr extends S {
 
   @override
   String get segmentsDemoMode =>
-      'Mode démo : profil exemple. Complétez votre diagnostic pour des résultats personnalisés.';
+      'Mode démo : profil exemple. Complète ton diagnostic pour des résultats personnalisés.';
 
   @override
   String get assurancesLamalTitle => 'Optimiseur franchise LAMal';
@@ -2604,7 +2604,7 @@ class SFr extends S {
 
   @override
   String get assurancesCoverageSubtitle =>
-      'Évaluez votre protection assurantielle';
+      'Évaluez ta protection assurantielle';
 
   @override
   String get assurancesCoverageScore => 'Score de couverture';
@@ -2698,8 +2698,7 @@ class SFr extends S {
   String get assurancesCoverageTile => 'Check-up couverture';
 
   @override
-  String get assurancesCoverageTileSub =>
-      'Évaluez votre protection assurantielle';
+  String get assurancesCoverageTileSub => 'Évaluez ta protection assurantielle';
 
   @override
   String get openBankingTitle => 'Open Banking';
@@ -3093,7 +3092,7 @@ class SFr extends S {
   String get lppDeepEplTitle => 'Retrait EPL';
 
   @override
-  String get lppDeepEplSubtitle => 'Financer un logement avec votre 2e pilier';
+  String get lppDeepEplSubtitle => 'Financer un logement avec ton 2e pilier';
 
   @override
   String get lppDeepEplAppBar => 'RETRAIT EPL';
@@ -3103,7 +3102,7 @@ class SFr extends S {
 
   @override
   String get lppDeepEplIntroBody =>
-      'L\'EPL permet d\'utiliser votre avoir LPP pour financer l\'achat d\'un logement en propriété, amortir une hypothèque ou financer des rénovations. Montant minimum : CHF 20\'000.';
+      'L\'EPL permet d\'utiliser ton avoir LPP pour financer l\'achat d\'un logement en propriété, amortir une hypothèque ou financer des rénovations. Montant minimum : CHF 20\'000.';
 
   @override
   String get lppDeepEplParams => 'Paramètres';
@@ -7549,12 +7548,12 @@ class SFr extends S {
 
   @override
   String fiscalBelowAverage(String rate) {
-    return 'Inférieur à la moyenne suisse (~$rate %)';
+    return 'Inférieur à l’indice fédéral (~$rate %)';
   }
 
   @override
   String fiscalAboveAverage(String rate) {
-    return 'Supérieur à la moyenne suisse (~$rate %)';
+    return 'Supérieur à l’indice fédéral (~$rate %)';
   }
 
   @override
@@ -9761,7 +9760,7 @@ class SFr extends S {
   String get drawerCeQueTuAsSubtitle => 'Patrimoine net';
 
   @override
-  String get drawerCeQueTuDois => 'Ce que tu dois';
+  String get drawerCeQueTuDois => 'Tes engagements';
 
   @override
   String get drawerCeQueTuDoisSubtitle => 'Dettes totales';
@@ -19309,7 +19308,7 @@ class SFr extends S {
 
   @override
   String benchmarkInsightTax(String canton, String level) {
-    return 'La charge fiscale dans $canton est $level par rapport à la moyenne suisse';
+    return 'La charge fiscale dans $canton est $level par rapport à l’indice fédéral';
   }
 
   @override
