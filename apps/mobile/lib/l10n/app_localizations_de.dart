@@ -8093,7 +8093,7 @@ class SDe extends S {
   String get patrimoinePrevoyance => 'PRÉVOYANCE';
 
   @override
-  String get patrimoineEpargne => 'Épargne';
+  String get patrimoineEpargne => 'Ersparnisse';
 
   @override
   String get patrimoineInvest => 'Invest.';
@@ -9847,7 +9847,7 @@ class SDe extends S {
   String get simLppBuybackFundRate => 'Zinssatz der Pensionskasse';
 
   @override
-  String get simLppBuybackTaxableIncome => 'Revenu imposable';
+  String get simLppBuybackTaxableIncome => 'Steuerbares Einkommen';
 
   @override
   String get simLppBuybackUnitChf => 'CHF';
@@ -10309,22 +10309,22 @@ class SDe extends S {
   String get dataBlockComplete => 'Dieser Bereich ist vollständig.';
 
   @override
-  String get dataBlockModeForm => 'Formulaire';
+  String get dataBlockModeForm => 'Formular';
 
   @override
-  String get dataBlockModeCoach => 'Parle au coach';
+  String get dataBlockModeCoach => 'Mit dem Coach sprechen';
 
   @override
-  String get dataBlockStatusComplete => 'Complet';
+  String get dataBlockStatusComplete => 'Vollständig';
 
   @override
-  String get dataBlockStatusPartial => 'Partiel';
+  String get dataBlockStatusPartial => 'Teilweise';
 
   @override
-  String get dataBlockStatusMissing => 'Manquant';
+  String get dataBlockStatusMissing => 'Fehlend';
 
   @override
-  String get dataBlockRevenuTitle => 'Revenu';
+  String get dataBlockRevenuTitle => 'Einkommen';
 
   @override
   String get dataBlockRevenuDesc =>
@@ -10334,7 +10334,7 @@ class SDe extends S {
   String get dataBlockRevenuCta => 'Mein Einkommen angeben';
 
   @override
-  String get dataBlockLppTitle => 'Prévoyance LPP';
+  String get dataBlockLppTitle => 'BVG-Vorsorge';
 
   @override
   String get dataBlockLppDesc =>
@@ -10344,7 +10344,7 @@ class SDe extends S {
   String get dataBlockLppCta => 'Mein BVG-Zertifikat hinzufügen';
 
   @override
-  String get dataBlockAvsTitle => 'Extrait AVS';
+  String get dataBlockAvsTitle => 'AHV-Auszug';
 
   @override
   String get dataBlockAvsDesc =>
@@ -10354,17 +10354,17 @@ class SDe extends S {
   String get dataBlockAvsCta => 'Meinen AHV-Auszug bestellen';
 
   @override
-  String get dataBlock3aTitle => '3e pilier (3a)';
+  String get dataBlock3aTitle => '3. Säule (3a)';
 
   @override
   String get dataBlock3aDesc =>
       'Deine Säule-3a-Konten ergänzen deine Vorsorge und bieten einen Steuervorteil. Gib die aktuellen Salden ein für eine vollständige Übersicht.';
 
   @override
-  String get dataBlock3aCta => 'Simuler mon 3a';
+  String get dataBlock3aCta => 'Mein 3a simulieren';
 
   @override
-  String get dataBlockPatrimoineTitle => 'Patrimoine';
+  String get dataBlockPatrimoineTitle => 'Vermögen';
 
   @override
   String get dataBlockPatrimoineDesc =>
@@ -10374,7 +10374,7 @@ class SDe extends S {
   String get dataBlockPatrimoineCta => 'Mein Vermögen erfassen';
 
   @override
-  String get dataBlockFiscaliteTitle => 'Fiscalité';
+  String get dataBlockFiscaliteTitle => 'Steuern';
 
   @override
   String get dataBlockFiscaliteDesc =>
@@ -10404,7 +10404,7 @@ class SDe extends S {
   String get dataBlockMenageCta => 'Meinen Haushalt verwalten';
 
   @override
-  String get dataBlockUnknownTitle => 'Données';
+  String get dataBlockUnknownTitle => 'Daten';
 
   @override
   String get dataBlockUnknownDesc =>
@@ -10414,14 +10414,14 @@ class SDe extends S {
   String get dataBlockUnknownCta => 'Diagnose öffnen';
 
   @override
-  String get dataBlockDefaultTitle => 'Données';
+  String get dataBlockDefaultTitle => 'Daten';
 
   @override
   String get dataBlockDefaultDesc =>
       'Vervollständige diesen Bereich, um die Genauigkeit deiner Projektionen zu verbessern.';
 
   @override
-  String get dataBlockDefaultCta => 'Compléter';
+  String get dataBlockDefaultCta => 'Ergänzen';
 
   @override
   String get renteVsCapitalAppBarTitle =>
@@ -10459,7 +10459,7 @@ class SDe extends S {
   String get renteVsCapitalCertificateMode => 'Ich habe mein Zertifikat';
 
   @override
-  String get renteVsCapitalAge => 'Ton âge';
+  String get renteVsCapitalAge => 'Dein Alter';
 
   @override
   String get renteVsCapitalSalary => 'Dein jährlicher Bruttolohn (CHF)';
@@ -10507,14 +10507,14 @@ class SDe extends S {
   String get renteVsCapitalCanton => 'Canton';
 
   @override
-  String get renteVsCapitalMarried => 'Marié·e';
+  String get renteVsCapitalMarried => 'Verheiratet';
 
   @override
   String get renteVsCapitalRetirementAge => 'Geplante Pensionierung mit';
 
   @override
   String renteVsCapitalAgeYears(int age) {
-    return '$age ans';
+    return '$age Jahre';
   }
 
   @override
@@ -10664,7 +10664,7 @@ class SDe extends S {
       'Dein·e Ehepartner·in erhält';
 
   @override
-  String get renteVsCapitalTransmissionLeftSingle => 'À ton décès';
+  String get renteVsCapitalTransmissionLeftSingle => 'Bei deinem Tod';
 
   @override
   String renteVsCapitalTransmissionLeftValueMarried(String amount) {
@@ -10917,16 +10917,16 @@ class SDe extends S {
   String get concubinageAppBarTitle => 'Heirat vs Konkubinat';
 
   @override
-  String get concubinageTabComparateur => 'Comparateur';
+  String get concubinageTabComparateur => 'Vergleich';
 
   @override
   String get concubinageTabChecklist => 'Checklist';
 
   @override
-  String get concubinageRevenu1 => 'Revenu 1';
+  String get concubinageRevenu1 => 'Einkommen 1';
 
   @override
-  String get concubinageRevenu2 => 'Revenu 2';
+  String get concubinageRevenu2 => 'Einkommen 2';
 
   @override
   String get concubinagePatrimoineTotal => 'Gesamtvermögen';
@@ -17696,19 +17696,19 @@ class SDe extends S {
       'nDSG-Rechte, Widerruf, Berechtigungen';
 
   @override
-  String get openBankingHubSoldeTotal => 'Solde total';
+  String get openBankingHubSoldeTotal => 'Gesamtsaldo';
 
   @override
   String get openBankingHubComptesConnectes => '3 verbundene Konten';
 
   @override
-  String get openBankingHubRevenus => 'Revenus';
+  String get openBankingHubRevenus => 'Einnahmen';
 
   @override
-  String get openBankingHubDepenses => 'Dépenses';
+  String get openBankingHubDepenses => 'Ausgaben';
 
   @override
-  String get openBankingHubEpargneNette => 'Épargne nette';
+  String get openBankingHubEpargneNette => 'Netto-Sparen';
 
   @override
   String get openBankingHubTop3Depenses => 'Top 3 dépenses';
@@ -17742,19 +17742,19 @@ class SDe extends S {
   String get transactionListThisMonth => 'Ce mois';
 
   @override
-  String get transactionListLastMonth => 'Mois précédent';
+  String get transactionListLastMonth => 'Letzter Monat';
 
   @override
   String get transactionListNoTransaction => 'Keine Transaktionen';
 
   @override
-  String get transactionListRevenus => 'Revenus';
+  String get transactionListRevenus => 'Einnahmen';
 
   @override
-  String get transactionListDepenses => 'Dépenses';
+  String get transactionListDepenses => 'Ausgaben';
 
   @override
-  String get transactionListEpargneNette => 'Épargne nette';
+  String get transactionListEpargneNette => 'Netto-Sparen';
 
   @override
   String get transactionListTauxEpargne => 'Taux d’épargne';

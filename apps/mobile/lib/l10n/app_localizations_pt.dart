@@ -10298,22 +10298,22 @@ class SPt extends S {
   String get dataBlockComplete => 'Esta secção está completa.';
 
   @override
-  String get dataBlockModeForm => 'Formulaire';
+  String get dataBlockModeForm => 'Formulário';
 
   @override
-  String get dataBlockModeCoach => 'Parle au coach';
+  String get dataBlockModeCoach => 'Falar com o coach';
 
   @override
-  String get dataBlockStatusComplete => 'Complet';
+  String get dataBlockStatusComplete => 'Completo';
 
   @override
-  String get dataBlockStatusPartial => 'Partiel';
+  String get dataBlockStatusPartial => 'Parcial';
 
   @override
-  String get dataBlockStatusMissing => 'Manquant';
+  String get dataBlockStatusMissing => 'Em falta';
 
   @override
-  String get dataBlockRevenuTitle => 'Revenu';
+  String get dataBlockRevenuTitle => 'Rendimento';
 
   @override
   String get dataBlockRevenuDesc =>
@@ -10323,7 +10323,7 @@ class SPt extends S {
   String get dataBlockRevenuCta => 'Especificar o meu rendimento';
 
   @override
-  String get dataBlockLppTitle => 'Prévoyance LPP';
+  String get dataBlockLppTitle => 'Previdência LPP';
 
   @override
   String get dataBlockLppDesc =>
@@ -10333,7 +10333,7 @@ class SPt extends S {
   String get dataBlockLppCta => 'Adicionar o meu certificado LPP';
 
   @override
-  String get dataBlockAvsTitle => 'Extrait AVS';
+  String get dataBlockAvsTitle => 'Extrato AVS';
 
   @override
   String get dataBlockAvsDesc =>
@@ -10343,17 +10343,17 @@ class SPt extends S {
   String get dataBlockAvsCta => 'Solicitar o meu extrato AVS';
 
   @override
-  String get dataBlock3aTitle => '3e pilier (3a)';
+  String get dataBlock3aTitle => 'Pilar 3a';
 
   @override
   String get dataBlock3aDesc =>
       'As tuas contas 3a complementam a tua previdência e oferecem uma vantagem fiscal. Introduz os saldos atuais para uma visão completa.';
 
   @override
-  String get dataBlock3aCta => 'Simuler mon 3a';
+  String get dataBlock3aCta => 'Simular o meu 3a';
 
   @override
-  String get dataBlockPatrimoineTitle => 'Patrimoine';
+  String get dataBlockPatrimoineTitle => 'Património';
 
   @override
   String get dataBlockPatrimoineDesc =>
@@ -10363,7 +10363,7 @@ class SPt extends S {
   String get dataBlockPatrimoineCta => 'Registar o meu património';
 
   @override
-  String get dataBlockFiscaliteTitle => 'Fiscalité';
+  String get dataBlockFiscaliteTitle => 'Fiscalidade';
 
   @override
   String get dataBlockFiscaliteDesc =>
@@ -10393,7 +10393,7 @@ class SPt extends S {
   String get dataBlockMenageCta => 'Gerir o meu agregado familiar';
 
   @override
-  String get dataBlockUnknownTitle => 'Données';
+  String get dataBlockUnknownTitle => 'Dados';
 
   @override
   String get dataBlockUnknownDesc =>
@@ -10403,14 +10403,14 @@ class SPt extends S {
   String get dataBlockUnknownCta => 'Abrir o diagnóstico';
 
   @override
-  String get dataBlockDefaultTitle => 'Données';
+  String get dataBlockDefaultTitle => 'Dados';
 
   @override
   String get dataBlockDefaultDesc =>
       'Completa esta secção para melhorar a precisão das tuas projeções.';
 
   @override
-  String get dataBlockDefaultCta => 'Compléter';
+  String get dataBlockDefaultCta => 'Completar';
 
   @override
   String get renteVsCapitalAppBarTitle => 'Pensão ou capital: a tua decisão';
@@ -10495,7 +10495,7 @@ class SPt extends S {
   String get renteVsCapitalCanton => 'Canton';
 
   @override
-  String get renteVsCapitalMarried => 'Marié·e';
+  String get renteVsCapitalMarried => 'Casado/a';
 
   @override
   String get renteVsCapitalRetirementAge => 'Reforma prevista aos';
@@ -10908,10 +10908,10 @@ class SPt extends S {
   String get concubinageTabChecklist => 'Checklist';
 
   @override
-  String get concubinageRevenu1 => 'Revenu 1';
+  String get concubinageRevenu1 => 'Rendimento 1';
 
   @override
-  String get concubinageRevenu2 => 'Revenu 2';
+  String get concubinageRevenu2 => 'Rendimento 2';
 
   @override
   String get concubinagePatrimoineTotal => 'Património total';
@@ -17676,10 +17676,10 @@ class SPt extends S {
   String get openBankingHubComptesConnectes => '3 contas conectadas';
 
   @override
-  String get openBankingHubRevenus => 'Revenus';
+  String get openBankingHubRevenus => 'Receitas';
 
   @override
-  String get openBankingHubDepenses => 'Dépenses';
+  String get openBankingHubDepenses => 'Despesas';
 
   @override
   String get openBankingHubEpargneNette => 'Épargne nette';
