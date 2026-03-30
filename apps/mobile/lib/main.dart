@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
@@ -97,6 +98,20 @@ Future<void> main() async {
   // (coach_llm_service ↔ coach_orchestrator). Must happen before first chat.
   CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
 
-  // Lancement immédiat de l'app (UX first!)
-  runApp(const MintApp());
+  // Sentry error tracking — DSN injected via dart-define in CI/production
+  // flutter run --dart-define=SENTRY_DSN=https://xxx@sentry.io/xxx
+  const sentryDsn = String.fromEnvironment('SENTRY_DSN');
+  if (sentryDsn.isNotEmpty) {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = sentryDsn;
+        options.tracesSampleRate = 0.1;
+        options.sendDefaultPii = false; // nLPD compliance
+        options.environment = kDebugMode ? 'development' : 'production';
+      },
+      appRunner: () => runApp(const MintApp()),
+    );
+  } else {
+    runApp(const MintApp());
+  }
 }

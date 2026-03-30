@@ -2,6 +2,7 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -18,6 +19,16 @@ from app.api.v1.router import api_router
 
 # Initialize structured logging before anything else
 setup_logging(settings.LOG_LEVEL)
+
+# Initialize Sentry error tracking (production/staging only)
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.ENVIRONMENT,
+        traces_sample_rate=0.1,  # 10% of requests traced
+        profiles_sample_rate=0.1,
+        send_default_pii=False,  # nLPD compliance — no PII in error reports
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -147,8 +158,15 @@ app.add_middleware(SecurityHeadersMiddleware)
 # Request logging middleware
 app.add_middleware(LoggingMiddleware)
 
-# Setup CORS — production must set CORS_ORIGINS env var
+# Setup CORS — production MUST set CORS_ORIGINS env var
 _cors_origins_raw = os.getenv("CORS_ORIGINS", "")
+if not _cors_origins_raw and settings.ENVIRONMENT in ("production", "staging"):
+    logger.critical(
+        "CORS_ORIGINS env var not set in %s. "
+        "API will reject cross-origin requests. "
+        "Set CORS_ORIGINS in Railway dashboard.",
+        settings.ENVIRONMENT,
+    )
 _cors_origins = (
     [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
     if _cors_origins_raw
