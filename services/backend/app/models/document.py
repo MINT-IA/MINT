@@ -23,8 +23,8 @@ class DocumentModel(Base):
     confidence = Column(Float, default=0.0)
     fields_found = Column(Integer, default=0)
     fields_total = Column(Integer, default=0)
-    extracted_fields = Column(JSON, default=dict)  # JSON for SQLite compat
-    warnings = Column(JSON, default=list)
+    extracted_fields = Column(JSON, nullable=True)
+    warnings = Column(JSON, nullable=True)
     extraction_method = Column(String, default="ocr_mlkit")
     overall_confidence = Column(Float, default=0.0)
 

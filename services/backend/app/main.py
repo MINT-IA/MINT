@@ -55,7 +55,8 @@ async def lifespan(app: FastAPI):
         raise SystemExit(f"Cannot connect to database: {exc}") from exc
 
     # Optional auth hygiene: purge stale unverified accounts on startup.
-    if settings.AUTH_AUTO_PURGE_ON_STARTUP:
+    # SAFETY: Only run in non-production or with explicit flag.
+    if settings.AUTH_AUTO_PURGE_ON_STARTUP and settings.ENVIRONMENT != "production":
         try:
             from sqlalchemy.orm import Session
             from app.services.auth_admin_service import purge_unverified_users

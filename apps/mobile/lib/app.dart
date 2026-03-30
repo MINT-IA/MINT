@@ -165,7 +165,7 @@ final _router = GoRouter(
       '/scan',        // document scanning
       '/coach/chat',  // AI coach (token consumption)
       '/couple',      // household/couple features
-      '/byok',        // API key management
+      '/profile/byok', // API key management
       '/bank-import', // bank statement import
     ];
 
