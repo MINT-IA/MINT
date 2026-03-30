@@ -65,6 +65,9 @@ class _StepQuestionsState extends State<StepQuestions> {
   late TextEditingController _firstNameController;
   bool _didTrackStart = false;
 
+  /// P3-23: Guard against double-tap on submit button.
+  bool _isSubmitting = false;
+
   @override
   void initState() {
     super.initState();
@@ -103,6 +106,9 @@ class _StepQuestionsState extends State<StepQuestions> {
 
   void _onSubmit() {
     if (!widget.viewModel.canCompute) return;
+    // P3-23: Double-tap guard
+    if (_isSubmitting) return;
+    _isSubmitting = true;
     final vm = widget.viewModel;
     final salaryBracket = vm.grossSalary <= 60000
         ? '<=60k'

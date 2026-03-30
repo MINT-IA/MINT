@@ -45,10 +45,10 @@ class PortfolioScreen extends StatelessWidget {
             const SizedBox(height: 32),
             MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionHeader(S.of(context)!.portfolioRepartitionEnveloppe)),
             const SizedBox(height: 12),
-            // TODO: wire to real portfolio data from profile.patrimoine
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem(S.of(context)!.portfolioLibrePlacement, 'CHF\u00a0\u2014', icon: Icons.trending_up, color: MintColors.primary)),
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem(S.of(context)!.portfolioLiePilier3a, 'CHF\u00a0\u2014', icon: Icons.savings_outlined, color: MintColors.success)),
-            _buildAccountItem(S.of(context)!.portfolioReserveFondsUrgence, 'CHF\u00a0\u2014', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
+            // P2-14: Show "—" to indicate no data, not fake amounts
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem(S.of(context)!.portfolioLibrePlacement, '\u2014', icon: Icons.trending_up, color: MintColors.primary)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem(S.of(context)!.portfolioLiePilier3a, '\u2014', icon: Icons.savings_outlined, color: MintColors.success)),
+            _buildAccountItem(S.of(context)!.portfolioReserveFondsUrgence, '\u2014', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
             const SizedBox(height: 32),
             SafeModeGate(
               hasDebt: hasDebt,
@@ -87,6 +87,8 @@ class PortfolioScreen extends StatelessWidget {
   }
 
   Widget _buildReadinessIndex(BuildContext context, Profile? profile) {
+    // P2-14: No real readiness data available yet — show empty state
+    // instead of hardcoded fake percentages (65%, 40%, 85%).
     return MintSurface(
       padding: const EdgeInsets.all(24),
       radius: 24,
@@ -95,35 +97,20 @@ class PortfolioScreen extends StatelessWidget {
         children: [
           Text(S.of(context)!.portfolioReadinessTitle, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _readinessRow(S.of(context)!.portfolioPerennite, 0.65),
-          const SizedBox(height: 12),
-          _readinessRow(S.of(context)!.portfolioProjetImmo, 0.40),
-          const SizedBox(height: 12),
-          _readinessRow(S.of(context)!.portfolioProtectionFamille, 0.85),
+          Row(
+            children: [
+              const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Complète ton profil pour débloquer ton indice de préparation.', // TODO: i18n
+                  style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _readinessRow(String label, double value) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodySmall()),
-            Text('${(value * 100).toInt()}%', style: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: value,
-          backgroundColor: MintColors.background,
-          valueColor: AlwaysStoppedAnimation<Color>(value < 0.5 ? MintColors.warning : MintColors.success),
-          minHeight: 4,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ],
     );
   }
 
@@ -139,13 +126,13 @@ class PortfolioScreen extends StatelessWidget {
             style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: MintSpacing.sm),
-          // TODO: wire to real portfolio data from profile.patrimoine
-          Semantics(
-            label: 'CHF\u00a0\u2014',
-            child: Text(
-              'CHF\u00a0\u2014',
-              style: MintTextStyles.displayMedium(),
-            ),
+          // P2-14: Show empty state instead of fake "CHF —" placeholder
+          const Icon(Icons.account_balance_outlined, size: 32, color: MintColors.textMuted),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            'Aucune donnée patrimoniale renseignée.', // TODO: i18n
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

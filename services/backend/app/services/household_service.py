@@ -291,7 +291,9 @@ def accept_invitation(db: Session, user: User, invitation_code: str) -> dict:
             {"hid": str(member.household_id)},
         )
     except Exception:
-        pass  # SQLite doesn't support FOR UPDATE — acceptable in dev/test
+        # SQLite doesn't support SELECT FOR UPDATE — acceptable in test/dev.
+        # PostgreSQL in production handles this correctly.
+        pass
     active_count = (
         db.query(HouseholdMemberModel)
         .filter(

@@ -148,8 +148,8 @@ void main() {
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
-      // V5: AppBar uses pulseGreeting("Bonjour {name}")
-      expect(find.textContaining('Bonjour Julien'), findsOneWidget);
+      // V5: AppBar uses time-aware greeting with name
+      expect(find.textContaining('Julien'), findsWidgets);
     });
 
     testWidgets('renders hero zone with dominant number', (tester) async {

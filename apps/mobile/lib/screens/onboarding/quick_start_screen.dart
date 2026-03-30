@@ -72,7 +72,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
         _canton = profile.canton;
       }
       if (profile.revenuBrutAnnuel > 0) {
-        _salary = profile.revenuBrutAnnuel.clamp(0, 500000);
+        _salary = profile.revenuBrutAnnuel.clamp(0, 10000000);
       }
     });
   }

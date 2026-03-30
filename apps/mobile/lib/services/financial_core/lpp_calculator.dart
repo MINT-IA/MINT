@@ -101,6 +101,9 @@ class LppCalculator {
       }
     }
 
+    // P3-21: Floor balance at zero to prevent negative projections
+    if (balance < 0) balance = 0;
+
     final effectiveRate = adjustedConversionRate(
       baseRate: conversionRate,
       retirementAge: retirementAge,
@@ -131,7 +134,9 @@ class LppCalculator {
         (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
             .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     final bonifRate = bonificationRateOverride ?? getLppBonificationRate(age);
-    return newBalance + salaireBase * bonifRate / 12;
+    final result = newBalance + salaireBase * bonifRate / 12;
+    // P3-21: Floor balance at zero
+    return result < 0 ? 0 : result;
   }
 
   /// Compute monthly LPP income blending rente and capital withdrawal.

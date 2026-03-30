@@ -180,9 +180,12 @@ class Profile {
       factfindCompletionIndex:
           json['factfindCompletionIndex']?.toDouble() ?? 0.0,
       goal: Goal.values.firstWhere(
-        (e) =>
-            e.name == json['goal'] ||
-            e.name == json['goal']?.replaceAll('_', ''),
+        (e) {
+          final raw = json['goal'] as String?;
+          if (raw == null) return false;
+          return e.name == raw ||
+              e.name.toLowerCase() == raw.replaceAll('_', '').toLowerCase();
+        },
         orElse: () => Goal.other,
       ),
       createdAt: DateTime.parse(json['createdAt']),

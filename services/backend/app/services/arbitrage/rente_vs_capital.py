@@ -407,7 +407,10 @@ def compare_rente_vs_capital(
     canton: str = "VD",
     age_retraite: int = 65,
     taux_retrait: float = 0.04,       # SWR on capital portion
-    rendement_capital: float = 0.03,  # conservative post-retirement
+    rendement_capital: float = 0.03,  # conservative post-retirement (balanced portfolio)
+    # NOTE: This differs from allocation_annuelle.py (2% for 3a, 1.25% for LPP)
+    # because post-retirement capital is invested in a different allocation.
+    # 3%: balanced ETF portfolio. 1.25%: LPP minimum legal rate. 2%: 3a securities.
     inflation: float = 0.02,          # Swiss average
     horizon: int = 25,                # years in retirement (to age 90)
     is_married: bool = False,

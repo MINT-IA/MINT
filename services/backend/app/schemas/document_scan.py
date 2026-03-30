@@ -25,6 +25,7 @@ class DocumentType(str, Enum):
     insurance_contract = "insurance_contract"
     # Mobile-originated types (unified contract)
     pillar_3a_attestation = "pillar_3a_attestation"
+    mortgage_attestation = "mortgage_attestation"
     insurance_policy = "insurance_policy"
     lease = "lease"
     lamal_statement = "lamal_statement"

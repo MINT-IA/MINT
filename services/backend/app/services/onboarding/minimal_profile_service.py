@@ -27,7 +27,7 @@ Rules:
     - Disclaimer mandatory on every result
 """
 
-from typing import List
+from typing import List, Optional
 
 from app.constants.social_insurance import (
     AVS_RAMD_MIN,
@@ -36,6 +36,7 @@ from app.constants.social_insurance import (
     AVS_RENTE_MIN_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_AGE_REFERENCE_HOMME,
+    AVS_AGE_REFERENCE_FEMME,
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
@@ -113,10 +114,28 @@ _NET_SALARY_FACTOR: float = 0.87
 # Approximate monthly expenses as fraction of net salary
 _EXPENSES_FACTOR: float = 0.85
 
-# Retirement reference age — uses constant, not hardcoded 65.
-# F3-3: When MinimalProfileInput gains a gender field, use gender-aware
-# avsReferenceAge (AVS21 LAVS art. 21 al. 1) for women born 1961-1963.
-_RETIREMENT_AGE: int = AVS_AGE_REFERENCE_HOMME  # 65
+# Retirement reference age — default for when gender is unknown.
+# P2-26: Gender-aware via _get_retirement_age() below (AVS21 LAVS art. 21 al. 1).
+_RETIREMENT_AGE_DEFAULT: int = AVS_AGE_REFERENCE_HOMME  # 65
+
+
+def _get_retirement_age(gender: Optional[str]) -> int:
+    """Return retirement reference age based on gender (AVS21).
+
+    - Men: 65 (LAVS art. 21 al. 1)
+    - Women: 64 (AVS21 reform, transitional from 64→65 for births 1961-1963)
+    - Unknown: 65 (conservative default — overestimates contribution years slightly)
+
+    Args:
+        gender: "male", "female", or None if unknown.
+
+    Returns:
+        Retirement reference age.
+    """
+    if gender == "female":
+        return AVS_AGE_REFERENCE_FEMME  # 64 (AVS21 transitional)
+    # Male or unknown → 65
+    return AVS_AGE_REFERENCE_HOMME
 
 # Default marginal tax rate for middle incomes (proxy)
 _DEFAULT_MARGINAL_TAX_RATE: float = 0.25
@@ -207,7 +226,7 @@ def _project_lpp_capital(
     current_age: int,
     gross_salary: float,
     existing_lpp: float,
-    retirement_age: int = _RETIREMENT_AGE,
+    retirement_age: int = _RETIREMENT_AGE_DEFAULT,
 ) -> float:
     """Project LPP capital at retirement using bonification rates.
 
@@ -469,10 +488,13 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     if input.monthly_debt_service is None and input.total_debts is None:
         estimated_fields.append("monthly_debt_service")
 
+    # ── P2-26: Gender-aware retirement age (AVS21) ─────────────────────────
+    retirement_age = _get_retirement_age(getattr(input, "gender", None))
+
     # ── AVS projection ──────────────────────────────────────────────────────
     # FIX-092: Contribution years account for arrival age (expats).
     # Swiss natives: from age 21. Expats: from arrival_age (if > 21).
-    years_until_retirement = max(0, _RETIREMENT_AGE - input.age)
+    years_until_retirement = max(0, retirement_age - input.age)
     start_age = max(21, input.arrival_age or 21)
     current_contribution_years = max(0, min(input.age - start_age, AVS_DUREE_COTISATION_COMPLETE))
     total_contribution_years = min(
@@ -486,7 +508,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         current_age=input.age,
         gross_salary=input.gross_salary,
         existing_lpp=existing_lpp,
-        retirement_age=_RETIREMENT_AGE,
+        retirement_age=retirement_age,
     )
     # Select conversion rate based on caisse type
     if input.lpp_caisse_type == "complementaire":

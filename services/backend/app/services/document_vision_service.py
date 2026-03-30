@@ -104,6 +104,12 @@ DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
         {"name": "primeAnnuelle", "type": "float", "label": "Prime annuelle", "range": (0, 30_000)},
         {"name": "assureur", "type": "str", "label": "Assureur", "range": None},
     ],
+    DocumentType.mortgage_attestation: [
+        {"name": "montantHypotheque", "type": "float", "label": "Montant de l'hypothèque", "range": (0, 10_000_000)},
+        {"name": "tauxInteret", "type": "float", "label": "Taux d'intérêt", "range": (0, 15)},
+        {"name": "valeurImmeuble", "type": "float", "label": "Valeur de l'immeuble", "range": (0, 50_000_000)},
+        {"name": "dureeContrat", "type": "str", "label": "Durée du contrat", "range": None},
+    ],
     DocumentType.other: [
         {"name": "description", "type": "str", "label": "Description du document", "range": None},
     ],

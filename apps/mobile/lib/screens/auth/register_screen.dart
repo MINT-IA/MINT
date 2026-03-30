@@ -34,6 +34,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _consentNotifications = false;
   bool _consentAnalytics = false;
 
+  /// P2-17: Guard to prevent concurrent SharedPreferences writes.
+  bool _isWriting = false;
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +55,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
+    // P2-17: Prevent concurrent writes
+    if (_isWriting) return;
+    _isWriting = true;
 
+    try {
     final authProvider = context.read<AuthProvider>();
     final success = await authProvider.register(
       _emailController.text.trim(),
@@ -103,6 +110,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           context.go('/home');
         }
       }
+    }
+    } finally {
+      _isWriting = false;
     }
   }
 
