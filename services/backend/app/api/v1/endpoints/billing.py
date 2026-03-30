@@ -10,6 +10,7 @@ from typing import Optional
 from app.core.auth import require_current_user
 from app.core.database import get_db
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.models.user import User
 from app.schemas.billing import (
     BillingEntitlementsResponse,
@@ -49,7 +50,9 @@ def _request_ip(request: Request) -> Optional[str]:
 
 
 @router.get("/entitlements", response_model=BillingEntitlementsResponse)
+@limiter.limit("30/minute")
 def get_entitlements(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> BillingEntitlementsResponse:
@@ -58,7 +61,9 @@ def get_entitlements(
 
 
 @router.post("/checkout/stripe", response_model=StripeCheckoutResponse)
+@limiter.limit("10/minute")
 def create_checkout(
+    request: Request,
     body: StripeCheckoutRequest,
     current_user: User = Depends(require_current_user),
 ) -> StripeCheckoutResponse:
@@ -75,7 +80,9 @@ def create_checkout(
 
 
 @router.post("/portal/stripe", response_model=StripePortalResponse)
+@limiter.limit("10/minute")
 def create_portal(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> StripePortalResponse:
@@ -90,6 +97,7 @@ def create_portal(
 
 
 @router.post("/webhooks/stripe", response_model=StripeWebhookAck)
+@limiter.limit("60/minute")
 async def stripe_webhook(
     request: Request,
     db: Session = Depends(get_db),
@@ -103,7 +111,9 @@ async def stripe_webhook(
 
 
 @router.post("/debug/activate", response_model=BillingDebugActivateResponse, include_in_schema=False)
+@limiter.limit("5/minute")
 def debug_activate_subscription(
+    request: Request,
     body: BillingDebugActivateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -138,6 +148,7 @@ def debug_activate_subscription(
 
 
 @router.post("/apple/verify", response_model=AppleVerifyPurchaseResponse)
+@limiter.limit("10/minute")
 def verify_apple_purchase(
     request: Request,
     body: AppleVerifyPurchaseRequest,
@@ -196,6 +207,7 @@ def verify_apple_purchase(
 
 
 @router.post("/webhooks/apple", response_model=AppleWebhookAck)
+@limiter.limit("60/minute")
 def apple_webhook(
     request: Request,
     body: AppleWebhookRequest,

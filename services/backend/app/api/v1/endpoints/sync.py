@@ -3,11 +3,12 @@ Sync endpoints for local-first data claim into authenticated cloud profile.
 """
 
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
 from app.core.database import get_db
+from app.core.rate_limit import limiter
 from app.models.profile_model import ProfileModel
 from app.models.user import User
 from app.schemas.sync import ClaimLocalDataRequest, ClaimLocalDataResponse
@@ -31,7 +32,9 @@ def _pick_household(payload: ClaimLocalDataRequest) -> str:
 
 
 @router.post("/claim-local-data", response_model=ClaimLocalDataResponse)
+@limiter.limit("10/minute")
 def claim_local_data(
+    request: Request,
     body: ClaimLocalDataRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),

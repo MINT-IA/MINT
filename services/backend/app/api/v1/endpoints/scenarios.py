@@ -6,13 +6,14 @@ Persisted in PostgreSQL via ScenarioModel.
 import uuid
 from datetime import datetime, timezone
 from typing import List
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
 from app.core.database import get_db
 from app.core.rate_limit import limiter
+from app.models.profile_model import ProfileModel
 from app.models.scenario import ScenarioModel
 from app.models.user import User
 from pydantic import UUID4
@@ -100,12 +101,22 @@ def create_scenario(
 
 
 @router.get("/{profile_id}", response_model=List[Scenario])
+@limiter.limit("30/minute")
 def list_scenarios(
+    request: Request,
     profile_id: UUID4,
-    _user: User = Depends(require_current_user),
+    current_user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
 ) -> List[Scenario]:
     """List all scenarios for a profile. Reads from DB."""
+    # P0-2: Verify profile ownership before returning scenarios
+    profile = db.query(ProfileModel).filter(
+        ProfileModel.id == str(profile_id),
+        ProfileModel.user_id == current_user.id,
+    ).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
     rows = db.query(ScenarioModel).filter(
         ScenarioModel.profile_id == str(profile_id)
     ).order_by(ScenarioModel.created_at.desc()).all()

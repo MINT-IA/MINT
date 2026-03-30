@@ -235,12 +235,12 @@ def test_access_other_user_profile(auth_client: TestClient):
     user2_token = user2_response.json()["access_token"]
 
     # Try to access user1's profile with user2's token
+    # P0-3: Returns 404 (not 403) to avoid leaking profile existence
     response = auth_client.get(
         f"/api/v1/profiles/{profile_id}",
         headers={"Authorization": f"Bearer {user2_token}"},
     )
-    assert response.status_code == 403
-    assert "authorized" in response.json()["detail"].lower()
+    assert response.status_code == 404
 
 
 def test_update_other_user_profile(auth_client: TestClient):
@@ -276,12 +276,13 @@ def test_update_other_user_profile(auth_client: TestClient):
     user2_token = user2_response.json()["access_token"]
 
     # Try to update user1's profile with user2's token
+    # P0-3: Returns 404 (not 403) to avoid leaking profile existence
     response = auth_client.patch(
         f"/api/v1/profiles/{profile_id}",
         headers={"Authorization": f"Bearer {user2_token}"},
         json={"birthYear": 1995},
     )
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
 def test_anonymous_profile_access(client: TestClient):

@@ -429,10 +429,12 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
     )
 
     if event_type == "checkout.session.completed" and user_id:
+        # P0-4: Row-level lock to prevent race between simultaneous webhooks
         sub = (
             db.query(SubscriptionModel)
             .filter(SubscriptionModel.user_id == user_id)
             .order_by(SubscriptionModel.updated_at.desc())
+            .with_for_update()
             .first()
         ) or SubscriptionModel(user_id=user_id, source="stripe")
         if sub.id is None:
@@ -480,9 +482,11 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
     if event_type in {"customer.subscription.deleted", "customer.subscription.updated"}:
         sub_id = obj.get("id")
         if sub_id:
+            # P0-4: Row-level lock to prevent race between simultaneous webhooks
             sub = (
                 db.query(SubscriptionModel)
                 .filter(SubscriptionModel.external_subscription_id == sub_id)
+                .with_for_update()
                 .first()
             )
             if sub:
@@ -762,10 +766,12 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
 
     sub: Optional[SubscriptionModel] = None
     if original_transaction_id:
+        # P0-4: Row-level lock to prevent race between simultaneous webhooks
         sub = (
             db.query(SubscriptionModel)
             .filter(SubscriptionModel.external_subscription_id == original_transaction_id)
             .order_by(SubscriptionModel.updated_at.desc())
+            .with_for_update()
             .first()
         )
     if sub and not user_id:
@@ -785,10 +791,12 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
                 event_ts = _now()
 
             # Monotone timestamp idempotence
+            # P0-4: Row-level lock on fallback query
             target_sub = sub or (
                 db.query(SubscriptionModel)
                 .filter(SubscriptionModel.user_id == user.id)
                 .order_by(SubscriptionModel.updated_at.desc())
+                .with_for_update()
                 .first()
             )
             if target_sub and target_sub.last_event_at and target_sub.last_event_at > event_ts:

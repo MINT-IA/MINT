@@ -271,16 +271,17 @@ class TestLogoutEndpoint:
 # ---------------------------------------------------------------------------
 
 class TestEdgeCases:
-    def test_double_blacklist_same_jti_raises_or_noop(self):
-        """Inserting the same JTI twice should fail (PK constraint)."""
+    def test_double_blacklist_same_jti_is_idempotent(self):
+        """Inserting the same JTI twice is a no-op (P1-11: atomic TOCTOU fix)."""
         db = _get_db_session()
         try:
             jti = str(uuid4())
             expires = datetime.now(timezone.utc) + timedelta(hours=1)
             blacklist_token(db, jti, expires)
-            # Second insert should raise IntegrityError
-            with pytest.raises(Exception):
-                blacklist_token(db, jti, expires)
-            db.rollback()
+            # Second insert should silently succeed (idempotent)
+            blacklist_token(db, jti, expires)
+            # JTI should still be blacklisted
+            assert is_jti_blacklisted(db, jti) is True
         finally:
+            db.rollback()
             db.close()

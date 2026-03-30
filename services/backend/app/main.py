@@ -111,9 +111,22 @@ app = FastAPI(
 # GZip compression — reduce payload size for large responses
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
-# Rate limiting — 429 on excess requests
+# Rate limiting — 429 on excess requests with machine-readable error code (P2-19)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+async def _rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    """Custom rate limit handler that includes machine-readable error_code."""
+    return JSONResponse(
+        status_code=429,
+        content={
+            "detail": "Trop de requêtes. Réessaie dans quelques instants.",
+            "error_code": "rate_limited",
+        },
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
 
 
 # Global exception handler — catch unhandled exceptions
@@ -124,7 +137,7 @@ async def global_exception_handler(request, exc):
     logger.error("Unhandled %s: %.100s", type(exc).__name__, str(exc))  # pragma: no cover
     return JSONResponse(
         status_code=500,
-        content={"detail": "Erreur interne du serveur"},
+        content={"detail": "Erreur interne du serveur", "error_code": "internal_error"},
     )
 
 
