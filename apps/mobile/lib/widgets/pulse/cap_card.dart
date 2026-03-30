@@ -131,8 +131,8 @@ class CapCard extends StatelessWidget {
               children: [
                 Text(
                   cap.ctaLabel,
-                  style: MintTextStyles.titleMedium(color: MintColors.white)
-                      .copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(color: MintColors.white)
+                      ,
                 ),
                 const SizedBox(width: 8),
                 const Icon(

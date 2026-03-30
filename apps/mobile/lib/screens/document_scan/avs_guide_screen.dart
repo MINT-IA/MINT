@@ -122,7 +122,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         const SizedBox(height: 8),
         Text(
           l.avsGuideHeaderSubtitle,
-          style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, height: 1.5),
+          style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(height: 1.5),
         ),
       ],
     );

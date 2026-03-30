@@ -602,7 +602,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           title,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         ),
         titlePadding: const EdgeInsets.only(
           left: MintSpacing.lg,
@@ -732,7 +732,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             const SizedBox(height: MintSpacing.md),
             Text(
               l.dashboardImproveAccuracyTitle,
-              style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+              style: MintTextStyles.titleLarge(),
             ),
             const SizedBox(height: MintSpacing.xs),
             Text(
@@ -848,7 +848,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           Text(
             l.dashboardOnboardingHeroTitle,
             textAlign: TextAlign.center,
-            style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+            style: MintTextStyles.headlineSmall(),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -873,8 +873,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 child: Text(
                   l.dashboardOnboardingCta,
-                  style: MintTextStyles.titleMedium(color: MintColors.white)
-                      .copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(color: MintColors.white)
+                      ,
                 ),
               ),
             ),
@@ -925,9 +925,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     ),
                     Text(
                       l.dashboardEducationSubtitle,
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.textSecondary,
-                      ).copyWith(fontSize: 12),
+                      ),
                     ),
                   ],
                 ),
@@ -1118,9 +1118,9 @@ class _ActionCard extends StatelessWidget {
                     const SizedBox(height: MintSpacing.xs),
                     Text(
                       card.message,
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.textSecondary,
-                      ).copyWith(fontSize: 12, height: 1.4),
+                      ).copyWith(height: 1.4),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1222,9 +1222,9 @@ class _DataEnrichmentCard extends StatelessWidget {
                     ),
                     Text(
                       l.dashboardPrecisionGainPercent(prompt.impact),
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.success,
-                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),

@@ -55,7 +55,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
                 onTap: () => context.push('/arbitrage/bilan'),
                 child: Text(
                 'Voir tout \u2192',
-                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
               ),
               ),
             ),
@@ -64,7 +64,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           'Estimations rapides \u2014 appuie pour explorer en d\u00e9tail',
-          style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textMuted),
         ),
         const SizedBox(height: 12),
         ...teasers.map((t) => Padding(
@@ -253,7 +253,7 @@ class _ArbitrageTeaserTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     teaser.chiffreChoc,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
                   ),
                   const SizedBox(height: 4),
                   Text(

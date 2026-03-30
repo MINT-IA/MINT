@@ -111,7 +111,7 @@ class _ConfidenceBarState extends State<ConfidenceBar>
               children: [
                 Text(
                   'Qualit\u00e9 de ta projection',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -191,19 +191,19 @@ class _ConfidenceBarState extends State<ConfidenceBar>
                         children: [
                           Text(
                             '20%',
-                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
+                            style: MintTextStyles.labelTiny(color: MintColors.textMuted),
                           ),
                           Text(
                             '40%',
-                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
+                            style: MintTextStyles.labelTiny(color: MintColors.textMuted),
                           ),
                           Text(
                             '70%',
-                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
+                            style: MintTextStyles.labelTiny(color: MintColors.textMuted),
                           ),
                           Text(
                             '95%',
-                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
+                            style: MintTextStyles.labelTiny(color: MintColors.textMuted),
                           ),
                         ],
                       ),
@@ -265,7 +265,7 @@ class _ConfidenceBarState extends State<ConfidenceBar>
                     Expanded(
                       child: Text(
                         action['label'] as String? ?? '',
-                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                       ),
                     ),
                     const Icon(Icons.chevron_right,

@@ -164,7 +164,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                       children: [
                         Text(
                           'Fiabilite : $confidencePct %',
-                          style: MintTextStyles.bodySmall(color: _confidenceColor(confidence)).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                          style: MintTextStyles.labelMedium(color: _confidenceColor(confidence)),
                         ),
                         const Spacer(),
                       ],

@@ -142,7 +142,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+        style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -162,11 +162,11 @@ class UnemploymentCounterWidget extends StatelessWidget {
           children: [
             Text(
               'Jours utilisés : $daysConsumed',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
             Text(
               'Restants : $remaining',
-              style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -234,7 +234,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+            style: MintTextStyles.headlineSmall(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -327,7 +327,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Pas de prolongation. Tu passes à l\'aide sociale — sans délai de grâce.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),

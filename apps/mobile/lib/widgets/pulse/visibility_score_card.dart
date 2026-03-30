@@ -107,7 +107,7 @@ class VisibilityScoreCard extends StatelessWidget {
               ),
               Text(
                 '${axis.score.round()}/${axis.maxScore.round()}',
-                style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted),
               ),
             ],
           ),
@@ -148,7 +148,7 @@ class VisibilityScoreCard extends StatelessWidget {
                 score.coupleWeakName ?? '',
                 '${score.coupleWeakScore?.round() ?? 0}',
               ),
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
         ],

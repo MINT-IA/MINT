@@ -134,13 +134,13 @@ class DataQualityCard extends StatelessWidget {
             children: [
               Text(
                 l.dataQualityTitle,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 hasGaps
                     ? l.dataQualityMissingCount('${missingFields.length}')
                     : l.dataQualityComplete,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -190,7 +190,7 @@ class DataQualityCard extends StatelessWidget {
               children: [
                 Text(
                   l.dataQualityCombined,
-                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   '${combinedScore!.round()}\u00a0%',

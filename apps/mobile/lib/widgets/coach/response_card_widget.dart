@@ -188,9 +188,9 @@ class ResponseCardWidget extends StatelessWidget {
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
             card.chiffreChoc.formatted,
-            style: MintTextStyles.displayMedium(
+            style: MintTextStyles.headlineMedium(
               color: MintColors.textPrimary,
-            ).copyWith(fontSize: 22),
+            ),
           ),
         ],
 

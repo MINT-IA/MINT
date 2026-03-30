@@ -74,7 +74,7 @@ class AvsScenarioCard extends StatelessWidget {
               child: Text(
                 config.label,
                 textAlign: TextAlign.center,
-                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             const SizedBox(height: 10),
@@ -84,13 +84,13 @@ class AvsScenarioCard extends StatelessWidget {
               fit: BoxFit.scaleDown,
               child: Text(
                 RetirementService.formatChf(renteMensuelle),
-                style: MintTextStyles.headlineMedium(color: config.color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                style: MintTextStyles.headlineSmall(color: config.color).copyWith(fontWeight: FontWeight.w800),
               ),
             ),
             const SizedBox(height: 2),
             Text(
               'par mois',
-              style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 10),
 
@@ -106,7 +106,7 @@ class AvsScenarioCard extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   child: Text(
                     'Référence',
-                    style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                    style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               )
@@ -121,7 +121,7 @@ class AvsScenarioCard extends StatelessWidget {
                 ),
                 child: Text(
                   '${penalitePct > 0 ? '+' : ''}${penalitePct.toStringAsFixed(1)}%',
-                  style: MintTextStyles.bodyMedium(color: penalitePct < 0 ? MintColors.error : MintColors.success).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.labelMedium(color: penalitePct < 0 ? MintColors.error : MintColors.success).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             const SizedBox(height: 10),

@@ -101,7 +101,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
           Text(
             'Ce n\'est pas le moment de tout gérer seul·e. '
             'Voici les étapes, dans l\'ordre, avec bienveillance.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
         ],
       ),
@@ -177,7 +177,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
                         Expanded(
                           child: Text(
                             action,
-                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+                            style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
                           ),
                         ),
                       ],
@@ -218,7 +218,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
                   'Un·e notaire, un·e avocat·e ou un service d\'aide sociale '
                   'peut t\'accompagner pour les démarches administratives. '
                   'Prends le temps du deuil — les délais légaux sont en semaines, pas en heures.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),

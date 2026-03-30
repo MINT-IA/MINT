@@ -118,7 +118,7 @@ class HeroRetirementCard extends StatelessWidget {
               ),
               Text(
                 _headerSubtitle,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -277,7 +277,7 @@ class HeroRetirementCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 4),
         Text(
@@ -360,7 +360,7 @@ class HeroRetirementCard extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           'Fourchette\u00a0: ${formatChfWithPrefix(rangeMin!)} \u2013 ${formatChfWithPrefix(rangeMax!)} / mois',
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textMuted),
         ),
       ],
     );
@@ -383,7 +383,7 @@ class HeroRetirementCard extends StatelessWidget {
           children: [
             Text(
               formatChfWithPrefix(min),
-              style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
+              style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800, height: 1.0),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 6, right: 6),
@@ -394,7 +394,7 @@ class HeroRetirementCard extends StatelessWidget {
             ),
             Text(
               formatChfWithPrefix(max),
-              style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
+              style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800, height: 1.0),
             ),
           ],
         ),
@@ -421,7 +421,7 @@ class HeroRetirementCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'La fourchette se r\u00e9duira en ajoutant tes donn\u00e9es LPP et AVS.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -447,7 +447,7 @@ class HeroRetirementCard extends StatelessWidget {
             children: [
               Text(
                 'Il nous manque des informations',
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               Text(

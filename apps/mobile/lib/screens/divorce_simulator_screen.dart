@@ -666,7 +666,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   S.of(context)!.divorceSplitC1,
                   style: MintTextStyles.labelSmall(
                     color: MintColors.white,
-                  ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -679,7 +679,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   S.of(context)!.divorceSplitC2,
                   style: MintTextStyles.labelSmall(
                     color: MintColors.purple,
-                  ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -715,9 +715,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               S.of(context)!.divorcePensionMois(
                 _chfFmt(r.pensionAlimentaireMonthly),
               ),
-              style: MintTextStyles.displayMedium(
+              style: MintTextStyles.displaySmall(
                 color: MintColors.textPrimary,
-              ).copyWith(fontSize: 28),
+              ),
             ),
           ),
           const SizedBox(height: MintSpacing.xs),
@@ -732,9 +732,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
             S.of(context)!.divorcePensionDescription,
-            style: MintTextStyles.labelSmall(
+            style: MintTextStyles.labelMedium(
               color: MintColors.textMuted,
-            ).copyWith(fontSize: 12, height: 1.5),
+            ).copyWith(height: 1.5),
           ),
         ],
       ),
@@ -749,9 +749,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       children: [
         Text(
           S.of(context)!.divorcePointsAttention,
-          style: MintTextStyles.labelSmall(
+          style: MintTextStyles.labelMedium(
             color: MintColors.textMuted,
-          ).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+          ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
         const SizedBox(height: MintSpacing.sm + 4),
         ...r.alerts.map((alert) => Padding(
@@ -865,9 +865,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       children: [
         Text(
           S.of(context)!.divorceComprendre,
-          style: MintTextStyles.labelSmall(
+          style: MintTextStyles.labelMedium(
             color: MintColors.textMuted,
-          ).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+          ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
         const SizedBox(height: MintSpacing.sm + 4),
         _buildExpandableTile(
@@ -928,9 +928,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             Expanded(
               child: Text(
                 S.of(context)!.divorceDisclaimer,
-                style: MintTextStyles.micro(
+                style: MintTextStyles.labelSmall(
                   color: MintColors.textMuted,
-                ).copyWith(fontSize: 11),
+                ),
               ),
             ),
           ],

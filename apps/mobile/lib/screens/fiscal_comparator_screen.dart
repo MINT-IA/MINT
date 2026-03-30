@@ -523,7 +523,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     width: 32,
                     child: Text(
                       '$_nombreEnfants',
-                      style: MintTextStyles.titleMedium().copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.titleLarge().copyWith(fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -655,9 +655,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             alignment: Alignment.center,
             child: Text(
               '${tauxEffectif.toStringAsFixed(1)}%',
-              style: MintTextStyles.displayMedium(
+              style: MintTextStyles.headlineMedium(
                 color: isBelow ? MintColors.success : MintColors.error,
-              ).copyWith(fontSize: 22, fontWeight: FontWeight.w800),
+              ).copyWith(fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(width: 20),

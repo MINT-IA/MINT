@@ -248,7 +248,7 @@ class _AlertCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: MintTextStyles.titleMedium().copyWith(fontSize: 14, height: 1.3),
+                    style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600, height: 1.3),
                   ),
                 ),
               ],
@@ -256,7 +256,7 @@ class _AlertCard extends StatelessWidget {
             const SizedBox(height: MintSpacing.sm + 4),
             Text(
               body,
-              style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5),
+              style: MintTextStyles.bodyMedium().copyWith(height: 1.5),
             ),
           ],
         ),
@@ -315,7 +315,7 @@ class _ConceptCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: MintSpacing.sm + 2),
-            Text(body, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.5)),
+            Text(body, style: MintTextStyles.labelMedium().copyWith(height: 1.5)),
           ],
         ),
       ),

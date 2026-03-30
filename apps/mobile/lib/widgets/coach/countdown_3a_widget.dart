@@ -133,7 +133,7 @@ class Countdown3aWidget extends StatelessWidget {
                         'laiss\u00e9s sur la table. Chaque ann\u00e9e.'
                     : 'C\u2019est fait\u00a0! Ton 3a $year est rempli. '
                         '\u00c9conomie fiscale\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
-                style: MintTextStyles.labelSmall(color: _remaining > 0 ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+                style: MintTextStyles.labelMedium(color: _remaining > 0 ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -183,7 +183,7 @@ class Countdown3aWidget extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: Text(
             '${(_progress * 100).toStringAsFixed(0)}%',
-            style: MintTextStyles.labelSmall(color: _urgencyColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: _urgencyColor).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],

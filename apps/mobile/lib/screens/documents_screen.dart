@@ -412,7 +412,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -560,7 +560,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     children: [
                       Text(
                         typeLabel,
-                        style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                        style: MintTextStyles.labelLarge(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -648,7 +648,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   s.vaultPremiumTitle,
-                  style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(color: MintColors.white),
                 ),
               ),
             ],
@@ -677,7 +677,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               ),
               child: Text(
                 s.vaultPremiumCta,
-                style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 14),
+                style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -869,7 +869,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(width: MintSpacing.sm),
             Text(
               value,
-              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              style: MintTextStyles.labelLarge(),
             ),
           ],
         ),
@@ -954,7 +954,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 children: [
                   Text(
                     s.bankImportTitle,
-                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                    style: MintTextStyles.labelLarge(),
                   ),
                   const SizedBox(height: MintSpacing.xs),
                   Text(
@@ -1114,7 +1114,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   s.vaultUploadTitle,
-                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+                  style: MintTextStyles.headlineSmall(),
                 ),
               ),
             ),
@@ -1227,7 +1227,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           s.vaultTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+          style: MintTextStyles.headlineSmall(),
         ),
         content: Text(
           s.vaultPrivacy,

@@ -213,7 +213,7 @@ class FuturProjectionCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: MintTextStyles.bodyLarge(color: color).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+              style: MintTextStyles.bodyLarge(color: color).copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 2),
             Text(
@@ -325,12 +325,12 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ),
               Text(
                 'CHF ${_fmtChf(monthly)}/mois',
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -362,12 +362,12 @@ class FuturProjectionCard extends StatelessWidget {
               _isCouple
                   ? l.futurTotalCoupleProjecte
                   : l.futurTotalMensuelProjecte,
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           Text(
             'CHF ${_fmtChf(_totalMonthlyProjected)}/mois',
-            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -389,7 +389,7 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.futurCapitalTotal,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               Text(
@@ -501,7 +501,7 @@ class FuturProjectionCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   l.futurExplorerDetails,
-                  style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),

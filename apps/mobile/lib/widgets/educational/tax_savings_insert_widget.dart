@@ -119,7 +119,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     children: [
                       Text(
                         'Optimisation 3a',
-                        style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Ton allié fiscal',

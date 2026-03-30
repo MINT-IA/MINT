@@ -156,7 +156,7 @@ class ConjointInvitationCard extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+        style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
       ),
     );
   }
@@ -214,7 +214,7 @@ class ConjointInvitationCard extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ),
@@ -235,7 +235,7 @@ class ConjointInvitationCard extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+          style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
           textAlign: TextAlign.center,
         ),
       ),

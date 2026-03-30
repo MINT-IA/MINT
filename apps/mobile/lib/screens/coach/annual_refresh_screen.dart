@@ -303,7 +303,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       ),
       title: Text(
         S.of(context)!.annualRefreshTitle,
-        style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+        style: MintTextStyles.titleLarge(),
       ),
       surfaceTintColor: MintColors.white,
     );

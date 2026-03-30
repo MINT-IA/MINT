@@ -240,7 +240,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   _dailyStreak == 1
                       ? s.achievementsDaysSingular
                       : s.achievementsDaysPlural,
-                  style: MintTextStyles.headlineMedium(color: MintColors.textSecondary).copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -451,7 +451,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       children: [
         Text(
           s.achievementsBadgesTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         ),
         const SizedBox(height: MintSpacing.xs),
         Text(
@@ -583,7 +583,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             const SizedBox(height: MintSpacing.md),
             MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               badge.label,
-              style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+              style: MintTextStyles.headlineSmall(),
             )),
             const SizedBox(height: MintSpacing.sm),
             MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
@@ -689,7 +689,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       children: [
         Text(
           s.achievementsMilestonesTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         ),
         const SizedBox(height: MintSpacing.xs),
         Text(
@@ -726,7 +726,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               Flexible(
                 child: Text(
                   category.title,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -812,7 +812,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               Flexible(
                 child: Text(
                   category.title,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

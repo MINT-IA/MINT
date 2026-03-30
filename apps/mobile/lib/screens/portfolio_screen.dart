@@ -23,7 +23,7 @@ class PortfolioScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           S.of(context)!.portfolioAppBarTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         ),
         centerTitle: false,
         elevation: 0,
@@ -166,14 +166,14 @@ class PortfolioScreen extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              style: MintTextStyles.labelLarge(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
             balance,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

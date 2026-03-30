@@ -135,7 +135,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                   Expanded(
                     child: Text(
                       l.simBuybackMarginalRateQuestion,
-                      style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.info),
                     ),
                   ),
                   const Icon(Icons.chevron_right,
@@ -190,12 +190,12 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               const SizedBox(height: 24),
               Text(
                 l.simBuybackMarginalRateTitle,
-                style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 18),
+                style: MintTextStyles.titleLarge(color: MintColors.primary),
               ),
               const SizedBox(height: 16),
               Text(
                 l.simBuybackMarginalRateExplanation,
-                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15),
+                style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
               ),
               const SizedBox(height: 16),
               Container(
@@ -259,7 +259,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                   const SizedBox(height: 4),
                   Text(
                     "${(amount / 1000).toStringAsFixed(1)}k",
-                    style: MintTextStyles.headlineMedium(color: highlight ? MintColors.white : MintColors.textPrimary).copyWith(fontSize: 18),
+                    style: MintTextStyles.titleLarge(color: highlight ? MintColors.white : MintColors.textPrimary),
                   ),
                   const SizedBox(height: 4),
                   Text(

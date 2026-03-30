@@ -184,7 +184,7 @@ class _IjmScreenState extends State<IjmScreen> {
             ),
             child: Column(
               children: [
-                Text('$jours j', style: MintTextStyles.titleMedium(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+                Text('$jours j', style: MintTextStyles.titleLarge(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: MintSpacing.xs / 2),
                 Text(s.ijmJours, style: MintTextStyles.labelSmall(color: isSelected ? MintColors.white.withValues(alpha: 0.8) : MintColors.textMuted)),
               ],

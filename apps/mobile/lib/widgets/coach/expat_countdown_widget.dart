@@ -138,7 +138,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
           const SizedBox(height: 6),
           Text(
             '$_completedCount / $count actions complétées',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -216,7 +216,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
                   const SizedBox(height: 4),
                   Text(
                     d.action,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -297,7 +297,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
             child: Text(
               'Chaque jour de retard peut te coûter un formulaire de plus '
               'ou des droits irréversibles. Le libre passage LPP doit être transféré avant ton départ.',
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ),
         ],

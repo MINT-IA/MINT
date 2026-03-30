@@ -73,7 +73,7 @@ class StreakBadgeWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _subtitle,
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
                 ),
                 if (streak.nextBadge != null) ...[
                   const SizedBox(height: 8),
@@ -191,7 +191,7 @@ class EarnedBadgesRow extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     badge.label,
-                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),

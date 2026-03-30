@@ -233,7 +233,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
             value,
-            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
+            style: MintTextStyles.displaySmall(),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
@@ -301,7 +301,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     ),
                     Text(
                       '$count',
-                      style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                      style: MintTextStyles.labelLarge(),
                     ),
                     if (rate != null) ...[
                       const SizedBox(width: MintSpacing.sm),
@@ -384,7 +384,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 ),
                 Text(
                   '${e.value}',
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
+                  style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),

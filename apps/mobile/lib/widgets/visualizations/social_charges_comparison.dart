@@ -192,7 +192,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
               ),
               Text(
                 'Suisse vs ${widget.otherCountryName}',
-                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(),
               ),
             ],
           ),

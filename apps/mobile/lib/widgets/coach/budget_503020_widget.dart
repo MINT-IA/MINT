@@ -68,7 +68,7 @@ class Budget503020Widget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Basé sur ${formatChfWithPrefix(netSalary)} net/mois',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),
 
@@ -93,7 +93,7 @@ class Budget503020Widget extends StatelessWidget {
                 ),
                 child: Text(
                   chiffreChoc!,
-                  style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
               ),

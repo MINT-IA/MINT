@@ -247,7 +247,7 @@ class SlmSettingsScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   info.displayName,
-                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(),
                 ),
               ),
             ],

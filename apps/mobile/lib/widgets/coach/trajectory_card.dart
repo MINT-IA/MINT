@@ -30,7 +30,7 @@ class TrajectoryCard extends StatelessWidget {
       children: [
         Text(
           l10n.coachTrajectory,
-          style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         Container(

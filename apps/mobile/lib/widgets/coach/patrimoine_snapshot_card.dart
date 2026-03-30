@@ -65,7 +65,7 @@ class PatrimoineSnapshotCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               formatChf(total),
-              style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w700),
+              style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
 
@@ -106,7 +106,7 @@ class PatrimoineSnapshotCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       '${s.label} ${formatChf(s.value)}',
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     ),
                   ],
                 );

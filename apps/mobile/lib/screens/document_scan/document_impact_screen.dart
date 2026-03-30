@@ -196,7 +196,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           Text(
             S.of(context)!.docImpactSubtitle(widget.result.documentType.label),
             textAlign: TextAlign.center,
-            style: MintTextStyles.bodyLarge().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
           ),
         ],
       ),
@@ -338,7 +338,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         children: [
           Text(
             'CHF ${_formatChf(total)}',
-            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
+            style: MintTextStyles.displaySmall(),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
@@ -360,7 +360,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                   ? S.of(context)!.docImpactSurobligWithRate(_formatChf(surobligVal), surobligRate!.toStringAsFixed(1), _formatChf(renteSuroblig))
                   : S.of(context)!.docImpactSurobligNoRate(_formatChf(surobligVal)),
               textAlign: TextAlign.center,
-              style: MintTextStyles.bodySmall().copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium().copyWith(height: 1.4),
             ),
           ],
         ],
@@ -377,7 +377,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         children: [
           Text(
             S.of(context)!.docImpactAvsYears(years),
-            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
+            style: MintTextStyles.displaySmall(),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(

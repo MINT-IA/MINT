@@ -319,7 +319,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         children: [
           Text(
             s.genderGapRenteLppEstimee,
-            style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+            style: MintTextStyles.titleLarge(),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
@@ -365,7 +365,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                       ),
                       Text(
                         GenderGapService.formatChf(result.lacuneAnnuelle),
-                        style: MintTextStyles.headlineMedium(color: MintColors.error).copyWith(fontSize: 18),
+                        style: MintTextStyles.titleLarge(color: MintColors.error),
                       ),
                     ],
                   ),
@@ -445,7 +445,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               Expanded(
                 child: Text(
                   s.genderGapCoordinationTitle,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(),
                 ),
               ),
             ],
@@ -544,7 +544,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               children: [
                 Text(
                   s.genderGapStatOfsTitle,
-                  style: MintTextStyles.titleMedium(color: MintColors.purple).copyWith(fontSize: 14),
+                  style: MintTextStyles.bodyMedium(color: MintColors.purple).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -598,7 +598,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           children: [
             Text(
               rec.title,
-              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              style: MintTextStyles.labelLarge(),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(

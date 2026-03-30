@@ -98,7 +98,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
                   ),
                   child: Text(
                     '$_done/$_total',
-                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                    style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -106,7 +106,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Les 90 premiers jours d\u00e9finissent ta protection',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
 
             const SizedBox(height: 16),
@@ -209,7 +209,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
               children: [
                 Text(
                   action.label,
-                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, decoration: action.isCompleted ? TextDecoration.lineThrough : null),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(decoration: action.isCompleted ? TextDecoration.lineThrough : null),
                 ),
                 if (action.consequence != null)
                   Text(

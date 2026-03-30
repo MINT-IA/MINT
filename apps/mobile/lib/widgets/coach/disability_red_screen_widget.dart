@@ -104,7 +104,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
               Expanded(
                 child: Text(
                   'Indépendant·e : ton filet n\'existe pas',
-                  style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -206,7 +206,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           const SizedBox(height: 10),
           Text(
             isVoid ? '= 0 CHF/mois' : '\u2248 CHF ${_fmt(totalMonthly)}/mois',
-            style: MintTextStyles.titleMedium(color: color).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+            style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -237,7 +237,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           const SizedBox(height: 8),
           Text(
             'Après décision AI : CHF ${_fmt(_aiRenteMax)}/mois (AI seule)',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         ],
       ),

@@ -141,7 +141,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                   child: Text(
                     'Coach IA sur ton appareil',
                     style: MintTextStyles.titleMedium()
-                        .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -236,7 +236,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                   child: Text(
                     'Continuer',
                     style: MintTextStyles.bodyMedium()
-                        .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -264,7 +264,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                   label: Text(
                     'Installer le coach IA',
                     style: MintTextStyles.bodyMedium()
-                        .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,

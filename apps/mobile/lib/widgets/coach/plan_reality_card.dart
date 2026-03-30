@@ -66,7 +66,7 @@ class PlanRealityCard extends StatelessWidget {
                   ),
                   child: Text(
                     badgeLabel,
-                    style: MintTextStyles.labelSmall(color: badgeColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: badgeColor).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -97,7 +97,7 @@ class PlanRealityCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${status.completedActions} / ${status.totalActions} actions complétées',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
             const SizedBox(height: 16),
 
@@ -105,7 +105,7 @@ class PlanRealityCard extends StatelessWidget {
             if (status.nextActions.isNotEmpty) ...[
               Text(
                 'Prochaines actions',
-                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               ...status.nextActions.map((action) => Padding(
@@ -141,12 +141,12 @@ class PlanRealityCard extends StatelessWidget {
                   children: [
                     Text(
                       'Impact composé estimé sur ${(monthsToRetirement / 12).round()} ans',
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       formatChf(compoundImpact),
-                      style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.headlineSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
                     Text(

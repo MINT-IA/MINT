@@ -336,7 +336,7 @@ class TimelineScreen extends StatelessWidget {
       elevation: 0,
       title: Text(
         s.timelineTitle,
-        style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+        style: MintTextStyles.titleLarge(),
       ),
     );
   }

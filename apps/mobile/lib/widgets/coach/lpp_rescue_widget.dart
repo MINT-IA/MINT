@@ -224,7 +224,7 @@ class LppRescueWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             option.description,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
           if (option.fiveYearGain != 0) ...[
             const SizedBox(height: 8),
@@ -277,7 +277,7 @@ class LppRescueWidget extends StatelessWidget {
                   'Le taux technique est bas et les frais élevés. '
                   'Un avoir de CHF ${_fmt(lppBalance)} peut perdre jusqu\'à '
                   'CHF ${_fmt(estimatedLoss)} sur 5 ans vs un compte libre passage optimisé.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),

@@ -1256,7 +1256,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           // ── Life expectancy: chips ──
           MintEntrance(child: Text(
             S.of(context)!.renteVsCapitalLifeExpectancyChips,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
           )),
           const SizedBox(height: MintSpacing.sm),
           MintEntrance(delay: const Duration(milliseconds: 100), child: Wrap(
@@ -1298,7 +1298,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           // ── Chart: capital restant vs revenus cumules de la rente ──
           MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
             S.of(context)!.renteVsCapitalChartTitle,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
           )),
           const SizedBox(height: MintSpacing.xs),
           Text(
@@ -1660,7 +1660,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       children: [
         Text(
           S.of(context)!.renteVsCapitalImpactTitle,
-          style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+          style: MintTextStyles.labelLarge(),
         ),
         const SizedBox(height: MintSpacing.xs),
         Text(

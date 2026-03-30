@@ -271,7 +271,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               children: [
                 Text(
                   '${account.bankName} \u2022 ${account.accountName}',
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -287,7 +287,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             children: [
               Text(
                 OpenBankingService.formatChf(account.balance),
-                style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                style: MintTextStyles.labelLarge(),
               ),
               const SizedBox(height: 2),
               Text(
@@ -510,7 +510,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         children: [
           Text(
             S.of(context)!.openBankingHubTop3Depenses,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
+            style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           for (final cat in top3) ...[
@@ -589,7 +589,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                    style: MintTextStyles.labelLarge(),
                   ),
                   const SizedBox(height: 2),
                   Text(

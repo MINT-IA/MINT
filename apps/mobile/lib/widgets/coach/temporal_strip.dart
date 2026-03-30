@@ -37,7 +37,7 @@ class TemporalStrip extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 '\u00c0 ne pas manquer',
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.3),
               ),
             ],
           ),
@@ -82,7 +82,7 @@ class TemporalStrip extends StatelessWidget {
             // Title
             Text(
               item.title,
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

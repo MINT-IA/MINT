@@ -193,7 +193,7 @@ class SaleSurprisesWidget extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 act.detail,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
               ),
               const SizedBox(height: 4),
               Text(
@@ -241,12 +241,12 @@ class SaleSurprisesWidget extends StatelessWidget {
             label,
             style: isTotal
                 ? MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800)
-                : MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                : MintTextStyles.labelMedium(color: MintColors.textPrimary),
           ),
           Text(
             formatChfWithPrefix(amount),
             style: isTotal
-                ? MintTextStyles.headlineMedium(color: _netReal > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontSize: 18, fontWeight: FontWeight.w800)
+                ? MintTextStyles.titleLarge(color: _netReal > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800)
                 : MintTextStyles.bodySmall(color: isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
           ),
         ],

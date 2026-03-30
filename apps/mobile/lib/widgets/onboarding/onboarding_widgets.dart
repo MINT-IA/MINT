@@ -60,7 +60,7 @@ class MintSelectableCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       description!,
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     ),
                   ],
                 ],
@@ -117,7 +117,7 @@ class MintQuickPickChips<T> extends StatelessWidget {
             ),
             child: Text(
               labelBuilder(option),
-              style: MintTextStyles.bodySmall(color: isSelected ? MintColors.primary : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: isSelected ? MintColors.primary : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -150,7 +150,7 @@ class MintChfInputField extends StatelessWidget {
       children: [
         Text(
           optional ? '$label (optionnel)' : label,
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
         TextField(
@@ -181,7 +181,7 @@ class MintChfInputField extends StatelessWidget {
                   const BorderSide(color: MintColors.primary, width: 1.8),
             ),
           ),
-          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+          style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -230,7 +230,7 @@ class OnboardingInsightCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             body,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.35),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.35),
           ),
           if (footer != null) ...[
             const SizedBox(height: 8),
@@ -350,7 +350,7 @@ class CoachDeductionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Voici ce que ton coach a déduit',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
                 ),
               ),
             ],
@@ -376,7 +376,7 @@ class CoachDeductionCard extends StatelessWidget {
                       ),
                       Text(
                         item.value,
-                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                       ),
                     ],
                   ),

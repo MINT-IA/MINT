@@ -45,16 +45,16 @@ class RetirementProjectionCard extends StatelessWidget {
           children: [
             Flexible(child: Text(
               'Taux de remplacement : ',
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             )),
             Text(
               '${replacementRate.toStringAsFixed(0)}%',
-              style: MintTextStyles.bodySmall(color: rateColor).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: rateColor).copyWith(fontWeight: FontWeight.w700),
             ),
             Text(
               ' (cible : 60-80%)',
-              style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -119,7 +119,7 @@ class RetirementProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   tip,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4, fontWeight: tip == tips.first ? FontWeight.w600 : FontWeight.w400),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4, fontWeight: tip == tips.first ? FontWeight.w600 : FontWeight.w400),
                 ),
               ),
             ],
@@ -146,7 +146,7 @@ class RetirementProjectionCard extends StatelessWidget {
             child: Text(
               'Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour v\u00e9rifier tes lacunes AVS. '
               'Chaque ann\u00e9e manquante = \u22122.3% de rente \u00e0 vie.',
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ),
         ],

@@ -119,7 +119,7 @@ class _ComparisonRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 6),
 
@@ -147,7 +147,7 @@ class _ComparisonRow extends StatelessWidget {
           children: [
             Text(
               '${isPositive ? "+" : ""}${formatChf(delta)}',
-              style: MintTextStyles.labelSmall(color: isPositive ? MintColors.success : MintColors.error).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: isPositive ? MintColors.success : MintColors.error).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),

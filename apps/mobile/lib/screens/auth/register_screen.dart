@@ -167,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       Text(
                         l10n.authWhyCreateAccount,
-                        style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
+                        style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: MintSpacing.sm),
                       _RegisterBenefitRow(text: l10n.authBenefitProjections),

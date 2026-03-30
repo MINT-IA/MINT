@@ -181,7 +181,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           const SizedBox(height: 4),
           Text(
             S.of(context)!.paywallSubtitle,
-            style: MintTextStyles.bodyLarge(color: MintColors.white.withValues(alpha: 0.8)).copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(color: MintColors.white.withValues(alpha: 0.8)),
           ),
         ],
       ),
@@ -316,11 +316,11 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                 children: [
                   TextSpan(
                     text: '$price CHF',
-                    style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                    style: MintTextStyles.headlineSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
                   ),
                   TextSpan(
                     text: ' ${S.of(context)!.paywallPricePerMonth}',
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -344,7 +344,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     Expanded(
                       child: Text(
                         f,
-                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.3),
+                        style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500, height: 1.3),
                       ),
                     ),
                   ],

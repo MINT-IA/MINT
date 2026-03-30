@@ -410,14 +410,14 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   '$displayScore',
                   style: MintTextStyles.displayLarge(
                     color: MintColors.white,
-                  ).copyWith(fontSize: 56, height: 1.0),
+                  ).copyWith(height: 1.0),
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
                   '/100',
-                  style: MintTextStyles.bodyLarge(
+                  style: MintTextStyles.labelLarge(
                     color: MintColors.white.withValues(alpha: 0.5),
-                  ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 // Level badge
@@ -439,9 +439,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     ),
                     child: Text(
                       _localizedLevelLabel(context),
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: _scoreColor,
-                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -654,9 +654,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   const SizedBox(height: MintSpacing.sm - 2),
                   Text(
                     _displayedMessage.isEmpty ? ' ' : _displayedMessage,
-                    style: MintTextStyles.bodyLarge(
-                      color: MintColors.white.withValues(alpha: 0.85),
-                    ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                    style: MintTextStyles.labelLarge(
+                    color: MintColors.white.withValues(alpha: 0.85),
+                  ),
                   ),
                 ],
               ),

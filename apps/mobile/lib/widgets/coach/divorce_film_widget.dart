@@ -132,7 +132,7 @@ class DivorceFilmWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Dans l\'ordre chronologique de ce que tu vas vivre — chiffres réels, pas de tabous.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -235,7 +235,7 @@ class DivorceFilmWidget extends StatelessWidget {
             ),
             child: Text(
               'Tu transfères CHF ${_fmt(_lppTransfer)} → ta rente LPP baisse de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois',
-              style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700, height: 1.4),
             ),
           ),
         ],
@@ -291,7 +291,7 @@ class DivorceFilmWidget extends StatelessWidget {
             positive
                 ? '+CHF ${_fmt(_monthlyTaxDelta)}/mois d\'impôts — tu perds le splitting marié.'
                 : '-CHF ${_fmt(_monthlyTaxDelta.abs())}/mois d\'impôts — tu gagnes en indépendance.',
-            style: MintTextStyles.labelSmall(color: positive ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w700, height: 1.4),
+            style: MintTextStyles.labelMedium(color: positive ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700, height: 1.4),
           ),
         ),
         if (childrenCount > 0)
@@ -345,7 +345,7 @@ class DivorceFilmWidget extends StatelessWidget {
               Text('Total mensuel', style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
               Text(
                 'CHF ${_fmt(_totalMonthlyPension)}/mois',
-                style: MintTextStyles.titleMedium(color: MintColors.info).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
+                style: MintTextStyles.labelLarge(color: MintColors.info).copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -365,11 +365,11 @@ class DivorceFilmWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(child: Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12), overflow: TextOverflow.ellipsis)),
+          Flexible(child: Text(label, style: MintTextStyles.labelMedium(color: MintColors.textPrimary), overflow: TextOverflow.ellipsis)),
           const SizedBox(width: 8),
           Text(
             'CHF ${_fmt(amount)}/mois',
-            style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),

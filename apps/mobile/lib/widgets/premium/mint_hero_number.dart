@@ -41,7 +41,7 @@ class MintHeroNumber extends StatelessWidget {
             child: Text(
               value,
               style: MintTextStyles.displayLarge(color: effectiveColor)
-                  .copyWith(fontSize: 56, height: 1.0),
+                  .copyWith(height: 1.0),
             ),
           ),
           const SizedBox(height: MintSpacing.sm),

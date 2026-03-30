@@ -163,6 +163,9 @@ jobs:
           if [[ -n "$SLM_MODEL_URL" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SLM_MODEL_URL=$SLM_MODEL_URL"
           fi
+          if [[ -n "${{ secrets.SENTRY_DSN_MOBILE }}" ]]; then
+            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN_MOBILE }}"
+          fi
           flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES
 
       - name: Prepare DART_DEFINES for Xcode/Fastlane

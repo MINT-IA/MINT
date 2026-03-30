@@ -516,7 +516,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     Text(
                       '$prefix ',
                       style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
-                          .copyWith(fontSize: 28),
+                          ,
                     ),
                   SizedBox(
                     width: 150,
@@ -538,7 +538,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     Text(
                       ' $suffix',
                       style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
-                          .copyWith(fontSize: 28),
+                          ,
                     ),
                 ],
               ),

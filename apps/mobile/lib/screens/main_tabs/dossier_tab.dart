@@ -472,7 +472,7 @@ class _SectionLabel extends StatelessWidget {
                 _formatTimestamp(timestamp!, l),
                 style: MintTextStyles.labelSmall(
                   color: MintColors.textMuted,
-                ).copyWith(fontSize: 11),
+                ),
               ),
             ),
         ],
@@ -637,11 +637,11 @@ class _ProfileSection extends StatelessWidget {
               ),
               Text(
                 l.dossierConfidencePct(confidencePct),
-                style: MintTextStyles.titleMedium(
+                style: MintTextStyles.bodyMedium(
                   color: confidencePct >= 60
                       ? MintColors.success
                       : MintColors.warning,
-                ).copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -665,7 +665,7 @@ class _ProfileSection extends StatelessWidget {
               l.dossierEnrichmentHint,
               style: MintTextStyles.labelSmall(
                 color: MintColors.textMuted,
-              ).copyWith(fontSize: 11),
+              ),
             ),
             const SizedBox(height: MintSpacing.xs),
             // Show top 2 enrichment prompts max.
@@ -685,7 +685,7 @@ class _ProfileSection extends StatelessWidget {
                         enrichmentPrompts[i].action,
                         style: MintTextStyles.labelSmall(
                           color: MintColors.primary,
-                        ).copyWith(fontSize: 11),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1142,7 +1142,7 @@ class _PlanStepRow extends StatelessWidget {
                   label,
                   style: MintTextStyles.labelSmall(
                     color: MintColors.textMuted,
-                  ).copyWith(fontSize: 10),
+                  ),
                 ),
                 Text(
                   title,
@@ -1255,9 +1255,9 @@ class _DataRow extends StatelessWidget {
                         children: [
                           Text(
                             value,
-                            style: MintTextStyles.titleMedium(
+                            style: MintTextStyles.bodyMedium(
                               color: MintColors.textPrimary,
-                            ).copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+                            ).copyWith(fontWeight: FontWeight.w500),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1405,9 +1405,9 @@ class _DossierRow extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: MintTextStyles.titleMedium(
+                          style: MintTextStyles.labelLarge(
                             color: MintColors.textPrimary,
-                          ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                          ).copyWith(fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

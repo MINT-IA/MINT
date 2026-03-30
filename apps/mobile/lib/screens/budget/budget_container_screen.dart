@@ -45,7 +45,7 @@ class BudgetContainerScreen extends StatelessWidget {
               MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                 S.of(context)!.budgetEmptyTitle,
                 textAlign: TextAlign.center,
-                style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+                style: MintTextStyles.titleLarge(),
               )),
               const SizedBox(height: MintSpacing.md),
               MintEntrance(delay: const Duration(milliseconds: 200), child: Text(

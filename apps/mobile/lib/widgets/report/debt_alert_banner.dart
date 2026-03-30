@@ -37,7 +37,7 @@ class DebtAlertBanner extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Priorit\u00e9 : r\u00e9duire tes dettes',
-                  style: MintTextStyles.headlineMedium(color: MintColors.error).copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(color: MintColors.error),
                 ),
               ),
             ],

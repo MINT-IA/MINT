@@ -70,14 +70,14 @@ class ReplacementRatioBadge extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'Taux de remplacement',
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${ratio.toStringAsFixed(0)}% de ton revenu actuel',
-                  style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(color: color),
                 ),
                 const SizedBox(height: 2),
                 Text(

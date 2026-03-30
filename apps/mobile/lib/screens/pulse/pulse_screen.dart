@@ -290,9 +290,9 @@ class _PulseScreenState extends State<PulseScreen> {
                               formatChf(dominantNumber.value.abs() * 1.15),
                             )
                           : '${(dominantNumber.value * 0.85).round()}\u00a0—\u00a0${(dominantNumber.value * 1.15).round()}\u00a0%',
-                      style: MintTextStyles.labelSmall(
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.textMuted,
-                      ).copyWith(fontSize: 12, fontStyle: FontStyle.italic),
+                      ).copyWith(fontStyle: FontStyle.italic),
                     ),
                   ),
                 ],
@@ -845,8 +845,8 @@ class _PulseScreenState extends State<PulseScreen> {
         header: true,
         child: Text(
           greeting,
-          style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
-              .copyWith(fontSize: 20),
+          style: MintTextStyles.headlineSmall(color: MintColors.textPrimary)
+              ,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

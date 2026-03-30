@@ -565,7 +565,7 @@ class _MariageScreenState extends State<MariageScreen>
                   ),
                   Text(
                     subtitle,
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                   ),
                   const SizedBox(height: MintSpacing.xs + 2),
                   Text(
@@ -749,7 +749,7 @@ class _MariageScreenState extends State<MariageScreen>
                 ),
                 Text(
                   subtitle,
-                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -1158,7 +1158,7 @@ class _MariageScreenState extends State<MariageScreen>
           width: MintSpacing.xl,
           child: Text(
             '$value',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
@@ -1221,7 +1221,7 @@ class _MariageScreenState extends State<MariageScreen>
           Expanded(
             child: Text(
               S.of(context)!.mariageDisclaimer,
-              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 11, height: 1.5),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
             ),
           ),
         ],
