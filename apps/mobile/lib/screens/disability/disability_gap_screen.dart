@@ -268,12 +268,10 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
                 MintEntrance(child: MintNarrativeCard(
-                  headline: 'Comprendre ta lacune invalidit\u00e9', // TODO: i18n
-                  body: 'En cas d\u2019invalidit\u00e9, ton revenu passe par 3 phases\u00a0: '
-                      'employeur (CO art.\u00a0324a), IJM, puis AI + LPP (LAI art.\u00a028, LPP art.\u00a023-26). '
-                      'La chute peut atteindre 40\u00a0\u00e0\u00a060\u00a0% de ton salaire actuel.', // TODO: i18n
+                  headline: S.of(context)!.narrativeDisabilityHeadline,
+                  body: S.of(context)!.narrativeDisabilityBody,
                   tone: MintSurfaceTone.peche,
-                  badge: 'Invalidit\u00e9', // TODO: i18n
+                  badge: S.of(context)!.narrativeDisabilityBadge,
                 )),
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputsCard()),

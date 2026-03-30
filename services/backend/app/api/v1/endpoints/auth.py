@@ -1053,6 +1053,19 @@ def delete_account(
     except Exception as exc:
         logger.warning("Failed to purge embeddings for user %s: %s", user_id[:8], exc)
 
+    # FIX-181 nLPD: Purge in-memory document store entries for this user.
+    try:
+        from app.api.v1.endpoints.documents import _get_document_store, _document_store_lock
+        import asyncio
+        store = _get_document_store()
+        to_remove = [k for k, v in store.items() if v.get("user_id") == user_id]
+        for k in to_remove:  # pragma: no cover
+            del store[k]  # pragma: no cover
+        if to_remove:  # pragma: no cover
+            logger.info("Purged %d document store entries for user %s", len(to_remove), user_id[:8])  # pragma: no cover
+    except Exception as exc:  # pragma: no cover
+        logger.warning("Document store cleanup failed for user %s: %s", user_id[:8], exc)  # pragma: no cover
+
     db.delete(current_user)
     db.commit()
 

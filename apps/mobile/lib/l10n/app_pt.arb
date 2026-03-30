@@ -460,8 +460,8 @@
   "askMintEmptyTitle": "Faz-me uma pergunta",
   "askMintEmptySubtitle": "Posso ajudar-te com financas suicas: 3º pilar, LPP, impostos, orcamento...",
   "askMintSuggestedTitle": "SUGESTOES",
-  "askMintSuggestion1": "Comment fonctionne le 3e pilier en Suisse ?",
-  "askMintSuggestion2": "Dois-je choisir la rente ou le capital LPP ?",
+  "askMintSuggestion1": "Como funciona o 3.º pilar na Suíça?",
+  "askMintSuggestion2": "Devo escolher a renda ou o capital LPP?",
   "askMintSuggestion3": "Como posso otimizar os meus impostos?",
   "askMintSuggestion4": "O que e o resgate LPP?",
   "askMintInputHint": "Faz a tua pergunta sobre financas suicas...",
@@ -1363,26 +1363,26 @@
       }
     }
   },
-  "coachFitnessTitle": "Ton Fitness Financier",
+  "coachFitnessTitle": "O teu Fitness Financeiro",
   "coachFinancialForm": "Forme financière",
-  "coachScoreComposite": "Score composite · 3 piliers",
+  "coachScoreComposite": "Pontuação composta · 3 pilares",
   "coachPillarBudget": "Budget",
   "coachPillarPrevoyance": "Prévoyance",
   "coachPillarPatrimoine": "Patrimoine",
-  "coachCompletePrompt": "Complète ton diagnostic pour découvrir ton score",
-  "coachDiscoverScore": "Découvrir mon score — 10 min",
+  "coachCompletePrompt": "Completa o teu diagnóstico para descobrir a tua pontuação",
+  "coachDiscoverScore": "Descobrir a minha pontuação — 10 min",
   "coachTrajectory": "Ta trajectoire",
-  "coachTrajectoryPrompt": "Ta trajectoire financière t'attend",
+  "coachTrajectoryPrompt": "A tua trajetória financeira espera por ti",
   "coachDidYouKnow": "Le savais-tu ?",
-  "coachFact3a": "Le 3e pilier peut te faire économiser jusqu'à CHF 2'500 d'impôts par an, selon ton canton et ton revenu.",
-  "coachFact3aLink": "Simuler mon économie 3a",
-  "coachFactAvs": "En Suisse, chaque année AVS manquante = −2.3% de rente à vie. Un rattrapage est possible dans certains cas.",
-  "coachFactAvsLink": "Vérifier mes années AVS",
-  "coachFactLpp": "Le rachat LPP est l'un des leviers fiscaux les plus puissants pour les salarié·es en Suisse. Il est intégralement déductible du revenu imposable.",
-  "coachFactLppLink": "Explorer le rachat LPP",
-  "coachMotivation": "Rejoins les milliers d'utilisateurs qui ont déjà fait leur diagnostic financier",
-  "coachMotivationSub": "et recevoir des actions concrètes.",
-  "coachLaunchDiagnostic": "Lancer mon diagnostic",
+  "coachFact3a": "O 3.º pilar pode poupar-te até CHF 2'500 de impostos por ano, consoante o teu cantão e o teu rendimento. Um gesto simples com um efeito acumulado enorme.",
+  "coachFact3aLink": "Simular a minha poupança 3a",
+  "coachFactAvs": "Na Suíça, cada ano AVS em falta = −2.3% de renda vitalícia. É possível recuperar anos sob certas condições.",
+  "coachFactAvsLink": "Verificar os meus anos AVS",
+  "coachFactLpp": "O resgate LPP é uma das alavancas fiscais mais potentes para os/as assalariados/as na Suíça. Cada franco resgatado é dedutível do rendimento tributável.",
+  "coachFactLppLink": "Explorar o resgate LPP",
+  "coachMotivation": "Junta-te aos milhares de utilizadores que já fizeram o seu diagnóstico financeiro.",
+  "coachMotivationSub": "e receber ações concretas.",
+  "coachLaunchDiagnostic": "Iniciar o meu diagnóstico",
   "coachQuickActions": "Actions rapides",
   "coachCheckin": "Check-in\nmensuel",
   "coachVerse3a": "Verser\n3a",
@@ -1390,46 +1390,46 @@
   "coachExplore": "Explorer",
   "coachPulseDisclaimer": "Estimativas educativas — não constitui aconselhamento financeiro. Os rendimentos passados não pressupõem rendimentos futuros. Consulta um especialista. LSFin.",
   "eduTheme3aTitle": "Le 3e pilier (3a)",
-  "eduTheme3aQuestion": "C'est quoi le 3a et pourquoi tout le monde en parle ?",
-  "eduTheme3aAction": "Estimer mon économie fiscale",
-  "eduTheme3aReminder": "Décembre → Dernier moment pour verser cette année",
-  "eduThemeLppTitle": "La caisse de pension (LPP)",
-  "eduThemeLppQuestion": "Est-ce que j'ai une caisse de pension ?",
-  "eduThemeLppAction": "Analyser mon certificat LPP",
-  "eduThemeLppReminder": "Demander mon certificat LPP à mon employeur",
+  "eduTheme3aQuestion": "O que é o 3a e porque é que todos falam dele?",
+  "eduTheme3aAction": "Estimar a minha poupança fiscal",
+  "eduTheme3aReminder": "Dezembro → Último momento para contribuir este ano",
+  "eduThemeLppTitle": "A caixa de pensões (LPP)",
+  "eduThemeLppQuestion": "Tenho uma caixa de pensões?",
+  "eduThemeLppAction": "Analisar o meu certificado LPP",
+  "eduThemeLppReminder": "Pedir o meu certificado LPP ao empregador",
   "eduThemeAvsTitle": "Les lacunes AVS",
-  "eduThemeAvsQuestion": "Ai-je des années de cotisation manquantes ?",
-  "eduThemeAvsAction": "Vérifier mon extrait de compte AVS",
-  "eduThemeAvsReminder": "Commander mon extrait sur ahv-iv.ch",
+  "eduThemeAvsQuestion": "Tenho anos de contribuição em falta?",
+  "eduThemeAvsAction": "Verificar o meu extrato de conta AVS",
+  "eduThemeAvsReminder": "Encomendar o meu extrato em ahv-iv.ch",
   "eduThemeEmergencyTitle": "Le fonds d'urgence",
-  "eduThemeEmergencyQuestion": "Combien je devrais avoir de côté ?",
-  "eduThemeEmergencyAction": "Calculer mon objectif",
-  "eduThemeEmergencyReminder": "Vérifier mon épargne de sécurité chaque trimestre",
+  "eduThemeEmergencyQuestion": "Quanto deveria ter de reserva?",
+  "eduThemeEmergencyAction": "Calcular o meu objetivo",
+  "eduThemeEmergencyReminder": "Verificar as minhas poupanças de emergência trimestralmente",
   "eduThemeDebtTitle": "Les dettes",
-  "eduThemeDebtQuestion": "Combien me coûte vraiment ma dette ?",
-  "eduThemeDebtAction": "Calculer le coût total",
-  "eduThemeDebtReminder": "Priorité: rembourser avant d'investir",
+  "eduThemeDebtQuestion": "Quanto me custa realmente a minha dívida?",
+  "eduThemeDebtAction": "Calcular o custo total",
+  "eduThemeDebtReminder": "Prioridade: reembolsar antes de investir",
   "eduThemeMortgageTitle": "L'hypothèque",
-  "eduThemeMortgageQuestion": "Fixe ou SARON, c'est quoi la différence ?",
-  "eduThemeMortgageAction": "Comparer les deux stratégies",
-  "eduThemeMortgageReminder": "Avant renouvellement: comparer 3 mois à l'avance",
+  "eduThemeMortgageQuestion": "Fixo ou SARON, qual é a diferença?",
+  "eduThemeMortgageAction": "Comparar as duas estratégias",
+  "eduThemeMortgageReminder": "Antes da renovação: comparar com 3 meses de antecedência",
   "eduThemeBudgetTitle": "Le reste à vivre",
-  "eduThemeBudgetQuestion": "Combien il me reste après les charges fixes ?",
-  "eduThemeBudgetAction": "Estimer mon reste à vivre",
-  "eduThemeBudgetReminder": "Revoir mon budget chaque mois",
+  "eduThemeBudgetQuestion": "Quanto me sobra depois das despesas fixas?",
+  "eduThemeBudgetAction": "Estimar o meu rendimento disponível",
+  "eduThemeBudgetReminder": "Rever o meu orçamento todos os meses",
   "eduThemeLamalTitle": "Les subsides LAMal",
-  "eduThemeLamalQuestion": "Ai-je droit à une aide pour mes primes ?",
-  "eduThemeLamalAction": "Vérifier mon éligibilité",
-  "eduThemeLamalReminder": "Les critères changent selon le canton",
+  "eduThemeLamalQuestion": "Tenho direito a ajuda para os meus prémios?",
+  "eduThemeLamalAction": "Verificar a minha elegibilidade",
+  "eduThemeLamalReminder": "Os critérios mudam consoante o cantão",
   "eduThemeFiscalTitle": "La fiscalité suisse",
-  "eduThemeFiscalQuestion": "Comment fonctionnent les impôts en Suisse ?",
-  "eduThemeFiscalAction": "Simuler mon économie 3a",
-  "eduThemeFiscalReminder": "Deadline déclaration fiscale : 31 mars (extensible)",
+  "eduThemeFiscalQuestion": "Como funcionam os impostos na Suíça?",
+  "eduThemeFiscalAction": "Simular a minha poupança 3a",
+  "eduThemeFiscalReminder": "Prazo declaração fiscal: 31 de março (prorrogável)",
   "eduHubTitle": "J'Y COMPRENDS RIEN",
-  "eduHubSubtitle": "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
+  "eduHubSubtitle": "Sem pânico. Escolhe um tema, explicamos-te o essencial e damos-te uma ação concreta.",
   "eduHubReadQuiz": "Lire + quiz • 2 min",
-  "askMintSuggestDebt": "J'ai des dettes — par où commencer pour m'en sortir ?",
-  "askMintSuggestAge3a": "J'ai {age} ans, est-ce que je devrais déjà cotiser au 3e pilier ?",
+  "askMintSuggestDebt": "Tenho dívidas — por onde começo para sair delas?",
+  "askMintSuggestAge3a": "Tenho {age} anos, deveria já contribuir para o 3.º pilar?",
   "@askMintSuggestAge3a": {
     "placeholders": {
       "age": {
@@ -1437,7 +1437,7 @@
       }
     }
   },
-  "askMintSuggestAgeLpp": "J'ai {age} ans, est-ce que je devrais racheter du LPP ?",
+  "askMintSuggestAgeLpp": "Tenho {age} anos, deveria fazer um resgate LPP?",
   "@askMintSuggestAgeLpp": {
     "placeholders": {
       "age": {
@@ -1445,7 +1445,7 @@
       }
     }
   },
-  "askMintSuggestAgeRetirement": "J'ai {age} ans, comment préparer ma retraite au mieux ?",
+  "askMintSuggestAgeRetirement": "Tenho {age} anos, como preparo a minha reforma da melhor forma?",
   "@askMintSuggestAgeRetirement": {
     "placeholders": {
       "age": {
@@ -1453,9 +1453,9 @@
       }
     }
   },
-  "askMintSuggestSelfEmployed": "Je suis indépendant·e — comment me protéger sans LPP ?",
-  "askMintSuggestUnemployed": "Je suis au chômage — quel impact sur ma prévoyance ?",
-  "askMintSuggestCanton": "Quelles déductions fiscales sont possibles dans le canton de {canton} ?",
+  "askMintSuggestSelfEmployed": "Sou independente — como me protejo sem LPP?",
+  "askMintSuggestUnemployed": "Estou desempregado/a — qual o impacto na minha previdência?",
+  "askMintSuggestCanton": "Que deduções fiscais são possíveis no cantão de {canton}?",
   "@askMintSuggestCanton": {
     "placeholders": {
       "canton": {
@@ -1463,16 +1463,16 @@
       }
     }
   },
-  "askMintSuggestIncome": "Avec mon revenu, combien je peux déduire fiscalement par an ?",
-  "askMintSuggestGeneric1": "Rente ou capital LPP — quelle est la différence ?",
-  "askMintSuggestGeneric2": "Comment optimiser mes impôts cette année ?",
-  "askMintSuggestGeneric3": "Qu'est-ce que le rachat LPP et est-ce que ça vaut le coup ?",
-  "askMintSuggestGeneric4": "Comment fonctionne la franchise LAMal ?",
-  "askMintEmptyBody": "Finance suisse, décryptage des lois, simulateurs — je t'explique tout, sources à l'appui.",
-  "askMintPrivacyBadge": "Tes données restent sur ton appareil",
+  "askMintSuggestIncome": "Com o meu rendimento, quanto posso deduzir fiscalmente por ano?",
+  "askMintSuggestGeneric1": "Renda ou capital LPP — qual é a diferença?",
+  "askMintSuggestGeneric2": "Como otimizar os meus impostos este ano?",
+  "askMintSuggestGeneric3": "O que é o resgate LPP e vale a pena?",
+  "askMintSuggestGeneric4": "Como funciona a franquia LAMal?",
+  "askMintEmptyBody": "Finanças suíças, decifração de leis, simuladores — explico-te tudo, com fontes legais.",
+  "askMintPrivacyBadge": "Os teus dados ficam no teu dispositivo",
   "askMintForYou": "POUR TOI",
   "byokRecommended": "Recommandé",
-  "byokGetKeyOn": "Obtenir une clé sur {provider}",
+  "byokGetKeyOn": "Obter uma chave em {provider}",
   "@byokGetKeyOn": {
     "placeholders": {
       "provider": {
@@ -1480,11 +1480,11 @@
       }
     }
   },
-  "byokCopilotActivated": "Ton copilote financier est activé",
-  "byokCopilotBody": "Pose ta première question sur la finance suisse — 3e pilier, impôts, LPP, budget...",
+  "byokCopilotActivated": "O teu copiloto financeiro está ativado",
+  "byokCopilotBody": "Faz a tua primeira pergunta sobre finanças suíças — 3.º pilar, impostos, LPP, orçamento... Estou aqui.",
   "byokTryNow": "Essayer maintenant",
   "trajectoryTitle": "Ta trajectoire",
-  "trajectorySubtitle": "3 scénarios · {years} ans",
+  "trajectorySubtitle": "3 cenários · {years} anos",
   "@trajectorySubtitle": {
     "placeholders": {
       "years": {
@@ -1495,19 +1495,19 @@
   "trajectoryOptimiste": "Optimiste",
   "trajectoryBase": "Base",
   "trajectoryPrudent": "Prudent",
-  "trajectoryTauxRemplacement": "Taux de remplacement estimé : ",
-  "trajectoryEmpty": "Pas encore de projection disponible",
-  "trajectoryEmptySub": "Complète ton profil pour voir ta trajectoire",
+  "trajectoryTauxRemplacement": "Taxa de substituição estimada: ",
+  "trajectoryEmpty": "Ainda não há projeção disponível",
+  "trajectoryEmptySub": "Completa o teu perfil para ver a tua trajetória",
   "trajectoryDisclaimer": "Estimativas educativas — não constitui aconselhamento financeiro.",
   "trajectoryDragHint": "Glisse pour explorer",
   "trajectoryGoalLabel": "Cible",
   "agirTitle": "AGIR",
   "agirThisMonth": "Ce mois",
   "agirTimeline": "Timeline",
-  "agirTimelineSub": "Tes prochaines échéances",
+  "agirTimelineSub": "Os teus próximos prazos",
   "agirHistory": "Historique",
   "agirHistorySub": "Tes check-ins passés",
-  "agirCheckinDone": "Check-in {month} effectué",
+  "agirCheckinDone": "Check-in {month} efetuado",
   "@agirCheckinDone": {
     "placeholders": {
       "month": {
@@ -1516,7 +1516,7 @@
     }
   },
   "agirDone": "Fait",
-  "agirCheckinCta": "Faire mon check-in {month}",
+  "agirCheckinCta": "Fazer o meu check-in {month}",
   "@agirCheckinCta": {
     "placeholders": {
       "month": {
@@ -1524,12 +1524,12 @@
       }
     }
   },
-  "agirNoCheckin": "Pas encore de check-in",
-  "agirNoCheckinSub": "Fais ton premier check-in pour commencer à suivre ta progression.",
-  "agirTimeline3a": "Dernier jour versement 3a",
-  "agirTimeline3aSub": "Vérifie que ton plafond est atteint avant fin décembre.",
+  "agirNoCheckin": "Ainda sem check-in",
+  "agirNoCheckinSub": "Faz o teu primeiro check-in para começar a acompanhar a tua progressão.",
+  "agirTimeline3a": "Último dia contribuição 3a",
+  "agirTimeline3aSub": "Verifica que o teu teto foi atingido antes do final de dezembro.",
   "agirTimeline3aCta": "Vérifier mon 3a",
-  "agirTimelineTax": "Déclaration impôts {canton}",
+  "agirTimelineTax": "Declaração de impostos {canton}",
   "@agirTimelineTax": {
     "placeholders": {
       "canton": {
@@ -1537,15 +1537,15 @@
       }
     }
   },
-  "agirTimelineTaxSub": "Pense à rassembler tes attestations 3a et LPP.",
-  "agirTimelineTaxCta": "Préparer mes documents",
-  "agirTimelineLamal": "Franchise LAMal (changer ?)",
-  "agirTimelineLamalSub": "Évalue si ta franchise actuelle est toujours adaptée.",
-  "agirTimelineLamalCta": "Simuler les franchises",
-  "agirTimelineRetireSub": "Ton objectif principal.",
+  "agirTimelineTaxSub": "Lembra-te de reunir os teus certificados 3a e LPP.",
+  "agirTimelineTaxCta": "Preparar os meus documentos",
+  "agirTimelineLamal": "Franquia LAMal (mudar?)",
+  "agirTimelineLamalSub": "Avalia se a tua franquia atual ainda é adequada.",
+  "agirTimelineLamalCta": "Simular as franquias",
+  "agirTimelineRetireSub": "O teu objetivo principal.",
   "agirAuto": "Auto",
   "agirManuel": "Manuel",
-  "agirDisclaimer": "Outil éducatif — ne constitue pas un conseil financier personnalisé. Les échéances et projections sont indicatives. Consulte un·e spécialiste pour un accompagnement adapté. LSFin.",
+  "agirDisclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro personalizado. Os prazos são indicativos e podem variar consoante o teu cantão e situação.",
   "checkinTitle": "CHECK-IN {month}",
   "@checkinTitle": {
     "placeholders": {
@@ -1562,15 +1562,15 @@
       }
     }
   },
-  "checkinSubtitle": "Confirme tes versements du mois",
+  "checkinSubtitle": "Confirma as tuas contribuições do mês",
   "checkinPlannedSection": "Versements planifiés",
   "checkinEventsSection": "Événements du mois",
-  "checkinExpenses": "Dépenses exceptionnelles ?",
-  "checkinExpensesHint": "Ex: 2000 (réparation voiture)",
-  "checkinRevenues": "Revenus exceptionnels ?",
-  "checkinRevenuesHint": "Ex: 5000 (bonus annuel)",
-  "checkinNoteSection": "Note du mois (optionnel)",
-  "checkinNoteHint": "Ex: Mois compliqué, dépense imprévue pour la voiture...",
+  "checkinExpenses": "Despesas excecionais?",
+  "checkinExpensesHint": "Ex.: 2000 (reparação automóvel)",
+  "checkinRevenues": "Receitas excecionais?",
+  "checkinRevenuesHint": "Ex.: 5000 (bónus anual)",
+  "checkinNoteSection": "Nota do mês (opcional)",
+  "checkinNoteHint": "Ex.: Mês complicado, despesa imprevista com o carro...",
   "checkinSubmit": "Valider le check-in",
   "checkinInvalidAmount": "Montant invalide",
   "checkinSuccessTitle": "Feito. Check-in {month} concluído.",
@@ -1581,9 +1581,9 @@
       }
     }
   },
-  "checkinSeeTrajectory": "Voir ma trajectoire mise à jour",
-  "checkinImpactLabel": "Impact sur ta trajectoire",
-  "checkinImpactCapital": "Capital projeté +{amount} ce mois",
+  "checkinSeeTrajectory": "Ver a minha trajetória atualizada",
+  "checkinImpactLabel": "Impacto na tua trajetória",
+  "checkinImpactCapital": "Capital projetado +{amount} este mês",
   "@checkinImpactCapital": {
     "placeholders": {
       "amount": {
@@ -1591,7 +1591,7 @@
       }
     }
   },
-  "checkinImpactTotal": "Total versements : {amount}",
+  "checkinImpactTotal": "Total contribuições: {amount}",
   "@checkinImpactTotal": {
     "placeholders": {
       "amount": {
@@ -1600,7 +1600,7 @@
     }
   },
   "checkinStreakLabel": "Série en cours",
-  "checkinStreakCount": "{count} mois consécutifs on-track !",
+  "checkinStreakCount": "{count} meses consecutivos no objetivo!",
   "@checkinStreakCount": {
     "placeholders": {
       "count": {
@@ -1611,7 +1611,7 @@
   "checkinCoachTip": "Tip du coach",
   "checkinAuto": "Auto",
   "checkinManuel": "Manuel",
-  "checkinDisclaimer": "Outil éducatif — ne constitue pas un conseil financier personnalisé. Les projections sont basées sur des hypothèses et peuvent varier. Consulte un·e spécialiste pour un accompagnement adapté. LSFin.",
+  "checkinDisclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro personalizado. As projeções são estimativas baseadas nos dados declarados.",
   "checkinAddContribution": "Adicionar um pagamento",
   "checkinCategoryLabel": "Categoria",
   "checkinCat3a": "Pilar 3a",
@@ -1624,8 +1624,8 @@
   "checkinAutoToggle": "Ordem permanente (automático)",
   "checkinAddConfirm": "Adicionar",
   "vaultTitle": "Coffre-fort",
-  "vaultHeaderTitle": "Ton coffre-fort financier",
-  "vaultHeaderSubtitle": "Centralise, comprends et agis sur tes documents",
+  "vaultHeaderTitle": "O teu cofre financeiro",
+  "vaultHeaderSubtitle": "Centraliza, compreende e age sobre os teus documentos",
   "vaultDocCount": "{count} documents",
   "@vaultDocCount": {
     "placeholders": {
@@ -1635,7 +1635,7 @@
     }
   },
   "vaultCategoryLpp": "Prévoyance LPP",
-  "vaultCategorySalary": "Certificat de salaire",
+  "vaultCategorySalary": "Certificado de salário",
   "vaultCategory3a": "3e pilier",
   "vaultCategoryInsurance": "Assurances",
   "vaultCategoryLease": "Bail",
@@ -1651,27 +1651,27 @@
   },
   "vaultCategoryNone": "Aucun",
   "vaultGuidanceTitle": "Guidance juridique",
-  "vaultGuidanceLeaseTitle": "Bail — Tes droits de locataire",
-  "vaultGuidanceLeaseBody": "En Suisse, le loyer peut être contesté s'il dépasse le rendement admissible (CO art. 269). Le préavis légal est de 3 mois pour un appartement, sauf clause contraire dans le bail. L'ASLOCA offre des consultations gratuites dans la plupart des cantons.",
+  "vaultGuidanceLeaseTitle": "Contrato — Os teus direitos como inquilino",
+  "vaultGuidanceLeaseBody": "Na Suíça, a renda pode ser contestada se exceder o rendimento admissível (CO art. 269). A taxa de referência hipotecária influencia diretamente os teus direitos.",
   "vaultGuidanceLeaseSource": "CO art. 269-270, OBLF art. 12-13",
-  "vaultGuidanceInsuranceTitle": "Assurances — Audit de couverture",
-  "vaultGuidanceInsuranceBody": "La RC privée et l'assurance ménage ne sont pas obligatoires en Suisse, mais fortement recommandées. Vérifie que ta somme assurée ménage couvre la valeur réelle de tes biens. La sous-assurance peut réduire l'indemnisation proportionnellement (LCA art. 69).",
-  "vaultGuidanceInsuranceSource": "LCA art. 69, CGA assureurs",
-  "vaultGuidanceLamalTitle": "LAMal — Optimisation franchise",
-  "vaultGuidanceLamalBody": "Tu peux changer de franchise LAMal chaque année au 30 novembre (franchise plus haute) ou au 31 décembre (franchise plus basse). Un·e adulte en bonne santé peut économiser jusqu'à 1'500 CHF/an avec une franchise de 2'500 CHF vs 300 CHF.",
+  "vaultGuidanceInsuranceTitle": "Seguros — Auditoria de cobertura",
+  "vaultGuidanceInsuranceBody": "A RC privada e o seguro do lar não são obrigatórios na Suíça, mas são fortemente recomendados. Verifica as tuas coberturas, sublimites e franquias.",
+  "vaultGuidanceInsuranceSource": "LCA art. 69, CGA seguradoras",
+  "vaultGuidanceLamalTitle": "LAMal — Otimização de franquia",
+  "vaultGuidanceLamalBody": "Podes mudar de franquia LAMal todos os anos antes de 30 de novembro (franquia mais alta) ou 31 de dezembro (franquia mais baixa). Compara com base no teu consumo médico real.",
   "vaultGuidanceLamalSource": "LAMal art. 62, OAMal art. 93-94",
-  "vaultGuidanceSalaryTitle": "Salaire — Vérification du certificat",
-  "vaultGuidanceSalaryBody": "Ton certificat de salaire (Lohnausweis) est le document clé pour ta déclaration fiscale. Vérifie que les cotisations LPP, AVS et allocations familiales correspondent à tes fiches de paie. Toute erreur peut impacter tes impôts et ta prévoyance.",
-  "vaultGuidanceSalarySource": "LIFD art. 127, OFS formulaire 11",
-  "vaultUploadTitle": "Quel type de document ?",
-  "vaultUploadButton": "Choisir un fichier PDF",
+  "vaultGuidanceSalaryTitle": "Salário — Verificação do certificado",
+  "vaultGuidanceSalaryBody": "O teu certificado de salário (Lohnausweis) é o documento-chave para a tua declaração fiscal. Verifica os montantes, as prestações acessórias e as despesas profissionais declaradas.",
+  "vaultGuidanceSalarySource": "LIFD art. 127, OFS formulário 11",
+  "vaultUploadTitle": "Que tipo de documento?",
+  "vaultUploadButton": "Escolher um ficheiro PDF",
   "vaultEmptyTitle": "Aucun document",
-  "vaultEmptySubtitle": "Ajoute ton premier document pour alimenter tes simulations avec des données réelles",
+  "vaultEmptySubtitle": "Adiciona o teu primeiro documento para alimentar as tuas simulações com dados reais.",
   "vaultPremiumTitle": "Coffre-fort Premium",
-  "vaultPremiumBody": "Passe à MINT Premium pour stocker un nombre illimité de documents et débloquer l'audit de couverture automatique",
+  "vaultPremiumBody": "Passa para o MINT Premium para armazenar um número ilimitado de documentos e desbloquear a análise avançada.",
   "vaultPremiumCta": "Découvrir Premium",
   "vaultDocListTitle": "Mes documents",
-  "vaultConfidence": "Confiance : {confidence}%",
+  "vaultConfidence": "Confiança: {confidence}%",
   "@vaultConfidence": {
     "placeholders": {
       "confidence": {
@@ -1680,23 +1680,23 @@
     }
   },
   "vaultAnalyzing": "Analyse en cours...",
-  "vaultDeleteTitle": "Supprimer le document ?",
-  "vaultDeleteMessage": "Cette action est irréversible.",
+  "vaultDeleteTitle": "Eliminar o documento?",
+  "vaultDeleteMessage": "Esta ação é irreversível.",
   "vaultDeleteButton": "Supprimer",
-  "vaultPrivacy": "Tes documents sont analysés localement et ne sont jamais partagés avec des tiers. Tu peux les supprimer à tout moment.",
-  "vaultDisclaimer": "MINT est un outil éducatif. Les informations juridiques présentées sont à titre informatif et ne constituent pas un conseil juridique personnalisé (LSFin, nLPD). Pour toute question spécifique, consulte un·e spécialiste qualifié·e.",
+  "vaultPrivacy": "Os teus documentos são analisados localmente e nunca são partilhados com terceiros.",
+  "vaultDisclaimer": "O MINT é uma ferramenta educativa. As informações jurídicas apresentadas são a título indicativo e não substituem aconselhamento profissional.",
   "soaTitle": "Ton Plan Mint",
-  "soaScoreLabel": "Score de Santé Financière",
-  "soaPrioritiesTitle": "Tes 3 Actions Prioritaires",
-  "soaDiagnosticTitle": "Diagnostic par Cercle",
+  "soaScoreLabel": "Pontuação de Saúde Financeira",
+  "soaPrioritiesTitle": "As tuas 3 Ações Prioritárias",
+  "soaDiagnosticTitle": "Diagnóstico por Círculo",
   "soaTaxTitle": "Simulation Fiscale",
-  "soaRetirementTitle": "Projection Retraite (65 ans)",
+  "soaRetirementTitle": "Projeção Reforma (65 anos)",
   "soaLppTitle": "Stratégie Rachat LPP",
   "soaBudgetTitle": "Ton Budget Calculé",
-  "soaTransparencyTitle": "Transparence & Plan de Route",
-  "soaDisclaimerText": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les montants sont des estimations basées sur les données déclarées.",
+  "soaTransparencyTitle": "Transparência e Roteiro",
+  "soaDisclaimerText": "Ferramenta educativa — não constitui aconselhamento financeiro nos termos da LSFin. As projeções baseiam-se nos dados declarados.",
   "soaNextTitle": "Et ensuite ?",
-  "soaNextSubtitle": "Modules adaptés à ton profil",
+  "soaNextSubtitle": "Módulos adaptados ao teu perfil",
   "soaExportPdf": "Export PDF",
   "soaActionStart": "Commencer",
   "soaTaxableIncome": "Revenu imposable",
@@ -1707,7 +1707,7 @@
   "soaAvsRent": "Rente AVS mensuelle",
   "soaLppRent": "Rente LPP mensuelle",
   "soaTotalMonthly": "TOTAL mensuel",
-  "soaAvsGapWarning": "Attention : Lacunes AVS détectées ({gap} ans)",
+  "soaAvsGapWarning": "Atenção: Lacunas AVS detetadas ({gap} anos)",
   "@soaAvsGapWarning": {
     "placeholders": {
       "gap": {
@@ -1731,7 +1731,7 @@
       }
     }
   },
-  "soaBuybackSaving": "Économie: CHF {amount}",
+  "soaBuybackSaving": "Poupança: CHF {amount}",
   "@soaBuybackSaving": {
     "placeholders": {
       "amount": {
@@ -1739,7 +1739,7 @@
       }
     }
   },
-  "soaTotalSaving": "Économie fiscale totale : CHF {amount}",
+  "soaTotalSaving": "Poupança fiscal total: CHF {amount}",
   "@soaTotalSaving": {
     "placeholders": {
       "amount": {
@@ -1755,16 +1755,16 @@
       }
     }
   },
-  "soaAssumptions": "Hypothèses de Travail",
-  "soaConflicts": "Conflits d'intérêts & Commissions",
-  "soaNoConflict": "Aucun conflit d'intérêt identifié pour ce rapport.",
-  "soaSafeModeLocked": "Priorité au désendettement",
-  "soaSafeModeMessage": "Tes actions prioritaires sont remplacées par un plan de désendettement.",
+  "soaAssumptions": "Hipóteses de Trabalho",
+  "soaConflicts": "Conflitos de Interesses e Comissões",
+  "soaNoConflict": "Nenhum conflito de interesses identificado para este relatório.",
+  "soaSafeModeLocked": "Prioridade ao desendividamento",
+  "soaSafeModeMessage": "As tuas ações prioritárias são substituídas por um plano de desendividamento.",
   "soaLimitations": "Limitations",
-  "soaProtectionSources": "Sources : LP art. 93, Directives CSIAS",
-  "soaPrevoyanceSources": "Sources : LPP art. 14, OPP3, LAVS",
-  "soaCroissanceSources": "Sources : LIFD art. 33",
-  "soaOptimisationSources": "Sources : CC art. 470, LIFD",
+  "soaProtectionSources": "Fontes: LP art. 93, Diretivas CSIAS",
+  "soaPrevoyanceSources": "Fontes: LPP art. 14, OPP3, LAVS",
+  "soaCroissanceSources": "Fontes: LIFD art. 33",
+  "soaOptimisationSources": "Fontes: CC art. 470, LIFD",
   "soaAvailableMonth": "Disponible / mois",
   "soaRemainder": "Reste à vivre",
   "soaEstimatedTaxLabel": "Impôts Estimés",
@@ -1778,9 +1778,9 @@
   "soaDebtRepayment": "Remboursement dettes",
   "soaAvailable": "Disponible",
   "soaImportant": "IMPORTANT:",
-  "soaDisclaimer1": "Ceci est un outil éducatif, ne constitue pas un conseil financier (LSFin).",
-  "soaDisclaimer2": "Les montants sont basés sur les informations déclarées.",
-  "soaDisclaimer3": "'Disponible' = Revenus - Logement - Dettes - Impôts - LAMal - Charges fixes.",
+  "soaDisclaimer1": "Esta é uma ferramenta educativa, não constitui aconselhamento financeiro (LSFin).",
+  "soaDisclaimer2": "Os montantes baseiam-se nas informações declaradas.",
+  "soaDisclaimer3": "'Disponível' = Rendimentos - Habitação - Dívidas - Impostos - LAMal - Despesas fixas.",
   "commonCancel": "Cancelar",
   "profileCompleteBanner": "Perfil completo! O teu coach tem todos os dados para conselhos fiáveis.",
   "profileAnnualRefreshTitle": "Atualização anual",
@@ -1797,9 +1797,9 @@
   "profileResetScopeNote": "Conserva a ligação e a chave BYOK. Os documentos do backend não são eliminados.",
   "coachPulseTitle": "Coach Pulse",
   "coachIaBadge": "Coach IA",
-  "agirCoachPulseDone": "Tu es à jour ce mois-ci. Priorise maintenant l'action la plus impactante.",
-  "agirCoachPulsePending": "Ton check-in mensuel est la prochaine action critique pour garder ta trajectoire fiable.",
-  "agirCoachPulseWhyNow": "Pourquoi maintenant: {reason}",
+  "agirCoachPulseDone": "Estás em dia este mês. Dá agora prioridade à ação de maior impacto.",
+  "agirCoachPulsePending": "O teu check-in mensal é a próxima ação crítica para manter a tua trajetória de previdência.",
+  "agirCoachPulseWhyNow": "Porquê agora: {reason}",
   "@agirCoachPulseWhyNow": {
     "placeholders": {
       "reason": {
@@ -1807,8 +1807,8 @@
       }
     }
   },
-  "agirScenarioBriefTitle": "Scénarios de retraite en bref",
-  "agirScenarioBriefSummary": "Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement}% de remplacement). L'écart Prudent vs Optimiste est {gapCapital}.",
+  "agirScenarioBriefTitle": "Cenários de reforma em resumo",
+  "agirScenarioBriefSummary": "Em ~{years} anos, o teu cenário Base visa {baseCapital} (~{replacement}% de taxa de substituição).",
   "@agirScenarioBriefSummary": {
     "placeholders": {
       "years": {
@@ -1825,12 +1825,12 @@
       }
     }
   },
-  "agirScenarioBriefCta": "Ouvrir la simulation complète",
+  "agirScenarioBriefCta": "Abrir a simulação completa",
   "advisorMiniWeekOneCta": "Lancer ma semaine 1",
-  "advisorMiniStartWithDashboard": "Commencer avec le dashboard",
-  "advisorMiniCoachIntroChallenge": "Objectif: passer de l'analyse à l'action cette semaine. On commence maintenant avec 3 priorités.",
-  "checkinScoreReasonStable": "Score stable ce mois: continue la régularité de tes actions.",
-  "checkinScoreReasonPositiveContrib": "Hausse principale: versements confirmés ({amount}) ce mois.",
+  "advisorMiniStartWithDashboard": "Começar com o dashboard",
+  "advisorMiniCoachIntroChallenge": "Objetivo: passar da análise à ação esta semana. Começamos agora com o essencial.",
+  "checkinScoreReasonStable": "Pontuação estável este mês: mantém a regularidade das tuas ações.",
+  "checkinScoreReasonPositiveContrib": "Subida principal: contribuições confirmadas ({amount}) este mês.",
   "@checkinScoreReasonPositiveContrib": {
     "placeholders": {
       "amount": {
@@ -1838,9 +1838,9 @@
       }
     }
   },
-  "checkinScoreReasonPositiveIncome": "Hausse principale: revenu exceptionnel ajouté ce mois.",
-  "checkinScoreReasonPositiveGeneral": "Hausse principale: progression globale de ta discipline financière.",
-  "checkinScoreReasonNegativeExpense": "Baisse principale: dépenses exceptionnelles ce mois ({amount}).",
+  "checkinScoreReasonPositiveIncome": "Subida principal: rendimento excecional adicionado este mês.",
+  "checkinScoreReasonPositiveGeneral": "Subida principal: progressão global da tua disciplina financeira.",
+  "checkinScoreReasonNegativeExpense": "Descida principal: despesas excecionais este mês ({amount}).",
   "@checkinScoreReasonNegativeExpense": {
     "placeholders": {
       "amount": {
@@ -1848,7 +1848,7 @@
       }
     }
   },
-  "checkinScoreReasonNegativeContrib": "Baisse principale: réduction de tes versements planifiés ({amount}/mois).",
+  "checkinScoreReasonNegativeContrib": "Descida principal: redução das tuas contribuições planeadas ({amount}/mês).",
   "@checkinScoreReasonNegativeContrib": {
     "placeholders": {
       "amount": {
@@ -1856,10 +1856,10 @@
       }
     }
   },
-  "checkinScoreReasonNegativeGeneral": "Baisse temporaire ce mois. On ajuste le plan au prochain check-in.",
-  "checkinImpactPending": "Impact en cours de calcul",
+  "checkinScoreReasonNegativeGeneral": "Descida temporária este mês. Ajustaremos o plano no próximo check-in.",
+  "checkinImpactPending": "Impacto em curso de cálculo",
   "coachDataQualityTitle": "Qualite des donnees",
-  "coachDataQualityBody": "Calcul actuel: {dataPoints} donnees saisies ({percentage}%). Les postes non renseignes restent en estimation jusqu au diagnostic complet.",
+  "coachDataQualityBody": "Cálculo atual: {dataPoints} dados introduzidos ({percentage}%). Os campos não preenchidos são estimados — os teus resultados serão mais precisos com cada novo dado.",
   "@coachDataQualityBody": {
     "placeholders": {
       "dataPoints": {
@@ -1871,12 +1871,12 @@
     }
   },
   "coachShockTitle": "Os teus números-chave",
-  "coachShockSubtitle": "Des montants personnalises pour eclairer tes decisions",
-  "coachScenarioDecodedTitle": "Tes scenarios decryptes",
+  "coachShockSubtitle": "Montantes personalizados para esclarecer as tuas decisões",
+  "coachScenarioDecodedTitle": "Os teus cenários decifrados",
   "coachBadgeStatic": "Coach",
   "agirActionsRecommendedTitle": "Actions recommandees",
   "agirActionsRecommendedSubtitle": "Triees par priorite",
-  "profileCoachKnowledgeTitle": "Ce que MINT sait de toi",
+  "profileCoachKnowledgeTitle": "O que o MINT sabe sobre ti",
   "profileStateFull": "Profil complet",
   "profileStatePartial": "Profil partiel",
   "profileStateMissing": "Profil non renseigne",
@@ -4762,56 +4762,56 @@
       }
     }
   },
-  "simLppBuybackTitle": "Optimisation de Rachat LPP",
-  "simLppBuybackSubtitle": "Effet levier fiscal + Capitalisation",
+  "simLppBuybackTitle": "Otimização de Resgate LPP",
+  "simLppBuybackSubtitle": "Efeito alavanca fiscal + Capitalização",
   "simLppBuybackPotential": "Potentiel de rachat",
-  "simLppBuybackYearsToRetirement": "Années jusqu'à la retraite",
+  "simLppBuybackYearsToRetirement": "Anos até à reforma",
   "simLppBuybackStaggering": "Lissage (staggering)",
-  "simLppBuybackFundRate": "Taux de la caisse LPP",
+  "simLppBuybackFundRate": "Taxa da caixa LPP",
   "simLppBuybackTaxableIncome": "Revenu imposable",
   "simLppBuybackUnitChf": "CHF",
   "simLppBuybackUnitYears": "ans",
-  "simLppBuybackFinalCapital": "Valeur Finale Capitalisée",
-  "simLppBuybackRealReturn": "Rendement Réel : {rate} % / an",
+  "simLppBuybackFinalCapital": "Valor Final Capitalizado",
+  "simLppBuybackRealReturn": "Rendimento Real: {rate} % / ano",
   "simLppBuybackTaxSavings": "Économie Impôts",
   "simLppBuybackNetEffort": "Effort Net",
-  "simLppBuybackTotalGain": "Gain Total de l'opération",
+  "simLppBuybackTotalGain": "Ganho Total da operação",
   "simLppBuybackCapitalMinusEffort": "Capital - Effort Net",
   "simLppBuybackFundRateLabel": "Taux LPP servi",
   "simLppBuybackFiscalLeverage": "Effet levier fiscal",
   "simLppBuybackBonASavoir": "Bon à savoir",
-  "simLppBuybackBonASavoirItem1": "Le rachat LPP est l'un des rares outils de planification fiscale accessibles à tous les salarié·e·s en Suisse.",
-  "simLppBuybackBonASavoirItem2": "Chaque franc racheté est déductible de ton revenu imposable (LIFD art. 33 al. 1 let. d).",
-  "simLppBuybackBonASavoirItem3": "Attention : tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art. 79b al. 3).",
-  "simLppBuybackDisclaimer": "Simulation incluant l'intérêt de la caisse ({fundRate} %) et l'économie d'impôt lissée sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.",
-  "simRealInterestTitle": "Simulateur d'Intérêt Réel",
-  "simRealInterestSubtitle": "Capital + Économie d'impôt réinvestie (Virtuel)",
+  "simLppBuybackBonASavoirItem1": "O resgate LPP é uma das raras ferramentas de planeamento fiscal acessíveis a todos. Cada franco resgatado reduz diretamente o teu rendimento tributável.",
+  "simLppBuybackBonASavoirItem2": "Cada franco resgatado é dedutível do teu rendimento tributável (LIFD art. 33 al. 1 let. d). Quanto mais alto for o teu escalão marginal, maior o efeito de alavanca.",
+  "simLppBuybackBonASavoirItem3": "Atenção: qualquer levantamento EPL fica bloqueado durante 3 anos após um resgate (LPP art. 79b al. 3). Planeia os teus resgates em conformidade.",
+  "simLppBuybackDisclaimer": "Simulação incluindo o juro da caixa ({fundRate} %) e a poupança fiscal distribuída ao longo de {staggeringYears} anos para um rendimento tributável de CHF {taxableIncome}. O rendimento real é calculado sobre o teu esforço líquido real.",
+  "simRealInterestTitle": "Simulador de Juro Real",
+  "simRealInterestSubtitle": "Capital + Poupança fiscal reinvestida (Virtual)",
   "simRealInterestAmount": "Montant Investi",
   "simRealInterestDuration": "Durée",
   "simRealInterestPessimistic": "Pessimiste",
   "simRealInterestNeutral": "Neutre",
   "simRealInterestOptimistic": "Optimiste",
-  "simRealInterestHypotheses": "Hypothèses : Taux marginal {rate} %. Rendements marché : 2 % / 4 % / 6 %.",
-  "simRealInterestEducTitle": "Comprendre le rendement réel",
-  "simRealInterestEducBullet1": "Le rendement réel = rendement nominal − inflation − frais",
-  "simRealInterestEducBullet2": "Un placement à 3 % avec 1.5 % d'inflation et 0.5 % de frais rapporte seulement 1 % en réel",
-  "simRealInterestEducBullet3": "Sur 30 ans, cette différence peut représenter des dizaines de milliers de francs",
+  "simRealInterestHypotheses": "Hipóteses: Taxa marginal {rate} %. Rendimentos de mercado: 2 % / 4 % / 6 %.",
+  "simRealInterestEducTitle": "Compreender o rendimento real",
+  "simRealInterestEducBullet1": "O rendimento real = rendimento nominal − inflação − comissões",
+  "simRealInterestEducBullet2": "Um investimento a 3 % com 1.5 % de inflação e 0.5 % de comissões rende na realidade apenas 1 % real por ano.",
+  "simRealInterestEducBullet3": "Em 30 anos, esta diferença pode representar dezenas de milhares de francos.",
   "simBuybackTitle": "Stratégie Rachat LPP",
-  "simBuybackSubtitle": "Optimisation par lissage (Staggering)",
+  "simBuybackSubtitle": "Otimização por escalonamento (Staggering)",
   "simBuybackDuration": "Durée du lissage",
   "simBuybackYears": "{count} ans",
   "simBuybackLessOptimized": "Moins Optimisé",
   "simBuybackSingleShot": "En 1 fois",
   "simBuybackOptimized": "Optimisé",
   "simBuybackInNTimes": "En {count} fois",
-  "simBuybackEstimatedGain": "Gain estimé : + CHF {amount}",
+  "simBuybackEstimatedGain": "Ganho estimado: + CHF {amount}",
   "simBuybackSavingsLabel": "Économie",
-  "simBuybackMarginalRateQuestion": "Qu'est-ce que le taux marginal d'imposition ?",
-  "simBuybackMarginalRateTitle": "Taux marginal d'imposition",
-  "simBuybackMarginalRateExplanation": "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. Plus ton revenu est élevé, plus ce taux est fort.",
-  "simBuybackMarginalRateTip": "En lissant tes rachats, tu restes dans des tranches d'imposition plus basses chaque année, ce qui augmente ton économie fiscale totale.",
+  "simBuybackMarginalRateQuestion": "O que é a taxa marginal de imposição?",
+  "simBuybackMarginalRateTitle": "Taxa marginal de imposição",
+  "simBuybackMarginalRateExplanation": "A taxa marginal é a percentagem de imposto sobre o teu último franco ganho. Quanto mais altos os teus rendimentos, mais alta a taxa marginal. Ao escalonar os teus resgates, ficas em escalões mais baixos todos os anos.",
+  "simBuybackMarginalRateTip": "Ao escalonar os teus resgates, ficas em escalões de imposição mais baixos a cada ano — o ganho acumulado pode ser considerável.",
   "simBuybackLockedTitle": "Rachat LPP bloqué",
-  "simBuybackLockedMessage": "Le rachat LPP est désactivé en mode protection. Un rachat bloque ta liquidité pendant 3 ans (LPP art. 79b al. 3). Rembourse d'abord tes dettes avant d'immobiliser du capital.",
+  "simBuybackLockedMessage": "O resgate LPP está desativado em modo proteção. Um resgate bloqueia a tua liquidez durante 3 anos (LPP art. 79b). Dá primeiro prioridade ao desendividamento.",
   "budgetReportTitle": "Ton Budget Calculé",
   "budgetReportDisponible": "Disponible",
   "budgetReportVariables": "Variables (Vivre)",
@@ -4824,12 +4824,12 @@
       }
     }
   },
-  "budgetReportStopWarning": "Attention : Aucune marge de manœuvre pour les dépenses variables.",
+  "budgetReportStopWarning": "Atenção: Sem margem de manobra para as despesas variáveis.",
   "ninetyDayGaugeTitle": "Règle des 90 jours",
-  "ninetyDayGaugeSubtitle": "Frontaliers  ·  Seuil fiscal",
+  "ninetyDayGaugeSubtitle": "Fronteiriços · Limiar fiscal",
   "ninetyDayGaugeDaysOf90": "/ 90 jours",
-  "ninetyDayGaugeStatusRed": "Seuil dépassé — risque d'imposition ordinaire en Suisse",
-  "ninetyDayGaugeStatusOrange": "Attention : plus que {remaining} jour{plural} avant le seuil",
+  "ninetyDayGaugeStatusRed": "Limiar ultrapassado — risco de tributação ordinária na Suíça",
+  "ninetyDayGaugeStatusOrange": "Atenção: faltam {remaining} dia{plural} para o limiar",
   "@ninetyDayGaugeStatusOrange": {
     "placeholders": {
       "remaining": {
@@ -4840,7 +4840,7 @@
       }
     }
   },
-  "ninetyDayGaugeStatusGreen": "Zone sûre — {remaining} jour{plural} restants avant le seuil",
+  "ninetyDayGaugeStatusGreen": "Zona segura — faltam {remaining} dia{plural} para o limiar",
   "@ninetyDayGaugeStatusGreen": {
     "placeholders": {
       "remaining": {
@@ -4851,7 +4851,7 @@
       }
     }
   },
-  "ninetyDayGaugeSemanticsLabel": "Jauge de la règle des 90 jours. {days} jours sur 90. {status}",
+  "ninetyDayGaugeSemanticsLabel": "Indicador da regra dos 90 dias. {days} dias em 90. {status}",
   "@ninetyDayGaugeSemanticsLabel": {
     "placeholders": {
       "days": {
@@ -4865,12 +4865,12 @@
   "ninetyDayGaugeZoneSafe": "Zone sûre",
   "ninetyDayGaugeZoneAttention": "Attention",
   "ninetyDayGaugeZoneRisk": "Risque fiscal",
-  "forfaitFiscalTitle": "Forfait fiscal vs Ordinaire",
-  "forfaitFiscalSubtitle": "Comparaison annuelle  ·  Expatriés",
+  "forfaitFiscalTitle": "Forfait fiscal vs Ordinário",
+  "forfaitFiscalSubtitle": "Comparação anual · Expatriados",
   "forfaitFiscalSaving": "Économie forfait",
   "forfaitFiscalSurcharge": "Surcoût forfait",
   "forfaitFiscalPerYear": "par année",
-  "forfaitFiscalSemanticsLabel": "Comparaison forfait fiscal. Imposition ordinaire : {ordinary}. Forfait fiscal : {forfait}. Économie : {savings}.",
+  "forfaitFiscalSemanticsLabel": "Comparação forfait fiscal. Tributação ordinária: {ordinary}. Forfait fiscal: {forfait}.",
   "@forfaitFiscalSemanticsLabel": {
     "placeholders": {
       "ordinary": {
@@ -4887,7 +4887,7 @@
   "forfaitFiscalOrdinaryLabel": "Imposition\nordinaire",
   "forfaitFiscalForfaitLabel": "Forfait\nfiscal",
   "forfaitFiscalBaseLine": "Base forfaitaire",
-  "spendingMeterBudgetUnavailable": "Budget non disponible",
+  "spendingMeterBudgetUnavailable": "Orçamento não disponível",
   "spendingMeterDisponible": "Disponible",
   "spendingMeterVariablesLegend": "Variables {percent}%",
   "@spendingMeterVariablesLegend": {
@@ -4919,21 +4919,21 @@
   "avsGuideConfidenceSubtitle": "Anos de contribuição, RAMD, lacunas",
   "avsGuideStepsTitle": "En 4 étapes",
   "avsGuideStep1Title": "Vai a www.ahv-iv.ch",
-  "avsGuideStep1Subtitle": "C'est le site officiel de l'AVS/AI.",
+  "avsGuideStep1Subtitle": "Este é o site oficial do AVS/AI. Também podes solicitar o teu extrato diretamente à tua caixa de compensação.",
   "avsGuideStep2Title": "Inicia sessão com o teu eID ou cria uma conta",
   "avsGuideStep2Subtitle": "Precisarás do teu número AVS (756.XXXX.XXXX.XX, no teu cartão de seguro de saúde).",
   "avsGuideStep3Title": "Solicita o teu extrato de conta individual (CI)",
-  "avsGuideStep3Subtitle": "Cherche la section \"Extrait de compte\" ou \"Kontoauszug\".",
+  "avsGuideStep3Subtitle": "Procura a secção «Extrato de conta» ou «Kontoauszug». É um documento oficial que resume todas as tuas contribuições.",
   "avsGuideStep4Title": "Receberás por correio ou PDF",
   "avsGuideStep4Subtitle": "Dependendo da tua caixa, o extrato chega em 5 a 10 dias úteis. Algumas caixas oferecem download imediato em PDF.",
   "avsGuideOpenAhvButton": "Abrir ahv-iv.ch",
   "avsGuideScanButton": "Já tenho o meu extrato → Digitalizar",
   "avsGuideTestMode": "MODE TEST",
-  "avsGuideTestDescription": "Pas d'extrait AVS sous la main ?",
+  "avsGuideTestDescription": "Não tens o teu extrato AVS à mão? Testa o fluxo com um extrato de exemplo.",
   "avsGuideTestButton": "Usar um exemplo",
   "avsGuideFreeNote": "O extrato AVS é gratuito e está disponível em 5 a 10 dias úteis. Também podes dirigir-te à tua caixa de compensação cantonal.",
   "avsGuidePrivacyNote": "A imagem do teu extrato nunca é armazenada nem enviada. A extração é feita no teu dispositivo. Apenas os valores que confirmas são guardados no teu perfil.",
-  "avsGuideSnackbarError": "Impossible d'ouvrir {url}.",
+  "avsGuideSnackbarError": "Impossível abrir {url}. Copia o endereço e abre-o no teu navegador.",
   "@avsGuideSnackbarError": {
     "placeholders": {
       "url": {
@@ -4941,7 +4941,7 @@
       }
     }
   },
-  "dataBlockDisclaimer": "Outil éducatif simplifié.",
+  "dataBlockDisclaimer": "Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).",
   "dataBlockIncomplete": "Esta secção ainda está incompleta. Abre a secção dedicada para adicionar os dados em falta.",
   "dataBlockComplete": "Esta secção está completa.",
   "dataBlockModeForm": "Formulaire",
@@ -4950,31 +4950,31 @@
   "dataBlockStatusPartial": "Partiel",
   "dataBlockStatusMissing": "Manquant",
   "dataBlockRevenuTitle": "Revenu",
-  "dataBlockRevenuDesc": "Ton salaire brut.",
+  "dataBlockRevenuDesc": "O teu salário bruto é a base de todas as projeções: previdência, impostos, orçamento. Quanto mais preciso for, mais fiáveis serão os teus resultados.",
   "dataBlockRevenuCta": "Especificar o meu rendimento",
   "dataBlockLppTitle": "Prévoyance LPP",
-  "dataBlockLppDesc": "Ton avoir LPP.",
+  "dataBlockLppDesc": "O teu capital LPP (2.º pilar) representa frequentemente o maior capital da tua previdência. Um certificado de previdência fornece um valor exato em vez de uma estimativa.",
   "dataBlockLppCta": "Adicionar o meu certificado LPP",
   "dataBlockAvsTitle": "Extrait AVS",
-  "dataBlockAvsDesc": "L'extrait AVS.",
+  "dataBlockAvsDesc": "O extrato AVS confirma os teus anos de contribuição efetivos. Lacunas (estadia no estrangeiro, anos em falta) reduzem a tua renda AVS.",
   "dataBlockAvsCta": "Solicitar o meu extrato AVS",
   "dataBlock3aTitle": "3e pilier (3a)",
-  "dataBlock3aDesc": "Tes comptes 3a.",
+  "dataBlock3aDesc": "As tuas contas 3a complementam a tua previdência e oferecem uma vantagem fiscal. Introduz os saldos atuais para uma visão completa.",
   "dataBlock3aCta": "Simuler mon 3a",
   "dataBlockPatrimoineTitle": "Patrimoine",
-  "dataBlockPatrimoineDesc": "Épargne libre, investissements.",
+  "dataBlockPatrimoineDesc": "Poupança livre, investimentos, imobiliário: estes dados completam a tua projeção e permitem calcular o teu Financial Resilience Index.",
   "dataBlockPatrimoineCta": "Registar o meu património",
   "dataBlockFiscaliteTitle": "Fiscalité",
   "dataBlockFiscaliteDesc": "O teu município, rendimento tributável e património determinam a tua taxa marginal de imposto. Uma declaração fiscal ou avaliação dá uma taxa real em vez de estimada (coeficiente municipal 60%-130%).",
   "dataBlockFiscaliteCta": "Comparar a minha fiscalidade",
   "dataBlockObjectifTitle": "Objetivo de reforma",
-  "dataBlockObjectifDesc": "À quel âge ?",
+  "dataBlockObjectifDesc": "Com que idade desejas parar de trabalhar? Um objetivo claro permite calcular o esforço de poupança necessário e as opções (antecipação, reforma parcial).",
   "dataBlockObjectifCta": "Ver a minha projeção",
   "dataBlockMenageTitle": "Composição do agregado familiar",
-  "dataBlockMenageDesc": "En couple.",
+  "dataBlockMenageDesc": "Em casal, as projeções mudam: AVS limitado para casados (LAVS art. 35), renda de sobrevivência (LPP art. 19), otimização fiscal conjunta.",
   "dataBlockMenageCta": "Gerir o meu agregado familiar",
   "dataBlockUnknownTitle": "Données",
-  "dataBlockUnknownDesc": "Lien obsolète.",
+  "dataBlockUnknownDesc": "Esta ligação de dados já não está atualizada. Usa a secção recomendada para completar o teu perfil.",
   "dataBlockUnknownCta": "Abrir o diagnóstico",
   "dataBlockDefaultTitle": "Données",
   "dataBlockDefaultDesc": "Completa esta secção para melhorar a precisão das tuas projeções.",
@@ -4982,11 +4982,11 @@
   "renteVsCapitalAppBarTitle": "Pensão ou capital: a tua decisão",
   "renteVsCapitalIntro": "Na reforma, escolhes de uma vez por todas: um rendimento vitalício ou o teu capital em mão.",
   "renteVsCapitalRenteLabel": "Rente",
-  "renteVsCapitalRenteExplanation": "Montant fixe chaque mois.",
+  "renteVsCapitalRenteExplanation": "A tua caixa de pensões paga-te um montante fixo todos os meses, enquanto viveres — mesmo que chegues aos 100 anos. Em troca, nunca recuperas o teu capital.",
   "renteVsCapitalCapitalLabel": "Capital",
   "renteVsCapitalCapitalExplanation": "Levantas todo o teu capital LPP de uma vez. Investe-lo e levantas o que precisas cada mês. Liberdade total, mas o risco de ficar sem nada é real.",
   "renteVsCapitalMixteLabel": "Mixte",
-  "renteVsCapitalMixteExplanation": "Obligatoire en rente + surobligatoire en capital.",
+  "renteVsCapitalMixteExplanation": "A parte obrigatória em renda (taxa 6.8 %) + a sobreobrigatória em capital. Um compromisso entre segurança e flexibilidade.",
   "renteVsCapitalEstimateMode": "Estimar para mim",
   "renteVsCapitalCertificateMode": "Tenho o meu certificado",
   "renteVsCapitalAge": "Ton âge",
@@ -5012,12 +5012,12 @@
     }
   },
   "renteVsCapitalProjectionSource": "Projeção baseada na tua idade, salário e LPP atual",
-  "renteVsCapitalLppOblig": "Avoir LPP obligatoire",
-  "renteVsCapitalLppSurob": "Avoir LPP surobligatoire",
-  "renteVsCapitalRenteProposed": "Rente annuelle proposée",
+  "renteVsCapitalLppOblig": "Capital LPP obrigatório (certificado LPP)",
+  "renteVsCapitalLppSurob": "Capital LPP sobreobrigatório (certificado LPP)",
+  "renteVsCapitalRenteProposed": "Renda anual proposta (certificado LPP)",
   "renteVsCapitalTcOblig": "Taxa conv. obrig. (%)",
   "renteVsCapitalTcSurob": "Taxa conv. supraobrig. (%)",
-  "renteVsCapitalMaxPrecision": "Précision maximale.",
+  "renteVsCapitalMaxPrecision": "Precisão máxima — resultados baseados nos teus dados reais.",
   "renteVsCapitalCanton": "Canton",
   "renteVsCapitalMarried": "Marié·e",
   "renteVsCapitalRetirementAge": "Reforma prevista aos",
@@ -5029,7 +5029,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheTaxEpuise": "Décision importante : {taxDelta} d'impôts à {age} ans.",
+  "renteVsCapitalAccrocheTaxEpuise": "Esta decisão pode custar-te {taxDelta} de impostos a mais — ou deixar-te sem nada aos {age} anos. Só podes tomá-la uma vez.",
   "@renteVsCapitalAccrocheTaxEpuise": {
     "placeholders": {
       "taxDelta": {
@@ -5040,7 +5040,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheTax": "Décision : {taxDelta} d'impôts.",
+  "renteVsCapitalAccrocheTax": "Esta decisão pode alterar {taxDelta} de impostos sobre a tua reforma. Só podes tomá-la uma vez.",
   "@renteVsCapitalAccrocheTax": {
     "placeholders": {
       "taxDelta": {
@@ -5048,7 +5048,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheEpuise": "Capital épuisé dès {age} ans.",
+  "renteVsCapitalAccrocheEpuise": "Com o capital, podes ficar sem dinheiro a partir dos {age} anos. Com a renda, recebes um montante fixo vitalício. Só podes escolher uma vez.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -5068,8 +5068,8 @@
       }
     }
   },
-  "renteVsCapitalMicroRente": "Montant fixe chaque mois.",
-  "renteVsCapitalMicroCapital": "Tu retires {swr} % par an à {rendement} %.",
+  "renteVsCapitalMicroRente": "A tua caixa paga-te este montante todos os meses, enquanto viveres.",
+  "renteVsCapitalMicroCapital": "Levantas {swr} % por ano de um capital investido a {rendement} %.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {
@@ -5080,7 +5080,7 @@
       }
     }
   },
-  "renteVsCapitalSyntheseCapitalHigher": "Le capital donne {delta}/mois de plus.",
+  "renteVsCapitalSyntheseCapitalHigher": "O capital dá-te {delta}/mês a mais, mas pode esgotar-se.",
   "@renteVsCapitalSyntheseCapitalHigher": {
     "placeholders": {
       "delta": {
@@ -5088,7 +5088,7 @@
       }
     }
   },
-  "renteVsCapitalSyntheseRenteHigher": "La rente donne {delta}/mois de plus.",
+  "renteVsCapitalSyntheseRenteHigher": "A renda dá-te {delta}/mês a mais, e nunca para.",
   "@renteVsCapitalSyntheseRenteHigher": {
     "placeholders": {
       "delta": {
@@ -5105,13 +5105,13 @@
       }
     }
   },
-  "renteVsCapitalAvsSupplementary": " supplémentaires (LAVS art. 29)",
+  "renteVsCapitalAvsSupplementary": " suplementares em ambos os casos (LAVS art. 29)",
   "renteVsCapitalLifeExpectancy": "E se eu viver até aos...",
-  "renteVsCapitalLifeExpectancyRef": "Espérance de vie suisse",
-  "renteVsCapitalChartTitle": "Capital restant vs rente cumulée",
-  "renteVsCapitalChartSubtitle": "Capital vs Rente.",
+  "renteVsCapitalLifeExpectancyRef": "Esperança de vida suíça: homens 84 anos · mulheres 87 anos",
+  "renteVsCapitalChartTitle": "Capital restante vs rendimentos acumulados da renda",
+  "renteVsCapitalChartSubtitle": "Capital (verde): o que resta após os teus levantamentos. Renda (azul): total recebido desde o início. O cruzamento = a idade em que a renda rendeu mais.",
   "renteVsCapitalChartAxisLabel": "Âge",
-  "renteVsCapitalBeyondHorizon": "À {age} ans : au-delà.",
+  "renteVsCapitalBeyondHorizon": "Aos {age} anos: para além do horizonte de simulação.",
   "@renteVsCapitalBeyondHorizon": {
     "placeholders": {
       "age": {
@@ -5134,7 +5134,7 @@
   "renteVsCapitalFiscalRightSubtitle": "Tributado uma única vez",
   "renteVsCapitalFiscalOver30years": "sur 30 ans",
   "renteVsCapitalFiscalAtRetrait": "no levantamento (LIFD art. 38)",
-  "renteVsCapitalFiscalCapitalSaves": "Économie ~{amount} d'impôts.",
+  "renteVsCapitalFiscalCapitalSaves": "Em 30 anos, o capital poupa-te ~{amount} de impostos.",
   "@renteVsCapitalFiscalCapitalSaves": {
     "placeholders": {
       "amount": {
@@ -5142,7 +5142,7 @@
       }
     }
   },
-  "renteVsCapitalFiscalRenteSaves": "~{amount} d'impôts en moins.",
+  "renteVsCapitalFiscalRenteSaves": "Em 30 anos, a renda gera ~{amount} menos de impostos.",
   "@renteVsCapitalFiscalRenteSaves": {
     "placeholders": {
       "amount": {
@@ -5154,7 +5154,7 @@
   "renteVsCapitalInflationToday": "Aujourd'hui",
   "renteVsCapitalInflationIn20Years": "Dans 20 ans",
   "renteVsCapitalInflationPurchasingPower": "poder de compra",
-  "renteVsCapitalInflationBottomText": "Rente non indexée. {percent} % de moins.",
+  "renteVsCapitalInflationBottomText": "A tua renda LPP não é indexada. Compra {percent} % a menos dentro de 20 anos.",
   "@renteVsCapitalInflationBottomText": {
     "placeholders": {
       "percent": {
@@ -5179,17 +5179,17 @@
   "renteVsCapitalTransmissionRightSubtitle": "Os teus herdeiros recebem",
   "renteVsCapitalTransmissionRightValue": "100 %",
   "renteVsCapitalTransmissionRightDetail": "do saldo restante",
-  "renteVsCapitalTransmissionBottomMarried": "Seul le conjoint reçoit 60 %.",
+  "renteVsCapitalTransmissionBottomMarried": "Com a renda, apenas o/a teu/tua cônjuge recebe 60 %. Nada para os filhos.",
   "renteVsCapitalTransmissionBottomSingle": "Com a pensão, nada vai para os teus entes queridos.",
   "renteVsCapitalAffinerTitle": "Refinar a tua simulação",
-  "renteVsCapitalAffinerSubtitle": "Pour creuser.",
-  "renteVsCapitalHypRendement": "Rendement du capital",
-  "renteVsCapitalHypSwr": "Taux de retrait annuel",
+  "renteVsCapitalAffinerSubtitle": "Para quem quer aprofundar.",
+  "renteVsCapitalHypRendement": "O que o teu capital rende por ano",
+  "renteVsCapitalHypSwr": "Quanto levantas a cada ano",
   "renteVsCapitalHypInflation": "Inflation",
-  "renteVsCapitalTornadoToggle": "Diagramme de sensibilité",
-  "renteVsCapitalImpactTitle": "Qu'est-ce qui change le plus ?",
+  "renteVsCapitalTornadoToggle": "Ver o diagrama de sensibilidade",
+  "renteVsCapitalImpactTitle": "O que mais altera o resultado?",
   "renteVsCapitalImpactSubtitle": "Os parâmetros mais influentes na diferença entre as tuas opções.",
-  "renteVsCapitalHypothesesTitle": "Hypothèses",
+  "renteVsCapitalHypothesesTitle": "Hipóteses desta simulação",
   "renteVsCapitalWarning": "Avertissement",
   "renteVsCapitalSources": "Fontes: {sources}",
   "@renteVsCapitalSources": {
@@ -5199,7 +5199,7 @@
       }
     }
   },
-  "renteVsCapitalRachatLabel": "Rachat LPP annuel (CHF)",
+  "renteVsCapitalRachatLabel": "Resgate LPP anual previsto (CHF)",
   "renteVsCapitalRachatMax": "max {amount}",
   "@renteVsCapitalRachatMax": {
     "placeholders": {
@@ -5209,12 +5209,12 @@
     }
   },
   "renteVsCapitalRachatHint": "0 (optionnel)",
-  "renteVsCapitalRachatTooltip": "Rachats LPP annuels.",
-  "renteVsCapitalEplLabel": "Retrait EPL",
-  "renteVsCapitalEplHint": "Montant (min 20'000)",
+  "renteVsCapitalRachatTooltip": "Se fizeres resgates LPP todos os anos, o seu valor futuro é adicionado ao capital na reforma. Bloqueio de 3 anos antes de EPL (LPP art. 79b).",
+  "renteVsCapitalEplLabel": "Levantamento EPL para compra de imóvel",
+  "renteVsCapitalEplHint": "Montante levantado (mín. 20'000)",
   "renteVsCapitalEplTooltip": "O levantamento EPL reduz o teu capital LPP e portanto o teu capital ou pensão na reforma. Mínimo CHF 20'000 (OPP2 art. 5). Bloqueia a recompra LPP durante 3 anos.",
-  "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5",
-  "renteVsCapitalProfileAutoFill": "Valeurs pré-remplies",
+  "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (mín. CHF 20'000)",
+  "renteVsCapitalProfileAutoFill": "Valores pré-preenchidos a partir do teu perfil",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",
   "frontalierTab90Jours": "90 jours",
@@ -5231,14 +5231,14 @@
   "frontalierQuasiResidentTitle": "Quase-residente (Genebra)",
   "frontalierQuasiResidentDesc": "Se mais de 90% dos teus rendimentos mundiais provêm da Suíça, podes solicitar a tributação ordinária com deduções (3a, despesas efetivas, etc.). Isto pode reduzir significativamente o teu imposto.",
   "frontalierTessinTitle": "Ticino — regime especial",
-  "frontalierEducationalTax": "Frontaliers imposés à la source.",
+  "frontalierEducationalTax": "Na Suíça, os fronteiriços são tributados na fonte (tabela C). A taxa varia consoante o cantão, o estado civil e o número de filhos. Em Genebra, se mais de 90% dos teus rendimentos mundiais provêm da Suíça, podes solicitar o estatuto de quase-residente para beneficiar das deduções.",
   "frontalierJoursBureau": "Dias no escritório na Suíça",
-  "frontalierJoursHomeOffice": "Jours en home office",
+  "frontalierJoursHomeOffice": "Dias de teletrabalho no estrangeiro",
   "frontalierJaugeRisque": "INDICADOR DE RISCO",
   "frontalierJoursHomeOfficeLabel": "dias de teletrabalho",
   "frontalierRiskLow": "Pas de risque",
   "frontalierRiskMedium": "Zona de atenção",
-  "frontalierRiskHigh": "Risque fiscal",
+  "frontalierRiskHigh": "Risco fiscal — a tributação muda",
   "frontalierDaysRemaining": "Tens {days} dias de margem restantes",
   "@frontalierDaysRemaining": {
     "placeholders": {
@@ -5248,7 +5248,7 @@
     }
   },
   "frontalierRecommandation": "RECOMMANDATION",
-  "frontalierEducational90Days": "Seuil de 90 jours de télétravail.",
+  "frontalierEducational90Days": "Desde 2023, os acordos bilaterais entre a Suíça e os seus vizinhos fixam um limiar de tolerância para o teletrabalho dos fronteiriços. Para além de 90 dias de teletrabalho por ano, as contribuições sociais e a tributação podem transferir-se para o país de residência.",
   "frontalierChargesCh": "Charges CH",
   "frontalierChargesCountry": "Encargos {country}",
   "@frontalierChargesCountry": {
@@ -5284,12 +5284,12 @@
   },
   "frontalierAssuranceMaladie": "SEGURO DE SAÚDE",
   "frontalierLamalTitle": "LAMal (suisse)",
-  "frontalierLamalDesc": "Obligatoire en CH.",
+  "frontalierLamalDesc": "Obrigatório se trabalhas na CH. Prémio individual (~CHF 300-500/mês).",
   "frontalierCmuTitle": "CMU/Segurança Social (França)",
-  "frontalierCmuDesc": "Droit d'option FR.",
+  "frontalierCmuDesc": "Direito de opção possível para fronteiriços FR. Contribuição ~8% do rendimento fiscal.",
   "frontalierAssurancePriveeTitle": "Seguro privado (DE/IT/AT)",
   "frontalierAssurancePriveeDesc": "Na Alemanha, opção PKV para rendimentos elevados. IT/AT: regime obrigatório do país.",
-  "frontalierEducationalCharges": "Cotisations sociales suisses.",
+  "frontalierEducationalCharges": "Como fronteiriço, contribuis para os seguros sociais suíços (AVS/AI/APG, AC, LPP). As taxas são geralmente mais baixas do que em França ou na Alemanha — mas o LAMal é por tua conta individualmente, o que pode compensar a vantagem.",
   "frontalierPaysResidence": "País de residência",
   "frontalierLeSavaisTu": "Le savais-tu ?",
   "concubinageAppBarTitle": "Casamento vs União de facto",
@@ -5331,8 +5331,8 @@
   },
   "concubinageNeutralTitle": "Nenhuma opção é universalmente adequada",
   "concubinageNeutralDesc": "A escolha entre casamento e união de facto depende da tua situação: rendimentos, património, filhos, cantão, projeto de vida. O casamento oferece mais proteções legais automáticas, a união de facto mais flexibilidade. Um/a especialista pode ajudar-te a ver com mais clareza.",
-  "concubinageChecklistIntro": "Rien n'est automatique.",
-  "concubinageProtectionsCount": "{count}/{total} protections",
+  "concubinageChecklistIntro": "Em união de facto, nada é automático. Estas são as proteções essenciais para proteger o/a teu/tua parceiro/a.",
+  "concubinageProtectionsCount": "{count}/{total} proteções em vigor",
   "@concubinageProtectionsCount": {
     "placeholders": {
       "count": {
@@ -5344,22 +5344,22 @@
     }
   },
   "concubinageChecklist1Title": "Redigir um testamento",
-  "concubinageChecklist1Desc": "Partenaire n'hérite de rien.",
+  "concubinageChecklist1Desc": "Sem testamento, o/a teu/tua parceiro/a não herda nada — tudo vai para os teus pais ou irmãos. Um testamento manuscrito (escrito à mão, datado, assinado) é suficiente. Podes legar a quota disponível ao/à teu/tua parceiro/a.",
   "concubinageChecklist2Title": "Cláusula de beneficiário LPP",
-  "concubinageChecklist2Desc": "Inscrire ton partenaire.",
+  "concubinageChecklist2Desc": "Contacta a tua caixa de pensões para inscrever o/a teu/tua parceiro/a como beneficiário/a. Sem esta cláusula, o capital de falecimento LPP não lhe pertence. A maioria das caixas aceita o/a parceiro/a de facto sob certas condições (lar comum, etc.).",
   "concubinageChecklist3Title": "Acordo de união de facto",
-  "concubinageChecklist3Desc": "Contrat écrit.",
+  "concubinageChecklist3Desc": "Um contrato escrito que regula a partilha de despesas, a propriedade dos bens e o que acontece em caso de separação. Não é obrigatório, mas fortemente recomendado — sobretudo se comprarem um imóvel juntos.",
   "concubinageChecklist4Title": "Seguro de vida cruzado",
-  "concubinageChecklist4Desc": "Compenser l'absence de rente.",
-  "concubinageChecklist5Title": "Mandat d'inaptitude",
-  "concubinageChecklist5Desc": "Pouvoir de représentation.",
+  "concubinageChecklist4Desc": "Um seguro de vida onde cada parceiro é beneficiário do outro permite compensar a ausência de renda AVS/LPP de sobrevivência. Compara ofertas — os prémios dependem da idade e do capital segurado.",
+  "concubinageChecklist5Title": "Mandato de proteção futura",
+  "concubinageChecklist5Desc": "Se ficares incapacitado/a (acidente, doença), o/a teu/tua parceiro/a não tem poder de representação. Um mandato de proteção futura (CC art. 360 ss.) confere-lhe esse direito.",
   "concubinageChecklist6Title": "Diretivas antecipadas",
-  "concubinageChecklist6Desc": "Volontés médicales.",
-  "concubinageChecklist7Title": "Compte joint",
-  "concubinageChecklist7Desc": "Dépenses partagées.",
-  "concubinageChecklist8Title": "Bail commun",
-  "concubinageChecklist8Desc": "Responsabilité solidaire.",
-  "concubinageDisclaimer": "Informations éducatives.",
+  "concubinageChecklist6Desc": "Um documento que especifica os teus desejos médicos em caso de incapacidade. Podes designar o/a teu/tua parceiro/a como pessoa de confiança para decisões médicas (CC art. 370 ss.).",
+  "concubinageChecklist7Title": "Conta conjunta para despesas comuns",
+  "concubinageChecklist7Desc": "Uma conta conjunta simplifica a gestão das despesas partilhadas (renda, compras, contas). Definam claramente a contribuição de cada um. Em caso de separação, o saldo é dividido a 50/50 salvo acordo contrário.",
+  "concubinageChecklist8Title": "Contrato de arrendamento conjunto ou individual",
+  "concubinageChecklist8Desc": "Se estás no contrato com o/a teu/tua parceiro/a, são solidariamente responsáveis. Em caso de separação, ambos têm de dar aviso. Se apenas um/a é titular, o/a outro/a não tem direitos sobre a habitação.",
+  "concubinageDisclaimer": "Informação simplificada para fins educativos — não constitui aconselhamento jurídico ou fiscal. As regras dependem do cantão, do município e da tua situação pessoal. Consulta um/a especialista jurídico/a para aconselhamento personalizado.",
   "concubinageCriteriaImpots": "Impôts",
   "concubinageCriteriaPenaliteFiscale": "Penalização fiscal",
   "concubinageCriteriaBonusFiscal": "Bonus fiscal",
@@ -11813,5 +11813,72 @@
     }
   },
   "capNoCapHeadline": "Estás no bom caminho",
-  "capNoCapWhyNow": "Continua a explorar o MINT para aprofundar a tua situação."
+  "capNoCapWhyNow": "Continua a explorar o MINT para aprofundar a tua situação.",
+  "narrativeEplHeadline": "Levantamento EPL: vantagens e bloqueio de 3 anos",
+  "narrativeEplBody": "O art. 30c LPP permite retirar o 2º pilar para financiar habitação própria. Atenção: se fez recompras, aplica-se um bloqueio de 3 anos (LPP art. 79b par. 3).",
+  "narrativeEplBadge": "2º pilar — EPL",
+  "narrativeRachatHeadline": "Escalonar para poupar",
+  "narrativeRachatBody": "Distribuir uma recompra LPP por vários anos permite deduzir cada parcela do rendimento tributável (LPP art. 79b). A progressividade fiscal torna esta estratégia frequentemente mais vantajosa do que um pagamento único.",
+  "narrativeRachatBadge": "2º pilar",
+  "rachatEchelonneEyebrow": "Recompra LPP escalonada",
+  "rachatEchelonneNarrativeSavings": "Escalonar a recompra em {horizon} anos reduz a tua carga fiscal total.",
+  "rachatEchelonneNarrativeNoSavings": "Na tua situação, a recompra em bloco é mais vantajosa.",
+  "narrativeLibrePassageHeadline": "Livre passagem: 6 meses para agir",
+  "narrativeLibrePassageBody": "Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.",
+  "narrativeLibrePassageBadge": "Livre passagem",
+  "narrativeAmortizationHeadline": "Direto ou indireto?",
+  "narrativeAmortizationBody": "A amortização direta reduz a tua dívida todos os anos. A indireta deposita num 3a, dedutível fiscalmente (OPP3). Dependendo da tua taxa marginal, a indireta pode custar-te menos no total.",
+  "narrativeAmortizationBadge": "Amortização",
+  "amortizationEyebrow": "Amortização direta vs indireta",
+  "amortizationSavingsLabel": "de poupança com a indireta",
+  "amortizationDifferenceLabel": "de diferença entre as duas estratégias",
+  "narrativeSaronHeadline": "SARON ou taxa fixa?",
+  "narrativeSaronBody": "O SARON segue o mercado monetário e pode mudar a cada trimestre. Uma taxa fixa bloqueia os teus juros durante todo o prazo. Dependendo da tua tolerância ao risco, a diferença pode jogar a teu favor… ou não.",
+  "narrativeSaronBadge": "Hipoteca",
+  "saronEyebrow": "SARON vs Taxa fixa",
+  "saronSavingsLabel": "de poupança potencial com SARON",
+  "saronCostLabel": "de custo adicional com SARON",
+  "narrativeRealReturnHeadline": "Rendimento real após inflação",
+  "narrativeRealReturnBody": "O rendimento apresentado não diz tudo. Após comissões de gestão e inflação, o ganho real pode diferir. A poupança fiscal do 3a (LIFD art. 33) melhora consideravelmente o rendimento efetivo.",
+  "narrativeRealReturnBadge": "3º pilar",
+  "narrativeRetroactive3aHeadline": "Recuperar até 10 anos de 3a",
+  "narrativeRetroactive3aBody": "A partir de 2026, a OPP3 art. 7 permite pagar retroativamente os anos de contribuição 3a em falta. Cada pagamento é dedutível do rendimento tributável (LIFD art. 33).",
+  "narrativeRetroactive3aBadge": "3º pilar",
+  "retroactive3aSavingsLabel": "de poupança fiscal com a recuperação 3a",
+  "narrativeFirstJobHeadline": "O teu primeiro salário explicado",
+  "narrativeFirstJobBody": "Entre AVS (LAVS art. 5), LPP (art. 16), imposto na fonte e LAMal, o teu líquido representa cerca de 75-80 % do bruto. Compreender estas deduções é o primeiro passo para uma boa gestão.",
+  "narrativeFirstJobBadge": "Primeiro emprego",
+  "narrativeMarriageHeadline": "Impacto financeiro do casamento",
+  "narrativeMarriageBody": "O casamento modifica a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Dependendo dos vossos rendimentos respetivos, o impacto fiscal pode ser positivo ou negativo.",
+  "narrativeMarriageBadge": "Casamento",
+  "narrativeBirthHeadline": "Custos e apoios ao nascimento",
+  "narrativeBirthBody": "A licença de maternidade (LAPG art. 16b–d) cobre 14 semanas a 80 % do salário. Os abonos de família variam por cantão (LAFam art. 3). Este simulador estima o impacto global no teu orçamento.",
+  "narrativeBirthBadge": "Nascimento",
+  "narrativeCoverageHeadline": "Verifica a tua cobertura",
+  "narrativeCoverageBody": "LAMal, IJM, RC privada, seguro do lar… Cada seguro cobre um risco diferente. Este balanço identifica as lacunas conforme a tua situação e o teu cantão.",
+  "narrativeCoverageBadge": "Seguros",
+  "narrativeDisabilityHeadline": "Compreende a tua lacuna de invalidez",
+  "narrativeDisabilityBody": "Em caso de invalidez, o teu rendimento passa por 3 fases: empregador (CO art. 324a), IJM, depois AI + LPP (LAI art. 28, LPP art. 23-26). A queda pode atingir 40-60 % do teu salário atual.",
+  "narrativeDisabilityBadge": "Invalidez",
+  "narrativeUnemploymentHeadline": "Os teus direitos de desemprego",
+  "narrativeUnemploymentBody": "A LACI prevê uma indemnização de 70-80 % do ganho segurado (art. 22). A duração depende dos teus meses de contribuição e da tua idade (art. 27). Este simulador estima os teus direitos com base na tua situação atual.",
+  "narrativeUnemploymentBadge": "Desemprego",
+  "imputedRentalEyebrow": "Valor de aluguer imputado",
+  "imputedRentalSavingsLabel": "de poupança fiscal líquida",
+  "imputedRentalTaxLabel": "de imposto adicional",
+  "semanticsBack": "Voltar",
+  "semanticsDecrease": "Diminuir",
+  "semanticsIncrease": "Aumentar",
+  "@rachatEchelonneNarrativeSavings": {
+    "placeholders": {
+      "horizon": {
+        "type": "int"
+      }
+    }
+  },
+  "realReturnPrimaryLabel": "rendimento real após impostos e inflação",
+  "realReturnNarrative": "Graças à dedução fiscal, o teu 3a rende muito mais do que uma conta poupança clássica.",
+  "retroactive3aEmptyTitle": "Recuperação 3a",
+  "retroactive3aEmptySubtitle": "Insere o teu rendimento para calcular a tua poupança fiscal",
+  "retroactive3aEmptyCta": "Adicionar o meu rendimento"
 }

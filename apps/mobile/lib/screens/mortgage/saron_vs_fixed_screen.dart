@@ -82,12 +82,10 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         children: [
           // Narrative intro
           MintEntrance(child: MintNarrativeCard(
-            headline: 'SARON ou taux fixe\u00a0?', // TODO: i18n
-            body: 'Le SARON suit le march\u00e9 mon\u00e9taire et peut \u00e9voluer chaque trimestre. '
-                'Un taux fixe verrouille tes int\u00e9r\u00eats sur toute la dur\u00e9e. '
-                'Selon ta tol\u00e9rance au risque, l\u2019\u00e9cart pourrait jouer en ta faveur\u2026 ou non.', // TODO: i18n
+            headline: S.of(context)!.narrativeSaronHeadline,
+            body: S.of(context)!.narrativeSaronBody,
             tone: MintSurfaceTone.bleu,
-            badge: 'Hypoth\u00e8que', // TODO: i18n
+            badge: S.of(context)!.narrativeSaronBadge,
           )),
           const SizedBox(height: MintSpacing.lg),
 
@@ -124,11 +122,11 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
 
   Widget _buildChiffreChocCard(SaronVsFixedResult result) {
     return MintResultHeroCard(
-      eyebrow: 'SARON vs Taux fixe', // TODO: i18n
+      eyebrow: S.of(context)!.saronEyebrow,
       primaryValue: 'CHF\u00a0${formatChf(result.economieSaronStable.abs())}',
       primaryLabel: result.economieSaronStable >= 0
-          ? 'd\u2019\u00e9conomie potentielle avec SARON' // TODO: i18n
-          : 'de co\u00fbt suppl\u00e9mentaire avec SARON', // TODO: i18n
+          ? S.of(context)!.saronSavingsLabel
+          : S.of(context)!.saronCostLabel,
       narrative: result.chiffreChocTexte,
       accentColor: result.economieSaronStable >= 0
           ? MintColors.success

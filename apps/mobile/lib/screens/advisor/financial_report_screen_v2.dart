@@ -72,7 +72,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           title: 'Ton bilan financier',
           subtitle: 'Complete ton profil pour generer ton bilan personnalise',
           ctaLabel: 'Completer mon profil',
-          onCta: () => context.go('/onboarding'),
+          onCta: () => context.go('/onboarding/quick'),
         ),
       );
     }

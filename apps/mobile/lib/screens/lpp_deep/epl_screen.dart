@@ -216,12 +216,10 @@ class _EplScreenState extends State<EplScreen> {
               delegate: SliverChildListDelegate([
                 // Narrative intro
                 MintEntrance(child: MintNarrativeCard(
-                  headline: 'Retrait EPL\u00a0: avantages et blocage 3 ans', // TODO: i18n
-                  body: 'L\u2019art.\u00a030c LPP permet de retirer ton 2e pilier pour financer '
-                      'un logement en propri\u00e9t\u00e9. Attention\u00a0: si tu as effectu\u00e9 des rachats, '
-                      'un d\u00e9lai de blocage de 3 ans s\u2019applique (LPP art.\u00a079b al.\u00a03).', // TODO: i18n
+                  headline: S.of(context)!.narrativeEplHeadline,
+                  body: S.of(context)!.narrativeEplBody,
                   tone: MintSurfaceTone.bleu,
-                  badge: '2e pilier \u2014 EPL', // TODO: i18n
+                  badge: S.of(context)!.narrativeEplBadge,
                 )),
                 const SizedBox(height: MintSpacing.lg),
 

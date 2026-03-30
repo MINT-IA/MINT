@@ -138,12 +138,10 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         children: [
           // Narrative intro
           MintEntrance(child: MintNarrativeCard(
-            headline: 'Rendement r\u00e9el apr\u00e8s inflation', // TODO: i18n
-            body: 'Le rendement affich\u00e9 ne dit pas tout. Apr\u00e8s frais de gestion et inflation, '
-                'le gain r\u00e9el peut diff\u00e9rer. L\u2019\u00e9conomie fiscale du 3a (LIFD art.\u00a033) '
-                'am\u00e9liore consid\u00e9rablement le rendement effectif.', // TODO: i18n
+            headline: S.of(context)!.narrativeRealReturnHeadline,
+            body: S.of(context)!.narrativeRealReturnBody,
             tone: MintSurfaceTone.sauge,
-            badge: '3e pilier', // TODO: i18n
+            badge: S.of(context)!.narrativeRealReturnBadge,
           )),
           const SizedBox(height: MintSpacing.lg),
 
@@ -184,11 +182,10 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     return MintResultHeroCard(
       eyebrow: l.realReturnChiffreChocLabel,
       primaryValue: '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
-      primaryLabel: 'rendement r\u00e9el apr\u00e8s imp\u00f4ts et inflation', // TODO: i18n
+      primaryLabel: l.realReturnPrimaryLabel,
       secondaryValue: '${result.rendementNominal.toStringAsFixed(1)}\u00a0%',
       secondaryLabel: l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
-      narrative: 'Gr\u00e2ce \u00e0 la d\u00e9duction fiscale, ton 3a '
-          'rapporte bien plus qu\u2019un compte \u00e9pargne classique.', // TODO: i18n
+      narrative: l.realReturnNarrative,
       accentColor: MintColors.success,
       tone: MintSurfaceTone.porcelaine,
     );

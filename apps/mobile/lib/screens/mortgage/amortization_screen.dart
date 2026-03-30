@@ -97,12 +97,10 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         children: [
           // Narrative intro
           MintEntrance(child: MintNarrativeCard(
-            headline: 'Direct ou indirect\u00a0?', // TODO: i18n
-            body: 'L\u2019amortissement direct r\u00e9duit ta dette chaque ann\u00e9e. '
-                'L\u2019indirect verse dans un 3a, d\u00e9ductible fiscalement (OPP3). '
-                'Selon ton taux marginal, l\u2019indirect pourrait te co\u00fbter moins cher au total.', // TODO: i18n
+            headline: S.of(context)!.narrativeAmortizationHeadline,
+            body: S.of(context)!.narrativeAmortizationBody,
             tone: MintSurfaceTone.bleu,
-            badge: 'Amortissement', // TODO: i18n
+            badge: S.of(context)!.narrativeAmortizationBadge,
           )),
           const SizedBox(height: MintSpacing.lg),
 
@@ -220,11 +218,11 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     final isPositive = result.chiffreChocPositif;
 
     return MintResultHeroCard(
-      eyebrow: 'Amortissement direct vs indirect', // TODO: i18n
+      eyebrow: s.amortizationEyebrow,
       primaryValue: 'CHF\u00a0${formatChf(result.economieIndirect.abs())}',
       primaryLabel: isPositive
-          ? 'd\u2019\u00e9conomie avec l\u2019indirect' // TODO: i18n
-          : 'de diff\u00e9rence entre les deux strat\u00e9gies', // TODO: i18n
+          ? s.amortizationSavingsLabel
+          : s.amortizationDifferenceLabel,
       narrative: result.chiffreChocTexte,
       accentColor: isPositive ? MintColors.success : MintColors.info,
       tone: MintSurfaceTone.porcelaine,

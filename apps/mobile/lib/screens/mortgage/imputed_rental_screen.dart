@@ -156,11 +156,11 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
   Widget _buildChiffreChocCard(ImputedRentalResult result) {
     return MintResultHeroCard(
-      eyebrow: 'Valeur locative', // TODO: i18n
+      eyebrow: S.of(context)!.imputedRentalEyebrow,
       primaryValue: 'CHF\u00a0${formatChf(result.impotSupplementaire.abs())}/an',
       primaryLabel: result.chiffreChocPositif
-          ? 'd\u2019\u00e9conomie fiscale nette' // TODO: i18n
-          : 'd\u2019imp\u00f4t suppl\u00e9mentaire', // TODO: i18n
+          ? S.of(context)!.imputedRentalSavingsLabel
+          : S.of(context)!.imputedRentalTaxLabel,
       narrative: result.chiffreChocTexte,
       accentColor: result.chiffreChocPositif
           ? MintColors.success

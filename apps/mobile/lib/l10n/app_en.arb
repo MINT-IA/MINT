@@ -4919,21 +4919,21 @@
   "avsGuideConfidenceSubtitle": "Contribution years, RAMD, gaps",
   "avsGuideStepsTitle": "En 4 étapes",
   "avsGuideStep1Title": "Go to www.ahv-iv.ch",
-  "avsGuideStep1Subtitle": "C'est le site officiel de l'AVS/AI. Tu peux aussi demander ton extrait directement à ta caisse de compensation.",
+  "avsGuideStep1Subtitle": "This is the official AVS/AI website. You can also request your statement directly from your compensation office.",
   "avsGuideStep2Title": "Log in with your eID or create an account",
   "avsGuideStep2Subtitle": "You will need your AVS number (756.XXXX.XXXX.XX, on your health insurance card).",
   "avsGuideStep3Title": "Request your individual account statement (CI)",
-  "avsGuideStep3Subtitle": "Cherche la section \"Extrait de compte\" ou \"Kontoauszug\". C'est un document officiel qui récapitule toutes tes cotisations.",
+  "avsGuideStep3Subtitle": "Look for the \"Account statement\" or \"Kontoauszug\" section. This is an official document summarising all your contributions.",
   "avsGuideStep4Title": "You will receive it by mail or PDF",
   "avsGuideStep4Subtitle": "Depending on your office, the statement arrives in 5 to 10 business days. Some offices offer an immediate PDF download.",
   "avsGuideOpenAhvButton": "Open ahv-iv.ch",
   "avsGuideScanButton": "I already have my statement → Scan",
   "avsGuideTestMode": "MODE TEST",
-  "avsGuideTestDescription": "Pas d'extrait AVS sous la main ? Teste le flux avec un exemple d'extrait.",
+  "avsGuideTestDescription": "Don't have your AVS statement handy? Test the flow with a sample statement.",
   "avsGuideTestButton": "Use an example",
   "avsGuideFreeNote": "The AVS statement is free and available in 5 to 10 business days. You can also visit your cantonal compensation office.",
   "avsGuidePrivacyNote": "Your statement image is never stored or sent. Extraction happens on your device. Only values you confirm are saved to your profile.",
-  "avsGuideSnackbarError": "Impossible d'ouvrir {url}. Copie l'adresse et ouvre-la dans ton navigateur.",
+  "avsGuideSnackbarError": "Unable to open {url}. Copy the address and open it in your browser.",
   "@avsGuideSnackbarError": {
     "placeholders": {
       "url": {
@@ -4941,7 +4941,7 @@
       }
     }
   },
-  "dataBlockDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).",
+  "dataBlockDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA).",
   "dataBlockIncomplete": "This section is still incomplete. Open the dedicated section to add missing data.",
   "dataBlockComplete": "This section is complete.",
   "dataBlockModeForm": "Formulaire",
@@ -4950,31 +4950,31 @@
   "dataBlockStatusPartial": "Partiel",
   "dataBlockStatusMissing": "Manquant",
   "dataBlockRevenuTitle": "Revenu",
-  "dataBlockRevenuDesc": "Ton salaire brut est la base de toutes les projections : prévoyance, impôts, budget. Plus il est précis, plus tes résultats seront fiables.",
+  "dataBlockRevenuDesc": "Your gross salary is the basis for all projections: pension, taxes, budget. The more accurate it is, the more reliable your results will be.",
   "dataBlockRevenuCta": "Specify my income",
   "dataBlockLppTitle": "Prévoyance LPP",
-  "dataBlockLppDesc": "Ton avoir LPP (2e pilier) représente souvent le plus gros capital de ta prévoyance. Un certificat de prévoyance donne une valeur exacte plutôt qu'une estimation.",
+  "dataBlockLppDesc": "Your LPP assets (2nd pillar) often represent the largest capital in your pension plan. A pension certificate gives an exact value rather than an estimate.",
   "dataBlockLppCta": "Add my LPP certificate",
   "dataBlockAvsTitle": "Extrait AVS",
-  "dataBlockAvsDesc": "L'extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l'étranger, années manquantes) réduisent ta rente AVS.",
+  "dataBlockAvsDesc": "The AVS statement confirms your effective contribution years. Gaps (time abroad, missing years) reduce your AVS pension.",
   "dataBlockAvsCta": "Order my AVS statement",
   "dataBlock3aTitle": "3e pilier (3a)",
-  "dataBlock3aDesc": "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un avantage fiscal. Renseigne les soldes actuels pour une vue complète.",
+  "dataBlock3aDesc": "Your 3a accounts complement your pension and offer a tax advantage. Enter current balances for a complete overview.",
   "dataBlock3aCta": "Simuler mon 3a",
   "dataBlockPatrimoineTitle": "Patrimoine",
-  "dataBlockPatrimoineDesc": "Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.",
+  "dataBlockPatrimoineDesc": "Free savings, investments, real estate: this data completes your projection and helps calculate your Financial Resilience Index.",
   "dataBlockPatrimoineCta": "Enter my assets",
   "dataBlockFiscaliteTitle": "Fiscalité",
   "dataBlockFiscaliteDesc": "Your municipality, taxable income and assets determine your marginal tax rate. A tax return or assessment gives a real rate rather than an estimate (municipal coefficient 60%-130%).",
   "dataBlockFiscaliteCta": "Compare my taxes",
   "dataBlockObjectifTitle": "Retirement objective",
-  "dataBlockObjectifDesc": "À quel âge souhaites-tu arrêter de travailler ? Un objectif clair permet de calculer l'effort d'épargne nécessaire et les options (anticipation, retraite partielle).",
+  "dataBlockObjectifDesc": "At what age do you want to stop working? A clear goal allows calculating the required savings effort and options (early retirement, partial retirement).",
   "dataBlockObjectifCta": "See my projection",
   "dataBlockMenageTitle": "Household composition",
-  "dataBlockMenageDesc": "En couple, les projections changent : AVS plafonnée pour les mariés (LAVS art. 35), rente de survivant (LPP art. 19), optimisation fiscale à deux.",
+  "dataBlockMenageDesc": "As a couple, projections change: capped AVS for married couples (OASI art. 35), survivor's pension (LPP art. 19), joint tax optimisation.",
   "dataBlockMenageCta": "Manage my household",
   "dataBlockUnknownTitle": "Données",
-  "dataBlockUnknownDesc": "Ce lien de données n’est plus à jour. Utilise la section recommandée pour compléter ton profil.",
+  "dataBlockUnknownDesc": "This data link is outdated. Use the recommended section to complete your profile.",
   "dataBlockUnknownCta": "Open the diagnostic",
   "dataBlockDefaultTitle": "Données",
   "dataBlockDefaultDesc": "Complete this section to improve the accuracy of your projections.",
@@ -4982,11 +4982,11 @@
   "renteVsCapitalAppBarTitle": "Pension or capital: your decision",
   "renteVsCapitalIntro": "At retirement, you choose once and for all: a lifetime income or your capital in hand.",
   "renteVsCapitalRenteLabel": "Rente",
-  "renteVsCapitalRenteExplanation": "Ta caisse de pension te verse un montant fixe chaque mois, tant que tu vis — même si tu atteins 100 ans. En échange, tu ne récupères jamais ton capital.",
+  "renteVsCapitalRenteExplanation": "Your pension fund pays you a fixed amount every month, as long as you live — even if you reach 100. In return, you never get your capital back.",
   "renteVsCapitalCapitalLabel": "Capital",
   "renteVsCapitalCapitalExplanation": "You withdraw all your LPP assets at once. You invest them and withdraw what you need each month. Total freedom, but the risk of running out is real.",
   "renteVsCapitalMixteLabel": "Mixte",
-  "renteVsCapitalMixteExplanation": "La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.",
+  "renteVsCapitalMixteExplanation": "The mandatory part as annuity (rate 6.8%) + the supplementary part as capital. A compromise between security and flexibility.",
   "renteVsCapitalEstimateMode": "Estimate for me",
   "renteVsCapitalCertificateMode": "I have my certificate",
   "renteVsCapitalAge": "Ton âge",
@@ -5012,12 +5012,12 @@
     }
   },
   "renteVsCapitalProjectionSource": "Projection based on your age, salary and current LPP",
-  "renteVsCapitalLppOblig": "Avoir LPP obligatoire (certificat LPP)",
-  "renteVsCapitalLppSurob": "Avoir LPP surobligatoire (certificat LPP)",
-  "renteVsCapitalRenteProposed": "Rente annuelle proposée (certificat LPP)",
+  "renteVsCapitalLppOblig": "Mandatory LPP assets (LPP certificate)",
+  "renteVsCapitalLppSurob": "Supplementary LPP assets (LPP certificate)",
+  "renteVsCapitalRenteProposed": "Proposed annual annuity (LPP certificate)",
   "renteVsCapitalTcOblig": "Mandatory conv. rate (%)",
   "renteVsCapitalTcSurob": "Supplementary conv. rate (%)",
-  "renteVsCapitalMaxPrecision": "Précision maximale — résultats basés sur tes vrais chiffres.",
+  "renteVsCapitalMaxPrecision": "Maximum precision — results based on your actual figures.",
   "renteVsCapitalCanton": "Canton",
   "renteVsCapitalMarried": "Marié·e",
   "renteVsCapitalRetirementAge": "Planned retirement at",
@@ -5029,7 +5029,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheTaxEpuise": "Cette décision peut te coûter {taxDelta} d'impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu'une seule fois.",
+  "renteVsCapitalAccrocheTaxEpuise": "This decision could cost you {taxDelta} in excess taxes — or leave you with nothing at age {age}. You can only make it once.",
   "@renteVsCapitalAccrocheTaxEpuise": {
     "placeholders": {
       "taxDelta": {
@@ -5040,7 +5040,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheTax": "Cette décision peut changer {taxDelta} d'impôts sur ta retraite. Tu ne peux la prendre qu'une seule fois.",
+  "renteVsCapitalAccrocheTax": "This decision could change {taxDelta} in taxes on your retirement. You can only make it once.",
   "@renteVsCapitalAccrocheTax": {
     "placeholders": {
       "taxDelta": {
@@ -5048,7 +5048,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheEpuise": "Avec le capital, tu pourrais manquer d'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu'une fois.",
+  "renteVsCapitalAccrocheEpuise": "With the capital, you could run out of money by age {age}. With the annuity, you receive a fixed amount for life. You can only choose once.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -5068,8 +5068,8 @@
       }
     }
   },
-  "renteVsCapitalMicroRente": "Ta caisse te verse ce montant chaque mois, tant que tu vis.",
-  "renteVsCapitalMicroCapital": "Tu retires {swr} % par an d'un capital placé à {rendement} %.",
+  "renteVsCapitalMicroRente": "Your fund pays you this amount every month, as long as you live.",
+  "renteVsCapitalMicroCapital": "You withdraw {swr}% per year from capital invested at {rendement}%.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {
@@ -5080,7 +5080,7 @@
       }
     }
   },
-  "renteVsCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s'épuiser.",
+  "renteVsCapitalSyntheseCapitalHigher": "The capital gives you {delta}/month more, but could run out.",
   "@renteVsCapitalSyntheseCapitalHigher": {
     "placeholders": {
       "delta": {
@@ -5088,7 +5088,7 @@
       }
     }
   },
-  "renteVsCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s'arrête jamais.",
+  "renteVsCapitalSyntheseRenteHigher": "The annuity gives you {delta}/month more, and never stops.",
   "@renteVsCapitalSyntheseRenteHigher": {
     "placeholders": {
       "delta": {
@@ -5105,13 +5105,13 @@
       }
     }
   },
-  "renteVsCapitalAvsSupplementary": " supplémentaires dans les deux cas (LAVS art. 29)",
+  "renteVsCapitalAvsSupplementary": " additional in both cases (OASI art. 29)",
   "renteVsCapitalLifeExpectancy": "What if I live until...",
-  "renteVsCapitalLifeExpectancyRef": "Espérance de vie suisse : hommes 84 ans · femmes 87 ans",
-  "renteVsCapitalChartTitle": "Capital restant vs revenus cumulés de la rente",
-  "renteVsCapitalChartSubtitle": "Capital (vert) : ce qu'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l'âge auquel la rente a plus rapporté.",
+  "renteVsCapitalLifeExpectancyRef": "Swiss life expectancy: men 84 years · women 87 years",
+  "renteVsCapitalChartTitle": "Remaining capital vs cumulative annuity income",
+  "renteVsCapitalChartSubtitle": "Capital (green): what remains after your withdrawals. Annuity (blue): total received since the start. The crossing point = the age at which the annuity has paid more.",
   "renteVsCapitalChartAxisLabel": "Âge",
-  "renteVsCapitalBeyondHorizon": "À {age} ans : au-delà de l'horizon de simulation.",
+  "renteVsCapitalBeyondHorizon": "At age {age}: beyond the simulation horizon.",
   "@renteVsCapitalBeyondHorizon": {
     "placeholders": {
       "age": {
@@ -5134,7 +5134,7 @@
   "renteVsCapitalFiscalRightSubtitle": "Taxed only once",
   "renteVsCapitalFiscalOver30years": "sur 30 ans",
   "renteVsCapitalFiscalAtRetrait": "at withdrawal (LIFD art. 38)",
-  "renteVsCapitalFiscalCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d'impôts.",
+  "renteVsCapitalFiscalCapitalSaves": "Over 30 years, the capital saves you ~{amount} in taxes.",
   "@renteVsCapitalFiscalCapitalSaves": {
     "placeholders": {
       "amount": {
@@ -5142,7 +5142,7 @@
       }
     }
   },
-  "renteVsCapitalFiscalRenteSaves": "Sur 30 ans, la rente génère ~{amount} d'impôts en moins.",
+  "renteVsCapitalFiscalRenteSaves": "Over 30 years, the annuity generates ~{amount} less in taxes.",
   "@renteVsCapitalFiscalRenteSaves": {
     "placeholders": {
       "amount": {
@@ -5154,7 +5154,7 @@
   "renteVsCapitalInflationToday": "Aujourd'hui",
   "renteVsCapitalInflationIn20Years": "Dans 20 ans",
   "renteVsCapitalInflationPurchasingPower": "purchasing power",
-  "renteVsCapitalInflationBottomText": "Ta rente LPP n'est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
+  "renteVsCapitalInflationBottomText": "Your LPP annuity is not indexed. It buys {percent}% less in 20 years.",
   "@renteVsCapitalInflationBottomText": {
     "placeholders": {
       "percent": {
@@ -5179,17 +5179,17 @@
   "renteVsCapitalTransmissionRightSubtitle": "Your heirs receive",
   "renteVsCapitalTransmissionRightValue": "100 %",
   "renteVsCapitalTransmissionRightDetail": "of the remaining balance",
-  "renteVsCapitalTransmissionBottomMarried": "Avec la rente, seul·e ton conjoint·e reçoit 60 %. Rien pour les enfants.",
+  "renteVsCapitalTransmissionBottomMarried": "With the annuity, only your spouse receives 60%. Nothing for the children.",
   "renteVsCapitalTransmissionBottomSingle": "With the pension, nothing goes to your loved ones.",
   "renteVsCapitalAffinerTitle": "Refine your simulation",
-  "renteVsCapitalAffinerSubtitle": "Pour ceux qui veulent creuser.",
-  "renteVsCapitalHypRendement": "Ce que ton capital rapporte par an",
-  "renteVsCapitalHypSwr": "Combien tu retires chaque année",
+  "renteVsCapitalAffinerSubtitle": "For those who want to dig deeper.",
+  "renteVsCapitalHypRendement": "What your capital returns per year",
+  "renteVsCapitalHypSwr": "How much you withdraw each year",
   "renteVsCapitalHypInflation": "Inflation",
-  "renteVsCapitalTornadoToggle": "Voir le diagramme de sensibilité",
-  "renteVsCapitalImpactTitle": "Qu'est-ce qui change le plus le résultat ?",
+  "renteVsCapitalTornadoToggle": "View sensitivity diagram",
+  "renteVsCapitalImpactTitle": "What changes the result the most?",
   "renteVsCapitalImpactSubtitle": "The most influential parameters on the gap between your options.",
-  "renteVsCapitalHypothesesTitle": "Hypothèses de cette simulation",
+  "renteVsCapitalHypothesesTitle": "Assumptions for this simulation",
   "renteVsCapitalWarning": "Avertissement",
   "renteVsCapitalSources": "Sources: {sources}",
   "@renteVsCapitalSources": {
@@ -5199,7 +5199,7 @@
       }
     }
   },
-  "renteVsCapitalRachatLabel": "Rachat LPP annuel prévu (CHF)",
+  "renteVsCapitalRachatLabel": "Planned annual LPP buyback (CHF)",
   "renteVsCapitalRachatMax": "max {amount}",
   "@renteVsCapitalRachatMax": {
     "placeholders": {
@@ -5209,12 +5209,12 @@
     }
   },
   "renteVsCapitalRachatHint": "0 (optionnel)",
-  "renteVsCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
-  "renteVsCapitalEplLabel": "Retrait EPL pour achat immobilier",
-  "renteVsCapitalEplHint": "Montant retiré (min 20'000)",
+  "renteVsCapitalRachatTooltip": "If you make LPP buybacks each year, their future value is added to the capital at retirement. 3-year lock before EPL (LPP art. 79b).",
+  "renteVsCapitalEplLabel": "EPL withdrawal for property purchase",
+  "renteVsCapitalEplHint": "Amount withdrawn (min 20,000)",
   "renteVsCapitalEplTooltip": "The EPL withdrawal reduces your LPP assets and therefore your capital or pension at retirement. Minimum CHF 20,000 (OPP2 art. 5). Blocks LPP buyback for 3 years.",
-  "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
-  "renteVsCapitalProfileAutoFill": "Valeurs pré-remplies depuis ton profil",
+  "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20,000)",
+  "renteVsCapitalProfileAutoFill": "Values pre-filled from your profile",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",
   "frontalierTab90Jours": "90 jours",
@@ -5231,14 +5231,14 @@
   "frontalierQuasiResidentTitle": "Quasi-resident (Geneva)",
   "frontalierQuasiResidentDesc": "If more than 90% of your worldwide income comes from Switzerland, you can request ordinary taxation with deductions (3a, actual expenses, etc.). This can significantly reduce your tax.",
   "frontalierTessinTitle": "Ticino — special regime",
-  "frontalierEducationalTax": "En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l'état civil et le nombre d'enfants. À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.",
+  "frontalierEducationalTax": "In Switzerland, cross-border workers are taxed at source (scale C). The rate varies by canton, marital status and number of children. In Geneva, if more than 90% of your worldwide income comes from Switzerland, you can apply for quasi-resident status to benefit from deductions.",
   "frontalierJoursBureau": "Days at the office in Switzerland",
-  "frontalierJoursHomeOffice": "Jours en home office à l'étranger",
+  "frontalierJoursHomeOffice": "Home office days abroad",
   "frontalierJaugeRisque": "RISK GAUGE",
   "frontalierJoursHomeOfficeLabel": "home office days",
   "frontalierRiskLow": "Pas de risque",
   "frontalierRiskMedium": "Attention zone",
-  "frontalierRiskHigh": "Risque fiscal — l'imposition bascule",
+  "frontalierRiskHigh": "Tax risk — taxation shifts",
   "frontalierDaysRemaining": "You have {days} days of margin left",
   "@frontalierDaysRemaining": {
     "placeholders": {
@@ -5248,7 +5248,7 @@
     }
   },
   "frontalierRecommandation": "RECOMMANDATION",
-  "frontalierEducational90Days": "Depuis 2023, les accords amiables entre la Suisse et ses voisins fixent un seuil de tolérance pour le télétravail des frontaliers. Au-delà de 90 jours de home office par an, les cotisations sociales et l'imposition peuvent basculer vers le pays de résidence.",
+  "frontalierEducational90Days": "Since 2023, bilateral agreements between Switzerland and its neighbours set a tolerance threshold for cross-border teleworking. Beyond 90 home office days per year, social contributions and taxation may shift to the country of residence.",
   "frontalierChargesCh": "Charges CH",
   "frontalierChargesCountry": "Charges {country}",
   "@frontalierChargesCountry": {
@@ -5284,12 +5284,12 @@
   },
   "frontalierAssuranceMaladie": "HEALTH INSURANCE",
   "frontalierLamalTitle": "LAMal (suisse)",
-  "frontalierLamalDesc": "Obligatoire si tu travailles en CH. Prime individuelle (~CHF 300-500/mois).",
+  "frontalierLamalDesc": "Mandatory if you work in CH. Individual premium (~CHF 300-500/month).",
   "frontalierCmuTitle": "CMU/Social Security (France)",
-  "frontalierCmuDesc": "Droit d'option possible pour les frontaliers FR. Cotisation ~8% du revenu fiscal.",
+  "frontalierCmuDesc": "Option right available for FR cross-border workers. Contribution ~8% of taxable income.",
   "frontalierAssurancePriveeTitle": "Private insurance (DE/IT/AT)",
   "frontalierAssurancePriveeDesc": "In Germany, PKV option for high earners. IT/AT: mandatory regime of the country.",
-  "frontalierEducationalCharges": "En tant que frontalier, tu cotises aux assurances sociales suisses (AVS/AI/APG, AC, LPP). Les taux sont généralement plus bas qu'en France ou en Allemagne — mais la LAMal est à ta charge individuellement, ce qui peut compenser l'avantage.",
+  "frontalierEducationalCharges": "As a cross-border worker, you contribute to Swiss social insurances (AVS/AI/APG, AC, LPP). Rates are generally lower than in France or Germany — but LAMal is at your individual expense, which can offset the advantage.",
   "frontalierPaysResidence": "Country of residence",
   "frontalierLeSavaisTu": "Le savais-tu ?",
   "concubinageAppBarTitle": "Marriage vs Cohabitation",
@@ -5331,8 +5331,8 @@
   },
   "concubinageNeutralTitle": "No option is universally suited",
   "concubinageNeutralDesc": "The choice between marriage and cohabitation depends on your situation: income, assets, children, canton, life plans. Marriage offers more automatic legal protections, cohabitation more flexibility. A specialist can help you see more clearly.",
-  "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
-  "concubinageProtectionsCount": "{count}/{total} protections en place",
+  "concubinageChecklistIntro": "In cohabitation, nothing is automatic. Here are the essential protections to put in place to protect your partner.",
+  "concubinageProtectionsCount": "{count}/{total} protections in place",
   "@concubinageProtectionsCount": {
     "placeholders": {
       "count": {
@@ -5344,22 +5344,22 @@
     }
   },
   "concubinageChecklist1Title": "Draft a will",
-  "concubinageChecklist1Desc": "Sans testament, ton partenaire n'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.",
+  "concubinageChecklist1Desc": "Without a will, your partner inherits nothing — everything goes to your parents or siblings. A handwritten will (handwritten, dated, signed) is sufficient. You can bequeath the disposable portion to your partner.",
   "concubinageChecklist2Title": "LPP beneficiary clause",
-  "concubinageChecklist2Desc": "Contacte ta caisse de pension pour inscrire ton/ta partenaire comme bénéficiaire. Sans cette clause, le capital décès LPP ne lui revient pas. La plupart des caisses acceptent le concubin sous conditions (ménage commun, etc.).",
+  "concubinageChecklist2Desc": "Contact your pension fund to register your partner as beneficiary. Without this clause, the LPP death capital does not go to them. Most funds accept the cohabitant under conditions (shared household, etc.).",
   "concubinageChecklist3Title": "Cohabitation agreement",
-  "concubinageChecklist3Desc": "Un contrat écrit qui règle le partage des frais, la propriété des biens, et ce qui se passe en cas de séparation. Pas obligatoire, mais fortement recommandé — surtout si tu achètes un bien immobilier ensemble.",
+  "concubinageChecklist3Desc": "A written contract that governs the sharing of expenses, property ownership, and what happens in case of separation. Not mandatory, but strongly recommended — especially if you buy property together.",
   "concubinageChecklist4Title": "Cross life insurance",
-  "concubinageChecklist4Desc": "Une assurance-vie où chacun est bénéficiaire de l'autre permet de compenser l'absence de rente AVS/LPP de survivant. Compare les offres — les primes dépendent de l'âge et du capital assuré.",
-  "concubinageChecklist5Title": "Mandat pour cause d'inaptitude",
-  "concubinageChecklist5Desc": "Si tu deviens incapable de discernement (accident, maladie), ton/ta partenaire n'a aucun pouvoir de représentation. Un mandat pour cause d'inaptitude (CC art. 360 ss) lui donne ce droit.",
+  "concubinageChecklist4Desc": "A life insurance where each partner is the other's beneficiary compensates for the absence of AVS/LPP survivor's pension. Compare offers — premiums depend on age and insured capital.",
+  "concubinageChecklist5Title": "Advance directive for incapacity",
+  "concubinageChecklist5Desc": "If you become incapacitated (accident, illness), your partner has no power of representation. An advance directive for incapacity (CC art. 360 ff.) grants them this right.",
   "concubinageChecklist6Title": "Advance directives",
-  "concubinageChecklist6Desc": "Un document qui précise tes volontés médicales en cas d'incapacité. Tu peux y désigner ton/ta partenaire comme personne de confiance pour les décisions médicales (CC art. 370 ss).",
-  "concubinageChecklist7Title": "Compte joint pour les dépenses communes",
-  "concubinageChecklist7Desc": "Un compte commun simplifie la gestion des dépenses partagées (loyer, courses, factures). Définissez clairement la contribution de chacun. En cas de séparation, le solde est partagé à 50/50 sauf convention contraire.",
-  "concubinageChecklist8Title": "Bail commun ou individuel",
-  "concubinageChecklist8Desc": "Si tu es sur le bail avec ton/ta partenaire, vous êtes solidairement responsables. En cas de séparation, les deux doivent donner congé. Si un seul est titulaire, l'autre n'a aucun droit sur le logement.",
-  "concubinageDisclaimer": "Informations simplifiées à but éducatif — ne constitue pas un conseil juridique ou fiscal. Les règles dépendent du canton, de la commune et de ta situation personnelle. Consulte un·e spécialiste juridique pour un avis personnalisé.",
+  "concubinageChecklist6Desc": "A document specifying your medical wishes in case of incapacity. You can designate your partner as the trusted person for medical decisions (CC art. 370 ff.).",
+  "concubinageChecklist7Title": "Joint account for shared expenses",
+  "concubinageChecklist7Desc": "A joint account simplifies managing shared expenses (rent, groceries, bills). Clearly define each person's contribution. In case of separation, the balance is split 50/50 unless agreed otherwise.",
+  "concubinageChecklist8Title": "Joint or individual lease",
+  "concubinageChecklist8Desc": "If you are on the lease with your partner, you are jointly liable. In case of separation, both must give notice. If only one is the leaseholder, the other has no rights to the housing.",
+  "concubinageDisclaimer": "Simplified information for educational purposes — does not constitute legal or tax advice. Rules depend on the canton, municipality and your personal situation. Consult a legal specialist for personalised advice.",
   "concubinageCriteriaImpots": "Impôts",
   "concubinageCriteriaPenaliteFiscale": "Marriage penalty",
   "concubinageCriteriaBonusFiscal": "Bonus fiscal",
@@ -8363,7 +8363,7 @@
   "debtRatioMinVitalWarning": "Your residual margin is below the vital minimum. Contact a professional support service.",
   "debtRatioCtaSemantics": "Create a repayment plan",
   "debtRatioCtaDescription": "Compare avalanche and snowball strategies to repay faster.",
-  "debtRatioDetteConseilNom": "Dettes Conseils Suisse",
+  "debtRatioDetteConseilNom": "Debt Counselling Switzerland",
   "debtRatioDetteConseilDesc": "Free and confidential advice",
   "debtRatioCaritasNom": "Caritas — Debt assistance",
   "debtRatioCaritasDesc": "Debt relief assistance and negotiation",
@@ -10269,7 +10269,7 @@
   "helpResourcesIntroTitle": "You are not alone",
   "helpResourcesIntroBody": "In Switzerland, many professional services offer free and confidential support for people facing financial difficulties. Asking for help is an act of courage, not a sign of weakness.",
   "helpResourcesIntroNote": "All links below lead to external websites. MINT does not transmit any data to these services.",
-  "helpResourcesDettesName": "Dettes Conseils Suisse",
+  "helpResourcesDettesName": "Debt Counselling Switzerland",
   "helpResourcesDettesDesc": "Umbrella organization for debt counseling services in Switzerland. Free, confidential and professional advice. More than 30 member services across Switzerland.",
   "helpResourcesCaritasName": "Caritas — Debt counseling",
   "helpResourcesCaritasDesc": "Caritas Switzerland's support service for people in debt. Help with debt relief, negotiation with creditors, personalized budget support.",
@@ -11813,5 +11813,72 @@
     }
   },
   "capNoCapHeadline": "You're on the right track",
-  "capNoCapWhyNow": "Keep exploring MINT to deepen your understanding."
+  "capNoCapWhyNow": "Keep exploring MINT to deepen your understanding.",
+  "narrativeEplHeadline": "EPL withdrawal: benefits and 3-year lock",
+  "narrativeEplBody": "Art. 30c LPP allows you to withdraw your 2nd pillar to finance owner-occupied housing. Note: if you have made buy-backs, a 3-year lock period applies (LPP art. 79b para. 3).",
+  "narrativeEplBadge": "2nd pillar — EPL",
+  "narrativeRachatHeadline": "Stagger to save",
+  "narrativeRachatBody": "Spreading an LPP buy-back over several years allows you to deduct each instalment from taxable income (LPP art. 79b). Tax progressivity often makes this strategy more advantageous than a single payment.",
+  "narrativeRachatBadge": "2nd pillar",
+  "rachatEchelonneEyebrow": "Staggered LPP buy-back",
+  "rachatEchelonneNarrativeSavings": "Spreading the buy-back over {horizon} years reduces your total tax burden.",
+  "rachatEchelonneNarrativeNoSavings": "In your situation, a lump-sum buy-back is more advantageous.",
+  "narrativeLibrePassageHeadline": "Vested benefits: 6 months to act",
+  "narrativeLibrePassageBody": "When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 3). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.",
+  "narrativeLibrePassageBadge": "Vested benefits",
+  "narrativeAmortizationHeadline": "Direct or indirect?",
+  "narrativeAmortizationBody": "Direct amortization reduces your debt each year. Indirect pays into a 3a, tax-deductible (OPP3). Depending on your marginal rate, indirect could cost you less overall.",
+  "narrativeAmortizationBadge": "Amortization",
+  "amortizationEyebrow": "Direct vs indirect amortization",
+  "amortizationSavingsLabel": "savings with indirect",
+  "amortizationDifferenceLabel": "difference between the two strategies",
+  "narrativeSaronHeadline": "SARON or fixed rate?",
+  "narrativeSaronBody": "SARON follows the money market and can change every quarter. A fixed rate locks in your interest for the entire term. Depending on your risk tolerance, the gap could work in your favour… or not.",
+  "narrativeSaronBadge": "Mortgage",
+  "saronEyebrow": "SARON vs Fixed rate",
+  "saronSavingsLabel": "potential savings with SARON",
+  "saronCostLabel": "additional cost with SARON",
+  "narrativeRealReturnHeadline": "Real return after inflation",
+  "narrativeRealReturnBody": "The displayed return doesn’t tell the whole story. After management fees and inflation, the real gain may differ. The 3a tax saving (LIFD art. 33) significantly improves the effective return.",
+  "narrativeRealReturnBadge": "3rd pillar",
+  "narrativeRetroactive3aHeadline": "Catch up on up to 10 years of 3a",
+  "narrativeRetroactive3aBody": "From 2026, OPP3 art. 7 allows you to retroactively pay missed 3a contribution years. Each payment is deductible from taxable income (LIFD art. 33).",
+  "narrativeRetroactive3aBadge": "3rd pillar",
+  "retroactive3aSavingsLabel": "tax savings with 3a catch-up",
+  "narrativeFirstJobHeadline": "Your first salary explained",
+  "narrativeFirstJobBody": "Between AVS (LAVS art. 5), LPP (art. 16), withholding tax and LAMal, your net is about 75-80% of gross. Understanding these deductions is the first step to good financial management.",
+  "narrativeFirstJobBadge": "First job",
+  "narrativeMarriageHeadline": "Financial impact of marriage",
+  "narrativeMarriageBody": "Marriage changes your taxation (LIFD art. 9), your matrimonial regime (CC art. 181) and your survivor benefits (LAVS art. 23, LPP art. 19). Depending on your respective incomes, the tax impact could be positive or negative.",
+  "narrativeMarriageBadge": "Marriage",
+  "narrativeBirthHeadline": "Birth costs and benefits",
+  "narrativeBirthBody": "Maternity leave (LAPG art. 16b–d) covers 14 weeks at 80% of salary. Family allowances vary by canton (LAFam art. 3). This simulator estimates the overall impact on your budget.",
+  "narrativeBirthBadge": "Birth",
+  "narrativeCoverageHeadline": "Check your coverage",
+  "narrativeCoverageBody": "LAMal, daily allowance insurance, private liability, household insurance… Each insurance covers a different risk. This review identifies gaps based on your situation and canton.",
+  "narrativeCoverageBadge": "Insurance",
+  "narrativeDisabilityHeadline": "Understand your disability gap",
+  "narrativeDisabilityBody": "In case of disability, your income goes through 3 phases: employer (CO art. 324a), daily allowance insurance, then DI + LPP (LAI art. 28, LPP art. 23-26). The drop can reach 40-60% of your current salary.",
+  "narrativeDisabilityBadge": "Disability",
+  "narrativeUnemploymentHeadline": "Your unemployment rights",
+  "narrativeUnemploymentBody": "The LACI provides compensation of 70-80% of insured earnings (art. 22). Duration depends on your contribution months and age (art. 27). This simulator estimates your rights based on your current situation.",
+  "narrativeUnemploymentBadge": "Unemployment",
+  "imputedRentalEyebrow": "Imputed rental value",
+  "imputedRentalSavingsLabel": "net tax savings",
+  "imputedRentalTaxLabel": "additional tax",
+  "semanticsBack": "Back",
+  "semanticsDecrease": "Decrease",
+  "semanticsIncrease": "Increase",
+  "@rachatEchelonneNarrativeSavings": {
+    "placeholders": {
+      "horizon": {
+        "type": "int"
+      }
+    }
+  },
+  "realReturnPrimaryLabel": "real return after taxes and inflation",
+  "realReturnNarrative": "Thanks to the tax deduction, your 3a yields much more than a standard savings account.",
+  "retroactive3aEmptyTitle": "3a catch-up",
+  "retroactive3aEmptySubtitle": "Enter your income to calculate your tax savings",
+  "retroactive3aEmptyCta": "Add my income"
 }

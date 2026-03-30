@@ -1353,7 +1353,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       children: [
         Semantics(
-          label: 'Diminuer',
+          label: S.of(context)!.semanticsDecrease,
           button: true,
           child: IconButton(
             onPressed: value > minVal
@@ -1375,7 +1375,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
         ),
         Semantics(
-          label: 'Augmenter',
+          label: S.of(context)!.semanticsIncrease,
           button: true,
           child: IconButton(
             onPressed: value < maxVal

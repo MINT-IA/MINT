@@ -180,7 +180,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           title: 'Retrait 3a echelonne',
           subtitle: 'Renseigne ton epargne 3a pour optimiser tes retraits',
           ctaLabel: 'Ajouter mon 3a',
-          onCta: () => context.push('/onboarding'),
+          onCta: () => context.push('/onboarding/quick'),
         ),
       );
     }

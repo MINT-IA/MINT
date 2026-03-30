@@ -1797,9 +1797,9 @@
   "profileResetScopeNote": "Login und BYOK-Schlüssel bleiben erhalten. Backend-Dokumente werden nicht gelöscht.",
   "coachPulseTitle": "Coach Pulse",
   "coachIaBadge": "Coach IA",
-  "agirCoachPulseDone": "Tu es à jour ce mois-ci. Priorise maintenant l'action la plus impactante.",
-  "agirCoachPulsePending": "Ton check-in mensuel est la prochaine action critique pour garder ta trajectoire fiable.",
-  "agirCoachPulseWhyNow": "Pourquoi maintenant: {reason}",
+  "agirCoachPulseDone": "Du bist diesen Monat auf dem neusten Stand. Priorisiere jetzt die wirkungsvollste Aktion.",
+  "agirCoachPulsePending": "Dein monatliches Check-in ist die nächste wichtige Aktion, um deine Vorsorge auf Kurs zu halten.",
+  "agirCoachPulseWhyNow": "Warum jetzt: {reason}",
   "@agirCoachPulseWhyNow": {
     "placeholders": {
       "reason": {
@@ -1807,8 +1807,8 @@
       }
     }
   },
-  "agirScenarioBriefTitle": "Scénarios de retraite en bref",
-  "agirScenarioBriefSummary": "Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement}% de remplacement). L'écart Prudent vs Optimiste est {gapCapital}.",
+  "agirScenarioBriefTitle": "Pensionierungsszenarien im Überblick",
+  "agirScenarioBriefSummary": "In ~{years} Jahren zielt dein Basis-Szenario auf {baseCapital} (~{replacement}% Ersatzquote).",
   "@agirScenarioBriefSummary": {
     "placeholders": {
       "years": {
@@ -1825,12 +1825,12 @@
       }
     }
   },
-  "agirScenarioBriefCta": "Ouvrir la simulation complète",
+  "agirScenarioBriefCta": "Vollständige Simulation öffnen",
   "advisorMiniWeekOneCta": "Lancer ma semaine 1",
-  "advisorMiniStartWithDashboard": "Commencer avec le dashboard",
-  "advisorMiniCoachIntroChallenge": "Objectif: passer de l'analyse à l'action cette semaine. On commence maintenant avec 3 priorités.",
-  "checkinScoreReasonStable": "Score stable ce mois: continue la régularité de tes actions.",
-  "checkinScoreReasonPositiveContrib": "Hausse principale: versements confirmés ({amount}) ce mois.",
+  "advisorMiniStartWithDashboard": "Mit dem Dashboard starten",
+  "advisorMiniCoachIntroChallenge": "Ziel: Diese Woche von der Analyse zur Aktion. Wir beginnen jetzt mit dem Wesentlichen.",
+  "checkinScoreReasonStable": "Stabiler Score diesen Monat: Halte die Regelmässigkeit deiner Aktionen bei.",
+  "checkinScoreReasonPositiveContrib": "Hauptanstieg: Bestätigte Einzahlungen ({amount}) diesen Monat.",
   "@checkinScoreReasonPositiveContrib": {
     "placeholders": {
       "amount": {
@@ -1838,9 +1838,9 @@
       }
     }
   },
-  "checkinScoreReasonPositiveIncome": "Hausse principale: revenu exceptionnel ajouté ce mois.",
-  "checkinScoreReasonPositiveGeneral": "Hausse principale: progression globale de ta discipline financière.",
-  "checkinScoreReasonNegativeExpense": "Baisse principale: dépenses exceptionnelles ce mois ({amount}).",
+  "checkinScoreReasonPositiveIncome": "Hauptanstieg: Ausserordentliche Einnahmen diesen Monat hinzugefügt.",
+  "checkinScoreReasonPositiveGeneral": "Hauptanstieg: Allgemeiner Fortschritt deiner finanziellen Disziplin.",
+  "checkinScoreReasonNegativeExpense": "Hauptrückgang: Ausserordentliche Ausgaben diesen Monat ({amount}).",
   "@checkinScoreReasonNegativeExpense": {
     "placeholders": {
       "amount": {
@@ -1848,7 +1848,7 @@
       }
     }
   },
-  "checkinScoreReasonNegativeContrib": "Baisse principale: réduction de tes versements planifiés ({amount}/mois).",
+  "checkinScoreReasonNegativeContrib": "Hauptrückgang: Reduzierung deiner geplanten Einzahlungen ({amount}/Monat).",
   "@checkinScoreReasonNegativeContrib": {
     "placeholders": {
       "amount": {
@@ -1856,10 +1856,10 @@
       }
     }
   },
-  "checkinScoreReasonNegativeGeneral": "Baisse temporaire ce mois. On ajuste le plan au prochain check-in.",
-  "checkinImpactPending": "Impact en cours de calcul",
+  "checkinScoreReasonNegativeGeneral": "Vorübergehender Rückgang diesen Monat. Wir passen den Plan beim nächsten Check-in an.",
+  "checkinImpactPending": "Auswirkung wird berechnet",
   "coachDataQualityTitle": "Qualite des donnees",
-  "coachDataQualityBody": "Calcul actuel: {dataPoints} donnees saisies ({percentage}%). Les postes non renseignes restent en estimation jusqu au diagnostic complet.",
+  "coachDataQualityBody": "Aktuelle Berechnung: {dataPoints} erfasste Daten ({percentage}%). Nicht ausgefüllte Posten werden geschätzt — deine Ergebnisse werden mit jedem neuen Datenpunkt genauer.",
   "@coachDataQualityBody": {
     "placeholders": {
       "dataPoints": {
@@ -1871,12 +1871,12 @@
     }
   },
   "coachShockTitle": "Deine Schlüsselzahlen",
-  "coachShockSubtitle": "Des montants personnalises pour eclairer tes decisions",
-  "coachScenarioDecodedTitle": "Tes scenarios decryptes",
+  "coachShockSubtitle": "Personalisierte Beträge, um deine Entscheidungen zu beleuchten",
+  "coachScenarioDecodedTitle": "Deine Szenarien entschlüsselt",
   "coachBadgeStatic": "Coach",
   "agirActionsRecommendedTitle": "Actions recommandees",
   "agirActionsRecommendedSubtitle": "Triees par priorite",
-  "profileCoachKnowledgeTitle": "Ce que MINT sait de toi",
+  "profileCoachKnowledgeTitle": "Was MINT über dich weiss",
   "profileStateFull": "Profil complet",
   "profileStatePartial": "Profil partiel",
   "profileStateMissing": "Profil non renseigne",
@@ -4668,56 +4668,56 @@
   "identityStatusIndependant": "Selbständig",
   "identityStatusChomage": "Arbeitssuchend",
   "identityStatusRetraite": "Pensioniert",
-  "simLppBuybackTitle": "Optimisation de Rachat LPP",
-  "simLppBuybackSubtitle": "Effet levier fiscal + Capitalisation",
+  "simLppBuybackTitle": "BVG-Einkauf-Optimierung",
+  "simLppBuybackSubtitle": "Steuerlicher Hebeleffekt + Kapitalisierung",
   "simLppBuybackPotential": "Potentiel de rachat",
-  "simLppBuybackYearsToRetirement": "Années jusqu'à la retraite",
+  "simLppBuybackYearsToRetirement": "Jahre bis zur Pensionierung",
   "simLppBuybackStaggering": "Lissage (staggering)",
-  "simLppBuybackFundRate": "Taux de la caisse LPP",
+  "simLppBuybackFundRate": "Zinssatz der Pensionskasse",
   "simLppBuybackTaxableIncome": "Revenu imposable",
   "simLppBuybackUnitChf": "CHF",
   "simLppBuybackUnitYears": "ans",
-  "simLppBuybackFinalCapital": "Valeur Finale Capitalisée",
-  "simLppBuybackRealReturn": "Rendement Réel : {rate} % / an",
+  "simLppBuybackFinalCapital": "Kapitalisierter Endwert",
+  "simLppBuybackRealReturn": "Reale Rendite: {rate} % / Jahr",
   "simLppBuybackTaxSavings": "Économie Impôts",
   "simLppBuybackNetEffort": "Effort Net",
-  "simLppBuybackTotalGain": "Gain Total de l'opération",
+  "simLppBuybackTotalGain": "Gesamtgewinn der Operation",
   "simLppBuybackCapitalMinusEffort": "Capital - Effort Net",
   "simLppBuybackFundRateLabel": "Taux LPP servi",
   "simLppBuybackFiscalLeverage": "Effet levier fiscal",
   "simLppBuybackBonASavoir": "Bon à savoir",
-  "simLppBuybackBonASavoirItem1": "Le rachat LPP est l'un des rares outils de planification fiscale accessibles à tous les salarié·e·s en Suisse.",
-  "simLppBuybackBonASavoirItem2": "Chaque franc racheté est déductible de ton revenu imposable (LIFD art. 33 al. 1 let. d).",
-  "simLppBuybackBonASavoirItem3": "Attention : tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art. 79b al. 3).",
-  "simLppBuybackDisclaimer": "Simulation incluant l'intérêt de la caisse ({fundRate} %) et l'économie d'impôt lissée sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.",
-  "simRealInterestTitle": "Simulateur d'Intérêt Réel",
-  "simRealInterestSubtitle": "Capital + Économie d'impôt réinvestie (Virtuel)",
+  "simLppBuybackBonASavoirItem1": "Der BVG-Einkauf ist eines der wenigen Steuerplanungsinstrumente, die allen zugänglich sind. Jeder eingekaufte Franken reduziert dein steuerbares Einkommen direkt.",
+  "simLppBuybackBonASavoirItem2": "Jeder eingekaufte Franken ist von deinem steuerbaren Einkommen abzugsfähig (DBG Art. 33 Abs. 1 Bst. d). Je höher dein Grenzsteuersatz, desto grösser der Hebeleffekt.",
+  "simLppBuybackBonASavoirItem3": "Achtung: Jeder WEF-Bezug ist 3 Jahre nach einem Einkauf gesperrt (BVG Art. 79b Abs. 3). Plane deine Einkäufe entsprechend.",
+  "simLppBuybackDisclaimer": "Simulation inklusive Kassenzins ({fundRate} %) und Steuerersparnis, geglättet über {staggeringYears} Jahre für ein steuerbares Einkommen von CHF {taxableIncome}. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.",
+  "simRealInterestTitle": "Realzins-Simulator",
+  "simRealInterestSubtitle": "Kapital + Reinvestierte Steuerersparnis (Virtuell)",
   "simRealInterestAmount": "Montant Investi",
   "simRealInterestDuration": "Durée",
   "simRealInterestPessimistic": "Pessimiste",
   "simRealInterestNeutral": "Neutre",
   "simRealInterestOptimistic": "Optimiste",
-  "simRealInterestHypotheses": "Hypothèses : Taux marginal {rate} %. Rendements marché : 2 % / 4 % / 6 %.",
-  "simRealInterestEducTitle": "Comprendre le rendement réel",
-  "simRealInterestEducBullet1": "Le rendement réel = rendement nominal − inflation − frais",
-  "simRealInterestEducBullet2": "Un placement à 3 % avec 1.5 % d'inflation et 0.5 % de frais rapporte seulement 1 % en réel",
-  "simRealInterestEducBullet3": "Sur 30 ans, cette différence peut représenter des dizaines de milliers de francs",
+  "simRealInterestHypotheses": "Annahmen: Grenzsteuersatz {rate} %. Marktrenditen: 2 % / 4 % / 6 %.",
+  "simRealInterestEducTitle": "Die reale Rendite verstehen",
+  "simRealInterestEducBullet1": "Die reale Rendite = Nominalrendite − Inflation − Gebühren",
+  "simRealInterestEducBullet2": "Eine Anlage zu 3 % mit 1.5 % Inflation und 0.5 % Gebühren bringt tatsächlich nur 1 % reale Rendite pro Jahr.",
+  "simRealInterestEducBullet3": "Über 30 Jahre kann dieser Unterschied Zehntausende Franken ausmachen.",
   "simBuybackTitle": "Stratégie Rachat LPP",
-  "simBuybackSubtitle": "Optimisation par lissage (Staggering)",
+  "simBuybackSubtitle": "Optimierung durch Staffelung (Staggering)",
   "simBuybackDuration": "Durée du lissage",
   "simBuybackYears": "{count} ans",
   "simBuybackLessOptimized": "Moins Optimisé",
   "simBuybackSingleShot": "En 1 fois",
   "simBuybackOptimized": "Optimisé",
   "simBuybackInNTimes": "En {count} fois",
-  "simBuybackEstimatedGain": "Gain estimé : + CHF {amount}",
+  "simBuybackEstimatedGain": "Geschätzter Gewinn: + CHF {amount}",
   "simBuybackSavingsLabel": "Économie",
-  "simBuybackMarginalRateQuestion": "Qu'est-ce que le taux marginal d'imposition ?",
-  "simBuybackMarginalRateTitle": "Taux marginal d'imposition",
-  "simBuybackMarginalRateExplanation": "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. Plus ton revenu est élevé, plus ce taux est fort.",
-  "simBuybackMarginalRateTip": "En lissant tes rachats, tu restes dans des tranches d'imposition plus basses chaque année, ce qui augmente ton économie fiscale totale.",
+  "simBuybackMarginalRateQuestion": "Was ist der Grenzsteuersatz?",
+  "simBuybackMarginalRateTitle": "Grenzsteuersatz",
+  "simBuybackMarginalRateExplanation": "Der Grenzsteuersatz ist der Prozentsatz der Steuer auf deinen letzten verdienten Franken. Je höher dein Einkommen, desto höher der Grenzsteuersatz. Durch die Staffelung deiner Einkäufe bleibst du jedes Jahr in tieferen Steuerklassen.",
+  "simBuybackMarginalRateTip": "Durch die Staffelung deiner Einkäufe bleibst du jedes Jahr in tieferen Steuerklassen — der kumulative Gewinn kann erheblich sein.",
   "simBuybackLockedTitle": "Rachat LPP bloqué",
-  "simBuybackLockedMessage": "Le rachat LPP est désactivé en mode protection. Un rachat bloque ta liquidité pendant 3 ans (LPP art. 79b al. 3). Rembourse d'abord tes dettes avant d'immobiliser du capital.",
+  "simBuybackLockedMessage": "Der BVG-Einkauf ist im Schutzmodus deaktiviert. Ein Einkauf bindet deine Liquidität für 3 Jahre (BVG Art. 79b). Priorisiere zuerst den Schuldenabbau.",
   "pcWidgetTitle": "Ergänzungsleistungen (EL)",
   "pcWidgetSubtitle": "Lokale Berechtigungsprüfung",
   "pcWidgetRevenus": "Einkommen",
@@ -4919,21 +4919,21 @@
   "avsGuideConfidenceSubtitle": "Beitragsjahre, RAMD, Lücken",
   "avsGuideStepsTitle": "En 4 étapes",
   "avsGuideStep1Title": "Gehe auf www.ahv-iv.ch",
-  "avsGuideStep1Subtitle": "C'est le site officiel de l'AVS/AI. Tu peux aussi demander ton extrait directement à ta caisse de compensation.",
+  "avsGuideStep1Subtitle": "Das ist die offizielle AHV/IV-Website. Du kannst deinen Auszug auch direkt bei deiner Ausgleichskasse anfordern.",
   "avsGuideStep2Title": "Melde dich mit deiner eID an oder erstelle ein Konto",
   "avsGuideStep2Subtitle": "Du benötigst deine AHV-Nummer (756.XXXX.XXXX.XX, auf deiner Krankenversicherungskarte).",
   "avsGuideStep3Title": "Fordere deinen individuellen Kontoauszug (CI) an",
-  "avsGuideStep3Subtitle": "Cherche la section \"Extrait de compte\" ou \"Kontoauszug\". C'est un document officiel qui récapitule toutes tes cotisations.",
+  "avsGuideStep3Subtitle": "Suche den Abschnitt «Kontoauszug» oder «Extrait de compte». Das ist ein offizielles Dokument, das alle deine Beiträge zusammenfasst.",
   "avsGuideStep4Title": "Du erhältst ihn per Post oder als PDF",
   "avsGuideStep4Subtitle": "Je nach Kasse trifft der Auszug in 5 bis 10 Werktagen ein. Einige Kassen bieten einen sofortigen PDF-Download an.",
   "avsGuideOpenAhvButton": "ahv-iv.ch öffnen",
   "avsGuideScanButton": "Ich habe meinen Auszug bereits → Scannen",
   "avsGuideTestMode": "MODE TEST",
-  "avsGuideTestDescription": "Pas d'extrait AVS sous la main ? Teste le flux avec un exemple d'extrait.",
+  "avsGuideTestDescription": "Keinen AHV-Auszug zur Hand? Teste den Ablauf mit einem Beispiel-Auszug.",
   "avsGuideTestButton": "Beispiel verwenden",
   "avsGuideFreeNote": "Der AHV-Auszug ist kostenlos und in 5 bis 10 Werktagen verfügbar. Du kannst auch deine kantonale Ausgleichskasse aufsuchen.",
   "avsGuidePrivacyNote": "Dein Auszugsbild wird nie gespeichert oder gesendet. Die Extraktion erfolgt auf deinem Gerät. Nur die von dir bestätigten Werte werden in deinem Profil gespeichert.",
-  "avsGuideSnackbarError": "Impossible d'ouvrir {url}. Copie l'adresse et ouvre-la dans ton navigateur.",
+  "avsGuideSnackbarError": "Kann {url} nicht öffnen. Kopiere die Adresse und öffne sie in deinem Browser.",
   "@avsGuideSnackbarError": {
     "placeholders": {
       "url": {
@@ -4941,7 +4941,7 @@
       }
     }
   },
-  "dataBlockDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).",
+  "dataBlockDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG).",
   "dataBlockIncomplete": "Dieser Bereich ist noch unvollständig. Öffne den entsprechenden Bereich, um fehlende Daten hinzuzufügen.",
   "dataBlockComplete": "Dieser Bereich ist vollständig.",
   "dataBlockModeForm": "Formulaire",
@@ -4950,31 +4950,31 @@
   "dataBlockStatusPartial": "Partiel",
   "dataBlockStatusMissing": "Manquant",
   "dataBlockRevenuTitle": "Revenu",
-  "dataBlockRevenuDesc": "Ton salaire brut est la base de toutes les projections : prévoyance, impôts, budget. Plus il est précis, plus tes résultats seront fiables.",
+  "dataBlockRevenuDesc": "Dein Bruttolohn ist die Grundlage aller Projektionen: Vorsorge, Steuern, Budget. Je genauer er ist, desto zuverlässiger sind deine Ergebnisse.",
   "dataBlockRevenuCta": "Mein Einkommen angeben",
   "dataBlockLppTitle": "Prévoyance LPP",
-  "dataBlockLppDesc": "Ton avoir LPP (2e pilier) représente souvent le plus gros capital de ta prévoyance. Un certificat de prévoyance donne une valeur exacte plutôt qu'une estimation.",
+  "dataBlockLppDesc": "Dein BVG-Guthaben (2. Säule) ist oft das grösste Kapital deiner Vorsorge. Ein Vorsorgeausweis gibt einen exakten Wert statt einer Schätzung.",
   "dataBlockLppCta": "Mein BVG-Zertifikat hinzufügen",
   "dataBlockAvsTitle": "Extrait AVS",
-  "dataBlockAvsDesc": "L'extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l'étranger, années manquantes) réduisent ta rente AVS.",
+  "dataBlockAvsDesc": "Der AHV-Auszug bestätigt deine effektiven Beitragsjahre. Lücken (Auslandaufenthalt, fehlende Jahre) reduzieren deine AHV-Rente.",
   "dataBlockAvsCta": "Meinen AHV-Auszug bestellen",
   "dataBlock3aTitle": "3e pilier (3a)",
-  "dataBlock3aDesc": "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un avantage fiscal. Renseigne les soldes actuels pour une vue complète.",
+  "dataBlock3aDesc": "Deine Säule-3a-Konten ergänzen deine Vorsorge und bieten einen Steuervorteil. Gib die aktuellen Salden ein für eine vollständige Übersicht.",
   "dataBlock3aCta": "Simuler mon 3a",
   "dataBlockPatrimoineTitle": "Patrimoine",
-  "dataBlockPatrimoineDesc": "Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.",
+  "dataBlockPatrimoineDesc": "Freie Ersparnisse, Anlagen, Immobilien: Diese Daten vervollständigen deine Projektion und ermöglichen die Berechnung deines Financial Resilience Index.",
   "dataBlockPatrimoineCta": "Mein Vermögen erfassen",
   "dataBlockFiscaliteTitle": "Fiscalité",
   "dataBlockFiscaliteDesc": "Deine Gemeinde, dein steuerbares Einkommen und dein Vermögen bestimmen deinen Grenzsteuersatz. Eine Steuererklärung oder Veranlagung gibt einen realen Satz statt einer Schätzung (Gemeindekoeffizient 60%-130%).",
   "dataBlockFiscaliteCta": "Meine Steuern vergleichen",
   "dataBlockObjectifTitle": "Rentenziel",
-  "dataBlockObjectifDesc": "À quel âge souhaites-tu arrêter de travailler ? Un objectif clair permet de calculer l'effort d'épargne nécessaire et les options (anticipation, retraite partielle).",
+  "dataBlockObjectifDesc": "In welchem Alter möchtest du aufhören zu arbeiten? Ein klares Ziel ermöglicht die Berechnung des nötigen Sparaufwands und der Optionen (Frühpensionierung, Teilpensionierung).",
   "dataBlockObjectifCta": "Meine Projektion ansehen",
   "dataBlockMenageTitle": "Haushaltszusammensetzung",
-  "dataBlockMenageDesc": "En couple, les projections changent : AVS plafonnée pour les mariés (LAVS art. 35), rente de survivant (LPP art. 19), optimisation fiscale à deux.",
+  "dataBlockMenageDesc": "Als Paar ändern sich die Projektionen: Plafonierte AHV für Verheiratete (AHVG Art. 35), Hinterlassenenrente (BVG Art. 19), gemeinsame Steueroptimierung.",
   "dataBlockMenageCta": "Meinen Haushalt verwalten",
   "dataBlockUnknownTitle": "Données",
-  "dataBlockUnknownDesc": "Ce lien de données n’est plus à jour. Utilise la section recommandée pour compléter ton profil.",
+  "dataBlockUnknownDesc": "Diese Datenverknüpfung ist nicht mehr aktuell. Verwende den empfohlenen Bereich, um dein Profil zu ergänzen.",
   "dataBlockUnknownCta": "Diagnose öffnen",
   "dataBlockDefaultTitle": "Données",
   "dataBlockDefaultDesc": "Vervollständige diesen Bereich, um die Genauigkeit deiner Projektionen zu verbessern.",
@@ -4982,11 +4982,11 @@
   "renteVsCapitalAppBarTitle": "Rente oder Kapital: deine Entscheidung",
   "renteVsCapitalIntro": "Bei der Pensionierung wählst du ein für alle Mal: ein Einkommen auf Lebenszeit oder dein Kapital in der Hand.",
   "renteVsCapitalRenteLabel": "Rente",
-  "renteVsCapitalRenteExplanation": "Ta caisse de pension te verse un montant fixe chaque mois, tant que tu vis — même si tu atteins 100 ans. En échange, tu ne récupères jamais ton capital.",
+  "renteVsCapitalRenteExplanation": "Deine Pensionskasse zahlt dir jeden Monat einen festen Betrag, solange du lebst — selbst wenn du 100 wirst. Im Gegenzug erhältst du dein Kapital nie zurück.",
   "renteVsCapitalCapitalLabel": "Capital",
   "renteVsCapitalCapitalExplanation": "Du beziehst dein ganzes BVG-Guthaben auf einmal. Du legst es an und beziehst monatlich, was du brauchst. Totale Freiheit, aber das Risiko aufzubrauchen ist real.",
   "renteVsCapitalMixteLabel": "Mixte",
-  "renteVsCapitalMixteExplanation": "La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.",
+  "renteVsCapitalMixteExplanation": "Der obligatorische Teil als Rente (Umwandlungssatz 6.8 %) + der überobligatorische Teil als Kapital. Ein Kompromiss zwischen Sicherheit und Flexibilität.",
   "renteVsCapitalEstimateMode": "Für mich schätzen",
   "renteVsCapitalCertificateMode": "Ich habe mein Zertifikat",
   "renteVsCapitalAge": "Ton âge",
@@ -5012,12 +5012,12 @@
     }
   },
   "renteVsCapitalProjectionSource": "Projektion basierend auf deinem Alter, Lohn und aktuellem BVG",
-  "renteVsCapitalLppOblig": "Avoir LPP obligatoire (certificat LPP)",
-  "renteVsCapitalLppSurob": "Avoir LPP surobligatoire (certificat LPP)",
-  "renteVsCapitalRenteProposed": "Rente annuelle proposée (certificat LPP)",
+  "renteVsCapitalLppOblig": "Obligatorisches BVG-Guthaben (Vorsorgeausweis)",
+  "renteVsCapitalLppSurob": "Überobligatorisches BVG-Guthaben (Vorsorgeausweis)",
+  "renteVsCapitalRenteProposed": "Vorgeschlagene Jahresrente (Vorsorgeausweis)",
   "renteVsCapitalTcOblig": "Oblig. Umwandlungssatz (%)",
   "renteVsCapitalTcSurob": "Überoblig. Umwandlungssatz (%)",
-  "renteVsCapitalMaxPrecision": "Précision maximale — résultats basés sur tes vrais chiffres.",
+  "renteVsCapitalMaxPrecision": "Maximale Genauigkeit — Ergebnisse basierend auf deinen tatsächlichen Zahlen.",
   "renteVsCapitalCanton": "Canton",
   "renteVsCapitalMarried": "Marié·e",
   "renteVsCapitalRetirementAge": "Geplante Pensionierung mit",
@@ -5029,7 +5029,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheTaxEpuise": "Cette décision peut te coûter {taxDelta} d'impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu'une seule fois.",
+  "renteVsCapitalAccrocheTaxEpuise": "Diese Entscheidung kann dich {taxDelta} an überschüssigen Steuern kosten — oder dich mit {age} Jahren ohne alles dastehen lassen. Du kannst sie nur einmal treffen.",
   "@renteVsCapitalAccrocheTaxEpuise": {
     "placeholders": {
       "taxDelta": {
@@ -5040,7 +5040,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheTax": "Cette décision peut changer {taxDelta} d'impôts sur ta retraite. Tu ne peux la prendre qu'une seule fois.",
+  "renteVsCapitalAccrocheTax": "Diese Entscheidung kann {taxDelta} an Steuern auf deine Pension ändern. Du kannst sie nur einmal treffen.",
   "@renteVsCapitalAccrocheTax": {
     "placeholders": {
       "taxDelta": {
@@ -5048,7 +5048,7 @@
       }
     }
   },
-  "renteVsCapitalAccrocheEpuise": "Avec le capital, tu pourrais manquer d'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu'une fois.",
+  "renteVsCapitalAccrocheEpuise": "Mit dem Kapital könnte dir ab {age} Jahren das Geld ausgehen. Mit der Rente erhältst du einen festen Betrag auf Lebenszeit. Du kannst nur einmal wählen.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -5068,8 +5068,8 @@
       }
     }
   },
-  "renteVsCapitalMicroRente": "Ta caisse te verse ce montant chaque mois, tant que tu vis.",
-  "renteVsCapitalMicroCapital": "Tu retires {swr} % par an d'un capital placé à {rendement} %.",
+  "renteVsCapitalMicroRente": "Deine Kasse zahlt dir diesen Betrag jeden Monat, solange du lebst.",
+  "renteVsCapitalMicroCapital": "Du beziehst {swr} % pro Jahr aus einem Kapital, das zu {rendement} % angelegt ist.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {
@@ -5080,7 +5080,7 @@
       }
     }
   },
-  "renteVsCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s'épuiser.",
+  "renteVsCapitalSyntheseCapitalHigher": "Das Kapital gibt dir {delta}/Monat mehr, könnte aber aufgebraucht werden.",
   "@renteVsCapitalSyntheseCapitalHigher": {
     "placeholders": {
       "delta": {
@@ -5088,7 +5088,7 @@
       }
     }
   },
-  "renteVsCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s'arrête jamais.",
+  "renteVsCapitalSyntheseRenteHigher": "Die Rente gibt dir {delta}/Monat mehr und hört nie auf.",
   "@renteVsCapitalSyntheseRenteHigher": {
     "placeholders": {
       "delta": {
@@ -5105,13 +5105,13 @@
       }
     }
   },
-  "renteVsCapitalAvsSupplementary": " supplémentaires dans les deux cas (LAVS art. 29)",
+  "renteVsCapitalAvsSupplementary": " zusätzlich in beiden Fällen (AHVG Art. 29)",
   "renteVsCapitalLifeExpectancy": "Was wenn ich lebe bis...",
-  "renteVsCapitalLifeExpectancyRef": "Espérance de vie suisse : hommes 84 ans · femmes 87 ans",
-  "renteVsCapitalChartTitle": "Capital restant vs revenus cumulés de la rente",
-  "renteVsCapitalChartSubtitle": "Capital (vert) : ce qu'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l'âge auquel la rente a plus rapporté.",
+  "renteVsCapitalLifeExpectancyRef": "Schweizer Lebenserwartung: Männer 84 Jahre · Frauen 87 Jahre",
+  "renteVsCapitalChartTitle": "Restkapital vs kumulierte Renteneinnahmen",
+  "renteVsCapitalChartSubtitle": "Kapital (grün): Was nach deinen Bezügen übrig bleibt. Rente (blau): Total erhalten seit Beginn. Der Schnittpunkt = das Alter, ab dem die Rente mehr eingebracht hat.",
   "renteVsCapitalChartAxisLabel": "Âge",
-  "renteVsCapitalBeyondHorizon": "À {age} ans : au-delà de l'horizon de simulation.",
+  "renteVsCapitalBeyondHorizon": "Mit {age} Jahren: Jenseits des Simulationshorizonts.",
   "@renteVsCapitalBeyondHorizon": {
     "placeholders": {
       "age": {
@@ -5134,7 +5134,7 @@
   "renteVsCapitalFiscalRightSubtitle": "Nur einmal besteuert",
   "renteVsCapitalFiscalOver30years": "sur 30 ans",
   "renteVsCapitalFiscalAtRetrait": "beim Bezug (DBG Art. 38)",
-  "renteVsCapitalFiscalCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d'impôts.",
+  "renteVsCapitalFiscalCapitalSaves": "Über 30 Jahre spart dir das Kapital ~{amount} an Steuern.",
   "@renteVsCapitalFiscalCapitalSaves": {
     "placeholders": {
       "amount": {
@@ -5142,7 +5142,7 @@
       }
     }
   },
-  "renteVsCapitalFiscalRenteSaves": "Sur 30 ans, la rente génère ~{amount} d'impôts en moins.",
+  "renteVsCapitalFiscalRenteSaves": "Über 30 Jahre generiert die Rente ~{amount} weniger Steuern.",
   "@renteVsCapitalFiscalRenteSaves": {
     "placeholders": {
       "amount": {
@@ -5154,7 +5154,7 @@
   "renteVsCapitalInflationToday": "Aujourd'hui",
   "renteVsCapitalInflationIn20Years": "Dans 20 ans",
   "renteVsCapitalInflationPurchasingPower": "Kaufkraft",
-  "renteVsCapitalInflationBottomText": "Ta rente LPP n'est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
+  "renteVsCapitalInflationBottomText": "Deine BVG-Rente ist nicht indexiert. Sie kauft in 20 Jahren {percent} % weniger.",
   "@renteVsCapitalInflationBottomText": {
     "placeholders": {
       "percent": {
@@ -5179,17 +5179,17 @@
   "renteVsCapitalTransmissionRightSubtitle": "Deine Erben erhalten",
   "renteVsCapitalTransmissionRightValue": "100 %",
   "renteVsCapitalTransmissionRightDetail": "des Restguthabens",
-  "renteVsCapitalTransmissionBottomMarried": "Avec la rente, seul·e ton conjoint·e reçoit 60 %. Rien pour les enfants.",
+  "renteVsCapitalTransmissionBottomMarried": "Bei der Rente erhält nur dein·e Ehepartner·in 60 %. Nichts für die Kinder.",
   "renteVsCapitalTransmissionBottomSingle": "Mit der Rente geht nichts an deine Angehörigen.",
   "renteVsCapitalAffinerTitle": "Simulation verfeinern",
-  "renteVsCapitalAffinerSubtitle": "Pour ceux qui veulent creuser.",
-  "renteVsCapitalHypRendement": "Ce que ton capital rapporte par an",
-  "renteVsCapitalHypSwr": "Combien tu retires chaque année",
+  "renteVsCapitalAffinerSubtitle": "Für alle, die tiefer graben möchten.",
+  "renteVsCapitalHypRendement": "Was dein Kapital pro Jahr erwirtschaftet",
+  "renteVsCapitalHypSwr": "Wie viel du jedes Jahr beziehst",
   "renteVsCapitalHypInflation": "Inflation",
-  "renteVsCapitalTornadoToggle": "Voir le diagramme de sensibilité",
-  "renteVsCapitalImpactTitle": "Qu'est-ce qui change le plus le résultat ?",
+  "renteVsCapitalTornadoToggle": "Sensitivitätsdiagramm anzeigen",
+  "renteVsCapitalImpactTitle": "Was verändert das Ergebnis am meisten?",
   "renteVsCapitalImpactSubtitle": "Die einflussreichsten Parameter auf den Unterschied zwischen deinen Optionen.",
-  "renteVsCapitalHypothesesTitle": "Hypothèses de cette simulation",
+  "renteVsCapitalHypothesesTitle": "Annahmen dieser Simulation",
   "renteVsCapitalWarning": "Avertissement",
   "renteVsCapitalSources": "Quellen: {sources}",
   "@renteVsCapitalSources": {
@@ -5199,7 +5199,7 @@
       }
     }
   },
-  "renteVsCapitalRachatLabel": "Rachat LPP annuel prévu (CHF)",
+  "renteVsCapitalRachatLabel": "Geplanter jährlicher BVG-Einkauf (CHF)",
   "renteVsCapitalRachatMax": "max {amount}",
   "@renteVsCapitalRachatMax": {
     "placeholders": {
@@ -5209,12 +5209,12 @@
     }
   },
   "renteVsCapitalRachatHint": "0 (optionnel)",
-  "renteVsCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
-  "renteVsCapitalEplLabel": "Retrait EPL pour achat immobilier",
-  "renteVsCapitalEplHint": "Montant retiré (min 20'000)",
+  "renteVsCapitalRachatTooltip": "Wenn du jedes Jahr BVG-Einkäufe tätigst, wird deren zukünftiger Wert dem Kapital bei der Pensionierung hinzugefügt. 3-Jahres-Sperre vor WEF (BVG Art. 79b).",
+  "renteVsCapitalEplLabel": "WEF-Bezug für Wohneigentum",
+  "renteVsCapitalEplHint": "Bezogener Betrag (min. 20'000)",
   "renteVsCapitalEplTooltip": "Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20'000 (BVV2 Art. 5). Blockiert den BVG-Einkauf für 3 Jahre.",
-  "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
-  "renteVsCapitalProfileAutoFill": "Valeurs pré-remplies depuis ton profil",
+  "renteVsCapitalEplLegalRef": "BVG Art. 30c — BVV2 Art. 5 (min. CHF 20'000)",
+  "renteVsCapitalProfileAutoFill": "Werte aus deinem Profil vorausgefüllt",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",
   "frontalierTab90Jours": "90 jours",
@@ -5231,14 +5231,14 @@
   "frontalierQuasiResidentTitle": "Quasi-Resident (Genf)",
   "frontalierQuasiResidentDesc": "Wenn mehr als 90% deines weltweiten Einkommens aus der Schweiz stammen, kannst du die ordentliche Besteuerung mit Abzügen beantragen (3a, effektive Kosten usw.). Das kann deine Steuern erheblich senken.",
   "frontalierTessinTitle": "Tessin — Sonderregelung",
-  "frontalierEducationalTax": "En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l'état civil et le nombre d'enfants. À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.",
+  "frontalierEducationalTax": "In der Schweiz werden Grenzgänger an der Quelle besteuert (Tarif C). Der Satz variiert nach Kanton, Zivilstand und Kinderzahl. In Genf kannst du bei mehr als 90% Schweizer Welteinkommen den Quasi-Residentenstatus beantragen, um Abzüge zu nutzen.",
   "frontalierJoursBureau": "Bürotage in der Schweiz",
-  "frontalierJoursHomeOffice": "Jours en home office à l'étranger",
+  "frontalierJoursHomeOffice": "Homeoffice-Tage im Ausland",
   "frontalierJaugeRisque": "RISIKOBAROMETER",
   "frontalierJoursHomeOfficeLabel": "Home-Office-Tage",
   "frontalierRiskLow": "Pas de risque",
   "frontalierRiskMedium": "Aufmerksamkeitszone",
-  "frontalierRiskHigh": "Risque fiscal — l'imposition bascule",
+  "frontalierRiskHigh": "Steuerrisiko — Besteuerung wechselt",
   "frontalierDaysRemaining": "Du hast noch {days} Tage Spielraum",
   "@frontalierDaysRemaining": {
     "placeholders": {
@@ -5248,7 +5248,7 @@
     }
   },
   "frontalierRecommandation": "RECOMMANDATION",
-  "frontalierEducational90Days": "Depuis 2023, les accords amiables entre la Suisse et ses voisins fixent un seuil de tolérance pour le télétravail des frontaliers. Au-delà de 90 jours de home office par an, les cotisations sociales et l'imposition peuvent basculer vers le pays de résidence.",
+  "frontalierEducational90Days": "Seit 2023 legen bilaterale Vereinbarungen zwischen der Schweiz und ihren Nachbarn eine Toleranzschwelle für Grenzgänger-Telearbeit fest. Ab 90 Homeoffice-Tagen pro Jahr können Sozialabgaben und Besteuerung ins Wohnsitzland wechseln.",
   "frontalierChargesCh": "Charges CH",
   "frontalierChargesCountry": "Abgaben {country}",
   "@frontalierChargesCountry": {
@@ -5284,12 +5284,12 @@
   },
   "frontalierAssuranceMaladie": "KRANKENVERSICHERUNG",
   "frontalierLamalTitle": "LAMal (suisse)",
-  "frontalierLamalDesc": "Obligatoire si tu travailles en CH. Prime individuelle (~CHF 300-500/mois).",
+  "frontalierLamalDesc": "Obligatorisch bei Arbeit in der CH. Individuelle Prämie (~CHF 300-500/Monat).",
   "frontalierCmuTitle": "CMU/Sozialversicherung (Frankreich)",
-  "frontalierCmuDesc": "Droit d'option possible pour les frontaliers FR. Cotisation ~8% du revenu fiscal.",
+  "frontalierCmuDesc": "Optionsrecht für FR-Grenzgänger möglich. Beitrag ~8% des steuerbaren Einkommens.",
   "frontalierAssurancePriveeTitle": "Privatversicherung (DE/IT/AT)",
   "frontalierAssurancePriveeDesc": "In Deutschland PKV-Option für Gutverdiener. IT/AT: obligatorisches Regime des Landes.",
-  "frontalierEducationalCharges": "En tant que frontalier, tu cotises aux assurances sociales suisses (AVS/AI/APG, AC, LPP). Les taux sont généralement plus bas qu'en France ou en Allemagne — mais la LAMal est à ta charge individuellement, ce qui peut compenser l'avantage.",
+  "frontalierEducationalCharges": "Als Grenzgänger zahlst du Schweizer Sozialversicherungsbeiträge (AHV/IV/EO, ALV, BVG). Die Sätze sind generell tiefer als in Frankreich oder Deutschland — aber die KVG-Prämie trägst du individuell, was den Vorteil ausgleichen kann.",
   "frontalierPaysResidence": "Wohnsitzland",
   "frontalierLeSavaisTu": "Le savais-tu ?",
   "concubinageAppBarTitle": "Heirat vs Konkubinat",
@@ -5331,8 +5331,8 @@
   },
   "concubinageNeutralTitle": "Keine Option passt für alle",
   "concubinageNeutralDesc": "Die Wahl zwischen Heirat und Konkubinat hängt von deiner Situation ab: Einkommen, Vermögen, Kinder, Kanton, Lebensentwurf. Die Ehe bietet mehr automatischen Rechtsschutz, das Konkubinat mehr Flexibilität. Ein·e Spezialist·in kann dir helfen, klarer zu sehen.",
-  "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
-  "concubinageProtectionsCount": "{count}/{total} protections en place",
+  "concubinageChecklistIntro": "Im Konkubinat ist nichts automatisch. Hier sind die wichtigsten Schutzmassnahmen, um deine·n Partner·in abzusichern.",
+  "concubinageProtectionsCount": "{count}/{total} Schutzmassnahmen vorhanden",
   "@concubinageProtectionsCount": {
     "placeholders": {
       "count": {
@@ -5344,22 +5344,22 @@
     }
   },
   "concubinageChecklist1Title": "Testament verfassen",
-  "concubinageChecklist1Desc": "Sans testament, ton partenaire n'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.",
+  "concubinageChecklist1Desc": "Ohne Testament erbt dein·e Partner·in nichts — alles geht an deine Eltern oder Geschwister. Ein handschriftliches Testament (handgeschrieben, datiert, unterschrieben) genügt. Du kannst die frei verfügbare Quote deinem/deiner Partner·in vermachen.",
   "concubinageChecklist2Title": "BVG-Begünstigungsklausel",
-  "concubinageChecklist2Desc": "Contacte ta caisse de pension pour inscrire ton/ta partenaire comme bénéficiaire. Sans cette clause, le capital décès LPP ne lui revient pas. La plupart des caisses acceptent le concubin sous conditions (ménage commun, etc.).",
+  "concubinageChecklist2Desc": "Kontaktiere deine Pensionskasse, um deine·n Partner·in als Begünstigte·n einzutragen. Ohne diese Klausel geht das BVG-Todesfallkapital nicht an sie/ihn. Die meisten Kassen akzeptieren den Konkubinatspartner unter Bedingungen (gemeinsamer Haushalt etc.).",
   "concubinageChecklist3Title": "Konkubinatsvertrag",
-  "concubinageChecklist3Desc": "Un contrat écrit qui règle le partage des frais, la propriété des biens, et ce qui se passe en cas de séparation. Pas obligatoire, mais fortement recommandé — surtout si tu achètes un bien immobilier ensemble.",
+  "concubinageChecklist3Desc": "Ein schriftlicher Vertrag, der die Kostenteilung, das Eigentum an Gütern und die Regelung bei Trennung festlegt. Nicht obligatorisch, aber dringend empfohlen — besonders wenn ihr gemeinsam Wohneigentum kauft.",
   "concubinageChecklist4Title": "Gegenseitige Lebensversicherung",
-  "concubinageChecklist4Desc": "Une assurance-vie où chacun est bénéficiaire de l'autre permet de compenser l'absence de rente AVS/LPP de survivant. Compare les offres — les primes dépendent de l'âge et du capital assuré.",
-  "concubinageChecklist5Title": "Mandat pour cause d'inaptitude",
-  "concubinageChecklist5Desc": "Si tu deviens incapable de discernement (accident, maladie), ton/ta partenaire n'a aucun pouvoir de représentation. Un mandat pour cause d'inaptitude (CC art. 360 ss) lui donne ce droit.",
+  "concubinageChecklist4Desc": "Eine Lebensversicherung, bei der jede·r Partner·in Begünstigte·r des/der anderen ist, kompensiert das Fehlen der AHV/BVG-Hinterlassenenrente. Vergleiche Angebote — die Prämien hängen vom Alter und versicherten Kapital ab.",
+  "concubinageChecklist5Title": "Vorsorgeauftrag bei Urteilsunfähigkeit",
+  "concubinageChecklist5Desc": "Bei Urteilsunfähigkeit (Unfall, Krankheit) hat dein·e Partner·in keine Vertretungsbefugnis. Ein Vorsorgeauftrag (ZGB Art. 360 ff.) gibt ihr/ihm dieses Recht.",
   "concubinageChecklist6Title": "Patientenverfügung",
-  "concubinageChecklist6Desc": "Un document qui précise tes volontés médicales en cas d'incapacité. Tu peux y désigner ton/ta partenaire comme personne de confiance pour les décisions médicales (CC art. 370 ss).",
-  "concubinageChecklist7Title": "Compte joint pour les dépenses communes",
-  "concubinageChecklist7Desc": "Un compte commun simplifie la gestion des dépenses partagées (loyer, courses, factures). Définissez clairement la contribution de chacun. En cas de séparation, le solde est partagé à 50/50 sauf convention contraire.",
-  "concubinageChecklist8Title": "Bail commun ou individuel",
-  "concubinageChecklist8Desc": "Si tu es sur le bail avec ton/ta partenaire, vous êtes solidairement responsables. En cas de séparation, les deux doivent donner congé. Si un seul est titulaire, l'autre n'a aucun droit sur le logement.",
-  "concubinageDisclaimer": "Informations simplifiées à but éducatif — ne constitue pas un conseil juridique ou fiscal. Les règles dépendent du canton, de la commune et de ta situation personnelle. Consulte un·e spécialiste juridique pour un avis personnalisé.",
+  "concubinageChecklist6Desc": "Ein Dokument, das deine medizinischen Wünsche bei Urteilsunfähigkeit festhält. Du kannst deine·n Partner·in als Vertrauensperson für medizinische Entscheidungen bestimmen (ZGB Art. 370 ff.).",
+  "concubinageChecklist7Title": "Gemeinschaftskonto für gemeinsame Ausgaben",
+  "concubinageChecklist7Desc": "Ein Gemeinschaftskonto vereinfacht die Verwaltung gemeinsamer Ausgaben (Miete, Einkäufe, Rechnungen). Legt den Beitrag jeder Person klar fest. Bei Trennung wird der Saldo 50/50 geteilt, sofern nichts anderes vereinbart wurde.",
+  "concubinageChecklist8Title": "Gemeinsamer oder individueller Mietvertrag",
+  "concubinageChecklist8Desc": "Wenn du mit deinem/deiner Partner·in im Mietvertrag stehst, haftet ihr solidarisch. Bei Trennung müssen beide kündigen. Ist nur eine·r Mieter·in, hat der/die andere keine Rechte an der Wohnung.",
+  "concubinageDisclaimer": "Vereinfachte Informationen zu Bildungszwecken — stellt keine Rechts- oder Steuerberatung dar. Die Regeln hängen vom Kanton, der Gemeinde und deiner persönlichen Situation ab. Konsultiere eine·n Rechtsspezialist·in für eine persönliche Beratung.",
   "concubinageCriteriaImpots": "Impôts",
   "concubinageCriteriaPenaliteFiscale": "Heiratsstrafe",
   "concubinageCriteriaBonusFiscal": "Bonus fiscal",
@@ -11813,5 +11813,72 @@
     }
   },
   "capNoCapHeadline": "Du bist auf dem richtigen Weg",
-  "capNoCapWhyNow": "Erkunde MINT weiter, um deine Situation zu vertiefen."
+  "capNoCapWhyNow": "Erkunde MINT weiter, um deine Situation zu vertiefen.",
+  "narrativeEplHeadline": "EPL-Bezug: Vorteile und 3-Jahres-Sperre",
+  "narrativeEplBody": "Art. 30c BVG erlaubt den Bezug der 2. Säule zur Finanzierung von Wohneigentum. Achtung: Bei getätigten Einkäufen gilt eine 3-jährige Sperrfrist (BVG Art. 79b Abs. 3).",
+  "narrativeEplBadge": "2. Säule — WEF",
+  "narrativeRachatHeadline": "Staffeln, um zu sparen",
+  "narrativeRachatBody": "Einen BVG-Einkauf über mehrere Jahre zu verteilen, erlaubt den Abzug jeder Tranche vom steuerbaren Einkommen (BVG Art. 79b). Die Steuerprogression macht diese Strategie oft vorteilhafter als eine Einmalzahlung.",
+  "narrativeRachatBadge": "2. Säule",
+  "rachatEchelonneEyebrow": "Gestaffelter BVG-Einkauf",
+  "rachatEchelonneNarrativeSavings": "Den Einkauf über {horizon} Jahre zu staffeln reduziert deine gesamte Steuerlast.",
+  "rachatEchelonneNarrativeNoSavings": "In deiner Situation ist ein Einkauf in einem Betrag vorteilhafter.",
+  "narrativeLibrePassageHeadline": "Freizügigkeit: 6 Monate zum Handeln",
+  "narrativeLibrePassageBody": "Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.",
+  "narrativeLibrePassageBadge": "Freizügigkeit",
+  "narrativeAmortizationHeadline": "Direkt oder indirekt?",
+  "narrativeAmortizationBody": "Die direkte Amortisation reduziert deine Schuld jedes Jahr. Die indirekte zahlt in eine Säule 3a ein, steuerlich absetzbar (BVV3). Je nach Grenzsteuersatz könnte die indirekte insgesamt günstiger sein.",
+  "narrativeAmortizationBadge": "Amortisation",
+  "amortizationEyebrow": "Direkte vs. indirekte Amortisation",
+  "amortizationSavingsLabel": "Ersparnis mit indirekter Amortisation",
+  "amortizationDifferenceLabel": "Differenz zwischen den beiden Strategien",
+  "narrativeSaronHeadline": "SARON oder Festhypothek?",
+  "narrativeSaronBody": "Der SARON folgt dem Geldmarkt und kann sich jedes Quartal ändern. Ein Festzins sichert deine Zinsen für die gesamte Laufzeit. Je nach Risikotoleranz könnte der Unterschied zu deinem Vorteil sein… oder nicht.",
+  "narrativeSaronBadge": "Hypothek",
+  "saronEyebrow": "SARON vs. Festhypothek",
+  "saronSavingsLabel": "potenzielle Ersparnis mit SARON",
+  "saronCostLabel": "Mehrkosten mit SARON",
+  "narrativeRealReturnHeadline": "Reale Rendite nach Inflation",
+  "narrativeRealReturnBody": "Die angezeigte Rendite sagt nicht alles. Nach Verwaltungskosten und Inflation kann der reale Gewinn abweichen. Die Steuerersparnis der Säule 3a (DBG Art. 33) verbessert die effektive Rendite erheblich.",
+  "narrativeRealReturnBadge": "3. Säule",
+  "narrativeRetroactive3aHeadline": "Bis zu 10 Jahre Säule 3a nachholen",
+  "narrativeRetroactive3aBody": "Ab 2026 erlaubt BVV3 Art. 7 die rückwirkende Einzahlung fehlender 3a-Beitragsjahre. Jede Zahlung ist vom steuerbaren Einkommen absetzbar (DBG Art. 33).",
+  "narrativeRetroactive3aBadge": "3. Säule",
+  "retroactive3aSavingsLabel": "Steuerersparnis mit Säule-3a-Nachzahlung",
+  "narrativeFirstJobHeadline": "Dein erster Lohn erklärt",
+  "narrativeFirstJobBody": "Zwischen AHV (AHVG Art. 5), BVG (Art. 16), Quellensteuer und KVG macht dein Netto etwa 75–80 % des Brutto aus. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.",
+  "narrativeFirstJobBadge": "Erste Stelle",
+  "narrativeMarriageHeadline": "Finanzielle Auswirkungen der Ehe",
+  "narrativeMarriageBody": "Die Ehe verändert deine Besteuerung (DBG Art. 9), dein Güterrecht (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nach euren jeweiligen Einkommen könnte die steuerliche Auswirkung positiv oder negativ sein.",
+  "narrativeMarriageBadge": "Ehe",
+  "narrativeBirthHeadline": "Kosten und Hilfen bei der Geburt",
+  "narrativeBirthBody": "Der Mutterschaftsurlaub (EOG Art. 16b–d) deckt 14 Wochen zu 80 % des Lohns. Familienzulagen variieren je nach Kanton (FamZG Art. 3). Dieser Simulator schätzt die Gesamtauswirkung auf dein Budget.",
+  "narrativeBirthBadge": "Geburt",
+  "narrativeCoverageHeadline": "Überprüfe deine Deckung",
+  "narrativeCoverageBody": "KVG, Krankentaggeld, Privathaftpflicht, Hausratversicherung… Jede Versicherung deckt ein anderes Risiko. Diese Prüfung identifiziert Lücken basierend auf deiner Situation und deinem Kanton.",
+  "narrativeCoverageBadge": "Versicherungen",
+  "narrativeDisabilityHeadline": "Verstehe deine Invaliditätslücke",
+  "narrativeDisabilityBody": "Bei Invalidität durchläuft dein Einkommen 3 Phasen: Arbeitgeber (OR Art. 324a), Krankentaggeld, dann IV + BVG (IVG Art. 28, BVG Art. 23-26). Der Rückgang kann 40–60 % deines aktuellen Lohns erreichen.",
+  "narrativeDisabilityBadge": "Invalidität",
+  "narrativeUnemploymentHeadline": "Deine Arbeitslosenrechte",
+  "narrativeUnemploymentBody": "Das AVIG sieht eine Entschädigung von 70–80 % des versicherten Verdienstes vor (Art. 22). Die Dauer hängt von deinen Beitragsmonaten und deinem Alter ab (Art. 27). Dieser Simulator schätzt deine Ansprüche basierend auf deiner aktuellen Situation.",
+  "narrativeUnemploymentBadge": "Arbeitslosigkeit",
+  "imputedRentalEyebrow": "Eigenmietwert",
+  "imputedRentalSavingsLabel": "Nettosteuerersparnis",
+  "imputedRentalTaxLabel": "zusätzliche Steuern",
+  "semanticsBack": "Zurück",
+  "semanticsDecrease": "Verringern",
+  "semanticsIncrease": "Erhöhen",
+  "@rachatEchelonneNarrativeSavings": {
+    "placeholders": {
+      "horizon": {
+        "type": "int"
+      }
+    }
+  },
+  "realReturnPrimaryLabel": "reale Rendite nach Steuern und Inflation",
+  "realReturnNarrative": "Dank des Steuerabzugs bringt deine Säule 3a deutlich mehr als ein gewöhnliches Sparkonto.",
+  "retroactive3aEmptyTitle": "Säule-3a-Nachzahlung",
+  "retroactive3aEmptySubtitle": "Gib dein Einkommen ein, um deine Steuerersparnis zu berechnen",
+  "retroactive3aEmptyCta": "Mein Einkommen hinzufügen"
 }

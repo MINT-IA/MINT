@@ -174,12 +174,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       children: [
         // Narrative intro
         MintNarrativeCard(
-          headline: 'Co\u00fbts et aides \u00e0 la naissance', // TODO: i18n
-          body: 'Le cong\u00e9 maternit\u00e9 (LAPG art.\u00a016b\u2013d) couvre 14 semaines \u00e0 80\u00a0% du salaire. '
-              'Les allocations familiales varient selon le canton (LAFam art.\u00a03). '
-              'Ce simulateur estime l\u2019impact global sur ton budget.', // TODO: i18n
+          headline: S.of(context)!.narrativeBirthHeadline,
+          body: S.of(context)!.narrativeBirthBody,
           tone: MintSurfaceTone.peche,
-          badge: 'Naissance', // TODO: i18n
+          badge: S.of(context)!.narrativeBirthBadge,
         ),
         const SizedBox(height: MintSpacing.xl),
 

@@ -115,11 +115,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
         ),
         body: MintEmptyState(
           icon: Icons.savings_outlined,
-          // TODO: i18n
-          title: 'Rattrapage 3a',
-          subtitle: 'Renseigne ton revenu pour calculer ton economie fiscale',
-          ctaLabel: 'Ajouter mon revenu',
-          onCta: () => context.push('/onboarding'),
+          title: S.of(context)!.retroactive3aEmptyTitle,
+          subtitle: S.of(context)!.retroactive3aEmptySubtitle,
+          ctaLabel: S.of(context)!.retroactive3aEmptyCta,
+          onCta: () => context.push('/onboarding/quick'),
         ),
       );
     }
@@ -151,12 +150,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               delegate: SliverChildListDelegate([
                 // 0. Narrative intro
                 MintEntrance(child: MintNarrativeCard(
-                  headline: 'Rattraper jusqu\u2019\u00e0 10 ans de 3a', // TODO: i18n
-                  body: 'D\u00e8s 2026, l\u2019OPP3 art.\u00a07 permet de verser r\u00e9troactivement '
-                      'les ann\u00e9es de cotisation 3a manqu\u00e9es. '
-                      'Chaque versement est d\u00e9ductible du revenu imposable (LIFD art.\u00a033).', // TODO: i18n
+                  headline: S.of(context)!.narrativeRetroactive3aHeadline,
+                  body: S.of(context)!.narrativeRetroactive3aBody,
                   tone: MintSurfaceTone.sauge,
-                  badge: '3e pilier', // TODO: i18n
+                  badge: S.of(context)!.narrativeRetroactive3aBadge,
                 )),
                 const SizedBox(height: MintSpacing.lg),
 
@@ -365,7 +362,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     return MintResultHeroCard(
       eyebrow: S.of(context)!.retroactive3aEconomiesFiscales,
       primaryValue: 'CHF\u00a0${formatChf(result.economiesFiscales)}',
-      primaryLabel: 'd\u2019\u00e9conomie fiscale avec le rattrapage 3a', // TODO: i18n
+      primaryLabel: S.of(context)!.retroactive3aSavingsLabel,
       narrative: result.chiffreChoc,
       accentColor: MintColors.success,
       tone: MintSurfaceTone.porcelaine,

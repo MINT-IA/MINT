@@ -44136,6 +44136,366 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Continue à explorer MINT pour approfondir ta situation.'**
   String get capNoCapWhyNow;
+
+  /// No description provided for @narrativeEplHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait EPL : avantages et blocage 3 ans'**
+  String get narrativeEplHeadline;
+
+  /// No description provided for @narrativeEplBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’art. 30c LPP permet de retirer ton 2e pilier pour financer un logement en propriété. Attention : si tu as effectué des rachats, un délai de blocage de 3 ans s’applique (LPP art. 79b al. 3).'**
+  String get narrativeEplBody;
+
+  /// No description provided for @narrativeEplBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier — EPL'**
+  String get narrativeEplBadge;
+
+  /// No description provided for @narrativeRachatHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échelonner pour économiser'**
+  String get narrativeRachatHeadline;
+
+  /// No description provided for @narrativeRachatBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répartir un rachat LPP sur plusieurs années permet de déduire chaque tranche du revenu imposable (LPP art. 79b). La progressivité fiscale rend cette stratégie souvent plus avantageuse qu’un versement unique.'**
+  String get narrativeRachatBody;
+
+  /// No description provided for @narrativeRachatBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier'**
+  String get narrativeRachatBadge;
+
+  /// No description provided for @rachatEchelonneEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat LPP échelonné'**
+  String get rachatEchelonneEyebrow;
+
+  /// No description provided for @rachatEchelonneNarrativeSavings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échelonner le rachat sur {horizon} ans réduit ta charge fiscale totale.'**
+  String rachatEchelonneNarrativeSavings(int horizon);
+
+  /// No description provided for @rachatEchelonneNarrativeNoSavings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans ta situation, le rachat en bloc est plus avantageux.'**
+  String get rachatEchelonneNarrativeNoSavings;
+
+  /// No description provided for @narrativeLibrePassageHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre passage : 6 mois pour agir'**
+  String get narrativeLibrePassageHeadline;
+
+  /// No description provided for @narrativeLibrePassageBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 3). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.'**
+  String get narrativeLibrePassageBody;
+
+  /// No description provided for @narrativeLibrePassageBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libre passage'**
+  String get narrativeLibrePassageBadge;
+
+  /// No description provided for @narrativeAmortizationHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct ou indirect ?'**
+  String get narrativeAmortizationHeadline;
+
+  /// No description provided for @narrativeAmortizationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’amortissement direct réduit ta dette chaque année. L’indirect verse dans un 3a, déductible fiscalement (OPP3). Selon ton taux marginal, l’indirect pourrait te coûter moins cher au total.'**
+  String get narrativeAmortizationBody;
+
+  /// No description provided for @narrativeAmortizationBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortissement'**
+  String get narrativeAmortizationBadge;
+
+  /// No description provided for @amortizationEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortissement direct vs indirect'**
+  String get amortizationEyebrow;
+
+  /// No description provided for @amortizationSavingsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'d’économie avec l’indirect'**
+  String get amortizationSavingsLabel;
+
+  /// No description provided for @amortizationDifferenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'de différence entre les deux stratégies'**
+  String get amortizationDifferenceLabel;
+
+  /// No description provided for @narrativeSaronHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'SARON ou taux fixe ?'**
+  String get narrativeSaronHeadline;
+
+  /// No description provided for @narrativeSaronBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le SARON suit le marché monétaire et peut évoluer chaque trimestre. Un taux fixe verrouille tes intérêts sur toute la durée. Selon ta tolérance au risque, l’écart pourrait jouer en ta faveur… ou non.'**
+  String get narrativeSaronBody;
+
+  /// No description provided for @narrativeSaronBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque'**
+  String get narrativeSaronBadge;
+
+  /// No description provided for @saronEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'SARON vs Taux fixe'**
+  String get saronEyebrow;
+
+  /// No description provided for @saronSavingsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'d’économie potentielle avec SARON'**
+  String get saronSavingsLabel;
+
+  /// No description provided for @saronCostLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'de coût supplémentaire avec SARON'**
+  String get saronCostLabel;
+
+  /// No description provided for @narrativeRealReturnHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement réel après inflation'**
+  String get narrativeRealReturnHeadline;
+
+  /// No description provided for @narrativeRealReturnBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le rendement affiché ne dit pas tout. Après frais de gestion et inflation, le gain réel peut différer. L’économie fiscale du 3a (LIFD art. 33) améliore considérablement le rendement effectif.'**
+  String get narrativeRealReturnBody;
+
+  /// No description provided for @narrativeRealReturnBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier'**
+  String get narrativeRealReturnBadge;
+
+  /// No description provided for @narrativeRetroactive3aHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattraper jusqu’à 10 ans de 3a'**
+  String get narrativeRetroactive3aHeadline;
+
+  /// No description provided for @narrativeRetroactive3aBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dès 2026, l’OPP3 art. 7 permet de verser rétroactivement les années de cotisation 3a manquées. Chaque versement est déductible du revenu imposable (LIFD art. 33).'**
+  String get narrativeRetroactive3aBody;
+
+  /// No description provided for @narrativeRetroactive3aBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier'**
+  String get narrativeRetroactive3aBadge;
+
+  /// No description provided for @retroactive3aSavingsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'d’économie fiscale avec le rattrapage 3a'**
+  String get retroactive3aSavingsLabel;
+
+  /// No description provided for @narrativeFirstJobHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton premier salaire expliqué'**
+  String get narrativeFirstJobHeadline;
+
+  /// No description provided for @narrativeFirstJobBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre AVS (LAVS art. 5), LPP (art. 16), impôt à la source et LAMal, ton net représente environ 75-80 % du brut. Comprendre ces déductions, c’est le premier pas vers une bonne gestion.'**
+  String get narrativeFirstJobBody;
+
+  /// No description provided for @narrativeFirstJobBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier emploi'**
+  String get narrativeFirstJobBadge;
+
+  /// No description provided for @narrativeMarriageHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact financier du mariage'**
+  String get narrativeMarriageHeadline;
+
+  /// No description provided for @narrativeMarriageBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon vos revenus respectifs, l’impact fiscal pourrait être positif ou négatif.'**
+  String get narrativeMarriageBody;
+
+  /// No description provided for @narrativeMarriageBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mariage'**
+  String get narrativeMarriageBadge;
+
+  /// No description provided for @narrativeBirthHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coûts et aides à la naissance'**
+  String get narrativeBirthHeadline;
+
+  /// No description provided for @narrativeBirthBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le congé maternité (LAPG art. 16b–d) couvre 14 semaines à 80 % du salaire. Les allocations familiales varient selon le canton (LAFam art. 3). Ce simulateur estime l’impact global sur ton budget.'**
+  String get narrativeBirthBody;
+
+  /// No description provided for @narrativeBirthBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Naissance'**
+  String get narrativeBirthBadge;
+
+  /// No description provided for @narrativeCoverageHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta couverture'**
+  String get narrativeCoverageHeadline;
+
+  /// No description provided for @narrativeCoverageBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAMal, IJM, RC privée, assurance ménage… Chaque assurance couvre un risque différent. Ce bilan identifie les lacunes selon ta situation et ton canton.'**
+  String get narrativeCoverageBody;
+
+  /// No description provided for @narrativeCoverageBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurances'**
+  String get narrativeCoverageBadge;
+
+  /// No description provided for @narrativeDisabilityHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre ta lacune invalidité'**
+  String get narrativeDisabilityHeadline;
+
+  /// No description provided for @narrativeDisabilityBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas d’invalidité, ton revenu passe par 3 phases : employeur (CO art. 324a), IJM, puis AI + LPP (LAI art. 28, LPP art. 23-26). La chute peut atteindre 40 à 60 % de ton salaire actuel.'**
+  String get narrativeDisabilityBody;
+
+  /// No description provided for @narrativeDisabilityBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invalidité'**
+  String get narrativeDisabilityBadge;
+
+  /// No description provided for @narrativeUnemploymentHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes droits au chômage'**
+  String get narrativeUnemploymentHeadline;
+
+  /// No description provided for @narrativeUnemploymentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La LACI prévoit une indemnité de 70 à 80 % du gain assuré (art. 22). La durée dépend de tes mois de cotisation et de ton âge (art. 27). Ce simulateur estime tes droits selon ta situation actuelle.'**
+  String get narrativeUnemploymentBody;
+
+  /// No description provided for @narrativeUnemploymentBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chômage'**
+  String get narrativeUnemploymentBadge;
+
+  /// No description provided for @imputedRentalEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur locative'**
+  String get imputedRentalEyebrow;
+
+  /// No description provided for @imputedRentalSavingsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'d’économie fiscale nette'**
+  String get imputedRentalSavingsLabel;
+
+  /// No description provided for @imputedRentalTaxLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'d’impôt supplémentaire'**
+  String get imputedRentalTaxLabel;
+
+  /// No description provided for @semanticsBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get semanticsBack;
+
+  /// No description provided for @semanticsDecrease.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer'**
+  String get semanticsDecrease;
+
+  /// No description provided for @semanticsIncrease.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter'**
+  String get semanticsIncrease;
+
+  /// No description provided for @realReturnPrimaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'rendement réel après impôts et inflation'**
+  String get realReturnPrimaryLabel;
+
+  /// No description provided for @realReturnNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Grâce à la déduction fiscale, ton 3a rapporte bien plus qu’un compte épargne classique.'**
+  String get realReturnNarrative;
+
+  /// No description provided for @retroactive3aEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattrapage 3a'**
+  String get retroactive3aEmptyTitle;
+
+  /// No description provided for @retroactive3aEmptySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne ton revenu pour calculer ton économie fiscale'**
+  String get retroactive3aEmptySubtitle;
+
+  /// No description provided for @retroactive3aEmptyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter mon revenu'**
+  String get retroactive3aEmptyCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
