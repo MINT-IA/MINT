@@ -31,13 +31,10 @@ import logging
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 
 from app.api.v1.endpoints.coach_chat import (
     MAX_AGENT_LOOP_ITERATIONS,
-    MAX_AGENT_LOOP_TOKENS,
     _execute_internal_tool,
-    _handle_retrieve_memories,
     _run_agent_loop,
 )
 
@@ -188,7 +185,7 @@ class TestAgentLoopToolExecution:
             _make_orchestrator_result(answer="Voici le résultat combiné."),
         )
         kwargs = {**_BASE_KWARGS, "memory_block": memory_block}
-        result = _run(_run_agent_loop(orchestrator=orch, **kwargs))
+        _run(_run_agent_loop(orchestrator=orch, **kwargs))
         assert orch.query.call_count == 2
         second_question = orch.query.call_args_list[1].kwargs["question"]
         assert "retraite" in second_question
@@ -203,7 +200,7 @@ class TestAgentLoopToolExecution:
             ),
             _make_orchestrator_result(answer="Pas de données en mémoire."),
         )
-        result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
+        _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
         assert orch.query.call_count == 2
         second_question = orch.query.call_args_list[1].kwargs["question"]
         assert "Aucune mémoire" in second_question

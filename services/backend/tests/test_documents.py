@@ -49,6 +49,14 @@ def client():
     """Test client with test DB and auth override."""
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
+
+    # Grant document_upload consent for the test user (nLPD opt-in model)
+    from app.services.reengagement.consent_manager import ConsentManager
+    from app.services.reengagement.reengagement_models import ConsentType
+    db = TestingSessionLocal()
+    ConsentManager.update_consent("test-user-id", ConsentType.document_upload, True, db=db)
+    db.close()
+
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.pop(require_current_user, None)

@@ -21,9 +21,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Optional
 
-logger = logging.getLogger(__name__)
-
 from app.services.rag.knowledge_catalog import KnowledgeCategory
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Compliance constants

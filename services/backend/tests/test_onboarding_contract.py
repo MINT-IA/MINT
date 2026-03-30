@@ -17,7 +17,6 @@ Sources:
     - LAVS art. 21-29, LPP art. 15-16, OPP3 art. 7
 """
 
-import pytest
 
 
 BANNED_TERMS = [

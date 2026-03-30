@@ -11893,5 +11893,12 @@
   "apiErrorOffline": "No internet connection. Check your network and try again.",
   "apiErrorTimeout": "The server is taking too long to respond. Try again.",
   "apiErrorSessionExpired": "Session expired — please log in again.",
-  "apiErrorServer": "Server error. Try again in a moment."
+  "apiErrorServer": "Server error. Try again in a moment.",
+  "pensionFundConnectComingSoon": "Coming soon — awaiting pilot agreements",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "greetingNight": "Good night",
+  "onboardingCalculationError": "Calculation error. Check your data and try again.",
+  "onboardingRetirementAgeWarning": "Retirement before 55? Check your age or employment status."
 }

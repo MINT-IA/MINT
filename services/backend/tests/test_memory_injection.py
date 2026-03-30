@@ -1,5 +1,4 @@
 """FIX-189: Test that prompt injection patterns are filtered from memory_block."""
-import pytest
 from app.api.v1.endpoints.coach_chat import _sanitize_memory_block
 
 

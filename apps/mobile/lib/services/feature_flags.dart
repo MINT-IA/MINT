@@ -69,6 +69,12 @@ class FeatureFlags {
   /// Open banking screens: hub, transactions, consents
   static bool enableOpenBanking = false;
 
+  /// Pension Fund Connect (institutional API pilot)
+  static bool enablePensionFundConnect = false;
+
+  /// Expert Tier (human specialist marketplace)
+  static bool enableExpertTier = false;
+
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
@@ -92,6 +98,12 @@ class FeatureFlags {
     // V1 screen gating flags — F7: 5 dead flags removed (always true, no consumers)
     if (data.containsKey('enableOpenBanking')) {
       enableOpenBanking = data['enableOpenBanking'] == true;
+    }
+    if (data.containsKey('enablePensionFundConnect')) {
+      enablePensionFundConnect = data['enablePensionFundConnect'] == true;
+    }
+    if (data.containsKey('enableExpertTier')) {
+      enableExpertTier = data['enableExpertTier'] == true;
     }
     if (data.containsKey('enableAdminScreens')) {
       enableAdminScreens = data['enableAdminScreens'] == true;

@@ -283,9 +283,7 @@ class TestRefreshTokenTTL:
         import jwt
         from app.core.config import settings
 
-        before = datetime.now(timezone.utc)
         token = create_refresh_token(user_id="test-user-7d")
-        after = datetime.now(timezone.utc)
 
         payload = jwt.decode(
             token,

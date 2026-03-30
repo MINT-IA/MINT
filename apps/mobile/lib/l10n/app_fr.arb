@@ -12340,5 +12340,12 @@
   "apiErrorOffline": "Pas de connexion internet. Vérifie ton réseau et réessaie.",
   "apiErrorTimeout": "Le serveur met trop de temps à répondre. Réessaie.",
   "apiErrorSessionExpired": "Session expirée\u00a0— reconnecte-toi.",
-  "apiErrorServer": "Erreur serveur. Réessaie dans quelques instants."
+  "apiErrorServer": "Erreur serveur. Réessaie dans quelques instants.",
+  "pensionFundConnectComingSoon": "Bientôt disponible\u00a0— en attente des accords pilotes",
+  "greetingMorning": "Bonjour",
+  "greetingAfternoon": "Bon après-midi",
+  "greetingEvening": "Bonsoir",
+  "greetingNight": "Bonne nuit",
+  "onboardingCalculationError": "Erreur de calcul. Vérifie tes données et réessaie.",
+  "onboardingRetirementAgeWarning": "Retraite avant 55 ans\u00a0? Vérifie ton âge ou ton statut."
 }

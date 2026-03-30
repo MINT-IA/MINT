@@ -71,13 +71,13 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
-// TODO(MINT-106): Certificate pinning — P1-6 audit finding.
-// Implement TLS certificate pinning for production domains once stable:
-//   - mint-production-3a41.up.railway.app
-//   - Expected: SHA-256 pin of Railway's leaf certificate
-//   - Use package:http_certificate_pinning or custom SecurityContext
-//   - Rotate pins before certificate renewal (Railway auto-renew ~90 days)
-//   - Fallback: disable pinning in debug mode only
+// DECISION(2026-03-30): TLS certificate pinning DEFERRED for V1.
+// Rationale: Railway uses Let's Encrypt with 90-day auto-renewal.
+// Pinning would require rotating pins every 90 days — high risk of
+// bricking the app if a pin rotation is missed. Railway handles TLS
+// termination with HSTS (verified: Strict-Transport-Security header active).
+// Revisit when: custom domain with controlled certificate lifecycle.
+// Risk accepted: MITM via compromised CA (low probability, standard for fintech V1).
 class ApiService {
   /// P1-7: Global HTTP timeout for all API calls.
   static const Duration _httpTimeout = Duration(seconds: 30);

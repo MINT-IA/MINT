@@ -11893,5 +11893,12 @@
   "apiErrorOffline": "Keine Internetverbindung. Überprüfe dein Netzwerk und versuche es erneut.",
   "apiErrorTimeout": "Der Server antwortet zu langsam. Versuche es erneut.",
   "apiErrorSessionExpired": "Sitzung abgelaufen — bitte melde dich erneut an.",
-  "apiErrorServer": "Serverfehler. Versuche es in einem Moment erneut."
+  "apiErrorServer": "Serverfehler. Versuche es in einem Moment erneut.",
+  "pensionFundConnectComingSoon": "Bald verfügbar — Pilotvereinbarungen ausstehend",
+  "greetingMorning": "Guten Morgen",
+  "greetingAfternoon": "Guten Nachmittag",
+  "greetingEvening": "Guten Abend",
+  "greetingNight": "Gute Nacht",
+  "onboardingCalculationError": "Berechnungsfehler. Überprüfe deine Daten und versuche es erneut.",
+  "onboardingRetirementAgeWarning": "Pensionierung vor 55? Überprüfe dein Alter oder deinen Beschäftigungsstatus."
 }

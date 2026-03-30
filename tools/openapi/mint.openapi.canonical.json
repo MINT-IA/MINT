@@ -1991,68 +1991,6 @@
         "title": "BankStatementUploadResponse",
         "type": "object"
       },
-      "BillingDebugActivateRequest": {
-        "properties": {
-          "is_trial": {
-            "default": false,
-            "title": "Is Trial",
-            "type": "boolean"
-          },
-          "period_days": {
-            "default": 30,
-            "title": "Period Days",
-            "type": "integer"
-          },
-          "status": {
-            "default": "active",
-            "title": "Status",
-            "type": "string"
-          },
-          "tier": {
-            "default": "coach",
-            "title": "Tier",
-            "type": "string"
-          }
-        },
-        "title": "BillingDebugActivateRequest",
-        "type": "object"
-      },
-      "BillingDebugActivateResponse": {
-        "properties": {
-          "created_subscription_id": {
-            "title": "Created Subscription Id",
-            "type": "string"
-          },
-          "features": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Features",
-            "type": "array"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          },
-          "tier": {
-            "title": "Tier",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "user_id",
-          "tier",
-          "status",
-          "features",
-          "created_subscription_id"
-        ],
-        "title": "BillingDebugActivateResponse",
-        "type": "object"
-      },
       "BillingEntitlementsResponse": {
         "properties": {
           "current_period_end": {
@@ -6404,6 +6342,24 @@
         "title": "DisabilityGapResponse",
         "type": "object"
       },
+      "DissolveResponse": {
+        "properties": {
+          "revoked_members": {
+            "title": "Revoked Members",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "revoked_members"
+        ],
+        "title": "DissolveResponse",
+        "type": "object"
+      },
       "DividendeVsSalaireRequest": {
         "description": "Request for dividend vs salary optimization.",
         "properties": {
@@ -6929,6 +6885,7 @@
           "lpp_plan",
           "insurance_contract",
           "pillar_3a_attestation",
+          "mortgage_attestation",
           "insurance_policy",
           "lease",
           "lamal_statement",
@@ -10400,6 +10357,7 @@
       "InviteRequest": {
         "properties": {
           "email": {
+            "format": "email",
             "title": "Email",
             "type": "string"
           }
@@ -11454,6 +11412,24 @@
         "title": "LocationVsProprieteResponse",
         "type": "object"
       },
+      "LogoutRequest": {
+        "description": "Optional body for logout — allows blacklisting the refresh token too.",
+        "properties": {
+          "refresh_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refresh Token"
+          }
+        },
+        "title": "LogoutRequest",
+        "type": "object"
+      },
       "LogoutResponse": {
         "description": "Schema for logout response.",
         "properties": {
@@ -11949,6 +11925,19 @@
             ],
             "description": "Age d'arrivee en Suisse (None = ne en Suisse)",
             "title": "Arrivalage"
+          },
+          "birthDate": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Date de naissance ISO 8601 (ex: 1981-06-15). Si fourni, age est calcule automatiquement.",
+            "title": "Birthdate"
           },
           "canton": {
             "description": "Code canton (2 lettres majuscules, ex: ZH, VD, GE)",
@@ -13641,6 +13630,17 @@
             "title": "Createdat",
             "type": "string"
           },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth"
+          },
           "employmentStatus": {
             "anyOf": [
               {
@@ -13969,6 +13969,17 @@
             ],
             "title": "Commune"
           },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth"
+          },
           "employmentStatus": {
             "anyOf": [
               {
@@ -14221,6 +14232,19 @@
               }
             ],
             "title": "Commune"
+          },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Date de naissance ISO 8601 (ex: 1981-06-15)",
+            "title": "Dateofbirth"
           },
           "employmentStatus": {
             "anyOf": [
@@ -21648,8 +21672,17 @@
     },
     "/api/v1/auth/logout": {
       "post": {
-        "description": "Logout by blacklisting the current token's JTI.\n\nThe token will be rejected on subsequent requests until it naturally expires,\nat which point the blacklist entry is eligible for cleanup.",
+        "description": "Logout by blacklisting the current token's JTI.\n\nThe token will be rejected on subsequent requests until it naturally expires,\nat which point the blacklist entry is eligible for cleanup.\n\nOptionally accepts a LogoutRequest body with refresh_token to blacklist both tokens.",
         "operationId": "logout_api_v1_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "content": {
@@ -21660,6 +21693,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "security": [
@@ -21955,53 +21998,6 @@
           }
         ],
         "summary": "Create Checkout",
-        "tags": [
-          "billing"
-        ]
-      }
-    },
-    "/api/v1/billing/debug/activate": {
-      "post": {
-        "description": "Internal/dev helper to activate subscription without store checkout.",
-        "operationId": "debug_activate_subscription_api_v1_billing_debug_activate_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BillingDebugActivateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingDebugActivateResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Debug Activate Subscription",
         "tags": [
           "billing"
         ]
@@ -25243,6 +25239,32 @@
         ]
       }
     },
+    "/api/v1/household/dissolve": {
+      "delete": {
+        "operationId": "dissolve_api_v1_household_dissolve_delete",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DissolveResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Dissolve",
+        "tags": [
+          "Household P6"
+        ]
+      }
+    },
     "/api/v1/household/invite": {
       "post": {
         "operationId": "invite_api_v1_household_invite_post",
@@ -27324,7 +27346,7 @@
     },
     "/api/v1/profiles/{profile_id}": {
       "get": {
-        "description": "Get a profile by ID.\nIf profile belongs to a user, verify ownership.",
+        "description": "Get a profile by ID.\nRequires authentication. Verifies ownership.",
         "operationId": "get_profile_api_v1_profiles__profile_id__get",
         "parameters": [
           {
@@ -27371,7 +27393,7 @@
         ]
       },
       "patch": {
-        "description": "Update an existing profile.\nIf profile belongs to a user, verify ownership.",
+        "description": "Update an existing profile.\nRequires authentication. Verifies ownership.",
         "operationId": "update_profile_api_v1_profiles__profile_id__patch",
         "parameters": [
           {

@@ -23269,13 +23269,13 @@ class SEn extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/year';
 
   @override
-  String get greetingMorning => 'morning';
+  String get greetingMorning => 'Good morning';
 
   @override
-  String get greetingAfternoon => 'afternoon';
+  String get greetingAfternoon => 'Good afternoon';
 
   @override
-  String get greetingEvening => 'evening';
+  String get greetingEvening => 'Good evening';
 
   @override
   String get authShowPassword => 'Show password';
@@ -25172,4 +25172,19 @@ class SEn extends S {
 
   @override
   String get apiErrorServer => 'Server error. Try again in a moment.';
+
+  @override
+  String get pensionFundConnectComingSoon =>
+      'Coming soon — awaiting pilot agreements';
+
+  @override
+  String get greetingNight => 'Good night';
+
+  @override
+  String get onboardingCalculationError =>
+      'Calculation error. Check your data and try again.';
+
+  @override
+  String get onboardingRetirementAgeWarning =>
+      'Retirement before 55? Check your age or employment status.';
 }

@@ -2,7 +2,6 @@
 Tests for analytics endpoints - event tracking and analytics queries.
 """
 
-import os
 import pytest
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4

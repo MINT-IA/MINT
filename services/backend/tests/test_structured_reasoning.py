@@ -26,10 +26,7 @@ from app.services.coach.structured_reasoning import (
     ReasoningOutput,
     StructuredReasoningService,
     _3A_CEILING_SALARIED,
-    _DECEMBER_DEADLINE_DAYS,
     _REPLACEMENT_RATE_GAP_THRESHOLD,
-    _LPP_BUYBACK_MIN_CHF,
-    _LIQUIDITY_DEFICIT_MONTHS,
 )
 
 

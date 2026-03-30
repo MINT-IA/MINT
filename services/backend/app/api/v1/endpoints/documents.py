@@ -24,6 +24,14 @@ from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.document import DocumentModel
 from app.models.user import User
+from app.schemas.document_scan import (
+    DocumentScanConfirmation,
+    DocumentScanResponse,
+    VisionExtractionRequest,
+    VisionExtractionResponse,
+)
+from app.services.reengagement.consent_manager import ConsentManager
+from app.services.reengagement.reengagement_models import ConsentType
 
 from app.schemas.document import (
     BankStatementUploadResponse,
@@ -187,9 +195,18 @@ async def upload_document(
 
     The raw PDF is never stored — only the extracted fields are kept.
     """
-    # TODO(nLPD art. 6 al. 7): Verify document_upload consent before persisting
-    # extracted fields. Requires ConsentManager.is_consent_given(user_id,
-    # ConsentType.document_upload). Block with HTTP 403 if not granted.
+    # nLPD art. 6 al. 7: Verify document_upload consent before persisting
+    if not ConsentManager.is_consent_given(
+        str(_user.id), ConsentType.document_upload, db=db
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Consentement 'document_upload' requis pour telecharger un document. "
+                "Active-le dans Profil > Consentements."
+            ),
+        )
+
     # Validate file type
     if file.content_type and file.content_type not in (
         "application/pdf",
@@ -211,7 +228,7 @@ async def upload_document(
     # Read file bytes
     try:
         file_bytes = await file.read()
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     if not file_bytes:
@@ -463,7 +480,7 @@ async def upload_bank_statement(
     # Read file bytes
     try:
         file_bytes = await file.read()
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     if not file_bytes:
@@ -576,7 +593,7 @@ async def preview_budget_import(
 
     try:
         file_bytes = await file.read()
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
 
     if not file_bytes:
@@ -619,14 +636,6 @@ async def preview_budget_import(
 # ════════════════════════════════════════════════════════════
 #  SCAN CONFIRMATION + CLAUDE VISION EXTRACTION
 # ════════════════════════════════════════════════════════════
-
-from app.schemas.document_scan import (
-    DocumentScanConfirmation,
-    DocumentScanResponse,
-    VisionExtractionRequest,
-    VisionExtractionResponse,
-)
-
 
 @router.post("/scan-confirmation", response_model=DocumentScanResponse)
 @limiter.limit("30/minute")

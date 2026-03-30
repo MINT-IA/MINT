@@ -23383,13 +23383,13 @@ class SFr extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/an';
 
   @override
-  String get greetingMorning => 'matin';
+  String get greetingMorning => 'Bonjour';
 
   @override
-  String get greetingAfternoon => 'après-midi';
+  String get greetingAfternoon => 'Bon après-midi';
 
   @override
-  String get greetingEvening => 'soir';
+  String get greetingEvening => 'Bonsoir';
 
   @override
   String get authShowPassword => 'Afficher le mot de passe';
@@ -25294,4 +25294,19 @@ class SFr extends S {
   @override
   String get apiErrorServer =>
       'Erreur serveur. Réessaie dans quelques instants.';
+
+  @override
+  String get pensionFundConnectComingSoon =>
+      'Bientôt disponible — en attente des accords pilotes';
+
+  @override
+  String get greetingNight => 'Bonne nuit';
+
+  @override
+  String get onboardingCalculationError =>
+      'Erreur de calcul. Vérifie tes données et réessaie.';
+
+  @override
+  String get onboardingRetirementAgeWarning =>
+      'Retraite avant 55 ans ? Vérifie ton âge ou ton statut.';
 }

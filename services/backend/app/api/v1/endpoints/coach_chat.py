@@ -38,16 +38,21 @@ import re
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.user import User
+from app.services.reengagement.consent_manager import ConsentManager
+from app.services.reengagement.reengagement_models import ConsentType
 from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import build_system_prompt
 from app.services.coach.coach_context_builder import build_coach_context
 from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES, get_llm_tools
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.coach.structured_reasoning import StructuredReasoningService
+from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -650,7 +655,7 @@ def _format_couple_optimization(ctx: dict) -> str:
     if avs:
         if avs.get("cap_applied"):
             reduction = avs.get("monthly_reduction", 0)
-            lines.append(f"- AVS couple : plafonnement appliqué (LAVS art. 35)")
+            lines.append("- AVS couple : plafonnement appliqué (LAVS art. 35)")
             lines.append(f"  Réduction mensuelle : {_fmt_chf(reduction)}")
         else:
             lines.append("- AVS couple : pas de plafonnement (revenus sous le seuil)")
@@ -884,6 +889,7 @@ async def coach_chat(
     request: Request,
     body: CoachChatRequest,
     _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> CoachChatResponse:
     """Coach chat endpoint — tools + system prompt + RAG + agent loop.
 
@@ -911,10 +917,12 @@ async def coach_chat(
         502: LLM API call failed.
         503: RAG dependencies not installed.
     """
-    # TODO(nLPD art. 6 al. 7): Verify conversation_memory consent before
-    # persisting conversation history. Requires ConsentManager.is_consent_given(
-    # user_id, ConsentType.conversation_memory). Without consent, conversation
-    # should be stateless (no memory_block persistence between sessions).
+    # nLPD art. 6 al. 7: Check conversation_memory consent.
+    # Without consent, conversation is stateless (no memory_block persistence).
+    has_memory_consent = ConsentManager.is_consent_given(
+        str(_user.id), ConsentType.conversation_memory, db=db
+    )
+
     # ------------------------------------------------------------------
     # Step 0: Sanitize inputs (PII whitelist + memory scrubbing)
     # ------------------------------------------------------------------
@@ -949,10 +957,13 @@ async def coach_chat(
     # The LLM humanizes this pre-computed analysis rather than reasoning from scratch.
     # Uses sanitized profile to prevent PII leakage in reasoning_trace.
     # ------------------------------------------------------------------
+    # nLPD: strip memory_block when conversation_memory consent not granted
+    effective_memory_block = body.memory_block if has_memory_consent else None
+
     reasoning_output = StructuredReasoningService.reason(
         user_message=body.message,
         profile_context=safe_profile,
-        memory_block=body.memory_block,
+        memory_block=effective_memory_block,
     )
     reasoning_block = reasoning_output.as_system_prompt_block()
 
@@ -960,7 +971,7 @@ async def coach_chat(
     # Step 2: Build system prompt (lifecycle + regional + plan + memory)
     # Memory block is PII-scrubbed and wrapped in prompt injection armor.
     # ------------------------------------------------------------------
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, body.memory_block, language=body.language)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
@@ -1000,7 +1011,7 @@ async def coach_chat(
             model=body.model,
             profile_context=safe_profile,
             language=body.language,
-            memory_block=body.memory_block,
+            memory_block=effective_memory_block,
             system_prompt=system_prompt,
             user_id=_user.id if _user else None,
         )
@@ -1059,9 +1070,6 @@ async def coach_chat(
 # ════════════════════════════════════════════════════════════
 #  INSIGHT SYNC — Mobile → Backend → pgvector
 # ════════════════════════════════════════════════════════════
-
-from pydantic import BaseModel as _BaseModel
-
 
 class _InsightSyncRequest(_BaseModel):
     """Payload to embed a CoachInsight into the RAG vector store."""

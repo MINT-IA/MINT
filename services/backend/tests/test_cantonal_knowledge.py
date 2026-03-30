@@ -7,7 +7,6 @@ for the 11 major Swiss cantons.
 
 from __future__ import annotations
 
-import pytest
 
 from app.services.rag.cantonal_knowledge import CantonalKnowledge
 

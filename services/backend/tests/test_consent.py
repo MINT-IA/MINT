@@ -65,16 +65,16 @@ class TestOptInDefaults:
         assert ConsentManager.is_consent_given(USER_A, ConsentType.notifications) is False
 
     def test_default_dashboard_all_off(self, manager):
-        """Default dashboard returns 3 consents, all disabled."""
+        """Default dashboard returns 5 consents, all disabled."""
         dashboard = manager.get_default_dashboard()
-        assert len(dashboard.consents) == 3
+        assert len(dashboard.consents) == 5
         for c in dashboard.consents:
             assert c.enabled is False
 
     def test_user_dashboard_all_off_for_new_user(self, manager):
         """User dashboard for new user mirrors default (all OFF)."""
         dashboard = manager.get_user_dashboard(USER_A)
-        assert len(dashboard.consents) == 3
+        assert len(dashboard.consents) == 5
         for c in dashboard.consents:
             assert c.enabled is False
 
@@ -281,14 +281,16 @@ class TestByokFieldBoundaries:
 
 
 class TestConsentTypeEnum:
-    """ConsentType enum covers exactly the 3 required types."""
+    """ConsentType enum covers exactly the 5 required types."""
 
-    def test_exactly_three_consent_types(self):
-        """There are exactly 3 consent types."""
-        assert len(ConsentType) == 3
+    def test_exactly_five_consent_types(self):
+        """There are exactly 5 consent types."""
+        assert len(ConsentType) == 5
 
     def test_consent_type_values(self):
         """Consent type values match expected strings."""
         assert ConsentType.byok_data_sharing.value == "byok_data_sharing"
         assert ConsentType.snapshot_storage.value == "snapshot_storage"
         assert ConsentType.notifications.value == "notifications"
+        assert ConsentType.document_upload.value == "document_upload"
+        assert ConsentType.conversation_memory.value == "conversation_memory"

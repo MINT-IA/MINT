@@ -14,8 +14,6 @@ Covers:
 - Cleanup returns correct count
 """
 
-import os
-import pytest
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -25,7 +23,6 @@ from sqlalchemy.orm import Session
 from app.main import app
 from app.core.database import get_db
 from app.models.user import User
-from app.models.token_blacklist import TokenBlacklist
 from app.services.auth_service import (
     create_access_token,
     create_refresh_token,
@@ -235,7 +232,7 @@ class TestLogoutEndpoint:
         try:
             user = _create_test_user(db)
             token = create_access_token(user.id, user.email)
-            payload = decode_token(token)
+            decode_token(token)  # validate token is decodable
 
             client = _make_client_with_real_db()
 

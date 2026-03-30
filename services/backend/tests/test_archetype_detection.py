@@ -1,6 +1,5 @@
 """FIX-165: Direct unit tests for _detect_archetype() — 8 branches."""
 
-import pytest
 from app.services.onboarding.minimal_profile_service import _detect_archetype
 from app.services.onboarding.onboarding_models import MinimalProfileInput
 
