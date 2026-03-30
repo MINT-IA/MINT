@@ -160,6 +160,10 @@ class DocumentToolPayload {
 
 /// Message dans l'historique de conversation
 class ChatMessage {
+  /// Schema version for migration support.
+  /// Increment when breaking changes are made to serialization format.
+  static const int schemaVersion = 1;
+
   final String role; // 'user', 'assistant', 'system'
   final String content;
   final DateTime timestamp;

@@ -41,6 +41,10 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   /// Specific country code if nationalityGroup == 'OTHER' (e.g. 'US', 'BR').
   String? nationalityCountry;
 
+  /// Residence permit type when non-Swiss: 'C', 'B', 'G', 'L', or 'other'.
+  /// When 'G' (frontalier), archetype is forced to cross_border.
+  String? permitType;
+
   /// User's stress intention (tap selector, not a data question).
   /// Used to filter coaching tips by relevance.
   String? stressType;
@@ -113,7 +117,15 @@ class SmartOnboardingViewModel extends ChangeNotifier {
 
   void setNationalityGroup(String? value) {
     nationalityGroup = value;
-    if (value == 'CH') nationalityCountry = null;
+    if (value == 'CH') {
+      nationalityCountry = null;
+      permitType = null;
+    }
+    notifyListeners();
+  }
+
+  void setPermitType(String? value) {
+    permitType = value;
     notifyListeners();
   }
 

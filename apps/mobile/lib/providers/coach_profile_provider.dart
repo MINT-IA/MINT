@@ -404,6 +404,9 @@ class CoachProfileProvider extends ChangeNotifier {
     int? arrivalYear,
     /// User's primary focus/intention from FocusSelector.
     String? primaryFocus,
+    /// Residence permit type: 'C', 'B', 'G', 'L', or 'other'.
+    /// When 'G', archetype is forced to cross_border.
+    String? permitType,
   }) {
     // Convert gross annual → net monthly
     // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
@@ -483,6 +486,7 @@ class CoachProfileProvider extends ChangeNotifier {
       // Nationality for archetype detection (see CLAUDE.md archetype table)
       if (nationality != null) 'q_nationality': nationality,
       if (primaryFocus != null) 'q_primary_focus': primaryFocus,
+      if (permitType != null) 'q_residence_permit': permitType,
     };
 
     // Returning Swiss: inject lacunes and arrivalYear so fromWizardAnswers

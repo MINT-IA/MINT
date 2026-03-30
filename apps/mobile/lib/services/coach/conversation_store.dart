@@ -331,6 +331,7 @@ class ConversationStore {
   // (they are session-specific and would bloat storage).
 
   Map<String, dynamic> _messageToJson(ChatMessage msg) => {
+        'schemaVersion': ChatMessage.schemaVersion,
         'role': msg.role,
         'content': msg.content,
         'timestamp': msg.timestamp.toIso8601String(),
@@ -341,6 +342,8 @@ class ConversationStore {
       };
 
   ChatMessage _messageFromJson(Map<String, dynamic> json) {
+    // Schema migration: version 0 (pre-schema) and 1 share the same format.
+    // Future migrations: final version = json['schemaVersion'] as int? ?? 0;
     final tierName = json['tier'] as String? ?? 'none';
     final tier = ChatTier.values.firstWhere(
       (t) => t.name == tierName,

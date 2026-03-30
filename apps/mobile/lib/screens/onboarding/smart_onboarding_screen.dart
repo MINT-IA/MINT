@@ -322,6 +322,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
       nationalityCountry: _viewModel.nationalityCountry,
       employmentStatus: _viewModel.employmentStatus,
       primaryFocus: _viewModel.stressType,
+      permitType: _viewModel.permitType,
     );
     // Apply literacy level derived from calibration questions (Step 1).
     // Done via copyWith after the wizard-based profile is built so we don't
