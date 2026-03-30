@@ -206,7 +206,7 @@ void main() {
         _ctx(knownValues: {'tax_saving': 2500}),
       );
       expect(result, contains('3a'));
-      expect(result, contains('2500'));
+      expect(result, contains("2'500"));
       expect(result, contains('imp\u00f4t'));
     });
 

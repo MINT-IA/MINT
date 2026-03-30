@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -506,8 +507,8 @@ class CoachNarrativeService {
         final tauxEstime = profile.canton.isNotEmpty ? 0.30 : 0.28;
         final economie = marge * tauxEstime;
         urgentAlert = 'Il te reste $joursRestants jours pour verser '
-            'CHF ${marge.toStringAsFixed(0)} en 3a et economiser '
-            '~CHF ${economie.toStringAsFixed(0)} d\'impots '
+            '${formatChfWithPrefix(marge)} en 3a et economiser '
+            '~${formatChfWithPrefix(economie)} d\'impots '
             '(canton ${profile.canton.isNotEmpty ? profile.canton : "CH"}). '
             '\u2014 OPP3 art. 7';
       }
@@ -802,7 +803,7 @@ class CoachNarrativeService {
       final i = entry.key + 1;
       final tip = entry.value;
       return '#$i [${tip.priority.name}] ${tip.title}: ${tip.message} '
-          '(Impact: ${tip.estimatedImpactChf?.toStringAsFixed(0) ?? "N/A"} CHF, '
+          '(Impact: ${tip.estimatedImpactChf != null ? '${formatChf(tip.estimatedImpactChf!)} CHF' : 'N/A'}, '
           'Source: ${tip.source})';
     }).join('\n');
 
@@ -817,13 +818,13 @@ class CoachNarrativeService {
     buffer.writeln(
         '- Revenu brut annuel : CHF ~${_salaryRange(profile.revenuBrutAnnuel)} (estimation arrondie, confidentiel)');
     buffer.writeln(
-        '- 3a : ${montant3a.toStringAsFixed(0)}/${plafond3a.toStringAsFixed(0)} CHF (nombre comptes : $nombre3a)');
+        '- 3a : ${formatChf(montant3a)}/${formatChf(plafond3a)} CHF (nombre comptes : $nombre3a)');
     buffer.writeln(
-        '- LPP : avoir CHF ${avoirLpp.toStringAsFixed(0)}, lacune rachat CHF ${lacuneLpp.toStringAsFixed(0)}');
-    buffer.writeln('- Patrimoine total : CHF ${patrimoine.toStringAsFixed(0)}');
+        '- LPP : avoir ${formatChfWithPrefix(avoirLpp)}, lacune rachat ${formatChfWithPrefix(lacuneLpp)}');
+    buffer.writeln('- Patrimoine total : ${formatChfWithPrefix(patrimoine)}');
     buffer.writeln(
         '- Fonds urgence : ${moisCouverts.toStringAsFixed(1)} mois (objectif : 3-6 mois)');
-    buffer.writeln('- Dettes : CHF ${dettes.toStringAsFixed(0)}');
+    buffer.writeln('- Dettes : ${formatChfWithPrefix(dettes)}');
     buffer.writeln(
         '- Streak check-in : ${streak.currentStreak} mois consecutifs');
     buffer.writeln('- Dernier check-in : $dernierCheckIn');
@@ -853,7 +854,7 @@ class CoachNarrativeService {
     if (ctx.knownValues.isNotEmpty) {
       buffer.writeln('VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
       for (final entry in ctx.knownValues.entries) {
-        buffer.writeln('- ${entry.key}: ${entry.value.toStringAsFixed(0)}');
+        buffer.writeln('- ${entry.key}: ${formatChf(entry.value)}');
       }
       buffer.writeln('Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
       buffer.writeln();
@@ -960,7 +961,7 @@ class CoachNarrativeService {
     if (cotisation3a < plafond3aSnippet && profile.prevoyance.canContribute3a) {
       final marge = plafond3aSnippet - cotisation3a;
       snippets.add(
-          'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
+          'SNIPPET 3A: Il reste ${formatChfWithPrefix(marge)} de marge 3a '
           'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
     }
 
@@ -968,7 +969,7 @@ class CoachNarrativeService {
     final lacune = profile.prevoyance.lacuneRachatRestante;
     if (lacune > 5000) {
       snippets.add(
-          'SNIPPET LPP: Lacune de rachat LPP de CHF ${lacune.toStringAsFixed(0)} '
+          'SNIPPET LPP: Lacune de rachat LPP de ${formatChfWithPrefix(lacune)} '
           '— deductible a 100% du revenu imposable (LPP art. 79b).');
     }
 
@@ -1037,11 +1038,11 @@ class CoachNarrativeService {
     final buffer = StringBuffer('TIME MACHINE 3A: ');
     if (yearsIfStarted30 > 0 && regretBalance > 10000) {
       buffer.write('Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
-          'CHF ${regretBalance.toStringAsFixed(0)} aujourd\'hui. ');
+          '${formatChfWithPrefix(regretBalance)} aujourd\'hui. ');
     }
     if (yearsForward > 0) {
       buffer.write('En versant le max pendant $yearsForward ans → '
-          '+CHF ${hopeBalance.toStringAsFixed(0)} a la retraite.');
+          '+${formatChfWithPrefix(hopeBalance)} a la retraite.');
     }
     return buffer.toString();
   }

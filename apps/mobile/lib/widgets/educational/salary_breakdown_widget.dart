@@ -183,8 +183,8 @@ class SalaryBreakdownWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Quand tu n\u00e9gocies +200 CHF brut\u00a0: '
-            'tu re\u00e7ois ~${negotiationNet.toStringAsFixed(0)} CHF net. '
-            'Ton employeur paie ~${negotiationTotal.toStringAsFixed(0)} CHF de plus.',
+            'tu re\u00e7ois ~${formatChf(negotiationNet)} CHF net. '
+            'Ton employeur paie ~${formatChf(negotiationTotal)} CHF de plus.',
             style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.italic, height: 1.4),
           ),
         ],

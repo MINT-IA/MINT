@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class RecommendationCard extends StatelessWidget {
   final Recommendation recommendation;
@@ -92,7 +93,7 @@ class RecommendationCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'CHF ${recommendation.impact.amountCHF.toStringAsFixed(0)}',
+                  formatChfWithPrefix(recommendation.impact.amountCHF),
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MintColors.primary),
                 ),
                 Text(

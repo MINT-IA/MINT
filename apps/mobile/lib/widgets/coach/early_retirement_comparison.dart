@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Early retirement comparison mini-table for 45-60 age group.
 ///
@@ -256,7 +257,7 @@ class EarlyRetirementComparison extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              'CHF ${r.totalMonthly.toStringAsFixed(0)}',
+              formatChfWithPrefix(r.totalMonthly),
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: textWeight),
             ),
           ),

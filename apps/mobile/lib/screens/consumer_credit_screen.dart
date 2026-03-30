@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
@@ -28,7 +28,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
 
   Map<String, dynamic>? _result;
 
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Uses centralized formatChfWithPrefix from chf_formatter.dart
 
   // Swiss legal max rates from 01.01.2026
   static const double _maxRateCashCredit = 10.0;
@@ -175,7 +175,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           min: 1000,
           max: 50000,
           divisions: 49,
-          format: (v) => _currencyFormat.format(v),
+          format: (v) => formatChfWithPrefix(v),
           onChanged: (v) {
             _amount = v;
             _calculate();
@@ -263,9 +263,9 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           Text(S.of(context)!.creditTaMensualite, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Semantics(
-            label: '${S.of(context)!.creditTaMensualite}: ${_currencyFormat.format(monthlyPayment)}',
+            label: '${S.of(context)!.creditTaMensualite}: ${formatChfWithPrefix(monthlyPayment)}',
             child: Text(
-              _currencyFormat.format(monthlyPayment),
+              formatChfWithPrefix(monthlyPayment),
               style: MintTextStyles.displayMedium(),
             ),
           ),
@@ -277,7 +277,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             children: [
               Text(S.of(context)!.creditCoutInterets, style: MintTextStyles.bodyMedium()),
               Text(
-                _currencyFormat.format(totalInterest),
+                formatChfWithPrefix(totalInterest),
                 style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
@@ -315,7 +315,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       children: [
         _buildSectionHeader(S.of(context)!.creditConseilsTitle),
         const SizedBox(height: MintSpacing.lg),
-        _buildGuidanceItem(Icons.savings_outlined, S.of(context)!.creditEpargnerDabord, S.of(context)!.creditEpargnerDabordBody(_currencyFormat.format(_result!['totalInterest']))),
+        _buildGuidanceItem(Icons.savings_outlined, S.of(context)!.creditEpargnerDabord, S.of(context)!.creditEpargnerDabordBody(formatChfWithPrefix(_result!['totalInterest']))),
         _buildGuidanceItem(Icons.family_restroom_outlined, S.of(context)!.creditCercleConfiance, S.of(context)!.creditCercleConfianceBody),
         _buildGuidanceItem(Icons.help_outline_rounded, S.of(context)!.creditDettesConseils, S.of(context)!.creditDettesConseilsBody),
       ],

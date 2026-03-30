@@ -2,6 +2,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
+import 'package:mint_mobile/utils/chf_formatter.dart';
+
 import '../models/circle_score.dart';
 
 /// Service de calcul du score de santé financière par cercles
@@ -91,7 +93,7 @@ class CircleScoringService {
     items.add(ScoreItem(
       label: l?.circleLabelRevenu ?? 'Revenu',
       status: incomeStatus,
-      detail: income != null ? 'CHF ${income.toStringAsFixed(0)}/mois' : null, // Formatted number — not extracted
+      detail: income != null ? '${formatChfWithPrefix(income.toDouble())}/mois' : null, // Formatted number — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -168,7 +170,7 @@ class CircleScoringService {
       label: l?.circleLabelTroisaVersement ?? '3a - Versement',
       status: contributionStatus,
       detail: contribution3a != null
-          ? 'CHF ${contribution3a.toStringAsFixed(0)}/an (max: ${maxContribution.toStringAsFixed(0)})'
+          ? '${formatChfWithPrefix(contribution3a)}/an (max: ${formatChf(maxContribution)})'
           : 'Non renseigné',
       weight: 1.5,
     ));
@@ -190,7 +192,7 @@ class CircleScoringService {
       label: l?.circleLabelLppRachat ?? 'LPP - Rachat',
       status: lppStatus,
       detail: lppBuyback != null && lppBuyback > 0
-          ? 'CHF ${lppBuyback.toStringAsFixed(0)} disponibles'
+          ? '${formatChfWithPrefix(lppBuyback)} disponibles'
           : 'Aucune lacune',
       weight: 2.0,
     ));
