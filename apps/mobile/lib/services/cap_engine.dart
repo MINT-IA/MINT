@@ -716,7 +716,7 @@ class CapEngine {
           headline: l.capLeSelfEmploymentHeadline,
           whyNow: l.capLeSelfEmploymentWhyNow,
           ctaLabel: l.capLeSelfEmploymentCtaLabel,
-          route: '/independants/lpp-volontaire',
+          route: '/independant',
         ),
       'retirement' => _LifeEventMapping(
           headline: l.capLeRetirementHeadline,

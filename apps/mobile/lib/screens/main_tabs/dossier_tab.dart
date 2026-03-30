@@ -280,10 +280,13 @@ class _DossierTabState extends State<DossierTab> {
             backgroundColor: MintColors.porcelaine,
             surfaceTintColor: MintColors.porcelaine,
             elevation: 0,
-            title: Text(
-              l.tabDossier,
-              style: MintTextStyles.headlineMedium(
-                color: MintColors.textPrimary,
+            title: Semantics(
+              header: true,
+              child: Text(
+                l.tabDossier,
+                style: MintTextStyles.headlineMedium(
+                  color: MintColors.textPrimary,
+                ),
               ),
             ),
             centerTitle: false,
@@ -449,9 +452,12 @@ class _SectionLabel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            text,
-            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+          Semantics(
+            header: true,
+            child: Text(
+              text,
+              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+            ),
           ),
           if (timestamp != null)
             Padding(

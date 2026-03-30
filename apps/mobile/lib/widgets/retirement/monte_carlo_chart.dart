@@ -84,11 +84,14 @@ class MonteCarloChart extends StatelessWidget {
           height: 260,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return CustomPaint(
-                size: Size(constraints.maxWidth, 260),
-                painter: _MonteCarloFanPainter(
-                  points: result.projection,
-                  currentMonthlyIncome: currentMonthlyIncome,
+              return Semantics(
+                label: 'Monte Carlo projection chart',
+                child: CustomPaint(
+                  size: Size(constraints.maxWidth, 260),
+                  painter: _MonteCarloFanPainter(
+                    points: result.projection,
+                    currentMonthlyIncome: currentMonthlyIncome,
+                  ),
                 ),
               );
             },

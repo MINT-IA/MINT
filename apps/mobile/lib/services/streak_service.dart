@@ -94,13 +94,16 @@ class StreakService {
     // Compute current streak (counting backwards from most recent)
     int currentStreak = 1;
     final now = DateTime.now();
+    // Normalize to first-of-month to avoid day-of-month edge cases
+    final nowMonth = DateTime(now.year, now.month);
     final sortedDesc = checkIns.reversed.toList();
 
     // Check if the most recent check-in is within current or previous month
     final latest = sortedDesc.first.month;
-    final isRecent = (latest.year == now.year && latest.month == now.month) ||
-        (latest.year == now.year && latest.month == now.month - 1) ||
-        (latest.year == now.year - 1 && latest.month == 12 && now.month == 1);
+    final latestMonth = DateTime(latest.year, latest.month);
+    final prevMonth = DateTime(now.year, now.month - 1);
+    final isRecent = latestMonth == nowMonth ||
+        (latestMonth.year == prevMonth.year && latestMonth.month == prevMonth.month);
 
     if (!isRecent) {
       currentStreak = 0;

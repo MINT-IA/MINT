@@ -38,12 +38,15 @@ class MintProgressArc extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            CustomPaint(
-              size: Size(size, size),
-              painter: _ArcPainter(
-                progress: progress,
-                color: effectiveColor,
-                trackColor: MintColors.border.withValues(alpha: 0.3),
+            Semantics(
+              label: 'Progress arc chart',
+              child: CustomPaint(
+                size: Size(size, size),
+                painter: _ArcPainter(
+                  progress: progress,
+                  color: effectiveColor,
+                  trackColor: MintColors.border.withValues(alpha: 0.3),
+                ),
               ),
             ),
             Column(

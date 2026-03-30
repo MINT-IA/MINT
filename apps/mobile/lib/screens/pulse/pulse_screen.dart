@@ -823,10 +823,13 @@ class _PulseScreenState extends State<PulseScreen> {
       pinned: true,
       backgroundColor: MintColors.porcelaine,
       surfaceTintColor: MintColors.porcelaine,
-      title: Text(
-        greeting,
-        style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
-            .copyWith(fontSize: 20),
+      title: Semantics(
+        header: true,
+        child: Text(
+          greeting,
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+              .copyWith(fontSize: 20),
+        ),
       ),
       centerTitle: false,
       actions: [

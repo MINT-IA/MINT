@@ -86,12 +86,15 @@ class TornadoChart extends StatelessWidget {
           height: chartHeight,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return CustomPaint(
-                size: Size(constraints.maxWidth, chartHeight),
-                painter: _TornadoPainter(
-                  baseCase: baseCase,
-                  variables: displayVars,
-                  baseCaseSuffix: baseCaseSuffix,
+              return Semantics(
+                label: 'Sensitivity tornado chart',
+                child: CustomPaint(
+                  size: Size(constraints.maxWidth, chartHeight),
+                  painter: _TornadoPainter(
+                    baseCase: baseCase,
+                    variables: displayVars,
+                    baseCaseSuffix: baseCaseSuffix,
+                  ),
                 ),
               );
             },

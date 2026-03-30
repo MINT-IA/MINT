@@ -407,6 +407,7 @@ class MilestoneDetectionService {
     Map<String, double> previous = const {},
     int checkInStreak = 0,
     int arbitrageCount = 0,
+    String employmentStatus = 'salarie',
     DateTime? now,
   }) {
     final detectedAt = now ?? DateTime.now();
@@ -442,15 +443,20 @@ class MilestoneDetectionService {
     final cur3a = current['threeAContribution'] ?? 0;
     final prev3a = previous['threeAContribution'] ?? 0;
     final taxSaving3a = current['taxSaving3a'] ?? 0;
+    // Use correct ceiling: CHF 7'258 (salarié LPP) vs CHF 36'288 (indépendant sans LPP)
+    final plafond3a = employmentStatus == 'independant'
+        ? _plafond3aIndependant
+        : _plafond3aSalarie;
 
-    if (cur3a >= _plafond3aSalarie && prev3a < _plafond3aSalarie) {
+    if (cur3a >= plafond3a && prev3a < plafond3a) {
+      final plafondStr = _formatChf(plafond3a);
       final savingStr = _formatChf(taxSaving3a);
       results.add(DetectedMilestone(
         type: MilestoneType.threeAMaxReached,
         celebrationText:
-            'Plafond 3a atteint — CHF 7\'258. '
+            'Plafond 3a atteint — CHF $plafondStr. '
             'Economie fiscale estimee : ~CHF $savingStr.',
-        concreteValue: 'CHF 7\'258',
+        concreteValue: 'CHF $plafondStr',
         detectedAt: detectedAt,
       ));
     }

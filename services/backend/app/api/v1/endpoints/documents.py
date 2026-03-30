@@ -316,15 +316,20 @@ async def upload_document(
 async def list_documents(
     _user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
+    limit: int = Query(50, ge=1, le=100, description="Max documents to return (1-100)"),
+    offset: int = Query(0, ge=0, description="Number of documents to skip"),
 ):
     """
     List all uploaded documents for the current user.
 
     Returns document summaries (no extracted fields for performance).
+    Supports LIMIT/OFFSET pagination (max 100 per page).
     """
-    rows = db.query(DocumentModel).filter(
+    base_query = db.query(DocumentModel).filter(
         DocumentModel.user_id == str(_user.id)
-    ).all()
+    )
+    total = base_query.count()
+    rows = base_query.order_by(DocumentModel.upload_date.desc()).offset(offset).limit(limit).all()
     summaries = [
         DocumentSummary(
             id=row.id,
@@ -335,7 +340,7 @@ async def list_documents(
         )
         for row in rows
     ]
-    return DocumentListResponse(documents=summaries)
+    return DocumentListResponse(documents=summaries, total=total, limit=limit, offset=offset)
 
 
 @router.get("/{doc_id}", response_model=DocumentDetailResponse)

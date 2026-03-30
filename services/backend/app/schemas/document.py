@@ -54,12 +54,15 @@ class DocumentSummary(BaseModel):
 
 
 class DocumentListResponse(BaseModel):
-    """Response for listing uploaded documents."""
+    """Response for listing uploaded documents with pagination metadata."""
 
     documents: list[DocumentSummary] = Field(
         default_factory=list,
         description="List of document summaries",
     )
+    total: int = Field(0, description="Total number of documents for this user")
+    limit: int = Field(50, description="Max documents per page")
+    offset: int = Field(0, description="Current offset")
 
 
 class DocumentDetailResponse(BaseModel):

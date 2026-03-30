@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -103,6 +104,9 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# GZip compression — reduce payload size for large responses
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # Rate limiting — 429 on excess requests
 app.state.limiter = limiter

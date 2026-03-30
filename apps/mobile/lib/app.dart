@@ -375,6 +375,7 @@ final _router = GoRouter(
       builder: (context, state) => const AffordabilityScreen(),
     ),
     GoRoute(path: '/mortgage/affordability', redirect: (_, __) => '/hypotheque'),
+    GoRoute(path: '/life-event/housing-purchase', redirect: (_, __) => '/hypotheque'),
 
     GoRoute(
       path: '/mortgage/amortization',

@@ -330,7 +330,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           child: Stack(
             children: [
               // Main chart
-              CustomPaint(
+              Semantics(
+                label: 'Financial trajectory chart',
+                child: CustomPaint(
                 painter: _TrajectoryPainter(
                   prudentPoints: _displayPrudentPoints,
                   basePoints: _displayBasePoints,
@@ -345,6 +347,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                   goalLabel: S.of(context)!.trajectoryGoalLabel,
                 ),
                 size: Size(availableWidth, chartHeight),
+              ),
               ),
               // Tooltip overlay
               if (_selectedPointIndex != null &&

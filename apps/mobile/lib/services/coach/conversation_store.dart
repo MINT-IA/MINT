@@ -224,6 +224,14 @@ class ConversationStore {
     RegExp(r'\b[\w.+-]+@[\w-]+\.[\w.]+\b'),
     // Swiss phone numbers: +41..., 07x...
     RegExp(r'(?:\+41|0)\s*\d[\d\s]{7,}'),
+    // Swiss NPA (4-digit postal codes before city names)
+    RegExp(r'\b[1-9]\d{3}\s+[A-Z]', caseSensitive: false),
+    // Employer patterns: "je travaille chez X", "mon employeur X"
+    RegExp(r'(travaille\s+chez|employeur\s+est|boîte|entreprise)\s+\S+', caseSensitive: false),
+    // IBAN
+    RegExp(r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d?', caseSensitive: false),
+    // Written-out amounts: "septante mille", "cent vingt mille"
+    RegExp(r'(septante|huitante|nonante|cinquante|soixante|vingt|trente|quarante)\s+(mille|cents?)', caseSensitive: false),
   ];
 
   /// Scrub PII-like patterns from text for safe persistence.

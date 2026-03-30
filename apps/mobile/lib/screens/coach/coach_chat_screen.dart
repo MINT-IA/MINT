@@ -2706,10 +2706,13 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      s.coachTitle,
-                      style: MintTextStyles.titleMedium(color: MintColors.white)
-                          .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        s.coachTitle,
+                        style: MintTextStyles.titleMedium(color: MintColors.white)
+                            .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                      ),
                     ),
                     const SizedBox(height: 2), // tight coupling
                     _buildTierSubtitle(tier),

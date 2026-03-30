@@ -24,7 +24,8 @@ class MintColors {
   // Text
   static const Color textPrimary = Color(0xFF1D1D1F);
   static const Color textSecondary = Color(0xFF6E6E73);
-  static const Color textMuted = Color(0xFF86868B);
+  // WCAG AA contrast fix: old #86868B (3.2:1 on white) → #737378 (4.6:1)
+  static const Color textMuted = Color(0xFF737378);
   
   // Accents
   // WCAG AA contrast fix: old #24B14D (2.81:1) → #1A8A3A (~4.8:1 on white)

@@ -6779,7 +6779,7 @@
         "type": "string"
       },
       "DocumentListResponse": {
-        "description": "Response for listing uploaded documents.",
+        "description": "Response for listing uploaded documents with pagination metadata.",
         "properties": {
           "documents": {
             "description": "List of document summaries",
@@ -6788,6 +6788,24 @@
             },
             "title": "Documents",
             "type": "array"
+          },
+          "limit": {
+            "default": 50,
+            "description": "Max documents per page",
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "description": "Current offset",
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "default": 0,
+            "description": "Total number of documents for this user",
+            "title": "Total",
+            "type": "integer"
           }
         },
         "title": "DocumentListResponse",
@@ -23182,8 +23200,37 @@
     },
     "/api/v1/documents/": {
       "get": {
-        "description": "List all uploaded documents for the current user.\n\nReturns document summaries (no extracted fields for performance).",
+        "description": "List all uploaded documents for the current user.\n\nReturns document summaries (no extracted fields for performance).\nSupports LIMIT/OFFSET pagination (max 100 per page).",
         "operationId": "list_documents_api_v1_documents__get",
+        "parameters": [
+          {
+            "description": "Max documents to return (1-100)",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Max documents to return (1-100)",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of documents to skip",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Number of documents to skip",
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -23194,6 +23241,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "security": [
