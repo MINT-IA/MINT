@@ -136,6 +136,9 @@ class _DossierTabState extends State<DossierTab> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -221,6 +224,9 @@ class _DossierTabState extends State<DossierTab> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -583,6 +589,8 @@ class _ProfileSection extends StatelessWidget {
                         style: MintTextStyles.titleMedium(
                           color: MintColors.textPrimary,
                         ).copyWith(fontWeight: FontWeight.w600),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (age != null || canton.isNotEmpty)
                         Text(
@@ -1143,6 +1151,8 @@ class _PlanStepRow extends StatelessWidget {
                         ? MintColors.textPrimary
                         : MintColors.textSecondary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -1230,11 +1240,15 @@ class _DataRow extends StatelessWidget {
                   ),
                 ),
                 cta != null
-                    ? Text(
-                        cta!,
-                        style: MintTextStyles.labelSmall(
-                          color: MintColors.primary,
-                        ).copyWith(fontWeight: FontWeight.w500),
+                    ? Flexible(
+                        child: Text(
+                          cta!,
+                          style: MintTextStyles.labelSmall(
+                            color: MintColors.primary,
+                          ).copyWith(fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       )
                     : Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1244,6 +1258,8 @@ class _DataRow extends StatelessWidget {
                             style: MintTextStyles.titleMedium(
                               color: MintColors.textPrimary,
                             ).copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           if (delta != null) ...[
                             const SizedBox(width: MintSpacing.xs),
@@ -1392,6 +1408,8 @@ class _DossierRow extends StatelessWidget {
                           style: MintTextStyles.titleMedium(
                             color: MintColors.textPrimary,
                           ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -1399,6 +1417,8 @@ class _DossierRow extends StatelessWidget {
                           style: MintTextStyles.labelSmall(
                             color: MintColors.textMuted,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),

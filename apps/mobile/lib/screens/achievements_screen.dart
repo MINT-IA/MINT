@@ -133,7 +133,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -182,7 +184,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ],
           ],
         ),
-      ))),
+      )))),
     );
   }
 
@@ -325,9 +327,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         children: [
           Icon(icon, size: 14, color: MintColors.textMuted),
           const SizedBox(width: 6),
-          Text(
-            label,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+          Flexible(
+            child: Text(
+              label,
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -534,6 +540,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     ? MintColors.textPrimary
                     : MintColors.textMuted,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: MintSpacing.xs),
             Text(
@@ -550,6 +558,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   void _showBadgeDetail(_BadgeInfo badge) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -711,9 +723,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             children: [
               Icon(category.icon, color: category.color, size: 20),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                category.title,
-                style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              Flexible(
+                child: Text(
+                  category.title,
+                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -760,6 +776,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                           ? MintColors.textPrimary
                           : MintColors.textMuted,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     milestone.description,
@@ -791,9 +809,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             children: [
               Icon(category.icon, color: category.color, size: 20),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                category.title,
-                style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              Flexible(
+                child: Text(
+                  category.title,
+                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -830,6 +852,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 Text(
                   info.label,
                   style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   info.description,

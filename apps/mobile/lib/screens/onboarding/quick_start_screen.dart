@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -38,7 +40,7 @@ class QuickStartScreen extends StatefulWidget {
 class _QuickStartScreenState extends State<QuickStartScreen> {
   final _analytics = AnalyticsService();
   final _nameController = TextEditingController();
-  double _age = 45;
+  int _birthYear = 1981;
   double _salary = 85000;
   String _canton = 'ZH';
   bool _saving = false;
@@ -67,7 +69,11 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       if (profile.firstName != null && profile.firstName!.isNotEmpty) {
         _nameController.text = profile.firstName!;
       }
-      _age = profile.age.toDouble().clamp(18, 75);
+      if (profile.dateOfBirth != null) {
+        _birthYear = profile.dateOfBirth!.year;
+      } else {
+        _birthYear = DateTime.now().year - profile.age;
+      }
       if (profile.canton.isNotEmpty) {
         _canton = profile.canton;
       }
@@ -117,8 +123,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     return balance;
   }
 
+  int get _age => DateTime.now().year - _birthYear;
+
   Map<String, double> _estimate() {
-    final age = _age.round();
+    final age = _age;
     final gross = _salary;
     final avs = AvsCalculator.renteFromRAMD(gross);
     final lppBalance = _estimateLppBalance(age, gross);
@@ -143,7 +151,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
     final provider = context.read<CoachProfileProvider>();
     provider.updateFromSmartFlow(
-      age: _age.round(),
+      age: _age,
       grossSalary: _salary,
       canton: _canton,
       firstName: _nameController.text.trim().isNotEmpty
@@ -261,16 +269,65 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     ),
                     const SizedBox(height: 22),
 
-                    // ── Age slider ──
-                    MintPremiumSlider(
-                      label: l.quickStartAge,
-                      value: _age,
-                      min: 18,
-                      max: 75,
-                      divisions: 57,
-                      formatValue: (v) =>
-                          l.quickStartAgeValue(v.round().toString()),
-                      onChanged: (v) => setState(() => _age = v),
+                    // ── Birth year picker ──
+                    Text(
+                      l.quickStartAge,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    MintSurface(
+                      tone: MintSurfaceTone.porcelaine,
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      radius: 12,
+                      child: SizedBox(
+                        height: 120,
+                        child: CupertinoPicker(
+                          scrollController: FixedExtentScrollController(
+                            initialItem: _birthYear - 1940,
+                          ),
+                          itemExtent: 38,
+                          diameterRatio: 1.2,
+                          magnification: 1.1,
+                          squeeze: 1.0,
+                          selectionOverlay: Container(
+                            decoration: BoxDecoration(
+                              border: Border.symmetric(
+                                horizontal: BorderSide(
+                                  color: MintColors.primary.withAlpha(38),
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onSelectedItemChanged: (index) {
+                            setState(() => _birthYear = 1940 + index);
+                          },
+                          children: List.generate(
+                            DateTime.now().year - 18 - 1940 + 1,
+                            (index) {
+                              final year = 1940 + index;
+                              final age = DateTime.now().year - year;
+                              final isSelected = year == _birthYear;
+                              return Center(
+                                child: Text(
+                                  l.quickStartAgeValue('$year ($age ans)'),
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: isSelected ? 18 : 14,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w700
+                                        : FontWeight.w400,
+                                    color: isSelected
+                                        ? MintColors.textPrimary
+                                        : MintColors.textMuted,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: MintSpacing.md),
 
@@ -417,13 +474,17 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             children: [
               Icon(Icons.show_chart, size: 18, color: accentColor),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.quickStartPreviewTitle,
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textPrimary,
+              Flexible(
+                child: Text(
+                  l.quickStartPreviewTitle,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: MintSpacing.sm),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -513,6 +574,8 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             style: MintTextStyles.displayMedium(color: color).copyWith(
               fontSize: 20,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Text(
@@ -527,15 +590,21 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+        Flexible(
+          child: Text(
+            label,
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         Text(
           value,
           style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
             fontWeight: FontWeight.w700,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

@@ -2773,11 +2773,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           Icon(Icons.cloud_off,
               size: 12, color: MintColors.warning.withValues(alpha: 0.9)),
           const SizedBox(width: MintSpacing.xs),
-          Text(
-            s.llmAllProvidersDown,
-            style: MintTextStyles.labelSmall(
-              color: MintColors.warning.withValues(alpha: 0.9),
-            ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+          Flexible(
+            child: Text(
+              s.llmAllProvidersDown,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.warning.withValues(alpha: 0.9),
+              ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       );
@@ -2789,11 +2793,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           Icon(Icons.warning_amber_outlined,
               size: 12, color: MintColors.warning.withValues(alpha: 0.9)),
           const SizedBox(width: MintSpacing.xs),
-          Text(
-            s.llmCircuitOpen,
-            style: MintTextStyles.labelSmall(
-              color: MintColors.warning.withValues(alpha: 0.9),
-            ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+          Flexible(
+            child: Text(
+              s.llmCircuitOpen,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.warning.withValues(alpha: 0.9),
+              ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       );
@@ -2819,11 +2827,15 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       children: [
         Icon(icon, size: 12, color: MintColors.white.withValues(alpha: 0.7)),
         const SizedBox(width: MintSpacing.xs),
-        Text(
-          label,
-          style: MintTextStyles.labelSmall(
-            color: MintColors.white.withValues(alpha: 0.7),
-          ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+        Flexible(
+          child: Text(
+            label,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.white.withValues(alpha: 0.7),
+            ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
@@ -3594,6 +3606,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     // Show bottom sheet with options: camera, gallery, file
     final source = await showModalBottomSheet<String>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       builder: (ctx) => SafeArea(
         child: Wrap(
           children: [
