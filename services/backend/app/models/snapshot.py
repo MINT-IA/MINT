@@ -23,6 +23,7 @@ class SnapshotModel(Base):
 
     # Core inputs
     age = Column(Integer, default=0)
+    birth_date = Column(String, nullable=True)  # ISO 8601 date string
     gross_income = Column(Float, default=0.0)
     canton = Column(String, default="VD")
     archetype = Column(String, default="swiss_native")

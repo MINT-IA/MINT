@@ -80,6 +80,7 @@ enum FinancialArchetype {
 class ConjointProfile {
   final String? firstName;
   final int? birthYear;
+  final DateTime? dateOfBirth;
   final String? gender; // 'M', 'F', or null (AVS21 reference age)
   final double? salaireBrutMensuel;
   final int nombreDeMois; // 12, 13, 13.5
@@ -112,6 +113,7 @@ class ConjointProfile {
   const ConjointProfile({
     this.firstName,
     this.birthYear,
+    this.dateOfBirth,
     this.gender,
     this.salaireBrutMensuel,
     this.nombreDeMois = 12,
@@ -135,8 +137,11 @@ class ConjointProfile {
     return base + bonus;
   }
 
-  /// Age actuel
+  /// Age actuel — prefers dateOfBirth (exact), falls back to birthYear.
   int? get age {
+    if (dateOfBirth != null) {
+      return DateTime.now().difference(dateOfBirth!).inDays ~/ 365;
+    }
     if (birthYear == null) return null;
     return DateTime.now().year - birthYear!;
   }
@@ -177,6 +182,9 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int?,
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.tryParse(json['dateOfBirth'] as String)
+          : null,
       gender: json['gender'] as String?,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble(),
       nombreDeMois: json['nombreDeMois'] ?? 12,
@@ -198,6 +206,7 @@ class ConjointProfile {
   Map<String, dynamic> toJson() => {
         'firstName': firstName,
         'birthYear': birthYear,
+        'dateOfBirth': dateOfBirth?.toIso8601String(),
         'gender': gender,
         'salaireBrutMensuel': salaireBrutMensuel,
         'nombreDeMois': nombreDeMois,
@@ -216,6 +225,7 @@ class ConjointProfile {
   ConjointProfile copyWith({
     String? firstName,
     int? birthYear,
+    DateTime? dateOfBirth,
     String? gender,
     double? salaireBrutMensuel,
     int? nombreDeMois,
@@ -241,6 +251,7 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       gender: gender ?? this.gender,
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,

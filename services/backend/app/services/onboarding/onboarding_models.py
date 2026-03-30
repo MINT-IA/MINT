@@ -31,6 +31,7 @@ class MinimalProfileInput:
     age: int
     gross_salary: float
     canton: str
+    birth_date: Optional[str] = None        # ISO 8601 date (e.g. "1981-06-15")
     household_type: Optional[str] = None        # default: "single"
     current_savings: Optional[float] = None      # default: estimated from age/salary
     is_property_owner: Optional[bool] = None     # default: False
