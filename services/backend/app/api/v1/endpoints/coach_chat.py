@@ -808,6 +808,15 @@ async def _run_agent_loop(
         external_calls = [
             t for t in raw_tool_calls if t.get("name", "") not in INTERNAL_TOOL_NAMES
         ]
+        # Sanitize PII from Flutter-bound tool inputs before returning
+        for tc in external_calls:
+            inp = tc.get("input", {})
+            if tc.get("name") == "save_insight" and "summary" in inp:
+                for pattern in _PII_PATTERNS:
+                    inp["summary"] = pattern.sub("[***]", inp["summary"])
+            if tc.get("name") == "route_to_screen" and "context_message" in inp:
+                for pattern in _PII_PATTERNS:
+                    inp["context_message"] = pattern.sub("[***]", inp["context_message"])
         flutter_tool_calls.extend(external_calls)
 
         # If no internal tools to execute, we're done

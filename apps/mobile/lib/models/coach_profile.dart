@@ -7,6 +7,7 @@
 /// Sprint C1 — MINT Coach Redesign
 library;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
@@ -466,8 +467,8 @@ class PrevoyanceProfile {
           projectedCapital65 == other.projectedCapital65 &&
           disabilityCoverage == other.disabilityCoverage &&
           deathCoverage == other.deathCoverage &&
-          comptes3a.length == other.comptes3a.length &&
-          librePassage.length == other.librePassage.length;
+          listEquals(comptes3a, other.comptes3a) &&
+          listEquals(librePassage, other.librePassage);
 
   @override
   int get hashCode => Object.hashAll([
@@ -523,6 +524,17 @@ class Compte3a {
         'solde': solde,
         'rendementEstime': rendementEstime,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Compte3a &&
+          provider == other.provider &&
+          solde == other.solde &&
+          rendementEstime == other.rendementEstime;
+
+  @override
+  int get hashCode => Object.hash(provider, solde, rendementEstime);
 }
 
 /// Compte de libre passage (apres changement d'emploi ou lacune LPP).
@@ -553,6 +565,16 @@ class LibrePassageCompte {
         'solde': solde,
         'dateOuverture': dateOuverture?.toIso8601String(),
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrePassageCompte &&
+          institution == other.institution &&
+          solde == other.solde;
+
+  @override
+  int get hashCode => Object.hash(institution, solde);
 }
 
 /// Patrimoine (epargne + investissements + immobilier)
