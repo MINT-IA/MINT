@@ -1117,6 +1117,10 @@ class PlannedMonthlyContribution {
 /// et au FinancialFitnessScore. Persiste localement (SharedPreferences
 /// ou Hive) et peut etre exporte en JSON.
 class CoachProfile {
+  /// Schema version for migration support.
+  /// Increment when breaking changes are made to serialization format.
+  static const int schemaVersion = 1;
+
   // === IDENTITE ===
   final String? firstName;
   final int birthYear;
@@ -1735,6 +1739,12 @@ class CoachProfile {
   // ════════════════════════════════════════════════════════════════
 
   factory CoachProfile.fromJson(Map<String, dynamic> json) {
+    // Schema migration: handle older versions if needed.
+    final version = json['schemaVersion'] as int? ?? 0;
+    // Version 0 (pre-schema) and version 1 share the same format.
+    // Future migrations: if (version < 2) { ... migrate fields ... }
+    assert(version <= schemaVersion,
+        'CoachProfile schema version $version is newer than supported $schemaVersion');
     return CoachProfile(
       firstName: json['firstName'] as String?,
       birthYear: (json['birthYear'] as int?) ?? 1980,
@@ -1825,6 +1835,7 @@ class CoachProfile {
   }
 
   Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
         'firstName': firstName,
         'birthYear': birthYear,
         'dateOfBirth': dateOfBirth?.toIso8601String(),

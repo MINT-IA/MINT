@@ -25327,4 +25327,29 @@ class SIt extends S {
 
   @override
   String get retroactive3aEmptyCta => 'Aggiungi il mio reddito';
+
+  @override
+  String get onboardingPermitTypeLabel => 'Il tuo tipo di permesso';
+
+  @override
+  String get onboardingPermitC => 'Permesso C (domicilio)';
+
+  @override
+  String get onboardingPermitB => 'Permesso B (dimora)';
+
+  @override
+  String get onboardingPermitG => 'Permesso G (frontaliere)';
+
+  @override
+  String get onboardingPermitL => 'Permesso L (breve durata)';
+
+  @override
+  String get onboardingPermitOther => 'Altro';
+
+  @override
+  String get onboardingIjmWarningTitle => 'Protezione malattia: da verificare';
+
+  @override
+  String get onboardingIjmWarningBody =>
+      'Come lavoratore indipendente, non hai indennità giornaliere di malattia (IJM) per default. Senza copertura, una malattia potrebbe interrompere i tuoi redditi senza compensazione. Hai anche 6 mesi per iscriverti volontariamente a una cassa pensione (LPP art. 4).';
 }

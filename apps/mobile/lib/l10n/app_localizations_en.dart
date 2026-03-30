@@ -25129,4 +25129,29 @@ class SEn extends S {
 
   @override
   String get retroactive3aEmptyCta => 'Add my income';
+
+  @override
+  String get onboardingPermitTypeLabel => 'Your permit type';
+
+  @override
+  String get onboardingPermitC => 'Permit C (settlement)';
+
+  @override
+  String get onboardingPermitB => 'Permit B (residence)';
+
+  @override
+  String get onboardingPermitG => 'Permit G (cross-border)';
+
+  @override
+  String get onboardingPermitL => 'Permit L (short-term)';
+
+  @override
+  String get onboardingPermitOther => 'Other';
+
+  @override
+  String get onboardingIjmWarningTitle => 'Sickness protection: check needed';
+
+  @override
+  String get onboardingIjmWarningBody =>
+      'As a self-employed person, you have no daily sickness allowance (IJM) by default. Without coverage, an illness could interrupt your income with no compensation. You also have 6 months to voluntarily enroll in a pension fund (LPP art. 4).';
 }

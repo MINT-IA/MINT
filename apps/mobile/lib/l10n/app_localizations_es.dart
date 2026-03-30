@@ -25255,4 +25255,30 @@ class SEs extends S {
 
   @override
   String get retroactive3aEmptyCta => 'Añadir mi ingreso';
+
+  @override
+  String get onboardingPermitTypeLabel => 'Tu tipo de permiso';
+
+  @override
+  String get onboardingPermitC => 'Permiso C (establecimiento)';
+
+  @override
+  String get onboardingPermitB => 'Permiso B (residencia)';
+
+  @override
+  String get onboardingPermitG => 'Permiso G (fronterizo)';
+
+  @override
+  String get onboardingPermitL => 'Permiso L (corta estancia)';
+
+  @override
+  String get onboardingPermitOther => 'Otro';
+
+  @override
+  String get onboardingIjmWarningTitle =>
+      'Protección por enfermedad: a verificar';
+
+  @override
+  String get onboardingIjmWarningBody =>
+      'Como trabajador independiente, no tienes subsidio diario por enfermedad (IJM) por defecto. Sin cobertura, una enfermedad podría interrumpir tus ingresos sin compensación. También tienes 6 meses para inscribirte voluntariamente en un fondo de pensiones (LPP art. 4).';
 }

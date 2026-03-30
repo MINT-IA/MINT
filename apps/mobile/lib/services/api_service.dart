@@ -110,10 +110,16 @@ class ApiService {
     }
   }
 
-  // Helper method to get auth headers with JWT token
+  /// App version sent with every request for backend compatibility checks.
+  static const String _appVersion = '1.0.0';
+
+  // Helper method to get auth headers with JWT token + version
   static Future<Map<String, String>> _authHeaders() async {
     final token = await AuthService.getToken();
-    final headers = {'Content-Type': 'application/json'};
+    final headers = {
+      'Content-Type': 'application/json',
+      'X-App-Version': _appVersion,
+    };
     if (token != null) {
       headers['Authorization'] = 'Bearer $token';
     }

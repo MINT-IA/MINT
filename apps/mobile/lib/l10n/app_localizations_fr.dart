@@ -15,7 +15,7 @@ class SFr extends S {
   String get landingHero => 'Financial OS.';
 
   @override
-  String get landingSubtitle => 'Votre copilote financier suisse.';
+  String get landingSubtitle => 'Ton copilote financier suisse.';
 
   @override
   String get landingBetaBadge => 'Bêta Privée';
@@ -67,7 +67,7 @@ class SFr extends S {
   String get simulatorsTitle => 'Simulateurs de Voyage';
 
   @override
-  String get recommendations => 'Vos Recommandations';
+  String get recommendations => 'Tes recommandations';
 
   @override
   String get disclaimer =>
@@ -82,11 +82,11 @@ class SFr extends S {
   }
 
   @override
-  String get onboardingStep1Title => 'Bonjour, je suis votre mentor.';
+  String get onboardingStep1Title => 'Bonjour, je suis ton mentor.';
 
   @override
   String get onboardingStep1Subtitle =>
-      'Commençons par faire connaissance. Quelle est votre situation actuelle ?';
+      'Commençons par faire connaissance. Quelle est ta situation actuelle ?';
 
   @override
   String get onboardingHouseholdSingle => 'Seul(e)';
@@ -119,7 +119,7 @@ class SFr extends S {
 
   @override
   String get onboardingStep2Subtitle =>
-      'Quel est le voyage financier que vous souhaitez entreprendre en priorité ?';
+      'Quel est le voyage financier que tu souhaites entreprendre en priorité ?';
 
   @override
   String get onboardingGoalHouse => 'Devenir propriétaire';
@@ -151,13 +151,13 @@ class SFr extends S {
 
   @override
   String get onboardingStep3Subtitle =>
-      'Ces détails nous permettent de personnaliser vos calculs selon la loi suisse.';
+      'Ces détails nous permettent de personnaliser tes calculs selon la loi suisse.';
 
   @override
   String get onboardingCantonLabel => 'Canton de résidence';
 
   @override
-  String get onboardingCantonHint => 'Sélectionnez votre canton';
+  String get onboardingCantonHint => 'Sélectionne ton canton';
 
   @override
   String get onboardingBirthYearLabel => 'Année de naissance (optionnel)';
@@ -173,7 +173,7 @@ class SFr extends S {
 
   @override
   String get onboardingStep4Subtitle =>
-      'Mint est un environnement sûr. Voici nos engagements envers vous.';
+      'Mint est un environnement sûr. Voici nos engagements envers toi.';
 
   @override
   String get onboardingTrustTransparency => 'Transparence totale';
@@ -193,8 +193,7 @@ class SFr extends S {
   String get onboardingTrustSecurity => 'Sécurité';
 
   @override
-  String get onboardingTrustSecurityDesc =>
-      'Aucun accès direct à votre argent.';
+  String get onboardingTrustSecurityDesc => 'Aucun accès direct à ton argent.';
 
   @override
   String get onboardingEnterSpace => 'Entrer dans mon espace';
@@ -721,7 +720,7 @@ class SFr extends S {
 
   @override
   String get homeMentorDescription =>
-      'Lancez votre session personnalisée pour obtenir un diagnostic complet de votre situation financière.';
+      'Lance ta session personnalisée pour obtenir un diagnostic complet de ta situation financière.';
 
   @override
   String get homeStartSession => 'Démarrer ma session';
@@ -753,7 +752,7 @@ class SFr extends S {
 
   @override
   String get profilePrecisionMessage =>
-      'Plus votre profil est complet, plus votre rapport \"Statement of Advice\" est puissant.';
+      'Plus ton profil est complet, plus ton rapport \"Statement of Advice\" est puissant.';
 
   @override
   String get profileFactFindTitle => 'Détails FactFind';
@@ -1962,11 +1961,11 @@ class SFr extends S {
   String get coachingTitle => 'Coaching proactif';
 
   @override
-  String get coachingSubtitle => 'Vos suggestions personnalisées';
+  String get coachingSubtitle => 'Tes suggestions personnalisées';
 
   @override
   String get coachingIntro =>
-      'Suggestions personnalisées basées sur votre profil. Plus votre profil est complet, plus les conseils sont pertinents.';
+      'Suggestions personnalisées basées sur ton profil. Plus ton profil est complet, plus les conseils sont pertinents.';
 
   @override
   String get coachingFilterAll => 'Tous';
@@ -2018,19 +2017,19 @@ class SFr extends S {
   @override
   String coaching3aDeadlineMessage(
       String remaining, String plafond, String impact) {
-    return 'Il vous reste $remaining de marge sur votre plafond 3a ($plafond). Un versement avant le 31 décembre pourrait réduire votre charge fiscale d\'environ $impact.';
+    return 'Il te reste $remaining de marge sur ton plafond 3a ($plafond). Un versement avant le 31 décembre pourrait réduire ta charge fiscale d\'environ $impact.';
   }
 
   @override
   String get coaching3aDeadlineAction => 'Simuler mon 3a';
 
   @override
-  String get coaching3aMissingTitle => 'Vous n\'avez pas de 3e pilier';
+  String get coaching3aMissingTitle => 'Tu n\'as pas de 3e pilier';
 
   @override
   String coaching3aMissingMessage(
       String plafond, String impact, String canton) {
-    return 'Ouvrir un 3e pilier vous permettrait de déduire jusqu\'à $plafond de votre revenu imposable chaque année. L\'économie fiscale estimée est de $impact par an dans le canton de $canton.';
+    return 'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à $plafond de ton revenu imposable chaque année. L\'économie fiscale estimée est de $impact par an dans le canton de $canton.';
   }
 
   @override
@@ -2042,7 +2041,7 @@ class SFr extends S {
   @override
   String coaching3aNotMaxedMessage(
       String current, String plafond, String remaining, String impact) {
-    return 'Votre versement 3a actuel est de $current sur un plafond de $plafond. Verser le solde de $remaining pourrait représenter une économie fiscale d\'environ $impact.';
+    return 'Ton versement 3a actuel est de $current sur un plafond de $plafond. Verser le solde de $remaining pourrait représenter une économie fiscale d\'environ $impact.';
   }
 
   @override
@@ -2053,7 +2052,7 @@ class SFr extends S {
 
   @override
   String coachingLppBuybackMessage(String gap, String impact) {
-    return 'Vous avez une lacune de prévoyance de $gap. Un rachat volontaire pourrait vous faire économiser environ $impact d\'impôts tout en améliorant votre retraite.';
+    return 'Tu as une lacune de prévoyance de $gap. Un rachat volontaire pourrait te faire économiser environ $impact d\'impôts tout en améliorant ta retraite.';
   }
 
   @override
@@ -2064,7 +2063,7 @@ class SFr extends S {
 
   @override
   String coachingTaxDeadlineMessage(String canton, String days) {
-    return 'Le délai pour votre déclaration fiscale dans le canton de $canton est le 31 mars. Il reste $days jours.';
+    return 'Le délai pour ta déclaration fiscale dans le canton de $canton est le 31 mars. Il reste $days jours.';
   }
 
   @override
@@ -2077,7 +2076,7 @@ class SFr extends S {
 
   @override
   String coachingRetirementMessage(String years) {
-    return 'À $years ans de la retraite, il est important de vérifier votre stratégie de prévoyance. Avez-vous optimisé vos rachats LPP ? Vos comptes 3a sont-ils diversifiés ?';
+    return 'À $years ans de la retraite, il est important de vérifier ta stratégie de prévoyance. As-tu optimisé tes rachats LPP ? Tes comptes 3a sont-ils diversifiés ?';
   }
 
   @override
@@ -2088,7 +2087,7 @@ class SFr extends S {
 
   @override
   String coachingEmergencyMessage(String months, String deficit) {
-    return 'Votre épargne disponible couvre $months mois de charges fixes. Les experts recommandent au moins 3 mois. Il vous manque environ $deficit pour atteindre ce seuil.';
+    return 'Ton épargne disponible couvre $months mois de charges fixes. Les experts recommandent au moins 3 mois. Il te manque environ $deficit pour atteindre ce seuil.';
   }
 
   @override
@@ -2101,7 +2100,7 @@ class SFr extends S {
 
   @override
   String coachingDebtMessage(String ratio) {
-    return 'Votre taux d\'endettement estimé est de $ratio%, au-dessus du seuil de 33% recommandé par les banques suisses.';
+    return 'Ton taux d\'endettement estimé est de $ratio%, au-dessus du seuil de 33% recommandé par les banques suisses.';
   }
 
   @override
@@ -2112,7 +2111,7 @@ class SFr extends S {
 
   @override
   String coachingPartTimeMessage(String rate) {
-    return 'À $rate% d\'activité, votre prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.';
+    return 'À $rate% d\'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.';
   }
 
   @override
@@ -2123,7 +2122,7 @@ class SFr extends S {
 
   @override
   String get coachingIndependantMessage =>
-      'En tant qu\'indépendant, vous n\'êtes pas soumis à la LPP obligatoire. Votre prévoyance repose sur l\'AVS et votre 3e pilier. Pensez à maximiser votre 3a.';
+      'En tant qu\'indépendant, tu n\'es pas soumis à la LPP obligatoire. Ta prévoyance repose sur l\'AVS et ton 3e pilier. Pense à maximiser ton 3a.';
 
   @override
   String get coachingIndependantAction => 'Explorer mes options';
@@ -2133,7 +2132,7 @@ class SFr extends S {
 
   @override
   String get coachingBudgetMissingMessage =>
-      'Un budget structuré est la base de toute stratégie financière. Il permet d\'identifier votre capacité d\'épargne réelle.';
+      'Un budget structuré est la base de toute stratégie financière. Il permet d\'identifier ta capacité d\'épargne réelle.';
 
   @override
   String get coachingBudgetMissingAction => 'Créer mon budget';
@@ -2150,7 +2149,7 @@ class SFr extends S {
 
   @override
   String get coachingAge35Message =>
-      'À 35 ans, vérifiez que votre prévoyance est sur la bonne trajectoire. Avez-vous un 3a ? Votre LPP est-elle suffisante ?';
+      'À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?';
 
   @override
   String get coachingAge45Title => '45 ans : optimiser sa stratégie';
@@ -2164,7 +2163,7 @@ class SFr extends S {
 
   @override
   String get coachingAge50Message =>
-      'À 50 ans, la retraite se rapproche. Vérifiez votre avoir LPP, planifiez vos derniers rachats.';
+      'À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.';
 
   @override
   String get coachingAge55Title => '55 ans : dernière ligne droite';
@@ -2178,14 +2177,14 @@ class SFr extends S {
 
   @override
   String get coachingAge58Message =>
-      'Dès 58 ans, un retrait anticipé de votre 2e pilier est envisageable. Attention : la rente sera réduite.';
+      'Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.';
 
   @override
   String get coachingAge63Title => '63 ans : derniers ajustements';
 
   @override
   String get coachingAge63Message =>
-      'À 2 ans de la retraite légale, finalisez votre stratégie. Dernier rachat LPP, choix rente/capital.';
+      'À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.';
 
   @override
   String get coachingDisclaimer =>
@@ -2193,14 +2192,14 @@ class SFr extends S {
 
   @override
   String get coachingDemoMode =>
-      'Mode démo : profil exemple (35 ans, VD, CHF 85\'000). Complétez votre diagnostic pour des conseils personnalisés.';
+      'Mode démo : profil exemple (35 ans, VD, CHF 85\'000). Complète ton diagnostic pour des conseils personnalisés.';
 
   @override
   String get coachingNowCardTitle => 'Coaching proactif';
 
   @override
   String get coachingNowCardSubtitle =>
-      'Conseils personnalisés selon votre profil';
+      'Conseils personnalisés selon ton profil';
 
   @override
   String get coachingCategoryFiscalite => 'Fiscalité';
@@ -6602,7 +6601,7 @@ class SFr extends S {
 
   @override
   String get mariageChecklistItem2Desc =>
-      'Par défaut, c\'est la participation aux acquêts (CC art. 181). Si tu veux un autre régime (séparation de biens, communauté de biens), il faut signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.';
+      'Par défaut, c\'est la participation aux acquêts (CC art. 181). Si tu veux un autre régime (séparation de biens, communauté de biens), il est nécessaire de signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.';
 
   @override
   String get mariageChecklistItem3Title =>
@@ -6989,7 +6988,7 @@ class SFr extends S {
 
   @override
   String get housingSaleEduEplBody =>
-      'Si tu as utilisé des fonds de prévoyance (EPL) pour l\'achat de ta résidence principale, tu dois les rembourser lors de la vente (LPP art. 30d). Ce remboursement est obligatoire et s\'effectue auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. Le montant est inscrit au registre foncier et ne peut pas être évité.';
+      'Si tu as utilisé des fonds de prévoyance (EPL) pour l\'achat de ta résidence principale, tu es tenu de les rembourser lors de la vente (LPP art. 30d). Ce remboursement est obligatoire et s\'effectue auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. Le montant est inscrit au registre foncier et ne peut pas être évité.';
 
   @override
   String get housingSaleDisclaimer =>
@@ -7775,7 +7774,7 @@ class SFr extends S {
 
   @override
   String get expatAvsEducation =>
-      'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il faut 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3%. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.';
+      'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3%. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.';
 
   @override
   String get expatYearsInSwitzerland => 'Années en Suisse';
@@ -13074,7 +13073,7 @@ class SFr extends S {
 
   @override
   String get travailHubFeaturedPremierEmploiSub =>
-      'Tout ce qu\'il faut savoir pour bien démarrer';
+      'L\'essentiel pour bien démarrer';
 
   @override
   String get travailHubFeaturedChomage => 'Chômage';
@@ -17929,7 +17928,7 @@ class SFr extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il faut en faire la demande.';
+      'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d\'en faire la demande.';
 
   @override
   String get concubinageEducationalSuccession =>
@@ -21066,7 +21065,7 @@ class SFr extends S {
   String get landingHiddenAmount => 'Montant masqué';
 
   @override
-  String get landingHiddenSubtitle => 'Créez un compte pour voir vos chiffres';
+  String get landingHiddenSubtitle => 'Crée un compte pour voir tes chiffres';
 
   @override
   String get friBarTitle => 'Résilience financière';
@@ -25252,4 +25251,29 @@ class SFr extends S {
 
   @override
   String get retroactive3aEmptyCta => 'Ajouter mon revenu';
+
+  @override
+  String get onboardingPermitTypeLabel => 'Ton type de permis';
+
+  @override
+  String get onboardingPermitC => 'Permis C (établissement)';
+
+  @override
+  String get onboardingPermitB => 'Permis B (séjour)';
+
+  @override
+  String get onboardingPermitG => 'Permis G (frontalier)';
+
+  @override
+  String get onboardingPermitL => 'Permis L (court séjour)';
+
+  @override
+  String get onboardingPermitOther => 'Autre';
+
+  @override
+  String get onboardingIjmWarningTitle => 'Protection maladie : à vérifier';
+
+  @override
+  String get onboardingIjmWarningBody =>
+      'En tant qu\'indépendant·e, tu n\'as pas d\'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t\'affilier volontairement à une caisse LPP (art. 4 LPP).';
 }

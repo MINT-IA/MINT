@@ -359,6 +359,25 @@ class _StepQuestionsState extends State<StepQuestions> {
                       },
                     ),
                   ],
+                  // Permit type — shown for non-Swiss nationals
+                  if (widget.viewModel.nationalityGroup != null &&
+                      widget.viewModel.nationalityGroup != 'CH') ...[
+                    const SizedBox(height: 24),
+                    _SectionTitle(label: l.onboardingPermitTypeLabel),
+                    const SizedBox(height: 12),
+                    _PermitTypeChips(
+                      value: widget.viewModel.permitType,
+                      onChanged: (v) {
+                        widget.viewModel.setPermitType(v);
+                        widget.onInputChanged();
+                      },
+                    ),
+                  ],
+                  // IJM warning — shown for independants
+                  if (widget.viewModel.employmentStatus == 'independant') ...[
+                    const SizedBox(height: 24),
+                    _IjmWarningCard(),
+                  ],
                   const SizedBox(height: 32),
 
                   // ── 5. CANTON ─────────────────────────────────────────────
@@ -1097,3 +1116,120 @@ class _CantonPicker extends StatelessWidget {
   }
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  PERMIT TYPE CHIPS — shown for non-Swiss nationals (P1-A)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _PermitTypeChips extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _PermitTypeChips({required this.value, required this.onChanged});
+
+  static const _codes = ['C', 'B', 'G', 'L', 'other'];
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final labels = [
+      l.onboardingPermitC,
+      l.onboardingPermitB,
+      l.onboardingPermitG,
+      l.onboardingPermitL,
+      l.onboardingPermitOther,
+    ];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: List.generate(_codes.length, (i) {
+        final code = _codes[i];
+        final label = labels[i];
+        final isSelected = value == code;
+        return Semantics(
+          label: label,
+          selected: isSelected,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => onChanged(isSelected ? null : code),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? MintColors.primary.withAlpha(24)
+                    : MintColors.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color:
+                      isSelected ? MintColors.primary : MintColors.lightBorder,
+                  width: isSelected ? 2 : 1,
+                ),
+              ),
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? MintColors.primary
+                      : MintColors.textSecondary,
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  IJM WARNING CARD — shown for independants (P1-D)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _IjmWarningCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withAlpha(20),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.warning.withAlpha(60)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber_rounded,
+              color: MintColors.warning, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.onboardingIjmWarningTitle,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  l.onboardingIjmWarningBody,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

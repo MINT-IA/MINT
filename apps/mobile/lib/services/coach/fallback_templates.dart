@@ -209,6 +209,11 @@ class FallbackTemplates {
         'quelques points éducatifs à connaître. '
         'Le FATCA (Foreign Account Tax Compliance Act) impose '
         'une déclaration annuelle de tes comptes suisses à l\'IRS. '
+        'De plus, si la somme de tes comptes étrangers dépasse '
+        '\$10\u00a0000 à tout moment de l\'année, tu es tenu·e de '
+        'déposer un FBAR (FinCEN Form 114) avant le 15 avril. '
+        'L\'amende pour non-déclaration peut atteindre \$12\u00a0500 '
+        'par compte (voire plus en cas de faute intentionnelle). '
         'Tes investissements en fonds suisses pourraient être '
         'classés PFIC, avec un traitement fiscal US spécifique. '
         'La convention de double imposition CH-US prévoit des '
@@ -216,7 +221,8 @@ class FallbackTemplates {
         'versements 3a et prestations LPP. '
         'Il serait utile de consulter un·e spécialiste '
         'en fiscalité transfrontalière CH-US. '
-        'Réf. : Convention de double imposition CH-US, FATCA.';
+        'Réf. : Convention de double imposition CH-US, FATCA, '
+        'FBAR (FinCEN Form 114, 31 USC 5314).';
   }
 
   // ═══════════════════════════════════════════════════════════════

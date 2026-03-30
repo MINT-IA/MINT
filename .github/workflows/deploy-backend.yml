@@ -207,4 +207,6 @@ jobs:
           done
 
           echo "::error::Backend healthcheck failed after deploy: $health_url"
+          echo "::warning::Manual rollback may be needed — Railway dashboard > Deployments > Rollback"
+          # TODO(P2-I): Automate rollback via `railway rollback` CLI when health check fails
           exit 1

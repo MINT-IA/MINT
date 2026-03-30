@@ -11880,5 +11880,13 @@
   "realReturnNarrative": "Grazie alla deduzione fiscale, il tuo 3a rende molto di più di un conto risparmio classico.",
   "retroactive3aEmptyTitle": "Recupero 3a",
   "retroactive3aEmptySubtitle": "Inserisci il tuo reddito per calcolare il tuo risparmio fiscale",
-  "retroactive3aEmptyCta": "Aggiungi il mio reddito"
+  "retroactive3aEmptyCta": "Aggiungi il mio reddito",
+  "onboardingPermitTypeLabel": "Il tuo tipo di permesso",
+  "onboardingPermitC": "Permesso C (domicilio)",
+  "onboardingPermitB": "Permesso B (dimora)",
+  "onboardingPermitG": "Permesso G (frontaliere)",
+  "onboardingPermitL": "Permesso L (breve durata)",
+  "onboardingPermitOther": "Altro",
+  "onboardingIjmWarningTitle": "Protezione malattia: da verificare",
+  "onboardingIjmWarningBody": "Come lavoratore indipendente, non hai indennità giornaliere di malattia (IJM) per default. Senza copertura, una malattia potrebbe interrompere i tuoi redditi senza compensazione. Hai anche 6 mesi per iscriverti volontariamente a una cassa pensione (LPP art. 4)."
 }
