@@ -208,8 +208,11 @@ class _PulseScreenState extends State<PulseScreen> {
     // is not in the tree (e.g. tests without full app setup), falls back
     // to null values and legacy paths throughout.
     MintUserState? mintState;
+    bool isRecomputing = false;
     try {
-      mintState = context.watch<MintStateProvider>().state;
+      final stateProvider = context.watch<MintStateProvider>();
+      mintState = stateProvider.state;
+      isRecomputing = stateProvider.isRecomputing;
     } catch (_) {
       // Provider not in widget tree — all mintState paths degrade to null.
     }
@@ -241,7 +244,10 @@ class _PulseScreenState extends State<PulseScreen> {
     // Recent action feedback
     final recentAction = _recentActionLabel();
 
-    return CustomScrollView(
+    return AnimatedOpacity(
+      opacity: isRecomputing ? 0.6 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: CustomScrollView(
       slivers: [
         // ── AppBar (white, consistent) ──
         _buildAppBar(context, profile),
@@ -341,6 +347,7 @@ class _PulseScreenState extends State<PulseScreen> {
           ),
         ),
       ],
+    ),
     );
   }
 
@@ -467,10 +474,11 @@ class _PulseScreenState extends State<PulseScreen> {
     // replacementRate (%) is the primary metric when we have net income.
     final replacementRate = mintState?.replacementRate;
     if (replacementRate != null) {
+      final clampedRate = replacementRate.clamp(0.0, 100.0);
       final revenuNet = _computeRevenuNet(profile);
       if (revenuNet > 0) {
         return _DominantNumber(
-          value: replacementRate,
+          value: clampedRate,
           format: (v) => '${v.round()}%',
           type: _NumberType.percentage,
         );
@@ -492,7 +500,7 @@ class _PulseScreenState extends State<PulseScreen> {
     final confidenceForGate = mintState?.confidenceScore ?? 0;
     if (friScore != null && confidenceForGate >= 50) {
       return _DominantNumber(
-        value: friScore,
+        value: friScore.clamp(0.0, 100.0),
         format: (v) => '${v.round()}/100',
         type: _NumberType.score,
       );
@@ -754,7 +762,7 @@ class _PulseScreenState extends State<PulseScreen> {
     // Signal 2: Retirement income — ONLY when fullGapVisible
     if (snapshot != null && snapshot.hasFullGap) {
       final retirementNet = snapshot.retirement!.monthlyNet;
-      final rate = snapshot.gap!.replacementRate;
+      final rate = snapshot.gap!.replacementRate.clamp(0.0, 100.0);
       final isEstimated = profile.prevoyance.isLppEstimated;
       signals.add(_SignalRow(
         label: isEstimated

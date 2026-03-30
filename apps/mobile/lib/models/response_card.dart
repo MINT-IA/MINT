@@ -105,7 +105,7 @@ class ChiffreChoc {
       };
 
   factory ChiffreChoc.fromJson(Map<String, dynamic> json) => ChiffreChoc(
-        value: (json['value'] as num).toDouble(),
+        value: (json['value'] as num?)?.toDouble() ?? 0.0,
         unit: json['unit'] as String,
         explanation: json['explanation'] as String,
       );

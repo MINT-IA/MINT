@@ -136,6 +136,9 @@ import 'package:mint_mobile/screens/explore/sante_hub_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Redirect-loop guard counter (P0-1). Tracks consecutive auth redirects.
+int _authRedirectCount = 0;
+
 // ════════════════════════════════════════════════════════════
 //  ROUTER — S49 Phase 2: Simplified navigation
 // ════════════════════════════════════════════════════════════
@@ -156,9 +159,32 @@ final _router = GoRouter(
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   redirect: (context, state) {
+    final path = state.uri.path;
+
+    // ── Redirect-loop guard (P0-1) ──
+    // Reset counter when we reach a non-auth destination (loop resolved).
+    if (!path.startsWith('/auth/')) {
+      _authRedirectCount = 0;
+    }
+
+    // Break infinite redirect chains (e.g. /scan→register→verify→login→scan).
+    if (_authRedirectCount > 3) {
+      _authRedirectCount = 0;
+      return '/auth/login';
+    }
+
+    // Detect verify-email ↔ login ping-pong cycle.
+    if (path == '/auth/verify-email' || path == '/auth/login') {
+      final from = state.uri.queryParameters['redirect'] ?? '';
+      if ((path == '/auth/verify-email' && from.startsWith('/auth/login')) ||
+          (path == '/auth/login' && from.startsWith('/auth/verify-email'))) {
+        _authRedirectCount = 0;
+        return '/auth/login';
+      }
+    }
+
     final auth = context.read<AuthProvider>();
     final isLoggedIn = auth.isLoggedIn;
-    final path = state.uri.path;
 
     // Routes that REQUIRE auth (data-writing operations)
     const protectedPrefixes = [
@@ -174,7 +200,11 @@ final _router = GoRouter(
 
     // If protected and not logged in, redirect to register with return URL
     if (isProtected && !isLoggedIn) {
-      return '/auth/register?redirect=${Uri.encodeComponent(path)}';
+      // P0-2: Validate redirect path — must start with / and NOT with //
+      // to prevent open-redirect / phishing via crafted URLs.
+      final safePath = (path.startsWith('/') && !path.startsWith('//')) ? path : '/';
+      _authRedirectCount++;
+      return '/auth/register?redirect=${Uri.encodeComponent(safePath)}';
     }
 
     return null; // No redirect needed

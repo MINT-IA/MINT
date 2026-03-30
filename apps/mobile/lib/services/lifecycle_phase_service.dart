@@ -8,22 +8,22 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 // Detects the user's lifecycle phase (7 phases, age 22-99+)
 // and adapts content tone, complexity, and priorities.
 //
-// Phases:
-//   1. Démarrage    (22-28) — First steps, build habits
-//   2. Construction (28-35) — Career acceleration, family
-//   3. Accélération (35-45) — Peak earning, optimize
-//   4. Consolidation(45-55) — Secure, buyback, plan
-//   5. Transition   (55-65) — Pre-retirement, countdown
-//   6. Retraite     (65-80) — Living off savings
-//   7. Transmission (75-99) — Legacy, estate planning
+// Phases (aligned with LifecycleDetector — canonical age bands):
+//   1. Démarrage    (<25)   — First steps, build habits
+//   2. Construction (25-34) — Career acceleration, family
+//   3. Accélération (35-44) — Peak earning, optimize
+//   4. Consolidation(45-54) — Secure, buyback, plan
+//   5. Transition   (55-64) — Pre-retirement, countdown
+//   6. Retraite     (65-74) — Living off savings
+//   7. Transmission (75+)   — Legacy, estate planning
 //
 // Pure functions — no side effects, deterministic, testable.
 // ────────────────────────────────────────────────────────────
 
 /// Lifecycle phase enum (7 phases covering full adult life).
 enum LifecyclePhase {
-  demarrage,      // 22-28: First job, habits, 3a
-  construction,   // 28-35: Career, family, property
+  demarrage,      // <25: First job, habits, 3a
+  construction,   // 25-34: Career, family, property
   acceleration,   // 35-45: Peak earning, optimization
   consolidation,  // 45-55: Secure position, LPP buyback
   transition,     // 55-65: Pre-retirement planning
@@ -163,9 +163,9 @@ class LifecyclePhaseService {
       return LifecyclePhase.transition;
     }
 
-    // Standard age-based detection
-    if (age < 28) return LifecyclePhase.demarrage;
-    if (age < 38) return LifecyclePhase.construction;  // Spec: 28-37 (§6)
+    // Standard age-based detection (aligned with LifecycleDetector._phaseFromAge)
+    if (age < 25) return LifecyclePhase.demarrage;
+    if (age < 35) return LifecyclePhase.construction;
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
     if (age < reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) return LifecyclePhase.transition;
