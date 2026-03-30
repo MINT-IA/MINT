@@ -1,0 +1,147 @@
+# MINT Android — Build + Upload to Google Play Store (Internal Testing)
+#
+# Manual-only (workflow_dispatch) to control release timing.
+# Usage:
+#   gh workflow run "Play Store" -f environment=staging
+#   gh workflow run "Play Store" -f environment=production
+#
+# Required GitHub Secrets:
+#   ANDROID_KEYSTORE_BASE64    (base64-encoded upload-keystore.jks)
+#   ANDROID_KEY_ALIAS          (e.g. mint-upload)
+#   ANDROID_KEY_PASSWORD       (keystore + key password)
+#   PLAY_STORE_SERVICE_ACCOUNT (base64-encoded Google Play JSON service account key)
+#   SENTRY_DSN_MOBILE          (Sentry DSN for crash tracking)
+#
+# Required GitHub Vars (per environment):
+#   STAGING_API_URL
+#   PROD_API_URL
+
+name: Play Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+      track:
+        description: "Play Store track"
+        required: true
+        default: "internal"
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+
+concurrency:
+  group: play-store-${{ github.event.inputs.environment }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-upload:
+    name: "Build Android + Upload Play Store (${{ github.event.inputs.environment }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      # ── Resolve API URL from environment ──
+      - name: Resolve environment config
+        id: env-config
+        working-directory: .
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            echo "api_url=${{ vars.PROD_API_URL }}" >> "$GITHUB_OUTPUT"
+            echo "branch=main" >> "$GITHUB_OUTPUT"
+          else
+            echo "api_url=${{ vars.STAGING_API_URL }}" >> "$GITHUB_OUTPUT"
+            echo "branch=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.env-config.outputs.branch }}
+
+      # ── Setup Java (required for Android build) ──
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # ── Setup Flutter ──
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.4"
+          channel: stable
+          cache: true
+
+      # ── Backend health check ──
+      - name: Verify backend health
+        run: |
+          API_URL="${{ steps.env-config.outputs.api_url }}"
+          for i in 1 2 3; do
+            if curl -fsS --max-time 10 "$API_URL/health" >/dev/null 2>&1; then
+              echo "✓ Backend healthy: $API_URL"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::warning::Backend health check failed — building anyway"
+
+      # ── Decode keystore from secret ──
+      - name: Decode Android keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/upload-keystore.jks
+          echo "storePassword=${{ secrets.ANDROID_KEY_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=../upload-keystore.jks" >> android/key.properties
+
+      # ── Build ──
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build App Bundle
+        env:
+          SENTRY_DSN_MOBILE: ${{ secrets.SENTRY_DSN_MOBILE }}
+        run: |
+          API_URL="${{ steps.env-config.outputs.api_url }}"
+          EXTRA_DEFINES=""
+          if [[ -n "$SENTRY_DSN_MOBILE" ]]; then
+            EXTRA_DEFINES="--dart-define=SENTRY_DSN=$SENTRY_DSN_MOBILE"
+          fi
+          flutter build appbundle --release \
+            --dart-define=API_BASE_URL=$API_URL \
+            $EXTRA_DEFINES
+
+      # ── Upload to Play Store ──
+      - name: Decode Play Store service account
+        run: |
+          echo "${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}" | base64 --decode > play-store-key.json
+
+      - name: Upload to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: apps/mobile/play-store-key.json
+          packageName: ch.mint.coach
+          releaseFiles: apps/mobile/build/app/outputs/bundle/release/app-release.aab
+          track: ${{ github.event.inputs.track }}
+          status: draft
+
+      # ── Cleanup secrets ──
+      - name: Cleanup sensitive files
+        if: always()
+        run: |
+          rm -f android/upload-keystore.jks android/key.properties play-store-key.json
