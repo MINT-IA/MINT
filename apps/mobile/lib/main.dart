@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -19,6 +20,11 @@ import 'package:mint_mobile/services/regulatory_sync_service.dart';
 Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock portrait orientation globally (landscape only in fullscreen chart overlay)
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();

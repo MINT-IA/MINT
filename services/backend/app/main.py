@@ -30,6 +30,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
+        # API version for client compatibility checks
+        response.headers["X-API-Version"] = "1.0.0"
+        response.headers["X-Min-App-Version"] = "1.0.0"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         if settings.ENVIRONMENT != "development":
             response.headers["Strict-Transport-Security"] = (
