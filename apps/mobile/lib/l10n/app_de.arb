@@ -11880,5 +11880,13 @@
   "realReturnNarrative": "Dank des Steuerabzugs bringt deine Säule 3a deutlich mehr als ein gewöhnliches Sparkonto.",
   "retroactive3aEmptyTitle": "Säule-3a-Nachzahlung",
   "retroactive3aEmptySubtitle": "Gib dein Einkommen ein, um deine Steuerersparnis zu berechnen",
-  "retroactive3aEmptyCta": "Mein Einkommen hinzufügen"
+  "retroactive3aEmptyCta": "Mein Einkommen hinzufügen",
+  "onboardingPermitTypeLabel": "Dein Aufenthaltstitel",
+  "onboardingPermitC": "Ausweis C (Niederlassung)",
+  "onboardingPermitB": "Ausweis B (Aufenthalt)",
+  "onboardingPermitG": "Ausweis G (Grenzgänger)",
+  "onboardingPermitL": "Ausweis L (Kurzaufenthalt)",
+  "onboardingPermitOther": "Andere",
+  "onboardingIjmWarningTitle": "Krankentaggeld: zu prüfen",
+  "onboardingIjmWarningBody": "Als Selbständige·r hast du standardmässig kein Krankentaggeld. Ohne Abdeckung könnte eine Krankheit dein Einkommen ohne Entschädigung unterbrechen. Du hast zudem 6 Monate Zeit, dich freiwillig einer Pensionskasse anzuschliessen (BVG Art. 4)."
 }

@@ -25303,4 +25303,29 @@ class SDe extends S {
 
   @override
   String get retroactive3aEmptyCta => 'Mein Einkommen hinzufügen';
+
+  @override
+  String get onboardingPermitTypeLabel => 'Dein Aufenthaltstitel';
+
+  @override
+  String get onboardingPermitC => 'Ausweis C (Niederlassung)';
+
+  @override
+  String get onboardingPermitB => 'Ausweis B (Aufenthalt)';
+
+  @override
+  String get onboardingPermitG => 'Ausweis G (Grenzgänger)';
+
+  @override
+  String get onboardingPermitL => 'Ausweis L (Kurzaufenthalt)';
+
+  @override
+  String get onboardingPermitOther => 'Andere';
+
+  @override
+  String get onboardingIjmWarningTitle => 'Krankentaggeld: zu prüfen';
+
+  @override
+  String get onboardingIjmWarningBody =>
+      'Als Selbständige·r hast du standardmässig kein Krankentaggeld. Ohne Abdeckung könnte eine Krankheit dein Einkommen ohne Entschädigung unterbrechen. Du hast zudem 6 Monate Zeit, dich freiwillig einer Pensionskasse anzuschliessen (BVG Art. 4).';
 }

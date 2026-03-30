@@ -11880,5 +11880,13 @@
   "realReturnNarrative": "Thanks to the tax deduction, your 3a yields much more than a standard savings account.",
   "retroactive3aEmptyTitle": "3a catch-up",
   "retroactive3aEmptySubtitle": "Enter your income to calculate your tax savings",
-  "retroactive3aEmptyCta": "Add my income"
+  "retroactive3aEmptyCta": "Add my income",
+  "onboardingPermitTypeLabel": "Your permit type",
+  "onboardingPermitC": "Permit C (settlement)",
+  "onboardingPermitB": "Permit B (residence)",
+  "onboardingPermitG": "Permit G (cross-border)",
+  "onboardingPermitL": "Permit L (short-term)",
+  "onboardingPermitOther": "Other",
+  "onboardingIjmWarningTitle": "Sickness protection: check needed",
+  "onboardingIjmWarningBody": "As a self-employed person, you have no daily sickness allowance (IJM) by default. Without coverage, an illness could interrupt your income with no compensation. You also have 6 months to voluntarily enroll in a pension fund (LPP art. 4)."
 }

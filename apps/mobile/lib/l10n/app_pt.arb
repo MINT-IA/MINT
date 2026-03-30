@@ -11880,5 +11880,13 @@
   "realReturnNarrative": "Graças à dedução fiscal, o teu 3a rende muito mais do que uma conta poupança clássica.",
   "retroactive3aEmptyTitle": "Recuperação 3a",
   "retroactive3aEmptySubtitle": "Insere o teu rendimento para calcular a tua poupança fiscal",
-  "retroactive3aEmptyCta": "Adicionar o meu rendimento"
+  "retroactive3aEmptyCta": "Adicionar o meu rendimento",
+  "onboardingPermitTypeLabel": "O teu tipo de autorização",
+  "onboardingPermitC": "Autorização C (estabelecimento)",
+  "onboardingPermitB": "Autorização B (residência)",
+  "onboardingPermitG": "Autorização G (fronteiriço)",
+  "onboardingPermitL": "Autorização L (curta duração)",
+  "onboardingPermitOther": "Outro",
+  "onboardingIjmWarningTitle": "Proteção doença: a verificar",
+  "onboardingIjmWarningBody": "Como trabalhador independente, não tens subsídio diário de doença (IJM) por defeito. Sem cobertura, uma doença poderia interromper os teus rendimentos sem compensação. Tens também 6 meses para te inscreveres voluntariamente num fundo de pensões (LPP art. 4)."
 }

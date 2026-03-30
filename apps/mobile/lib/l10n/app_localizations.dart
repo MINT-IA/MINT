@@ -120,7 +120,7 @@ abstract class S {
   /// No description provided for @landingSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Votre copilote financier suisse.'**
+  /// **'Ton copilote financier suisse.'**
   String get landingSubtitle;
 
   /// No description provided for @landingBetaBadge.
@@ -222,7 +222,7 @@ abstract class S {
   /// No description provided for @recommendations.
   ///
   /// In fr, this message translates to:
-  /// **'Vos Recommandations'**
+  /// **'Tes recommandations'**
   String get recommendations;
 
   /// No description provided for @disclaimer.
@@ -246,13 +246,13 @@ abstract class S {
   /// No description provided for @onboardingStep1Title.
   ///
   /// In fr, this message translates to:
-  /// **'Bonjour, je suis votre mentor.'**
+  /// **'Bonjour, je suis ton mentor.'**
   String get onboardingStep1Title;
 
   /// No description provided for @onboardingStep1Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Commençons par faire connaissance. Quelle est votre situation actuelle ?'**
+  /// **'Commençons par faire connaissance. Quelle est ta situation actuelle ?'**
   String get onboardingStep1Subtitle;
 
   /// No description provided for @onboardingHouseholdSingle.
@@ -312,7 +312,7 @@ abstract class S {
   /// No description provided for @onboardingStep2Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Quel est le voyage financier que vous souhaitez entreprendre en priorité ?'**
+  /// **'Quel est le voyage financier que tu souhaites entreprendre en priorité ?'**
   String get onboardingStep2Subtitle;
 
   /// No description provided for @onboardingGoalHouse.
@@ -372,7 +372,7 @@ abstract class S {
   /// No description provided for @onboardingStep3Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ces détails nous permettent de personnaliser vos calculs selon la loi suisse.'**
+  /// **'Ces détails nous permettent de personnaliser tes calculs selon la loi suisse.'**
   String get onboardingStep3Subtitle;
 
   /// No description provided for @onboardingCantonLabel.
@@ -384,7 +384,7 @@ abstract class S {
   /// No description provided for @onboardingCantonHint.
   ///
   /// In fr, this message translates to:
-  /// **'Sélectionnez votre canton'**
+  /// **'Sélectionne ton canton'**
   String get onboardingCantonHint;
 
   /// No description provided for @onboardingBirthYearLabel.
@@ -414,7 +414,7 @@ abstract class S {
   /// No description provided for @onboardingStep4Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Mint est un environnement sûr. Voici nos engagements envers vous.'**
+  /// **'Mint est un environnement sûr. Voici nos engagements envers toi.'**
   String get onboardingStep4Subtitle;
 
   /// No description provided for @onboardingTrustTransparency.
@@ -450,7 +450,7 @@ abstract class S {
   /// No description provided for @onboardingTrustSecurityDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun accès direct à votre argent.'**
+  /// **'Aucun accès direct à ton argent.'**
   String get onboardingTrustSecurityDesc;
 
   /// No description provided for @onboardingEnterSpace.
@@ -1344,7 +1344,7 @@ abstract class S {
   /// No description provided for @homeMentorDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Lancez votre session personnalisée pour obtenir un diagnostic complet de votre situation financière.'**
+  /// **'Lance ta session personnalisée pour obtenir un diagnostic complet de ta situation financière.'**
   String get homeMentorDescription;
 
   /// No description provided for @homeStartSession.
@@ -1404,7 +1404,7 @@ abstract class S {
   /// No description provided for @profilePrecisionMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Plus votre profil est complet, plus votre rapport \"Statement of Advice\" est puissant.'**
+  /// **'Plus ton profil est complet, plus ton rapport \"Statement of Advice\" est puissant.'**
   String get profilePrecisionMessage;
 
   /// No description provided for @profileFactFindTitle.
@@ -3666,13 +3666,13 @@ abstract class S {
   /// No description provided for @coachingSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Vos suggestions personnalisées'**
+  /// **'Tes suggestions personnalisées'**
   String get coachingSubtitle;
 
   /// No description provided for @coachingIntro.
   ///
   /// In fr, this message translates to:
-  /// **'Suggestions personnalisées basées sur votre profil. Plus votre profil est complet, plus les conseils sont pertinents.'**
+  /// **'Suggestions personnalisées basées sur ton profil. Plus ton profil est complet, plus les conseils sont pertinents.'**
   String get coachingIntro;
 
   /// No description provided for @coachingFilterAll.
@@ -3762,7 +3762,7 @@ abstract class S {
   /// No description provided for @coaching3aDeadlineMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Il vous reste {remaining} de marge sur votre plafond 3a ({plafond}). Un versement avant le 31 décembre pourrait réduire votre charge fiscale d\'environ {impact}.'**
+  /// **'Il te reste {remaining} de marge sur ton plafond 3a ({plafond}). Un versement avant le 31 décembre pourrait réduire ta charge fiscale d\'environ {impact}.'**
   String coaching3aDeadlineMessage(
       String remaining, String plafond, String impact);
 
@@ -3775,13 +3775,13 @@ abstract class S {
   /// No description provided for @coaching3aMissingTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Vous n\'avez pas de 3e pilier'**
+  /// **'Tu n\'as pas de 3e pilier'**
   String get coaching3aMissingTitle;
 
   /// No description provided for @coaching3aMissingMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir un 3e pilier vous permettrait de déduire jusqu\'à {plafond} de votre revenu imposable chaque année. L\'économie fiscale estimée est de {impact} par an dans le canton de {canton}.'**
+  /// **'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à {plafond} de ton revenu imposable chaque année. L\'économie fiscale estimée est de {impact} par an dans le canton de {canton}.'**
   String coaching3aMissingMessage(String plafond, String impact, String canton);
 
   /// No description provided for @coaching3aMissingAction.
@@ -3799,7 +3799,7 @@ abstract class S {
   /// No description provided for @coaching3aNotMaxedMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Votre versement 3a actuel est de {current} sur un plafond de {plafond}. Verser le solde de {remaining} pourrait représenter une économie fiscale d\'environ {impact}.'**
+  /// **'Ton versement 3a actuel est de {current} sur un plafond de {plafond}. Verser le solde de {remaining} pourrait représenter une économie fiscale d\'environ {impact}.'**
   String coaching3aNotMaxedMessage(
       String current, String plafond, String remaining, String impact);
 
@@ -3818,7 +3818,7 @@ abstract class S {
   /// No description provided for @coachingLppBuybackMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Vous avez une lacune de prévoyance de {gap}. Un rachat volontaire pourrait vous faire économiser environ {impact} d\'impôts tout en améliorant votre retraite.'**
+  /// **'Tu as une lacune de prévoyance de {gap}. Un rachat volontaire pourrait te faire économiser environ {impact} d\'impôts tout en améliorant ta retraite.'**
   String coachingLppBuybackMessage(String gap, String impact);
 
   /// No description provided for @coachingLppBuybackAction.
@@ -3836,7 +3836,7 @@ abstract class S {
   /// No description provided for @coachingTaxDeadlineMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Le délai pour votre déclaration fiscale dans le canton de {canton} est le 31 mars. Il reste {days} jours.'**
+  /// **'Le délai pour ta déclaration fiscale dans le canton de {canton} est le 31 mars. Il reste {days} jours.'**
   String coachingTaxDeadlineMessage(String canton, String days);
 
   /// No description provided for @coachingTaxDeadlineAction.
@@ -3854,7 +3854,7 @@ abstract class S {
   /// No description provided for @coachingRetirementMessage.
   ///
   /// In fr, this message translates to:
-  /// **'À {years} ans de la retraite, il est important de vérifier votre stratégie de prévoyance. Avez-vous optimisé vos rachats LPP ? Vos comptes 3a sont-ils diversifiés ?'**
+  /// **'À {years} ans de la retraite, il est important de vérifier ta stratégie de prévoyance. As-tu optimisé tes rachats LPP ? Tes comptes 3a sont-ils diversifiés ?'**
   String coachingRetirementMessage(String years);
 
   /// No description provided for @coachingRetirementAction.
@@ -3872,7 +3872,7 @@ abstract class S {
   /// No description provided for @coachingEmergencyMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Votre épargne disponible couvre {months} mois de charges fixes. Les experts recommandent au moins 3 mois. Il vous manque environ {deficit} pour atteindre ce seuil.'**
+  /// **'Ton épargne disponible couvre {months} mois de charges fixes. Les experts recommandent au moins 3 mois. Il te manque environ {deficit} pour atteindre ce seuil.'**
   String coachingEmergencyMessage(String months, String deficit);
 
   /// No description provided for @coachingEmergencyAction.
@@ -3890,7 +3890,7 @@ abstract class S {
   /// No description provided for @coachingDebtMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Votre taux d\'endettement estimé est de {ratio}%, au-dessus du seuil de 33% recommandé par les banques suisses.'**
+  /// **'Ton taux d\'endettement estimé est de {ratio}%, au-dessus du seuil de 33% recommandé par les banques suisses.'**
   String coachingDebtMessage(String ratio);
 
   /// No description provided for @coachingDebtAction.
@@ -3908,7 +3908,7 @@ abstract class S {
   /// No description provided for @coachingPartTimeMessage.
   ///
   /// In fr, this message translates to:
-  /// **'À {rate}% d\'activité, votre prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.'**
+  /// **'À {rate}% d\'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.'**
   String coachingPartTimeMessage(String rate);
 
   /// No description provided for @coachingPartTimeAction.
@@ -3926,7 +3926,7 @@ abstract class S {
   /// No description provided for @coachingIndependantMessage.
   ///
   /// In fr, this message translates to:
-  /// **'En tant qu\'indépendant, vous n\'êtes pas soumis à la LPP obligatoire. Votre prévoyance repose sur l\'AVS et votre 3e pilier. Pensez à maximiser votre 3a.'**
+  /// **'En tant qu\'indépendant, tu n\'es pas soumis à la LPP obligatoire. Ta prévoyance repose sur l\'AVS et ton 3e pilier. Pense à maximiser ton 3a.'**
   String get coachingIndependantMessage;
 
   /// No description provided for @coachingIndependantAction.
@@ -3944,7 +3944,7 @@ abstract class S {
   /// No description provided for @coachingBudgetMissingMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Un budget structuré est la base de toute stratégie financière. Il permet d\'identifier votre capacité d\'épargne réelle.'**
+  /// **'Un budget structuré est la base de toute stratégie financière. Il permet d\'identifier ta capacité d\'épargne réelle.'**
   String get coachingBudgetMissingMessage;
 
   /// No description provided for @coachingBudgetMissingAction.
@@ -3974,7 +3974,7 @@ abstract class S {
   /// No description provided for @coachingAge35Message.
   ///
   /// In fr, this message translates to:
-  /// **'À 35 ans, vérifiez que votre prévoyance est sur la bonne trajectoire. Avez-vous un 3a ? Votre LPP est-elle suffisante ?'**
+  /// **'À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?'**
   String get coachingAge35Message;
 
   /// No description provided for @coachingAge45Title.
@@ -3998,7 +3998,7 @@ abstract class S {
   /// No description provided for @coachingAge50Message.
   ///
   /// In fr, this message translates to:
-  /// **'À 50 ans, la retraite se rapproche. Vérifiez votre avoir LPP, planifiez vos derniers rachats.'**
+  /// **'À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.'**
   String get coachingAge50Message;
 
   /// No description provided for @coachingAge55Title.
@@ -4022,7 +4022,7 @@ abstract class S {
   /// No description provided for @coachingAge58Message.
   ///
   /// In fr, this message translates to:
-  /// **'Dès 58 ans, un retrait anticipé de votre 2e pilier est envisageable. Attention : la rente sera réduite.'**
+  /// **'Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.'**
   String get coachingAge58Message;
 
   /// No description provided for @coachingAge63Title.
@@ -4034,7 +4034,7 @@ abstract class S {
   /// No description provided for @coachingAge63Message.
   ///
   /// In fr, this message translates to:
-  /// **'À 2 ans de la retraite légale, finalisez votre stratégie. Dernier rachat LPP, choix rente/capital.'**
+  /// **'À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.'**
   String get coachingAge63Message;
 
   /// No description provided for @coachingDisclaimer.
@@ -4046,7 +4046,7 @@ abstract class S {
   /// No description provided for @coachingDemoMode.
   ///
   /// In fr, this message translates to:
-  /// **'Mode démo : profil exemple (35 ans, VD, CHF 85\'000). Complétez votre diagnostic pour des conseils personnalisés.'**
+  /// **'Mode démo : profil exemple (35 ans, VD, CHF 85\'000). Complète ton diagnostic pour des conseils personnalisés.'**
   String get coachingDemoMode;
 
   /// No description provided for @coachingNowCardTitle.
@@ -4058,7 +4058,7 @@ abstract class S {
   /// No description provided for @coachingNowCardSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Conseils personnalisés selon votre profil'**
+  /// **'Conseils personnalisés selon ton profil'**
   String get coachingNowCardSubtitle;
 
   /// No description provided for @coachingCategoryFiscalite.
@@ -11968,7 +11968,7 @@ abstract class S {
   /// No description provided for @mariageChecklistItem2Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Par défaut, c\'est la participation aux acquêts (CC art. 181). Si tu veux un autre régime (séparation de biens, communauté de biens), il faut signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.'**
+  /// **'Par défaut, c\'est la participation aux acquêts (CC art. 181). Si tu veux un autre régime (séparation de biens, communauté de biens), il est nécessaire de signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.'**
   String get mariageChecklistItem2Desc;
 
   /// No description provided for @mariageChecklistItem3Title.
@@ -12646,7 +12646,7 @@ abstract class S {
   /// No description provided for @housingSaleEduEplBody.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu as utilisé des fonds de prévoyance (EPL) pour l\'achat de ta résidence principale, tu dois les rembourser lors de la vente (LPP art. 30d). Ce remboursement est obligatoire et s\'effectue auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. Le montant est inscrit au registre foncier et ne peut pas être évité.'**
+  /// **'Si tu as utilisé des fonds de prévoyance (EPL) pour l\'achat de ta résidence principale, tu es tenu de les rembourser lors de la vente (LPP art. 30d). Ce remboursement est obligatoire et s\'effectue auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. Le montant est inscrit au registre foncier et ne peut pas être évité.'**
   String get housingSaleEduEplBody;
 
   /// No description provided for @housingSaleDisclaimer.
@@ -14057,7 +14057,7 @@ abstract class S {
   /// No description provided for @expatAvsEducation.
   ///
   /// In fr, this message translates to:
-  /// **'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il faut 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3%. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.'**
+  /// **'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3%. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.'**
   String get expatAvsEducation;
 
   /// No description provided for @expatYearsInSwitzerland.
@@ -23174,7 +23174,7 @@ abstract class S {
   /// No description provided for @travailHubFeaturedPremierEmploiSub.
   ///
   /// In fr, this message translates to:
-  /// **'Tout ce qu\'il faut savoir pour bien démarrer'**
+  /// **'L\'essentiel pour bien démarrer'**
   String get travailHubFeaturedPremierEmploiSub;
 
   /// No description provided for @travailHubFeaturedChomage.
@@ -31766,7 +31766,7 @@ abstract class S {
   /// No description provided for @concubinageEducationalLpp.
   ///
   /// In fr, this message translates to:
-  /// **'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il faut en faire la demande.'**
+  /// **'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d\'en faire la demande.'**
   String get concubinageEducationalLpp;
 
   /// No description provided for @concubinageEducationalSuccession.
@@ -37171,7 +37171,7 @@ abstract class S {
   /// No description provided for @landingHiddenSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Créez un compte pour voir vos chiffres'**
+  /// **'Crée un compte pour voir tes chiffres'**
   String get landingHiddenSubtitle;
 
   /// No description provided for @friBarTitle.
@@ -44496,6 +44496,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ajouter mon revenu'**
   String get retroactive3aEmptyCta;
+
+  /// No description provided for @onboardingPermitTypeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton type de permis'**
+  String get onboardingPermitTypeLabel;
+
+  /// No description provided for @onboardingPermitC.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis C (établissement)'**
+  String get onboardingPermitC;
+
+  /// No description provided for @onboardingPermitB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis B (séjour)'**
+  String get onboardingPermitB;
+
+  /// No description provided for @onboardingPermitG.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis G (frontalier)'**
+  String get onboardingPermitG;
+
+  /// No description provided for @onboardingPermitL.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis L (court séjour)'**
+  String get onboardingPermitL;
+
+  /// No description provided for @onboardingPermitOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get onboardingPermitOther;
+
+  /// No description provided for @onboardingIjmWarningTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection maladie : à vérifier'**
+  String get onboardingIjmWarningTitle;
+
+  /// No description provided for @onboardingIjmWarningBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant qu\'indépendant·e, tu n\'as pas d\'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t\'affilier volontairement à une caisse LPP (art. 4 LPP).'**
+  String get onboardingIjmWarningBody;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

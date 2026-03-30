@@ -11880,5 +11880,13 @@
   "realReturnNarrative": "Gracias a la deducción fiscal, tu 3a rinde mucho más que una cuenta de ahorro clásica.",
   "retroactive3aEmptyTitle": "Recuperación 3a",
   "retroactive3aEmptySubtitle": "Ingresa tu ingreso para calcular tu ahorro fiscal",
-  "retroactive3aEmptyCta": "Añadir mi ingreso"
+  "retroactive3aEmptyCta": "Añadir mi ingreso",
+  "onboardingPermitTypeLabel": "Tu tipo de permiso",
+  "onboardingPermitC": "Permiso C (establecimiento)",
+  "onboardingPermitB": "Permiso B (residencia)",
+  "onboardingPermitG": "Permiso G (fronterizo)",
+  "onboardingPermitL": "Permiso L (corta estancia)",
+  "onboardingPermitOther": "Otro",
+  "onboardingIjmWarningTitle": "Protección por enfermedad: a verificar",
+  "onboardingIjmWarningBody": "Como trabajador independiente, no tienes subsidio diario por enfermedad (IJM) por defecto. Sin cobertura, una enfermedad podría interrumpir tus ingresos sin compensación. También tienes 6 meses para inscribirte voluntariamente en un fondo de pensiones (LPP art. 4)."
 }

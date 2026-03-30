@@ -25262,4 +25262,29 @@ class SPt extends S {
 
   @override
   String get retroactive3aEmptyCta => 'Adicionar o meu rendimento';
+
+  @override
+  String get onboardingPermitTypeLabel => 'O teu tipo de autorização';
+
+  @override
+  String get onboardingPermitC => 'Autorização C (estabelecimento)';
+
+  @override
+  String get onboardingPermitB => 'Autorização B (residência)';
+
+  @override
+  String get onboardingPermitG => 'Autorização G (fronteiriço)';
+
+  @override
+  String get onboardingPermitL => 'Autorização L (curta duração)';
+
+  @override
+  String get onboardingPermitOther => 'Outro';
+
+  @override
+  String get onboardingIjmWarningTitle => 'Proteção doença: a verificar';
+
+  @override
+  String get onboardingIjmWarningBody =>
+      'Como trabalhador independente, não tens subsídio diário de doença (IJM) por defeito. Sem cobertura, uma doença poderia interromper os teus rendimentos sem compensação. Tens também 6 meses para te inscreveres voluntariamente num fundo de pensões (LPP art. 4).';
 }

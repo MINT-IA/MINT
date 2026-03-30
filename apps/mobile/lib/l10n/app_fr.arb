@@ -2,7 +2,7 @@
   "@@locale": "fr",
   "appTitle": "MINT",
   "landingHero": "Financial OS.",
-  "landingSubtitle": "Votre copilote financier suisse.",
+  "landingSubtitle": "Ton copilote financier suisse.",
   "landingBetaBadge": "Bêta Privée",
   "landingHeroPrefix": "Le premier",
   "landingSubtitleLong": "L'intelligence d'un CFO, dans ta poche.\nZéro bullshit. Pur conseil.",
@@ -19,7 +19,7 @@
   "tabTrack": "SUIVRE",
   "budgetTitle": "Maîtriser mon Budget",
   "simulatorsTitle": "Simulateurs de Voyage",
-  "recommendations": "Vos Recommandations",
+  "recommendations": "Tes recommandations",
   "disclaimer": "Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé.",
   "onboardingSkip": "Passer",
   "onboardingProgress": "Étape {step} sur {total}",
@@ -33,8 +33,8 @@
       }
     }
   },
-  "onboardingStep1Title": "Bonjour, je suis votre mentor.",
-  "onboardingStep1Subtitle": "Commençons par faire connaissance. Quelle est votre situation actuelle ?",
+  "onboardingStep1Title": "Bonjour, je suis ton mentor.",
+  "onboardingStep1Subtitle": "Commençons par faire connaissance. Quelle est ta situation actuelle ?",
   "onboardingHouseholdSingle": "Seul(e)",
   "onboardingHouseholdSingleDesc": "Je gère mes finances en solo",
   "onboardingHouseholdCouple": "En couple",
@@ -44,7 +44,7 @@
   "onboardingHouseholdSingleParent": "Parent solo",
   "onboardingHouseholdSingleParentDesc": "Je gère seul(e) avec enfant(s) à charge",
   "onboardingStep2Title": "Très bien.",
-  "onboardingStep2Subtitle": "Quel est le voyage financier que vous souhaitez entreprendre en priorité ?",
+  "onboardingStep2Subtitle": "Quel est le voyage financier que tu souhaites entreprendre en priorité ?",
   "onboardingGoalHouse": "Devenir propriétaire",
   "onboardingGoalHouseDesc": "Préparer mon apport et mon hypothèque",
   "onboardingGoalRetire": "Sérénité Retraite",
@@ -54,20 +54,20 @@
   "onboardingGoalTaxOptim": "Optimisation Fiscale",
   "onboardingGoalTaxOptimDesc": "Réduire mes impôts légalement",
   "onboardingStep3Title": "Presque là.",
-  "onboardingStep3Subtitle": "Ces détails nous permettent de personnaliser vos calculs selon la loi suisse.",
+  "onboardingStep3Subtitle": "Ces détails nous permettent de personnaliser tes calculs selon la loi suisse.",
   "onboardingCantonLabel": "Canton de résidence",
-  "onboardingCantonHint": "Sélectionnez votre canton",
+  "onboardingCantonHint": "Sélectionne ton canton",
   "onboardingBirthYearLabel": "Année de naissance (optionnel)",
   "onboardingBirthYearHint": "Ex: 1990",
   "onboardingContinue": "Continuer",
   "onboardingStep4Title": "Prêt à commencer ?",
-  "onboardingStep4Subtitle": "Mint est un environnement sûr. Voici nos engagements envers vous.",
+  "onboardingStep4Subtitle": "Mint est un environnement sûr. Voici nos engagements envers toi.",
   "onboardingTrustTransparency": "Transparence totale",
   "onboardingTrustTransparencyDesc": "Toutes les hypothèses sont visibles.",
   "onboardingTrustPrivacy": "Vie privée",
   "onboardingTrustPrivacyDesc": "Calculs locaux, pas de stockage de données sensibles.",
   "onboardingTrustSecurity": "Sécurité",
-  "onboardingTrustSecurityDesc": "Aucun accès direct à votre argent.",
+  "onboardingTrustSecurityDesc": "Aucun accès direct à ton argent.",
   "onboardingEnterSpace": "Entrer dans mon espace",
   "advisorMiniStep1Title": "Quelle est ta priorité ?",
   "advisorMiniStep1Subtitle": "MINT s'adapte à ce qui compte pour toi maintenant",
@@ -360,7 +360,7 @@
   "homeSafeModeMessage": "Nous avons détecté des signaux de tension. Il pourrait être utile de stabiliser ton budget avant d'explorer d'autres options.",
   "homeSafeModeResources": "Ressources & Aides gratuites",
   "homeMentorAdvisor": "Mentor Advisor",
-  "homeMentorDescription": "Lancez votre session personnalisée pour obtenir un diagnostic complet de votre situation financière.",
+  "homeMentorDescription": "Lance ta session personnalisée pour obtenir un diagnostic complet de ta situation financière.",
   "homeStartSession": "Démarrer ma session",
   "homeSimulator3a": "Retraite 3a",
   "homeSimulatorGrowth": "Croissance",
@@ -370,7 +370,7 @@
   "homeReportV2Subtitle": "Score par cercle, comparateur 3a, stratégie LPP",
   "profileTitle": "MON PROFIL MENTOR",
   "profilePrecisionIndex": "Precision Index",
-  "profilePrecisionMessage": "Plus votre profil est complet, plus votre rapport \"Statement of Advice\" est puissant.",
+  "profilePrecisionMessage": "Plus ton profil est complet, plus ton rapport \"Statement of Advice\" est puissant.",
   "profileFactFindTitle": "Détails FactFind",
   "profileSectionIdentity": "Identité & Foyer",
   "profileSectionIncome": "Revenus & Épargne",
@@ -802,8 +802,8 @@
   "lifeEventDivorce": "Divorce",
   "lifeEventSuccession": "Succession",
   "coachingTitle": "Coaching proactif",
-  "coachingSubtitle": "Vos suggestions personnalisées",
-  "coachingIntro": "Suggestions personnalisées basées sur votre profil. Plus votre profil est complet, plus les conseils sont pertinents.",
+  "coachingSubtitle": "Tes suggestions personnalisées",
+  "coachingIntro": "Suggestions personnalisées basées sur ton profil. Plus ton profil est complet, plus les conseils sont pertinents.",
   "coachingFilterAll": "Tous",
   "coachingFilterHigh": "Haute priorité",
   "coachingFilterFiscal": "Fiscalité",
@@ -832,7 +832,7 @@
   "coachingPriorityMedium": "Priorité moyenne",
   "coachingPriorityLow": "Information",
   "coaching3aDeadlineTitle": "Versement 3a avant le 31 décembre",
-  "coaching3aDeadlineMessage": "Il vous reste {remaining} de marge sur votre plafond 3a ({plafond}). Un versement avant le 31 décembre pourrait réduire votre charge fiscale d'environ {impact}.",
+  "coaching3aDeadlineMessage": "Il te reste {remaining} de marge sur ton plafond 3a ({plafond}). Un versement avant le 31 décembre pourrait réduire ta charge fiscale d'environ {impact}.",
   "@coaching3aDeadlineMessage": {
     "placeholders": {
       "remaining": {
@@ -847,8 +847,8 @@
     }
   },
   "coaching3aDeadlineAction": "Simuler mon 3a",
-  "coaching3aMissingTitle": "Vous n'avez pas de 3e pilier",
-  "coaching3aMissingMessage": "Ouvrir un 3e pilier vous permettrait de déduire jusqu'à {plafond} de votre revenu imposable chaque année. L'économie fiscale estimée est de {impact} par an dans le canton de {canton}.",
+  "coaching3aMissingTitle": "Tu n'as pas de 3e pilier",
+  "coaching3aMissingMessage": "Ouvrir un 3e pilier te permettrait de déduire jusqu'à {plafond} de ton revenu imposable chaque année. L'économie fiscale estimée est de {impact} par an dans le canton de {canton}.",
   "@coaching3aMissingMessage": {
     "placeholders": {
       "plafond": {
@@ -864,7 +864,7 @@
   },
   "coaching3aMissingAction": "Découvrir le 3e pilier",
   "coaching3aNotMaxedTitle": "Plafond 3a non atteint",
-  "coaching3aNotMaxedMessage": "Votre versement 3a actuel est de {current} sur un plafond de {plafond}. Verser le solde de {remaining} pourrait représenter une économie fiscale d'environ {impact}.",
+  "coaching3aNotMaxedMessage": "Ton versement 3a actuel est de {current} sur un plafond de {plafond}. Verser le solde de {remaining} pourrait représenter une économie fiscale d'environ {impact}.",
   "@coaching3aNotMaxedMessage": {
     "placeholders": {
       "current": {
@@ -883,7 +883,7 @@
   },
   "coaching3aNotMaxedAction": "Simuler mon 3a",
   "coachingLppBuybackTitle": "Rachat LPP possible",
-  "coachingLppBuybackMessage": "Vous avez une lacune de prévoyance de {gap}. Un rachat volontaire pourrait vous faire économiser environ {impact} d'impôts tout en améliorant votre retraite.",
+  "coachingLppBuybackMessage": "Tu as une lacune de prévoyance de {gap}. Un rachat volontaire pourrait te faire économiser environ {impact} d'impôts tout en améliorant ta retraite.",
   "@coachingLppBuybackMessage": {
     "placeholders": {
       "gap": {
@@ -896,7 +896,7 @@
   },
   "coachingLppBuybackAction": "Simuler un rachat LPP",
   "coachingTaxDeadlineTitle": "Déclaration d'impôts à rendre",
-  "coachingTaxDeadlineMessage": "Le délai pour votre déclaration fiscale dans le canton de {canton} est le 31 mars. Il reste {days} jours.",
+  "coachingTaxDeadlineMessage": "Le délai pour ta déclaration fiscale dans le canton de {canton} est le 31 mars. Il reste {days} jours.",
   "@coachingTaxDeadlineMessage": {
     "placeholders": {
       "canton": {
@@ -916,7 +916,7 @@
       }
     }
   },
-  "coachingRetirementMessage": "À {years} ans de la retraite, il est important de vérifier votre stratégie de prévoyance. Avez-vous optimisé vos rachats LPP ? Vos comptes 3a sont-ils diversifiés ?",
+  "coachingRetirementMessage": "À {years} ans de la retraite, il est important de vérifier ta stratégie de prévoyance. As-tu optimisé tes rachats LPP ? Tes comptes 3a sont-ils diversifiés ?",
   "@coachingRetirementMessage": {
     "placeholders": {
       "years": {
@@ -926,7 +926,7 @@
   },
   "coachingRetirementAction": "Planifier ma retraite",
   "coachingEmergencyTitle": "Réserve d'urgence insuffisante",
-  "coachingEmergencyMessage": "Votre épargne disponible couvre {months} mois de charges fixes. Les experts recommandent au moins 3 mois. Il vous manque environ {deficit} pour atteindre ce seuil.",
+  "coachingEmergencyMessage": "Ton épargne disponible couvre {months} mois de charges fixes. Les experts recommandent au moins 3 mois. Il te manque environ {deficit} pour atteindre ce seuil.",
   "@coachingEmergencyMessage": {
     "placeholders": {
       "months": {
@@ -946,7 +946,7 @@
       }
     }
   },
-  "coachingDebtMessage": "Votre taux d'endettement estimé est de {ratio}%, au-dessus du seuil de 33% recommandé par les banques suisses.",
+  "coachingDebtMessage": "Ton taux d'endettement estimé est de {ratio}%, au-dessus du seuil de 33% recommandé par les banques suisses.",
   "@coachingDebtMessage": {
     "placeholders": {
       "ratio": {
@@ -956,7 +956,7 @@
   },
   "coachingDebtAction": "Analyser mes dettes",
   "coachingPartTimeTitle": "Temps partiel : lacune de prévoyance",
-  "coachingPartTimeMessage": "À {rate}% d'activité, votre prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.",
+  "coachingPartTimeMessage": "À {rate}% d'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.",
   "@coachingPartTimeMessage": {
     "placeholders": {
       "rate": {
@@ -966,29 +966,29 @@
   },
   "coachingPartTimeAction": "Simuler ma prévoyance",
   "coachingIndependantTitle": "Indépendant : pas de LPP obligatoire",
-  "coachingIndependantMessage": "En tant qu'indépendant, vous n'êtes pas soumis à la LPP obligatoire. Votre prévoyance repose sur l'AVS et votre 3e pilier. Pensez à maximiser votre 3a.",
+  "coachingIndependantMessage": "En tant qu'indépendant, tu n'es pas soumis à la LPP obligatoire. Ta prévoyance repose sur l'AVS et ton 3e pilier. Pense à maximiser ton 3a.",
   "coachingIndependantAction": "Explorer mes options",
   "coachingBudgetMissingTitle": "Pas encore de budget",
-  "coachingBudgetMissingMessage": "Un budget structuré est la base de toute stratégie financière. Il permet d'identifier votre capacité d'épargne réelle.",
+  "coachingBudgetMissingMessage": "Un budget structuré est la base de toute stratégie financière. Il permet d'identifier ta capacité d'épargne réelle.",
   "coachingBudgetMissingAction": "Créer mon budget",
   "coachingAge25Title": "25 ans : démarrer son 3e pilier",
   "coachingAge25Message": "À 25 ans, c'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.",
   "coachingAge35Title": "35 ans : faire le point prévoyance",
-  "coachingAge35Message": "À 35 ans, vérifiez que votre prévoyance est sur la bonne trajectoire. Avez-vous un 3a ? Votre LPP est-elle suffisante ?",
+  "coachingAge35Message": "À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?",
   "coachingAge45Title": "45 ans : optimiser sa stratégie",
   "coachingAge45Message": "À 45 ans, il reste 20 ans avant la retraite. C'est le moment d'optimiser : maximiser le 3a, envisager des rachats LPP.",
   "coachingAge50Title": "50 ans : préparer sa retraite",
-  "coachingAge50Message": "À 50 ans, la retraite se rapproche. Vérifiez votre avoir LPP, planifiez vos derniers rachats.",
+  "coachingAge50Message": "À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.",
   "coachingAge55Title": "55 ans : dernière ligne droite",
   "coachingAge55Message": "À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut représenter une économie significative.",
   "coachingAge58Title": "58 ans : retraite anticipée possible",
-  "coachingAge58Message": "Dès 58 ans, un retrait anticipé de votre 2e pilier est envisageable. Attention : la rente sera réduite.",
+  "coachingAge58Message": "Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.",
   "coachingAge63Title": "63 ans : derniers ajustements",
-  "coachingAge63Message": "À 2 ans de la retraite légale, finalisez votre stratégie. Dernier rachat LPP, choix rente/capital.",
+  "coachingAge63Message": "À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.",
   "coachingDisclaimer": "Les suggestions présentées sont des pistes de réflexion basées sur des estimations simplifiées. Elles ne constituent pas un conseil financier personnalisé. Consultez un professionnel qualifié avant toute décision.",
-  "coachingDemoMode": "Mode démo : profil exemple (35 ans, VD, CHF 85'000). Complétez votre diagnostic pour des conseils personnalisés.",
+  "coachingDemoMode": "Mode démo : profil exemple (35 ans, VD, CHF 85'000). Complète ton diagnostic pour des conseils personnalisés.",
   "coachingNowCardTitle": "Coaching proactif",
-  "coachingNowCardSubtitle": "Conseils personnalisés selon votre profil",
+  "coachingNowCardSubtitle": "Conseils personnalisés selon ton profil",
   "coachingCategoryFiscalite": "Fiscalité",
   "coachingCategoryPrevoyance": "Prévoyance",
   "coachingCategoryBudget": "Budget",
@@ -2985,7 +2985,7 @@
   "mariageChecklistItem1Title": "Simuler l'impact fiscal du mariage",
   "mariageChecklistItem1Desc": "Avant de te marier, compare la charge fiscale à deux (mariés vs célibataires). Si tes revenus sont similaires et élevés, la pénalité de mariage peut représenter plusieurs milliers de francs par an.",
   "mariageChecklistItem2Title": "Choisir le régime matrimonial",
-  "mariageChecklistItem2Desc": "Par défaut, c'est la participation aux acquêts (CC art. 181). Si tu veux un autre régime (séparation de biens, communauté de biens), il faut signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.",
+  "mariageChecklistItem2Desc": "Par défaut, c'est la participation aux acquêts (CC art. 181). Si tu veux un autre régime (séparation de biens, communauté de biens), il est nécessaire de signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.",
   "mariageChecklistItem3Title": "Mettre à jour les clauses bénéficiaires LPP et 3a",
   "mariageChecklistItem3Desc": "Le mariage change l'ordre des bénéficiaires. Ton conjoint devient automatiquement bénéficiaire de la rente de survivant LPP (LPP art. 19). Vérifie aussi les bénéficiaires de ton 3e pilier.",
   "mariageChecklistItem4Title": "Informer ton employeur et ta caisse maladie",
@@ -3153,7 +3153,7 @@
   "housingSaleEduRemploiTitle": "Qu'est-ce que le remploi ?",
   "housingSaleEduRemploiBody": "Le remploi permet de reporter l'imposition de la plus-value si tu rachètes un nouveau logement principal dans un délai raisonnable (généralement 2 ans). Si le nouveau bien coûte autant ou plus que l'ancien, le report est total. Sinon, il est proportionnel. L'impôt sera dû lors de la revente du nouveau bien.",
   "housingSaleEduEplTitle": "EPL : que se passe-t-il à la vente ?",
-  "housingSaleEduEplBody": "Si tu as utilisé des fonds de prévoyance (EPL) pour l'achat de ta résidence principale, tu dois les rembourser lors de la vente (LPP art. 30d). Ce remboursement est obligatoire et s'effectue auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. Le montant est inscrit au registre foncier et ne peut pas être évité.",
+  "housingSaleEduEplBody": "Si tu as utilisé des fonds de prévoyance (EPL) pour l'achat de ta résidence principale, tu es tenu de les rembourser lors de la vente (LPP art. 30d). Ce remboursement est obligatoire et s'effectue auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. Le montant est inscrit au registre foncier et ne peut pas être évité.",
   "housingSaleDisclaimer": "Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil fiscal, juridique ou immobilier personnalisé au sens de la LSFin. Consulte un·e spécialiste pour ta situation personnelle.",
   "housingSaleCanton": "Canton",
   "jobCompareDeltaLabel": "Delta",
@@ -3530,7 +3530,7 @@
   "expatNoExitTax": "Pas de taxe de sortie en Suisse",
   "expatRecommendedTimeline": "CHRONOLOGIE RECOMMANDÉE",
   "expatDepartureChecklist": "CHECKLIST DE DÉPART",
-  "expatAvsEducation": "Pour toucher une rente AVS complète (max CHF 2'520/mois), il faut 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d'environ 2.3%. Si tu vis à l'étranger, tu peux cotiser volontairement à l'AVS pour éviter les lacunes.",
+  "expatAvsEducation": "Pour toucher une rente AVS complète (max CHF 2'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d'environ 2.3%. Si tu vis à l'étranger, tu peux cotiser volontairement à l'AVS pour éviter les lacunes.",
   "expatYearsInSwitzerland": "Années en Suisse",
   "expatYearsAbroad": "Années à l'étranger",
   "expatAvsCompleteness": "COMPLÉTUDE AVS",
@@ -6536,7 +6536,7 @@
   "familleHubToolDivorce": "Divorce",
   "familleHubToolDecesProche": "Décès d'un proche",
   "travailHubFeaturedPremierEmploi": "Premier emploi",
-  "travailHubFeaturedPremierEmploiSub": "Tout ce qu'il faut savoir pour bien démarrer",
+  "travailHubFeaturedPremierEmploiSub": "L'essentiel pour bien démarrer",
   "travailHubFeaturedChomage": "Chômage",
   "travailHubFeaturedChomageSub": "Tes droits, indemnités et démarches",
   "travailHubFeaturedIndependant": "Indépendant",
@@ -8975,7 +8975,7 @@
   },
   "concubinageHeroChiffreChocDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
   "concubinageEducationalAvs": "En Suisse, le plafond de 150 % sur les rentes AVS de couple (LAVS art. 35) ne s’applique qu’aux mariés. Les concubins touchent chacun leur rente individuelle complète — un avantage réel quand les deux ont cotisé au maximum.",
-  "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il faut en faire la demande.",
+  "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d'en faire la demande.",
   "concubinageEducationalSuccession": "Un conjoint marié est exonéré d’impôt successoral dans la plupart des cantons (CC art. 462). Un concubin paie l’impôt au taux des tiers, souvent entre 20 % et 40 %.",
   "concubinageProtectionIntro": "En concubinage, la Suisse ne protège pas comme le mariage. Voici ce qui change et ce que tu peux anticiper.",
   "concubinageProtectionAvsSurvivor": "Rente AVS de survivant",
@@ -10478,7 +10478,7 @@
   "coachingDescProactif": "MINT t'accompagne activement. Rappels à chaque visite, mémoire complète.",
   "coachingEngagementStats": "{engaged} interactions sur {total} suggestions",
   "landingHiddenAmount": "Montant masqué",
-  "landingHiddenSubtitle": "Créez un compte pour voir vos chiffres",
+  "landingHiddenSubtitle": "Crée un compte pour voir tes chiffres",
   "friBarTitle": "Résilience financière",
   "friBarLiquidity": "Liquidité",
   "friBarFlexibility": "Flexibilité",
@@ -12327,5 +12327,13 @@
   "realReturnNarrative": "Grâce à la déduction fiscale, ton 3a rapporte bien plus qu’un compte épargne classique.",
   "retroactive3aEmptyTitle": "Rattrapage 3a",
   "retroactive3aEmptySubtitle": "Renseigne ton revenu pour calculer ton économie fiscale",
-  "retroactive3aEmptyCta": "Ajouter mon revenu"
+  "retroactive3aEmptyCta": "Ajouter mon revenu",
+  "onboardingPermitTypeLabel": "Ton type de permis",
+  "onboardingPermitC": "Permis C (établissement)",
+  "onboardingPermitB": "Permis B (séjour)",
+  "onboardingPermitG": "Permis G (frontalier)",
+  "onboardingPermitL": "Permis L (court séjour)",
+  "onboardingPermitOther": "Autre",
+  "onboardingIjmWarningTitle": "Protection maladie\u00a0: à vérifier",
+  "onboardingIjmWarningBody": "En tant qu'indépendant·e, tu n'as pas d'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t'affilier volontairement à une caisse LPP (art. 4 LPP)."
 }
