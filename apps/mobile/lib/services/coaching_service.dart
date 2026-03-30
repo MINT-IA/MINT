@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACHING PROACTIF SERVICE — Sprint S11
@@ -279,7 +280,7 @@ Tu es le coach MINT. Personnalise ce conseil pour $firstName :
 TIP :
 - Titre : ${tip.title}
 - Message : ${tip.message}
-- Impact : ${tip.estimatedImpactChf != null ? 'CHF ${tip.estimatedImpactChf!.toStringAsFixed(0)}' : 'non estime'}
+- Impact : ${tip.estimatedImpactChf != null ? formatChfWithPrefix(tip.estimatedImpactChf!) : 'non estime'}
 - Source : ${tip.source}
 
 PROFIL :
@@ -287,12 +288,12 @@ PROFIL :
 - Canton : ${profile.canton}
 - Statut civil : ${profile.etatCivil.name}
 - Emploi : ${profile.employmentStatus.name} (${profile.tauxActivite}%)
-- Revenu annuel : CHF ${profile.revenuAnnuel.toStringAsFixed(0)}
-- 3a : ${profile.has3a ? 'oui (CHF ${profile.montant3a.toStringAsFixed(0)})' : 'non'}
-- LPP : avoir CHF ${profile.avoirLpp.toStringAsFixed(0)}, lacune CHF ${profile.lacuneLpp.toStringAsFixed(0)}
-- Epargne dispo : CHF ${profile.epargneDispo.toStringAsFixed(0)}
-- Dettes : CHF ${profile.detteTotale.toStringAsFixed(0)}
-- Charges fixes : CHF ${profile.chargesFixesMensuelles.toStringAsFixed(0)}/mois
+- Revenu annuel : ${formatChfWithPrefix(profile.revenuAnnuel)}
+- 3a : ${profile.has3a ? 'oui (${formatChfWithPrefix(profile.montant3a)})' : 'non'}
+- LPP : avoir ${formatChfWithPrefix(profile.avoirLpp)}, lacune ${formatChfWithPrefix(profile.lacuneLpp)}
+- Epargne dispo : ${formatChfWithPrefix(profile.epargneDispo)}
+- Dettes : ${formatChfWithPrefix(profile.detteTotale)}
+- Charges fixes : ${formatChfWithPrefix(profile.chargesFixesMensuelles)}/mois
 
 INSTRUCTIONS :
 R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la situation familiale, l'emploi, l'\u00e2ge et les chiffres. Tutoiement. Ton chaleureux et \u00e9ducatif. JAMAIS : garanti, certain, assur\u00e9, sans risque, optimal, meilleur, parfait. Retourne UNIQUEMENT le nouveau message.''';
@@ -304,7 +305,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   ) {
     return '$firstName, ${profile.age} ans, ${profile.canton}, '
         '${profile.employmentStatus.name}, '
-        'revenu CHF ${profile.revenuAnnuel.toStringAsFixed(0)}';
+        'revenu ${formatChfWithPrefix(profile.revenuAnnuel)}';
   }
 
   /// Filter banned terms from LLM output, replacing with safe alternatives.

@@ -22,6 +22,7 @@ import 'package:mint_mobile/services/wizard_service.dart';
 import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -346,7 +347,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       title: S.of(context)!.reportBudgetTitle,
       status: status,
       keyNumber:
-          'CHF ${available.clamp(0, double.infinity).toStringAsFixed(0)}',
+          formatChfWithPrefix(available.clamp(0, double.infinity).toDouble()),
       keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
       actionLabel: S.of(context)!.reportBudgetAction,
       onActionTap: () => context.push('/budget'),
@@ -398,7 +399,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final debtPayment =
         (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
     if (debtPayment > 0) {
-      reasons.add(S.of(context)!.reportReasonPayments(debtPayment.toStringAsFixed(0)));
+      reasons.add(S.of(context)!.reportReasonPayments(formatChf(debtPayment)));
     }
 
     final emergencyFund = answers['q_emergency_fund'] as String?;
@@ -512,8 +513,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     String? lppText;
     if (lppBuyback != null) {
       lppText = S.of(context)!.reportRetirementLppText(
-        lppBuyback.totalBuybackAvailable.toStringAsFixed(0),
-        lppBuyback.totalTaxSavings.toStringAsFixed(0),
+        formatChf(lppBuyback.totalBuybackAvailable),
+        formatChf(lppBuyback.totalTaxSavings),
       );
     }
 
@@ -521,7 +522,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83c\udfe6', // bank
       title: S.of(context)!.reportRetirementTitle,
       status: status,
-      keyNumber: 'CHF ${projection.totalMonthlyIncome.toStringAsFixed(0)}/mois',
+      keyNumber: '${formatChfWithPrefix(projection.totalMonthlyIncome)}/mois',
       keyNumberLabel: S.of(context)!.reportRetirementKeyLabel,
       source: S.of(context)!.reportRetirementSource,
       children: [
@@ -562,28 +563,28 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83d\udcca', // bar chart
       title: S.of(context)!.reportTaxTitle,
       status: status,
-      keyNumber: 'CHF ${tax.totalTax.toStringAsFixed(0)}/an',
+      keyNumber: '${formatChfWithPrefix(tax.totalTax)}/an',
       keyNumberLabel: S.of(context)!.reportTaxKeyLabel((tax.effectiveRate * 100).toStringAsFixed(1)),
       actionLabel: S.of(context)!.reportTaxAction,
       onActionTap: () => context.push('/fiscal'),
       source: S.of(context)!.reportTaxSource,
       children: [
-        _taxRow(S.of(context)!.reportTaxIncome, 'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
+        _taxRow(S.of(context)!.reportTaxIncome, formatChfWithPrefix(tax.taxableIncome)),
         if (tax.totalDeductions > 0) ...[
           const SizedBox(height: 4),
           _taxRow(S.of(context)!.reportTaxDeductions,
-              '\u2013 CHF ${tax.totalDeductions.toStringAsFixed(0)}'),
+              '\u2013 ${formatChfWithPrefix(tax.totalDeductions)}'),
         ],
         const Divider(height: 16),
         _taxRow(S.of(context)!.reportTaxEstimated,
-            'CHF ${tax.totalTax.toStringAsFixed(0)}',
+            formatChfWithPrefix(tax.totalTax),
             isBold: true),
         if (tax.taxSavingsFromBuyback != null &&
             tax.taxSavingsFromBuyback! > 0) ...[
           const SizedBox(height: 8),
           _buildInfoChip(
             Icons.lightbulb_outline,
-            S.of(context)!.reportTaxSavings(tax.taxSavingsFromBuyback!.toStringAsFixed(0)),
+            S.of(context)!.reportTaxSavings(formatChf(tax.taxSavingsFromBuyback!)),
             MintColors.success,
           ),
         ],
@@ -703,7 +704,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '+CHF ${action.potentialGainChf!.toStringAsFixed(0)}',
+                    '+${formatChfWithPrefix(action.potentialGainChf!)}',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -788,7 +789,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.reportLppEconomie(strategy.totalTaxSavings.toStringAsFixed(0)),
+              S.of(context)!.reportLppEconomie(formatChf(strategy.totalTaxSavings)),
               style: MintTextStyles.bodyMedium(color: MintColors.greenDark)
                   .copyWith(fontWeight: FontWeight.bold),
             ),
@@ -808,7 +809,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                                 .copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            S.of(context)!.reportLppBuyback(buyback.amount.toStringAsFixed(0)),
+                            S.of(context)!.reportLppBuyback(formatChf(buyback.amount)),
                             style: MintTextStyles.labelSmall(),
                           ),
                         ],
@@ -821,7 +822,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          S.of(context)!.reportLppSaving(buyback.estimatedTaxSavings.toStringAsFixed(0)),
+                          S.of(context)!.reportLppSaving(formatChf(buyback.estimatedTaxSavings)),
                           style: MintTextStyles.labelSmall(color: MintColors.greenDark)
                               .copyWith(fontWeight: FontWeight.bold),
                         ),

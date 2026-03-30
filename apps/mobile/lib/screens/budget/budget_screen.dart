@@ -18,6 +18,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -331,8 +332,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                     netSalary: widget.inputs.netIncome,
                     chiffreChoc: plan.available > 0
                         ? l.budgetChiffreChoc503020(
-                            (plan.available * 0.20).toStringAsFixed(0),
-                            (plan.available * 0.20 * 120).toStringAsFixed(0),
+                            formatChf(plan.available * 0.20),
+                            formatChf(plan.available * 0.20 * 120),
                           )
                         : null,
                     categories: [
@@ -506,7 +507,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           showLigne: false,
           contextText: l.budgetChiffreChocCaption,
           semanticsLabel:
-              'CHF ${heroFree.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
+              '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
         ),
         const SizedBox(height: MintSpacing.xl),
 
@@ -629,7 +630,7 @@ class _BudgetScreenState extends State<BudgetScreen>
               ),
             ],
             Text(
-              '$sign CHF\u00a0${amount.toStringAsFixed(0)}',
+              '$sign ${formatChfWithPrefix(amount)}',
               style: MintTextStyles.bodySmall(
                 color: isBold
                     ? MintColors.primary

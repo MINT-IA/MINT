@@ -18,6 +18,7 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// A single chat message in the Ask MINT conversation.
 class _ChatMessage {
@@ -745,46 +746,46 @@ class _AskMintScreenState extends State<AskMintScreen> {
       parts.add('Statut : ${profile.employmentStatus!.value}');
     }
     if (profile.incomeNetMonthly != null && profile.incomeNetMonthly! > 0) {
-      parts.add('Revenu net mensuel : ${profile.incomeNetMonthly!.toStringAsFixed(0)} CHF');
+      parts.add('Revenu net mensuel : ${formatChf(profile.incomeNetMonthly!)} CHF');
     }
     if (profile.hasDebt) parts.add('A des dettes');
 
     // CoachProfile data (from wizard)
     if (coachProfile != null) {
       if (coachProfile.salaireBrutMensuel > 0) {
-        parts.add('Salaire brut mensuel : ${coachProfile.salaireBrutMensuel.toStringAsFixed(0)} CHF');
+        parts.add('Salaire brut mensuel : ${formatChf(coachProfile.salaireBrutMensuel)} CHF');
       }
 
       // Prévoyance
       final prev = coachProfile.prevoyance;
-      if (prev.totalEpargne3a > 0) parts.add('Avoir 3a : ${prev.totalEpargne3a.toStringAsFixed(0)} CHF');
+      if (prev.totalEpargne3a > 0) parts.add('Avoir 3a : ${formatChf(prev.totalEpargne3a)} CHF');
       if (prev.nombre3a > 0) parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
       if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
-        parts.add('Avoir LPP : ${prev.avoirLppTotal!.toStringAsFixed(0)} CHF');
+        parts.add('Avoir LPP : ${formatChf(prev.avoirLppTotal!)} CHF');
       }
       if (prev.lacuneRachatRestante > 0) {
-        parts.add('Lacune rachat LPP : ${prev.lacuneRachatRestante.toStringAsFixed(0)} CHF');
+        parts.add('Lacune rachat LPP : ${formatChf(prev.lacuneRachatRestante)} CHF');
       }
 
       // Patrimoine
       final pat = coachProfile.patrimoine;
-      if (pat.totalPatrimoine > 0) parts.add('Patrimoine total : ${pat.totalPatrimoine.toStringAsFixed(0)} CHF');
-      if (pat.immobilier != null && pat.immobilier! > 0) parts.add('Immobilier : ${pat.immobilier!.toStringAsFixed(0)} CHF');
+      if (pat.totalPatrimoine > 0) parts.add('Patrimoine total : ${formatChf(pat.totalPatrimoine)} CHF');
+      if (pat.immobilier != null && pat.immobilier! > 0) parts.add('Immobilier : ${formatChf(pat.immobilier!)} CHF');
 
       // Dettes
       if (coachProfile.dettes.totalDettes > 0) {
-        parts.add('Total dettes : ${coachProfile.dettes.totalDettes.toStringAsFixed(0)} CHF');
+        parts.add('Total dettes : ${formatChf(coachProfile.dettes.totalDettes)} CHF');
       }
 
       // Dépenses
       final dep = coachProfile.depenses;
-      if (dep.loyer > 0) parts.add('Loyer : ${dep.loyer.toStringAsFixed(0)} CHF/mois');
-      if (dep.assuranceMaladie > 0) parts.add('Assurance maladie : ${dep.assuranceMaladie.toStringAsFixed(0)} CHF/mois');
+      if (dep.loyer > 0) parts.add('Loyer : ${formatChf(dep.loyer)} CHF/mois');
+      if (dep.assuranceMaladie > 0) parts.add('Assurance maladie : ${formatChf(dep.assuranceMaladie)} CHF/mois');
 
       // Planned contributions
       if (coachProfile.plannedContributions.isNotEmpty) {
         final contribs = coachProfile.plannedContributions
-            .map((c) => '${c.label} (${c.amount.toStringAsFixed(0)} CHF/mois)')
+            .map((c) => '${c.label} (${formatChf(c.amount)} CHF/mois)')
             .join(', ');
         parts.add('Versements planifiés : $contribs');
       }
@@ -796,7 +797,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             : coachProfile.checkIns;
         final checkInSummary = recent.map((ci) {
           final month = '${ci.month.month}/${ci.month.year}';
-          return '$month: ${ci.totalVersements.toStringAsFixed(0)} CHF versés';
+          return '$month: ${formatChf(ci.totalVersements)} CHF versés';
         }).join(', ');
         parts.add('Derniers check-ins : $checkInSummary');
         parts.add('Série : ${coachProfile.checkIns.length} check-in(s)');

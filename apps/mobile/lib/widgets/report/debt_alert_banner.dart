@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class DebtAlertBanner extends StatelessWidget {
   final double? monthlyPayment;
@@ -44,13 +45,13 @@ class DebtAlertBanner extends StatelessWidget {
           const SizedBox(height: 8),
           if (totalBalance != null && totalBalance! > 0)
             Text(
-              'Solde restant : CHF ${totalBalance!.toStringAsFixed(0)}',
+              'Solde restant : ${formatChfWithPrefix(totalBalance!)}',
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           if (monthlyPayment != null && monthlyPayment! > 0) ...[
             const SizedBox(height: 4),
             Text(
-              'Remboursement : CHF ${monthlyPayment!.toStringAsFixed(0)}/mois',
+              'Remboursement : ${formatChfWithPrefix(monthlyPayment!)}/mois',
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ],

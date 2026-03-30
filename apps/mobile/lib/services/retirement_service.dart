@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT SERVICE — Sprint S21 / Retraite complete
@@ -199,7 +200,7 @@ class RetirementService {
     final alertes = <String>[];
     if (solde < 0) {
       alertes.add(
-          'Deficit mensuel de CHF ${solde.abs().toStringAsFixed(0)}');
+          'Deficit mensuel de ${formatChfWithPrefix(solde.abs())}');
     }
     if (tauxRemplacement < 60) {
       alertes.add(

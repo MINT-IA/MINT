@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -287,7 +288,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             min: 0,
             max: 500000,
             divisions: 100,
-            formatValue: (v) => 'CHF ${(v / 1000).toStringAsFixed(0)}k',
+            formatValue: (v) => '${formatChfCompact(v)}',
             onChanged: (v) => setState(() => _avoir = v),
           ),
         ],

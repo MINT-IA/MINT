@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/calculators.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/info_tooltip.dart';
@@ -28,7 +28,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
 
   Map<String, double>? _result;
 
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Uses centralized formatChfWithPrefix from chf_formatter.dart
 
   @override
   void initState() {
@@ -144,7 +144,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           min: 0,
           max: 100000,
           divisions: 100,
-          formatValue: (v) => _currencyFormat.format(v),
+          formatValue: (v) => formatChfWithPrefix(v),
           onChanged: (v) {
             _principal = v;
             _calculate();
@@ -157,7 +157,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           min: 0,
           max: 5000,
           divisions: 50,
-          formatValue: (v) => _currencyFormat.format(v),
+          formatValue: (v) => formatChfWithPrefix(v),
           onChanged: (v) {
             _monthlyContribution = v;
             _calculate();
@@ -220,9 +220,9 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           Text(S.of(context)!.compoundValeurFinale, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Semantics(
-            label: '${S.of(context)!.compoundValeurFinale}: ${_currencyFormat.format(finalValue)}',
+            label: '${S.of(context)!.compoundValeurFinale}: ${formatChfWithPrefix(finalValue)}',
             child: Text(
-              _currencyFormat.format(finalValue),
+              formatChfWithPrefix(finalValue),
               style: MintTextStyles.displayMedium(),
             ),
           ),

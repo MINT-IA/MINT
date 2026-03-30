@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT PROJECTION SERVICE
@@ -1093,7 +1094,7 @@ class RetirementProjectionService {
     final alertes = <String>[];
     if (solde < 0) {
       alertes.add(
-        'Deficit mensuel estime de CHF ${solde.abs().toStringAsFixed(0)}. '
+        'Deficit mensuel estime de ${formatChfWithPrefix(solde.abs())}. '
         'Des ajustements de budget ou de prevoyance pourraient etre envisages.',
       );
     }

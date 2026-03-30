@@ -8,6 +8,8 @@
 /// References: LSFin, LAVS, LPP, OPP3, LIFD.
 library;
 
+import 'package:mint_mobile/utils/chf_formatter.dart';
+
 import 'coach_models.dart';
 
 class FallbackTemplates {
@@ -95,7 +97,7 @@ class FallbackTemplates {
     // Tax optimization lever (> CHF 1000 potential)
     if (taxSaving > 1000) {
       return '${ctx.firstName}, un versement 3a pourrait réduire ton impôt '
-          'd\'environ CHF ${taxSaving.toStringAsFixed(0)} cette année. '
+          'd\'environ ${formatChfWithPrefix(taxSaving)} cette année. '
           'Simule l\'impact sur ton profil.';
     }
 

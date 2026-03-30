@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -45,7 +45,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   String? _seqStepId;
   bool _finalReturnEmitted = false;
 
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Uses centralized formatChfWithPrefix from chf_formatter.dart
   late final TextEditingController _contributionCtrl;
 
   /// True if values were pre-filled from CoachProfile.
@@ -341,7 +341,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           decoration: InputDecoration(
             suffixText: 'CHF',
             suffixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
-            hintText: _currencyFormat.format(_plafond3a),
+            hintText: formatChfWithPrefix(_plafond3a),
             hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: MintSpacing.md, vertical: MintSpacing.sm),
@@ -370,7 +370,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
-            'Max: ${_currencyFormat.format(_plafond3a)}',
+            'Max: ${formatChfWithPrefix(_plafond3a)}',
             style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ),
@@ -499,9 +499,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           Text(l.sim3aAnnualTaxSaved, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Semantics(
-            label: '${l.sim3aAnnualTaxSaved}: ${_currencyFormat.format(_result!['annualTaxSaved']!)}',
+            label: '${l.sim3aAnnualTaxSaved}: ${formatChfWithPrefix(_result!['annualTaxSaved']!)}',
             child: Text(
-              _currencyFormat.format(_result!['annualTaxSaved']!),
+              formatChfWithPrefix(_result!['annualTaxSaved']!),
               style: MintTextStyles.displayMedium(color: MintColors.primary),
             ),
           ),
@@ -522,7 +522,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       children: [
         Flexible(child: Text(label, style: MintTextStyles.bodyMedium())),
         Text(
-          _currencyFormat.format(value),
+          formatChfWithPrefix(value),
           style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],

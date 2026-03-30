@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:intl/intl.dart';
 import 'dart:math' as math;
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
@@ -10,6 +9,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Widget comparatif des fournisseurs 3a avec projection
 class Pillar3aComparatorWidget extends StatelessWidget {
@@ -28,9 +28,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
     final maxAnnual = hasPensionFund ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
-    final currencyFormat =
-        NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
-
     // Projections à 65 ans (rendements historiques moyens)
     final capitalBank =
         _futureValue(maxAnnual, 0.015, yearsUntilRetirement); // 1.5%
@@ -116,7 +113,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     Text(S.of(context)!.pillar3aPaymentPerYear,
                         style: const TextStyle(fontSize: 12)),
                     Text(
-                      currencyFormat.format(maxAnnual),
+                      formatChfWithPrefix(maxAnnual),
                       style: const TextStyle(
                           fontSize: 12, fontWeight: FontWeight.bold),
                     ),
@@ -148,7 +145,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             returnRate: '1.5%/an',
             capital: capitalBank,
             isReference: true,
-            currencyFormat: currencyFormat,
           ),
 
           const SizedBox(height: 12),
@@ -162,7 +158,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             capital: capitalViac,
             gain: gainVsBank,
             isRecommended: true,
-            currencyFormat: currencyFormat,
           ),
 
           const SizedBox(height: 12),
@@ -175,7 +170,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             returnRate: '5.5%/an',
             capital: capitalFinpension,
             gain: capitalFinpension - capitalBank,
-            currencyFormat: currencyFormat,
           ),
 
           const SizedBox(height: 12),
@@ -189,7 +183,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             capital: capitalInsurance,
             gain: capitalInsurance - capitalBank, // Négatif
             isWarning: true,
-            currencyFormat: currencyFormat,
           ),
 
           const SizedBox(height: 24),
@@ -229,7 +222,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '+${currencyFormat.format(gainVsBank)}',
+                              '+${formatChfWithPrefix(gainVsBank)}',
                               style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 28),
                             ),
                             Text(
@@ -377,9 +370,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           ...keyYears.map((year) {
             final bankCapital = _futureValue(annualContribution, 0.015, year);
             final viacCapital = _futureValue(annualContribution, 0.045, year);
-            final currencyFormat =
-                NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
-
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
@@ -394,7 +384,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: Text(
-                      currencyFormat.format(bankCapital),
+                      formatChfWithPrefix(bankCapital),
                       style: const TextStyle(fontSize: 11),
                       textAlign: TextAlign.right,
                     ),
@@ -402,7 +392,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: Text(
-                      currencyFormat.format(viacCapital),
+                      formatChfWithPrefix(viacCapital),
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -456,7 +446,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     bool isReference = false,
     bool isRecommended = false,
     bool isWarning = false,
-    required NumberFormat currencyFormat,
   }) {
     Color bgColor = MintColors.white;
     Color borderColor = MintColors.border;
@@ -551,7 +540,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                       style: const
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
-                    currencyFormat.format(capital),
+                    formatChfWithPrefix(capital),
                     style: MintTextStyles.titleMedium(color: isRecommended ? MintColors.success : MintColors.textPrimary).copyWith(fontSize: 15),
                   ),
                 ],
@@ -567,7 +556,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                S.of(context)!.pillar3aVsBank('${gain > 0 ? '+' : ''}${currencyFormat.format(gain)}'),
+                S.of(context)!.pillar3aVsBank('${gain > 0 ? '+' : ''}${formatChfWithPrefix(gain)}'),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,

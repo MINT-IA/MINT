@@ -6,6 +6,7 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 import '../models/financial_report.dart';
 import '../models/circle_score.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'circle_scoring_service.dart';
 
 /// Service de génération du rapport financier exhaustif
@@ -511,7 +512,7 @@ class FinancialReportService {
       return ActionItem(
         title: 'Planifie ton rachat LPP échelonné',
         description:
-            'Économise jusqu\'à CHF ${displayGain.toStringAsFixed(0)} d\'impôts sur $nbYears ans.',
+            'Économise jusqu\'à ${formatChfWithPrefix(displayGain)} d\'impôts sur $nbYears ans.',
         priority: ActionPriority.critical,
         potentialGainChf: displayGain,
         category: ActionCategory.lpp,

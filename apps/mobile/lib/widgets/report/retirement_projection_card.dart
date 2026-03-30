@@ -3,6 +3,7 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class RetirementProjectionCard extends StatelessWidget {
   final RetirementProjection projection;
@@ -33,11 +34,11 @@ class RetirementProjectionCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Breakdown
-        _infoRow('Rente AVS mensuelle', 'CHF ${projection.monthlyAvsRent.toStringAsFixed(0)}'),
+        _infoRow('Rente AVS mensuelle', formatChfWithPrefix(projection.monthlyAvsRent)),
         const SizedBox(height: 6),
-        _infoRow('Rente LPP mensuelle', 'CHF ${projection.monthlyLppRent.toStringAsFixed(0)}'),
+        _infoRow('Rente LPP mensuelle', formatChfWithPrefix(projection.monthlyLppRent)),
         const Divider(height: 20),
-        _infoRow('TOTAL mensuel estim\u00e9', 'CHF ${totalMonthly.toStringAsFixed(0)}', isBold: true),
+        _infoRow('TOTAL mensuel estim\u00e9', formatChfWithPrefix(totalMonthly), isBold: true),
         const SizedBox(height: 12),
         // Replacement rate
         Row(

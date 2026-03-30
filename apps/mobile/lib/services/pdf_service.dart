@@ -4,6 +4,7 @@ import 'package:printing/printing.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PdfService {
   static Future<void> generateSessionReportPdf(SessionReport report) async {
@@ -478,13 +479,13 @@ class PdfService {
             {
               'label': 'Disponible / mois',
               'value':
-                  'CHF ${monthlyAvailable.toStringAsFixed(0)}',
+                  formatChfWithPrefix(monthlyAvailable),
               'note': 'Après impôts estimés',
             },
             {
               'label': 'Impôts estimés / an',
               'value':
-                  'CHF ${report.taxSimulation.totalTax.toStringAsFixed(0)}',
+                  formatChfWithPrefix(report.taxSimulation.totalTax),
               'note':
                   'Taux effectif : ${(report.taxSimulation.effectiveRate * 100).toStringAsFixed(1)}%',
             },
@@ -582,7 +583,7 @@ class PdfService {
                                 pw.Radius.circular(4)),
                           ),
                           child: pw.Text(
-                            '+CHF ${action.potentialGainChf!.toStringAsFixed(0)}',
+                            '+${formatChfWithPrefix(action.potentialGainChf!)}',
                             style: pw.TextStyle(
                                 fontSize: 8,
                                 fontWeight: pw.FontWeight.bold,
@@ -629,7 +630,7 @@ class PdfService {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 _pdfKeyValue('Revenu imposable',
-                    'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
+                    formatChfWithPrefix(tax.taxableIncome)),
                 if (tax.deductions.isNotEmpty) ...[
                   pw.SizedBox(height: 6),
                   pw.Text('Déductions appliquées :',
@@ -639,11 +640,11 @@ class PdfService {
                     pw.Padding(
                       padding: const pw.EdgeInsets.only(left: 10),
                       child: pw.Text(
-                          '- ${entry.key} : CHF ${entry.value.toStringAsFixed(0)}',
+                          '- ${entry.key} : ${formatChfWithPrefix(entry.value)}',
                           style: const pw.TextStyle(fontSize: 8)),
                     ),
                   pw.Text(
-                      'Total déductions : CHF ${tax.totalDeductions.toStringAsFixed(0)}',
+                      'Total déductions : ${formatChfWithPrefix(tax.totalDeductions)}',
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
@@ -653,13 +654,13 @@ class PdfService {
                 pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                 pw.SizedBox(height: 6),
                 _pdfKeyValue('Impôt cantonal + communal',
-                    'CHF ${tax.cantonalTax.toStringAsFixed(0)}'),
+                    formatChfWithPrefix(tax.cantonalTax)),
                 _pdfKeyValue('Impôt fédéral direct',
-                    'CHF ${tax.federalTax.toStringAsFixed(0)}'),
+                    formatChfWithPrefix(tax.federalTax)),
                 pw.SizedBox(height: 4),
                 _pdfKeyValue(
                     'TOTAL estimé',
-                    'CHF ${tax.totalTax.toStringAsFixed(0)}',
+                    formatChfWithPrefix(tax.totalTax),
                     bold: true),
                 _pdfKeyValue('Taux effectif',
                     '${(tax.effectiveRate * 100).toStringAsFixed(1)}%'),
@@ -669,7 +670,7 @@ class PdfService {
                   pw.Divider(thickness: 0.5, color: PdfColors.green200),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    'Avec rachat LPP : CHF ${tax.taxWithLppBuyback!.toStringAsFixed(0)} (économie : CHF ${tax.taxSavingsFromBuyback!.toStringAsFixed(0)})',
+                    'Avec rachat LPP : ${formatChfWithPrefix(tax.taxWithLppBuyback!)} (économie : ${formatChfWithPrefix(tax.taxSavingsFromBuyback!)})',
                     style: pw.TextStyle(
                         fontSize: 9,
                         fontWeight: pw.FontWeight.bold,
@@ -712,13 +713,13 @@ class PdfService {
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
                   _pdfKeyValue('Rente AVS',
-                      'CHF ${ret.monthlyAvsRent.toStringAsFixed(0)}/mois'),
+                      '${formatChfWithPrefix(ret.monthlyAvsRent)}/mois'),
                   _pdfKeyValue('Rente LPP',
-                      'CHF ${ret.monthlyLppRent.toStringAsFixed(0)}/mois'),
+                      '${formatChfWithPrefix(ret.monthlyLppRent)}/mois'),
                   pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   _pdfKeyValue(
                     'Total mensuel',
-                    'CHF ${ret.totalMonthlyIncome.toStringAsFixed(0)}/mois',
+                    '${formatChfWithPrefix(ret.totalMonthlyIncome)}/mois',
                     bold: true,
                   ),
                   pw.SizedBox(height: 8),
@@ -728,16 +729,16 @@ class PdfService {
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
                   _pdfKeyValue('Capital LPP',
-                      'CHF ${ret.lppCapital.toStringAsFixed(0)}'),
+                      formatChfWithPrefix(ret.lppCapital)),
                   _pdfKeyValue('Capital 3a',
-                      'CHF ${ret.pillar3aCapital.toStringAsFixed(0)}'),
+                      formatChfWithPrefix(ret.pillar3aCapital)),
                   if (ret.otherAssets != null && ret.otherAssets! > 0)
                     _pdfKeyValue('Autres actifs',
-                        'CHF ${ret.otherAssets!.toStringAsFixed(0)}'),
+                        formatChfWithPrefix(ret.otherAssets!)),
                   pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   _pdfKeyValue(
                     'Capital total estimé',
-                    'CHF ${ret.totalCapital.toStringAsFixed(0)}',
+                    formatChfWithPrefix(ret.totalCapital),
                     bold: true,
                   ),
                   if (ret.avsReductionFactor < 1.0) ...[
@@ -776,9 +777,9 @@ class PdfService {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   _pdfKeyValue('Montant rachetable total',
-                      'CHF ${lpp.totalBuybackAvailable.toStringAsFixed(0)}'),
+                      formatChfWithPrefix(lpp.totalBuybackAvailable)),
                   _pdfKeyValue('Économie fiscale totale estimée',
-                      'CHF ${lpp.totalTaxSavings.toStringAsFixed(0)}',
+                      formatChfWithPrefix(lpp.totalTaxSavings),
                       bold: true),
                   pw.SizedBox(height: 8),
                   pw.Text('Plan annuel recommandé',
@@ -833,12 +834,12 @@ class PdfService {
                           pw.Expanded(
                               flex: 3,
                               child: pw.Text(
-                                  'CHF ${year.amount.toStringAsFixed(0)}',
+                                  formatChfWithPrefix(year.amount),
                                   style: const pw.TextStyle(fontSize: 8))),
                           pw.Expanded(
                               flex: 3,
                               child: pw.Text(
-                                  'CHF ${year.estimatedTaxSavings.toStringAsFixed(0)}',
+                                  formatChfWithPrefix(year.estimatedTaxSavings),
                                   style: const pw.TextStyle(
                                       fontSize: 8,
                                       color: PdfColors.green800))),

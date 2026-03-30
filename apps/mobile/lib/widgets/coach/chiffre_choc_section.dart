@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Section displaying personalized "chiffre-choc" cards.
 ///
@@ -62,7 +63,7 @@ class ChiffreChocSection extends StatelessWidget {
           suffix: '/an',
           message: '\u00c9conomie d\'imp\u00f4ts potentielle chaque ann\u00e9e en '
               'maximisant ton 3a. '
-              'Sur $anneesRestantes ans, cela repr\u00e9sente ~CHF\u00A0${_formatChf(economieCumulee)}.',
+              'Sur $anneesRestantes ans, cela repr\u00e9sente ~CHF\u00A0${formatChf(economieCumulee)}.',
           narrativeMessage: narratives['fiscalite'],
           source: 'OPP3 art. 7 \u00b7 LIFD',
           ctaLabel: 'Simuler mon 3a',
@@ -88,7 +89,7 @@ class ChiffreChocSection extends StatelessWidget {
       cards.add(ChiffreChocCard(
         value: economieRachat,
         message: 'D\u00e9duction fiscale potentielle en rachetant '
-            'ta lacune LPP de CHF ${_formatChf(lacuneLpp)}.',
+            'ta lacune LPP de CHF ${formatChf(lacuneLpp)}.',
         narrativeMessage: narratives['prevoyance'],
         source: 'LPP art. 79b',
         ctaLabel: 'Explorer le rachat',
@@ -145,16 +146,5 @@ class ChiffreChocSection extends StatelessWidget {
     );
   }
 
-  /// Format CHF with Swiss thousands separator (apostrophe).
-  static String _formatChf(double amount) {
-    final formatted = amount.toStringAsFixed(0);
-    final buffer = StringBuffer();
-    int count = 0;
-    for (int i = formatted.length - 1; i >= 0; i--) {
-      buffer.write(formatted[i]);
-      count++;
-      if (count % 3 == 0 && i > 0) buffer.write("'");
-    }
-    return buffer.toString().split('').reversed.join();
-  }
+  // _formatChf removed — use centralized formatChf from chf_formatter.dart
 }
