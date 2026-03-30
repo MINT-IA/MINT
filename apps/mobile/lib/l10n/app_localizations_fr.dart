@@ -22694,7 +22694,7 @@ class SFr extends S {
 
   @override
   String get cantonalBenchmarkDisclaimer =>
-      'Ces données sont des ordres de grandeur issus de statistiques fédérales anonymisées (OFS). Elles ne constituent pas un conseil financier. Aucune donnée personnelle n’est comparée à d’autres utilisateurs. Outil éducatif : ne constitue pas un conseil au sens de la LSFin.';
+      'Ces données sont des ordres de grandeur estimés à partir de statistiques fédérales publiques (OFS/BFS). Ce ne sont pas des extractions officielles. Aucune donnée personnelle n’est comparée. Outil éducatif : ne constitue pas un conseil au sens de la LSFin.';
 
   @override
   String get scenarioLabelPrudent => 'Scénario prudent';
