@@ -20,9 +20,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.v1.endpoints.documents import _detect_document_type, _document_store
+from app.api.v1.endpoints.documents import _detect_document_type
 from app.core.auth import require_current_user
+from app.core.database import get_db
+from app.models.document import DocumentModel
 from app.main import app
+
+# Re-use conftest's test DB infrastructure
+from tests.conftest import TestingSessionLocal, override_get_db
 
 
 def _fake_user():
@@ -41,56 +46,57 @@ def _fake_user():
 
 @pytest.fixture
 def client():
-    """Test client with a clean document store and auth override."""
-    _document_store.clear()
+    """Test client with test DB and auth override."""
+    app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.pop(require_current_user, None)
-    _document_store.clear()
+    app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture
 def populated_store():
-    """Pre-populate the document store with sample documents."""
-    _document_store.clear()
-    now = datetime.now(timezone.utc).isoformat()
+    """Pre-populate the document table with sample documents."""
+    db = TestingSessionLocal()
+    now = datetime.now(timezone.utc)
 
-    _document_store["doc-aaa"] = {
-        "id": "doc-aaa",
-        "user_id": "test-user-id",
-        "document_type": "lpp_certificate",
-        "upload_date": now,
-        "confidence": 0.85,
-        "fields_found": 15,
-        "fields_total": 18,
-        "extracted_fields": {"avoir_vieillesse_total": 166300.0},
-        "warnings": [],
-    }
-    _document_store["doc-bbb"] = {
-        "id": "doc-bbb",
-        "user_id": "test-user-id",
-        "document_type": "salary_slip",
-        "upload_date": now,
-        "confidence": 0.60,
-        "fields_found": 5,
-        "fields_total": 18,
-        "extracted_fields": {"salaire_avs": 95000.0},
-        "warnings": ["Partial extraction"],
-    }
-    _document_store["doc-ccc"] = {
-        "id": "doc-ccc",
-        "user_id": "test-user-id",
-        "document_type": "unknown",
-        "upload_date": now,
-        "confidence": 0.0,
-        "fields_found": 0,
-        "fields_total": 18,
-        "extracted_fields": {},
-        "warnings": ["Could not identify document type"],
-    }
+    db.add(DocumentModel(
+        id="doc-aaa",
+        user_id="test-user-id",
+        document_type="lpp_certificate",
+        upload_date=now,
+        confidence=0.85,
+        fields_found=15,
+        fields_total=18,
+        extracted_fields={"avoir_vieillesse_total": 166300.0},
+        warnings=[],
+    ))
+    db.add(DocumentModel(
+        id="doc-bbb",
+        user_id="test-user-id",
+        document_type="salary_slip",
+        upload_date=now,
+        confidence=0.60,
+        fields_found=5,
+        fields_total=18,
+        extracted_fields={"salaire_avs": 95000.0},
+        warnings=["Partial extraction"],
+    ))
+    db.add(DocumentModel(
+        id="doc-ccc",
+        user_id="test-user-id",
+        document_type="unknown",
+        upload_date=now,
+        confidence=0.0,
+        fields_found=0,
+        fields_total=18,
+        extracted_fields={},
+        warnings=["Could not identify document type"],
+    ))
+    db.commit()
+    db.close()
     yield
-    _document_store.clear()
 
 
 # ──────────────────────────────────────────────────────────────────────────────

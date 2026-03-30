@@ -26,6 +26,7 @@ from app.models.household import (
 from app.models.snapshot import SnapshotModel
 from app.models.consent import ConsentModel
 from app.models.token_blacklist import TokenBlacklist
+from app.models.document import DocumentModel
 
 __all__ = [
     "User",
@@ -46,4 +47,5 @@ __all__ = [
     "SnapshotModel",
     "ConsentModel",
     "TokenBlacklist",
+    "DocumentModel",
 ]
