@@ -23430,13 +23430,13 @@ class SDe extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/Jahr';
 
   @override
-  String get greetingMorning => 'Morgen';
+  String get greetingMorning => 'Guten Morgen';
 
   @override
-  String get greetingAfternoon => 'Nachmittag';
+  String get greetingAfternoon => 'Guten Nachmittag';
 
   @override
-  String get greetingEvening => 'Abend';
+  String get greetingEvening => 'Guten Abend';
 
   @override
   String get authShowPassword => 'Passwort anzeigen';
@@ -25348,4 +25348,19 @@ class SDe extends S {
   @override
   String get apiErrorServer =>
       'Serverfehler. Versuche es in einem Moment erneut.';
+
+  @override
+  String get pensionFundConnectComingSoon =>
+      'Bald verfügbar — Pilotvereinbarungen ausstehend';
+
+  @override
+  String get greetingNight => 'Gute Nacht';
+
+  @override
+  String get onboardingCalculationError =>
+      'Berechnungsfehler. Überprüfe deine Daten und versuche es erneut.';
+
+  @override
+  String get onboardingRetirementAgeWarning =>
+      'Pensionierung vor 55? Überprüfe dein Alter oder deinen Beschäftigungsstatus.';
 }

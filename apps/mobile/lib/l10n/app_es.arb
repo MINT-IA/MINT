@@ -1354,8 +1354,8 @@
   "exploreLearn3a": "Que es el pilar 3a?",
   "exploreLearnLpp": "LPP: Como funciona",
   "exploreLearnFiscal": "Fiscalidad suiza 101",
-  "coachWelcome": "Bienvenue sur MINT",
-  "coachHello": "Bonjour {firstName}",
+  "coachWelcome": "Bienvenido a MINT",
+  "coachHello": "Hola {firstName}",
   "@coachHello": {
     "placeholders": {
       "firstName": {
@@ -8498,16 +8498,16 @@
   "openBankingHubSubtitle": "Conecta tus cuentas bancarias",
   "openBankingHubConnectedAccounts": "CUENTAS CONECTADAS",
   "openBankingHubApercu": "PANORAMA FINANCIERO",
-  "openBankingHubNavigation": "NAVIGATION",
+  "openBankingHubNavigation": "NAVEGACIÓN",
   "openBankingHubViewTransactions": "Ver transacciones",
   "openBankingHubViewTransactionsDesc": "Historial detallado por categoría",
   "openBankingHubManageConsents": "Gestionar consentimientos",
   "openBankingHubManageConsentsDesc": "Derechos nLPD, revocación, permisos",
-  "openBankingHubSoldeTotal": "Solde total",
+  "openBankingHubSoldeTotal": "Saldo total",
   "openBankingHubComptesConnectes": "3 cuentas conectadas",
   "openBankingHubRevenus": "Ingresos",
   "openBankingHubDepenses": "Gastos",
-  "openBankingHubEpargneNette": "Épargne nette",
+  "openBankingHubEpargneNette": "Ahorro neto",
   "openBankingHubTop3Depenses": "Top 3 gastos",
   "openBankingHubAddBankLabel": "Añadir un banco",
   "openBankingHubSyncMinutes": "Hace {minutes} min",
@@ -11893,5 +11893,12 @@
   "apiErrorOffline": "Sin conexión a internet. Verifica tu red e inténtalo de nuevo.",
   "apiErrorTimeout": "El servidor tarda demasiado en responder. Inténtalo de nuevo.",
   "apiErrorSessionExpired": "Sesión expirada — vuelve a iniciar sesión.",
-  "apiErrorServer": "Error del servidor. Inténtalo de nuevo en un momento."
+  "apiErrorServer": "Error del servidor. Inténtalo de nuevo en un momento.",
+  "pensionFundConnectComingSoon": "Disponible pronto — a la espera de acuerdos piloto",
+  "greetingMorning": "Buenos días",
+  "greetingAfternoon": "Buenas tardes",
+  "greetingEvening": "Buenas noches",
+  "greetingNight": "Buenas noches",
+  "onboardingCalculationError": "Error de cálculo. Verifica tus datos e inténtalo de nuevo.",
+  "onboardingRetirementAgeWarning": "¿Jubilación antes de los 55? Verifica tu edad o tu situación laboral."
 }

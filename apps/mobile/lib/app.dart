@@ -907,6 +907,8 @@ final _router = GoRouter(
     GoRoute(
       path: '/expert-tier',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) =>
+          FeatureFlags.enableExpertTier ? null : '/',
       builder: (context, state) => const ExpertTierScreen(),
     ),
     GoRoute(
@@ -917,6 +919,8 @@ final _router = GoRouter(
     GoRoute(
       path: '/pension-fund-connect',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) =>
+          FeatureFlags.enablePensionFundConnect ? null : '/',
       builder: (context, state) => const PensionFundConnectScreen(),
     ),
     GoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),

@@ -26,10 +26,8 @@ import argparse
 import json
 import logging
 import os
-import re
 import sys
 from pathlib import Path
-from typing import Optional
 
 # Add backend root to sys.path for imports
 _BACKEND_DIR = Path(__file__).resolve().parent.parent

@@ -7,10 +7,9 @@ POST /api/v1/assurances/coverage/check — Coverage checklist
 Sprint S13, Chantier 7: Assurances completes.
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 
 from app.core.auth import require_current_user
-from app.core.rate_limit import limiter
 from app.models.user import User
 from app.schemas.assurances import (
     LamalFranchiseRequest,

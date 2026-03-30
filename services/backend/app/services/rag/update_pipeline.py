@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Optional
 
-from app.services.rag.knowledge_catalog import KnowledgeCatalog, KnowledgeCategory, KnowledgeSource
+from app.services.rag.knowledge_catalog import KnowledgeCategory, KnowledgeSource
 
 # ---------------------------------------------------------------------------
 # Threshold constants

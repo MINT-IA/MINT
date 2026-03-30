@@ -238,9 +238,9 @@ class TestConsentDefaults:
     """All consents must be OFF by default and correctly structured."""
 
     def test_all_consents_off_by_default(self, consent_manager):
-        """All 3 consents must start disabled (opt-in model)."""
+        """All 5 consents must start disabled (opt-in model)."""
         dashboard = consent_manager.get_default_dashboard()
-        assert len(dashboard.consents) == 3
+        assert len(dashboard.consents) == 5
         for consent in dashboard.consents:
             assert consent.enabled is False, (
                 f"Consent {consent.consent_type.value} should be OFF by default"
@@ -434,14 +434,16 @@ class TestEdgeCases:
                     f"title too long ({len(msg.title)} chars): {msg.title}"
                 )
 
-    def test_consent_types_are_three_independent(self, consent_manager):
-        """Consent dashboard has exactly 3 independent consent types."""
+    def test_consent_types_are_five_independent(self, consent_manager):
+        """Consent dashboard has exactly 5 independent consent types."""
         dashboard = consent_manager.get_default_dashboard()
         types = {c.consent_type for c in dashboard.consents}
         assert types == {
             ConsentType.byok_data_sharing,
             ConsentType.snapshot_storage,
             ConsentType.notifications,
+            ConsentType.document_upload,
+            ConsentType.conversation_memory,
         }
 
     def test_byok_detail_has_disclaimer_and_sources(self, consent_manager):

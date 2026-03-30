@@ -10,13 +10,11 @@ Covers:
 """
 
 import pytest
-from datetime import datetime
 from app.schemas.document_scan import (
     DocumentType,
     ConfidenceLevel,
     ExtractedFieldConfirmation,
     DocumentScanConfirmation,
-    DocumentScanResponse,
     VisionExtractionRequest,
     VisionExtractionResponse,
 )

@@ -1354,8 +1354,8 @@
   "exploreLearn3a": "O que e o pilar 3a?",
   "exploreLearnLpp": "LPP: Como funciona",
   "exploreLearnFiscal": "Fiscalidade suica 101",
-  "coachWelcome": "Bienvenue sur MINT",
-  "coachHello": "Bonjour {firstName}",
+  "coachWelcome": "Bem-vindo ao MINT",
+  "coachHello": "Olá {firstName}",
   "@coachHello": {
     "placeholders": {
       "firstName": {
@@ -8459,16 +8459,16 @@
   "openBankingHubSubtitle": "Conecta as tuas contas bancárias",
   "openBankingHubConnectedAccounts": "CONTAS CONECTADAS",
   "openBankingHubApercu": "PANORAMA FINANCEIRO",
-  "openBankingHubNavigation": "NAVIGATION",
+  "openBankingHubNavigation": "NAVEGAÇÃO",
   "openBankingHubViewTransactions": "Ver transações",
   "openBankingHubViewTransactionsDesc": "Histórico detalhado por categoria",
   "openBankingHubManageConsents": "Gerir consentimentos",
   "openBankingHubManageConsentsDesc": "Direitos nLPD, revogação, permissões",
-  "openBankingHubSoldeTotal": "Solde total",
+  "openBankingHubSoldeTotal": "Saldo total",
   "openBankingHubComptesConnectes": "3 contas conectadas",
   "openBankingHubRevenus": "Receitas",
   "openBankingHubDepenses": "Despesas",
-  "openBankingHubEpargneNette": "Épargne nette",
+  "openBankingHubEpargneNette": "Poupança líquida",
   "openBankingHubTop3Depenses": "Top 3 despesas",
   "openBankingHubAddBankLabel": "Adicionar um banco",
   "openBankingHubSyncMinutes": "Há {minutes} min",
@@ -8487,7 +8487,7 @@
       }
     }
   },
-  "openBankingHubSyncDays": "Il y a {days}j",
+  "openBankingHubSyncDays": "Há {days} dias",
   "@openBankingHubSyncDays": {
     "placeholders": {
       "days": {
@@ -8497,14 +8497,14 @@
   },
   "transactionListFinmaTitle": "Funcionalidade em preparação",
   "transactionListFinmaDesc": "Consulta regulatória FINMA em curso. Os dados apresentados são de demonstração.",
-  "transactionListThisMonth": "Ce mois",
-  "transactionListLastMonth": "Mois précédent",
+  "transactionListThisMonth": "Este mês",
+  "transactionListLastMonth": "Mês anterior",
   "transactionListNoTransaction": "Sem transações",
-  "transactionListRevenus": "Revenus",
-  "transactionListDepenses": "Dépenses",
-  "transactionListEpargneNette": "Épargne nette",
-  "transactionListTauxEpargne": "Taux d’épargne",
-  "transactionListModeDemo": "MODE DÉMO",
+  "transactionListRevenus": "Receitas",
+  "transactionListDepenses": "Despesas",
+  "transactionListEpargneNette": "Poupança líquida",
+  "transactionListTauxEpargne": "Taxa de poupança",
+  "transactionListModeDemo": "MODO DEMO",
   "lppVolontaireRevenuMax250k": "CHF 250’000",
   "lppVolontaireSalaireCoordLabel": "Salário coordenado",
   "lppVolontaireTauxBonifLabel": "Taxa de bonificação",
@@ -11893,5 +11893,12 @@
   "apiErrorOffline": "Sem ligação à internet. Verifica a tua rede e tenta novamente.",
   "apiErrorTimeout": "O servidor está a demorar demasiado a responder. Tenta novamente.",
   "apiErrorSessionExpired": "Sessão expirada — inicia sessão novamente.",
-  "apiErrorServer": "Erro do servidor. Tenta novamente dentro de momentos."
+  "apiErrorServer": "Erro do servidor. Tenta novamente dentro de momentos.",
+  "pensionFundConnectComingSoon": "Disponível em breve — a aguardar acordos-piloto",
+  "greetingMorning": "Bom dia",
+  "greetingAfternoon": "Boa tarde",
+  "greetingEvening": "Boa noite",
+  "greetingNight": "Boa noite",
+  "onboardingCalculationError": "Erro de cálculo. Verifica os teus dados e tenta novamente.",
+  "onboardingRetirementAgeWarning": "Reforma antes dos 55? Verifica a tua idade ou situação profissional."
 }

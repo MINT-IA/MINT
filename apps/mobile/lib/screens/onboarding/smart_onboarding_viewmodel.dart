@@ -17,6 +17,12 @@ import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 /// AVS gaps / lacunes are NOT collected here — source of truth is the
 /// extrait AVS uploaded via StepOcrUpload (AvsExtractParser).
 ///
+/// Error types for the onboarding flow — resolved to i18n strings in the UI.
+enum OnboardingErrorType {
+  retirementAgeWarning,
+  calculationError,
+}
+
 /// Delegates all financial computation to the shared financial_core.
 /// NEVER duplicates calculation logic.
 class SmartOnboardingViewModel extends ChangeNotifier {
@@ -75,8 +81,8 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   /// True when a result has been computed at least once.
   bool get hasResult => profile != null && chiffreChoc != null;
 
-  /// Error message if computation failed.
-  String? error;
+  /// Error type if computation failed — resolve to i18n string in the UI.
+  OnboardingErrorType? errorType;
 
   /// Computed age from birthDate. Falls back to 35 if no birthDate set.
   int get age {
@@ -117,9 +123,9 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   void setEmploymentStatus(String? value) {
     // P3-22: Warn if age < 55 and status is 'retraite' — likely a data entry error.
     if (value == 'retraite' && age < 55) {
-      error = 'Retraite avant 55 ans\u00a0? Vérifie ton âge ou ton statut.'; // TODO: i18n
+      errorType = OnboardingErrorType.retirementAgeWarning;
     } else {
-      error = null;
+      errorType = null;
     }
     employmentStatus = value;
     if (hasResult) {
@@ -272,7 +278,7 @@ class SmartOnboardingViewModel extends ChangeNotifier {
     if (!canCompute) return;
 
     try {
-      error = null;
+      errorType = null;
 
       profile = MinimalProfileService.compute(
         age: age,
@@ -297,7 +303,7 @@ class SmartOnboardingViewModel extends ChangeNotifier {
       confidenceScore =
           (providedCount / totalFields * 100).clamp(0.0, 100.0);
     } catch (e) {
-      error = 'Erreur de calcul. Vérifie tes données et réessaie.'; // TODO: i18n — extract to ARB
+      errorType = OnboardingErrorType.calculationError;
       profile = null;
       chiffreChoc = null;
       confidenceScore = 0;

@@ -18,7 +18,6 @@ Run: cd services/backend && python3 -m pytest tests/test_coach_tools_categories.
 
 from typing import Optional
 
-import pytest
 from app.services.coach.coach_tools import (
     COACH_TOOLS,
     ToolCategory,

@@ -55,7 +55,7 @@ class _PensionFundConnectScreenState extends State<PensionFundConnectScreen> {
     if (!_isApiLive) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bientôt disponible — en attente des accords pilotes')), // TODO: i18n
+          SnackBar(content: Text(S.of(context)!.pensionFundConnectComingSoon)),
         );
       }
       return;

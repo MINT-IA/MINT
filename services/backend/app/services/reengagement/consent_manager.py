@@ -199,6 +199,34 @@ class ConsentManager:
                 ),
                 revocable=True,
             ),
+            ConsentState(
+                consent_type=ConsentType.document_upload,
+                enabled=False,
+                label="Telechargement de documents",
+                detail=(
+                    "Autorise l'extraction de donnees structurees depuis tes "
+                    "certificats LPP, fiches de salaire et releves bancaires."
+                ),
+                never_sent=(
+                    "Le fichier PDF original n'est jamais stocke. Seuls les "
+                    "champs extraits sont conserves dans ton dossier."
+                ),
+                revocable=True,
+            ),
+            ConsentState(
+                consent_type=ConsentType.conversation_memory,
+                enabled=False,
+                label="Memoire de conversation",
+                detail=(
+                    "Permet au coach de se souvenir du contexte entre tes "
+                    "sessions pour des reponses plus pertinentes."
+                ),
+                never_sent=(
+                    "Jamais stocke : contenu exact des messages, donnees "
+                    "financieres precises, informations d'identification."
+                ),
+                revocable=True,
+            ),
         ]
 
         return ConsentDashboard(consents=consents)

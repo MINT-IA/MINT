@@ -3316,11 +3316,11 @@ class SIt extends S {
   String get exploreLearnFiscal => 'Fiscalita svizzera 101';
 
   @override
-  String get coachWelcome => 'Bienvenue sur MINT';
+  String get coachWelcome => 'Benvenuto su MINT';
 
   @override
   String coachHello(String firstName) {
-    return 'Bonjour $firstName';
+    return 'Ciao $firstName';
   }
 
   @override
@@ -17691,7 +17691,7 @@ class SIt extends S {
   String get openBankingHubApercu => 'PANORAMICA FINANZIARIA';
 
   @override
-  String get openBankingHubNavigation => 'NAVIGATION';
+  String get openBankingHubNavigation => 'NAVIGAZIONE';
 
   @override
   String get openBankingHubViewTransactions => 'Vedi le transazioni';
@@ -17707,7 +17707,7 @@ class SIt extends S {
   String get openBankingHubManageConsentsDesc => 'Diritti nLPD, revoca, ambiti';
 
   @override
-  String get openBankingHubSoldeTotal => 'Solde total';
+  String get openBankingHubSoldeTotal => 'Saldo totale';
 
   @override
   String get openBankingHubComptesConnectes => '3 conti collegati';
@@ -17719,7 +17719,7 @@ class SIt extends S {
   String get openBankingHubDepenses => 'Spese';
 
   @override
-  String get openBankingHubEpargneNette => 'Épargne nette';
+  String get openBankingHubEpargneNette => 'Risparmio netto';
 
   @override
   String get openBankingHubTop3Depenses => 'Top 3 spese';
@@ -23449,13 +23449,13 @@ class SIt extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/anno';
 
   @override
-  String get greetingMorning => 'mattina';
+  String get greetingMorning => 'Buongiorno';
 
   @override
-  String get greetingAfternoon => 'pomeriggio';
+  String get greetingAfternoon => 'Buon pomeriggio';
 
   @override
-  String get greetingEvening => 'sera';
+  String get greetingEvening => 'Buonasera';
 
   @override
   String get authShowPassword => 'Mostra password';
@@ -25372,4 +25372,19 @@ class SIt extends S {
   @override
   String get apiErrorServer =>
       'Errore del server. Riprova tra qualche istante.';
+
+  @override
+  String get pensionFundConnectComingSoon =>
+      'Disponibile a breve — in attesa degli accordi pilota';
+
+  @override
+  String get greetingNight => 'Buonanotte';
+
+  @override
+  String get onboardingCalculationError =>
+      'Errore di calcolo. Verifica i tuoi dati e riprova.';
+
+  @override
+  String get onboardingRetirementAgeWarning =>
+      'Pensionamento prima dei 55? Verifica la tua età o il tuo stato lavorativo.';
 }

@@ -39,6 +39,7 @@ from app.schemas.auth import (
     TokenResponse,
     UserResponse,
     RefreshTokenRequest,
+    LogoutRequest,
     LogoutResponse,
     EmailVerificationRequest,
     EmailVerificationConfirmRequest,
@@ -482,6 +483,7 @@ _security_scheme = HTTPBearer(auto_error=False)
 @limiter.limit("30/minute")
 def logout(
     request: Request,
+    body: LogoutRequest = None,
     credentials: HTTPAuthorizationCredentials = Depends(_security_scheme),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -491,6 +493,8 @@ def logout(
 
     The token will be rejected on subsequent requests until it naturally expires,
     at which point the blacklist entry is eligible for cleanup.
+
+    Optionally accepts a LogoutRequest body with refresh_token to blacklist both tokens.
     """
     if credentials is None:
         raise HTTPException(
@@ -508,24 +512,18 @@ def logout(
     expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
     blacklist_token(db, payload["jti"], expires_at)
 
-    # SECURITY: Also blacklist the refresh token if provided.
+    # SECURITY: Also blacklist the refresh token if provided via typed schema.
     # This prevents the refresh token from being reused after logout.
-    from fastapi import Body
-    # Try to read optional refresh_token from body (non-breaking for existing clients)
-    try:
-        import json
-        raw_body = request._body if hasattr(request, '_body') else None
-        if raw_body:
-            body_data = json.loads(raw_body)  # pragma: no cover
-            refresh_str = body_data.get("refresh_token") or body_data.get("refreshToken")  # pragma: no cover
-            if refresh_str:  # pragma: no cover
-                refresh_payload = decode_refresh_token(refresh_str)  # pragma: no cover
-                if refresh_payload and refresh_payload.get("jti"):  # pragma: no cover
-                    r_exp = refresh_payload.get("exp")  # pragma: no cover
-                    r_exp_dt = datetime.fromtimestamp(r_exp, tz=timezone.utc) if r_exp else datetime.now(timezone.utc)  # pragma: no cover
-                    blacklist_token(db, refresh_payload["jti"], r_exp_dt)  # pragma: no cover
-    except Exception:  # pragma: no cover
-        pass  # Best-effort — access token is always blacklisted
+    if body and body.refresh_token:
+        refresh_payload = decode_refresh_token(body.refresh_token)
+        if refresh_payload and refresh_payload.get("jti"):
+            r_exp = refresh_payload.get("exp")
+            r_exp_dt = (
+                datetime.fromtimestamp(r_exp, tz=timezone.utc)
+                if r_exp
+                else datetime.now(timezone.utc)
+            )
+            blacklist_token(db, refresh_payload["jti"], r_exp_dt)
 
     log_audit_event(
         db,

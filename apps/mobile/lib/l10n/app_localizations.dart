@@ -41234,19 +41234,19 @@ abstract class S {
   /// No description provided for @greetingMorning.
   ///
   /// In fr, this message translates to:
-  /// **'matin'**
+  /// **'Bonjour'**
   String get greetingMorning;
 
   /// No description provided for @greetingAfternoon.
   ///
   /// In fr, this message translates to:
-  /// **'après-midi'**
+  /// **'Bon après-midi'**
   String get greetingAfternoon;
 
   /// No description provided for @greetingEvening.
   ///
   /// In fr, this message translates to:
-  /// **'soir'**
+  /// **'Bonsoir'**
   String get greetingEvening;
 
   /// No description provided for @authShowPassword.
@@ -44574,6 +44574,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Erreur serveur. Réessaie dans quelques instants.'**
   String get apiErrorServer;
+
+  /// No description provided for @pensionFundConnectComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt disponible — en attente des accords pilotes'**
+  String get pensionFundConnectComingSoon;
+
+  /// No description provided for @greetingNight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne nuit'**
+  String get greetingNight;
+
+  /// No description provided for @onboardingCalculationError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de calcul. Vérifie tes données et réessaie.'**
+  String get onboardingCalculationError;
+
+  /// No description provided for @onboardingRetirementAgeWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite avant 55 ans ? Vérifie ton âge ou ton statut.'**
+  String get onboardingRetirementAgeWarning;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

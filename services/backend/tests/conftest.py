@@ -54,30 +54,14 @@ def override_get_db():
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
     """Create database tables once for all tests."""
-    # Import models to ensure they're registered before creating tables
-    from app.models import (
-        User,
-        ProfileModel,
-        SessionModel,
-        AnalyticsEvent,
-        AuditEventModel,
-        LoginSecurityStateModel,
-        PasswordResetTokenModel,
-        EmailVerificationTokenModel,
-        SubscriptionModel,
-        EntitlementModel,
-        BillingTransactionModel,
-        BillingWebhookEventModel,
-        HouseholdModel,
-        HouseholdMemberModel,
-        AdminAuditEventModel,
-        SnapshotModel,
-        ConsentModel,
-    )
-    from app.models.banking_consent import BankingConsentModel
-    from app.models.external_data_source import ExternalDataSourceModel
-    from app.models.token_blacklist import TokenBlacklist
-    from app.models.document import DocumentModel  # noqa: F811
+    # Import models to ensure they're registered with SQLAlchemy before create_all
+    import app.models.user  # noqa: F401
+    import app.models  # noqa: F401
+    from app.models.banking_consent import BankingConsentModel  # noqa: F401
+    from app.models.external_data_source import ExternalDataSourceModel  # noqa: F401
+    from app.models.token_blacklist import TokenBlacklist  # noqa: F401
+    from app.models.document import DocumentModel  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

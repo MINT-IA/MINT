@@ -24,11 +24,11 @@ import os
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.models.user import User
-
-logger = logging.getLogger(__name__)
 from app.schemas.open_banking import (
     OpenBankingStatusResponse,
     ConsentRequest,
@@ -47,6 +47,7 @@ from app.services.open_banking.consent_manager import ConsentManager
 from app.services.open_banking.transaction_categorizer import TransactionCategorizer
 from app.services.open_banking.account_aggregator import AccountAggregator
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -149,7 +150,7 @@ def get_status() -> OpenBankingStatusResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/consent", response_model=ConsentResponse)
-def create_consent(request: ConsentRequest, response: Response, current_user: User = Depends(require_current_user)) -> ConsentResponse:
+def create_consent(request: ConsentRequest, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> ConsentResponse:
     """Create a new banking consent (nLPD-compliant).
 
     Requires explicit opt-in. Scopes must be explicitly chosen.
@@ -164,6 +165,7 @@ def create_consent(request: ConsentRequest, response: Response, current_user: Us
             bank_id=request.bankId,
             bank_name=request.bankName,
             scopes=request.scopes,
+            db=db,
         )
     except ValueError:
         raise HTTPException(status_code=422, detail="Unprocessable input")
@@ -180,7 +182,7 @@ def create_consent(request: ConsentRequest, response: Response, current_user: Us
 
 
 @router.delete("/consent/{consent_id}")
-def revoke_consent(consent_id: str, response: Response, current_user: User = Depends(require_current_user)):
+def revoke_consent(consent_id: str, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)):
     """Revoke a banking consent.
 
     The consent is immediately invalidated. All associated data access stops.
@@ -190,13 +192,13 @@ def revoke_consent(consent_id: str, response: Response, current_user: User = Dep
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     # V3-4: IDOR guard — verify consent belongs to the current user.
-    consent = _consent_manager.get_consent(consent_id)
+    consent = _consent_manager.get_consent(consent_id, db=db)
     if not consent:
         raise HTTPException(status_code=404, detail="Consentement non trouve.")
     if consent.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Acces interdit.")
 
-    success = _consent_manager.revoke_consent(consent_id)
+    success = _consent_manager.revoke_consent(consent_id, db=db)
     if not success:
         raise HTTPException(status_code=404, detail="Consentement non trouve.")
 
@@ -208,12 +210,12 @@ def revoke_consent(consent_id: str, response: Response, current_user: User = Dep
 
 
 @router.get("/consents", response_model=List[ConsentResponse])
-def list_consents(response: Response, current_user: User = Depends(require_current_user)) -> List[ConsentResponse]:
+def list_consents(response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> List[ConsentResponse]:
     """List active consents for the current person."""
     _check_open_banking_enabled()
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
-    consents = _consent_manager.get_active_consents(current_user.id)
+    consents = _consent_manager.get_active_consents(current_user.id, db=db)
 
     return [
         ConsentResponse(

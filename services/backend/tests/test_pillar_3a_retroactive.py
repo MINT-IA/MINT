@@ -4,7 +4,6 @@ Validates the NEW 2026 law allowing up to 10 years of retroactive
 Pillar 3a contributions with full tax deductibility.
 """
 
-import pytest
 
 from app.services.pillar_3a_deep.retroactive_3a_service import (
     HISTORICAL_3A_LIMITS,

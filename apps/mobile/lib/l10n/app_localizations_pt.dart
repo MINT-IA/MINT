@@ -3301,11 +3301,11 @@ class SPt extends S {
   String get exploreLearnFiscal => 'Fiscalidade suica 101';
 
   @override
-  String get coachWelcome => 'Bienvenue sur MINT';
+  String get coachWelcome => 'Bem-vindo ao MINT';
 
   @override
   String coachHello(String firstName) {
-    return 'Bonjour $firstName';
+    return 'Olá $firstName';
   }
 
   @override
@@ -17653,7 +17653,7 @@ class SPt extends S {
   String get openBankingHubApercu => 'PANORAMA FINANCEIRO';
 
   @override
-  String get openBankingHubNavigation => 'NAVIGATION';
+  String get openBankingHubNavigation => 'NAVEGAÇÃO';
 
   @override
   String get openBankingHubViewTransactions => 'Ver transações';
@@ -17670,7 +17670,7 @@ class SPt extends S {
       'Direitos nLPD, revogação, permissões';
 
   @override
-  String get openBankingHubSoldeTotal => 'Solde total';
+  String get openBankingHubSoldeTotal => 'Saldo total';
 
   @override
   String get openBankingHubComptesConnectes => '3 contas conectadas';
@@ -17682,7 +17682,7 @@ class SPt extends S {
   String get openBankingHubDepenses => 'Despesas';
 
   @override
-  String get openBankingHubEpargneNette => 'Épargne nette';
+  String get openBankingHubEpargneNette => 'Poupança líquida';
 
   @override
   String get openBankingHubTop3Depenses => 'Top 3 despesas';
@@ -17702,7 +17702,7 @@ class SPt extends S {
 
   @override
   String openBankingHubSyncDays(int days) {
-    return 'Il y a ${days}j';
+    return 'Há $days dias';
   }
 
   @override
@@ -17713,28 +17713,28 @@ class SPt extends S {
       'Consulta regulatória FINMA em curso. Os dados apresentados são de demonstração.';
 
   @override
-  String get transactionListThisMonth => 'Ce mois';
+  String get transactionListThisMonth => 'Este mês';
 
   @override
-  String get transactionListLastMonth => 'Mois précédent';
+  String get transactionListLastMonth => 'Mês anterior';
 
   @override
   String get transactionListNoTransaction => 'Sem transações';
 
   @override
-  String get transactionListRevenus => 'Revenus';
+  String get transactionListRevenus => 'Receitas';
 
   @override
-  String get transactionListDepenses => 'Dépenses';
+  String get transactionListDepenses => 'Despesas';
 
   @override
-  String get transactionListEpargneNette => 'Épargne nette';
+  String get transactionListEpargneNette => 'Poupança líquida';
 
   @override
-  String get transactionListTauxEpargne => 'Taux d’épargne';
+  String get transactionListTauxEpargne => 'Taxa de poupança';
 
   @override
-  String get transactionListModeDemo => 'MODE DÉMO';
+  String get transactionListModeDemo => 'MODO DEMO';
 
   @override
   String get lppVolontaireRevenuMax250k => 'CHF 250’000';
@@ -23390,13 +23390,13 @@ class SPt extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/ano';
 
   @override
-  String get greetingMorning => 'manhã';
+  String get greetingMorning => 'Bom dia';
 
   @override
-  String get greetingAfternoon => 'tarde';
+  String get greetingAfternoon => 'Boa tarde';
 
   @override
-  String get greetingEvening => 'noite';
+  String get greetingEvening => 'Boa noite';
 
   @override
   String get authShowPassword => 'Mostrar palavra-passe';
@@ -25307,4 +25307,19 @@ class SPt extends S {
   @override
   String get apiErrorServer =>
       'Erro do servidor. Tenta novamente dentro de momentos.';
+
+  @override
+  String get pensionFundConnectComingSoon =>
+      'Disponível em breve — a aguardar acordos-piloto';
+
+  @override
+  String get greetingNight => 'Boa noite';
+
+  @override
+  String get onboardingCalculationError =>
+      'Erro de cálculo. Verifica os teus dados e tenta novamente.';
+
+  @override
+  String get onboardingRetirementAgeWarning =>
+      'Reforma antes dos 55? Verifica a tua idade ou situação profissional.';
 }

@@ -16,7 +16,7 @@ Sprint S67 — RAG v2 Knowledge Pipeline.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from enum import Enum
 from typing import Optional

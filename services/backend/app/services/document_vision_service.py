@@ -10,9 +10,8 @@ See: MINT_ANTI_BULLSHIT_MANIFESTO.md, MINT_FINAL_EXECUTION_SYSTEM.md §13.11
 """
 
 import json
-import base64
 import logging
-from typing import Optional
+from typing import Dict, List as TList, Optional
 
 from anthropic import Anthropic
 
@@ -27,7 +26,6 @@ from app.schemas.document_scan import (
 logger = logging.getLogger(__name__)
 
 # Field definitions per document type — what to extract and validate.
-from typing import Dict, List as TList
 
 DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
     DocumentType.lpp_certificate: [

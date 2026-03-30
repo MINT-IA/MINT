@@ -10,10 +10,14 @@ import logging
 import os
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.user import User
+from app.services.reengagement.consent_manager import ConsentManager
+from app.services.reengagement.reengagement_models import ConsentType
 
 from app.schemas.rag import (
     ExtractedDocumentField,
@@ -113,7 +117,7 @@ def _get_orchestrator():
 
 @router.post("/query", response_model=RAGQueryResponse)
 @limiter.limit("20/minute")
-async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depends(require_current_user)):
+async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depends(require_current_user), db: Session = Depends(get_db)):
     """
     Main RAG query endpoint.
 
@@ -122,10 +126,12 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
 
     The API key is used for a single request and never stored.
     """
-    # TODO(nLPD art. 6 al. 7): Verify byok_data_sharing consent before querying
-    # user-specific data in RAG. Requires ConsentManager.is_consent_given(
-    # user_id, ConsentType.byok_data_sharing). Without consent, RAG should only
-    # search the public MINT knowledge base, not user-uploaded documents.
+    # nLPD art. 6 al. 7: Without byok_data_sharing consent, RAG only searches
+    # the public MINT knowledge base — user-uploaded documents are excluded.
+    has_byok_consent = ConsentManager.is_consent_given(
+        str(_user.id), ConsentType.byok_data_sharing, db=db
+    )
+
     orchestrator = await _get_orchestrator_safe()
 
     # Build profile context dict if provided
@@ -133,15 +139,18 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
     if body.profile_context:
         profile_ctx = body.profile_context.model_dump(exclude_none=True)
 
+    # nLPD: only pass user_id (for user-doc retrieval) if consent granted
+    effective_user_id = _user.id if (_user and has_byok_consent) else None
+
     try:
         result = await orchestrator.query(
             question=body.question,
             api_key=body.api_key,
             provider=body.provider.value,
             model=body.model,
-            profile_context=profile_ctx,
+            profile_context=profile_ctx if has_byok_consent else None,
             language=body.language.value,
-            user_id=_user.id if _user else None,
+            user_id=effective_user_id,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
