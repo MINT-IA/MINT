@@ -23,13 +23,13 @@ def upgrade():
         sa.Column("user_id", sa.String(), nullable=False, index=True),
         sa.Column("document_type", sa.String(), nullable=False),
         sa.Column("upload_date", sa.DateTime()),
-        sa.Column("confidence", sa.Float(), default=0.0),
-        sa.Column("fields_found", sa.Integer(), default=0),
-        sa.Column("fields_total", sa.Integer(), default=0),
-        sa.Column("extracted_fields", sa.JSON(), default={}),
-        sa.Column("warnings", sa.JSON(), default=[]),
-        sa.Column("extraction_method", sa.String(), default="ocr_mlkit"),
-        sa.Column("overall_confidence", sa.Float(), default=0.0),
+        sa.Column("confidence", sa.Float(), server_default="0.0"),
+        sa.Column("fields_found", sa.Integer(), server_default="0"),
+        sa.Column("fields_total", sa.Integer(), server_default="0"),
+        sa.Column("extracted_fields", sa.JSON(), nullable=True),
+        sa.Column("warnings", sa.JSON(), nullable=True),
+        sa.Column("extraction_method", sa.String(), server_default="ocr_mlkit"),
+        sa.Column("overall_confidence", sa.Float(), server_default="0.0"),
     )
 
 

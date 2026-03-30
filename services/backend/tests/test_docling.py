@@ -209,8 +209,8 @@ Rente d'invalidité | CHF 30'000 | CHF 12'000 | CHF 42'000
 
 
 @pytest.fixture(autouse=True)
-def _clear_document_store():
-    """Clean document table between tests (handled by conftest.clean_database)."""
+def _clean_documents():
+    """Document cleanup handled by conftest.clean_database."""
     yield
 
 

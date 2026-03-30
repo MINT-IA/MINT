@@ -2,14 +2,13 @@
 Document model — persists scanned/uploaded document metadata.
 
 Replaces the in-memory _document_store dict (FIX-109).
-Extracted fields stored as JSONB. Raw file bytes never stored.
+Extracted fields stored as JSON (SQLite-compatible for CI/dev).
+Raw file bytes are never stored — only extracted metadata.
 """
 
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Float, Integer, Text
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy import JSON
+from sqlalchemy import Column, String, DateTime, Float, Integer, JSON
 from app.core.database import Base
 
 

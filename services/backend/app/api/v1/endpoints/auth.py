@@ -1053,16 +1053,10 @@ def delete_account(
     except Exception as exc:
         logger.warning("Failed to purge embeddings for user %s: %s", user_id[:8], exc)
 
-    # FIX-181 nLPD: Purge document records for this user from DB.
-    try:
-        from app.models.document import DocumentModel
-        deleted_count = db.query(DocumentModel).filter(
-            DocumentModel.user_id == user_id
-        ).delete()
-        if deleted_count:  # pragma: no cover
-            logger.info("Purged %d document records for user %s", deleted_count, user_id[:8])  # pragma: no cover
-    except Exception as exc:  # pragma: no cover
-        logger.warning("Document cleanup failed for user %s: %s", user_id[:8], exc)  # pragma: no cover
+    # FIX-181 nLPD: Purge document records BEFORE deleting user (atomic).
+    # If purge fails, abort — never leave orphaned user data.
+    from app.models.document import DocumentModel
+    db.query(DocumentModel).filter(DocumentModel.user_id == user_id).delete()
 
     db.delete(current_user)
     db.commit()
