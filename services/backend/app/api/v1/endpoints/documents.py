@@ -187,6 +187,9 @@ async def upload_document(
 
     The raw PDF is never stored — only the extracted fields are kept.
     """
+    # TODO(nLPD art. 6 al. 7): Verify document_upload consent before persisting
+    # extracted fields. Requires ConsentManager.is_consent_given(user_id,
+    # ConsentType.document_upload). Block with HTTP 403 if not granted.
     # Validate file type
     if file.content_type and file.content_type not in (
         "application/pdf",
@@ -397,6 +400,29 @@ async def delete_document(
 
     if row.user_id != str(_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to delete this document")
+
+    # P2-19 nLPD: Purge RAG embeddings for this document before deleting the record.
+    try:
+        from app.services.rag import RAG_AVAILABLE
+
+        if RAG_AVAILABLE:
+            from app.services.rag.vector_store import MintVectorStore
+
+            backend_dir = os.path.dirname(
+                os.path.dirname(
+                    os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                )
+            )
+            persist_dir = os.path.join(backend_dir, "data", "chromadb")
+            vector_store = MintVectorStore(persist_directory=persist_dir)
+            embedding_id = f"doc_upload_{doc_id}"
+            try:
+                vector_store.collection.delete(ids=[embedding_id])
+                logger.info("Purged RAG embedding for document %s", doc_id)
+            except Exception as e:
+                logger.warning("Failed to purge RAG embedding for %s: %s", doc_id, e)
+    except ImportError:
+        pass  # RAG not installed — no embeddings to purge
 
     db.delete(row)
     db.commit()

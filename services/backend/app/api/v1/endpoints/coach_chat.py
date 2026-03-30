@@ -911,6 +911,10 @@ async def coach_chat(
         502: LLM API call failed.
         503: RAG dependencies not installed.
     """
+    # TODO(nLPD art. 6 al. 7): Verify conversation_memory consent before
+    # persisting conversation history. Requires ConsentManager.is_consent_given(
+    # user_id, ConsentType.conversation_memory). Without consent, conversation
+    # should be stateless (no memory_block persistence between sessions).
     # ------------------------------------------------------------------
     # Step 0: Sanitize inputs (PII whitelist + memory scrubbing)
     # ------------------------------------------------------------------

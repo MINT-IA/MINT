@@ -61,6 +61,11 @@ class TransferResponse(BaseModel):
     new_owner_id: str
 
 
+class DissolveResponse(BaseModel):
+    status: str
+    revoked_members: int
+
+
 class AdminOverrideCooldownRequest(BaseModel):
     user_id: str
     reason: str

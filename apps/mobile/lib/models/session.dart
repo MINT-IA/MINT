@@ -42,9 +42,9 @@ class ScoreboardItem {
 
   factory ScoreboardItem.fromJson(Map<String, dynamic> json) {
     return ScoreboardItem(
-      label: json['label'],
-      value: json['value'],
-      note: json['note'] ?? '',
+      label: json['label'] as String? ?? '',
+      value: json['value'] as String? ?? '',
+      note: json['note'] as String? ?? '',
     );
   }
 }

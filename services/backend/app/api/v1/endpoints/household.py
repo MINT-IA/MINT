@@ -16,6 +16,7 @@ from app.services.household_service import (
     accept_invitation,
     revoke_member,
     transfer_ownership,
+    dissolve_household,
     admin_override_cooldown,
 )
 from app.schemas.household import (
@@ -27,6 +28,7 @@ from app.schemas.household import (
     RevokeResponse,
     TransferRequest,
     TransferResponse,
+    DissolveResponse,
     AdminOverrideCooldownRequest,
     AdminOverrideCooldownResponse,
 )
@@ -91,6 +93,17 @@ def transfer(
 ) -> TransferResponse:
     result = transfer_ownership(db, current_user, body.new_owner_id)
     return TransferResponse(**result)
+
+
+@router.delete("/dissolve", response_model=DissolveResponse)
+@limiter.limit("5/minute")
+def dissolve(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> DissolveResponse:
+    result = dissolve_household(db, current_user)
+    return DissolveResponse(**result)
 
 
 @router.post("/admin/override-cooldown", response_model=AdminOverrideCooldownResponse)

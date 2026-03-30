@@ -93,6 +93,14 @@ class ConjointProfile {
   final bool canContribute3a; // false si FATCA resident (certains providers)
   final PrevoyanceProfile? prevoyance;
 
+  /// Canton of residence of the conjoint (ISO 2-letter, e.g. "VS", "ZH").
+  /// Null if same as the primary user or unknown.
+  final String? canton;
+
+  /// Number of children for this conjoint (for allocations familiales, etc.).
+  /// Null if unknown.
+  final int? nombreEnfants;
+
   /// Patrimoine du conjoint (epargne, investissements).
   /// Null si non renseigne — Liquidite axis sera sous-evalue.
   final PatrimoineProfile? patrimoine;
@@ -124,6 +132,8 @@ class ConjointProfile {
     this.isFatcaResident = false,
     this.canContribute3a = true,
     this.prevoyance,
+    this.canton,
+    this.nombreEnfants,
     this.patrimoine,
     this.arrivalAge,
     this.targetRetirementAge,
@@ -195,6 +205,8 @@ class ConjointProfile {
       isFatcaResident: isFatca,
       canContribute3a: topCanContribute,
       prevoyance: prev,
+      canton: json['canton'] as String?,
+      nombreEnfants: json['nombreEnfants'] as int?,
       patrimoine: json['patrimoine'] != null
           ? PatrimoineProfile.fromJson(json['patrimoine'])
           : null,
@@ -217,6 +229,8 @@ class ConjointProfile {
         'isFatcaResident': isFatcaResident,
         'canContribute3a': canContribute3a,
         'prevoyance': prevoyance?.toJson(),
+        'canton': canton,
+        'nombreEnfants': nombreEnfants,
         'patrimoine': patrimoine?.toJson(),
         'arrivalAge': arrivalAge,
         'targetRetirementAge': targetRetirementAge,
@@ -236,6 +250,8 @@ class ConjointProfile {
     bool? isFatcaResident,
     bool? canContribute3a,
     PrevoyanceProfile? prevoyance,
+    String? canton,
+    int? nombreEnfants,
     PatrimoineProfile? patrimoine,
     int? arrivalAge,
     int? targetRetirementAge,
@@ -262,6 +278,8 @@ class ConjointProfile {
       isFatcaResident: effectiveFatca,
       canContribute3a: effectiveCan,
       prevoyance: effectivePrev,
+      canton: canton ?? this.canton,
+      nombreEnfants: nombreEnfants ?? this.nombreEnfants,
       patrimoine: patrimoine ?? this.patrimoine,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
@@ -514,7 +532,7 @@ class Compte3a {
   factory Compte3a.fromJson(Map<String, dynamic> json) {
     return Compte3a(
       provider: json['provider'] as String,
-      solde: (json['solde'] as num).toDouble(),
+      solde: (json['solde'] as num?)?.toDouble() ?? 0.0,
       rendementEstime: (json['rendementEstime'] as num?)?.toDouble() ?? 0.04,
     );
   }
@@ -553,7 +571,7 @@ class LibrePassageCompte {
   factory LibrePassageCompte.fromJson(Map<String, dynamic> json) {
     return LibrePassageCompte(
       institution: json['institution'] as String?,
-      solde: (json['solde'] as num).toDouble(),
+      solde: (json['solde'] as num?)?.toDouble() ?? 0.0,
       dateOuverture: json['dateOuverture'] != null
           ? (DateTime.tryParse(json['dateOuverture'] ?? '') ?? DateTime.now())
           : null,
@@ -1012,7 +1030,7 @@ class GoalB {
   factory GoalB.fromJson(Map<String, dynamic> json) {
     return GoalB(
       label: json['label'] as String,
-      targetAmount: (json['targetAmount'] as num).toDouble(),
+      targetAmount: (json['targetAmount'] as num?)?.toDouble() ?? 0.0,
       targetDate: json['targetDate'] != null
           ? (DateTime.tryParse(json['targetDate'] ?? '') ?? DateTime.now())
           : null,
@@ -1109,7 +1127,7 @@ class PlannedMonthlyContribution {
     return PlannedMonthlyContribution(
       id: json['id'] as String,
       label: json['label'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       category: json['category'] as String,
       isAutomatic: json['isAutomatic'] ?? false,
     );
