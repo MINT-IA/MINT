@@ -151,8 +151,8 @@ async def _get_orchestrator():
 
 # Patterns that indicate PII in memory_block content.
 _PII_PATTERNS = [
-    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}", re.IGNORECASE),  # IBAN
-    re.compile(r"\b[1-9]\d{3}\b(?=\s+[A-Z]{2})"),  # NPA (Swiss postal code 1000-9999 before city name)
+    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}", re.IGNORECASE),  # IBAN (CH + 19 digits, with optional spaces)
+    re.compile(r"\b[1-9]\d{3}\b(?=\s+[A-Za-zÀ-ÿ]{2})"),  # NPA (Swiss postal code 1000-9999 before city name, incl. accented)
     re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),  # email
     re.compile(r"\+?\d[\d\s]{8,14}\d"),  # phone numbers
 ]

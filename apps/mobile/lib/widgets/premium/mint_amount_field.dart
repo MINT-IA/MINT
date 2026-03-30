@@ -129,7 +129,9 @@ class MintAmountField extends StatelessWidget {
   }
 
   void _applyValue(String text, BuildContext ctx) {
-    final parsed = double.tryParse(text) ?? value;
+    // Strip Swiss formatting: "1'234.50" → "1234.50", "1 234" → "1234"
+    final cleaned = text.replaceAll("'", '').replaceAll('\u00a0', '').replaceAll(' ', '').replaceAll(',', '.');
+    final parsed = double.tryParse(cleaned) ?? value;
     double clamped = parsed;
     if (min != null && clamped < min!) clamped = min!;
     if (max != null && clamped > max!) clamped = max!;

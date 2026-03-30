@@ -332,15 +332,14 @@ class SubscriptionService {
       return purchased;
     }
 
-    // V6-2 audit fix: non-iOS paid upgrades require backend verification
-    // in release mode. Local mock grants only allowed in debug mode.
-    if (tier.isPaid && !kDebugMode) {
+    // Non-iOS paid upgrades ALWAYS require backend verification.
+    // SECURITY: No local mock grants for paid tiers, even in debug.
+    if (tier.isPaid) {
       final refreshed = await refreshFromBackend();
       return refreshed.tier.rank >= tier.rank;
     }
 
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-
+    // Free tier downgrade — always allowed
     if (tier == SubscriptionTier.free) {
       _state = const SubscriptionState(
         tier: SubscriptionTier.free,
@@ -350,7 +349,8 @@ class SubscriptionService {
       return true;
     }
 
-    // Debug-only mock grant (never reached in release builds)
+    // Unreachable for paid tiers (guarded above)
+    assert(false, 'Unexpected tier: $tier');
     _state = SubscriptionState(
       tier: tier,
       isTrialActive: false,
