@@ -25,8 +25,9 @@ class Settings(BaseSettings):
     AUTH_AUTO_PURGE_ON_STARTUP: bool = False
     AUTH_ADMIN_EMAIL_ALLOWLIST: str = ""
 
-    # Logging
+    # Logging & Monitoring
     LOG_LEVEL: str = "INFO"
+    SENTRY_DSN: str = ""  # Set in Railway: https://sentry.io project DSN
 
     # Redis (for rate limiting; empty string = in-memory fallback)
     REDIS_URL: str = ""
