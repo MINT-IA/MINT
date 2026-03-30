@@ -56,6 +56,9 @@ class MinimalProfileResult {
   /// Age used for the computation.
   final int age;
 
+  /// Birth date (ISO 8601) — when available, age is computed from this.
+  final DateTime? birthDate;
+
   /// Gross annual salary used for the computation.
   final double grossAnnualSalary;
 
@@ -114,6 +117,7 @@ class MinimalProfileResult {
     required this.liquidityMonths,
     required this.canton,
     required this.age,
+    this.birthDate,
     required this.grossAnnualSalary,
     required this.householdType,
     required this.isPropertyOwner,

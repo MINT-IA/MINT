@@ -23,7 +23,7 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   // ─── Step 1 data (3 required questions) ──────────────────────────────────
 
   double grossSalary = 80000;
-  int age = 35;
+  DateTime? birthDate;
   String? canton;
 
   /// Optional first name — personalises coach narrative ("Salut Julie").
@@ -78,6 +78,14 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   /// Error message if computation failed.
   String? error;
 
+  /// Computed age from birthDate. Falls back to 35 if no birthDate set.
+  int get age {
+    if (birthDate != null) {
+      return DateTime.now().difference(birthDate!).inDays ~/ 365;
+    }
+    return 35;
+  }
+
   // ─── Setters with notification ────────────────────────────────────────────
 
   void setFirstName(String? value) {
@@ -90,8 +98,14 @@ class SmartOnboardingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setBirthDate(DateTime value) {
+    birthDate = value;
+    notifyListeners();
+  }
+
+  /// Backward-compat setter: creates a birthDate from age (Jan 1 of birth year).
   void setAge(int value) {
-    age = value;
+    birthDate = DateTime(DateTime.now().year - value, 1, 1);
     notifyListeners();
   }
 

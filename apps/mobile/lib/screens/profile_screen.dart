@@ -398,6 +398,8 @@ class ProfileScreen extends StatelessWidget {
                     style: MintTextStyles.titleMedium(
                       color: MintColors.textPrimary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 const SizedBox(height: 2),
                 Text(
@@ -407,6 +409,8 @@ class ProfileScreen extends StatelessWidget {
                   style: MintTextStyles.bodySmall(
                     color: MintColors.textSecondary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -457,6 +461,8 @@ class ProfileScreen extends StatelessWidget {
                       style: MintTextStyles.bodySmall(
                         color: MintColors.white,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -466,6 +472,8 @@ class ProfileScreen extends StatelessWidget {
                       style: MintTextStyles.labelSmall(
                         color: MintColors.white70,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -517,10 +525,14 @@ class ProfileScreen extends StatelessWidget {
               const Icon(Icons.update_outlined,
                   size: 16, color: MintColors.warning),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.profileAnnualRefreshTitle,
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textPrimary,
+              Flexible(
+                child: Text(
+                  l.profileAnnualRefreshTitle,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -590,14 +602,18 @@ class ProfileScreen extends StatelessWidget {
                       Text(title,
                           style: MintTextStyles.bodySmall(
                             color: MintColors.textPrimary,
-                          )),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 2),
                       Text(status,
                           style: MintTextStyles.labelSmall(
                             color: isComplete
                                 ? MintColors.success
                                 : MintColors.textMuted,
-                          )),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
@@ -662,6 +678,8 @@ class ProfileScreen extends StatelessWidget {
                       style: MintTextStyles.titleMedium(
                         color: MintColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     if (authProvider.displayName != null)
                       Text(
@@ -669,6 +687,8 @@ class ProfileScreen extends StatelessWidget {
                         style: MintTextStyles.labelSmall(
                           color: MintColors.textMuted,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                   ],
                 ),

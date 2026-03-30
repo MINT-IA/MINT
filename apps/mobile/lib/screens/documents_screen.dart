@@ -97,7 +97,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: MintSpacing.sm),
         ],
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +164,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ))),
+      )))),
     );
   }
 
@@ -226,9 +228,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   const Icon(Icons.folder_outlined,
                       color: MintColors.info, size: 18),
                   const SizedBox(width: MintSpacing.sm),
-                  Text(
-                    s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
-                    style: MintTextStyles.bodySmall(color: MintColors.info),
+                  Flexible(
+                    child: Text(
+                      s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
+                      style: MintTextStyles.bodySmall(color: MintColors.info),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -407,6 +413,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 child: Text(
                   title,
                   style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -553,6 +561,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                       Text(
                         typeLabel,
                         style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: MintSpacing.xs),
                       Row(
@@ -695,9 +705,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
           ),
           const SizedBox(width: MintSpacing.md),
-          Text(
-            s.vaultAnalyzing,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          Flexible(
+            child: Text(
+              s.vaultAnalyzing,
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -1033,6 +1047,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     if (!sub.isCoach && docProvider.documentCount >= _freeDocLimit) {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -1061,6 +1079,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

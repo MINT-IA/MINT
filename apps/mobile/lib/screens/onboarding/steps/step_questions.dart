@@ -41,7 +41,6 @@ class StepQuestions extends StatefulWidget {
 
 class _StepQuestionsState extends State<StepQuestions> {
   static const int _minAge = 18;
-  static const int _maxAge = 75;
 
   // Salary presets mirrored from onboarding_minimal_screen.dart
   static const List<double> _salaryPresets = [
@@ -61,47 +60,56 @@ class _StepQuestionsState extends State<StepQuestions> {
     '150k+',
   ];
 
-  late TextEditingController _ageController;
+  late TextEditingController _birthYearController;
   late TextEditingController _firstNameController;
   bool _didTrackStart = false;
 
   /// P3-23: Guard against double-tap on submit button.
   bool _isSubmitting = false;
 
+  /// Current birth year derived from viewModel.birthDate or default.
+  int get _currentBirthYear {
+    final bd = widget.viewModel.birthDate;
+    if (bd != null) return bd.year;
+    return DateTime.now().year - 35; // default ~1991
+  }
+
   @override
   void initState() {
     super.initState();
-    _ageController =
-        TextEditingController(text: widget.viewModel.age.toString());
+    _birthYearController =
+        TextEditingController(text: _currentBirthYear.toString());
     _firstNameController =
         TextEditingController(text: widget.viewModel.firstName ?? '');
   }
 
   @override
   void dispose() {
-    _ageController.dispose();
+    _birthYearController.dispose();
     _firstNameController.dispose();
     super.dispose();
   }
 
-  void _setAge(int value) {
-    final clamped = value.clamp(_minAge, _maxAge);
-    widget.viewModel.setAge(clamped);
+  void _setBirthYear(int year) {
+    const minYear = 1940;
+    final maxYear = DateTime.now().year - _minAge;
+    final clamped = year.clamp(minYear, maxYear);
+    widget.viewModel.setBirthDate(DateTime(clamped, 1, 1));
     widget.onInputChanged();
     final text = clamped.toString();
-    _ageController.value = TextEditingValue(
+    _birthYearController.value = TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
     );
   }
 
-  void _applyAgeFromInput() {
-    final parsed = int.tryParse(_ageController.text.trim());
+  void _applyBirthYearFromInput() {
+    final parsed = int.tryParse(_birthYearController.text.trim());
     if (parsed == null) {
-      _ageController.text = widget.viewModel.age.toString();
+      _birthYearController.text = _currentBirthYear.toString();
       return;
     }
-    _setAge(parsed);
+    _setBirthYear(parsed);
   }
 
   void _onSubmit() {
@@ -267,32 +275,31 @@ class _StepQuestionsState extends State<StepQuestions> {
                   // ── 2. AGE ────────────────────────────────────────────────
                   _SectionTitle(label: l.onboardingSmartAgeLabel),
                   const SizedBox(height: 12),
-                  _AgePicker(
-                    value: widget.viewModel.age,
-                    onChanged: _setAge,
+                  _BirthYearPicker(
+                    value: _currentBirthYear,
+                    onChanged: _setBirthYear,
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
                     width: 180,
                     child: TextFormField(
-                      controller: _ageController,
+                      controller: _birthYearController,
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(2),
+                        LengthLimitingTextInputFormatter(4),
                       ],
                       validator: (v) {
                         if (v == null || v.isEmpty) return null;
-                        final age = int.tryParse(v);
-                        if (age == null || age < 18 || age > 75) {
+                        final year = int.tryParse(v);
+                        if (year == null || year < 1940 || year > DateTime.now().year - 18) {
                           return l.onboardingAgeInvalid;
                         }
                         return null;
                       },
                       decoration: InputDecoration(
                         labelText: l.onboardingSmartAgeDirectInput,
-                        suffixText: 'ans',
                         filled: true,
                         fillColor: MintColors.background,
                         contentPadding: const EdgeInsets.symmetric(
@@ -318,10 +325,10 @@ class _StepQuestionsState extends State<StepQuestions> {
                           ),
                         ),
                       ),
-                      onFieldSubmitted: (_) => _applyAgeFromInput(),
+                      onFieldSubmitted: (_) => _applyBirthYearFromInput(),
                       onTapOutside: (_) {
                         FocusScope.of(context).unfocus();
-                        _applyAgeFromInput();
+                        _applyBirthYearFromInput();
                       },
                     ),
                   ),
@@ -566,23 +573,23 @@ class _SalarySelectorState extends State<_SalarySelector> {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  AGE PICKER — CupertinoPicker wheel + quick chips (18–75)
+//  BIRTH YEAR PICKER — CupertinoPicker wheel + quick chips (1940–now-18)
 // ════════════════════════════════════════════════════════════════════════════
 
-class _AgePicker extends StatefulWidget {
-  final int value;
+class _BirthYearPicker extends StatefulWidget {
+  final int value; // birth year
   final ValueChanged<int> onChanged;
 
-  const _AgePicker({required this.value, required this.onChanged});
+  const _BirthYearPicker({required this.value, required this.onChanged});
 
   @override
-  State<_AgePicker> createState() => _AgePickerState();
+  State<_BirthYearPicker> createState() => _BirthYearPickerState();
 }
 
-class _AgePickerState extends State<_AgePicker> {
-  static const int _minAge = 18;
-  static const int _maxAge = 75;
-  static const List<int> _quickAges = [25, 30, 35, 40, 45, 50, 55, 60, 65];
+class _BirthYearPickerState extends State<_BirthYearPicker> {
+  static const int _minYear = 1940;
+  static int get _maxYear => DateTime.now().year - 18;
+  static const List<int> _quickYears = [1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000];
 
   late FixedExtentScrollController _controller;
 
@@ -590,7 +597,7 @@ class _AgePickerState extends State<_AgePicker> {
   void initState() {
     super.initState();
     _controller = FixedExtentScrollController(
-      initialItem: widget.value - _minAge,
+      initialItem: widget.value - _minYear,
     );
   }
 
@@ -601,10 +608,10 @@ class _AgePickerState extends State<_AgePicker> {
   }
 
   @override
-  void didUpdateWidget(covariant _AgePicker oldWidget) {
+  void didUpdateWidget(covariant _BirthYearPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value != widget.value) {
-      final targetItem = widget.value - _minAge;
+      final targetItem = widget.value - _minYear;
       if (_controller.selectedItem != targetItem) {
         _controller.animateToItem(
           targetItem,
@@ -618,6 +625,7 @@ class _AgePickerState extends State<_AgePicker> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    final maxYear = _maxYear;
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
@@ -645,18 +653,19 @@ class _AgePickerState extends State<_AgePicker> {
                 ),
               ),
               onSelectedItemChanged: (index) {
-                widget.onChanged(_minAge + index);
+                widget.onChanged(_minYear + index);
               },
               children: List.generate(
-                _maxAge - _minAge + 1,
+                maxYear - _minYear + 1,
                 (index) {
-                  final age = _minAge + index;
-                  final isSelected = age == widget.value;
+                  final year = _minYear + index;
+                  final isSelected = year == widget.value;
+                  final age = DateTime.now().year - year;
                   return Center(
                     child: Text(
-                      l.stepQuestionsAgeYears(age),
+                      '$year (${l.stepQuestionsAgeYears(age)})',
                       style: GoogleFonts.montserrat(
-                        fontSize: isSelected ? 24 : 18,
+                        fontSize: isSelected ? 22 : 16,
                         fontWeight:
                             isSelected ? FontWeight.w700 : FontWeight.w400,
                         color: isSelected
@@ -674,11 +683,12 @@ class _AgePickerState extends State<_AgePicker> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _quickAges.map((age) {
-              final isSelected = age == widget.value;
+            children: _quickYears.where((y) => y <= maxYear).map((year) {
+              final isSelected = year == widget.value;
+              final age = DateTime.now().year - year;
               return InkWell(
                 borderRadius: BorderRadius.circular(20),
-                onTap: () => widget.onChanged(age),
+                onTap: () => widget.onChanged(year),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -696,7 +706,7 @@ class _AgePickerState extends State<_AgePicker> {
                     ),
                   ),
                   child: Text(
-                    l.stepQuestionsAgeYears(age),
+                    '$year (${l.stepQuestionsAgeYears(age)})',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight:

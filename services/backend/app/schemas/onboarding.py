@@ -39,6 +39,11 @@ class MinimalProfileRequest(OnboardingBaseModel):
         ..., ge=18, le=70,
         description="Age de l'utilisateur (18-70)",
     )
+    birth_date: Optional[str] = Field(
+        default=None,
+        pattern=r"^\d{4}-\d{2}-\d{2}",
+        description="Date de naissance ISO 8601 (ex: 1981-06-15). Si fourni, age est calcule automatiquement.",
+    )
     gross_salary: float = Field(
         ..., ge=0,
         description="Salaire brut annuel en CHF",

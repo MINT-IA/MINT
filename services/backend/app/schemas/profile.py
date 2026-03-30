@@ -22,6 +22,7 @@ class Goal(str, Enum):
 
 class ProfileBase(BaseModel):
     birthYear: Optional[int] = None
+    dateOfBirth: Optional[str] = None  # ISO 8601 date string (e.g. "1981-06-15")
     canton: Optional[str] = None
     householdType: HouseholdType
     incomeNetMonthly: Optional[float] = None
@@ -62,6 +63,11 @@ class ProfileCreate(ProfileBase):
 
 class ProfileUpdate(BaseModel):
     birthYear: Optional[int] = Field(None, ge=1900, le=2025)  # FIX-069
+    dateOfBirth: Optional[str] = Field(
+        None,
+        pattern=r"^\d{4}-\d{2}-\d{2}",
+        description="Date de naissance ISO 8601 (ex: 1981-06-15)",
+    )
     canton: Optional[str] = None
     householdType: Optional[HouseholdType] = None
     incomeNetMonthly: Optional[float] = Field(None, ge=0)  # FIX-069

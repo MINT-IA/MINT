@@ -76,6 +76,10 @@ class SlmAutoPromptService {
   static Future<void> _showDownloadSheet(BuildContext context) async {
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       isDismissible: true,
       enableDrag: true,
       shape: const RoundedRectangleBorder(

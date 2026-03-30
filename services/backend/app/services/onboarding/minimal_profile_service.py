@@ -438,6 +438,37 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     Raises:
         ValueError: If age, salary, or canton are invalid.
     """
+    # ── Resolve age from birth_date when provided ────────────────────────────
+    if input.birth_date:
+        from datetime import date
+        try:
+            bd = date.fromisoformat(input.birth_date[:10])
+            today = date.today()
+            computed_age = today.year - bd.year - (
+                (today.month, today.day) < (bd.month, bd.day)
+            )
+            input = MinimalProfileInput(
+                age=computed_age,
+                gross_salary=input.gross_salary,
+                canton=input.canton,
+                birth_date=input.birth_date,
+                household_type=input.household_type,
+                current_savings=input.current_savings,
+                is_property_owner=input.is_property_owner,
+                existing_3a=input.existing_3a,
+                existing_lpp=input.existing_lpp,
+                lpp_caisse_type=input.lpp_caisse_type,
+                total_debts=input.total_debts,
+                monthly_debt_service=input.monthly_debt_service,
+                stress_type=input.stress_type,
+                gender=input.gender,
+                nationality_group=input.nationality_group,
+                nationality_country=input.nationality_country,
+                arrival_age=input.arrival_age,
+            )
+        except (ValueError, TypeError):
+            pass  # Invalid birth_date format — fall back to provided age
+
     # ── Validation ──────────────────────────────────────────────────────────
     if input.age < 18 or input.age > 70:
         raise ValueError(f"Age must be between 18 and 70, got {input.age}")

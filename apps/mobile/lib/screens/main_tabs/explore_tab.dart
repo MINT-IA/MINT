@@ -180,6 +180,8 @@ class _ExploreHubCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: MintTextStyles.headlineMedium(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(height: MintSpacing.sm),

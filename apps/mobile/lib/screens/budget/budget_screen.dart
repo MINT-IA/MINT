@@ -224,7 +224,9 @@ class _BudgetScreenState extends State<BudgetScreen>
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Consumer<BudgetProvider>(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: Consumer<BudgetProvider>(
         builder: (context, provider, child) {
           if (_hasError) {
             return Center(
@@ -484,7 +486,7 @@ class _BudgetScreenState extends State<BudgetScreen>
             ),
           );
         },
-      )))),
+      ))))),
     );
   }
 

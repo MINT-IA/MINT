@@ -839,6 +839,8 @@ class _PulseScreenState extends State<PulseScreen> {
           greeting,
           style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
               .copyWith(fontSize: 20),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
       centerTitle: false,
@@ -1277,10 +1279,15 @@ class _SignalRow extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                label,
-                style: MintTextStyles.bodyMedium(),
+              Flexible(
+                child: Text(
+                  label,
+                  style: MintTextStyles.bodyMedium(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: MintSpacing.sm),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -1288,6 +1295,8 @@ class _SignalRow extends StatelessWidget {
                     value,
                     style: MintTextStyles.titleMedium(color: color)
                         .copyWith(fontWeight: FontWeight.w700),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (onTap != null) ...[
                     const SizedBox(width: MintSpacing.xs),
@@ -1462,14 +1471,21 @@ class _BudgetLine extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+        Flexible(
+          child: Text(
+            label,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
+        const SizedBox(width: MintSpacing.sm),
         Text(
           value,
           style: MintTextStyles.labelSmall(color: color)
               .copyWith(fontWeight: FontWeight.w600),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

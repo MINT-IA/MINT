@@ -30,7 +30,9 @@ class PortfolioScreen extends StatelessWidget {
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,7 +61,7 @@ class PortfolioScreen extends StatelessWidget {
             const SizedBox(height: 100),
           ],
         ),
-      ))),
+      )))),
     );
   }
 
@@ -95,7 +97,7 @@ class PortfolioScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context)!.portfolioReadinessTitle, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold)),
+          Text(S.of(context)!.portfolioReadinessTitle, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -165,11 +167,15 @@ class PortfolioScreen extends StatelessWidget {
             child: Text(
               title,
               style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
             balance,
             style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

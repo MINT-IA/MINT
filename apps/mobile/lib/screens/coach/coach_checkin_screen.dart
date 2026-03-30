@@ -306,6 +306,9 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
           backgroundColor: MintColors.transparent,
           builder: (_) => MilestoneCelebrationSheet(milestone: milestone),
         );
@@ -699,6 +702,9 @@ Reponds uniquement avec le texte final.
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.transparent,
       builder: (ctx) {
         return StatefulBuilder(

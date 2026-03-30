@@ -53,6 +53,7 @@ extension EmploymentStatusExtension on EmploymentStatus {
 class Profile {
   final String id;
   final int? birthYear;
+  final DateTime? dateOfBirth;
   final String? canton;
   final HouseholdType householdType;
   final double? incomeNetMonthly;
@@ -73,6 +74,17 @@ class Profile {
   final bool? hasVoluntaryLpp; // Pour indépendants
   final String? primaryActivity; // Pour mixtes: 'employee' ou 'self_employed'
 
+  /// Computed age — prefers dateOfBirth (exact), falls back to birthYear.
+  int? get age {
+    if (dateOfBirth != null) {
+      return DateTime.now().difference(dateOfBirth!).inDays ~/ 365;
+    }
+    if (birthYear != null) {
+      return DateTime.now().year - birthYear!;
+    }
+    return null;
+  }
+
   // ⭐ Genre (AVS21 transitional reference age, LAVS art. 21 al. 1)
   final String? gender; // 'M', 'F', or null
 
@@ -90,6 +102,7 @@ class Profile {
   Profile({
     required this.id,
     this.birthYear,
+    this.dateOfBirth,
     this.canton,
     required this.householdType,
     this.incomeNetMonthly,
@@ -166,6 +179,9 @@ class Profile {
     return Profile(
       id: json['id'],
       birthYear: json['birthYear'],
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.tryParse(json['dateOfBirth'])
+          : null,
       canton: json['canton'],
       householdType: HouseholdType.values.firstWhere(
         (e) => e.name == json['householdType'],
@@ -216,6 +232,7 @@ class Profile {
     return {
       'id': id,
       'birthYear': birthYear,
+      'dateOfBirth': dateOfBirth?.toIso8601String(),
       'canton': canton,
       'householdType': householdType.name,
       'incomeNetMonthly': incomeNetMonthly,
@@ -248,6 +265,7 @@ class Profile {
   Profile copyWith({
     String? id,
     int? birthYear,
+    DateTime? dateOfBirth,
     String? canton,
     HouseholdType? householdType,
     double? incomeNetMonthly,
@@ -278,6 +296,7 @@ class Profile {
     return Profile(
       id: id ?? this.id,
       birthYear: birthYear ?? this.birthYear,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       canton: canton ?? this.canton,
       householdType: householdType ?? this.householdType,
       incomeNetMonthly: incomeNetMonthly ?? this.incomeNetMonthly,

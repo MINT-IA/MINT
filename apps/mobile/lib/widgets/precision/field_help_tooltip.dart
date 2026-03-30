@@ -66,6 +66,9 @@ class FieldHelpTooltip extends StatelessWidget {
       context: context,
       backgroundColor: MintColors.white,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

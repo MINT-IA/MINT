@@ -707,6 +707,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.transparent,
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
