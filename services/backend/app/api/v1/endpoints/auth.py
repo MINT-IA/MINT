@@ -479,6 +479,7 @@ _security_scheme = HTTPBearer(auto_error=False)
 
 
 @router.post("/logout", response_model=LogoutResponse)
+@limiter.limit("30/minute")
 def logout(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(_security_scheme),
@@ -784,7 +785,9 @@ def confirm_email_verification(
 
 
 @router.get("/admin/observability", response_model=AuthAdminObservabilityResponse)
+@limiter.limit("5/minute")
 def auth_admin_observability(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> AuthAdminObservabilityResponse:
@@ -803,6 +806,7 @@ def auth_admin_observability(
     "/admin/purge-unverified",
     response_model=AuthAdminPurgeUnverifiedResponse,
 )
+@limiter.limit("5/minute")
 def auth_admin_purge_unverified(
     request: Request,
     body: AuthAdminPurgeUnverifiedRequest,
@@ -844,7 +848,9 @@ def auth_admin_purge_unverified(
 
 
 @router.get("/admin/cohorts/export.csv")
+@limiter.limit("5/minute")
 def auth_admin_export_cohorts_csv(
+    request: Request,
     days: int = Query(default=30, ge=1, le=365),
     start_date: Optional[date] = Query(default=None),
     end_date: Optional[date] = Query(default=None),
@@ -904,7 +910,9 @@ def auth_admin_export_cohorts_csv(
     "/admin/onboarding-quality",
     response_model=AuthAdminOnboardingQualityResponse,
 )
+@limiter.limit("5/minute")
 def auth_admin_onboarding_quality(
+    request: Request,
     days: int = Query(default=30, ge=1, le=365),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -921,7 +929,9 @@ def auth_admin_onboarding_quality(
     "/admin/onboarding-quality/cohorts",
     response_model=AuthAdminOnboardingCohortsResponse,
 )
+@limiter.limit("5/minute")
 def auth_admin_onboarding_quality_cohorts(
+    request: Request,
     days: int = Query(default=30, ge=1, le=365),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -935,7 +945,9 @@ def auth_admin_onboarding_quality_cohorts(
 
 
 @router.get("/me", response_model=UserResponse)
+@limiter.limit("30/minute")
 def get_current_user_info(
+    request: Request,
     current_user: User = Depends(require_current_user),
 ) -> UserResponse:
     """
@@ -957,6 +969,7 @@ def get_current_user_info(
 
 
 @router.delete("/account", response_model=DeleteAccountResponse)
+@limiter.limit("5/minute")
 def delete_account(
     request: Request,
     db: Session = Depends(get_db),

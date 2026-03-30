@@ -313,7 +313,9 @@ async def upload_document(
 
 
 @router.get("/", response_model=DocumentListResponse)
+@limiter.limit("30/minute")
 async def list_documents(
+    request: Request,
     _user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
     limit: int = Query(50, ge=1, le=100, description="Max documents to return (1-100)"),
@@ -344,7 +346,9 @@ async def list_documents(
 
 
 @router.get("/{doc_id}", response_model=DocumentDetailResponse)
+@limiter.limit("30/minute")
 async def get_document(
+    request: Request,
     doc_id: str,
     _user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
@@ -374,7 +378,9 @@ async def get_document(
 
 
 @router.delete("/{doc_id}", response_model=DocumentDeleteResponse)
+@limiter.limit("10/minute")
 async def delete_document(
+    request: Request,
     doc_id: str,
     _user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
@@ -521,7 +527,9 @@ async def upload_bank_statement(
 
 
 @router.post("/upload-statement/preview", response_model=BudgetImportPreview)
+@limiter.limit("10/minute")
 async def preview_budget_import(
+    request: Request,
     file: UploadFile = File(...),
     _user: User = Depends(require_current_user),
 ):
