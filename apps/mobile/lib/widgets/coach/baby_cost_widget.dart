@@ -215,7 +215,7 @@ class BabyCostWidget extends StatelessWidget {
           ),
           Text(
             'CHF ${_fmt(totalMonthly)}',
-            style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+            style: MintTextStyles.headlineSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -246,7 +246,7 @@ class BabyCostWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${creche.emoji} ${creche.label} : CHF ${_fmt(creche.monthlyCost)}/mois${canton != null ? " à $canton" : ""}.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),

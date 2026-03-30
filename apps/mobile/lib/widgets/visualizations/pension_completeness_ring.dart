@@ -189,7 +189,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
               ),
               Text(
                 'Années de cotisation  ·  Rente mensuelle',
-                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(),
               ),
             ],
           ),

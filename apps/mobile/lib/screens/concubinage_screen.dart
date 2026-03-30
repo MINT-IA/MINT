@@ -501,7 +501,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
               Text(
                 '${isPenalite ? "+" : "-"}${FamilyService.formatChf(difference.abs())}',
-                style: MintTextStyles.titleMedium(color: isPenalite ? MintColors.error : MintColors.success).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: isPenalite ? MintColors.error : MintColors.success).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -704,7 +704,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   children: [
                     Text(
                       FamilyService.formatChf(totalSurvivorMarried),
-                      style: MintTextStyles.titleMedium(color: MintColors.success).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                      style: MintTextStyles.headlineSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: MintSpacing.xs),
                     Text(
@@ -730,7 +730,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   children: [
                     Text(
                       'CHF\u00a00',
-                      style: MintTextStyles.titleMedium(color: MintColors.error).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                      style: MintTextStyles.headlineSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: MintSpacing.xs),
                     Text(
@@ -1249,7 +1249,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           Expanded(
             child: Text(
               S.of(context)!.concubinageDisclaimer,
-              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(fontSize: 12, height: 1.5, fontStyle: FontStyle.normal),
+              style: MintTextStyles.labelMedium(color: MintColors.deepOrange).copyWith(height: 1.5, fontStyle: FontStyle.normal),
             ),
           ),
         ],

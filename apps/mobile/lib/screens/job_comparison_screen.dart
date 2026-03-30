@@ -920,7 +920,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             const SizedBox(height: MintSpacing.sm),
             Text(
               S.of(context)!.jobCompareLifetime20Years(_chfFmt(r.lifetimePensionDelta.abs())),
-              style: MintTextStyles.headlineMedium(color: MintColors.info).copyWith(fontSize: 18),
+              style: MintTextStyles.titleLarge(color: MintColors.info),
             ),
           ],
         ),

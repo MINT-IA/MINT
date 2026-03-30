@@ -100,7 +100,7 @@ class CoachBriefingCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       narr.retirementCountdown!,
-                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -155,7 +155,7 @@ class CoachBriefingCard extends StatelessWidget {
           Expanded(
             child: Text(
               narrative!.monthlyComparison!,
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -240,7 +240,7 @@ class CoachBriefingCard extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.5),
+            style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),

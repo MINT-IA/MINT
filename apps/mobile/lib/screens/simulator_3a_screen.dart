@@ -317,7 +317,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               Text(
                 l.sim3aProfilePreFilled,
                 style: MintTextStyles.labelSmall(color: MintColors.success)
-                    .copyWith(fontSize: 11),
+                    ,
               ),
             ],
           ),
@@ -390,7 +390,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               _profileCanton,
             ),
             style: MintTextStyles.labelSmall(color: MintColors.textMuted)
-                .copyWith(fontSize: 11),
+                ,
           ),
         ],
         const SizedBox(height: MintSpacing.sm),
@@ -560,7 +560,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: MintTextStyles.titleMedium().copyWith(fontSize: 15)),
+                Text(title, style: MintTextStyles.labelLarge()),
                 const SizedBox(height: MintSpacing.xs),
                 Text(subtitle, style: MintTextStyles.bodyMedium()),
               ],

@@ -351,7 +351,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                 Expanded(
                   child: Text(
                     label,
-                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                    style: MintTextStyles.labelLarge(),
                   ),
                 ),
                 if (isRequired)
@@ -368,7 +368,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                       l10n.consentRequired,
                       style: MintTextStyles.labelSmall(
                         color: MintColors.primary,
-                      ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                   )
                 else
@@ -410,7 +410,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       radius: 8,
       child: Text(
         text,
-        style: MintTextStyles.labelSmall().copyWith(fontSize: 10),
+        style: MintTextStyles.labelSmall(),
       ),
     );
   }
@@ -465,7 +465,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             padding: const EdgeInsets.only(bottom: MintSpacing.xs),
             child: Text(
               '\u2022 $s',
-              style: MintTextStyles.labelSmall().copyWith(fontSize: 10),
+              style: MintTextStyles.labelSmall(),
             ),
           ),
         ),

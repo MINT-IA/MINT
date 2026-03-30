@@ -106,7 +106,7 @@ class DisabilityCliffWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Si tu ne pouvais plus travailler demain',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -168,11 +168,11 @@ class DisabilityCliffWidget extends StatelessWidget {
                       children: [
                         Text(
                           'ACTE ${index + 1} · ${act.label}',
-                          style: MintTextStyles.labelSmall(color: act.color).copyWith(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                          style: MintTextStyles.labelMedium(color: act.color).copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.5),
                         ),
                         Text(
                           act.durationLabel,
-                          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                         ),
                       ],
                     ),
@@ -182,7 +182,7 @@ class DisabilityCliffWidget extends StatelessWidget {
                     children: [
                       Text(
                         'CHF ${_fmt(act.monthlyIncome)}',
-                        style: MintTextStyles.titleMedium(color: act.color).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: MintTextStyles.titleLarge(color: act.color).copyWith(fontWeight: FontWeight.w800),
                       ),
                       Text(
                         '/mois',
@@ -196,7 +196,7 @@ class DisabilityCliffWidget extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   act.subtitle,
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
               if (act.detail != null) ...[
@@ -216,7 +216,7 @@ class DisabilityCliffWidget extends StatelessWidget {
                   ),
                   child: Text(
                     'vs CHF ${_fmt(grossMonthly)}/mois avant',
-                    style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                    style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -249,12 +249,12 @@ class DisabilityCliffWidget extends StatelessWidget {
         children: [
           Text(
             '💰 Chiffre-choc',
-            style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'Tu perdrais CHF ${_fmt(lostMonthly)}/mois.',
-            style: MintTextStyles.titleMedium(color: MintColors.scoreCritique).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+            style: MintTextStyles.titleMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(

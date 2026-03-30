@@ -52,7 +52,7 @@ class ConfidenceBanner extends StatelessWidget {
                 ),
                 child: Text(
                   '${confidence.score.round()}% — $label',
-                  style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -76,7 +76,7 @@ class ConfidenceBanner extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               'Ameliore ta projection :',
-              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
             ..._buildPromptsList(),
@@ -139,7 +139,7 @@ class ConfidenceBanner extends StatelessWidget {
                   children: [
                     Text(
                       prompt.label,
-                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w500),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                     ),
                     Text(
                       prompt.action,
@@ -160,7 +160,7 @@ class ConfidenceBanner extends StatelessWidget {
                 ),
                 child: Text(
                   '+$impactPct%',
-                  style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -202,7 +202,7 @@ class ConfidenceBanner extends StatelessWidget {
                   children: [
                     Text(
                       prompt.label,
-                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w500),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                     ),
                     Text(
                       prompt.action,
@@ -221,7 +221,7 @@ class ConfidenceBanner extends StatelessWidget {
                 ),
                 child: Text(
                   '+${prompt.impact}%',
-                  style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],

@@ -222,11 +222,11 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                   children: [
                     Text(
                       S.of(context)!.lifeEventSuggestionsHeader,
-                      style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+                      style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
                     ),
                     Text(
                       S.of(context)!.lifeEventSuggestionsSubheader,
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     ),
                   ],
                 ),

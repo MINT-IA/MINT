@@ -265,7 +265,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
             const SizedBox(height: 4),
             Text(
               'Tu tiens ${hold.toStringAsFixed(1)} mois, soit plus que le délai moyen de $_aiDelayMonths mois.',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ] else ...[
             Text(

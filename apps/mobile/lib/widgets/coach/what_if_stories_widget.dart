@@ -160,7 +160,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       story.explanation,
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
                     ),
                     if (story.actionLabel != null) ...[
                       const SizedBox(height: 6),
@@ -172,7 +172,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                           Flexible(
                             child: Text(
                               story.actionLabel!,
-                              style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                              style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],

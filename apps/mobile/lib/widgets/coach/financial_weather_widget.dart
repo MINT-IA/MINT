@@ -168,19 +168,19 @@ class FinancialWeatherWidget extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         '(${scenario.probabilityPercent.toStringAsFixed(0)}% des cas)',
-                        style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     scenario.description,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${formatChfWithPrefix(scenario.monthlyIncomeMin)}\u2013${formatChfWithPrefix(scenario.monthlyIncomeMax)}/mois',
-                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -216,7 +216,7 @@ class FinancialWeatherWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Chaque action d\u00e9place le curseur',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],

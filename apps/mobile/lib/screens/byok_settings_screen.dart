@@ -211,7 +211,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                     color: isSelected
                         ? MintColors.white.withValues(alpha: 0.7)
                         : MintColors.textMuted,
-                  ).copyWith(fontSize: 10),
+                  ),
                 ),
               ],
             ],
@@ -422,9 +422,9 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               Text(
                 s.byokCopilotActivated,
                 textAlign: TextAlign.center,
-                style: MintTextStyles.headlineMedium(
+                style: MintTextStyles.titleLarge(
                   color: MintColors.white,
-                ).copyWith(fontSize: 18),
+                ),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(

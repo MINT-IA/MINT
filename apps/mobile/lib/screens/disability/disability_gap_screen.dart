@@ -348,7 +348,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   ),
                   Text(
                     S.of(context)!.disabilityStatLine2,
-                    style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                    style: MintTextStyles.titleLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),

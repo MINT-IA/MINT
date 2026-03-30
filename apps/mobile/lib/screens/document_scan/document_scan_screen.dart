@@ -637,7 +637,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
@@ -751,7 +751,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
@@ -814,7 +814,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 S.of(context)!.documentScanPdfAuthTitle,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
@@ -878,7 +878,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(

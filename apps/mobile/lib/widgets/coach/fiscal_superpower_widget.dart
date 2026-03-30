@@ -248,7 +248,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
               children: [
                 Text(
                   'Économie totale avec $_children enfant${_children > 1 ? 's' : ''}',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -257,7 +257,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
                 ),
                 Text(
                   'soit CHF ${_fmt(monthly)}/mois remis dans ta poche',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),

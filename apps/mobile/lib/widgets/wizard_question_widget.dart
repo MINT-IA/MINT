@@ -53,7 +53,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
               Expanded(
                 child: Text(
                   widget.question.title,
-                  style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: -0.5),
+                  style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600, height: 1.1, letterSpacing: -0.5),
                 ),
               ),
               if (widget.question.explanation != null)

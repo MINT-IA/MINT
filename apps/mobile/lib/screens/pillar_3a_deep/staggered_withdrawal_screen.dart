@@ -309,7 +309,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           const SizedBox(height: MintSpacing.sm),
           Text(
             l.staggered3aIntroBody,
-            style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5),
+            style: MintTextStyles.bodyMedium().copyWith(height: 1.5),
           ),
         ],
       ),
@@ -458,9 +458,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         children: [
           Text(title, style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.xs),
-          Text(subtitle, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+          Text(subtitle, style: MintTextStyles.labelMedium()),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text('CHF ${formatChf(amount)}', style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 22)),
+          Text('CHF ${formatChf(amount)}', style: MintTextStyles.headlineMedium(color: color)),
           const SizedBox(height: MintSpacing.xs),
           Text(S.of(context)!.staggered3aImpotEstime, style: MintTextStyles.labelSmall()),
         ],
@@ -493,10 +493,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
                 children: [
-                  SizedBox(width: 40, child: Text('${year.ageRetrait}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12))),
-                  Expanded(child: Text('CHF ${formatChf(year.montantRetire)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12), textAlign: TextAlign.right)),
-                  Expanded(child: Text('CHF ${formatChf(year.impotEstime)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.error, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
-                  Expanded(child: Text('CHF ${formatChf(year.montantNet)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.greenDark, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
+                  SizedBox(width: 40, child: Text('${year.ageRetrait}', style: MintTextStyles.labelMedium())),
+                  Expanded(child: Text('CHF ${formatChf(year.montantRetire)}', style: MintTextStyles.labelMedium(), textAlign: TextAlign.right)),
+                  Expanded(child: Text('CHF ${formatChf(year.impotEstime)}', style: MintTextStyles.labelMedium().copyWith(color: MintColors.error, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
+                  Expanded(child: Text('CHF ${formatChf(year.montantNet)}', style: MintTextStyles.labelMedium().copyWith(color: MintColors.greenDark, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
                 ],
               ),
             ),
@@ -505,10 +505,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           Row(
             children: [
-              SizedBox(width: 40, child: Text(l.staggered3aTotal, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold))),
-              Expanded(child: Text('CHF ${formatChf(_avoirTotal)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
-              Expanded(child: Text('CHF ${formatChf(result.impotEchelonne)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold, color: MintColors.error), textAlign: TextAlign.right)),
-              Expanded(child: Text('CHF ${formatChf(_avoirTotal - result.impotEchelonne)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold, color: MintColors.greenDark), textAlign: TextAlign.right)),
+              SizedBox(width: 40, child: Text(l.staggered3aTotal, style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold))),
+              Expanded(child: Text('CHF ${formatChf(_avoirTotal)}', style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+              Expanded(child: Text('CHF ${formatChf(result.impotEchelonne)}', style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold, color: MintColors.error), textAlign: TextAlign.right)),
+              Expanded(child: Text('CHF ${formatChf(_avoirTotal - result.impotEchelonne)}', style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold, color: MintColors.greenDark), textAlign: TextAlign.right)),
             ],
           ),
         ],

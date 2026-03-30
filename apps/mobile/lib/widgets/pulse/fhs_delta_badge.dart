@@ -83,7 +83,7 @@ class FhsDeltaBadge extends StatelessWidget {
             const SizedBox(width: 3),
             Text(
               S.of(context)!.fhsDeltaText(_deltaText),
-              style: MintTextStyles.bodySmall(color: _color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: _color).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),

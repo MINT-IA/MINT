@@ -126,7 +126,7 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
               children: [
                 Text(
                   phase.label,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   phase.endYear != null
@@ -368,7 +368,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     final ageTP = TextPainter(
       text: TextSpan(
         text: '${65} ans',
-        style: MintTextStyles.micro(color: MintColors.info).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+        style: MintTextStyles.labelTiny(color: MintColors.info).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     )..layout();

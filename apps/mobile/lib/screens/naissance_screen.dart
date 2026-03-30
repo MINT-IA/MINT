@@ -227,7 +227,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 style: SegmentedButton.styleFrom(
                   selectedBackgroundColor: MintColors.primary,
                   selectedForegroundColor: MintColors.white,
-                  textStyle: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                  textStyle: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                 ),
                 segments: [
                   ButtonSegment(
@@ -809,7 +809,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             const SizedBox(height: MintSpacing.xs),
             Text(
               S.of(context)!.naissanceAllocContextNote(cantonNom, _nbEnfantsImpact, plural),
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -833,7 +833,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             const SizedBox(height: MintSpacing.xs),
             Text(
               S.of(context)!.naissanceLppLessContributions,
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(height: 1.4),
             ),
           ],
         ),
@@ -866,17 +866,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 child: Text(
                   '${netImpact >= 0 ? "+" : ""}${FamilyService.formatChf(netImpact)}',
                   key: ValueKey(netImpact),
-                  style: MintTextStyles.displayMedium(
+                  style: MintTextStyles.displaySmall(
                     color: netImpact >= 0
                         ? MintColors.success
                         : MintColors.error,
-                  ).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
+                  ).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
                 S.of(context)!.naissanceNetFormula,
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted),
               ),
             ],
           ),
@@ -1271,7 +1271,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           width: MintSpacing.xl,
           child: Text(
             '$value',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
@@ -1388,7 +1388,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           Expanded(
             child: Text(
               S.of(context)!.naissanceDisclaimer,
-              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 11, height: 1.5),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
             ),
           ),
         ],

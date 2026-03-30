@@ -77,7 +77,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Pour un net de ${formatChfWithPrefix(desiredNetAnnual)}/an',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 20),
 
@@ -116,7 +116,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
                 '${formatChf(_chargesPerHour)} CHF partent en charges. '
                 'En dessous de ${formatChf(_hourlyRate)} CHF/h, '
                 'tu t\u2019appauvris.',
-                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+                style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),

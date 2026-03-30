@@ -114,7 +114,7 @@ class CoachGate extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Disponible avec MINT Coach', // TODO: i18n
-                      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                     ),
                     const SizedBox(height: 16),
 

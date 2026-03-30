@@ -100,7 +100,7 @@ class FieldHelpTooltip extends StatelessWidget {
               // Title
               Text(
                 'Ou trouver ce chiffre ?',
-                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
               ),
               const SizedBox(height: 16),
 

@@ -129,11 +129,11 @@ class _ImpactMintCardState extends State<ImpactMintCard>
             children: [
               Text(
                 'Impact des actions MINT',
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 'Ce que tu peux faire changer',
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -254,13 +254,13 @@ class _ImpactMintCardState extends State<ImpactMintCard>
         children: [
           Text(
             '+${formatChfWithPrefix(_delta)} / mois',
-            style: MintTextStyles.titleMedium(color: MintColors.scoreExcellent).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
+            style: MintTextStyles.labelLarge(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               widget.description,
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
         ],

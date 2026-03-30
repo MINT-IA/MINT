@@ -117,7 +117,7 @@ class BudgetSandwichChart extends StatelessWidget {
                       const SizedBox(width: 6),
                       Flexible(child: Text(
                         '${isPositive ? "Marge" : "D\u00e9ficit"}\u00a0: ${formatChfWithPrefix(margin.abs())}/mois',
-                        style: MintTextStyles.titleMedium(color: marginColor).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: MintTextStyles.titleLarge(color: marginColor).copyWith(fontWeight: FontWeight.w800),
                         overflow: TextOverflow.ellipsis,
                       )),
                     ],
@@ -128,7 +128,7 @@ class BudgetSandwichChart extends StatelessWidget {
                         ? 'Tu es dans le vert. Ce coussin absorbe les impr\u00e9vus.'
                         : 'Il manque ${formatChfWithPrefix(margin.abs())}/mois. '
                             'Des ajustements sont possibles.',
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -169,7 +169,7 @@ class BudgetSandwichChart extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
               ),
               const Spacer(),
               Text(

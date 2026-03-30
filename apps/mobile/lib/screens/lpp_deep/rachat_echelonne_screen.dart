@@ -318,7 +318,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         children: [
           Text(l.rachatEchelonneIntroTitle, style: MintTextStyles.titleMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(l.rachatEchelonneIntroBody, style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5)),
+          Text(l.rachatEchelonneIntroBody, style: MintTextStyles.bodyMedium().copyWith(height: 1.5)),
         ],
       ),
     );
@@ -474,7 +474,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       decoration: BoxDecoration(color: MintColors.primary, borderRadius: BorderRadius.circular(20)),
                       child: Text(
                         '${(displayRate * 100).toStringAsFixed(1)}\u00a0%',
-                        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: MintTextStyles.titleLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
                   ],
@@ -556,9 +556,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             children: [
               Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: MintColors.border, borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: MintSpacing.lg),
-              Text(l.rachatEchelonneTauxMarginalTitle, style: MintTextStyles.headlineMedium().copyWith(fontSize: 18)),
+              Text(l.rachatEchelonneTauxMarginalTitle, style: MintTextStyles.titleLarge()),
               const SizedBox(height: MintSpacing.md),
-              Text(l.rachatEchelonneTauxMarginalBody, style: MintTextStyles.bodyLarge().copyWith(fontSize: 15, color: MintColors.textPrimary, height: 1.6)),
+              Text(l.rachatEchelonneTauxMarginalBody, style: MintTextStyles.labelLarge().copyWith(color: MintColors.textPrimary, height: 1.6)),
               const SizedBox(height: MintSpacing.md),
               Container(
                 padding: const EdgeInsets.all(MintSpacing.md),
@@ -654,9 +654,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             ),
           Text(title, style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.xs),
-          Text(subtitle, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+          Text(subtitle, style: MintTextStyles.labelMedium()),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text('CHF ${formatChf(amount)}', style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 22)),
+          Text('CHF ${formatChf(amount)}', style: MintTextStyles.headlineMedium(color: color)),
           const SizedBox(height: MintSpacing.xs),
           Text(savingsLabel, style: MintTextStyles.labelSmall()),
         ],
@@ -674,7 +674,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         children: [
           Text(l.rachatEchelonneImpactTranche, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.sm),
-          Text(l.rachatEchelonneImpactBlocExplain, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.4)),
+          Text(l.rachatEchelonneImpactBlocExplain, style: MintTextStyles.labelMedium().copyWith(height: 1.4)),
           const SizedBox(height: MintSpacing.md),
           SizedBox(
             height: 240,
@@ -703,7 +703,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       children: [
         Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
         const SizedBox(width: 6),
-        Text(label, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.w500)),
+        Text(label, style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -732,13 +732,13 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l.rachatEchelonneTotal, style: MintTextStyles.titleMedium().copyWith(fontSize: 14)),
+                Text(l.rachatEchelonneTotal, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600)),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('${l.rachatEchelonneEconomieFiscale}\u00a0: CHF ${formatChf(result.economieEchelonneTotal)}', style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
-                    Text('CHF ${formatChf(_rachatMax - result.economieEchelonneTotal)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+                    Text('CHF ${formatChf(_rachatMax - result.economieEchelonneTotal)}', style: MintTextStyles.labelMedium()),
                   ],
                 ),
               ],
@@ -784,7 +784,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('CHF ${formatChf(year.montantRachat)}', style: MintTextStyles.titleMedium().copyWith(fontSize: 16)),
+                      Text('CHF ${formatChf(year.montantRachat)}', style: MintTextStyles.titleMedium()),
                       Text('-CHF ${formatChf(year.economieFiscale)}', style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700)),
                     ],
                   ),
@@ -799,7 +799,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   const SizedBox(height: MintSpacing.sm),
                   Row(
                     children: [
-                      Text('CHF ${formatChf(year.coutNet)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+                      Text('CHF ${formatChf(year.coutNet)}', style: MintTextStyles.labelMedium()),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -836,7 +836,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               children: [
                 Text(l.rachatEchelonneBlockageTitle, style: MintTextStyles.bodySmall(color: MintColors.redDark).copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: MintSpacing.xs),
-                Text(l.rachatEchelonneBlockageBody, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.redMedium, height: 1.4)),
+                Text(l.rachatEchelonneBlockageBody, style: MintTextStyles.labelMedium().copyWith(color: MintColors.redMedium, height: 1.4)),
               ],
             ),
           ),

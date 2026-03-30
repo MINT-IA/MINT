@@ -85,7 +85,7 @@ class ConversationTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       conversation.title,
-                      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -93,7 +93,7 @@ class ConversationTile extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     _formatRelativeDate(context, conversation.lastMessageAt),
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                   ),
                 ],
               ),

@@ -61,7 +61,7 @@ class EnrichmentSuggestionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '+$impactPoints',
-                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelMedium(color: MintColors.success).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),

@@ -51,6 +51,15 @@ class MintTextStyles {
         color: color ?? MintColors.textPrimary,
       );
 
+  /// Secondary result number (28pt). Sub-totals, comparison values.
+  static TextStyle displaySmall({Color? color}) => GoogleFonts.montserrat(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+        height: 1.15,
+        color: color ?? MintColors.textPrimary,
+      );
+
   // ── Headlines (titles) ──
 
   /// Screen title (26pt). One per screen.
@@ -70,7 +79,23 @@ class MintTextStyles {
         color: color ?? MintColors.textPrimary,
       );
 
+  /// Smaller section title (20pt). Navigation labels, feature headers.
+  static TextStyle headlineSmall({Color? color}) => GoogleFonts.montserrat(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        height: 1.2,
+        color: color ?? MintColors.textPrimary,
+      );
+
   // ── Title (card labels, subtitles) ──
+
+  /// Large card title (18pt semibold). Prominent card headers, tab labels.
+  static TextStyle titleLarge({Color? color}) => GoogleFonts.inter(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        color: color ?? MintColors.textPrimary,
+      );
 
   /// Card label, subtitle (16pt semibold).
   static TextStyle titleMedium({Color? color}) => GoogleFonts.inter(
@@ -108,11 +133,35 @@ class MintTextStyles {
 
   // ── Labels (captions, metadata) ──
 
+  /// Data labels, table cells, secondary info (15pt).
+  static TextStyle labelLarge({Color? color}) => GoogleFonts.inter(
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+        height: 1.4,
+        color: color ?? MintColors.textSecondary,
+      );
+
+  /// Medium labels, chip text, row values (12pt). Most frequent override.
+  static TextStyle labelMedium({Color? color}) => GoogleFonts.inter(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        height: 1.3,
+        color: color ?? MintColors.textMuted,
+      );
+
   /// Captions, metadata, small labels (11pt).
   static TextStyle labelSmall({Color? color}) => GoogleFonts.inter(
         fontSize: 11,
         fontWeight: FontWeight.w500,
         height: 1.3,
+        color: color ?? MintColors.textMuted,
+      );
+
+  /// Tiny text, footnotes, badges (9pt).
+  static TextStyle labelTiny({Color? color}) => GoogleFonts.inter(
+        fontSize: 9,
+        fontWeight: FontWeight.w500,
+        height: 1.2,
         color: color ?? MintColors.textMuted,
       );
 

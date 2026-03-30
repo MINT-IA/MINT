@@ -119,7 +119,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         const SizedBox(height: 8),
         Text(
           S.of(context)!.extractionReviewSubtitle(_fields.length, reviewCount > 0 ? S.of(context)!.extractionReviewNeedsReview(reviewCount) : ''),
-          style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, height: 1.5),
+          style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(height: 1.5),
         ),
       ],
     );
@@ -255,7 +255,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               Expanded(
                 child: Text(
                   _formatValue(field),
-                  style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20),
+                  style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
                 ),
               ),
               // Edit button

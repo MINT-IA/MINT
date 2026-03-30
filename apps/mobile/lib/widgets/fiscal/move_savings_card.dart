@@ -179,7 +179,7 @@ class MoveSavingsCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           name,
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           textAlign: TextAlign.center,
         ),
       ],
@@ -191,12 +191,12 @@ class MoveSavingsCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textMuted),
         ),
         const SizedBox(height: 4),
         Text(
           FiscalService.formatChf(amount),
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
       ],
     );

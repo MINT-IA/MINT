@@ -84,7 +84,7 @@ class IndicatifBanner extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             'Précise tes données pour des projections personnalisées.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 8),
           Align(

@@ -190,7 +190,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                 ),
                 Text(
                   'CC art. 470-471 (revision 2023)',
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(),
                 ),
               ],
             ),
@@ -267,7 +267,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                   Expanded(
                     child: Text(
                       segment.label,
-                      style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(),
                     ),
                   ),
                   Text(
@@ -303,18 +303,18 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                   Expanded(
                     child: Text(
                       'Donation envisagee',
-                      style: MintTextStyles.bodyMedium(
+                      style: MintTextStyles.labelMedium(
                         color: widget.depasseQuotite ? MintColors.error : MintColors.textSecondary,
-                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                   Text(
                     _formatChf(widget.montantDonation),
-                    style: MintTextStyles.bodyMedium(
+                    style: MintTextStyles.labelMedium(
                       color: widget.depasseQuotite
                           ? MintColors.error
                           : MintColors.warning,
-                    ).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -357,7 +357,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                   child: Text(
                     'Cette donation depasse la quotite disponible. '
                     'Les heritiers reserves peuvent la contester.',
-                    style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                    style: MintTextStyles.labelMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
               ],

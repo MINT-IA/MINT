@@ -25,12 +25,12 @@ class ExploreHub extends StatelessWidget {
         children: [
           Text(
             'Explorer',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'Outils et simulateurs pour ta pr\u00e9voyance',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
           const _ExploreRow(
@@ -114,7 +114,7 @@ class _ExploreRow extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                   ),
                 ],
               ),

@@ -164,7 +164,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                 ),
                 Text(
                   'Confiance : ${widget.confidenceScore}% — Vue : $_levelLabel',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -186,7 +186,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
         children: [
           Text(
             'Vue :',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(width: 10),
           ...List.generate(3, (i) {
@@ -258,7 +258,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
           children: [
             Text(
               '${metrics.length} indicateurs — Vue $_levelLabel',
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             if (_level < 3)
               GestureDetector(
@@ -302,7 +302,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(m.label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12)),
+                Text(m.label, style: MintTextStyles.labelMedium(color: MintColors.textPrimary)),
                 if (m.note != null)
                   Text(m.note!, style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal)),
               ],
@@ -342,7 +342,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                   const SizedBox(height: 4),
                   Text(
                     widget.nextActionDetail!,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                   ),
                 ],
               ],

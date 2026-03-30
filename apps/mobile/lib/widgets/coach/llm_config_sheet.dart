@@ -135,7 +135,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
                 // Title
                 Text(
                   'Configuration API',
-                  style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.headlineSmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
@@ -356,7 +356,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       ),
       child: Text(
         _testResult!,
-        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+        style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
       ),
     );
   }

@@ -267,9 +267,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.unemploymentSituationSubtitle,
-            style: MintTextStyles.labelSmall(
+            style: MintTextStyles.labelMedium(
               color: MintColors.textSecondary,
-            ).copyWith(fontSize: 12),
+            ),
           ),
           const SizedBox(height: MintSpacing.md),
           _buildToggleRow(
@@ -425,9 +425,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                     isEnhanced
                         ? S.of(context)!.unemploymentRateEnhanced
                         : S.of(context)!.unemploymentRateStandard,
-                    style: MintTextStyles.labelSmall(
+                    style: MintTextStyles.labelMedium(
                       color: MintColors.textSecondary,
-                    ).copyWith(fontSize: 12, height: 1.4),
+                    ).copyWith(height: 1.4),
                   ),
                 ],
               ),
@@ -509,9 +509,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             const SizedBox(height: MintSpacing.xs),
             Text(
               label,
-              style: MintTextStyles.labelSmall(
+              style: MintTextStyles.labelMedium(
                 color: MintColors.textSecondary,
-              ).copyWith(fontSize: 12),
+              ),
             ),
           ],
         ),
@@ -639,9 +639,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                       ),
                       child: Text(
                         S.of(context)!.unemploymentYouTag,
-                        style: MintTextStyles.labelSmall(
+                        style: MintTextStyles.labelTiny(
                           color: MintColors.white,
-                        ).copyWith(fontSize: 9, fontWeight: FontWeight.w700),
+                        ).copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                   Text(
@@ -660,11 +660,11 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               ),
               Text(
                 b.$2,
-                style: MintTextStyles.labelSmall(
+                style: MintTextStyles.labelMedium(
                   color: isCurrent
                       ? MintColors.primary
                       : MintColors.textSecondary,
-                ).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                ).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -883,9 +883,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                 Expanded(
                   child: Text(
                     l10n.unemploymentTsunamiTitle,
-                    style: MintTextStyles.titleMedium(
+                    style: MintTextStyles.labelLarge(
                       color: MintColors.textPrimary,
-                    ).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
+                    ).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
@@ -920,9 +920,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                         const SizedBox(height: MintSpacing.xs),
                         Text(
                           v.text,
-                          style: MintTextStyles.labelSmall(
+                          style: MintTextStyles.labelMedium(
                             color: MintColors.textSecondary,
-                          ).copyWith(fontSize: 12, height: 1.5),
+                          ).copyWith(height: 1.5),
                         ),
                         const SizedBox(height: MintSpacing.sm),
                       ],
@@ -1009,9 +1009,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             Expanded(
               child: Text(
                 S.of(context)!.unemploymentDisclaimer,
-                style: MintTextStyles.micro(
+                style: MintTextStyles.labelSmall(
                   color: MintColors.textMuted,
-                ).copyWith(fontSize: 11),
+                ),
               ),
             ),
           ],

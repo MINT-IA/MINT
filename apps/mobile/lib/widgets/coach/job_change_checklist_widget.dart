@@ -109,7 +109,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
                 const SizedBox(height: 4),
                 Text(
                   S.of(context)!.jobChangeChecklistSubtitle,
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -260,7 +260,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
                 const SizedBox(height: 4),
                 Text(
                   S.of(context)!.jobChangeChecklistAlertBody,
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),

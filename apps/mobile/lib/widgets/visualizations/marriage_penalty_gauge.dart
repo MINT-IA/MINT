@@ -146,7 +146,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                           : _difference < 0
                               ? MintColors.success
                               : MintColors.textMuted,
-                    ).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 24),
 
@@ -242,13 +242,13 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                                 _difference == 0
                                     ? 'Aucune différence'
                                     : '${_isPenalty ? '+' : ''}${_formatChf(_difference)}/an',
-                                style: MintTextStyles.headlineMedium(
+                                style: MintTextStyles.titleLarge(
                                   color: _isPenalty
                                       ? MintColors.error
                                       : _difference < 0
                                           ? MintColors.success
                                           : MintColors.textMuted,
-                                ).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                                ).copyWith(fontWeight: FontWeight.w800),
                               ),
                             ],
                           ),
@@ -276,12 +276,12 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
       children: [
         Text(
           title,
-          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           _formatChf(amount),
-          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+          style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 2),
         Text(

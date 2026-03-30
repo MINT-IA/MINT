@@ -76,7 +76,7 @@ class MicroActionCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         action.description,
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
+                        style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),

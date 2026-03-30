@@ -200,7 +200,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         const SizedBox(width: 4),
         Text(
           '${sign}CHF ${delta.abs().round()}/mois depuis ta dernière visite',
-          style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+          style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -222,7 +222,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         if (_scrubbedAge != null)
           Text(
             'Revenu estimé$ageLabel',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         Center(
           child: Text(
@@ -250,7 +250,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               'Ménage combiné${widget.partnerName != null ? ' (toi + ${widget.partnerName})' : ''}',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
       ],
@@ -293,7 +293,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           children: [
             Text(
               '${rate.toStringAsFixed(0)}% de ton revenu actuel',
-              style: MintTextStyles.labelSmall(color: _zoneColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: _zoneColor).copyWith(fontWeight: FontWeight.w600),
             ),
             Text(
               'Taux de remplacement',
@@ -487,7 +487,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
               isGood
                   ? 'Confiance : ${score.round()}%'
                   : 'Confiance : ${score.round()}% — Améliorer',
-              style: MintTextStyles.labelSmall(color: chipColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: chipColor).copyWith(fontWeight: FontWeight.w600),
             ),
             if (!isGood) ...[
               const SizedBox(width: 4),

@@ -734,7 +734,7 @@ Reponds uniquement avec le texte final.
                   const SizedBox(height: 20),
                   MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                     s.checkinAddContribution,
-                    style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+                    style: MintTextStyles.titleLarge(),
                   )),
                   const SizedBox(height: 20),
 
@@ -1275,7 +1275,7 @@ Reponds uniquement avec le texte final.
                 const SizedBox(height: MintSpacing.xs),
                 Text(
                   impactLabel,
-                  style: MintTextStyles.headlineMedium(color: MintColors.success).copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(color: MintColors.success),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -1327,7 +1327,7 @@ Reponds uniquement avec le texte final.
                 const SizedBox(height: MintSpacing.xs),
                 Text(
                   s.checkinStreakCount(_streak.toString()),
-                  style: MintTextStyles.headlineMedium(color: MintColors.warning).copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(color: MintColors.warning),
                 ),
               ],
             ),

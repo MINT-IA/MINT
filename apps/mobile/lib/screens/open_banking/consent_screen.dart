@@ -383,7 +383,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               const SizedBox(width: 10),
               Text(
                 S.of(context)!.consentNlpdTitle,
-                style: MintTextStyles.titleMedium(color: MintColors.tealDark).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelLarge(color: MintColors.tealDark).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),

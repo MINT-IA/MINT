@@ -330,7 +330,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               children: [
                 Text(
                   tx.merchant,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
+                  style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Row(

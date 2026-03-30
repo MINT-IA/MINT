@@ -210,7 +210,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProcheSituation,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         const SizedBox(height: MintSpacing.md),
 
@@ -282,7 +282,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProchTimelineTitre,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         const SizedBox(height: MintSpacing.md),
         ...etapes.map(
@@ -401,7 +401,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProchActionsTitre,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 12),
         ...actions.map(

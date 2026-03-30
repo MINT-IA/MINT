@@ -76,7 +76,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   children: [
                     Text(
                       S.of(context)!.pillar3aComparator,
-                      style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+                      style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
                     ),
                     Text(
                       S.of(context)!.pillar3aProjection(yearsUntilRetirement),
@@ -223,7 +223,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               '+${formatChfWithPrefix(gainVsBank)}',
-                              style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 28),
+                              style: MintTextStyles.displaySmall(color: MintColors.success),
                             ),
                             Text(
                               S.of(context)!.pillar3aMoreAtRetirement,
@@ -541,7 +541,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
                     formatChfWithPrefix(capital),
-                    style: MintTextStyles.titleMedium(color: isRecommended ? MintColors.success : MintColors.textPrimary).copyWith(fontSize: 15),
+                    style: MintTextStyles.labelLarge(color: isRecommended ? MintColors.success : MintColors.textPrimary),
                   ),
                 ],
               ),

@@ -75,7 +75,7 @@ class SafeModeGate extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   reason,
-                                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                                 ),
                               ),
                             ],
@@ -108,7 +108,7 @@ class SafeModeGate extends StatelessWidget {
                           children: [
                             Text(
                               'Pourquoi c’est bloqué',
-                              style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+                              style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
                             ),
                             const SizedBox(height: 10),
                             Text(
@@ -123,7 +123,7 @@ class SafeModeGate extends StatelessWidget {
                                       padding: const EdgeInsets.only(bottom: 6),
                                       child: Text(
                                         '• $reason',
-                                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                                        style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                                       ),
                                     ),
                                   ),
@@ -135,7 +135,7 @@ class SafeModeGate extends StatelessWidget {
                   },
                   child: Text(
                     "Pourquoi est-ce bloqué ?",
-                    style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                    style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
                   ),
                 ),
                 ),
@@ -155,7 +155,7 @@ class SafeModeGate extends StatelessWidget {
                     ),
                     child: Text(
                       ctaLabel,
-                      style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

@@ -119,12 +119,12 @@ class _FinancialDrawerState extends State<FinancialDrawer>
                     children: [
                       TextSpan(
                         text: widget.heroValue,
-                        style: MintTextStyles.headlineMedium(color: widget.accentColor).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                        style: MintTextStyles.titleLarge(color: widget.accentColor).copyWith(fontWeight: FontWeight.w700),
                       ),
                       if (widget.heroSuffix != null)
                         TextSpan(
                           text: widget.heroSuffix,
-                          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                         ),
                     ],
                   ),
@@ -138,7 +138,7 @@ class _FinancialDrawerState extends State<FinancialDrawer>
                 Expanded(
                   child: Text(
                     widget.subtitle,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                   ),
                 ),
                 if (widget.onEdit != null)

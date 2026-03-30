@@ -183,7 +183,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           const SizedBox(height: 8),
           Text(
             s.mortgageJourneySubtitle,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -273,7 +273,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             const SizedBox(height: 10),
             Text(
               step.subtitle,
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.5),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
             ),
             const SizedBox(height: 12),
             Container(
@@ -291,7 +291,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   Expanded(
                     child: Text(
                       step.action,
-                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
@@ -335,7 +335,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               foregroundColor: MintColors.white,
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              textStyle: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              textStyle: MintTextStyles.labelMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
             ),
           )
         else
@@ -347,7 +347,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             ),
             child: Text(
               s.mortgageJourneyComplete,
-              style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
+              style: MintTextStyles.labelMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
             ),
           ),
       ],

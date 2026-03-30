@@ -501,7 +501,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               child: Text(
                 '$prefix\u00a0${formatChf(value)}',
                 style: MintTextStyles.headlineMedium(color: MintColors.textPrimary)
-                    .copyWith(fontSize: 20),
+                    ,
               ),
             ),
           ),
@@ -745,7 +745,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   Text(
                     '$prefix ',
                     style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
-                        .copyWith(fontSize: 28),
+                        ,
                   ),
                   SizedBox(
                     width: 150,

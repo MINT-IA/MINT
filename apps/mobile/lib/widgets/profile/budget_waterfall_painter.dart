@@ -179,7 +179,7 @@ class _WaterfallRow extends StatelessWidget {
             width: availableWidth * 0.28,
             child: Text(
               step.isSubtotal ? '= ${step.label}' : step.label,
-              style: MintTextStyles.bodyMedium(color: step.isSubtotal ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: step.isSubtotal ? FontWeight.w600 : FontWeight.w400),
+              style: MintTextStyles.labelMedium(color: step.isSubtotal ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: step.isSubtotal ? FontWeight.w600 : FontWeight.w400),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -212,7 +212,7 @@ class _WaterfallRow extends StatelessWidget {
             child: Text(
               formattedAmount,
               textAlign: TextAlign.right,
-              style: MintTextStyles.bodySmall(color: step.isSubtotal ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: 13, fontWeight: step.isSubtotal ? FontWeight.w700 : FontWeight.w500),
+              style: MintTextStyles.bodySmall(color: step.isSubtotal ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: step.isSubtotal ? FontWeight.w700 : FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

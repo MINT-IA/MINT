@@ -112,7 +112,7 @@ class NarrativeHeader extends StatelessWidget {
             children: [
               Text(
                 l.narrativeConfidenceLabel('${clampedScore.round()}'),
-                style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted),
               ),
               if (boostAction != null &&
                   confidenceBoostAvailable != null) ...[
@@ -124,7 +124,7 @@ class NarrativeHeader extends StatelessWidget {
                     onTap: onBoostTap,
                     child: Text(
                     '\u{1F4C4} $boostAction (+$confidenceBoostAvailable%)',
-                    style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                    style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
                 ),

@@ -101,7 +101,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Suisse → $destination · Avant de partir, vérifie chaque point.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -177,7 +177,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
                               ),
                               child: Text(
                                 'IRRÉVERSIBLE',
-                                style: MintTextStyles.micro(color: MintColors.white).copyWith(fontSize: 9, fontWeight: FontWeight.w800),
+                                style: MintTextStyles.labelTiny(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                               ),
                             ),
                         ],
@@ -217,7 +217,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
                   ),
                   child: Text(
                     '💥 ${r.impact}',
-                    style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w600, height: 1.4),
+                    style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w600, height: 1.4),
                   ),
                 ),
               ],
@@ -235,7 +235,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+          style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w700),
           textAlign: TextAlign.center,
         ),
       ],

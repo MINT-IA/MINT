@@ -236,7 +236,7 @@ class _PropertySaleWaterfallState extends State<PropertySaleWaterfall>
                 ),
                 Text(
                   'Detention : ${widget.dureeDetention} ans',
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(),
                 ),
               ],
             ),

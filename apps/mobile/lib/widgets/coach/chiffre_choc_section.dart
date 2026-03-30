@@ -129,7 +129,7 @@ class ChiffreChocSection extends StatelessWidget {
       children: [
         Text(
           S.of(context)!.coachShockTitle,
-          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 4),
         Text(

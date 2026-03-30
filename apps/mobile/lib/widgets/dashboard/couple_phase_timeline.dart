@@ -349,7 +349,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
             ),
             child: Text(
               'modifi\u00e9',
-              style: MintTextStyles.micro(color: MintColors.purple).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+              style: MintTextStyles.labelTiny(color: MintColors.purple).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
             ),
           ),
       ],
@@ -405,13 +405,13 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
                     children: [
                       Text(
                         yearRange,
-                        style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                        style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           phase.label,
-                          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                          style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

@@ -108,7 +108,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                 const SizedBox(height: 4),
                 Text(
                   'OPP3 art. 2 — Le 3e pilier ne suit PAS les règles successorales ordinaires.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -158,7 +158,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
           Text(
             'La clause bénéficiaire déroge à la succession ordinaire (OPP3 art. 2). '
             'Sans clause déposée auprès de ta fondation, la loi s\'applique par défaut.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -223,7 +223,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             Expanded(
               child: Text(
                 s.clause3aFeedbackOk(partner),
-                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+                style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
               ),
             ),
           ],
@@ -243,7 +243,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             Expanded(
               child: Text(
                 s.clause3aFeedbackNok,
-                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w600, height: 1.4),
+                style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w600, height: 1.4),
               ),
             ),
           ],
@@ -298,7 +298,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                 Expanded(
                   child: Text(
                     e.value,
-                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+                    style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
                   ),
                 ),
               ],

@@ -162,14 +162,14 @@ class EarlyRetirementComparison extends StatelessWidget {
         children: [
           Text(
             'Comparaison retraite anticip\u00e9e',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
             isCouple
                 ? 'Taux de remplacement m\u00e9nage par \u00e2ge de d\u00e9part'
                 : 'Estimation du taux de remplacement par \u00e2ge de d\u00e9part',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
           // Header row

@@ -120,7 +120,7 @@ class DebtSurvivalWidget extends StatelessWidget {
             _isCritical
                 ? 'Ton ratio dette/revenu est critique. 3 actions pour stabiliser.'
                 : 'Surveille ces 3 indicateurs. Agis avant que la situation empire.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -313,7 +313,7 @@ class DebtSurvivalWidget extends StatelessWidget {
                 ),
                 Text(
                   '0800 40 40 40 · Gratuit · Confidentiel · Sans jugement',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),

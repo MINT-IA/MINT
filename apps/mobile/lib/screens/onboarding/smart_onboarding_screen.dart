@@ -185,7 +185,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               children: [
                 Text(
                   l.onboardingConsentTitle,
-                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(),
                 ),
                 const SizedBox(height: MintSpacing.sm),
                 Text(

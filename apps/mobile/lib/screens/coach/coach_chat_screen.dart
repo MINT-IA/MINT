@@ -2656,7 +2656,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       appBar: AppBar(
         title: Text(
           s.coachTitle,
-          style: MintTextStyles.titleMedium(color: MintColors.white)
+          style: MintTextStyles.titleLarge(color: MintColors.white)
               .copyWith(fontWeight: FontWeight.w700),
         ),
         backgroundColor: MintColors.primary,
@@ -2729,8 +2729,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                       header: true,
                       child: Text(
                         s.coachTitle,
-                        style: MintTextStyles.titleMedium(color: MintColors.white)
-                            .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                        style: MintTextStyles.titleLarge(color: MintColors.white)
+                            .copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                     const SizedBox(height: 2), // tight coupling
@@ -2779,9 +2779,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           Flexible(
             child: Text(
               s.llmAllProvidersDown,
-              style: MintTextStyles.labelSmall(
+              style: MintTextStyles.labelMedium(
                 color: MintColors.warning.withValues(alpha: 0.9),
-              ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+              ).copyWith(fontWeight: FontWeight.w400),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -2799,9 +2799,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           Flexible(
             child: Text(
               s.llmCircuitOpen,
-              style: MintTextStyles.labelSmall(
+              style: MintTextStyles.labelMedium(
                 color: MintColors.warning.withValues(alpha: 0.9),
-              ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+              ).copyWith(fontWeight: FontWeight.w400),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -2833,9 +2833,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         Flexible(
           child: Text(
             label,
-            style: MintTextStyles.labelSmall(
+            style: MintTextStyles.labelMedium(
               color: MintColors.white.withValues(alpha: 0.7),
-            ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+            ).copyWith(fontWeight: FontWeight.w400),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -3022,9 +3022,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
                 ),
                 child: Text(
                   'M',
-                  style: MintTextStyles.titleMedium(
+                  style: MintTextStyles.labelLarge(
                     color: MintColors.coachAccent,
-                  ).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                  ).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: MintSpacing.sm),
@@ -3468,9 +3468,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
               ),
               child: Text(
                 'M',
-                style: MintTextStyles.titleMedium(
+                style: MintTextStyles.labelLarge(
                   color: MintColors.coachAccent,
-                ).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                ).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(width: MintSpacing.sm),

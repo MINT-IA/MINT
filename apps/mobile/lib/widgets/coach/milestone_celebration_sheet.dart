@@ -175,7 +175,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                   child: Text(
                     milestone.narrativeMessage ?? milestone.description,
                     textAlign: TextAlign.center,
-                    style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, height: 1.55),
+                    style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(height: 1.55),
                   ),
                 ),
                 const SizedBox(height: 32),
