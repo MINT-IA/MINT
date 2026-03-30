@@ -5,6 +5,7 @@ Phase 0: BYOK (Bring Your Own Key) — user provides their own LLM API key.
 MINT never stores API keys; they are used per-request only.
 """
 
+import asyncio
 import logging
 import os
 
@@ -34,10 +35,12 @@ router = APIRouter()
 # Lazy-initialized singleton for the vector store and orchestrator
 _vector_store = None
 _orchestrator = None
+# P1-10: asyncio.Lock to prevent race condition during singleton initialization
+_init_lock = asyncio.Lock()
 
 
 def _get_vector_store():
-    """Get or create the singleton vector store instance."""
+    """Get or create the singleton vector store instance (sync, for non-async callers)."""
     global _vector_store
     if _vector_store is None:
         try:
@@ -53,12 +56,46 @@ def _get_vector_store():
             raise HTTPException(
                 status_code=503,
                 detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+                headers={"X-Error-Code": "rag_failure"},
             )
     return _vector_store
 
 
+async def _get_vector_store_safe():
+    """Get or create the singleton vector store with async lock protection."""
+    global _vector_store
+    if _vector_store is not None:
+        return _vector_store
+    async with _init_lock:
+        if _vector_store is not None:
+            return _vector_store
+        return _get_vector_store()
+
+
+async def _get_orchestrator_safe():
+    """Get or create the singleton orchestrator with async lock protection."""
+    global _orchestrator
+    if _orchestrator is not None:
+        return _orchestrator
+    async with _init_lock:
+        if _orchestrator is not None:
+            return _orchestrator
+        try:
+            from app.services.rag.orchestrator import RAGOrchestrator
+
+            vs = _get_vector_store()
+            _orchestrator = RAGOrchestrator(vector_store=vs)
+        except ImportError:
+            raise HTTPException(
+                status_code=503,
+                detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+                headers={"X-Error-Code": "rag_failure"},
+            )
+        return _orchestrator
+
+
 def _get_orchestrator():
-    """Get or create the singleton orchestrator instance."""
+    """Get or create the singleton orchestrator instance (sync fallback)."""
     global _orchestrator
     if _orchestrator is None:
         try:
@@ -69,6 +106,7 @@ def _get_orchestrator():
             raise HTTPException(
                 status_code=503,
                 detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+                headers={"X-Error-Code": "rag_failure"},
             )
     return _orchestrator
 
@@ -84,7 +122,7 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
 
     The API key is used for a single request and never stored.
     """
-    orchestrator = _get_orchestrator()
+    orchestrator = await _get_orchestrator_safe()
 
     # Build profile context dict if provided
     profile_ctx = None
@@ -104,12 +142,17 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
     except ImportError:
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="Service temporarily unavailable",
+            headers={"X-Error-Code": "service_unavailable"},
+        )
     except Exception as e:
         logger.error("RAG query failed: %s", e)
         raise HTTPException(
             status_code=502,
             detail="External service unavailable",
+            headers={"X-Error-Code": "rag_failure"},
         )
 
     return RAGQueryResponse(
@@ -163,7 +206,7 @@ async def rag_vision(request: Request, body: RAGVisionRequest, _user: User = Dep
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid base64 image data")
 
-    orchestrator = _get_orchestrator()
+    orchestrator = await _get_orchestrator_safe()
 
     profile_ctx = None
     if body.profile_context:
@@ -183,12 +226,17 @@ async def rag_vision(request: Request, body: RAGVisionRequest, _user: User = Dep
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
     except ImportError:
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="Service temporarily unavailable",
+            headers={"X-Error-Code": "service_unavailable"},
+        )
     except Exception as e:
         logger.error("RAG vision query failed: %s", e)
         raise HTTPException(
             status_code=502,
             detail="External service unavailable",
+            headers={"X-Error-Code": "rag_failure"},
         )
 
     return RAGVisionResponse(

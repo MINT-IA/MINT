@@ -11888,5 +11888,10 @@
   "onboardingPermitL": "Permiso L (corta estancia)",
   "onboardingPermitOther": "Otro",
   "onboardingIjmWarningTitle": "Protección por enfermedad: a verificar",
-  "onboardingIjmWarningBody": "Como trabajador independiente, no tienes subsidio diario por enfermedad (IJM) por defecto. Sin cobertura, una enfermedad podría interrumpir tus ingresos sin compensación. También tienes 6 meses para inscribirte voluntariamente en un fondo de pensiones (LPP art. 4)."
+  "onboardingIjmWarningBody": "Como trabajador independiente, no tienes subsidio diario por enfermedad (IJM) por defecto. Sin cobertura, una enfermedad podría interrumpir tus ingresos sin compensación. También tienes 6 meses para inscribirte voluntariamente en un fondo de pensiones (LPP art. 4).",
+  "rachatLppNotApplicableAfterRetirement": "La recompra LPP ya no es aplicable después de la jubilación. Esta simulación es para personas activas que desean cubrir una brecha de previsión.",
+  "apiErrorOffline": "Sin conexión a internet. Verifica tu red e inténtalo de nuevo.",
+  "apiErrorTimeout": "El servidor tarda demasiado en responder. Inténtalo de nuevo.",
+  "apiErrorSessionExpired": "Sesión expirada — vuelve a iniciar sesión.",
+  "apiErrorServer": "Error del servidor. Inténtalo de nuevo en un momento."
 }

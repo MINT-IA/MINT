@@ -4,7 +4,7 @@ Household schemas for API request/response.
 
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 
 class HouseholdMemberInfo(BaseModel):
@@ -31,7 +31,7 @@ class HouseholdResponse(BaseModel):
 
 
 class InviteRequest(BaseModel):
-    email: str
+    email: EmailStr
 
 
 class InviteResponse(BaseModel):

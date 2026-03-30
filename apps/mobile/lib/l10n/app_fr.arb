@@ -12335,5 +12335,10 @@
   "onboardingPermitL": "Permis L (court séjour)",
   "onboardingPermitOther": "Autre",
   "onboardingIjmWarningTitle": "Protection maladie\u00a0: à vérifier",
-  "onboardingIjmWarningBody": "En tant qu'indépendant·e, tu n'as pas d'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t'affilier volontairement à une caisse LPP (art. 4 LPP)."
+  "onboardingIjmWarningBody": "En tant qu'indépendant·e, tu n'as pas d'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t'affilier volontairement à une caisse LPP (art. 4 LPP).",
+  "rachatLppNotApplicableAfterRetirement": "Le rachat LPP n'est plus applicable après la retraite. Cette simulation concerne les personnes actives qui souhaitent combler une lacune de prévoyance.",
+  "apiErrorOffline": "Pas de connexion internet. Vérifie ton réseau et réessaie.",
+  "apiErrorTimeout": "Le serveur met trop de temps à répondre. Réessaie.",
+  "apiErrorSessionExpired": "Session expirée\u00a0— reconnecte-toi.",
+  "apiErrorServer": "Erreur serveur. Réessaie dans quelques instants."
 }

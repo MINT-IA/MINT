@@ -25281,4 +25281,24 @@ class SEs extends S {
   @override
   String get onboardingIjmWarningBody =>
       'Como trabajador independiente, no tienes subsidio diario por enfermedad (IJM) por defecto. Sin cobertura, una enfermedad podría interrumpir tus ingresos sin compensación. También tienes 6 meses para inscribirte voluntariamente en un fondo de pensiones (LPP art. 4).';
+
+  @override
+  String get rachatLppNotApplicableAfterRetirement =>
+      'La recompra LPP ya no es aplicable después de la jubilación. Esta simulación es para personas activas que desean cubrir una brecha de previsión.';
+
+  @override
+  String get apiErrorOffline =>
+      'Sin conexión a internet. Verifica tu red e inténtalo de nuevo.';
+
+  @override
+  String get apiErrorTimeout =>
+      'El servidor tarda demasiado en responder. Inténtalo de nuevo.';
+
+  @override
+  String get apiErrorSessionExpired =>
+      'Sesión expirada — vuelve a iniciar sesión.';
+
+  @override
+  String get apiErrorServer =>
+      'Error del servidor. Inténtalo de nuevo en un momento.';
 }

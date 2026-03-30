@@ -11888,5 +11888,10 @@
   "onboardingPermitL": "Autorização L (curta duração)",
   "onboardingPermitOther": "Outro",
   "onboardingIjmWarningTitle": "Proteção doença: a verificar",
-  "onboardingIjmWarningBody": "Como trabalhador independente, não tens subsídio diário de doença (IJM) por defeito. Sem cobertura, uma doença poderia interromper os teus rendimentos sem compensação. Tens também 6 meses para te inscreveres voluntariamente num fundo de pensões (LPP art. 4)."
+  "onboardingIjmWarningBody": "Como trabalhador independente, não tens subsídio diário de doença (IJM) por defeito. Sem cobertura, uma doença poderia interromper os teus rendimentos sem compensação. Tens também 6 meses para te inscreveres voluntariamente num fundo de pensões (LPP art. 4).",
+  "rachatLppNotApplicableAfterRetirement": "A recompra LPP já não é aplicável após a reforma. Esta simulação destina-se a trabalhadores ativos que pretendem colmatar uma lacuna de previdência.",
+  "apiErrorOffline": "Sem ligação à internet. Verifica a tua rede e tenta novamente.",
+  "apiErrorTimeout": "O servidor está a demorar demasiado a responder. Tenta novamente.",
+  "apiErrorSessionExpired": "Sessão expirada — inicia sessão novamente.",
+  "apiErrorServer": "Erro do servidor. Tenta novamente dentro de momentos."
 }

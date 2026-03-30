@@ -543,7 +543,7 @@ class LibrePassageCompte {
       institution: json['institution'] as String?,
       solde: (json['solde'] as num).toDouble(),
       dateOuverture: json['dateOuverture'] != null
-          ? DateTime.parse(json['dateOuverture'])
+          ? (DateTime.tryParse(json['dateOuverture'] ?? '') ?? DateTime.now())
           : null,
     );
   }
@@ -959,7 +959,7 @@ class GoalA {
         (e) => e.name == json['type'],
         orElse: () => GoalAType.retraite,
       ),
-      targetDate: DateTime.parse(json['targetDate']),
+      targetDate: DateTime.tryParse(json['targetDate'] ?? '') ?? DateTime.now(),
       targetAmount: (json['targetAmount'] as num?)?.toDouble(),
       label: json['label'] as String,
     );
@@ -992,7 +992,7 @@ class GoalB {
       label: json['label'] as String,
       targetAmount: (json['targetAmount'] as num).toDouble(),
       targetDate: json['targetDate'] != null
-          ? DateTime.parse(json['targetDate'])
+          ? (DateTime.tryParse(json['targetDate'] ?? '') ?? DateTime.now())
           : null,
       priority: json['priority'] ?? 0,
     );
@@ -1038,7 +1038,7 @@ class MonthlyCheckIn {
 
   factory MonthlyCheckIn.fromJson(Map<String, dynamic> json) {
     return MonthlyCheckIn(
-      month: DateTime.parse(json['month']),
+      month: DateTime.tryParse(json['month'] ?? '') ?? DateTime.now(),
       versements: Map<String, double>.from(
         (json['versements'] as Map).map(
           (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
@@ -1048,7 +1048,7 @@ class MonthlyCheckIn {
           (json['depensesExceptionnelles'] as num?)?.toDouble(),
       revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
-      completedAt: DateTime.parse(json['completedAt']),
+      completedAt: DateTime.tryParse(json['completedAt'] ?? '') ?? DateTime.now(),
       friScore: (json['friScore'] as num?)?.toDouble(),
       fitnessScore: json['fitnessScore'] as int?,
     );
@@ -1449,6 +1449,7 @@ class CoachProfile {
     DateTime expected = DateTime(DateTime.now().year, DateTime.now().month);
     for (final ci in sorted) {
       final ciMonth = DateTime(ci.month.year, ci.month.month);
+      // Dart normalizes month=0 → Dec of prev year, so this is safe in January.
       if (ciMonth == expected ||
           ciMonth == DateTime(expected.year, expected.month - 1)) {
         count++;

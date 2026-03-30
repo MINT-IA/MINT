@@ -99,7 +99,7 @@ class CoachInsight {
   factory CoachInsight.fromJson(Map<String, dynamic> json) {
     return CoachInsight(
       id: json['id'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
       topic: json['topic'] as String? ?? 'general',
       summary: json['summary'] as String,
       type: InsightType.values.firstWhere(

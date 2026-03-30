@@ -6,12 +6,13 @@ Migrated to use database with backward compatibility for anonymous profiles.
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 from app.schemas.profile import Profile, ProfileCreate, ProfileUpdate
 from app.core.database import get_db
 from app.core.auth import get_current_user, require_current_user
+from app.core.rate_limit import limiter
 from app.models.user import User
 from app.models.profile_model import ProfileModel
 
@@ -19,7 +20,9 @@ router = APIRouter()
 
 
 @router.get("/me", response_model=Profile)
+@limiter.limit("30/minute")
 def get_my_profile(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> Profile:
@@ -70,7 +73,9 @@ def get_my_profile(
 
 
 @router.post("", response_model=Profile)
+@limiter.limit("10/minute")
 def create_profile(
+    request: Request,
     profile_create: ProfileCreate,
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
@@ -135,24 +140,25 @@ def create_profile(
 
 
 @router.get("/{profile_id}", response_model=Profile)
+@limiter.limit("30/minute")
 def get_profile(
+    request: Request,
     profile_id: UUID4,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: User = Depends(require_current_user),
 ) -> Profile:
     """
     Get a profile by ID.
-    If profile belongs to a user, verify ownership.
+    Requires authentication. Verifies ownership.
     """
-    db_profile = db.query(ProfileModel).filter(ProfileModel.id == str(profile_id)).first()
+    # P0-3: Always require auth and verify ownership
+    db_profile = db.query(ProfileModel).filter(
+        ProfileModel.id == str(profile_id),
+        ProfileModel.user_id == current_user.id,
+    ).first()
 
     if not db_profile:
         raise HTTPException(status_code=404, detail="Profile not found")
-
-    # Ownership check: if profile has a user_id, require matching auth
-    if db_profile.user_id:
-        if not current_user or db_profile.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to access this profile")
 
     # Convert from JSON data to Profile model
     data = db_profile.data
@@ -190,25 +196,26 @@ def get_profile(
 
 
 @router.patch("/{profile_id}", response_model=Profile)
+@limiter.limit("30/minute")
 def update_profile(
+    request: Request,
     profile_id: UUID4,
     profile_update: ProfileUpdate,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: User = Depends(require_current_user),
 ) -> Profile:
     """
     Update an existing profile.
-    If profile belongs to a user, verify ownership.
+    Requires authentication. Verifies ownership.
     """
-    db_profile = db.query(ProfileModel).filter(ProfileModel.id == str(profile_id)).first()
+    # P0-3: Always require auth and verify ownership
+    db_profile = db.query(ProfileModel).filter(
+        ProfileModel.id == str(profile_id),
+        ProfileModel.user_id == current_user.id,
+    ).first()
 
     if not db_profile:
         raise HTTPException(status_code=404, detail="Profile not found")
-
-    # Ownership check: if profile has a user_id, require matching auth
-    if db_profile.user_id:
-        if not current_user or db_profile.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to update this profile")
 
     # Update data
     data = db_profile.data

@@ -25352,4 +25352,24 @@ class SIt extends S {
   @override
   String get onboardingIjmWarningBody =>
       'Come lavoratore indipendente, non hai indennità giornaliere di malattia (IJM) per default. Senza copertura, una malattia potrebbe interrompere i tuoi redditi senza compensazione. Hai anche 6 mesi per iscriverti volontariamente a una cassa pensione (LPP art. 4).';
+
+  @override
+  String get rachatLppNotApplicableAfterRetirement =>
+      'Il riscatto LPP non è più applicabile dopo il pensionamento. Questa simulazione è destinata ai lavoratori attivi che desiderano colmare una lacuna previdenziale.';
+
+  @override
+  String get apiErrorOffline =>
+      'Nessuna connessione internet. Verifica la tua rete e riprova.';
+
+  @override
+  String get apiErrorTimeout =>
+      'Il server impiega troppo tempo a rispondere. Riprova.';
+
+  @override
+  String get apiErrorSessionExpired =>
+      'Sessione scaduta — effettua nuovamente l\'accesso.';
+
+  @override
+  String get apiErrorServer =>
+      'Errore del server. Riprova tra qualche istante.';
 }

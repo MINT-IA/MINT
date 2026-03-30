@@ -44544,6 +44544,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'En tant qu\'indépendant·e, tu n\'as pas d\'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t\'affilier volontairement à une caisse LPP (art. 4 LPP).'**
   String get onboardingIjmWarningBody;
+
+  /// No description provided for @rachatLppNotApplicableAfterRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le rachat LPP n\'est plus applicable après la retraite. Cette simulation concerne les personnes actives qui souhaitent combler une lacune de prévoyance.'**
+  String get rachatLppNotApplicableAfterRetirement;
+
+  /// No description provided for @apiErrorOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion internet. Vérifie ton réseau et réessaie.'**
+  String get apiErrorOffline;
+
+  /// No description provided for @apiErrorTimeout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur met trop de temps à répondre. Réessaie.'**
+  String get apiErrorTimeout;
+
+  /// No description provided for @apiErrorSessionExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session expirée — reconnecte-toi.'**
+  String get apiErrorSessionExpired;
+
+  /// No description provided for @apiErrorServer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur serveur. Réessaie dans quelques instants.'**
+  String get apiErrorServer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

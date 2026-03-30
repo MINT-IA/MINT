@@ -11888,5 +11888,10 @@
   "onboardingPermitL": "Permit L (short-term)",
   "onboardingPermitOther": "Other",
   "onboardingIjmWarningTitle": "Sickness protection: check needed",
-  "onboardingIjmWarningBody": "As a self-employed person, you have no daily sickness allowance (IJM) by default. Without coverage, an illness could interrupt your income with no compensation. You also have 6 months to voluntarily enroll in a pension fund (LPP art. 4)."
+  "onboardingIjmWarningBody": "As a self-employed person, you have no daily sickness allowance (IJM) by default. Without coverage, an illness could interrupt your income with no compensation. You also have 6 months to voluntarily enroll in a pension fund (LPP art. 4).",
+  "rachatLppNotApplicableAfterRetirement": "LPP buyback is no longer applicable after retirement. This simulation is for active workers looking to fill a pension gap.",
+  "apiErrorOffline": "No internet connection. Check your network and try again.",
+  "apiErrorTimeout": "The server is taking too long to respond. Try again.",
+  "apiErrorSessionExpired": "Session expired — please log in again.",
+  "apiErrorServer": "Server error. Try again in a moment."
 }

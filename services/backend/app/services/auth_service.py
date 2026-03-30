@@ -156,19 +156,27 @@ def blacklist_token(db: Session, jti: str, expires_at: datetime) -> None:
     """
     Add a JTI to the blacklist (revoke token).
 
+    Uses INSERT ... ON CONFLICT DO NOTHING (via merge) to make the
+    check-then-insert atomic and prevent TOCTOU race conditions (P1-11).
+
     Args:
         db: Database session
         jti: JWT unique identifier to blacklist
         expires_at: When the token expires (for cleanup)
     """
+    from sqlalchemy.exc import IntegrityError
     from app.models.token_blacklist import TokenBlacklist
     entry = TokenBlacklist(
         jti=jti,
         expires_at=expires_at,
         blacklisted_at=datetime.now(timezone.utc),
     )
-    db.add(entry)
-    db.commit()
+    try:
+        db.add(entry)
+        db.commit()
+    except IntegrityError:
+        # P1-11: JTI already blacklisted (concurrent request) — safe to ignore
+        db.rollback()
 
 
 def cleanup_expired_blacklist(db: Session) -> int:

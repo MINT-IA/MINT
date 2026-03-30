@@ -179,8 +179,11 @@ class CapEngine {
     }
 
     // ── 5. LPP buyback opportunity ──
+    // P1-13: Hide rachat after retirement (age >= 65 or status retraite).
     final rachatMax = profile.prevoyance.rachatMaximum ?? 0;
-    if (rachatMax > 5000) {
+    if (rachatMax > 5000 &&
+        profile.age < 65 &&
+        profile.employmentStatus != 'retraite') {
       candidates.add(CapDecision(
         id: 'lpp_buyback',
         kind: CapKind.optimize,
@@ -905,8 +908,12 @@ class CapEngine {
     }
 
     // ── Couple LPP buyback: conjoint has significant rachat room ──
+    // P1-13: Hide rachat after retirement.
     final conjointRachat = conjoint.prevoyance?.rachatMaximum ?? 0;
-    if (conjointRachat > 10000) {
+    final conjointAge = conjoint.age ?? 99;
+    final conjointRetired = conjointAge >= 65 ||
+        conjoint.employmentStatus == 'retraite';
+    if (conjointRachat > 10000 && !conjointRetired) {
       caps.add(CapDecision(
         id: 'couple_lpp_buyback',
         kind: CapKind.optimize,

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.auth import require_current_user
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.rate_limit import limiter
 from app.models.user import User
 from app.services.household_service import (
     get_household_details,
@@ -34,7 +35,9 @@ router = APIRouter()
 
 
 @router.get("", response_model=HouseholdResponse)
+@limiter.limit("30/minute")
 def get_household(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> HouseholdResponse:
@@ -43,7 +46,9 @@ def get_household(
 
 
 @router.post("/invite", response_model=InviteResponse, status_code=201)
+@limiter.limit("10/minute")
 def invite(
+    request: Request,
     body: InviteRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -53,7 +58,9 @@ def invite(
 
 
 @router.post("/accept", response_model=AcceptResponse)
+@limiter.limit("10/minute")
 def accept(
+    request: Request,
     body: AcceptRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -63,7 +70,9 @@ def accept(
 
 
 @router.delete("/member/{user_id}", response_model=RevokeResponse)
+@limiter.limit("10/minute")
 def revoke(
+    request: Request,
     user_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -73,7 +82,9 @@ def revoke(
 
 
 @router.put("/transfer", response_model=TransferResponse)
+@limiter.limit("5/minute")
 def transfer(
+    request: Request,
     body: TransferRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -83,6 +94,7 @@ def transfer(
 
 
 @router.post("/admin/override-cooldown", response_model=AdminOverrideCooldownResponse)
+@limiter.limit("5/minute")
 def override_cooldown(
     request: Request,
     body: AdminOverrideCooldownRequest,

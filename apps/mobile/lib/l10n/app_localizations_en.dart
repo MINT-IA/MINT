@@ -25154,4 +25154,22 @@ class SEn extends S {
   @override
   String get onboardingIjmWarningBody =>
       'As a self-employed person, you have no daily sickness allowance (IJM) by default. Without coverage, an illness could interrupt your income with no compensation. You also have 6 months to voluntarily enroll in a pension fund (LPP art. 4).';
+
+  @override
+  String get rachatLppNotApplicableAfterRetirement =>
+      'LPP buyback is no longer applicable after retirement. This simulation is for active workers looking to fill a pension gap.';
+
+  @override
+  String get apiErrorOffline =>
+      'No internet connection. Check your network and try again.';
+
+  @override
+  String get apiErrorTimeout =>
+      'The server is taking too long to respond. Try again.';
+
+  @override
+  String get apiErrorSessionExpired => 'Session expired — please log in again.';
+
+  @override
+  String get apiErrorServer => 'Server error. Try again in a moment.';
 }

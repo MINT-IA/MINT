@@ -183,7 +183,7 @@ class ConversationTile extends StatelessWidget {
     } else if (diff.inHours < 24 && now.day == date.day) {
       return l10n.conversationDateHoursAgo(diff.inHours.toString());
     } else {
-      // Bug fix: compare calendar dates for "yesterday" (handles month/year boundaries).
+      // Dart normalizes day=0 → last day of prev month, so this is safe on the 1st.
       final yesterday = DateTime(now.year, now.month, now.day - 1);
       final dateOnly = DateTime(date.year, date.month, date.day);
       if (dateOnly == yesterday) {
