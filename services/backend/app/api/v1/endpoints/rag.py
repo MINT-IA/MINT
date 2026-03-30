@@ -122,6 +122,10 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
 
     The API key is used for a single request and never stored.
     """
+    # TODO(nLPD art. 6 al. 7): Verify byok_data_sharing consent before querying
+    # user-specific data in RAG. Requires ConsentManager.is_consent_given(
+    # user_id, ConsentType.byok_data_sharing). Without consent, RAG should only
+    # search the public MINT knowledge base, not user-uploaded documents.
     orchestrator = await _get_orchestrator_safe()
 
     # Build profile context dict if provided

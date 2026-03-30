@@ -992,8 +992,20 @@ def delete_account(
         deleted_sessions = (
             db.query(SessionModel)
             .filter(SessionModel.profile_id.in_(profile_ids))
-            .count()
+            .delete(synchronize_session=False)
         )
+
+        # Purge scenarios linked to the user's profiles
+        from app.models.scenario import ScenarioModel
+        db.query(ScenarioModel).filter(
+            ScenarioModel.profile_id.in_(profile_ids)
+        ).delete(synchronize_session=False)
+
+    # Purge snapshots linked to the user
+    from app.models.snapshot import SnapshotModel
+    db.query(SnapshotModel).filter(
+        SnapshotModel.user_id == user_id
+    ).delete(synchronize_session=False)
 
     anonymized_analytics_events = (
         db.query(AnalyticsEvent)

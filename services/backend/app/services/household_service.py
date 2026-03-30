@@ -422,8 +422,9 @@ def transfer_ownership(db: Session, caller: User, new_owner_id: str) -> dict:
             detail="Le nouveau proprietaire doit etre un membre actif du menage",
         )
 
-    # Transfer
+    # Transfer ownership AND billing (P2-16: billing must follow ownership)
     household.household_owner_user_id = new_owner_id
+    household.billing_owner_user_id = new_owner_id
     household.updated_at = _now()
 
     # Update roles
@@ -441,6 +442,64 @@ def transfer_ownership(db: Session, caller: User, new_owner_id: str) -> dict:
 
     db.commit()
     return {"status": "transferred", "new_owner_id": new_owner_id}
+
+
+def dissolve_household(db: Session, caller: User) -> dict:
+    """Dissolve a household — remove all members except owner, reset state.
+
+    Only the household_owner can dissolve.
+    All non-owner members are revoked. The household record is deleted.
+
+    Args:
+        db: Database session.
+        caller: Authenticated user (must be household owner).
+
+    Returns:
+        Dict with status and count of revoked members.
+
+    Raises:
+        HTTPException 403 if caller is not the household owner.
+        HTTPException 404 if no household found.
+    """
+    household = (
+        db.query(HouseholdModel)
+        .filter(HouseholdModel.household_owner_user_id == caller.id)
+        .first()
+    )
+    if not household:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Aucun menage trouve dont tu es proprietaire",
+        )
+
+    # Revoke all non-owner members
+    non_owner_members = (
+        db.query(HouseholdMemberModel)
+        .filter(
+            HouseholdMemberModel.household_id == household.id,
+            HouseholdMemberModel.user_id != caller.id,
+        )
+        .all()
+    )
+    revoked_count = 0
+    for member in non_owner_members:
+        if member.status in ("active", "pending"):
+            member.status = "revoked"
+            revoked_count += 1
+            # Recompute entitlements for revoked user
+            recompute_entitlements(db, member.user_id)
+
+    # Delete owner membership
+    db.query(HouseholdMemberModel).filter(
+        HouseholdMemberModel.household_id == household.id,
+        HouseholdMemberModel.user_id == caller.id,
+    ).delete(synchronize_session=False)
+
+    # Delete the household record
+    db.delete(household)
+    db.commit()
+
+    return {"status": "dissolved", "revoked_members": revoked_count}
 
 
 def admin_override_cooldown(

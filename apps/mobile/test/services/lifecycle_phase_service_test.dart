@@ -165,26 +165,26 @@ void main() {
       expect(result.phase, equals(LifecyclePhase.demarrage));
     });
 
-    test('age 27 → still Démarrage', () {
-      final profile = makeProfile(birthYear: 1999);
+    test('age 24 → still Démarrage', () {
+      final profile = makeProfile(birthYear: 2002);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.demarrage));
     });
 
-    test('age 28 → Construction (boundary)', () {
-      final profile = makeProfile(birthYear: 1998);
+    test('age 25 → Construction (boundary, aligned with LifecycleDetector)', () {
+      final profile = makeProfile(birthYear: 2001);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.construction));
     });
 
-    test('age 35 → Construction (spec §6: 28-37)', () {
+    test('age 34 → Construction (25-34 band)', () {
+      final profile = makeProfile(birthYear: 1992);
+      final result = LifecyclePhaseService.detect(profile, now: now);
+      expect(result.phase, equals(LifecyclePhase.construction));
+    });
+
+    test('age 35 → Accélération (boundary)', () {
       final profile = makeProfile(birthYear: 1991);
-      final result = LifecyclePhaseService.detect(profile, now: now);
-      expect(result.phase, equals(LifecyclePhase.construction));
-    });
-
-    test('age 38 → Accélération (boundary)', () {
-      final profile = makeProfile(birthYear: 1988);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.acceleration));
     });

@@ -623,7 +623,9 @@ def generate_if_then(kind: str, profile: Profile, answers: dict) -> str:
 # --- Recommendations ---
 
 
-def generate_recommendations(profile: Profile, answers: dict = None) -> List[Recommendation]:
+def generate_recommendations(
+    profile: Profile, answers: dict = None, reference_date: Optional[datetime] = None
+) -> List[Recommendation]:
     """
     Génère des recommandations triées par pertinence (Score d'impact).
     """
@@ -648,7 +650,7 @@ def generate_recommendations(profile: Profile, answers: dict = None) -> List[Rec
         (profile.incomeGrossYearly / 12 * 0.85) if profile.incomeGrossYearly else 0
     )
     if estimated_net > 3000:
-        potential_recos.append(_create_3a_optimizer_recommendation(profile))
+        potential_recos.append(_create_3a_optimizer_recommendation(profile, reference_date=reference_date))
         if profile.employmentStatus == "self_employed":
             potential_recos.append(_create_pension_3a_self_employed_recommendation(profile))
 
@@ -667,7 +669,9 @@ def generate_recommendations(profile: Profile, answers: dict = None) -> List[Rec
     return potential_recos
 
 
-def _create_3a_optimizer_recommendation(profile: Profile) -> Recommendation:
+def _create_3a_optimizer_recommendation(
+    profile: Profile, reference_date: Optional[datetime] = None
+) -> Recommendation:
     annual_contribution = PILIER_3A_PLAFOND_AVEC_LPP
     household_type = "married" if profile.householdType.value in ("couple", "family") else "single"
     marginal_rate = calculate_marginal_tax_rate(
@@ -675,7 +679,8 @@ def _create_3a_optimizer_recommendation(profile: Profile) -> Recommendation:
         profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85,
         household_type,
     )
-    years = max(5, 65 - (datetime.now(timezone.utc).year - (profile.birthYear or 1990)))
+    now = reference_date or datetime.now(timezone.utc)
+    years = max(5, 65 - (now.year - (profile.birthYear or 1990)))
     calc = calculate_pillar3a_tax_benefit(annual_contribution, marginal_rate, years)
     return Recommendation(
         id=uuid.uuid4(),
@@ -850,10 +855,12 @@ def _create_tax_splitting_recommendation(profile: Profile) -> Recommendation:
 
 
 def generate_session_report(
-    profile: Profile, answers: dict, focus_kinds: List[str], session_id: uuid.UUID
+    profile: Profile, answers: dict, focus_kinds: List[str], session_id: uuid.UUID,
+    reference_date: Optional[datetime] = None,
 ) -> SessionReport:
     precision = calculate_precision_score(profile, answers)
-    all_recos = generate_recommendations(profile, answers)
+    now = reference_date or datetime.now(timezone.utc)
+    all_recos = generate_recommendations(profile, answers, reference_date=now)
 
     # Identify Top 3
     priority_map = {
@@ -970,5 +977,5 @@ def generate_session_report(
             "Mint est un mentor, pas un gestionnaire de fortune.",
             "Données traitées en Suisse (Blink/Mint).",
         ],
-        generatedAt=datetime.now(timezone.utc),
+        generatedAt=now,
     )

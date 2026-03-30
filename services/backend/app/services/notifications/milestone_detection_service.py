@@ -17,7 +17,7 @@ Sources:
 """
 
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.notifications.notification_models import (
@@ -61,6 +61,7 @@ class MilestoneDetectionService:
         previous: dict,
         check_in_streak: int = 0,
         arbitrage_count: int = 0,
+        reference_date: Optional[datetime] = None,
     ) -> MilestoneCheckResult:
         """Compare current vs previous snapshot and detect new milestones.
 
@@ -80,7 +81,7 @@ class MilestoneDetectionService:
             MilestoneCheckResult with list of newly detected milestones.
         """
         milestones: List[DetectedMilestone] = []
-        now = datetime.now()
+        now = reference_date or datetime.now()
 
         # --- Extract values with safe defaults ---
         curr_liquidity = float(current.get("months_liquidity", 0))

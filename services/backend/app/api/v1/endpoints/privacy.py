@@ -14,8 +14,10 @@ client-supplied profile_id to prevent IDOR vulnerabilities.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.models.user import User
 
 from app.schemas.privacy import (
@@ -48,7 +50,11 @@ DISCLAIMER = (
 # ---------------------------------------------------------------------------
 
 @router.post("/export", response_model=DataExportResponse)
-def export_user_data(request: DataExportRequest, _user: User = Depends(require_current_user)) -> DataExportResponse:
+def export_user_data(
+    request: DataExportRequest,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> DataExportResponse:
     """Exporte toutes les donnees personnelles d'un utilisateur.
 
     Conforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).
@@ -64,20 +70,85 @@ def export_user_data(request: DataExportRequest, _user: User = Depends(require_c
     # V12-1: Use authenticated user ID, never client-supplied profile_id.
     user_id = _user.id
 
-    # In production, these would be fetched from the database.
-    # Here we simulate with sample data to demonstrate the structure.
-    sample_profile = {
-        "profile_id": user_id,
-        "status": "active",
+    # P2-18 nLPD art. 25: Fetch ALL user data from database for complete DSAR export.
+    from app.models.profile_model import ProfileModel
+    from app.models.document import DocumentModel
+    from app.models.snapshot import SnapshotModel
+    from app.models.analytics_event import AnalyticsEvent
+
+    # Profile data
+    profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
+    profile_data = {
+        "user_id": user_id,
+        "email": _user.email,
+        "display_name": getattr(_user, "display_name", None),
+        "created_at": str(getattr(_user, "created_at", None)),
+        "profiles": [
+            {"id": p.id, "data": p.data if hasattr(p, "data") else None}
+            for p in profiles
+        ],
     }
+
+    # Sessions data
+    sessions_data = []
+    if request.include_sessions:
+        from app.models.session_model import SessionModel
+        profile_ids = [p.id for p in profiles]
+        if profile_ids:
+            sessions = db.query(SessionModel).filter(
+                SessionModel.profile_id.in_(profile_ids)
+            ).all()
+            sessions_data = [
+                {"id": s.id, "profile_id": s.profile_id, "created_at": str(s.created_at)}
+                for s in sessions
+            ]
+
+    # Documents data
+    documents_data = []
+    if request.include_documents:
+        docs = db.query(DocumentModel).filter(DocumentModel.user_id == user_id).all()
+        documents_data = [
+            {
+                "id": d.id,
+                "document_type": d.document_type,
+                "upload_date": str(d.upload_date) if d.upload_date else None,
+                "confidence": d.confidence,
+                "extracted_fields": d.extracted_fields,
+            }
+            for d in docs
+        ]
+
+    # Snapshots data (included in reports)
+    reports_data = []
+    if request.include_reports:
+        snapshots = db.query(SnapshotModel).filter(SnapshotModel.user_id == user_id).all()
+        reports_data = [
+            {
+                "id": s.id,
+                "created_at": str(s.created_at),
+                "trigger": s.trigger,
+                "fri_total": s.fri_total,
+                "replacement_ratio": s.replacement_ratio,
+            }
+            for s in snapshots
+        ]
+
+    # Analytics data
+    analytics_data = []
+    if request.include_analytics:
+        events = db.query(AnalyticsEvent).filter(AnalyticsEvent.user_id == user_id).all()
+        analytics_data = [
+            {"id": e.id, "event_type": e.event_type, "created_at": str(e.created_at)}
+            for e in events
+        ]
 
     result = service.export_user_data(
         profile_id=user_id,
-        profile_data=sample_profile,
-        sessions_data=[],
-        reports_data=[],
-        documents_data=[],
-        analytics_data=[],
+        profile_data=profile_data,
+        sessions_data=sessions_data,
+        reports_data=reports_data,
+        documents_data=documents_data,
+        analytics_data=analytics_data,
         include_sessions=request.include_sessions,
         include_reports=request.include_reports,
         include_documents=request.include_documents,
