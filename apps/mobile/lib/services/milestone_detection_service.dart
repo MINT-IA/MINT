@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
 //  MILESTONE DETECTION SERVICE — T5 / Coach AI Layer + S36
@@ -449,8 +450,8 @@ class MilestoneDetectionService {
         : _plafond3aSalarie;
 
     if (cur3a >= plafond3a && prev3a < plafond3a) {
-      final plafondStr = _formatChf(plafond3a);
-      final savingStr = _formatChf(taxSaving3a);
+      final plafondStr = chf.formatChf(plafond3a);
+      final savingStr = chf.formatChf(taxSaving3a);
       results.add(DetectedMilestone(
         type: MilestoneType.threeAMaxReached,
         celebrationText:
@@ -532,9 +533,9 @@ class MilestoneDetectionService {
       results.add(DetectedMilestone(
         type: MilestoneType.patrimoine50k,
         celebrationText:
-            'Patrimoine estime : CHF ${_formatChf(curPat)}. '
+            'Patrimoine estime : CHF ${chf.formatChf(curPat)}. '
             'Un cap symbolique franchi.',
-        concreteValue: 'CHF ${_formatChf(curPat)}',
+        concreteValue: 'CHF ${chf.formatChf(curPat)}',
         detectedAt: detectedAt,
       ));
     }
@@ -543,9 +544,9 @@ class MilestoneDetectionService {
       results.add(DetectedMilestone(
         type: MilestoneType.patrimoine100k,
         celebrationText:
-            'Patrimoine estime : CHF ${_formatChf(curPat)}. '
+            'Patrimoine estime : CHF ${chf.formatChf(curPat)}. '
             'Seuil des 100k atteint.',
-        concreteValue: 'CHF ${_formatChf(curPat)}',
+        concreteValue: 'CHF ${chf.formatChf(curPat)}',
         detectedAt: detectedAt,
       ));
     }
@@ -554,9 +555,9 @@ class MilestoneDetectionService {
       results.add(DetectedMilestone(
         type: MilestoneType.patrimoine250k,
         celebrationText:
-            'Patrimoine estime : CHF ${_formatChf(curPat)}. '
+            'Patrimoine estime : CHF ${chf.formatChf(curPat)}. '
             'Un quart de million.',
-        concreteValue: 'CHF ${_formatChf(curPat)}',
+        concreteValue: 'CHF ${chf.formatChf(curPat)}',
         detectedAt: detectedAt,
       ));
     }
@@ -604,16 +605,5 @@ class MilestoneDetectionService {
     return results;
   }
 
-  // ── S36 Formatting helper ──────────────────────────────────
-
-  /// Format a CHF amount with Swiss apostrophe as thousands separator.
-  ///
-  /// Example: 1820.5 -> "1'820", 7258.0 -> "7'258"
-  static String _formatChf(double amount) {
-    final intStr = amount.toStringAsFixed(0);
-    return intStr.replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}\'',
-    );
-  }
+  // F3: _formatChf removed — use centralized chf.formatChf()
 }

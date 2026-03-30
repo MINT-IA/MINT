@@ -20,6 +20,7 @@
 library;
 
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
 //  REENGAGEMENT ENGINE — S40 / Reengagement + Consent
@@ -130,7 +131,7 @@ class ReengagementEngine {
   }) {
     final now = today ?? DateTime.now();
     final month = now.month;
-    final savingStr = _formatChf(taxSaving3a);
+    final savingStr = chf.formatChf(taxSaving3a);
     final messages = <ReengagementMessage>[];
 
     // ── January: Nouveaux plafonds 3a ────────────────────────
@@ -237,18 +238,7 @@ class ReengagementEngine {
     return messages;
   }
 
-  // ── Formatting helpers ─────────────────────────────────────
-
-  /// Format a CHF amount with Swiss apostrophe as thousands separator.
-  ///
-  /// Example: 1820.5 -> "1'820", 7258.0 -> "7'258"
-  static String _formatChf(double amount) {
-    final intStr = amount.toStringAsFixed(0);
-    return intStr.replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}\'',
-    );
-  }
+  // F3: _formatChf removed — use centralized chf.formatChf()
 
   /// Days remaining until end of the current month.
   static int _daysUntilEndOfMonth(DateTime date) {

@@ -1,4 +1,5 @@
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
 //  DIVORCE SERVICE
@@ -221,7 +222,7 @@ class DivorceService {
     if (lppTransfer > 100000) {
       alerts.add(
         'Le transfert LPP est significatif ('
-        '${_formatChf(lppTransfer)}). Verifiez les montants exacts '
+        '${chf.formatChfWithPrefix(lppTransfer)}). Verifiez les montants exacts '
         'aupres de ta caisse de pension.',
       );
     }
@@ -236,7 +237,7 @@ class DivorceService {
     if (taxImpact.delta > 5000) {
       alerts.add(
         'L\'impact fiscal du divorce est important : '
-        '+${_formatChf(taxImpact.delta)}/an. Anticipez ce surcout '
+        '+${chf.formatChfWithPrefix(taxImpact.delta)}/an. Anticipez ce surcout '
         'dans ton budget.',
       );
     }
@@ -306,19 +307,6 @@ class DivorceService {
     return income * marginalRate * 0.65;
   }
 
-  /// Format CHF with Swiss apostrophe.
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }
 
 // ────────────────────────────────────────────────────────────
@@ -490,7 +478,7 @@ class SuccessionService {
         (input.civilStatus == CivilStatus.concubinage ||
             input.civilStatus == CivilStatus.celibataire)) {
       alerts.add(
-        'Tes avoirs 3a (${_formatChf(input.avoirs3a)}) suivent '
+        'Tes avoirs 3a (${chf.formatChfWithPrefix(input.avoirs3a)}) suivent '
         'l\'ordre de beneficiaires OPP3, pas ton testament. '
         'Verifie tes clauses beneficiaires aupres de ta '
         'fondation 3a.',
@@ -499,7 +487,7 @@ class SuccessionService {
 
     if (input.capitalDecesLpp > 0) {
       alerts.add(
-        'Le capital-deces LPP (${_formatChf(input.capitalDecesLpp)}) '
+        'Le capital-deces LPP (${chf.formatChfWithPrefix(input.capitalDecesLpp)}) '
         'n\'entre pas dans la masse successorale. Il est verse '
         'selon le reglement de ta caisse de pension.',
       );
@@ -825,17 +813,4 @@ class SuccessionService {
     }
   }
 
-  /// Format CHF with Swiss apostrophe.
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }
