@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -90,6 +92,10 @@ Future<void> main() async {
   // Periodic refresh of server-driven feature flags (every 6 hours).
   // Cancelled/restarted by WidgetsBindingObserver in app.dart on lifecycle changes.
   FeatureFlags.startPeriodicRefresh();
+
+  // FIX-P1-7: Register orchestrator chat function to break circular dependency
+  // (coach_llm_service ↔ coach_orchestrator). Must happen before first chat.
+  CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
 
   // Lancement immédiat de l'app (UX first!)
   runApp(const MintApp());

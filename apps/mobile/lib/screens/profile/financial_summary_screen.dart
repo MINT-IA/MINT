@@ -107,6 +107,9 @@ class FinancialSummaryScreen extends StatelessWidget {
             grossSalary: gross,
             canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
             age: profile.age,
+            // FIX-P1-4: Pass etatCivil + nombreEnfants for correct tax calc.
+            etatCivil: profile.etatCivil.name,
+            nombreEnfants: profile.nombreEnfants,
           )
         : null;
 

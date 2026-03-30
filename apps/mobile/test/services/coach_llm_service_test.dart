@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 
@@ -13,6 +14,8 @@ void main() {
   late List<ChatMessage> emptyHistory;
 
   setUp(() {
+    // FIX-P1-7: Register orchestrator (no longer auto-imported).
+    CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
     profile = CoachProfile.buildDemo();
     config = LlmConfig.defaultOpenAI;
     emptyHistory = [];

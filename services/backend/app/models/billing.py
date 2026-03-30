@@ -21,6 +21,9 @@ from app.core.database import Base
 
 class SubscriptionModel(Base):
     __tablename__ = "subscriptions"
+    __table_args__ = (
+        UniqueConstraint("user_id", "source", name="uq_subscription_user_source"),
+    )
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)

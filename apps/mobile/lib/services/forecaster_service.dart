@@ -304,7 +304,7 @@ class ForecasterService {
     // Compare against GROSS household income for consistency.
     // Previously used householdNetAnnuel (NET) which inflated the ratio.
     final householdGrossAnnuel = profile.revenuBrutAnnuelCouple;
-    final tauxRemplacement = _safeReplacementRate(
+    final tauxRemplacement = safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
       annualCurrentIncome: householdGrossAnnuel,
     );
@@ -444,7 +444,7 @@ class ForecasterService {
           ).monthlyNetPayslip
         : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
-    final tauxRemplacement = _safeReplacementRate(
+    final tauxRemplacement = safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
       annualCurrentIncome: householdNetAnnuel,
     );
@@ -1001,7 +1001,12 @@ class ForecasterService {
     return (to.year - from.year) * 12 + (to.month - from.month);
   }
 
-  static double _safeReplacementRate({
+  /// Canonical replacement rate computation with safety guards.
+  ///
+  /// FIX-P1-3: Made public so [RetirementProjectionService] delegates here
+  /// instead of duplicating the formula (which lacked guards).
+  /// Clamps to 0-200%, rejects negative or absurdly low incomes.
+  static double safeReplacementRate({
     required double annualRetirementIncome,
     required double annualCurrentIncome,
   }) {

@@ -102,7 +102,7 @@ async def stripe_webhook(
     return StripeWebhookAck(received=True, event_type=event.get("type", "unknown"))
 
 
-@router.post("/debug/activate", response_model=BillingDebugActivateResponse)
+@router.post("/debug/activate", response_model=BillingDebugActivateResponse, include_in_schema=False)
 def debug_activate_subscription(
     body: BillingDebugActivateRequest,
     db: Session = Depends(get_db),
@@ -110,8 +110,9 @@ def debug_activate_subscription(
 ) -> BillingDebugActivateResponse:
     """
     Internal/dev helper to activate subscription without store checkout.
+    SECURITY: Only available in development. Hidden from OpenAPI schema.
     """
-    if settings.ENVIRONMENT in {"production", "staging"}:
+    if settings.ENVIRONMENT != "development":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Not found",

@@ -451,19 +451,22 @@ class CoachProfileProvider extends ChangeNotifier {
     );
 
     // AVS contribution years (LAVS art. 29 — cotisations dès 21 ans).
-    final int avsContributionYears;
+    final int rawAvsYears;
     if (isReturningSwiss) {
       // Reduced by time abroad
-      avsContributionYears = ((age - 20) - (yearsAbroad ?? 0)).clamp(0, 44);
+      rawAvsYears = (age - 20) - (yearsAbroad ?? 0);
     } else if (isExpat) {
       // Contributions start from max(arrivalAge, 21)
       final arrivalAge = arrivalYear - birthYear;
       final startAge = arrivalAge > 21 ? arrivalAge : 21;
-      avsContributionYears = (age - startAge).clamp(0, 44);
+      rawAvsYears = age - startAge;
     } else {
       // Swiss native: cotisations since age 21
-      avsContributionYears = (age - 20).clamp(0, 44);
+      rawAvsYears = age - 20;
     }
+    final avsContributionYears = rawAvsYears.clamp(0, 44);
+    // Flag when the raw value was outside [0, 44] so UI can inform the user.
+    final bool avsYearsWereClamped = rawAvsYears != avsContributionYears;
 
     final answers = <String, dynamic>{
       if (firstName != null && firstName.isNotEmpty) 'q_firstname': firstName,
@@ -479,6 +482,8 @@ class CoachProfileProvider extends ChangeNotifier {
           grossSalary >= 22680 && effectiveEmployment != 'independant',
       // AVS years estimated from age and situation (LAVS art. 29)
       'q_avs_contribution_years': avsContributionYears,
+      // P2-15: Flag when AVS years were clamped to [0,44] so UI can warn user.
+      if (avsYearsWereClamped) '_avs_years_clamped': true,
       // AVS rente estimated via financial_core AvsCalculator
       '_coach_avs_rente_estimee': minimal.avsMonthlyRente,
       // Patrimoine: estimated savings = (age-25) × salary × 5%
@@ -655,8 +660,16 @@ class CoachProfileProvider extends ChangeNotifier {
         updated.etatCivil != CoachCivilStatus.marie &&
         updated.etatCivil != CoachCivilStatus.concubinage) {
       // FIX-097: Clear local household state on divorce (fire-and-forget).
+      // FIX-P0-1: Remove ALL partner/spouse keys to prevent ghost conjoint
+      // on app restart. Without this, fromWizardAnswers() recreates the spouse
+      // from stale SharedPreferences → AVS couple cap 150% applied to a single.
       SharedPreferences.getInstance().then((sp) {
         sp.remove('_household_data');
+        final keysToRemove = sp.getKeys().where(
+            (k) => k.startsWith('q_partner_') || k.startsWith('q_spouse_'));
+        for (final key in keysToRemove.toList()) {
+          sp.remove(key);
+        }
       }).catchError((_) {});
     }
   }

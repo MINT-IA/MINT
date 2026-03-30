@@ -98,6 +98,10 @@ class ConversationStore {
   /// Key for the conversation index (list of metadata).
   static const _indexKey = '_chat_conversation_index';
 
+  /// Maximum conversations retained in SharedPreferences.
+  /// Oldest conversations are pruned when this limit is exceeded.
+  static const _maxConversations = 50;
+
   /// Maximum title length (characters).
   static const _maxTitleLength = 50;
 
@@ -228,8 +232,8 @@ class ConversationStore {
     RegExp(r'\b[1-9]\d{3}\s+[A-Z]', caseSensitive: false),
     // Employer patterns: "je travaille chez X", "mon employeur X"
     RegExp(r'(travaille\s+chez|employeur\s+est|boîte|entreprise)\s+\S+', caseSensitive: false),
-    // IBAN
-    RegExp(r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d?', caseSensitive: false),
+    // IBAN (CH + 19 digits, with optional spaces)
+    RegExp(r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}', caseSensitive: false),
     // Written-out amounts: "septante mille", "cent vingt mille"
     RegExp(r'(septante|huitante|nonante|cinquante|soixante|vingt|trente|quarante)\s+(mille|cents?)', caseSensitive: false),
   ];
@@ -314,11 +318,19 @@ class ConversationStore {
     }
   }
 
-  /// Persist the conversation index.
+  /// Persist the conversation index, pruning oldest if over limit.
   Future<void> _saveIndex(
     SharedPreferences prefs,
     List<ConversationMeta> index,
   ) async {
+    // Prune oldest conversations if over limit
+    if (index.length > _maxConversations) {
+      final toRemove = index.sublist(_maxConversations);
+      for (final meta in toRemove) {
+        await prefs.remove('$_messagesPrefix${meta.id}');
+      }
+      index = index.sublist(0, _maxConversations);
+    }
     final json = index.map((m) => m.toJson()).toList();
     await prefs.setString(_indexKey, jsonEncode(json));
   }

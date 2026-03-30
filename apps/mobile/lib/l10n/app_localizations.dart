@@ -156,7 +156,7 @@ abstract class S {
   /// No description provided for @landingFeature2Title.
   ///
   /// In fr, this message translates to:
-  /// **'100% Privé & Local'**
+  /// **'100 % Privé & Local'**
   String get landingFeature2Title;
 
   /// No description provided for @landingFeature2Desc.
@@ -510,7 +510,7 @@ abstract class S {
   /// No description provided for @advisorMiniResumeDiagnostic.
   ///
   /// In fr, this message translates to:
-  /// **'Reprendre mon diagnostic ({progress}%)'**
+  /// **'Reprendre mon diagnostic ({progress} %)'**
   String advisorMiniResumeDiagnostic(String progress);
 
   /// No description provided for @advisorMiniFullDiagnostic.
@@ -1458,13 +1458,13 @@ abstract class S {
   /// No description provided for @profileReward15.
   ///
   /// In fr, this message translates to:
-  /// **'+15% de précision'**
+  /// **'+15 % de précision'**
   String get profileReward15;
 
   /// No description provided for @profileReward10.
   ///
   /// In fr, this message translates to:
-  /// **'+10% de précision'**
+  /// **'+10 % de précision'**
   String get profileReward10;
 
   /// No description provided for @profileSecurityTitle.
@@ -1602,25 +1602,25 @@ abstract class S {
   /// No description provided for @rentVsCapitalPrudent.
   ///
   /// In fr, this message translates to:
-  /// **'Prudent (1%)'**
+  /// **'Prudent (1 %)'**
   String get rentVsCapitalPrudent;
 
   /// No description provided for @rentVsCapitalCentral.
   ///
   /// In fr, this message translates to:
-  /// **'Central (3%)'**
+  /// **'Central (3 %)'**
   String get rentVsCapitalCentral;
 
   /// No description provided for @rentVsCapitalOptimiste.
   ///
   /// In fr, this message translates to:
-  /// **'Optimiste (5%)'**
+  /// **'Optimiste (5 %)'**
   String get rentVsCapitalOptimiste;
 
   /// No description provided for @rentVsCapitalTauxConversionExpl.
   ///
   /// In fr, this message translates to:
-  /// **'Le taux de conversion détermine le montant de votre rente annuelle en fonction de votre avoir de vieillesse. Le taux légal minimum est de 6.8% pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3% et 6%.'**
+  /// **'Le taux de conversion détermine le montant de votre rente annuelle en fonction de votre avoir de vieillesse. Le taux légal minimum est de 6.8 % pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3 % et 6 %.'**
   String get rentVsCapitalTauxConversionExpl;
 
   /// No description provided for @rentVsCapitalChoixExpl.
@@ -1758,7 +1758,7 @@ abstract class S {
   /// No description provided for @disabilityGapIjmExpl.
   ///
   /// In fr, this message translates to:
-  /// **'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80% de votre salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu\'à l\'éventuelle rente AI.'**
+  /// **'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de votre salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu\'à l\'éventuelle rente AI.'**
   String get disabilityGapIjmExpl;
 
   /// No description provided for @disabilityGapCo324aExpl.
@@ -2334,7 +2334,7 @@ abstract class S {
   /// No description provided for @documentsConfidence.
   ///
   /// In fr, this message translates to:
-  /// **'Confiance : {confidence}%'**
+  /// **'Confiance : {confidence} %'**
   String documentsConfidence(String confidence);
 
   /// No description provided for @documentsFieldsFound.
@@ -2976,7 +2976,7 @@ abstract class S {
   /// No description provided for @jobCompareEducational.
   ///
   /// In fr, this message translates to:
-  /// **'Le salaire invisible représente 10-30% de ta rémunération totale.'**
+  /// **'Le salaire invisible représente 10-30 % de ta rémunération totale.'**
   String get jobCompareEducational;
 
   /// No description provided for @jobCompareVerdictBetter.
@@ -3884,13 +3884,13 @@ abstract class S {
   /// No description provided for @coachingDebtTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Taux d\'endettement élevé ({ratio}%)'**
+  /// **'Taux d\'endettement élevé ({ratio} %)'**
   String coachingDebtTitle(String ratio);
 
   /// No description provided for @coachingDebtMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Ton taux d\'endettement estimé est de {ratio}%, au-dessus du seuil de 33% recommandé par les banques suisses.'**
+  /// **'Ton taux d\'endettement estimé est de {ratio} %, au-dessus du seuil de 33 % recommandé par les banques suisses.'**
   String coachingDebtMessage(String ratio);
 
   /// No description provided for @coachingDebtAction.
@@ -3908,7 +3908,7 @@ abstract class S {
   /// No description provided for @coachingPartTimeMessage.
   ///
   /// In fr, this message translates to:
-  /// **'À {rate}% d\'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.'**
+  /// **'À {rate} % d\'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.'**
   String coachingPartTimeMessage(String rate);
 
   /// No description provided for @coachingPartTimeAction.
@@ -4142,7 +4142,7 @@ abstract class S {
   /// No description provided for @segmentsGenderGapRevenuLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Revenu annuel brut (100%)'**
+  /// **'Revenu annuel brut (100 %)'**
   String get segmentsGenderGapRevenuLabel;
 
   /// No description provided for @segmentsGenderGapAgeLabel.
@@ -4184,13 +4184,13 @@ abstract class S {
   /// No description provided for @segmentsGenderGapAt100.
   ///
   /// In fr, this message translates to:
-  /// **'À 100%'**
+  /// **'À 100 %'**
   String get segmentsGenderGapAt100;
 
   /// No description provided for @segmentsGenderGapAtCurrent.
   ///
   /// In fr, this message translates to:
-  /// **'À {rate}%'**
+  /// **'À {rate} %'**
   String segmentsGenderGapAtCurrent(String rate);
 
   /// No description provided for @segmentsGenderGapLacuneAnnuelle.
@@ -4214,31 +4214,31 @@ abstract class S {
   /// No description provided for @segmentsGenderGapCoordinationBody.
   ///
   /// In fr, this message translates to:
-  /// **'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de votre salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que vous travailliez à 100% ou à 50%.'**
+  /// **'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de votre salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que vous travailliez à 100 % ou à 50 %.'**
   String get segmentsGenderGapCoordinationBody;
 
   /// No description provided for @segmentsGenderGapSalaireBrut100.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire brut à 100%'**
+  /// **'Salaire brut à 100 %'**
   String get segmentsGenderGapSalaireBrut100;
 
   /// No description provided for @segmentsGenderGapSalaireCoord100.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire coordonné à 100%'**
+  /// **'Salaire coordonné à 100 %'**
   String get segmentsGenderGapSalaireCoord100;
 
   /// No description provided for @segmentsGenderGapSalaireBrutCurrent.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire brut à {rate}%'**
+  /// **'Salaire brut à {rate} %'**
   String segmentsGenderGapSalaireBrutCurrent(String rate);
 
   /// No description provided for @segmentsGenderGapSalaireCoordCurrent.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire coordonné à {rate}%'**
+  /// **'Salaire coordonné à {rate} %'**
   String segmentsGenderGapSalaireCoordCurrent(String rate);
 
   /// No description provided for @segmentsGenderGapDeductionFixe.
@@ -4256,7 +4256,7 @@ abstract class S {
   /// No description provided for @segmentsGenderGapOfsStat.
   ///
   /// In fr, this message translates to:
-  /// **'En Suisse, les femmes touchent en moyenne 37% de rente de moins que les hommes (OFS 2024)'**
+  /// **'En Suisse, les femmes touchent en moyenne 37 % de rente de moins que les hommes (OFS 2024)'**
   String get segmentsGenderGapOfsStat;
 
   /// No description provided for @segmentsGenderGapRecTitle.
@@ -4412,13 +4412,13 @@ abstract class S {
   /// No description provided for @segmentsFrontalierQuasiResidentDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Le statut de quasi-résident est accessible si au moins 90% des revenus de votre ménage proviennent de Suisse.'**
+  /// **'Le statut de quasi-résident est accessible si au moins 90 % des revenus de votre ménage proviennent de Suisse.'**
   String get segmentsFrontalierQuasiResidentDesc;
 
   /// No description provided for @segmentsFrontalierQuasiResidentCondition.
   ///
   /// In fr, this message translates to:
-  /// **'Condition : >= 90% des revenus du ménage provenant de Suisse'**
+  /// **'Condition : >= 90 % des revenus du ménage provenant de Suisse'**
   String get segmentsFrontalierQuasiResidentCondition;
 
   /// No description provided for @segmentsFrontalierChecklist.
@@ -4640,7 +4640,7 @@ abstract class S {
   /// No description provided for @segmentsIndependant3aWithoutLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Sans LPP : plafond 3a \'grand\' de 20% du revenu net, max CHF 36\'288/an.'**
+  /// **'Sans LPP : plafond 3a \'grand\' de 20 % du revenu net, max CHF 36\'288/an.'**
   String get segmentsIndependant3aWithoutLpp;
 
   /// No description provided for @segmentsIndependantRecTitle.
@@ -4772,7 +4772,7 @@ abstract class S {
   /// No description provided for @assurancesLamalQuotePart.
   ///
   /// In fr, this message translates to:
-  /// **'Quote-part (10%, max 700 CHF)'**
+  /// **'Quote-part (10 %, max 700 CHF)'**
   String get assurancesLamalQuotePart;
 
   /// No description provided for @assurancesCoverageTitle.
@@ -6200,7 +6200,7 @@ abstract class S {
   /// No description provided for @coachFactAvs.
   ///
   /// In fr, this message translates to:
-  /// **'En Suisse, chaque année AVS manquante = −2.3% de rente à vie. Un rattrapage est possible dans certains cas.'**
+  /// **'En Suisse, chaque année AVS manquante = −2.3 % de rente à vie. Un rattrapage est possible dans certains cas.'**
   String get coachFactAvs;
 
   /// No description provided for @coachFactAvsLink.
@@ -7256,7 +7256,7 @@ abstract class S {
   /// No description provided for @vaultConfidence.
   ///
   /// In fr, this message translates to:
-  /// **'Confiance : {confidence}%'**
+  /// **'Confiance : {confidence} %'**
   String vaultConfidence(String confidence);
 
   /// No description provided for @vaultAnalyzing.
@@ -7550,7 +7550,7 @@ abstract class S {
   /// No description provided for @soaSavingsGoal.
   ///
   /// In fr, this message translates to:
-  /// **'Objectif: 20%'**
+  /// **'Objectif: 20 %'**
   String get soaSavingsGoal;
 
   /// No description provided for @soaProtectionScore.
@@ -7742,7 +7742,7 @@ abstract class S {
   /// No description provided for @agirScenarioBriefSummary.
   ///
   /// In fr, this message translates to:
-  /// **'Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement}% de remplacement). L\'écart Prudent vs Optimiste est {gapCapital}.'**
+  /// **'Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement} % de remplacement). L\'écart Prudent vs Optimiste est {gapCapital}.'**
   String agirScenarioBriefSummary(
       String years, String baseCapital, String replacement, String gapCapital);
 
@@ -7827,7 +7827,7 @@ abstract class S {
   /// No description provided for @coachDataQualityBody.
   ///
   /// In fr, this message translates to:
-  /// **'Calcul actuel: {dataPoints} donnees saisies ({percentage}%). Les postes non renseignes restent en estimation jusqu au diagnostic complet.'**
+  /// **'Calcul actuel: {dataPoints} donnees saisies ({percentage} %). Les postes non renseignes restent en estimation jusqu au diagnostic complet.'**
   String coachDataQualityBody(String dataPoints, String percentage);
 
   /// No description provided for @coachShockTitle.
@@ -7893,7 +7893,7 @@ abstract class S {
   /// No description provided for @profileCoachKnowledgeSummary.
   ///
   /// In fr, this message translates to:
-  /// **'{profileState} • Precision {precision}% • Check-ins: {checkins}{scorePart}'**
+  /// **'{profileState} • Precision {precision} % • Check-ins: {checkins}{scorePart}'**
   String profileCoachKnowledgeSummary(
       String profileState, String precision, String checkins, String scorePart);
 
@@ -8116,7 +8116,7 @@ abstract class S {
   /// No description provided for @coachEnrichTargetTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Passe de {current}% a {target}% de precision'**
+  /// **'Passe de {current} % a {target} % de precision'**
   String coachEnrichTargetTitle(String current, String target);
 
   /// No description provided for @coachEnrichBodyIdentity.
@@ -8182,7 +8182,7 @@ abstract class S {
   /// No description provided for @coachAgirPartialTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Plan en construction ({quality}%)'**
+  /// **'Plan en construction ({quality} %)'**
   String coachAgirPartialTitle(String quality);
 
   /// No description provided for @coachAgirPartialBody.
@@ -8290,7 +8290,7 @@ abstract class S {
   /// No description provided for @landingDropPurchasingPower.
   ///
   /// In fr, this message translates to:
-  /// **'-{percent}% de pouvoir d\'achat'**
+  /// **'-{percent} % de pouvoir d\'achat'**
   String landingDropPurchasingPower(String percent);
 
   /// No description provided for @landingLppCapNotice.
@@ -8350,7 +8350,7 @@ abstract class S {
   /// No description provided for @landingFeaturePrivacyTitle.
   ///
   /// In fr, this message translates to:
-  /// **'100% privé, données sur ton appareil'**
+  /// **'100 % privé, données sur ton appareil'**
   String get landingFeaturePrivacyTitle;
 
   /// No description provided for @landingFeaturePrivacySubtitle.
@@ -8368,7 +8368,7 @@ abstract class S {
   /// No description provided for @landingTrustPrivate.
   ///
   /// In fr, this message translates to:
-  /// **'100% privé'**
+  /// **'100 % privé'**
   String get landingTrustPrivate;
 
   /// No description provided for @landingTrustNoCommitment.
@@ -8728,7 +8728,7 @@ abstract class S {
   /// No description provided for @dashboardMetricVsTarget.
   ///
   /// In fr, this message translates to:
-  /// **'Vs cible 70% du salaire brut'**
+  /// **'Vs cible 70 % du salaire brut'**
   String get dashboardMetricVsTarget;
 
   /// No description provided for @dashboardNextActionLabel.
@@ -10672,7 +10672,7 @@ abstract class S {
   /// No description provided for @mariageAvsSurvivorSub.
   ///
   /// In fr, this message translates to:
-  /// **'80% de la rente maximale du défunt'**
+  /// **'80 % de la rente maximale du défunt'**
   String get mariageAvsSurvivorSub;
 
   /// No description provided for @mariageAvsSurvivorFootnote.
@@ -10690,7 +10690,7 @@ abstract class S {
   /// No description provided for @mariageLppSurvivorSub.
   ///
   /// In fr, this message translates to:
-  /// **'60% de la rente assurée du défunt'**
+  /// **'60 % de la rente assurée du défunt'**
   String get mariageLppSurvivorSub;
 
   /// No description provided for @mariageLppSurvivorFootnote.
@@ -11032,7 +11032,7 @@ abstract class S {
   /// No description provided for @unemploymentSituationSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Influence le taux d\'indemnisation (70% ou 80%)'**
+  /// **'Influence le taux d\'indemnisation (70 % ou 80 %)'**
   String get unemploymentSituationSubtitle;
 
   /// No description provided for @unemploymentChildrenToggle.
@@ -11062,13 +11062,13 @@ abstract class S {
   /// No description provided for @unemploymentRateEnhanced.
   ///
   /// In fr, this message translates to:
-  /// **'Taux majoré (80%) : obligation d\'entretien, handicap, ou salaire < CHF 3\'797'**
+  /// **'Taux majoré (80 %) : obligation d\'entretien, handicap, ou salaire < CHF 3\'797'**
   String get unemploymentRateEnhanced;
 
   /// No description provided for @unemploymentRateStandard.
   ///
   /// In fr, this message translates to:
-  /// **'Taux standard (70%) : applicable dans les autres situations'**
+  /// **'Taux standard (70 %) : applicable dans les autres situations'**
   String get unemploymentRateStandard;
 
   /// No description provided for @unemploymentDailyBenefit.
@@ -11326,7 +11326,7 @@ abstract class S {
   /// No description provided for @firstJobEduBudgetBody.
   ///
   /// In fr, this message translates to:
-  /// **'Un bon réflexe pour ton premier salaire : 50% pour les dépenses fixes, 30% pour les loisirs, 20% pour l\'épargne et la prévoyance (3a inclus).'**
+  /// **'Un bon réflexe pour ton premier salaire : 50 % pour les dépenses fixes, 30 % pour les loisirs, 20 % pour l\'épargne et la prévoyance (3a inclus).'**
   String get firstJobEduBudgetBody;
 
   /// No description provided for @firstJobEduTaxTitle.
@@ -11488,7 +11488,7 @@ abstract class S {
   /// No description provided for @independantSourcesBody.
   ///
   /// In fr, this message translates to:
-  /// **'LPP art. 4 (pas d\'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20% du revenu net, max 36\'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal'**
+  /// **'LPP art. 4 (pas d\'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20 % du revenu net, max 36\'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal'**
   String get independantSourcesBody;
 
   /// No description provided for @independantDisclaimer.
@@ -11596,7 +11596,7 @@ abstract class S {
   /// No description provided for @jobCompareEduInvisibleBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le \"salaire invisible\" représente 10-30% de ta rémunération totale. Il inclut la part employeur à la caisse de pension (LPP), les assurances (IJM, accident), et parfois des avantages complémentaires. Deux postes au même salaire brut peuvent offrir des protections très différentes.'**
+  /// **'Le \"salaire invisible\" représente 10-30 % de ta rémunération totale. Il inclut la part employeur à la caisse de pension (LPP), les assurances (IJM, accident), et parfois des avantages complémentaires. Deux postes au même salaire brut peuvent offrir des protections très différentes.'**
   String get jobCompareEduInvisibleBody;
 
   /// No description provided for @jobCompareEduCertTitle.
@@ -11776,7 +11776,7 @@ abstract class S {
   /// No description provided for @disabilityGapEduIjmBody.
   ///
   /// In fr, this message translates to:
-  /// **'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80% de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne recevez plus rien jusqu\'à l\'éventuelle rente AI.'**
+  /// **'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne recevez plus rien jusqu\'à l\'éventuelle rente AI.'**
   String get disabilityGapEduIjmBody;
 
   /// No description provided for @disabilityGapEduCoTitle.
@@ -12016,7 +12016,7 @@ abstract class S {
   /// No description provided for @mariageChecklistItem6Desc.
   ///
   /// In fr, this message translates to:
-  /// **'La rente AVS maximale pour un couple est plafonnée à 150% de la rente individuelle maximale (LAVS art. 35). Si tu as droit à la rente max avec ton conjoint, le plafond peut réduire ton total.'**
+  /// **'La rente AVS maximale pour un couple est plafonnée à 150 % de la rente individuelle maximale (LAVS art. 35). Si tu as droit à la rente max avec ton conjoint, le plafond peut réduire ton total.'**
   String get mariageChecklistItem6Desc;
 
   /// No description provided for @mariageChecklistItem7Title.
@@ -12106,7 +12106,7 @@ abstract class S {
   /// No description provided for @successionQuotitePct.
   ///
   /// In fr, this message translates to:
-  /// **'soit {pct}% de la succession'**
+  /// **'soit {pct} % de la succession'**
   String successionQuotitePct(String pct);
 
   /// No description provided for @successionExonereLabel.
@@ -12136,7 +12136,7 @@ abstract class S {
   /// No description provided for @successionEduConcubinBody2.
   ///
   /// In fr, this message translates to:
-  /// **'En droit suisse, les concubins n\'ont AUCUN droit successoral légal. Sans testament, un concubin ne reçoit rien. De plus, l\'impôt successoral pour les concubins est généralement bien plus élevé que pour les conjoints (souvent 20-25% au lieu de 0%). Pour protéger ton/ta concubin·e, il est essentiel de rédiger un testament, de vérifier les clauses bénéficiaires 3a/LPP et d\'envisager des assurances-vie.'**
+  /// **'En droit suisse, les concubins n\'ont AUCUN droit successoral légal. Sans testament, un concubin ne reçoit rien. De plus, l\'impôt successoral pour les concubins est généralement bien plus élevé que pour les conjoints (souvent 20-25 % au lieu de 0 %). Pour protéger ton/ta concubin·e, il est essentiel de rédiger un testament, de vérifier les clauses bénéficiaires 3a/LPP et d\'envisager des assurances-vie.'**
   String get successionEduConcubinBody2;
 
   /// No description provided for @successionDisclaimerText.
@@ -12250,7 +12250,7 @@ abstract class S {
   /// No description provided for @donationTauxCanton.
   ///
   /// In fr, this message translates to:
-  /// **'Taux : {taux}% (canton {canton})'**
+  /// **'Taux : {taux} % (canton {canton})'**
   String donationTauxCanton(String taux, String canton);
 
   /// No description provided for @donationMontantRow.
@@ -12280,7 +12280,7 @@ abstract class S {
   /// No description provided for @donationReserveNote.
   ///
   /// In fr, this message translates to:
-  /// **'Depuis 2023, les parents n\'ont plus de réserve. La réserve des descendants est de 50% de leur part légale (CC art. 471).'**
+  /// **'Depuis 2023, les parents n\'ont plus de réserve. La réserve des descendants est de 50 % de leur part légale (CC art. 471).'**
   String get donationReserveNote;
 
   /// No description provided for @donationQuotiteTitle.
@@ -12352,7 +12352,7 @@ abstract class S {
   /// No description provided for @donationEduConcubinBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les concubins n\'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l\'impôt cantonal sur les donations entre concubins est généralement élevé (18-25% selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.'**
+  /// **'Les concubins n\'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l\'impôt cantonal sur les donations entre concubins est généralement élevé (18-25 % selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.'**
   String get donationEduConcubinBody;
 
   /// No description provided for @donationDisclaimer.
@@ -12767,7 +12767,7 @@ abstract class S {
   /// No description provided for @independantAvsBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6% au-dessus).'**
+  /// **'Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).'**
   String independantAvsBody(String amount);
 
   /// No description provided for @independantAvsSource.
@@ -12785,7 +12785,7 @@ abstract class S {
   /// No description provided for @independant3aWithoutLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Sans LPP : plafond 3a \"grand\" de 20% du revenu net, max {amount}/an (plafond légal CHF 36’288).'**
+  /// **'Sans LPP : plafond 3a \"grand\" de 20 % du revenu net, max {amount}/an (plafond légal CHF 36’288).'**
   String independant3aWithoutLpp(String amount);
 
   /// No description provided for @independant3aSource.
@@ -12845,7 +12845,7 @@ abstract class S {
   /// No description provided for @disabilityGapPhase1Full.
   ///
   /// In fr, this message translates to:
-  /// **'100% du salaire'**
+  /// **'100 % du salaire'**
   String get disabilityGapPhase1Full;
 
   /// No description provided for @disabilityGapNoCoverage.
@@ -12869,7 +12869,7 @@ abstract class S {
   /// No description provided for @disabilityGapPhase2Coverage.
   ///
   /// In fr, this message translates to:
-  /// **'80% du salaire ({amount} CHF/mois)'**
+  /// **'80 % du salaire ({amount} CHF/mois)'**
   String disabilityGapPhase2Coverage(String amount);
 
   /// No description provided for @disabilityGapCollectiveInsurance.
@@ -13397,7 +13397,7 @@ abstract class S {
   /// No description provided for @affordabilityEquityRequired.
   ///
   /// In fr, this message translates to:
-  /// **'Fonds propres requis (20%)'**
+  /// **'Fonds propres requis (20 %)'**
   String get affordabilityEquityRequired;
 
   /// No description provided for @affordabilitySavingsLabel.
@@ -13409,7 +13409,7 @@ abstract class S {
   /// No description provided for @affordabilityLppMax10.
   ///
   /// In fr, this message translates to:
-  /// **'Avoir LPP (max 10% du prix)'**
+  /// **'Avoir LPP (max 10 % du prix)'**
   String get affordabilityLppMax10;
 
   /// No description provided for @affordabilityTotalEquity.
@@ -13421,7 +13421,7 @@ abstract class S {
   /// No description provided for @affordabilityMortgagePercent.
   ///
   /// In fr, this message translates to:
-  /// **'Hypothèque ({percent}%)'**
+  /// **'Hypothèque ({percent} %)'**
   String affordabilityMortgagePercent(String percent);
 
   /// No description provided for @affordabilityMonthlyCharges.
@@ -13433,7 +13433,7 @@ abstract class S {
   /// No description provided for @affordabilityCalculationNote.
   ///
   /// In fr, this message translates to:
-  /// **'Calcul théorique : hypothèque x (5% intérêt imputé + 1% amortissement) + prix x 1% frais accessoires. Max 33% du revenu brut.'**
+  /// **'Calcul théorique : hypothèque x (5 % intérêt imputé + 1 % amortissement) + prix x 1 % frais accessoires. Max 33 % du revenu brut.'**
   String get affordabilityCalculationNote;
 
   /// No description provided for @amortizationSource.
@@ -13655,13 +13655,13 @@ abstract class S {
   /// No description provided for @fiscalBelowAverage.
   ///
   /// In fr, this message translates to:
-  /// **'Inférieur à la moyenne suisse (~{rate}%)'**
+  /// **'Inférieur à la moyenne suisse (~{rate} %)'**
   String fiscalBelowAverage(String rate);
 
   /// No description provided for @fiscalAboveAverage.
   ///
   /// In fr, this message translates to:
-  /// **'Supérieur à la moyenne suisse (~{rate}%)'**
+  /// **'Supérieur à la moyenne suisse (~{rate} %)'**
   String fiscalAboveAverage(String rate);
 
   /// No description provided for @fiscalBreakdownTitle.
@@ -14057,7 +14057,7 @@ abstract class S {
   /// No description provided for @expatAvsEducation.
   ///
   /// In fr, this message translates to:
-  /// **'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3%. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.'**
+  /// **'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3 %. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.'**
   String get expatAvsEducation;
 
   /// No description provided for @expatYearsInSwitzerland.
@@ -14237,7 +14237,7 @@ abstract class S {
   /// No description provided for @mariageTimelineAct3Insight.
   ///
   /// In fr, this message translates to:
-  /// **'Attention : plafond AVS couple (150% rente max). Planifier rente vs capital.'**
+  /// **'Attention : plafond AVS couple (150 % rente max). Planifier rente vs capital.'**
   String get mariageTimelineAct3Insight;
 
   /// No description provided for @naissanceChecklistItem1Title.
@@ -14285,7 +14285,7 @@ abstract class S {
   /// No description provided for @naissanceChecklistItem4Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Congé maternité : 14 semaines à 80% du salaire (max CHF 220/jour). Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. L\'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.'**
+  /// **'Congé maternité : 14 semaines à 80 % du salaire (max CHF 220/jour). Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. L\'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.'**
   String get naissanceChecklistItem4Desc;
 
   /// No description provided for @naissanceChecklistItem5Title.
@@ -14549,7 +14549,7 @@ abstract class S {
   /// No description provided for @narrativeConfidenceLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Confiance profil : {score}%'**
+  /// **'Confiance profil : {score} %'**
   String narrativeConfidenceLabel(String score);
 
   /// No description provided for @patrimoineCoupleTitleCouple.
@@ -14639,7 +14639,7 @@ abstract class S {
   /// No description provided for @patrimoineLtvDisplay.
   ///
   /// In fr, this message translates to:
-  /// **'LTV {percent}%'**
+  /// **'LTV {percent} %'**
   String patrimoineLtvDisplay(String percent);
 
   /// No description provided for @patrimoineLpp.
@@ -14825,7 +14825,7 @@ abstract class S {
   /// No description provided for @futurPilier3aSwr.
   ///
   /// In fr, this message translates to:
-  /// **'Pilier 3a (SWR 4%)'**
+  /// **'Pilier 3a (SWR 4 %)'**
   String get futurPilier3aSwr;
 
   /// No description provided for @futurCapitalLabel.
@@ -14837,13 +14837,13 @@ abstract class S {
   /// No description provided for @futurLibrePassageSwr.
   ///
   /// In fr, this message translates to:
-  /// **'Libre passage (SWR 4%)'**
+  /// **'Libre passage (SWR 4 %)'**
   String get futurLibrePassageSwr;
 
   /// No description provided for @futurInvestissementsSwr.
   ///
   /// In fr, this message translates to:
-  /// **'Investissements (SWR 4%)'**
+  /// **'Investissements (SWR 4 %)'**
   String get futurInvestissementsSwr;
 
   /// No description provided for @futurTotalCoupleProjecte.
@@ -14879,7 +14879,7 @@ abstract class S {
   /// No description provided for @futurMargeIncertitude.
   ///
   /// In fr, this message translates to:
-  /// **'Marge d\'incertitude (± {pct}%)'**
+  /// **'Marge d\'incertitude (± {pct} %)'**
   String futurMargeIncertitude(String pct);
 
   /// No description provided for @futurFourchette.
@@ -14897,7 +14897,7 @@ abstract class S {
   /// No description provided for @futurDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.'**
+  /// **'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4 % = règle des 4 %, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.'**
   String get futurDisclaimer;
 
   /// No description provided for @futurExplorerDetails.
@@ -14987,7 +14987,7 @@ abstract class S {
   /// No description provided for @financialSummaryBonusEstime.
   ///
   /// In fr, this message translates to:
-  /// **'Bonus estimé ({pct}%)'**
+  /// **'Bonus estimé ({pct} %)'**
   String financialSummaryBonusEstime(String pct);
 
   /// No description provided for @financialSummaryConjointBrutMensuel.
@@ -15317,19 +15317,19 @@ abstract class S {
   /// No description provided for @financialSummaryLtvAmortissement.
   ///
   /// In fr, this message translates to:
-  /// **'Ratio LTV : {pct}% — amortissement 2ème rang obligatoire'**
+  /// **'Ratio LTV : {pct} % — amortissement 2ème rang obligatoire'**
   String financialSummaryLtvAmortissement(String pct);
 
   /// No description provided for @financialSummaryLtvBonneVoie.
   ///
   /// In fr, this message translates to:
-  /// **'Ratio LTV : {pct}% — en bonne voie'**
+  /// **'Ratio LTV : {pct} % — en bonne voie'**
   String financialSummaryLtvBonneVoie(String pct);
 
   /// No description provided for @financialSummaryLtvExcellent.
   ///
   /// In fr, this message translates to:
-  /// **'Ratio LTV : {pct}% — excellent'**
+  /// **'Ratio LTV : {pct} % — excellent'**
   String financialSummaryLtvExcellent(String pct);
 
   /// No description provided for @financialSummaryPrevoyanceCapital.
@@ -15623,7 +15623,7 @@ abstract class S {
   /// No description provided for @financialSummaryConseilRemboursement.
   ///
   /// In fr, this message translates to:
-  /// **'Rembourse d\'abord la dette à {taux}% avant d\'investir. Chaque CHF remboursé = {taux}% de rendement effectif.'**
+  /// **'Rembourse d\'abord la dette à {taux} % avant d\'investir. Chaque CHF remboursé = {taux} % de rendement effectif.'**
   String financialSummaryConseilRemboursement(String taux);
 
   /// No description provided for @financialSummaryTotalDettes.
@@ -16889,13 +16889,13 @@ abstract class S {
   /// No description provided for @pillar3aBank15.
   ///
   /// In fr, this message translates to:
-  /// **'Banque 1.5%'**
+  /// **'Banque 1.5 %'**
   String get pillar3aBank15;
 
   /// No description provided for @pillar3aViac45.
   ///
   /// In fr, this message translates to:
-  /// **'VIAC 4.5%'**
+  /// **'VIAC 4.5 %'**
   String get pillar3aViac45;
 
   /// No description provided for @pillar3aYearN.
@@ -16907,7 +16907,7 @@ abstract class S {
   /// No description provided for @pillar3aCompoundTip.
   ///
   /// In fr, this message translates to:
-  /// **'Les dernières années font +50% du gain total grâce aux intérêts composés !'**
+  /// **'Les dernières années font +50 % du gain total grâce aux intérêts composés !'**
   String get pillar3aCompoundTip;
 
   /// No description provided for @pillar3aRecommended.
@@ -17015,7 +17015,7 @@ abstract class S {
   /// No description provided for @slmPrivacyMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Le modèle fonctionne 100% sur ton appareil. Aucune donnée ne quitte ton téléphone.'**
+  /// **'Le modèle fonctionne 100 % sur ton appareil. Aucune donnée ne quitte ton téléphone.'**
   String get slmPrivacyMessage;
 
   /// No description provided for @slmDownloadModelTitle.
@@ -17177,7 +17177,7 @@ abstract class S {
   /// No description provided for @pulseDigitalTwinPct.
   ///
   /// In fr, this message translates to:
-  /// **'Jumeau numérique : {pct}%'**
+  /// **'Jumeau numérique : {pct} %'**
   String pulseDigitalTwinPct(String pct);
 
   /// No description provided for @pulseDigitalTwinHint.
@@ -18277,13 +18277,13 @@ abstract class S {
   /// No description provided for @spendingMeterVariablesLegend.
   ///
   /// In fr, this message translates to:
-  /// **'Variables {percent}%'**
+  /// **'Variables {percent} %'**
   String spendingMeterVariablesLegend(int percent);
 
   /// No description provided for @spendingMeterFuturLegend.
   ///
   /// In fr, this message translates to:
-  /// **'Futur {percent}%'**
+  /// **'Futur {percent} %'**
   String spendingMeterFuturLegend(int percent);
 
   /// No description provided for @avsGuideAppBarTitle.
@@ -18565,7 +18565,7 @@ abstract class S {
   /// No description provided for @dataBlockFiscaliteDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d\'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu\'estimé (coefficient communal 60%-130%).'**
+  /// **'Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d\'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu\'estimé (coefficient communal 60 %-130 %).'**
   String get dataBlockFiscaliteDesc;
 
   /// No description provided for @dataBlockFiscaliteCta.
@@ -19297,7 +19297,7 @@ abstract class S {
   /// No description provided for @frontalierQuasiResidentDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.'**
+  /// **'Si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.'**
   String get frontalierQuasiResidentDesc;
 
   /// No description provided for @frontalierTessinTitle.
@@ -19309,7 +19309,7 @@ abstract class S {
   /// No description provided for @frontalierEducationalTax.
   ///
   /// In fr, this message translates to:
-  /// **'En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.'**
+  /// **'En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. À Genève, si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.'**
   String get frontalierEducationalTax;
 
   /// No description provided for @frontalierJoursBureau.
@@ -19387,7 +19387,7 @@ abstract class S {
   /// No description provided for @frontalierDuSalaire.
   ///
   /// In fr, this message translates to:
-  /// **'{percent}% du salaire'**
+  /// **'{percent} % du salaire'**
   String frontalierDuSalaire(String percent);
 
   /// No description provided for @frontalierChargesChMoins.
@@ -19429,7 +19429,7 @@ abstract class S {
   /// No description provided for @frontalierCmuDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Droit d\'option possible pour les frontaliers FR. Cotisation ~8% du revenu fiscal.'**
+  /// **'Droit d\'option possible pour les frontaliers FR. Cotisation ~8 % du revenu fiscal.'**
   String get frontalierCmuDesc;
 
   /// No description provided for @frontalierAssurancePriveeTitle.
@@ -19573,7 +19573,7 @@ abstract class S {
   /// No description provided for @concubinageConcubinTaux.
   ///
   /// In fr, this message translates to:
-  /// **'Concubin-e (~{taux}%)'**
+  /// **'Concubin-e (~{taux} %)'**
   String concubinageConcubinTaux(String taux);
 
   /// No description provided for @concubinageWarningSuccession.
@@ -21211,13 +21211,13 @@ abstract class S {
   /// No description provided for @docImpactRenteOblig.
   ///
   /// In fr, this message translates to:
-  /// **'Rente obligatoire à 6.8% : CHF {amount}/an'**
+  /// **'Rente obligatoire à 6.8 % : CHF {amount}/an'**
   String docImpactRenteOblig(String amount);
 
   /// No description provided for @docImpactSurobligWithRate.
   ///
   /// In fr, this message translates to:
-  /// **'Part surobligatoire (CHF {suroblig}) à {rate}% = CHF {rente}/an'**
+  /// **'Part surobligatoire (CHF {suroblig}) à {rate} % = CHF {rente}/an'**
   String docImpactSurobligWithRate(String suroblig, String rate, String rente);
 
   /// No description provided for @docImpactSurobligNoRate.
@@ -21235,7 +21235,7 @@ abstract class S {
   /// No description provided for @docImpactAvsCompletion.
   ///
   /// In fr, this message translates to:
-  /// **'sur {maxYears} nécessaires pour une rente AVS complète ({pct}%)'**
+  /// **'sur {maxYears} nécessaires pour une rente AVS complète ({pct} %)'**
   String docImpactAvsCompletion(int maxYears, int pct);
 
   /// No description provided for @docImpactGenericMessage.
@@ -21289,7 +21289,7 @@ abstract class S {
   /// No description provided for @extractionReviewConfidence.
   ///
   /// In fr, this message translates to:
-  /// **'Confiance extraction : {pct}%'**
+  /// **'Confiance extraction : {pct} %'**
   String extractionReviewConfidence(int pct);
 
   /// No description provided for @extractionReviewSourcePrefix.
@@ -21409,7 +21409,7 @@ abstract class S {
   /// No description provided for @firstSalaryNetPercent.
   ///
   /// In fr, this message translates to:
-  /// **'{pct}% net'**
+  /// **'{pct} % net'**
   String firstSalaryNetPercent(int pct);
 
   /// No description provided for @firstSalaryAct2Title.
@@ -21619,13 +21619,13 @@ abstract class S {
   /// No description provided for @firstSalaryBadgeSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Tu sais maintenant ce que 90% des gens ne savent jamais.'**
+  /// **'Tu sais maintenant ce que 90 % des gens ne savent jamais.'**
   String get firstSalaryBadgeSubtitle;
 
   /// No description provided for @firstSalaryDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7\'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4%/an.'**
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7\'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4 %/an.'**
   String get firstSalaryDisclaimer;
 
   /// No description provided for @benchmarkAppBarTitle.
@@ -23816,7 +23816,7 @@ abstract class S {
   /// No description provided for @dashboardCurrentConfidence.
   ///
   /// In fr, this message translates to:
-  /// **'Confiance actuelle : {score}%'**
+  /// **'Confiance actuelle : {score} %'**
   String dashboardCurrentConfidence(int score);
 
   /// No description provided for @dashboardPrecisionPtsGain.
@@ -23912,7 +23912,7 @@ abstract class S {
   /// No description provided for @dashboardPrecisionGainPercent.
   ///
   /// In fr, this message translates to:
-  /// **'Précision +{percent}%'**
+  /// **'Précision +{percent} %'**
   String dashboardPrecisionGainPercent(int percent);
 
   /// No description provided for @dashboardImpactChf.
@@ -25238,7 +25238,7 @@ abstract class S {
   /// No description provided for @expatSavingsBadge.
   ///
   /// In fr, this message translates to:
-  /// **'Économie : {amount} (-{percent}%)'**
+  /// **'Économie : {amount} (-{percent} %)'**
   String expatSavingsBadge(String amount, String percent);
 
   /// No description provided for @expatForfaitMoreCostly.
@@ -25256,7 +25256,7 @@ abstract class S {
   /// No description provided for @expatAvsReductionExplain.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque année manquante réduit ta rente d\'environ {percent}%. La réduction est définitive et s\'applique à vie.'**
+  /// **'Chaque année manquante réduit ta rente d\'environ {percent} %. La réduction est définitive et s\'applique à vie.'**
   String expatAvsReductionExplain(String percent);
 
   /// No description provided for @expatAvsChiffreChoc.
@@ -25742,7 +25742,7 @@ abstract class S {
   /// No description provided for @genderGapRevenuAnnuel.
   ///
   /// In fr, this message translates to:
-  /// **'Revenu annuel brut (100%)'**
+  /// **'Revenu annuel brut (100 %)'**
   String get genderGapRevenuAnnuel;
 
   /// No description provided for @genderGapAge.
@@ -25796,13 +25796,13 @@ abstract class S {
   /// No description provided for @genderGapAt100.
   ///
   /// In fr, this message translates to:
-  /// **'À 100%'**
+  /// **'À 100 %'**
   String get genderGapAt100;
 
   /// No description provided for @genderGapAtTaux.
   ///
   /// In fr, this message translates to:
-  /// **'À {taux}%'**
+  /// **'À {taux} %'**
   String genderGapAtTaux(String taux);
 
   /// No description provided for @genderGapPerYear.
@@ -25832,31 +25832,31 @@ abstract class S {
   /// No description provided for @genderGapCoordinationBody.
   ///
   /// In fr, this message translates to:
-  /// **'La déduction de coordination est un montant fixe de CHF 26\'460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100% ou à 50%.'**
+  /// **'La déduction de coordination est un montant fixe de CHF 26\'460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100 % ou à 50 %.'**
   String get genderGapCoordinationBody;
 
   /// No description provided for @genderGapSalaireBrut100.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire brut à 100%'**
+  /// **'Salaire brut à 100 %'**
   String get genderGapSalaireBrut100;
 
   /// No description provided for @genderGapSalaireCoordonne100.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire coordonné à 100%'**
+  /// **'Salaire coordonné à 100 %'**
   String get genderGapSalaireCoordonne100;
 
   /// No description provided for @genderGapSalaireBrutTaux.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire brut à {taux}%'**
+  /// **'Salaire brut à {taux} %'**
   String genderGapSalaireBrutTaux(String taux);
 
   /// No description provided for @genderGapSalaireCoordonneTaux.
   ///
   /// In fr, this message translates to:
-  /// **'Salaire coordonné à {taux}%'**
+  /// **'Salaire coordonné à {taux} %'**
   String genderGapSalaireCoordonneTaux(String taux);
 
   /// No description provided for @genderGapDeductionFixe.
@@ -25898,7 +25898,7 @@ abstract class S {
   /// No description provided for @genderGapSourcesBody.
   ///
   /// In fr, this message translates to:
-  /// **'LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)'**
+  /// **'LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)'**
   String get genderGapSourcesBody;
 
   /// No description provided for @achievementsErrorMessage.
@@ -25916,7 +25916,7 @@ abstract class S {
   /// No description provided for @documentsConfidenceChoc.
   ///
   /// In fr, this message translates to:
-  /// **'{count} documents = {pct}% de confiance'**
+  /// **'{count} documents = {pct} % de confiance'**
   String documentsConfidenceChoc(String count, String pct);
 
   /// No description provided for @lamalFranchiseAppBarTitle.
@@ -28136,7 +28136,7 @@ abstract class S {
   /// No description provided for @eplImpactRenteNote.
   ///
   /// In fr, this message translates to:
-  /// **'Estimation éducative basée sur un salaire de CHF 100’000, rendement caisse 2%, taux de conversion 6.8%. Le montant réel dépend de ta situation.'**
+  /// **'Estimation éducative basée sur un salaire de CHF 100’000, rendement caisse 2 %, taux de conversion 6.8 %. Le montant réel dépend de ta situation.'**
   String get eplImpactRenteNote;
 
   /// No description provided for @eplSectionFiscale.
@@ -28418,7 +28418,7 @@ abstract class S {
   /// No description provided for @providerComparatorAssuranceNote.
   ///
   /// In fr, this message translates to:
-  /// **'Les assurances 3a combinent épargne et couverture risque, mais les frais élevés (souvent > 1.5%) et la rigidité du contrat les rendent défavorables pour les jeunes épargnants.'**
+  /// **'Les assurances 3a combinent épargne et couverture risque, mais les frais élevés (souvent > 1.5 %) et la rigidité du contrat les rendent défavorables pour les jeunes épargnants.'**
   String get providerComparatorAssuranceNote;
 
   /// No description provided for @documentDetailFieldsExtracted.
@@ -29240,7 +29240,7 @@ abstract class S {
   /// No description provided for @compoundGainsPercent.
   ///
   /// In fr, this message translates to:
-  /// **'{percent}% de ce montant provient uniquement de tes gains de placement.'**
+  /// **'{percent} % de ce montant provient uniquement de tes gains de placement.'**
   String compoundGainsPercent(String percent);
 
   /// No description provided for @compoundLeconsTitle.
@@ -29414,7 +29414,7 @@ abstract class S {
   /// No description provided for @creditMentorBody.
   ///
   /// In fr, this message translates to:
-  /// **'En Suisse, un crédit coûte entre 4% et 10%. Cet argent \"perdu\" en intérêts pourrait être investi pour ton avenir.'**
+  /// **'En Suisse, un crédit coûte entre 4 % et 10 %. Cet argent \"perdu\" en intérêts pourrait être investi pour ton avenir.'**
   String get creditMentorBody;
 
   /// No description provided for @creditParametres.
@@ -29456,7 +29456,7 @@ abstract class S {
   /// No description provided for @creditRateWarning.
   ///
   /// In fr, this message translates to:
-  /// **'Attention : Ce taux dépasse le max légal suisse de 10%.'**
+  /// **'Attention : Ce taux dépasse le max légal suisse de 10 %.'**
   String get creditRateWarning;
 
   /// No description provided for @creditConseilsTitle.
@@ -29486,7 +29486,7 @@ abstract class S {
   /// No description provided for @creditCercleConfianceBody.
   ///
   /// In fr, this message translates to:
-  /// **'Un prêt familial peut souvent être obtenu à 0% d\'intérêt.'**
+  /// **'Un prêt familial peut souvent être obtenu à 0 % d\'intérêt.'**
   String get creditCercleConfianceBody;
 
   /// No description provided for @creditDettesConseils.
@@ -30320,13 +30320,13 @@ abstract class S {
   /// No description provided for @dividendeSplitMin.
   ///
   /// In fr, this message translates to:
-  /// **'0% salaire'**
+  /// **'0 % salaire'**
   String get dividendeSplitMin;
 
   /// No description provided for @dividendeSplitMax.
   ///
   /// In fr, this message translates to:
-  /// **'100% salaire'**
+  /// **'100 % salaire'**
   String get dividendeSplitMax;
 
   /// No description provided for @disabilityInsAppBarTitle.
@@ -34071,7 +34071,7 @@ abstract class S {
   /// No description provided for @benchmarkInsightSavings.
   ///
   /// In fr, this message translates to:
-  /// **'Un profil similaire épargne environ {rate}% de son revenu'**
+  /// **'Un profil similaire épargne environ {rate} % de son revenu'**
   String benchmarkInsightSavings(String rate);
 
   /// No description provided for @benchmarkInsightTax.
@@ -34089,13 +34089,13 @@ abstract class S {
   /// No description provided for @benchmarkInsight3a.
   ///
   /// In fr, this message translates to:
-  /// **'Environ {rate}% des actifs versent dans le 3a'**
+  /// **'Environ {rate} % des actifs versent dans le 3a'**
   String benchmarkInsight3a(String rate);
 
   /// No description provided for @benchmarkInsightLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Le taux de couverture LPP est de {rate}%'**
+  /// **'Le taux de couverture LPP est de {rate} %'**
   String benchmarkInsightLpp(String rate);
 
   /// No description provided for @benchmarkTaxLevelBelow.
@@ -35959,7 +35959,7 @@ abstract class S {
   /// No description provided for @notifOffTrackBody.
   ///
   /// In fr, this message translates to:
-  /// **'Adhérence à {adherence}% sur {total} actions. Indication linéaire (hors rendement/fiscalité) : ~CHF {impact}.'**
+  /// **'Adhérence à {adherence} % sur {total} actions. Indication linéaire (hors rendement/fiscalité) : ~CHF {impact}.'**
   String notifOffTrackBody(String adherence, String total, String impact);
 
   /// No description provided for @agentTaskTaxDeclarationTitle.
@@ -36817,7 +36817,7 @@ abstract class S {
   /// No description provided for @firstJobPayslipAvsExplanation.
   ///
   /// In fr, this message translates to:
-  /// **'Cotisation salarié·e : 5.3% du brut. Ton employeur paie aussi 5.3% en plus.'**
+  /// **'Cotisation salarié·e : 5.3 % du brut. Ton employeur paie aussi 5.3 % en plus.'**
   String get firstJobPayslipAvsExplanation;
 
   /// No description provided for @firstJobPayslipLppLabel.
@@ -36877,7 +36877,7 @@ abstract class S {
   /// No description provided for @firstJobChecklistConsequence2.
   ///
   /// In fr, this message translates to:
-  /// **'Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05%.'**
+  /// **'Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05 %.'**
   String get firstJobChecklistConsequence2;
 
   /// No description provided for @firstJobChecklistDeadline3.
@@ -37009,7 +37009,7 @@ abstract class S {
   /// No description provided for @firstJobScenarioBoosted.
   ///
   /// In fr, this message translates to:
-  /// **'+20%'**
+  /// **'+20 %'**
   String get firstJobScenarioBoosted;
 
   /// No description provided for @firstJobScenarioSemantics.
@@ -37777,7 +37777,7 @@ abstract class S {
   /// No description provided for @disabilityGapAct2SubIjm.
   ///
   /// In fr, this message translates to:
-  /// **'Assurance collective — 80% pendant 720 jours max'**
+  /// **'Assurance collective — 80 % pendant 720 jours max'**
   String get disabilityGapAct2SubIjm;
 
   /// No description provided for @disabilityGapAct2SubNoIjm.
@@ -37795,7 +37795,7 @@ abstract class S {
   /// No description provided for @disabilityGapAct2DetailIjm.
   ///
   /// In fr, this message translates to:
-  /// **'80% du salaire assuré'**
+  /// **'80 % du salaire assuré'**
   String get disabilityGapAct2DetailIjm;
 
   /// No description provided for @disabilityGapAct2DetailNoIjm.
@@ -37826,7 +37826,7 @@ abstract class S {
   /// No description provided for @disabilityGapIjmCoverage.
   ///
   /// In fr, this message translates to:
-  /// **'80% pendant 720 jours — assurance collective'**
+  /// **'80 % pendant 720 jours — assurance collective'**
   String get disabilityGapIjmCoverage;
 
   /// No description provided for @disabilityGapNoIjmCoverage.
@@ -37844,7 +37844,7 @@ abstract class S {
   /// No description provided for @disabilityGapLppCovered.
   ///
   /// In fr, this message translates to:
-  /// **'Rente invalidité ≈ 40% salaire coordonné (LPP art. 23)'**
+  /// **'Rente invalidité ≈ 40 % salaire coordonné (LPP art. 23)'**
   String get disabilityGapLppCovered;
 
   /// No description provided for @disabilityGapLppNotCovered.
@@ -37934,7 +37934,7 @@ abstract class S {
   /// No description provided for @documentDetailExplanationTauxOblig.
   ///
   /// In fr, this message translates to:
-  /// **'Légal minimum : 6.8%'**
+  /// **'Légal minimum : 6.8 %'**
   String get documentDetailExplanationTauxOblig;
 
   /// No description provided for @documentDetailExplanationTauxSurob.
@@ -38048,7 +38048,7 @@ abstract class S {
   /// No description provided for @disabilitySelfEmployedApgTip.
   ///
   /// In fr, this message translates to:
-  /// **'Une APG individuelle dès CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.'**
+  /// **'Une APG individuelle dès CHF 45/mois peut couvrir 80 % de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.'**
   String get disabilitySelfEmployedApgTip;
 
   /// No description provided for @disabilitySelfEmployedDisclaimer.
@@ -42488,7 +42488,7 @@ abstract class S {
   /// No description provided for @indepGrand3aSub.
   ///
   /// In fr, this message translates to:
-  /// **'20% du revenu net, max CHF 36\'288/an'**
+  /// **'20 % du revenu net, max CHF 36\'288/an'**
   String get indepGrand3aSub;
 
   /// No description provided for @indepGrand3aProFlexibilite.
@@ -42554,7 +42554,7 @@ abstract class S {
   /// No description provided for @indepFiscal3aNote.
   ///
   /// In fr, this message translates to:
-  /// **'Max 20% du revenu net, plafonné à CHF 36\'288/an sans LPP'**
+  /// **'Max 20 % du revenu net, plafonné à CHF 36\'288/an sans LPP'**
   String get indepFiscal3aNote;
 
   /// No description provided for @indepFiscalFraisPro.
@@ -42710,13 +42710,13 @@ abstract class S {
   /// No description provided for @donationReserveBarLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Réserve {pct}%'**
+  /// **'Réserve {pct} %'**
   String donationReserveBarLabel(String pct);
 
   /// No description provided for @donationDisponibleBarLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Disponible {pct}%'**
+  /// **'Disponible {pct} %'**
   String donationDisponibleBarLabel(String pct);
 
   /// No description provided for @donationDisclaimerFallback.
@@ -43353,7 +43353,7 @@ abstract class S {
   /// No description provided for @capCoachPromptReplacement.
   ///
   /// In fr, this message translates to:
-  /// **'Mon taux de remplacement est de {rate}%. Est-ce suffisant pour ma retraite ?'**
+  /// **'Mon taux de remplacement est de {rate} %. Est-ce suffisant pour ma retraite ?'**
   String capCoachPromptReplacement(Object rate);
 
   /// No description provided for @capCoachPromptUnemployment.
