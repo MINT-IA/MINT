@@ -107,7 +107,7 @@ class FhsDailyScore {
       ),
       deltaVsYesterday: (json['deltaVsYesterday'] as num).toDouble(),
       deltaVsWeekAgo: (json['deltaVsWeekAgo'] as num).toDouble(),
-      computedAt: DateTime.parse(json['computedAt'] as String),
+      computedAt: DateTime.tryParse(json['computedAt'] as String? ?? '') ?? DateTime.now(),
       liquidite: (json['liquidite'] as num).toDouble(),
       fiscalite: (json['fiscalite'] as num).toDouble(),
       retraite: (json['retraite'] as num).toDouble(),

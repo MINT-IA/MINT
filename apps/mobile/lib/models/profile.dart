@@ -74,10 +74,17 @@ class Profile {
   final bool? hasVoluntaryLpp; // Pour indépendants
   final String? primaryActivity; // Pour mixtes: 'employee' ou 'self_employed'
 
-  /// Computed age — prefers dateOfBirth (exact), falls back to birthYear.
+  /// Computed age — prefers dateOfBirth (exact month/day comparison),
+  /// falls back to birthYear. Matches CoachProfile.age precision.
   int? get age {
     if (dateOfBirth != null) {
-      return DateTime.now().difference(dateOfBirth!).inDays ~/ 365;
+      final now = DateTime.now();
+      int a = now.year - dateOfBirth!.year;
+      if (now.month < dateOfBirth!.month ||
+          (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
+        a--;
+      }
+      return a;
     }
     if (birthYear != null) {
       return DateTime.now().year - birthYear!;
@@ -204,7 +211,7 @@ class Profile {
         },
         orElse: () => Goal.other,
       ),
-      createdAt: DateTime.parse(json['createdAt']),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       // Nouveaux champs
       employmentStatus: json['employmentStatus'] != null
           ? EmploymentStatus.values.firstWhere(

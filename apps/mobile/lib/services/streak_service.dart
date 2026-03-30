@@ -101,6 +101,7 @@ class StreakService {
     // Check if the most recent check-in is within current or previous month
     final latest = sortedDesc.first.month;
     final latestMonth = DateTime(latest.year, latest.month);
+    // Dart normalizes month=0 → Dec of prev year, so this is safe in January.
     final prevMonth = DateTime(now.year, now.month - 1);
     final isRecent = latestMonth == nowMonth ||
         (latestMonth.year == prevMonth.year && latestMonth.month == prevMonth.month);
@@ -111,6 +112,7 @@ class StreakService {
       for (int i = 1; i < sortedDesc.length; i++) {
         final prev = sortedDesc[i - 1].month;
         final curr = sortedDesc[i].month;
+        // Dart normalizes month=0 → Dec of prev year, so this is safe in January.
         final expectedMonth = DateTime(prev.year, prev.month - 1);
         if (curr.year == expectedMonth.year &&
             curr.month == expectedMonth.month) {
