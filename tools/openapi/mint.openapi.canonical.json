@@ -20923,6 +20923,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Arbitrage Allocation Annuelle",
         "tags": [
           "Arbitrage S32-S33"
@@ -20965,6 +20970,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Arbitrage Calendrier Retraits",
         "tags": [
           "Arbitrage S32-S33"
@@ -21007,6 +21017,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Arbitrage Location Vs Propriete",
         "tags": [
           "Arbitrage S32-S33"
@@ -21049,6 +21064,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Arbitrage Rachat Vs Marche",
         "tags": [
           "Arbitrage S32-S33"
@@ -21091,6 +21111,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Arbitrage Rente Vs Capital",
         "tags": [
           "Arbitrage S32-S33"
@@ -21133,6 +21158,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Check Coverage",
         "tags": [
           "assurances"
@@ -21175,6 +21205,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Optimize Franchise",
         "tags": [
           "assurances"
@@ -28131,7 +28166,7 @@
     },
     "/api/v1/scenarios": {
       "post": {
-        "description": "Create a new scenario with computed outputs.",
+        "description": "Create a new scenario with computed outputs. Persisted in DB.",
         "operationId": "create_scenario_api_v1_scenarios_post",
         "requestBody": {
           "content": {
@@ -28178,7 +28213,7 @@
     },
     "/api/v1/scenarios/{profile_id}": {
       "get": {
-        "description": "List all scenarios for a profile.",
+        "description": "List all scenarios for a profile. Reads from DB.",
         "operationId": "list_scenarios_api_v1_scenarios__profile_id__get",
         "parameters": [
           {

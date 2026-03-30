@@ -110,8 +110,10 @@ def clean_database():
     from app.models.external_data_source import ExternalDataSourceModel
     from app.models.token_blacklist import TokenBlacklist
     from app.models.document import DocumentModel  # noqa: F811
+    from app.models.scenario import ScenarioModel
     db = TestingSessionLocal()
     try:
+        db.query(ScenarioModel).delete()
         db.query(DocumentModel).delete()
         db.query(TokenBlacklist).delete()
         db.query(ExternalDataSourceModel).delete()
