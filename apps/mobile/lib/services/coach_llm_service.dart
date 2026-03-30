@@ -3,7 +3,9 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
-import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+// FIX-P1-7: Removed direct import of coach_orchestrator.dart to break
+// circular dependency (coach_llm ↔ orchestrator). The orchestrator is
+// now resolved lazily at call time via _resolveOrchestrator().
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -252,15 +254,36 @@ class CoachResponse {
   });
 }
 
+/// Signature for the orchestrator's generateChat, used to break the
+/// circular dependency between coach_llm_service ↔ coach_orchestrator.
+typedef OrchestratorChatFn = Future<CoachResponse> Function({
+  required String userMessage,
+  required List<ChatMessage> history,
+  required CoachContext ctx,
+  LlmConfig? byokConfig,
+  String? memoryBlock,
+  String language,
+});
+
 /// Service de chat LLM pour le Coach MINT
 class CoachLlmService {
   /// Disclaimer standard
   static const _disclaimer =
       'Outil educatif — ne constitue pas un conseil financier. LSFin.';
 
+  /// FIX-P1-7: Late-bound orchestrator function to break circular import.
+  /// Set once at app init by [CoachOrchestrator.init()] or by tests.
+  static OrchestratorChatFn? _orchestratorChatFn;
+
+  /// Register the orchestrator's generateChat function.
+  /// Called once at startup (e.g. from main.dart or CoachOrchestrator.init).
+  static void registerOrchestrator(OrchestratorChatFn fn) {
+    _orchestratorChatFn = fn;
+  }
+
   /// Envoie un message et recoit une reponse du coach
   ///
-  /// Délègue à [CoachOrchestrator] pour la chaîne SLM → BYOK → mock.
+  /// Delegates to the registered orchestrator for the SLM → BYOK → mock chain.
   /// ComplianceGuard est appliqué centralement dans l'orchestrateur.
   ///
   /// Si BYOK est configure (config.hasApiKey), route via le backend RAG
@@ -277,11 +300,16 @@ class CoachLlmService {
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
-    // Delegate to CoachOrchestrator (SLM → BYOK → fallback chain).
-    // If SLM is available, it will be tried first (zero-network, privacy-first).
-    // BYOK is passed when config.hasApiKey, otherwise skipped.
-    // memoryBlock (S58) provides lifecycle, goals, and conversation history context.
-    final orchestratorResponse = await CoachOrchestrator.generateChat(
+    // FIX-P1-7: Use late-bound orchestrator instead of direct import.
+    if (_orchestratorChatFn == null) {
+      // Graceful fallback if orchestrator not yet registered.
+      return const CoachResponse(
+        message: 'Service en cours d\'initialisation. Reessaie dans un instant.',
+        disclaimer: 'Outil educatif — ne constitue pas un conseil financier. LSFin.',
+      );
+    }
+
+    final orchestratorResponse = await _orchestratorChatFn!(
       userMessage: userMessage,
       history: history,
       ctx: coachCtx,
@@ -290,11 +318,7 @@ class CoachLlmService {
       language: language,
     );
 
-    // If orchestrator returned a non-fallback response (SLM or BYOK succeeded),
-    // return it directly.
-    // The mock path is used as the final fallback by CoachOrchestrator itself,
-    // but we check here to add suggested actions via _inferSuggestedActions.
-    // Note: suggestedActions are resolved at the screen layer (CoachChatScreen)
+    // suggestedActions are resolved at the screen layer (CoachChatScreen)
     // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
     return CoachResponse(
       message: orchestratorResponse.message,
@@ -308,7 +332,7 @@ class CoachLlmService {
 
   /// Mode RAG direct (BYOK configure) — conservé pour compatibilité.
   ///
-  /// Appelé par l'orchestrateur via [CoachOrchestrator._tryByokChat].
+  /// Appelé par l'orchestrateur via CoachOrchestrator._tryByokChat.
   /// Reste accessible pour les tests unitaires de la couche RAG.
   @Deprecated('Utilise CoachOrchestrator.generateChat() à la place.')
   static Future<CoachResponse> chatViaRagDirect({

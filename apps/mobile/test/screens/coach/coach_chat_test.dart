@@ -7,6 +7,7 @@ import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
@@ -19,6 +20,9 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 // ────────────────────────────────────────────────────────────
 
 void main() {
+  // FIX-P1-7: Register orchestrator (no longer auto-imported by coach_llm_service).
+  CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
+
   CoachProfileProvider buildProfileProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({

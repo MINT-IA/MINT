@@ -1926,7 +1926,10 @@ class CoachProfile {
     final nombreEnfants = _parseInt(childrenRaw) ?? 0;
 
     // ── Revenus ─────────────────────────────────────────────
-    final payFrequency = answers['q_pay_frequency'] as String? ?? 'monthly';
+    // FIX-P0-2: Normalize to lowercase — "Yearly" (capitalized) was not
+    // recognized, causing annual salary to be treated as monthly.
+    final payFrequency =
+        (answers['q_pay_frequency'] as String?)?.toLowerCase() ?? 'monthly';
     final netIncome = _parseDouble(answers['q_net_income_period_chf']) ?? 5000;
 
     // Convert to monthly net income based on pay frequency

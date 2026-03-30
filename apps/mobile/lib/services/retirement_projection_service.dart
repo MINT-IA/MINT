@@ -5,6 +5,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -210,11 +211,13 @@ class RetirementProjectionService {
         incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
     // FIX-074: Use GROSS income for taux de remplacement (standard suisse).
-    // Was using NET, causing 12-point discrepancy vs ForecasterService.
+    // FIX-P1-3: Delegate to ForecasterService.safeReplacementRate (canonical).
     final revenuBrutMensuel = profile.revenuBrutAnnuel / 12 +
         (profile.conjoint?.revenuBrutAnnuel ?? 0) / 12;
-    final tauxRemplacement =
-        revenuBrutMensuel > 0 ? revenuMensuel / revenuBrutMensuel * 100 : 0.0;
+    final tauxRemplacement = ForecasterService.safeReplacementRate(
+      annualRetirementIncome: revenuMensuel * 12,
+      annualCurrentIncome: revenuBrutMensuel * 12,
+    );
 
     // 2. Couple phases
     final phases = _computePhases(
@@ -1079,8 +1082,11 @@ class RetirementProjectionService {
         : null;
     final revenuPreRetraite =
         userBkdn.monthlyNetPayslip + (conjBkdn?.monthlyNetPayslip ?? 0);
-    final tauxRemplacement =
-        revenuPreRetraite > 0 ? totalRevenus / revenuPreRetraite * 100 : 0.0;
+    // FIX-P1-3: Delegate to ForecasterService.safeReplacementRate (canonical).
+    final tauxRemplacement = ForecasterService.safeReplacementRate(
+      annualRetirementIncome: totalRevenus * 12,
+      annualCurrentIncome: revenuPreRetraite * 12,
+    );
 
     final solde = totalRevenus - impotMensuel - depensesMensuelles;
 

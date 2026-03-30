@@ -423,7 +423,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     final p = _profile!;
     if (!mounted) return;
     final s = S.of(context)!;
-    final name = p.firstName ?? s.coachFallbackName;
+    // FIX-P1-6: Guard against null/empty firstName to avoid blank greeting.
+    final name = (p.firstName != null && p.firstName!.isNotEmpty)
+        ? p.firstName!
+        : s.coachFallbackName;
     final locale = Localizations.localeOf(context).languageCode;
 
     final tier = _currentTier();
