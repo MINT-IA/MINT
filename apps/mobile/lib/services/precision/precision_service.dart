@@ -463,21 +463,26 @@ class PrecisionService {
     ));
 
     // --- AVS contribution years ---
-    double avsYears;
+    final double rawAvsYears;
     if (archetype == 'swiss_native') {
-      avsYears = (age - 20).clamp(0, 44).toDouble();
+      rawAvsYears = (age - 20).toDouble();
     } else if (archetype.startsWith('expat')) {
       // Expat: assume arrival at ~30 on average
-      avsYears = (age - 30).clamp(0, 44).toDouble();
+      rawAvsYears = (age - 30).toDouble();
     } else if (archetype == 'cross_border') {
-      avsYears = (age - 25).clamp(0, 44).toDouble();
+      rawAvsYears = (age - 25).toDouble();
     } else {
-      avsYears = (age - 20).clamp(0, 44).toDouble();
+      rawAvsYears = (age - 20).toDouble();
     }
+    final double avsYears = rawAvsYears.clamp(0, 44).toDouble();
+    // P2-15: Flag when clamping occurred so consumers can warn the user.
+    final bool avsYearsClamped = rawAvsYears != avsYears;
     defaults.add(SmartDefault(
       fieldName: 'avs_contribution_years',
       value: avsYears,
-      source: 'Estimation pour archetype $archetype (sans lacunes)',
+      source: avsYearsClamped
+          ? 'Estimation pour archetype $archetype (ajustée au max légal 44 ans)'
+          : 'Estimation pour archetype $archetype (sans lacunes)',
       confidence: archetype == 'swiss_native' ? 0.55 : 0.30,
     ));
 

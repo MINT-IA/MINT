@@ -235,7 +235,8 @@ class LamalFranchiseService {
         points.add(BreakEvenPoint(
           franchiseBasse: low,
           franchiseHaute: high,
-          seuilDepenses: seuil.clamp(0, 50000),
+          // Rough estimate — max 2M CHF covers high-deductible scenarios.
+          seuilDepenses: seuil.clamp(0, 2000000),
         ));
       }
     }

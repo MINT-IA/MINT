@@ -27,7 +27,7 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
-// TODO(security): Certificate pinning — P1-6 audit finding.
+// TODO(MINT-106): Certificate pinning — P1-6 audit finding.
 // Implement TLS certificate pinning for production domains once stable:
 //   - mint-production-3a41.up.railway.app
 //   - Expected: SHA-256 pin of Railway's leaf certificate

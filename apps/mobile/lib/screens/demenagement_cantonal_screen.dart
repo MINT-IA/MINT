@@ -190,8 +190,13 @@ class _DemenagementCantonalScreenState
     final idxDepart = _indiceFiscal[_cantonDepart] ?? 75;
     final idxArrivee = _indiceFiscal[_cantonArrivee] ?? 75;
     // Simplified: proportional to income and index difference
-    final tauxMoyenDepart = idxDepart / 100 * 0.22; // ~22% charge GE — TODO: use tax_calculator.dart for cantonal rates
-    final tauxMoyenArrivee = idxArrivee / 100 * 0.22; // TODO: use financial_core/tax_calculator.dart
+    // Simplified proportional model: 22% is the approximate average effective
+    // income tax rate for GE at median income (LIFD art. 36 + cantonal).
+    // TODO(MINT-201): Replace with TaxCalculator.estimateMonthlyIncomeTax()
+    // from financial_core/tax_calculator.dart for per-canton accuracy.
+    // Ref: financial_core/tax_calculator.dart — progressiveTax(), capitalWithdrawalTax()
+    final tauxMoyenDepart = idxDepart / 100 * 0.22;
+    final tauxMoyenArrivee = idxArrivee / 100 * 0.22;
     return _revenuBrut * (tauxMoyenDepart - tauxMoyenArrivee);
   }
 

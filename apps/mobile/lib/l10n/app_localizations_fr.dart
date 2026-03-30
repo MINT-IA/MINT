@@ -34,7 +34,7 @@ class SFr extends S {
   String get landingFeature1Desc => 'Analyse 360° en 5 min chrono.';
 
   @override
-  String get landingFeature2Title => '100% Privé & Local';
+  String get landingFeature2Title => '100 % Privé & Local';
 
   @override
   String get landingFeature2Desc => 'Tes données restent sur ton device.';
@@ -225,7 +225,7 @@ class SFr extends S {
 
   @override
   String advisorMiniResumeDiagnostic(String progress) {
-    return 'Reprendre mon diagnostic ($progress%)';
+    return 'Reprendre mon diagnostic ($progress %)';
   }
 
   @override
@@ -779,10 +779,10 @@ class SFr extends S {
   String get profileStatusMissing => 'Manquant';
 
   @override
-  String get profileReward15 => '+15% de précision';
+  String get profileReward15 => '+15 % de précision';
 
   @override
-  String get profileReward10 => '+10% de précision';
+  String get profileReward10 => '+10 % de précision';
 
   @override
   String get profileSecurityTitle => 'Sécurité & Data';
@@ -852,17 +852,17 @@ class SFr extends S {
   String get rentVsCapitalJamais => 'Jamais';
 
   @override
-  String get rentVsCapitalPrudent => 'Prudent (1%)';
+  String get rentVsCapitalPrudent => 'Prudent (1 %)';
 
   @override
-  String get rentVsCapitalCentral => 'Central (3%)';
+  String get rentVsCapitalCentral => 'Central (3 %)';
 
   @override
-  String get rentVsCapitalOptimiste => 'Optimiste (5%)';
+  String get rentVsCapitalOptimiste => 'Optimiste (5 %)';
 
   @override
   String get rentVsCapitalTauxConversionExpl =>
-      'Le taux de conversion détermine le montant de votre rente annuelle en fonction de votre avoir de vieillesse. Le taux légal minimum est de 6.8% pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3% et 6%.';
+      'Le taux de conversion détermine le montant de votre rente annuelle en fonction de votre avoir de vieillesse. Le taux légal minimum est de 6.8 % pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3 % et 6 %.';
 
   @override
   String get rentVsCapitalChoixExpl =>
@@ -936,7 +936,7 @@ class SFr extends S {
 
   @override
   String get disabilityGapIjmExpl =>
-      'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80% de votre salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu\'à l\'éventuelle rente AI.';
+      'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de votre salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu\'à l\'éventuelle rente AI.';
 
   @override
   String get disabilityGapCo324aExpl =>
@@ -1248,7 +1248,7 @@ class SFr extends S {
 
   @override
   String documentsConfidence(String confidence) {
-    return 'Confiance : $confidence%';
+    return 'Confiance : $confidence %';
   }
 
   @override
@@ -1597,7 +1597,7 @@ class SFr extends S {
 
   @override
   String get jobCompareEducational =>
-      'Le salaire invisible représente 10-30% de ta rémunération totale.';
+      'Le salaire invisible représente 10-30 % de ta rémunération totale.';
 
   @override
   String get jobCompareVerdictBetter =>
@@ -2095,12 +2095,12 @@ class SFr extends S {
 
   @override
   String coachingDebtTitle(String ratio) {
-    return 'Taux d\'endettement élevé ($ratio%)';
+    return 'Taux d\'endettement élevé ($ratio %)';
   }
 
   @override
   String coachingDebtMessage(String ratio) {
-    return 'Ton taux d\'endettement estimé est de $ratio%, au-dessus du seuil de 33% recommandé par les banques suisses.';
+    return 'Ton taux d\'endettement estimé est de $ratio %, au-dessus du seuil de 33 % recommandé par les banques suisses.';
   }
 
   @override
@@ -2111,7 +2111,7 @@ class SFr extends S {
 
   @override
   String coachingPartTimeMessage(String rate) {
-    return 'À $rate% d\'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.';
+    return 'À $rate % d\'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.';
   }
 
   @override
@@ -2244,7 +2244,7 @@ class SFr extends S {
   String get segmentsGenderGapParams => 'Paramètres';
 
   @override
-  String get segmentsGenderGapRevenuLabel => 'Revenu annuel brut (100%)';
+  String get segmentsGenderGapRevenuLabel => 'Revenu annuel brut (100 %)';
 
   @override
   String get segmentsGenderGapAgeLabel => 'Âge';
@@ -2267,11 +2267,11 @@ class SFr extends S {
   }
 
   @override
-  String get segmentsGenderGapAt100 => 'À 100%';
+  String get segmentsGenderGapAt100 => 'À 100 %';
 
   @override
   String segmentsGenderGapAtCurrent(String rate) {
-    return 'À $rate%';
+    return 'À $rate %';
   }
 
   @override
@@ -2286,22 +2286,22 @@ class SFr extends S {
 
   @override
   String get segmentsGenderGapCoordinationBody =>
-      'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de votre salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que vous travailliez à 100% ou à 50%.';
+      'La déduction de coordination est un montant fixe de CHF 25\'725 soustrait de votre salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que vous travailliez à 100 % ou à 50 %.';
 
   @override
-  String get segmentsGenderGapSalaireBrut100 => 'Salaire brut à 100%';
+  String get segmentsGenderGapSalaireBrut100 => 'Salaire brut à 100 %';
 
   @override
-  String get segmentsGenderGapSalaireCoord100 => 'Salaire coordonné à 100%';
+  String get segmentsGenderGapSalaireCoord100 => 'Salaire coordonné à 100 %';
 
   @override
   String segmentsGenderGapSalaireBrutCurrent(String rate) {
-    return 'Salaire brut à $rate%';
+    return 'Salaire brut à $rate %';
   }
 
   @override
   String segmentsGenderGapSalaireCoordCurrent(String rate) {
-    return 'Salaire coordonné à $rate%';
+    return 'Salaire coordonné à $rate %';
   }
 
   @override
@@ -2312,7 +2312,7 @@ class SFr extends S {
 
   @override
   String get segmentsGenderGapOfsStat =>
-      'En Suisse, les femmes touchent en moyenne 37% de rente de moins que les hommes (OFS 2024)';
+      'En Suisse, les femmes touchent en moyenne 37 % de rente de moins que les hommes (OFS 2024)';
 
   @override
   String get segmentsGenderGapRecTitle => 'RECOMMANDATIONS';
@@ -2400,11 +2400,11 @@ class SFr extends S {
 
   @override
   String get segmentsFrontalierQuasiResidentDesc =>
-      'Le statut de quasi-résident est accessible si au moins 90% des revenus de votre ménage proviennent de Suisse.';
+      'Le statut de quasi-résident est accessible si au moins 90 % des revenus de votre ménage proviennent de Suisse.';
 
   @override
   String get segmentsFrontalierQuasiResidentCondition =>
-      'Condition : >= 90% des revenus du ménage provenant de Suisse';
+      'Condition : >= 90 % des revenus du ménage provenant de Suisse';
 
   @override
   String get segmentsFrontalierChecklist => 'Checklist frontalier';
@@ -2523,7 +2523,7 @@ class SFr extends S {
 
   @override
   String get segmentsIndependant3aWithoutLpp =>
-      'Sans LPP : plafond 3a \'grand\' de 20% du revenu net, max CHF 36\'288/an.';
+      'Sans LPP : plafond 3a \'grand\' de 20 % du revenu net, max CHF 36\'288/an.';
 
   @override
   String get segmentsIndependantRecTitle => 'RECOMMANDATIONS';
@@ -2597,7 +2597,7 @@ class SFr extends S {
       'Rappel : modification possible avant le 30 novembre';
 
   @override
-  String get assurancesLamalQuotePart => 'Quote-part (10%, max 700 CHF)';
+  String get assurancesLamalQuotePart => 'Quote-part (10 %, max 700 CHF)';
 
   @override
   String get assurancesCoverageTitle => 'Check-up couverture';
@@ -3354,7 +3354,7 @@ class SFr extends S {
 
   @override
   String get coachFactAvs =>
-      'En Suisse, chaque année AVS manquante = −2.3% de rente à vie. Un rattrapage est possible dans certains cas.';
+      'En Suisse, chaque année AVS manquante = −2.3 % de rente à vie. Un rattrapage est possible dans certains cas.';
 
   @override
   String get coachFactAvsLink => 'Vérifier mes années AVS';
@@ -3958,7 +3958,7 @@ class SFr extends S {
 
   @override
   String vaultConfidence(String confidence) {
-    return 'Confiance : $confidence%';
+    return 'Confiance : $confidence %';
   }
 
   @override
@@ -4123,7 +4123,7 @@ class SFr extends S {
   String get soaSavingsRate => 'Taux d\'épargne';
 
   @override
-  String get soaSavingsGoal => 'Objectif: 20%';
+  String get soaSavingsGoal => 'Objectif: 20 %';
 
   @override
   String get soaProtectionScore => 'Score Protection';
@@ -4233,7 +4233,7 @@ class SFr extends S {
   @override
   String agirScenarioBriefSummary(
       String years, String baseCapital, String replacement, String gapCapital) {
-    return 'Dans ~$years ans, ton scénario Base vise $baseCapital (~$replacement% de remplacement). L\'écart Prudent vs Optimiste est $gapCapital.';
+    return 'Dans ~$years ans, ton scénario Base vise $baseCapital (~$replacement % de remplacement). L\'écart Prudent vs Optimiste est $gapCapital.';
   }
 
   @override
@@ -4288,7 +4288,7 @@ class SFr extends S {
 
   @override
   String coachDataQualityBody(String dataPoints, String percentage) {
-    return 'Calcul actuel: $dataPoints donnees saisies ($percentage%). Les postes non renseignes restent en estimation jusqu au diagnostic complet.';
+    return 'Calcul actuel: $dataPoints donnees saisies ($percentage %). Les postes non renseignes restent en estimation jusqu au diagnostic complet.';
   }
 
   @override
@@ -4325,7 +4325,7 @@ class SFr extends S {
   @override
   String profileCoachKnowledgeSummary(String profileState, String precision,
       String checkins, String scorePart) {
-    return '$profileState • Precision $precision% • Check-ins: $checkins$scorePart';
+    return '$profileState • Precision $precision % • Check-ins: $checkins$scorePart';
   }
 
   @override
@@ -4460,7 +4460,7 @@ class SFr extends S {
 
   @override
   String coachEnrichTargetTitle(String current, String target) {
-    return 'Passe de $current% a $target% de precision';
+    return 'Passe de $current % a $target % de precision';
   }
 
   @override
@@ -4500,7 +4500,7 @@ class SFr extends S {
 
   @override
   String coachAgirPartialTitle(String quality) {
-    return 'Plan en construction ($quality%)';
+    return 'Plan en construction ($quality %)';
   }
 
   @override
@@ -4567,7 +4567,7 @@ class SFr extends S {
 
   @override
   String landingDropPurchasingPower(String percent) {
-    return '-$percent% de pouvoir d\'achat';
+    return '-$percent % de pouvoir d\'achat';
   }
 
   @override
@@ -4608,7 +4608,7 @@ class SFr extends S {
 
   @override
   String get landingFeaturePrivacyTitle =>
-      '100% privé, données sur ton appareil';
+      '100 % privé, données sur ton appareil';
 
   @override
   String get landingFeaturePrivacySubtitle =>
@@ -4618,7 +4618,7 @@ class SFr extends S {
   String get landingTrustSwiss => 'Conçu en Suisse';
 
   @override
-  String get landingTrustPrivate => '100% privé';
+  String get landingTrustPrivate => '100 % privé';
 
   @override
   String get landingTrustNoCommitment => 'Sans engagement';
@@ -4815,7 +4815,7 @@ class SFr extends S {
   String get dashboardMetricMonthlyGap => 'Écart mensuel';
 
   @override
-  String get dashboardMetricVsTarget => 'Vs cible 70% du salaire brut';
+  String get dashboardMetricVsTarget => 'Vs cible 70 % du salaire brut';
 
   @override
   String get dashboardNextActionLabel => 'Améliorer ta précision';
@@ -5888,7 +5888,7 @@ class SFr extends S {
   String get mariageAvsSurvivor => 'Rente AVS de survivant';
 
   @override
-  String get mariageAvsSurvivorSub => '80% de la rente maximale du défunt';
+  String get mariageAvsSurvivorSub => '80 % de la rente maximale du défunt';
 
   @override
   String get mariageAvsSurvivorFootnote =>
@@ -5898,7 +5898,7 @@ class SFr extends S {
   String get mariageLppSurvivor => 'Rente LPP de survivant';
 
   @override
-  String get mariageLppSurvivorSub => '60% de la rente assurée du défunt';
+  String get mariageLppSurvivorSub => '60 % de la rente assurée du défunt';
 
   @override
   String get mariageLppSurvivorFootnote =>
@@ -6090,7 +6090,7 @@ class SFr extends S {
 
   @override
   String get unemploymentSituationSubtitle =>
-      'Influence le taux d\'indemnisation (70% ou 80%)';
+      'Influence le taux d\'indemnisation (70 % ou 80 %)';
 
   @override
   String get unemploymentChildrenToggle => 'Obligation d\'entretien (enfants)';
@@ -6106,11 +6106,11 @@ class SFr extends S {
 
   @override
   String get unemploymentRateEnhanced =>
-      'Taux majoré (80%) : obligation d\'entretien, handicap, ou salaire < CHF 3\'797';
+      'Taux majoré (80 %) : obligation d\'entretien, handicap, ou salaire < CHF 3\'797';
 
   @override
   String get unemploymentRateStandard =>
-      'Taux standard (70%) : applicable dans les autres situations';
+      'Taux standard (70 %) : applicable dans les autres situations';
 
   @override
   String get unemploymentDailyBenefit => 'Indemnité /jour';
@@ -6255,7 +6255,7 @@ class SFr extends S {
 
   @override
   String get firstJobEduBudgetBody =>
-      'Un bon réflexe pour ton premier salaire : 50% pour les dépenses fixes, 30% pour les loisirs, 20% pour l\'épargne et la prévoyance (3a inclus).';
+      'Un bon réflexe pour ton premier salaire : 50 % pour les dépenses fixes, 30 % pour les loisirs, 20 % pour l\'épargne et la prévoyance (3a inclus).';
 
   @override
   String get firstJobEduTaxTitle => 'Déclaration fiscale';
@@ -6342,7 +6342,7 @@ class SFr extends S {
 
   @override
   String get independantSourcesBody =>
-      'LPP art. 4 (pas d\'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20% du revenu net, max 36\'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal';
+      'LPP art. 4 (pas d\'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20 % du revenu net, max 36\'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal';
 
   @override
   String get independantDisclaimer =>
@@ -6400,7 +6400,7 @@ class SFr extends S {
 
   @override
   String get jobCompareEduInvisibleBody =>
-      'Le \"salaire invisible\" représente 10-30% de ta rémunération totale. Il inclut la part employeur à la caisse de pension (LPP), les assurances (IJM, accident), et parfois des avantages complémentaires. Deux postes au même salaire brut peuvent offrir des protections très différentes.';
+      'Le \"salaire invisible\" représente 10-30 % de ta rémunération totale. Il inclut la part employeur à la caisse de pension (LPP), les assurances (IJM, accident), et parfois des avantages complémentaires. Deux postes au même salaire brut peuvent offrir des protections très différentes.';
 
   @override
   String get jobCompareEduCertTitle =>
@@ -6493,7 +6493,7 @@ class SFr extends S {
 
   @override
   String get disabilityGapEduIjmBody =>
-      'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80% de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne recevez plus rien jusqu\'à l\'éventuelle rente AI.';
+      'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne recevez plus rien jusqu\'à l\'éventuelle rente AI.';
 
   @override
   String get disabilityGapEduCoTitle =>
@@ -6632,7 +6632,7 @@ class SFr extends S {
 
   @override
   String get mariageChecklistItem6Desc =>
-      'La rente AVS maximale pour un couple est plafonnée à 150% de la rente individuelle maximale (LAVS art. 35). Si tu as droit à la rente max avec ton conjoint, le plafond peut réduire ton total.';
+      'La rente AVS maximale pour un couple est plafonnée à 150 % de la rente individuelle maximale (LAVS art. 35). Si tu as droit à la rente max avec ton conjoint, le plafond peut réduire ton total.';
 
   @override
   String get mariageChecklistItem7Title => 'Adapter le testament';
@@ -6682,7 +6682,7 @@ class SFr extends S {
 
   @override
   String successionQuotitePct(String pct) {
-    return 'soit $pct% de la succession';
+    return 'soit $pct % de la succession';
   }
 
   @override
@@ -6703,7 +6703,7 @@ class SFr extends S {
 
   @override
   String get successionEduConcubinBody2 =>
-      'En droit suisse, les concubins n\'ont AUCUN droit successoral légal. Sans testament, un concubin ne reçoit rien. De plus, l\'impôt successoral pour les concubins est généralement bien plus élevé que pour les conjoints (souvent 20-25% au lieu de 0%). Pour protéger ton/ta concubin·e, il est essentiel de rédiger un testament, de vérifier les clauses bénéficiaires 3a/LPP et d\'envisager des assurances-vie.';
+      'En droit suisse, les concubins n\'ont AUCUN droit successoral légal. Sans testament, un concubin ne reçoit rien. De plus, l\'impôt successoral pour les concubins est généralement bien plus élevé que pour les conjoints (souvent 20-25 % au lieu de 0 %). Pour protéger ton/ta concubin·e, il est essentiel de rédiger un testament, de vérifier les clauses bénéficiaires 3a/LPP et d\'envisager des assurances-vie.';
 
   @override
   String get successionDisclaimerText =>
@@ -6763,7 +6763,7 @@ class SFr extends S {
 
   @override
   String donationTauxCanton(String taux, String canton) {
-    return 'Taux : $taux% (canton $canton)';
+    return 'Taux : $taux % (canton $canton)';
   }
 
   @override
@@ -6781,7 +6781,7 @@ class SFr extends S {
 
   @override
   String get donationReserveNote =>
-      'Depuis 2023, les parents n\'ont plus de réserve. La réserve des descendants est de 50% de leur part légale (CC art. 471).';
+      'Depuis 2023, les parents n\'ont plus de réserve. La réserve des descendants est de 50 % de leur part légale (CC art. 471).';
 
   @override
   String get donationQuotiteTitle => 'QUOTITÉ DISPONIBLE';
@@ -6826,7 +6826,7 @@ class SFr extends S {
 
   @override
   String get donationEduConcubinBody =>
-      'Les concubins n\'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l\'impôt cantonal sur les donations entre concubins est généralement élevé (18-25% selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.';
+      'Les concubins n\'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l\'impôt cantonal sur les donations entre concubins est généralement élevé (18-25 % selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.';
 
   @override
   String get donationDisclaimer =>
@@ -7060,7 +7060,7 @@ class SFr extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'Ta cotisation AVS estimée : $amount/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6% au-dessus).';
+    return 'Ta cotisation AVS estimée : $amount/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).';
   }
 
   @override
@@ -7073,7 +7073,7 @@ class SFr extends S {
 
   @override
   String independant3aWithoutLpp(String amount) {
-    return 'Sans LPP : plafond 3a \"grand\" de 20% du revenu net, max $amount/an (plafond légal CHF 36’288).';
+    return 'Sans LPP : plafond 3a \"grand\" de 20 % du revenu net, max $amount/an (plafond légal CHF 36’288).';
   }
 
   @override
@@ -7108,7 +7108,7 @@ class SFr extends S {
   }
 
   @override
-  String get disabilityGapPhase1Full => '100% du salaire';
+  String get disabilityGapPhase1Full => '100 % du salaire';
 
   @override
   String get disabilityGapNoCoverage => 'Aucune couverture';
@@ -7121,7 +7121,7 @@ class SFr extends S {
 
   @override
   String disabilityGapPhase2Coverage(String amount) {
-    return '80% du salaire ($amount CHF/mois)';
+    return '80 % du salaire ($amount CHF/mois)';
   }
 
   @override
@@ -7410,20 +7410,20 @@ class SFr extends S {
   String get affordabilityCalculationDetail => 'Détail du calcul';
 
   @override
-  String get affordabilityEquityRequired => 'Fonds propres requis (20%)';
+  String get affordabilityEquityRequired => 'Fonds propres requis (20 %)';
 
   @override
   String get affordabilitySavingsLabel => 'Épargne';
 
   @override
-  String get affordabilityLppMax10 => 'Avoir LPP (max 10% du prix)';
+  String get affordabilityLppMax10 => 'Avoir LPP (max 10 % du prix)';
 
   @override
   String get affordabilityTotalEquity => 'Total fonds propres';
 
   @override
   String affordabilityMortgagePercent(String percent) {
-    return 'Hypothèque ($percent%)';
+    return 'Hypothèque ($percent %)';
   }
 
   @override
@@ -7431,7 +7431,7 @@ class SFr extends S {
 
   @override
   String get affordabilityCalculationNote =>
-      'Calcul théorique : hypothèque x (5% intérêt imputé + 1% amortissement) + prix x 1% frais accessoires. Max 33% du revenu brut.';
+      'Calcul théorique : hypothèque x (5 % intérêt imputé + 1 % amortissement) + prix x 1 % frais accessoires. Max 33 % du revenu brut.';
 
   @override
   String get amortizationSource =>
@@ -7549,12 +7549,12 @@ class SFr extends S {
 
   @override
   String fiscalBelowAverage(String rate) {
-    return 'Inférieur à la moyenne suisse (~$rate%)';
+    return 'Inférieur à la moyenne suisse (~$rate %)';
   }
 
   @override
   String fiscalAboveAverage(String rate) {
-    return 'Supérieur à la moyenne suisse (~$rate%)';
+    return 'Supérieur à la moyenne suisse (~$rate %)';
   }
 
   @override
@@ -7774,7 +7774,7 @@ class SFr extends S {
 
   @override
   String get expatAvsEducation =>
-      'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3%. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.';
+      'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3 %. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.';
 
   @override
   String get expatYearsInSwitzerland => 'Années en Suisse';
@@ -7870,7 +7870,7 @@ class SFr extends S {
 
   @override
   String get mariageTimelineAct3Insight =>
-      'Attention : plafond AVS couple (150% rente max). Planifier rente vs capital.';
+      'Attention : plafond AVS couple (150 % rente max). Planifier rente vs capital.';
 
   @override
   String get naissanceChecklistItem1Title =>
@@ -7902,7 +7902,7 @@ class SFr extends S {
 
   @override
   String get naissanceChecklistItem4Desc =>
-      'Congé maternité : 14 semaines à 80% du salaire (max CHF 220/jour). Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. L\'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.';
+      'Congé maternité : 14 semaines à 80 % du salaire (max CHF 220/jour). Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. L\'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.';
 
   @override
   String get naissanceChecklistItem5Title =>
@@ -8064,7 +8064,7 @@ class SFr extends S {
 
   @override
   String narrativeConfidenceLabel(String score) {
-    return 'Confiance profil : $score%';
+    return 'Confiance profil : $score %';
   }
 
   @override
@@ -8115,7 +8115,7 @@ class SFr extends S {
 
   @override
   String patrimoineLtvDisplay(String percent) {
-    return 'LTV $percent%';
+    return 'LTV $percent %';
   }
 
   @override
@@ -8220,7 +8220,7 @@ class SFr extends S {
   String get futurRenteLpp => 'Rente LPP estimée';
 
   @override
-  String get futurPilier3aSwr => 'Pilier 3a (SWR 4%)';
+  String get futurPilier3aSwr => 'Pilier 3a (SWR 4 %)';
 
   @override
   String futurCapitalLabel(String amount) {
@@ -8228,10 +8228,10 @@ class SFr extends S {
   }
 
   @override
-  String get futurLibrePassageSwr => 'Libre passage (SWR 4%)';
+  String get futurLibrePassageSwr => 'Libre passage (SWR 4 %)';
 
   @override
-  String get futurInvestissementsSwr => 'Investissements (SWR 4%)';
+  String get futurInvestissementsSwr => 'Investissements (SWR 4 %)';
 
   @override
   String get futurTotalCoupleProjecte => 'Total couple projeté';
@@ -8252,7 +8252,7 @@ class SFr extends S {
 
   @override
   String futurMargeIncertitude(String pct) {
-    return 'Marge d\'incertitude (± $pct%)';
+    return 'Marge d\'incertitude (± $pct %)';
   }
 
   @override
@@ -8266,7 +8266,7 @@ class SFr extends S {
 
   @override
   String get futurDisclaimer =>
-      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
+      'Projection éducative — ne constitue pas un conseil (LSFin). SWR 4 % = règle des 4 %, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.';
 
   @override
   String get futurExplorerDetails => 'Explorer les détails';
@@ -8317,7 +8317,7 @@ class SFr extends S {
 
   @override
   String financialSummaryBonusEstime(String pct) {
-    return 'Bonus estimé ($pct%)';
+    return 'Bonus estimé ($pct %)';
   }
 
   @override
@@ -8505,17 +8505,17 @@ class SFr extends S {
 
   @override
   String financialSummaryLtvAmortissement(String pct) {
-    return 'Ratio LTV : $pct% — amortissement 2ème rang obligatoire';
+    return 'Ratio LTV : $pct % — amortissement 2ème rang obligatoire';
   }
 
   @override
   String financialSummaryLtvBonneVoie(String pct) {
-    return 'Ratio LTV : $pct% — en bonne voie';
+    return 'Ratio LTV : $pct % — en bonne voie';
   }
 
   @override
   String financialSummaryLtvExcellent(String pct) {
-    return 'Ratio LTV : $pct% — excellent';
+    return 'Ratio LTV : $pct % — excellent';
   }
 
   @override
@@ -8676,7 +8676,7 @@ class SFr extends S {
 
   @override
   String financialSummaryConseilRemboursement(String taux) {
-    return 'Rembourse d\'abord la dette à $taux% avant d\'investir. Chaque CHF remboursé = $taux% de rendement effectif.';
+    return 'Rembourse d\'abord la dette à $taux % avant d\'investir. Chaque CHF remboursé = $taux % de rendement effectif.';
   }
 
   @override
@@ -9396,10 +9396,10 @@ class SFr extends S {
   String get pillar3aYearLabel => 'Année';
 
   @override
-  String get pillar3aBank15 => 'Banque 1.5%';
+  String get pillar3aBank15 => 'Banque 1.5 %';
 
   @override
-  String get pillar3aViac45 => 'VIAC 4.5%';
+  String get pillar3aViac45 => 'VIAC 4.5 %';
 
   @override
   String pillar3aYearN(int n) {
@@ -9408,7 +9408,7 @@ class SFr extends S {
 
   @override
   String get pillar3aCompoundTip =>
-      'Les dernières années font +50% du gain total grâce aux intérêts composés !';
+      'Les dernières années font +50 % du gain total grâce aux intérêts composés !';
 
   @override
   String get pillar3aRecommended => 'RECOMMANDÉ';
@@ -9471,7 +9471,7 @@ class SFr extends S {
 
   @override
   String get slmPrivacyMessage =>
-      'Le modèle fonctionne 100% sur ton appareil. Aucune donnée ne quitte ton téléphone.';
+      'Le modèle fonctionne 100 % sur ton appareil. Aucune donnée ne quitte ton téléphone.';
 
   @override
   String get slmDownloadModelTitle => 'Télécharger le modèle ?';
@@ -9557,7 +9557,7 @@ class SFr extends S {
 
   @override
   String pulseDigitalTwinPct(String pct) {
-    return 'Jumeau numérique : $pct%';
+    return 'Jumeau numérique : $pct %';
   }
 
   @override
@@ -10198,12 +10198,12 @@ class SFr extends S {
 
   @override
   String spendingMeterVariablesLegend(int percent) {
-    return 'Variables $percent%';
+    return 'Variables $percent %';
   }
 
   @override
   String spendingMeterFuturLegend(int percent) {
-    return 'Futur $percent%';
+    return 'Futur $percent %';
   }
 
   @override
@@ -10368,7 +10368,7 @@ class SFr extends S {
 
   @override
   String get dataBlockFiscaliteDesc =>
-      'Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d\'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu\'estimé (coefficient communal 60%-130%).';
+      'Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d\'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu\'estimé (coefficient communal 60 %-130 %).';
 
   @override
   String get dataBlockFiscaliteCta => 'Comparer ma fiscalité';
@@ -10799,14 +10799,14 @@ class SFr extends S {
 
   @override
   String get frontalierQuasiResidentDesc =>
-      'Si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.';
+      'Si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.';
 
   @override
   String get frontalierTessinTitle => 'Tessin — régime spécial';
 
   @override
   String get frontalierEducationalTax =>
-      'En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.';
+      'En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. À Genève, si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.';
 
   @override
   String get frontalierJoursBureau => 'Jours au bureau en Suisse';
@@ -10851,7 +10851,7 @@ class SFr extends S {
 
   @override
   String frontalierDuSalaire(String percent) {
-    return '$percent% du salaire';
+    return '$percent % du salaire';
   }
 
   @override
@@ -10879,7 +10879,7 @@ class SFr extends S {
 
   @override
   String get frontalierCmuDesc =>
-      'Droit d\'option possible pour les frontaliers FR. Cotisation ~8% du revenu fiscal.';
+      'Droit d\'option possible pour les frontaliers FR. Cotisation ~8 % du revenu fiscal.';
 
   @override
   String get frontalierAssurancePriveeTitle => 'Assurance privée (DE/IT/AT)';
@@ -10954,7 +10954,7 @@ class SFr extends S {
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Concubin-e (~$taux%)';
+    return 'Concubin-e (~$taux %)';
   }
 
   @override
@@ -11934,12 +11934,12 @@ class SFr extends S {
 
   @override
   String docImpactRenteOblig(String amount) {
-    return 'Rente obligatoire à 6.8% : CHF $amount/an';
+    return 'Rente obligatoire à 6.8 % : CHF $amount/an';
   }
 
   @override
   String docImpactSurobligWithRate(String suroblig, String rate, String rente) {
-    return 'Part surobligatoire (CHF $suroblig) à $rate% = CHF $rente/an';
+    return 'Part surobligatoire (CHF $suroblig) à $rate % = CHF $rente/an';
   }
 
   @override
@@ -11954,7 +11954,7 @@ class SFr extends S {
 
   @override
   String docImpactAvsCompletion(int maxYears, int pct) {
-    return 'sur $maxYears nécessaires pour une rente AVS complète ($pct%)';
+    return 'sur $maxYears nécessaires pour une rente AVS complète ($pct %)';
   }
 
   @override
@@ -11989,7 +11989,7 @@ class SFr extends S {
 
   @override
   String extractionReviewConfidence(int pct) {
-    return 'Confiance extraction : $pct%';
+    return 'Confiance extraction : $pct %';
   }
 
   @override
@@ -12065,7 +12065,7 @@ class SFr extends S {
 
   @override
   String firstSalaryNetPercent(int pct) {
-    return '$pct% net';
+    return '$pct % net';
   }
 
   @override
@@ -12188,11 +12188,11 @@ class SFr extends S {
 
   @override
   String get firstSalaryBadgeSubtitle =>
-      'Tu sais maintenant ce que 90% des gens ne savent jamais.';
+      'Tu sais maintenant ce que 90 % des gens ne savent jamais.';
 
   @override
   String get firstSalaryDisclaimer =>
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7\'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4%/an.';
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7\'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4 %/an.';
 
   @override
   String get benchmarkAppBarTitle => 'Repères cantonaux';
@@ -13434,7 +13434,7 @@ class SFr extends S {
 
   @override
   String dashboardCurrentConfidence(int score) {
-    return 'Confiance actuelle : $score%';
+    return 'Confiance actuelle : $score %';
   }
 
   @override
@@ -13489,7 +13489,7 @@ class SFr extends S {
 
   @override
   String dashboardPrecisionGainPercent(int percent) {
-    return 'Précision +$percent%';
+    return 'Précision +$percent %';
   }
 
   @override
@@ -14243,7 +14243,7 @@ class SFr extends S {
 
   @override
   String expatSavingsBadge(String amount, String percent) {
-    return 'Économie : $amount (-$percent%)';
+    return 'Économie : $amount (-$percent %)';
   }
 
   @override
@@ -14258,7 +14258,7 @@ class SFr extends S {
 
   @override
   String expatAvsReductionExplain(String percent) {
-    return 'Chaque année manquante réduit ta rente d\'environ $percent%. La réduction est définitive et s\'applique à vie.';
+    return 'Chaque année manquante réduit ta rente d\'environ $percent %. La réduction est définitive et s\'applique à vie.';
   }
 
   @override
@@ -14536,7 +14536,7 @@ class SFr extends S {
   String get genderGapParametres => 'Paramètres';
 
   @override
-  String get genderGapRevenuAnnuel => 'Revenu annuel brut (100%)';
+  String get genderGapRevenuAnnuel => 'Revenu annuel brut (100 %)';
 
   @override
   String get genderGapAge => 'Âge';
@@ -14568,11 +14568,11 @@ class SFr extends S {
   }
 
   @override
-  String get genderGapAt100 => 'À 100%';
+  String get genderGapAt100 => 'À 100 %';
 
   @override
   String genderGapAtTaux(String taux) {
-    return 'À $taux%';
+    return 'À $taux %';
   }
 
   @override
@@ -14590,22 +14590,22 @@ class SFr extends S {
 
   @override
   String get genderGapCoordinationBody =>
-      'La déduction de coordination est un montant fixe de CHF 26\'460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100% ou à 50%.';
+      'La déduction de coordination est un montant fixe de CHF 26\'460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100 % ou à 50 %.';
 
   @override
-  String get genderGapSalaireBrut100 => 'Salaire brut à 100%';
+  String get genderGapSalaireBrut100 => 'Salaire brut à 100 %';
 
   @override
-  String get genderGapSalaireCoordonne100 => 'Salaire coordonné à 100%';
+  String get genderGapSalaireCoordonne100 => 'Salaire coordonné à 100 %';
 
   @override
   String genderGapSalaireBrutTaux(String taux) {
-    return 'Salaire brut à $taux%';
+    return 'Salaire brut à $taux %';
   }
 
   @override
   String genderGapSalaireCoordonneTaux(String taux) {
-    return 'Salaire coordonné à $taux%';
+    return 'Salaire coordonné à $taux %';
   }
 
   @override
@@ -14629,7 +14629,7 @@ class SFr extends S {
 
   @override
   String get genderGapSourcesBody =>
-      'LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)';
+      'LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)';
 
   @override
   String get achievementsErrorMessage => 'Le chargement a buté. On réessaie ?';
@@ -14640,7 +14640,7 @@ class SFr extends S {
 
   @override
   String documentsConfidenceChoc(String count, String pct) {
-    return '$count documents = $pct% de confiance';
+    return '$count documents = $pct % de confiance';
   }
 
   @override
@@ -15899,7 +15899,7 @@ class SFr extends S {
 
   @override
   String get eplImpactRenteNote =>
-      'Estimation éducative basée sur un salaire de CHF 100’000, rendement caisse 2%, taux de conversion 6.8%. Le montant réel dépend de ta situation.';
+      'Estimation éducative basée sur un salaire de CHF 100’000, rendement caisse 2 %, taux de conversion 6.8 %. Le montant réel dépend de ta situation.';
 
   @override
   String get eplSectionFiscale => 'Estimation fiscale';
@@ -16056,7 +16056,7 @@ class SFr extends S {
 
   @override
   String get providerComparatorAssuranceNote =>
-      'Les assurances 3a combinent épargne et couverture risque, mais les frais élevés (souvent > 1.5%) et la rigidité du contrat les rendent défavorables pour les jeunes épargnants.';
+      'Les assurances 3a combinent épargne et couverture risque, mais les frais élevés (souvent > 1.5 %) et la rigidité du contrat les rendent défavorables pour les jeunes épargnants.';
 
   @override
   String documentDetailFieldsExtracted(int found, int total) {
@@ -16495,7 +16495,7 @@ class SFr extends S {
 
   @override
   String compoundGainsPercent(String percent) {
-    return '$percent% de ce montant provient uniquement de tes gains de placement.';
+    return '$percent % de ce montant provient uniquement de tes gains de placement.';
   }
 
   @override
@@ -16596,7 +16596,7 @@ class SFr extends S {
 
   @override
   String get creditMentorBody =>
-      'En Suisse, un crédit coûte entre 4% et 10%. Cet argent \"perdu\" en intérêts pourrait être investi pour ton avenir.';
+      'En Suisse, un crédit coûte entre 4 % et 10 %. Cet argent \"perdu\" en intérêts pourrait être investi pour ton avenir.';
 
   @override
   String get creditParametres => 'Paramètres';
@@ -16618,7 +16618,7 @@ class SFr extends S {
 
   @override
   String get creditRateWarning =>
-      'Attention : Ce taux dépasse le max légal suisse de 10%.';
+      'Attention : Ce taux dépasse le max légal suisse de 10 %.';
 
   @override
   String get creditConseilsTitle => 'Conseils du Mentor';
@@ -16636,7 +16636,7 @@ class SFr extends S {
 
   @override
   String get creditCercleConfianceBody =>
-      'Un prêt familial peut souvent être obtenu à 0% d\'intérêt.';
+      'Un prêt familial peut souvent être obtenu à 0 % d\'intérêt.';
 
   @override
   String get creditDettesConseils => 'Dettes Conseils Suisse';
@@ -17117,10 +17117,10 @@ class SFr extends S {
       'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.';
 
   @override
-  String get dividendeSplitMin => '0% salaire';
+  String get dividendeSplitMin => '0 % salaire';
 
   @override
-  String get dividendeSplitMax => '100% salaire';
+  String get dividendeSplitMax => '100 % salaire';
 
   @override
   String get disabilityInsAppBarTitle => 'Ma couverture';
@@ -19304,7 +19304,7 @@ class SFr extends S {
 
   @override
   String benchmarkInsightSavings(String rate) {
-    return 'Un profil similaire épargne environ $rate% de son revenu';
+    return 'Un profil similaire épargne environ $rate % de son revenu';
   }
 
   @override
@@ -19319,12 +19319,12 @@ class SFr extends S {
 
   @override
   String benchmarkInsight3a(String rate) {
-    return 'Environ $rate% des actifs versent dans le 3a';
+    return 'Environ $rate % des actifs versent dans le 3a';
   }
 
   @override
   String benchmarkInsightLpp(String rate) {
-    return 'Le taux de couverture LPP est de $rate%';
+    return 'Le taux de couverture LPP est de $rate %';
   }
 
   @override
@@ -20360,7 +20360,7 @@ class SFr extends S {
 
   @override
   String notifOffTrackBody(String adherence, String total, String impact) {
-    return 'Adhérence à $adherence% sur $total actions. Indication linéaire (hors rendement/fiscalité) : ~CHF $impact.';
+    return 'Adhérence à $adherence % sur $total actions. Indication linéaire (hors rendement/fiscalité) : ~CHF $impact.';
   }
 
   @override
@@ -20863,7 +20863,7 @@ class SFr extends S {
 
   @override
   String get firstJobPayslipAvsExplanation =>
-      'Cotisation salarié·e : 5.3% du brut. Ton employeur paie aussi 5.3% en plus.';
+      'Cotisation salarié·e : 5.3 % du brut. Ton employeur paie aussi 5.3 % en plus.';
 
   @override
   String get firstJobPayslipLppLabel => 'LPP (2e pilier)';
@@ -20899,7 +20899,7 @@ class SFr extends S {
 
   @override
   String get firstJobChecklistConsequence2 =>
-      'Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05%.';
+      'Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05 %.';
 
   @override
   String get firstJobChecklistDeadline3 => '1 mois';
@@ -20969,7 +20969,7 @@ class SFr extends S {
   String get firstJobScenarioMedianCH => 'Médian CH';
 
   @override
-  String get firstJobScenarioBoosted => '+20%';
+  String get firstJobScenarioBoosted => '+20 %';
 
   @override
   String firstJobScenarioSemantics(String label) {
@@ -21418,7 +21418,7 @@ class SFr extends S {
 
   @override
   String get disabilityGapAct2SubIjm =>
-      'Assurance collective — 80% pendant 720 jours max';
+      'Assurance collective — 80 % pendant 720 jours max';
 
   @override
   String get disabilityGapAct2SubNoIjm =>
@@ -21428,7 +21428,7 @@ class SFr extends S {
   String get disabilityGapAct2Duration => 'Jusqu’à 24 mois';
 
   @override
-  String get disabilityGapAct2DetailIjm => '80% du salaire assuré';
+  String get disabilityGapAct2DetailIjm => '80 % du salaire assuré';
 
   @override
   String get disabilityGapAct2DetailNoIjm =>
@@ -21448,7 +21448,7 @@ class SFr extends S {
 
   @override
   String get disabilityGapIjmCoverage =>
-      '80% pendant 720 jours — assurance collective';
+      '80 % pendant 720 jours — assurance collective';
 
   @override
   String get disabilityGapNoIjmCoverage =>
@@ -21461,7 +21461,7 @@ class SFr extends S {
 
   @override
   String get disabilityGapLppCovered =>
-      'Rente invalidité ≈ 40% salaire coordonné (LPP art. 23)';
+      'Rente invalidité ≈ 40 % salaire coordonné (LPP art. 23)';
 
   @override
   String get disabilityGapLppNotCovered =>
@@ -21518,7 +21518,7 @@ class SFr extends S {
       'Montant déduit pour coordonner avec l’AVS';
 
   @override
-  String get documentDetailExplanationTauxOblig => 'Légal minimum : 6.8%';
+  String get documentDetailExplanationTauxOblig => 'Légal minimum : 6.8 %';
 
   @override
   String get documentDetailExplanationTauxSurob =>
@@ -21584,7 +21584,7 @@ class SFr extends S {
 
   @override
   String get disabilitySelfEmployedApgTip =>
-      'Une APG individuelle dès CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.';
+      'Une APG individuelle dès CHF 45/mois peut couvrir 80 % de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.';
 
   @override
   String get disabilitySelfEmployedDisclaimer =>
@@ -24095,7 +24095,7 @@ class SFr extends S {
   String get indepLppConFlexible => 'Moins flexible';
 
   @override
-  String get indepGrand3aSub => '20% du revenu net, max CHF 36\'288/an';
+  String get indepGrand3aSub => '20 % du revenu net, max CHF 36\'288/an';
 
   @override
   String get indepGrand3aProFlexibilite => 'Flexibilité totale';
@@ -24129,7 +24129,7 @@ class SFr extends S {
 
   @override
   String get indepFiscal3aNote =>
-      'Max 20% du revenu net, plafonné à CHF 36\'288/an sans LPP';
+      'Max 20 % du revenu net, plafonné à CHF 36\'288/an sans LPP';
 
   @override
   String get indepFiscalFraisPro => 'Frais professionnels effectifs';
@@ -24213,12 +24213,12 @@ class SFr extends S {
 
   @override
   String donationReserveBarLabel(String pct) {
-    return 'Réserve $pct%';
+    return 'Réserve $pct %';
   }
 
   @override
   String donationDisponibleBarLabel(String pct) {
-    return 'Disponible $pct%';
+    return 'Disponible $pct %';
   }
 
   @override
@@ -24576,7 +24576,7 @@ class SFr extends S {
 
   @override
   String capCoachPromptReplacement(Object rate) {
-    return 'Mon taux de remplacement est de $rate%. Est-ce suffisant pour ma retraite ?';
+    return 'Mon taux de remplacement est de $rate %. Est-ce suffisant pour ma retraite ?';
   }
 
   @override
