@@ -8,19 +8,21 @@ Accepts PDF/CSV uploads, extracts structured data from Swiss financial documents
 and optionally indexes extracted data into the RAG vector store.
 
 Privacy: raw file bytes are never stored permanently. Only extracted fields
-are kept in the in-memory document store.
+are kept in the database.
 """
 
-import asyncio
 import logging
 import os
 import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.core.rate_limit import limiter
+from app.models.document import DocumentModel
 from app.models.user import User
 
 from app.schemas.document import (
@@ -40,15 +42,6 @@ router = APIRouter()
 
 # Max upload size: 20 MB (LPP certificates, salary slips, bank statements)
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
-
-# In-memory document store (Phase 1 — will migrate to DB in Phase 2)
-_document_store: dict[str, dict] = {}
-_document_store_lock = asyncio.Lock()
-
-
-def _get_document_store() -> dict:
-    """Get the in-memory document store (for testing override)."""
-    return _document_store
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -184,6 +177,7 @@ async def upload_document(
         description="Whether to index extracted data in the RAG vector store",
     ),
     _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ):
     """
     Upload a PDF document for extraction.
@@ -284,20 +278,21 @@ async def upload_document(
     # Preview text (first 500 chars, privacy-safe)
     raw_preview = parsed.full_text[:500] if parsed.full_text else ""
 
-    # Store in memory (no raw PDF stored — privacy by design)
-    now = datetime.now(timezone.utc).isoformat()
-    async with _document_store_lock:
-        _document_store[doc_id] = {
-            "id": doc_id,
-            "user_id": _user.id,
-            "document_type": doc_type,
-            "upload_date": now,
-            "confidence": extracted.confidence,
-            "fields_found": extracted.extracted_fields_count,
-            "fields_total": extracted.total_fields_count,
-            "extracted_fields": extracted_dict,
-            "warnings": warnings,
-        }
+    # Persist to database (no raw PDF stored — privacy by design)
+    now = datetime.now(timezone.utc)
+    doc_model = DocumentModel(
+        id=doc_id,
+        user_id=str(_user.id),
+        document_type=doc_type,
+        upload_date=now,
+        confidence=extracted.confidence,
+        fields_found=extracted.extracted_fields_count,
+        fields_total=extracted.total_fields_count,
+        extracted_fields=extracted_dict,
+        warnings=warnings,
+    )
+    db.add(doc_model)
+    db.commit()
 
     # Optionally index in RAG
     rag_indexed = False
@@ -318,71 +313,87 @@ async def upload_document(
 
 
 @router.get("/", response_model=DocumentListResponse)
-async def list_documents(_user: User = Depends(require_current_user)):
+async def list_documents(
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+    limit: int = Query(50, ge=1, le=100, description="Max documents to return (1-100)"),
+    offset: int = Query(0, ge=0, description="Number of documents to skip"),
+):
     """
     List all uploaded documents for the current user.
 
     Returns document summaries (no extracted fields for performance).
+    Supports LIMIT/OFFSET pagination (max 100 per page).
     """
-    store = _get_document_store()
+    base_query = db.query(DocumentModel).filter(
+        DocumentModel.user_id == str(_user.id)
+    )
+    total = base_query.count()
+    rows = base_query.order_by(DocumentModel.upload_date.desc()).offset(offset).limit(limit).all()
     summaries = [
         DocumentSummary(
-            id=doc["id"],
-            document_type=doc["document_type"],
-            upload_date=doc["upload_date"],
-            confidence=doc["confidence"],
-            fields_found=doc["fields_found"],
+            id=row.id,
+            document_type=row.document_type,
+            upload_date=row.upload_date.isoformat() if row.upload_date else None,
+            confidence=row.confidence,
+            fields_found=row.fields_found,
         )
-        for doc in store.values()
-        if doc.get("user_id") == _user.id
+        for row in rows
     ]
-    return DocumentListResponse(documents=summaries)
+    return DocumentListResponse(documents=summaries, total=total, limit=limit, offset=offset)
 
 
 @router.get("/{doc_id}", response_model=DocumentDetailResponse)
-async def get_document(doc_id: str, _user: User = Depends(require_current_user)):
+async def get_document(
+    doc_id: str,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+):
     """
     Get a specific document by ID.
 
     Returns full extracted fields and metadata.
     Only the document owner can access it.
     """
-    store = _get_document_store()
-    if doc_id not in store:
+    row = db.query(DocumentModel).filter(DocumentModel.id == doc_id).first()
+    if not row:
         raise HTTPException(status_code=404, detail=f"Document {doc_id} not found")
 
-    doc = store[doc_id]
-    if doc.get("user_id") != _user.id:
+    if row.user_id != str(_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to access this document")
     return DocumentDetailResponse(
-        id=doc["id"],
-        document_type=doc["document_type"],
-        upload_date=doc["upload_date"],
-        confidence=doc["confidence"],
-        fields_found=doc["fields_found"],
-        fields_total=doc["fields_total"],
-        extracted_fields=doc["extracted_fields"],
-        warnings=doc["warnings"],
+        id=row.id,
+        document_type=row.document_type,
+        upload_date=row.upload_date.isoformat() if row.upload_date else None,
+        confidence=row.confidence,
+        fields_found=row.fields_found,
+        fields_total=row.fields_total,
+        extracted_fields=row.extracted_fields or {},
+        warnings=row.warnings or [],
     )
 
 
 @router.delete("/{doc_id}", response_model=DocumentDeleteResponse)
-async def delete_document(doc_id: str, _user: User = Depends(require_current_user)):
+async def delete_document(
+    doc_id: str,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+):
     """
     Delete a document by ID.
 
     Removes all stored data for privacy. This is irreversible.
     Only the document owner can delete it.
     """
-    store = _get_document_store()
-    if doc_id not in store:
+    row = db.query(DocumentModel).filter(DocumentModel.id == doc_id).first()
+    if not row:
         raise HTTPException(status_code=404, detail=f"Document {doc_id} not found")
 
-    doc = store[doc_id]
-    if doc.get("user_id") != _user.id:
+    if row.user_id != str(_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to delete this document")
 
-    del store[doc_id]
+    db.delete(row)
+    db.commit()
     return DocumentDeleteResponse(deleted=True, id=doc_id)
 
 
@@ -589,6 +600,7 @@ async def confirm_document_scan(
     body: DocumentScanConfirmation,
     request: Request,
     current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ):
     """Receive confirmed document scan extraction from mobile.
 
@@ -607,17 +619,22 @@ async def confirm_document_scan(
     )
 
     # Store scan metadata for audit trail
-    scan_record = {
-        "id": str(uuid.uuid4()),
-        "user_id": str(current_user.id)[:8],  # Truncated for privacy
-        "document_type": body.document_type.value,
-        "fields": [f.model_dump() for f in body.confirmed_fields],
-        "overall_confidence": body.overall_confidence,
-        "extraction_method": body.extraction_method,
-        "confirmed_at": datetime.now(timezone.utc).isoformat(),
-    }
-    async with _document_store_lock:
-        _document_store[scan_record["id"]] = scan_record
+    scan_id = str(uuid.uuid4())
+    doc_model = DocumentModel(
+        id=scan_id,
+        user_id=str(current_user.id),
+        document_type=body.document_type.value,
+        upload_date=datetime.now(timezone.utc),
+        confidence=body.overall_confidence,
+        overall_confidence=body.overall_confidence,
+        extraction_method=body.extraction_method,
+        fields_found=len(body.confirmed_fields),
+        fields_total=len(body.confirmed_fields),
+        extracted_fields={f.field_name: f.value for f in body.confirmed_fields},
+        warnings=[],
+    )
+    db.add(doc_model)
+    db.commit()
 
     # Calculate confidence delta (how much this scan improves profile)
     confidence_delta = _estimate_scan_confidence_delta(body)

@@ -130,7 +130,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       elevation: 0,
       scrolledUnderElevation: 0.5,
       leading: Semantics(
-        label: 'Retour',
+        label: S.of(context)!.semanticsBackButton,
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),

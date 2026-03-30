@@ -33,7 +33,7 @@ class ProfileModel(Base):
     __tablename__ = "profiles"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=True)  # Nullable for anonymous profiles
+    user_id = Column(String, ForeignKey("users.id"), index=True, nullable=True)  # Nullable for anonymous profiles
     data = Column(MutableDict.as_mutable(JSONEncodedDict), nullable=False)  # Store full profile as JSON
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

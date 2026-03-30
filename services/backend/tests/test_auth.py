@@ -1088,3 +1088,44 @@ def test_refresh_token_replay_rejected(auth_client: TestClient):
         json={"refresh_token": refresh},
     )
     assert r2.status_code == 401
+
+
+def test_delete_account_purges_documents(auth_client: TestClient):
+    """FIX-181: delete_account removes all user documents from DB."""
+    # Register
+    reg = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "docpurge@example.com", "password": "pass12345"},
+    )
+    assert reg.status_code == 201
+    token = reg.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Create a document directly in test DB
+    from app.models.document import DocumentModel
+    from tests.conftest import TestingSessionLocal
+    user_id = reg.json()["user_id"]
+    db = TestingSessionLocal()
+    doc = DocumentModel(
+        id=f"test-doc-purge-{user_id[:8]}",
+        user_id=user_id,
+        document_type="lpp_certificate",
+    )
+    db.add(doc)
+    db.commit()
+    assert db.query(DocumentModel).filter(
+        DocumentModel.user_id == user_id
+    ).count() == 1
+    db.close()
+
+    # Delete account
+    response = auth_client.delete("/api/v1/auth/account", headers=headers)
+    assert response.status_code == 200
+
+    # Verify documents are gone
+    db2 = TestingSessionLocal()
+    remaining = db2.query(DocumentModel).filter(
+        DocumentModel.user_id == user_id
+    ).count()
+    db2.close()
+    assert remaining == 0, f"Expected 0 documents after delete, found {remaining}"

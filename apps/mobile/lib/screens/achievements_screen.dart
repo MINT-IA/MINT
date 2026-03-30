@@ -356,7 +356,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         final isToday = index == 6;
 
         return Semantics(
-          label: '${dayLabels[date.weekday - 1]} ${isEngaged ? "actif" : "inactif"}',
+          label: '${dayLabels[date.weekday - 1]} ${isEngaged ? "actif" : "inactif"}', // TODO: i18n — Semantics labels
           child: Column(
             children: [
               Text(
@@ -726,7 +726,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   Widget _buildMilestoneRow(MintMilestone milestone) {
     return Semantics(
-      label: '${milestone.label} ${milestone.isReached ? "atteint" : "non atteint"}',
+      label: '${milestone.label} ${milestone.isReached ? "atteint" : "non atteint"}', // TODO: i18n — Semantics labels
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(

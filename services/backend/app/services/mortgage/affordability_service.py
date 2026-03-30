@@ -166,7 +166,11 @@ class AffordabilityService:
         # Solve for max price from equity constraint
         if FONDS_PROPRES_MIN_PCT > 0:
             # Case A: assumes LPP covers full 10% contribution
-            prix_max_case_a = fp_base / (FONDS_PROPRES_MIN_PCT - PART_2E_PILIER_MAX)  # fp_base / 0.10
+            denominator = FONDS_PROPRES_MIN_PCT - PART_2E_PILIER_MAX
+            if denominator <= 0:
+                prix_max_case_a = 0.0  # Safety: impossible equity split
+            else:
+                prix_max_case_a = fp_base / denominator  # fp_base / 0.10
             # Check if LPP actually covers 10% at this price
             if avoir_lpp >= prix_max_case_a * PART_2E_PILIER_MAX:
                 prix_max_equity = prix_max_case_a

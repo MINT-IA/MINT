@@ -108,12 +108,12 @@ class CoachGate extends StatelessWidget {
 
                     // Label
                     Text(
-                      'Fonctionnalite Coach',
+                      'Fonctionnalite Coach', // TODO: i18n
                       style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Disponible avec MINT Coach',
+                      'Disponible avec MINT Coach', // TODO: i18n
                       style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                     ),
                     const SizedBox(height: 16),
@@ -123,7 +123,7 @@ class CoachGate extends StatelessWidget {
                       onPressed: () => CoachPaywallSheet.show(context),
                       icon: const Icon(Icons.lock_open_rounded, size: 16),
                       label: Text(
-                        'Debloquer',
+                        'Débloquer', // TODO: i18n — fix accent + extract to ARB
                         style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       style: ElevatedButton.styleFrom(

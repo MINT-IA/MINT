@@ -970,7 +970,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
         // ── P8-C : Clause 3a beneficiaire (OPP3 art. 2) ──
         Clause3aWidget(
-          balance3a: _revenuImpact * 0.3, // estimation ~30% du revenu
+          balance3a: _revenuImpact * 0.3, // estimation ~30% du revenu — TODO: use financial_core for accurate 3a projection
           hasClause: false,
         ),
         const SizedBox(height: MintSpacing.lg),

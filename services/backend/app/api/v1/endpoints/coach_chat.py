@@ -178,7 +178,15 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     # Users can save insights containing adversarial instructions
     # that would be interpreted as system-level directives.
     import re
+    import unicodedata
+
+    # Unicode normalization: strip zero-width chars, normalize to NFC
+    # Prevents bypass via invisible characters (zero-width space, etc.)
+    scrubbed = unicodedata.normalize("NFC", scrubbed)
+    scrubbed = re.sub(r'[\u200b\u200c\u200d\u2060\ufeff]', '', scrubbed)
+
     _INJECTION_PATTERNS = [
+        # English patterns
         re.compile(r'\[?\s*SYSTEM\s*(OVERRIDE|PROMPT|MESSAGE)\s*\]?', re.IGNORECASE),
         re.compile(r'ignore\s+(all\s+)?(previous\s+)?(rules|instructions|constraints)', re.IGNORECASE),
         re.compile(r'new\s+(directive|instruction|rule|system\s+prompt)', re.IGNORECASE),
@@ -187,6 +195,17 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
         re.compile(r'forget\s+(everything|all|your\s+instructions)', re.IGNORECASE),
         re.compile(r'act\s+as\s+(if|though)\s+', re.IGNORECASE),
         re.compile(r'pretend\s+(you|to\s+be)', re.IGNORECASE),
+        # French patterns (multilingual injection defense)
+        re.compile(r'ignore[rz]?\s+(toutes?\s+)?(les\s+)?(règles|instructions|contraintes)', re.IGNORECASE),
+        re.compile(r'nouvelle[s]?\s+(directive|instruction|règle|consigne)', re.IGNORECASE),
+        re.compile(r'désormais\s+(tu|vous)\s+(dois|devez|es|êtes)', re.IGNORECASE),
+        re.compile(r'oublie[rz]?\s+(tout|toutes?\s+les\s+instructions)', re.IGNORECASE),
+        re.compile(r'fais\s+comme\s+si', re.IGNORECASE),
+        re.compile(r'tu\s+es\s+(maintenant|désormais)\s+', re.IGNORECASE),
+        re.compile(r'(sois|deviens)\s+(prescriptif|directif|un\s+conseiller)', re.IGNORECASE),
+        # German patterns
+        re.compile(r'ignoriere?\s+(alle\s+)?(vorherigen?\s+)?(Regeln|Anweisungen)', re.IGNORECASE),
+        re.compile(r'vergiss\s+(alles|alle\s+Anweisungen)', re.IGNORECASE),
     ]
     for pattern in _INJECTION_PATTERNS:
         scrubbed = pattern.sub("[FILTERED]", scrubbed)
@@ -851,7 +870,7 @@ async def _run_agent_loop(
 
 
 @router.post("/chat", response_model=CoachChatResponse)
-@limiter.limit("30/minute")
+@limiter.limit("30/minute;500/day")
 async def coach_chat(
     request: Request,
     body: CoachChatRequest,

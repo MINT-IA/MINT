@@ -7,10 +7,9 @@
 /// Use this ONLY when: the backend /confidence API is unreachable (offline,
 /// timeout, error). The UI should prefer the backend score when available.
 ///
-/// Divergence with backend: this uses 3 axes (no "understanding" axis)
-/// with weighted average. Backend uses 4 axes with geometric mean.
-/// This is acceptable for offline display but will produce slightly
-/// different scores. Known limitation, not a bug.
+/// 4-axis geometric mean (backend-aligned):
+///   completeness × accuracy × freshness × understanding
+/// Shift formula: ((x+1)/101)^0.25 * 101 - 1  (avoids zero-collapse)
 ///
 /// The 3 confidence systems and their governance:
 ///   1. Backend enhanced_confidence_service.py → AUTHORITATIVE, feature gates
@@ -18,12 +17,12 @@
 ///   3. confidence_scorer.dart (financial_core) → projection quality only
 /// ════════════════════════════════════════════════════════════════════════════
 ///
-/// Weights: completeness 40% + accuracy 35% + freshness 25% = overall
-///
 /// References:
 /// - DATA_ACQUISITION_STRATEGY.md, "Confidence Scoring Evolution"
 /// - ADR-20260223-unified-financial-engine.md
 library;
+
+import 'dart:math' as math;
 
 // ────────────────────────────────────────────────────────────
 //  DATA SOURCE ENUM
@@ -77,27 +76,37 @@ class FieldSource {
 //  CONFIDENCE BREAKDOWN — 3-axis score
 // ────────────────────────────────────────────────────────────
 
-/// Three-dimensional confidence score.
+/// Four-dimensional confidence score (backend-aligned).
 ///
 /// - **completeness** (0-100): how many expected fields are filled
 /// - **accuracy** (0-100): weighted quality of data sources
 /// - **freshness** (0-100): how recent the data is
-/// - **overall**: weighted 40/35/25
+/// - **understanding** (0-100): financial literacy + engagement
+/// - **overall**: 4-axis geometric mean with shift to avoid zero-collapse
 class ConfidenceBreakdown {
   final double completeness;
   final double accuracy;
   final double freshness;
+  final double understanding;
 
-  /// Weighted combination: 40% completeness + 35% accuracy + 25% freshness.
-  double get overall =>
-      (completeness * 0.40 + accuracy * 0.35 + freshness * 0.25)
-          .clamp(0.0, 100.0);
+  /// 4-axis geometric mean (backend parity).
+  /// Shift formula: ((x+1)/101)^0.25 * 101 - 1
+  double get overall => _geoMean4(completeness, accuracy, freshness, understanding);
 
   const ConfidenceBreakdown({
     required this.completeness,
     required this.accuracy,
     required this.freshness,
+    this.understanding = 40.0,
   });
+
+  /// 4-axis geometric mean with shift to avoid zero (Dart parity with Python backend).
+  static double _geoMean4(double c, double a, double f, double u) {
+    final vals = [c, a, f, u].map((x) => (x + 1.0) / 101.0).toList();
+    final product = vals[0] * vals[1] * vals[2] * vals[3];
+    final geo = math.pow(product, 0.25);
+    return (geo * 101.0 - 1.0).clamp(0.0, 100.0);
+  }
 }
 
 // ────────────────────────────────────────────────────────────
@@ -172,10 +181,10 @@ class ConfidenceResult {
 //  ENHANCED CONFIDENCE SERVICE — static, pure functions
 // ────────────────────────────────────────────────────────────
 
-/// Enhanced confidence scorer with 3 axes: completeness, accuracy, freshness.
+/// Enhanced confidence scorer with 4 axes: completeness, accuracy, freshness, understanding.
 ///
 /// All methods are static and deterministic. This service mirrors the backend
-/// enhanced confidence scoring logic.
+/// enhanced confidence scoring logic (4-axis geometric mean).
 class EnhancedConfidenceService {
   EnhancedConfidenceService._();
 
@@ -312,22 +321,72 @@ class EnhancedConfidenceService {
   //  4. COMPUTE CONFIDENCE (full result)
   // ────────────────────────────────────────────────────────────
 
-  /// Computes the full enhanced confidence result.
+  // ────────────────────────────────────────────────────────────
+  //  4. UNDERSTANDING (0-100) — backend-aligned
+  // ────────────────────────────────────────────────────────────
+
+  /// Scores user understanding: financial literacy + engagement.
+  ///
+  /// Backend formula (enhanced_confidence_service.py):
+  ///   literacyBase * 0.50 + sessionBonus * 0.30 + educationBonus * 0.20
+  static double scoreUnderstanding({
+    String literacyLevel = 'beginner',
+    int checkInCount = 0,
+    int educationModulesCompleted = 0,
+  }) {
+    // Literacy base (backend-aligned)
+    final double literacyBase;
+    switch (literacyLevel) {
+      case 'advanced':
+        literacyBase = 85.0;
+      case 'intermediate':
+        literacyBase = 55.0;
+      default:
+        literacyBase = 30.0;
+    }
+
+    // Session bonus: min(checkInCount * 2.0, 40.0)
+    final sessionBonus = (checkInCount * 2.0).clamp(0.0, 40.0);
+
+    // Education bonus: min(modulesCompleted * 5.0, 30.0)
+    final educationBonus = (educationModulesCompleted * 5.0).clamp(0.0, 30.0);
+
+    return (literacyBase * 0.50 + sessionBonus * 0.30 + educationBonus * 0.20)
+        .clamp(0.0, 100.0);
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  5. COMPUTE CONFIDENCE (full result)
+  // ────────────────────────────────────────────────────────────
+
+  /// Computes the full enhanced confidence result (4-axis geometric mean).
   ///
   /// [profile] — key-value map of the user's profile fields.
   /// [fieldSources] — provenance metadata per field.
+  /// [literacyLevel] — beginner/intermediate/advanced
+  /// [checkInCount] — number of coach sessions completed
+  /// [educationModulesCompleted] — number of education modules done
   static ConfidenceResult computeConfidence(
     Map<String, dynamic> profile,
-    List<FieldSource> fieldSources,
-  ) {
+    List<FieldSource> fieldSources, {
+    String literacyLevel = 'beginner',
+    int checkInCount = 0,
+    int educationModulesCompleted = 0,
+  }) {
     final completeness = scoreCompleteness(profile);
     final accuracy = scoreAccuracy(fieldSources);
     final freshness = scoreFreshness(fieldSources);
+    final understanding = scoreUnderstanding(
+      literacyLevel: literacyLevel,
+      checkInCount: checkInCount,
+      educationModulesCompleted: educationModulesCompleted,
+    );
 
     final breakdown = ConfidenceBreakdown(
       completeness: completeness,
       accuracy: accuracy,
       freshness: freshness,
+      understanding: understanding,
     );
 
     final prompts = rankEnrichmentPrompts(profile, fieldSources);
@@ -352,7 +411,7 @@ class EnhancedConfidenceService {
   }
 
   // ────────────────────────────────────────────────────────────
-  //  5. RANK ENRICHMENT PROMPTS
+  //  6. RANK ENRICHMENT PROMPTS
   // ────────────────────────────────────────────────────────────
 
   /// Returns enrichment prompts ranked by impact on overall confidence.

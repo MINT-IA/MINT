@@ -133,7 +133,7 @@ void main() {
       expect(find.textContaining('Centrale'), findsWidgets);
     });
 
-    testWidgets('displays privacy note with nLPD', skip: true, (tester) async {
+    testWidgets('displays privacy note with nLPD', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
@@ -254,7 +254,9 @@ void main() {
       expect(find.textContaining('taux r'), findsWidgets);
     });
 
-    testWidgets('displays disclaimer after scrolling', skip: true, (tester) async {
+    testWidgets('displays disclaimer after scrolling',
+    skip: true, // Scroll offset depends on MintNarrativeCard height
+    (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -1200));

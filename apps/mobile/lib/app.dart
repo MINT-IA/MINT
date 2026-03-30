@@ -165,7 +165,7 @@ final _router = GoRouter(
       '/scan',        // document scanning
       '/coach/chat',  // AI coach (token consumption)
       '/couple',      // household/couple features
-      '/byok',        // API key management
+      '/profile/byok', // API key management
       '/bank-import', // bank statement import
     ];
 
@@ -375,6 +375,7 @@ final _router = GoRouter(
       builder: (context, state) => const AffordabilityScreen(),
     ),
     GoRoute(path: '/mortgage/affordability', redirect: (_, __) => '/hypotheque'),
+    GoRoute(path: '/life-event/housing-purchase', redirect: (_, __) => '/hypotheque'),
 
     GoRoute(
       path: '/mortgage/amortization',

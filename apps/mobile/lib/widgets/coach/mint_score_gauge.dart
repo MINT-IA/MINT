@@ -284,13 +284,16 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             alignment: Alignment.center,
             children: [
               // Custom painted arc
-              CustomPaint(
-                painter: _ScoreGaugePainter(
-                  score: widget.score,
-                  progress: _fillAnimation.value,
-                  scoreColor: _scoreColor,
+              Semantics(
+                label: 'Score gauge chart: ${widget.score}%',
+                child: CustomPaint(
+                  painter: _ScoreGaugePainter(
+                    score: widget.score,
+                    progress: _fillAnimation.value,
+                    scoreColor: _scoreColor,
+                  ),
+                  size: Size(gaugeSize, gaugeSize),
                 ),
-                size: Size(gaugeSize, gaugeSize),
               ),
               // Center content
               Column(

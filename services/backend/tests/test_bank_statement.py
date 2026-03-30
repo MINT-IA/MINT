@@ -13,7 +13,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.main import app
+from tests.conftest import override_get_db
 
 
 def _fake_user():
@@ -124,17 +126,15 @@ RECURRING_CSV = (
 
 @pytest.fixture
 def client():
-    """Test client for FastAPI app with auth override."""
-    from app.api.v1.endpoints.documents import _document_store
-    _document_store.clear()
-
+    """Test client for FastAPI app with auth and DB override."""
+    app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
 
     with TestClient(app) as c:
         yield c
 
-    _document_store.clear()
     app.dependency_overrides.pop(require_current_user, None)
+    app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture

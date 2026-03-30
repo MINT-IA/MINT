@@ -80,6 +80,18 @@ class ComplianceGuard:
         "idéale",
         # Superlative form of "meilleur" (GAP #4: "le mieux" bypass)
         "le mieux",
+        # Conditional/subjunctive forms (GAP #5: conjugation bypass)
+        "garantirait",
+        "garantiraient",
+        "serait garanti",
+        "serait garantie",
+        "seraient garantis",
+        "seraient garanties",
+        "assurerait",
+        "assureront",
+        # Infinitive prescriptive bypass
+        "garantir un rendement",
+        "assurer un retour",
     ]
 
     # Pre-compiled word-boundary patterns (French-aware: includes À-ÿ).
@@ -147,6 +159,17 @@ class ComplianceGuard:
         "idéale": "adaptée",
         # Superlative form
         "le mieux": "une option pertinente",
+        # Conditional/subjunctive forms
+        "garantirait": "pourrait permettre",
+        "garantiraient": "pourraient permettre",
+        "serait garanti": "serait envisageable",
+        "serait garantie": "serait envisageable",
+        "seraient garantis": "seraient envisageables",
+        "seraient garanties": "seraient envisageables",
+        "assurerait": "pourrait offrir",
+        "assureront": "pourraient offrir",
+        "garantir un rendement": "viser un rendement",
+        "assurer un retour": "viser un retour",
     }
 
     # ═══════════════════════════════════════════════════════════════════

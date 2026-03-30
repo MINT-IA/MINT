@@ -196,11 +196,14 @@ class ChatGaugeCard extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  CustomPaint(
-                    size: const Size(120, 120),
-                    painter: _GaugePainter(
-                      progress: progress,
-                      color: color,
+                  Semantics(
+                    label: 'Score gauge chart',
+                    child: CustomPaint(
+                      size: const Size(120, 120),
+                      painter: _GaugePainter(
+                        progress: progress,
+                        color: color,
+                      ),
                     ),
                   ),
                   Column(

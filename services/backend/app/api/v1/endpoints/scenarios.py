@@ -1,15 +1,19 @@
 """
-Scenarios endpoint - create and list simulation scenarios.
-MVP: In-memory storage (no persistence).
+Scenarios endpoint — create and list simulation scenarios.
+Persisted in PostgreSQL via ScenarioModel.
 """
 
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List
+from typing import List
 from fastapi import APIRouter, Depends, Request
 
+from sqlalchemy.orm import Session
+
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.core.rate_limit import limiter
+from app.models.scenario import ScenarioModel
 from app.models.user import User
 from pydantic import UUID4
 from app.schemas.scenario import Scenario, ScenarioCreate, ScenarioKind
@@ -22,9 +26,6 @@ from app.services.rules_engine import (
 )
 
 router = APIRouter()
-
-# In-memory store for MVP
-_scenarios: Dict[UUID4, Scenario] = {}
 
 
 def _compute_scenario_outputs(kind: ScenarioKind, inputs: dict) -> dict:
@@ -59,20 +60,36 @@ def _compute_scenario_outputs(kind: ScenarioKind, inputs: dict) -> dict:
             statut_civil=inputs.get("statutCivil", "single"),
         )
     else:
-        # Other scenario types return inputs as-is for now
         return {"message": "Scenario type not yet implemented", "inputs": inputs}
 
 
 @router.post("", response_model=Scenario)
 @limiter.limit("10/minute")
-def create_scenario(request: Request, scenario_create: ScenarioCreate, _user: User = Depends(require_current_user)) -> Scenario:
-    """Create a new scenario with computed outputs."""
+def create_scenario(
+    request: Request,
+    scenario_create: ScenarioCreate,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> Scenario:
+    """Create a new scenario with computed outputs. Persisted in DB."""
     scenario_id = uuid.uuid4()
     now = datetime.now(timezone.utc)
 
     outputs = _compute_scenario_outputs(scenario_create.kind, scenario_create.inputs)
 
-    scenario = Scenario(
+    # Persist to DB
+    row = ScenarioModel(
+        id=str(scenario_id),
+        profile_id=str(scenario_create.profileId),
+        kind=scenario_create.kind.value,
+        inputs=scenario_create.inputs,
+        outputs=outputs,
+        created_at=now,
+    )
+    db.add(row)
+    db.commit()
+
+    return Scenario(
         id=scenario_id,
         profileId=scenario_create.profileId,
         kind=scenario_create.kind,
@@ -80,11 +97,27 @@ def create_scenario(request: Request, scenario_create: ScenarioCreate, _user: Us
         outputs=outputs,
         createdAt=now,
     )
-    _scenarios[scenario_id] = scenario
-    return scenario
 
 
 @router.get("/{profile_id}", response_model=List[Scenario])
-def list_scenarios(profile_id: UUID4, _user: User = Depends(require_current_user)) -> List[Scenario]:
-    """List all scenarios for a profile."""
-    return [s for s in _scenarios.values() if s.profileId == profile_id]
+def list_scenarios(
+    profile_id: UUID4,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> List[Scenario]:
+    """List all scenarios for a profile. Reads from DB."""
+    rows = db.query(ScenarioModel).filter(
+        ScenarioModel.profile_id == str(profile_id)
+    ).order_by(ScenarioModel.created_at.desc()).all()
+
+    return [
+        Scenario(
+            id=row.id,
+            profileId=row.profile_id,
+            kind=row.kind,
+            inputs=row.inputs or {},
+            outputs=row.outputs or {},
+            createdAt=row.created_at,
+        )
+        for row in rows
+    ]

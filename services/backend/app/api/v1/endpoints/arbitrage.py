@@ -20,9 +20,11 @@ Sources:
     - FINMA Tragbarkeitsrechnung
 """
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.arbitrage import (
     RenteVsCapitalRequest,
     RenteVsCapitalResponse,
@@ -85,7 +87,7 @@ def _result_to_response(result, response_class):
 
 @router.post("/rente-vs-capital", response_model=RenteVsCapitalResponse)
 @limiter.limit("10/minute")
-def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest) -> RenteVsCapitalResponse:
+def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest, _user: User = Depends(require_current_user)) -> RenteVsCapitalResponse:
     """Compare rente viagere vs retrait en capital vs mixte.
 
     Simule 3 options pour la prevoyance LPP a la retraite:
@@ -161,6 +163,7 @@ def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest) ->
 def arbitrage_allocation_annuelle(
     request: Request,
     body: AllocationAnnuelleRequest,
+    _user: User = Depends(require_current_user),
 ) -> AllocationAnnuelleResponse:
     """Compare les strategies d'allocation annuelle de l'epargne.
 
@@ -236,6 +239,7 @@ def arbitrage_allocation_annuelle(
 def arbitrage_location_vs_propriete(
     request: Request,
     body: LocationVsProprieteRequest,
+    _user: User = Depends(require_current_user),
 ) -> LocationVsProprieteResponse:
     """Compare continuer a louer vs acheter un bien immobilier.
 
@@ -300,6 +304,7 @@ def arbitrage_location_vs_propriete(
 def arbitrage_rachat_vs_marche(
     request: Request,
     body: RachatVsMarcheRequest,
+    _user: User = Depends(require_current_user),
 ) -> RachatVsMarcheResponse:
     """Compare rachat LPP vs investissement libre.
 
@@ -358,6 +363,7 @@ def arbitrage_rachat_vs_marche(
 def arbitrage_calendrier_retraits(
     request: Request,
     body: CalendrierRetraitsRequest,
+    _user: User = Depends(require_current_user),
 ) -> CalendrierRetraitsResponse:
     """Compare retrait total la meme annee vs retraits echelonnes.
 

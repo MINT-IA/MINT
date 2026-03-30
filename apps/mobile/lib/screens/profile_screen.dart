@@ -153,10 +153,13 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: MintSpacing.xs),
-      child: Text(
-        title,
-        style: MintTextStyles.bodySmall(
-          color: MintColors.textMuted,
+      child: Semantics(
+        header: true,
+        child: Text(
+          title,
+          style: MintTextStyles.bodySmall(
+            color: MintColors.textMuted,
+          ),
         ),
       ),
     );
@@ -917,6 +920,6 @@ class ProfileScreen extends StatelessWidget {
           },
         );
       },
-    );
+    ).whenComplete(() => controller.dispose());
   }
 }

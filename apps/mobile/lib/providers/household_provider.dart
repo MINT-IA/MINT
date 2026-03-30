@@ -80,7 +80,7 @@ class HouseholdProvider extends ChangeNotifier {
   Future<String?> invitePartner(String email) async {
     final token = await AuthService.getToken();
     if (token == null) {
-      _error = 'Non authentifie';
+      _error = 'Non authentifie'; // TODO: i18n — extract to ARB (no context available here)
       notifyListeners();
       return null;
     }
@@ -110,7 +110,7 @@ class HouseholdProvider extends ChangeNotifier {
   Future<bool> acceptInvitation(String code) async {
     final token = await AuthService.getToken();
     if (token == null) {
-      _error = 'Non authentifie';
+      _error = 'Non authentifie'; // TODO: i18n — extract to ARB (no context available here)
       notifyListeners();
       return false;
     }

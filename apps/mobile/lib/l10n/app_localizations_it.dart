@@ -4128,7 +4128,7 @@ class SIt extends S {
   String get soaEstimatedTaxLabel => 'Impôts Estimés';
 
   @override
-  String get soaSavingsRate => 'Taux d\'épargne';
+  String get soaSavingsRate => 'Tasso di risparmio';
 
   @override
   String get soaSavingsGoal => 'Objectif: 20%';
@@ -10324,22 +10324,22 @@ class SIt extends S {
   String get dataBlockComplete => 'Questa sezione è completa.';
 
   @override
-  String get dataBlockModeForm => 'Formulaire';
+  String get dataBlockModeForm => 'Modulo';
 
   @override
-  String get dataBlockModeCoach => 'Parle au coach';
+  String get dataBlockModeCoach => 'Parlare con il coach';
 
   @override
-  String get dataBlockStatusComplete => 'Complet';
+  String get dataBlockStatusComplete => 'Completo';
 
   @override
-  String get dataBlockStatusPartial => 'Partiel';
+  String get dataBlockStatusPartial => 'Parziale';
 
   @override
-  String get dataBlockStatusMissing => 'Manquant';
+  String get dataBlockStatusMissing => 'Mancante';
 
   @override
-  String get dataBlockRevenuTitle => 'Revenu';
+  String get dataBlockRevenuTitle => 'Reddito';
 
   @override
   String get dataBlockRevenuDesc =>
@@ -10349,7 +10349,7 @@ class SIt extends S {
   String get dataBlockRevenuCta => 'Specificare il mio reddito';
 
   @override
-  String get dataBlockLppTitle => 'Prévoyance LPP';
+  String get dataBlockLppTitle => 'Previdenza LPP';
 
   @override
   String get dataBlockLppDesc =>
@@ -10359,7 +10359,7 @@ class SIt extends S {
   String get dataBlockLppCta => 'Aggiungere il mio certificato LPP';
 
   @override
-  String get dataBlockAvsTitle => 'Extrait AVS';
+  String get dataBlockAvsTitle => 'Estratto AVS';
 
   @override
   String get dataBlockAvsDesc =>
@@ -10369,17 +10369,17 @@ class SIt extends S {
   String get dataBlockAvsCta => 'Ordinare il mio estratto AVS';
 
   @override
-  String get dataBlock3aTitle => '3e pilier (3a)';
+  String get dataBlock3aTitle => 'Pilastro 3a';
 
   @override
   String get dataBlock3aDesc =>
       'I tuoi conti 3a si aggiungono alla tua previdenza e offrono un vantaggio fiscale. Inserisci i saldi attuali per una visione completa.';
 
   @override
-  String get dataBlock3aCta => 'Simuler mon 3a';
+  String get dataBlock3aCta => 'Simulare il mio 3a';
 
   @override
-  String get dataBlockPatrimoineTitle => 'Patrimoine';
+  String get dataBlockPatrimoineTitle => 'Patrimonio';
 
   @override
   String get dataBlockPatrimoineDesc =>
@@ -10389,7 +10389,7 @@ class SIt extends S {
   String get dataBlockPatrimoineCta => 'Inserire il mio patrimonio';
 
   @override
-  String get dataBlockFiscaliteTitle => 'Fiscalité';
+  String get dataBlockFiscaliteTitle => 'Fiscalità';
 
   @override
   String get dataBlockFiscaliteDesc =>
@@ -10419,7 +10419,7 @@ class SIt extends S {
   String get dataBlockMenageCta => 'Gestire il mio nucleo familiare';
 
   @override
-  String get dataBlockUnknownTitle => 'Données';
+  String get dataBlockUnknownTitle => 'Dati';
 
   @override
   String get dataBlockUnknownDesc =>
@@ -10429,14 +10429,14 @@ class SIt extends S {
   String get dataBlockUnknownCta => 'Apri la diagnostica';
 
   @override
-  String get dataBlockDefaultTitle => 'Données';
+  String get dataBlockDefaultTitle => 'Dati';
 
   @override
   String get dataBlockDefaultDesc =>
       'Completa questa sezione per migliorare la precisione delle tue proiezioni.';
 
   @override
-  String get dataBlockDefaultCta => 'Compléter';
+  String get dataBlockDefaultCta => 'Completare';
 
   @override
   String get renteVsCapitalAppBarTitle =>
@@ -10522,7 +10522,7 @@ class SIt extends S {
   String get renteVsCapitalCanton => 'Canton';
 
   @override
-  String get renteVsCapitalMarried => 'Marié·e';
+  String get renteVsCapitalMarried => 'Sposato/a';
 
   @override
   String get renteVsCapitalRetirementAge => 'Pensionamento previsto a';
@@ -10930,16 +10930,16 @@ class SIt extends S {
   String get concubinageAppBarTitle => 'Matrimonio vs Concubinato';
 
   @override
-  String get concubinageTabComparateur => 'Comparateur';
+  String get concubinageTabComparateur => 'Confronto';
 
   @override
   String get concubinageTabChecklist => 'Checklist';
 
   @override
-  String get concubinageRevenu1 => 'Revenu 1';
+  String get concubinageRevenu1 => 'Reddito 1';
 
   @override
-  String get concubinageRevenu2 => 'Revenu 2';
+  String get concubinageRevenu2 => 'Reddito 2';
 
   @override
   String get concubinagePatrimoineTotal => 'Patrimonio totale';
@@ -17713,16 +17713,16 @@ class SIt extends S {
   String get openBankingHubComptesConnectes => '3 conti collegati';
 
   @override
-  String get openBankingHubRevenus => 'Revenus';
+  String get openBankingHubRevenus => 'Entrate';
 
   @override
-  String get openBankingHubDepenses => 'Dépenses';
+  String get openBankingHubDepenses => 'Spese';
 
   @override
   String get openBankingHubEpargneNette => 'Épargne nette';
 
   @override
-  String get openBankingHubTop3Depenses => 'Top 3 dépenses';
+  String get openBankingHubTop3Depenses => 'Top 3 spese';
 
   @override
   String get openBankingHubAddBankLabel => 'Aggiungi una banca';

@@ -26,9 +26,12 @@ class ExploreTab extends StatelessWidget {
           pinned: true,
           backgroundColor: MintColors.porcelaine,
           surfaceTintColor: MintColors.porcelaine,
-          title: Text(
-            l.tabExplore,
-            style: MintTextStyles.headlineMedium(),
+          title: Semantics(
+            header: true,
+            child: Text(
+              l.tabExplore,
+              style: MintTextStyles.headlineMedium(),
+            ),
           ),
           centerTitle: false,
         ),
@@ -172,9 +175,12 @@ class _ExploreHubCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: MintSpacing.lg),
-              Text(
-                title,
-                style: MintTextStyles.headlineMedium(),
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: MintTextStyles.headlineMedium(),
+                ),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
