@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 /// Input data for one LPP plan (current or new job).
 class LPPPlanInput {
@@ -318,27 +319,27 @@ class JobComparisonService {
     if (deltaRente < 0 && deltaSalaireNet > 0) {
       alerts.add(
         'Attention : le gain salarial cache une perte de rente de '
-        '${_formatChf(deltaRente.abs())}/mois',
+        '${chf.formatChfWithPrefix(deltaRente.abs())}/mois',
       );
     }
 
     if (deltaCapital < -50000) {
       alerts.add(
         'Perte de capital retraite significative : '
-        '${_formatChf(deltaCapital.abs())}',
+        '${chf.formatChfWithPrefix(deltaCapital.abs())}',
       );
     }
 
     if (deltaDeces < -50000) {
       alerts.add(
-        'Couverture deces reduite de ${_formatChf(deltaDeces.abs())}',
+        'Couverture deces reduite de ${chf.formatChfWithPrefix(deltaDeces.abs())}',
       );
     }
 
     if (deltaInvalidite < 0) {
       alerts.add(
         'Couverture invalidite reduite de '
-        '${_formatChf(deltaInvalidite.abs())}/an',
+        '${chf.formatChfWithPrefix(deltaInvalidite.abs())}/an',
       );
     }
 
@@ -399,17 +400,4 @@ class JobComparisonService {
     );
   }
 
-  /// Format CHF with Swiss apostrophe.
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }

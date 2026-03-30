@@ -368,9 +368,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: CoachingPriority.haute,
       title: 'Versement 3a avant le 31 décembre',
       message:
-          'Il te reste ${_formatChf(restant)} de marge sur ton plafond 3a '
-          '(${_formatChf(plafond)}). Un versement avant le 31 décembre '
-          'pourrait réduire ta charge fiscale de ${_formatChf(impact)} '
+          'Il te reste ${formatChfWithPrefix(restant)} de marge sur ton plafond 3a '
+          '(${formatChfWithPrefix(plafond)}). Un versement avant le 31 décembre '
+          'pourrait réduire ta charge fiscale de ${formatChfWithPrefix(impact)} '
           'environ.',
       action: 'Simuler mon 3a',
       estimatedImpactChf: impact,
@@ -403,8 +403,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       title: 'Tu n\'as pas de 3e pilier',
       message:
           'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
-          '${_formatChf(plafond)} de ton revenu imposable chaque année. '
-          'L\'économie fiscale estimée est de ${_formatChf(impact)} par an '
+          '${formatChfWithPrefix(plafond)} de ton revenu imposable chaque année. '
+          'L\'économie fiscale estimée est de ${formatChfWithPrefix(impact)} par an '
           'dans le canton de ${profile.canton}.',
       action: 'Découvrir le 3e pilier',
       estimatedImpactChf: impact,
@@ -437,9 +437,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: priority,
       title: 'Rachat LPP possible',
       message:
-          'Tu as une lacune de prévoyance de ${_formatChf(profile.lacuneLpp)}. '
-          'Un rachat volontaire de ${_formatChf(rachatRecommande)} '
-          'pourrait te faire économiser environ ${_formatChf(impact)} '
+          'Tu as une lacune de prévoyance de ${formatChfWithPrefix(profile.lacuneLpp)}. '
+          'Un rachat volontaire de ${formatChfWithPrefix(rachatRecommande)} '
+          'pourrait te faire économiser environ ${formatChfWithPrefix(impact)} '
           'd\'impôts tout en améliorant ta retraite.',
       action: 'Simuler un rachat LPP',
       estimatedImpactChf: impact,
@@ -536,7 +536,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       message:
           'Ton épargne disponible couvre ${monthsCovered.toStringAsFixed(1)} '
           'mois de charges fixes. Les experts recommandent au moins 3 mois. '
-          'Il te manque environ ${_formatChf(deficit)} pour atteindre '
+          'Il te manque environ ${formatChfWithPrefix(deficit)} pour atteindre '
           'ce seuil de sécurité.',
       action: 'Voir mon budget',
       estimatedImpactChf: deficit,
@@ -669,7 +669,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       message:
           'En tant qu\'indépendant, tu n\'es pas soumis à la LPP '
           'obligatoire. Ta prévoyance repose sur l\'AVS et ton 3e '
-          'pilier (plafond ${_formatChf(plafond3a)}). Pense à une '
+          'pilier (plafond ${formatChfWithPrefix(plafond3a)}). Pense à une '
           'affiliation volontaire à une caisse de pension ou à maximiser '
           'ton 3a.',
       action: 'Explorer mes options',
@@ -728,10 +728,10 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: CoachingPriority.basse,
       title: 'Plafond 3a non atteint',
       message:
-          'Ton versement 3a actuel est de ${_formatChf(profile.montant3a)} '
-          'sur un plafond de ${_formatChf(plafond)}. Verser le solde de '
-          '${_formatChf(restant)} pourrait représenter une économie fiscale '
-          'd\'environ ${_formatChf(impact)}.',
+          'Ton versement 3a actuel est de ${formatChfWithPrefix(profile.montant3a)} '
+          'sur un plafond de ${formatChfWithPrefix(plafond)}. Verser le solde de '
+          '${formatChfWithPrefix(restant)} pourrait représenter une économie fiscale '
+          'd\'environ ${formatChfWithPrefix(impact)}.',
       action: 'Simuler mon 3a',
       estimatedImpactChf: impact,
       source: 'OPP3 art. 7',
@@ -764,7 +764,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       title: 'D\u00e9penses exceptionnelles \u00e9lev\u00e9es',
       message:
           'Tes d\u00e9penses exceptionnelles du dernier mois repr\u00e9sentent '
-          '$ratioPct% de ton revenu mensuel (${_formatChf(depExc)}). '
+          '$ratioPct% de ton revenu mensuel (${formatChfWithPrefix(depExc)}). '
           'V\u00e9rifie que ton budget reste sur les rails et ajuste '
           'si n\u00e9cessaire.',
       action: 'V\u00e9rifier mon budget',
@@ -896,22 +896,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   }
 
   /// Format a CHF amount with Swiss apostrophe separator.
+  /// F3: Delegates to centralized chf_formatter.dart.
   static String formatChf(double value) {
-    return _formatChf(value);
-  }
-
-  /// Format CHF with Swiss apostrophe (private).
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
+    return formatChfWithPrefix(value);
   }
 
   /// Build a demo profile for preview mode.

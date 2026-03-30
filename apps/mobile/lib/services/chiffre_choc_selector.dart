@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 /// Selects the most impactful "chiffre choc" to show the user.
 ///
@@ -154,9 +155,9 @@ class ChiffreChocSelector {
     if (profile.employmentStatus == 'independant' &&
         profile.lppMonthlyRente <= 0 &&
         profile.grossMonthlySalary > 0) {
-      final gapFormatted = _formatChf(profile.retirementGapMonthly);
+      final gapFormatted = chf.formatChfWithPrefix(profile.retirementGapMonthly);
       final plafondStr = profile.plafond3a != null
-          ? _formatChfPlain(profile.plafond3a!)
+          ? chf.formatChf(profile.plafond3a!)
           : '?';
       return ChiffreChoc(
         type: ChiffreChocType.retirementGap,
@@ -177,7 +178,7 @@ class ChiffreChocSelector {
     if (profile.nationalityGroup != null &&
         profile.nationalityGroup != 'CH' &&
         profile.avsMonthlyRente < 1500) {
-      final avsFormatted = _formatChf(profile.avsMonthlyRente);
+      final avsFormatted = chf.formatChfWithPrefix(profile.avsMonthlyRente);
       final subtitle = profile.nationalityGroup == 'EU'
           ? 'Tes annees de cotisation en Europe comptent aussi grace aux '
               'accords bilateraux. Avec $avsFormatted/mois d\'AVS estime, '
@@ -220,14 +221,14 @@ class ChiffreChocSelector {
   }
 
   static ChiffreChoc _buildRetirementGapChoc(MinimalProfileResult profile) {
-    final gapFormatted = _formatChf(profile.retirementGapMonthly);
+    final gapFormatted = chf.formatChfWithPrefix(profile.retirementGapMonthly);
     final pct = (profile.replacementRate * 100).round();
     final isIndep = profile.employmentStatus == 'independant';
     final plafond = profile.plafond3a;
     final subtitle = isIndep && plafond != null
         ? 'Sans 2e pilier obligatoire, ton ecart de retraite est plus important. '
             'Avec seulement $pct% de remplacement, il te manquerait $gapFormatted/mois. '
-            'Le 3e pilier (max CHF\u00A0${_formatChfPlain(plafond)}/an) est ton principal levier.'
+            'Le 3e pilier (max CHF\u00A0${chf.formatChf(plafond)}/an) est ton principal levier.'
         : '\u00c0 la retraite, tu pourrais recevoir environ $pct% de ton revenu actuel. '
             'Il te manquerait $gapFormatted chaque mois. '
             'Decouvre comment reduire cet ecart.';
@@ -243,9 +244,9 @@ class ChiffreChocSelector {
   }
 
   static ChiffreChoc _buildTaxSaving3aChoc(MinimalProfileResult profile) {
-    final savingFormatted = _formatChf(profile.taxSaving3a);
+    final savingFormatted = chf.formatChfWithPrefix(profile.taxSaving3a);
     final plafondText = profile.plafond3a != null
-        ? _formatChfPlain(profile.plafond3a!)
+        ? chf.formatChf(profile.plafond3a!)
         : '?';
     return ChiffreChoc(
       type: ChiffreChocType.taxSaving3a,
@@ -261,7 +262,7 @@ class ChiffreChocSelector {
   }
 
   static ChiffreChoc _buildRetirementIncomeChoc(MinimalProfileResult profile) {
-    final retirementFormatted = _formatChf(profile.totalMonthlyRetirement);
+    final retirementFormatted = chf.formatChfWithPrefix(profile.totalMonthlyRetirement);
     final pct = (profile.replacementRate * 100).round();
     return ChiffreChoc(
       type: ChiffreChocType.retirementIncome,
@@ -298,7 +299,7 @@ class ChiffreChocSelector {
         ((pow(1 + monthlyRate, monthsAt35) - 1) / monthlyRate);
 
     final advantage = futureValue - futureAt35;
-    final advantageFormatted = _formatChf(advantage);
+    final advantageFormatted = chf.formatChfWithPrefix(advantage);
 
     return ChiffreChoc(
       type: ChiffreChocType.compoundGrowth,
@@ -398,35 +399,5 @@ class ChiffreChocSelector {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Formatting
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  /// Format a number as CHF with Swiss apostrophe separators.
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
-
-  /// Format a number as plain CHF amount (no prefix) for inline use.
-  static String _formatChfPlain(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return buffer.toString();
-  }
+  // F3: _formatChf / _formatChfPlain removed — use centralized chf_formatter.dart
 }

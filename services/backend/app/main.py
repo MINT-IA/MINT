@@ -45,6 +45,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-API-Version"] = "1.0.0"
         response.headers["X-Min-App-Version"] = "1.0.0"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        # CSP: API-only, no inline scripts/styles needed
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+        # Permissions-Policy: disable all browser features (API server)
+        response.headers["Permissions-Policy"] = (
+            "camera=(), microphone=(), geolocation=(), payment=()"
+        )
         if settings.ENVIRONMENT != "development":
             response.headers["Strict-Transport-Security"] = (
                 "max-age=31536000; includeSubDomains"
@@ -146,6 +152,9 @@ async def global_exception_handler(request, exc):
     # FIX-077 nLPD: Don't log full exception (may contain PII in values).
     # Log only the type name + first 100 chars of message.
     logger.error("Unhandled %s: %.100s", type(exc).__name__, str(exc))  # pragma: no cover
+    # F8: Explicit Sentry capture — auto-integration may miss custom handlers
+    if settings.SENTRY_DSN:  # pragma: no cover
+        sentry_sdk.capture_exception(exc)
     return JSONResponse(
         status_code=500,
         content={"detail": "Erreur interne du serveur", "error_code": "internal_error"},

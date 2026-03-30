@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 import 'package:mint_mobile/services/auth_service.dart';
 
 /// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
@@ -167,6 +168,14 @@ class ApiService {
       headers['Authorization'] = 'Bearer $token';
     }
     return headers;
+  }
+
+  /// F5: Proactively refresh the auth token on app resume.
+  /// Silently no-ops if no refresh token or if user is not logged in.
+  static Future<void> refreshTokenIfNeeded() async {
+    final isLoggedIn = await AuthService.isLoggedIn();
+    if (!isLoggedIn) return;
+    await _tryRefreshToken();
   }
 
   /// Attempt to refresh tokens using the stored refresh token.
@@ -711,25 +720,25 @@ class ApiService {
           'Ton economie d\'impot potentielle',
           'savings',
           'success',
-          '${_formatChf(primaryNumber)}/an',
+          '${chf.formatChfWithPrefix(primaryNumber)}/an',
         ),
       ChiffreChocType.retirementGap => (
           'Ton ecart de retraite',
           'trending_down',
           'warning',
-          '${_formatChf(primaryNumber)}/mois',
+          '${chf.formatChfWithPrefix(primaryNumber)}/mois',
         ),
       ChiffreChocType.retirementIncome => (
           'Ton revenu estime a la retraite',
           'account_balance',
           'info',
-          '${_formatChf(primaryNumber)}/mois',
+          '${chf.formatChfWithPrefix(primaryNumber)}/mois',
         ),
       ChiffreChocType.compoundGrowth => (
           'Ton avantage temps',
           'trending_up',
           'success',
-          _formatChf(primaryNumber),
+          chf.formatChfWithPrefix(primaryNumber),
         ),
       ChiffreChocType.hourlyRate => (
           'Ton salaire reel',
@@ -1023,18 +1032,7 @@ class ApiService {
     return const [];
   }
 
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF ${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
+  // F3: _formatChf removed — use centralized chf.formatChfWithPrefix()
 
   static Future<Map<String, dynamic>> claimLocalData({
     required int localDataVersion,

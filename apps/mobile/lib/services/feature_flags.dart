@@ -62,22 +62,9 @@ class FeatureFlags {
   static bool safeModeDegraded = false;
 
   // ── V1 screen gating ───────────────────────────────────────
-  // All enabled for V1 launch (S49). Server-driven override available.
-
-  /// Coach Phase 2: refresh, succession, decaissement
-  static bool enableCoachPhase2 = true;
-
-  /// Life event screens: mariage, divorce, naissance, concubinage, etc.
-  static bool enableLifeEventScreens = true;
-
-  /// Advanced simulators: compound, leasing, credit
-  static bool enableAdvancedSimulators = true;
-
-  /// Mortgage tools: affordability, amortization, EPL, etc.
-  static bool enableMortgageTools = true;
-
-  /// Self-employed tools: AVS cotisations, IJM, 3a indep, etc.
-  static bool enableIndependantTools = true;
+  // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
+  //     enableMortgageTools, enableIndependantTools REMOVED — always true
+  //     since V1 launch (S49), no consumers in codebase.
 
   /// Open banking screens: hub, transactions, consents
   static bool enableOpenBanking = false;
@@ -102,22 +89,7 @@ class FeatureFlags {
     if (data.containsKey('safeModeDegraded')) {
       safeModeDegraded = data['safeModeDegraded'] == true;
     }
-    // V1 screen gating flags
-    if (data.containsKey('enableCoachPhase2')) {
-      enableCoachPhase2 = data['enableCoachPhase2'] == true;
-    }
-    if (data.containsKey('enableLifeEventScreens')) {
-      enableLifeEventScreens = data['enableLifeEventScreens'] == true;
-    }
-    if (data.containsKey('enableAdvancedSimulators')) {
-      enableAdvancedSimulators = data['enableAdvancedSimulators'] == true;
-    }
-    if (data.containsKey('enableMortgageTools')) {
-      enableMortgageTools = data['enableMortgageTools'] == true;
-    }
-    if (data.containsKey('enableIndependantTools')) {
-      enableIndependantTools = data['enableIndependantTools'] == true;
-    }
+    // V1 screen gating flags — F7: 5 dead flags removed (always true, no consumers)
     if (data.containsKey('enableOpenBanking')) {
       enableOpenBanking = data['enableOpenBanking'] == true;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -352,6 +353,9 @@ class AuthProvider extends ChangeNotifier {
       await CapMemoryStore.clear();
       // Purge analytics queue
       await AnalyticsService().clearLocalQueue();
+      // F2: Purge BYOK API keys from secure storage (prevents cross-account key bleed)
+      const secureStorage = FlutterSecureStorage();
+      await secureStorage.deleteAll();
       // Clear account-specific SharedPreferences while preserving device prefs.
       // Save device-level prefs, clear everything, then restore them.
       // This is safer than selective removal (new keys are auto-cleared).

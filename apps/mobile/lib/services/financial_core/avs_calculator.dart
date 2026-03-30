@@ -121,6 +121,37 @@ class AvsCalculator {
     return (user: avsUser, conjoint: avsConjoint, total: total);
   }
 
+  /// Bridge pension (rente-pont) estimate for early retirees.
+  ///
+  /// When retiring before the AVS reference age, there is an income gap
+  /// where neither AVS nor LPP rente is paid. Some employers/caisses offer
+  /// a bridge pension to cover this gap.
+  ///
+  /// Returns the estimated monthly gap and total bridge cost.
+  /// - [retirementAge]: actual retirement age (e.g. 60)
+  /// - [referenceAge]: AVS reference age (e.g. 65)
+  /// - [estimatedAvsMonthly]: what the AVS rente would be at reference age
+  /// - [estimatedLppMonthly]: what the LPP rente would be (if annuity chosen)
+  static ({double monthlyGap, double totalBridgeCost, int gapYears}) computeBridgePension({
+    required int retirementAge,
+    required int referenceAge,
+    required double estimatedAvsMonthly,
+    double estimatedLppMonthly = 0,
+  }) {
+    final gapYears = (referenceAge - retirementAge).clamp(0, 10);
+    if (gapYears <= 0) {
+      return (monthlyGap: 0, totalBridgeCost: 0, gapYears: 0);
+    }
+    // During the gap: no AVS, potentially no LPP rente either
+    final monthlyGap = estimatedAvsMonthly + estimatedLppMonthly;
+    final totalBridgeCost = monthlyGap * 12 * gapYears;
+    return (
+      monthlyGap: monthlyGap,
+      totalBridgeCost: totalBridgeCost,
+      gapYears: gapYears,
+    );
+  }
+
   /// Convert monthly AVS rente to annual, including the 13th rente if active.
   ///
   /// From December 2026 onwards, AVS pays 13 monthly rentes per year

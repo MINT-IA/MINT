@@ -6,8 +6,8 @@
 /// Pure static methods — no state, fully testable.
 library;
 
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf_fmt;
 import 'package:mint_mobile/services/recap/weekly_recap_service.dart';
 
 // ════════════════════════════════════════════════════════════════════
@@ -99,7 +99,7 @@ class RecapFormatter {
     if (budget == null) return null;
 
     final ratePct = (budget.savingsRate * 100).toStringAsFixed(1);
-    final savedFormatted = _formatChf(budget.savedAmount);
+    final savedFormatted = chf_fmt.formatChf(budget.savedAmount);
 
     final content = '${l.recapBudgetSaved}: $savedFormatted CHF\n'
         '${l.recapBudgetRate}: $ratePct\u00a0%';
@@ -172,16 +172,7 @@ class RecapFormatter {
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────
-
-  /// Format a CHF amount with thousand separator, no decimal for whole amounts.
-  static String _formatChf(double amount) {
-    if (amount >= 1000) {
-      final formatter = NumberFormat("#,##0", "fr_CH");
-      return formatter.format(amount.round());
-    }
-    return amount.round().toString();
-  }
+  // F3: _formatChf removed — use centralized chf_fmt.formatChf()
 
   /// Short date label (e.g. "lu.", "ma.").
   static String _shortDate(DateTime date) {

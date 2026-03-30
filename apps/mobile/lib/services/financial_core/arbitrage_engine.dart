@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 /// Arbitrage engine — pure static functions for rente vs capital and
 /// annual allocation comparisons.
@@ -397,13 +398,13 @@ class ArbitrageEngine {
     if (capitalResidual > 10000 && moreIncome == 'rente') {
       // Typical case: rente gives more income, but capital preserves wealth
       chiffreChoc =
-          'La rente te verse ~${_formatChf(incomeGap)} de revenu net '
+          'La rente te verse ~${chf.formatChfWithPrefix(incomeGap)} de revenu net '
           'de plus sur $horizon ans. Mais avec le capital, tu conserves '
-          '~${_formatChf(capitalResidual)} de patrimoine transmissible.';
+          '~${chf.formatChfWithPrefix(capitalResidual)} de patrimoine transmissible.';
     } else {
       chiffreChoc =
           'Sur $horizon ans, l\'option $betterOption genere '
-          '~${_formatChf(delta)} de valeur economique nette supplementaire.';
+          '~${chf.formatChfWithPrefix(delta)} de valeur economique nette supplementaire.';
     }
 
     final displaySummary = breakevenYear != null
@@ -412,7 +413,7 @@ class ArbitrageEngine {
             'Avant ce point, la rente procure un revenu regulier. '
             'Apres, le capital retire peut constituer un patrimoine plus important.'
         : 'Sur l\'horizon de $horizon ans, les trajectoires ne se croisent pas. '
-            'L\'ecart de valeur totale est de ${_formatChf(delta)}.';
+            'L\'ecart de valeur totale est de ${chf.formatChfWithPrefix(delta)}.';
 
     return ArbitrageResult(
       options: options,
@@ -502,7 +503,7 @@ class ArbitrageEngine {
       );
       options.add(TrajectoireOption(
         id: '3a',
-        label: 'Pilier 3a (max ${_formatChf(max3a)}/an)',
+        label: 'Pilier 3a (max ${chf.formatChfWithPrefix(max3a)}/an)',
         trajectory: trajectory3a,
         terminalValue: trajectory3a.last.netPatrimony,
         cumulativeTaxImpact: trajectory3a.last.cumulativeTaxDelta,
@@ -586,11 +587,11 @@ class ArbitrageEngine {
 
     final chiffreChoc =
         'Dans ce scenario simule, l\'ecart entre les options atteint '
-        '${_formatChf(ecart)} sur $anneesAvantRetraite ans.';
+        '${chf.formatChfWithPrefix(ecart)} sur $anneesAvantRetraite ans.';
 
     final displaySummary =
         'Comparaison de ${options.length} strategies pour un versement annuel '
-        'de ${_formatChf(montantDisponible)} sur $anneesAvantRetraite ans.';
+        'de ${chf.formatChfWithPrefix(montantDisponible)} sur $anneesAvantRetraite ans.';
 
     final sensitivity = <String, double>{};
     final baseSpread = _terminalSpreadFromOptions(options);
@@ -619,7 +620,7 @@ class ArbitrageEngine {
         );
         variantOptions.add(TrajectoireOption(
           id: '3a',
-          label: 'Pilier 3a (max ${_formatChf(max3a)}/an)',
+          label: 'Pilier 3a (max ${chf.formatChfWithPrefix(max3a)}/an)',
           trajectory: trajectory3a,
           terminalValue: trajectory3a.last.netPatrimony,
           cumulativeTaxImpact: trajectory3a.last.cumulativeTaxDelta,
@@ -832,7 +833,7 @@ class ArbitrageEngine {
       chiffreChoc: chiffreChoc,
       displaySummary: displaySummary,
       hypotheses: [
-        'Montant disponible : ${_formatChf(montantDisponible)}/an',
+        'Montant disponible : ${chf.formatChfWithPrefix(montantDisponible)}/an',
         'Taux marginal d\'imposition estime : ${(tauxMarginal * 100).toStringAsFixed(0)} %',
         'Rendement 3a : ${(rendement3a * 100).toStringAsFixed(1)} %',
         'Rendement LPP : ${(rendementLpp * 100).toStringAsFixed(2)} %',
@@ -841,7 +842,7 @@ class ArbitrageEngine {
         if (isPropertyOwner)
           'Taux hypothecaire : ${(tauxHypothecaire * 100).toStringAsFixed(2)} %',
         if (potentielRachatLpp > 0)
-          'Potentiel de rachat LPP : ${_formatChf(potentielRachatLpp)}',
+          'Potentiel de rachat LPP : ${chf.formatChfWithPrefix(potentielRachatLpp)}',
       ],
       disclaimer:
           'Outil educatif — ne constitue pas un conseil financier (LSFin). '
@@ -1016,7 +1017,7 @@ class ArbitrageEngine {
     final betterLabel =
         optionA.terminalValue > optionB.terminalValue ? 'louer' : 'acheter';
     final chiffreChoc = 'Dans ce scenario simule, $betterLabel genere '
-        '~${_formatChf(delta)} de patrimoine net supplementaire sur '
+        '~${chf.formatChfWithPrefix(delta)} de patrimoine net supplementaire sur '
         '$horizonAnnees ans.';
 
     // FINMA affordability check
@@ -1025,7 +1026,7 @@ class ArbitrageEngine {
         prixBien * 0.05 + prixBien * 0.01 + prixBien * 0.01;
     // We can't know gross income here, but flag the theoretical charge
     alertes.add(
-      'Charge theorique FINMA : ${_formatChf(chargesTheorique)}/an '
+      'Charge theorique FINMA : ${chf.formatChfWithPrefix(chargesTheorique)}/an '
       '(taux theorique 5 % + amortissement 1 % + entretien 1 %). '
       'Verifie que cela ne depasse pas 1/3 de ton revenu brut.',
     );
@@ -1034,7 +1035,7 @@ class ArbitrageEngine {
         ? 'Les trajectoires se croisent vers ${startYear + breakevenYear}. '
             'Avant ce point, une option domine ; apres, l\'autre prend le relais.'
         : 'Sur l\'horizon de $horizonAnnees ans, les trajectoires ne se croisent pas. '
-            'L\'ecart final est de ${_formatChf(delta)}.';
+            'L\'ecart final est de ${chf.formatChfWithPrefix(delta)}.';
 
     final sensitivity = <String, double>{};
     final baseSpread = _terminalSpreadFromOptions(options);
@@ -1236,12 +1237,12 @@ class ArbitrageEngine {
 
     final delta = (netCapitalLpp - balanceMarche).abs();
     final chiffreChoc =
-        'Economie d\'impot au rachat : ${_formatChf(taxSavingRachat)}. '
-        'Ecart final simule : ${_formatChf(delta)} sur $anneesAvantRetraite ans.';
+        'Economie d\'impot au rachat : ${chf.formatChfWithPrefix(taxSavingRachat)}. '
+        'Ecart final simule : ${chf.formatChfWithPrefix(delta)} sur $anneesAvantRetraite ans.';
 
     final displaySummary =
         'Le rachat LPP offre une deduction fiscale immediate de '
-        '${_formatChf(taxSavingRachat)}, mais le capital est bloque (LPP art. 79b al. 3). '
+        '${chf.formatChfWithPrefix(taxSavingRachat)}, mais le capital est bloque (LPP art. 79b al. 3). '
         'L\'investissement libre est accessible a tout moment.';
 
     final sensitivity = <String, double>{};
@@ -1370,7 +1371,7 @@ class ArbitrageEngine {
       chiffreChoc: chiffreChoc,
       displaySummary: displaySummary,
       hypotheses: [
-        'Montant : ${_formatChf(montant)}',
+        'Montant : ${chf.formatChfWithPrefix(montant)}',
         'Taux marginal : ${(tauxMarginal * 100).toStringAsFixed(0)} %',
         'Rendement LPP : ${(rendementLpp * 100).toStringAsFixed(2)} %',
         'Rendement marche : ${(rendementMarche * 100).toStringAsFixed(1)} %',
@@ -1562,17 +1563,17 @@ class ArbitrageEngine {
     final taxSaved = taxToutEnUn - totalTaxEtale;
 
     final chiffreChoc = taxSaved > 0
-        ? 'Tu economiserais ~${_formatChf(taxSaved)} d\'impot en etalant tes retraits.'
-        : 'Dans ce cas, l\'ecart d\'impot est de ${_formatChf(taxSaved.abs())}.';
+        ? 'Tu economiserais ~${chf.formatChfWithPrefix(taxSaved)} d\'impot en etalant tes retraits.'
+        : 'Dans ce cas, l\'ecart d\'impot est de ${chf.formatChfWithPrefix(taxSaved.abs())}.';
 
-    final displaySummary = 'Retrait total : ${_formatChf(totalCapital)}. '
-        'Impot "tout en un" : ${_formatChf(taxToutEnUn)} vs '
-        'impot etale : ${_formatChf(totalTaxEtale)}.';
+    final displaySummary = 'Retrait total : ${chf.formatChfWithPrefix(totalCapital)}. '
+        'Impot "tout en un" : ${chf.formatChfWithPrefix(taxToutEnUn)} vs '
+        'impot etale : ${chf.formatChfWithPrefix(totalTaxEtale)}.';
 
     final withdrawalDetails = withdrawalPlan
         .map((w) =>
-            '${w.type.toUpperCase()} : ${_formatChf(w.amount)} a ${w.age} ans '
-            '(impot : ${_formatChf(w.tax)})')
+            '${w.type.toUpperCase()} : ${chf.formatChfWithPrefix(w.amount)} a ${w.age} ans '
+            '(impot : ${chf.formatChfWithPrefix(w.tax)})')
         .toList();
 
     final sensitivity = <String, double>{};
@@ -1614,7 +1615,7 @@ class ArbitrageEngine {
       chiffreChoc: chiffreChoc,
       displaySummary: displaySummary,
       hypotheses: [
-        'Capital total : ${_formatChf(totalCapital)}',
+        'Capital total : ${chf.formatChfWithPrefix(totalCapital)}',
         'Canton : $canton',
         'Age de retraite : $ageRetraite',
         if (isMarried) 'Splitting marie',
@@ -2048,20 +2049,5 @@ class ArbitrageEngine {
     return null;
   }
 
-  // ════════════════════════════════════════════════════════════
-  //  FORMATTING HELPERS
-  // ════════════════════════════════════════════════════════════
-
-  static String _formatChf(double value) {
-    final intVal = value.round().abs();
-    final str = intVal.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${value < 0 ? '-' : ''}${buffer.toString()}';
-  }
+  // F3: _formatChf removed — use centralized chf.formatChfWithPrefix()
 }

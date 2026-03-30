@@ -41,6 +41,7 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
@@ -959,6 +960,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // F5: Proactively refresh auth token on app resume to prevent
+      // stale-token 401s on the first API call after backgrounding.
+      ApiService.refreshTokenIfNeeded();
+    }
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
       if (SlmEngine.instance.isAvailable) {
