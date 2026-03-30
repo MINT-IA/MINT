@@ -812,11 +812,21 @@ class _PulseScreenState extends State<PulseScreen> {
 
   // ── APP BAR (white — consistent with all other screens) ──
 
+  // P3-24: Time-aware greeting prefix
+  static String _greetingPrefix() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) return 'Bonjour'; // TODO: i18n
+    if (hour >= 12 && hour < 18) return 'Bon après-midi'; // TODO: i18n
+    if (hour >= 18 && hour < 22) return 'Bonsoir'; // TODO: i18n
+    return 'Bonne nuit'; // TODO: i18n
+  }
+
   SliverAppBar _buildAppBar(BuildContext context, CoachProfile profile) {
     final l = S.of(context)!;
     final firstName = profile.firstName ?? '';
+    final prefix = _greetingPrefix();
     final greeting =
-        firstName.isNotEmpty ? l.pulseGreeting(firstName) : l.tabToday;
+        firstName.isNotEmpty ? '$prefix $firstName' : l.tabToday;
 
     return SliverAppBar(
       floating: false,

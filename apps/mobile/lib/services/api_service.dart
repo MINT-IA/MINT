@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -33,6 +35,9 @@ class ApiException implements Exception {
 //   - Rotate pins before certificate renewal (Railway auto-renew ~90 days)
 //   - Fallback: disable pinning in debug mode only
 class ApiService {
+  /// P1-7: Global HTTP timeout for all API calls.
+  static const Duration _httpTimeout = Duration(seconds: 30);
+
   static const String _definedApiBaseUrl =
       String.fromEnvironment('API_BASE_URL');
 
@@ -149,116 +154,146 @@ class ApiService {
     return false;
   }
 
-  // Méthodes génériques HTTP (now with JWT injection + auto-refresh)
+  // Méthodes génériques HTTP (now with JWT injection + auto-refresh + P1-7 timeout)
   static Future<Map<String, dynamic>> get(String endpoint) async {
-    var response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-    );
-
-    // Auto-refresh on 401
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.get(
+    try {
+      var response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else if (response.statusCode == 401) {
-      // FIX-048: After refresh failure + still 401, clear auth state.
-      // User must re-login. Don't leave stale token in secure storage.
-      await AuthService.logout();
-      throw ApiException('Session expirée — reconnecte-toi.', statusCode: 401);
-    } else {
-      throw ApiException('GET $endpoint failed: ${response.body}', statusCode: response.statusCode);
+      // Auto-refresh on 401
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.get(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        // FIX-048: After refresh failure + still 401, clear auth state.
+        // User must re-login. Don't leave stale token in secure storage.
+        await AuthService.logout();
+        throw ApiException('Session expirée — reconnecte-toi.', statusCode: 401);
+      } else {
+        throw ApiException('GET $endpoint failed: ${response.body}', statusCode: response.statusCode);
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
     }
   }
 
   static Future<String> getText(String endpoint) async {
-    var response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.get(
+    try {
+      var response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200) {
-      return response.body;
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.get(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200) {
+        return response.body;
+      }
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'GET $endpoint failed'),
+        statusCode: response.statusCode,
+      );
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
     }
-    throw ApiException(
-      _extractErrorDetail(response.body, fallback: 'GET $endpoint failed'),
-      statusCode: response.statusCode,
-    );
   }
 
   static Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
-    var response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.post(
+    try {
+      var response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
         body: jsonEncode(data),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('POST $endpoint failed: ${response.body}');
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.post(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+          body: jsonEncode(data),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('POST $endpoint failed: ${response.body}');
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
     }
   }
 
   static Future<Map<String, dynamic>> put(
       String endpoint, Map<String, dynamic> data) async {
-    var response = await http.put(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.put(
+    try {
+      var response = await http.put(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
         body: jsonEncode(data),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('PUT $endpoint failed: ${response.body}');
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.put(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+          body: jsonEncode(data),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('PUT $endpoint failed: ${response.body}');
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
     }
   }
 
   static Future<void> delete(String endpoint) async {
-    var response = await http.delete(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.delete(
+    try {
+      var response = await http.delete(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('DELETE $endpoint failed: ${response.body}');
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.delete(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('DELETE $endpoint failed: ${response.body}');
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw const ApiException('Le serveur met trop de temps à répondre. Réessaie.');
     }
   }
 

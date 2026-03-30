@@ -7,6 +7,9 @@ class SmartOnboardingDraftService {
   static const String _consentKey = 'mint_onboarding_consent';
   static const String _draftKey = 'smart_onboarding_draft_v1';
 
+  /// P2-17: Prevent concurrent read-modify-write on SharedPreferences.
+  static bool _writing = false;
+
   static Future<bool> isConsentGiven() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_consentKey) == true;
@@ -37,15 +40,22 @@ class SmartOnboardingDraftService {
     required double grossSalary,
     required String? canton,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(_consentKey) != true) return;
-    final payload = <String, dynamic>{
-      'age': age,
-      'grossSalary': grossSalary,
-      if (canton != null && canton.isNotEmpty) 'canton': canton,
-      'savedAt': DateTime.now().toIso8601String(),
-    };
-    await prefs.setString(_draftKey, jsonEncode(payload));
+    // P2-17: Skip if another write is in progress
+    if (_writing) return;
+    _writing = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(_consentKey) != true) return;
+      final payload = <String, dynamic>{
+        'age': age,
+        'grossSalary': grossSalary,
+        if (canton != null && canton.isNotEmpty) 'canton': canton,
+        'savedAt': DateTime.now().toIso8601String(),
+      };
+      await prefs.setString(_draftKey, jsonEncode(payload));
+    } finally {
+      _writing = false;
+    }
   }
 
   static Future<void> clearDraft() async {

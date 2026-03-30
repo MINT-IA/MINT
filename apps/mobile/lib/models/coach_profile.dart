@@ -449,7 +449,14 @@ class PrevoyanceProfile {
           ramd == other.ramd &&
           nombre3a == other.nombre3a &&
           totalEpargne3a == other.totalEpargne3a &&
-          canContribute3a == other.canContribute3a;
+          canContribute3a == other.canContribute3a &&
+          bonificationsEducatives == other.bonificationsEducatives &&
+          projectedRenteLpp == other.projectedRenteLpp &&
+          projectedCapital65 == other.projectedCapital65 &&
+          disabilityCoverage == other.disabilityCoverage &&
+          deathCoverage == other.deathCoverage &&
+          comptes3a.length == other.comptes3a.length &&
+          librePassage.length == other.librePassage.length;
 
   @override
   int get hashCode => Object.hashAll([
@@ -470,6 +477,13 @@ class PrevoyanceProfile {
         nombre3a,
         totalEpargne3a,
         canContribute3a,
+        bonificationsEducatives,
+        projectedRenteLpp,
+        projectedCapital65,
+        disabilityCoverage,
+        deathCoverage,
+        comptes3a.length,
+        librePassage.length,
       ]);
 }
 
@@ -1380,9 +1394,17 @@ class CoachProfile {
     return base + bonus;
   }
 
-  /// Revenu brut annuel du couple
+  /// Revenu brut annuel du couple.
+  ///
+  /// P2-19: When etatCivil == marie but conjoint == null, we return
+  /// only the main user's income (safe fallback — never assume spouse income).
   double get revenuBrutAnnuelCouple =>
       revenuBrutAnnuel + (conjoint?.revenuBrutAnnuel ?? 0);
+
+  /// P2-19: True when user declares married/concubinage but has no spouse data.
+  /// Consumers should show a warning and avoid assuming spouse income/AVS rights.
+  bool get isMissingConjointData =>
+      isCouple && conjoint == null;
 
   /// FIX-101: Cross-border worker detection (permis G).
   bool get isCrossBorder => residencePermit?.toUpperCase() == 'G';
@@ -1977,7 +1999,12 @@ class CoachProfile {
       default: // 'no_gaps' ou null
         avsGaps = 0;
     }
-    final avsYears = _parseInt(answers['q_avs_contribution_years']);
+    final rawAvsYears = _parseInt(answers['q_avs_contribution_years']);
+    // P1-6: AVS contribution years can't exceed (age - 20) — contributions
+    // start at ~20 (LAVS art. 3). Also capped at 44 (max duree cotisation).
+    final avsYears = rawAvsYears != null
+        ? rawAvsYears.clamp(0, (age - 20).clamp(0, 44))
+        : null;
 
     // ── Extraction-persisted fields (survive restart) ─────────
     final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);

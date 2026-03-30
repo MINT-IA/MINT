@@ -124,6 +124,9 @@ class AvsEstimationService:
         rente_annuelle = round(rente_mensuelle * nb_rentes, 2)
 
         # 4. Couple plafonnement
+        # TODO(P1-3): LAVS art. 29quinquies — income splitting during marriage not yet modeled.
+        # Current: applies 150% couple cap only. For asymmetric couples (e.g. 200k + 0),
+        # individual rentes before cap may be inaccurate. Full splitting requires marriage date.
         rente_couple = None
         if is_couple:
             rente_couple = round(

@@ -152,6 +152,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   /// Unified guard preventing concurrent sends (covers _isLoading + context building).
   bool _isBusy = false;
   final StringBuffer _streamBuffer = StringBuffer();
+  /// P1-9: Cancellable stream subscription for SLM streaming.
+  StreamSubscription<String>? _slmStreamSubscription;
   bool _isByokConfigured = false;
 
   /// Conversation persistence
@@ -391,6 +393,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   @override
   void dispose() {
+    _slmStreamSubscription?.cancel(); // P1-9: cancel active stream
     _screenReturnSub?.cancel();
     _screenReturnDebounce?.cancel();
     _autoSaveConversation();
@@ -1048,18 +1051,24 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     });
     _scrollToBottom();
 
-    // Wrap the stream with a timeout to prevent infinite hang.
+    // P1-9: Use StreamSubscription (cancellable) instead of await-for.
     bool timedOut = false;
-    try {
-      final timedStream = stream.timeout(
-        _streamTimeout,
-        onTimeout: (sink) {
-          timedOut = true;
-          sink.close();
-        },
-      );
-      await for (final token in timedStream) {
-        if (!mounted) return;
+    final completer = Completer<void>();
+    final timedStream = stream.timeout(
+      _streamTimeout,
+      onTimeout: (sink) {
+        timedOut = true;
+        sink.close();
+      },
+    );
+    _slmStreamSubscription?.cancel();
+    _slmStreamSubscription = timedStream.listen(
+      (token) {
+        if (!mounted) {
+          _slmStreamSubscription?.cancel();
+          if (!completer.isCompleted) completer.complete();
+          return;
+        }
         _streamBuffer.write(token);
         final current = _streamBuffer.toString();
         setState(() {
@@ -1072,10 +1081,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           );
         });
         _scrollToBottom();
-      }
-    } catch (e) {
-      debugPrint('[CoachChat] Stream error: $e');
-    }
+      },
+      onError: (Object e) {
+        debugPrint('[CoachChat] Stream error: $e');
+        if (!completer.isCompleted) completer.complete();
+      },
+      onDone: () {
+        if (!completer.isCompleted) completer.complete();
+      },
+    );
+    await completer.future;
+    _slmStreamSubscription = null;
 
     if (!mounted) return;
 

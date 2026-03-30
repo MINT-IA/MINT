@@ -65,7 +65,8 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   // ─── Guards ──────────────────────────────────────────────────────────────
 
   /// True when the 4 required fields are filled and computation is possible.
-  bool get canCompute => canton != null && employmentStatus != null;
+  // P2-18: Also reject empty-string canton
+  bool get canCompute => canton != null && canton!.isNotEmpty && employmentStatus != null;
 
   /// True when a result has been computed at least once.
   bool get hasResult => profile != null && chiffreChoc != null;
@@ -81,7 +82,7 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   }
 
   void setGrossSalary(double value) {
-    grossSalary = value;
+    grossSalary = value.clamp(0, 10000000);
     notifyListeners();
   }
 
@@ -96,6 +97,12 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   }
 
   void setEmploymentStatus(String? value) {
+    // P3-22: Warn if age < 55 and status is 'retraite' — likely a data entry error.
+    if (value == 'retraite' && age < 55) {
+      error = 'Retraite avant 55 ans\u00a0? Vérifie ton âge ou ton statut.'; // TODO: i18n
+    } else {
+      error = null;
+    }
     employmentStatus = value;
     if (hasResult) {
       compute();
