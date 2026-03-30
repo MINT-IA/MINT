@@ -591,7 +591,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
         ),
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   void _addDebt() {

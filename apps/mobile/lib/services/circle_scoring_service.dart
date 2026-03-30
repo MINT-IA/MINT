@@ -479,7 +479,18 @@ class CircleScoringService {
 
   /// Calcule le nombre d'années de lacune AVS depuis les nouvelles questions.
   /// Retourne null si les nouvelles questions n'ont pas été répondues (fallback legacy).
-  int? _calculateAvsGaps(Map<String, dynamic> answers, int birthYear) {
+  int? _calculateAvsGaps(Map<String, dynamic> answers, int birthYear) =>
+      calculateAvsGapsFromAnswers(answers, birthYear);
+
+  int? _calculateSpouseAvsGaps(Map<String, dynamic> answers, int birthYear) =>
+      calculateSpouseAvsGapsFromAnswers(answers, birthYear);
+
+  // ── Shared AVS gap helpers (used by CircleScoringService + FinancialReportService) ──
+
+  /// Calculates AVS gap years from triage answers (LAVS art. 29ter).
+  /// Public static so FinancialReportService can reuse without duplication.
+  static int? calculateAvsGapsFromAnswers(
+      Map<String, dynamic> answers, int birthYear) {
     final status = answers['q_avs_lacunes_status'];
     if (status == null) return null;
 
@@ -487,13 +498,13 @@ class CircleScoringService {
       case 'no_gaps':
         return 0;
       case 'arrived_late':
-        final arrivalYear = _parseInt(answers['q_avs_arrival_year']);
+        final arrivalYear = _parseIntStatic(answers['q_avs_arrival_year']);
         if (arrivalYear == null) return null;
         // Lacunes = années entre 21 ans et l'arrivée en Suisse
         final avsStartAge21 = birthYear + 21;
         return (arrivalYear - avsStartAge21).clamp(0, 44);
       case 'lived_abroad':
-        return _parseInt(answers['q_avs_years_abroad']) ?? 0;
+        return _parseIntStatic(answers['q_avs_years_abroad']) ?? 0;
       case 'unknown':
         // On ne peut pas calculer précisément, mais on signale le risque
         return null;
@@ -502,8 +513,9 @@ class CircleScoringService {
     }
   }
 
-  /// Même logique pour le conjoint.
-  int? _calculateSpouseAvsGaps(Map<String, dynamic> answers, int birthYear) {
+  /// Same logic for spouse.
+  static int? calculateSpouseAvsGapsFromAnswers(
+      Map<String, dynamic> answers, int birthYear) {
     final status = answers['q_spouse_avs_lacunes_status'];
     if (status == null) return null;
 
@@ -511,16 +523,24 @@ class CircleScoringService {
       case 'no_gaps':
         return 0;
       case 'arrived_late':
-        final arrivalYear = _parseInt(answers['q_spouse_avs_arrival_year']);
+        final arrivalYear =
+            _parseIntStatic(answers['q_spouse_avs_arrival_year']);
         if (arrivalYear == null) return null;
         final avsStartAge21 = birthYear + 21;
         return (arrivalYear - avsStartAge21).clamp(0, 44);
       case 'lived_abroad':
-        return _parseInt(answers['q_spouse_avs_years_abroad']) ?? 0;
+        return _parseIntStatic(answers['q_spouse_avs_years_abroad']) ?? 0;
       case 'unknown':
         return null;
       default:
         return null;
     }
+  }
+
+  static int? _parseIntStatic(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 }

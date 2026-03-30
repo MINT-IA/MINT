@@ -456,7 +456,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           ),
         ],
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   void _recalculateOverallConfidence() {

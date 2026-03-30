@@ -917,6 +917,6 @@ class ProfileScreen extends StatelessWidget {
           },
         );
       },
-    );
+    ).whenComplete(() => controller.dispose());
   }
 }

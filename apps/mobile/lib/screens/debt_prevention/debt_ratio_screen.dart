@@ -805,7 +805,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
         ),
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   Widget _buildMinimumVitalCard(DebtRatioResult result) {
