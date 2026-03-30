@@ -4114,7 +4114,7 @@ class SPt extends S {
   String get soaEstimatedTaxLabel => 'Impôts Estimés';
 
   @override
-  String get soaSavingsRate => 'Taux d\'épargne';
+  String get soaSavingsRate => 'Taxa de poupança';
 
   @override
   String get soaSavingsGoal => 'Objectif: 20%';
@@ -10902,7 +10902,7 @@ class SPt extends S {
   String get concubinageAppBarTitle => 'Casamento vs União de facto';
 
   @override
-  String get concubinageTabComparateur => 'Comparateur';
+  String get concubinageTabComparateur => 'Comparação';
 
   @override
   String get concubinageTabChecklist => 'Checklist';
@@ -17685,7 +17685,7 @@ class SPt extends S {
   String get openBankingHubEpargneNette => 'Épargne nette';
 
   @override
-  String get openBankingHubTop3Depenses => 'Top 3 dépenses';
+  String get openBankingHubTop3Depenses => 'Top 3 despesas';
 
   @override
   String get openBankingHubAddBankLabel => 'Adicionar um banco';

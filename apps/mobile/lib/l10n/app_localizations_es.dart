@@ -4118,7 +4118,7 @@ class SEs extends S {
   String get soaEstimatedTaxLabel => 'Impôts Estimés';
 
   @override
-  String get soaSavingsRate => 'Taux d\'épargne';
+  String get soaSavingsRate => 'Tasa de ahorro';
 
   @override
   String get soaSavingsGoal => 'Objectif: 20%';
@@ -10901,7 +10901,7 @@ class SEs extends S {
   String get concubinageAppBarTitle => 'Matrimonio vs Concubinato';
 
   @override
-  String get concubinageTabComparateur => 'Comparateur';
+  String get concubinageTabComparateur => 'Comparador';
 
   @override
   String get concubinageTabChecklist => 'Checklist';
@@ -17690,7 +17690,7 @@ class SEs extends S {
   String get openBankingHubEpargneNette => 'Épargne nette';
 
   @override
-  String get openBankingHubTop3Depenses => 'Top 3 dépenses';
+  String get openBankingHubTop3Depenses => 'Top 3 gastos';
 
   @override
   String get openBankingHubAddBankLabel => 'Añadir un banco';

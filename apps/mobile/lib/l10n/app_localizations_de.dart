@@ -17711,7 +17711,7 @@ class SDe extends S {
   String get openBankingHubEpargneNette => 'Netto-Sparen';
 
   @override
-  String get openBankingHubTop3Depenses => 'Top 3 dépenses';
+  String get openBankingHubTop3Depenses => 'Top 3 Ausgaben';
 
   @override
   String get openBankingHubAddBankLabel => 'Bank hinzufügen';

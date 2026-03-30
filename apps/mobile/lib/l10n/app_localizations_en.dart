@@ -10843,7 +10843,7 @@ class SEn extends S {
   String get concubinageAppBarTitle => 'Marriage vs Cohabitation';
 
   @override
-  String get concubinageTabComparateur => 'Comparateur';
+  String get concubinageTabComparateur => 'Comparison';
 
   @override
   String get concubinageTabChecklist => 'Checklist';
@@ -17602,7 +17602,7 @@ class SEn extends S {
   String get openBankingHubEpargneNette => 'Net savings';
 
   @override
-  String get openBankingHubTop3Depenses => 'Top 3 dépenses';
+  String get openBankingHubTop3Depenses => 'Top 3 expenses';
 
   @override
   String get openBankingHubAddBankLabel => 'Add a bank';
