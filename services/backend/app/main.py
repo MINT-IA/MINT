@@ -21,13 +21,13 @@ from app.api.v1.router import api_router
 setup_logging(settings.LOG_LEVEL)
 
 # Initialize Sentry error tracking (production/staging only)
-if settings.SENTRY_DSN:
+if settings.SENTRY_DSN:  # pragma: no cover — DSN only set in production env
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
         environment=settings.ENVIRONMENT,
-        traces_sample_rate=0.1,  # 10% of requests traced
+        traces_sample_rate=0.1,
         profiles_sample_rate=0.1,
-        send_default_pii=False,  # nLPD compliance — no PII in error reports
+        send_default_pii=False,  # nLPD compliance
     )
 
 logger = logging.getLogger(__name__)
@@ -160,7 +160,7 @@ app.add_middleware(LoggingMiddleware)
 
 # Setup CORS — production MUST set CORS_ORIGINS env var
 _cors_origins_raw = os.getenv("CORS_ORIGINS", "")
-if not _cors_origins_raw and settings.ENVIRONMENT in ("production", "staging"):
+if not _cors_origins_raw and settings.ENVIRONMENT in ("production", "staging"):  # pragma: no cover
     logger.critical(
         "CORS_ORIGINS env var not set in %s. "
         "API will reject cross-origin requests. "
