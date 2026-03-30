@@ -91,6 +91,10 @@ class SafeModeGate extends StatelessWidget {
                     onTap: () {
                       showModalBottomSheet<void>(
                       context: context,
+                      isScrollControlled: true,
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.85,
+                      ),
                       backgroundColor: MintColors.white,
                       shape: const RoundedRectangleBorder(
                         borderRadius:

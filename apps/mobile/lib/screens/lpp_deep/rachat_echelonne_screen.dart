@@ -506,6 +506,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   void _showTauxMarginalInfo(BuildContext context, S l) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {

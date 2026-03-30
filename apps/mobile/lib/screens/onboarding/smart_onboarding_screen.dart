@@ -169,6 +169,10 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
     final l = S.of(context)!;
     final result = await showModalBottomSheet<bool>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       isDismissible: false,
       enableDrag: false,
       builder: (ctx) {

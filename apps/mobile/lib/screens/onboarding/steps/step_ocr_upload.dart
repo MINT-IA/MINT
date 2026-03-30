@@ -193,6 +193,10 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
     final l = S.of(context)!;
     final result = await showModalBottomSheet<bool>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
