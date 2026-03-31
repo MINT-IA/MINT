@@ -4,6 +4,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Provider pour le profil Coach MINT.
@@ -654,23 +656,44 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
     // FIX-045: Persist ALL profile fields.
     _persistFullProfile(updated);
+    // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
+    CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
+    // FIX-HIGH-2: Invalidate CapMemory on significant profile change
+    // to prevent stale caps from being re-served.
+    CapMemoryStore.load().then((mem) {
+      CapMemoryStore.save(mem.copyWith(
+        lastCapServed: null,
+        lastCapDate: null,
+      ));
+    }).catchError((_) {});
     // FIX-097: If civil status changed to non-coupled, dissolve household.
     if (previousStatus != null &&
         previousStatus != updated.etatCivil &&
         updated.etatCivil != CoachCivilStatus.marie &&
         updated.etatCivil != CoachCivilStatus.concubinage) {
-      // FIX-097: Clear local household state on divorce (fire-and-forget).
+      // FIX-097: Clear local household state on divorce (AWAITED).
       // FIX-P0-1: Remove ALL partner/spouse keys to prevent ghost conjoint
       // on app restart. Without this, fromWizardAnswers() recreates the spouse
       // from stale SharedPreferences → AVS couple cap 150% applied to a single.
-      SharedPreferences.getInstance().then((sp) {
-        sp.remove('_household_data');
-        final keysToRemove = sp.getKeys().where(
-            (k) => k.startsWith('q_partner_') || k.startsWith('q_spouse_'));
-        for (final key in keysToRemove.toList()) {
-          sp.remove(key);
-        }
-      }).catchError((_) {});
+      // FIX-P0-3: Was fire-and-forget → now awaited to guarantee cleanup before
+      // any subsequent read.
+      _awaitedDivorceCleanup();
+    }
+  }
+
+  /// Awaited divorce cleanup — removes all partner/spouse keys from SharedPreferences.
+  /// Previously fire-and-forget (.then/.catchError), which could race with subsequent reads.
+  Future<void> _awaitedDivorceCleanup() async {
+    try {
+      final sp = await SharedPreferences.getInstance();
+      await sp.remove('_household_data');
+      final keysToRemove = sp.getKeys().where(
+          (k) => k.startsWith('q_partner_') || k.startsWith('q_spouse_'));
+      for (final key in keysToRemove.toList()) {
+        await sp.remove(key);
+      }
+    } catch (_) {
+      // Best-effort: SharedPreferences failure is non-fatal.
     }
   }
 
@@ -703,6 +726,32 @@ class CoachProfileProvider extends ChangeNotifier {
     // Target retirement
     if (profile.targetRetirementAge != null) {
       answers['q_target_retirement_age'] = profile.targetRetirementAge;
+    }
+    // FIX-P0-2: Persist conjoint (spouse) data — was previously lost on restart.
+    // fromWizardAnswers() reads these keys to rebuild ConjointProfile.
+    if (profile.conjoint != null) {
+      final c = profile.conjoint!;
+      if (c.salaireBrutMensuel != null) {
+        // Store as net (reverse the brut→net from fromWizardAnswers)
+        const socialChargesRate = 0.133; // AVS+AI+APG+AC standard rate
+        answers['q_partner_net_income_chf'] =
+            c.salaireBrutMensuel! * (1 - socialChargesRate);
+      }
+      if (c.birthYear != null) {
+        answers['q_partner_birth_year'] = c.birthYear;
+      }
+      if (c.employmentStatus != null) {
+        answers['q_partner_employment_status'] = c.employmentStatus;
+      }
+      if (c.firstName != null) {
+        answers['q_partner_firstname'] = c.firstName;
+      }
+      if (c.gender != null) {
+        answers['q_partner_gender'] = c.gender;
+      }
+      if (c.nationality != null) {
+        answers['q_partner_nationality'] = c.nationality;
+      }
     }
     await ReportPersistenceService.saveAnswers(answers);
   }

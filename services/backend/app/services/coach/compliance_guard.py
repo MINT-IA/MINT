@@ -354,7 +354,8 @@ class ComplianceGuard:
 
     # Regex patterns for fuzzy banned term matching (catches variants)
     BANNED_PATTERNS = [
-        (re.compile(r"sans\s+(?:\w+\s+)*risque", re.IGNORECASE), "sans risque"),
+        # FIX: ReDoS — replaced (?:\w+\s+)* (exponential backtracking) with bounded {0,3}
+        (re.compile(r"sans\s+(?:\w+\s+){0,3}risque", re.IGNORECASE), "sans risque"),
     ]
 
     def _check_banned_terms(self, text: str) -> list:
