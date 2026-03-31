@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
 from app.core.config import settings
+import jwt as pyjwt
 from app.services.auth_service import decode_token, is_jti_blacklisted
 
 security = HTTPBearer(auto_error=False)
@@ -38,20 +39,28 @@ def get_current_user(
         return None
 
     token = credentials.credentials
+
+    # SECURITY: Check blacklist BEFORE expiry to prevent revoked tokens from
+    # getting a generic "expired" response instead of "revoked".
+    try:
+        unverified = pyjwt.decode(token, options={"verify_exp": False, "verify_signature": False})
+        jti = unverified.get("jti")
+        if jti and is_jti_blacklisted(db, jti):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token révoqué"
+            )
+    except HTTPException:
+        raise  # Re-raise auth failures
+    except Exception:
+        pass  # If decode fails entirely, let decode_token handle it
+
     payload = decode_token(token)
 
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token invalide ou expiré"
-        )
-
-    # Check if token JTI has been blacklisted (revoked)
-    jti = payload.get("jti")
-    if jti and is_jti_blacklisted(db, jti):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token révoqué"
         )
 
     user = db.query(User).filter(User.id == payload["user_id"]).first()

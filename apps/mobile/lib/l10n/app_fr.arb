@@ -8,7 +8,7 @@
   "landingSubtitleLong": "L'intelligence d'un CFO, dans ta poche.\nZéro bullshit. Pur conseil.",
   "landingFeature1Title": "Diagnostic Instantané",
   "landingFeature1Desc": "Analyse 360° en 5 min chrono.",
-  "landingFeature2Title": "100\u00a0% Privé & Local",
+  "landingFeature2Title": "100 % Privé & Local",
   "landingFeature2Desc": "Tes données restent sur ton device.",
   "landingFeature3Title": "Stratégie Neutre",
   "landingFeature3Desc": "Zéro commission. Zéro conflit.",
@@ -77,7 +77,7 @@
   "advisorMiniStressDebt": "Réduire mes dettes",
   "advisorMiniStressTax": "Optimiser mes impôts",
   "advisorMiniStressRetirement": "Sécuriser ma retraite",
-  "advisorMiniResumeDiagnostic": "Reprendre mon diagnostic ({progress}\u00a0%)",
+  "advisorMiniResumeDiagnostic": "Reprendre mon diagnostic ({progress} %)",
   "@advisorMiniResumeDiagnostic": {
     "placeholders": {
       "progress": {
@@ -379,8 +379,8 @@
   "profileStatusComplete": "Complet",
   "profileStatusPartial": "Partial (Net)",
   "profileStatusMissing": "Manquant",
-  "profileReward15": "+15\u00a0% de précision",
-  "profileReward10": "+10\u00a0% de précision",
+  "profileReward15": "+15 % de précision",
+  "profileReward10": "+10 % de précision",
   "profileSecurityTitle": "Sécurité & Data",
   "profileConsentControl": "Contrôle des Partages",
   "profileConsentManage": "Gérer mes accès bLink",
@@ -403,10 +403,10 @@
   "rentVsCapitalBreakEven": "Break-even",
   "rentVsCapitalCapitalA85": "Capital à 85 ans",
   "rentVsCapitalJamais": "Jamais",
-  "rentVsCapitalPrudent": "Prudent (1\u00a0%)",
-  "rentVsCapitalCentral": "Central (3\u00a0%)",
-  "rentVsCapitalOptimiste": "Optimiste (5\u00a0%)",
-  "rentVsCapitalTauxConversionExpl": "Le taux de conversion détermine le montant de ta rente annuelle en fonction de ton avoir de vieillesse. Le taux légal minimum est de 6.8\u00a0% pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3\u00a0% et 6\u00a0%.",
+  "rentVsCapitalPrudent": "Prudent (1 %)",
+  "rentVsCapitalCentral": "Central (3 %)",
+  "rentVsCapitalOptimiste": "Optimiste (5 %)",
+  "rentVsCapitalTauxConversionExpl": "Le taux de conversion détermine le montant de ta rente annuelle en fonction de ton avoir de vieillesse. Le taux légal minimum est de 6.8 % pour la part obligatoire (LPP art. 14). Pour la part surobligatoire, chaque caisse de pension fixe son propre taux, généralement entre 3 % et 6 %.",
   "rentVsCapitalChoixExpl": "La rente offre un revenu régulier à vie, mais s'arrête au décès (avec éventuellement une rente de survivant réduite). Le capital donne plus de flexibilité, mais comporte un risque d'épuisement si les rendements sont faibles ou la longévité élevée.",
   "rentVsCapitalDisclaimer": "Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consultez votre caisse de pension et un·e spécialiste qualifié·e avant toute décision.",
   "disabilityGapTitle": "Mon filet de sécurité",
@@ -429,7 +429,7 @@
   "disabilityGapRiskMedium": "Risque modéré",
   "disabilityGapRiskLow": "Risque faible",
   "disabilityGapDisclaimer": "Outil éducatif — ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures réelles dépendent de ton contrat de travail et de ta caisse de pension.",
-  "disabilityGapIjmExpl": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80\u00a0% de ton salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne reçois plus rien jusqu'à l'éventuelle rente AI.",
+  "disabilityGapIjmExpl": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de ton salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne reçois plus rien jusqu'à l'éventuelle rente AI.",
   "disabilityGapCo324aExpl": "Selon l'art. 324a CO, l'employeur doit verser le salaire pendant une durée limitée en cas de maladie. Cette durée dépend des années de service et de l'échelle cantonale applicable (bernoise, zurichoise ou bâloise). Après cette période, seule l'IJM (si existante) prend le relais.",
   "authLogin": "Se connecter",
   "authRegister": "Créer un compte",
@@ -525,7 +525,7 @@
   "documentsUploadBody": "MINT extrait automatiquement tes données de prévoyance professionnelle",
   "documentsUploadButton": "Choisir un fichier PDF",
   "documentsAnalyzing": "Analyse en cours...",
-  "documentsConfidence": "Confiance : {confidence}\u00a0%",
+  "documentsConfidence": "Confiance : {confidence} %",
   "@documentsConfidence": {
     "placeholders": {
       "confidence": {
@@ -687,7 +687,7 @@
   "jobCompareChecklistRachat": "Vérifier le délai de carence pour le rachat",
   "jobCompareChecklistRisque": "Calculer l'impact sur les prestations de risque",
   "jobCompareChecklistLibrePassage": "Vérifier le libre passage : transfert en 30 jours max",
-  "jobCompareEducational": "Le salaire invisible représente 10-30\u00a0% de ta rémunération totale.",
+  "jobCompareEducational": "Le salaire invisible représente 10-30 % de ta rémunération totale.",
   "jobCompareVerdictBetter": "Le nouveau poste est globalement plus avantageux",
   "jobCompareVerdictWorse": "Le poste actuel offre une protection plus solide",
   "jobCompareVerdictComparable": "Les deux postes sont comparables",
@@ -938,7 +938,7 @@
     }
   },
   "coachingEmergencyAction": "Voir mon budget",
-  "coachingDebtTitle": "Taux d'endettement élevé ({ratio}\u00a0%)",
+  "coachingDebtTitle": "Taux d'endettement élevé ({ratio} %)",
   "@coachingDebtTitle": {
     "placeholders": {
       "ratio": {
@@ -946,7 +946,7 @@
       }
     }
   },
-  "coachingDebtMessage": "Ton taux d'endettement estimé est de {ratio}\u00a0%, au-dessus du seuil de 33\u00a0% recommandé par les banques suisses.",
+  "coachingDebtMessage": "Ton taux d'endettement estimé est de {ratio} %, au-dessus du seuil de 33 % recommandé par les banques suisses.",
   "@coachingDebtMessage": {
     "placeholders": {
       "ratio": {
@@ -956,7 +956,7 @@
   },
   "coachingDebtAction": "Analyser mes dettes",
   "coachingPartTimeTitle": "Temps partiel : lacune de prévoyance",
-  "coachingPartTimeMessage": "À {rate}\u00a0% d'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.",
+  "coachingPartTimeMessage": "À {rate} % d'activité, ta prévoyance professionnelle est réduite. La déduction de coordination pénalise davantage les temps partiels.",
   "@coachingPartTimeMessage": {
     "placeholders": {
       "rate": {
@@ -1002,7 +1002,7 @@
   "segmentsGenderGapIntro": "La déduction de coordination (CHF 25'725) n'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplacez le curseur pour voir l'impact.",
   "segmentsGenderGapTauxLabel": "Taux d'activité",
   "segmentsGenderGapParams": "Paramètres",
-  "segmentsGenderGapRevenuLabel": "Revenu annuel brut (100\u00a0%)",
+  "segmentsGenderGapRevenuLabel": "Revenu annuel brut (100 %)",
   "segmentsGenderGapAgeLabel": "Âge",
   "segmentsGenderGapAvoirLabel": "Avoir LPP actuel",
   "segmentsGenderGapAnneesCotisLabel": "Années de cotisation",
@@ -1016,8 +1016,8 @@
       }
     }
   },
-  "segmentsGenderGapAt100": "À 100\u00a0%",
-  "segmentsGenderGapAtCurrent": "À {rate}\u00a0%",
+  "segmentsGenderGapAt100": "À 100 %",
+  "segmentsGenderGapAtCurrent": "À {rate} %",
   "@segmentsGenderGapAtCurrent": {
     "placeholders": {
       "rate": {
@@ -1028,10 +1028,10 @@
   "segmentsGenderGapLacuneAnnuelle": "Lacune annuelle",
   "segmentsGenderGapLacuneTotale": "Lacune totale (~20 ans)",
   "segmentsGenderGapCoordinationTitle": "Comprendre la déduction de coordination",
-  "segmentsGenderGapCoordinationBody": "La déduction de coordination est un montant fixe de CHF 25'725 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100\u00a0% ou à 50\u00a0%.",
-  "segmentsGenderGapSalaireBrut100": "Salaire brut à 100\u00a0%",
-  "segmentsGenderGapSalaireCoord100": "Salaire coordonné à 100\u00a0%",
-  "segmentsGenderGapSalaireBrutCurrent": "Salaire brut à {rate}\u00a0%",
+  "segmentsGenderGapCoordinationBody": "La déduction de coordination est un montant fixe de CHF 25'725 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100 % ou à 50 %.",
+  "segmentsGenderGapSalaireBrut100": "Salaire brut à 100 %",
+  "segmentsGenderGapSalaireCoord100": "Salaire coordonné à 100 %",
+  "segmentsGenderGapSalaireBrutCurrent": "Salaire brut à {rate} %",
   "@segmentsGenderGapSalaireBrutCurrent": {
     "placeholders": {
       "rate": {
@@ -1039,7 +1039,7 @@
       }
     }
   },
-  "segmentsGenderGapSalaireCoordCurrent": "Salaire coordonné à {rate}\u00a0%",
+  "segmentsGenderGapSalaireCoordCurrent": "Salaire coordonné à {rate} %",
   "@segmentsGenderGapSalaireCoordCurrent": {
     "placeholders": {
       "rate": {
@@ -1049,7 +1049,7 @@
   },
   "segmentsGenderGapDeductionFixe": "Déduction coordination (fixe)",
   "segmentsGenderGapOfsTitle": "Statistique OFS",
-  "segmentsGenderGapOfsStat": "En Suisse, les femmes touchent en moyenne 37\u00a0% de rente de moins que les hommes (OFS 2024)",
+  "segmentsGenderGapOfsStat": "En Suisse, les femmes touchent en moyenne 37 % de rente de moins que les hommes (OFS 2024)",
   "segmentsGenderGapRecTitle": "RECOMMANDATIONS",
   "segmentsGenderGapRecRachat": "Rachat LPP volontaire",
   "segmentsGenderGapRecRachatDesc": "Un rachat volontaire permet de combler partiellement la lacune de prévoyance tout en bénéficiant d'une déduction fiscale.",
@@ -1075,8 +1075,8 @@
   "segmentsFrontalierCatLpp": "LPP / Libre passage",
   "segmentsFrontalierCatAvs": "AVS / Coordination",
   "segmentsFrontalierQuasiResidentTitle": "Statut quasi-résident (GE)",
-  "segmentsFrontalierQuasiResidentDesc": "Le statut de quasi-résident est accessible si au moins 90\u00a0% des revenus de ton ménage proviennent de Suisse.",
-  "segmentsFrontalierQuasiResidentCondition": "Condition : >= 90\u00a0% des revenus du ménage provenant de Suisse",
+  "segmentsFrontalierQuasiResidentDesc": "Le statut de quasi-résident est accessible si au moins 90 % des revenus de ton ménage proviennent de Suisse.",
+  "segmentsFrontalierQuasiResidentCondition": "Condition : >= 90 % des revenus du ménage provenant de Suisse",
   "segmentsFrontalierChecklist": "Checklist frontalier",
   "segmentsFrontalierPaysFR": "France",
   "segmentsFrontalierPaysDE": "Allemagne",
@@ -1120,7 +1120,7 @@
   },
   "segmentsIndependant3aTitle": "3e pilier — plafond indépendant",
   "segmentsIndependant3aWithLpp": "Avec LPP volontaire : plafond 3a standard de CHF 7'258/an.",
-  "segmentsIndependant3aWithoutLpp": "Sans LPP : plafond 3a 'grand' de 20\u00a0% du revenu net, max CHF 36'288/an.",
+  "segmentsIndependant3aWithoutLpp": "Sans LPP : plafond 3a 'grand' de 20 % du revenu net, max CHF 36'288/an.",
   "segmentsIndependantRecTitle": "RECOMMANDATIONS",
   "segmentsIndependantDisclaimer": "Les montants présentés sont des estimations indicatives. Consultez un fiduciaire ou un assureur avant toute décision.",
   "segmentsIndependantSources": "Sources",
@@ -1142,7 +1142,7 @@
   "assurancesLamalOptimale": "Franchise recommandée",
   "assurancesLamalBreakEven": "Seuil de rentabilité",
   "assurancesLamalDelaiRappel": "Rappel : modification possible avant le 30 novembre",
-  "assurancesLamalQuotePart": "Quote-part (10\u00a0%, max 700 CHF)",
+  "assurancesLamalQuotePart": "Quote-part (10 %, max 700 CHF)",
   "assurancesCoverageTitle": "Check-up couverture",
   "assurancesCoverageSubtitle": "Évaluez ta protection assurantielle",
   "assurancesCoverageScore": "Score de couverture",
@@ -1401,7 +1401,7 @@
   "coachDidYouKnow": "Le savais-tu ?",
   "coachFact3a": "Le 3e pilier peut te faire économiser jusqu'à CHF 2'500 d'impôts par an, selon ton canton et ton revenu.",
   "coachFact3aLink": "Simuler mon économie 3a",
-  "coachFactAvs": "En Suisse, chaque année AVS manquante = −2.3\u00a0% de rente à vie. Un rattrapage est possible dans certains cas.",
+  "coachFactAvs": "En Suisse, chaque année AVS manquante = −2.3 % de rente à vie. Un rattrapage est possible dans certains cas.",
   "coachFactAvsLink": "Vérifier mes années AVS",
   "coachFactLpp": "Le rachat LPP est l'un des leviers fiscaux les plus puissants pour les salarié·es en Suisse. Il est intégralement déductible du revenu imposable.",
   "coachFactLppLink": "Explorer le rachat LPP",
@@ -1696,7 +1696,7 @@
   "vaultPremiumBody": "Passe à MINT Premium pour stocker un nombre illimité de documents et débloquer l'audit de couverture automatique",
   "vaultPremiumCta": "Découvrir Premium",
   "vaultDocListTitle": "Mes documents",
-  "vaultConfidence": "Confiance : {confidence}\u00a0%",
+  "vaultConfidence": "Confiance : {confidence} %",
   "@vaultConfidence": {
     "placeholders": {
       "confidence": {
@@ -1794,7 +1794,7 @@
   "soaRemainder": "Reste à vivre",
   "soaEstimatedTaxLabel": "Impôts Estimés",
   "soaSavingsRate": "Taux d'épargne",
-  "soaSavingsGoal": "Objectif: 20\u00a0%",
+  "soaSavingsGoal": "Objectif: 20 %",
   "soaProtectionScore": "Score Protection",
   "soaActiveDebts": "Dettes actives",
   "soaSerene": "Serein",
@@ -1833,7 +1833,7 @@
     }
   },
   "agirScenarioBriefTitle": "Scénarios de retraite en bref",
-  "agirScenarioBriefSummary": "Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement}\u00a0% de remplacement). L'écart Prudent vs Optimiste est {gapCapital}.",
+  "agirScenarioBriefSummary": "Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement} % de remplacement). L'écart Prudent vs Optimiste est {gapCapital}.",
   "@agirScenarioBriefSummary": {
     "placeholders": {
       "years": {
@@ -1884,7 +1884,7 @@
   "checkinScoreReasonNegativeGeneral": "Baisse temporaire ce mois. On ajuste le plan au prochain check-in.",
   "checkinImpactPending": "Impact en cours de calcul",
   "coachDataQualityTitle": "Qualite des donnees",
-  "coachDataQualityBody": "Calcul actuel: {dataPoints} donnees saisies ({percentage}\u00a0%). Les postes non renseignes restent en estimation jusqu au diagnostic complet.",
+  "coachDataQualityBody": "Calcul actuel: {dataPoints} donnees saisies ({percentage} %). Les postes non renseignes restent en estimation jusqu au diagnostic complet.",
   "@coachDataQualityBody": {
     "placeholders": {
       "dataPoints": {
@@ -1905,7 +1905,7 @@
   "profileStateFull": "Profil complet",
   "profileStatePartial": "Profil partiel",
   "profileStateMissing": "Profil non renseigne",
-  "profileCoachKnowledgeSummary": "{profileState} • Precision {precision}\u00a0% • Check-ins: {checkins}{scorePart}",
+  "profileCoachKnowledgeSummary": "{profileState} • Precision {precision} % • Check-ins: {checkins}{scorePart}",
   "@profileCoachKnowledgeSummary": {
     "placeholders": {
       "profileState": {
@@ -2014,7 +2014,7 @@
       }
     }
   },
-  "coachEnrichTargetTitle": "Passe de {current}\u00a0% a {target}\u00a0% de precision",
+  "coachEnrichTargetTitle": "Passe de {current} % a {target} % de precision",
   "@coachEnrichTargetTitle": {
     "placeholders": {
       "current": {
@@ -2035,7 +2035,7 @@
   "coachEnrichActionPension": "Compléter Prévoyance",
   "coachEnrichActionProperty": "Completer Immobilier & dettes",
   "coachEnrichActionDefault": "Completer mon diagnostic",
-  "coachAgirPartialTitle": "Plan en construction ({quality}\u00a0%)",
+  "coachAgirPartialTitle": "Plan en construction ({quality} %)",
   "@coachAgirPartialTitle": {
     "placeholders": {
       "quality": {
@@ -2095,7 +2095,7 @@
   "landingToday": "Aujourd'hui",
   "landingChfPerMonth": "CHF/mois",
   "landingAtRetirement": "À la retraite*",
-  "landingDropPurchasingPower": "-{percent}\u00a0% de pouvoir d'achat",
+  "landingDropPurchasingPower": "-{percent} % de pouvoir d'achat",
   "@landingDropPurchasingPower": {
     "placeholders": {
       "percent": {
@@ -2126,10 +2126,10 @@
   "landingFeaturePillarsSubtitle": "AVS, LPP et 3a calculés selon ta situation réelle — pas des moyennes suisses.",
   "landingFeatureCoachTitle": "Coach adapté à ton stade de vie",
   "landingFeatureCoachSubtitle": "25 ans ou 60 ans, frontalier ou indépendant — les conseils changent selon qui tu es.",
-  "landingFeaturePrivacyTitle": "100\u00a0% privé, données sur ton appareil",
+  "landingFeaturePrivacyTitle": "100 % privé, données sur ton appareil",
   "landingFeaturePrivacySubtitle": "Aucun partage, aucune pub. Ton profil reste local sauf si tu crées un compte.",
   "landingTrustSwiss": "Conçu en Suisse",
-  "landingTrustPrivate": "100\u00a0% privé",
+  "landingTrustPrivate": "100 % privé",
   "landingTrustNoCommitment": "Sans engagement",
   "landingCtaTitle": "Ton plan en 30 secondes",
   "landingCtaSubtitle": "3 questions • Gratuit • Sans engagement",
@@ -2203,7 +2203,7 @@
   "dashboardMetricYears": "ans",
   "dashboardMetricLifeExpectancy": "Espérance de vie estimée : 85 ans",
   "dashboardMetricMonthlyGap": "Écart mensuel",
-  "dashboardMetricVsTarget": "Vs cible 70\u00a0% du salaire brut",
+  "dashboardMetricVsTarget": "Vs cible 70 % du salaire brut",
   "dashboardNextActionLabel": "Améliorer ta précision",
   "dashboardNextActionDetail": "Scanne ton certificat LPP pour affiner tes projections.",
   "dashboardWeatherSunny": "Marchés favorables, épargne maximisée.",
@@ -2341,7 +2341,7 @@
       }
     }
   },
-  "budgetEmptyTitle": "Ton budget se construit automatiquement",
+  "budgetEmptyTitle": "Ton budget",
   "budgetEmptyBody": "Complète ton diagnostic pour débloquer ton plan mensuel avec tes vrais revenus et charges.",
   "budgetEmptyAction": "Faire mon diagnostic",
   "budgetMonthlyTitle": "Budget mensuel",
@@ -2734,10 +2734,10 @@
   "mariageProtectionIntro": "Que se passe-t-il si l'un de vous deux décède ? Compare la protection légale entre mariés et concubins.",
   "mariageLppRenteLabel": "Rente LPP mensuelle du défunt",
   "mariageAvsSurvivor": "Rente AVS de survivant",
-  "mariageAvsSurvivorSub": "80\u00a0% de la rente maximale du défunt",
+  "mariageAvsSurvivorSub": "80 % de la rente maximale du défunt",
   "mariageAvsSurvivorFootnote": "LAVS art. 35 — uniquement pour les mariés",
   "mariageLppSurvivor": "Rente LPP de survivant",
-  "mariageLppSurvivorSub": "60\u00a0% de la rente assurée du défunt",
+  "mariageLppSurvivorSub": "60 % de la rente assurée du défunt",
   "mariageLppSurvivorFootnote": "LPP art. 19 — mariés (concubins : clause nécessaire)",
   "mariageSurvivorMonthly": "Revenu mensuel du survivant marié",
   "mariageVsConcubin": "MARIÉ VS CONCUBIN",
@@ -2815,13 +2815,13 @@
   },
   "unemploymentContribMax": "24 mois",
   "unemploymentSituationTitle": "Situation personnelle",
-  "unemploymentSituationSubtitle": "Influence le taux d'indemnisation (70\u00a0% ou 80\u00a0%)",
+  "unemploymentSituationSubtitle": "Influence le taux d'indemnisation (70 % ou 80 %)",
   "unemploymentChildrenToggle": "Obligation d'entretien (enfants)",
   "unemploymentDisabilityToggle": "Handicap reconnu",
   "unemploymentNotEligible": "Non éligible",
   "unemploymentCompensationRate": "Taux d'indemnisation",
-  "unemploymentRateEnhanced": "Taux majoré (80\u00a0%) : obligation d'entretien, handicap, ou salaire < CHF 3'797",
-  "unemploymentRateStandard": "Taux standard (70\u00a0%) : applicable dans les autres situations",
+  "unemploymentRateEnhanced": "Taux majoré (80 %) : obligation d'entretien, handicap, ou salaire < CHF 3'797",
+  "unemploymentRateStandard": "Taux standard (70 %) : applicable dans les autres situations",
   "unemploymentDailyBenefit": "Indemnité /jour",
   "unemploymentMonthlyBenefit": "Indemnité /mois",
   "unemploymentInsuredEarnings": "Gain assuré retenu",
@@ -2871,7 +2871,7 @@
   "firstJobEdu13Title": "13e salaire",
   "firstJobEdu13Body": "Si ton contrat prévoit un 13e salaire, celui-ci est aussi soumis aux déductions sociales. Ton salaire mensuel brut est alors le salaire annuel divisé par 13.",
   "firstJobEduBudgetTitle": "Règle du 50/30/20",
-  "firstJobEduBudgetBody": "Un bon réflexe pour ton premier salaire : 50\u00a0% pour les dépenses fixes, 30\u00a0% pour les loisirs, 20\u00a0% pour l'épargne et la prévoyance (3a inclus).",
+  "firstJobEduBudgetBody": "Un bon réflexe pour ton premier salaire : 50 % pour les dépenses fixes, 30 % pour les loisirs, 20 % pour l'épargne et la prévoyance (3a inclus).",
   "firstJobEduTaxTitle": "Déclaration fiscale",
   "firstJobEduTaxBody": "Dès ton premier emploi, tu devras remplir une déclaration fiscale. Garde toutes tes attestations (salaire, 3a, frais professionnels).",
   "firstJobAnalysisHeader": "Analyse MINT — Le film de ton salaire",
@@ -2905,7 +2905,7 @@
   "independantRecommendationsHeader": "RECOMMANDATIONS",
   "independantAnalysisHeader": "Analyse MINT — Ton kit indépendant",
   "independantSourcesTitle": "Sources",
-  "independantSourcesBody": "LPP art. 4 (pas d'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20\u00a0% du revenu net, max 36'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal",
+  "independantSourcesBody": "LPP art. 4 (pas d'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20 % du revenu net, max 36'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal",
   "independantDisclaimer": "Les montants présentés sont des estimations indicatives. Les cotisations réelles dépendent de ta situation personnelle et des offres d'assurance disponibles. Consulte un fiduciaire ou un assureur avant toute décision.",
   "jobCompareAgeTitle": "Ton âge",
   "jobCompareAgeSubtitle": "Utilisé pour projeter le capital retraite",
@@ -2923,7 +2923,7 @@
   "jobCompareChecklistTitle": "Avant de signer",
   "jobCompareUnderstandHeader": "COMPRENDRE",
   "jobCompareEduInvisibleTitle": "Qu'est-ce que le salaire invisible ?",
-  "jobCompareEduInvisibleBody": "Le \"salaire invisible\" représente 10-30\u00a0% de ta rémunération totale. Il inclut la part employeur à la caisse de pension (LPP), les assurances (IJM, accident), et parfois des avantages complémentaires. Deux postes au même salaire brut peuvent offrir des protections très différentes.",
+  "jobCompareEduInvisibleBody": "Le \"salaire invisible\" représente 10-30 % de ta rémunération totale. Il inclut la part employeur à la caisse de pension (LPP), les assurances (IJM, accident), et parfois des avantages complémentaires. Deux postes au même salaire brut peuvent offrir des protections très différentes.",
   "jobCompareEduCertTitle": "Comment lire mon certificat de prévoyance ?",
   "jobCompareEduCertBody": "Ton certificat de prévoyance (LPP) contient toutes les informations nécessaires : salaire assuré, déduction de coordination, taux de cotisation, avoir de vieillesse, taux de conversion, prestations de risque (invalidité et décès), et rachat possible. Demande-le à ton RH ou à ta caisse de pension.",
   "jobCompareAxisLabel": "Axe",
@@ -2953,7 +2953,7 @@
   "disabilityGapIfYouAre": "SI TU ES...",
   "disabilityGapEduTitle": "COMPRENDRE",
   "disabilityGapEduIjmTitle": "IJM vs AI : quelle différence ?",
-  "disabilityGapEduIjmBody": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80\u00a0% de ton salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne recevez plus rien jusqu'à l'éventuelle rente AI.",
+  "disabilityGapEduIjmBody": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80 % de ton salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, tu ne recevez plus rien jusqu'à l'éventuelle rente AI.",
   "disabilityGapEduCoTitle": "L'obligation de ton employeur (CO art. 324a)",
   "disabilityGapEduCoBody": "Selon l'art. 324a CO, l'employeur doit verser le salaire pendant une durée limitée en cas de maladie. Cette durée dépend des années de service et de l'échelle cantonale applicable (bernoise, zurichoise ou bâloise). Après cette période, seule l'IJM (si existante) prend le relais.",
   "successionIntroDesc": "Le nouveau droit successoral (2023) a élargi la quotité disponible. Tu as désormais plus de liberté pour avantager certains héritiers. Cet outil te montre la répartition légale et l'impact d'un testament.",
@@ -2993,7 +2993,7 @@
   "mariageChecklistItem5Title": "Préparer la première déclaration commune",
   "mariageChecklistItem5Desc": "Dès l'année du mariage, tu fais une seule déclaration fiscale commune. Rassemble les justificatifs des deux (certificats de salaire, 3a, LPP, etc.). Le passage à la déclaration commune peut changer ta tranche d'imposition.",
   "mariageChecklistItem6Title": "Vérifier les rentes AVS de couple",
-  "mariageChecklistItem6Desc": "La rente AVS maximale pour un couple est plafonnée à 150\u00a0% de la rente individuelle maximale (LAVS art. 35). Si tu as droit à la rente max avec ton conjoint, le plafond peut réduire ton total.",
+  "mariageChecklistItem6Desc": "La rente AVS maximale pour un couple est plafonnée à 150 % de la rente individuelle maximale (LAVS art. 35). Si tu as droit à la rente max avec ton conjoint, le plafond peut réduire ton total.",
   "mariageChecklistItem7Title": "Adapter le testament",
   "mariageChecklistItem7Desc": "Le mariage modifie l'ordre de succession. Le conjoint devient héritier légal avec des droits importants (CC art. 462). Si tu avais un testament en faveur d'un tiers, il est peut-être à revoir.",
   "mariageChecklistProgress": "{done}/{total} démarches effectuées",
@@ -3018,7 +3018,7 @@
   "successionFortuneSubtitle2": "Patrimoine total, 3a, LPP",
   "successionTestamentTitle": "Testament",
   "successionTestamentSubtitle2": "Volontés testamentaires",
-  "successionQuotitePct": "soit {pct}\u00a0% de la succession",
+  "successionQuotitePct": "soit {pct} % de la succession",
   "@successionQuotitePct": {
     "placeholders": {
       "pct": {
@@ -3037,7 +3037,7 @@
   },
   "successionEduQuotiteBody2": "La quotité disponible est la part de ta succession que tu peux librement attribuer par testament. Depuis le 1er janvier 2023, la réserve des descendants a été réduite de 3/4 à 1/2 de leur part légale. Les parents n'ont plus de réserve. Cela te donne plus de liberté pour favoriser ton/ta conjoint·e, ton/ta concubin·e ou toute autre personne.",
   "successionEdu3aBody2": "Le 3e pilier (pilier 3a) n'entre PAS dans la masse successorale ordinaire. Il est versé directement aux bénéficiaires selon un ordre fixé par l'OPP3 (art. 2) : conjoint/partenaire enregistré, puis descendants, parents, fratrie. Le concubin peut être désigné comme bénéficiaire, mais uniquement par une clause explicite déposée auprès de la fondation. Sans cette démarche, le/la concubin(e) ne reçoit rien du 3a.",
-  "successionEduConcubinBody2": "En droit suisse, les concubins n'ont AUCUN droit successoral légal. Sans testament, un concubin ne reçoit rien. De plus, l'impôt successoral pour les concubins est généralement bien plus élevé que pour les conjoints (souvent 20-25\u00a0% au lieu de 0\u00a0%). Pour protéger ton/ta concubin·e, il est essentiel de rédiger un testament, de vérifier les clauses bénéficiaires 3a/LPP et d'envisager des assurances-vie.",
+  "successionEduConcubinBody2": "En droit suisse, les concubins n'ont AUCUN droit successoral légal. Sans testament, un concubin ne reçoit rien. De plus, l'impôt successoral pour les concubins est généralement bien plus élevé que pour les conjoints (souvent 20-25 % au lieu de 0 %). Pour protéger ton/ta concubin·e, il est essentiel de rédiger un testament, de vérifier les clauses bénéficiaires 3a/LPP et d'envisager des assurances-vie.",
   "successionDisclaimerText": "Les résultats présentés sont des estimations à titre indicatif et ne constituent pas un conseil juridique ou notarial personnalisé. Le droit successoral comporte de nombreuses subtilités. Consultez un notaire ou un avocat spécialisé avant toute décision.",
   "donationIntroText": "Les donations en Suisse sont soumises à un impôt cantonal qui varie selon le lien de parenté et le canton. Depuis 2023, la réserve héréditaire a été réduite, te donnant plus de liberté. Cet outil t'aide à estimer l'impôt et à vérifier la compatibilité avec les droits des héritiers.",
   "donationSectionTitle": "DONATION",
@@ -3056,7 +3056,7 @@
   "donationCalculer": "Calculer",
   "donationImpotTitle": "IMPÔT SUR LA DONATION",
   "donationExoneree": "Exonérée",
-  "donationTauxCanton": "Taux : {taux}\u00a0% (canton {canton})",
+  "donationTauxCanton": "Taux : {taux} % (canton {canton})",
   "@donationTauxCanton": {
     "placeholders": {
       "taux": {
@@ -3071,7 +3071,7 @@
   "donationLienRow": "Lien de parenté",
   "donationReserveTitle": "RÉSERVE HÉRÉDITAIRE (2023)",
   "donationReserveProtege": "montant protégé par la loi (intouchable)",
-  "donationReserveNote": "Depuis 2023, les parents n'ont plus de réserve. La réserve des descendants est de 50\u00a0% de leur part légale (CC art. 471).",
+  "donationReserveNote": "Depuis 2023, les parents n'ont plus de réserve. La réserve des descendants est de 50 % de leur part légale (CC art. 471).",
   "donationQuotiteTitle": "QUOTITÉ DISPONIBLE",
   "donationQuotiteDesc": "montant que tu peux librement donner",
   "donationDepassement": "Dépassement de {amount} — risque d'action en réduction",
@@ -3090,7 +3090,7 @@
   "donationEduAvancementTitle": "Avancement d'hoirie vs donation hors part",
   "donationEduAvancementBody": "Une donation en avancement d'hoirie est une avance sur la part successorale du bénéficiaire. Elle sera rapportée à la masse successorale lors du décès. Une donation hors part (ou préciput) est imputée uniquement sur la quotité disponible et n'est pas rapportée. Le choix entre les deux a un impact majeur sur l'équilibre entre les héritiers.",
   "donationEduConcubinTitle": "Donations et concubins",
-  "donationEduConcubinBody": "Les concubins n'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l'impôt cantonal sur les donations entre concubins est généralement élevé (18-25\u00a0% selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.",
+  "donationEduConcubinBody": "Les concubins n'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l'impôt cantonal sur les donations entre concubins est généralement élevé (18-25 % selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.",
   "donationDisclaimer": "Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Consulte un·e spécialiste (notaire) pour ta situation.",
   "donationCanton": "Canton",
   "housingSaleIntroText": "Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t'aide à estimer le produit net de ta vente.",
@@ -3210,7 +3210,7 @@
       }
     }
   },
-  "independantAvsBody": "Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6\u00a0% au-dessus).",
+  "independantAvsBody": "Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -3220,7 +3220,7 @@
   },
   "independantAvsSource": "Source : LAVS art. 8 / Tables des cotisations AVS",
   "independant3aWithLpp": "Avec LPP volontaire : plafond 3a standard de CHF 7’258/an.",
-  "independant3aWithoutLpp": "Sans LPP : plafond 3a \"grand\" de 20\u00a0% du revenu net, max {amount}/an (plafond légal CHF 36’288).",
+  "independant3aWithoutLpp": "Sans LPP : plafond 3a \"grand\" de 20 % du revenu net, max {amount}/an (plafond légal CHF 36’288).",
   "@independant3aWithoutLpp": {
     "placeholders": {
       "amount": {
@@ -3251,11 +3251,11 @@
       }
     }
   },
-  "disabilityGapPhase1Full": "100\u00a0% du salaire",
+  "disabilityGapPhase1Full": "100 % du salaire",
   "disabilityGapNoCoverage": "Aucune couverture",
   "disabilityGapNone": "Aucune",
   "disabilityGapPhase2Duration": "Jusqu'à 24 mois",
-  "disabilityGapPhase2Coverage": "80\u00a0% du salaire ({amount} CHF/mois)",
+  "disabilityGapPhase2Coverage": "80 % du salaire ({amount} CHF/mois)",
   "@disabilityGapPhase2Coverage": {
     "placeholders": {
       "amount": {
@@ -3364,11 +3364,11 @@
   "affordabilityPillar3a": "Avoir 3a",
   "affordabilityPillarLpp": "Avoir LPP",
   "affordabilityCalculationDetail": "Détail du calcul",
-  "affordabilityEquityRequired": "Fonds propres requis (20\u00a0%)",
+  "affordabilityEquityRequired": "Fonds propres requis (20 %)",
   "affordabilitySavingsLabel": "Épargne",
-  "affordabilityLppMax10": "Avoir LPP (max 10\u00a0% du prix)",
+  "affordabilityLppMax10": "Avoir LPP (max 10 % du prix)",
   "affordabilityTotalEquity": "Total fonds propres",
-  "affordabilityMortgagePercent": "Hypothèque ({percent}\u00a0%)",
+  "affordabilityMortgagePercent": "Hypothèque ({percent} %)",
   "@affordabilityMortgagePercent": {
     "placeholders": {
       "percent": {
@@ -3377,7 +3377,7 @@
     }
   },
   "affordabilityMonthlyCharges": "Charges mensuelles théoriques",
-  "affordabilityCalculationNote": "Calcul théorique : hypothèque x (5\u00a0% intérêt imputé + 1\u00a0% amortissement) + prix x 1\u00a0% frais accessoires. Max 33\u00a0% du revenu brut.",
+  "affordabilityCalculationNote": "Calcul théorique : hypothèque x (5 % intérêt imputé + 1 % amortissement) + prix x 1 % frais accessoires. Max 33 % du revenu brut.",
   "amortizationSource": "Source : OPP3 (pilier 3a), pratique hypothécaire suisse. Plafond 3a salarié 2026 : CHF 7'258.",
   "amortizationIntroTitle": "Amortissement : direct ou indirect ?",
   "amortizationIntroBody": "En Suisse, l'amortissement indirect est une spécificité unique : au lieu de rembourser directement la dette, tu verses dans un pilier 3a nanti. Tu bénéficies d'une double déduction fiscale (intérêts + versement 3a) et ton capital reste investi.",
@@ -3421,7 +3421,7 @@
   "fiscalChurchMember": "Membre d'une Église",
   "fiscalChurchTax": "Impôt ecclésiastique",
   "fiscalEffectiveRate": "Taux effectif estimé",
-  "fiscalBelowAverage": "Inférieur à l’indice fédéral (~{rate}\u00a0%)",
+  "fiscalBelowAverage": "Inférieur à l’indice fédéral (~{rate} %)",
   "@fiscalBelowAverage": {
     "placeholders": {
       "rate": {
@@ -3429,7 +3429,7 @@
       }
     }
   },
-  "fiscalAboveAverage": "Supérieur à l’indice fédéral (~{rate}\u00a0%)",
+  "fiscalAboveAverage": "Supérieur à l’indice fédéral (~{rate} %)",
   "@fiscalAboveAverage": {
     "placeholders": {
       "rate": {
@@ -3530,7 +3530,7 @@
   "expatNoExitTax": "Pas de taxe de sortie en Suisse",
   "expatRecommendedTimeline": "CHRONOLOGIE RECOMMANDÉE",
   "expatDepartureChecklist": "CHECKLIST DE DÉPART",
-  "expatAvsEducation": "Pour toucher une rente AVS complète (max CHF 2'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d'environ 2.3\u00a0%. Si tu vis à l'étranger, tu peux cotiser volontairement à l'AVS pour éviter les lacunes.",
+  "expatAvsEducation": "Pour toucher une rente AVS complète (max CHF 2'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d'environ 2.3 %. Si tu vis à l'étranger, tu peux cotiser volontairement à l'AVS pour éviter les lacunes.",
   "expatYearsInSwitzerland": "Années en Suisse",
   "expatYearsAbroad": "Années à l'étranger",
   "expatAvsCompleteness": "COMPLÉTUDE AVS",
@@ -3560,7 +3560,7 @@
   "mariageTimelineAct2Insight": "Rachat LPP, 3a maximal, préparation retraite. Votre capital double.",
   "mariageTimelineAct3Title": "Retraite couple",
   "mariageTimelineAct3Period": "25+ ans",
-  "mariageTimelineAct3Insight": "Attention : plafond AVS couple (150\u00a0% rente max). Planifier rente vs capital.",
+  "mariageTimelineAct3Insight": "Attention : plafond AVS couple (150 % rente max). Planifier rente vs capital.",
   "naissanceChecklistItem1Title": "Inscrire bébé à l'assurance maladie (3 mois)",
   "naissanceChecklistItem1Desc": "Tu as 3 mois après la naissance pour inscrire ton enfant auprès d'une caisse maladie. Si tu le fais dans ce délai, la couverture est rétroactive dès la naissance. Passé ce délai, l'enfant risque une interruption de couverture. Compare les primes enfants entre caisses — les écarts peuvent être significatifs.",
   "naissanceChecklistItem2Title": "Demander les allocations familiales",
@@ -3568,7 +3568,7 @@
   "naissanceChecklistItem3Title": "Annoncer la naissance à l'état civil",
   "naissanceChecklistItem3Desc": "L'hôpital transmet généralement l'annonce à l'office de l'état civil. Vérifie que l'acte de naissance est bien établi. Tu en auras besoin pour toutes les démarches administratives.",
   "naissanceChecklistItem4Title": "Organiser le congé parental (APG)",
-  "naissanceChecklistItem4Desc": "Congé maternité : 14 semaines à 80\u00a0% du salaire (max CHF 220/jour). Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. L'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.",
+  "naissanceChecklistItem4Desc": "Congé maternité : 14 semaines à 80 % du salaire (max CHF 220/jour). Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. L'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.",
   "naissanceChecklistItem5Title": "Mettre à jour la déclaration fiscale",
   "naissanceChecklistItem5Desc": "Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6'700/an (LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu'à CHF 25'500/an. Pense à adapter tes acomptes d'impôts pour l'année en cours.",
   "naissanceChecklistItem6Title": "Adapter le budget familial",
@@ -3675,7 +3675,7 @@
       }
     }
   },
-  "narrativeConfidenceLabel": "Confiance profil : {score}\u00a0%",
+  "narrativeConfidenceLabel": "Confiance profil : {score} %",
   "@narrativeConfidenceLabel": {
     "placeholders": {
       "score": {
@@ -3714,7 +3714,7 @@
   "patrimoineLtvSaine": "LTV saine",
   "patrimoineLtvAmortissement": "Amortissement recommandé",
   "patrimoineLtvElevee": "LTV élevée — amortir",
-  "patrimoineLtvDisplay": "LTV {percent}\u00a0%",
+  "patrimoineLtvDisplay": "LTV {percent} %",
   "@patrimoineLtvDisplay": {
     "placeholders": {
       "percent": {
@@ -3790,7 +3790,7 @@
   "futurRevenuMensuelProjection": "Revenu mensuel projeté à la retraite",
   "futurRenteAvs": "Rente AVS",
   "futurRenteLpp": "Rente LPP estimée",
-  "futurPilier3aSwr": "Pilier 3a (SWR 4\u00a0%)",
+  "futurPilier3aSwr": "Pilier 3a (SWR 4 %)",
   "futurCapitalLabel": "Capital {amount}",
   "@futurCapitalLabel": {
     "placeholders": {
@@ -3799,14 +3799,14 @@
       }
     }
   },
-  "futurLibrePassageSwr": "Libre passage (SWR 4\u00a0%)",
-  "futurInvestissementsSwr": "Investissements (SWR 4\u00a0%)",
+  "futurLibrePassageSwr": "Libre passage (SWR 4 %)",
+  "futurInvestissementsSwr": "Investissements (SWR 4 %)",
   "futurTotalCoupleProjecte": "Total couple projeté",
   "futurTotalMensuelProjecte": "Total mensuel projeté",
   "futurCapitalRetraite": "Capital à la retraite",
   "futurCapitalTotal": "Capital total (LPP + 3a + LP + investissements)",
   "futurCapitalTaxHint": "Le retrait en capital est taxé séparément (LIFD art. 38). Le SWR n'est pas un revenu imposable.",
-  "futurMargeIncertitude": "Marge d'incertitude (± {pct}\u00a0%)",
+  "futurMargeIncertitude": "Marge d'incertitude (± {pct} %)",
   "@futurMargeIncertitude": {
     "placeholders": {
       "pct": {
@@ -3826,7 +3826,7 @@
     }
   },
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
-  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4\u00a0% = règle des 4\u00a0%, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4 % = règle des 4 %, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
   "financialSummaryTitle": "APERÇU FINANCIER",
   "financialSummaryNoProfile": "Aucun profil renseigné",
@@ -3848,7 +3848,7 @@
       }
     }
   },
-  "financialSummaryBonusEstime": "Bonus estimé ({pct}\u00a0%)",
+  "financialSummaryBonusEstime": "Bonus estimé ({pct} %)",
   "@financialSummaryBonusEstime": {
     "placeholders": {
       "pct": {
@@ -3962,7 +3962,7 @@
   "financialSummaryValeurEstimee": "Valeur estimée",
   "financialSummaryHypothequeRestante": "Hypothèque restante",
   "financialSummaryValeurNetteImmobiliere": "Valeur nette immobilière",
-  "financialSummaryLtvAmortissement": "Ratio LTV : {pct}\u00a0% — amortissement 2ème rang obligatoire",
+  "financialSummaryLtvAmortissement": "Ratio LTV : {pct} % — amortissement 2ème rang obligatoire",
   "@financialSummaryLtvAmortissement": {
     "placeholders": {
       "pct": {
@@ -3970,7 +3970,7 @@
       }
     }
   },
-  "financialSummaryLtvBonneVoie": "Ratio LTV : {pct}\u00a0% — en bonne voie",
+  "financialSummaryLtvBonneVoie": "Ratio LTV : {pct} % — en bonne voie",
   "@financialSummaryLtvBonneVoie": {
     "placeholders": {
       "pct": {
@@ -3978,7 +3978,7 @@
       }
     }
   },
-  "financialSummaryLtvExcellent": "Ratio LTV : {pct}\u00a0% — excellent",
+  "financialSummaryLtvExcellent": "Ratio LTV : {pct} % — excellent",
   "@financialSummaryLtvExcellent": {
     "placeholders": {
       "pct": {
@@ -4061,7 +4061,7 @@
   "financialSummaryMensualite": "Mensualité",
   "financialSummaryLeasing": "Leasing",
   "financialSummaryAutresDettes": "Autres dettes",
-  "financialSummaryConseilRemboursement": "Rembourse d'abord la dette à {taux}\u00a0% avant d'investir. Chaque CHF remboursé = {taux}\u00a0% de rendement effectif.",
+  "financialSummaryConseilRemboursement": "Rembourse d'abord la dette à {taux} % avant d'investir. Chaque CHF remboursé = {taux} % de rendement effectif.",
   "@financialSummaryConseilRemboursement": {
     "placeholders": {
       "taux": {
@@ -4425,8 +4425,8 @@
   "pillar3aDisclaimer": "Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.",
   "pillar3aCapitalEvolution": "Évolution de ton capital 3a",
   "pillar3aYearLabel": "Année",
-  "pillar3aBank15": "Banque 1.5\u00a0%",
-  "pillar3aViac45": "VIAC 4.5\u00a0%",
+  "pillar3aBank15": "Banque 1.5 %",
+  "pillar3aViac45": "VIAC 4.5 %",
   "pillar3aYearN": "Année {n}",
   "@pillar3aYearN": {
     "placeholders": {
@@ -4435,7 +4435,7 @@
       }
     }
   },
-  "pillar3aCompoundTip": "Les dernières années font +50\u00a0% du gain total grâce aux intérêts composés !",
+  "pillar3aCompoundTip": "Les dernières années font +50 % du gain total grâce aux intérêts composés !",
   "pillar3aRecommended": "RECOMMANDÉ",
   "pillar3aVsBank": "{amount} vs Banque",
   "@pillar3aVsBank": {
@@ -4481,7 +4481,7 @@
   "slmDownload": "Télécharger",
   "slmDelete": "Supprimer",
   "slmIaOnDevice": "IA on-device",
-  "slmPrivacyMessage": "Le modèle fonctionne 100\u00a0% sur ton appareil. Aucune donnée ne quitte ton téléphone.",
+  "slmPrivacyMessage": "Le modèle fonctionne 100 % sur ton appareil. Aucune donnée ne quitte ton téléphone.",
   "slmDownloadModelTitle": "Télécharger le modèle ?",
   "slmDeleteModelTitle": "Supprimer le modèle ?",
   "slmDeleteModelContent": "Cela libérera {size} d'espace. Tu pourras le re-télécharger à tout moment.",
@@ -4515,7 +4515,7 @@
   "landingMintDoesIt": "MINT le fait.",
   "landingCtaCommencer": "Commencer",
   "landingLegalFooterShort": "Outil éducatif. Ne constitue pas un conseil financier (LSFin). Données sur ton appareil.",
-  "pulseDigitalTwinPct": "Jumeau numérique : {pct}\u00a0%",
+  "pulseDigitalTwinPct": "Jumeau numérique : {pct} %",
   "@pulseDigitalTwinPct": {
     "placeholders": {
       "pct": {
@@ -4937,7 +4937,7 @@
   "forfaitFiscalBaseLine": "Base forfaitaire",
   "spendingMeterBudgetUnavailable": "Budget non disponible",
   "spendingMeterDisponible": "Disponible",
-  "spendingMeterVariablesLegend": "Variables {percent}\u00a0%",
+  "spendingMeterVariablesLegend": "Variables {percent} %",
   "@spendingMeterVariablesLegend": {
     "placeholders": {
       "percent": {
@@ -4945,7 +4945,7 @@
       }
     }
   },
-  "spendingMeterFuturLegend": "Futur {percent}\u00a0%",
+  "spendingMeterFuturLegend": "Futur {percent} %",
   "@spendingMeterFuturLegend": {
     "placeholders": {
       "percent": {
@@ -5013,7 +5013,7 @@
   "dataBlockPatrimoineDesc": "Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.",
   "dataBlockPatrimoineCta": "Renseigner mon patrimoine",
   "dataBlockFiscaliteTitle": "Fiscalité",
-  "dataBlockFiscaliteDesc": "Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu'estimé (coefficient communal 60\u00a0%-130\u00a0%).",
+  "dataBlockFiscaliteDesc": "Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu'estimé (coefficient communal 60 %-130 %).",
   "dataBlockFiscaliteCta": "Comparer ma fiscalité",
   "dataBlockObjectifTitle": "Objectif retraite",
   "dataBlockObjectifDesc": "À quel âge souhaites-tu arrêter de travailler ? Un objectif clair permet de calculer l'effort d'épargne nécessaire et les options (anticipation, retraite partielle).",
@@ -5277,9 +5277,9 @@
   "frontalierTotalAnnuel": "Total annuel",
   "frontalierParMois": "par mois",
   "frontalierQuasiResidentTitle": "Quasi-résident (Genève)",
-  "frontalierQuasiResidentDesc": "Si plus de 90\u00a0% de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.",
+  "frontalierQuasiResidentDesc": "Si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.",
   "frontalierTessinTitle": "Tessin — régime spécial",
-  "frontalierEducationalTax": "En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l'état civil et le nombre d'enfants. À Genève, si plus de 90\u00a0% de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.",
+  "frontalierEducationalTax": "En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l'état civil et le nombre d'enfants. À Genève, si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.",
   "frontalierJoursBureau": "Jours au bureau en Suisse",
   "frontalierJoursHomeOffice": "Jours en home office à l'étranger",
   "frontalierJaugeRisque": "JAUGE DE RISQUE",
@@ -5306,7 +5306,7 @@
       }
     }
   },
-  "frontalierDuSalaire": "{percent}\u00a0% du salaire",
+  "frontalierDuSalaire": "{percent} % du salaire",
   "@frontalierDuSalaire": {
     "placeholders": {
       "percent": {
@@ -5334,7 +5334,7 @@
   "frontalierLamalTitle": "LAMal (suisse)",
   "frontalierLamalDesc": "Obligatoire si tu travailles en CH. Prime individuelle (~CHF 300-500/mois).",
   "frontalierCmuTitle": "CMU/Sécu (France)",
-  "frontalierCmuDesc": "Droit d'option possible pour les frontaliers FR. Cotisation ~8\u00a0% du revenu fiscal.",
+  "frontalierCmuDesc": "Droit d'option possible pour les frontaliers FR. Cotisation ~8 % du revenu fiscal.",
   "frontalierAssurancePriveeTitle": "Assurance privée (DE/IT/AT)",
   "frontalierAssurancePriveeDesc": "En Allemagne, option PKV pour hauts revenus. IT/AT : régime obligatoire du pays.",
   "frontalierEducationalCharges": "En tant que frontalier, tu cotises aux assurances sociales suisses (AVS/AI/APG, AC, LPP). Les taux sont généralement plus bas qu'en France ou en Allemagne — mais la LAMal est à ta charge individuellement, ce qui peut compenser l'avantage.",
@@ -5358,7 +5358,7 @@
   "concubinageImpotSuccession": "IMPÔT SUR LA SUCCESSION",
   "concubinagePatrimoineTransmis": "Patrimoine transmis",
   "concubinageMarieExonere": "CHF 0 (exonéré)",
-  "concubinageConcubinTaux": "Concubin-e (~{taux}\u00a0%)",
+  "concubinageConcubinTaux": "Concubin-e (~{taux} %)",
   "@concubinageConcubinTaux": {
     "placeholders": {
       "taux": {
@@ -5896,7 +5896,7 @@
       }
     }
   },
-  "docImpactRenteOblig": "Rente obligatoire à 6.8\u00a0% : CHF {amount}/an",
+  "docImpactRenteOblig": "Rente obligatoire à 6.8 % : CHF {amount}/an",
   "@docImpactRenteOblig": {
     "placeholders": {
       "amount": {
@@ -5904,7 +5904,7 @@
       }
     }
   },
-  "docImpactSurobligWithRate": "Part surobligatoire (CHF {suroblig}) à {rate}\u00a0% = CHF {rente}/an",
+  "docImpactSurobligWithRate": "Part surobligatoire (CHF {suroblig}) à {rate} % = CHF {rente}/an",
   "@docImpactSurobligWithRate": {
     "placeholders": {
       "suroblig": {
@@ -5934,7 +5934,7 @@
       }
     }
   },
-  "docImpactAvsCompletion": "sur {maxYears} nécessaires pour une rente AVS complète ({pct}\u00a0%)",
+  "docImpactAvsCompletion": "sur {maxYears} nécessaires pour une rente AVS complète ({pct} %)",
   "@docImpactAvsCompletion": {
     "placeholders": {
       "maxYears": {
@@ -5970,7 +5970,7 @@
       }
     }
   },
-  "extractionReviewConfidence": "Confiance extraction : {pct}\u00a0%",
+  "extractionReviewConfidence": "Confiance extraction : {pct} %",
   "@extractionReviewConfidence": {
     "placeholders": {
       "pct": {
@@ -6046,7 +6046,7 @@
       }
     }
   },
-  "firstSalaryNetPercent": "{pct}\u00a0% net",
+  "firstSalaryNetPercent": "{pct} % net",
   "@firstSalaryNetPercent": {
     "placeholders": {
       "pct": {
@@ -6116,8 +6116,8 @@
   "firstSalaryTask4": "Vérifier ta RC privée (env. CHF 100/an)",
   "firstSalaryTask5": "Verser le maximum 3a avant le 31 décembre",
   "firstSalaryBadgeTitle": "Premier pas financier",
-  "firstSalaryBadgeSubtitle": "Tu sais maintenant ce que 90\u00a0% des gens ne savent jamais.",
-  "firstSalaryDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4\u00a0%/an.",
+  "firstSalaryBadgeSubtitle": "Tu sais maintenant ce que 90 % des gens ne savent jamais.",
+  "firstSalaryDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4 %/an.",
   "benchmarkAppBarTitle": "Repères cantonaux",
   "benchmarkOptInTitle": "Activer les comparaisons cantonales",
   "benchmarkOptInSubtitle": "Compare ta situation à des ordres de grandeur issus des statistiques fédérales (OFS).",
@@ -6701,7 +6701,7 @@
   "dashboardNextActionsTitle": "Tes prochaines actions",
   "dashboardExploreAlsoTitle": "Explorer aussi",
   "dashboardImproveAccuracyTitle": "Améliore ta précision",
-  "dashboardCurrentConfidence": "Confiance actuelle : {score}\u00a0%",
+  "dashboardCurrentConfidence": "Confiance actuelle : {score} %",
   "@dashboardCurrentConfidence": {
     "placeholders": {
       "score": {
@@ -6731,7 +6731,7 @@
   "dashboardRachatLppTitle": "Rachat LPP",
   "dashboardRachatLppSubtitle": "Simuler l’impact fiscal",
   "dashboardRachatLppCta": "Calculer",
-  "dashboardPrecisionGainPercent": "Précision +{percent}\u00a0%",
+  "dashboardPrecisionGainPercent": "Précision +{percent} %",
   "@dashboardPrecisionGainPercent": {
     "placeholders": {
       "percent": {
@@ -7106,7 +7106,7 @@
   "expatTimeline30AfterTiming": "Après le départ",
   "expatTimelineUrgent": "Urgent !",
   "expatTimelinePassed": "Passé",
-  "expatSavingsBadge": "Économie : {amount} (-{percent}\u00a0%)",
+  "expatSavingsBadge": "Économie : {amount} (-{percent} %)",
   "@expatSavingsBadge": {
     "placeholders": {
       "amount": {
@@ -7133,7 +7133,7 @@
       }
     }
   },
-  "expatAvsReductionExplain": "Chaque année manquante réduit ta rente d'environ {percent}\u00a0%. La réduction est définitive et s'applique à vie.",
+  "expatAvsReductionExplain": "Chaque année manquante réduit ta rente d'environ {percent} %. La réduction est définitive et s'applique à vie.",
   "@expatAvsReductionExplain": {
     "placeholders": {
       "percent": {
@@ -7307,7 +7307,7 @@
   "genderGapIntro": "La déduction de coordination (CHF 26'460) n'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l'impact.",
   "genderGapTauxActivite": "Taux d'activité",
   "genderGapParametres": "Paramètres",
-  "genderGapRevenuAnnuel": "Revenu annuel brut (100\u00a0%)",
+  "genderGapRevenuAnnuel": "Revenu annuel brut (100 %)",
   "genderGapAge": "Âge",
   "genderGapAgeValue": "{age} ans",
   "@genderGapAgeValue": {
@@ -7330,8 +7330,8 @@
       }
     }
   },
-  "genderGapAt100": "À 100\u00a0%",
-  "genderGapAtTaux": "À {taux}\u00a0%",
+  "genderGapAt100": "À 100 %",
+  "genderGapAtTaux": "À {taux} %",
   "@genderGapAtTaux": {
     "placeholders": {
       "taux": {
@@ -7343,10 +7343,10 @@
   "genderGapLacuneAnnuelle": "Lacune annuelle",
   "genderGapLacuneTotale": "Lacune totale (~20 ans)",
   "genderGapCoordinationTitle": "Comprendre la déduction de coordination",
-  "genderGapCoordinationBody": "La déduction de coordination est un montant fixe de CHF 26'460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100\u00a0% ou à 50\u00a0%.",
-  "genderGapSalaireBrut100": "Salaire brut à 100\u00a0%",
-  "genderGapSalaireCoordonne100": "Salaire coordonné à 100\u00a0%",
-  "genderGapSalaireBrutTaux": "Salaire brut à {taux}\u00a0%",
+  "genderGapCoordinationBody": "La déduction de coordination est un montant fixe de CHF 26'460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100 % ou à 50 %.",
+  "genderGapSalaireBrut100": "Salaire brut à 100 %",
+  "genderGapSalaireCoordonne100": "Salaire coordonné à 100 %",
+  "genderGapSalaireBrutTaux": "Salaire brut à {taux} %",
   "@genderGapSalaireBrutTaux": {
     "placeholders": {
       "taux": {
@@ -7354,7 +7354,7 @@
       }
     }
   },
-  "genderGapSalaireCoordonneTaux": "Salaire coordonné à {taux}\u00a0%",
+  "genderGapSalaireCoordonneTaux": "Salaire coordonné à {taux} %",
   "@genderGapSalaireCoordonneTaux": {
     "placeholders": {
       "taux": {
@@ -7368,10 +7368,10 @@
   "genderGapRecommandations": "Recommandations",
   "genderGapDisclaimer": "Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.",
   "genderGapSources": "Sources",
-  "genderGapSourcesBody": "LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8\u00a0%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)",
+  "genderGapSourcesBody": "LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)",
   "achievementsErrorMessage": "Le chargement a buté. On réessaie ?",
   "documentsEmptyVoice": "C'est vide pour l'instant. Un scan de certificat, et tout s'éclaire.",
-  "documentsConfidenceChoc": "{count} documents = {pct}\u00a0% de confiance",
+  "documentsConfidenceChoc": "{count} documents = {pct} % de confiance",
   "@documentsConfidenceChoc": {
     "placeholders": {
       "count": {
@@ -8023,7 +8023,7 @@
   "eplRenteSansEpl": "Rente sans EPL",
   "eplRenteAvecEpl": "Rente avec EPL",
   "eplPerteMensuelle": "Perte mensuelle",
-  "eplImpactRenteNote": "Estimation éducative basée sur un salaire de CHF 100’000, rendement caisse 2\u00a0%, taux de conversion 6.8\u00a0%. Le montant réel dépend de ta situation.",
+  "eplImpactRenteNote": "Estimation éducative basée sur un salaire de CHF 100’000, rendement caisse 2 %, taux de conversion 6.8 %. Le montant réel dépend de ta situation.",
   "eplSectionFiscale": "Estimation fiscale",
   "eplMontantRetire": "Montant retiré",
   "eplImpotEstime": "Impôt estimé sur le retrait",
@@ -8105,7 +8105,7 @@
     }
   },
   "providerComparatorAssuranceTitle": "Attention — Assurance 3a",
-  "providerComparatorAssuranceNote": "Les assurances 3a combinent épargne et couverture risque, mais les frais élevés (souvent > 1.5\u00a0%) et la rigidité du contrat les rendent défavorables pour les jeunes épargnants.",
+  "providerComparatorAssuranceNote": "Les assurances 3a combinent épargne et couverture risque, mais les frais élevés (souvent > 1.5 %) et la rigidité du contrat les rendent défavorables pour les jeunes épargnants.",
   "documentDetailFieldsExtracted": "{found} champs extraits sur {total}",
   "@documentDetailFieldsExtracted": {
     "placeholders": {
@@ -8259,7 +8259,7 @@
   "compoundTauxRendement": "Taux (Rendement annuel)",
   "compoundHorizonTemps": "Horizon de temps",
   "compoundValeurFinale": "Valeur Finale Potentielle",
-  "compoundGainsPercent": "{percent}\u00a0% de ce montant provient uniquement de tes gains de placement.",
+  "compoundGainsPercent": "{percent} % de ce montant provient uniquement de tes gains de placement.",
   "@compoundGainsPercent": {
     "placeholders": {
       "percent": {
@@ -8302,14 +8302,14 @@
   "leasingDisclaimer": "Le leasing reste une option pour certains professionnels. Cette analyse vise à sensibiliser le particulier sur le coût à long terme.",
   "creditTitle": "Crédit à la Consommation",
   "creditMentorTitle": "Points d'attention du Mentor",
-  "creditMentorBody": "En Suisse, un crédit coûte entre 4\u00a0% et 10\u00a0%. Cet argent \"perdu\" en intérêts pourrait être investi pour ton avenir.",
+  "creditMentorBody": "En Suisse, un crédit coûte entre 4 % et 10 %. Cet argent \"perdu\" en intérêts pourrait être investi pour ton avenir.",
   "creditParametres": "Paramètres",
   "creditMontantEmprunter": "Montant à emprunter",
   "creditDureeRemboursement": "Durée du remboursement",
   "creditTauxAnnuel": "Taux annuel effectif",
   "creditTaMensualite": "Ta Mensualité",
   "creditCoutInterets": "Coût des intérêts :",
-  "creditRateWarning": "Attention : Ce taux dépasse le max légal suisse de 10\u00a0%.",
+  "creditRateWarning": "Attention : Ce taux dépasse le max légal suisse de 10 %.",
   "creditConseilsTitle": "Conseils du Mentor",
   "creditEpargnerDabord": "Épargner d'abord",
   "creditEpargnerDabordBody": "En économisant pendant 12 mois au lieu d'emprunter, tu gardes {amount} dans ta poche.",
@@ -8321,7 +8321,7 @@
     }
   },
   "creditCercleConfiance": "Cercle de confiance",
-  "creditCercleConfianceBody": "Un prêt familial peut souvent être obtenu à 0\u00a0% d'intérêt.",
+  "creditCercleConfianceBody": "Un prêt familial peut souvent être obtenu à 0 % d'intérêt.",
   "creditDettesConseils": "Dettes Conseils Suisse",
   "creditDettesConseilsBody": "Contacte-les AVANT de signer si ta situation est fragile.",
   "creditDisclaimer": "Information à but préventif. Ne constitue pas un conseil juridique ou financier. Loi suisse sur le crédit à la consommation (LCC) appliquée.",
@@ -8588,8 +8588,8 @@
   "portfolioProtectionFamille": "Protection Famille",
   "portfolioAllocationSaine": "Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.",
   "portfolioAlerteDettes": "Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.",
-  "dividendeSplitMin": "0\u00a0% salaire",
-  "dividendeSplitMax": "100\u00a0% salaire",
+  "dividendeSplitMin": "0 % salaire",
+  "dividendeSplitMax": "100 % salaire",
   "disabilityInsAppBarTitle": "Ma couverture",
   "disabilityInsTitle": "Ma couverture invalidité",
   "disabilityInsSubtitle": "Bulletin scolaire · Franchise LAMal · AI/APG",
@@ -9558,7 +9558,7 @@
       }
     }
   },
-  "benchmarkInsightSavings": "Un profil similaire épargne environ {rate}\u00a0% de son revenu",
+  "benchmarkInsightSavings": "Un profil similaire épargne environ {rate} % de son revenu",
   "@benchmarkInsightSavings": {
     "placeholders": {
       "rate": {
@@ -9585,7 +9585,7 @@
       }
     }
   },
-  "benchmarkInsight3a": "Environ {rate}\u00a0% des actifs versent dans le 3a",
+  "benchmarkInsight3a": "Environ {rate} % des actifs versent dans le 3a",
   "@benchmarkInsight3a": {
     "placeholders": {
       "rate": {
@@ -9593,7 +9593,7 @@
       }
     }
   },
-  "benchmarkInsightLpp": "Le taux de couverture LPP est de {rate}\u00a0%",
+  "benchmarkInsightLpp": "Le taux de couverture LPP est de {rate} %",
   "@benchmarkInsightLpp": {
     "placeholders": {
       "rate": {
@@ -10075,7 +10075,7 @@
   "notifProfileUpdatedTitle": "Profil mis à jour",
   "notifProfileUpdatedBody": "Ton profil a été mis à jour. Nouvelles projections disponibles.",
   "notifOffTrackTitle": "Tu t'éloignes de ton plan",
-  "notifOffTrackBody": "Adhérence à {adherence}\u00a0% sur {total} actions. Indication linéaire (hors rendement/fiscalité) : ~CHF {impact}.",
+  "notifOffTrackBody": "Adhérence à {adherence} % sur {total} actions. Indication linéaire (hors rendement/fiscalité) : ~CHF {impact}.",
   "@notifOffTrackBody": {
     "placeholders": {
       "adherence": {
@@ -10385,7 +10385,7 @@
   "semanticsIncrement": "Augmenter",
   "frontalierDisclaimer": "Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée. LSFin.",
   "firstJobPayslipAvsLabel": "AVS/AI/APG",
-  "firstJobPayslipAvsExplanation": "Cotisation salarié·e : 5.3\u00a0% du brut. Ton employeur paie aussi 5.3\u00a0% en plus.",
+  "firstJobPayslipAvsExplanation": "Cotisation salarié·e : 5.3 % du brut. Ton employeur paie aussi 5.3 % en plus.",
   "firstJobPayslipLppLabel": "LPP (2e pilier)",
   "firstJobPayslipLppExplanation": "Épargne vieillesse obligatoire dès 25 ans. Le taux exact dépend de ta caisse et ton âge.",
   "firstJobPayslipImpotLabel": "Impôt à la source (estimation)",
@@ -10395,7 +10395,7 @@
   "firstJobChecklistConsequence1": "Sans certificat, tu ne peux pas vérifier que le montant transféré est correct.",
   "firstJobChecklistDeadline2": "30 jours",
   "firstJobChecklistAction2": "Vérifie que ton avoir LPP a été transféré à la caisse de ton nouvel employeur.",
-  "firstJobChecklistConsequence2": "Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05\u00a0%.",
+  "firstJobChecklistConsequence2": "Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05 %.",
   "firstJobChecklistDeadline3": "1 mois",
   "firstJobChecklistAction3": "Informe ton assurance-maladie LAMal du changement d'employeur si tu bénéficiais d'une couverture collective.",
   "firstJobChecklistDeadline4": "Dès le premier salaire",
@@ -10427,7 +10427,7 @@
   "firstJobScenarioMySalary": "Mon salaire",
   "firstJobScenarioDefault": "Défaut",
   "firstJobScenarioMedianCH": "Médian CH",
-  "firstJobScenarioBoosted": "+20\u00a0%",
+  "firstJobScenarioBoosted": "+20 %",
   "firstJobScenarioSemantics": "Scénario salaire : {label}",
   "@firstJobScenarioSemantics": {
     "placeholders": {
@@ -10648,10 +10648,10 @@
   "disabilityGapAct1Duration": "Semaines 1-26",
   "disabilityGapAct2LabelIjm": "ACTE 2 · IJM (assurance maladie)",
   "disabilityGapAct2LabelNoIjm": "ACTE 2 · Pas d’IJM",
-  "disabilityGapAct2SubIjm": "Assurance collective — 80\u00a0% pendant 720 jours max",
+  "disabilityGapAct2SubIjm": "Assurance collective — 80 % pendant 720 jours max",
   "disabilityGapAct2SubNoIjm": "Sans IJM, tu passes directement à l’AI après l’employeur",
   "disabilityGapAct2Duration": "Jusqu’à 24 mois",
-  "disabilityGapAct2DetailIjm": "80\u00a0% du salaire assuré",
+  "disabilityGapAct2DetailIjm": "80 % du salaire assuré",
   "disabilityGapAct2DetailNoIjm": "Aucune couverture — délai AI en cours",
   "disabilityGapAct3Label": "ACTE 3 · AI + LPP (définitif)",
   "disabilityGapAct3Duration": "Après 24 mois",
@@ -10669,7 +10669,7 @@
       }
     }
   },
-  "disabilityGapIjmCoverage": "80\u00a0% pendant 720 jours — assurance collective",
+  "disabilityGapIjmCoverage": "80 % pendant 720 jours — assurance collective",
   "disabilityGapNoIjmCoverage": "Aucune IJM souscrite — risque maximal",
   "disabilityGapAiDetail": "Max {amount} CHF/mois — délai ~14 mois",
   "@disabilityGapAiDetail": {
@@ -10679,7 +10679,7 @@
       }
     }
   },
-  "disabilityGapLppCovered": "Rente invalidité ≈ 40\u00a0% salaire coordonné (LPP art. 23)",
+  "disabilityGapLppCovered": "Rente invalidité ≈ 40 % salaire coordonné (LPP art. 23)",
   "disabilityGapLppNotCovered": "Salaire sous le seuil LPP — pas de couverture 2e pilier",
   "disabilityGapSavingsLabel": "Réserve d’urgence",
   "disabilityGapSavingsDetail": "{months} mois de charges couverts",
@@ -10708,7 +10708,7 @@
   "documentDetailExplanationSalaireAssure": "Salaire sur lequel les cotisations sont calculées",
   "documentDetailExplanationSalaireAvs": "Salaire déterminant pour l’AVS",
   "documentDetailExplanationDeduction": "Montant déduit pour coordonner avec l’AVS",
-  "documentDetailExplanationTauxOblig": "Légal minimum : 6.8\u00a0%",
+  "documentDetailExplanationTauxOblig": "Légal minimum : 6.8 %",
   "documentDetailExplanationTauxSurob": "Fixé par ta caisse de pension",
   "documentDetailExplanationTauxEnv": "Taux moyen pondéré",
   "documentDetailExplanationInvalidite": "Rente en cas d’incapacité de travail",
@@ -10727,7 +10727,7 @@
   "disabilitySelfEmployedInsuranceQuestion": "Tu as déjà une assurance perte de gain ?",
   "disabilitySelfEmployedYes": "Oui",
   "disabilitySelfEmployedNo": "Non / Je ne sais pas",
-  "disabilitySelfEmployedApgTip": "Une APG individuelle dès CHF 45/mois peut couvrir 80\u00a0% de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.",
+  "disabilitySelfEmployedApgTip": "Une APG individuelle dès CHF 45/mois peut couvrir 80 % de ton revenu pendant 720 jours. C’est le filet le plus efficace pour un·e indépendant·e.",
   "disabilitySelfEmployedDisclaimer": "Outil éducatif — ne constitue pas un conseil en assurance. Un·e courtier·ère indépendant·e peut comparer les offres APG de différents assureurs selon ton activité et ton revenu réel.",
   "disabilitySelfEmployedSources": "• LAMal art. 67-77 (assurance maladie perte de gain)\n• CO art. 324a (obligation employeur)\n• LAI art. 28 (rente AI)\n• LAVS art. 2 al. 3 (cotisation depuis l’étranger)",
   "confidenceDashboardLevelExcellent": "Excellente",
@@ -11421,9 +11421,9 @@
   "onboardingAgeInvalid": "Âge entre 18 et 75 requis",
   "onboardingSmartCantonSearch": "Rechercher (ex : VD, Vaud)",
   "onboardingSmartSalaryPerYear": "CHF/an",
-  "greetingMorning": "matin",
-  "greetingAfternoon": "après-midi",
-  "greetingEvening": "soir",
+  "greetingMorning": "Bonjour",
+  "greetingAfternoon": "Bon après-midi",
+  "greetingEvening": "Bonsoir",
   "authShowPassword": "Afficher le mot de passe",
   "authHidePassword": "Masquer le mot de passe",
   "exploreHubRetraiteIntro55plus": "La retraite approche : chaque décision compte double. Voici où tu en es.",
@@ -11716,7 +11716,7 @@
   "indepLppProRente": "Rente prévue à la retraite",
   "indepLppConCotisations": "Cotisations obligatoires élevées",
   "indepLppConFlexible": "Moins flexible",
-  "indepGrand3aSub": "20\u00a0% du revenu net, max CHF 36'288/an",
+  "indepGrand3aSub": "20 % du revenu net, max CHF 36'288/an",
   "indepGrand3aProFlexibilite": "Flexibilité totale",
   "indepGrand3aProDeduction": "Déduction fiscale maximale",
   "indepGrand3aProCapital": "Capital disponible à 60 ans",
@@ -11727,7 +11727,7 @@
   "indepLayerFraisPro": "Frais professionnels",
   "indepLayerJoursNonFact": "Jours non facturables",
   "indepFiscal3a": "Pilier 3a grand versement",
-  "indepFiscal3aNote": "Max 20\u00a0% du revenu net, plafonné à CHF 36'288/an sans LPP",
+  "indepFiscal3aNote": "Max 20 % du revenu net, plafonné à CHF 36'288/an sans LPP",
   "indepFiscalFraisPro": "Frais professionnels effectifs",
   "indepFiscalFraisProNote": "Loyer bureau, matériel, formation — déductibles au réel",
   "indepFiscalPrimesLpp": "Primes assurance maladie (LPP vol.)",
@@ -11753,7 +11753,7 @@
   "donationRegimeParticipation": "Participation aux acquêts",
   "donationRegimeCommunaute": "Communauté de biens",
   "donationRegimeSeparation": "Séparation de biens",
-  "donationReserveBarLabel": "Réserve {pct}\u00a0%",
+  "donationReserveBarLabel": "Réserve {pct} %",
   "@donationReserveBarLabel": {
     "placeholders": {
       "pct": {
@@ -11761,7 +11761,7 @@
       }
     }
   },
-  "donationDisponibleBarLabel": "Disponible {pct}\u00a0%",
+  "donationDisponibleBarLabel": "Disponible {pct} %",
   "@donationDisponibleBarLabel": {
     "placeholders": {
       "pct": {
@@ -11917,7 +11917,7 @@
   "capCoachPrompt3a": "Combien je peux économiser avec un versement 3a cette année ?",
   "capCoachPromptRachat": "Aide-moi à comprendre si un rachat LPP est pertinent pour moi.",
   "capCoachPromptBudgetDeficit": "Mon budget est en déficit. Comment retrouver de l'air ?",
-  "capCoachPromptReplacement": "Mon taux de remplacement est de {rate}\u00a0%. Est-ce suffisant pour ma retraite ?",
+  "capCoachPromptReplacement": "Mon taux de remplacement est de {rate} %. Est-ce suffisant pour ma retraite ?",
   "capCoachPromptUnemployment": "Je suis en situation de chômage. Quelles sont mes options financières ?",
   "capCoachPromptDivorce": "Je suis divorcé·e. Comment protéger ma situation financière ?",
   "capCoachPromptCoupleOptim": "Comment optimiser notre prévoyance à deux ?",
@@ -12334,22 +12334,25 @@
   "onboardingPermitG": "Permis G (frontalier)",
   "onboardingPermitL": "Permis L (court séjour)",
   "onboardingPermitOther": "Autre",
-  "onboardingIjmWarningTitle": "Protection maladie\u00a0: à vérifier",
+  "onboardingIjmWarningTitle": "Protection maladie : à vérifier",
   "onboardingIjmWarningBody": "En tant qu'indépendant·e, tu n'as pas d'indemnités journalières maladie (IJM) par défaut. Sans couverture, une maladie pourrait interrompre tes revenus sans compensation. Tu disposes aussi de 6 mois pour t'affilier volontairement à une caisse LPP (art. 4 LPP).",
   "rachatLppNotApplicableAfterRetirement": "Le rachat LPP n'est plus applicable après la retraite. Cette simulation concerne les personnes actives qui souhaitent combler une lacune de prévoyance.",
   "apiErrorOffline": "Pas de connexion internet. Vérifie ton réseau et réessaie.",
   "apiErrorTimeout": "Le serveur met trop de temps à répondre. Réessaie.",
-  "apiErrorSessionExpired": "Session expirée\u00a0— reconnecte-toi.",
+  "apiErrorSessionExpired": "Session expirée — reconnecte-toi.",
   "apiErrorServer": "Erreur serveur. Réessaie dans quelques instants.",
-  "pensionFundConnectComingSoon": "Bientôt disponible\u00a0— en attente des accords pilotes",
-  "greetingMorning": "Bonjour",
-  "greetingAfternoon": "Bon après-midi",
-  "greetingEvening": "Bonsoir",
+  "pensionFundConnectComingSoon": "Bientôt disponible — en attente des accords pilotes",
   "greetingNight": "Bonne nuit",
   "onboardingCalculationError": "Erreur de calcul. Vérifie tes données et réessaie.",
-  "onboardingRetirementAgeWarning": "Retraite avant 55 ans\u00a0? Vérifie ton âge ou ton statut.",
+  "onboardingRetirementAgeWarning": "Retraite avant 55 ans ? Vérifie ton âge ou ton statut.",
   "indicativeBannerTitle": "Résultat indicatif ({pct} % de fiabilité)",
-  "@indicativeBannerTitle": {"placeholders": {"pct": {"type": "String"}}},
+  "@indicativeBannerTitle": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "indicativeBannerBody": "Précise tes données pour des projections personnalisées.",
   "indicativeBannerCta": "Préciser",
   "exploreHubTitle": "Explorer",
@@ -12370,29 +12373,64 @@
   "staggeredWithdrawalEmptyTitle": "Retrait 3a échelonné",
   "staggeredWithdrawalEmptySubtitle": "Renseigne ton épargne 3a pour optimiser tes retraits",
   "staggeredWithdrawalEmptyCta": "Ajouter mon 3a",
-  "consentExportFormat": "Format\u00a0: {format}",
-  "@consentExportFormat": {"placeholders": {"format": {"type": "String"}}},
-  "consentExportDate": "Date\u00a0: {date}",
-  "@consentExportDate": {"placeholders": {"date": {"type": "String"}}},
-  "consentExportCategories": "Catégories\u00a0: {categories}",
-  "@consentExportCategories": {"placeholders": {"categories": {"type": "String"}}},
+  "consentExportFormat": "Format : {format}",
+  "@consentExportFormat": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "consentExportDate": "Date : {date}",
+  "@consentExportDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "consentExportCategories": "Catégories : {categories}",
+  "@consentExportCategories": {
+    "placeholders": {
+      "categories": {
+        "type": "String"
+      }
+    }
+  },
   "errorNotAuthenticated": "Non authentifié",
-  "budgetEmptyTitle": "Ton budget",
   "budgetEmptySubtitle": "Renseigne ton salaire pour créer ton budget personnalisé",
   "budgetEmptyCta": "Ajouter mon salaire",
   "coachConfirmAction": "Confirmer",
   "coachCancelAction": "Annuler",
   "semanticsDelete": "Supprimer",
   "docScanProcessingError": "Erreur de traitement.",
-  "docScanBackendParsingError": "Erreur backend pendant le parsing PDF\u00a0: {error}",
-  "@docScanBackendParsingError": {"placeholders": {"error": {"type": "String"}}},
+  "docScanBackendParsingError": "Erreur backend pendant le parsing PDF : {error}",
+  "@docScanBackendParsingError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "expatNoAcRightsAbroad": "Aucun droit AC suisse si tu travailles à l'étranger",
   "expatAcIndemnities": "Indemnités AC jusqu'à 520 jours",
   "expatJobLossAbroad": "Si tu perds ton emploi à l'étranger, seul le régime local s'applique — souvent moins généreux.",
-  "coachChangeGoalConfirm": "Changer ton objectif vers\u00a0: {goalTag}\u00a0?",
-  "@coachChangeGoalConfirm": {"placeholders": {"goalTag": {"type": "String"}}},
-  "coachMarkStepConfirm": "Marquer l'étape «\u202f{stepId}\u202f» comme terminée\u00a0?",
-  "@coachMarkStepConfirm": {"placeholders": {"stepId": {"type": "String"}}},
+  "coachChangeGoalConfirm": "Changer ton objectif vers : {goalTag} ?",
+  "@coachChangeGoalConfirm": {
+    "placeholders": {
+      "goalTag": {
+        "type": "String"
+      }
+    }
+  },
+  "coachMarkStepConfirm": "Marquer l'étape « {stepId} » comme terminée ?",
+  "@coachMarkStepConfirm": {
+    "placeholders": {
+      "stepId": {
+        "type": "String"
+      }
+    }
+  },
   "semanticsActive": "actif",
   "semanticsInactive": "inactif",
   "semanticsReached": "atteint",
@@ -12400,5 +12438,9 @@
   "rcSuggestedPromptSuccession": "Comment organiser ma succession en Suisse ?",
   "rcSuggestedPromptDonation": "Quels sont les avantages fiscaux d’une donation de mon vivant ?",
   "rcSuggestedPromptPatrimoine": "Comment optimiser la transmission de mon patrimoine ?",
-  "onboardingProfileCreated": "Profil créé ! Tu peux commencer à explorer MINT."
+  "onboardingProfileCreated": "Profil créé ! Tu peux commencer à explorer MINT.",
+  "capEstatePlanningHeadline": "Préparer ta transmission",
+  "capEstatePlanningWhyNow": "Testament, bénéficiaires LPP et 3a, pacte successoral : des décisions à prendre maintenant.",
+  "capEstatePlanningWhyNowVeuf": "Après un décès, les droits de succession et les bénéficiaires changent. Vérifie ta situation.",
+  "capEstatePlanningCtaLabel": "Comprendre les démarches"
 }

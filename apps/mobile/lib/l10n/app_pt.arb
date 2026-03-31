@@ -11952,5 +11952,9 @@
   "rcSuggestedPromptSuccession": "Como organizar a minha sucessão na Suíça?",
   "rcSuggestedPromptDonation": "Quais as vantagens fiscais de uma doação em vida?",
   "rcSuggestedPromptPatrimoine": "Como otimizar a transmissão do meu património?",
-  "onboardingProfileCreated": "Perfil criado! Podes começar a explorar MINT."
+  "onboardingProfileCreated": "Perfil criado! Podes começar a explorar MINT.",
+  "capEstatePlanningHeadline": "Preparar a tua transmissão",
+  "capEstatePlanningWhyNow": "Testamento, beneficiários LPP e 3a, pacto sucessório: decisões a tomar agora.",
+  "capEstatePlanningWhyNowVeuf": "Após um falecimento, os direitos sucessórios e beneficiários mudam. Verifica a tua situação.",
+  "capEstatePlanningCtaLabel": "Compreender os procedimentos"
 }

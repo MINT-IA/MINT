@@ -63,11 +63,13 @@ class AnalyticsService {
 
     _isInitialized = true;
 
-    // Replay buffered pre-init events
-    for (final e in _preInitBuffer) {
-      trackEvent(e['name'] as String, category: e['category'] as String? ?? 'engagement', data: e['data'] as Map<String, dynamic>?, screenName: e['screenName'] as String?);
+    // Replay buffered pre-init events ONLY if consent is given (nLPD art. 6)
+    if (_isEnabled) {
+      for (final e in _preInitBuffer) {
+        trackEvent(e['name'] as String, category: e['category'] as String? ?? 'engagement', data: e['data'] as Map<String, dynamic>?, screenName: e['screenName'] as String?);
+      }
     }
-    _preInitBuffer.clear();
+    _preInitBuffer.clear(); // Always clear — never send without consent
 
     // Auto-flush persisted events on init if consent is given
     if (_isEnabled && _eventQueue.isNotEmpty) {

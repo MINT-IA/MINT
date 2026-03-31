@@ -11952,5 +11952,9 @@
   "rcSuggestedPromptSuccession": "Wie organisiere ich meine Nachfolge in der Schweiz?",
   "rcSuggestedPromptDonation": "Welche steuerlichen Vorteile hat eine Schenkung zu Lebzeiten?",
   "rcSuggestedPromptPatrimoine": "Wie optimiere ich die Vermögensübertragung?",
-  "onboardingProfileCreated": "Profil erstellt! Du kannst MINT erkunden."
+  "onboardingProfileCreated": "Profil erstellt! Du kannst MINT erkunden.",
+  "capEstatePlanningHeadline": "Deine Nachlassplanung vorbereiten",
+  "capEstatePlanningWhyNow": "Testament, BVG- und 3a-Begünstigte, Erbvertrag: Entscheidungen, die jetzt anstehen.",
+  "capEstatePlanningWhyNowVeuf": "Nach einem Todesfall ändern sich Erbrechte und Begünstigte. Prüfe deine Situation.",
+  "capEstatePlanningCtaLabel": "Schritte verstehen"
 }

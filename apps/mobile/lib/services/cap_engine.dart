@@ -145,9 +145,13 @@ class CapEngine {
     }
 
     // ── 4. Fiscal window: 3a before year-end ──
+    // P1-7: Suppress 3a for retirees (age >= 65 or status retraite).
+    // 3a contributions are only possible while actively employed.
+    final isRetired = profile.age >= 65 ||
+        profile.employmentStatus == 'retraite';
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
-    if (daysToYearEnd <= 90 && daysToYearEnd >= 0) {
+    if (daysToYearEnd <= 90 && daysToYearEnd >= 0 && !isRetired) {
       final cards3a =
           ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.pillar3a)
@@ -319,6 +323,36 @@ class CapEngine {
                 'et si une IJM est utile dans mon cas.'
             : null,
         sourceCards: const [],
+      ));
+    }
+
+    // ── 8b. Succession planning (65+ or veuf/veuve) ──
+    // P1-8: Estate planning is relevant from retirement age, not 75.
+    // Also relevant when widowed (testament update, survivor rights).
+    final isVeuf = profile.etatCivil == CoachCivilStatus.veuf;
+    if ((profile.age >= 65 || isVeuf) &&
+        !memory.completedActions.contains('estate_planning')) {
+      candidates.add(CapDecision(
+        id: 'estate_planning',
+        kind: CapKind.prepare,
+        priorityScore: _score(
+          impact: 0.65,
+          urgency: isVeuf ? 0.8 : 0.5,
+          confidencePenalty: _confPenalty(confidence.score),
+          readiness: 1.0,
+          recency: _recencyModifier('estate_planning', memory, now),
+        ),
+        headline: l.capEstatePlanningHeadline,
+        whyNow: isVeuf
+            ? l.capEstatePlanningWhyNowVeuf
+            : l.capEstatePlanningWhyNow,
+        ctaLabel: l.capEstatePlanningCtaLabel,
+        ctaMode: CtaMode.route,
+        ctaRoute: '/life-event/deces-proche',
+        coachPrompt: 'Aide-moi \u00e0 comprendre ce que je dois pr\u00e9voir '
+            'pour la transmission de mon patrimoine\u00a0: testament, '
+            'pacte successoral, b\u00e9n\u00e9ficiaires LPP et 3a.',
+        sourceCards: const ['estate_planning'],
       ));
     }
 
@@ -883,9 +917,13 @@ class CapEngine {
 
     // ── Couple 3a: conjoint has no declared 3a ──
     // If FATCA blocks 3a, skip (canContribute3a == false).
+    // P1-7: Also suppress for retired conjoint (age >= 65 or status retraite).
     final conjoint3a = conjoint.prevoyance?.totalEpargne3a ?? 0;
     final conjointCan3a = conjoint.canContribute3a;
-    if (conjoint3a == 0 && conjointCan3a) {
+    final conjointAge = conjoint.age ?? 99;
+    final conjointIsRetired = conjointAge >= 65 ||
+        conjoint.employmentStatus == 'retraite';
+    if (conjoint3a == 0 && conjointCan3a && !conjointIsRetired) {
       caps.add(CapDecision(
         id: 'couple_3a',
         kind: CapKind.optimize,
@@ -910,10 +948,7 @@ class CapEngine {
     // ── Couple LPP buyback: conjoint has significant rachat room ──
     // P1-13: Hide rachat after retirement.
     final conjointRachat = conjoint.prevoyance?.rachatMaximum ?? 0;
-    final conjointAge = conjoint.age ?? 99;
-    final conjointRetired = conjointAge >= 65 ||
-        conjoint.employmentStatus == 'retraite';
-    if (conjointRachat > 10000 && !conjointRetired) {
+    if (conjointRachat > 10000 && !conjointIsRetired) {
       caps.add(CapDecision(
         id: 'couple_lpp_buyback',
         kind: CapKind.optimize,

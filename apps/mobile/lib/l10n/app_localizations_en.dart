@@ -25348,4 +25348,18 @@ class SEn extends S {
   @override
   String get onboardingProfileCreated =>
       'Profile created! You can start exploring MINT.';
+
+  @override
+  String get capEstatePlanningHeadline => 'Prepare your estate plan';
+
+  @override
+  String get capEstatePlanningWhyNow =>
+      'Will, LPP and 3a beneficiaries, succession pact: decisions to make now.';
+
+  @override
+  String get capEstatePlanningWhyNowVeuf =>
+      'After a bereavement, succession rights and beneficiaries change. Check your situation.';
+
+  @override
+  String get capEstatePlanningCtaLabel => 'Understand the steps';
 }

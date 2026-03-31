@@ -44868,6 +44868,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Profil créé ! Tu peux commencer à explorer MINT.'**
   String get onboardingProfileCreated;
+
+  /// No description provided for @capEstatePlanningHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer ta transmission'**
+  String get capEstatePlanningHeadline;
+
+  /// No description provided for @capEstatePlanningWhyNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Testament, bénéficiaires LPP et 3a, pacte successoral : des décisions à prendre maintenant.'**
+  String get capEstatePlanningWhyNow;
+
+  /// No description provided for @capEstatePlanningWhyNowVeuf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après un décès, les droits de succession et les bénéficiaires changent. Vérifie ta situation.'**
+  String get capEstatePlanningWhyNowVeuf;
+
+  /// No description provided for @capEstatePlanningCtaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre les démarches'**
+  String get capEstatePlanningCtaLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
