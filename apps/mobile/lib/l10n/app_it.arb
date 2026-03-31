@@ -11900,5 +11900,12 @@
   "greetingEvening": "Buonasera",
   "greetingNight": "Buonanotte",
   "onboardingCalculationError": "Errore di calcolo. Verifica i tuoi dati e riprova.",
-  "onboardingRetirementAgeWarning": "Pensionamento prima dei 55? Verifica la tua età o il tuo stato lavorativo."
+  "onboardingRetirementAgeWarning": "Pensionamento prima dei 55? Verifica la tua età o il tuo stato lavorativo.",
+  "indicativeBannerTitle": "Risultato indicativo ({pct} % di affidabilità)",
+  "indicativeBannerBody": "Precisa i tuoi dati per proiezioni personalizzate.",
+  "indicativeBannerCta": "Precisare",
+  "exploreHubTitle": "Esplorare",
+  "safeModeTitle": "Concentrazione Prioritaria",
+  "safeModeMessage": "Per la tua sicurezza finanziaria, disattiviamo le ottimizzazioni avanzate finché un segnale di debito è attivo.",
+  "safeModeCta": "Vedi il mio piano di riduzione del debito"
 }

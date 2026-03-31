@@ -10615,7 +10615,7 @@ class SDe extends S {
   String get renteVsCapitalEducationalTitle => 'Was sich konkret ändert';
 
   @override
-  String get renteVsCapitalFiscalTitle => 'Fiscalité';
+  String get renteVsCapitalFiscalTitle => 'Besteuerung';
 
   @override
   String get renteVsCapitalFiscalLeftSubtitle => 'Jährlich besteuert';
@@ -17638,7 +17638,7 @@ class SDe extends S {
   String get consentScopeComptes => 'Comptes';
 
   @override
-  String get consentScopeSoldes => 'Soldes';
+  String get consentScopeSoldes => 'Salden';
 
   @override
   String get consentScopeTransactions => 'Transactions';
@@ -17728,7 +17728,7 @@ class SDe extends S {
 
   @override
   String openBankingHubSyncDays(int days) {
-    return 'Il y a ${days}j';
+    return 'vor $days Tagen';
   }
 
   @override
@@ -17739,7 +17739,7 @@ class SDe extends S {
       'Regulatorische FINMA-Konsultation im Gange. Die angezeigten Daten dienen der Demonstration.';
 
   @override
-  String get transactionListThisMonth => 'Ce mois';
+  String get transactionListThisMonth => 'Diesen Monat';
 
   @override
   String get transactionListLastMonth => 'Letzter Monat';
@@ -25363,4 +25363,29 @@ class SDe extends S {
   @override
   String get onboardingRetirementAgeWarning =>
       'Pensionierung vor 55? Überprüfe dein Alter oder deinen Beschäftigungsstatus.';
+
+  @override
+  String indicativeBannerTitle(String pct) {
+    return 'Indikatives Ergebnis ($pct % Zuverlässigkeit)';
+  }
+
+  @override
+  String get indicativeBannerBody =>
+      'Verfeinere deine Daten für personalisierte Prognosen.';
+
+  @override
+  String get indicativeBannerCta => 'Präzisieren';
+
+  @override
+  String get exploreHubTitle => 'Erkunden';
+
+  @override
+  String get safeModeTitle => 'Prioritätsfokus';
+
+  @override
+  String get safeModeMessage =>
+      'Für deine finanzielle Sicherheit deaktivieren wir erweiterte Optimierungen, solange ein Schuldsignal aktiv ist.';
+
+  @override
+  String get safeModeCta => 'Meinen Entschuldungsplan ansehen';
 }

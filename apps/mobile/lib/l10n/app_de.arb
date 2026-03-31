@@ -11900,5 +11900,12 @@
   "greetingEvening": "Guten Abend",
   "greetingNight": "Gute Nacht",
   "onboardingCalculationError": "Berechnungsfehler. Überprüfe deine Daten und versuche es erneut.",
-  "onboardingRetirementAgeWarning": "Pensionierung vor 55? Überprüfe dein Alter oder deinen Beschäftigungsstatus."
+  "onboardingRetirementAgeWarning": "Pensionierung vor 55? Überprüfe dein Alter oder deinen Beschäftigungsstatus.",
+  "indicativeBannerTitle": "Indikatives Ergebnis ({pct} % Zuverlässigkeit)",
+  "indicativeBannerBody": "Verfeinere deine Daten für personalisierte Prognosen.",
+  "indicativeBannerCta": "Präzisieren",
+  "exploreHubTitle": "Erkunden",
+  "safeModeTitle": "Prioritätsfokus",
+  "safeModeMessage": "Für deine finanzielle Sicherheit deaktivieren wir erweiterte Optimierungen, solange ein Schuldsignal aktiv ist.",
+  "safeModeCta": "Meinen Entschuldungsplan ansehen"
 }

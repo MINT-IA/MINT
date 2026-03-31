@@ -3651,7 +3651,7 @@ class SIt extends S {
   String get agirTitle => 'AGIR';
 
   @override
-  String get agirThisMonth => 'Ce mois';
+  String get agirThisMonth => 'Questo mese';
 
   @override
   String get agirTimeline => 'Timeline';
@@ -17650,7 +17650,7 @@ class SIt extends S {
   String get consentScopeComptes => 'Comptes';
 
   @override
-  String get consentScopeSoldes => 'Soldes';
+  String get consentScopeSoldes => 'Saldi';
 
   @override
   String get consentScopeTransactions => 'Transactions';
@@ -17739,7 +17739,7 @@ class SIt extends S {
 
   @override
   String openBankingHubSyncDays(int days) {
-    return 'Il y a ${days}j';
+    return '${days}g fa';
   }
 
   @override
@@ -17750,7 +17750,7 @@ class SIt extends S {
       'Consultazione regolamentare FINMA in corso. I dati visualizzati sono a scopo dimostrativo.';
 
   @override
-  String get transactionListThisMonth => 'Ce mois';
+  String get transactionListThisMonth => 'Questo mese';
 
   @override
   String get transactionListLastMonth => 'Mois précédent';
@@ -25387,4 +25387,29 @@ class SIt extends S {
   @override
   String get onboardingRetirementAgeWarning =>
       'Pensionamento prima dei 55? Verifica la tua età o il tuo stato lavorativo.';
+
+  @override
+  String indicativeBannerTitle(String pct) {
+    return 'Risultato indicativo ($pct % di affidabilità)';
+  }
+
+  @override
+  String get indicativeBannerBody =>
+      'Precisa i tuoi dati per proiezioni personalizzate.';
+
+  @override
+  String get indicativeBannerCta => 'Precisare';
+
+  @override
+  String get exploreHubTitle => 'Esplorare';
+
+  @override
+  String get safeModeTitle => 'Concentrazione Prioritaria';
+
+  @override
+  String get safeModeMessage =>
+      'Per la tua sicurezza finanziaria, disattiviamo le ottimizzazioni avanzate finché un segnale di debito è attivo.';
+
+  @override
+  String get safeModeCta => 'Vedi il mio piano di riduzione del debito';
 }

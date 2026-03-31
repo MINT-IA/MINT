@@ -11900,5 +11900,12 @@
   "greetingEvening": "Boa noite",
   "greetingNight": "Boa noite",
   "onboardingCalculationError": "Erro de cálculo. Verifica os teus dados e tenta novamente.",
-  "onboardingRetirementAgeWarning": "Reforma antes dos 55? Verifica a tua idade ou situação profissional."
+  "onboardingRetirementAgeWarning": "Reforma antes dos 55? Verifica a tua idade ou situação profissional.",
+  "indicativeBannerTitle": "Resultado indicativo ({pct} % de fiabilidade)",
+  "indicativeBannerBody": "Precisa os teus dados para projeções personalizadas.",
+  "indicativeBannerCta": "Precisar",
+  "exploreHubTitle": "Explorar",
+  "safeModeTitle": "Foco Prioritário",
+  "safeModeMessage": "Para a tua segurança financeira, desativamos as otimizações avançadas enquanto um sinal de dívida estiver ativo.",
+  "safeModeCta": "Ver o meu plano de redução de dívida"
 }

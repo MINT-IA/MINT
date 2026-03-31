@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -60,7 +61,7 @@ class IndicatifBanner extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Résultat indicatif ($pct% de fiabilité)',
+                  S.of(context)!.indicativeBannerTitle(pct.toString()),
                   style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -83,7 +84,7 @@ class IndicatifBanner extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Précise tes données pour des projections personnalisées.',
+            S.of(context)!.indicativeBannerBody,
             style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 8),
@@ -93,7 +94,7 @@ class IndicatifBanner extends StatelessWidget {
               onPressed: () => context.push('/data-block/$route'),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
-                'Préciser',
+                S.of(context)!.indicativeBannerCta,
                 style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
               ),
               style: TextButton.styleFrom(

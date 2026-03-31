@@ -25309,4 +25309,29 @@ class SFr extends S {
   @override
   String get onboardingRetirementAgeWarning =>
       'Retraite avant 55 ans ? Vérifie ton âge ou ton statut.';
+
+  @override
+  String indicativeBannerTitle(String pct) {
+    return 'Résultat indicatif ($pct % de fiabilité)';
+  }
+
+  @override
+  String get indicativeBannerBody =>
+      'Précise tes données pour des projections personnalisées.';
+
+  @override
+  String get indicativeBannerCta => 'Préciser';
+
+  @override
+  String get exploreHubTitle => 'Explorer';
+
+  @override
+  String get safeModeTitle => 'Concentration Prioritaire';
+
+  @override
+  String get safeModeMessage =>
+      'Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.';
+
+  @override
+  String get safeModeCta => 'Voir mon plan de désendettement';
 }

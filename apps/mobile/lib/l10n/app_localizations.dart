@@ -44598,6 +44598,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Retraite avant 55 ans ? Vérifie ton âge ou ton statut.'**
   String get onboardingRetirementAgeWarning;
+
+  /// No description provided for @indicativeBannerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultat indicatif ({pct} % de fiabilité)'**
+  String indicativeBannerTitle(String pct);
+
+  /// No description provided for @indicativeBannerBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précise tes données pour des projections personnalisées.'**
+  String get indicativeBannerBody;
+
+  /// No description provided for @indicativeBannerCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préciser'**
+  String get indicativeBannerCta;
+
+  /// No description provided for @exploreHubTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer'**
+  String get exploreHubTitle;
+
+  /// No description provided for @safeModeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concentration Prioritaire'**
+  String get safeModeTitle;
+
+  /// No description provided for @safeModeMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.'**
+  String get safeModeMessage;
+
+  /// No description provided for @safeModeCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon plan de désendettement'**
+  String get safeModeCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

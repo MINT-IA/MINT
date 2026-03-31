@@ -3638,7 +3638,7 @@ class SPt extends S {
   String get agirTitle => 'AGIR';
 
   @override
-  String get agirThisMonth => 'Ce mois';
+  String get agirThisMonth => 'Este mês';
 
   @override
   String get agirTimeline => 'Timeline';
@@ -4132,7 +4132,7 @@ class SPt extends S {
   String get soaNetIncome => 'Revenu net';
 
   @override
-  String get soaHousing => 'Logement';
+  String get soaHousing => 'Habitação';
 
   @override
   String get soaDebtRepayment => 'Remboursement dettes';
@@ -10603,7 +10603,7 @@ class SPt extends S {
   String get renteVsCapitalEducationalTitle => 'O que muda concretamente';
 
   @override
-  String get renteVsCapitalFiscalTitle => 'Fiscalité';
+  String get renteVsCapitalFiscalTitle => 'Fiscalidade';
 
   @override
   String get renteVsCapitalFiscalLeftSubtitle => 'Tributado todos os anos';
@@ -17612,7 +17612,7 @@ class SPt extends S {
   String get consentScopeComptes => 'Comptes';
 
   @override
-  String get consentScopeSoldes => 'Soldes';
+  String get consentScopeSoldes => 'Saldos';
 
   @override
   String get consentScopeTransactions => 'Transactions';
@@ -25322,4 +25322,29 @@ class SPt extends S {
   @override
   String get onboardingRetirementAgeWarning =>
       'Reforma antes dos 55? Verifica a tua idade ou situação profissional.';
+
+  @override
+  String indicativeBannerTitle(String pct) {
+    return 'Resultado indicativo ($pct % de fiabilidade)';
+  }
+
+  @override
+  String get indicativeBannerBody =>
+      'Precisa os teus dados para projeções personalizadas.';
+
+  @override
+  String get indicativeBannerCta => 'Precisar';
+
+  @override
+  String get exploreHubTitle => 'Explorar';
+
+  @override
+  String get safeModeTitle => 'Foco Prioritário';
+
+  @override
+  String get safeModeMessage =>
+      'Para a tua segurança financeira, desativamos as otimizações avançadas enquanto um sinal de dívida estiver ativo.';
+
+  @override
+  String get safeModeCta => 'Ver o meu plano de redução de dívida';
 }

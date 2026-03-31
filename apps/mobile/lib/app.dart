@@ -587,9 +587,11 @@ final _router = GoRouter(
       builder: (context, state) {
         final result = state.extra as ExtractionResult?;
         if (result == null) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
-          );
+          // Recovery: redirect to scan instead of dead-end
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/scan');
+          });
+          return const SizedBox.shrink();
         }
         return ExtractionReviewScreen(result: result);
       },
@@ -602,9 +604,11 @@ final _router = GoRouter(
         if (extra == null ||
             extra['result'] is! ExtractionResult ||
             extra['previousConfidence'] is! int) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
-          );
+          // Recovery: redirect to scan instead of dead-end
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/scan');
+          });
+          return const SizedBox.shrink();
         }
         return DocumentImpactScreen(
           result: extra['result'] as ExtractionResult,

@@ -10544,7 +10544,7 @@ class SEn extends S {
   String get renteVsCapitalEducationalTitle => 'What it actually changes';
 
   @override
-  String get renteVsCapitalFiscalTitle => 'Fiscalité';
+  String get renteVsCapitalFiscalTitle => 'Taxation';
 
   @override
   String get renteVsCapitalFiscalLeftSubtitle => 'Taxed every year';
@@ -17529,7 +17529,7 @@ class SEn extends S {
   String get consentScopeComptes => 'Comptes';
 
   @override
-  String get consentScopeSoldes => 'Soldes';
+  String get consentScopeSoldes => 'Balances';
 
   @override
   String get consentScopeTransactions => 'Transactions';
@@ -17587,7 +17587,7 @@ class SEn extends S {
       'nFADP rights, revocation, scopes';
 
   @override
-  String get openBankingHubSoldeTotal => 'Solde total';
+  String get openBankingHubSoldeTotal => 'Total balance';
 
   @override
   String get openBankingHubComptesConnectes => '3 connected accounts';
@@ -17619,7 +17619,7 @@ class SEn extends S {
 
   @override
   String openBankingHubSyncDays(int days) {
-    return 'Il y a ${days}j';
+    return '${days}d ago';
   }
 
   @override
@@ -17630,16 +17630,16 @@ class SEn extends S {
       'FINMA regulatory consultation in progress. The displayed data is for demonstration purposes.';
 
   @override
-  String get transactionListThisMonth => 'Ce mois';
+  String get transactionListThisMonth => 'This month';
 
   @override
-  String get transactionListLastMonth => 'Mois précédent';
+  String get transactionListLastMonth => 'Last month';
 
   @override
   String get transactionListNoTransaction => 'No transactions';
 
   @override
-  String get transactionListRevenus => 'Revenus';
+  String get transactionListRevenus => 'Income';
 
   @override
   String get transactionListDepenses => 'Dépenses';
@@ -25187,4 +25187,29 @@ class SEn extends S {
   @override
   String get onboardingRetirementAgeWarning =>
       'Retirement before 55? Check your age or employment status.';
+
+  @override
+  String indicativeBannerTitle(String pct) {
+    return 'Indicative result ($pct% reliability)';
+  }
+
+  @override
+  String get indicativeBannerBody =>
+      'Refine your data for personalised projections.';
+
+  @override
+  String get indicativeBannerCta => 'Refine';
+
+  @override
+  String get exploreHubTitle => 'Explore';
+
+  @override
+  String get safeModeTitle => 'Priority Focus';
+
+  @override
+  String get safeModeMessage =>
+      'For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is building your security.';
+
+  @override
+  String get safeModeCta => 'View my debt reduction plan';
 }

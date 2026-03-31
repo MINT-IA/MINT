@@ -179,7 +179,7 @@ void main() {
   group('ExploreHub', () {
     testWidgets('renders all 5 navigation row titles', (tester) async {
       await tester.pumpWidget(
-        buildSimpleApp(child: const ExploreHub()),
+        buildLocalizedApp(child: const ExploreHub()),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -192,7 +192,7 @@ void main() {
 
     testWidgets('shows chevron_right icons for each row', (tester) async {
       await tester.pumpWidget(
-        buildSimpleApp(child: const ExploreHub()),
+        buildLocalizedApp(child: const ExploreHub()),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -202,7 +202,7 @@ void main() {
 
     testWidgets('shows Explorer title', (tester) async {
       await tester.pumpWidget(
-        buildSimpleApp(child: const ExploreHub()),
+        buildLocalizedApp(child: const ExploreHub()),
       );
       await tester.pump(const Duration(seconds: 1));
 
