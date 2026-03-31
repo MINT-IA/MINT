@@ -25320,4 +25320,28 @@ class SEn extends S {
   String coachMarkStepConfirm(String stepId) {
     return 'Mark step \"$stepId\" as completed?';
   }
+
+  @override
+  String get semanticsActive => 'active';
+
+  @override
+  String get semanticsInactive => 'inactive';
+
+  @override
+  String get semanticsReached => 'reached';
+
+  @override
+  String get semanticsNotReached => 'not reached';
+
+  @override
+  String get rcSuggestedPromptSuccession =>
+      'How to organise my succession in Switzerland?';
+
+  @override
+  String get rcSuggestedPromptDonation =>
+      'What are the tax advantages of a lifetime donation?';
+
+  @override
+  String get rcSuggestedPromptPatrimoine =>
+      'How to optimise the transmission of my wealth?';
 }

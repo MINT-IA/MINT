@@ -44820,6 +44820,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marquer l\'étape « {stepId} » comme terminée ?'**
   String coachMarkStepConfirm(String stepId);
+
+  /// No description provided for @semanticsActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'actif'**
+  String get semanticsActive;
+
+  /// No description provided for @semanticsInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'inactif'**
+  String get semanticsInactive;
+
+  /// No description provided for @semanticsReached.
+  ///
+  /// In fr, this message translates to:
+  /// **'atteint'**
+  String get semanticsReached;
+
+  /// No description provided for @semanticsNotReached.
+  ///
+  /// In fr, this message translates to:
+  /// **'non atteint'**
+  String get semanticsNotReached;
+
+  /// No description provided for @rcSuggestedPromptSuccession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment organiser ma succession en Suisse ?'**
+  String get rcSuggestedPromptSuccession;
+
+  /// No description provided for @rcSuggestedPromptDonation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quels sont les avantages fiscaux d’une donation de mon vivant ?'**
+  String get rcSuggestedPromptDonation;
+
+  /// No description provided for @rcSuggestedPromptPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment optimiser la transmission de mon patrimoine ?'**
+  String get rcSuggestedPromptPatrimoine;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

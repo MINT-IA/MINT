@@ -25458,4 +25458,28 @@ class SPt extends S {
   String coachMarkStepConfirm(String stepId) {
     return 'Marcar o passo \"$stepId\" como concluído?';
   }
+
+  @override
+  String get semanticsActive => 'ativo';
+
+  @override
+  String get semanticsInactive => 'inativo';
+
+  @override
+  String get semanticsReached => 'alcançado';
+
+  @override
+  String get semanticsNotReached => 'não alcançado';
+
+  @override
+  String get rcSuggestedPromptSuccession =>
+      'Como organizar a minha sucessão na Suíça?';
+
+  @override
+  String get rcSuggestedPromptDonation =>
+      'Quais as vantagens fiscais de uma doação em vida?';
+
+  @override
+  String get rcSuggestedPromptPatrimoine =>
+      'Como otimizar a transmissão do meu património?';
 }

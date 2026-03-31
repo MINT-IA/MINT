@@ -25498,4 +25498,28 @@ class SDe extends S {
   String coachMarkStepConfirm(String stepId) {
     return 'Schritt «$stepId» als erledigt markieren?';
   }
+
+  @override
+  String get semanticsActive => 'aktiv';
+
+  @override
+  String get semanticsInactive => 'inaktiv';
+
+  @override
+  String get semanticsReached => 'erreicht';
+
+  @override
+  String get semanticsNotReached => 'nicht erreicht';
+
+  @override
+  String get rcSuggestedPromptSuccession =>
+      'Wie organisiere ich meine Nachfolge in der Schweiz?';
+
+  @override
+  String get rcSuggestedPromptDonation =>
+      'Welche steuerlichen Vorteile hat eine Schenkung zu Lebzeiten?';
+
+  @override
+  String get rcSuggestedPromptPatrimoine =>
+      'Wie optimiere ich die Vermögensübertragung?';
 }
