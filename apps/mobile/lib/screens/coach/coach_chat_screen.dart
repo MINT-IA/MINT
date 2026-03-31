@@ -164,6 +164,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   final StringBuffer _streamBuffer = StringBuffer();
   /// P1-9: Cancellable stream subscription for SLM streaming.
   StreamSubscription<String>? _slmStreamSubscription;
+  /// P0-10: Timer-based batching for streaming setState calls.
+  /// Collects tokens and flushes UI updates at ~30fps instead of per-token.
+  Timer? _streamFlushTimer;
+  bool _streamDirty = false;
   bool _isByokConfigured = false;
 
   /// Conversation persistence
@@ -405,6 +409,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   @override
   void dispose() {
     _slmStreamSubscription?.cancel(); // P1-9: cancel active stream
+    _streamFlushTimer?.cancel(); // P0-10: cancel batch timer
     _screenReturnSub?.cancel();
     _screenReturnDebounce?.cancel();
     _autoSaveConversation();
@@ -1062,6 +1067,22 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         preAwaitConfig: preAwaitConfig);
   }
 
+  /// P0-10: Flush accumulated stream tokens to UI in a single setState.
+  void _flushStreamBuffer() {
+    if (!_streamDirty || !mounted || _messages.isEmpty) return;
+    _streamDirty = false;
+    final current = _streamBuffer.toString();
+    setState(() {
+      _messages[_messages.length - 1] = ChatMessage(
+        role: 'assistant',
+        content: current,
+        timestamp: DateTime.now(),
+        tier: ChatTier.slm,
+      );
+    });
+    _scrollToBottom();
+  }
+
   /// Handle SLM streaming response (token-by-token).
   Future<void> _handleStreamResponse(
     Stream<String> stream,
@@ -1094,36 +1115,41 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       },
     );
     _slmStreamSubscription?.cancel();
+    // P0-10: Batch streaming UI updates at ~30fps instead of per-token.
+    // Tokens accumulate in _streamBuffer; a periodic timer flushes to UI.
+    _streamDirty = false;
+    _streamFlushTimer?.cancel();
+    _streamFlushTimer = Timer.periodic(
+      const Duration(milliseconds: 33), // ~30fps
+      (_) => _flushStreamBuffer(),
+    );
     _slmStreamSubscription = timedStream.listen(
       (token) {
         if (!mounted) {
           _slmStreamSubscription?.cancel();
+          _streamFlushTimer?.cancel();
           if (!completer.isCompleted) completer.complete();
           return;
         }
         _streamBuffer.write(token);
-        final current = _streamBuffer.toString();
-        setState(() {
-          if (_messages.isEmpty) return;
-          _messages[_messages.length - 1] = ChatMessage(
-            role: 'assistant',
-            content: current,
-            timestamp: DateTime.now(),
-            tier: ChatTier.slm,
-          );
-        });
-        _scrollToBottom();
+        _streamDirty = true;
       },
       onError: (Object e) {
         debugPrint('[CoachChat] Stream error: $e');
+        _streamFlushTimer?.cancel();
+        _flushStreamBuffer(); // Final flush
         if (!completer.isCompleted) completer.complete();
       },
       onDone: () {
+        _streamFlushTimer?.cancel();
+        _flushStreamBuffer(); // Final flush
         if (!completer.isCompleted) completer.complete();
       },
     );
     await completer.future;
     _slmStreamSubscription = null;
+    _streamFlushTimer?.cancel();
+    _streamFlushTimer = null;
 
     if (!mounted) return;
 

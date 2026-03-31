@@ -70,6 +70,12 @@ class _PulseScreenState extends State<PulseScreen> {
   /// The current cap sequence for the user's active goal.
   CapSequence? _cachedSequence;
 
+  /// P0-9: Cached dominant number/label/color to avoid recomputing in build().
+  _DominantNumber? _cachedDominantNumber;
+  String? _cachedDominantLabel;
+  Color? _cachedDominantColor;
+  String? _cachedNarrative;
+
   /// Tracks when we last showed ActionSuccess to avoid repeat.
   DateTime? _lastSeenCompletedDate;
 
@@ -149,6 +155,24 @@ class _PulseScreenState extends State<PulseScreen> {
       } catch (_) {
         _cachedSequence = null;
       }
+
+      // P0-9: Pre-compute dominant number/label/color so build() is cheap.
+      MintUserState? mintState;
+      try {
+        mintState = context.read<MintStateProvider>().state;
+      } catch (_) {
+        mintState = null;
+      }
+      final activeGoalIntentTag =
+          _selectedGoalTag ?? mintState?.activeGoalIntentTag;
+      _cachedDominantNumber =
+          _computeDominantNumber(profile, mintState, activeGoalIntentTag);
+      _cachedDominantLabel =
+          _computeDominantLabel(profile, mintState, l, activeGoalIntentTag);
+      _cachedDominantColor = _computeDominantColor(_cachedDominantNumber!);
+      _cachedNarrative =
+          _computeNarrative(profile, cap, l, activeGoalIntentTag);
+
       // Mark served — setState so feedback pill reflects updated memory.
       CapMemoryStore.markServed(_capMemory, cap.id).then((updated) {
         if (mounted) setState(() => _capMemory = updated);
@@ -156,6 +180,10 @@ class _PulseScreenState extends State<PulseScreen> {
     } catch (_) {
       _cachedCap = null;
       _cachedSequence = null;
+      _cachedDominantNumber = null;
+      _cachedDominantLabel = null;
+      _cachedDominantColor = null;
+      _cachedNarrative = null;
     }
   }
 
@@ -242,13 +270,15 @@ class _PulseScreenState extends State<PulseScreen> {
     final cap = _cachedCap ?? mintState?.currentCap;
     final l = S.of(context)!;
 
-    // Compute the dominant number
-    final dominantNumber =
+    // P0-9: Use pre-computed dominant values from didChangeDependencies().
+    // Fallback: compute on-the-fly only if cache is empty (first frame).
+    final dominantNumber = _cachedDominantNumber ??
         _computeDominantNumber(profile, mintState, activeGoalIntentTag);
-    final dominantLabel =
+    final dominantLabel = _cachedDominantLabel ??
         _computeDominantLabel(profile, mintState, l, activeGoalIntentTag);
-    final dominantColor = _computeDominantColor(dominantNumber);
-    final narrativePhrase =
+    final dominantColor =
+        _cachedDominantColor ?? _computeDominantColor(dominantNumber);
+    final narrativePhrase = _cachedNarrative ??
         _computeNarrative(profile, cap, l, activeGoalIntentTag);
 
     // Recent action feedback

@@ -5,8 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -44,11 +48,13 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   double _salary = 85000;
   String _canton = 'ZH';
   bool _saving = false;
+  bool _consentGranted = false;
 
   @override
   void initState() {
     super.initState();
-    _analytics.trackScreenView('/onboarding/quick');
+    // nLPD art. 6: Show consent BEFORE any data collection or tracking
+    _checkAndRequestConsent();
 
     // Pre-fill from existing profile if editing a specific section
     if (widget.initialSection != null) {
@@ -56,6 +62,46 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
         _prefillFromProfile();
         _showSectionGuidance();
       });
+    }
+  }
+
+  /// nLPD art. 6: Ensure consent is granted BEFORE any data collection.
+  /// Shows a consent dialog on first visit. Data entry is blocked until accepted.
+  Future<void> _checkAndRequestConsent() async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyConsented = prefs.getBool('onboarding_data_consent') ?? false;
+    if (alreadyConsented) {
+      if (mounted) setState(() => _consentGranted = true);
+      _analytics.trackScreenView('/onboarding/quick');
+      return;
+    }
+    // Show consent dialog — block until user accepts
+    if (!mounted) return;
+    final accepted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: Text(S.of(context)!.onboardingTrustTransparency),
+        content: Text(S.of(context)!.onboardingConsentBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(S.of(context)!.onboardingConsentDecline),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(S.of(context)!.onboardingConsentAccept),
+          ),
+        ],
+      ),
+    );
+    if (accepted == true) {
+      await prefs.setBool('onboarding_data_consent', true);
+      if (mounted) setState(() => _consentGranted = true);
+      _analytics.trackScreenView('/onboarding/quick');
+    } else {
+      // User declined — go back to landing
+      if (mounted) context.go('/');
     }
   }
 
@@ -161,6 +207,29 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
     _analytics.trackCTAClick('quick_start_completed',
         screenName: '/onboarding/quick');
+
+    // P1-Onboarding: Best-effort backend profile sync if user is authenticated.
+    // Fire-and-forget — navigation proceeds regardless of outcome.
+    try {
+      final auth = context.read<AuthProvider>();
+      if (auth.isLoggedIn) {
+        final birthYear = DateTime.now().year - _age;
+        // ignore: deprecated_member_use
+        ApiService.createProfile(
+          birthYear: birthYear,
+          canton: _canton,
+          householdType: HouseholdType.single,
+          incomeGrossYearly: _salary,
+        ).then((_) {
+          debugPrint('[QuickStart] Backend profile synced');
+        }).catchError((Object e) {
+          debugPrint('[QuickStart] Backend profile sync failed (best-effort): $e');
+          return null;
+        });
+      }
+    } catch (_) {
+      // AuthProvider not in tree or not logged in — skip backend sync.
+    }
 
     if (mounted) {
       context.go('/home?tab=0');

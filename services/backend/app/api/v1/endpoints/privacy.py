@@ -142,6 +142,52 @@ def export_user_data(
             for e in events
         ]
 
+    # P1-nLPD: Conversation memory — consent records (coach memory consent state)
+    from app.models.consent import ConsentModel
+    consent_data = []
+    consents = db.query(ConsentModel).filter(ConsentModel.user_id == user_id).all()
+    consent_data = [
+        {
+            "id": c.id,
+            "consent_type": c.consent_type,
+            "enabled": c.enabled,
+            "updated_at": str(c.updated_at),
+        }
+        for c in consents
+    ]
+
+    # P1-nLPD: Coach memory — embedded insights stored in pgvector (RAG memory).
+    # These represent the coach's "memory" of user conversations and insights.
+    coach_memory_data = []
+    try:
+        from sqlalchemy import text as sa_text
+        rows = db.execute(
+            sa_text(
+                "SELECT doc_id, title, content, metadata, created_at "
+                "FROM document_embeddings "
+                "WHERE metadata::jsonb->>'user_id' = :uid "
+                "AND doc_type = 'memory'"
+            ),
+            {"uid": user_id},
+        ).fetchall()
+        coach_memory_data = [
+            {
+                "doc_id": row[0],
+                "title": row[1],
+                "content": row[2],
+                "metadata": row[3],
+                "created_at": str(row[4]) if row[4] else None,
+            }
+            for row in rows
+        ]
+    except Exception:
+        # pgvector not available (dev/CI with SQLite) — skip gracefully
+        pass
+
+    # P1-nLPD: Enrich profile_data with conversation history and coach memory
+    profile_data["consents"] = consent_data
+    profile_data["coach_memory"] = coach_memory_data
+
     result = service.export_user_data(
         profile_id=user_id,
         profile_data=profile_data,

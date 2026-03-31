@@ -11979,5 +11979,8 @@
   "mortgageStep7Subtitle": "Vor der Unterschrift: Stockwerkeigentümer-Reglement prüfen, Gebäudebewertung, geplante Arbeiten, Erneuerungsfonds. Kaufvertrag prüfen lassen.",
   "mortgageStep7Action": "Lade die MINT-Kaufcheckliste herunter",
   "mortgageJourneyDisclaimer": "Bildungstool — keine Finanzberatung im Sinne des FIDLEG. Konsultiere eine Hypothekenspezialistin vor jeder Entscheidung. Quellen: FINMA-Rundschreiben 2008/10, BVG Art. 30c, DBG Art. 21, ZGB Art. 652.",
-  "mortgageJourneyStepLabel": "Schritt {number} · {title}"
+  "mortgageJourneyStepLabel": "Schritt {number} · {title}",
+  "onboardingConsentBody": "MINT erhebt deine Finanzdaten ausschliesslich zur Berechnung deiner Vorsorgeprognosen. Deine Daten bleiben auf deinem Gerät und werden nie ohne deine ausdrückliche Zustimmung weitergegeben (nDSG Art. 6).",
+  "onboardingConsentAccept": "Akzeptieren",
+  "onboardingConsentDecline": "Ablehnen"
 }

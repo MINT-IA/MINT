@@ -1070,8 +1070,28 @@ def delete_account(
         },
     )
 
-    # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory).
+    # P0-2: Purge conversation memory — consents (including conversation_memory consent)
+    from app.models.consent import ConsentModel
+    db.query(ConsentModel).filter(
+        ConsentModel.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    # P0-2: Purge banking consents
+    from app.models.banking_consent import BankingConsentModel
+    db.query(BankingConsentModel).filter(
+        BankingConsentModel.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    # P0-2: Purge household memberships (coach memory via household partner link)
+    from app.models.household import HouseholdMemberModel
+    db.query(HouseholdMemberModel).filter(
+        HouseholdMemberModel.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory/insights).
     # Orphaned embeddings would persist user data after account deletion.
+    # This covers both document embeddings AND coach insight memories
+    # (doc_type='memory' stored via insight_embedder).
     # Uses raw SQL via SQLAlchemy to avoid sync-in-async asyncio pitfalls
     # (asyncio.get_event_loop().run_until_complete is unsafe in ASGI workers).
     try:  # pragma: no cover — requires PostgreSQL with pgvector

@@ -4637,7 +4637,7 @@ class SFr extends S {
 
   @override
   String get onboardingConsentBody =>
-      'Tes réponses peuvent être sauvegardées localement sur ton appareil pour reprendre plus tard. Aucune donnée n\'est envoyée sans ton accord.';
+      'MINT collecte tes données financières uniquement pour calculer tes projections de prévoyance. Tes données restent sur ton appareil et ne sont jamais partagées sans ton accord explicite (nLPD art. 6).';
 
   @override
   String get onboardingConsentAllow => 'Autoriser';
@@ -25568,4 +25568,10 @@ class SFr extends S {
   String mortgageJourneyStepLabel(int number, String title) {
     return 'Étape $number · $title';
   }
+
+  @override
+  String get onboardingConsentAccept => 'Accepter';
+
+  @override
+  String get onboardingConsentDecline => 'Refuser';
 }

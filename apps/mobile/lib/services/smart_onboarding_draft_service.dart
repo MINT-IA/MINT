@@ -39,6 +39,14 @@ class SmartOnboardingDraftService {
     required int age,
     required double grossSalary,
     required String? canton,
+    /// P1-Onboarding: Additional fields the user may enter during onboarding.
+    String? firstName,
+    String? nationalityGroup,
+    String? nationalityCountry,
+    String? employmentStatus,
+    bool? hasLivedAbroad,
+    int? arrivalYear,
+    String? primaryFocus,
   }) async {
     // P2-17: Skip if another write is in progress
     if (_writing) return;
@@ -50,6 +58,17 @@ class SmartOnboardingDraftService {
         'age': age,
         'grossSalary': grossSalary,
         if (canton != null && canton.isNotEmpty) 'canton': canton,
+        if (firstName != null && firstName.isNotEmpty) 'firstName': firstName,
+        if (nationalityGroup != null && nationalityGroup.isNotEmpty)
+          'nationalityGroup': nationalityGroup,
+        if (nationalityCountry != null && nationalityCountry.isNotEmpty)
+          'nationalityCountry': nationalityCountry,
+        if (employmentStatus != null && employmentStatus.isNotEmpty)
+          'employmentStatus': employmentStatus,
+        if (hasLivedAbroad != null) 'hasLivedAbroad': hasLivedAbroad,
+        if (arrivalYear != null) 'arrivalYear': arrivalYear,
+        if (primaryFocus != null && primaryFocus.isNotEmpty)
+          'primaryFocus': primaryFocus,
         'savedAt': DateTime.now().toIso8601String(),
       };
       await prefs.setString(_draftKey, jsonEncode(payload));

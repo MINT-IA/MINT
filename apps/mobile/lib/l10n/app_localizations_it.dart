@@ -4647,7 +4647,7 @@ class SIt extends S {
 
   @override
   String get onboardingConsentBody =>
-      'Le tue risposte possono essere salvate localmente sul tuo dispositivo per riprendere più tardi. Nessun dato viene inviato senza il tuo consenso.';
+      'MINT raccoglie i tuoi dati finanziari unicamente per calcolare le tue proiezioni previdenziali. I tuoi dati rimangono sul tuo dispositivo e non vengono mai condivisi senza il tuo consenso esplicito.';
 
   @override
   String get onboardingConsentAllow => 'Autorizza';
@@ -25646,4 +25646,10 @@ class SIt extends S {
   String mortgageJourneyStepLabel(int number, String title) {
     return 'Passo $number · $title';
   }
+
+  @override
+  String get onboardingConsentAccept => 'Accettare';
+
+  @override
+  String get onboardingConsentDecline => 'Rifiutare';
 }
