@@ -223,7 +223,8 @@ class ConversationStore {
     RegExp(r"\b\d{1,3}(?:['\s]\d{3})+(?:\.\d{1,2})?\b"),
     RegExp(r"\b\d{4,}(?:\.\d{1,2})?\b"),
     // "mon salaire est de X" / "je gagne X" patterns
-    RegExp(r'(salaire|gagne|touche|revenu)[^.]{0,20}[\d\s\x27\.]{4,}', caseSensitive: false),
+    // FIX: ReDoS — replaced [^.]{0,20} (backtracking) with \s+\S{0,20} (linear)
+    RegExp(r'(?:salaire|gagne|touche|revenu)\s+\S{0,20}\d{4,}', caseSensitive: false),
     // Email addresses
     RegExp(r'\b[\w.+-]+@[\w-]+\.[\w.]+\b'),
     // Swiss phone numbers: +41..., 07x...
@@ -247,7 +248,8 @@ class ConversationStore {
       result = result.replaceAll(pattern, '[***]');
     }
     // Collapse multiple consecutive redactions
-    result = result.replaceAll(RegExp(r'(\[\*\*\*\]\s*){2,}'), '[***] ');
+    // FIX: ReDoS — limit repetition to avoid catastrophic backtracking
+    result = result.replaceAll(RegExp(r'(\[\*\*\*\]\s*){2,10}'), '[***] ');
     return result.trim();
   }
 
