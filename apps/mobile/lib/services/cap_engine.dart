@@ -151,7 +151,9 @@ class CapEngine {
         profile.employmentStatus == 'retraite';
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
-    if (daysToYearEnd <= 90 && daysToYearEnd >= 0 && !isRetired) {
+    // P0-13: FATCA — US persons may face restrictions on 3a contributions
+    final isFatca = profile.archetype == FinancialArchetype.expatUs;
+    if (daysToYearEnd <= 90 && daysToYearEnd >= 0 && !isRetired && !isFatca) {
       final cards3a =
           ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.pillar3a)
@@ -446,7 +448,11 @@ class CapEngine {
         coachPrompt: null,
       );
     }
-    candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
+    // P0-14: Deterministic tie-breaking — use id hashCode as secondary sort
+    candidates.sort((a, b) {
+      final cmp = b.priorityScore.compareTo(a.priorityScore);
+      return cmp != 0 ? cmp : a.id.hashCode.compareTo(b.id.hashCode);
+    });
 
     // Enrich the winner with supporting signals from other candidates.
     final winner = candidates.first;

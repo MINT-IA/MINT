@@ -163,6 +163,33 @@ _PII_PATTERNS = [
     re.compile(r"\+?\d[\d\s]{8,14}\d"),  # phone numbers
 ]
 
+# Prompt injection patterns — reused by memory, profile context, and user input sanitizers.
+_INJECTION_PATTERNS = [
+    # English patterns
+    re.compile(r'\[?\s*SYSTEM\s*(OVERRIDE|PROMPT|MESSAGE)\s*\]?', re.IGNORECASE),
+    re.compile(r'ignore\s+(all\s+)?(previous\s+)?(rules|instructions|constraints)', re.IGNORECASE),
+    re.compile(r'new\s+(directive|instruction|rule|system\s+prompt)', re.IGNORECASE),
+    re.compile(r'you\s+are\s+now\s+', re.IGNORECASE),
+    re.compile(r'disregard\s+(all|previous|above)', re.IGNORECASE),
+    re.compile(r'forget\s+(everything|all|your\s+instructions)', re.IGNORECASE),
+    re.compile(r'act\s+as\s+(if|though)\s+', re.IGNORECASE),
+    re.compile(r'pretend\s+(you|to\s+be)', re.IGNORECASE),
+    # Product recommendation injection (compliance: no-advice rule)
+    re.compile(r'recommend\s+(buying?|selling?|investing?\s+in)\s+', re.IGNORECASE),
+    re.compile(r'(buy|sell|invest\s+in)\s+[A-Z]{2,5}\s+(stock|shares?|ETF)', re.IGNORECASE),
+    # French patterns (multilingual injection defense)
+    re.compile(r'ignore[rz]?\s+(toutes?\s+)?(les\s+)?(règles|instructions|contraintes)', re.IGNORECASE),
+    re.compile(r'nouvelle[s]?\s+(directive|instruction|règle|consigne)', re.IGNORECASE),
+    re.compile(r'désormais\s+(tu|vous)\s+(dois|devez|es|êtes)', re.IGNORECASE),
+    re.compile(r'oublie[rz]?\s+(tout|toutes?\s+les\s+instructions)', re.IGNORECASE),
+    re.compile(r'fais\s+comme\s+si', re.IGNORECASE),
+    re.compile(r'tu\s+es\s+(maintenant|désormais)\s+', re.IGNORECASE),
+    re.compile(r'(sois|deviens)\s+(prescriptif|directif|un\s+conseiller)', re.IGNORECASE),
+    # German patterns
+    re.compile(r'ignoriere?\s+(alle\s+)?(vorherigen?\s+)?(Regeln|Anweisungen)', re.IGNORECASE),
+    re.compile(r'vergiss\s+(alles|alle\s+Anweisungen)', re.IGNORECASE),
+]
+
 
 def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     """Scrub PII patterns from the memory block and add prompt injection armor.
@@ -206,28 +233,7 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
         '\ufeff'          # BOM / zero-width no-break space
         ']', '', scrubbed)
 
-    _INJECTION_PATTERNS = [
-        # English patterns
-        re.compile(r'\[?\s*SYSTEM\s*(OVERRIDE|PROMPT|MESSAGE)\s*\]?', re.IGNORECASE),
-        re.compile(r'ignore\s+(all\s+)?(previous\s+)?(rules|instructions|constraints)', re.IGNORECASE),
-        re.compile(r'new\s+(directive|instruction|rule|system\s+prompt)', re.IGNORECASE),
-        re.compile(r'you\s+are\s+now\s+', re.IGNORECASE),
-        re.compile(r'disregard\s+(all|previous|above)', re.IGNORECASE),
-        re.compile(r'forget\s+(everything|all|your\s+instructions)', re.IGNORECASE),
-        re.compile(r'act\s+as\s+(if|though)\s+', re.IGNORECASE),
-        re.compile(r'pretend\s+(you|to\s+be)', re.IGNORECASE),
-        # French patterns (multilingual injection defense)
-        re.compile(r'ignore[rz]?\s+(toutes?\s+)?(les\s+)?(règles|instructions|contraintes)', re.IGNORECASE),
-        re.compile(r'nouvelle[s]?\s+(directive|instruction|règle|consigne)', re.IGNORECASE),
-        re.compile(r'désormais\s+(tu|vous)\s+(dois|devez|es|êtes)', re.IGNORECASE),
-        re.compile(r'oublie[rz]?\s+(tout|toutes?\s+les\s+instructions)', re.IGNORECASE),
-        re.compile(r'fais\s+comme\s+si', re.IGNORECASE),
-        re.compile(r'tu\s+es\s+(maintenant|désormais)\s+', re.IGNORECASE),
-        re.compile(r'(sois|deviens)\s+(prescriptif|directif|un\s+conseiller)', re.IGNORECASE),
-        # German patterns
-        re.compile(r'ignoriere?\s+(alle\s+)?(vorherigen?\s+)?(Regeln|Anweisungen)', re.IGNORECASE),
-        re.compile(r'vergiss\s+(alles|alle\s+Anweisungen)', re.IGNORECASE),
-    ]
+    # Use module-level _INJECTION_PATTERNS (shared with profile context + user input sanitizers)
     for pattern in _INJECTION_PATTERNS:
         scrubbed = pattern.sub("[FILTERED]", scrubbed)
 
@@ -286,10 +292,16 @@ def _sanitize_profile_context(profile_context: Optional[dict]) -> dict:
     """
     if not profile_context:
         return {}
-    return {
-        k: v for k, v in profile_context.items()
-        if k in _PROFILE_SAFE_FIELDS and v is not None
-    }
+    safe = {}
+    for k, v in profile_context.items():
+        if k not in _PROFILE_SAFE_FIELDS or v is None:
+            continue
+        # Sanitize string values through injection filter (P0-1: profile data injection)
+        if isinstance(v, str):
+            for pattern in _INJECTION_PATTERNS:
+                v = pattern.sub("[FILTERED]", v)
+        safe[k] = v
+    return safe
 
 
 # ---------------------------------------------------------------------------
@@ -976,8 +988,13 @@ async def coach_chat(
     # nLPD: strip memory_block when conversation_memory consent not granted
     effective_memory_block = body.memory_block if has_memory_consent else None
 
+    # P0-2: Sanitize user input through injection filter before LLM processing
+    sanitized_message = body.message
+    for pattern in _INJECTION_PATTERNS:
+        sanitized_message = pattern.sub("", sanitized_message)
+
     reasoning_output = StructuredReasoningService.reason(
-        user_message=body.message,
+        user_message=sanitized_message,
         profile_context=safe_profile,
         memory_block=effective_memory_block,
     )
