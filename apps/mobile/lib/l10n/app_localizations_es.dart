@@ -25479,4 +25479,18 @@ class SEs extends S {
   @override
   String get onboardingProfileCreated =>
       '¡Perfil creado! Puedes empezar a explorar MINT.';
+
+  @override
+  String get capEstatePlanningHeadline => 'Preparar tu transmisión patrimonial';
+
+  @override
+  String get capEstatePlanningWhyNow =>
+      'Testamento, beneficiarios LPP y 3a, pacto sucesorio: decisiones que tomar ahora.';
+
+  @override
+  String get capEstatePlanningWhyNowVeuf =>
+      'Tras un fallecimiento, los derechos sucesorios y beneficiarios cambian. Verifica tu situación.';
+
+  @override
+  String get capEstatePlanningCtaLabel => 'Comprender los trámites';
 }

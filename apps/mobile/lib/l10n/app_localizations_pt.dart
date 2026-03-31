@@ -25486,4 +25486,18 @@ class SPt extends S {
   @override
   String get onboardingProfileCreated =>
       'Perfil criado! Podes começar a explorar MINT.';
+
+  @override
+  String get capEstatePlanningHeadline => 'Preparar a tua transmissão';
+
+  @override
+  String get capEstatePlanningWhyNow =>
+      'Testamento, beneficiários LPP e 3a, pacto sucessório: decisões a tomar agora.';
+
+  @override
+  String get capEstatePlanningWhyNowVeuf =>
+      'Após um falecimento, os direitos sucessórios e beneficiários mudam. Verifica a tua situação.';
+
+  @override
+  String get capEstatePlanningCtaLabel => 'Compreender os procedimentos';
 }

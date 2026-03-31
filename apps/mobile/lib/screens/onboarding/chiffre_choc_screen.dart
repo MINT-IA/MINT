@@ -120,23 +120,41 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         _chiffreChoc = choc;
       });
     } catch (_) {
-      final profile = MinimalProfileService.compute(
-        age: age,
-        grossSalary: grossSalary,
-        canton: canton,
-        householdType: householdType,
-        currentSavings: currentSavings,
-        isPropertyOwner: isPropertyOwner,
-        existing3a: existing3a,
-        existingLpp: existingLpp,
-        targetRetirementAge: targetRetirementAge,
-      );
+      try {
+        final profile = MinimalProfileService.compute(
+          age: age,
+          grossSalary: grossSalary,
+          canton: canton,
+          householdType: householdType,
+          currentSavings: currentSavings,
+          isPropertyOwner: isPropertyOwner,
+          existing3a: existing3a,
+          existingLpp: existingLpp,
+          targetRetirementAge: targetRetirementAge,
+        );
 
-      if (!mounted) return;
-      setState(() {
-        _profile = profile;
-        _chiffreChoc = ChiffreChocSelector.select(profile, stressType: stressType);
-      });
+        if (!mounted) return;
+        setState(() {
+          _profile = profile;
+          _chiffreChoc = ChiffreChocSelector.select(profile, stressType: stressType);
+        });
+      } catch (_) {
+        // P2-11: If even local computation fails, show a generic fallback
+        // instead of silently swallowing the error and showing nothing.
+        if (!mounted) return;
+        setState(() {
+          _chiffreChoc = const ChiffreChoc(
+            type: ChiffreChocType.retirementIncome,
+            value: '—',
+            rawValue: 0,
+            title: 'Calcul temporairement indisponible',
+            subtitle: 'Nous n\u2019avons pas pu estimer ton chiffre. '
+                'V\u00e9rifie ta connexion ou r\u00e9essaie.',
+            iconName: 'info_outline',
+            colorKey: 'info',
+          );
+        });
+      }
     }
 
     _animController.forward(from: 0);

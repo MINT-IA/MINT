@@ -25526,4 +25526,18 @@ class SDe extends S {
   @override
   String get onboardingProfileCreated =>
       'Profil erstellt! Du kannst MINT erkunden.';
+
+  @override
+  String get capEstatePlanningHeadline => 'Deine Nachlassplanung vorbereiten';
+
+  @override
+  String get capEstatePlanningWhyNow =>
+      'Testament, BVG- und 3a-Begünstigte, Erbvertrag: Entscheidungen, die jetzt anstehen.';
+
+  @override
+  String get capEstatePlanningWhyNowVeuf =>
+      'Nach einem Todesfall ändern sich Erbrechte und Begünstigte. Prüfe deine Situation.';
+
+  @override
+  String get capEstatePlanningCtaLabel => 'Schritte verstehen';
 }

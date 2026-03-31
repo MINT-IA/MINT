@@ -186,9 +186,10 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     import re
     import unicodedata
 
-    # Unicode normalization: strip zero-width chars, normalize to NFC
-    # Prevents bypass via invisible characters (zero-width space, etc.)
-    scrubbed = unicodedata.normalize("NFC", scrubbed)
+    # Unicode normalization: strip zero-width chars, normalize to NFKC
+    # NFKC is stronger than NFC — decomposes compatibility characters
+    # (e.g., ligatures, fullwidth digits) preventing bypass via visual equivalents.
+    scrubbed = unicodedata.normalize("NFKC", scrubbed)
     scrubbed = re.sub(
         '['
         '\u00ad'          # soft hyphen

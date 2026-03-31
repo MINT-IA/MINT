@@ -25550,4 +25550,18 @@ class SIt extends S {
   @override
   String get onboardingProfileCreated =>
       'Profilo creato! Puoi iniziare a esplorare MINT.';
+
+  @override
+  String get capEstatePlanningHeadline => 'Preparare la tua trasmissione';
+
+  @override
+  String get capEstatePlanningWhyNow =>
+      'Testamento, beneficiari LPP e 3a, patto successorio: decisioni da prendere ora.';
+
+  @override
+  String get capEstatePlanningWhyNowVeuf =>
+      'Dopo un decesso, i diritti successori e i beneficiari cambiano. Verifica la tua situazione.';
+
+  @override
+  String get capEstatePlanningCtaLabel => 'Capire le procedure';
 }

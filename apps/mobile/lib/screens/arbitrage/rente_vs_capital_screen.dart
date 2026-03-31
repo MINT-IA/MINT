@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -88,6 +89,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   bool _hasError = false;
   int _requestCounter = 0;
   ArbitrageResult? _result;
+
+  // P2-9: Debounce recomputation to avoid 200-300ms lag per keystroke.
+  Timer? _debounceTimer;
 
   // ── CoachProfile auto-fill ──
   bool _didAutoFill = false;
@@ -256,6 +260,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _ageCtrl.dispose();
     _salaryCtrl.dispose();
     _lppTotalCtrl.dispose();
@@ -272,15 +277,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   /// Compute estimate-mode inputs from the LPP total entered by the user.
+  /// P2-9: Debounced (300ms) to avoid recomputing on every keystroke.
   void _recalculate() {
-    _recalculateAsync();
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _recalculateAsync();
+    });
   }
 
   /// F2-6: User-triggered recalculation — marks interaction before recalc.
   /// Used by all user-facing onChanged handlers.
   void _userRecalculate() {
     _hasUserInteracted = true;
-    _recalculateAsync();
+    _recalculate();
   }
 
   Future<void> _recalculateAsync() async {

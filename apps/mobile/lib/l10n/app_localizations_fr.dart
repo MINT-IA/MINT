@@ -25472,4 +25472,18 @@ class SFr extends S {
   @override
   String get onboardingProfileCreated =>
       'Profil créé ! Tu peux commencer à explorer MINT.';
+
+  @override
+  String get capEstatePlanningHeadline => 'Préparer ta transmission';
+
+  @override
+  String get capEstatePlanningWhyNow =>
+      'Testament, bénéficiaires LPP et 3a, pacte successoral : des décisions à prendre maintenant.';
+
+  @override
+  String get capEstatePlanningWhyNowVeuf =>
+      'Après un décès, les droits de succession et les bénéficiaires changent. Vérifie ta situation.';
+
+  @override
+  String get capEstatePlanningCtaLabel => 'Comprendre les démarches';
 }
