@@ -7,7 +7,7 @@ Sources:
 
 from datetime import datetime
 from uuid import uuid4
-from sqlalchemy import Column, String, Integer, Float, DateTime, Index, text
+from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Index, text
 from app.core.database import Base
 
 
@@ -16,7 +16,7 @@ class SnapshotModel(Base):
     __tablename__ = "snapshots"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, nullable=False, index=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     trigger = Column(String, nullable=False)  # quarterly, life_event, profile_update, check_in
     model_version = Column(String, default="1.0", nullable=False)

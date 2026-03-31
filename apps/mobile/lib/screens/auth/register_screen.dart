@@ -79,7 +79,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (_dateOfBirth != null) {
           // Store both for backward compatibility
           answers['q_birth_year'] = _dateOfBirth!.year;
-          answers['q_date_of_birth'] = _dateOfBirth!.toIso8601String();
+          answers['q_date_of_birth'] =
+              _dateOfBirth!.toIso8601String().split('T').first;
         }
         await ReportPersistenceService.saveAnswers(answers);
       }

@@ -241,9 +241,23 @@ class ConversationStore {
     RegExp(r'(septante|huitante|nonante|cinquante|soixante|vingt|trente|quarante)\s+(mille|cents?)', caseSensitive: false),
   ];
 
+  /// Strip zero-width and invisible Unicode characters that could bypass PII
+  /// regex patterns. Mirrors backend NFKC normalization (unicodedata.normalize).
+  /// Dart lacks built-in NFKC, so we strip the most common bypass vectors:
+  /// zero-width space/joiner/non-joiner, soft hyphen, BOM, combining grapheme joiner.
+  static String _stripInvisibleChars(String text) {
+    return text.replaceAll(
+      RegExp(
+        '[\u200B\u200C\u200D\u00AD\uFEFF\u034F\u2060\u2061\u2062\u2063\u2064]',
+      ),
+      '',
+    );
+  }
+
   /// Scrub PII-like patterns from text for safe persistence.
   static String scrubPii(String text) {
-    var result = text;
+    // Strip invisible chars before regex matching (NFKC-lite, same intent as backend)
+    var result = _stripInvisibleChars(text);
     for (final pattern in _piiPatterns) {
       result = result.replaceAll(pattern, '[***]');
     }

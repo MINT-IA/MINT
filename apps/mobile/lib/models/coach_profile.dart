@@ -228,7 +228,7 @@ class ConjointProfile {
   Map<String, dynamic> toJson() => {
         'firstName': firstName,
         'birthYear': birthYear,
-        'dateOfBirth': dateOfBirth?.toIso8601String(),
+        'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
         'gender': gender,
         'salaireBrutMensuel': salaireBrutMensuel,
         'nombreDeMois': nombreDeMois,
@@ -1906,7 +1906,7 @@ class CoachProfile {
         'schemaVersion': schemaVersion,
         'firstName': firstName,
         'birthYear': birthYear,
-        'dateOfBirth': dateOfBirth?.toIso8601String(),
+        'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
         'canton': canton,
         'commune': commune,
         'nationality': nationality,
@@ -2426,6 +2426,8 @@ class CoachProfile {
         isFatcaResident: conjIsFatca,
         canContribute3a: !conjIsFatca,
         prevoyance: conjointPrevoyance,
+        canton: answers['q_partner_canton'] as String?,
+        nombreEnfants: _parseInt(answers['q_partner_enfants']),
       );
     }
 

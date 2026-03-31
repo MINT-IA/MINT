@@ -759,6 +759,12 @@ class CoachProfileProvider extends ChangeNotifier {
       if (c.nationality != null) {
         answers['q_partner_nationality'] = c.nationality;
       }
+      if (c.canton != null) {
+        answers['q_partner_canton'] = c.canton;
+      }
+      if (c.nombreEnfants != null) {
+        answers['q_partner_enfants'] = c.nombreEnfants;
+      }
     }
     await ReportPersistenceService.saveAnswers(answers);
   }
