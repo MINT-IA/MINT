@@ -97,8 +97,9 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         _profile = coachProvider.profile!;
       } else {
         // Build empty profile if wizard not completed
+        // CHAOS-78: birthYear 0 signals "data missing" — age getter returns 0.
         _profile = CoachProfile(
-          birthYear: 1990,
+          birthYear: 0,
           canton: 'ZH',
           salaireBrutMensuel: 0,
           goalA: GoalA(

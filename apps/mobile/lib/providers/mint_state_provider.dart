@@ -110,7 +110,8 @@ class MintStateProvider extends ChangeNotifier {
         ),
       );
       notifyListeners();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[MintStateProvider] Recompute error: $e');
       // Engine errors must not crash the app.
       // State remains at its previous value.
       // _lastProfile is NOT set here — next call with same profile will retry.
@@ -139,7 +140,9 @@ class MintStateProvider extends ChangeNotifier {
     unawaited(
       SharedPreferences.getInstance().then(
         (prefs) => PrecomputedInsightsService.clear(prefs),
-      ),
+      ).catchError((Object e) {
+        debugPrint('[MintStateProvider] Insight cache clear failed: $e');
+      }),
     );
     notifyListeners();
   }

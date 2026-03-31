@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -44,6 +46,9 @@ class HouseholdProvider extends ChangeNotifier {
   bool get hasPendingInvite =>
       _members.any((m) => m['status'] == 'pending');
 
+  /// Network timeout for household API calls.
+  static const _kTimeout = Duration(seconds: 15);
+
   /// Fetch household from backend.
   Future<void> loadHousehold() async {
     final token = await AuthService.getToken();
@@ -57,7 +62,7 @@ class HouseholdProvider extends ChangeNotifier {
       final data = await HouseholdService.getHousehold(
         token,
         ApiService.baseUrl,
-      );
+      ).timeout(_kTimeout);
       if (data != null) {
         _household = data['household'] as Map<String, dynamic>?;
         final rawMembers = data['members'] as List?;
@@ -68,6 +73,8 @@ class HouseholdProvider extends ChangeNotifier {
         _members = [];
         _role = null;
       }
+    } on TimeoutException {
+      _error = 'ERROR_TIMEOUT';
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -94,10 +101,15 @@ class HouseholdProvider extends ChangeNotifier {
         token,
         ApiService.baseUrl,
         email,
-      );
+      ).timeout(_kTimeout);
       _pendingInviteCode = data['invitation_code'] as String?;
       await loadHousehold();
       return _pendingInviteCode;
+    } on TimeoutException {
+      _error = 'ERROR_TIMEOUT';
+      _isLoading = false;
+      notifyListeners();
+      return null;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _isLoading = false;
@@ -124,9 +136,14 @@ class HouseholdProvider extends ChangeNotifier {
         token,
         ApiService.baseUrl,
         code,
-      );
+      ).timeout(_kTimeout);
       await loadHousehold();
       return true;
+    } on TimeoutException {
+      _error = 'ERROR_TIMEOUT';
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _isLoading = false;
@@ -149,9 +166,14 @@ class HouseholdProvider extends ChangeNotifier {
         token,
         ApiService.baseUrl,
         userId,
-      );
+      ).timeout(_kTimeout);
       await loadHousehold();
       return true;
+    } on TimeoutException {
+      _error = 'ERROR_TIMEOUT';
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _isLoading = false;

@@ -148,13 +148,22 @@ class ConjointProfile {
     return base + bonus;
   }
 
-  /// Age actuel — prefers dateOfBirth (exact), falls back to birthYear.
+  /// Age actuel — prefers dateOfBirth (exact month/day), falls back to birthYear.
+  /// Aligned with CoachProfile.age to avoid inconsistencies.
   int? get age {
     if (dateOfBirth != null) {
-      return DateTime.now().difference(dateOfBirth!).inDays ~/ 365;
+      final now = DateTime.now();
+      int a = now.year - dateOfBirth!.year;
+      if (now.month < dateOfBirth!.month ||
+          (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
+        a--;
+      }
+      return a.clamp(0, 150);
     }
     if (birthYear == null) return null;
-    return DateTime.now().year - birthYear!;
+    final currentYear = DateTime.now().year;
+    if (birthYear! < 1900 || birthYear! > currentYear - 10) return null;
+    return currentYear - birthYear!;
   }
 
   /// Age de retraite effectif (custom ou 65 par defaut).
@@ -1948,7 +1957,9 @@ class CoachProfile {
   factory CoachProfile.fromWizardAnswers(Map<String, dynamic> answers) {
     // ── Identite ────────────────────────────────────────────
     final firstName = answers['q_firstname'] as String?;
-    final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
+    // CHAOS-78: Never default to 1990 — unknown birthYear stays 0
+    // (age getter returns 0 for invalid birthYear, signaling "data missing").
+    final birthYear = _parseInt(answers['q_birth_year']) ?? 0;
     final dobRaw = answers['q_date_of_birth'];
     final dateOfBirth = dobRaw is String ? DateTime.tryParse(dobRaw) : null;
     final canton = (answers['q_canton'] as String?) ?? 'ZH';
@@ -1961,8 +1972,11 @@ class CoachProfile {
                   (now.month == dateOfBirth.month && now.day < dateOfBirth.day))
               ? 1
               : 0);
-    } else {
+    } else if (birthYear >= 1900) {
       age = DateTime.now().year - birthYear;
+    } else {
+      // No birth data available — age 0 signals "data missing" to readiness gates.
+      age = 0;
     }
 
     // Civil status mapping

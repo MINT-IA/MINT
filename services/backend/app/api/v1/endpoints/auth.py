@@ -971,6 +971,7 @@ def get_current_user_info(
 @limiter.limit("5/minute")
 def delete_account(
     request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(_security_scheme),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> DeleteAccountResponse:
@@ -982,6 +983,19 @@ def delete_account(
     - Keep aggregate analytics rows by anonymizing user_id.
     """
     user_id = current_user.id
+
+    # P0-3: Blacklist the current access token BEFORE deleting user data.
+    # Prevents the token from being reused after account deletion.
+    if credentials:
+        access_payload = decode_token(credentials.credentials)
+        if access_payload and access_payload.get("jti"):
+            a_exp = access_payload.get("exp")
+            a_exp_dt = (
+                datetime.fromtimestamp(a_exp, tz=timezone.utc)
+                if a_exp
+                else datetime.now(timezone.utc)
+            )
+            blacklist_token(db, access_payload["jti"], a_exp_dt)
 
     profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
     profile_ids = [p.id for p in profiles]

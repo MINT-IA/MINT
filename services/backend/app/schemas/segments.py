@@ -51,7 +51,7 @@ class GenderGapRequest(BaseModel):
         ..., description="Current age", ge=18, le=120
     )
     revenuAnnuel: float = Field(
-        ..., description="Annual gross salary at current activity rate (CHF)", ge=0
+        ..., description="Annual gross salary at current activity rate (CHF)", ge=0, le=10_000_000
     )
     salaireCoordonne: float = Field(
         0.0,
@@ -119,7 +119,7 @@ class FrontalierRequest(BaseModel):
         ..., description="Canton of work (2-letter code)", max_length=2
     )
     revenuBrut: float = Field(
-        ..., description="Gross annual salary (CHF)", ge=0
+        ..., description="Gross annual salary (CHF)", ge=0, le=10_000_000
     )
     a3a: bool = Field(
         False, description="Currently has a 3a account"
@@ -131,7 +131,7 @@ class FrontalierRequest(BaseModel):
         EtatCivil.celibataire, description="Civil status"
     )
     nombreEnfants: int = Field(
-        0, description="Number of children", ge=0
+        0, description="Number of children", ge=0, le=20
     )
     partRevenuSuisse: float = Field(
         1.0,
@@ -171,7 +171,7 @@ class IndependantRequest(BaseModel):
     """Request for self-employed worker analysis."""
 
     revenuNet: float = Field(
-        ..., description="Annual net income from self-employment (CHF)", ge=0
+        ..., description="Annual net income from self-employment (CHF)", ge=0, le=10_000_000
     )
     age: int = Field(
         ..., description="Current age", ge=18, le=120
