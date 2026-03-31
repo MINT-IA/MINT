@@ -21,7 +21,7 @@ class ExternalDataSourceModel(Base):
     __tablename__ = "external_data_sources"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     source_type = Column(String, nullable=False)  # blink_accounts, blink_balances, caisse_pension, avs_extract
     cached_response = Column(Text, nullable=False)  # JSON string
     fetched_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))

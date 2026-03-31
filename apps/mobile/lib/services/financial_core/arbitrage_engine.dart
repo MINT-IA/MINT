@@ -1641,15 +1641,20 @@ class ArbitrageEngine {
   //  PRIVATE HELPERS — Trajectory builders
   // ════════════════════════════════════════════════════════════
 
+  /// CHAOS-NaN: Guard .reduce() against empty list crash.
   static double _terminalSpreadFromOptions(List<TrajectoireOption> options) {
+    if (options.isEmpty) return 0;
     if (options.length < 2) return 0;
-    final terminals = options.map((o) => o.terminalValue);
+    final terminals = options.map((o) => o.terminalValue).toList();
+    if (terminals.isEmpty) return 0;
     final minVal = terminals.reduce(math.min);
     final maxVal = terminals.reduce(math.max);
     return maxVal - minVal;
   }
 
+  /// CHAOS-NaN: Guard .reduce() against empty list crash.
   static double _terminalSpreadFromValues(List<double> values) {
+    if (values.isEmpty) return 0;
     if (values.length < 2) return 0;
     final minVal = values.reduce(math.min);
     final maxVal = values.reduce(math.max);

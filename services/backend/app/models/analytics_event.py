@@ -16,7 +16,7 @@ class AnalyticsEvent(Base):
     event_category = Column(String, nullable=False, index=True)  # "navigation", "engagement", "conversion", "error"
     event_data = Column(Text, nullable=True)  # JSON string with extra data
     session_id = Column(String, nullable=True, index=True)  # anonymous session UUID
-    user_id = Column(String, ForeignKey("users.id"), nullable=True, index=True)  # optional, if logged in
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)  # optional, if logged in
     screen_name = Column(String, nullable=True, index=True)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     app_version = Column(String, nullable=True)

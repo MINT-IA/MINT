@@ -45,7 +45,8 @@ router = APIRouter()
 def _request_ip(request: Request) -> Optional[str]:
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
-        return forwarded.split(",")[0].strip()
+        # Use RIGHTMOST IP — closest to the server, hardest to spoof
+        return forwarded.split(",")[-1].strip()
     return request.client.host if request.client else None
 
 

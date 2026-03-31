@@ -387,6 +387,8 @@ class RetirementTaxCalculator {
     int steps = 10,
   }) {
     if (deduction <= 0) return 0.0;
+    // CHAOS-NaN: Guard against division by zero when steps=0.
+    if (steps <= 0) return 0.0;
 
     final double stepSize = deduction / steps;
     double currentIncome = income;

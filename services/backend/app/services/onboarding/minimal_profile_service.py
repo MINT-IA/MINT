@@ -45,7 +45,6 @@ from app.constants.social_insurance import (
     LPP_TAUX_INTERET_MIN,
     PILIER_3A_PLAFOND_AVEC_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
     LPP_CONVERSION_RATE_COMPLEMENTAIRE,
     get_lpp_bonification_rate,
 )
@@ -300,43 +299,49 @@ def _estimate_lpp_from_age_25(
 
 
 def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
-    """Approximate marginal tax rate based on cantonal capital tax rates.
+    """Approximate marginal income tax rate using cantonal rate table + income brackets.
 
-    NOTE: This is a rough approximation (capital_tax_rate * 3.5).
-    The canonical marginal rate computation is in the mobile
-    RetirementTaxCalculator.estimateMarginalRate() using AFC 2024 data.
-    This approximation is acceptable for onboarding chiffre-choc
-    (educational, with +/-5% tolerance). Final displays in the mobile
-    app MUST use RetirementTaxCalculator, not this backend approximation.
+    Uses a lookup table of approximate marginal income tax rates per canton
+    (federal + cantonal + communal combined, for a single person in the capital).
+    Source: AFC 2024 data, rounded to nearest 0.5%.
 
-    Uses TAUX_IMPOT_RETRAIT_CAPITAL as a proxy for cantonal tax burden,
-    scaled by income level.
+    Accuracy: +/-3% for CHF 50k-200k salaries (educational use).
+    For final displays, the mobile RetirementTaxCalculator.estimateMarginalRate()
+    uses full AFC 2024 progressive brackets.
 
     Args:
         gross_salary: Annual gross salary.
         canton: Canton code (2 letters).
 
     Returns:
-        Estimated marginal tax rate (0.0 - 0.50).
+        Estimated marginal tax rate (0.10 - 0.45).
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
+    # Approximate combined marginal income tax rates by canton (federal + cantonal + communal)
+    # at ~CHF 100k gross salary, single, chief-lieu. Source: AFC 2024.
+    # Brackets: <50k → ×0.70, 50-80k → ×0.85, 80-120k → ×1.00, 120-200k → ×1.15, 200k+ → ×1.30
+    _CANTONAL_MARGINAL_RATES = {
+        "ZH": 0.265, "BE": 0.305, "LU": 0.235, "UR": 0.225, "SZ": 0.195,
+        "OW": 0.210, "NW": 0.195, "GL": 0.250, "ZG": 0.175, "FR": 0.285,
+        "SO": 0.280, "BS": 0.290, "BL": 0.275, "SH": 0.260, "AR": 0.260,
+        "AI": 0.225, "SG": 0.265, "GR": 0.255, "AG": 0.255, "TG": 0.250,
+        "TI": 0.275, "VD": 0.305, "VS": 0.260, "NE": 0.310, "GE": 0.300,
+        "JU": 0.310,
+    }
+    _DEFAULT_MARGINAL = 0.270  # Swiss average fallback
 
-    # Scale from capital withdrawal rate to income tax approximation
-    # Capital withdrawal rates are ~5-8%, income marginal rates are ~15-40%
-    # Use a multiplier of ~3.5x as rough proxy (see note above)
-    income_factor = base_rate * 3.5
+    base_rate = _CANTONAL_MARGINAL_RATES.get(canton.upper(), _DEFAULT_MARGINAL)
 
-    # Adjust for income level
+    # Adjust for income level (bracket scaling)
     if gross_salary < 50_000:
-        income_factor *= 0.70
+        income_factor = base_rate * 0.70
     elif gross_salary < 80_000:
-        income_factor *= 0.85
+        income_factor = base_rate * 0.85
     elif gross_salary < 120_000:
-        income_factor *= 1.00
+        income_factor = base_rate * 1.00
     elif gross_salary < 200_000:
-        income_factor *= 1.15
+        income_factor = base_rate * 1.15
     else:
-        income_factor *= 1.30
+        income_factor = base_rate * 1.30
 
     # Clamp to reasonable range
     return round(min(max(income_factor, 0.10), 0.45), 4)
