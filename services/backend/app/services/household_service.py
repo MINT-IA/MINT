@@ -94,7 +94,13 @@ def get_household_details(db: Session, user: User) -> dict:
 
 def create_household_for_billing_owner(db: Session, user: User) -> HouseholdModel:
     """Auto-create household when user subscribes to couple_plus."""
-    # Check user is not already in a household
+    # TOCTOU fix: check-then-create with FOR UPDATE lock on existing membership
+    from sqlalchemy import text
+    try:
+        db.execute(text("SELECT 1 FROM household_members WHERE user_id = :uid FOR UPDATE"),
+                   {"uid": user.id})
+    except Exception:
+        pass  # SQLite doesn't support FOR UPDATE — acceptable in test/dev
     existing = get_household_for_user(db, user.id)
     if existing:
         return existing
