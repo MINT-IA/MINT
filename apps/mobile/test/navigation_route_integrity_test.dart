@@ -13,23 +13,50 @@ void main() {
         .map((m) => m.group(1)!)
         .toSet();
 
-    // 2. Extract all STATIC context.push/context.go targets from screens
-    // Only match pure string literals (no interpolation)
-    final screenDir = Directory('lib/screens');
+    // 2. Extract all STATIC route targets from screens, widgets, services, data
+    // Scans: context.push/go, route: '/...' fields, and redirect patterns
+    final dirsToScan = [
+      Directory('lib/screens'),
+      Directory('lib/widgets'),
+      Directory('lib/services'),
+      Directory('lib/data'),
+    ];
     final pushPattern = RegExp(r"context\.(push|go)\('(/[a-z0-9\-/]+)'");
+    final routeFieldPattern = RegExp(r"route:\s*'(/[a-z0-9\-/]+)'");
     final brokenRoutes = <String>[];
 
-    for (final file in screenDir.listSync(recursive: true)) {
-      if (file is! File || !file.path.endsWith('.dart')) continue;
-      final content = file.readAsStringSync();
-      for (final match in pushPattern.allMatches(content)) {
-        final route = match.group(2)!;
-        final basePath = route.split('?').first;
-        // Match: exact, or parent path (child routes like /profile/byok)
-        final hasMatch = definedRoutes.contains(basePath) ||
-            definedRoutes.any((r) => basePath.startsWith('$r/'));
-        if (!hasMatch) {
-          brokenRoutes.add('${file.path.split('lib/').last}: $route');
+    for (final dir in dirsToScan) {
+      if (!dir.existsSync()) continue;
+      for (final file in dir.listSync(recursive: true)) {
+        if (file is! File || !file.path.endsWith('.dart')) continue;
+        final content = file.readAsStringSync();
+        // Check context.push/go patterns
+        final contentLines = content.split('\n');
+        for (final match in pushPattern.allMatches(content)) {
+          // Skip matches inside comments
+          final lineIdx = content.substring(0, match.start).split('\n').length - 1;
+          if (lineIdx < contentLines.length && contentLines[lineIdx].trimLeft().startsWith('//')) continue;
+          final route = match.group(2)!;
+          final basePath = route.split('?').first;
+          final hasMatch = definedRoutes.contains(basePath) ||
+              definedRoutes.any((r) => basePath.startsWith('$r/'));
+          if (!hasMatch) {
+            brokenRoutes.add('${file.path.split('lib/').last}: $route');
+          }
+        }
+        // Check route: '/...' field patterns (e.g. in cap_engine, screen_registry)
+        final lines = content.split('\n');
+        for (final match in routeFieldPattern.allMatches(content)) {
+          // Skip matches inside comments
+          final lineIdx = content.substring(0, match.start).split('\n').length - 1;
+          if (lineIdx < lines.length && lines[lineIdx].trimLeft().startsWith('//')) continue;
+          final route = match.group(1)!;
+          final basePath = route.split('?').first;
+          final hasMatch = definedRoutes.contains(basePath) ||
+              definedRoutes.any((r) => basePath.startsWith('$r/'));
+          if (!hasMatch) {
+            brokenRoutes.add('${file.path.split('lib/').last}: $route (field)');
+          }
         }
       }
     }

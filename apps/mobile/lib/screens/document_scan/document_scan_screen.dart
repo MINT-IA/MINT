@@ -516,12 +516,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   /// Try Claude Vision extraction via backend API.
   /// Returns ExtractionResult if successful, null otherwise.
   Future<ExtractionResult?> _tryVisionExtraction(XFile file) async {
+    // Read canton BEFORE async gap to avoid BuildContext across await
+    final canton = Provider.of<CoachProfileProvider>(context, listen: false)
+        .profile?.canton;
     try {
       final bytes = await file.readAsBytes();
       final base64Image = base64Encode(bytes);
-
-      final canton = Provider.of<CoachProfileProvider>(context, listen: false)
-          .profile?.canton;
 
       final response = await DocumentService.extractWithVision(
         imageBase64: base64Image,

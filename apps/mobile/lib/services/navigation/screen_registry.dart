@@ -1324,7 +1324,7 @@ class MintScreenRegistry extends ScreenRegistry {
   );
 
   static const ScreenEntry _coachWeeklyRecap = ScreenEntry(
-    route: '/coach/weekly-recap',
+    route: '/weekly-recap',
     intentTag: 'coach_weekly_recap',
     behavior: ScreenBehavior.conversationPure,
     requiredFields: [],

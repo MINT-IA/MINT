@@ -719,7 +719,7 @@ class CapEngine {
           headline: l.capLeSelfEmploymentHeadline,
           whyNow: l.capLeSelfEmploymentWhyNow,
           ctaLabel: l.capLeSelfEmploymentCtaLabel,
-          route: '/independant',
+          route: '/segments/independant',
         ),
       'retirement' => _LifeEventMapping(
           headline: l.capLeRetirementHeadline,
@@ -737,19 +737,19 @@ class CapEngine {
           headline: l.capLeDeathOfRelativeHeadline,
           whyNow: l.capLeDeathOfRelativeWhyNow,
           ctaLabel: l.capLeDeathOfRelativeCtaLabel,
-          route: '/deces-proche',
+          route: '/life-event/deces-proche',
         ),
       'newJob' => _LifeEventMapping(
           headline: l.capLeNewJobHeadline,
           whyNow: l.capLeNewJobWhyNow,
           ctaLabel: l.capLeNewJobCtaLabel,
-          route: '/job-comparison',
+          route: '/simulator/job-comparison',
         ),
       'housingSale' => _LifeEventMapping(
           headline: l.capLeHousingSaleHeadline,
           whyNow: l.capLeHousingSaleWhyNow,
           ctaLabel: l.capLeHousingSaleCtaLabel,
-          route: '/housing-sale',
+          route: '/life-event/housing-sale',
         ),
       'inheritance' => _LifeEventMapping(
           headline: l.capLeInheritanceHeadline,
@@ -761,7 +761,7 @@ class CapEngine {
           headline: l.capLeDonationHeadline,
           whyNow: l.capLeDonationWhyNow,
           ctaLabel: l.capLeDonationCtaLabel,
-          route: '/donation',
+          route: '/life-event/donation',
         ),
       'disability' => _LifeEventMapping(
           headline: l.capLeDisabilityHeadline,
@@ -773,13 +773,13 @@ class CapEngine {
           headline: l.capLeCantonMoveHeadline,
           whyNow: l.capLeCantonMoveWhyNow,
           ctaLabel: l.capLeCantonMoveCtaLabel,
-          route: '/demenagement-cantonal',
+          route: '/life-event/demenagement-cantonal',
         ),
       'countryMove' => _LifeEventMapping(
           headline: l.capLeCountryMoveHeadline,
           whyNow: l.capLeCountryMoveWhyNow,
           ctaLabel: l.capLeCountryMoveCtaLabel,
-          route: '/expat',
+          route: '/expatriation',
         ),
       'debtCrisis' => _LifeEventMapping(
           headline: l.capLeDebtCrisisHeadline,

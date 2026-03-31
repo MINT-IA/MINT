@@ -89,7 +89,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
     if (!_hasUserInteracted) {
       final screenReturn = ScreenReturn.abandoned(
-        route: '/premier-emploi',
+        route: '/first-job',
         runId: _seqRunId,
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
@@ -99,7 +99,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     }
 
     final screenReturn = ScreenReturn.completed(
-      route: '/premier-emploi',
+      route: '/first-job',
       stepOutputs: {},
       runId: _seqRunId,
       stepId: _seqStepId,

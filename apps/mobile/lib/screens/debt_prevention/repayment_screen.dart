@@ -59,7 +59,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
     if (!_hasUserInteracted) {
       final screenReturn = ScreenReturn.abandoned(
-        route: '/dette-remboursement',
+        route: '/debt/repayment',
         runId: _seqRunId,
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
@@ -70,7 +70,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
     final result = _result;
     final screenReturn = ScreenReturn.completed(
-      route: '/dette-remboursement',
+      route: '/debt/repayment',
       stepOutputs: {
         'horizon_mois': result?.avalanche.moisJusquaLiberation ?? 0,
         'versement_mensuel': _budgetMensuel,
