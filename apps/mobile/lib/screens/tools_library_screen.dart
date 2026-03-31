@@ -412,13 +412,14 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
       title: s.toolsCatBankDocs,
       color: MintColors.categoryBlue,
       tools: [
-        _ToolItem(
-          icon: Icons.account_balance,
-          title: s.toolsOpenBanking,
-          subtitle: s.toolsOpenBankingDesc,
-          route: '/open-banking',
-          color: MintColors.teal,
-        ),
+        if (FeatureFlags.enableOpenBanking)
+          _ToolItem(
+            icon: Icons.account_balance,
+            title: s.toolsOpenBanking,
+            subtitle: s.toolsOpenBankingDesc,
+            route: '/open-banking',
+            color: MintColors.teal,
+          ),
         _ToolItem(
           icon: Icons.upload_file,
           title: s.toolsBankImport,

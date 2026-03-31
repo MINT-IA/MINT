@@ -410,9 +410,10 @@ void main() {
     });
 
     test('21. trend detection across 3 consecutive days', () async {
-      final now = DateTime.now();
-      final day1 = now.subtract(const Duration(days: 2));
-      final day2 = now.subtract(const Duration(days: 1));
+      // Use fixed dates to avoid freshness decay drift
+      final day3 = DateTime(2026, 3, 15);
+      final day1 = day3.subtract(const Duration(days: 2));
+      final day2 = day3.subtract(const Duration(days: 1));
 
       // Day 1: score 50
       final prefs1 = await _seedHistory([
@@ -432,7 +433,7 @@ void main() {
       ]);
       final service2 = FinancialHealthScoreService(prefs2);
       final fri45 = _makeFri(l: 10, f: 10, r: 15, s: 10); // total 45
-      final fhsDay3 = await service2.computeDailyAt(fri45, now);
+      final fhsDay3 = await service2.computeDailyAt(fri45, day3);
       // Day 3 vs Day 2: delta = 45-60 = -15 → down
       expect(fhsDay3.trend, FhsTrend.down);
       expect(fhsDay3.deltaVsYesterday, closeTo(-15.0, 0.1));
