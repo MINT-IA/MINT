@@ -553,10 +553,21 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       };
     }).toList();
     DocumentService.sendScanConfirmation(
-      documentType: widget.result.documentType.name,
+      documentType: widget.result.documentType.backendValue,
       confirmedFields: syncFields,
       overallConfidence: _overallConfidence,
-    ).catchError((_) => null); // Fire-and-forget
+    ).catchError((e) {
+      // Warn user that server sync failed — data saved locally only
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sauvegarde locale uniquement — synchronisation serveur en attente'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+      return null;
+    });
 
     if (!mounted) return;
 

@@ -182,11 +182,10 @@ class _ActionCard extends StatelessWidget {
     final l = S.of(context)!;
 
     return Semantics(
-      button: true,
       label: tip.title,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
         child: MintSurface(
           padding: const EdgeInsets.all(20),
           radius: 16,

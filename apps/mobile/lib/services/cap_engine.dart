@@ -1017,7 +1017,7 @@ class CapEngine {
                 : 0.4,
         confidencePenalty: _confPenalty(confidenceScore),
         readiness: 1.0,
-        recency: _recencyModifier(card.id, memory, now),
+        recency: _recencyModifier('rc_${card.id}', memory, now),
       ),
       headline: card.title,
       whyNow: card.subtitle,

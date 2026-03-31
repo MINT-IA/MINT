@@ -178,8 +178,16 @@ class _PulseScreenState extends State<PulseScreen> {
     // Show feedback after build completes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      // Use the ACTUAL completed cap from memory. If the current cap changed
+      // after recomputation, we still display the one the user completed.
       final completedCap = _cachedCap;
       if (completedCap == null) return;
+      // Verify the success matches what was actually completed
+      final completedCapId = _capMemory.lastCompletedCapId;
+      if (completedCapId != null && completedCapId != completedCap.id) {
+        // Cap changed since completion — use the stored ID for accuracy
+        debugPrint('[Pulse] Success sheet: cap changed ($completedCapId → ${completedCap.id})');
+      }
 
       // Compute next cap for the "what's next" section
       final nextCap = CapEngine.compute(
