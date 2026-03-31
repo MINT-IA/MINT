@@ -1423,6 +1423,7 @@ class CoachProfile {
 
   /// Age actuel — précis au jour si dateOfBirth est disponible,
   /// sinon fallback sur birthYear (précision ±1 an).
+  /// CHAOS-3: Guard against invalid birthYear (e.g. 2100) producing negative age.
   int get age {
     if (dateOfBirth != null) {
       final now = DateTime.now();
@@ -1431,9 +1432,15 @@ class CoachProfile {
           (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
         a--;
       }
-      return a;
+      return a.clamp(0, 150);
     }
-    return DateTime.now().year - birthYear;
+    final currentYear = DateTime.now().year;
+    if (birthYear < 1900 || birthYear > currentYear - 10) {
+      // Invalid birthYear — return 0 to signal "data not available".
+      // Readiness gates use age==0 as "blocked/missing".
+      return 0;
+    }
+    return currentYear - birthYear;
   }
 
   /// Age de retraite effectif (custom ou 65 par defaut).
@@ -2140,7 +2147,7 @@ class CoachProfile {
         case 'yes_6months':
           epargneLiquide = estimatedMonthlyExpenses * 6;
         case 'yes_3months':
-          epargneLiquide = estimatedMonthlyExpenses * 4.5;
+          epargneLiquide = estimatedMonthlyExpenses * 3.0;
         case 'no':
           epargneLiquide = savingsMonthly * 1;
         default:

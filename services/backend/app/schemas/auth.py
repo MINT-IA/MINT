@@ -4,27 +4,20 @@ Authentication schemas for user registration, login, and tokens.
 
 from datetime import datetime
 from typing import Optional, Literal
-from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserRegister(BaseModel):
     """Schema for user registration."""
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=8, max_length=256)
     display_name: Optional[str] = None
-
-    @field_validator('password')
-    @classmethod
-    def validate_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError('Le mot de passe doit contenir au moins 8 caractères')
-        return v
 
 
 class UserLogin(BaseModel):
     """Schema for user login."""
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=1, max_length=256)
 
 
 class RefreshTokenRequest(BaseModel):
@@ -40,14 +33,7 @@ class PasswordResetRequest(BaseModel):
 class PasswordResetConfirmRequest(BaseModel):
     """Schema for password reset confirmation."""
     token: str
-    new_password: str
-
-    @field_validator('new_password')
-    @classmethod
-    def validate_new_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError('Le mot de passe doit contenir au moins 8 caractères')
-        return v
+    new_password: str = Field(..., min_length=8, max_length=256)
 
 
 class PasswordResetRequestResponse(BaseModel):

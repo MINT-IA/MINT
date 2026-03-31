@@ -124,7 +124,8 @@ def override_cooldown(
             detail="Role support_admin requis",
         )
 
-    ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or (
+    # Use RIGHTMOST IP — closest to the server, hardest to spoof
+    ip = request.headers.get("x-forwarded-for", "").split(",")[-1].strip() or (
         request.client.host if request.client else None
     )
     result = admin_override_cooldown(

@@ -82,6 +82,20 @@ class ApiService {
   /// P1-7: Global HTTP timeout for all API calls.
   static const Duration _httpTimeout = Duration(seconds: 30);
 
+  /// CHAOS-4: Safe JSON decode — Railway can return HTML error pages
+  /// that crash jsonDecode. Wraps in try-catch with ApiException.
+  static dynamic _safeJsonDecode(String body, {int? statusCode}) {
+    try {
+      return jsonDecode(body);
+    } on FormatException {
+      throw ApiException(
+        'Invalid server response',
+        statusCode: statusCode,
+        errorCode: ApiErrorCode.serverError,
+      );
+    }
+  }
+
   static const String _definedApiBaseUrl =
       String.fromEnvironment('API_BASE_URL');
 
@@ -192,7 +206,7 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = _safeJsonDecode(response.body, statusCode: response.statusCode);
         // FIX-087: null-safe field extraction — backend may omit fields.
         final token = data['access_token'] as String?;
         final userId = data['user_id'] as String?;
@@ -229,7 +243,7 @@ class ApiService {
       }
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return _safeJsonDecode(response.body, statusCode: response.statusCode);
       } else if (response.statusCode == 401) {
         // FIX-048: After refresh failure + still 401, clear auth state.
         // User must re-login. Don't leave stale token in secure storage.
@@ -291,7 +305,7 @@ class ApiService {
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body);
+        return _safeJsonDecode(response.body, statusCode: response.statusCode);
       } else {
         throw Exception('POST $endpoint failed: ${response.body}');
       }
@@ -320,7 +334,7 @@ class ApiService {
       }
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return _safeJsonDecode(response.body, statusCode: response.statusCode);
       } else {
         throw Exception('PUT $endpoint failed: ${response.body}');
       }
@@ -387,7 +401,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(response.body, fallback: 'Registration failed'),
@@ -411,7 +425,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(response.body, fallback: 'Login failed'),
@@ -428,7 +442,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     } else {
       throw Exception('Failed to get user info: ${response.body}');
     }
@@ -456,7 +470,7 @@ class ApiService {
       body: jsonEncode({'email': email}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -477,7 +491,7 @@ class ApiService {
       body: jsonEncode({'token': token, 'new_password': newPassword}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -497,7 +511,7 @@ class ApiService {
       body: jsonEncode({'email': email}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -517,7 +531,7 @@ class ApiService {
       body: jsonEncode({'token': token}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -1055,7 +1069,7 @@ class ApiService {
       }),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(response.body, fallback: 'Local data sync failed'),
@@ -1087,7 +1101,7 @@ class ApiService {
       }),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -1146,7 +1160,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return Profile.fromJson(jsonDecode(response.body));
+      return Profile.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
       throw Exception('Failed to create profile: ${response.body}');
     }
@@ -1171,7 +1185,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return Session.fromJson(jsonDecode(response.body));
+      return Session.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
       throw Exception('Failed to create session: ${response.body}');
     }
@@ -1185,7 +1199,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return SessionReport.fromJson(jsonDecode(response.body));
+      return SessionReport.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
       throw Exception('Failed to get session report: ${response.body}');
     }

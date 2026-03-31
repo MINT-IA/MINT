@@ -137,6 +137,16 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   DateTime? _proactiveGreetingShownAt;
   final List<ChatMessage> _messages = [];
 
+  /// CHAOS-8: Maximum number of messages to retain in memory.
+  static const int _maxMessages = 500;
+
+  /// CHAOS-8: Prune messages to prevent unbounded memory growth.
+  void _pruneMessages() {
+    if (_messages.length > _maxMessages) {
+      _messages.removeRange(0, _messages.length - _maxMessages);
+    }
+  }
+
   // ── Greeting narrative canvas ──────────────────────────────
   /// When true, the greeting is shown as a narrative card above the list.
   /// Becomes false on first user send, collapsing into a normal bubble.
@@ -978,6 +988,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         content: text.trim(),
         timestamp: DateTime.now(),
       ));
+      _pruneMessages(); // CHAOS-8: cap at 500 messages
       _isLoading = true;
     });
     _controller.clear();
@@ -1290,6 +1301,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           tier: tier,
           routePayload: resolvedPayload,
         ));
+        _pruneMessages(); // CHAOS-8: cap at 500 messages
         _isLoading = false;
       });
       _scrollToBottom();

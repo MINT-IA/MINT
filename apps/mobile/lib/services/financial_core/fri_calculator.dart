@@ -134,9 +134,10 @@ class FriCalculator {
   // ═══════════════════════════════════════════════════════════════
 
   /// Non-linear (sqrt): first months of emergency fund matter most.
+  /// CHAOS-NaN: Guard against negative liquidAssets producing NaN via sqrt.
   static double computeLiquidity(FriInput inp) {
     final costs = inp.monthlyFixedCosts < 1 ? 1.0 : inp.monthlyFixedCosts;
-    final monthsCover = inp.liquidAssets / costs;
+    final monthsCover = (inp.liquidAssets / costs).clamp(0, double.infinity);
 
     var l = 25.0 * min(1.0, sqrt(monthsCover / 6.0));
 
@@ -221,6 +222,12 @@ class FriCalculator {
   // Full FRI computation
   // ═══════════════════════════════════════════════════════════════
 
+  /// CHAOS-NaN: Safe rounding that returns 0.0 for NaN/Infinity.
+  static double _safeRound(double value) {
+    if (value.isNaN || value.isInfinite) return 0.0;
+    return double.parse(value.toStringAsFixed(2));
+  }
+
   /// Compute full FRI breakdown.
   static FriBreakdown compute(FriInput inp, {double confidenceScore = 0}) {
     final l = computeLiquidity(inp);
@@ -229,11 +236,11 @@ class FriCalculator {
     final s = computeStructuralRisk(inp);
 
     return FriBreakdown(
-      liquidite: double.parse(l.toStringAsFixed(2)),
-      fiscalite: double.parse(f.toStringAsFixed(2)),
-      retraite: double.parse(r.toStringAsFixed(2)),
-      risque: double.parse(s.toStringAsFixed(2)),
-      total: double.parse((l + f + r + s).toStringAsFixed(2)),
+      liquidite: _safeRound(l),
+      fiscalite: _safeRound(f),
+      retraite: _safeRound(r),
+      risque: _safeRound(s),
+      total: _safeRound(l + f + r + s),
       computedAt: DateTime.now(),
       confidenceScore: confidenceScore,
     );

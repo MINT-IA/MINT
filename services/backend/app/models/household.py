@@ -23,10 +23,10 @@ class HouseholdModel(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
     household_owner_user_id = Column(
-        String, ForeignKey("users.id"), nullable=False, index=True
+        String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     billing_owner_user_id = Column(
-        String, ForeignKey("users.id"), nullable=False, index=True
+        String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
@@ -57,7 +57,7 @@ class HouseholdMemberModel(Base):
     household_id = Column(
         String, ForeignKey("households.id"), nullable=False, index=True
     )
-    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     role = Column(String, nullable=False, default="owner")
     status = Column(String, nullable=False, default="pending")
     invitation_code = Column(String, nullable=True, unique=True, index=True)
@@ -74,7 +74,7 @@ class AdminAuditEventModel(Base):
     __tablename__ = "admin_audit_events"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    admin_user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    admin_user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     action = Column(String, nullable=False, index=True)
     target_user_id = Column(String, nullable=False, index=True)
     reason = Column(Text, nullable=False)  # min 10 chars enforced at service level

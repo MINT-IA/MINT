@@ -21,7 +21,7 @@ class BankingConsentModel(Base):
     __tablename__ = "banking_consents"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     bank_id = Column(String, nullable=False)  # e.g. "ubs", "postfinance"
     bank_name = Column(String, nullable=False)
     scopes = Column(Text, nullable=False)  # JSON array: ["accounts", "balances", "transactions"]

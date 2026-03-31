@@ -26,7 +26,7 @@ class SubscriptionModel(Base):
     )
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     tier = Column(String, nullable=False, default="free")  # free | coach
     status = Column(
         String, nullable=False, default="inactive"
@@ -60,7 +60,7 @@ class EntitlementModel(Base):
     )
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     subscription_id = Column(
         String, ForeignKey("subscriptions.id"), nullable=True, index=True
     )
