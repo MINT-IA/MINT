@@ -410,12 +410,15 @@ class CoachProfileProvider extends ChangeNotifier {
     /// When 'G', archetype is forced to cross_border.
     String? permitType,
   }) {
+    // P0-9: Clamp salary to valid bounds before any computation.
+    final clampedGrossSalary = grossSalary.clamp(0, 10000000).toDouble();
+
     // Convert gross annual → net monthly
     // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
     // fromWizardAnswers() reconvertit net → brut via / (1 - 0.13),
     // ce qui préserve le salaire brut original.
     const double socialChargesRate = 0.13;
-    final netMonthly = (grossSalary / 12) * (1 - socialChargesRate);
+    final netMonthly = (clampedGrossSalary / 12) * (1 - socialChargesRate);
     final birthYear = DateTime.now().year - age;
     final effectiveEmployment = employmentStatus ?? 'salarie';
 
@@ -448,7 +451,7 @@ class CoachProfileProvider extends ChangeNotifier {
     // so the aperçu financier shows realistic values instead of zeros.
     final minimal = MinimalProfileService.compute(
       age: age,
-      grossSalary: grossSalary,
+      grossSalary: clampedGrossSalary,
       canton: canton,
     );
 
@@ -476,12 +479,12 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_canton': canton,
       'q_net_income_period_chf': netMonthly,
       // Store gross annual directly to avoid net→gross roundtrip imprecision.
-      'q_gross_salary_annual': grossSalary,
+      'q_gross_salary_annual': clampedGrossSalary,
       // Use actual employment status — independant may not have LPP
       'q_employment_status': effectiveEmployment,
       // LPP access: salary > seuil AND salarié (LPP art. 7 — indépendants: opt.)
       'q_has_pension_fund':
-          grossSalary >= 22680 && effectiveEmployment != 'independant',
+          clampedGrossSalary >= 22680 && effectiveEmployment != 'independant',
       // AVS years estimated from age and situation (LAVS art. 29)
       'q_avs_contribution_years': avsContributionYears,
       // P2-15: Flag when AVS years were clamped to [0,44] so UI can warn user.
@@ -572,7 +575,9 @@ class CoachProfileProvider extends ChangeNotifier {
     // Only create if we have at least one meaningful field from backend
     if (birthYear == null && canton == null && grossYearly == null) return;
 
-    final salaireBrutMensuel = grossYearly != null ? grossYearly / 12 : 0.0;
+    // P0-9: Clamp remote salary to valid bounds.
+    final clampedGrossYearly = grossYearly?.clamp(0, 10000000).toDouble();
+    final salaireBrutMensuel = clampedGrossYearly != null ? clampedGrossYearly / 12 : 0.0;
     final effectiveBirthYear = birthYear ?? (DateTime.now().year - 40);
 
     _profile = CoachProfile(
@@ -665,7 +670,9 @@ class CoachProfileProvider extends ChangeNotifier {
         lastCapServed: null,
         lastCapDate: null,
       ));
-    }).catchError((_) {});
+    }).catchError((Object e) {
+      debugPrint('[CoachProfileProvider] CapMemory invalidation failed: $e');
+    });
     // FIX-097: If civil status changed to non-coupled, dissolve household.
     if (previousStatus != null &&
         previousStatus != updated.etatCivil &&

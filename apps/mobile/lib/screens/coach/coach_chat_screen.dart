@@ -237,6 +237,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   /// Milestone pulse: one-shot controller for completion celebrations.
   AnimationController? _milestonePulseController;
+  void Function(AnimationStatus)? _milestonePulseListener;
   bool _milestonePulsing = false;
 
   // ── Write-tool confirmation guards (V3 audit) ──────────────
@@ -412,6 +413,9 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     _focusNode.dispose();
     _voiceService.dispose();
     _canvasAnimController.dispose();
+    if (_milestonePulseListener != null && _milestonePulseController != null) {
+      _milestonePulseController!.removeStatusListener(_milestonePulseListener!);
+    }
     _milestonePulseController?.dispose();
     super.dispose();
   }
@@ -2583,6 +2587,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (_milestonePulsing) return;
     _milestonePulsing = true;
 
+    // Remove previous listener before disposing to avoid leaks.
+    if (_milestonePulseListener != null && _milestonePulseController != null) {
+      _milestonePulseController!.removeStatusListener(_milestonePulseListener!);
+    }
     _milestonePulseController?.dispose();
     _milestonePulseController = AnimationController(
       vsync: this,
@@ -2605,7 +2613,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     ));
     _canvasAnimController.forward();
 
-    _milestonePulseController!.addStatusListener((status) {
+    _milestonePulseListener = (status) {
       if (status == AnimationStatus.completed && mounted) {
         _canvasColorBegin = MintColors.saugeClaire.withValues(alpha: 0.10);
         _canvasColorEnd = returnColor;
@@ -2622,7 +2630,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         _canvasAnimController.forward();
         _milestonePulsing = false;
       }
-    });
+    };
+    _milestonePulseController!.addStatusListener(_milestonePulseListener!);
     _milestonePulseController!.forward();
   }
 

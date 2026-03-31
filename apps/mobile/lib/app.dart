@@ -188,20 +188,24 @@ final _router = GoRouter(
     final auth = context.read<AuthProvider>();
     final isLoggedIn = auth.isLoggedIn;
 
-    // Routes that REQUIRE auth (data-writing operations)
-    const protectedPrefixes = [
-      '/scan',        // document scanning
-      '/coach/chat',  // AI coach (token consumption)
-      '/couple',      // household/couple features
-      '/profile/byok', // API key management
-      '/bank-import', // bank statement import
+    // ── P0-1 to P0-6: Global auth guard ──
+    // ALL routes require authentication EXCEPT explicit public routes.
+    // This prevents unauthenticated access to /home, /documents, /profile,
+    // /portfolio, /rapport, /confidence, /timeline, and all other app screens.
+    const publicPrefixes = [
+      '/',             // landing
+      '/auth/',        // login, register, forgot-password, verify-email
+      '/onboarding/',  // quick-start, chiffre-choc (pre-auth flow)
+    ];
+    const publicExact = [
+      '/',
     ];
 
-    // Check if current path is protected
-    final isProtected = protectedPrefixes.any((p) => path.startsWith(p));
+    final isPublic = publicExact.contains(path) ||
+        publicPrefixes.any((p) => p != '/' && path.startsWith(p));
 
-    // If protected and not logged in, redirect to register with return URL
-    if (isProtected && !isLoggedIn) {
+    // If NOT public and not logged in, redirect to register with return URL
+    if (!isPublic && !isLoggedIn) {
       // P0-2: Validate redirect path — must start with / and NOT with //
       // to prevent open-redirect / phishing via crafted URLs.
       final safePath = (path.startsWith('/') && !path.startsWith('//')) ? path : '/';

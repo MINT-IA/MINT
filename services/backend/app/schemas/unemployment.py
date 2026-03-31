@@ -253,7 +253,7 @@ class FirstJobRequest(BaseModel):
     )
 
     salaire_brut_mensuel: float = Field(
-        ..., description="Salaire brut mensuel (CHF)", ge=0
+        ..., description="Salaire brut mensuel (CHF)", ge=0, le=10_000_000
     )
     canton: str = Field(
         "ZH", description="Code canton (ex: ZH, VD, GE)", min_length=2, max_length=2

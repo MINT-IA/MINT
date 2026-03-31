@@ -332,7 +332,8 @@ void main() {
         'q_net_income_period_chf': 5000,
       };
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.birthYear, 1990);
+      // CHAOS-78: birthYear no longer defaults to 1990 — stays 0 if unknown
+      expect(profile.birthYear, 0);
       expect(profile.canton, 'ZH');
       expect(profile.salaireBrutMensuel, greaterThan(0));
       expect(profile.goalA.type, GoalAType.retraite);

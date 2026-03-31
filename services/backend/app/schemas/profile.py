@@ -25,11 +25,11 @@ class ProfileBase(BaseModel):
     dateOfBirth: Optional[str] = None  # ISO 8601 date string (e.g. "1981-06-15")
     canton: Optional[str] = None
     householdType: HouseholdType
-    incomeNetMonthly: Optional[float] = None
-    incomeGrossYearly: Optional[float] = None
-    savingsMonthly: Optional[float] = None
-    totalSavings: Optional[float] = None
-    lppInsuredSalary: Optional[float] = None
+    incomeNetMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
+    incomeGrossYearly: Optional[float] = Field(None, ge=0, le=10_000_000)
+    savingsMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
+    totalSavings: Optional[float] = Field(None, ge=0, le=10_000_000)
+    lppInsuredSalary: Optional[float] = Field(None, ge=0, le=10_000_000)
     hasDebt: bool = False
     goal: Goal = Goal.other
     factfindCompletionIndex: float = 0.0
@@ -38,7 +38,7 @@ class ProfileBase(BaseModel):
     employmentStatus: Optional[str] = None
     has2ndPillar: Optional[bool] = None
     legalForm: Optional[str] = None
-    selfEmployedNetIncome: Optional[float] = None
+    selfEmployedNetIncome: Optional[float] = Field(None, ge=0, le=10_000_000)
     hasVoluntaryLpp: Optional[bool] = None
     primaryActivity: Optional[str] = None
 
@@ -47,14 +47,14 @@ class ProfileBase(BaseModel):
 
     # ⭐ Nouveaux champs pour AVS
     hasAvsGaps: Optional[bool] = None
-    avsContributionYears: Optional[int] = None
-    spouseAvsContributionYears: Optional[int] = None
+    avsContributionYears: Optional[int] = Field(None, ge=0, le=44)
+    spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=44)
 
     # ⭐ Nouveaux champs pour modèle fiscal MVP (Chantier 1)
     commune: Optional[str] = None  # NPA ou nom commune → multiplicateur précis
     isChurchMember: bool = False  # Impôt ecclésiastique
-    pillar3aAnnual: Optional[float] = None  # Versement annuel 3a → déduction fiscale
-    wealthEstimate: Optional[float] = None  # Fortune nette estimée → impôt sur la fortune
+    pillar3aAnnual: Optional[float] = Field(None, ge=0, le=36_288)  # Max indépendant sans LPP
+    wealthEstimate: Optional[float] = Field(None, ge=0, le=1_000_000_000)
 
 
 class ProfileCreate(ProfileBase):
@@ -88,20 +88,20 @@ class ProfileUpdate(BaseModel):
     )
     has2ndPillar: Optional[bool] = None
     legalForm: Optional[str] = None
-    selfEmployedNetIncome: Optional[float] = None
+    selfEmployedNetIncome: Optional[float] = Field(None, ge=0, le=10_000_000)
     hasVoluntaryLpp: Optional[bool] = None
     primaryActivity: Optional[str] = None
     hasAvsGaps: Optional[bool] = None
-    avsContributionYears: Optional[int] = None
-    spouseAvsContributionYears: Optional[int] = None
+    avsContributionYears: Optional[int] = Field(None, ge=0, le=44)
+    spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=44)
     # FIX-114: Couple financial fields for household calculations
     spouseSalaryGrossAnnual: Optional[float] = Field(None, ge=0)
     spouseEmploymentStatus: Optional[str] = None
     householdGrossIncome: Optional[float] = Field(None, ge=0)
     commune: Optional[str] = None
     isChurchMember: Optional[bool] = None
-    pillar3aAnnual: Optional[float] = None
-    wealthEstimate: Optional[float] = None
+    pillar3aAnnual: Optional[float] = Field(None, ge=0, le=36_288)
+    wealthEstimate: Optional[float] = Field(None, ge=0, le=1_000_000_000)
 
 
 class Profile(ProfileBase):

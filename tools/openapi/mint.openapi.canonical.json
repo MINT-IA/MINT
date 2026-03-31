@@ -423,7 +423,7 @@
                 "type": "null"
               }
             ],
-            "description": "Rendement marche libre (defaut: 4%)",
+            "description": "Rendement marche libre (scenario par defaut: 4%)",
             "title": "Rendementmarche"
           },
           "tauxHypothecaire": {
@@ -8344,6 +8344,7 @@
           },
           "salaireBrutMensuel": {
             "description": "Salaire brut mensuel (CHF)",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Salairebrutmensuel",
             "type": "number"
@@ -8997,6 +8998,7 @@
           "nombreEnfants": {
             "default": 0,
             "description": "Number of children",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "type": "integer"
@@ -9020,6 +9022,7 @@
           },
           "revenuBrut": {
             "description": "Gross annual salary (CHF)",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenubrut",
             "type": "number"
@@ -9196,6 +9199,7 @@
           },
           "revenuAnnuel": {
             "description": "Annual gross salary at current activity rate (CHF)",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenuannuel",
             "type": "number"
@@ -10179,6 +10183,7 @@
           },
           "revenuNet": {
             "description": "Annual net income from self-employment (CHF)",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenunet",
             "type": "number"
@@ -11301,7 +11306,7 @@
                 "type": "null"
               }
             ],
-            "description": "Rendement marche si location + investissement (defaut: 4%)",
+            "description": "Rendement marche si location + investissement (scenario par defaut: 4%)",
             "title": "Rendementmarche"
           },
           "tauxEntretien": {
@@ -11987,6 +11992,7 @@
           },
           "grossSalary": {
             "description": "Salaire brut annuel en CHF",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Grosssalary",
             "type": "number"
@@ -13177,6 +13183,8 @@
         "description": "Schema for password reset confirmation.",
         "properties": {
           "new_password": {
+            "maxLength": 256,
+            "minLength": 8,
             "title": "New Password",
             "type": "string"
           },
@@ -13584,6 +13592,8 @@
           "avsContributionYears": {
             "anyOf": [
               {
+                "maximum": 44.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -13721,6 +13731,8 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13732,6 +13744,8 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13759,6 +13773,8 @@
           "lppInsuredSalary": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13770,6 +13786,8 @@
           "pillar3aAnnual": {
             "anyOf": [
               {
+                "maximum": 36288.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13792,6 +13810,8 @@
           "savingsMonthly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13803,6 +13823,8 @@
           "selfEmployedNetIncome": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13814,6 +13836,8 @@
           "spouseAvsContributionYears": {
             "anyOf": [
               {
+                "maximum": 44.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -13825,6 +13849,8 @@
           "totalSavings": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13836,6 +13862,8 @@
           "wealthEstimate": {
             "anyOf": [
               {
+                "maximum": 1000000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -13928,6 +13956,8 @@
           "avsContributionYears": {
             "anyOf": [
               {
+                "maximum": 44.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -14055,6 +14085,8 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14066,6 +14098,8 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14093,6 +14127,8 @@
           "lppInsuredSalary": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14104,6 +14140,8 @@
           "pillar3aAnnual": {
             "anyOf": [
               {
+                "maximum": 36288.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14126,6 +14164,8 @@
           "savingsMonthly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14137,6 +14177,8 @@
           "selfEmployedNetIncome": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14148,6 +14190,8 @@
           "spouseAvsContributionYears": {
             "anyOf": [
               {
+                "maximum": 44.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -14159,6 +14203,8 @@
           "totalSavings": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14170,6 +14216,8 @@
           "wealthEstimate": {
             "anyOf": [
               {
+                "maximum": 1000000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14190,6 +14238,8 @@
           "avsContributionYears": {
             "anyOf": [
               {
+                "maximum": 44.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -14416,6 +14466,8 @@
           "pillar3aAnnual": {
             "anyOf": [
               {
+                "maximum": 36288.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14449,6 +14501,8 @@
           "selfEmployedNetIncome": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -14460,6 +14514,8 @@
           "spouseAvsContributionYears": {
             "anyOf": [
               {
+                "maximum": 44.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -14505,6 +14561,8 @@
           "wealthEstimate": {
             "anyOf": [
               {
+                "maximum": 1000000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -15423,7 +15481,7 @@
                 "type": "null"
               }
             ],
-            "description": "Rendement marche libre (defaut: 4%)",
+            "description": "Rendement marche libre (scenario par defaut: 4%)",
             "title": "Rendementmarche"
           },
           "tauxConversion": {
@@ -16365,7 +16423,7 @@
                 "type": "null"
               }
             ],
-            "description": "Taux de retrait SWR sur le capital (defaut: 4%)",
+            "description": "Taux de retrait SWR sur le capital (hypothese par defaut: 4%)",
             "title": "Tauxretrait"
           }
         },
@@ -17918,6 +17976,7 @@
           "children": {
             "default": 0,
             "description": "Nombre d'enfants a charge",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Children",
             "type": "integer"
@@ -17935,6 +17994,7 @@
           },
           "salary": {
             "description": "Salaire brut annuel (CHF)",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Salary",
             "type": "number"
@@ -18071,6 +18131,7 @@
           },
           "revenuImposable": {
             "description": "Revenu imposable annuel (CHF)",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenuimposable",
             "type": "number"
@@ -19315,6 +19376,8 @@
             "type": "string"
           },
           "password": {
+            "maxLength": 256,
+            "minLength": 1,
             "title": "Password",
             "type": "string"
           }
@@ -19346,6 +19409,8 @@
             "type": "string"
           },
           "password": {
+            "maxLength": 256,
+            "minLength": 8,
             "title": "Password",
             "type": "string"
           }

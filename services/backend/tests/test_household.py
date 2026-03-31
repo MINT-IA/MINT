@@ -526,6 +526,15 @@ def test_admin_override_cooldown(client: TestClient):
     # Register an admin user
     admin_token = _register_and_token(auth_client, "admin@mint.ch")
 
+    # P0-4: Set both role AND email allowlist (defense in depth).
+    from tests.conftest import TestingSessionLocal
+    from app.models.user import User as UserModel
+    db = TestingSessionLocal()
+    admin_user = db.query(UserModel).filter(UserModel.email == "admin@mint.ch").first()
+    admin_user.role = "support_admin"
+    db.commit()
+    db.close()
+
     # Set admin allowlist
     prev = settings.AUTH_ADMIN_EMAIL_ALLOWLIST
     settings.AUTH_ADMIN_EMAIL_ALLOWLIST = "admin@mint.ch"
@@ -667,6 +676,15 @@ def test_revoke_idempotent(client: TestClient):
 def test_admin_override_short_reason(client: TestClient):
     auth_client = _auth_client(client)
     admin_token = _register_and_token(auth_client, "admin-short@mint.ch")
+
+    # P0-4: Set role for admin user (defense in depth — requires role AND email).
+    from tests.conftest import TestingSessionLocal
+    from app.models.user import User as UserModel
+    db = TestingSessionLocal()
+    admin_user = db.query(UserModel).filter(UserModel.email == "admin-short@mint.ch").first()
+    admin_user.role = "support_admin"
+    db.commit()
+    db.close()
 
     prev = settings.AUTH_ADMIN_EMAIL_ALLOWLIST
     settings.AUTH_ADMIN_EMAIL_ALLOWLIST = "admin-short@mint.ch"

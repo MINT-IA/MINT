@@ -45,7 +45,7 @@ class MinimalProfileRequest(OnboardingBaseModel):
         description="Date de naissance ISO 8601 (ex: 1981-06-15). Si fourni, age est calcule automatiquement.",
     )
     gross_salary: float = Field(
-        ..., ge=0,
+        ..., ge=0, le=10_000_000,
         description="Salaire brut annuel en CHF",
     )
     canton: str = Field(

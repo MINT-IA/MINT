@@ -200,9 +200,10 @@ class CircleScoringService {
     totalScore += lppStatus.scoreValue * 2.0;
 
     // 4. AVS - Lacunes (logique experte : triage + calcul intelligent)
-    final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
+    // CHAOS-78: Never default to 1990 — unknown birthYear = null, skip AVS gap calc.
+    final birthYear = _parseInt(answers['q_birth_year']);
     final civilStatus = answers['q_civil_status'];
-    final avsGapYears = _calculateAvsGaps(answers, birthYear);
+    final avsGapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
 
     // Fallback vers les réponses legacy (q_first_employment_year, q_avs_gaps)
     final legacyFirstEmployment = _parseInt(answers['q_first_employment_year']);
@@ -215,7 +216,7 @@ class CircleScoringService {
     if (avsGapYears != null) {
       // Nouvelle logique experte
       final gap = avsGapYears;
-      final theoreticalYears = _theoreticalAvsYears(birthYear);
+      final theoreticalYears = _theoreticalAvsYears(birthYear!);
       final contributionYears = (theoreticalYears - gap).clamp(0, 44);
       if (gap <= 0) {
         avsStatus = ItemStatus.perfect;
@@ -229,7 +230,9 @@ class CircleScoringService {
       }
     } else if (legacyFirstEmployment != null) {
       // Fallback legacy : q_first_employment_year
-      final startYear = [legacyFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final startYear = birthYear != null
+          ? [legacyFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
+          : legacyFirstEmployment;
       final years = (DateTime.now().year - startYear).clamp(0, 44);
       final gap = 44 - years;
       if (gap <= 0) {
@@ -267,7 +270,7 @@ class CircleScoringService {
 
     // Conjoint — même logique experte
     if (civilStatus == 'married') {
-      final spouseGapYears = _calculateSpouseAvsGaps(answers, birthYear);
+      final spouseGapYears = birthYear != null ? _calculateSpouseAvsGaps(answers, birthYear) : null;
 
       // Fallback legacy conjoint
       final legacySpouseFirstEmployment = _parseInt(answers['q_spouse_first_employment_year']);
@@ -277,7 +280,9 @@ class CircleScoringService {
       if (spouseGapYears != null) {
         spouseGap = spouseGapYears;
       } else if (legacySpouseFirstEmployment != null) {
-        final spouseStart = [legacySpouseFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b);
+        final spouseStart = birthYear != null
+            ? [legacySpouseFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
+            : legacySpouseFirstEmployment;
         final years = (DateTime.now().year - spouseStart).clamp(0, 44);
         spouseGap = 44 - years;
       } else if (legacySpouseAvsYears != null) {
@@ -429,8 +434,9 @@ class CircleScoringService {
       reco.add(
           'Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour vérifier tes lacunes AVS');
     }
-    final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
-    final gapYears = _calculateAvsGaps(answers, birthYear);
+    // CHAOS-78: Never default to 1990 — skip AVS gap calc if birth year unknown.
+    final birthYear = _parseInt(answers['q_birth_year']);
+    final gapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
     if (gapYears != null && gapYears > 0) {
       reco.add(
           'Tu peux racheter les 5 dernières années de lacune AVS auprès de ta caisse cantonale (LAVS art. 16)');

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
@@ -557,7 +558,9 @@ class CoachLlmService {
           '(Budget ${score.budget.score}, '
           'Prevoyance ${score.prevoyance.score}, '
           'Patrimoine ${score.patrimoine.score})');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] Error computing fitness score: $e');
+    }
 
     // Projection retraite (wrapped in try-catch)
     try {
@@ -569,7 +572,9 @@ class CoachLlmService {
           'Capital projete retraite : ${_toRange(proj.base.capitalFinal)}');
       parts.add(
           'Taux de remplacement : ${proj.tauxRemplacementBase.toStringAsFixed(1)}%');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] Error computing retirement projection: $e');
+    }
 
     // Conjoint
     if (profile.isCouple && profile.conjoint != null) {
@@ -664,7 +669,9 @@ class CoachLlmService {
       budgetScore = score.budget.score;
       prevoyanceScore = score.prevoyance.score;
       patrimoineScore = score.patrimoine.score;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] Error computing fitness score for prompt: $e');
+    }
 
     try {
       final projection = ForecasterService.project(
@@ -673,7 +680,9 @@ class CoachLlmService {
       );
       capitalBase = _toRange(projection.base.capitalFinal);
       tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] Error computing projection for prompt: $e');
+    }
 
     final buffer = StringBuffer();
     buffer.writeln(
@@ -787,7 +796,9 @@ class CoachLlmService {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachContext] Error computing FRI for grounding: $e');
+    }
 
     try {
       final proj = ForecasterService.project(
@@ -798,7 +809,9 @@ class CoachLlmService {
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachContext] Error computing projection for grounding: $e');
+    }
 
     final epargne3a = profile.prevoyance.totalEpargne3a;
     if (epargne3a.isFinite && epargne3a > 0) {

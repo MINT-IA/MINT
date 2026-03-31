@@ -37,7 +37,7 @@ class StaggeredWithdrawalRequest(BaseModel):
     )
     revenuImposable: float = Field(
         ..., alias="revenuImposable",
-        description="Revenu imposable annuel (CHF)", ge=0
+        description="Revenu imposable annuel (CHF)", ge=0, le=10_000_000
     )
     ageRetraitDebut: int = Field(
         60, alias="ageRetraitDebut",
