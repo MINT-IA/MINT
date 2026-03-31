@@ -157,9 +157,9 @@ jobs:
         run: |
           API_URL="${{ steps.env-config.outputs.api_url }}"
           EXTRA_DEFINES=""
-          if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
-            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=HUGGINGFACE_TOKEN=$HUGGINGFACE_TOKEN"
-          fi
+          # SECURITY (P0-9): HUGGINGFACE_TOKEN removed from dart-define.
+          # Tokens in dart-define are embedded in the binary and extractable.
+          # SLM model download uses runtime token via initializePlugin() instead.
           if [[ -n "$SLM_MODEL_URL" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SLM_MODEL_URL=$SLM_MODEL_URL"
           fi

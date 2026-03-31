@@ -17,6 +17,7 @@ References:
     - LPD art. 6 (data processing principles)
 """
 
+import logging
 import re
 import unicodedata
 from typing import Optional
@@ -28,6 +29,8 @@ from app.services.coach.coach_models import (
     COMPONENT_WORD_LIMITS,
 )
 from app.services.coach.hallucination_detector import HallucinationDetector
+
+logger = logging.getLogger(__name__)
 
 
 class ComplianceGuard:
@@ -272,22 +275,23 @@ class ComplianceGuard:
         # ── Layer 1: Banned terms ──
         banned_found = self._check_banned_terms(text)
         if banned_found:
+            logger.warning("ComplianceGuard L1: banned terms %s in %s", banned_found, component_type)
             violations.extend(
                 [f"Terme interdit: '{term}'" for term in banned_found]
             )
             if len(banned_found) > 2:
                 use_fallback = True
             else:
-                # Attempt sanitization
                 text = self._sanitize_banned_terms(text)
 
         # ── Layer 2: Prescriptive patterns ──
         prescriptive_found = self._check_prescriptive(text)
         if prescriptive_found:
+            logger.warning("ComplianceGuard L2: prescriptive %s in %s", prescriptive_found, component_type)
             violations.extend(
                 [f"Langage prescriptif: '{p}'" for p in prescriptive_found]
             )
-            use_fallback = True  # Prescriptive = always fallback
+            use_fallback = True
 
         # ── Layer 3: Hallucination detection ──
         if context and context.known_values:
