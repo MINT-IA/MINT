@@ -1091,7 +1091,7 @@
   "segmentsIndependantAppBar": "PARCOURS INDÉPENDANT",
   "segmentsIndependantHeader": "Indépendant",
   "segmentsIndependantHeaderSub": "Analyse de couverture et protection",
-  "segmentsIndependantIntro": "En tant qu'indépendant, vous n'avez pas de LPP obligatoire, pas d'IJM, et pas de LAA. Votre protection dépend de vos démarches personnelles.",
+  "segmentsIndependantIntro": "En tant qu'indépendant·e, tu n'as pas de LPP obligatoire, pas d'IJM, et pas de LAA. Ta protection dépend de tes démarches personnelles.",
   "segmentsIndependantRevenuLabel": "Revenu net annuel",
   "segmentsIndependantCoverageTitle": "Ma couverture actuelle",
   "segmentsIndependantLpp": "LPP (affiliation volontaire)",
@@ -1110,7 +1110,7 @@
   "segmentsIndependant3aMax": "3e pilier (max)",
   "segmentsIndependantTotalMensuel": "Total mensuel",
   "segmentsIndependantAvsTitle": "Cotisation AVS indépendant",
-  "segmentsIndependantAvsDesc": "Votre cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58'800).",
+  "segmentsIndependantAvsDesc": "Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58'800).",
   "@segmentsIndependantAvsDesc": {
     "placeholders": {
       "amount": {
@@ -1124,10 +1124,10 @@
   "segmentsIndependantRecTitle": "RECOMMANDATIONS",
   "segmentsIndependantDisclaimer": "Les montants présentés sont des estimations indicatives. Consultez un fiduciaire ou un assureur avant toute décision.",
   "segmentsIndependantSources": "Sources",
-  "segmentsIndependantAlertIjm": "CRITIQUE : Vous n'avez pas d'assurance IJM. En cas de maladie, vous n'aurez aucun revenu de remplacement.",
+  "segmentsIndependantAlertIjm": "CRITIQUE : tu n'as pas d'assurance IJM. En cas de maladie, tu n'auras aucun revenu de remplacement.",
   "segmentsIndependantAlertLaa": "IMPORTANT : Sans assurance accident individuelle (LAA), les frais médicaux en cas d'accident ne sont pas couverts.",
-  "segmentsIndependantAlertLpp": "Votre prévoyance repose uniquement sur l'AVS et le 3e pilier.",
-  "segmentsIndependantAlert3a": "Vous ne profitez pas du 3e pilier. Plafond indépendant : CHF 36'288/an.",
+  "segmentsIndependantAlertLpp": "Ta prévoyance repose uniquement sur l'AVS et le 3e pilier.",
+  "segmentsIndependantAlert3a": "Tu ne profites pas du 3e pilier. Plafond indépendant : CHF 36'288/an.",
   "segmentsDemoMode": "Mode démo : profil exemple. Complète ton diagnostic pour des résultats personnalisés.",
   "assurancesLamalTitle": "Optimiseur franchise LAMal",
   "assurancesLamalSubtitle": "Trouvez la franchise idéale selon vos frais de santé",
@@ -3551,13 +3551,13 @@
   "expatDidYouKnow": "Le savais-tu ?",
   "mariageTimelinePartner1": "Personne 1",
   "mariageTimelinePartner2": "Personne 2",
-  "mariageTimelineCoachTip": "Chaque phase de vie demande d'adapter votre contrat de mariage et votre prévoyance.",
+  "mariageTimelineCoachTip": "Chaque phase de vie demande d'adapter ton contrat de mariage et ta prévoyance.",
   "mariageTimelineAct1Title": "Vous travaillez tous les deux",
   "mariageTimelineAct1Period": "0-10 ans de vie commune",
-  "mariageTimelineAct1Insight": "Phase de construction : 3a, LPP, épargne commune. Profitez des deux revenus.",
+  "mariageTimelineAct1Insight": "Phase de construction : 3a, LPP, épargne commune. Profite des deux revenus.",
   "mariageTimelineAct2Title": "Phase d'épargne intensive",
   "mariageTimelineAct2Period": "10-25 ans",
-  "mariageTimelineAct2Insight": "Rachat LPP, 3a maximal, préparation retraite. Votre capital double.",
+  "mariageTimelineAct2Insight": "Rachat LPP, 3a maximal, préparation retraite. Ton capital double.",
   "mariageTimelineAct3Title": "Retraite couple",
   "mariageTimelineAct3Period": "25+ ans",
   "mariageTimelineAct3Insight": "Attention : plafond AVS couple (150 % rente max). Planifier rente vs capital.",
@@ -3611,7 +3611,7 @@
       }
     }
   },
-  "narrativeCoupleTightBudget": "Ensemble, votre budget est serré de {margin} CHF/mois.",
+  "narrativeCoupleTightBudget": "Ensemble, ton budget est serré de {margin} CHF/mois.",
   "@narrativeCoupleTightBudget": {
     "placeholders": {
       "margin": {
@@ -8644,7 +8644,7 @@
     }
   },
   "repaymentValidate": "Valider",
-  "repaymentEmptyState": "Ajoutez vos dettes et définissez votre budget mensuel de remboursement pour voir le plan.",
+  "repaymentEmptyState": "Ajoute tes dettes et définis ton budget mensuel de remboursement pour voir le plan.",
   "repaymentMinMax": "Min {minVal} · Max {maxVal}",
   "@repaymentMinMax": {
     "placeholders": {
@@ -8686,7 +8686,7 @@
   "debtRatioEnfants": "Enfants",
   "debtRatioMinimumVitalLabel": "Minimum vital",
   "debtRatioMargeDisponible": "Marge disponible",
-  "debtRatioMinVitalWarning": "Votre marge résiduelle est inférieure au minimum vital. Contactez un service d'aide professionnelle.",
+  "debtRatioMinVitalWarning": "Ta marge résiduelle est inférieure au minimum vital. Contacte un service d'aide professionnelle.",
   "debtRatioCtaSemantics": "Créer un plan de remboursement",
   "debtRatioCtaDescription": "Compare avalanche et boule de neige pour rembourser plus vite.",
   "debtRatioDetteConseilNom": "Dettes Conseils Suisse",
@@ -10625,7 +10625,7 @@
   "helpResourcesCaritasDesc": "Service d’aide de Caritas Suisse pour les personnes en situation d’endettement. Aide au désendettement, négociation avec les créanciers, accompagnement budgétaire personnalisé.",
   "helpResourcesFreeLabel": "GRATUIT",
   "helpResourcesCantonalHeader": "SERVICE CANTONAL",
-  "helpResourcesCantonLabel": "Votre canton",
+  "helpResourcesCantonLabel": "Ton canton",
   "helpResourcesNoService": "Aucun service cantonal référencé pour ce canton. Contactez Dettes Conseils Suisse pour être orienté.",
   "helpResourcesPrivacyTitle": "Protection des données (nLPD)",
   "helpResourcesPrivacyBody": "MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.",
@@ -11033,11 +11033,11 @@
   "capLeDebtCrisisWhyNow": "Prioriser, restructurer, protéger l’essentiel — par étapes.",
   "capLeDebtCrisisCtaLabel": "Voir mon plan",
   "capCouple3aHeadline": "À deux, un levier de plus",
-  "capCouple3aWhyNow": "Votre ménage peut déduire 2 × 7’258 CHF en cotisant chacun au 3a. Le compte de votre conjoint·e n’est pas encore renseigné.",
+  "capCouple3aWhyNow": "Ton ménage peut déduire 2 × 7’258 CHF en cotisant chacun au 3a. Le compte de ton·ta conjoint·e n’est pas encore renseigné.",
   "capCouple3aCtaLabel": "Simuler le 3a couple",
   "capCouple3aExpectedImpact": "jusqu’à 14’516 CHF de déductions",
   "capCoupleLppBuybackHeadline": "Rachat LPP : le levier conjoint",
-  "capCoupleLppBuybackWhyNow": "Votre conjoint·e dispose d’un rachat possible de {amount}. Prioriser le TMI le plus élevé maximise la déduction.",
+  "capCoupleLppBuybackWhyNow": "Ton·ta conjoint·e dispose d’un rachat possible de {amount}. Prioriser le TMI le plus élevé maximise la déduction.",
   "@capCoupleLppBuybackWhyNow": {
     "placeholders": {
       "amount": {
@@ -11125,7 +11125,7 @@
   "pulseProtRetraiteSubtitle": "conservé à la retraite.",
   "pulseProtRetraiteDetail": "Médiane suisse : 60 %. Où te situes-tu ?",
   "pulseProtRetraiteCta": "Voir ma projection",
-  "pulseProtFamilleSubtitle": "Votre retraite à deux.",
+  "pulseProtFamilleSubtitle": "Ta retraite à deux.",
   "pulseProtFamilleDetail": "Anticipe le creux quand un seul est retraité.",
   "pulseProtFamilleCta": "Voir la timeline",
   "pulseProtUrgenceDebtSubtitle": "à rembourser.",

@@ -4,11 +4,24 @@ enum HouseholdType { single, couple, concubine, family }
 
 enum Goal { house, retire, emergency, invest, optimizeTaxes, other }
 
+/// Maps Goal enum to snake_case strings expected by the backend API.
+extension GoalSerialization on Goal {
+  String get apiValue {
+    switch (this) {
+      case Goal.optimizeTaxes:
+        return 'optimize_taxes';
+      default:
+        return name;
+    }
+  }
+}
+
 /// Statut d'emploi de l'utilisateur
 enum EmploymentStatus {
   employee, // Salarié
   selfEmployed, // Indépendant
   mixed, // Mixte (salarié + indépendant)
+  unemployed, // Sans emploi
   student, // Étudiant
   retired, // Retraité
   other, // Autre
@@ -23,6 +36,8 @@ extension EmploymentStatusExtension on EmploymentStatus {
         return 'Indépendant(e)';
       case EmploymentStatus.mixed:
         return 'Mixte (salarié + indépendant)';
+      case EmploymentStatus.unemployed:
+        return 'Sans emploi';
       case EmploymentStatus.student:
         return 'Étudiant(e)';
       case EmploymentStatus.retired:
@@ -40,6 +55,8 @@ extension EmploymentStatusExtension on EmploymentStatus {
         return 'self_employed';
       case EmploymentStatus.mixed:
         return 'mixed';
+      case EmploymentStatus.unemployed:
+        return 'unemployed';
       case EmploymentStatus.student:
         return 'student';
       case EmploymentStatus.retired:
@@ -149,6 +166,7 @@ class Profile {
     switch (employmentStatus!) {
       case EmploymentStatus.student:
       case EmploymentStatus.retired:
+      case EmploymentStatus.unemployed:
         return 0;
       case EmploymentStatus.selfEmployed:
         if (has2ndPillar == true) return pilier3aPlafondAvecLpp;
@@ -239,7 +257,7 @@ class Profile {
     return {
       'id': id,
       'birthYear': birthYear,
-      'dateOfBirth': dateOfBirth?.toIso8601String(),
+      'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
       'canton': canton,
       'householdType': householdType.name,
       'incomeNetMonthly': incomeNetMonthly,
@@ -249,7 +267,7 @@ class Profile {
       'lppInsuredSalary': lppInsuredSalary,
       'hasDebt': hasDebt,
       'factfindCompletionIndex': factfindCompletionIndex,
-      'goal': goal.name,
+      'goal': goal.apiValue,
       'createdAt': createdAt.toIso8601String(),
       // Nouveaux champs
       'employmentStatus': employmentStatus?.value,
