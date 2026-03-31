@@ -368,7 +368,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     }
 
     // Fallback for AVS or other doc types
-    final avsYears = _findField('avs_contribution_years');
+    // AVS parser produces 'annees_cotisation', backend contract uses that name
+    final avsYears = _findField('annees_cotisation') ?? _findField('avs_contribution_years');
     if (avsYears != null) {
       final years = (avsYears.value as double).round();
       const maxYears = 44;

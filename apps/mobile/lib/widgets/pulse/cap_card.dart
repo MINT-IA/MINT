@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -149,23 +151,23 @@ class CapCard extends StatelessWidget {
   }
 
   void _handleCta(BuildContext context) {
+    // Snapshot profile hash BEFORE navigation to detect real changes on return
+    final profileBefore = _profileHash(context);
+
     switch (cap.ctaMode) {
       case CtaMode.route:
         if (cap.ctaRoute != null) {
           context.push<void>(cap.ctaRoute!).then((_) {
             if (!context.mounted) return;
-            _trackAbandonmentIfNeeded();
+            _resolveCompletionOnReturn(context, profileBefore);
           });
         }
       case CtaMode.coach:
-        // Switch to coach tab with injected prompt if available.
-        // CoachChatScreen reads the pending prompt from a shared state.
         if (cap.coachPrompt != null && cap.coachPrompt!.isNotEmpty) {
           CapCoachBridge.pendingPrompt = cap.coachPrompt;
         }
         NavigationShellState.switchTab(1);
       case CtaMode.capture:
-        // Route to the specific capture flow based on captureType.
         final route = switch (cap.captureType) {
           'lpp' => '/scan',
           'avs' => '/scan/avs-guide',
@@ -174,23 +176,42 @@ class CapCard extends StatelessWidget {
         };
         context.push<void>(route).then((_) {
           if (!context.mounted) return;
-          _trackAbandonmentIfNeeded();
+          _resolveCompletionOnReturn(context, profileBefore);
         });
     }
   }
 
-  /// Track flow abandonment when user returns from a cap-triggered route
-  /// without having called markCompleted. This populates CapMemory.abandonedFlows
-  /// for recency scoring and UX adaptation.
-  void _trackAbandonmentIfNeeded() {
+  /// Compare profile state before/after navigation. If changed → user did something
+  /// meaningful → mark cap completed. If unchanged → mark abandoned.
+  void _resolveCompletionOnReturn(BuildContext context, int profileBefore) {
+    final profileAfter = _profileHash(context);
+    final profileChanged = profileAfter != profileBefore;
+
     CapMemoryStore.load().then((mem) {
-      // If the cap was NOT completed (no fresh lastCompletedDate),
-      // mark it as abandoned.
-      final wasCompleted = mem.completedActions.contains(cap.id);
-      if (!wasCompleted) {
+      if (profileChanged) {
+        // User changed their profile data during the flow → cap completed
+        CapMemoryStore.markCompleted(mem, cap.id);
+      } else if (!mem.completedActions.contains(cap.id)) {
+        // No profile change and not already completed → abandoned
         CapMemoryStore.markAbandoned(mem, cap.id, frictionContext: 'user_returned');
       }
     });
+  }
+
+  /// Quick hash of profile state to detect meaningful changes
+  int _profileHash(BuildContext context) {
+    try {
+      final provider = Provider.of<CoachProfileProvider>(context, listen: false);
+      final p = provider.profile;
+      if (p == null) return 0;
+      return Object.hash(
+        p.salaireBrutMensuel, p.prevoyance.avoirLppTotal,
+        p.prevoyance.totalEpargne3a, p.canton, p.etatCivil,
+        p.employmentStatus, p.prevoyance.anneesContribuees,
+      );
+    } catch (_) {
+      return 0;
+    }
   }
 
 }
