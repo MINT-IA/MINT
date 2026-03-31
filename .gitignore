@@ -60,3 +60,4 @@ test/golden/
 key.properties
 *.jks
 *.keystore
+coverage.xml
