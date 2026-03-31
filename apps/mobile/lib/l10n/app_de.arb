@@ -8488,7 +8488,7 @@
   "consentScopeSoldes": "Salden",
   "consentScopeTransactions": "Transactions",
   "consentStatusActif": "Actif",
-  "consentStatusExpirantBientot": "Expire bientôt",
+  "consentStatusExpirantBientot": "Läuft bald ab",
   "consentStatusExpire": "Expiré",
   "consentStatusRevoque": "Révoqué",
   "consentStatusInconnu": "Inconnu",
@@ -11907,5 +11907,8 @@
   "exploreHubTitle": "Erkunden",
   "safeModeTitle": "Prioritätsfokus",
   "safeModeMessage": "Für deine finanzielle Sicherheit deaktivieren wir erweiterte Optimierungen, solange ein Schuldsignal aktiv ist.",
-  "safeModeCta": "Meinen Entschuldungsplan ansehen"
+  "safeModeCta": "Meinen Entschuldungsplan ansehen",
+  "coachGateTitle": "Coach-Funktion",
+  "coachGateSubtitle": "Verfügbar mit MINT Coach",
+  "coachGateUnlock": "Freischalten"
 }

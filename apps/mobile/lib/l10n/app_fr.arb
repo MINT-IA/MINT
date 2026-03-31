@@ -12355,5 +12355,8 @@
   "exploreHubTitle": "Explorer",
   "safeModeTitle": "Concentration Prioritaire",
   "safeModeMessage": "Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.",
-  "safeModeCta": "Voir mon plan de désendettement"
+  "safeModeCta": "Voir mon plan de désendettement",
+  "coachGateTitle": "Fonctionnalité Coach",
+  "coachGateSubtitle": "Disponible avec MINT Coach",
+  "coachGateUnlock": "Débloquer"
 }

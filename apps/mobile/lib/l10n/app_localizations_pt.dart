@@ -17621,7 +17621,7 @@ class SPt extends S {
   String get consentStatusActif => 'Actif';
 
   @override
-  String get consentStatusExpirantBientot => 'Expire bientôt';
+  String get consentStatusExpirantBientot => 'Expira em breve';
 
   @override
   String get consentStatusExpire => 'Expiré';
@@ -25347,4 +25347,13 @@ class SPt extends S {
 
   @override
   String get safeModeCta => 'Ver o meu plano de redução de dívida';
+
+  @override
+  String get coachGateTitle => 'Função Coach';
+
+  @override
+  String get coachGateSubtitle => 'Disponível com MINT Coach';
+
+  @override
+  String get coachGateUnlock => 'Desbloquear';
 }

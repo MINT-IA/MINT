@@ -17647,7 +17647,7 @@ class SDe extends S {
   String get consentStatusActif => 'Actif';
 
   @override
-  String get consentStatusExpirantBientot => 'Expire bientôt';
+  String get consentStatusExpirantBientot => 'Läuft bald ab';
 
   @override
   String get consentStatusExpire => 'Expiré';
@@ -25388,4 +25388,13 @@ class SDe extends S {
 
   @override
   String get safeModeCta => 'Meinen Entschuldungsplan ansehen';
+
+  @override
+  String get coachGateTitle => 'Coach-Funktion';
+
+  @override
+  String get coachGateSubtitle => 'Verfügbar mit MINT Coach';
+
+  @override
+  String get coachGateUnlock => 'Freischalten';
 }

@@ -8488,7 +8488,7 @@
   "consentScopeSoldes": "Balances",
   "consentScopeTransactions": "Transactions",
   "consentStatusActif": "Actif",
-  "consentStatusExpirantBientot": "Expire bientôt",
+  "consentStatusExpirantBientot": "Expiring soon",
   "consentStatusExpire": "Expiré",
   "consentStatusRevoque": "Révoqué",
   "consentStatusInconnu": "Inconnu",
@@ -11907,5 +11907,8 @@
   "exploreHubTitle": "Explore",
   "safeModeTitle": "Priority Focus",
   "safeModeMessage": "For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is building your security.",
-  "safeModeCta": "View my debt reduction plan"
+  "safeModeCta": "View my debt reduction plan",
+  "coachGateTitle": "Coach feature",
+  "coachGateSubtitle": "Available with MINT Coach",
+  "coachGateUnlock": "Unlock"
 }

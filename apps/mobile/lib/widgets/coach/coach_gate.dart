@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
@@ -108,12 +109,12 @@ class CoachGate extends StatelessWidget {
 
                     // Label
                     Text(
-                      'Fonctionnalite Coach', // TODO: i18n
+                      S.of(context)!.coachGateTitle,
                       style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Disponible avec MINT Coach', // TODO: i18n
+                      S.of(context)!.coachGateSubtitle,
                       style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                     ),
                     const SizedBox(height: 16),
@@ -123,7 +124,7 @@ class CoachGate extends StatelessWidget {
                       onPressed: () => CoachPaywallSheet.show(context),
                       icon: const Icon(Icons.lock_open_rounded, size: 16),
                       label: Text(
-                        'Débloquer', // TODO: i18n — fix accent + extract to ARB
+                        S.of(context)!.coachGateUnlock,
                         style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       style: ElevatedButton.styleFrom(

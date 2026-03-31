@@ -44640,6 +44640,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Voir mon plan de désendettement'**
   String get safeModeCta;
+
+  /// No description provided for @coachGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctionnalité Coach'**
+  String get coachGateTitle;
+
+  /// No description provided for @coachGateSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible avec MINT Coach'**
+  String get coachGateSubtitle;
+
+  /// No description provided for @coachGateUnlock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer'**
+  String get coachGateUnlock;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

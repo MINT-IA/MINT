@@ -8449,7 +8449,7 @@
   "consentScopeSoldes": "Saldi",
   "consentScopeTransactions": "Transactions",
   "consentStatusActif": "Actif",
-  "consentStatusExpirantBientot": "Expire bientôt",
+  "consentStatusExpirantBientot": "In scadenza",
   "consentStatusExpire": "Expiré",
   "consentStatusRevoque": "Révoqué",
   "consentStatusInconnu": "Inconnu",
@@ -11907,5 +11907,8 @@
   "exploreHubTitle": "Esplorare",
   "safeModeTitle": "Concentrazione Prioritaria",
   "safeModeMessage": "Per la tua sicurezza finanziaria, disattiviamo le ottimizzazioni avanzate finché un segnale di debito è attivo.",
-  "safeModeCta": "Vedi il mio piano di riduzione del debito"
+  "safeModeCta": "Vedi il mio piano di riduzione del debito",
+  "coachGateTitle": "Funzione Coach",
+  "coachGateSubtitle": "Disponibile con MINT Coach",
+  "coachGateUnlock": "Sbloccare"
 }
