@@ -28,6 +28,8 @@ from app.models.consent import ConsentModel
 from app.models.token_blacklist import TokenBlacklist
 from app.models.document import DocumentModel
 from app.models.scenario import ScenarioModel
+from app.models.banking_consent import BankingConsentModel
+from app.models.external_data_source import ExternalDataSourceModel
 
 __all__ = [
     "User",
@@ -50,4 +52,6 @@ __all__ = [
     "TokenBlacklist",
     "DocumentModel",
     "ScenarioModel",
+    "BankingConsentModel",
+    "ExternalDataSourceModel",
 ]
