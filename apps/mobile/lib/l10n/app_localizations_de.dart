@@ -25522,4 +25522,8 @@ class SDe extends S {
   @override
   String get rcSuggestedPromptPatrimoine =>
       'Wie optimiere ich die Vermögensübertragung?';
+
+  @override
+  String get onboardingProfileCreated =>
+      'Profil erstellt! Du kannst MINT erkunden.';
 }

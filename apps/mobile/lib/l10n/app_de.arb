@@ -11951,5 +11951,6 @@
   "semanticsNotReached": "nicht erreicht",
   "rcSuggestedPromptSuccession": "Wie organisiere ich meine Nachfolge in der Schweiz?",
   "rcSuggestedPromptDonation": "Welche steuerlichen Vorteile hat eine Schenkung zu Lebzeiten?",
-  "rcSuggestedPromptPatrimoine": "Wie optimiere ich die Vermögensübertragung?"
+  "rcSuggestedPromptPatrimoine": "Wie optimiere ich die Vermögensübertragung?",
+  "onboardingProfileCreated": "Profil erstellt! Du kannst MINT erkunden."
 }

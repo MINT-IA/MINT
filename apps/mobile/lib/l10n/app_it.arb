@@ -11951,5 +11951,6 @@
   "semanticsNotReached": "non raggiunto",
   "rcSuggestedPromptSuccession": "Come organizzare la mia successione in Svizzera?",
   "rcSuggestedPromptDonation": "Quali sono i vantaggi fiscali di una donazione in vita?",
-  "rcSuggestedPromptPatrimoine": "Come ottimizzare la trasmissione del mio patrimonio?"
+  "rcSuggestedPromptPatrimoine": "Come ottimizzare la trasmissione del mio patrimonio?",
+  "onboardingProfileCreated": "Profilo creato! Puoi iniziare a esplorare MINT."
 }
