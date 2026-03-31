@@ -167,8 +167,8 @@ class CapCard extends StatelessWidget {
       case CtaMode.capture:
         // Route to the specific capture flow based on captureType.
         final route = switch (cap.captureType) {
-          'lpp' => '/document-scan',
-          'avs' => '/document-scan/avs',
+          'lpp' => '/scan',
+          'avs' => '/scan/avs-guide',
           'profile' => '/onboarding/enrichment',
           _ => '/onboarding/enrichment',
         };

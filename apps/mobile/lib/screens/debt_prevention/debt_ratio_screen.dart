@@ -64,7 +64,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
     if (!_hasUserInteracted) {
       final screenReturn = ScreenReturn.abandoned(
-        route: '/dette-ratio',
+        route: '/debt/ratio',
         runId: _seqRunId,
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
@@ -75,7 +75,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
     final result = _result;
     final screenReturn = ScreenReturn.completed(
-      route: '/dette-ratio',
+      route: '/debt/ratio',
       stepOutputs: {
         'ratio_endettement': result.ratio,
         'marge_mensuelle': result.margeDisponible,
