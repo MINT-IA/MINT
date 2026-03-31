@@ -17626,7 +17626,7 @@ class SEs extends S {
   String get consentStatusActif => 'Actif';
 
   @override
-  String get consentStatusExpirantBientot => 'Expire bientôt';
+  String get consentStatusExpirantBientot => 'Expira pronto';
 
   @override
   String get consentStatusExpire => 'Expiré';
@@ -25341,4 +25341,13 @@ class SEs extends S {
 
   @override
   String get safeModeCta => 'Ver mi plan de reducción de deuda';
+
+  @override
+  String get coachGateTitle => 'Función Coach';
+
+  @override
+  String get coachGateSubtitle => 'Disponible con MINT Coach';
+
+  @override
+  String get coachGateUnlock => 'Desbloquear';
 }

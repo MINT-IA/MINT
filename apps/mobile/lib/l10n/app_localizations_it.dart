@@ -17659,7 +17659,7 @@ class SIt extends S {
   String get consentStatusActif => 'Actif';
 
   @override
-  String get consentStatusExpirantBientot => 'Expire bientôt';
+  String get consentStatusExpirantBientot => 'In scadenza';
 
   @override
   String get consentStatusExpire => 'Expiré';
@@ -25412,4 +25412,13 @@ class SIt extends S {
 
   @override
   String get safeModeCta => 'Vedi il mio piano di riduzione del debito';
+
+  @override
+  String get coachGateTitle => 'Funzione Coach';
+
+  @override
+  String get coachGateSubtitle => 'Disponibile con MINT Coach';
+
+  @override
+  String get coachGateUnlock => 'Sbloccare';
 }

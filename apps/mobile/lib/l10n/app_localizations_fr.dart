@@ -25334,4 +25334,13 @@ class SFr extends S {
 
   @override
   String get safeModeCta => 'Voir mon plan de désendettement';
+
+  @override
+  String get coachGateTitle => 'Fonctionnalité Coach';
+
+  @override
+  String get coachGateSubtitle => 'Disponible avec MINT Coach';
+
+  @override
+  String get coachGateUnlock => 'Débloquer';
 }
