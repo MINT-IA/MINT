@@ -8503,7 +8503,7 @@
   "openBankingHubViewTransactionsDesc": "Detailed history by category",
   "openBankingHubManageConsents": "Manage consents",
   "openBankingHubManageConsentsDesc": "nFADP rights, revocation, scopes",
-  "openBankingHubSoldeTotal": "Solde total",
+  "openBankingHubSoldeTotal": "Total balance",
   "openBankingHubComptesConnectes": "3 connected accounts",
   "openBankingHubRevenus": "Income",
   "openBankingHubDepenses": "Expenses",
@@ -8526,7 +8526,7 @@
       }
     }
   },
-  "openBankingHubSyncDays": "Il y a {days}j",
+  "openBankingHubSyncDays": "{days}d ago",
   "@openBankingHubSyncDays": {
     "placeholders": {
       "days": {

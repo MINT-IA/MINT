@@ -8526,7 +8526,7 @@
       }
     }
   },
-  "openBankingHubSyncDays": "Il y a {days}j",
+  "openBankingHubSyncDays": "Hace {days} días",
   "@openBankingHubSyncDays": {
     "placeholders": {
       "days": {

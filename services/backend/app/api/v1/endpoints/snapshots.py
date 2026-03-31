@@ -127,6 +127,7 @@ def get_user_snapshots(
     response: Response,
     limit: int = Query(default=10, ge=1, le=100, description="Nombre max de snapshots"),
     current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> SnapshotListResponse:
     """Recuperer les snapshots de l'utilisateur authentifie.
 
@@ -139,7 +140,7 @@ def get_user_snapshots(
         SnapshotListResponse avec la liste des snapshots.
     """
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
-    snapshots = get_snapshots(user_id=current_user.id, limit=limit)
+    snapshots = get_snapshots(user_id=current_user.id, limit=limit, db=db)
     return SnapshotListResponse(
         snapshots=[_snapshot_to_response(s) for s in snapshots],
         count=len(snapshots),
@@ -148,7 +149,7 @@ def get_user_snapshots(
 
 @router.delete("", response_model=DeleteSnapshotsResponse)
 @limiter.limit("30/minute")
-def delete_user_snapshots(request: Request, response: Response, current_user: User = Depends(require_current_user)) -> DeleteSnapshotsResponse:
+def delete_user_snapshots(request: Request, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> DeleteSnapshotsResponse:
     """Supprimer tous les snapshots de l'utilisateur authentifie.
 
     Conformite LPD (Loi sur la protection des donnees) — droit a l'effacement.
@@ -157,7 +158,7 @@ def delete_user_snapshots(request: Request, response: Response, current_user: Us
         DeleteSnapshotsResponse avec le nombre de snapshots supprimes.
     """
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
-    count = delete_all_snapshots(user_id=current_user.id)
+    count = delete_all_snapshots(user_id=current_user.id, db=db)
     return DeleteSnapshotsResponse(
         deleted_count=count,
         message=f"{count} snapshot(s) supprime(s).",
@@ -174,6 +175,7 @@ def get_user_evolution(
         description="Metrique a suivre (replacement_ratio, months_liquidity, etc.)",
     ),
     current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> EvolutionResponse:
     """Recuperer la serie temporelle d'une metrique financiere.
 
@@ -188,7 +190,7 @@ def get_user_evolution(
     """
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
     try:
-        data_points = get_evolution(user_id=current_user.id, field=field)
+        data_points = get_evolution(user_id=current_user.id, field=field, db=db)
         return EvolutionResponse(
             field=field,
             data_points=[

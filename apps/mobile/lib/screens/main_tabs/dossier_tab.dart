@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -397,18 +398,20 @@ class _DossierTabState extends State<DossierTab> {
                 //  Section 6 — Expert (only if enough data)
                 // ═══════════════════════════════════════
                 if (hasEnoughDataForExpert) ...[
-                  _SectionLabel(l.dossierExpertSectionTitle, l: l),
-                  MintSurface(
-                    tone: MintSurfaceTone.blanc,
-                    padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
-                    child: _DossierRow(
-                      icon: Icons.person_search_outlined,
-                      title: l.dossierExpertSectionTitle,
-                      subtitle: l.expertSubtitle,
-                      onTap: () => context.push('/expert-tier'),
-                      showDivider: false,
+                  if (FeatureFlags.enableExpertTier) ...[
+                    _SectionLabel(l.dossierExpertSectionTitle, l: l),
+                    MintSurface(
+                      tone: MintSurfaceTone.blanc,
+                      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+                      child: _DossierRow(
+                        icon: Icons.person_search_outlined,
+                        title: l.dossierExpertSectionTitle,
+                        subtitle: l.expertSubtitle,
+                        onTap: () => context.push('/expert-tier'),
+                        showDivider: false,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
 
                 const SizedBox(height: MintSpacing.xxl),
