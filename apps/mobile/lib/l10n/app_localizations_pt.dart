@@ -25500,4 +25500,86 @@ class SPt extends S {
 
   @override
   String get capEstatePlanningCtaLabel => 'Compreender os procedimentos';
+
+  @override
+  String get mortgageStep1Title => 'Posso comprar?';
+
+  @override
+  String get mortgageStep1Subtitle =>
+      'Regra dos terços: os encargos (juros teóricos a 5% + amortização 1% + manutenção 1%) não devem exceder 1/3 do rendimento bruto.';
+
+  @override
+  String get mortgageStep1Action =>
+      'Calcula a tua capacidade com o simulador MINT';
+
+  @override
+  String get mortgageStep2Title => 'De onde vêm os meus fundos próprios?';
+
+  @override
+  String get mortgageStep2Subtitle =>
+      'Precisas de 20% do preço como fundos próprios. Fontes: poupanças, 3a, EPL (2.º pilar, máx. 10% do preço). Atenção: o EPL bloqueia a recompra LPP durante 3 anos.';
+
+  @override
+  String get mortgageStep2Action => 'Verifica o teu saldo 3a e LPP no MINT';
+
+  @override
+  String get mortgageStep3Title => 'Que tipo de hipoteca?';
+
+  @override
+  String get mortgageStep3Subtitle =>
+      'Hipoteca fixa: segurança, taxa fixa por 2-15 anos. SARON (variável): taxa mais baixa mas risco de aumento. Mix possível. Taxa atual ≠ taxa teórica de 5%.';
+
+  @override
+  String get mortgageStep3Action => 'Compara ofertas de pelo menos 3 bancos';
+
+  @override
+  String get mortgageStep4Title => 'Amortização direta ou indireta?';
+
+  @override
+  String get mortgageStep4Subtitle =>
+      'Direta: reembolsas o banco cada ano (dívida diminui, dedução fiscal diminui). Indireta: pagas no teu 3a, depois reembolsas em bloco. Vantagem fiscal da indireta.';
+
+  @override
+  String get mortgageStep4Action =>
+      'Consulta um especialista fiscal para o teu cantão';
+
+  @override
+  String get mortgageStep5Title => 'E o valor locativo?';
+
+  @override
+  String get mortgageStep5Subtitle =>
+      'Se ocupas a tua propriedade, pagas imposto sobre o valor locativo (renda fictícia). Em contrapartida, podes deduzir os juros hipotecários e os custos de manutenção.';
+
+  @override
+  String get mortgageStep5Action =>
+      'Estima o teu imposto sobre o valor locativo no MINT';
+
+  @override
+  String get mortgageStep6Title => 'No final: alugar ou comprar?';
+
+  @override
+  String get mortgageStep6Subtitle =>
+      'Uma decisão tanto pessoal como financeira. Fatores: duração de residência prevista, estabilidade profissional, flexibilidade desejada. Break-even típico: 7-12 anos.';
+
+  @override
+  String get mortgageStep6Action => 'Lança o Balanço de comparação no MINT';
+
+  @override
+  String get mortgageStep7Title => 'O meu plano de ação';
+
+  @override
+  String get mortgageStep7Subtitle =>
+      'Antes de assinar: verificar o regulamento de compropriedade, a avaliação do edifício, as obras planeadas, o fundo de renovação. Fazer rever a escritura de venda.';
+
+  @override
+  String get mortgageStep7Action => 'Descarrega a checklist de compra MINT';
+
+  @override
+  String get mortgageJourneyDisclaimer =>
+      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Consulta um especialista hipotecário antes de qualquer decisão. Fontes: FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.';
+
+  @override
+  String mortgageJourneyStepLabel(int number, String title) {
+    return 'Passo $number · $title';
+  }
 }

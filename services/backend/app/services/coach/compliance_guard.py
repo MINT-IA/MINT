@@ -228,6 +228,7 @@ class ComplianceGuard:
         llm_output: str,
         context: Optional[CoachContext] = None,
         component_type: ComponentType = ComponentType.general,
+        user_id: Optional[str] = None,
     ) -> ComplianceResult:
         """Validate LLM output through 5 compliance layers.
 
@@ -235,6 +236,7 @@ class ComplianceGuard:
             llm_output: Raw LLM-generated text.
             context: CoachContext with known values for hallucination detection.
             component_type: Type of component (for length limits).
+            user_id: Optional anonymized user ID for compliance audit trail.
 
         Returns:
             ComplianceResult with compliance status and sanitized text.
@@ -275,7 +277,7 @@ class ComplianceGuard:
         # ── Layer 1: Banned terms ──
         banned_found = self._check_banned_terms(text)
         if banned_found:
-            logger.warning("ComplianceGuard L1: banned terms %s in %s", banned_found, component_type)
+            logger.warning("ComplianceGuard L1: banned terms %s in %s user=%s", banned_found, component_type, user_id or "anonymous")
             violations.extend(
                 [f"Terme interdit: '{term}'" for term in banned_found]
             )
@@ -287,7 +289,7 @@ class ComplianceGuard:
         # ── Layer 2: Prescriptive patterns ──
         prescriptive_found = self._check_prescriptive(text)
         if prescriptive_found:
-            logger.warning("ComplianceGuard L2: prescriptive %s in %s", prescriptive_found, component_type)
+            logger.warning("ComplianceGuard L2: prescriptive %s in %s user=%s", prescriptive_found, component_type, user_id or "anonymous")
             violations.extend(
                 [f"Langage prescriptif: '{p}'" for p in prescriptive_found]
             )

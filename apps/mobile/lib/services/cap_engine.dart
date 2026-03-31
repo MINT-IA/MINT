@@ -151,9 +151,10 @@ class CapEngine {
         profile.employmentStatus == 'retraite';
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
-    // P0-13: FATCA — US persons may face restrictions on 3a contributions
-    final isFatca = profile.archetype == FinancialArchetype.expatUs;
-    if (daysToYearEnd <= 90 && daysToYearEnd >= 0 && !isRetired && !isFatca) {
+    // FATCA: US persons CAN contribute to 3a (Swiss law allows it),
+    // but some providers refuse US persons due to PFIC/FATCA reporting.
+    // We show the cap but the FATCA guidance in fallback_templates warns about restrictions.
+    if (daysToYearEnd <= 90 && daysToYearEnd >= 0 && !isRetired) {
       final cards3a =
           ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.pillar3a)
@@ -451,7 +452,7 @@ class CapEngine {
     // P0-14: Deterministic tie-breaking — use id hashCode as secondary sort
     candidates.sort((a, b) {
       final cmp = b.priorityScore.compareTo(a.priorityScore);
-      return cmp != 0 ? cmp : a.id.hashCode.compareTo(b.id.hashCode);
+      return cmp != 0 ? cmp : a.id.compareTo(b.id); // Lexicographic — stable across versions
     });
 
     // Enrich the winner with supporting signals from other candidates.

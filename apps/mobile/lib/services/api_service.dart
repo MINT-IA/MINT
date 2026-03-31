@@ -223,6 +223,8 @@ class ApiService {
     } catch (_) {
       // Refresh failed — user will need to re-login
     }
+    // P1-11: Clear stale tokens when refresh fails — prevents cached token bypass.
+    await AuthService.logout();
     return false;
   }
 
@@ -275,6 +277,10 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return response.body;
+      } else if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
       }
       throw ApiException(
         _extractErrorDetail(response.body, fallback: 'GET $endpoint failed'),
@@ -306,6 +312,10 @@ class ApiService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return _safeJsonDecode(response.body, statusCode: response.statusCode);
+      } else if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
       } else {
         throw Exception('POST $endpoint failed: ${response.body}');
       }
@@ -335,6 +345,10 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return _safeJsonDecode(response.body, statusCode: response.statusCode);
+      } else if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
       } else {
         throw Exception('PUT $endpoint failed: ${response.body}');
       }
@@ -359,6 +373,11 @@ class ApiService {
         ).timeout(_httpTimeout);
       }
 
+      if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
+      }
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('DELETE $endpoint failed: ${response.body}');
       }

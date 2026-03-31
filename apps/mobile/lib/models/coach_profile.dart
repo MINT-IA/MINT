@@ -84,7 +84,7 @@ class ConjointProfile {
   final DateTime? dateOfBirth;
   final String? gender; // 'M', 'F', or null (AVS21 reference age)
   final double? salaireBrutMensuel;
-  final int nombreDeMois; // 12, 13, 13.5
+  final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
   final String?
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
@@ -125,7 +125,7 @@ class ConjointProfile {
     this.dateOfBirth,
     this.gender,
     this.salaireBrutMensuel,
-    this.nombreDeMois = 12,
+    this.nombreDeMois = 12.0,
     this.bonusPourcentage,
     this.employmentStatus,
     this.nationality,
@@ -207,7 +207,7 @@ class ConjointProfile {
           : null,
       gender: json['gender'] as String?,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble(),
-      nombreDeMois: json['nombreDeMois'] ?? 12,
+      nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] as String?,
       nationality: json['nationality'] as String?,
@@ -252,7 +252,7 @@ class ConjointProfile {
     DateTime? dateOfBirth,
     String? gender,
     double? salaireBrutMensuel,
-    int? nombreDeMois,
+    double? nombreDeMois,
     double? bonusPourcentage,
     String? employmentStatus,
     String? nationality,
@@ -598,10 +598,11 @@ class LibrePassageCompte {
       identical(this, other) ||
       other is LibrePassageCompte &&
           institution == other.institution &&
-          solde == other.solde;
+          solde == other.solde &&
+          dateOuverture == other.dateOuverture;
 
   @override
-  int get hashCode => Object.hash(institution, solde);
+  int get hashCode => Object.hash(institution, solde, dateOuverture);
 }
 
 /// Patrimoine (epargne + investissements + immobilier)
@@ -1020,6 +1021,18 @@ class GoalA {
         'targetAmount': targetAmount,
         'label': label,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GoalA &&
+          type == other.type &&
+          targetDate == other.targetDate &&
+          targetAmount == other.targetAmount &&
+          label == other.label;
+
+  @override
+  int get hashCode => Object.hash(type, targetDate, targetAmount, label);
 }
 
 /// Objectif secondaire (Goal B)
@@ -1053,6 +1066,18 @@ class GoalB {
         'targetDate': targetDate?.toIso8601String(),
         'priority': priority,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GoalB &&
+          label == other.label &&
+          targetAmount == other.targetAmount &&
+          targetDate == other.targetDate &&
+          priority == other.priority;
+
+  @override
+  int get hashCode => Object.hash(label, targetAmount, targetDate, priority);
 }
 
 /// Check-in mensuel (une "activite" au sens TrainerRoad)
@@ -1165,6 +1190,17 @@ class PlannedMonthlyContribution {
       isAutomatic: isAutomatic ?? this.isAutomatic,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlannedMonthlyContribution &&
+          id == other.id &&
+          amount == other.amount &&
+          category == other.category;
+
+  @override
+  int get hashCode => Object.hash(id, amount, category);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1196,7 +1232,7 @@ class CoachProfile {
 
   // === REVENUS ===
   final double salaireBrutMensuel;
-  final int nombreDeMois; // 12, 13, 13.5
+  final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
   final String
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
@@ -1295,7 +1331,7 @@ class CoachProfile {
     this.nombreEnfants = 0,
     this.conjoint,
     required this.salaireBrutMensuel,
-    this.nombreDeMois = 12,
+    this.nombreDeMois = 12.0,
     this.bonusPourcentage,
     this.employmentStatus = 'salarie',
     this.depenses = const DepensesProfile(),
@@ -1391,39 +1427,54 @@ class CoachProfile {
   // preferred over missing a genuine data change.
 
   @override
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is CoachProfile &&
           runtimeType == other.runtimeType &&
           firstName == other.firstName &&
           birthYear == other.birthYear &&
+          dateOfBirth == other.dateOfBirth &&
           canton == other.canton &&
+          commune == other.commune &&
           nationality == other.nationality &&
-          salaireBrutMensuel == other.salaireBrutMensuel &&
-          employmentStatus == other.employmentStatus &&
           etatCivil == other.etatCivil &&
           nombreEnfants == other.nombreEnfants &&
-          targetRetirementAge == other.targetRetirementAge &&
+          conjoint == other.conjoint &&
+          salaireBrutMensuel == other.salaireBrutMensuel &&
+          nombreDeMois == other.nombreDeMois &&
+          bonusPourcentage == other.bonusPourcentage &&
+          employmentStatus == other.employmentStatus &&
+          depenses == other.depenses &&
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
-          conjoint == other.conjoint &&
+          dettes == other.dettes &&
+          goalA == other.goalA &&
+          listEquals(goalsB, other.goalsB) &&
+          listEquals(plannedContributions, other.plannedContributions) &&
+          listEquals(checkIns, other.checkIns) &&
+          housingStatus == other.housingStatus &&
+          riskTolerance == other.riskTolerance &&
+          realEstateProject == other.realEstateProject &&
+          listEquals(providers3a, other.providers3a) &&
+          arrivalAge == other.arrivalAge &&
+          residencePermit == other.residencePermit &&
+          familyChange == other.familyChange &&
+          gender == other.gender &&
+          targetRetirementAge == other.targetRetirementAge &&
+          createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
 
   @override
   int get hashCode => Object.hashAll([
-        firstName,
-        birthYear,
-        canton,
-        nationality,
-        salaireBrutMensuel,
-        employmentStatus,
-        etatCivil,
-        nombreEnfants,
-        targetRetirementAge,
-        prevoyance,
-        patrimoine,
-        conjoint,
-        updatedAt,
+        firstName, birthYear, dateOfBirth, canton, commune, nationality,
+        etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
+        nombreDeMois, bonusPourcentage, employmentStatus,
+        depenses, prevoyance, patrimoine, dettes, goalA,
+        goalsB.length, plannedContributions.length, checkIns.length,
+        housingStatus, riskTolerance, realEstateProject,
+        providers3a.length, arrivalAge, residencePermit, familyChange,
+        gender, targetRetirementAge, createdAt, updatedAt,
       ]);
 
   // ════════════════════════════════════════════════════════════════
@@ -1613,7 +1664,7 @@ class CoachProfile {
     int? nombreEnfants,
     ConjointProfile? conjoint,
     double? salaireBrutMensuel,
-    int? nombreDeMois,
+    double? nombreDeMois,
     double? bonusPourcentage,
     String? employmentStatus,
     DepensesProfile? depenses,
@@ -1831,7 +1882,7 @@ class CoachProfile {
           ? ConjointProfile.fromJson(json['conjoint'])
           : null,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
-      nombreDeMois: json['nombreDeMois'] ?? 12,
+      nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
       depenses: json['depenses'] != null
@@ -2163,6 +2214,8 @@ class CoachProfile {
         case 'yes_3months':
           epargneLiquide = estimatedMonthlyExpenses * 3.0;
         case 'no':
+          // User declares no emergency fund — use 1 month of savings as
+          // conservative floor (0 would break liquidity ratios).
           epargneLiquide = savingsMonthly * 1;
         default:
           epargneLiquide =

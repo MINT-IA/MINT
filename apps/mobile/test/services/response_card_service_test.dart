@@ -15,7 +15,7 @@ final _l = SFr();
 CoachProfile _makeProfile({
   String? firstName,
   double salaire = 0,
-  int nombreDeMois = 12,
+  double nombreDeMois = 12.0,
   double? bonusPourcentage,
   String canton = '',
   int birthYear = 1980,

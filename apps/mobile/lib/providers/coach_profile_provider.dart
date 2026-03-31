@@ -1523,7 +1523,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     _profile = p.copyWith(
       salaireBrutMensuel: salaireBrut ?? p.salaireBrutMensuel,
-      nombreDeMois: nombreMois ?? p.nombreDeMois,
+      nombreDeMois: (nombreMois ?? p.nombreDeMois).toDouble(),
       bonusPourcentage: bonus ?? p.bonusPourcentage,
       dataSources: updatedSources,
       dataTimestamps: updatedTimestamps,

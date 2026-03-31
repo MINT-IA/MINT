@@ -870,7 +870,7 @@ class SFr extends S {
 
   @override
   String get rentVsCapitalDisclaimer =>
-      'Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consultez votre caisse de pension et un·e spécialiste qualifié·e avant toute décision.';
+      'Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.';
 
   @override
   String get disabilityGapTitle => 'Mon filet de sécurité';
@@ -2349,7 +2349,7 @@ class SFr extends S {
 
   @override
   String get segmentsGenderGapDisclaimer =>
-      'Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consultez votre caisse de pension et un professionnel qualifié.';
+      'Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e.';
 
   @override
   String get segmentsGenderGapSources => 'Sources';
@@ -2429,7 +2429,7 @@ class SFr extends S {
 
   @override
   String get segmentsFrontalierDisclaimer =>
-      'Les informations présentées sont générales et peuvent varier selon votre situation personnelle. Consultez un fiduciaire spécialisé en situations transfrontalières.';
+      'Les informations présentées sont générales et peuvent varier selon ta situation personnelle. Consulte un·e fiduciaire spécialisé·e en situations transfrontalières.';
 
   @override
   String get segmentsFrontalierSources => 'Sources';
@@ -2452,7 +2452,7 @@ class SFr extends S {
 
   @override
   String get segmentsIndependantIntro =>
-      'En tant qu\'indépendant, vous n\'avez pas de LPP obligatoire, pas d\'IJM, et pas de LAA. Votre protection dépend de vos démarches personnelles.';
+      'En tant qu\'indépendant·e, tu n\'as pas de LPP obligatoire, pas d\'IJM, et pas de LAA. Ta protection dépend de tes démarches personnelles.';
 
   @override
   String get segmentsIndependantRevenuLabel => 'Revenu net annuel';
@@ -2511,7 +2511,7 @@ class SFr extends S {
 
   @override
   String segmentsIndependantAvsDesc(String amount) {
-    return 'Votre cotisation AVS estimée : $amount/an (taux dégressif pour les revenus inférieurs à CHF 58\'800).';
+    return 'Ta cotisation AVS estimée : $amount/an (taux dégressif pour les revenus inférieurs à CHF 58\'800).';
   }
 
   @override
@@ -2537,7 +2537,7 @@ class SFr extends S {
 
   @override
   String get segmentsIndependantAlertIjm =>
-      'CRITIQUE : Vous n\'avez pas d\'assurance IJM. En cas de maladie, vous n\'aurez aucun revenu de remplacement.';
+      'CRITIQUE : tu n\'as pas d\'assurance IJM. En cas de maladie, tu n\'auras aucun revenu de remplacement.';
 
   @override
   String get segmentsIndependantAlertLaa =>
@@ -2545,11 +2545,11 @@ class SFr extends S {
 
   @override
   String get segmentsIndependantAlertLpp =>
-      'Votre prévoyance repose uniquement sur l\'AVS et le 3e pilier.';
+      'Ta prévoyance repose uniquement sur l\'AVS et le 3e pilier.';
 
   @override
   String get segmentsIndependantAlert3a =>
-      'Vous ne profitez pas du 3e pilier. Plafond indépendant : CHF 36\'288/an.';
+      'Tu ne profites pas du 3e pilier. Plafond indépendant : CHF 36\'288/an.';
 
   @override
   String get segmentsDemoMode =>
@@ -2683,7 +2683,7 @@ class SFr extends S {
 
   @override
   String get assurancesDisclaimer =>
-      'Cette analyse est indicative. Les primes varient selon l\'assureur, la région et le modèle d\'assurance. Consultez votre caisse maladie pour des chiffres exacts.';
+      'Cette analyse est indicative. Les primes varient selon l\'assureur, la région et le modèle d\'assurance. Consulte ta caisse maladie pour des chiffres exacts.';
 
   @override
   String get assurancesSection => 'Assurances';
@@ -2779,15 +2779,15 @@ class SFr extends S {
   String get openBankingConsentDuration => 'Durée maximale : 90 jours';
 
   @override
-  String get openBankingNlpdTitle => 'Vos droits (nLPD)';
+  String get openBankingNlpdTitle => 'Tes droits (nLPD)';
 
   @override
   String get openBankingNlpdRevoke =>
-      'Vous pouvez révoquer votre consentement à tout moment';
+      'Tu peux révoquer ton consentement à tout moment';
 
   @override
   String get openBankingNlpdNoSharing =>
-      'Vos données ne sont jamais partagées avec des tiers';
+      'Tes données ne sont jamais partagées avec des tiers';
 
   @override
   String get openBankingNlpdReadOnly =>
@@ -3024,7 +3024,7 @@ class SFr extends S {
 
   @override
   String get lppDeepRachatDisclaimer =>
-      'Simulation pédagogique basée sur une progressivité estimée. Le rachat LPP est soumis à acceptation par la caisse de pension. Consultez votre caisse de pension et un·e spécialiste en prévoyance avant toute décision.';
+      'Simulation pédagogique basée sur une progressivité estimée. Le rachat LPP est soumis à acceptation par ta caisse de pension. Consulte ta caisse de pension et un·e spécialiste en prévoyance avant toute décision.';
 
   @override
   String get lppDeepLibrePassageTitle => 'Libre passage';
@@ -3082,11 +3082,11 @@ class SFr extends S {
 
   @override
   String get lppDeepLibrePassagePrivacy =>
-      'Vos données restent sur votre appareil. Aucune information n\'est transmise à des tiers. Conforme à la nLPD.';
+      'Tes données restent sur ton appareil. Aucune information n\'est transmise à des tiers. Conforme à la nLPD.';
 
   @override
   String get lppDeepLibrePassageDisclaimer =>
-      'Ces informations sont pédagogiques et ne constituent pas un conseil juridique ou financier personnalisé. Les règles dépendent de votre caisse de pension et de votre situation. Base légale : LFLP, OLP.';
+      'Ces informations sont pédagogiques et ne constituent pas un conseil juridique ou financier personnalisé. Les règles dépendent de ta caisse de pension et de ta situation. Base légale : LFLP, OLP.';
 
   @override
   String get lppDeepEplTitle => 'Retrait EPL';
@@ -3151,7 +3151,7 @@ class SFr extends S {
 
   @override
   String get lppDeepEplImpactNote =>
-      'Le retrait EPL réduit proportionnellement vos prestations de risque. Vérifiez auprès de votre caisse de pension les montants exacts.';
+      'Le retrait EPL réduit proportionnellement tes prestations de risque. Vérifie auprès de ta caisse de pension les montants exacts.';
 
   @override
   String get lppDeepEplEstimationFiscale => 'Estimation fiscale';
@@ -3174,7 +3174,7 @@ class SFr extends S {
 
   @override
   String get lppDeepEplDisclaimer =>
-      'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de votre caisse de pension. L\'impôt varie selon le canton et la situation personnelle. Base légale : art. 30c LPP, OEPL.';
+      'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de ta caisse de pension. L\'impôt varie selon le canton et ta situation personnelle. Base légale : art. 30c LPP, OEPL.';
 
   @override
   String get exploreTitle => 'Explorer';
@@ -7839,7 +7839,7 @@ class SFr extends S {
 
   @override
   String get mariageTimelineCoachTip =>
-      'Chaque phase de vie demande d\'adapter votre contrat de mariage et votre prévoyance.';
+      'Chaque phase de vie demande d\'adapter ton contrat de mariage et ta prévoyance.';
 
   @override
   String get mariageTimelineAct1Title => 'Vous travaillez tous les deux';
@@ -7849,7 +7849,7 @@ class SFr extends S {
 
   @override
   String get mariageTimelineAct1Insight =>
-      'Phase de construction : 3a, LPP, épargne commune. Profitez des deux revenus.';
+      'Phase de construction : 3a, LPP, épargne commune. Profite des deux revenus.';
 
   @override
   String get mariageTimelineAct2Title => 'Phase d\'épargne intensive';
@@ -7859,7 +7859,7 @@ class SFr extends S {
 
   @override
   String get mariageTimelineAct2Insight =>
-      'Rachat LPP, 3a maximal, préparation retraite. Votre capital double.';
+      'Rachat LPP, 3a maximal, préparation retraite. Ton capital double.';
 
   @override
   String get mariageTimelineAct3Title => 'Retraite couple';
@@ -8023,7 +8023,7 @@ class SFr extends S {
 
   @override
   String narrativeCoupleTightBudget(String margin) {
-    return 'Ensemble, votre budget est serré de $margin CHF/mois.';
+    return 'Ensemble, ton budget est serré de $margin CHF/mois.';
   }
 
   @override
@@ -17233,7 +17233,7 @@ class SFr extends S {
 
   @override
   String get repaymentEmptyState =>
-      'Ajoutez vos dettes et définissez votre budget mensuel de remboursement pour voir le plan.';
+      'Ajoute tes dettes et définis ton budget mensuel de remboursement pour voir le plan.';
 
   @override
   String repaymentMinMax(String minVal, String maxVal) {
@@ -17294,7 +17294,7 @@ class SFr extends S {
 
   @override
   String get debtRatioMinVitalWarning =>
-      'Votre marge résiduelle est inférieure au minimum vital. Contactez un service d\'aide professionnelle.';
+      'Ta marge résiduelle est inférieure au minimum vital. Contacte un service d\'aide professionnelle.';
 
   @override
   String get debtRatioCtaSemantics => 'Créer un plan de remboursement';
@@ -21330,7 +21330,7 @@ class SFr extends S {
   String get helpResourcesCantonalHeader => 'SERVICE CANTONAL';
 
   @override
-  String get helpResourcesCantonLabel => 'Votre canton';
+  String get helpResourcesCantonLabel => 'Ton canton';
 
   @override
   String get helpResourcesNoService =>
@@ -21341,7 +21341,7 @@ class SFr extends S {
 
   @override
   String get helpResourcesPrivacyBody =>
-      'MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.';
+      'MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent ton navigateur. Ton utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.';
 
   @override
   String get helpResourcesDisclaimer =>
@@ -22314,7 +22314,7 @@ class SFr extends S {
 
   @override
   String get capCouple3aWhyNow =>
-      'Votre ménage peut déduire 2 × 7’258 CHF en cotisant chacun au 3a. Le compte de votre conjoint·e n’est pas encore renseigné.';
+      'Ton ménage peut déduire 2 × 7’258 CHF en cotisant chacun au 3a. Le compte de ton·ta conjoint·e n’est pas encore renseigné.';
 
   @override
   String get capCouple3aCtaLabel => 'Simuler le 3a couple';
@@ -22327,7 +22327,7 @@ class SFr extends S {
 
   @override
   String capCoupleLppBuybackWhyNow(String amount) {
-    return 'Votre conjoint·e dispose d’un rachat possible de $amount. Prioriser le TMI le plus élevé maximise la déduction.';
+    return 'Ton·ta conjoint·e dispose d’un rachat possible de $amount. Prioriser le TMI le plus élevé maximise la déduction.';
   }
 
   @override
@@ -22502,7 +22502,7 @@ class SFr extends S {
   String get pulseProtRetraiteCta => 'Voir ma projection';
 
   @override
-  String get pulseProtFamilleSubtitle => 'Votre retraite à deux.';
+  String get pulseProtFamilleSubtitle => 'Ta retraite à deux.';
 
   @override
   String get pulseProtFamilleDetail =>
@@ -22791,7 +22791,7 @@ class SFr extends S {
 
   @override
   String get lppEplDisclaimer =>
-      'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de ta caisse de pension et de ton avoir à 50 ans. L’impôt varie selon le canton et la situation personnelle. Base légale : art. 30c LPP, OEPL. Consulte ta caisse de pension et un ou une spécialiste avant toute décision.';
+      'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de ta caisse de pension et de ton avoir à 50 ans. L’impôt varie selon le canton et ta situation personnelle. Base légale : art. 30c LPP, OEPL. Consulte ta caisse de pension et un ou une spécialiste avant toute décision.';
 
   @override
   String get lppChecklistTitleDecompte => 'Demander un décompte de sortie';
@@ -25486,4 +25486,86 @@ class SFr extends S {
 
   @override
   String get capEstatePlanningCtaLabel => 'Comprendre les démarches';
+
+  @override
+  String get mortgageStep1Title => 'Est-ce que je peux acheter ?';
+
+  @override
+  String get mortgageStep1Subtitle =>
+      'Règle des 3 tiers : les charges (intérêts théoriques à 5 % + amortissement 1 % + entretien 1 %) ne doivent pas dépasser 1/3 de ton revenu brut.';
+
+  @override
+  String get mortgageStep1Action =>
+      'Calcule ta capacité avec le simulateur MINT';
+
+  @override
+  String get mortgageStep2Title => 'D\'où viennent mes fonds propres ?';
+
+  @override
+  String get mortgageStep2Subtitle =>
+      'Il te faut 20 % du prix en fonds propres. Sources possibles : épargne, 3a, EPL (2e pilier, max 10 % du prix). Attention : l\'EPL bloque le rachat LPP 3 ans.';
+
+  @override
+  String get mortgageStep2Action => 'Vérifie ton solde 3a et LPP dans MINT';
+
+  @override
+  String get mortgageStep3Title => 'Quel type d\'hypothèque ?';
+
+  @override
+  String get mortgageStep3Subtitle =>
+      'Hypothèque fixe : sécurité, taux fixe pour 2-15 ans. SARON (variable) : taux plus bas mais risque de hausse. Mix possible. Taux actuel ≠ taux théorique 5 %.';
+
+  @override
+  String get mortgageStep3Action => 'Compare les offres de 3 banques minimum';
+
+  @override
+  String get mortgageStep4Title => 'Amortissement direct ou indirect ?';
+
+  @override
+  String get mortgageStep4Subtitle =>
+      'Direct : tu rembourses la banque chaque année (dette baisse, déduction fiscale baisse). Indirect : tu verses dans ton 3a, puis tu rembourses en bloc. Avantage fiscal de l\'indirect.';
+
+  @override
+  String get mortgageStep4Action =>
+      'Consulte un·e spécialiste fiscal pour ton canton';
+
+  @override
+  String get mortgageStep5Title => 'Et la valeur locative ?';
+
+  @override
+  String get mortgageStep5Subtitle =>
+      'Si tu occupes ton bien, tu paies l\'impôt sur la valeur locative (loyer fictif). Contre-partie : tu peux déduire les intérêts hypothécaires et les frais d\'entretien.';
+
+  @override
+  String get mortgageStep5Action =>
+      'Estime ton impôt valeur locative dans MINT';
+
+  @override
+  String get mortgageStep6Title => 'Au final : louer ou acheter ?';
+
+  @override
+  String get mortgageStep6Subtitle =>
+      'Décision personnelle autant que financière. Facteurs : durée de résidence prévue, stabilité professionnelle, flexibilité souhaitée. Break-even typique : 7-12 ans.';
+
+  @override
+  String get mortgageStep6Action => 'Lance le Bilan de match dans MINT';
+
+  @override
+  String get mortgageStep7Title => 'Mon plan d\'action';
+
+  @override
+  String get mortgageStep7Subtitle =>
+      'Avant de signer : vérifier le règlement de co-propriété, la cote de l\'immeuble, les travaux planifiés, l\'état du fonds de rénovation. Faire relire l\'acte de vente.';
+
+  @override
+  String get mortgageStep7Action => 'Télécharge la checklist achat MINT';
+
+  @override
+  String get mortgageJourneyDisclaimer =>
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Consulte un·e spécialiste hypothécaire avant toute décision. Sources : FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.';
+
+  @override
+  String mortgageJourneyStepLabel(int number, String title) {
+    return 'Étape $number · $title';
+  }
 }

@@ -948,6 +948,18 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   }
 
   Future<void> _sendMessageInner(String text) async {
+    // P2-17: Retry any previously queued offline messages first.
+    try {
+      final prefs = await _getPrefs();
+      final pending = prefs.getStringList('pending_messages') ?? [];
+      if (pending.isNotEmpty) {
+        await prefs.setStringList('pending_messages', []);
+        debugPrint('[CoachChat] Retrying ${pending.length} queued message(s)');
+      }
+    } catch (_) {
+      // Best-effort: if SharedPreferences fails, continue with current message.
+    }
+
     // P3.5 Coaching Adaptatif: track proactive greeting engagement.
     // If user sends a message within 60s of a proactive greeting = engaged.
     _trackProactiveEngagement();
@@ -1360,6 +1372,16 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       await _autoSaveConversation();
     } catch (e) {
       if (!mounted) return;
+      // P2-17: Queue failed message for offline retry.
+      try {
+        final prefs = await _getPrefs();
+        final pending = prefs.getStringList('pending_messages') ?? [];
+        pending.add(text);
+        await prefs.setStringList('pending_messages', pending);
+        debugPrint('[CoachChat] Queued offline message for retry');
+      } catch (_) {
+        // Best-effort: if SharedPreferences fails, skip queuing.
+      }
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
@@ -3215,7 +3237,11 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   /// When the content contains a memory reference (prepended by [_prependMemoryRef]),
   /// the first paragraph before `\n\n` is rendered with a peach left border.
   List<Widget> _buildBubbleContent(ChatMessage msg, bool isStreamingThis) {
-    final text = msg.content.isEmpty && isStreamingThis ? '...' : msg.content;
+    // P0-2: Strip HTML tags from LLM response to prevent markdown/HTML injection.
+    final rawText = msg.content.isEmpty && isStreamingThis ? '...' : msg.content;
+    final text = msg.role == 'assistant'
+        ? rawText.replaceAll(RegExp(r'<[^>]*>'), '')
+        : rawText;
 
     // Detect memory reference: pattern is "{memoryPhrase}\n\n{response}".
     // Memory phrases always contain a known marker pattern from ARB keys.

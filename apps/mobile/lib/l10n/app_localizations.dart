@@ -1632,7 +1632,7 @@ abstract class S {
   /// No description provided for @rentVsCapitalDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consultez votre caisse de pension et un·e spécialiste qualifié·e avant toute décision.'**
+  /// **'Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.'**
   String get rentVsCapitalDisclaimer;
 
   /// No description provided for @disabilityGapTitle.
@@ -4316,7 +4316,7 @@ abstract class S {
   /// No description provided for @segmentsGenderGapDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consultez votre caisse de pension et un professionnel qualifié.'**
+  /// **'Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e.'**
   String get segmentsGenderGapDisclaimer;
 
   /// No description provided for @segmentsGenderGapSources.
@@ -4466,7 +4466,7 @@ abstract class S {
   /// No description provided for @segmentsFrontalierDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Les informations présentées sont générales et peuvent varier selon votre situation personnelle. Consultez un fiduciaire spécialisé en situations transfrontalières.'**
+  /// **'Les informations présentées sont générales et peuvent varier selon ta situation personnelle. Consulte un·e fiduciaire spécialisé·e en situations transfrontalières.'**
   String get segmentsFrontalierDisclaimer;
 
   /// No description provided for @segmentsFrontalierSources.
@@ -4508,7 +4508,7 @@ abstract class S {
   /// No description provided for @segmentsIndependantIntro.
   ///
   /// In fr, this message translates to:
-  /// **'En tant qu\'indépendant, vous n\'avez pas de LPP obligatoire, pas d\'IJM, et pas de LAA. Votre protection dépend de vos démarches personnelles.'**
+  /// **'En tant qu\'indépendant·e, tu n\'as pas de LPP obligatoire, pas d\'IJM, et pas de LAA. Ta protection dépend de tes démarches personnelles.'**
   String get segmentsIndependantIntro;
 
   /// No description provided for @segmentsIndependantRevenuLabel.
@@ -4622,7 +4622,7 @@ abstract class S {
   /// No description provided for @segmentsIndependantAvsDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Votre cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58\'800).'**
+  /// **'Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58\'800).'**
   String segmentsIndependantAvsDesc(String amount);
 
   /// No description provided for @segmentsIndependant3aTitle.
@@ -4664,7 +4664,7 @@ abstract class S {
   /// No description provided for @segmentsIndependantAlertIjm.
   ///
   /// In fr, this message translates to:
-  /// **'CRITIQUE : Vous n\'avez pas d\'assurance IJM. En cas de maladie, vous n\'aurez aucun revenu de remplacement.'**
+  /// **'CRITIQUE : tu n\'as pas d\'assurance IJM. En cas de maladie, tu n\'auras aucun revenu de remplacement.'**
   String get segmentsIndependantAlertIjm;
 
   /// No description provided for @segmentsIndependantAlertLaa.
@@ -4676,13 +4676,13 @@ abstract class S {
   /// No description provided for @segmentsIndependantAlertLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Votre prévoyance repose uniquement sur l\'AVS et le 3e pilier.'**
+  /// **'Ta prévoyance repose uniquement sur l\'AVS et le 3e pilier.'**
   String get segmentsIndependantAlertLpp;
 
   /// No description provided for @segmentsIndependantAlert3a.
   ///
   /// In fr, this message translates to:
-  /// **'Vous ne profitez pas du 3e pilier. Plafond indépendant : CHF 36\'288/an.'**
+  /// **'Tu ne profites pas du 3e pilier. Plafond indépendant : CHF 36\'288/an.'**
   String get segmentsIndependantAlert3a;
 
   /// No description provided for @segmentsDemoMode.
@@ -4940,7 +4940,7 @@ abstract class S {
   /// No description provided for @assurancesDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Cette analyse est indicative. Les primes varient selon l\'assureur, la région et le modèle d\'assurance. Consultez votre caisse maladie pour des chiffres exacts.'**
+  /// **'Cette analyse est indicative. Les primes varient selon l\'assureur, la région et le modèle d\'assurance. Consulte ta caisse maladie pour des chiffres exacts.'**
   String get assurancesDisclaimer;
 
   /// No description provided for @assurancesSection.
@@ -5126,19 +5126,19 @@ abstract class S {
   /// No description provided for @openBankingNlpdTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Vos droits (nLPD)'**
+  /// **'Tes droits (nLPD)'**
   String get openBankingNlpdTitle;
 
   /// No description provided for @openBankingNlpdRevoke.
   ///
   /// In fr, this message translates to:
-  /// **'Vous pouvez révoquer votre consentement à tout moment'**
+  /// **'Tu peux révoquer ton consentement à tout moment'**
   String get openBankingNlpdRevoke;
 
   /// No description provided for @openBankingNlpdNoSharing.
   ///
   /// In fr, this message translates to:
-  /// **'Vos données ne sont jamais partagées avec des tiers'**
+  /// **'Tes données ne sont jamais partagées avec des tiers'**
   String get openBankingNlpdNoSharing;
 
   /// No description provided for @openBankingNlpdReadOnly.
@@ -5582,7 +5582,7 @@ abstract class S {
   /// No description provided for @lppDeepRachatDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation pédagogique basée sur une progressivité estimée. Le rachat LPP est soumis à acceptation par la caisse de pension. Consultez votre caisse de pension et un·e spécialiste en prévoyance avant toute décision.'**
+  /// **'Simulation pédagogique basée sur une progressivité estimée. Le rachat LPP est soumis à acceptation par ta caisse de pension. Consulte ta caisse de pension et un·e spécialiste en prévoyance avant toute décision.'**
   String get lppDeepRachatDisclaimer;
 
   /// No description provided for @lppDeepLibrePassageTitle.
@@ -5690,13 +5690,13 @@ abstract class S {
   /// No description provided for @lppDeepLibrePassagePrivacy.
   ///
   /// In fr, this message translates to:
-  /// **'Vos données restent sur votre appareil. Aucune information n\'est transmise à des tiers. Conforme à la nLPD.'**
+  /// **'Tes données restent sur ton appareil. Aucune information n\'est transmise à des tiers. Conforme à la nLPD.'**
   String get lppDeepLibrePassagePrivacy;
 
   /// No description provided for @lppDeepLibrePassageDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Ces informations sont pédagogiques et ne constituent pas un conseil juridique ou financier personnalisé. Les règles dépendent de votre caisse de pension et de votre situation. Base légale : LFLP, OLP.'**
+  /// **'Ces informations sont pédagogiques et ne constituent pas un conseil juridique ou financier personnalisé. Les règles dépendent de ta caisse de pension et de ta situation. Base légale : LFLP, OLP.'**
   String get lppDeepLibrePassageDisclaimer;
 
   /// No description provided for @lppDeepEplTitle.
@@ -5816,7 +5816,7 @@ abstract class S {
   /// No description provided for @lppDeepEplImpactNote.
   ///
   /// In fr, this message translates to:
-  /// **'Le retrait EPL réduit proportionnellement vos prestations de risque. Vérifiez auprès de votre caisse de pension les montants exacts.'**
+  /// **'Le retrait EPL réduit proportionnellement tes prestations de risque. Vérifie auprès de ta caisse de pension les montants exacts.'**
   String get lppDeepEplImpactNote;
 
   /// No description provided for @lppDeepEplEstimationFiscale.
@@ -5858,7 +5858,7 @@ abstract class S {
   /// No description provided for @lppDeepEplDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de votre caisse de pension. L\'impôt varie selon le canton et la situation personnelle. Base légale : art. 30c LPP, OEPL.'**
+  /// **'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de ta caisse de pension. L\'impôt varie selon le canton et ta situation personnelle. Base légale : art. 30c LPP, OEPL.'**
   String get lppDeepEplDisclaimer;
 
   /// No description provided for @exploreTitle.
@@ -14183,7 +14183,7 @@ abstract class S {
   /// No description provided for @mariageTimelineCoachTip.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque phase de vie demande d\'adapter votre contrat de mariage et votre prévoyance.'**
+  /// **'Chaque phase de vie demande d\'adapter ton contrat de mariage et ta prévoyance.'**
   String get mariageTimelineCoachTip;
 
   /// No description provided for @mariageTimelineAct1Title.
@@ -14201,7 +14201,7 @@ abstract class S {
   /// No description provided for @mariageTimelineAct1Insight.
   ///
   /// In fr, this message translates to:
-  /// **'Phase de construction : 3a, LPP, épargne commune. Profitez des deux revenus.'**
+  /// **'Phase de construction : 3a, LPP, épargne commune. Profite des deux revenus.'**
   String get mariageTimelineAct1Insight;
 
   /// No description provided for @mariageTimelineAct2Title.
@@ -14219,7 +14219,7 @@ abstract class S {
   /// No description provided for @mariageTimelineAct2Insight.
   ///
   /// In fr, this message translates to:
-  /// **'Rachat LPP, 3a maximal, préparation retraite. Votre capital double.'**
+  /// **'Rachat LPP, 3a maximal, préparation retraite. Ton capital double.'**
   String get mariageTimelineAct2Insight;
 
   /// No description provided for @mariageTimelineAct3Title.
@@ -14501,7 +14501,7 @@ abstract class S {
   /// No description provided for @narrativeCoupleTightBudget.
   ///
   /// In fr, this message translates to:
-  /// **'Ensemble, votre budget est serré de {margin} CHF/mois.'**
+  /// **'Ensemble, ton budget est serré de {margin} CHF/mois.'**
   String narrativeCoupleTightBudget(String margin);
 
   /// No description provided for @narrativeCoupleHighPatrimoine.
@@ -30530,7 +30530,7 @@ abstract class S {
   /// No description provided for @repaymentEmptyState.
   ///
   /// In fr, this message translates to:
-  /// **'Ajoutez vos dettes et définissez votre budget mensuel de remboursement pour voir le plan.'**
+  /// **'Ajoute tes dettes et définis ton budget mensuel de remboursement pour voir le plan.'**
   String get repaymentEmptyState;
 
   /// No description provided for @repaymentMinMax.
@@ -30638,7 +30638,7 @@ abstract class S {
   /// No description provided for @debtRatioMinVitalWarning.
   ///
   /// In fr, this message translates to:
-  /// **'Votre marge résiduelle est inférieure au minimum vital. Contactez un service d\'aide professionnelle.'**
+  /// **'Ta marge résiduelle est inférieure au minimum vital. Contacte un service d\'aide professionnelle.'**
   String get debtRatioMinVitalWarning;
 
   /// No description provided for @debtRatioCtaSemantics.
@@ -37639,7 +37639,7 @@ abstract class S {
   /// No description provided for @helpResourcesCantonLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Votre canton'**
+  /// **'Ton canton'**
   String get helpResourcesCantonLabel;
 
   /// No description provided for @helpResourcesNoService.
@@ -37657,7 +37657,7 @@ abstract class S {
   /// No description provided for @helpResourcesPrivacyBody.
   ///
   /// In fr, this message translates to:
-  /// **'MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent votre navigateur. Votre utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.'**
+  /// **'MINT ne transmet aucune donnée personnelle aux services référencés ci-dessus. Les liens externes ouvrent ton navigateur. Ton utilisation de cet écran reste strictement confidentielle et n’est ni enregistrée ni partagée.'**
   String get helpResourcesPrivacyBody;
 
   /// No description provided for @helpResourcesDisclaimer.
@@ -39362,7 +39362,7 @@ abstract class S {
   /// No description provided for @capCouple3aWhyNow.
   ///
   /// In fr, this message translates to:
-  /// **'Votre ménage peut déduire 2 × 7’258 CHF en cotisant chacun au 3a. Le compte de votre conjoint·e n’est pas encore renseigné.'**
+  /// **'Ton ménage peut déduire 2 × 7’258 CHF en cotisant chacun au 3a. Le compte de ton·ta conjoint·e n’est pas encore renseigné.'**
   String get capCouple3aWhyNow;
 
   /// No description provided for @capCouple3aCtaLabel.
@@ -39386,7 +39386,7 @@ abstract class S {
   /// No description provided for @capCoupleLppBuybackWhyNow.
   ///
   /// In fr, this message translates to:
-  /// **'Votre conjoint·e dispose d’un rachat possible de {amount}. Prioriser le TMI le plus élevé maximise la déduction.'**
+  /// **'Ton·ta conjoint·e dispose d’un rachat possible de {amount}. Prioriser le TMI le plus élevé maximise la déduction.'**
   String capCoupleLppBuybackWhyNow(String amount);
 
   /// No description provided for @capCoupleLppBuybackCtaLabel.
@@ -39686,7 +39686,7 @@ abstract class S {
   /// No description provided for @pulseProtFamilleSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Votre retraite à deux.'**
+  /// **'Ta retraite à deux.'**
   String get pulseProtFamilleSubtitle;
 
   /// No description provided for @pulseProtFamilleDetail.
@@ -40196,7 +40196,7 @@ abstract class S {
   /// No description provided for @lppEplDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de ta caisse de pension et de ton avoir à 50 ans. L’impôt varie selon le canton et la situation personnelle. Base légale : art. 30c LPP, OEPL. Consulte ta caisse de pension et un ou une spécialiste avant toute décision.'**
+  /// **'Simulation pédagogique à titre indicatif. Le montant retirable exact dépend du règlement de ta caisse de pension et de ton avoir à 50 ans. L’impôt varie selon le canton et ta situation personnelle. Base légale : art. 30c LPP, OEPL. Consulte ta caisse de pension et un ou une spécialiste avant toute décision.'**
   String get lppEplDisclaimer;
 
   /// No description provided for @lppChecklistTitleDecompte.
@@ -44892,6 +44892,144 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Comprendre les démarches'**
   String get capEstatePlanningCtaLabel;
+
+  /// No description provided for @mortgageStep1Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Est-ce que je peux acheter ?'**
+  String get mortgageStep1Title;
+
+  /// No description provided for @mortgageStep1Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règle des 3 tiers : les charges (intérêts théoriques à 5 % + amortissement 1 % + entretien 1 %) ne doivent pas dépasser 1/3 de ton revenu brut.'**
+  String get mortgageStep1Subtitle;
+
+  /// No description provided for @mortgageStep1Action.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcule ta capacité avec le simulateur MINT'**
+  String get mortgageStep1Action;
+
+  /// No description provided for @mortgageStep2Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'où viennent mes fonds propres ?'**
+  String get mortgageStep2Title;
+
+  /// No description provided for @mortgageStep2Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te faut 20 % du prix en fonds propres. Sources possibles : épargne, 3a, EPL (2e pilier, max 10 % du prix). Attention : l\'EPL bloque le rachat LPP 3 ans.'**
+  String get mortgageStep2Subtitle;
+
+  /// No description provided for @mortgageStep2Action.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ton solde 3a et LPP dans MINT'**
+  String get mortgageStep2Action;
+
+  /// No description provided for @mortgageStep3Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel type d\'hypothèque ?'**
+  String get mortgageStep3Title;
+
+  /// No description provided for @mortgageStep3Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque fixe : sécurité, taux fixe pour 2-15 ans. SARON (variable) : taux plus bas mais risque de hausse. Mix possible. Taux actuel ≠ taux théorique 5 %.'**
+  String get mortgageStep3Subtitle;
+
+  /// No description provided for @mortgageStep3Action.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les offres de 3 banques minimum'**
+  String get mortgageStep3Action;
+
+  /// No description provided for @mortgageStep4Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortissement direct ou indirect ?'**
+  String get mortgageStep4Title;
+
+  /// No description provided for @mortgageStep4Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct : tu rembourses la banque chaque année (dette baisse, déduction fiscale baisse). Indirect : tu verses dans ton 3a, puis tu rembourses en bloc. Avantage fiscal de l\'indirect.'**
+  String get mortgageStep4Subtitle;
+
+  /// No description provided for @mortgageStep4Action.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte un·e spécialiste fiscal pour ton canton'**
+  String get mortgageStep4Action;
+
+  /// No description provided for @mortgageStep5Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Et la valeur locative ?'**
+  String get mortgageStep5Title;
+
+  /// No description provided for @mortgageStep5Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu occupes ton bien, tu paies l\'impôt sur la valeur locative (loyer fictif). Contre-partie : tu peux déduire les intérêts hypothécaires et les frais d\'entretien.'**
+  String get mortgageStep5Subtitle;
+
+  /// No description provided for @mortgageStep5Action.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estime ton impôt valeur locative dans MINT'**
+  String get mortgageStep5Action;
+
+  /// No description provided for @mortgageStep6Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au final : louer ou acheter ?'**
+  String get mortgageStep6Title;
+
+  /// No description provided for @mortgageStep6Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décision personnelle autant que financière. Facteurs : durée de résidence prévue, stabilité professionnelle, flexibilité souhaitée. Break-even typique : 7-12 ans.'**
+  String get mortgageStep6Subtitle;
+
+  /// No description provided for @mortgageStep6Action.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lance le Bilan de match dans MINT'**
+  String get mortgageStep6Action;
+
+  /// No description provided for @mortgageStep7Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan d\'action'**
+  String get mortgageStep7Title;
+
+  /// No description provided for @mortgageStep7Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant de signer : vérifier le règlement de co-propriété, la cote de l\'immeuble, les travaux planifiés, l\'état du fonds de rénovation. Faire relire l\'acte de vente.'**
+  String get mortgageStep7Subtitle;
+
+  /// No description provided for @mortgageStep7Action.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharge la checklist achat MINT'**
+  String get mortgageStep7Action;
+
+  /// No description provided for @mortgageJourneyDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Consulte un·e spécialiste hypothécaire avant toute décision. Sources : FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.'**
+  String get mortgageJourneyDisclaimer;
+
+  /// No description provided for @mortgageJourneyStepLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {number} · {title}'**
+  String mortgageJourneyStepLabel(int number, String title);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

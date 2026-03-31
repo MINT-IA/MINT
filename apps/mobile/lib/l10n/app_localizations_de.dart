@@ -25540,4 +25540,86 @@ class SDe extends S {
 
   @override
   String get capEstatePlanningCtaLabel => 'Schritte verstehen';
+
+  @override
+  String get mortgageStep1Title => 'Kann ich mir einen Kauf leisten?';
+
+  @override
+  String get mortgageStep1Subtitle =>
+      'Drittel-Regel: Die Belastung (theoretischer Zins 5% + Amortisation 1% + Unterhalt 1%) darf 1/3 des Bruttoeinkommens nicht überschreiten.';
+
+  @override
+  String get mortgageStep1Action =>
+      'Berechne deine Tragbarkeit mit dem MINT-Simulator';
+
+  @override
+  String get mortgageStep2Title => 'Woher kommen meine Eigenmittel?';
+
+  @override
+  String get mortgageStep2Subtitle =>
+      'Du brauchst 20% des Preises als Eigenmittel. Quellen: Ersparnisse, 3a, WEF (2. Säule, max. 10% des Preises). Achtung: WEF sperrt den Einkauf in die PK für 3 Jahre.';
+
+  @override
+  String get mortgageStep2Action => 'Prüfe deinen 3a- und BVG-Saldo in MINT';
+
+  @override
+  String get mortgageStep3Title => 'Welche Art von Hypothek?';
+
+  @override
+  String get mortgageStep3Subtitle =>
+      'Festhypothek: Sicherheit, fester Zins für 2-15 Jahre. SARON (variabel): tieferer Zins, aber Zinsrisiko. Mix möglich. Aktueller Zins ≠ theoretischer 5%-Zins.';
+
+  @override
+  String get mortgageStep3Action =>
+      'Vergleiche Angebote von mindestens 3 Banken';
+
+  @override
+  String get mortgageStep4Title => 'Direkte oder indirekte Amortisation?';
+
+  @override
+  String get mortgageStep4Subtitle =>
+      'Direkt: Du zahlst die Bank jedes Jahr zurück (Schuld sinkt, Steuerabzug sinkt). Indirekt: Du zahlst in die 3a ein, dann tilgst du auf einmal. Steuervorteil der indirekten Variante.';
+
+  @override
+  String get mortgageStep4Action =>
+      'Konsultiere eine Steuerfachperson für deinen Kanton';
+
+  @override
+  String get mortgageStep5Title => 'Und der Eigenmietwert?';
+
+  @override
+  String get mortgageStep5Subtitle =>
+      'Wenn du in deiner Immobilie wohnst, zahlst du Steuern auf den Eigenmietwert (fiktive Miete). Dafür kannst du Hypothekarzinsen und Unterhaltskosten abziehen.';
+
+  @override
+  String get mortgageStep5Action => 'Schätze deine Eigenmietwertsteuer in MINT';
+
+  @override
+  String get mortgageStep6Title => 'Am Ende: Mieten oder Kaufen?';
+
+  @override
+  String get mortgageStep6Subtitle =>
+      'Eine persönliche wie auch finanzielle Entscheidung. Faktoren: geplante Wohndauer, berufliche Stabilität, gewünschte Flexibilität. Typischer Break-even: 7-12 Jahre.';
+
+  @override
+  String get mortgageStep6Action => 'Starte den Match-Bericht in MINT';
+
+  @override
+  String get mortgageStep7Title => 'Mein Aktionsplan';
+
+  @override
+  String get mortgageStep7Subtitle =>
+      'Vor der Unterschrift: Stockwerkeigentümer-Reglement prüfen, Gebäudebewertung, geplante Arbeiten, Erneuerungsfonds. Kaufvertrag prüfen lassen.';
+
+  @override
+  String get mortgageStep7Action => 'Lade die MINT-Kaufcheckliste herunter';
+
+  @override
+  String get mortgageJourneyDisclaimer =>
+      'Bildungstool — keine Finanzberatung im Sinne des FIDLEG. Konsultiere eine Hypothekenspezialistin vor jeder Entscheidung. Quellen: FINMA-Rundschreiben 2008/10, BVG Art. 30c, DBG Art. 21, ZGB Art. 652.';
+
+  @override
+  String mortgageJourneyStepLabel(int number, String title) {
+    return 'Schritt $number · $title';
+  }
 }
