@@ -395,7 +395,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
               ),
               child: Row(
                 children: [
-                  ExcludeSemantics(child: const Icon(Icons.trending_up, color: MintColors.success, size: 20)),
+                  const ExcludeSemantics(child: Icon(Icons.trending_up, color: MintColors.success, size: 20)),
                   const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(

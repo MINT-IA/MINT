@@ -383,7 +383,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               ),
               child: Row(
                 children: [
-                  ExcludeSemantics(child: const Icon(Icons.add_circle_outline, size: 16, color: MintColors.success)),
+                  const ExcludeSemantics(child: Icon(Icons.add_circle_outline, size: 16, color: MintColors.success)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

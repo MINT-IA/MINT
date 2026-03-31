@@ -2068,9 +2068,7 @@ class CoachProfile {
     final rawAvsYears = _parseInt(answers['q_avs_contribution_years']);
     // P1-6: AVS contribution years can't exceed (age - 20) — contributions
     // start at ~20 (LAVS art. 3). Also capped at 44 (max duree cotisation).
-    final avsYears = rawAvsYears != null
-        ? rawAvsYears.clamp(0, (age - 20).clamp(0, 44))
-        : null;
+    final avsYears = rawAvsYears?.clamp(0, (age - 20).clamp(0, 44));
 
     // ── Extraction-persisted fields (survive restart) ─────────
     final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);

@@ -1,5 +1,6 @@
 /// FIX-191: Verify that every context.push/context.go target in screens
 /// corresponds to a real GoRoute path in app.dart.
+library;
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
