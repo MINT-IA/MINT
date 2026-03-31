@@ -1058,22 +1058,17 @@ def delete_account(
 
     # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory).
     # Orphaned embeddings would persist user data after account deletion.
-    try:  # pragma: no cover — requires asyncpg + PostgreSQL
-        import asyncpg  # pragma: no cover
-        import asyncio  # pragma: no cover
-        import os  # pragma: no cover
-        db_url = os.getenv("DATABASE_URL")  # pragma: no cover
-        if db_url:  # pragma: no cover
-            async def _purge():
-                conn = await asyncpg.connect(db_url)
-                try:
-                    await conn.execute(
-                        "DELETE FROM document_embeddings WHERE metadata::jsonb->>'user_id' = $1",
-                        user_id,
-                    )
-                finally:
-                    await conn.close()
-            asyncio.get_event_loop().run_until_complete(_purge())
+    # Uses raw SQL via SQLAlchemy to avoid sync-in-async asyncio pitfalls
+    # (asyncio.get_event_loop().run_until_complete is unsafe in ASGI workers).
+    try:  # pragma: no cover — requires PostgreSQL with pgvector
+        from sqlalchemy import text as sa_text  # pragma: no cover
+        db.execute(  # pragma: no cover
+            sa_text(
+                "DELETE FROM document_embeddings "
+                "WHERE metadata::jsonb->>'user_id' = :uid"
+            ),
+            {"uid": user_id},
+        )
     except Exception as exc:
         logger.warning("Failed to purge embeddings for user %s: %s", user_id[:8], exc)
 

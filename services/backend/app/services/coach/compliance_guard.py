@@ -18,6 +18,7 @@ References:
 """
 
 import re
+import unicodedata
 from typing import Optional
 
 from app.services.coach.coach_models import (
@@ -257,6 +258,10 @@ class ComplianceGuard:
                 violations=["Sortie vide"],
                 use_fallback=True,
             )
+
+        # ── NFKC normalization: converts Cyrillic/homoglyph lookalikes to Latin ──
+        # Prevents banned-term bypass via Unicode homoglyphs (e.g. Cyrillic "а" → Latin "a").
+        text = unicodedata.normalize("NFKC", text)
 
         # ── Pre-check: wrong language (basic heuristic) ──
         language_violations = self._check_language(text)

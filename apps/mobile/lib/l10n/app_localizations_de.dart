@@ -10555,7 +10555,7 @@ class SDe extends S {
 
   @override
   String renteVsCapitalMicroCapital(String swr, String rendement) {
-    return 'Du beziehst $swr % pro Jahr aus einem Kapital, das zu $rendement % angelegt ist.';
+    return 'Du beziehst $swr % pro Jahr (Hypothese) aus einem Kapital, das zu $rendement % angelegt ist.';
   }
 
   @override

@@ -5069,7 +5069,7 @@
     }
   },
   "renteVsCapitalMicroRente": "A tua caixa paga-te este montante todos os meses, enquanto viveres.",
-  "renteVsCapitalMicroCapital": "Levantas {swr} % por ano de um capital investido a {rendement} %.",
+  "renteVsCapitalMicroCapital": "Levantas {swr}\u00a0% por ano (hipótese) de um capital investido a {rendement}\u00a0%.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {

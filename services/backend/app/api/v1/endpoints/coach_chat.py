@@ -157,6 +157,7 @@ async def _get_orchestrator():
 # Patterns that indicate PII in memory_block content.
 _PII_PATTERNS = [
     re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}", re.IGNORECASE),  # IBAN (CH + 19 digits, with optional spaces)
+    re.compile(r"CH\d{19}", re.IGNORECASE),  # IBAN compact format (no spaces)
     re.compile(r"\b[1-9]\d{3}\b(?=\s+[A-Za-zÀ-ÿ]{2})"),  # NPA (Swiss postal code 1000-9999 before city name, incl. accented)
     re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),  # email
     re.compile(r"\+?\d[\d\s]{8,14}\d"),  # phone numbers
@@ -188,7 +189,21 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     # Unicode normalization: strip zero-width chars, normalize to NFC
     # Prevents bypass via invisible characters (zero-width space, etc.)
     scrubbed = unicodedata.normalize("NFC", scrubbed)
-    scrubbed = re.sub(r'[\u200b\u200c\u200d\u2060\ufeff]', '', scrubbed)
+    scrubbed = re.sub(
+        '['
+        '\u00ad'          # soft hyphen
+        '\u034f'          # combining grapheme joiner
+        '\u061c'          # Arabic letter mark
+        '\u115f\u1160'    # Hangul fillers
+        '\u17b4\u17b5'    # Khmer vowels
+        '\u180e'          # Mongolian vowel separator
+        '\u200b-\u200f'   # zero-width & directional marks
+        '\u2028\u2029'    # line/paragraph separators
+        '\u202a-\u202e'   # directional formatting
+        '\u2060'          # word joiner
+        '\u2066-\u2069'   # directional isolates
+        '\ufeff'          # BOM / zero-width no-break space
+        ']', '', scrubbed)
 
     _INJECTION_PATTERNS = [
         # English patterns

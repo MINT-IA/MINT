@@ -5117,7 +5117,7 @@
     }
   },
   "renteVsCapitalMicroRente": "Ta caisse te verse ce montant chaque mois, tant que tu vis.",
-  "renteVsCapitalMicroCapital": "Tu retires {swr} % par an d'un capital placé à {rendement} %.",
+  "renteVsCapitalMicroCapital": "Tu retires {swr} % par an (hypothèse) d'un capital placé à {rendement} %.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {

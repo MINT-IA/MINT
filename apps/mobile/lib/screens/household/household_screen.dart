@@ -49,7 +49,9 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     final auth = context.watch<AuthProvider>();
     final sub = context.watch<SubscriptionProvider>();
 
-    return Scaffold(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
       appBar: AppBar(
         title: Text(
           S.of(context)!.householdTitle,
@@ -68,6 +70,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               : household.isLoading && !household.hasHousehold
                   ? const MintLoadingSkeleton()
                   : _buildContent(context, household))),
+    ),
     );
   }
 

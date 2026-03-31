@@ -10484,7 +10484,7 @@ class SEn extends S {
 
   @override
   String renteVsCapitalMicroCapital(String swr, String rendement) {
-    return 'You withdraw $swr% per year from capital invested at $rendement%.';
+    return 'You withdraw $swr% per year (hypothesis) from capital invested at $rendement%.';
   }
 
   @override

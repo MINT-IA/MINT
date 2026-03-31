@@ -57,5 +57,9 @@
 	<string>MINT a besoin d'accéder à ta galerie pour importer des documents financiers.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>MINT a besoin d'accéder à ta caméra pour scanner tes documents financiers.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>MINT utilise le micro pour la dictée vocale avec le coach.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>MINT utilise la reconnaissance vocale pour transcrire tes questions.</string>
 </dict>
 </plist>

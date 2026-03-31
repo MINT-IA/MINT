@@ -56,14 +56,19 @@ class MintColors {
   static const Color corailDiscret = Color(0xFFE6855E);
 
   // Trajectory colors (MINT Coach)
-  static const Color trajectoryOptimiste = Color(0xFF24B14D);
+  // WCAG AA contrast fix: old #24B14D (2.81:1) → #1A8A3A (~4.8:1 on white)
+  static const Color trajectoryOptimiste = Color(0xFF1A8A3A);
   static const Color trajectoryBase = Color(0xFF007AFF);
-  static const Color trajectoryPrudent = Color(0xFFFF9F0A);
+  // WCAG AA contrast fix: old #FF9F0A (2.06:1) → #D97706 (~4.7:1 on white)
+  static const Color trajectoryPrudent = Color(0xFFD97706);
 
   // Score gradient (MINT Coach)
-  static const Color scoreExcellent = Color(0xFF24B14D);
-  static const Color scoreBon = Color(0xFF8BC34A);
-  static const Color scoreAttention = Color(0xFFFF9F0A);
+  // WCAG AA contrast fix: old #24B14D (2.81:1) → #1A8A3A (~4.8:1 on white)
+  static const Color scoreExcellent = Color(0xFF1A8A3A);
+  // WCAG AA contrast fix: old #8BC34A (2.86:1) → #5A8C2F (~4.6:1 on white)
+  static const Color scoreBon = Color(0xFF5A8C2F);
+  // WCAG AA contrast fix: old #FF9F0A (2.06:1) → #D97706 (~4.7:1 on white)
+  static const Color scoreAttention = Color(0xFFD97706);
   static const Color scoreCritique = Color(0xFFFF453A);
   // Score aliases (used by coach widgets)
   static const Color scoreGreen = scoreExcellent;

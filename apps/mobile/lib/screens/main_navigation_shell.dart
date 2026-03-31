@@ -251,6 +251,26 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       }
     }
 
+    // FIX: Consume deferred deep link once profile becomes available.
+    // When cold-start deep link fires before profile is loaded, the route
+    // is stored back in NotificationService.pendingRoute and consumed here
+    // on the next didChangeDependencies (triggered by Provider rebuild).
+    if (NotificationService.pendingRoute != null) {
+      try {
+        final profileReady = context.read<CoachProfileProvider>().hasProfile;
+        if (profileReady) {
+          final deferred = NotificationService.consumePendingRoute();
+          if (deferred != null && deferred.isNotEmpty && mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) GoRouter.of(context).go(deferred);
+            });
+          }
+        }
+      } catch (_) {
+        // No provider — ignore.
+      }
+    }
+
     if (!_budgetLoaded) {
       _budgetLoaded = true;
       final budgetProvider = context.read<BudgetProvider>();
@@ -294,12 +314,15 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       // No GoRouter in tree (unit tests).
     }
 
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _tabs,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _tabs,
+        ),
+        bottomNavigationBar: _buildBottomNav(),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 

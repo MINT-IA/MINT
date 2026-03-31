@@ -45,23 +45,26 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
     final household = context.watch<HouseholdProvider>();
     final l = S.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          l.acceptInvitationTitle,
-          style: MintTextStyles.titleMedium(),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            l.acceptInvitationTitle,
+            style: MintTextStyles.titleMedium(),
+          ),
+          backgroundColor: MintColors.white,
+          surfaceTintColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
         ),
-        backgroundColor: MintColors.white,
-        surfaceTintColor: MintColors.white,
-        foregroundColor: MintColors.textPrimary,
-        elevation: 0,
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: _accepted
+              ? _buildSuccess(context, l)
+              : _buildForm(context, household, l),
+        ))),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Padding(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        child: _accepted
-            ? _buildSuccess(context, l)
-            : _buildForm(context, household, l),
-      ))),
     );
   }
 

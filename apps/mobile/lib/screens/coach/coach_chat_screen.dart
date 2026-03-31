@@ -2946,6 +2946,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg = _messages[index];
+        final itemKey = ValueKey('msg_${msg.timestamp.millisecondsSinceEpoch}_$index');
         final Widget child;
         if (msg.isSystem) {
           child = _buildSystemMessage(msg);
@@ -2963,7 +2964,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         // T2-1: Only animate the last 3 messages for performance.
         if (index >= _messages.length - 3) {
           return TweenAnimationBuilder<double>(
-            key: ValueKey('msg_$index'),
+            key: itemKey,
             tween: Tween<double>(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 350),
             curve: Curves.easeOutCubic,
@@ -2979,7 +2980,7 @@ class _CoachChatScreenState extends State<CoachChatScreen>
             child: child,
           );
         }
-        return child;
+        return KeyedSubtree(key: itemKey, child: child);
       },
     );
   }
