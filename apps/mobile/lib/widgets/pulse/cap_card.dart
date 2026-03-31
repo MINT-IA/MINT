@@ -190,7 +190,7 @@ class CapCard extends StatelessWidget {
     CapMemoryStore.load().then((mem) {
       if (profileChanged) {
         // User changed their profile data during the flow → cap completed
-        CapMemoryStore.markCompleted(mem, cap.id, headline: cap.headline);
+        CapMemoryStore.markCompleted(mem, cap.id, headline: cap.headline, ctaLabel: cap.ctaLabel);
       } else if (!mem.completedActions.contains(cap.id)) {
         // No profile change and not already completed → abandoned
         CapMemoryStore.markAbandoned(mem, cap.id, frictionContext: 'user_returned');

@@ -941,7 +941,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildMintCrashTestSection() {
     final l10n = S.of(context)!;
-    final survivalIncome = _gainAssure * 0.70; // taux LACI standard — TODO: extract to financial_core constant (LACI art. 22)
+    final survivalIncome = _gainAssure * acIndemniteTaux; // taux LACI standard (LACI art. 22) — from social_insurance.dart
 
     // Derive budget lines proportionally from gainAssure
     final loyer = (_gainAssure * 0.30).roundToDouble(); // ~30% du revenu

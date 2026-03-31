@@ -5032,7 +5032,7 @@ class SEn extends S {
   }
 
   @override
-  String get budgetEmptyTitle => 'Your budget builds itself automatically';
+  String get budgetEmptyTitle => 'Your budget';
 
   @override
   String get budgetEmptyBody =>
@@ -25221,4 +25221,103 @@ class SEn extends S {
 
   @override
   String get coachGateUnlock => 'Unlock';
+
+  @override
+  String get documentVisionDisclaimer =>
+      'Extraction via Claude Vision. Please verify the values.';
+
+  @override
+  String get conversationHistoryError => 'Unable to load history.';
+
+  @override
+  String get portfolioCompleteProfile =>
+      'Complete your profile to unlock your readiness index.';
+
+  @override
+  String get portfolioNoData => 'No wealth data provided.';
+
+  @override
+  String get syncFailedLocalSave => 'Sync failed — your data is saved locally';
+
+  @override
+  String get financialReportEmptyTitle => 'Your financial report';
+
+  @override
+  String get financialReportEmptySubtitle =>
+      'Complete your profile to generate your personalized report';
+
+  @override
+  String get financialReportEmptyCta => 'Complete my profile';
+
+  @override
+  String get staggeredWithdrawalEmptyTitle => 'Staggered 3a withdrawal';
+
+  @override
+  String get staggeredWithdrawalEmptySubtitle =>
+      'Enter your 3a savings to optimize your withdrawals';
+
+  @override
+  String get staggeredWithdrawalEmptyCta => 'Add my 3a';
+
+  @override
+  String consentExportFormat(String format) {
+    return 'Format: $format';
+  }
+
+  @override
+  String consentExportDate(String date) {
+    return 'Date: $date';
+  }
+
+  @override
+  String consentExportCategories(String categories) {
+    return 'Categories: $categories';
+  }
+
+  @override
+  String get errorNotAuthenticated => 'Not authenticated';
+
+  @override
+  String get budgetEmptySubtitle =>
+      'Enter your salary to create your personalized budget';
+
+  @override
+  String get budgetEmptyCta => 'Add my salary';
+
+  @override
+  String get coachConfirmAction => 'Confirm';
+
+  @override
+  String get coachCancelAction => 'Cancel';
+
+  @override
+  String get semanticsDelete => 'Delete';
+
+  @override
+  String get docScanProcessingError => 'Processing error.';
+
+  @override
+  String docScanBackendParsingError(String error) {
+    return 'Backend error while parsing PDF: $error';
+  }
+
+  @override
+  String get expatNoAcRightsAbroad => 'No Swiss AC rights if you work abroad';
+
+  @override
+  String get expatAcIndemnities => 'AC benefits up to 520 days';
+
+  @override
+  String get expatJobLossAbroad =>
+      'If you lose your job abroad, only the local scheme applies — often less generous.';
+
+  @override
+  String coachChangeGoalConfirm(String goalTag) {
+    return 'Change your goal to: $goalTag?';
+  }
+
+  @override
+  String coachMarkStepConfirm(String stepId) {
+    return 'Mark step \"$stepId\" as completed?';
+  }
 }

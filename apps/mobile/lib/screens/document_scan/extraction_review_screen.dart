@@ -590,9 +590,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     // All 3 attempts failed
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Synchronisation échouée — tes données sont sauvées localement'),
-          duration: Duration(seconds: 4),
+        SnackBar(
+          content: Text(S.of(context)!.syncFailedLocalSave),
+          duration: const Duration(seconds: 4),
         ),
       );
     }

@@ -970,7 +970,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
         // ── P8-C : Clause 3a beneficiaire (OPP3 art. 2) ──
         Clause3aWidget(
-          balance3a: _revenuImpact * 0.3, // estimation ~30% du revenu — TODO: use financial_core for accurate 3a projection
+          balance3a: _revenuImpact * 0.3, // DECISION: known approximation (~30% du revenu). Accurate 3a projection requires full profile data not available in birth-event context. Acceptable for educational illustration (OPP3).
           hasClause: false,
         ),
         const SizedBox(height: MintSpacing.lg),

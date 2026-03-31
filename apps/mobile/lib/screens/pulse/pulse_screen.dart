@@ -182,9 +182,8 @@ class _PulseScreenState extends State<PulseScreen> {
       // may have changed to a new cap after CapEngine recomputation.
       final completedCap = _cachedCap;
       if (completedCap == null) return;
-      // If the cap changed since completion, use the stored headline
       final completedCapId = _capMemory.lastCompletedCapId;
-      final storedHeadline = _capMemory.lastCompletedCapHeadline;
+      final storedCtaLabel = _capMemory.lastCompletedCapCtaLabel;
 
       // Compute next cap for the "what's next" section
       final nextCap = CapEngine.compute(
@@ -194,18 +193,19 @@ class _PulseScreenState extends State<PulseScreen> {
         memory: _capMemory,
       );
 
-      // Build success data with the CORRECT headline (stored at completion time)
-      final successData = ActionSuccessData.fromCap(
-        completedCap: completedCap,
-        nextCap: nextCap.id != completedCap.id ? nextCap : null,
+      // Build success data from the STORED completion context (ctaLabel + id),
+      // not from _cachedCap which may have changed after recomputation.
+      final capChanged = completedCapId != null && completedCapId != completedCap.id;
+      final successData = ActionSuccessData(
+        actionLabel: capChanged && storedCtaLabel != null
+            ? storedCtaLabel
+            : completedCap.ctaLabel,
+        impactLabel: completedCap.expectedImpact,
+        nextLabel: nextCap.id != completedCap.id ? nextCap.headline : null,
+        nextRoute: nextCap.id != completedCap.id ? nextCap.ctaRoute : null,
+        completedCapId: completedCapId ?? completedCap.id,
       );
-      // Override headline if cap changed after completion
-      final effectiveData = (completedCapId != null &&
-              completedCapId != completedCap.id &&
-              storedHeadline != null)
-          ? successData.withOverriddenHeadline(storedHeadline)
-          : successData;
-      showActionSuccessSheet(context, effectiveData);
+      showActionSuccessSheet(context, successData);
     });
   }
 

@@ -192,8 +192,10 @@ class _DemenagementCantonalScreenState
     // Simplified: proportional to income and index difference
     // Simplified proportional model: 22% is the approximate average effective
     // income tax rate for GE at median income (LIFD art. 36 + cantonal).
-    // TODO(MINT-201): Replace with TaxCalculator.estimateMonthlyIncomeTax()
-    // from financial_core/tax_calculator.dart for per-canton accuracy.
+    // DECISION: Simplified proportional model using fiscal index ratios.
+    // Full per-canton accuracy via TaxCalculator.estimateMonthlyIncomeTax()
+    // deferred to Phase 2 (MINT-201). Current model gives directionally
+    // correct comparisons for educational purposes.
     // Ref: financial_core/tax_calculator.dart — progressiveTax(), capitalWithdrawalTax()
     final tauxMoyenDepart = idxDepart / 100 * 0.22;
     final tauxMoyenArrivee = idxArrivee / 100 * 0.22;

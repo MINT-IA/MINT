@@ -105,7 +105,7 @@ class PortfolioScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Complète ton profil pour débloquer ton indice de préparation.', // TODO: i18n
+                  S.of(context)!.portfolioCompleteProfile,
                   style: MintTextStyles.bodySmall(color: MintColors.textMuted),
                 ),
               ),
@@ -132,7 +132,7 @@ class PortfolioScreen extends StatelessWidget {
           const Icon(Icons.account_balance_outlined, size: 32, color: MintColors.textMuted),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            'Aucune donnée patrimoniale renseignée.', // TODO: i18n
+            S.of(context)!.portfolioNoData,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
             textAlign: TextAlign.center,
           ),

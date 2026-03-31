@@ -42,7 +42,8 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 /// PREFILL: When navigated from coach via RouteSuggestionCard,
 /// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
 /// with pre-computed values. Currently reads from CoachProfileProvider.
-/// TODO: merge prefill with profile data for coach-optimized defaults.
+/// DECISION: prefill merge deferred to Phase 2 (S62+ coach-driven defaults).
+/// Current: CoachProfileProvider supplies defaults; coach prefill via GoRouter extra.
 class RenteVsCapitalScreen extends StatefulWidget {
   const RenteVsCapitalScreen({super.key});
 

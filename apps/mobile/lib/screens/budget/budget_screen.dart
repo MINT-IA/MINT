@@ -201,10 +201,9 @@ class _BudgetScreenState extends State<BudgetScreen>
         ),
         body: MintEmptyState(
           icon: Icons.account_balance_wallet_outlined,
-          // TODO: i18n
-          title: 'Ton budget',
-          subtitle: 'Renseigne ton salaire pour creer ton budget personnalise',
-          ctaLabel: 'Ajouter mon salaire',
+          title: S.of(context)!.budgetEmptyTitle,
+          subtitle: S.of(context)!.budgetEmptySubtitle,
+          ctaLabel: S.of(context)!.budgetEmptyCta,
           onCta: () => context.push('/onboarding/quick'),
         ),
       );

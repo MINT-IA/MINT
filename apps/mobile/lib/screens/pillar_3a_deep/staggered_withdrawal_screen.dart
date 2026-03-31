@@ -25,7 +25,8 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 /// PREFILL: When navigated from coach via RouteSuggestionCard,
 /// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
 /// with pre-computed values. Currently reads from CoachProfileProvider.
-/// TODO: merge prefill with profile data for coach-optimized defaults.
+/// DECISION: prefill merge deferred to Phase 2 (S62+ coach-driven defaults).
+/// Current: CoachProfileProvider supplies defaults; coach prefill via GoRouter extra.
 class StaggeredWithdrawalScreen extends StatefulWidget {
   const StaggeredWithdrawalScreen({super.key});
 
@@ -176,10 +177,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         ),
         body: MintEmptyState(
           icon: Icons.schedule_outlined,
-          // TODO: i18n
-          title: 'Retrait 3a echelonne',
-          subtitle: 'Renseigne ton epargne 3a pour optimiser tes retraits',
-          ctaLabel: 'Ajouter mon 3a',
+          title: S.of(context)!.staggeredWithdrawalEmptyTitle,
+          subtitle: S.of(context)!.staggeredWithdrawalEmptySubtitle,
+          ctaLabel: S.of(context)!.staggeredWithdrawalEmptyCta,
           onCta: () => context.push('/onboarding/quick'),
         ),
       );
