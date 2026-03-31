@@ -1112,9 +1112,9 @@ class MintScreenRegistry extends ScreenRegistry {
     route: '/data-block/:type',
     intentTag: 'data_block_enrichment',
     behavior: ScreenBehavior.captureUtility,
+    preferFromChat: false, // Parameterized route — must not be opened from chat without :type resolution
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
     prefillFromProfile: false,
   );
 

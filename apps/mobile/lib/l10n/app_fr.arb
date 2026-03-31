@@ -12347,5 +12347,13 @@
   "greetingEvening": "Bonsoir",
   "greetingNight": "Bonne nuit",
   "onboardingCalculationError": "Erreur de calcul. Vérifie tes données et réessaie.",
-  "onboardingRetirementAgeWarning": "Retraite avant 55 ans\u00a0? Vérifie ton âge ou ton statut."
+  "onboardingRetirementAgeWarning": "Retraite avant 55 ans\u00a0? Vérifie ton âge ou ton statut.",
+  "indicativeBannerTitle": "Résultat indicatif ({pct} % de fiabilité)",
+  "@indicativeBannerTitle": {"placeholders": {"pct": {"type": "String"}}},
+  "indicativeBannerBody": "Précise tes données pour des projections personnalisées.",
+  "indicativeBannerCta": "Préciser",
+  "exploreHubTitle": "Explorer",
+  "safeModeTitle": "Concentration Prioritaire",
+  "safeModeMessage": "Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.",
+  "safeModeCta": "Voir mon plan de désendettement"
 }

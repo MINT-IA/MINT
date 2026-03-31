@@ -2977,7 +2977,7 @@ class SEs extends S {
   String get lppDeepRachatComparaison => 'Comparacion';
 
   @override
-  String get lppDeepRachatBloc => 'TODO EN 1 AÑO';
+  String get lppDeepRachatBloc => 'COMPLETO EN 1 AÑO';
 
   @override
   String get lppDeepRachatBlocSub => 'Rescate en bloque';
@@ -3642,7 +3642,7 @@ class SEs extends S {
   String get agirTitle => 'AGIR';
 
   @override
-  String get agirThisMonth => 'Ce mois';
+  String get agirThisMonth => 'Este mes';
 
   @override
   String get agirTimeline => 'Timeline';
@@ -4136,7 +4136,7 @@ class SEs extends S {
   String get soaNetIncome => 'Revenu net';
 
   @override
-  String get soaHousing => 'Logement';
+  String get soaHousing => 'Vivienda';
 
   @override
   String get soaDebtRepayment => 'Remboursement dettes';
@@ -10602,7 +10602,7 @@ class SEs extends S {
   String get renteVsCapitalEducationalTitle => 'Lo que cambia en concreto';
 
   @override
-  String get renteVsCapitalFiscalTitle => 'Fiscalité';
+  String get renteVsCapitalFiscalTitle => 'Fiscalidad';
 
   @override
   String get renteVsCapitalFiscalLeftSubtitle => 'Gravado cada año';
@@ -17617,7 +17617,7 @@ class SEs extends S {
   String get consentScopeComptes => 'Comptes';
 
   @override
-  String get consentScopeSoldes => 'Soldes';
+  String get consentScopeSoldes => 'Saldos';
 
   @override
   String get consentScopeTransactions => 'Transactions';
@@ -17707,7 +17707,7 @@ class SEs extends S {
 
   @override
   String openBankingHubSyncDays(int days) {
-    return 'Il y a ${days}j';
+    return 'Hace $days días';
   }
 
   @override
@@ -17718,16 +17718,16 @@ class SEs extends S {
       'Consulta regulatoria FINMA en curso. Los datos mostrados son de demostración.';
 
   @override
-  String get transactionListThisMonth => 'Ce mois';
+  String get transactionListThisMonth => 'Este mes';
 
   @override
-  String get transactionListLastMonth => 'Mois précédent';
+  String get transactionListLastMonth => 'Mes anterior';
 
   @override
   String get transactionListNoTransaction => 'Sin transacciones';
 
   @override
-  String get transactionListRevenus => 'Revenus';
+  String get transactionListRevenus => 'Ingresos';
 
   @override
   String get transactionListDepenses => 'Dépenses';
@@ -25316,4 +25316,29 @@ class SEs extends S {
   @override
   String get onboardingRetirementAgeWarning =>
       '¿Jubilación antes de los 55? Verifica tu edad o tu situación laboral.';
+
+  @override
+  String indicativeBannerTitle(String pct) {
+    return 'Resultado indicativo ($pct % de fiabilidad)';
+  }
+
+  @override
+  String get indicativeBannerBody =>
+      'Precisa tus datos para proyecciones personalizadas.';
+
+  @override
+  String get indicativeBannerCta => 'Precisar';
+
+  @override
+  String get exploreHubTitle => 'Explorar';
+
+  @override
+  String get safeModeTitle => 'Enfoque Prioritario';
+
+  @override
+  String get safeModeMessage =>
+      'Por tu seguridad financiera, desactivamos las optimizaciones avanzadas mientras una señal de deuda esté activa.';
+
+  @override
+  String get safeModeCta => 'Ver mi plan de reducción de deuda';
 }
