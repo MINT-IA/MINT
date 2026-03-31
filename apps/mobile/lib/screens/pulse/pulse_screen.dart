@@ -178,16 +178,13 @@ class _PulseScreenState extends State<PulseScreen> {
     // Show feedback after build completes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      // Use the ACTUAL completed cap from memory. If the current cap changed
-      // after recomputation, we still display the one the user completed.
+      // Use the ACTUAL completed cap from memory, not _cachedCap which
+      // may have changed to a new cap after CapEngine recomputation.
       final completedCap = _cachedCap;
       if (completedCap == null) return;
-      // Verify the success matches what was actually completed
+      // If the cap changed since completion, use the stored headline
       final completedCapId = _capMemory.lastCompletedCapId;
-      if (completedCapId != null && completedCapId != completedCap.id) {
-        // Cap changed since completion — use the stored ID for accuracy
-        debugPrint('[Pulse] Success sheet: cap changed ($completedCapId → ${completedCap.id})');
-      }
+      final storedHeadline = _capMemory.lastCompletedCapHeadline;
 
       // Compute next cap for the "what's next" section
       final nextCap = CapEngine.compute(
@@ -197,13 +194,18 @@ class _PulseScreenState extends State<PulseScreen> {
         memory: _capMemory,
       );
 
-      showActionSuccessSheet(
-        context,
-        ActionSuccessData.fromCap(
-          completedCap: completedCap,
-          nextCap: nextCap.id != completedCap.id ? nextCap : null,
-        ),
+      // Build success data with the CORRECT headline (stored at completion time)
+      final successData = ActionSuccessData.fromCap(
+        completedCap: completedCap,
+        nextCap: nextCap.id != completedCap.id ? nextCap : null,
       );
+      // Override headline if cap changed after completion
+      final effectiveData = (completedCapId != null &&
+              completedCapId != completedCap.id &&
+              storedHeadline != null)
+          ? successData.withOverriddenHeadline(storedHeadline)
+          : successData;
+      showActionSuccessSheet(context, effectiveData);
     });
   }
 
