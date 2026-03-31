@@ -1238,7 +1238,7 @@
   "lppDeepRachatTauxMarginal": "Tipo marginal estimado",
   "lppDeepRachatHorizon": "Horizonte (anos)",
   "lppDeepRachatComparaison": "Comparacion",
-  "lppDeepRachatBloc": "TODO EN 1 AÑO",
+  "lppDeepRachatBloc": "COMPLETO EN 1 AÑO",
   "lppDeepRachatBlocSub": "Rescate en bloque",
   "lppDeepRachatEchelonne": "ESCALONADO EN {years} ANOS",
   "@lppDeepRachatEchelonne": {

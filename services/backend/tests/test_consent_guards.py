@@ -10,7 +10,6 @@ Verifies that:
 Run: cd services/backend && python3 -m pytest tests/test_consent_guards.py -v
 """
 
-import os
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -299,10 +298,9 @@ class TestCoachChatMemoryConsentGuard:
         """Without conversation_memory consent, memory_block is stripped (set to None)."""
         captured_memory = {"value": "SENTINEL"}
 
-        original_reason = None
         try:
             from app.services.coach.structured_reasoning_service import StructuredReasoningService
-            original_reason = StructuredReasoningService.reason
+            _ = StructuredReasoningService.reason  # verify import works
         except ImportError:
             pass
 
@@ -445,7 +443,7 @@ class TestLogoutRefreshToken:
         assert reg_resp.status_code == 201
         access_token = reg_resp.json()["access_token"]
 
-        logout_resp = client.post(
+        client.post(
             "/api/v1/auth/logout",
             json={},
             headers={"Authorization": f"Bearer {access_token}"},
