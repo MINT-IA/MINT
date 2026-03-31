@@ -42,7 +42,7 @@ class DivorceSimulationRequest(BaseModel):
         description="Matrimonial property regime",
     )
     nombreEnfants: int = Field(
-        0, description="Number of children", ge=0
+        0, description="Number of children", ge=0, le=20
     )
     revenuAnnuelConjoint1: float = Field(
         ..., description="Annual income of spouse 1 (CHF)", ge=0
@@ -107,7 +107,7 @@ class SuccessionSimulationRequest(BaseModel):
         False, description="Has surviving spouse/registered partner"
     )
     nombreEnfants: int = Field(
-        0, description="Number of children", ge=0
+        0, description="Number of children", ge=0, le=20
     )
     aParentsVivants: bool = Field(
         False, description="Has living parents"

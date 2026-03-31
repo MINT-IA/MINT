@@ -986,12 +986,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<String> _readTextFile(PlatformFile file) async {
-    if (file.bytes != null) {
-      return utf8.decode(file.bytes!, allowMalformed: true);
-    }
-    if (file.path != null && file.path!.isNotEmpty) {
-      final bytes = await XFile(file.path!).readAsBytes();
-      return utf8.decode(bytes, allowMalformed: true);
+    // P1-8: Removed allowMalformed: true — reject malformed UTF-8 in scanned docs.
+    try {
+      if (file.bytes != null) {
+        return utf8.decode(file.bytes!);
+      }
+      if (file.path != null && file.path!.isNotEmpty) {
+        final bytes = await XFile(file.path!).readAsBytes();
+        return utf8.decode(bytes);
+      }
+    } on FormatException catch (e) {
+      debugPrint('[DocumentScan] Malformed UTF-8 in file: $e');
     }
     return '';
   }

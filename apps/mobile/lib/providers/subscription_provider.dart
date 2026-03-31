@@ -21,7 +21,10 @@ class SubscriptionProvider extends ChangeNotifier {
 
   SubscriptionProvider()
       : _state = SubscriptionService.currentState() {
-    refreshFromBackend();
+    // P1-4: Add error handling for fire-and-forget call.
+    refreshFromBackend().catchError(
+      (Object e) => debugPrint('[SubscriptionProvider] refreshFromBackend failed: $e'),
+    );
   }
 
   /// Current subscription state.

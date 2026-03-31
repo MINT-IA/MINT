@@ -18,6 +18,7 @@ import 'package:mint_mobile/providers/mint_state_provider.dart';
 /// CoachProfile.== includes updatedAt (version stamp), so both instances must
 /// be created with the same explicit timestamp to be value-equal.
 final _fixedUpdatedAt = DateTime(2026, 3, 22);
+final _fixedCreatedAt = DateTime(2026, 1, 1);
 
 final _goalRetraite = GoalA(
   type: GoalAType.retraite,
@@ -30,6 +31,7 @@ CoachProfile _profileA() => CoachProfile(
       canton: 'VS',
       salaireBrutMensuel: 10184, // 122207 / 12
       goalA: _goalRetraite,
+      createdAt: _fixedCreatedAt,
       updatedAt: _fixedUpdatedAt,
     );
 
@@ -40,6 +42,7 @@ CoachProfile _profileADuplicate() => CoachProfile(
       canton: 'VS',
       salaireBrutMensuel: 10184,
       goalA: _goalRetraite,
+      createdAt: _fixedCreatedAt,
       updatedAt: _fixedUpdatedAt,
     );
 

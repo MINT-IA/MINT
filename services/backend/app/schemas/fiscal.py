@@ -39,7 +39,7 @@ class TaxEstimateRequest(BaseModel):
         description="Etat civil: celibataire ou marie"
     )
     nombre_enfants: int = Field(
-        default=0, ge=0, le=10,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants a charge"
     )
 
@@ -129,7 +129,7 @@ class CantonComparisonRequest(BaseModel):
         description="Etat civil: celibataire ou marie"
     )
     nombre_enfants: int = Field(
-        default=0, ge=0,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants a charge"
     )
 
@@ -188,7 +188,7 @@ class MoveSimulationRequest(BaseModel):
         description="Etat civil: celibataire ou marie"
     )
     nombre_enfants: int = Field(
-        default=0, ge=0,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants a charge"
     )
 

@@ -9,7 +9,7 @@ void main() {
   CoachProfile profile({
     int age = 50,
     double salaire = 8000,
-    int mois = 12,
+    double mois = 12.0,
     String canton = 'VS',
     String employment = 'salarie',
     CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,

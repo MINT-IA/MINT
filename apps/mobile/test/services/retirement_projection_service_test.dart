@@ -15,7 +15,7 @@ void main() {
     int birthYear = 1977,
     String canton = 'VS',
     double salaireBrutMensuel = 10000,
-    int nombreDeMois = 12,
+    double nombreDeMois = 12.0,
     String employmentStatus = 'salarie',
     CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
     ConjointProfile? conjoint,

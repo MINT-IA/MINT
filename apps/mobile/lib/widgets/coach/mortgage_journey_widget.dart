@@ -15,76 +15,76 @@ class MortgageStep {
   const MortgageStep({
     required this.number,
     required this.emoji,
-    required this.title,
-    required this.subtitle,
-    required this.action,
+    required this.titleKey,
+    required this.subtitleKey,
+    required this.actionKey,
     required this.legalRef,
   });
 
   final int number;
   final String emoji;
-  final String title;
-  final String subtitle;
-  final String action;
+  final String Function(S) titleKey;
+  final String Function(S) subtitleKey;
+  final String Function(S) actionKey;
   final String legalRef;
 }
 
-const _kSteps = [
+List<MortgageStep> _buildSteps() => [
   MortgageStep(
     number: 1,
-    emoji: '🧮',
-    title: 'Est-ce que je peux acheter ?',
-    subtitle: 'Règle des 3 tiers : les charges (intérêts théoriques à 5% + amortissement 1% + entretien 1%) ne doivent pas dépasser 1/3 de ton revenu brut.',
-    action: 'Calcule ta capacité avec le simulateur MINT',
-    legalRef: 'FINMA/ASB — taux théorique 5%',
+    emoji: '\u{1F9EE}',
+    titleKey: (s) => s.mortgageStep1Title,
+    subtitleKey: (s) => s.mortgageStep1Subtitle,
+    actionKey: (s) => s.mortgageStep1Action,
+    legalRef: 'FINMA/ASB — taux th\u00e9orique 5%',
   ),
   MortgageStep(
     number: 2,
-    emoji: '💰',
-    title: 'D\'où viennent mes fonds propres ?',
-    subtitle: 'Il te faut 20% du prix en fonds propres. Sources possibles : épargne, 3a, EPL (2e pilier, max 10% du prix). Attention : l\'EPL bloque le rachat LPP 3 ans.',
-    action: 'Vérifie ton solde 3a et LPP dans MINT',
+    emoji: '\u{1F4B0}',
+    titleKey: (s) => s.mortgageStep2Title,
+    subtitleKey: (s) => s.mortgageStep2Subtitle,
+    actionKey: (s) => s.mortgageStep2Action,
     legalRef: 'LPP art. 30c (EPL) — OPP2 art. 5 (min CHF 20\'000)',
   ),
   MortgageStep(
     number: 3,
-    emoji: '📊',
-    title: 'Quel type d\'hypothèque ?',
-    subtitle: 'Hypothèque fixe : sécurité, taux fixe pour 2-15 ans. SARON (variable) : taux plus bas mais risque de hausse. Mix possible. Taux actuel ≠ taux théorique 5%.',
-    action: 'Compare les offres de 3 banques minimum',
-    legalRef: 'FINMA — Circular 2008/10 (standards hypothécaires)',
+    emoji: '\u{1F4CA}',
+    titleKey: (s) => s.mortgageStep3Title,
+    subtitleKey: (s) => s.mortgageStep3Subtitle,
+    actionKey: (s) => s.mortgageStep3Action,
+    legalRef: 'FINMA — Circular 2008/10 (standards hypoth\u00e9caires)',
   ),
   MortgageStep(
     number: 4,
-    emoji: '📉',
-    title: 'Amortissement direct ou indirect ?',
-    subtitle: 'Direct : tu rembourses la banque chaque année (dette baisse, déduction fiscale baisse). Indirect : tu verses dans ton 3a, puis tu rembourses en bloc. Avantage fiscal de l\'indirect.',
-    action: 'Consulte un·e spécialiste fiscal pour ton canton',
-    legalRef: 'LIFD art. 33 al. 1 let. a (déduction intérêts)',
+    emoji: '\u{1F4C9}',
+    titleKey: (s) => s.mortgageStep4Title,
+    subtitleKey: (s) => s.mortgageStep4Subtitle,
+    actionKey: (s) => s.mortgageStep4Action,
+    legalRef: 'LIFD art. 33 al. 1 let. a (d\u00e9duction int\u00e9r\u00eats)',
   ),
   MortgageStep(
     number: 5,
-    emoji: '🏠',
-    title: 'Et la valeur locative ?',
-    subtitle: 'Si tu occupes ton bien, tu paies l\'impôt sur la valeur locative (loyer fictif). Contre-partie : tu peux déduire les intérêts hypothécaires et les frais d\'entretien.',
-    action: 'Estime ton impôt valeur locative dans MINT',
+    emoji: '\u{1F3E0}',
+    titleKey: (s) => s.mortgageStep5Title,
+    subtitleKey: (s) => s.mortgageStep5Subtitle,
+    actionKey: (s) => s.mortgageStep5Action,
     legalRef: 'LIFD art. 21 al. 1 let. b (valeur locative)',
   ),
   MortgageStep(
     number: 6,
-    emoji: '⚖️',
-    title: 'Au final : louer ou acheter ?',
-    subtitle: 'Décision personnelle autant que financière. Facteurs : durée de résidence prévue, stabilité professionnelle, flexibilité souhaitée. Break-even typique : 7-12 ans.',
-    action: 'Lance le Bilan de match dans MINT',
-    legalRef: 'CO art. 261ss (bail à loyer)',
+    emoji: '\u2696\uFE0F',
+    titleKey: (s) => s.mortgageStep6Title,
+    subtitleKey: (s) => s.mortgageStep6Subtitle,
+    actionKey: (s) => s.mortgageStep6Action,
+    legalRef: 'CO art. 261ss (bail \u00e0 loyer)',
   ),
   MortgageStep(
     number: 7,
-    emoji: '📋',
-    title: 'Mon plan d\'action',
-    subtitle: 'Avant de signer : vérifier le règlement de co-propriété, la cote de l\'immeuble, les travaux planifiés, l\'état du fonds de rénovation. Faire relire l\'acte de vente.',
-    action: 'Télécharge la checklist achat MINT',
-    legalRef: 'CC art. 652 (propriété par étages)',
+    emoji: '\u{1F4CB}',
+    titleKey: (s) => s.mortgageStep7Title,
+    subtitleKey: (s) => s.mortgageStep7Subtitle,
+    actionKey: (s) => s.mortgageStep7Action,
+    legalRef: 'CC art. 652 (propri\u00e9t\u00e9 par \u00e9tages)',
   ),
 ];
 
@@ -103,11 +103,13 @@ class MortgageJourneyWidget extends StatefulWidget {
 
 class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
   late int _activeStep;
+  late List<MortgageStep> _steps;
 
   @override
   void initState() {
     super.initState();
-    _activeStep = widget.currentStep.clamp(0, _kSteps.length - 1);
+    _steps = _buildSteps();
+    _activeStep = widget.currentStep.clamp(0, _steps.length - 1);
   }
 
   @override
@@ -174,7 +176,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  '${_activeStep + 1} / ${_kSteps.length}',
+                  '${_activeStep + 1} / ${_steps.length}',
                   style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
@@ -192,7 +194,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
 
   Widget _buildStepper() {
     return Row(
-      children: List.generate(_kSteps.length, (i) {
+      children: List.generate(_steps.length, (i) {
         final isDone = i < _activeStep;
         final isActive = i == _activeStep;
 
@@ -225,7 +227,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   ),
                 ),
               ),
-              if (i < _kSteps.length - 1)
+              if (i < _steps.length - 1)
                 Expanded(
                   child: Container(
                     height: 2,
@@ -242,7 +244,9 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
   }
 
   Widget _buildActiveStepDetail() {
-    final step = _kSteps[_activeStep];
+    final step = _steps[_activeStep];
+    final s = S.of(context)!;
+    final title = step.titleKey(s);
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
@@ -264,7 +268,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Étape ${step.number} · ${step.title}',
+                    s.mortgageJourneyStepLabel(step.number, title),
                     style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
@@ -272,7 +276,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             ),
             const SizedBox(height: 10),
             Text(
-              step.subtitle,
+              step.subtitleKey(s),
               style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
             ),
             const SizedBox(height: 12),
@@ -290,7 +294,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      step.action,
+                      step.actionKey(s),
                       style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -299,7 +303,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             ),
             const SizedBox(height: 8),
             Text(
-              '📖 ${step.legalRef}',
+              '\u{1F4D6} ${step.legalRef}',
               style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
             ),
           ],
@@ -325,7 +329,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           )
         else
           const SizedBox.shrink(),
-        if (_activeStep < _kSteps.length - 1)
+        if (_activeStep < _steps.length - 1)
           ElevatedButton.icon(
             onPressed: () => setState(() => _activeStep++),
             icon: Text(s.mortgageJourneyNextStep),
@@ -356,9 +360,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Consulte un·e spécialiste hypothécaire avant toute décision. '
-      'Sources : FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.',
+      S.of(context)!.mortgageJourneyDisclaimer,
       style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }

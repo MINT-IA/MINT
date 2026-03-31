@@ -44,7 +44,7 @@ class DebtRatioRequest(BaseModel):
     )
     nbEnfants: int = Field(
         0, alias="nbEnfants",
-        description="Nombre d'enfants a charge", ge=0
+        description="Nombre d'enfants a charge", ge=0, le=20
     )
 
 

@@ -55,7 +55,7 @@ class MariageFiscalRequest(FamilyBaseModel):
         description="Code canton (2 lettres)",
     )
     enfants: int = Field(
-        default=0, ge=0,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants a charge",
     )
 
@@ -440,7 +440,7 @@ class ConcubinageCompareRequest(FamilyBaseModel):
         description="Code canton (2 lettres)",
     )
     enfants: int = Field(
-        default=0, ge=0,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants",
     )
     patrimoine: float = Field(
