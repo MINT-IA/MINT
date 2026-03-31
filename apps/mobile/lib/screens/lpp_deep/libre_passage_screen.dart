@@ -288,7 +288,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             min: 0,
             max: 500000,
             divisions: 100,
-            formatValue: (v) => '${formatChfCompact(v)}',
+            formatValue: (v) => formatChfCompact(v),
             onChanged: (v) => setState(() => _avoir = v),
           ),
         ],

@@ -25,7 +25,7 @@ class MintSwitch extends StatelessWidget {
       value: value,
       onChanged: enabled ? onChanged : null,
       activeTrackColor: MintColors.primary,
-      trackColor: MintColors.border,
+      inactiveTrackColor: MintColors.border,
     );
   }
 }
