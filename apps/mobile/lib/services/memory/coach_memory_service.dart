@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
@@ -65,7 +66,7 @@ class CoachMemoryService {
 
     // Sync to backend RAG vector store (fire-and-forget, Phase 3.1).
     // Embeds the insight so the coach can retrieve it semantically.
-    _syncToBackend(insight).catchError((_) {});
+    _syncToBackend(insight).catchError((e) { debugPrint('[CoachMemory] Sync failed: $e'); });
   }
 
   /// Sync insight to backend for RAG embedding (fire-and-forget).
@@ -165,7 +166,7 @@ class CoachMemoryService {
 
     // Fire-and-forget: notify backend to remove orphaned embeddings.
     for (final insight in removed) {
-      _syncRemoveToBackend(insight.id).catchError((_) {});
+      _syncRemoveToBackend(insight.id).catchError((e) { debugPrint('[CoachMemory] Remove sync failed: $e'); });
     }
   }
 

@@ -78,6 +78,13 @@ class AvsCalculator {
     return rente;
   }
 
+  /// Round to nearest 5 centimes (Swiss standard for social insurance amounts).
+  /// OAVS art. 53 — applied at display level, not computation level,
+  /// to avoid cascading rounding effects in couple/optimizer calculations.
+  static double roundTo5Centimes(double value) {
+    return (value * 20).roundToDouble() / 20;
+  }
+
   /// AVS rente based on RAMD (LAVS art. 34, echelle 44).
   ///
   /// Linear interpolation between min and max rente.
@@ -112,12 +119,9 @@ class AvsCalculator {
     final coupleMax = reg('avs.couple_max_monthly', avsRenteCoupleMaxMensuelle);
     if (isMarried && total > coupleMax) {
       final ratio = coupleMax / total;
-      return (
-        user: avsUser * ratio,
-        conjoint: avsConjoint * ratio,
-        total: coupleMax,
-      );
+      return (user: avsUser * ratio, conjoint: avsConjoint * ratio, total: coupleMax);
     }
+    // No rounding on couple — rounding is applied on individual computeMonthlyRente()
     return (user: avsUser, conjoint: avsConjoint, total: total);
   }
 
