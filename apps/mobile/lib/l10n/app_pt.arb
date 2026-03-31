@@ -11979,5 +11979,8 @@
   "mortgageStep7Subtitle": "Antes de assinar: verificar o regulamento de compropriedade, a avaliação do edifício, as obras planeadas, o fundo de renovação. Fazer rever a escritura de venda.",
   "mortgageStep7Action": "Descarrega a checklist de compra MINT",
   "mortgageJourneyDisclaimer": "Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Consulta um especialista hipotecário antes de qualquer decisão. Fontes: FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.",
-  "mortgageJourneyStepLabel": "Passo {number} · {title}"
+  "mortgageJourneyStepLabel": "Passo {number} · {title}",
+  "onboardingConsentBody": "MINT recolhe os teus dados financeiros unicamente para calcular as tuas projeções de previdência. Os teus dados ficam no teu dispositivo e nunca são partilhados sem o teu consentimento explícito.",
+  "onboardingConsentAccept": "Aceitar",
+  "onboardingConsentDecline": "Recusar"
 }

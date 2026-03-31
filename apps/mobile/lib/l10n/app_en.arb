@@ -11979,5 +11979,8 @@
   "mortgageStep7Subtitle": "Before signing: check co-ownership rules, building rating, planned works, renovation fund status. Have the deed of sale reviewed.",
   "mortgageStep7Action": "Download the MINT purchase checklist",
   "mortgageJourneyDisclaimer": "Educational tool — not financial advice under FinSA. Consult a mortgage specialist before any decision. Sources: FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.",
-  "mortgageJourneyStepLabel": "Step {number} · {title}"
+  "mortgageJourneyStepLabel": "Step {number} · {title}",
+  "onboardingConsentBody": "MINT collects your financial data solely to calculate your pension projections. Your data stays on your device and is never shared without your explicit consent (nDPA art. 6).",
+  "onboardingConsentAccept": "Accept",
+  "onboardingConsentDecline": "Decline"
 }

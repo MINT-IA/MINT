@@ -204,20 +204,44 @@ def _compute_effective_tier(db: Session, user_id: str) -> str:
     )
 
 
-def recompute_entitlements(
+def _recompute_household_members(db: Session, user_id: str) -> None:
+    """P0-6: When a billing owner's tier changes, recompute entitlements
+    for all household members who inherit from this subscription.
+
+    This ensures partner entitlements are revoked on downgrade from couple_plus.
+    """
+    from app.models.household import HouseholdModel, HouseholdMemberModel
+
+    # Find households where this user is the billing owner
+    households = (
+        db.query(HouseholdModel)
+        .filter(HouseholdModel.billing_owner_user_id == user_id)
+        .all()
+    )
+    for household in households:
+        members = (
+            db.query(HouseholdMemberModel)
+            .filter(
+                HouseholdMemberModel.household_id == household.id,
+                HouseholdMemberModel.status == "active",
+                HouseholdMemberModel.user_id != user_id,  # skip the owner themselves
+            )
+            .all()
+        )
+        for member in members:
+            # Recompute partner's entitlements (will pick up the new inherited tier)
+            _recompute_entitlements_internal(db, member.user_id)
+
+
+def _recompute_entitlements_internal(
     db: Session,
     user_id: str,
     restricted_features: set[str] | None = None,
 ) -> tuple[str, list[str]]:
-    """
-    Recompute feature entitlements for a user.
+    """Internal implementation of entitlement recomputation.
 
-    1. Compute effective tier (direct vs household-inherited, higher wins)
-    2. Log internal access override (single audit point)
-    3. Apply regulatory restrictions (FATCA etc.)
-    4. Upsert entitlement rows
-
-    Returns (effective_tier, active_features).
+    Separated from the public API to allow recursive calls for household
+    members without triggering infinite loops.
     """
     from app.models.household import AdminAuditEventModel
 
@@ -267,6 +291,33 @@ def recompute_entitlements(
             row.is_active = feature in active_features
             row.updated_at = _now()
     db.commit()
+    return effective_tier, active_features
+
+
+def recompute_entitlements(
+    db: Session,
+    user_id: str,
+    restricted_features: set[str] | None = None,
+) -> tuple[str, list[str]]:
+    """
+    Recompute feature entitlements for a user.
+
+    1. Compute effective tier (direct vs household-inherited, higher wins)
+    2. Log internal access override (single audit point)
+    3. Apply regulatory restrictions (FATCA etc.)
+    4. Upsert entitlement rows
+    5. P0-6: Recompute household members' entitlements (partner revocation on downgrade)
+
+    Returns (effective_tier, active_features).
+    """
+    effective_tier, active_features = _recompute_entitlements_internal(
+        db, user_id, restricted_features
+    )
+
+    # P0-6: Cascade entitlement recomputation to household members.
+    # When billing owner downgrades from couple_plus, partner loses access.
+    _recompute_household_members(db, user_id)
+
     return effective_tier, active_features
 
 
@@ -429,6 +480,9 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
     )
 
     if event_type == "checkout.session.completed" and user_id:
+        # P0-7: Reject if user already has an active Apple subscription
+        _check_dual_subscription(db, user_id, "stripe")
+
         # P0-4: Row-level lock to prevent race between simultaneous webhooks
         sub = (
             db.query(SubscriptionModel)
@@ -533,6 +587,39 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
     db.commit()
 
 
+def _check_dual_subscription(db: Session, user_id: str, new_source: str) -> None:
+    """P0-7: Prevent dual Stripe+Apple subscriptions.
+
+    If the user already has an active subscription from a DIFFERENT provider,
+    raise an error. Same-provider updates are allowed (renewals, tier changes).
+
+    Args:
+        user_id: The user ID.
+        new_source: The source of the new subscription ('stripe' or 'apple').
+
+    Raises:
+        HTTPException 409 if an active subscription from another provider exists.
+    """
+    existing = (
+        db.query(SubscriptionModel)
+        .filter(SubscriptionModel.user_id == user_id)
+        .order_by(SubscriptionModel.updated_at.desc())
+        .first()
+    )
+    if (
+        existing
+        and _is_subscription_active(existing)
+        and existing.source != new_source
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"Active subscription already exists via {existing.source}. "
+                f"Cancel it before subscribing via {new_source}."
+            ),
+        )
+
+
 def activate_apple_purchase(
     db: Session,
     user: User,
@@ -551,6 +638,9 @@ def activate_apple_purchase(
     Note: in this foundation phase we accept client-transmitted purchase evidence.
     Full App Store Server API signature verification is handled in next phase.
     """
+    # P0-7: Reject if user already has an active subscription from Stripe
+    _check_dual_subscription(db, user.id, "apple")
+
     # Accept any known product ID (multi-tier) or legacy coach product
     known_products = set(PRODUCT_TO_TIER.keys())
     if product_id not in known_products:

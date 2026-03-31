@@ -27,25 +27,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final coachProvider = context.watch<CoachProfileProvider>();
-    final coachProfile = coachProvider.profile;
-    final double precision = coachProvider.profileCompleteness;
-
-    // Compute real completion for each FactFind section
-    final identityComplete =
-        coachProfile != null && coachProfile.canton.isNotEmpty;
-
-    final incomeComplete =
-        coachProfile != null && coachProfile.salaireBrutMensuel > 0;
-
-    final pensionComplete = coachProfile != null &&
-        (coachProfile.prevoyance.avoirLppTotal ?? 0) > 0;
-
-    final propertyComplete = coachProfile != null &&
-        (coachProfile.patrimoine.totalPatrimoine > 0 ||
-            coachProvider.hasFullProfile);
-
     final l = S.of(context)!;
 
     return Scaffold(
@@ -60,10 +41,20 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Identity card (compact) ───────────────
-                  if (coachProfile != null)
-                    MintEntrance(child: _buildIdentityCard(context, coachProfile)),
-                  if (coachProfile != null)
-                    const SizedBox(height: MintSpacing.md + MintSpacing.xs),
+                  // P0-8: Use Selector to avoid full-screen rebuild on any
+                  // profile change. Only rebuilds when profile identity changes.
+                  Selector<CoachProfileProvider, ({dynamic profile, bool hasProfile})>(
+                    selector: (_, p) => (profile: p.profile, hasProfile: p.hasProfile),
+                    builder: (ctx, data, _) {
+                      if (data.profile == null) return const SizedBox.shrink();
+                      return Column(
+                        children: [
+                          MintEntrance(child: _buildIdentityCard(ctx, data.profile)),
+                          const SizedBox(height: MintSpacing.md + MintSpacing.xs),
+                        ],
+                      );
+                    },
+                  ),
 
                   // ══════════════════════════════════════════
                   //  SECTION: Mon dossier
@@ -71,25 +62,42 @@ class ProfileScreen extends StatelessWidget {
                   _buildSectionHeader(l.profileSectionMyFile),
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
-                  // Inline progress bar
-                  _buildInlineProgress(
-                    context,
-                    precision: precision,
-                    identityComplete: identityComplete,
-                    incomeComplete: incomeComplete,
-                    pensionComplete: pensionComplete,
-                    propertyComplete: propertyComplete,
+                  // P0-8 / P0-11: Completion progress uses Selector —
+                  // only rebuilds when completeness fields change.
+                  Selector<CoachProfileProvider, _ProfileCompletionData>(
+                    selector: (_, p) => _computeCompletionData(p),
+                    builder: (ctx, data, _) => _buildInlineProgress(
+                      ctx,
+                      precision: data.precision,
+                      identityComplete: data.identityComplete,
+                      incomeComplete: data.incomeComplete,
+                      pensionComplete: data.pensionComplete,
+                      propertyComplete: data.propertyComplete,
+                    ),
                   ),
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
                   // Annual refresh nudge (if stale data)
-                  if (_shouldShowAnnualRefresh(coachProvider)) ...[
-                    _buildAnnualRefreshCard(context, coachProvider),
-                    const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-                  ],
+                  Selector<CoachProfileProvider, bool>(
+                    selector: (_, p) => _shouldShowAnnualRefresh(p),
+                    builder: (ctx, showRefresh, _) {
+                      if (!showRefresh) return const SizedBox.shrink();
+                      return Consumer<CoachProfileProvider>(
+                        builder: (ctx2, provider, _) => Column(
+                          children: [
+                            _buildAnnualRefreshCard(ctx2, provider),
+                            const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
 
                   // Mon aperçu financier
-                  _buildBilanLink(context, coachProfile != null),
+                  Selector<CoachProfileProvider, bool>(
+                    selector: (_, p) => p.hasProfile,
+                    builder: (ctx, hasProfile, _) => _buildBilanLink(ctx, hasProfile),
+                  ),
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
                   // Documents
@@ -97,12 +105,15 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
                   // Couple / Family
-                  _buildFactFindSection(
-                    title: l.profileFamilySection,
-                    status: (coachProfile?.isCouple ?? false) ? l.profileFamilyCouple : l.profileFamilySingle,
-                    isComplete: false,
-                    icon: Icons.people_outline,
-                    onTap: () => context.push('/couple'),
+                  Selector<CoachProfileProvider, bool>(
+                    selector: (_, p) => p.profile?.isCouple ?? false,
+                    builder: (ctx, isCouple, _) => _buildFactFindSection(
+                      title: l.profileFamilySection,
+                      status: isCouple ? l.profileFamilyCouple : l.profileFamilySingle,
+                      isComplete: false,
+                      icon: Icons.people_outline,
+                      onTap: () => ctx.push('/couple'),
+                    ),
                   ),
 
                   // ══════════════════════════════════════════
@@ -112,10 +123,18 @@ class ProfileScreen extends StatelessWidget {
                   // as rows in the Réglages section of the Dossier tab.
 
                   // Account (if logged in)
-                  if (authProvider.isLoggedIn) ...[
-                    const SizedBox(height: MintSpacing.lg),
-                    _buildAuthSection(context, authProvider),
-                  ],
+                  Selector<AuthProvider, bool>(
+                    selector: (_, a) => a.isLoggedIn,
+                    builder: (ctx, isLoggedIn, _) {
+                      if (!isLoggedIn) return const SizedBox.shrink();
+                      return Consumer<AuthProvider>(
+                        builder: (ctx2, authProvider, _) => Padding(
+                          padding: const EdgeInsets.only(top: MintSpacing.lg),
+                          child: _buildAuthSection(ctx2, authProvider),
+                        ),
+                      );
+                    },
+                  ),
 
                   // Danger zone
                   const SizedBox(height: MintSpacing.md),
@@ -127,6 +146,20 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ))),
+    );
+  }
+
+  /// P0-11: Extract completion calculation out of build() into a pure function
+  /// used by Selector to only rebuild when completion data actually changes.
+  static _ProfileCompletionData _computeCompletionData(CoachProfileProvider p) {
+    final profile = p.profile;
+    return _ProfileCompletionData(
+      precision: p.profileCompleteness,
+      identityComplete: profile != null && profile.canton.isNotEmpty,
+      incomeComplete: profile != null && profile.salaireBrutMensuel > 0,
+      pensionComplete: profile != null && (profile.prevoyance.avoirLppTotal ?? 0) > 0,
+      propertyComplete: profile != null &&
+          (profile.patrimoine.totalPatrimoine > 0 || p.hasFullProfile),
     );
   }
 
@@ -951,4 +984,38 @@ class ProfileScreen extends StatelessWidget {
       },
     ).whenComplete(() => controller.dispose());
   }
+}
+
+/// P0-11: Immutable data holder for profile completion — used by Selector
+/// to avoid rebuilding the entire ProfileScreen on unrelated profile changes.
+class _ProfileCompletionData {
+  final double precision;
+  final bool identityComplete;
+  final bool incomeComplete;
+  final bool pensionComplete;
+  final bool propertyComplete;
+
+  const _ProfileCompletionData({
+    required this.precision,
+    required this.identityComplete,
+    required this.incomeComplete,
+    required this.pensionComplete,
+    required this.propertyComplete,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _ProfileCompletionData &&
+          precision == other.precision &&
+          identityComplete == other.identityComplete &&
+          incomeComplete == other.incomeComplete &&
+          pensionComplete == other.pensionComplete &&
+          propertyComplete == other.propertyComplete;
+
+  @override
+  int get hashCode => Object.hash(
+        precision, identityComplete, incomeComplete,
+        pensionComplete, propertyComplete,
+      );
 }

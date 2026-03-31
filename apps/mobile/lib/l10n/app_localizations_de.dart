@@ -4646,7 +4646,7 @@ class SDe extends S {
 
   @override
   String get onboardingConsentBody =>
-      'Deine Antworten können lokal auf deinem Gerät gespeichert werden, um später fortzufahren. Keine Daten werden ohne deine Zustimmung gesendet.';
+      'MINT erhebt deine Finanzdaten ausschliesslich zur Berechnung deiner Vorsorgeprognosen. Deine Daten bleiben auf deinem Gerät und werden nie ohne deine ausdrückliche Zustimmung weitergegeben (nDSG Art. 6).';
 
   @override
   String get onboardingConsentAllow => 'Erlauben';
@@ -25622,4 +25622,10 @@ class SDe extends S {
   String mortgageJourneyStepLabel(int number, String title) {
     return 'Schritt $number · $title';
   }
+
+  @override
+  String get onboardingConsentAccept => 'Akzeptieren';
+
+  @override
+  String get onboardingConsentDecline => 'Ablehnen';
 }

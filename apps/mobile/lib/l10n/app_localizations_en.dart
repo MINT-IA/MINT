@@ -4615,7 +4615,7 @@ class SEn extends S {
 
   @override
   String get onboardingConsentBody =>
-      'Your answers can be saved locally on your device to resume later. No data is sent without your consent.';
+      'MINT collects your financial data solely to calculate your pension projections. Your data stays on your device and is never shared without your explicit consent (nDPA art. 6).';
 
   @override
   String get onboardingConsentAllow => 'Allow';
@@ -25443,4 +25443,10 @@ class SEn extends S {
   String mortgageJourneyStepLabel(int number, String title) {
     return 'Step $number · $title';
   }
+
+  @override
+  String get onboardingConsentAccept => 'Accept';
+
+  @override
+  String get onboardingConsentDecline => 'Decline';
 }

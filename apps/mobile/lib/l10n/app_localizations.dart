@@ -8404,7 +8404,7 @@ abstract class S {
   /// No description provided for @onboardingConsentBody.
   ///
   /// In fr, this message translates to:
-  /// **'Tes réponses peuvent être sauvegardées localement sur ton appareil pour reprendre plus tard. Aucune donnée n\'est envoyée sans ton accord.'**
+  /// **'MINT collecte tes données financières uniquement pour calculer tes projections de prévoyance. Tes données restent sur ton appareil et ne sont jamais partagées sans ton accord explicite (nLPD art. 6).'**
   String get onboardingConsentBody;
 
   /// No description provided for @onboardingConsentAllow.
@@ -45030,6 +45030,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Étape {number} · {title}'**
   String mortgageJourneyStepLabel(int number, String title);
+
+  /// No description provided for @onboardingConsentAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get onboardingConsentAccept;
+
+  /// No description provided for @onboardingConsentDecline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get onboardingConsentDecline;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

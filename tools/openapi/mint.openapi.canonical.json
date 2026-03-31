@@ -2412,6 +2412,7 @@
           "nombreEnfants": {
             "default": 0,
             "description": "Nombre d'enfants a charge",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "type": "integer"
@@ -4015,6 +4016,7 @@
           "enfants": {
             "default": 0,
             "description": "Nombre d'enfants",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Enfants",
             "type": "integer"
@@ -5690,6 +5692,7 @@
           "nbEnfants": {
             "default": 0,
             "description": "Nombre d'enfants a charge",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nbenfants",
             "type": "integer"
@@ -6534,6 +6537,7 @@
           "nombreEnfants": {
             "default": 0,
             "description": "Number of children",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "type": "integer"
@@ -11689,6 +11693,7 @@
           "enfants": {
             "default": 0,
             "description": "Nombre d'enfants a charge",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Enfants",
             "type": "integer"
@@ -12565,6 +12570,7 @@
           "nombreEnfants": {
             "default": 0,
             "description": "Nombre d'enfants a charge",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "type": "integer"
@@ -12838,6 +12844,7 @@
           },
           "childrenCount": {
             "description": "Nombre d'enfants a charge",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Childrencount",
             "type": "integer"
@@ -18511,6 +18518,7 @@
           "nombreEnfants": {
             "default": 0,
             "description": "Number of children",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "type": "integer"
@@ -18876,7 +18884,7 @@
           "nombreEnfants": {
             "default": 0,
             "description": "Nombre d'enfants a charge",
-            "maximum": 10.0,
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "type": "integer"

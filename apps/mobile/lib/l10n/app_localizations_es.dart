@@ -4635,7 +4635,7 @@ class SEs extends S {
 
   @override
   String get onboardingConsentBody =>
-      'Tus respuestas pueden guardarse localmente en tu dispositivo para continuar más tarde. Ningún dato se envía sin tu consentimiento.';
+      'MINT recopila tus datos financieros únicamente para calcular tus proyecciones de previsión. Tus datos permanecen en tu dispositivo y nunca se comparten sin tu consentimiento explícito.';
 
   @override
   String get onboardingConsentAllow => 'Autorizar';
@@ -25575,4 +25575,10 @@ class SEs extends S {
   String mortgageJourneyStepLabel(int number, String title) {
     return 'Paso $number · $title';
   }
+
+  @override
+  String get onboardingConsentAccept => 'Aceptar';
+
+  @override
+  String get onboardingConsentDecline => 'Rechazar';
 }

@@ -12471,5 +12471,8 @@
       "number": {"type": "int"},
       "title": {"type": "String"}
     }
-  }
+  },
+  "onboardingConsentBody": "MINT collecte tes données financières uniquement pour calculer tes projections de prévoyance. Tes données restent sur ton appareil et ne sont jamais partagées sans ton accord explicite (nLPD art. 6).",
+  "onboardingConsentAccept": "Accepter",
+  "onboardingConsentDecline": "Refuser"
 }

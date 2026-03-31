@@ -464,7 +464,33 @@ def _execute_internal_tool(
         Plain-text result string for the tool.
     """
     name = tool_call.get("name", "")
-    tool_input = tool_call.get("input", {})
+    raw_input = tool_call.get("input", {})
+
+    # P0-4: Validate tool arguments — type check and length limit.
+    # LLM-generated arguments could be malformed or adversarially large.
+    if not isinstance(raw_input, dict):
+        logger.warning("Tool %s received non-dict input: %s", name, type(raw_input).__name__)
+        return "Erreur : arguments invalides (dict attendu)."
+
+    # Enforce length limits on all string values in tool input
+    _MAX_ARG_LEN = 500
+    tool_input: dict = {}
+    for k, v in raw_input.items():
+        if not isinstance(k, str) or len(k) > 100:
+            continue  # drop malformed keys
+        if isinstance(v, str):
+            tool_input[k] = v[:_MAX_ARG_LEN]
+        elif isinstance(v, (int, float, bool)):
+            tool_input[k] = v
+        elif isinstance(v, dict):
+            # Allow one level of nested dict (e.g., metadata), but cap string values
+            tool_input[k] = {
+                sk: (sv[:_MAX_ARG_LEN] if isinstance(sv, str) else sv)
+                for sk, sv in v.items()
+                if isinstance(sk, str) and len(sk) <= 100
+            }
+        # else: drop non-primitive types (lists of objects, etc.)
+
     ctx = profile_context or {}
 
     if name == "retrieve_memories":
@@ -801,6 +827,9 @@ async def _run_agent_loop(
     final_answer = ""
     current_question = question
     answer_text = ""  # initialized to prevent NameError in for/else
+    # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
+    _MAX_UNKNOWN_TOOL_CALLS = 2
+    unknown_tool_count = 0
 
     for iteration in range(MAX_AGENT_LOOP_ITERATIONS):
         # Check token budget BEFORE calling (except first iteration)
@@ -834,13 +863,39 @@ async def _run_agent_loop(
         answer_text = result.get("answer", "")
         raw_tool_calls = result.get("tool_calls") or []
 
-        # Separate internal vs Flutter tool calls
+        # P0-5: Collect known tool names for unknown-call detection
+        all_known_names = set(INTERNAL_TOOL_NAMES) | {
+            t.get("name", "") for t in stripped_tools
+        }
+
+        # Separate internal vs Flutter vs unknown tool calls
         internal_calls = [
             t for t in raw_tool_calls if t.get("name", "") in INTERNAL_TOOL_NAMES
         ]
         external_calls = [
             t for t in raw_tool_calls if t.get("name", "") not in INTERNAL_TOOL_NAMES
+            and t.get("name", "") in all_known_names
         ]
+
+        # P0-5: Count unknown tool calls — stop loop after threshold
+        unknown_calls = [
+            t for t in raw_tool_calls
+            if t.get("name", "") and t.get("name", "") not in all_known_names
+        ]
+        if unknown_calls:
+            for uc in unknown_calls:
+                unknown_tool_count += 1
+                logger.warning(
+                    "Unknown tool call '%s' (count: %d/%d)",
+                    uc.get("name"), unknown_tool_count, _MAX_UNKNOWN_TOOL_CALLS,
+                )
+            if unknown_tool_count >= _MAX_UNKNOWN_TOOL_CALLS:
+                logger.error(
+                    "Agent loop aborted: %d unknown tool calls exceeded limit",
+                    unknown_tool_count,
+                )
+                final_answer = answer_text or "Désolé, une erreur interne est survenue."
+                break
         # Sanitize PII from Flutter-bound tool inputs before returning
         for tc in external_calls:
             inp = tc.get("input", {})
@@ -861,6 +916,11 @@ async def _run_agent_loop(
         tool_results: list = []
         for call in internal_calls:
             result_text = _execute_internal_tool(call, memory_block, profile_context)
+            # P0-3: Sanitize tool output through injection filter before
+            # re-injecting into the next LLM prompt. Tool results could
+            # contain user-controlled data (e.g., memory content).
+            for pattern in _INJECTION_PATTERNS:
+                result_text = pattern.sub("[FILTERED]", result_text)
             tool_results.append(
                 f"[{call.get('name', 'unknown')}] {result_text}"
             )
