@@ -433,7 +433,7 @@ def compare_rente_vs_capital(
         taux_conversion_surobligatoire: Conversion rate for surobligatoire (default 5%).
         canton: Canton code for tax estimation (default VD).
         age_retraite: Retirement age (default 65).
-        taux_retrait: Safe withdrawal rate on capital (default 4%).
+        taux_retrait: Safe withdrawal rate on capital (scenario default 4%).
         rendement_capital: Post-retirement capital return (default 3%).
         inflation: Inflation rate (default 2%).
         horizon: Simulation horizon in years (default 25).

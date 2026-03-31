@@ -7,7 +7,7 @@ Sources:
 
 from datetime import datetime
 from uuid import uuid4
-from sqlalchemy import Column, String, Integer, Float, DateTime, Index
+from sqlalchemy import Column, String, Integer, Float, DateTime, Index, text
 from app.core.database import Base
 
 
@@ -22,26 +22,26 @@ class SnapshotModel(Base):
     model_version = Column(String, default="1.0", nullable=False)
 
     # Core inputs
-    age = Column(Integer, default=0)
+    age = Column(Integer, default=0, server_default=text("0"))
     birth_date = Column(String, nullable=True)  # ISO 8601 date string
-    gross_income = Column(Float, default=0.0)
-    canton = Column(String, default="VD")
-    archetype = Column(String, default="swiss_native")
-    household_type = Column(String, default="single")
+    gross_income = Column(Float, default=0.0, server_default=text("0.0"))
+    canton = Column(String, default="VD", server_default=text("'VD'"))
+    archetype = Column(String, default="swiss_native", server_default=text("'swiss_native'"))
+    household_type = Column(String, default="single", server_default=text("'single'"))
 
     # Key outputs
-    replacement_ratio = Column(Float, default=0.0)
-    months_liquidity = Column(Float, default=0.0)
-    tax_saving_potential = Column(Float, default=0.0)
-    confidence_score = Column(Float, default=0.0)
-    enrichment_count = Column(Integer, default=0)
+    replacement_ratio = Column(Float, default=0.0, server_default=text("0.0"))
+    months_liquidity = Column(Float, default=0.0, server_default=text("0.0"))
+    tax_saving_potential = Column(Float, default=0.0, server_default=text("0.0"))
+    confidence_score = Column(Float, default=0.0, server_default=text("0.0"))
+    enrichment_count = Column(Integer, default=0, server_default=text("0"))
 
     # FRI scores
-    fri_total = Column(Float, default=0.0)
-    fri_l = Column(Float, default=0.0)
-    fri_f = Column(Float, default=0.0)
-    fri_r = Column(Float, default=0.0)
-    fri_s = Column(Float, default=0.0)
+    fri_total = Column(Float, default=0.0, server_default=text("0.0"))
+    fri_l = Column(Float, default=0.0, server_default=text("0.0"))
+    fri_f = Column(Float, default=0.0, server_default=text("0.0"))
+    fri_r = Column(Float, default=0.0, server_default=text("0.0"))
+    fri_s = Column(Float, default=0.0, server_default=text("0.0"))
 
     __table_args__ = (
         Index("ix_snapshots_user_created", "user_id", "created_at"),

@@ -10543,7 +10543,7 @@ class SPt extends S {
 
   @override
   String renteVsCapitalMicroCapital(String swr, String rendement) {
-    return 'Levantas $swr % por ano de um capital investido a $rendement %.';
+    return 'Levantas $swr % por ano (hipótese) de um capital investido a $rendement %.';
   }
 
   @override

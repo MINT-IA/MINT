@@ -5069,7 +5069,7 @@
     }
   },
   "renteVsCapitalMicroRente": "La tua cassa ti versa questo importo ogni mese, finché vivi.",
-  "renteVsCapitalMicroCapital": "Prelevi {swr} % all'anno da un capitale investito al {rendement} %.",
+  "renteVsCapitalMicroCapital": "Prelevi {swr}\u00a0% all'anno (ipotesi) da un capitale investito al {rendement}\u00a0%.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {

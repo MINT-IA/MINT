@@ -369,18 +369,6 @@ class ApiService {
     }
   }
 
-  // ========== PROFILE ENDPOINTS ==========
-
-  /// Fetch the authenticated user's profile from the backend.
-  /// Returns null if the request fails (best-effort hydration).
-  static Future<Map<String, dynamic>?> getMyProfile() async {
-    try {
-      return await get('/profiles/me');
-    } catch (_) {
-      return null;
-    }
-  }
-
   // ========== AUTH ENDPOINTS ==========
 
   /// Register a new user
@@ -1163,31 +1151,6 @@ class ApiService {
       return Profile.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
       throw Exception('Failed to create profile: ${response.body}');
-    }
-  }
-
-  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
-  static Future<Session> createSession({
-    required String profileId,
-    required Map<String, dynamic> answers,
-    required List<String> selectedFocusKinds,
-    String? selectedGoalTemplateId,
-  }) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/sessions'),
-      headers: await _authHeaders(),
-      body: jsonEncode({
-        'profileId': profileId,
-        'answers': answers,
-        'selectedFocusKinds': selectedFocusKinds,
-        'selectedGoalTemplateId': selectedGoalTemplateId,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return Session.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
-    } else {
-      throw Exception('Failed to create session: ${response.body}');
     }
   }
 

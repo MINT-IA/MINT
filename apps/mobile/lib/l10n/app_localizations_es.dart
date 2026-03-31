@@ -10542,7 +10542,7 @@ class SEs extends S {
 
   @override
   String renteVsCapitalMicroCapital(String swr, String rendement) {
-    return 'Retiras $swr % al año de un capital invertido al $rendement %.';
+    return 'Retiras $swr % al año (hipótesis) de un capital invertido al $rendement %.';
   }
 
   @override

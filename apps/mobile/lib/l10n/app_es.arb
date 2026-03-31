@@ -5069,7 +5069,7 @@
     }
   },
   "renteVsCapitalMicroRente": "Tu caja te paga este importe cada mes, mientras vivas.",
-  "renteVsCapitalMicroCapital": "Retiras {swr} % al año de un capital invertido al {rendement} %.",
+  "renteVsCapitalMicroCapital": "Retiras {swr}\u00a0% al año (hipótesis) de un capital invertido al {rendement}\u00a0%.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {

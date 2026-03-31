@@ -140,7 +140,7 @@ class RenteVsCapitalRequest(ArbitrageBaseModel):
     )
     taux_retrait: Optional[float] = Field(
         default=None,
-        description="Taux de retrait SWR sur le capital (defaut: 4%)",
+        description="Taux de retrait SWR sur le capital (hypothese par defaut: 4%)",
     )
     rendement_capital: Optional[float] = Field(
         default=None,
@@ -210,7 +210,7 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
     )
     rendement_marche: Optional[float] = Field(
         default=None,
-        description="Rendement marche libre (defaut: 4%)",
+        description="Rendement marche libre (scenario par defaut: 4%)",
     )
     canton: Optional[str] = Field(
         default=None, min_length=2, max_length=2,
@@ -252,7 +252,7 @@ class LocationVsProprieteRequest(ArbitrageBaseModel):
     )
     rendement_marche: Optional[float] = Field(
         default=None,
-        description="Rendement marche si location + investissement (defaut: 4%)",
+        description="Rendement marche si location + investissement (scenario par defaut: 4%)",
     )
     appreciation_immo: Optional[float] = Field(
         default=None,
@@ -302,7 +302,7 @@ class RachatVsMarcheRequest(ArbitrageBaseModel):
     )
     rendement_marche: Optional[float] = Field(
         default=None,
-        description="Rendement marche libre (defaut: 4%)",
+        description="Rendement marche libre (scenario par defaut: 4%)",
     )
     taux_conversion: Optional[float] = Field(
         default=None,

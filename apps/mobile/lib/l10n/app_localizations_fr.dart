@@ -10542,7 +10542,7 @@ class SFr extends S {
 
   @override
   String renteVsCapitalMicroCapital(String swr, String rendement) {
-    return 'Tu retires $swr % par an d\'un capital placé à $rendement %.';
+    return 'Tu retires $swr % par an (hypothèse) d\'un capital placé à $rendement %.';
   }
 
   @override

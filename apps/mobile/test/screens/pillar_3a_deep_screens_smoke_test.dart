@@ -361,15 +361,6 @@ void main() {
       expect(find.textContaining('rudent'), findsWidgets);
     });
 
-    testWidgets('displays vs meilleur badge on non-best providers',
-        (tester) async {
-      await tester.pumpWidget(buildScreen());
-      await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
-      await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
-      await tester.pump();
-      expect(find.textContaining('vs premier'), findsWidgets);
-    });
+    // Compliance: "vs premier" ranking badge removed (no provider ranking per CLAUDE.md §6).
   });
 }

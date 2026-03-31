@@ -152,14 +152,21 @@ class SaronVsFixedService:
 
         if taux_saron_actuel is None:
             taux_saron_actuel = TAUX_DEFAUT["saron_compose"]
+        # Normalize: if caller passes percentage (e.g. 1.25) instead of decimal (0.0125)
+        if taux_saron_actuel > 0.30:
+            taux_saron_actuel = taux_saron_actuel / 100.0
         taux_saron_actuel = max(0.0, min(0.10, taux_saron_actuel))
 
         if marge_banque is None:
             marge_banque = TAUX_DEFAUT["marge_banque"]
+        if marge_banque > 0.30:
+            marge_banque = marge_banque / 100.0
         marge_banque = max(0.0, min(0.05, marge_banque))
 
         if taux_fixe is None:
             taux_fixe = self._select_fixed_rate(duree_ans)
+        if taux_fixe > 0.30:
+            taux_fixe = taux_fixe / 100.0
         taux_fixe = max(0.0, min(0.10, taux_fixe))
 
         # 1. Fixed rate calculation

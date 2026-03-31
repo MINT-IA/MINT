@@ -5069,7 +5069,7 @@
     }
   },
   "renteVsCapitalMicroRente": "Your fund pays you this amount every month, as long as you live.",
-  "renteVsCapitalMicroCapital": "You withdraw {swr}% per year from capital invested at {rendement}%.",
+  "renteVsCapitalMicroCapital": "You withdraw {swr}% per year (hypothesis) from capital invested at {rendement}%.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {

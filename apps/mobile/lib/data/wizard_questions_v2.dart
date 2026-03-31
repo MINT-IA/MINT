@@ -657,9 +657,9 @@ class WizardQuestionsV2 {
       if (birthYear != null) {
         final by = birthYear is int ? birthYear : int.tryParse(birthYear.toString()) ?? 0;
         final expectedYears = (DateTime.now().year - by - 21).clamp(0, 44);
-        return 'À ton âge, tu devrais avoir ~$expectedYears années de cotisation '
+        return 'À ton âge, ~$expectedYears années de cotisation sont attendues '
             '(échelle complète = 44 ans, LAVS art. 29ter). '
-            'Chaque année manquante = -2.3% de rente à vie.';
+            'Chaque année manquante = -2.3\u00a0% de rente à vie.';
       }
     }
 

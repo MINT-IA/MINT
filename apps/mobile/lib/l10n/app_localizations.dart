@@ -18859,7 +18859,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalMicroCapital.
   ///
   /// In fr, this message translates to:
-  /// **'Tu retires {swr} % par an d\'un capital placé à {rendement} %.'**
+  /// **'Tu retires {swr} % par an (hypothèse) d\'un capital placé à {rendement} %.'**
   String renteVsCapitalMicroCapital(String swr, String rendement);
 
   /// No description provided for @renteVsCapitalSyntheseCapitalHigher.

@@ -5069,7 +5069,7 @@
     }
   },
   "renteVsCapitalMicroRente": "Deine Kasse zahlt dir diesen Betrag jeden Monat, solange du lebst.",
-  "renteVsCapitalMicroCapital": "Du beziehst {swr} % pro Jahr aus einem Kapital, das zu {rendement} % angelegt ist.",
+  "renteVsCapitalMicroCapital": "Du beziehst {swr}\u00a0% pro Jahr (Hypothese) aus einem Kapital, das zu {rendement}\u00a0% angelegt ist.",
   "@renteVsCapitalMicroCapital": {
     "placeholders": {
       "swr": {

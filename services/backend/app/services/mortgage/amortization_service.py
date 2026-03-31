@@ -154,6 +154,11 @@ class AmortizationService:
         """
         # Sanitize inputs
         montant_hypothecaire = max(0.0, montant_hypothecaire)
+        # Normalize: if caller passes a percentage value (e.g. 1.5 for 1.5%)
+        # instead of a decimal (0.015), convert it. Threshold: any value > 0.30
+        # is certainly a percentage, not a decimal rate.
+        if taux_interet > 0.30:
+            taux_interet = taux_interet / 100.0
         taux_interet = max(0.0, min(0.10, taux_interet))
         duree_ans = max(1, min(40, duree_ans))
         taux_marginal = max(0.0, min(0.50, taux_marginal_imposition))

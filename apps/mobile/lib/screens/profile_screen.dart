@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
@@ -700,6 +701,9 @@ class ProfileScreen extends StatelessWidget {
             onPressed: () async {
               await authProvider.logout();
               if (context.mounted) {
+                try {
+                  context.read<MintStateProvider>().clear();
+                } catch (_) {}
                 context.go('/');
               }
             },
@@ -798,6 +802,11 @@ class ProfileScreen extends StatelessWidget {
       final prefs = await SharedPreferences.getInstance();
       await PrecomputedInsightsService.clear(prefs);
       await prefs.clear(); // Nuclear option — clears all SharedPreferences
+      if (context.mounted) {
+        try {
+          context.read<MintStateProvider>().clear();
+        } catch (_) {}
+      }
     }
 
     if (!context.mounted) return;

@@ -314,18 +314,12 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
   Widget _buildProviderCard(ProviderResult result, double maxCapital, S l) {
     final isWarning = result.hasWarning;
-    final isBest = result.badge != null &&
-        result.badge!.contains('Rendement le plus eleve');
-
+    // Compliance: no "best" visual indicator — arbitrage must be side-by-side, never ranked.
     Color bgColor = MintColors.white;
     Color borderColor = MintColors.border;
     double borderWidth = 1;
 
-    if (isBest) {
-      bgColor = MintColors.success.withValues(alpha: 0.06);
-      borderColor = MintColors.success.withValues(alpha: 0.3);
-      borderWidth = 2;
-    } else if (isWarning) {
+    if (isWarning) {
       bgColor = MintColors.error.withValues(alpha: 0.06);
       borderColor = MintColors.error.withValues(alpha: 0.3);
       borderWidth = 2;
@@ -354,22 +348,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                   ],
                 ),
               ),
-              if (result.badge != null && !isWarning)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.success,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    result.badge!.length > 20
-                        ? result.badge!.substring(0, 20)
-                        : result.badge!,
-                    style: const TextStyle(
-                      color: MintColors.white, fontSize: 9, fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              // Badge display removed — compliance: no ranking indicator.
               if (isWarning)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -419,9 +398,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                   Text(
                     'CHF ${formatChf(result.capitalFinal)}',
                     style: MintTextStyles.titleMedium(
-                      color: isBest
-                          ? MintColors.success
-                          : isWarning
+                      color: isWarning
                               ? MintColors.error
                               : MintColors.textPrimary,
                     ),
@@ -431,21 +408,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             ],
           ),
 
-          // Difference vs meilleur
-          if (result.capitalFinal < maxCapital) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: MintColors.error.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                l.providerComparatorDiffVsPremier(formatChf(maxCapital - result.capitalFinal)),
-                style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+          // Ranking badge removed — compliance: arbitrage side-by-side, never ranked.
         ],
       ),
     );

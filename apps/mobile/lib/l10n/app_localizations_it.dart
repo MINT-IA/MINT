@@ -10570,7 +10570,7 @@ class SIt extends S {
 
   @override
   String renteVsCapitalMicroCapital(String swr, String rendement) {
-    return 'Prelevi $swr % all\'anno da un capitale investito al $rendement %.';
+    return 'Prelevi $swr % all\'anno (ipotesi) da un capitale investito al $rendement %.';
   }
 
   @override

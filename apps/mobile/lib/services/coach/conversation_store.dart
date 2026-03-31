@@ -234,6 +234,8 @@ class ConversationStore {
     RegExp(r'(travaille\s+chez|employeur\s+est|boîte|entreprise)\s+\S+', caseSensitive: false),
     // IBAN (CH + 19 digits, with optional spaces)
     RegExp(r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}', caseSensitive: false),
+    // IBAN compact format (no spaces)
+    RegExp(r'CH\d{19}', caseSensitive: false),
     // Written-out amounts: "septante mille", "cent vingt mille"
     RegExp(r'(septante|huitante|nonante|cinquante|soixante|vingt|trente|quarante)\s+(mille|cents?)', caseSensitive: false),
   ];

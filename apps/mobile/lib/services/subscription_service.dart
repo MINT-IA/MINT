@@ -225,6 +225,7 @@ class SubscriptionState {
       other is SubscriptionState &&
           runtimeType == other.runtimeType &&
           tier == other.tier &&
+          expiresAt == other.expiresAt &&
           isTrialActive == other.isTrialActive &&
           trialDaysRemaining == other.trialDaysRemaining &&
           source == other.source;
@@ -232,6 +233,7 @@ class SubscriptionState {
   @override
   int get hashCode =>
       tier.hashCode ^
+      expiresAt.hashCode ^
       isTrialActive.hashCode ^
       trialDaysRemaining.hashCode ^
       source.hashCode;
