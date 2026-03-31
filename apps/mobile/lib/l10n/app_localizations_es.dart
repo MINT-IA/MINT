@@ -25451,4 +25451,28 @@ class SEs extends S {
   String coachMarkStepConfirm(String stepId) {
     return '¿Marcar el paso \"$stepId\" como completado?';
   }
+
+  @override
+  String get semanticsActive => 'activo';
+
+  @override
+  String get semanticsInactive => 'inactivo';
+
+  @override
+  String get semanticsReached => 'alcanzado';
+
+  @override
+  String get semanticsNotReached => 'no alcanzado';
+
+  @override
+  String get rcSuggestedPromptSuccession =>
+      '¿Cómo organizar mi sucesión en Suiza?';
+
+  @override
+  String get rcSuggestedPromptDonation =>
+      '¿Cuáles son las ventajas fiscales de una donación en vida?';
+
+  @override
+  String get rcSuggestedPromptPatrimoine =>
+      '¿Cómo optimizar la transmisión de mi patrimonio?';
 }

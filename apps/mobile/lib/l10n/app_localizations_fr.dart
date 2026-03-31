@@ -25444,4 +25444,28 @@ class SFr extends S {
   String coachMarkStepConfirm(String stepId) {
     return 'Marquer l\'étape « $stepId » comme terminée ?';
   }
+
+  @override
+  String get semanticsActive => 'actif';
+
+  @override
+  String get semanticsInactive => 'inactif';
+
+  @override
+  String get semanticsReached => 'atteint';
+
+  @override
+  String get semanticsNotReached => 'non atteint';
+
+  @override
+  String get rcSuggestedPromptSuccession =>
+      'Comment organiser ma succession en Suisse ?';
+
+  @override
+  String get rcSuggestedPromptDonation =>
+      'Quels sont les avantages fiscaux d’une donation de mon vivant ?';
+
+  @override
+  String get rcSuggestedPromptPatrimoine =>
+      'Comment optimiser la transmission de mon patrimoine ?';
 }

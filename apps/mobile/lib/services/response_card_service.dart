@@ -568,7 +568,9 @@ class ResponseCardService {
         prompts.add(l.rcSuggestedPromptRenteOuCapital);
         prompts.add(l.rcSuggestedPrompt50PlusRetirement);
       case LifecyclePhase.transmission:
-        prompts.add(l.rcSuggestedPrompt50PlusRetirement);
+        prompts.add(l.rcSuggestedPromptSuccession);
+        prompts.add(l.rcSuggestedPromptDonation);
+        prompts.add(l.rcSuggestedPromptPatrimoine);
     }
 
     // Archetype-driven (cross-phase)

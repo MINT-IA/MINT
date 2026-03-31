@@ -25522,4 +25522,28 @@ class SIt extends S {
   String coachMarkStepConfirm(String stepId) {
     return 'Segnare il passaggio \"$stepId\" come completato?';
   }
+
+  @override
+  String get semanticsActive => 'attivo';
+
+  @override
+  String get semanticsInactive => 'inattivo';
+
+  @override
+  String get semanticsReached => 'raggiunto';
+
+  @override
+  String get semanticsNotReached => 'non raggiunto';
+
+  @override
+  String get rcSuggestedPromptSuccession =>
+      'Come organizzare la mia successione in Svizzera?';
+
+  @override
+  String get rcSuggestedPromptDonation =>
+      'Quali sono i vantaggi fiscali di una donazione in vita?';
+
+  @override
+  String get rcSuggestedPromptPatrimoine =>
+      'Come ottimizzare la trasmissione del mio patrimonio?';
 }

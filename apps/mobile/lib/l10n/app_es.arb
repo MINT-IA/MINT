@@ -11944,5 +11944,12 @@
   "coachChangeGoalConfirm": "¿Cambiar tu objetivo a: {goalTag}?",
   "@coachChangeGoalConfirm": {"placeholders": {"goalTag": {"type": "String"}}},
   "coachMarkStepConfirm": "¿Marcar el paso \"{stepId}\" como completado?",
-  "@coachMarkStepConfirm": {"placeholders": {"stepId": {"type": "String"}}}
+  "@coachMarkStepConfirm": {"placeholders": {"stepId": {"type": "String"}}},
+  "semanticsActive": "activo",
+  "semanticsInactive": "inactivo",
+  "semanticsReached": "alcanzado",
+  "semanticsNotReached": "no alcanzado",
+  "rcSuggestedPromptSuccession": "¿Cómo organizar mi sucesión en Suiza?",
+  "rcSuggestedPromptDonation": "¿Cuáles son las ventajas fiscales de una donación en vida?",
+  "rcSuggestedPromptPatrimoine": "¿Cómo optimizar la transmisión de mi patrimonio?"
 }
