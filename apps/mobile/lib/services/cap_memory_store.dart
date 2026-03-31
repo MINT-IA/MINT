@@ -52,6 +52,9 @@ class CapMemory {
   /// display the right message even if CapEngine recomputes a different cap.
   final String? lastCompletedCapHeadline;
 
+  /// CTA label of the last completed cap — the action text the user actually clicked.
+  final String? lastCompletedCapCtaLabel;
+
   /// Tracks how many times each step was proposed in a guided sequence run.
   /// Key: "{runId}_{stepId}", Value: proposal count.
   /// Cleared when the run completes or is abandoned.
@@ -70,6 +73,7 @@ class CapMemory {
     this.lastCompletedDate,
     this.lastCompletedCapId,
     this.lastCompletedCapHeadline,
+    this.lastCompletedCapCtaLabel,
     this.stepProposals = const {},
   });
 
@@ -107,6 +111,7 @@ class CapMemory {
     Object? lastCompletedDate = _undefined,
     Object? lastCompletedCapId = _undefined,
     Object? lastCompletedCapHeadline = _undefined,
+    Object? lastCompletedCapCtaLabel = _undefined,
     Map<String, int>? stepProposals,
   }) {
     return CapMemory(
@@ -134,6 +139,9 @@ class CapMemory {
       lastCompletedCapHeadline: lastCompletedCapHeadline == _undefined
           ? this.lastCompletedCapHeadline
           : lastCompletedCapHeadline as String?,
+      lastCompletedCapCtaLabel: lastCompletedCapCtaLabel == _undefined
+          ? this.lastCompletedCapCtaLabel
+          : lastCompletedCapCtaLabel as String?,
       stepProposals: stepProposals ?? this.stepProposals,
     );
   }
@@ -154,6 +162,8 @@ class CapMemory {
           'lastCompletedCapId': lastCompletedCapId,
         if (lastCompletedCapHeadline != null)
           'lastCompletedCapHeadline': lastCompletedCapHeadline,
+        if (lastCompletedCapCtaLabel != null)
+          'lastCompletedCapCtaLabel': lastCompletedCapCtaLabel,
         if (stepProposals.isNotEmpty) 'stepProposals': stepProposals,
       };
 
@@ -178,6 +188,7 @@ class CapMemory {
             : null,
         lastCompletedCapId: json['lastCompletedCapId'] as String?,
         lastCompletedCapHeadline: json['lastCompletedCapHeadline'] as String?,
+        lastCompletedCapCtaLabel: json['lastCompletedCapCtaLabel'] as String?,
         stepProposals:
             (json['stepProposals'] as Map<String, dynamic>?)?.map(
                   (k, v) => MapEntry(k, (v as num).toInt()),
@@ -243,6 +254,7 @@ class CapMemoryStore {
     CapMemory memory,
     String actionId, {
     String? headline,
+    String? ctaLabel,
   }) async {
     final actions = [...memory.completedActions, actionId];
     // Keep only last 20 to avoid unbounded growth.
@@ -255,9 +267,10 @@ class CapMemoryStore {
       recentFrictionContext: null,
       // Stamp completion time (distinct from lastCapDate).
       lastCompletedDate: DateTime.now(),
-      // Store the completed cap ID + headline for success sheet accuracy
+      // Store the completed cap ID + headline + ctaLabel for success sheet accuracy
       lastCompletedCapId: actionId,
       lastCompletedCapHeadline: headline,
+      lastCompletedCapCtaLabel: ctaLabel,
     );
     await save(updated);
     return updated;

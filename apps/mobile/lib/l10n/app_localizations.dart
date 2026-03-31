@@ -9136,7 +9136,7 @@ abstract class S {
   /// No description provided for @budgetEmptyTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ton budget se construit automatiquement'**
+  /// **'Ton budget'**
   String get budgetEmptyTitle;
 
   /// No description provided for @budgetEmptyBody.
@@ -44658,6 +44658,168 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Débloquer'**
   String get coachGateUnlock;
+
+  /// No description provided for @documentVisionDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extraction via Claude Vision. Vérifie les valeurs.'**
+  String get documentVisionDisclaimer;
+
+  /// No description provided for @conversationHistoryError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger l’historique.'**
+  String get conversationHistoryError;
+
+  /// No description provided for @portfolioCompleteProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour débloquer ton indice de préparation.'**
+  String get portfolioCompleteProfile;
+
+  /// No description provided for @portfolioNoData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée patrimoniale renseignée.'**
+  String get portfolioNoData;
+
+  /// No description provided for @syncFailedLocalSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation échouée — tes données sont sauvées localement'**
+  String get syncFailedLocalSave;
+
+  /// No description provided for @financialReportEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton bilan financier'**
+  String get financialReportEmptyTitle;
+
+  /// No description provided for @financialReportEmptySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour générer ton bilan personnalisé'**
+  String get financialReportEmptySubtitle;
+
+  /// No description provided for @financialReportEmptyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mon profil'**
+  String get financialReportEmptyCta;
+
+  /// No description provided for @staggeredWithdrawalEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait 3a échelonné'**
+  String get staggeredWithdrawalEmptyTitle;
+
+  /// No description provided for @staggeredWithdrawalEmptySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne ton épargne 3a pour optimiser tes retraits'**
+  String get staggeredWithdrawalEmptySubtitle;
+
+  /// No description provided for @staggeredWithdrawalEmptyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter mon 3a'**
+  String get staggeredWithdrawalEmptyCta;
+
+  /// No description provided for @consentExportFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format : {format}'**
+  String consentExportFormat(String format);
+
+  /// No description provided for @consentExportDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date : {date}'**
+  String consentExportDate(String date);
+
+  /// No description provided for @consentExportCategories.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégories : {categories}'**
+  String consentExportCategories(String categories);
+
+  /// No description provided for @errorNotAuthenticated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non authentifié'**
+  String get errorNotAuthenticated;
+
+  /// No description provided for @budgetEmptySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne ton salaire pour créer ton budget personnalisé'**
+  String get budgetEmptySubtitle;
+
+  /// No description provided for @budgetEmptyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter mon salaire'**
+  String get budgetEmptyCta;
+
+  /// No description provided for @coachConfirmAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get coachConfirmAction;
+
+  /// No description provided for @coachCancelAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get coachCancelAction;
+
+  /// No description provided for @semanticsDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get semanticsDelete;
+
+  /// No description provided for @docScanProcessingError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de traitement.'**
+  String get docScanProcessingError;
+
+  /// No description provided for @docScanBackendParsingError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur backend pendant le parsing PDF : {error}'**
+  String docScanBackendParsingError(String error);
+
+  /// No description provided for @expatNoAcRightsAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun droit AC suisse si tu travailles à l\'étranger'**
+  String get expatNoAcRightsAbroad;
+
+  /// No description provided for @expatAcIndemnities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indemnités AC jusqu\'à 520 jours'**
+  String get expatAcIndemnities;
+
+  /// No description provided for @expatJobLossAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu perds ton emploi à l\'étranger, seul le régime local s\'applique — souvent moins généreux.'**
+  String get expatJobLossAbroad;
+
+  /// No description provided for @coachChangeGoalConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer ton objectif vers : {goalTag} ?'**
+  String coachChangeGoalConfirm(String goalTag);
+
+  /// No description provided for @coachMarkStepConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer l\'étape « {stepId} » comme terminée ?'**
+  String coachMarkStepConfirm(String stepId);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

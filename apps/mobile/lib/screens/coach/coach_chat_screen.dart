@@ -839,8 +839,10 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     // ── V3-1: handle pending write-tool confirmations ───────────
     if (_pendingGoalTag != null || _pendingStepId != null) {
-      final confirmed = text.trim().toLowerCase() == 'confirmer';
-      final cancelled = text.trim().toLowerCase() == 'annuler';
+      final l10n = S.of(context)!;
+      final normalised = text.trim().toLowerCase();
+      final confirmed = normalised == l10n.coachConfirmAction.toLowerCase();
+      final cancelled = normalised == l10n.coachCancelAction.toLowerCase();
       if (confirmed || cancelled) {
         _isBusy = false;
         await _handlePendingWriteConfirmation(confirmed);
@@ -1828,13 +1830,13 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         final goalTag = toolCall.input['goal_intent_tag'] as String?;
         if (goalTag != null && _profile != null && mounted) {
           _pendingGoalTag = goalTag;
+          final l10n = S.of(context)!;
           setState(() {
             _messages.add(ChatMessage(
               role: 'assistant',
-              content:
-                  'Changer ton objectif vers\u00a0: $goalTag\u00a0?',
+              content: l10n.coachChangeGoalConfirm(goalTag),
               timestamp: DateTime.now(),
-              suggestedActions: const ['Confirmer', 'Annuler'],
+              suggestedActions: [l10n.coachConfirmAction, l10n.coachCancelAction],
               tier: ChatTier.byok,
             ));
           });
@@ -1845,13 +1847,13 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         final stepId = toolCall.input['step_id'] as String?;
         if (stepId != null && mounted) {
           _pendingStepId = stepId;
+          final l10n = S.of(context)!;
           setState(() {
             _messages.add(ChatMessage(
               role: 'assistant',
-              content:
-                  'Marquer l\u2019\u00e9tape \u00ab\u202f$stepId\u202f\u00bb comme termin\u00e9e\u00a0?',
+              content: l10n.coachMarkStepConfirm(stepId),
               timestamp: DateTime.now(),
-              suggestedActions: const ['Confirmer', 'Annuler'],
+              suggestedActions: [l10n.coachConfirmAction, l10n.coachCancelAction],
               tier: ChatTier.byok,
             ));
           });

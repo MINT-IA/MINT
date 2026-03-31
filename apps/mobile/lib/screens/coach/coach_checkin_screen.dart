@@ -1605,7 +1605,7 @@ class _ContributionRow extends StatelessWidget {
             top: 4,
             right: 4,
             child: Semantics(
-              label: 'Supprimer',
+              label: S.of(context)!.semanticsDelete,
               button: true,
               child: GestureDetector(
                 onTap: onDelete,

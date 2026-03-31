@@ -671,13 +671,13 @@ class _ExpatScreenState extends State<ExpatScreen>
         ),
         const SizedBox(height: MintSpacing.lg),
         // ── P13-A : 5 choses que tu perds en partant ───────────
-        const MintEntrance(
-          delay: Duration(milliseconds: 400),
+        MintEntrance(
+          delay: const Duration(milliseconds: 400),
           child: ExpatRightsLossWidget(
           destination: 'l\'\u00e9tranger',
           isEuDestination: false,
           rights: [
-            ExpatRight(
+            const ExpatRight(
               label: 'AVS \u2014 cotisation obligatoire',
               emoji: '\u{1F6E1}\uFE0F',
               before: 'Cotisation automatique via employeur',
@@ -688,7 +688,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   '10 ans = \u221223% \u00e0 vie.',
               isIrreversible: true,
             ),
-            ExpatRight(
+            const ExpatRight(
               label: 'LPP \u2014 2e pilier',
               emoji: '\u{1F3E6}',
               before: '\u00c9pargne retraite obligatoire',
@@ -698,7 +698,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   'Tu peux retirer ton avoir LPP, mais tu paies l\'imp\u00f4t '
                   'sur le capital retir\u00e9. La reconstitution est impossible \u00e0 l\'\u00e9tranger.',
             ),
-            ExpatRight(
+            const ExpatRight(
               label: 'Pilier 3a',
               emoji: '\u{1F3DB}\uFE0F',
               before: 'D\u00e9ductions fiscales annuelles',
@@ -708,7 +708,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   'Tu perds le droit de verser dans le 3a d\u00e8s que tu n\'as '
                   'plus de revenu soumis \u00e0 l\'AVS suisse.',
             ),
-            ExpatRight(
+            const ExpatRight(
               label: 'LAMal \u2014 assurance maladie',
               emoji: '\u{1F3E5}',
               before: 'Couverture universelle en Suisse',
@@ -721,12 +721,10 @@ class _ExpatScreenState extends State<ExpatScreen>
             ExpatRight(
               label: 'Ch\u00f4mage AC',
               emoji: '\u{1F4BC}',
-              before: 'Indemnit\u00e9s AC jusqu\'\u00e0 520 jours',
-              after: 'Aucun droit AC suisse si tu travailles \u00e0 l\'\u00e9tranger',
+              before: S.of(context)!.expatAcIndemnities,
+              after: S.of(context)!.expatNoAcRightsAbroad,
               legalRef: 'LACI art. 8',
-              impact:
-                  'Si tu perds ton emploi \u00e0 l\'\u00e9tranger, seul le r\u00e9gime '
-                  'local s\'applique \u2014 souvent moins g\u00e9n\u00e9reux.',
+              impact: S.of(context)!.expatJobLossAbroad,
             ),
           ],
         ),

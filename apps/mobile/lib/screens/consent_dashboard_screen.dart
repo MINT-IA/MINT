@@ -144,16 +144,16 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Format: ${exportData['format']}',
+              Text(l10n.consentExportFormat(exportData['format']?.toString() ?? ''),
                   style: MintTextStyles.bodyMedium()),
               const SizedBox(height: MintSpacing.sm),
-              Text('Date: ${exportData['exportDate']}',
+              Text(l10n.consentExportDate(exportData['exportDate']?.toString() ?? ''),
                   style: MintTextStyles.bodyMedium()),
               const SizedBox(height: MintSpacing.sm),
               Text(
                 categories.isEmpty
                     ? l10n.consentNoActiveConsents
-                    : 'Categories: $categories',
+                    : l10n.consentExportCategories(categories),
                 style: MintTextStyles.bodyMedium(),
               ),
               const SizedBox(height: MintSpacing.sm + 4),

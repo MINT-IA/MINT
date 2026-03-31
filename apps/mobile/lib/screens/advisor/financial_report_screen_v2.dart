@@ -69,10 +69,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
         ),
         body: MintEmptyState(
           icon: Icons.assessment_outlined,
-          // TODO: i18n
-          title: 'Ton bilan financier',
-          subtitle: 'Complete ton profil pour generer ton bilan personnalise',
-          ctaLabel: 'Completer mon profil',
+          title: S.of(context)!.financialReportEmptyTitle,
+          subtitle: S.of(context)!.financialReportEmptySubtitle,
+          ctaLabel: S.of(context)!.financialReportEmptyCta,
           onCta: () => context.go('/onboarding/quick'),
         ),
       );

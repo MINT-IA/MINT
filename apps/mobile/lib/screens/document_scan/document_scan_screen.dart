@@ -516,9 +516,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   /// Try Claude Vision extraction via backend API.
   /// Returns ExtractionResult if successful, null otherwise.
   Future<ExtractionResult?> _tryVisionExtraction(XFile file) async {
-    // Read canton BEFORE async gap to avoid BuildContext across await
+    // Read context-dependent values BEFORE async gap
     final canton = Provider.of<CoachProfileProvider>(context, listen: false)
         .profile?.canton;
+    final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
       final bytes = await file.readAsBytes();
       final base64Image = base64Encode(bytes);
@@ -558,7 +559,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
         confidenceDelta: _confidenceDeltaForType(_selectedType),
         warnings: const [],
-        disclaimer: 'Extraction via Claude Vision. Vérifiez les valeurs.', // TODO: i18n — add documentVisionDisclaimer to ARBs
+        disclaimer: visionDisclaimer,
         sources: const ['Claude Vision API'],
       );
     } catch (_) {
@@ -1045,6 +1046,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<_PdfParseResult> _processPdfViaBackend(String path) async {
+    // Pre-read i18n before async gap
+    final pdfError = S.of(context)!.docScanPdfBackendError('Le PDF n\u2019a pas pu être traité.');
     if (kIsWeb || _selectedType != DocumentType.lppCertificate) {
       return _PdfParseResult(
         success: false,
@@ -1081,15 +1084,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return _PdfParseResult(
         success: false,
         requiresAuthentication: requiresAuthentication,
-        errorMessage: mounted
-            ? S.of(context)!.docScanPdfBackendError('Le PDF n\u2019a pas pu être traité.') // FIX-057
-            : 'Erreur de traitement.',
+        errorMessage: pdfError,
       );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
       return _PdfParseResult(
         success: false,
-        errorMessage: 'Erreur backend pendant le parsing PDF: $e',
+        errorMessage: mounted ? S.of(context)!.docScanBackendParsingError(e.toString()) : 'Backend PDF parsing error: $e',
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);

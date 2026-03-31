@@ -5052,7 +5052,7 @@ class SPt extends S {
   }
 
   @override
-  String get budgetEmptyTitle => 'O teu orçamento constrói-se automaticamente';
+  String get budgetEmptyTitle => 'O teu orçamento';
 
   @override
   String get budgetEmptyBody =>
@@ -25356,4 +25356,106 @@ class SPt extends S {
 
   @override
   String get coachGateUnlock => 'Desbloquear';
+
+  @override
+  String get documentVisionDisclaimer =>
+      'Extração via Claude Vision. Verifica os valores.';
+
+  @override
+  String get conversationHistoryError =>
+      'Não foi possível carregar o histórico.';
+
+  @override
+  String get portfolioCompleteProfile =>
+      'Completa o teu perfil para desbloquear o teu índice de preparação.';
+
+  @override
+  String get portfolioNoData => 'Nenhum dado patrimonial fornecido.';
+
+  @override
+  String get syncFailedLocalSave =>
+      'Sincronização falhou — os teus dados estão guardados localmente';
+
+  @override
+  String get financialReportEmptyTitle => 'O teu relatório financeiro';
+
+  @override
+  String get financialReportEmptySubtitle =>
+      'Completa o teu perfil para gerar o teu relatório personalizado';
+
+  @override
+  String get financialReportEmptyCta => 'Completar o meu perfil';
+
+  @override
+  String get staggeredWithdrawalEmptyTitle => 'Levantamento 3a escalonado';
+
+  @override
+  String get staggeredWithdrawalEmptySubtitle =>
+      'Introduz as tuas poupanças 3a para otimizar os levantamentos';
+
+  @override
+  String get staggeredWithdrawalEmptyCta => 'Adicionar o meu 3a';
+
+  @override
+  String consentExportFormat(String format) {
+    return 'Formato: $format';
+  }
+
+  @override
+  String consentExportDate(String date) {
+    return 'Data: $date';
+  }
+
+  @override
+  String consentExportCategories(String categories) {
+    return 'Categorias: $categories';
+  }
+
+  @override
+  String get errorNotAuthenticated => 'Não autenticado';
+
+  @override
+  String get budgetEmptySubtitle =>
+      'Introduz o teu salário para criar o teu orçamento personalizado';
+
+  @override
+  String get budgetEmptyCta => 'Adicionar o meu salário';
+
+  @override
+  String get coachConfirmAction => 'Confirmar';
+
+  @override
+  String get coachCancelAction => 'Cancelar';
+
+  @override
+  String get semanticsDelete => 'Eliminar';
+
+  @override
+  String get docScanProcessingError => 'Erro de processamento.';
+
+  @override
+  String docScanBackendParsingError(String error) {
+    return 'Erro de backend ao processar o PDF: $error';
+  }
+
+  @override
+  String get expatNoAcRightsAbroad =>
+      'Sem direitos AC suíços se trabalhares no estrangeiro';
+
+  @override
+  String get expatAcIndemnities => 'Prestações AC até 520 dias';
+
+  @override
+  String get expatJobLossAbroad =>
+      'Se perderes o emprego no estrangeiro, apenas o regime local se aplica — frequentemente menos generoso.';
+
+  @override
+  String coachChangeGoalConfirm(String goalTag) {
+    return 'Mudar o teu objetivo para: $goalTag?';
+  }
+
+  @override
+  String coachMarkStepConfirm(String stepId) {
+    return 'Marcar o passo \"$stepId\" como concluído?';
+  }
 }
