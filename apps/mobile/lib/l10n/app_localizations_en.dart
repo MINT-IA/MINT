@@ -25344,4 +25344,8 @@ class SEn extends S {
   @override
   String get rcSuggestedPromptPatrimoine =>
       'How to optimise the transmission of my wealth?';
+
+  @override
+  String get onboardingProfileCreated =>
+      'Profile created! You can start exploring MINT.';
 }

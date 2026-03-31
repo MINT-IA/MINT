@@ -25468,4 +25468,8 @@ class SFr extends S {
   @override
   String get rcSuggestedPromptPatrimoine =>
       'Comment optimiser la transmission de mon patrimoine ?';
+
+  @override
+  String get onboardingProfileCreated =>
+      'Profil créé ! Tu peux commencer à explorer MINT.';
 }

@@ -25482,4 +25482,8 @@ class SPt extends S {
   @override
   String get rcSuggestedPromptPatrimoine =>
       'Como otimizar a transmissão do meu património?';
+
+  @override
+  String get onboardingProfileCreated =>
+      'Perfil criado! Podes começar a explorar MINT.';
 }

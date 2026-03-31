@@ -11951,5 +11951,6 @@
   "semanticsNotReached": "not reached",
   "rcSuggestedPromptSuccession": "How to organise my succession in Switzerland?",
   "rcSuggestedPromptDonation": "What are the tax advantages of a lifetime donation?",
-  "rcSuggestedPromptPatrimoine": "How to optimise the transmission of my wealth?"
+  "rcSuggestedPromptPatrimoine": "How to optimise the transmission of my wealth?",
+  "onboardingProfileCreated": "Profile created! You can start exploring MINT."
 }

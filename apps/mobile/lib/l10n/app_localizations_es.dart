@@ -25475,4 +25475,8 @@ class SEs extends S {
   @override
   String get rcSuggestedPromptPatrimoine =>
       '¿Cómo optimizar la transmisión de mi patrimonio?';
+
+  @override
+  String get onboardingProfileCreated =>
+      '¡Perfil creado! Puedes empezar a explorar MINT.';
 }

@@ -918,6 +918,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/b2b',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) => FeatureFlags.enableAdminScreens ? null : '/',
       builder: (context, state) => const B2bHubScreen(),
     ),
     GoRoute(

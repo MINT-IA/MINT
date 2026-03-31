@@ -44862,6 +44862,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Comment optimiser la transmission de mon patrimoine ?'**
   String get rcSuggestedPromptPatrimoine;
+
+  /// No description provided for @onboardingProfileCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil créé ! Tu peux commencer à explorer MINT.'**
+  String get onboardingProfileCreated;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

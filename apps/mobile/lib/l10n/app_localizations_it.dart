@@ -25546,4 +25546,8 @@ class SIt extends S {
   @override
   String get rcSuggestedPromptPatrimoine =>
       'Come ottimizzare la trasmissione del mio patrimonio?';
+
+  @override
+  String get onboardingProfileCreated =>
+      'Profilo creato! Puoi iniziare a esplorare MINT.';
 }
