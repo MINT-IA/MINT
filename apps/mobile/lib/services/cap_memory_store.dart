@@ -48,6 +48,10 @@ class CapMemory {
   /// celebrate the RIGHT action, not the current _cachedCap.
   final String? lastCompletedCapId;
 
+  /// Headline of the last completed cap — cached so success sheet can
+  /// display the right message even if CapEngine recomputes a different cap.
+  final String? lastCompletedCapHeadline;
+
   /// Tracks how many times each step was proposed in a guided sequence run.
   /// Key: "{runId}_{stepId}", Value: proposal count.
   /// Cleared when the run completes or is abandoned.
@@ -65,6 +69,7 @@ class CapMemory {
     this.recentFrictionContext,
     this.lastCompletedDate,
     this.lastCompletedCapId,
+    this.lastCompletedCapHeadline,
     this.stepProposals = const {},
   });
 
@@ -101,6 +106,7 @@ class CapMemory {
     Object? recentFrictionContext = _undefined,
     Object? lastCompletedDate = _undefined,
     Object? lastCompletedCapId = _undefined,
+    Object? lastCompletedCapHeadline = _undefined,
     Map<String, int>? stepProposals,
   }) {
     return CapMemory(
@@ -125,6 +131,9 @@ class CapMemory {
       lastCompletedCapId: lastCompletedCapId == _undefined
           ? this.lastCompletedCapId
           : lastCompletedCapId as String?,
+      lastCompletedCapHeadline: lastCompletedCapHeadline == _undefined
+          ? this.lastCompletedCapHeadline
+          : lastCompletedCapHeadline as String?,
       stepProposals: stepProposals ?? this.stepProposals,
     );
   }
@@ -143,6 +152,8 @@ class CapMemory {
           'lastCompletedDate': lastCompletedDate!.toIso8601String(),
         if (lastCompletedCapId != null)
           'lastCompletedCapId': lastCompletedCapId,
+        if (lastCompletedCapHeadline != null)
+          'lastCompletedCapHeadline': lastCompletedCapHeadline,
         if (stepProposals.isNotEmpty) 'stepProposals': stepProposals,
       };
 
@@ -166,6 +177,7 @@ class CapMemory {
             ? DateTime.tryParse(json['lastCompletedDate'] as String)
             : null,
         lastCompletedCapId: json['lastCompletedCapId'] as String?,
+        lastCompletedCapHeadline: json['lastCompletedCapHeadline'] as String?,
         stepProposals:
             (json['stepProposals'] as Map<String, dynamic>?)?.map(
                   (k, v) => MapEntry(k, (v as num).toInt()),
@@ -229,8 +241,9 @@ class CapMemoryStore {
   /// Record that the user completed the action from a cap.
   static Future<CapMemory> markCompleted(
     CapMemory memory,
-    String actionId,
-  ) async {
+    String actionId, {
+    String? headline,
+  }) async {
     final actions = [...memory.completedActions, actionId];
     // Keep only last 20 to avoid unbounded growth.
     final trimmed = actions.length > 20
@@ -242,8 +255,9 @@ class CapMemoryStore {
       recentFrictionContext: null,
       // Stamp completion time (distinct from lastCapDate).
       lastCompletedDate: DateTime.now(),
-      // Store the completed cap ID for success sheet to reference
+      // Store the completed cap ID + headline for success sheet accuracy
       lastCompletedCapId: actionId,
+      lastCompletedCapHeadline: headline,
     );
     await save(updated);
     return updated;

@@ -552,22 +552,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         'sourceText': f.sourceText,
       };
     }).toList();
-    DocumentService.sendScanConfirmation(
+    _sendWithRetry(
       documentType: widget.result.documentType.backendValue,
       confirmedFields: syncFields,
       overallConfidence: _overallConfidence,
-    ).catchError((e) {
-      // Warn user that server sync failed — data saved locally only
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sauvegarde locale uniquement — synchronisation serveur en attente'),
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-      return null;
-    });
+    );
 
     if (!mounted) return;
 
@@ -575,5 +564,37 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       'result': confirmedResult,
       'previousConfidence': previousConfidence,
     });
+  }
+
+  /// Send scan confirmation with 3 retries + exponential backoff.
+  /// Shows snackbar warning on final failure.
+  Future<void> _sendWithRetry({
+    required String documentType,
+    required List<Map<String, dynamic>> confirmedFields,
+    required double overallConfidence,
+  }) async {
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await DocumentService.sendScanConfirmation(
+          documentType: documentType,
+          confirmedFields: confirmedFields,
+          overallConfidence: overallConfidence,
+        );
+        return; // Success
+      } catch (_) {
+        if (attempt < 3) {
+          await Future.delayed(Duration(seconds: attempt * 2)); // 2s, 4s backoff
+        }
+      }
+    }
+    // All 3 attempts failed
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Synchronisation échouée — tes données sont sauvées localement'),
+          duration: Duration(seconds: 4),
+        ),
+      );
+    }
   }
 }

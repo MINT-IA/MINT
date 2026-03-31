@@ -59,6 +59,18 @@ class ActionSuccessData {
       completedCapId: completedCap.id,
     );
   }
+
+  /// Override the action label when the completed cap's headline differs
+  /// from _cachedCap (e.g. cap changed after recomputation).
+  ActionSuccessData withOverriddenHeadline(String headline) {
+    return ActionSuccessData(
+      actionLabel: headline,
+      impactLabel: impactLabel,
+      nextLabel: nextLabel,
+      nextRoute: nextRoute,
+      completedCapId: completedCapId,
+    );
+  }
 }
 
 /// Shows the Action Success bottom sheet.
