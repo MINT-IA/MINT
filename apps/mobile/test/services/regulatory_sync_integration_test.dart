@@ -114,24 +114,26 @@ void main() {
       // With max salary and full contribution years, should get max rente.
       expect(renteNoCache, closeTo(avsRenteMaxMensuelle, 1.0));
 
-      // Inject a different max rente via cache.
-      const customMaxRente = 3000.0;
+      // Inject a different full_contribution_years via cache.
+      // With Échelle 44, renteFromRAMD uses the hardcoded table directly,
+      // so avs.max_monthly_pension doesn't change the rente lookup.
+      // Instead, we test avs.full_contribution_years which IS used by
+      // computeMonthlyRente to compute gapFactor.
       RegulatorySyncService.setMockCache({
-        'avs.max_monthly_pension': customMaxRente,
-        'avs.min_monthly_pension': avsRenteMinMensuelle,
-        'avs.ramd_max': avsRAMDMax,
-        'avs.ramd_min': avsRAMDMin,
+        'avs.full_contribution_years': 50.0, // longer career → lower gapFactor for 45 years
+        'avs.reference_age_men': 65.0,
       });
 
-      // Now AvsCalculator should use the cached value via reg().
+      // Now AvsCalculator should use the cached full_contribution_years (50).
+      // currentYears = 49-20 = 29, futureYears = 65-49 = 16, total = 45
+      // capped at 50 → gapFactor = 45/50 = 0.9
+      // renteFromRAMD(88200) = 2520, so rente = 2520 × 0.9 = 2268
       final renteWithCache = AvsCalculator.computeMonthlyRente(
         currentAge: 49,
         retirementAge: 65,
         grossAnnualSalary: 88200,
       );
-      // renteFromRAMD for salary >= ramdMax returns reg('avs.max_monthly_pension')
-      // which is now 3000.0 instead of 2520.0.
-      expect(renteWithCache, closeTo(customMaxRente, 1.0));
+      expect(renteWithCache, closeTo(2268.0, 1.0));
       expect(renteWithCache, isNot(equals(renteNoCache)));
     });
   });
