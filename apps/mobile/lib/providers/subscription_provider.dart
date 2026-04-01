@@ -90,10 +90,10 @@ class SubscriptionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// FIX-083: Refresh on app resume if last refresh was > 1 hour ago.
-  /// Prevents users staying "premium" hours after expiration.
+  /// FIX-083 + FIX-W11-3: Refresh on app resume if last refresh was > 15 min ago.
+  /// Reduced from 1 hour to 15 minutes for cross-device subscription consistency.
   Future<void> refreshIfStale() async {
-    if (DateTime.now().difference(_lastRefresh).inHours >= 1) {
+    if (DateTime.now().difference(_lastRefresh).inMinutes >= 15) {
       await refreshFromBackend();
     }
   }

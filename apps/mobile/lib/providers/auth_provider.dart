@@ -218,6 +218,8 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
 
       await _migrateLocalDataIfNeeded();
+      // FIX-W11-5: Hydrate local state from backend on new device login
+      await _hydrateProfileFromBackend();
 
       notifyListeners();
       return true;
@@ -350,10 +352,15 @@ class AuthProvider extends ChangeNotifier {
   /// cross-account data bleed on shared devices.
   /// Same purge sequence as profile_screen.dart deleteAccount flow.
   Future<void> _purgeLocalData() async {
+    // TODO(P2): Implement cloud backup of conversations/check-ins before purge
     try {
+      // FIX-W11-2: Log purge scope for observability before destroying data
       // Purge conversation history
       final store = ConversationStore();
       final conversations = await store.listConversations();
+      debugPrint(
+        '[Auth] Purging ${conversations.length} conversations (not backed up)',
+      );
       for (final conv in conversations) {
         await store.deleteConversation(conv.id);
       }
@@ -442,6 +449,51 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       // Migration is best-effort — never block auth flow
       if (kDebugMode) debugPrint('[AuthProvider] Local data migration failed: $e');
+    }
+  }
+
+  /// FIX-W11-5: Hydrate key profile fields from backend on login.
+  ///
+  /// On a new device the local SharedPreferences are empty. This fetches
+  /// the cloud profile and seeds the most critical fields so screens
+  /// don't show an empty state.
+  Future<void> _hydrateProfileFromBackend() async {
+    try {
+      final profileData = await ApiService.get('/profiles/me');
+      if (profileData.isEmpty) return;
+      final data = profileData['data'] as Map<String, dynamic>?;
+      if (data == null) return;
+
+      final prefs = await SharedPreferences.getInstance();
+      if (data['birthYear'] != null) {
+        await prefs.setInt('q_birth_year', data['birthYear'] as int);
+      }
+      if (data['canton'] != null) {
+        await prefs.setString('q_canton', data['canton'] as String);
+      }
+      if (data['incomeGrossYearly'] != null) {
+        await prefs.setDouble(
+          'q_gross_salary',
+          (data['incomeGrossYearly'] as num).toDouble() / 12,
+        );
+      }
+      if (data['incomeNetMonthly'] != null) {
+        await prefs.setDouble(
+          'q_net_income_period_chf',
+          (data['incomeNetMonthly'] as num).toDouble(),
+        );
+      }
+      if (data['householdType'] != null) {
+        await prefs.setString(
+          'q_household_type',
+          data['householdType'] as String,
+        );
+      }
+    } catch (e) {
+      // Hydration is best-effort — never block login flow
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Profile hydration failed: $e');
+      }
     }
   }
 

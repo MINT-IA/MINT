@@ -1063,12 +1063,14 @@ class ApiService {
     Map<String, dynamic> budgetSnapshot = const {},
     List<Map<String, dynamic>> checkins = const [],
   }) async {
+    // FIX-W11-1: Send ISO 8601 UTC timestamp for conflict resolution
     final response = await http.post(
       Uri.parse('$baseUrl/sync/claim-local-data'),
       headers: await _authHeaders(),
       body: jsonEncode({
         'local_data_version': localDataVersion,
         'device_id': deviceId,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
         'wizard_answers': wizardAnswers,
         'mini_onboarding': miniOnboarding,
         'budget_snapshot': budgetSnapshot,

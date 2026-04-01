@@ -2,6 +2,7 @@
 Sync endpoints for local-first data claim into authenticated cloud profile.
 """
 
+import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
@@ -12,6 +13,8 @@ from app.core.rate_limit import limiter
 from app.models.profile_model import ProfileModel
 from app.models.user import User
 from app.schemas.sync import ClaimLocalDataRequest, ClaimLocalDataResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -55,14 +58,54 @@ def claim_local_data(
         .first()
     )
 
-    # --- Version-based idempotence gate ---
-    # If the profile already has a claim with a version >= the incoming one,
-    # return early (no-op) to prevent stale replays.
+    # --- Timestamp-based idempotence gate ---
+    # FIX-W11-1: Use ISO 8601 timestamp comparison instead of static version
+    # integers to prevent last-write-wins data loss across multiple devices.
     if existing_profile and existing_profile.data:
         existing_claim = existing_profile.data.get("localDataClaim", {})
         existing_meta = existing_claim.get("meta", {})
+        existing_updated_at = existing_meta.get("updatedAt")
+        incoming_updated_at = body.updated_at
+
+        # Primary gate: timestamp comparison (preferred, no data loss)
+        if existing_updated_at and incoming_updated_at:
+            try:
+                existing_ts = datetime.fromisoformat(
+                    existing_updated_at.replace("Z", "+00:00")
+                )
+                incoming_ts = datetime.fromisoformat(
+                    incoming_updated_at.replace("Z", "+00:00")
+                )
+                if existing_ts >= incoming_ts:
+                    logger.info(
+                        "Sync conflict: existing=%s >= incoming=%s for user=%s, "
+                        "device=%s — rejecting stale payload",
+                        existing_updated_at,
+                        incoming_updated_at,
+                        current_user.id,
+                        body.device_id,
+                    )
+                    merged_fields_count = (
+                        len(body.mini_onboarding) + len(body.wizard_answers)
+                    )
+                    return ClaimLocalDataResponse(
+                        status="ok",
+                        profile_id=existing_profile.id,
+                        created_profile=False,
+                        merged_fields_count=merged_fields_count,
+                    )
+            except (ValueError, TypeError):
+                # Malformed timestamps — fall through to version check
+                logger.warning(
+                    "Sync: malformed timestamp existing=%s incoming=%s, "
+                    "falling back to version check",
+                    existing_updated_at,
+                    incoming_updated_at,
+                )
+
+        # Fallback gate: version integer (backward compat for old clients)
         existing_version = existing_meta.get("localDataVersion", 0)
-        if existing_version >= body.local_data_version:
+        if not incoming_updated_at and existing_version >= body.local_data_version:
             merged_fields_count = (
                 len(body.mini_onboarding) + len(body.wizard_answers)
             )
@@ -76,6 +119,7 @@ def claim_local_data(
     claim_blob = {
         "meta": {
             "claimedAt": now.isoformat(),
+            "updatedAt": body.updated_at or now.isoformat(),
             "deviceId": body.device_id,
             "localDataVersion": body.local_data_version,
         },

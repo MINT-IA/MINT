@@ -17,6 +17,7 @@ class _Undefined {
 ///
 /// Stored in SharedPreferences under `_cap_memory`.
 /// Isolated from CoachProfileProvider to limit blast radius.
+// TODO(P3): Sync CapMemory to backend for cross-device continuity
 class CapMemory {
   /// ID of the last cap served.
   final String? lastCapServed;

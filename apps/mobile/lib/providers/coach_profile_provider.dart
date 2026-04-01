@@ -798,6 +798,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
 
   /// Ajoute un check-in mensuel au profil et le persiste.
+  // TODO(P2): Sync monthly check-ins to backend for cross-device access
   void addCheckIn(MonthlyCheckIn checkIn) {
     if (_profile == null) return;
     final updated = [..._profile!.checkIns, checkIn];
