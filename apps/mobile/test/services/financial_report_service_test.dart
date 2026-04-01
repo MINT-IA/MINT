@@ -76,7 +76,7 @@ void main() {
       expect(report.priorityActions, isA<List<ActionItem>>());
       expect(report.personalizedRoadmap, isA<Roadmap>());
       expect(report.generatedAt, isA<DateTime>());
-      expect(report.reportVersion, equals('2.0'));
+      expect(report.reportVersion, equals('2.1'));
     });
 
     test('report from full answers includes optional sections', () {

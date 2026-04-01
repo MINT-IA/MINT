@@ -58,6 +58,22 @@ String formatPct(double value) {
   return value.toStringAsFixed(1).replaceAll('.', ',');
 }
 
+/// Format CHF with centimes precision (e.g., "4'280.50").
+/// Use for tax reports and PDF export where centime accuracy matters.
+String formatChfPrecise(double value) {
+  if (!value.isFinite) return '—';
+  final parts = value.abs().toStringAsFixed(2).split('.');
+  final intPart = parts[0];
+  final decPart = parts[1];
+  final formatted = intPart.replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
+  return "${value < 0 ? '-' : ''}$formatted.$decPart";
+}
+
+/// Format CHF with centimes precision and "CHF " prefix.
+String formatChfPreciseWithPrefix(double value) =>
+    'CHF\u00a0${formatChfPrecise(value)}';
+
 /// Compact CHF formatter — omits "CHF" prefix for space-constrained contexts.
 /// Examples: 680'000 → "680k" | 1'200'000 → "1.2M" | 800 → "CHF 800"
 String formatChfCompact(double value) {

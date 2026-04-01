@@ -2,7 +2,9 @@ import 'dart:math' show pow;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 import '../models/financial_report.dart';
 import '../models/circle_score.dart';
@@ -56,6 +58,35 @@ class FinancialReportService {
       l: l,
     );
 
+    // FIX-W11-2: Compute confidence score via ConfidenceScorer (financial_core)
+    double confidenceScore = 0;
+    List<String> enrichmentPrompts = const [];
+    try {
+      final coachProfile = CoachProfile.fromWizardAnswers(answers);
+      final confidenceResult = ConfidenceScorer.score(coachProfile);
+      confidenceScore = confidenceResult.score;
+      enrichmentPrompts = confidenceResult.prompts
+          .map((p) => p.label)
+          .toList();
+    } catch (_) {
+      // Fallback: confidence remains 0 if profile cannot be built
+    }
+
+    // FIX-W11-4: Snapshot current constants for report traceability
+    final simulationAssumptions = <String, dynamic>{
+      'constants_version': RegulatorySyncService.lastSyncAt?.toIso8601String() ?? 'offline_fallback',
+      'lpp_conversion_rate': lppTauxConversionMinDecimal,
+      'avs_max_monthly': avsRenteMaxMensuelle,
+      'pillar3a_max': pilier3aPlafondAvecLpp,
+    };
+
+    // FIX-W11-5: Data collection timestamp from wizard answers
+    final lastAnswerTimestamp = answers['_last_updated_at'] as String?;
+    DateTime? dataCollectedAt;
+    if (lastAnswerTimestamp != null) {
+      dataCollectedAt = DateTime.tryParse(lastAnswerTimestamp);
+    }
+
     return FinancialReport(
       profile: profile,
       healthScore: healthScore,
@@ -67,8 +98,12 @@ class FinancialReportService {
       personalizedRoadmap: roadmap,
       disclaimers: disclaimers,
       sources: sources,
+      confidenceScore: confidenceScore,
+      enrichmentPrompts: enrichmentPrompts,
       generatedAt: DateTime.now(),
-      reportVersion: '2.0',
+      dataCollectedAt: dataCollectedAt,
+      reportVersion: '2.1',
+      simulationAssumptions: simulationAssumptions,
     );
   }
 
@@ -153,6 +188,10 @@ class FinancialReportService {
           _parseDouble(answers['q_net_income_period_chf']) ?? 5000,
       gender: answers['q_gender'] as String?,
       spouseGender: answers['q_spouse_gender'] as String?,
+      // FIX-W11-3: Spouse birth year and income for accurate couple AVS
+      spouseBirthYear: _parseInt(answers['q_partner_birth_year']),
+      spouseMonthlyNetIncome:
+          _parseDouble(answers['q_partner_net_income_chf']),
       // Nouvelle logique AVS (triage lacunes)
       avsGapYears: _calculateAvsGaps(answers, birthYear),
       spouseAvsGapYears: _calculateSpouseAvsGaps(answers, birthYear),
@@ -630,24 +669,32 @@ class FinancialReportService {
     );
 
     if (profile.isMarried) {
-      // Spouse rente: use same gross salary assumption (no spouse salary available)
-      // TODO: Accept spouse income for more accurate couple AVS computation.
+      // FIX-W11-3: Use spouse's actual age and salary instead of user's.
       // S57-F4: Use spouse's actual gender when available. Never infer from
       // user gender — same-sex couples would get the wrong reference age.
       // Fallback to male reference age (65) when spouse gender is unknown.
       final spouseIsFemale = profile.spouseGender == 'F';
       final hasSpouseGender = profile.spouseGender != null;
+      final spouseBirthYear = profile.spouseBirthYear ?? profile.birthYear;
+      final spouseAge = profile.spouseAge ?? profile.age;
       final spouseRefAge = hasSpouseGender
-          ? avsReferenceAge(birthYear: profile.birthYear, isFemale: spouseIsFemale)
+          ? avsReferenceAge(birthYear: spouseBirthYear, isFemale: spouseIsFemale)
           : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+      // Use spouse's income when available; fall back to user's salary
+      final spouseGrossAnnual = profile.spouseMonthlyNetIncome != null
+          ? NetIncomeBreakdown.estimateBrutFromNet(
+              profile.spouseMonthlyNetIncome! * 12,
+              age: spouseAge,
+            )
+          : grossAnnualSalary;
       final spouseRente = AvsCalculator.computeMonthlyRente(
-        currentAge: profile.age, // Approximate: same age assumed for spouse
+        currentAge: spouseAge,
         retirementAge: spouseRefAge,
         lacunes: profile.spouseAvsGapYears ?? 0,
         anneesContribuees: profile.spouseContributionYears,
-        grossAnnualSalary: grossAnnualSalary,
+        grossAnnualSalary: spouseGrossAnnual,
         isFemale: hasSpouseGender ? spouseIsFemale : null,
-        birthYear: hasSpouseGender ? profile.birthYear : null,
+        birthYear: hasSpouseGender ? spouseBirthYear : null,
       );
 
       // Apply married couple cap (LAVS art. 35 — 150% of individual max)

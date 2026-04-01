@@ -630,7 +630,7 @@ class PdfService {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 _pdfKeyValue('Revenu imposable',
-                    formatChfWithPrefix(tax.taxableIncome)),
+                    formatChfPreciseWithPrefix(tax.taxableIncome)),
                 if (tax.deductions.isNotEmpty) ...[
                   pw.SizedBox(height: 6),
                   pw.Text('Déductions appliquées :',
@@ -640,11 +640,11 @@ class PdfService {
                     pw.Padding(
                       padding: const pw.EdgeInsets.only(left: 10),
                       child: pw.Text(
-                          '- ${entry.key} : ${formatChfWithPrefix(entry.value)}',
+                          '- ${entry.key} : ${formatChfPreciseWithPrefix(entry.value)}',
                           style: const pw.TextStyle(fontSize: 8)),
                     ),
                   pw.Text(
-                      'Total déductions : ${formatChfWithPrefix(tax.totalDeductions)}',
+                      'Total déductions : ${formatChfPreciseWithPrefix(tax.totalDeductions)}',
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
@@ -654,13 +654,13 @@ class PdfService {
                 pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                 pw.SizedBox(height: 6),
                 _pdfKeyValue('Impôt cantonal + communal',
-                    formatChfWithPrefix(tax.cantonalTax)),
+                    formatChfPreciseWithPrefix(tax.cantonalTax)),
                 _pdfKeyValue('Impôt fédéral direct',
-                    formatChfWithPrefix(tax.federalTax)),
+                    formatChfPreciseWithPrefix(tax.federalTax)),
                 pw.SizedBox(height: 4),
                 _pdfKeyValue(
                     'TOTAL estimé',
-                    formatChfWithPrefix(tax.totalTax),
+                    formatChfPreciseWithPrefix(tax.totalTax),
                     bold: true),
                 _pdfKeyValue('Taux effectif',
                     '${(tax.effectiveRate * 100).toStringAsFixed(1)}%'),
@@ -670,7 +670,7 @@ class PdfService {
                   pw.Divider(thickness: 0.5, color: PdfColors.green200),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    'Avec rachat LPP : ${formatChfWithPrefix(tax.taxWithLppBuyback!)} (économie : ${formatChfWithPrefix(tax.taxSavingsFromBuyback!)})',
+                    'Avec rachat LPP : ${formatChfPreciseWithPrefix(tax.taxWithLppBuyback!)} (économie : ${formatChfPreciseWithPrefix(tax.taxSavingsFromBuyback!)})',
                     style: pw.TextStyle(
                         fontSize: 9,
                         fontWeight: pw.FontWeight.bold,
