@@ -160,7 +160,8 @@ _PII_PATTERNS = [
     re.compile(r"CH\d{19}", re.IGNORECASE),  # IBAN compact format (no spaces)
     re.compile(r"\b[1-9]\d{3}\b(?=\s+[A-Za-zÀ-ÿ]{2})"),  # NPA (Swiss postal code 1000-9999 before city name, incl. accented)
     re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),  # email
-    re.compile(r"\+?\d[\d\s]{8,14}\d"),  # phone numbers
+    re.compile(r"(?:\+41|0)[\s.\-]?(?:76|77|78|79|[1-4]\d)[\s.\-]?\d{3}[\s.\-]?\d{2}[\s.\-]?\d{2}"),  # Swiss phone numbers (FIX-W12: stricter format)
+    re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),  # Swiss AHV/AVS numbers (FIX-W12)
 ]
 
 # Prompt injection patterns — reused by memory, profile context, and user input sanitizers.

@@ -146,7 +146,7 @@ def get_analytics_summary(
     ).filter(
         AnalyticsEvent.timestamp >= date_range_start,
         AnalyticsEvent.timestamp <= date_range_end
-    ).group_by(AnalyticsEvent.event_category).all()
+    ).group_by(AnalyticsEvent.event_category).limit(100).all()
 
     events_by_category = {category: count for category, count in category_counts}
 
@@ -158,7 +158,7 @@ def get_analytics_summary(
         AnalyticsEvent.timestamp >= date_range_start,
         AnalyticsEvent.timestamp <= date_range_end,
         AnalyticsEvent.screen_name.isnot(None)
-    ).group_by(AnalyticsEvent.screen_name).all()
+    ).group_by(AnalyticsEvent.screen_name).limit(100).all()
 
     events_by_screen = {screen: count for screen, count in screen_counts}
 

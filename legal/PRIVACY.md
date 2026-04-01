@@ -46,12 +46,19 @@ Base légale : consentement (nLPD art. 6 al. 6 let. a).
 | **Apple Inc.** | Distribution iOS (TestFlight/App Store) | USA | Métadonnées app uniquement |
 | **Google LLC** | Distribution Android (Play Store) | USA | Métadonnées app uniquement |
 
+**Google Fonts** (Google LLC, États-Unis)
+- Données : adresse IP (lors du téléchargement initial des polices)
+- Durée : ponctuel (polices mises en cache localement)
+- Base légale : intérêt légitime (affichage typographique)
+
 ### 4.2 Transfert international (nLPD art. 16-17)
 
 Des données sont transférées aux USA via les sous-traitants ci-dessus.
 Garanties : contrats standard de protection des données (SCC) conformes aux exigences du PFPDT.
 
 **Important** : Le coach AI (Anthropic Claude) reçoit uniquement des données agrégées (scores, ratios), JAMAIS de données personnelles identifiantes (salaire exact, IBAN, nom, numéro AVS). Voir la documentation technique `CoachContext`.
+
+En Phase 2, nous prévoyons un hébergement en Suisse pour les données utilisateurs.
 
 ## 5. Durée de conservation
 

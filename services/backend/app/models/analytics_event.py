@@ -3,13 +3,16 @@ Analytics event model for tracking user behavior and app usage.
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Index, Integer, String, Text, DateTime, ForeignKey
 from app.core.database import Base
 
 
 class AnalyticsEvent(Base):
     """Analytics event table for tracking user interactions."""
     __tablename__ = "analytics_events"
+    __table_args__ = (
+        Index("ix_analytics_user_timestamp", "user_id", "timestamp"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     event_name = Column(String, nullable=False, index=True)  # e.g. "screen_view", "wizard_started"

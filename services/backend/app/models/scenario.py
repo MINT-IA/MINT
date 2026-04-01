@@ -15,7 +15,7 @@ class ScenarioModel(Base):
     __tablename__ = "scenarios"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    profile_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    profile_id = Column(String, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False, index=True)
     kind = Column(String, nullable=False)
     inputs = Column(JSON, nullable=True)
     outputs = Column(JSON, nullable=True)

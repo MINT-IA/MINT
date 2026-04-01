@@ -38,6 +38,12 @@ class FeatureFlags:
     enable_caisse_pension_api: bool = False
     enable_avs_institutional: bool = False
 
+    # P7: Expert tier (human specialist marketplace, off by default)
+    enable_expert_tier: bool = False
+
+    # Admin screens: observability, analytics (off by default)
+    enable_admin_screens: bool = False
+
     @classmethod
     def get_flags(cls) -> Dict[str, bool]:
         """Resolve current flag values from env vars."""
@@ -65,5 +71,11 @@ class FeatureFlags:
             ),
             "enable_avs_institutional": _env_bool(
                 "FF_ENABLE_AVS_INSTITUTIONAL", cls.enable_avs_institutional
+            ),
+            "enable_expert_tier": _env_bool(
+                "FF_ENABLE_EXPERT_TIER", cls.enable_expert_tier
+            ),
+            "enable_admin_screens": _env_bool(
+                "FF_ENABLE_ADMIN_SCREENS", cls.enable_admin_screens
             ),
         }

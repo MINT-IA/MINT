@@ -21,6 +21,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -749,28 +750,30 @@ class ProfileScreen extends StatelessWidget {
                   const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
             ),
           ),
-          TextButton.icon(
-            onPressed: () => context.push('/profile/admin-observability'),
-            icon: const Icon(Icons.analytics_outlined, size: 18),
-            label: Text(S.of(context)!.profileAdminObservability,
-                style: MintTextStyles.bodySmall()),
-            style: TextButton.styleFrom(
-              foregroundColor: MintColors.primary,
-              padding:
-                  const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+          if (FeatureFlags.enableAdminScreens) ...[
+            TextButton.icon(
+              onPressed: () => context.push('/profile/admin-observability'),
+              icon: const Icon(Icons.analytics_outlined, size: 18),
+              label: Text(S.of(context)!.profileAdminObservability,
+                  style: MintTextStyles.bodySmall()),
+              style: TextButton.styleFrom(
+                foregroundColor: MintColors.primary,
+                padding:
+                    const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+              ),
             ),
-          ),
-          TextButton.icon(
-            onPressed: () => context.push('/profile/admin-analytics'),
-            icon: const Icon(Icons.bar_chart_rounded, size: 18),
-            label: Text(S.of(context)!.profileAnalyticsBeta,
-                style: MintTextStyles.bodySmall()),
-            style: TextButton.styleFrom(
-              foregroundColor: MintColors.primary,
-              padding:
-                  const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+            TextButton.icon(
+              onPressed: () => context.push('/profile/admin-analytics'),
+              icon: const Icon(Icons.bar_chart_rounded, size: 18),
+              label: Text(S.of(context)!.profileAnalyticsBeta,
+                  style: MintTextStyles.bodySmall()),
+              style: TextButton.styleFrom(
+                foregroundColor: MintColors.primary,
+                padding:
+                    const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+              ),
             ),
-          ),
+          ],
           TextButton.icon(
             onPressed: authProvider.isLoading
                 ? null

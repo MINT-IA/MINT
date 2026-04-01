@@ -247,8 +247,10 @@ class ConversationStore {
     RegExp(r'(?:salaire|gagne|touche|revenu)\s+\S{0,20}\d{4,}', caseSensitive: false),
     // Email addresses
     RegExp(r'\b[\w.+-]+@[\w-]+\.[\w.]+\b'),
-    // Swiss phone numbers: +41..., 07x...
-    RegExp(r'(?:\+41|0)\s*\d[\d\s]{7,}'),
+    // Swiss phone numbers: +41..., 07x... (FIX-W12: stricter Swiss format)
+    RegExp(r'(?:\+41|0)[\s.-]?(?:76|77|78|79|[1-4]\d)[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}'),
+    // Swiss AHV/AVS numbers: 756.xxxx.xxxx.xx (FIX-W12)
+    RegExp(r'\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b'),
     // Swiss NPA (4-digit postal codes before city names)
     RegExp(r'\b[1-9]\d{3}\s+[A-Z]', caseSensitive: false),
     // Employer patterns: "je travaille chez X", "mon employeur X"

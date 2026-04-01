@@ -22,4 +22,4 @@ class AuditEventModel(Base):
     ip_address = Column(String, nullable=True)
     user_agent = Column(String, nullable=True)
     details_json = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)

@@ -487,13 +487,20 @@ def dissolve_household(db: Session, caller: User) -> dict:
         )
         .all()
     )
+    # W12: Collect user_ids first, batch recompute after all status changes (N+1 fix).
     revoked_count = 0
+    user_ids_to_recompute = []
     for member in non_owner_members:
         if member.status in ("active", "pending"):
             member.status = "revoked"
             revoked_count += 1
-            # Recompute entitlements for revoked user
-            recompute_entitlements(db, member.user_id)
+            user_ids_to_recompute.append(member.user_id)
+
+    db.flush()  # Persist status changes first
+
+    # Batch recompute after all status changes
+    for uid in user_ids_to_recompute:
+        recompute_entitlements(db, uid)
 
     # Delete owner membership
     db.query(HouseholdMemberModel).filter(

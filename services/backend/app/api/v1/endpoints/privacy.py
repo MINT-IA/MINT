@@ -71,13 +71,16 @@ def export_user_data(
     user_id = _user.id
 
     # P2-18 nLPD art. 25: Fetch ALL user data from database for complete DSAR export.
+    # W12: Add LIMIT to all queries to prevent OOM on large datasets.
+    MAX_EXPORT_ROWS = 10_000  # Analytics events (highest volume)
+
     from app.models.profile_model import ProfileModel
     from app.models.document import DocumentModel
     from app.models.snapshot import SnapshotModel
     from app.models.analytics_event import AnalyticsEvent
 
     # Profile data
-    profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
+    profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).limit(1000).all()
     profile_data = {
         "user_id": user_id,
         "email": _user.email,
@@ -106,7 +109,7 @@ def export_user_data(
     # Documents data
     documents_data = []
     if request.include_documents:
-        docs = db.query(DocumentModel).filter(DocumentModel.user_id == user_id).all()
+        docs = db.query(DocumentModel).filter(DocumentModel.user_id == user_id).limit(1000).all()
         documents_data = [
             {
                 "id": d.id,
@@ -121,7 +124,7 @@ def export_user_data(
     # Snapshots data (included in reports)
     reports_data = []
     if request.include_reports:
-        snapshots = db.query(SnapshotModel).filter(SnapshotModel.user_id == user_id).all()
+        snapshots = db.query(SnapshotModel).filter(SnapshotModel.user_id == user_id).limit(1000).all()
         reports_data = [
             {
                 "id": s.id,
@@ -136,7 +139,9 @@ def export_user_data(
     # Analytics data
     analytics_data = []
     if request.include_analytics:
-        events = db.query(AnalyticsEvent).filter(AnalyticsEvent.user_id == user_id).all()
+        events = db.query(AnalyticsEvent).filter(
+            AnalyticsEvent.user_id == user_id
+        ).order_by(AnalyticsEvent.timestamp.desc()).limit(MAX_EXPORT_ROWS).all()
         analytics_data = [
             {"id": e.id, "event_type": e.event_type, "created_at": str(e.created_at)}
             for e in events
@@ -145,7 +150,7 @@ def export_user_data(
     # P1-nLPD: Conversation memory — consent records (coach memory consent state)
     from app.models.consent import ConsentModel
     consent_data = []
-    consents = db.query(ConsentModel).filter(ConsentModel.user_id == user_id).all()
+    consents = db.query(ConsentModel).filter(ConsentModel.user_id == user_id).limit(100).all()
     consent_data = [
         {
             "id": c.id,

@@ -997,122 +997,131 @@ def delete_account(
             )
             blacklist_token(db, access_payload["jti"], a_exp_dt)
 
-    profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
-    profile_ids = [p.id for p in profiles]
-    deleted_profiles = len(profile_ids)
-    deleted_sessions = 0
-    if profile_ids:
-        deleted_sessions = (
-            db.query(SessionModel)
-            .filter(SessionModel.profile_id.in_(profile_ids))
-            .delete(synchronize_session=False)
+    # W12: Wrap all deletions in explicit transaction with rollback on failure.
+    try:
+        profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
+        profile_ids = [p.id for p in profiles]
+        deleted_profiles = len(profile_ids)
+        deleted_sessions = 0
+        if profile_ids:
+            deleted_sessions = (
+                db.query(SessionModel)
+                .filter(SessionModel.profile_id.in_(profile_ids))
+                .delete(synchronize_session=False)
+            )
+
+            # Purge scenarios linked to the user's profiles
+            from app.models.scenario import ScenarioModel
+            db.query(ScenarioModel).filter(
+                ScenarioModel.profile_id.in_(profile_ids)
+            ).delete(synchronize_session=False)
+
+        # Purge snapshots linked to the user
+        from app.models.snapshot import SnapshotModel
+        db.query(SnapshotModel).filter(
+            SnapshotModel.user_id == user_id
+        ).delete(synchronize_session=False)
+
+        anonymized_analytics_events = (
+            db.query(AnalyticsEvent)
+            .filter(AnalyticsEvent.user_id == user_id)
+            .update({AnalyticsEvent.user_id: None}, synchronize_session=False)
         )
 
-        # Purge scenarios linked to the user's profiles
-        from app.models.scenario import ScenarioModel
-        db.query(ScenarioModel).filter(
-            ScenarioModel.profile_id.in_(profile_ids)
+        # Purge auth-security artifacts
+        db.query(LoginSecurityStateModel).filter(
+            LoginSecurityStateModel.email == current_user.email
+        ).delete(synchronize_session=False)
+        db.query(PasswordResetTokenModel).filter(
+            PasswordResetTokenModel.user_id == user_id
+        ).delete(synchronize_session=False)
+        db.query(EmailVerificationTokenModel).filter(
+            EmailVerificationTokenModel.user_id == user_id
         ).delete(synchronize_session=False)
 
-    # Purge snapshots linked to the user
-    from app.models.snapshot import SnapshotModel
-    db.query(SnapshotModel).filter(
-        SnapshotModel.user_id == user_id
-    ).delete(synchronize_session=False)
-
-    anonymized_analytics_events = (
-        db.query(AnalyticsEvent)
-        .filter(AnalyticsEvent.user_id == user_id)
-        .update({AnalyticsEvent.user_id: None}, synchronize_session=False)
-    )
-
-    # Purge auth-security artifacts
-    db.query(LoginSecurityStateModel).filter(
-        LoginSecurityStateModel.email == current_user.email
-    ).delete(synchronize_session=False)
-    db.query(PasswordResetTokenModel).filter(
-        PasswordResetTokenModel.user_id == user_id
-    ).delete(synchronize_session=False)
-    db.query(EmailVerificationTokenModel).filter(
-        EmailVerificationTokenModel.user_id == user_id
-    ).delete(synchronize_session=False)
-
-    # Purge billing artifacts linked to the account
-    sub_ids = [
-        sub_id
-        for (sub_id,) in db.query(SubscriptionModel.id)
-        .filter(SubscriptionModel.user_id == user_id)
-        .all()
-    ]
-    db.query(EntitlementModel).filter(
-        EntitlementModel.user_id == user_id
-    ).delete(synchronize_session=False)
-    if sub_ids:
-        db.query(BillingTransactionModel).filter(
-            BillingTransactionModel.subscription_id.in_(sub_ids)
+        # Purge billing artifacts linked to the account
+        sub_ids = [
+            sub_id
+            for (sub_id,) in db.query(SubscriptionModel.id)
+            .filter(SubscriptionModel.user_id == user_id)
+            .all()
+        ]
+        db.query(EntitlementModel).filter(
+            EntitlementModel.user_id == user_id
         ).delete(synchronize_session=False)
-        db.query(SubscriptionModel).filter(
-            SubscriptionModel.id.in_(sub_ids)
-        ).delete(synchronize_session=False)
-    log_audit_event(
-        db,
-        event_type="auth.account_delete",
-        status="success",
-        source="api",
-        user_id=user_id,
-        actor_email=current_user.email,
-        ip_address=_request_ip(request),
-        user_agent=request.headers.get("user-agent"),
-        details={
-            "deleted_profiles": deleted_profiles,
-            "deleted_sessions": deleted_sessions,
-            "anonymized_analytics_events": anonymized_analytics_events,
-        },
-    )
-
-    # P0-2: Purge conversation memory — consents (including conversation_memory consent)
-    from app.models.consent import ConsentModel
-    db.query(ConsentModel).filter(
-        ConsentModel.user_id == user_id
-    ).delete(synchronize_session=False)
-
-    # P0-2: Purge banking consents
-    from app.models.banking_consent import BankingConsentModel
-    db.query(BankingConsentModel).filter(
-        BankingConsentModel.user_id == user_id
-    ).delete(synchronize_session=False)
-
-    # P0-2: Purge household memberships (coach memory via household partner link)
-    from app.models.household import HouseholdMemberModel
-    db.query(HouseholdMemberModel).filter(
-        HouseholdMemberModel.user_id == user_id
-    ).delete(synchronize_session=False)
-
-    # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory/insights).
-    # Orphaned embeddings would persist user data after account deletion.
-    # This covers both document embeddings AND coach insight memories
-    # (doc_type='memory' stored via insight_embedder).
-    # Uses raw SQL via SQLAlchemy to avoid sync-in-async asyncio pitfalls
-    # (asyncio.get_event_loop().run_until_complete is unsafe in ASGI workers).
-    try:  # pragma: no cover — requires PostgreSQL with pgvector
-        from sqlalchemy import text as sa_text  # pragma: no cover
-        db.execute(  # pragma: no cover
-            sa_text(
-                "DELETE FROM document_embeddings "
-                "WHERE metadata::jsonb->>'user_id' = :uid"
-            ),
-            {"uid": user_id},
+        if sub_ids:
+            db.query(BillingTransactionModel).filter(
+                BillingTransactionModel.subscription_id.in_(sub_ids)
+            ).delete(synchronize_session=False)
+            db.query(SubscriptionModel).filter(
+                SubscriptionModel.id.in_(sub_ids)
+            ).delete(synchronize_session=False)
+        log_audit_event(
+            db,
+            event_type="auth.account_delete",
+            status="success",
+            source="api",
+            user_id=user_id,
+            actor_email=current_user.email,
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+            details={
+                "deleted_profiles": deleted_profiles,
+                "deleted_sessions": deleted_sessions,
+                "anonymized_analytics_events": anonymized_analytics_events,
+            },
         )
-    except Exception as exc:
-        logger.warning("Failed to purge embeddings for user %s: %s", user_id[:8], exc)
 
-    # FIX-181 nLPD: Purge document records BEFORE deleting user (atomic).
-    # If purge fails, abort — never leave orphaned user data.
-    from app.models.document import DocumentModel
-    db.query(DocumentModel).filter(DocumentModel.user_id == user_id).delete()
+        # P0-2: Purge conversation memory — consents (including conversation_memory consent)
+        from app.models.consent import ConsentModel
+        db.query(ConsentModel).filter(
+            ConsentModel.user_id == user_id
+        ).delete(synchronize_session=False)
 
-    db.delete(current_user)
-    db.commit()
+        # P0-2: Purge banking consents
+        from app.models.banking_consent import BankingConsentModel
+        db.query(BankingConsentModel).filter(
+            BankingConsentModel.user_id == user_id
+        ).delete(synchronize_session=False)
+
+        # P0-2: Purge household memberships (coach memory via household partner link)
+        from app.models.household import HouseholdMemberModel
+        db.query(HouseholdMemberModel).filter(
+            HouseholdMemberModel.user_id == user_id
+        ).delete(synchronize_session=False)
+
+        # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory/insights).
+        # Orphaned embeddings would persist user data after account deletion.
+        # This covers both document embeddings AND coach insight memories
+        # (doc_type='memory' stored via insight_embedder).
+        # Uses raw SQL via SQLAlchemy to avoid sync-in-async asyncio pitfalls
+        # (asyncio.get_event_loop().run_until_complete is unsafe in ASGI workers).
+        try:  # pragma: no cover — requires PostgreSQL with pgvector
+            from sqlalchemy import text as sa_text  # pragma: no cover
+            db.execute(  # pragma: no cover
+                sa_text(
+                    "DELETE FROM document_embeddings "
+                    "WHERE metadata::jsonb->>'user_id' = :uid"
+                ),
+                {"uid": user_id},
+            )
+        except Exception as exc:
+            logger.warning("Failed to purge embeddings for user %s: %s", user_id[:8], exc)
+
+        # FIX-181 nLPD: Purge document records BEFORE deleting user (atomic).
+        # If purge fails, abort — never leave orphaned user data.
+        from app.models.document import DocumentModel
+        db.query(DocumentModel).filter(DocumentModel.user_id == user_id).delete()
+
+        db.delete(current_user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error("Account deletion failed for user %s: %s", user_id, e)
+        raise HTTPException(
+            status_code=500,
+            detail="Account deletion failed. Please try again or contact support.",
+        )
 
     return DeleteAccountResponse(
         status="deleted",

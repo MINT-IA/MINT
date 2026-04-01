@@ -158,7 +158,8 @@ class ComplianceGuard {
   ];
 
   // Fuzzy banned pattern for "sans ... risque" variants
-  static final _sansRisquePattern = RegExp(r'sans\s+(?:\w+\s+)*risque', caseSensitive: false);
+  // FIX-W12: Bounded repetition to prevent ReDoS catastrophic backtracking
+  static final _sansRisquePattern = RegExp(r'sans\s+(?:\w+\s+){0,10}risque', caseSensitive: false);
 
   static const List<String> projectionKeywords = [
     'projection', 'simulation', 'scénario', 'scenario',
@@ -339,7 +340,16 @@ class ComplianceGuard {
   /// Processes multi-word phrases first (longer match priority), then
   /// single-word terms, to avoid partial replacements mangling phrases.
   static String _sanitizeBannedTerms(String text) {
-    var result = text;
+    // FIX-W12: Normalize common homoglyphs before banned term matching
+    var result = text
+        .replaceAll('ο', 'o')  // Greek omicron → Latin o
+        .replaceAll('а', 'a')  // Cyrillic a → Latin a
+        .replaceAll('е', 'e')  // Cyrillic e → Latin e
+        .replaceAll('і', 'i')  // Cyrillic i → Latin i
+        .replaceAll('р', 'p')  // Cyrillic r → Latin p
+        .replaceAll('с', 'c')  // Cyrillic s → Latin c
+        .replaceAll('ⅼ', 'l')  // Roman numeral l → Latin l
+        .replaceAll('ⅿ', 'm'); // Roman numeral m → Latin m
     final phrases = termReplacements.entries.where((e) => e.key.contains(' '));
     final words = termReplacements.entries.where((e) => !e.key.contains(' '));
     for (final entry in [...phrases, ...words]) {

@@ -289,6 +289,10 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 | AVS couple (marié, cap 150%) | **3'780 CHF/mois** (LAVS art. 35) |
 | Taux remplacement | **65.5%** (~8'505 vs 12'978 net/mois) |
 
+> Note : le taux de 65.5% utilise le revenu net combiné du couple (Julien + Lauren).
+> Le code peut produire un résultat différent selon la projection LPP utilisée
+> (formule légale standard vs certificat CPE Plan Maxi).
+
 ---
 
 ## 9. ANTI-PATTERNS (never do)
