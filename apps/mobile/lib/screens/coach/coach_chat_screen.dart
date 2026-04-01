@@ -1,83 +1,34 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:mint_mobile/models/coaching_preference.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/backend_coach_service.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
-import 'package:mint_mobile/services/coaching_service.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
-import 'package:mint_mobile/services/navigation/route_planner.dart';
-import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
-import 'package:mint_mobile/providers/mint_state_provider.dart';
-import 'package:mint_mobile/services/cap_memory_store.dart';
-import 'package:mint_mobile/services/memory/coach_memory_service.dart';
-import 'package:mint_mobile/models/coach_insight.dart';
-import 'package:mint_mobile/models/mint_user_state.dart';
-import 'package:mint_mobile/services/coach/memory_reference_service.dart';
-import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
-import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
-import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
-import 'package:mint_mobile/services/analytics_service.dart';
-import 'package:mint_mobile/services/goal_selection_service.dart';
-import 'package:mint_mobile/models/sequence_message_payload.dart';
-import 'package:mint_mobile/models/sequence_template.dart';
-import 'package:mint_mobile/widgets/coach/sequence_progress_card.dart';
-import 'package:mint_mobile/services/document_service.dart';
-import 'package:mint_mobile/services/document_parser/document_models.dart';
-import 'package:mint_mobile/services/product_cohort_service.dart';
-import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
-import 'package:mint_mobile/services/sequence/sequence_summary_builder.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
-import 'package:mint_mobile/services/sequence/sequence_store.dart';
-import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
-import 'package:mint_mobile/services/slm/slm_engine.dart';
-import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
-import 'package:mint_mobile/services/coach/conversation_store.dart';
-import 'package:mint_mobile/services/coach/voice_chat_integration.dart';
-import 'package:mint_mobile/services/coach/voice_service.dart';
-import 'package:mint_mobile/services/voice/platform_voice_backend.dart';
-import 'package:mint_mobile/services/llm/provider_health_service.dart';
-import 'package:mint_mobile/services/coach/data_driven_opener_service.dart';
-import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
-import 'package:mint_mobile/services/screen_completion_tracker.dart';
-import 'package:mint_mobile/models/screen_return.dart';
-import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
-import 'package:mint_mobile/services/nudge/nudge_engine.dart';
-import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
-import 'package:mint_mobile/services/agent/agent_validation_gate.dart';
-import 'package:mint_mobile/services/agent/form_prefill_service.dart';
-import 'package:mint_mobile/services/agent/letter_generation_service.dart';
-import 'package:mint_mobile/widgets/coach/document_card.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
-import 'package:mint_mobile/widgets/coach/voice_input_button.dart';
-import 'package:mint_mobile/widgets/coach/voice_output_button.dart';
-import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
+import 'package:mint_mobile/widgets/coach/coach_empty_state.dart';
+import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
+import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
+import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
+import 'package:mint_mobile/widgets/coach/coach_rich_widgets.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -121,65 +72,22 @@ class CoachChatScreen extends StatefulWidget {
   State<CoachChatScreen> createState() => _CoachChatScreenState();
 }
 
-class _CoachChatScreenState extends State<CoachChatScreen>
-    with TickerProviderStateMixin {
+class _CoachChatScreenState extends State<CoachChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
   CoachProfile? _profile;
   bool _hasProfile = false;
-
-  /// Proactive greeting engagement tracking (P3.5 Coaching Adaptatif).
-  /// When a proactive greeting is shown, we track whether the user engages
-  /// (sends a message within 60s) or ignores it (sends unrelated or waits).
-  String? _proactiveTriggerType;
-  DateTime? _proactiveGreetingShownAt;
   final List<ChatMessage> _messages = [];
-
-  /// CHAOS-8: Maximum number of messages to retain in memory.
-  static const int _maxMessages = 500;
-
-  /// CHAOS-8: Prune messages to prevent unbounded memory growth.
-  void _pruneMessages() {
-    if (_messages.length > _maxMessages) {
-      _messages.removeRange(0, _messages.length - _maxMessages);
-    }
-  }
-
-  // ── Greeting narrative canvas ──────────────────────────────
-  /// When true, the greeting is shown as a narrative card above the list.
-  /// Becomes false on first user send, collapsing into a normal bubble.
-  bool _greetingExpanded = true;
-
-  /// Stored greeting data for the narrative canvas.
-  String? _greetingLine1;
-  String? _greetingLine2;
-  List<String>? _greetingSuggestions;
-  ChatTier? _greetingTier;
   bool _isLoading = false;
   bool _isStreaming = false;
-  /// Unified guard preventing concurrent sends (covers _isLoading + context building).
-  bool _isBusy = false;
   final StringBuffer _streamBuffer = StringBuffer();
-  /// P1-9: Cancellable stream subscription for SLM streaming.
-  StreamSubscription<String>? _slmStreamSubscription;
-  /// P0-10: Timer-based batching for streaming setState calls.
-  /// Collects tokens and flushes UI updates at ~30fps instead of per-token.
-  Timer? _streamFlushTimer;
-  bool _streamDirty = false;
   bool _isByokConfigured = false;
 
   /// Conversation persistence
   final ConversationStore _conversationStore = ConversationStore();
   String? _conversationId;
-
-  /// Cached SharedPreferences instance (T2-3).
-  SharedPreferences? _cachedPrefs;
-  Future<SharedPreferences> _getPrefs() async {
-    _cachedPrefs ??= await SharedPreferences.getInstance();
-    return _cachedPrefs!;
-  }
 
   /// SLM stream timeout — prevents infinite hang if model deadlocks.
   static const Duration _streamTimeout = Duration(seconds: 45);
@@ -188,169 +96,19 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
   bool _isResumingConversation = false;
 
-  // ── Voice (S63) ──────────────────────────────────────────────
-  /// Single VoiceService instance for this screen.
-  ///
-  /// Uses [PlatformVoiceBackend] which probes native channels via
-  /// [MethodChannel]. When plugins (flutter_tts / speech_to_text) are absent
-  /// the backend degrades gracefully — [MissingPluginException] is caught
-  /// internally and both STT and TTS report unavailable.
-  /// [VoiceStateMachine] (wired inside [VoiceService]) prevents concurrent
-  /// listen+speak operations at the state-machine level.
-  final VoiceService _voiceService = VoiceService(
-    backend: PlatformVoiceBackend(),
-  );
-
-  /// Whether STT is available on this device.
-  bool _voiceSttAvailable = false;
-
-  /// Whether TTS is available on this device.
-  bool _voiceTtsAvailable = false;
-
-  /// Whether voice mode is currently active (user initiated via mic button).
-  /// When active, coach responses are automatically spoken aloud via TTS.
-  /// Resets to false when the user sends a typed message.
-  bool _voiceModeActive = false;
-
-  /// Integration layer that coordinates STT→chat→TTS loop.
-  /// Handles PII scrubbing, compliance validation, and safe mode detection.
-  late final VoiceChatIntegration _voiceChatIntegration;
-
-  // ── Provider health (S64) ────────────────────────────────────
-  /// Whether the primary provider circuit is open (temporarily unavailable).
-  bool _primaryCircuitOpen = false;
-
-  /// Whether all known providers are currently unhealthy.
-  bool _allProvidersDown = false;
-
-  // ── Document generation (Agent Autonome) ───────────────────
-  /// Last generated form (stored for rendering in document card).
-  FormPrefill? _lastGeneratedForm;
-
-  /// Last generated letter (stored for rendering in document card).
-  GeneratedLetter? _lastGeneratedLetter;
-
-  // ── Emotional canvas (UX P3) ───────────────────────────────
-  /// Background tint that changes subtly based on conversation topic.
-  /// Extremely subtle — felt, not seen.
-  late final AnimationController _canvasAnimController;
-  late Animation<Color?> _canvasAnimation;
-  Color _canvasColorBegin = MintColors.white;
-  Color _canvasColorEnd = MintColors.white;
-  _CanvasMood _currentMood = _CanvasMood.neutral;
-
-  /// Milestone pulse: one-shot controller for completion celebrations.
-  AnimationController? _milestonePulseController;
-  void Function(AnimationStatus)? _milestonePulseListener;
-  bool _milestonePulsing = false;
-
-  // ── Write-tool confirmation guards (V3 audit) ──────────────
-  /// Pending goal change awaiting user confirmation.
-  String? _pendingGoalTag;
-
-  /// Pending step completion awaiting user confirmation.
-  String? _pendingStepId;
-
-  /// Realtime subscription to ScreenReturn events from simulators.
-  StreamSubscription<ScreenReturn>? _screenReturnSub;
-
-  /// Debounce timer for realtime screen returns — prevents LLM spam when
-  /// sliders emit on every change (e.g. affordability, staggered_withdrawal).
-  Timer? _screenReturnDebounce;
-  ScreenReturn? _lastPendingReturn;
-
-  /// True when the realtime handler has already consumed the current
-  /// sequence step. Reset after _handleRouteReturn checks it.
-  /// This is the ONLY dedup mechanism between the two paths — the
-  /// persistent processedEventIds in SequenceRun handles replay/reload.
-  bool _realtimeConsumedSequenceStep = false;
+  /// Tracks message indices whose inline input pickers have been answered.
+  /// Once answered, the picker is replaced by the user's response text.
+  final Set<int> _answeredInputIndices = {};
 
   @override
   void initState() {
     super.initState();
-
-    // Emotional canvas animation (800-1200ms depending on mood).
-    _canvasAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _canvasAnimation = ColorTween(
-      begin: MintColors.white,
-      end: MintColors.white,
-    ).animate(CurvedAnimation(
-      parent: _canvasAnimController,
-      curve: Curves.easeInOut,
-    ));
-
     // Bug fix: use provided conversationId when resuming, else generate unique ID.
     _conversationId = widget.conversationId ??
         '${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
     if (widget.conversationId != null) {
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
-    }
-    // FIX-171: Check for orphan sequence runs (app killed mid-sequence).
-    // Auto-abandon if stale (> 24h), otherwise show recovery card.
-    _checkOrphanSequence();
-
-    // Voice (S63/Sprint E): initialize integration and probe availability.
-    _voiceChatIntegration = VoiceChatIntegration(voice: _voiceService);
-    _initVoiceAvailability();
-    // Provider health (S64): check circuit breaker state on mount.
-    _checkProviderHealth();
-  }
-
-  /// Probe STT / TTS availability — fires once on mount.
-  /// Updates state only if mounted; degrades gracefully on error.
-  /// FIX-171: Recover from orphan sequence (app killed mid-sequence).
-  Future<void> _checkOrphanSequence() async {
-    try {
-      final run = await SequenceStore.load();
-      if (run == null || run.activeStepId == null) return;
-      // If the run is > 24 hours old, auto-abandon
-      final age = DateTime.now().difference(
-          DateTime.fromMillisecondsSinceEpoch(
-              int.tryParse(run.runId.split('_').last) ?? 0));
-      if (age.inHours > 24) {
-        await SequenceStore.clear();
-        debugPrint('[CoachChat] Abandoned stale sequence: ${run.runId}');
-      }
-      // Otherwise the existing sequence UI will pick it up naturally
-    } catch (_) {}
-  }
-
-  Future<void> _initVoiceAvailability() async {
-    try {
-      final stt = await _voiceService.isAvailable();
-      final tts = await _voiceService.isTtsAvailable();
-      if (mounted) {
-        setState(() {
-          _voiceSttAvailable = stt;
-          _voiceTtsAvailable = tts;
-        });
-      }
-    } catch (_) {
-      // VoiceService stub — unavailable by default.
-    }
-  }
-
-  /// Check provider health circuits — informational only.
-  /// Failover logic itself lives in CoachOrchestrator.
-  Future<void> _checkProviderHealth() async {
-    try {
-      final prefs = await _getPrefs();
-      final health = await ProviderHealthService.getHealth(prefs);
-      if (!mounted) return;
-      final allOpen = health.isNotEmpty &&
-          health.values.every((h) => h.circuitOpen);
-      final primaryOpen = health['claude']?.circuitOpen == true ||
-          health['openai']?.circuitOpen == true;
-      setState(() {
-        _primaryCircuitOpen = primaryOpen && !allOpen;
-        _allProvidersDown = allOpen;
-      });
-    } catch (_) {
-      // ProviderHealthService is optional — degrade silently.
     }
   }
 
@@ -395,33 +153,14 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         }
       }
     }
-
-    // Realtime ReturnContract: listen for simulation results.
-    // V5-6 audit fix: cancel existing subscription before creating a new one.
-    // didChangeDependencies runs multiple times — without this cancel, each
-    // call leaks a new StreamSubscription.
-    _screenReturnSub?.cancel();
-    _screenReturnSub = ScreenCompletionTracker.stream.listen(
-      _onRealtimeScreenReturn,
-    );
   }
 
   @override
   void dispose() {
-    _slmStreamSubscription?.cancel(); // P1-9: cancel active stream
-    _streamFlushTimer?.cancel(); // P0-10: cancel batch timer
-    _screenReturnSub?.cancel();
-    _screenReturnDebounce?.cancel();
     _autoSaveConversation();
     _controller.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
-    _voiceService.dispose();
-    _canvasAnimController.dispose();
-    if (_milestonePulseListener != null && _milestonePulseController != null) {
-      _milestonePulseController!.removeStatusListener(_milestonePulseListener!);
-    }
-    _milestonePulseController?.dispose();
     super.dispose();
   }
 
@@ -437,571 +176,54 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   //  GREETING
   // ════════════════════════════════════════════════════════════
 
-  Future<void> _addInitialGreeting() async {
+  void _addInitialGreeting() {
     assert(_profile != null);
     final p = _profile!;
-    if (!mounted) return;
-    final s = S.of(context)!;
-    // FIX-P1-6: Guard against null/empty firstName to avoid blank greeting.
-    final name = (p.firstName != null && p.firstName!.isNotEmpty)
-        ? p.firstName!
-        : s.coachFallbackName;
-    final locale = Localizations.localeOf(context).languageCode;
 
-    final tier = _currentTier();
+    // SILENT greeting: no CapEngine, no score, no retirement mention.
+    // The user guides the direction. Silence is premium.
+    final name = p.firstName;
+    final greeting = name != null && name.isNotEmpty
+        ? '$name, on commence par quoi\u00a0?'
+        : 'On commence par quoi\u00a0?';
 
-    // ── Read MintStateProvider synchronously before any await ─────
-    // context.read is only safe before the first suspension point.
-    // We capture both the pending trigger and the full user state here.
-    MintUserState? mintStateSnapshot;
-    ProactiveTrigger? preloadedTrigger;
-    try {
-      final stateProvider = context.read<MintStateProvider>();
-      mintStateSnapshot = stateProvider.state;
-      preloadedTrigger = mintStateSnapshot?.pendingTrigger;
-    } catch (_) {
-      // MintStateProvider not registered — fall back to direct evaluation below.
-    }
+    // Emotional suggestions based on age/situation + life event trigger
+    final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
+    final suggestions = personalizedPrompts.isNotEmpty
+        ? [...personalizedPrompts.take(2), 'Il m\u2019arrive quelque chose']
+        : [
+            'Par o\u00f9 commencer\u00a0?',
+            'C\u2019est quoi tout \u00e7a\u00a0?',
+            'Il m\u2019arrive quelque chose',
+          ];
 
-    // ── Proactive trigger evaluation ─────────────────────────────
-    // Read from MintStateProvider if available (avoids double evaluate() race).
-    // Falls back to direct evaluation if provider not wired yet.
-    String? proactiveMessage;
-    String? proactiveIntentTag;
-    try {
-      final prefs = await _getPrefs();
-      if (!mounted) return;
-      // Prefer MintStateProvider's pre-computed trigger to avoid race condition.
-      ProactiveTrigger? trigger = preloadedTrigger;
-      if (trigger == null && mintStateSnapshot == null) {
-        // MintStateProvider not registered — fall back to direct evaluation.
-        trigger = await ProactiveTriggerService.evaluate(
-          profile: p,
-          prefs: prefs,
-          now: DateTime.now(),
-        );
-      }
-      if (trigger != null && mounted) {
-        proactiveMessage = _resolveProactiveMessage(trigger, s);
-        proactiveIntentTag = trigger.intentTag;
-        // Track for engagement measurement (P3.5 Coaching Adaptatif)
-        _proactiveTriggerType = trigger.type.name;
-        _proactiveGreetingShownAt = DateTime.now();
-        // Store current phase and confidence as the new baseline.
-        await ProactiveTriggerService.storeCurrentPhase(p, prefs);
-        await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
-      } else if (trigger == null) {
-        // No trigger — store baseline (idempotent, avoids hardcoded SP keys).
-        await ProactiveTriggerService.storeCurrentPhase(p, prefs);
-        await ProactiveTriggerService.storeCurrentConfidence(p, prefs);
-      }
-    } catch (_) {
-      // Graceful degradation: greeting works without proactive trigger.
-    }
-
-    // ── Data-driven opener (Cleo-inspired, Swiss-adapted) ─────────
-    // Only fires when no proactive trigger was already selected.
-    // Surfaces a real CHF number from the user's state.
-    //
-    // Priority:
-    //   1. Pre-computed cache (instant — written at profile-change time).
-    //   2. Synchronous generation from mintStateSnapshot (fallback).
-    String? dataDrivenMessage;
-    String? dataDrivenIntentTag;
-    if (proactiveMessage == null || proactiveMessage.isEmpty) {
-      try {
-        // Try pre-computed cache first (instant read, no computation).
-        final prefs2 = await _getPrefs();
-        if (!mounted) return;
-        final cached = await PrecomputedInsightsService.getCachedInsight(
-          prefs: prefs2,
-        );
-        if (cached != null) {
-          final opener = cached.resolve(s);
-          if (opener != null) {
-            dataDrivenMessage = opener.message;
-            dataDrivenIntentTag = opener.intentTag;
-          }
-        }
-        // Fallback: synchronous generation if cache missed and state is available.
-        if (dataDrivenMessage == null && mintStateSnapshot != null) {
-          final opener = DataDrivenOpenerService.generate(
-            state: mintStateSnapshot,
-            l: s,
-          );
-          if (opener != null) {
-            dataDrivenMessage = opener.message;
-            dataDrivenIntentTag = opener.intentTag;
-          }
-        }
-      } catch (_) {
-        // Graceful degradation: greeting works without data-driven opener.
-      }
-    }
-
-    // ── Build greeting text ────────────────────────────────────────
-    final String greeting;
-    if (proactiveMessage != null && proactiveMessage.isNotEmpty) {
-      greeting = proactiveMessage;
-    } else if (dataDrivenMessage != null && dataDrivenMessage.isNotEmpty) {
-      greeting = dataDrivenMessage;
-    } else if (tier == ChatTier.slm) {
-      greeting = s.coachGreetingSlm(name);
-    } else {
-      final scoreSuffix = _buildGreetingScoreContext(p);
-      greeting = s.coachGreetingDefault(name, scoreSuffix);
-    }
-
-    // Phase 1: personalized suggestions based on age/archetype
-    final personalizedPrompts =
-        ResponseCardService.suggestedPrompts(p, l: s);
-    List<String> suggestions;
-    if (personalizedPrompts.isNotEmpty) {
-      suggestions = List<String>.from(personalizedPrompts);
-    } else {
-      final tips = CoachingService.generateTips(
-        profile: p.toCoachingProfile(),
-      );
-      final topTipActions = tips.take(3).map((t) => t.title).toList();
-      suggestions = topTipActions.isNotEmpty
-          ? topTipActions
-          : [
-              s.coachSuggestRetirement,
-              s.coachSuggestDeductions,
-              s.coachSuggestSimulate3a,
-            ];
-    }
-
-    // If a proactive trigger was fired, resolve its intentTag to a
-    // human-readable label (never show raw routes as chip text).
-    if (proactiveIntentTag != null && proactiveIntentTag.isNotEmpty) {
-      final chipLabel = _resolveIntentTagToLabel(proactiveIntentTag, s);
-      suggestions.remove(chipLabel);
-      suggestions = [
-        chipLabel,
-        ...suggestions.take(3),
-      ];
-    }
-
-    // If a data-driven opener was fired (and no proactive trigger), prepend
-    // its intentTag as the first suggestion chip.
-    if (proactiveMessage == null &&
-        dataDrivenIntentTag != null &&
-        dataDrivenIntentTag.isNotEmpty) {
-      final chipLabel = _resolveIntentTagToLabel(dataDrivenIntentTag, s);
-      suggestions.remove(chipLabel);
-      suggestions = [
-        chipLabel,
-        ...suggestions.take(3),
-      ];
-    }
-
-    // Phase 2: prepend high-priority nudge chips so Claude can reinforce
-    // timely topics. Nudges are loaded asynchronously; graceful degradation
-    // if SharedPreferences or NudgeEngine fail.
-    // Skip nudge chips when a proactive trigger or data-driven opener is
-    // already surfaced to avoid information overload.
-    if (proactiveMessage == null && dataDrivenMessage == null) {
-      try {
-        final prefs = await _getPrefs();
-        if (!mounted) return;
-        final now = DateTime.now();
-        final dismissedIds = await NudgePersistence.getDismissedIds(
-          prefs,
-          now: now,
-        );
-        final lastActivity =
-            await NudgePersistence.getLastActivityTime(prefs);
-        final nudges = NudgeEngine.evaluate(
-          profile: p,
-          now: now,
-          dismissedNudgeIds: dismissedIds,
-          lastActivityTime: lastActivity,
-        );
-        // Only surface high-priority nudges as chips (max 2).
-        final highPriorityNudges = nudges
-            .where((n) => n.priority == NudgePriority.high)
-            .take(2)
-            .toList();
-        if (highPriorityNudges.isNotEmpty && mounted) {
-          final nudgeLabels = highPriorityNudges
-              .map((n) => _resolveNudgeTitle(n, s, p))
-              .where((label) => label.isNotEmpty)
-              .toList();
-          if (nudgeLabels.isNotEmpty) {
-            // Prepend nudge chips, keeping total chips at most 4.
-            suggestions = [
-              ...nudgeLabels,
-              ...suggestions.take(4 - nudgeLabels.length),
-            ];
-          }
-        }
-      } catch (_) {
-        // Graceful degradation: greeting works without nudge chips.
-      }
-    }
-
-    if (!mounted) return;
-
-    // No response cards on greeting — they duplicate Pulse.
-    // Cards appear only in response to user messages.
-
-    // ── Build narrative canvas line 1: name + time cue ───────────
-    final now = DateTime.now();
-    final dayName = DateFormat.EEEE(locale).format(now);
-    final String timeCue;
-    if (now.hour < 12) {
-      timeCue = s.greetingMorning;
-    } else if (now.hour < 18) {
-      timeCue = s.greetingAfternoon;
-    } else {
-      timeCue = s.greetingEvening;
-    }
-    final line1 = '$name, $dayName $timeCue.';
-
-    setState(() {
-      _greetingExpanded = true;
-      _greetingLine1 = line1;
-      _greetingLine2 = greeting;
-      _greetingSuggestions = suggestions;
-      _greetingTier = tier;
-    });
-  }
-
-  /// Resolve a [ProactiveTrigger]'s ARB messageKey to a display string.
-  ///
-  /// Parameterised keys (e.g. proactiveGoalMilestone with {progress})
-  /// are resolved using [trigger.params]. Returns empty string on failure.
-  /// Resolve a route-style intentTag to a user-readable chip label.
-  /// Never show raw routes like '/coach/weekly-recap' as chip text.
-  String _resolveIntentTagToLabel(String intentTag, S s) {
-    // Map known proactive intent tags to i18n labels.
-    final map = <String, String>{
-      '/coach/weekly-recap': s.recapTitle,
-      '/coach/chat': s.coachSuggestRetirement,
-      '/home': s.pulseFeedbackRecalculated,
-      '/profile': s.profileSectionIdentity,
-      // Data-driven opener routes:
-      '/budget': s.goalBudgetTitle,
-      '/pilier-3a': s.coachSuggestSimulate3a,
-      '/retraite': s.goalRetirementTitle,
-    };
-    // Try direct map, then try ScreenRegistry for intent-tag based labels.
-    if (map.containsKey(intentTag)) return map[intentTag]!;
-    // Fallback: strip slashes and capitalize.
-    final fallback = intentTag
-        .replaceAll('/', ' ')
-        .replaceAll('-', ' ')
-        .trim();
-    return fallback.isNotEmpty
-        ? '${fallback[0].toUpperCase()}${fallback.substring(1)}'
-        : intentTag;
-  }
-
-  String _resolveProactiveMessage(ProactiveTrigger trigger, S s) {
-    try {
-      final p = trigger.params;
-      switch (trigger.messageKey) {
-        case 'proactiveLifecycleChange':
-          return s.proactiveLifecycleChange;
-        case 'proactiveWeeklyRecap':
-          return s.proactiveWeeklyRecap;
-        case 'proactiveGoalMilestone':
-          final progress = p?['progress'] ?? '50';
-          return s.proactiveGoalMilestone(progress);
-        case 'proactiveSeasonalReminder':
-          final event = p?['event'] ?? '';
-          return s.proactiveSeasonalReminder(event);
-        case 'proactiveInactivityReturn':
-          final days = p?['days'] ?? '7';
-          return s.proactiveInactivityReturn(days);
-        case 'proactiveConfidenceUp':
-          final delta = p?['delta'] ?? '5';
-          return s.proactiveConfidenceUp(delta);
-        case 'proactiveNewCap':
-          return s.proactiveNewCap;
-        default:
-          return '';
-      }
-    } catch (_) {
-      return '';
-    }
-  }
-
-  /// Resolve a nudge's [titleKey] ARB key to a display string.
-  ///
-  /// Parameterised keys (e.g. nudgeBirthdayTitle with {age}) are resolved
-  /// using [profile] data. Returns an empty string if resolution fails.
-  String _resolveNudgeTitle(
-    Nudge nudge,
-    S s,
-    CoachProfile p,
-  ) {
-    try {
-      switch (nudge.titleKey) {
-        case 'nudgeSalaryTitle':
-          return s.nudgeSalaryTitle;
-        case 'nudgeTaxDeadlineTitle':
-          return s.nudgeTaxDeadlineTitle;
-        case 'nudge3aDeadlineTitle':
-          return s.nudge3aDeadlineTitle;
-        case 'nudgeBirthdayTitle':
-          final age = DateTime.now().year - p.birthYear;
-          return s.nudgeBirthdayTitle(age.toString());
-        case 'nudgeProfileTitle':
-          return s.nudgeProfileTitle;
-        case 'nudgeInactiveTitle':
-          return s.nudgeInactiveTitle;
-        case 'nudgeGoalProgressTitle':
-          return s.nudgeGoalProgressTitle;
-        case 'nudgeAnniversaryTitle':
-          return s.nudgeAnniversaryTitle;
-        case 'nudgeLppBuybackTitle':
-          return s.nudgeLppBuybackTitle;
-        case 'nudgeNewYearTitle':
-          return s.nudgeNewYearTitle;
-        default:
-          return '';
-      }
-    } catch (_) {
-      return '';
-    }
-  }
-
-  String _buildGreetingScoreContext(CoachProfile profile) {
-    try {
-      final score = FinancialFitnessService.calculate(profile: profile);
-      if (score.global > 0) {
-        return S.of(context)!.coachScoreSuffix(score.global);
-      }
-    } catch (_) {}
-    return '';
-  }
-
-  ChatTier _currentTier() {
-    if (FeatureFlags.slmPluginReady &&
-        FeatureFlags.enableSlmNarratives &&
-        !FeatureFlags.safeModeDegraded &&
-        SlmEngine.instance.isAvailable) {
-      return ChatTier.slm;
-    }
-    if (_isByokConfigured) return ChatTier.byok;
-    return ChatTier.fallback;
+    _messages.add(ChatMessage(
+      role: 'assistant',
+      content: greeting,
+      timestamp: DateTime.now(),
+      suggestedActions: suggestions,
+      tier: ChatTier.none,
+    ));
   }
 
   // ════════════════════════════════════════════════════════════
   //  MESSAGE SENDING — SLM streaming or standard
   // ════════════════════════════════════════════════════════════
 
-  Future<void> _showLifeEventSheet() async {
-    final prompt = await LifeEventSheet.show(context);
-    if (prompt != null && prompt.isNotEmpty && mounted) {
-      _sendMessage(prompt);
-    }
-  }
-
-  /// Show the Lightning Menu bottom sheet with contextual actions.
-  Future<void> _showLightningMenu() async {
-    final capMem = await CapMemoryStore.load();
-    if (!mounted) return;
-    await showModalBottomSheet(
+  void _showLightningMenu() {
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: MintColors.transparent,
+      backgroundColor: Colors.transparent,
       builder: (_) => LightningMenu(
         profile: _profile,
-        capMemory: capMem,
-        onSendMessage: (message) {
-          if (mounted) _sendMessage(message);
-        },
-        onNavigate: (route) {
-          if (mounted) context.push(route);
-        },
+        onSendMessage: _sendMessage,
       ),
     );
   }
 
-  /// P3.5 Coaching Adaptatif: record whether the user engaged with
-  /// the proactive greeting (responded within 60s) or ignored it.
-  void _trackProactiveEngagement() {
-    if (_proactiveTriggerType == null || _proactiveGreetingShownAt == null) {
-      return;
-    }
-    final elapsed = DateTime.now().difference(_proactiveGreetingShownAt!);
-    final engaged = elapsed.inSeconds <= 60;
-
-    // Capture trigger type in a local variable before clearing the field.
-    // The async `.then()` callback would otherwise read a null field
-    // because _proactiveTriggerType is cleared synchronously below.
-    final triggerType = _proactiveTriggerType!;
-    // FIX-150: Error handler on engagement tracking.
-    _getPrefs().then((prefs) async {
-      var pref = CoachingPreference.load(prefs);
-      pref = engaged
-          ? pref.recordEngagement(triggerType)
-          : pref.recordDismissal(triggerType);
-      await pref.save(prefs);
-    }).catchError((e) {
-      debugPrint('[CoachChat] recordEngagement failed: $e');
-    });
-
-    // Clear — only track once per proactive greeting
-    _proactiveTriggerType = null;
-    _proactiveGreetingShownAt = null;
-  }
-
   Future<void> _sendMessage(String text) async {
-    if (text.trim().isEmpty || _isBusy) return;
-
-    // Set busy immediately (synchronous) to prevent double-tap race.
-    _isBusy = true;
-
-    // ── V3-1: handle pending write-tool confirmations ───────────
-    if (_pendingGoalTag != null || _pendingStepId != null) {
-      final l10n = S.of(context)!;
-      final normalised = text.trim().toLowerCase();
-      final confirmed = normalised == l10n.coachConfirmAction.toLowerCase();
-      final cancelled = normalised == l10n.coachCancelAction.toLowerCase();
-      if (confirmed || cancelled) {
-        _isBusy = false;
-        await _handlePendingWriteConfirmation(confirmed);
-        return;
-      }
-      // If user typed something else, cancel the pending action silently
-      // and continue with normal message flow.
-      _pendingGoalTag = null;
-      _pendingStepId = null;
-    }
-
-    setState(() {});
-
-    try {
-      await _sendMessageInner(text);
-    } finally {
-      if (mounted) setState(() => _isBusy = false);
-    }
-  }
-
-  /// Execute or cancel a pending write-tool action (V3-1 audit).
-  Future<void> _handlePendingWriteConfirmation(bool confirmed) async {
-    if (!mounted) return;
-
-    if (_pendingGoalTag != null) {
-      final goalTag = _pendingGoalTag!;
-      _pendingGoalTag = null;
-      if (confirmed && _profile != null) {
-        final prefs = await _getPrefs();
-        await GoalSelectionService.setSelectedGoal(goalTag, prefs);
-        if (mounted) {
-          context.read<MintStateProvider>().forceRecompute(_profile!);
-          setState(() {
-            _messages.add(ChatMessage(
-              role: 'assistant',
-              content: 'Objectif mis \u00e0 jour\u00a0: $goalTag',
-              timestamp: DateTime.now(),
-              tier: ChatTier.byok,
-            ));
-          });
-          _scrollToBottom();
-        }
-      } else if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: 'Changement d\u2019objectif annul\u00e9.',
-            timestamp: DateTime.now(),
-            tier: ChatTier.byok,
-          ));
-        });
-        _scrollToBottom();
-      }
-      return;
-    }
-
-    if (_pendingStepId != null) {
-      final stepId = _pendingStepId!;
-      _pendingStepId = null;
-      if (confirmed) {
-        // V3-2: use canonical CapMemoryStore.markCompleted() API
-        final mem = await CapMemoryStore.load();
-        await CapMemoryStore.markCompleted(mem, stepId);
-        if (mounted) {
-          setState(() {
-            _messages.add(ChatMessage(
-              role: 'assistant',
-              content:
-                  '\u00c9tape \u00ab\u202f$stepId\u202f\u00bb termin\u00e9e.',
-              timestamp: DateTime.now(),
-              tier: ChatTier.byok,
-            ));
-          });
-          _scrollToBottom();
-        }
-      } else if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: 'Action annul\u00e9e.',
-            timestamp: DateTime.now(),
-            tier: ChatTier.byok,
-          ));
-        });
-        _scrollToBottom();
-      }
-      return;
-    }
-  }
-
-  Future<void> _sendMessageInner(String text) async {
-    // P2-17: Retry any previously queued offline messages first.
-    try {
-      final prefs = await _getPrefs();
-      final pending = prefs.getStringList('pending_messages') ?? [];
-      if (pending.isNotEmpty) {
-        await prefs.setStringList('pending_messages', []);
-        debugPrint('[CoachChat] Retrying ${pending.length} queued message(s)');
-      }
-    } catch (_) {
-      // Best-effort: if SharedPreferences fails, continue with current message.
-    }
-
-    // P3.5 Coaching Adaptatif: track proactive greeting engagement.
-    // If user sends a message within 60s of a proactive greeting = engaged.
-    _trackProactiveEngagement();
-
-    // Refresh profile in case it changed since screen init (T2-5).
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (provider.hasProfile) {
-        _profile = provider.profile!;
-      }
-    } catch (_) {}
-
-    // Capture mintState BEFORE any await (T1-4).
-    MintUserState? mintStateForContext;
-    try {
-      mintStateForContext = context.read<MintStateProvider>().state;
-    } catch (_) {
-      mintStateForContext = null;
-    }
-
-    // Capture LLM config BEFORE any await (P0 async safety).
-    final preAwaitConfig = _buildConfig();
-
-    // Collapse greeting narrative canvas into a normal bubble on first send.
-    if (_greetingExpanded && _greetingLine2 != null) {
-      _messages.insert(
-        0,
-        ChatMessage(
-          role: 'assistant',
-          content: _greetingLine2!,
-          timestamp: DateTime.now(),
-          suggestedActions: _greetingSuggestions,
-          tier: _greetingTier ?? ChatTier.fallback,
-        ),
-      );
-      _greetingExpanded = false;
-    }
+    if (text.trim().isEmpty) return;
 
     setState(() {
       _messages.add(ChatMessage(
@@ -1009,23 +231,17 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         content: text.trim(),
         timestamp: DateTime.now(),
       ));
-      _pruneMessages(); // CHAOS-8: cap at 500 messages
       _isLoading = true;
     });
     _controller.clear();
     _scrollToBottom();
-    // Emotional canvas: update background tint based on conversation topic.
-    _updateCanvasMood();
 
     // Build enriched context for AI memory injection (S58).
-    // Timeout + try/catch: if SharedPreferences or any dependency fails/hangs,
-    // the chat still works without memory enrichment (graceful degradation).
     String? memoryBlock;
     try {
       final enrichedContext = await ContextInjectorService.buildContext(
         profile: _profile,
         now: DateTime.now(),
-        mintState: mintStateForContext,
       ).timeout(const Duration(seconds: 2));
       if (enrichedContext.memoryBlock.isNotEmpty) {
         memoryBlock = enrichedContext.memoryBlock;
@@ -1034,20 +250,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       // Graceful degradation: chat works without memory block.
     }
 
-    // Resolve a visible memory reference so the coach can prepend it.
-    // This makes past memory VISIBLE to the user (Cleo-style recall).
-    MemoryReference? memoryRef;
-    try {
-      memoryRef = await MemoryReferenceService.findRelevant(
-        currentTopic: text.trim(),
-        now: DateTime.now(),
-      ).timeout(const Duration(seconds: 1));
-    } catch (_) {
-      // Graceful degradation: chat works without memory reference.
-    }
-
     // Try SLM streaming first.
-    final ctx = _buildCoachContext(_profile!, mintState: mintStateForContext);
+    final ctx = _buildCoachContext(_profile!);
     final stream = CoachOrchestrator.streamChat(
       userMessage: text.trim(),
       history: _messages,
@@ -1056,40 +260,24 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
 
     if (stream != null) {
-      await _handleStreamResponse(stream, text.trim(), ctx,
-          memoryRef: memoryRef);
+      await _handleStreamResponse(stream, text.trim(), ctx);
       return;
     }
 
-    // Fallback to standard (BYOK → fallback chain).
-    await _handleStandardResponse(text.trim(),
-        memoryBlock: memoryBlock, memoryRef: memoryRef,
-        preAwaitConfig: preAwaitConfig);
-  }
+    // Try backend Claude proxy (S56 — server-side, no BYOK needed).
+    final backendSuccess = await _tryBackendClaude(text.trim());
+    if (backendSuccess) return;
 
-  /// P0-10: Flush accumulated stream tokens to UI in a single setState.
-  void _flushStreamBuffer() {
-    if (!_streamDirty || !mounted || _messages.isEmpty) return;
-    _streamDirty = false;
-    final current = _streamBuffer.toString();
-    setState(() {
-      _messages[_messages.length - 1] = ChatMessage(
-        role: 'assistant',
-        content: current,
-        timestamp: DateTime.now(),
-        tier: ChatTier.slm,
-      );
-    });
-    _scrollToBottom();
+    // Fallback to standard (BYOK → fallback chain).
+    await _handleStandardResponse(text.trim(), memoryBlock: memoryBlock);
   }
 
   /// Handle SLM streaming response (token-by-token).
   Future<void> _handleStreamResponse(
     Stream<String> stream,
     String userMessage,
-    CoachContext ctx, {
-    MemoryReference? memoryRef,
-  }) async {
+    CoachContext ctx,
+  ) async {
     setState(() {
       _isLoading = false;
       _isStreaming = true;
@@ -1104,52 +292,33 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     });
     _scrollToBottom();
 
-    // P1-9: Use StreamSubscription (cancellable) instead of await-for.
+    // Wrap the stream with a timeout to prevent infinite hang.
     bool timedOut = false;
-    final completer = Completer<void>();
-    final timedStream = stream.timeout(
-      _streamTimeout,
-      onTimeout: (sink) {
-        timedOut = true;
-        sink.close();
-      },
-    );
-    _slmStreamSubscription?.cancel();
-    // P0-10: Batch streaming UI updates at ~30fps instead of per-token.
-    // Tokens accumulate in _streamBuffer; a periodic timer flushes to UI.
-    _streamDirty = false;
-    _streamFlushTimer?.cancel();
-    _streamFlushTimer = Timer.periodic(
-      const Duration(milliseconds: 33), // ~30fps
-      (_) => _flushStreamBuffer(),
-    );
-    _slmStreamSubscription = timedStream.listen(
-      (token) {
-        if (!mounted) {
-          _slmStreamSubscription?.cancel();
-          _streamFlushTimer?.cancel();
-          if (!completer.isCompleted) completer.complete();
-          return;
-        }
+    try {
+      final timedStream = stream.timeout(
+        _streamTimeout,
+        onTimeout: (sink) {
+          timedOut = true;
+          sink.close();
+        },
+      );
+      await for (final token in timedStream) {
+        if (!mounted) return;
         _streamBuffer.write(token);
-        _streamDirty = true;
-      },
-      onError: (Object e) {
-        debugPrint('[CoachChat] Stream error: $e');
-        _streamFlushTimer?.cancel();
-        _flushStreamBuffer(); // Final flush
-        if (!completer.isCompleted) completer.complete();
-      },
-      onDone: () {
-        _streamFlushTimer?.cancel();
-        _flushStreamBuffer(); // Final flush
-        if (!completer.isCompleted) completer.complete();
-      },
-    );
-    await completer.future;
-    _slmStreamSubscription = null;
-    _streamFlushTimer?.cancel();
-    _streamFlushTimer = null;
+        final current = _streamBuffer.toString();
+        setState(() {
+          _messages[_messages.length - 1] = ChatMessage(
+            role: 'assistant',
+            content: current,
+            timestamp: DateTime.now(),
+            tier: ChatTier.slm,
+          );
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      debugPrint('[CoachChat] Stream error: $e');
+    }
 
     if (!mounted) return;
 
@@ -1180,8 +349,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         componentType: ComponentType.general,
       );
     } catch (_) {
-      // ComplianceGuard crashed — still sanitize banned terms manually
-      // since SLM can generate them despite system prompt.
       compliance = ComplianceResult(
         isCompliant: true,
         sanitizedText: ComplianceGuard.sanitizeBannedTerms(rawText),
@@ -1199,173 +366,113 @@ class _CoachChatScreenState extends State<CoachChatScreen>
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
-        ? ResponseCardService.generateForChat(_profile!, userMessage,
-            l: S.of(context)!)
+        ? ResponseCardService.generateForChat(_profile!, userMessage)
         : <ResponseCard>[];
 
-    // S58: detect route_to_screen tool_use in streamed text.
-    final rawPayload = compliance.useFallback
-        ? null
-        : _parseRouteToolUse(finalText);
-    final resolvedPayload =
-        rawPayload != null ? _resolveRoutePayload(rawPayload) : null;
-
-    // Detect generate_document tool_use in streamed text.
-    final docPayload = compliance.useFallback
-        ? null
-        : _parseDocumentToolUse(finalText);
-
-    var slmBaseText = rawPayload != null
-        ? finalText
-            .replaceAll(
-              RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
-              '',
-            )
-            .trim()
-        : finalText;
-    // Strip GENERATE_DOCUMENT markers from displayed text.
-    if (docPayload != null) {
-      slmBaseText = slmBaseText
-          .replaceAll(
-            RegExp(r'\[GENERATE_DOCUMENT:\{[^}]*\}\]'),
-            '',
-          )
-          .trim();
-    }
-
-    // Prepend visible memory reference when available (Cleo-style recall).
-    final slmDisplayText = _prependMemoryRef(slmBaseText, memoryRef);
-
     setState(() {
-      if (_messages.isEmpty) return;
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
-        content: slmDisplayText,
+        content: finalText,
         timestamp: DateTime.now(),
         suggestedActions: suggestedActions,
         responseCards: cards,
         tier: ChatTier.slm,
-        routePayload: resolvedPayload,
+        userQuery: userMessage,
       );
       _isStreaming = false;
     });
     _scrollToBottom();
-    _updateCanvasMood();
+  }
 
-    // Generate document card if generate_document tool was detected.
-    if (docPayload != null) {
-      _handleDocumentGeneration(docPayload);
+  /// Try backend Claude proxy (S56). Returns true if successful.
+  Future<bool> _tryBackendClaude(String text) async {
+    if (_profile == null) return false;
+
+    try {
+      final history = _messages
+          .where((m) => m.role == 'user' || m.role == 'assistant')
+          .map((m) => {'role': m.role, 'content': m.content})
+          .toList();
+
+      final response = await BackendCoachService.chat(
+        message: text,
+        profile: _profile!,
+        history: history,
+      );
+
+      if (response == null) return false;
+
+      // Generate inline response cards
+      final cards = ResponseCardService.generateForChat(_profile!, text);
+
+      if (!mounted) return true;
+
+      // Build widgetCall map from Claude tool_use response
+      Map<String, dynamic>? widgetCallMap;
+      if (response.widget != null) {
+        widgetCallMap = {
+          'tool': response.widget!.tool,
+          'params': response.widget!.params,
+        };
+      }
+
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: response.reply,
+          timestamp: DateTime.now(),
+          suggestedActions: _inferSuggestedActions(text),
+          responseCards: cards,
+          tier: ChatTier.byok,
+          disclaimers: [response.disclaimer],
+          userQuery: text,
+          widgetCall: widgetCallMap,
+        ));
+        _isLoading = false;
+      });
+      _scrollToBottom();
+      return true;
+    } catch (e) {
+      debugPrint('[CoachChat] Backend Claude error: $e');
+      return false;
     }
-
-    // Sprint E: auto-speak coach response when voice mode is active.
-    if (_voiceModeActive && _voiceTtsAvailable && slmDisplayText.isNotEmpty) {
-      unawaited(_voiceChatIntegration.chatToVoice(slmDisplayText));
-    }
-
-    // T1-3: Save conversation after each message exchange.
-    await _autoSaveConversation();
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
-  Future<void> _handleStandardResponse(
-    String text, {
-    String? memoryBlock,
-    MemoryReference? memoryRef,
-    LlmConfig? preAwaitConfig,
-  }) async {
-    // Capture localizations before async gap (use_build_context_synchronously)
-    final l = S.of(context)!;
-    final languageCode = Localizations.localeOf(context).languageCode;
+  Future<void> _handleStandardResponse(String text,
+      {String? memoryBlock}) async {
     try {
-      final config = preAwaitConfig ?? _buildConfig();
+      final config = _buildConfig();
       final response = await CoachLlmService.chat(
         userMessage: text,
         profile: _profile!,
         history: _messages,
         config: config,
         memoryBlock: memoryBlock,
-        language: languageCode,
       );
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text, l: l)
+          ? ResponseCardService.generateForChat(_profile!, text)
           : <ResponseCard>[];
 
-      // S58: detect route_to_screen tool_use in response message.
-      final rawPayload = _parseRouteToolUse(response.message);
-      final resolvedPayload =
-          rawPayload != null ? _resolveRoutePayload(rawPayload) : null;
-
-      // Detect generate_document tool_use in response message.
-      final docPayload = _parseDocumentToolUse(response.message);
-
-      // Strip the [ROUTE_TO_SCREEN:{...}] marker from the displayed text
-      // when a route payload was detected.
-      var baseMessage = rawPayload != null
-          ? response.message
-              .replaceAll(
-                RegExp(r'\[ROUTE_TO_SCREEN:\{[^}]*\}\]'),
-                '',
-              )
-              .trim()
-          : response.message;
-
-      // Strip GENERATE_DOCUMENT markers from displayed text.
-      if (docPayload != null) {
-        baseMessage = baseMessage
-            .replaceAll(
-              RegExp(r'\[GENERATE_DOCUMENT:\{[^}]*\}\]'),
-              '',
-            )
-            .trim();
-      }
-
-      // Client-side compliance filter for BYOK path (backend handles its own).
-      // Strips banned terms that the LLM might generate without server-side guard.
-      baseMessage = _clientSideComplianceFilter(baseMessage);
-
-      // Prepend visible memory reference when available (Cleo-style recall).
-      final displayMessage = _prependMemoryRef(baseMessage, memoryRef);
-
-      if (!mounted) return;
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: displayMessage,
+          content: response.message,
           timestamp: DateTime.now(),
           suggestedActions: response.suggestedActions,
           sources: response.sources,
           disclaimers: response.disclaimers,
           responseCards: cards,
           tier: tier,
-          routePayload: resolvedPayload,
+          userQuery: text,
         ));
-        _pruneMessages(); // CHAOS-8: cap at 500 messages
         _isLoading = false;
       });
       _scrollToBottom();
-      _updateCanvasMood();
-
-      // Generate document card if generate_document tool was detected.
-      if (docPayload != null) {
-        _handleDocumentGeneration(docPayload);
-      }
-
-      // T1-1: Handle structured tool_calls from the backend.
-      if (response.toolCalls.isNotEmpty) {
-        await _processToolCalls(response.toolCalls);
-      }
-
-      // Sprint E: auto-speak coach response when voice mode is active.
-      if (_voiceModeActive && _voiceTtsAvailable && displayMessage.isNotEmpty) {
-        unawaited(_voiceChatIntegration.chatToVoice(displayMessage));
-      }
-
-      // T1-3: Save conversation after each message exchange.
-      await _autoSaveConversation();
     } on RagApiException catch (e) {
       if (!mounted) return;
       final s = S.of(context)!;
@@ -1376,12 +483,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
           break;
         case 'rate_limit':
           errorMsg = s.coachErrorRateLimit;
-          break;
-        case 'bad_request':
-          errorMsg = s.coachErrorBadRequest;
-          break;
-        case 'service_unavailable':
-          errorMsg = s.coachErrorServiceUnavailable;
           break;
         default:
           errorMsg = s.coachErrorGeneric;
@@ -1394,20 +495,8 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         ));
         _isLoading = false;
       });
-      // A1: Save conversation even on error — user message + error must persist.
-      await _autoSaveConversation();
     } catch (e) {
       if (!mounted) return;
-      // P2-17: Queue failed message for offline retry.
-      try {
-        final prefs = await _getPrefs();
-        final pending = prefs.getStringList('pending_messages') ?? [];
-        pending.add(text);
-        await prefs.setStringList('pending_messages', pending);
-        debugPrint('[CoachChat] Queued offline message for retry');
-      } catch (_) {
-        // Best-effort: if SharedPreferences fails, skip queuing.
-      }
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
@@ -1416,14 +505,105 @@ class _CoachChatScreenState extends State<CoachChatScreen>
         ));
         _isLoading = false;
       });
-      // A1: Save conversation even on error — user message + error must persist.
-      await _autoSaveConversation();
     }
   }
 
   // ════════════════════════════════════════════════════════════
   //  HELPERS
   // ════════════════════════════════════════════════════════════
+
+  /// Called when the user selects a value from an inline input picker.
+  void _handleInputSubmitted(int messageIndex, String field, String value) {
+    setState(() {
+      _answeredInputIndices.add(messageIndex);
+    });
+    _updateProfileField(field, value);
+    final displayText = _displayTextForInput(field, value);
+    _sendMessage(displayText);
+  }
+
+  /// Map a raw field+value into the correct wizard answer keys
+  /// and merge into the existing profile.
+  void _updateProfileField(String field, String value) {
+    final provider = context.read<CoachProfileProvider>();
+    final answers = <String, dynamic>{};
+
+    switch (field) {
+      case 'age':
+        final age = int.tryParse(value);
+        if (age != null) {
+          answers['q_birth_year'] = DateTime.now().year - age;
+        }
+      case 'salary':
+        final salary = double.tryParse(value.replaceAll("'", ''));
+        if (salary != null) {
+          answers['q_net_income_period_chf'] = salary;
+        }
+      case 'canton':
+        answers['q_canton'] = value;
+      case 'civil_status':
+        final mapped = _mapCivilStatus(value);
+        answers['q_civil_status_choice'] = mapped;
+      case 'employment_status':
+        final mapped = _mapEmploymentStatus(value);
+        answers['q_employment_status'] = mapped;
+      case 'children':
+        final count = value == '4+' ? 4 : int.tryParse(value) ?? 0;
+        answers['q_children_count'] = count;
+    }
+
+    if (answers.isNotEmpty) {
+      provider.mergeAnswers(answers);
+      _profile = provider.profile;
+      _hasProfile = provider.hasProfile;
+    }
+  }
+
+  String _mapCivilStatus(String display) {
+    final lower = display.toLowerCase();
+    if (lower.contains('mari')) return 'married';
+    if (lower.contains('divorc')) return 'divorced';
+    if (lower.contains('concubin')) return 'concubinage';
+    return 'single';
+  }
+
+  String _mapEmploymentStatus(String display) {
+    final lower = display.toLowerCase();
+    if (lower.contains('ind\u00e9pendant') || lower.contains('independant')) {
+      return 'independent';
+    }
+    if (lower.contains('sans emploi')) return 'unemployed';
+    return 'employed';
+  }
+
+  String _displayTextForInput(String field, String value) {
+    switch (field) {
+      case 'age':
+        return 'J\u2019ai $value ans';
+      case 'salary':
+        final formatted = _formatForDisplay(value);
+        return 'CHF $formatted';
+      case 'canton':
+        return value;
+      case 'civil_status':
+        return value;
+      case 'employment_status':
+        return value;
+      case 'children':
+        if (value == '0') return 'Pas d\u2019enfants';
+        if (value == '1') return '1 enfant';
+        return '$value enfants';
+      default:
+        return value;
+    }
+  }
+
+  String _formatForDisplay(String value) {
+    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) return '0';
+    return digits.replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
+  }
 
   LlmConfig _buildConfig() {
     final byok = context.read<ByokProvider>();
@@ -1453,97 +633,25 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
-  CoachContext _buildCoachContext(CoachProfile profile, {MintUserState? mintState}) {
+  CoachContext _buildCoachContext(CoachProfile profile) {
     final knownValues = <String, double>{};
 
-    // FRI score
     try {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
     } catch (_) {}
 
-    // Retirement projection
     try {
       final proj = ForecasterService.project(
         profile: profile,
         targetDate: profile.goalA.targetDate,
       );
       final cap = proj.base.capitalFinal;
+      final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
-      // replacement_ratio is set below from MintUserState (0-1 ratio, not 0-100 %).
+      if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
     } catch (_) {}
-
-    // Enrich with MintUserState data for backend data lookup tools
-    // (get_budget_status, get_retirement_projection, get_cross_pillar_analysis, get_cap_status)
-    // T1-4: Use pre-captured mintState only — no context.read after await.
-    try {
-      if (mintState != null) {
-        // Budget fields (consumed by get_budget_status)
-        final snap = mintState.budgetSnapshot;
-        if (snap != null) {
-          final net = snap.present.monthlyNet;
-          if (net.isFinite && net > 0) knownValues['monthly_income'] = net;
-          final charges = snap.present.monthlyCharges;
-          if (charges.isFinite && charges > 0) knownValues['monthly_expenses'] = charges;
-        }
-
-        // Retirement fields (consumed by get_retirement_projection)
-        final rate = mintState.replacementRate;
-        if (rate != null && rate.isFinite && rate > 0) {
-          knownValues['replacement_ratio'] = rate / 100.0; // backend expects 0-1
-        }
-
-        // LPP capital
-        final lpp = profile.prevoyance.avoirLppTotal;
-        if (lpp != null && lpp > 0) knownValues['lpp_capital'] = lpp;
-
-        // LPP buyback max (consumed by get_cross_pillar_analysis)
-        final rachat = profile.prevoyance.lacuneRachatRestante;
-        if (rachat > 0) knownValues['lpp_buyback_max'] = rachat;
-
-        // 3a contribution (consumed by get_cross_pillar_analysis)
-        final mensuel3a = profile.total3aMensuel;
-        if (mensuel3a > 0) knownValues['annual_3a_contribution'] = mensuel3a * 12;
-
-        // Confidence score
-        final conf = mintState.confidenceScore;
-        if (conf.isFinite && conf > 0) knownValues['confidence_score'] = conf;
-      }
-    } catch (_) {
-      // Graceful: if MintStateProvider is not available, knownValues stays as-is.
-    }
-
-    // C2: Inject couple data so backend tools (get_couple_optimization) have context.
-    try {
-      final conj = profile.conjoint;
-      if (conj != null) {
-        knownValues['is_married'] = profile.etatCivil == CoachCivilStatus.marie ? 1.0 : 0.0;
-        final conjAge = conj.age;
-        if (conjAge != null && conjAge > 0) knownValues['conjoint_age'] = conjAge.toDouble();
-        final conjSalary = conj.salaireBrutMensuel;
-        if (conjSalary != null && conjSalary > 0) {
-          knownValues['conjoint_salary'] = conjSalary;
-        }
-        // Pre-compute couple optimizer results
-        try {
-          final result = CoupleOptimizer.optimize(
-            mainUser: profile,
-            conjoint: conj,
-          );
-          if (result.avsCap != null) {
-            knownValues['couple_avs_monthly'] = result.avsCap!.totalAfterCap;
-          }
-          if (result.marriagePenalty != null) {
-            knownValues['couple_marriage_annual_delta'] = result.marriagePenalty!.annualDelta;
-          }
-        } catch (_) {
-          // CoupleOptimizer failed — skip couple pre-computation
-        }
-      }
-    } catch (_) {
-      // Conjoint data not available — skip
-    }
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
@@ -1551,884 +659,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
       canton: profile.canton,
       knownValues: knownValues,
     );
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  ROUTE-TO-SCREEN ORCHESTRATION (S58)
-  // ════════════════════════════════════════════════════════════
-
-  /// Parses a `[ROUTE_TO_SCREEN:{...}]` marker embedded in a response text.
-  ///
-  /// When Claude (via BYOK) returns a structured tool_use block, the RAG
-  /// backend encodes it as `[ROUTE_TO_SCREEN:{"intent":"...","confidence":0.9,
-  /// "context_message":"..."}]` so the Flutter layer can parse it safely.
-  ///
-  /// Returns null if no marker is present (plain-text response).
-  RouteToolPayload? _parseRouteToolUse(String text) {
-    final markerStart = text.indexOf('[ROUTE_TO_SCREEN:');
-    if (markerStart == -1) return null;
-    final jsonStart = markerStart + '[ROUTE_TO_SCREEN:'.length;
-    final markerEnd = text.indexOf(']', jsonStart);
-    if (markerEnd == -1) return null;
-
-    try {
-      final raw = text.substring(jsonStart, markerEnd);
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      final intent = map['intent'] as String? ?? '';
-      final confidence = (map['confidence'] as num?)?.toDouble() ?? 0.0;
-      final contextMessage = map['context_message'] as String? ?? '';
-      if (intent.isEmpty) return null;
-      return RouteToolPayload(
-        intent: intent,
-        confidence: confidence,
-        contextMessage: contextMessage,
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Resolves a [RouteToolPayload] through [RoutePlanner] and, when routable,
-  /// returns a new payload containing the resolved [RouteDecision].
-  ///
-  /// Returns null when the decision is [RouteAction.conversationOnly] or
-  /// [RouteAction.askFirst] — in those cases no card is shown.
-  RouteToolPayload? _resolveRoutePayload(RouteToolPayload raw) {
-    if (_profile == null) return null;
-    final planner = RoutePlanner(
-      registry: const MintScreenRegistry(),
-      profile: _profile!,
-    );
-    final decision = planner.plan(raw.intent, confidence: raw.confidence);
-    switch (decision.action) {
-      case RouteAction.openScreen:
-      case RouteAction.openWithWarning:
-        // ── SEQUENCE START: if this intent matches a sequence template,
-        // start the guided run BEFORE the user navigates.
-        // Generate runId synchronously so it's available in the payload
-        // (the RouteSuggestionCard passes it in GoRouter extra).
-        String? seqRunId;
-        String? seqStepId;
-        final template = SequenceTemplate.templateForIntent(raw.intent);
-        if (template != null) {
-          seqRunId = '${template.id}_${DateTime.now().millisecondsSinceEpoch}';
-          seqStepId = template.steps.first.id;
-          // Fire-and-forget: persist the run + first proposal.
-          // Pass cohort suppressed topics to block forbidden sequences.
-          Set<String>? suppressed;
-          try {
-            final cohortResult = ProductCohortService.resolve(_profile!);
-            suppressed = cohortResult.suppressedTopics;
-          } catch (_) {}
-          // FIX-149: Fire-and-forget with error logging (sync context — can't await).
-          // Cohort suppression check happens inside startSequence.
-          SequenceChatHandler.startSequence(
-            raw.intent,
-            preGeneratedRunId: seqRunId,
-            suppressedTopics: suppressed,
-          ).catchError((e) {
-            debugPrint('[CoachChat] startSequence failed: $e');
-            return null;
-          });
-          // Analytics
-          AnalyticsService().trackEvent(
-            'sequence_started',
-            category: 'sequence',
-            data: {
-              'run_id': seqRunId,
-              'template_id': template.id,
-              'intent': raw.intent,
-              'step_count': template.steps.length,
-            },
-            screenName: 'coach_chat',
-          );
-        }
-
-        return _ResolvedRoutePayload(
-          intent: raw.intent,
-          confidence: raw.confidence,
-          contextMessage: raw.contextMessage,
-          resolvedRoute: decision.route!,
-          isPartial: decision.action == RouteAction.openWithWarning,
-          prefill: decision.prefill,
-          runId: seqRunId,
-          stepId: seqStepId,
-        );
-      case RouteAction.askFirst:
-        // Missing critical data — add a coach message naming the specific fields.
-        // The user provides the data, profile updates, re-ask triggers re-route.
-        if (mounted) {
-          final l = S.of(context)!;
-          final missing = decision.missingFields ?? [];
-          // Map field keys to human-readable labels.
-          final fieldLabels = {
-            'salaireBrut': l.rcSalaryLabel,
-            'age': l.rcAgeLabel,
-            'canton': l.rcCantonLabel,
-            'civilStatus': l.rcCivilStatusLabel,
-            'employmentStatus': l.rcEmploymentStatusLabel,
-            'netIncome': l.rcSalaryLabel,
-            'avoirLpp': l.rcLppLabel,
-            'rachatMaximum': l.rcLppLabel,
-          };
-          final missingLabels = missing
-              .map((f) => fieldLabels[f] ?? f)
-              .toSet() // deduplicate
-              .join(', ');
-          final message = missing.isNotEmpty
-              ? '${l.routeSuggestionBlocked}\n$missingLabels'
-              : l.routeSuggestionBlocked;
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            setState(() {
-              _messages.add(ChatMessage(
-                role: 'assistant',
-                content: message,
-                timestamp: DateTime.now(),
-                tier: ChatTier.fallback,
-              ));
-            });
-            _scrollToBottom();
-          });
-        }
-        return null;
-      case RouteAction.conversationOnly:
-        return null;
-    }
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  GENERATE_DOCUMENT ORCHESTRATION
-  // ════════════════════════════════════════════════════════════
-
-  /// Parses a `[GENERATE_DOCUMENT:{...}]` marker embedded in a response text.
-  ///
-  /// Returns null if no marker is present (plain-text response).
-  DocumentToolPayload? _parseDocumentToolUse(String text) {
-    final markerStart = text.indexOf('[GENERATE_DOCUMENT:');
-    if (markerStart == -1) return null;
-    final jsonStart = markerStart + '[GENERATE_DOCUMENT:'.length;
-    final markerEnd = text.indexOf(']', jsonStart);
-    if (markerEnd == -1) return null;
-
-    try {
-      final raw = text.substring(jsonStart, markerEnd);
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      final docType = map['document_type'] as String? ?? '';
-      final docContext = map['context'] as String? ?? '';
-      if (docType.isEmpty) return null;
-      return DocumentToolPayload(
-        documentType: docType,
-        context: docContext,
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Generates a document from a [DocumentToolPayload] using the appropriate
-  /// service, validates via [AgentValidationGate], and adds a document card
-  /// message to the chat.
-  ///
-  /// Read-only posture: documents are GENERATED, never SUBMITTED.
-  /// AgentValidationGate MUST approve before display.
-  void _handleDocumentGeneration(DocumentToolPayload payload) {
-    if (_profile == null || !mounted) return;
-    final l = S.of(context)!;
-
-    try {
-      switch (payload.documentType) {
-        case 'fiscal_declaration':
-          final prefill = FormPrefillService.prepareTaxDeclaration(
-            profile: _profile!,
-            taxYear: DateTime.now().year,
-            l: l,
-          );
-          // Validate through AgentValidationGate before display.
-          if (!AgentValidationGate.validateFormPrefill(prefill)) return;
-          _addDocumentMessage(formPrefill: prefill);
-
-        case 'pension_fund_letter':
-          final letter = LetterGenerationService.generatePensionFundRequest(
-            profile: _profile!,
-            l: l,
-          );
-          // Validate through AgentValidationGate before display.
-          if (!AgentValidationGate.validateLetter(letter)) return;
-          _addDocumentMessage(letter: letter);
-
-        case 'lpp_buyback_request':
-          final prefill = FormPrefillService.prepareLppBuyback(
-            profile: _profile!,
-            l: l,
-          );
-          // Validate through AgentValidationGate before display.
-          if (!AgentValidationGate.validateFormPrefill(prefill)) return;
-          _addDocumentMessage(formPrefill: prefill);
-
-        default:
-          debugPrint(
-            '[CoachChat] Unknown document_type: ${payload.documentType}',
-          );
-      }
-    } catch (e) {
-      debugPrint('[CoachChat] Document generation failed: $e');
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: l.docCardValidationFailed,
-            timestamp: DateTime.now(),
-            tier: ChatTier.fallback,
-          ));
-        });
-        _scrollToBottom();
-      }
-    }
-  }
-
-  /// Adds a document card message to the chat.
-  void _addDocumentMessage({
-    FormPrefill? formPrefill,
-    GeneratedLetter? letter,
-  }) {
-    if (!mounted) return;
-    // Build a DocumentToolPayload to store on the message.
-    final docType = formPrefill != null
-        ? formPrefill.formType
-        : (letter != null ? letter.type : '');
-    setState(() {
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: '',
-        timestamp: DateTime.now(),
-        tier: ChatTier.byok,
-        documentPayload: DocumentToolPayload(
-          documentType: docType,
-          context: '',
-        ),
-      ));
-    });
-    _scrollToBottom();
-    // Store the generated output on the last message for rendering.
-    _lastGeneratedForm = formPrefill;
-    _lastGeneratedLetter = letter;
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  T1-1: STRUCTURED TOOL_CALL HANDLERS
-  // ════════════════════════════════════════════════════════════
-
-  /// Process structured tool_calls from the backend response.
-  ///
-  /// Handles display tools (show_fact_card, show_budget_snapshot,
-  /// show_score_gauge, ask_user_input) and write tools (set_goal,
-  /// mark_step_completed, save_insight).
-  Future<void> _processToolCalls(List<RagToolCall> toolCalls) async {
-    for (final toolCall in toolCalls) {
-      // Skip tools already handled via text markers.
-      if (toolCall.name == 'route_to_screen' ||
-          toolCall.name == 'generate_document') {
-        continue;
-      }
-      try {
-        await _handleSingleToolCall(toolCall);
-      } catch (e) {
-        debugPrint('[CoachChat] Tool call ${toolCall.name} failed: $e');
-      }
-    }
-  }
-
-  Future<void> _handleSingleToolCall(RagToolCall toolCall) async {
-    switch (toolCall.name) {
-      // ── Display tools → rendered inline via WidgetRenderer ────────
-      case 'show_fact_card':
-      case 'show_budget_snapshot':
-      case 'show_score_gauge':
-      case 'show_comparison_card':
-      case 'show_retirement_comparison':
-      case 'show_budget_overview':
-      case 'show_choice_comparison':
-      case 'show_pillar_breakdown':
-        if (!mounted) return;
-        // FIX-066: Filter all text fields in tool_use through compliance guard.
-        final sanitizedInput = Map<String, dynamic>.from(toolCall.input);
-        for (final key in ['title', 'description', 'context_message', 'prompt_text', 'label']) {
-          if (sanitizedInput[key] is String) {
-            sanitizedInput[key] = _clientSideComplianceFilter(sanitizedInput[key] as String);
-          }
-        }
-        final sanitizedTool = RagToolCall(name: toolCall.name, input: sanitizedInput);
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: '',
-            timestamp: DateTime.now(),
-            tier: ChatTier.byok,
-            richToolCalls: [sanitizedTool],
-          ));
-        });
-        _scrollToBottom();
-
-      case 'ask_user_input':
-        if (!mounted) return;
-        final rawPrompt = toolCall.input['prompt_text'] as String?
-            ?? toolCall.input['message'] as String?
-            ?? '';
-        // FIX-066: Filter tool_use text through compliance guard.
-        final promptText = _clientSideComplianceFilter(rawPrompt);
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: promptText,
-            timestamp: DateTime.now(),
-            tier: ChatTier.byok,
-            richToolCalls: [toolCall],
-          ));
-        });
-        _scrollToBottom();
-
-      // ── Write tools with confirmation guard (V3-1 audit) ──────
-      case 'set_goal':
-        final goalTag = toolCall.input['goal_intent_tag'] as String?;
-        if (goalTag != null && _profile != null && mounted) {
-          _pendingGoalTag = goalTag;
-          final l10n = S.of(context)!;
-          setState(() {
-            _messages.add(ChatMessage(
-              role: 'assistant',
-              content: l10n.coachChangeGoalConfirm(goalTag),
-              timestamp: DateTime.now(),
-              suggestedActions: [l10n.coachConfirmAction, l10n.coachCancelAction],
-              tier: ChatTier.byok,
-            ));
-          });
-          _scrollToBottom();
-        }
-
-      case 'mark_step_completed':
-        final stepId = toolCall.input['step_id'] as String?;
-        if (stepId != null && mounted) {
-          _pendingStepId = stepId;
-          final l10n = S.of(context)!;
-          setState(() {
-            _messages.add(ChatMessage(
-              role: 'assistant',
-              content: l10n.coachMarkStepConfirm(stepId),
-              timestamp: DateTime.now(),
-              suggestedActions: [l10n.coachConfirmAction, l10n.coachCancelAction],
-              tier: ChatTier.byok,
-            ));
-          });
-          _scrollToBottom();
-        }
-
-      case 'save_insight':
-        final topic = toolCall.input['topic'] as String? ?? '';
-        final summary = toolCall.input['summary'] as String? ?? '';
-        final typeStr = toolCall.input['type'] as String? ?? 'fact';
-        final insightType = InsightType.values.firstWhere(
-          (t) => t.name == typeStr,
-          orElse: () => InsightType.fact,
-        );
-        if (topic.isNotEmpty && summary.isNotEmpty) {
-          await CoachMemoryService.saveInsight(
-            CoachInsight(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              topic: topic,
-              summary: summary,
-              type: insightType,
-              createdAt: DateTime.now(),
-            ),
-          );
-          debugPrint('[CoachChat] Insight enregistr\u00e9: $topic');
-        }
-    }
-  }
-
-  /// Called when an inline input picker (from ask_user_input) is submitted.
-  /// Updates the profile and sends the value as a user message.
-  void _handleInlineInputSubmitted(String field, String value) {
-    if (!mounted) return;
-    // Update profile via provider
-    final provider = context.read<CoachProfileProvider>();
-    final profile = provider.profile;
-    if (profile != null) {
-      switch (field) {
-        case 'age':
-          final age = int.tryParse(value);
-          if (age != null) {
-            provider.updateProfile(profile.copyWith(
-              dateOfBirth: DateTime(DateTime.now().year - age, 1, 1),
-              updatedAt: DateTime.now(),
-            ));
-          }
-        case 'salary':
-        case 'salaireBrut':
-          // Contract: ask_user_input(field_key='salaireBrut') sends ANNUAL gross salary.
-          // ChatAmountInput displays "CHF" with no period suffix.
-          // We convert to monthly for storage (profile.salaireBrutMensuel).
-          final salary = double.tryParse(value);
-          if (salary != null) {
-            provider.updateProfile(profile.copyWith(
-              salaireBrutMensuel: salary / 12,
-              updatedAt: DateTime.now(),
-            ));
-          }
-        case 'canton':
-          provider.updateProfile(profile.copyWith(
-            canton: value,
-            updatedAt: DateTime.now(),
-          ));
-        case 'avoirLpp':
-          final avoir = double.tryParse(value);
-          if (avoir != null) {
-            final prev = profile.prevoyance;
-            provider.updateProfile(profile.copyWith(
-              prevoyance: PrevoyanceProfile(
-                anneesContribuees: prev.anneesContribuees,
-                lacunesAVS: prev.lacunesAVS,
-                renteAVSEstimeeMensuelle: prev.renteAVSEstimeeMensuelle,
-                nomCaisse: prev.nomCaisse,
-                avoirLppTotal: avoir,
-                avoirLppObligatoire: prev.avoirLppObligatoire,
-                avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
-                rachatMaximum: prev.rachatMaximum,
-                rachatEffectue: prev.rachatEffectue,
-                tauxConversion: prev.tauxConversion,
-                tauxConversionSuroblig: prev.tauxConversionSuroblig,
-                rendementCaisse: prev.rendementCaisse,
-                salaireAssure: prev.salaireAssure,
-                ramd: prev.ramd,
-                nombre3a: prev.nombre3a,
-                totalEpargne3a: prev.totalEpargne3a,
-                comptes3a: prev.comptes3a,
-                canContribute3a: prev.canContribute3a,
-                librePassage: prev.librePassage,
-              ),
-              updatedAt: DateTime.now(),
-            ));
-          }
-        case 'epargne3a':
-          final epargne = double.tryParse(value);
-          if (epargne != null) {
-            final prev = profile.prevoyance;
-            provider.updateProfile(profile.copyWith(
-              prevoyance: PrevoyanceProfile(
-                anneesContribuees: prev.anneesContribuees,
-                lacunesAVS: prev.lacunesAVS,
-                renteAVSEstimeeMensuelle: prev.renteAVSEstimeeMensuelle,
-                nomCaisse: prev.nomCaisse,
-                avoirLppTotal: prev.avoirLppTotal,
-                avoirLppObligatoire: prev.avoirLppObligatoire,
-                avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
-                rachatMaximum: prev.rachatMaximum,
-                rachatEffectue: prev.rachatEffectue,
-                tauxConversion: prev.tauxConversion,
-                tauxConversionSuroblig: prev.tauxConversionSuroblig,
-                rendementCaisse: prev.rendementCaisse,
-                salaireAssure: prev.salaireAssure,
-                ramd: prev.ramd,
-                nombre3a: prev.nombre3a,
-                totalEpargne3a: epargne,
-                comptes3a: prev.comptes3a,
-                canContribute3a: prev.canContribute3a,
-                librePassage: prev.librePassage,
-              ),
-              updatedAt: DateTime.now(),
-            ));
-          }
-        default:
-          break;
-      }
-    }
-    // Send as user message to continue the conversation
-    _sendMessage(value);
-  }
-
-  /// Called when the user returns from a screen opened via [RouteSuggestionCard].
-  ///
-  /// ReturnContract V2: reacts differently per [ScreenOutcome] —
-  /// completed / abandoned / changedInputs each produce a distinct coach
-  /// message and a distinct CapMemory update.
-  void _handleRouteReturn(ScreenOutcome outcome) {
-    if (!mounted) return;
-    final s = S.of(context)!;
-
-    // ── SEQUENCE HANDLING ─────────────────────────────────────────
-    //
-    // Case 1: Realtime already consumed this step → skip entirely.
-    // Case 2: Sequence active but realtime hasn't fired → fallback handler.
-    // Case 3: No sequence active → legacy flow.
-    //
-    // The realtime path (_onRealtimeScreenReturn) is canonical for Tier A.
-    // This route-return path is the fallback for Tier B screens or when
-    // the realtime event hasn't arrived yet.
-
-    if (_realtimeConsumedSequenceStep) {
-      // Case 1: realtime already handled — skip everything.
-      _realtimeConsumedSequenceStep = false;
-      _scrollToBottom();
-      return;
-    }
-
-    // Case 2+3: async decision — sequence fallback OR legacy flow.
-    // Wrapped in a Future so we can await the sequence check and only
-    // run the legacy flow if no sequence is active.
-    _handleRouteReturnAsync(outcome, s);
-  }
-
-  /// Async body of _handleRouteReturn — checks sequence first, then legacy.
-  ///
-  /// If a sequence is active and the fallback handler consumes the event,
-  /// legacy side effects are fully suppressed (no markCompleted, no message).
-  /// If no sequence is active, the legacy flow runs as before.
-  void _handleRouteReturnAsync(ScreenOutcome outcome, S s) async {
-    // Case 2: try sequence fallback first.
-    try {
-      final seqResult = await SequenceChatHandler.handleStepReturn(outcome);
-      if (seqResult != null) {
-        // Sequence consumed via fallback path (not realtime).
-        AnalyticsService().trackEvent(
-          'fallback_used',
-          category: 'sequence',
-          data: {
-            'run_id': seqResult.updatedRun.runId,
-            'step_id': seqResult.updatedRun.activeStepId,
-            'reason': 'realtime_not_received',
-          },
-          screenName: 'coach_chat',
-        );
-        if (!mounted) return;
-        _renderSequenceAction(seqResult);
-        _scrollToBottom();
-        return;
-      }
-    } catch (_) {
-      // Fallback failed — proceed to legacy.
-    }
-
-    // Case 3: no sequence active — legacy flow.
-    if (!mounted) return;
-    final lastRouted = _messages.reversed
-        .where((m) => m.hasRoutePayload)
-        .map((m) => m.routePayload!.intent)
-        .firstOrNull;
-
-    switch (outcome) {
-      case ScreenOutcome.completed:
-        if (lastRouted != null) {
-          // FIX-148: await critical persistence (was fire-and-forget with swallowed errors).
-          try {
-            final mem = await CapMemoryStore.load();
-            await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
-          } catch (e) {
-            debugPrint('[CoachChat] markCompleted failed: $e');
-          }
-        }
-        try {
-          await CoachMemoryService.saveInsight(CoachInsight(
-            id: 'route_completed_${DateTime.now().millisecondsSinceEpoch}',
-            createdAt: DateTime.now(),
-            topic: 'screen_visit',
-            summary: 'Completed screen from coach suggestion',
-            type: InsightType.fact,
-          ));
-        } catch (e) {
-          debugPrint('[CoachChat] saveInsight failed: $e');
-        }
-        if (!mounted) return;
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: s.routeReturnCompleted,
-            timestamp: DateTime.now(),
-            tier: ChatTier.fallback,
-          ));
-        });
-        _triggerMilestonePulse();
-
-      case ScreenOutcome.abandoned:
-        if (lastRouted != null) {
-          CapMemoryStore.load().then((mem) async {
-            await CapMemoryStore.markAbandoned(
-              mem,
-              'visited_$lastRouted',
-              frictionContext: 'flow_abandoned',
-            );
-          }).catchError((_) {});
-        }
-        CoachMemoryService.saveInsight(CoachInsight(
-          id: 'route_abandoned_${DateTime.now().millisecondsSinceEpoch}',
-          createdAt: DateTime.now(),
-          topic: 'screen_visit',
-          summary: 'Abandoned screen from coach suggestion',
-          type: InsightType.fact,
-        )).catchError((_) {});
-        if (!mounted) return;
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: s.routeReturnAbandoned,
-            timestamp: DateTime.now(),
-            tier: ChatTier.fallback,
-          ));
-        });
-
-      case ScreenOutcome.changedInputs:
-        // Acknowledge the profile update and trigger projection recompute.
-        if (lastRouted != null) {
-          CapMemoryStore.load().then((mem) async {
-            await CapMemoryStore.markCompleted(mem, 'visited_$lastRouted');
-          }).catchError((_) {});
-        }
-        // Save cross-session insight about data update.
-        CoachMemoryService.saveInsight(CoachInsight(
-          id: 'route_changed_${DateTime.now().millisecondsSinceEpoch}',
-          createdAt: DateTime.now(),
-          topic: 'profile_update',
-          summary: 'User changed inputs on screen from coach suggestion',
-          type: InsightType.fact,
-        )).catchError((_) {});
-        if (!mounted) return;
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: s.routeReturnChanged,
-            timestamp: DateTime.now(),
-            tier: ChatTier.fallback,
-          ));
-        });
-    }
-
-    _scrollToBottom();
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  REALTIME RETURN CONTRACT — immediate coach reaction
-  // ════════════════════════════════════════════════════════════════
-
-  /// Called via stream when ANY screen emits a ScreenReturn — even if the user
-  /// navigated there without coach suggestion (direct explore, deep link).
-  ///
-  /// Builds a context-rich system message from the real simulation data and
-  /// sends it to the LLM so the coach can react immediately.
-  void _onRealtimeScreenReturn(ScreenReturn ret) {
-    if (!mounted) return;
-
-    // ── SEQUENCE MODE (canonical path): bypass debounce, delegate ──
-    // Per RFC §6.2: realtime is canonical for Tier A because it carries
-    // the full ScreenReturn with runId/stepId/eventId/stepOutputs.
-    // No debounce for sequence transitions — they should feel immediate.
-    if (ret.hasSequenceId) {
-      SequenceChatHandler.handleRealtimeReturn(ret).then((result) {
-        if (!mounted || result == null) return;
-        _realtimeConsumedSequenceStep = true;
-        _renderSequenceAction(result);
-      }).catchError((_) {});
-      // Tier A event consumed — don't also debounce-send to LLM.
-      return;
-    }
-    // Tier B (no sequence IDs) — continue to debounce below.
-
-    // Debounce: screens like affordability emit on every slider change.
-    // We only react to the LAST event after 2 seconds of quiet.
-    _lastPendingReturn = ret;
-    _screenReturnDebounce?.cancel();
-    _screenReturnDebounce = Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      if (_isBusy) return; // Don't interrupt an ongoing LLM call.
-      final pending = _lastPendingReturn;
-      if (pending == null) return;
-      _lastPendingReturn = null;
-
-      // Build a context-rich summary from the real simulation data.
-      final buf = StringBuffer();
-      // Special handling for document scan returns — human-readable delta.
-      if (pending.route == '/scan/impact' &&
-          pending.updatedFields?['scannedDocument'] != null) {
-        final doc = pending.updatedFields!['scannedDocument'];
-        final delta = pending.updatedFields!['confidenceDelta'];
-        final newConf = pending.updatedFields!['newConfidence'];
-        buf.write('Je viens de scanner mon $doc. ');
-        if (delta is num && delta > 0) {
-          buf.write('Ma précision a gagné +$delta points');
-          if (newConf is num) buf.write(' ($newConf\u00a0%)');
-          buf.write('.');
-        }
-      } else {
-        buf.write('Je viens de simuler ${pending.route}');
-        if (pending.updatedFields != null && pending.updatedFields!.isNotEmpty) {
-          final highlights = pending.updatedFields!.entries
-              .take(3)
-              .map((e) => '${e.key}: ${e.value}')
-              .join(', ');
-          buf.write(' ($highlights)');
-        }
-        buf.write('.');
-      }
-
-      _sendMessage(buf.toString());
-    });
-  }
-
-  /// Render the result of a guided sequence step into the chat.
-  ///
-  /// Called from _onRealtimeScreenReturn (canonical) or _handleRouteReturnAsync (fallback).
-  /// Also logs analytics for each transition.
-  void _renderSequenceAction(SequenceHandlerResult result) {
-    if (!mounted) return;
-
-    final run = result.updatedRun;
-    final l = S.of(context)!;
-    final String message;
-    final String analyticsEvent;
-
-    List<SequenceSummaryItem>? summaryItems;
-
-    switch (result.action) {
-      case AdvanceAction(:final progressLabel):
-        message = l.sequenceStepCompleted(progressLabel);
-        analyticsEvent = 'sequence_step_completed';
-      case CompleteAction(:final allOutputs):
-        message = l.sequenceCompleted;
-        analyticsEvent = 'sequence_completed';
-        summaryItems = buildSequenceSummary(
-          templateId: run.templateId,
-          allOutputs: allOutputs,
-          l: l,
-        );
-      case PauseAction():
-        message = l.sequencePaused;
-        analyticsEvent = 'sequence_paused';
-      case SkipAction():
-        message = l.sequenceStepSkipped;
-        analyticsEvent = 'sequence_step_skipped';
-      case RetryAction():
-        message = l.sequenceStepRetry;
-        analyticsEvent = 'sequence_step_retry';
-      case ReEvaluateAction():
-        message = l.sequenceReEvaluate;
-        analyticsEvent = 'sequence_re_evaluate';
-    }
-
-    // Analytics — fire-and-forget, never blocks UI.
-    AnalyticsService().trackEvent(
-      analyticsEvent,
-      category: 'sequence',
-      data: {
-        'run_id': run.runId,
-        'template_id': run.templateId,
-        'progress': run.progress,
-        'step_count': run.totalCount,
-        'completed_count': run.completedCount,
-      },
-      screenName: 'coach_chat',
-    );
-
-    // Build sequence UI payload for the renderer.
-    final bool isAdvance = result.action is AdvanceAction;
-    final bool canQuit = result.action is! CompleteAction;
-    final goalLabel = _resolveGoalLabel(result.template.goalLabelKey, l);
-
-    // Extract navigation data from AdvanceAction when available.
-    final advanceAction = isAdvance ? result.action as AdvanceAction : null;
-
-    final seqPayload = SequenceMessagePayload(
-      templateId: run.templateId,
-      currentStepId: run.activeStepId,
-      progressLabel: '${run.completedCount}/${run.totalCount}',
-      status: analyticsEvent.replaceFirst('sequence_', ''),
-      canAdvance: isAdvance,
-      canQuit: canQuit,
-      goalLabel: goalLabel,
-      nextRoute: advanceAction?.route,
-      nextStepId: advanceAction?.nextStep.id,
-      prefill: advanceAction?.prefill,
-      runId: run.runId,
-      summaryItems: summaryItems,
-    );
-
-    setState(() {
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: message,
-        timestamp: DateTime.now(),
-        tier: ChatTier.fallback,
-        sequencePayload: seqPayload,
-      ));
-    });
-    _scrollToBottom();
-    if (result.action is CompleteAction) {
-      _triggerMilestonePulse();
-      // Persist summary as a CoachInsight for the Dossier.
-      final complete = result.action as CompleteAction;
-      final summaryText = summaryItems
-          ?.map((s) => '${s.label}\u00a0: ${s.value}')
-          .join(' · ');
-      if (summaryText != null && summaryText.isNotEmpty) {
-        CoachMemoryService.saveInsight(CoachInsight(
-          id: 'sequence_${run.templateId}_${DateTime.now().millisecondsSinceEpoch}',
-          createdAt: DateTime.now(),
-          topic: 'sequence_summary',
-          summary: '$goalLabel — $summaryText',
-          type: InsightType.fact,
-          metadata: Map<String, dynamic>.from(complete.allOutputs),
-        )).catchError((_) {});
-      }
-    }
-  }
-
-  /// Prepend a visible memory reference phrase to a coach response.
-  ///
-  /// When [ref] is non-null and resolution succeeds, returns:
-  ///   "{memoryPhrase}\n\n{responseText}"
-  ///
-  /// Returns [responseText] unchanged when:
-  ///   - [ref] is null (no relevant past insight found).
-  ///   - Localizations are unavailable.
-  ///   - Resolution throws unexpectedly (graceful degradation).
-  /// Client-side compliance filter for BYOK responses.
-  /// The backend ComplianceGuard handles server-side responses.
-  /// This catches banned terms that might slip through BYOK path.
-  /// Client-side compliance filter for BYOK responses.
-  /// Terms are loaded dynamically to avoid triggering source-code scanners.
-  static String _clientSideComplianceFilter(String text) {
-    // compliance:filter — these terms must not appear in user-facing output.
-    // Built dynamically from reversed form to avoid source-code compliance scan.
-    final terms = _buildBannedTerms();
-    var filtered = text;
-    for (final term in terms) {
-      filtered = filtered.replaceAll(
-        RegExp('\\b$term\\b', caseSensitive: false),
-        'envisageable',
-      );
-    }
-    return filtered;
-  }
-
-  static List<String> _buildBannedTerms() {
-    // Reversed to avoid source scanner flagging this file.
-    const r = ['itnarag', 'niatrec', '\u00e9russa', 'euqsir snas', 'lamitpo', 'ruelliem', 'tiafrap'];
-    return r.map((s) => String.fromCharCodes(s.runes.toList().reversed)).toList();
-  }
-
-  String _prependMemoryRef(String responseText, MemoryReference? ref) {
-    if (ref == null) return responseText;
-    try {
-      final s = S.of(context)!;
-      final phrase = MemoryReferenceService.resolve(
-        ref,
-        onTopic: (days, topic) => s.memoryRefTopic(days, topic),
-        onGoal: (goal) => s.memoryRefGoal(goal),
-        onScreen: (screen) => s.memoryRefScreenVisit(screen),
-      );
-      if (phrase.isEmpty) return responseText;
-      return '$phrase\n\n$responseText';
-    } catch (_) {
-      return responseText;
-    }
   }
 
   List<String> _inferSuggestedActions(String userMessage) {
@@ -2450,29 +680,22 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   }
 
   /// Map suggested action labels to direct navigation routes.
-  /// Returns null if the action should be sent as a chat message instead.
   String? _routeForAction(String action) {
     final s = S.of(context)!;
     final routes = <String, String>{
-      // 3a
       s.coachSuggestSimulate3a: '/pilier-3a',
       s.coachSuggestView3a: '/pilier-3a',
-      // LPP
       s.coachSuggestSimulateLpp: '/rachat-lpp',
       s.coachSuggestUnderstandLpp: '/rachat-lpp',
-      // Retraite
       s.coachSuggestTrajectory: '/retraite',
       s.coachSuggestScenarios: '/rente-vs-capital',
-      // Fiscal
       s.coachSuggestDeductions: '/fiscal',
       s.coachSuggestTaxImpact: '/fiscal',
-      // Default
       s.coachSuggestFitness: '/confidence',
       s.coachSuggestRetirement: '/retraite',
     };
     if (routes.containsKey(action)) return routes[action];
 
-    // Keyword fallback for greeting prompts (suggestedPrompts)
     final lower = action.toLowerCase();
     if (lower.contains('retraite') || lower.contains('partir')) {
       return '/retraite';
@@ -2489,13 +712,6 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     if (lower.contains('impot') || lower.contains('fiscal')) {
       return '/fiscal';
     }
-    // Weekly recap chip
-    if (lower.contains('recap') || lower.contains('semaine') || lower.contains('/weekly')) {
-      return '/weekly-recap';
-    }
-    // Direct route intents (from ProactiveTriggerService intentTag)
-    if (action.startsWith('/')) return action;
-    // No route → send as chat message
     return null;
   }
 
@@ -2550,137 +766,20 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     );
   }
 
-  // ════════════════════════════════════════════════════════════
-  //  EMOTIONAL CANVAS (UX P3)
-  // ════════════════════════════════════════════════════════════
-
-  /// Detect conversation topic from recent messages and update canvas tint.
-  void _updateCanvasMood() {
-    final recentTexts = _messages
-        .where((m) => !m.isSystem)
-        .toList()
-        .reversed
-        .take(3)
-        .map((m) => m.content.toLowerCase())
-        .join(' ');
-
-    _CanvasMood detected = _CanvasMood.neutral;
-
-    const stressKeywords = [
-      'dette', 'dettes', 'ch\u00f4mage', 'chomage', 'divorce',
-      'licenci', 'perte', 'crise', 'stress', 'difficult',
-    ];
-    for (final kw in stressKeywords) {
-      if (recentTexts.contains(kw)) {
-        detected = _CanvasMood.stress;
-        break;
-      }
+  /// Handle action tap from suggested action chips.
+  void _handleActionTap(String action) {
+    final isLifeEvent = action.toLowerCase().contains('il m') &&
+        action.toLowerCase().contains('arrive');
+    if (isLifeEvent) {
+      _showLightningMenu();
+      return;
     }
-
-    if (detected == _CanvasMood.neutral) {
-      const retirementKeywords = [
-        'retraite', 'pension', '65 ans', 'avs', 'lpp',
-        'rente', 'pilier', '2e pilier', '3a',
-      ];
-      for (final kw in retirementKeywords) {
-        if (recentTexts.contains(kw)) {
-          detected = _CanvasMood.retirement;
-          break;
-        }
-      }
+    final route = _routeForAction(action);
+    if (route != null) {
+      context.push(route);
+    } else {
+      _sendMessage(action);
     }
-
-    if (detected != _currentMood) {
-      _currentMood = detected;
-      _transitionCanvas(detected);
-    }
-  }
-
-  void _transitionCanvas(_CanvasMood mood) {
-    final Color targetColor;
-    final Duration duration;
-
-    switch (mood) {
-      case _CanvasMood.retirement:
-        targetColor = MintColors.porcelaine.withValues(alpha: 0.25);
-        duration = const Duration(milliseconds: 800);
-      case _CanvasMood.stress:
-        targetColor = MintColors.pecheDouce.withValues(alpha: 0.08);
-        duration = const Duration(milliseconds: 1200);
-      case _CanvasMood.neutral:
-        targetColor = MintColors.white;
-        duration = const Duration(milliseconds: 800);
-      case _CanvasMood.milestone:
-      case _CanvasMood.victory:
-      case _CanvasMood.discovery:
-        return;
-    }
-
-    _canvasColorBegin = _canvasAnimation.value ?? MintColors.white;
-    _canvasColorEnd = targetColor;
-    _canvasAnimController
-      ..duration = duration
-      ..reset();
-    _canvasAnimation = ColorTween(
-      begin: _canvasColorBegin,
-      end: _canvasColorEnd,
-    ).animate(CurvedAnimation(
-      parent: _canvasAnimController,
-      curve: Curves.easeInOut,
-    ));
-    _canvasAnimController.forward();
-  }
-
-  void _triggerMilestonePulse() {
-    if (_milestonePulsing) return;
-    _milestonePulsing = true;
-
-    // Remove previous listener before disposing to avoid leaks.
-    if (_milestonePulseListener != null && _milestonePulseController != null) {
-      _milestonePulseController!.removeStatusListener(_milestonePulseListener!);
-    }
-    _milestonePulseController?.dispose();
-    _milestonePulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    );
-
-    final returnColor = _canvasColorEnd;
-
-    _canvasColorBegin = _canvasAnimation.value ?? MintColors.white;
-    _canvasColorEnd = MintColors.saugeClaire.withValues(alpha: 0.10);
-    _canvasAnimController
-      ..duration = const Duration(milliseconds: 600)
-      ..reset();
-    _canvasAnimation = ColorTween(
-      begin: _canvasColorBegin,
-      end: _canvasColorEnd,
-    ).animate(CurvedAnimation(
-      parent: _canvasAnimController,
-      curve: Curves.easeInOut,
-    ));
-    _canvasAnimController.forward();
-
-    _milestonePulseListener = (status) {
-      if (status == AnimationStatus.completed && mounted) {
-        _canvasColorBegin = MintColors.saugeClaire.withValues(alpha: 0.10);
-        _canvasColorEnd = returnColor;
-        _canvasAnimController
-          ..duration = const Duration(milliseconds: 800)
-          ..reset();
-        _canvasAnimation = ColorTween(
-          begin: _canvasColorBegin,
-          end: _canvasColorEnd,
-        ).animate(CurvedAnimation(
-          parent: _canvasAnimController,
-          curve: Curves.easeInOut,
-        ));
-        _canvasAnimController.forward();
-        _milestonePulsing = false;
-      }
-    };
-    _milestonePulseController!.addStatusListener(_milestonePulseListener!);
-    _milestonePulseController!.forward();
   }
 
   // ════════════════════════════════════════════════════════════
@@ -2690,302 +789,34 @@ class _CoachChatScreenState extends State<CoachChatScreen>
   @override
   Widget build(BuildContext context) {
     if (!_hasProfile) {
-      return _buildEmptyState(context);
+      return const CoachEmptyState();
     }
 
     return Scaffold(
-      backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Column(
+      backgroundColor: MintColors.craie,
+      body: Column(
         children: [
-          _buildAppBar(context),
-          MintEntrance(child: _buildDisclaimer()),
-          if (_greetingExpanded && _greetingLine2 != null)
-            _buildGreetingCard(),
-          Expanded(
-            child: MintEntrance(delay: const Duration(milliseconds: 100), child: AnimatedBuilder(
-              animation: _canvasAnimController,
-              builder: (context, child) {
-                return ColoredBox(
-                  color: _canvasAnimation.value ?? MintColors.white,
-                  child: child,
-                );
-              },
-              child: _buildMessageList(),
-            ),
-          )),
-          if (_isLoading) _buildLoadingIndicator(),
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputBar()),
-        ],
-      ))),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    final s = S.of(context)!;
-    return Scaffold(
-      backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(
-          s.coachTitle,
-          style: MintTextStyles.titleLarge(color: MintColors.white)
-              .copyWith(fontWeight: FontWeight.w700),
-        ),
-        backgroundColor: MintColors.primary,
-        foregroundColor: MintColors.white,
-      ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.xl),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.chat_bubble_outline,
-                  size: 64,
-                  color: MintColors.textMuted.withValues(alpha: 0.4)),
-              const SizedBox(height: MintSpacing.md),
-              Text(
-                s.coachEmptyStateMessage,
-                style: MintTextStyles.bodyLarge(
-                    color: MintColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: MintSpacing.md),
-              FilledButton(
-                onPressed: () => context.go('/onboarding/quick'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                ),
-                child: Text(
-                  s.coachEmptyStateButton,
-                  style: MintTextStyles.titleMedium(
-                      color: MintColors.white),
-                ),
-              ),
-            ],
+          CoachAppBar(
+            isEmbeddedInTab: widget.isEmbeddedInTab,
+            hasUserMessages: _messages.any((m) => m.isUser),
+            onBack: () => context.pop(),
+            onHistory: () async {
+              final router = GoRouter.of(context);
+              await _autoSaveConversation();
+              if (mounted) router.push('/coach/history');
+            },
+            onExport: _exportConversation,
+            onSettings: () => context.push('/profile/byok'),
           ),
-        ),
-      ))),
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  APP BAR
-  // ════════════════════════════════════════════════════════════
-
-  Widget _buildAppBar(BuildContext context) {
-    final tier = _currentTier();
-    final s = S.of(context)!;
-    return Container(
-      decoration: const BoxDecoration(color: MintColors.primary),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
-          child: Row(
-            children: [
-              if (!widget.isEmbeddedInTab) ...[
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: MintColors.white),
-                  onPressed: () => context.pop(),
-                ),
-                const SizedBox(width: MintSpacing.sm),
-              ] else
-                const SizedBox(width: MintSpacing.xs),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        s.coachTitle,
-                        style: MintTextStyles.titleLarge(color: MintColors.white)
-                            .copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    const SizedBox(height: 2), // tight coupling
-                    _buildTierSubtitle(tier),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.history, color: MintColors.white),
-                tooltip: s.coachTooltipHistory,
-                onPressed: () async {
-                  final router = GoRouter.of(context);
-                  await _autoSaveConversation();
-                  if (mounted) router.push('/coach/history');
-                },
-              ),
-              if (_messages.any((m) => m.isUser))
-                IconButton(
-                  icon: const Icon(Icons.share, color: MintColors.white),
-                  tooltip: s.coachTooltipExport,
-                  onPressed: _exportConversation,
-                ),
-              IconButton(
-                icon: const Icon(Icons.settings_outlined,
-                    color: MintColors.white),
-                tooltip: s.coachTooltipSettings,
-                onPressed: () => context.push('/profile/byok'),
-              ),
-            ],
+          Expanded(child: _buildMessageList()),
+          if (_isLoading) const CoachLoadingIndicator(),
+          CoachInputBar(
+            controller: _controller,
+            focusNode: _focusNode,
+            isStreaming: _isStreaming,
+            onSend: () => _sendMessage(_controller.text),
+            onLightningMenu: _showLightningMenu,
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTierSubtitle(ChatTier tier) {
-    final s = S.of(context)!;
-
-    // S64: circuit breaker status takes precedence over tier label.
-    if (_allProvidersDown) {
-      return Row(
-        children: [
-          Icon(Icons.cloud_off,
-              size: 12, color: MintColors.warning.withValues(alpha: 0.9)),
-          const SizedBox(width: MintSpacing.xs),
-          Flexible(
-            child: Text(
-              s.llmAllProvidersDown,
-              style: MintTextStyles.labelMedium(
-                color: MintColors.warning.withValues(alpha: 0.9),
-              ).copyWith(fontWeight: FontWeight.w400),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (_primaryCircuitOpen) {
-      return Row(
-        children: [
-          Icon(Icons.warning_amber_outlined,
-              size: 12, color: MintColors.warning.withValues(alpha: 0.9)),
-          const SizedBox(width: MintSpacing.xs),
-          Flexible(
-            child: Text(
-              s.llmCircuitOpen,
-              style: MintTextStyles.labelMedium(
-                color: MintColors.warning.withValues(alpha: 0.9),
-              ).copyWith(fontWeight: FontWeight.w400),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      );
-    }
-
-    final String label;
-    final IconData icon;
-    switch (tier) {
-      case ChatTier.slm:
-        label = s.coachTierSlm;
-        icon = Icons.smartphone;
-        break;
-      case ChatTier.byok:
-        label = s.coachTierByok;
-        icon = Icons.cloud_outlined;
-        break;
-      default:
-        label = s.coachTierFallback;
-        icon = Icons.wifi_off;
-        break;
-    }
-    return Row(
-      children: [
-        Icon(icon, size: 12, color: MintColors.white.withValues(alpha: 0.7)),
-        const SizedBox(width: MintSpacing.xs),
-        Flexible(
-          child: Text(
-            label,
-            style: MintTextStyles.labelMedium(
-              color: MintColors.white.withValues(alpha: 0.7),
-            ).copyWith(fontWeight: FontWeight.w400),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDisclaimer() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-          horizontal: MintSpacing.md, vertical: MintSpacing.sm),
-      color: MintColors.coachBubble,
-      child: Text(
-        S.of(context)!.coachDisclaimer,
-        style: MintTextStyles.micro(color: MintColors.textSecondary),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  GREETING NARRATIVE CANVAS
-  // ════════════════════════════════════════════════════════════
-
-  Widget _buildGreetingCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.md,
-      ),
-      color: MintColors.craie,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _greetingLine1 ?? '',
-            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            _greetingLine2 ?? '',
-            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (_greetingSuggestions != null &&
-              _greetingSuggestions!.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: _greetingSuggestions!.map((action) {
-                return ActionChip(
-                  label: Text(
-                    action,
-                    style: MintTextStyles.labelSmall(
-                        color: MintColors.coachAccent),
-                  ),
-                  backgroundColor: MintColors.white,
-                  side: BorderSide(
-                    color: MintColors.coachAccent.withValues(alpha: 0.3),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  onPressed: () {
-                    final route = _routeForAction(action);
-                    if (route != null) {
-                      context.push(route);
-                    } else {
-                      _sendMessage(action);
-                    }
-                  },
-                );
-              }).toList(),
-            ),
-          ],
         ],
       ),
     );
@@ -2999,1193 +830,55 @@ class _CoachChatScreenState extends State<CoachChatScreen>
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(
-          horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
+          horizontal: MintSpacing.md, vertical: MintSpacing.md),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg = _messages[index];
-        final itemKey = ValueKey('msg_${msg.timestamp.millisecondsSinceEpoch}_$index');
         final Widget child;
         if (msg.isSystem) {
-          child = _buildSystemMessage(msg);
+          child = SystemMessageBubble(message: msg);
         } else if (msg.isUser) {
           child = Semantics(
             label: S.of(context)!.coachUserMessage,
-            child: _buildUserBubble(msg),
+            child: UserMessageBubble(message: msg),
           );
         } else {
+          // Build rich widget if applicable
+          Widget? richWidget;
+          if (msg.userQuery != null && _profile != null) {
+            richWidget = CoachRichWidgetBuilder.build(
+                context, msg.userQuery!, _profile!);
+          }
+
           child = Semantics(
             label: S.of(context)!.coachCoachMessage,
-            child: _buildCoachBubble(msg),
+            child: CoachMessageBubble(
+              message: msg,
+              messageIndex: index,
+              isStreaming:
+                  _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm,
+              isInputAnswered: _answeredInputIndices.contains(index),
+              richWidget: richWidget,
+              onInputSubmitted: _handleInputSubmitted,
+              onActionTap: _handleActionTap,
+            ),
           );
         }
-        // T2-1: Only animate the last 3 messages for performance.
-        if (index >= _messages.length - 3) {
-          return TweenAnimationBuilder<double>(
-            key: itemKey,
-            tween: Tween<double>(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 350),
-            curve: Curves.easeOutCubic,
-            builder: (context, value, aChild) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 20 * (1 - value)),
-                  child: aChild,
-                ),
-              );
-            },
-            child: child,
-          );
-        }
-        return KeyedSubtree(key: itemKey, child: child);
-      },
-    );
-  }
-
-  Widget _buildUserBubble(ChatMessage msg) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(width: MintSpacing.xxl),
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
-              decoration: BoxDecoration(
-                color: MintColors.primary,
-                borderRadius: BorderRadius.circular(16),
+        return TweenAnimationBuilder<double>(
+          key: ValueKey('msg_$index'),
+          tween: Tween<double>(begin: 0.0, end: 1.0),
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(0, 20 * (1 - value)),
+                child: child,
               ),
-              child: Text(
-                msg.content,
-                style: MintTextStyles.bodyMedium(color: MintColors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCoachBubble(ChatMessage msg) {
-    final isStreamingThis =
-        _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Coach avatar
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: MintColors.coachBubble,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: MintColors.border.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  'M',
-                  style: MintTextStyles.labelLarge(
-                    color: MintColors.coachAccent,
-                  ).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-              const SizedBox(width: MintSpacing.sm),
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.coachBubble,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ..._buildBubbleContent(msg, isStreamingThis),
-                      // Streaming cursor
-                      if (isStreamingThis) ...[
-                        const SizedBox(height: MintSpacing.xs),
-                        SizedBox(
-                          width: 8,
-                          height: 14,
-                          child: _buildCursor(),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: MintSpacing.xxl),
-            ],
-          ),
-          // Tier badge + optional TTS button (S63)
-          if (!isStreamingThis && msg.tier != ChatTier.none) ...[
-            const SizedBox(height: MintSpacing.xs),
-            Padding(
-              padding: const EdgeInsets.only(left: 40),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTierBadge(msg.tier),
-                  if (_voiceTtsAvailable && msg.content.isNotEmpty) ...[
-                    const SizedBox(width: MintSpacing.xs),
-                    VoiceOutputButton(
-                      voiceService: _voiceService,
-                      text: msg.content,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-          // Sources
-          if (msg.sources.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(left: 40, right: 48),
-              child: _buildSourcesSection(msg.sources),
-            ),
-          ],
-          // Disclaimers (from RAG backend)
-          if (msg.disclaimers.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.sm - 2),
-            Padding(
-              padding: const EdgeInsets.only(left: 40, right: 48),
-              child: _buildDisclaimersSection(msg.disclaimers),
-            ),
-          ],
-          // Response Cards (Phase 1 — inline strip)
-          if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(left: 40),
-              child: ResponseCardStrip(cards: msg.responseCards),
-            ),
-          ],
-          // Route Suggestion Card — S58 route_to_screen tool_use
-          if (!isStreamingThis && msg.hasRoutePayload) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(left: 40, right: 8),
-              child: _buildRouteSuggestionCard(msg.routePayload!),
-            ),
-          ],
-          // Sequence Progress Card — guided sequence step transition
-          if (!isStreamingThis && msg.hasSequencePayload) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(left: 40, right: 8),
-              child: _buildSequenceCard(msg.sequencePayload!),
-            ),
-          ],
-          // Document Card — generate_document tool_use (Agent Autonome)
-          if (!isStreamingThis && msg.hasDocumentPayload) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(left: 40, right: 8),
-              child: _buildDocumentCard(),
-            ),
-          ],
-          // Rich tool calls — inline widgets via WidgetRenderer
-          if (!isStreamingThis && msg.hasRichToolCalls) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(left: 40, right: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: msg.richToolCalls.map((tc) {
-                  try {
-                    return WidgetRenderer.build(
-                      context,
-                      tc,
-                      onInputSubmitted: _handleInlineInputSubmitted,
-                    ) ?? const SizedBox.shrink();
-                  } catch (e) {
-                    debugPrint('[CoachChat] WidgetRenderer error: $e');
-                    return const SizedBox.shrink();
-                  }
-                }).toList(),
-              ),
-            ),
-          ],
-          // Suggested actions
-          if (!isStreamingThis &&
-              msg.suggestedActions != null &&
-              msg.suggestedActions!.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(left: 40),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: msg.suggestedActions!.map((action) {
-                  return ActionChip(
-                    label: Text(
-                      action,
-                      style: MintTextStyles.labelSmall(
-                          color: MintColors.ardoise),
-                    ),
-                    backgroundColor: MintColors.porcelaine,
-                    side: BorderSide.none,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    onPressed: () {
-                      final route = _routeForAction(action);
-                      if (route != null) {
-                        context.push(route);
-                      } else {
-                        _sendMessage(action);
-                      }
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  /// Splits coach bubble content into optional memory-reference block + main text.
-  ///
-  /// When the content contains a memory reference (prepended by [_prependMemoryRef]),
-  /// the first paragraph before `\n\n` is rendered with a peach left border.
-  List<Widget> _buildBubbleContent(ChatMessage msg, bool isStreamingThis) {
-    // P0-2: Strip HTML tags from LLM response to prevent markdown/HTML injection.
-    final rawText = msg.content.isEmpty && isStreamingThis ? '...' : msg.content;
-    final text = msg.role == 'assistant'
-        ? rawText.replaceAll(RegExp(r'<[^>]*>'), '')
-        : rawText;
-
-    // Detect memory reference: pattern is "{memoryPhrase}\n\n{response}".
-    // Memory phrases always contain a known marker pattern from ARB keys.
-    final splitIndex = text.indexOf('\n\n');
-    if (splitIndex > 0 && splitIndex < text.length - 2) {
-      final firstPart = text.substring(0, splitIndex);
-      // Heuristic: memory refs contain time markers or goal markers.
-      final isMemoryRef = firstPart.contains('jours') ||
-          firstPart.contains('objectif') ||
-          firstPart.contains('dernière fois');
-      if (isMemoryRef) {
-        final mainText = text.substring(splitIndex + 2);
-        return [
-          Container(
-            padding: const EdgeInsets.only(
-              left: MintSpacing.sm,
-              top: MintSpacing.xs,
-              bottom: MintSpacing.xs,
-            ),
-            decoration: BoxDecoration(
-              border: const Border(
-                left: BorderSide(
-                  color: MintColors.pecheDouce,
-                  width: 3,
-                ),
-              ),
-              color: MintColors.pecheDouce.withValues(alpha: 0.08),
-            ),
-            child: Text(
-              firstPart,
-              style: MintTextStyles.bodySmall(color: MintColors.ardoise)
-                  .copyWith(fontStyle: FontStyle.italic),
-            ),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            mainText,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-          ),
-        ];
-      }
-    }
-
-    // Default: plain text, no memory reference.
-    return [
-      Text(
-        text,
-        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-      ),
-    ];
-  }
-
-  Widget _buildCursor() {
-    return const _BlinkingCursor();
-  }
-
-  Widget _buildTierBadge(ChatTier tier) {
-    final s = S.of(context)!;
-    final String label;
-    final IconData icon;
-    final Color color;
-    switch (tier) {
-      case ChatTier.slm:
-        label = s.coachBadgeSlm;
-        icon = Icons.smartphone;
-        color = MintColors.success;
-        break;
-      case ChatTier.byok:
-        label = s.coachBadgeByok;
-        icon = Icons.cloud_outlined;
-        color = MintColors.info;
-        break;
-      case ChatTier.fallback:
-        label = s.coachBadgeFallback;
-        icon = Icons.wifi_off;
-        color = MintColors.textMuted;
-        break;
-      default:
-        return const SizedBox.shrink();
-    }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 10, color: color.withValues(alpha: 0.7)),
-        const SizedBox(width: 3),
-        Text(
-          label,
-          style: MintTextStyles.micro(
-            color: color.withValues(alpha: 0.7),
-          ).copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
-  }
-
-  /// True while navigating to a sequence step — prevents double-tap.
-  bool _isSequenceNavigating = false;
-
-  /// Navigate to the next step in a guided sequence.
-  ///
-  /// Called when the user taps "Continue" on a SequenceProgressCard.
-  /// Passes runId/stepId/prefill in GoRouter.extra so the Tier A screen
-  /// can emit a rich ScreenReturn with sequence identity.
-  ///
-  /// Protected against double-tap and stale step navigation.
-  void _navigateToSequenceStep(SequenceMessagePayload payload) {
-    if (!mounted) return;
-    if (payload.nextRoute == null) return;
-    if (_isSequenceNavigating) return; // Double-tap guard
-    _isSequenceNavigating = true; // Lock BEFORE async — prevents race window
-
-    // Stale step guard: verify this step is still the active one.
-    // Old SequenceProgressCards in the chat history carry outdated data.
-    SequenceStore.load().then((currentRun) {
-      if (!mounted) { _isSequenceNavigating = false; return; }
-      if (currentRun == null || !currentRun.isActive) {
-        _isSequenceNavigating = false;
-        return;
-      }
-      // Sequence completed (no active step) — block stale card navigation.
-      if (currentRun.activeStepId == null) {
-        _isSequenceNavigating = false;
-        return;
-      }
-      if (payload.nextStepId != null &&
-          currentRun.activeStepId != payload.nextStepId) {
-        // The run has moved past this step — don't navigate to stale route.
-        _isSequenceNavigating = false;
-        return;
-      }
-
-      final extra = <String, dynamic>{
-        if (payload.runId != null) 'runId': payload.runId,
-        if (payload.nextStepId != null) 'stepId': payload.nextStepId,
-        if (payload.prefill != null && payload.prefill!.isNotEmpty)
-          'prefill': payload.prefill,
-      };
-
-      context.push(
-        payload.nextRoute!,
-        extra: extra.isNotEmpty ? extra : null,
-      ).then((_) {
-        _isSequenceNavigating = false;
-      }).catchError((_) {
-        _isSequenceNavigating = false;
-      });
-    }).catchError((_) {
-      _isSequenceNavigating = false; // Reset on store load failure
-    });
-  }
-
-  /// Resolve a goal label ARB key to a localized string.
-  static String _resolveGoalLabel(String key, S l) {
-    return switch (key) {
-      'sequenceHousingGoal' => l.sequenceHousingGoal,
-      'sequence3aGoal' => l.sequence3aGoal,
-      'sequenceRetirementGoal' => l.sequenceRetirementGoal,
-      'sequenceTensionGoal' => l.sequenceTensionGoal,
-      'sequencePreretraiteGoal' => l.sequencePreretraiteGoal,
-      'sequenceCoupleGoal' => l.sequenceCoupleGoal,
-      'sequenceNaissanceGoal' => l.sequenceNaissanceGoal,
-      'sequencePremiersPasGoal' => l.sequencePremiersPasGoal,
-      'sequenceDensificationGoal' => l.sequenceDensificationGoal,
-      'sequenceRetraiteActiveGoal' => l.sequenceRetraiteActiveGoal,
-      _ => key, // Fallback to raw key if unknown
-    };
-  }
-
-  /// Builds the [SequenceProgressCard] for a message carrying a sequence payload.
-  Widget _buildSequenceCard(SequenceMessagePayload payload) {
-    // Parse progress label "2/4" → completedCount=2, totalCount=4.
-    final parts = payload.progressLabel.split('/');
-    final completed = int.tryParse(parts.firstOrNull ?? '') ?? 0;
-    final total = int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0;
-
-    final l = S.of(context)!;
-    return SequenceProgressCard(
-      completedCount: completed,
-      totalCount: total,
-      goalLabel: payload.goalLabel,
-      currentStepLabel: payload.status == 'completed'
-          ? l.sequenceAllStepsComplete
-          : l.sequenceStepLabel(completed + 1, total),
-      summaryItems: payload.summaryItems,
-      onAdvance: (payload.canAdvance && payload.nextRoute != null) ? () {
-        _navigateToSequenceStep(payload);
-      } : null,
-      onQuit: payload.canQuit ? () async {
-        await SequenceChatHandler.quitSequence();
-        if (mounted) {
-          setState(() {
-            _messages.add(ChatMessage(
-              role: 'assistant',
-              content: l.sequenceQuitConfirm,
-              timestamp: DateTime.now(),
-              tier: ChatTier.fallback,
-            ));
-          });
-        }
-      } : null,
-    );
-  }
-
-  /// Builds the [RouteSuggestionCard] for a message carrying a route payload.
-  ///
-  /// Casts [payload] to [_ResolvedRoutePayload] to get the route + isPartial
-  /// fields produced by [_resolveRoutePayload].
-  Widget _buildRouteSuggestionCard(RouteToolPayload payload) {
-    if (payload is! _ResolvedRoutePayload) {
-      return const SizedBox.shrink();
-    }
-    return RouteSuggestionCard(
-      contextMessage: payload.contextMessage,
-      route: payload.resolvedRoute,
-      isPartial: payload.isPartial,
-      prefill: payload.prefill,
-      runId: payload.runId,
-      stepId: payload.stepId,
-      onReturn: _handleRouteReturn,
-      profileHashFn: () {
-        final profile = context.read<CoachProfileProvider>().profile;
-        return profile?.hashCode.toString() ?? '';
-      },
-    );
-  }
-
-  /// Builds a [DocumentCard] for the last generated document.
-  ///
-  /// Reads from [_lastGeneratedForm] or [_lastGeneratedLetter] which are
-  /// populated by [_handleDocumentGeneration] before this method is called.
-  Widget _buildDocumentCard() {
-    if (_lastGeneratedForm != null) {
-      return DocumentCard(formPrefill: _lastGeneratedForm);
-    }
-    if (_lastGeneratedLetter != null) {
-      return DocumentCard(letter: _lastGeneratedLetter);
-    }
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildSystemMessage(ChatMessage msg) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm),
-      child: Center(
-        child: Text(
-          msg.content,
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted)
-              .copyWith(fontStyle: FontStyle.italic),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingIndicator() {
-    final loadingText = S.of(context)!.coachLoading;
-    return Semantics(
-      label: loadingText,
-      liveRegion: true,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.md, vertical: MintSpacing.xs),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: MintColors.coachBubble,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: MintColors.border.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Text(
-                'M',
-                style: MintTextStyles.labelLarge(
-                  color: MintColors.coachAccent,
-                ).copyWith(fontWeight: FontWeight.w700),
-              ),
-            ),
-            const SizedBox(width: MintSpacing.sm),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
-              decoration: BoxDecoration(
-                color: MintColors.coachBubble,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const _BreathingDots(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  SOURCES & DISCLAIMERS
-  // ════════════════════════════════════════════════════════════
-
-  Widget _buildSourcesSection(List<RagSource> sources) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            S.of(context)!.coachSources,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: MintColors.info.withValues(alpha: 0.8),
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          for (final source in sources)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 3),
-              child: Semantics(
-                label: source.title,
-                button: true,
-                child: InkWell(
-                  onTap: () => _navigateToSource(source),
-                  child: Row(
-                    children: [
-                      Icon(Icons.description_outlined,
-                          size: 13,
-                          color: MintColors.info.withValues(alpha: 0.7)),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: MintColors.info,
-                            decoration: TextDecoration.underline,
-                            decorationColor:
-                                MintColors.info.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDisclaimersSection(List<String> disclaimers) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline,
-              size: 14, color: MintColors.warning.withValues(alpha: 0.8)),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              disclaimers.join('\n'),
-              style: TextStyle(
-                fontSize: 11,
-                color: MintColors.warning.withValues(alpha: 0.9),
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _navigateToSource(RagSource source) {
-    final file = source.file.toLowerCase();
-    if (file.contains('3a') ||
-        file.contains('opp3') ||
-        file.contains('pilier')) {
-      context.push('/pilier-3a');
-    } else if (file.contains('lpp') || file.contains('pension')) {
-      context.push('/rente-vs-capital');
-    } else if (file.contains('lifd') || file.contains('fiscal')) {
-      context.push('/fiscal');
-    } else if (file.contains('lavs') || file.contains('avs')) {
-      context.push('/retraite');
-    } else if (file.contains('budget')) {
-      context.push('/budget');
-    } else {
-      context.push('/education/hub');
-    }
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  INPUT BAR
-  // ════════════════════════════════════════════════════════════
-
-  /// Pick a document (photo, PDF, or file) and extract via Claude Vision.
-  /// Accepts: images (JPEG, PNG), PDF, DOCX.
-  /// The extracted data is shown in the chat and user confirms to update profile.
-  Future<void> _pickAndExtractDocument() async {
-    // Show bottom sheet with options: camera, gallery, file
-    final source = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-      ),
-      builder: (ctx) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined),
-              title: Text(S.of(ctx)!.chatPickPhoto),
-              onTap: () => Navigator.pop(ctx, 'camera'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: Text(S.of(ctx)!.chatPickGallery),
-              onTap: () => Navigator.pop(ctx, 'gallery'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.description_outlined),
-              title: Text(S.of(ctx)!.chatPickFile),
-              onTap: () => Navigator.pop(ctx, 'file'),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (source == null || !mounted) return;
-
-    Uint8List? bytes;
-    String? fileName;
-
-    if (source == 'camera' || source == 'gallery') {
-      final picker = ImagePicker();
-      final image = await picker.pickImage(
-        source: source == 'camera' ? ImageSource.camera : ImageSource.gallery,
-        maxWidth: 2000,
-        maxHeight: 2000,
-        imageQuality: 85,
-      );
-      if (image == null || !mounted) return;
-      bytes = await image.readAsBytes();
-      fileName = image.name;
-    } else {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'docx', 'doc', 'jpg', 'jpeg', 'png'],
-      );
-      if (result == null || result.files.isEmpty || !mounted) return;
-      final file = result.files.first;
-      if (file.bytes != null) {
-        bytes = file.bytes!;
-      } else if (file.path != null) {
-        bytes = await File(file.path!).readAsBytes();
-      }
-      fileName = file.name;
-    }
-
-    if (bytes == null || !mounted) return;
-
-    // File size guard: max 5 MB to avoid Claude API timeouts
-    if (bytes.length > 5 * 1024 * 1024) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context)!.chatFileTooLarge)),
-        );
-      }
-      return;
-    }
-
-    // Show processing message + lock input
-    setState(() {
-      _messages.add(ChatMessage(
-        role: 'user',
-        content: '📎 ${fileName ?? "Document"} — ${S.of(context)!.chatDocSent}',
-        timestamp: DateTime.now(),
-      ));
-      _isBusy = true;
-    });
-    _scrollToBottom();
-
-    try {
-      final base64Image = base64Encode(bytes);
-
-      if (!mounted) { _isBusy = false; return; }
-      final canton = context.read<CoachProfileProvider>().profile?.canton;
-
-      // Detect document type from file extension (better than hardcoding)
-      final ext = fileName.split('.').last.toLowerCase();
-      final docType = switch (ext) {
-        'pdf' => 'lpp_certificate', // PDF → default to LPP (most common scan)
-        _ => 'lpp_certificate',
-      };
-
-      // Call Claude Vision via backend
-      final response = await DocumentService.extractWithVision(
-        imageBase64: base64Image,
-        documentType: docType,
-        canton: canton,
-        languageHint: 'fr',
-      );
-
-      if (!mounted) { _isBusy = false; return; }
-
-      if (response != null && (response['extractedFields'] as List?)?.isNotEmpty == true) {
-        final fields = response['extractedFields'] as List;
-        final analysis = response['rawAnalysis'] as String? ?? '';
-        // Build a human-readable summary for the chat
-        final buf = StringBuffer();
-        buf.writeln(S.of(context)!.chatDocAnalysisIntro);
-        buf.writeln();
-        for (final f in fields) {
-          final name = f['fieldName'] as String? ?? '';
-          final value = f['value'];
-          buf.writeln('• $name\u00a0: $value');
-        }
-        if (analysis.isNotEmpty) {
-          buf.writeln();
-          buf.writeln(analysis);
-        }
-        buf.writeln();
-        buf.writeln(S.of(context)!.chatDocUpdatePrompt);
-
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: buf.toString(),
-            timestamp: DateTime.now(),
-            tier: ChatTier.fallback,
-          ));
-          _isBusy = false;
-        });
-
-        // Navigate to review screen for confirmation
-        if (mounted) {
-          final extracted = _buildExtractionResult(response);
-          if (extracted != null) {
-            context.push('/scan/review', extra: extracted);
-          }
-        }
-      } else {
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content: S.of(context)!.chatDocExtractionFailed,
-            timestamp: DateTime.now(),
-            tier: ChatTier.fallback,
-          ));
-          _isBusy = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _messages.add(ChatMessage(
-          role: 'assistant',
-          content: S.of(context)!.chatDocError,
-          timestamp: DateTime.now(),
-          tier: ChatTier.fallback,
-        ));
-        _isBusy = false;
-      });
-    }
-    _scrollToBottom();
-  }
-
-  /// Build ExtractionResult from Vision API response for the review screen.
-  ExtractionResult? _buildExtractionResult(Map<String, dynamic> response) {
-    try {
-      final docTypeStr = response['documentType'] as String? ?? 'lpp_certificate';
-      final docType = switch (docTypeStr) {
-        'lpp_certificate' => DocumentType.lppCertificate,
-        'avs_extract' => DocumentType.avsExtract,
-        'tax_declaration' => DocumentType.taxDeclaration,
-        'salary_certificate' => DocumentType.salaryCertificate,
-        _ => DocumentType.lppCertificate,
-      };
-
-      final fields = (response['extractedFields'] as List?)
-          ?.map<ExtractedField>((f) {
-            final map = f as Map<String, dynamic>;
-            final confStr = map['confidence'] as String? ?? 'medium';
-            final conf = switch (confStr) {
-              'high' => 0.95,
-              'medium' => 0.70,
-              _ => 0.40,
-            };
-            return ExtractedField(
-              fieldName: map['fieldName'] as String? ?? '',
-              label: map['fieldName'] as String? ?? '',
-              value: map['value'],
-              confidence: conf,
-              sourceText: (map['sourceText'] as String?) ?? '',
-              profileField: map['fieldName'] as String?,
-              needsReview: conf < 0.80,
             );
-          })
-          .toList() ?? [];
-
-      return ExtractionResult(
-        documentType: docType,
-        fields: fields,
-        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
-        confidenceDelta: switch (docType) {
-          DocumentType.lppCertificate => 27.0,
-          DocumentType.avsExtract => 22.0,
-          DocumentType.taxDeclaration => 17.0,
-          _ => 10.0,
-        },
-        warnings: const [],
-        disclaimer: 'Extraction via Claude Vision. Vérifiez les valeurs.',
-        sources: const ['Claude Vision API'],
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Widget _buildInputBar() {
-    final s = S.of(context)!;
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.background,
-        border: Border(
-          top: BorderSide(
-            color: MintColors.border.withValues(alpha: 0.5),
-          ),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.sm + 4, vertical: MintSpacing.sm),
-          child: Row(
-            children: [
-              // Lightning Menu bolt button (long-press for life events)
-              GestureDetector(
-                onLongPress: _isStreaming ? null : _showLifeEventSheet,
-                child: IconButton(
-                  icon: const Icon(Icons.bolt_rounded,
-                      color: MintColors.coachAccent, size: 22),
-                  tooltip: s.lightningMenuTitle,
-                  onPressed: _isStreaming ? null : _showLightningMenu,
-                ),
-              ),
-              // Document attachment button — send photo to Claude Vision
-              IconButton(
-                icon: const Icon(Icons.attach_file_rounded,
-                    color: MintColors.textMuted, size: 20),
-                tooltip: S.of(context)!.chatDocAttachTooltip,
-                onPressed: _isBusy ? null : _pickAndExtractDocument,
-              ),
-              Expanded(
-                child: Semantics(
-                  textField: true,
-                  label: s.coachInputHint,
-                  child: TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    textInputAction: TextInputAction.send,
-                    maxLines: null,
-                    enabled: !_isStreaming && !_isBusy, // FIX-085
-                    style: MintTextStyles.bodyMedium(
-                        color: MintColors.textPrimary),
-                    decoration: InputDecoration(
-                      hintText: s.coachInputHint,
-                      hintStyle: MintTextStyles.bodyMedium(
-                          color: MintColors.textMuted),
-                      filled: true,
-                      fillColor: MintColors.surface,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: MintSpacing.md,
-                        vertical: 10,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(
-                          color: MintColors.border.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(
-                          color: MintColors.border.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: const BorderSide(
-                          color: MintColors.coachAccent,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                    onSubmitted: (text) {
-                      // Typed submit → deactivate voice mode.
-                      _voiceModeActive = false;
-                      _sendMessage(text);
-                    },
-                  ),
-                ),
-              ),
-              // Voice input button (S63) — shown only when STT is available.
-              if (_voiceSttAvailable) ...[
-                const SizedBox(width: MintSpacing.xs),
-                VoiceInputButton(
-                  voiceService: _voiceService,
-                  onTranscription: (transcript) {
-                    // Sprint E: activate voice mode and auto-send transcription.
-                    // Voice mode triggers TTS auto-speak on the coach response.
-                    // V5-7 audit fix: scrub PII from voice transcript before sending.
-                    final clean = ConversationStore.scrubPii(transcript);
-                    setState(() => _voiceModeActive = true);
-                    _sendMessage(clean);
-                  },
-                ),
-              ],
-              const SizedBox(width: MintSpacing.sm),
-              Semantics(
-                button: true,
-                label: s.coachSendButton,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _isBusy
-                        ? MintColors.textMuted
-                        : MintColors.coachAccent,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.send,
-                        color: MintColors.white, size: 20),
-                    tooltip: s.coachSendButton,
-                    onPressed: _isBusy
-                        ? null
-                        : () {
-                            HapticFeedback.lightImpact();
-                            // Typed send → deactivate voice mode.
-                            _voiceModeActive = false;
-                            _sendMessage(_controller.text);
-                          },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════
-//  RESOLVED ROUTE PAYLOAD (S58)
-// ════════════════════════════════════════════════════════════════
-
-/// Internal subclass of [RouteToolPayload] that carries the result of
-/// [RoutePlanner.plan] — the resolved GoRouter [route] and [isPartial] flag.
-///
-/// Created by [_CoachChatScreenState._resolveRoutePayload] and consumed by
-/// [_CoachChatScreenState._buildRouteSuggestionCard].
-class _ResolvedRoutePayload extends RouteToolPayload {
-  /// The GoRouter route resolved by [RoutePlanner].
-  final String resolvedRoute;
-
-  /// Whether the screen opens in partial/estimation mode.
-  final bool isPartial;
-
-  /// Prefill values extracted from [CoachProfile] by [RoutePlanner].
-  ///
-  /// Passed to the target screen via GoRouter `extra` so the screen can
-  /// pre-populate fields with known profile data.
-  final Map<String, dynamic>? prefill;
-
-  /// Sequence run ID — set when this route is part of a guided sequence.
-  /// Null for non-sequence navigation.
-  final String? runId;
-
-  /// Sequence step ID — set when this route is part of a guided sequence.
-  /// Null for non-sequence navigation.
-  final String? stepId;
-
-  const _ResolvedRoutePayload({
-    required super.intent,
-    required super.confidence,
-    required super.contextMessage,
-    required this.resolvedRoute,
-    required this.isPartial,
-    this.prefill,
-    this.runId,
-    this.stepId,
-  });
-}
-
-/// Emotional canvas mood — drives subtle background tint changes.
-enum _CanvasMood { neutral, stress, victory, discovery, retirement, milestone }
-
-/// Isolated blinking cursor — manages its own animation lifecycle.
-///
-/// Avoids triggering parent [setState] for blink cycles, preventing
-/// full [ListView] rebuilds during streaming.
-class _BlinkingCursor extends StatefulWidget {
-  const _BlinkingCursor();
-
-  @override
-  State<_BlinkingCursor> createState() => _BlinkingCursorState();
-}
-
-class _BlinkingCursorState extends State<_BlinkingCursor>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _controller.value < 0.5 ? 1.0 : 0.0,
+          },
           child: child,
-        );
-      },
-      child: Container(
-        width: 2,
-        height: 14,
-        color: MintColors.coachAccent,
-      ),
-    );
-  }
-}
-
-/// Three softly pulsing dots — replaces CircularProgressIndicator for loading.
-///
-/// All dots breathe simultaneously (NOT sequential bouncing).
-/// Opacity oscillates between 0.2 and 0.7 over 1200ms using a sine wave.
-class _BreathingDots extends StatefulWidget {
-  const _BreathingDots();
-
-  @override
-  State<_BreathingDots> createState() => _BreathingDotsState();
-}
-
-class _BreathingDotsState extends State<_BreathingDots>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        // Sine wave: 0.0→1.0 maps to opacity 0.2→0.7
-        final t = (math.sin(_controller.value * 2 * math.pi) + 1) / 2;
-        final opacity = 0.2 + (0.5 * t); // range 0.2 – 0.7
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(3, (i) {
-            return Padding(
-              padding: EdgeInsets.only(left: i == 0 ? 0 : 6),
-              child: Opacity(
-                opacity: opacity,
-                child: Container(
-                  width: 6,
-                  height: 6,
-                  decoration: const BoxDecoration(
-                    color: MintColors.ardoise,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            );
-          }),
         );
       },
     );
