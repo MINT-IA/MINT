@@ -45042,6 +45042,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Refuser'**
   String get onboardingConsentDecline;
+
+  /// No description provided for @voiceDisclosureTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconnaissance vocale'**
+  String get voiceDisclosureTitle;
+
+  /// No description provided for @voiceDisclosureBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes paroles sont envoyées à Apple (iOS) ou Google (Android) pour la transcription. MINT ne stocke jamais ton audio.'**
+  String get voiceDisclosureBody;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -25574,4 +25574,11 @@ class SFr extends S {
 
   @override
   String get onboardingConsentDecline => 'Refuser';
+
+  @override
+  String get voiceDisclosureTitle => 'Reconnaissance vocale';
+
+  @override
+  String get voiceDisclosureBody =>
+      'Tes paroles sont envoyées à Apple (iOS) ou Google (Android) pour la transcription. MINT ne stocke jamais ton audio.';
 }

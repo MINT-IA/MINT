@@ -25652,4 +25652,11 @@ class SIt extends S {
 
   @override
   String get onboardingConsentDecline => 'Rifiutare';
+
+  @override
+  String get voiceDisclosureTitle => 'Riconoscimento vocale';
+
+  @override
+  String get voiceDisclosureBody =>
+      'Le tue parole vengono inviate ad Apple (iOS) o Google (Android) per la trascrizione. MINT non memorizza mai il tuo audio.';
 }

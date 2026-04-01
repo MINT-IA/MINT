@@ -25588,4 +25588,11 @@ class SPt extends S {
 
   @override
   String get onboardingConsentDecline => 'Recusar';
+
+  @override
+  String get voiceDisclosureTitle => 'Reconhecimento de voz';
+
+  @override
+  String get voiceDisclosureBody =>
+      'As tuas palavras são enviadas para a Apple (iOS) ou Google (Android) para transcrição. MINT nunca armazena o teu áudio.';
 }

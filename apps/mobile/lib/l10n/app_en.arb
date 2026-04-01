@@ -11982,5 +11982,7 @@
   "mortgageJourneyStepLabel": "Step {number} · {title}",
   "onboardingConsentBody": "MINT collects your financial data solely to calculate your pension projections. Your data stays on your device and is never shared without your explicit consent (nDPA art. 6).",
   "onboardingConsentAccept": "Accept",
-  "onboardingConsentDecline": "Decline"
+  "onboardingConsentDecline": "Decline",
+  "voiceDisclosureTitle": "Voice recognition",
+  "voiceDisclosureBody": "Your speech is sent to Apple (iOS) or Google (Android) for transcription. MINT never stores your audio."
 }

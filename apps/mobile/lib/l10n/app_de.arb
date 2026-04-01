@@ -11982,5 +11982,7 @@
   "mortgageJourneyStepLabel": "Schritt {number} · {title}",
   "onboardingConsentBody": "MINT erhebt deine Finanzdaten ausschliesslich zur Berechnung deiner Vorsorgeprognosen. Deine Daten bleiben auf deinem Gerät und werden nie ohne deine ausdrückliche Zustimmung weitergegeben (nDSG Art. 6).",
   "onboardingConsentAccept": "Akzeptieren",
-  "onboardingConsentDecline": "Ablehnen"
+  "onboardingConsentDecline": "Ablehnen",
+  "voiceDisclosureTitle": "Spracherkennung",
+  "voiceDisclosureBody": "Deine Sprache wird zur Transkription an Apple (iOS) oder Google (Android) gesendet. MINT speichert dein Audio nie."
 }

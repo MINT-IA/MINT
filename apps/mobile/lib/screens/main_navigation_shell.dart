@@ -121,6 +121,9 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       _saveSessionSnapshot();
     }
     if (state == AppLifecycleState.resumed) {
+      // FIX-W11: Check for missed deadlines (e.g. app killed before 3a reminder)
+      NotificationService.checkMissedDeadlines();
+
       // Check for deep link from notification tap
       final pendingRoute = NotificationService.consumePendingRoute();
       if (pendingRoute != null && pendingRoute.isNotEmpty && mounted) {

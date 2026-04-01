@@ -12474,5 +12474,7 @@
   },
   "onboardingConsentBody": "MINT collecte tes données financières uniquement pour calculer tes projections de prévoyance. Tes données restent sur ton appareil et ne sont jamais partagées sans ton accord explicite (nLPD art. 6).",
   "onboardingConsentAccept": "Accepter",
-  "onboardingConsentDecline": "Refuser"
+  "onboardingConsentDecline": "Refuser",
+  "voiceDisclosureTitle": "Reconnaissance vocale",
+  "voiceDisclosureBody": "Tes paroles sont envoyées à Apple (iOS) ou Google (Android) pour la transcription. MINT ne stocke jamais ton audio."
 }

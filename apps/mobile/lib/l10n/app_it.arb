@@ -11982,5 +11982,7 @@
   "mortgageJourneyStepLabel": "Passo {number} · {title}",
   "onboardingConsentBody": "MINT raccoglie i tuoi dati finanziari unicamente per calcolare le tue proiezioni previdenziali. I tuoi dati rimangono sul tuo dispositivo e non vengono mai condivisi senza il tuo consenso esplicito.",
   "onboardingConsentAccept": "Accettare",
-  "onboardingConsentDecline": "Rifiutare"
+  "onboardingConsentDecline": "Rifiutare",
+  "voiceDisclosureTitle": "Riconoscimento vocale",
+  "voiceDisclosureBody": "Le tue parole vengono inviate ad Apple (iOS) o Google (Android) per la trascrizione. MINT non memorizza mai il tuo audio."
 }

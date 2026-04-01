@@ -15,6 +15,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/services/voice/voice_state_machine.dart';
 
@@ -340,5 +341,20 @@ class VoiceService {
   void dispose() {
     _disposed = true;
     state.dispose();
+  }
+
+  // ── Voice disclosure (nLPD) ──────────────────────────────
+
+  /// FIX-W11-nLPD: Check if voice disclosure has been shown to the user.
+  /// Audio is sent to Apple/Google for transcription — this must be disclosed.
+  static Future<bool> hasShownDisclosure() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('_voice_disclosure_shown') == true;
+  }
+
+  /// Mark the voice disclosure as shown and accepted by the user.
+  static Future<void> markDisclosureShown() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('_voice_disclosure_shown', true);
   }
 }

@@ -25581,4 +25581,11 @@ class SEs extends S {
 
   @override
   String get onboardingConsentDecline => 'Rechazar';
+
+  @override
+  String get voiceDisclosureTitle => 'Reconocimiento de voz';
+
+  @override
+  String get voiceDisclosureBody =>
+      'Tu voz se envía a Apple (iOS) o Google (Android) para la transcripción. MINT nunca almacena tu audio.';
 }

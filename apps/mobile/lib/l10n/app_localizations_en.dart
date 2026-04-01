@@ -25449,4 +25449,11 @@ class SEn extends S {
 
   @override
   String get onboardingConsentDecline => 'Decline';
+
+  @override
+  String get voiceDisclosureTitle => 'Voice recognition';
+
+  @override
+  String get voiceDisclosureBody =>
+      'Your speech is sent to Apple (iOS) or Google (Android) for transcription. MINT never stores your audio.';
 }

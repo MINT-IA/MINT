@@ -25628,4 +25628,11 @@ class SDe extends S {
 
   @override
   String get onboardingConsentDecline => 'Ablehnen';
+
+  @override
+  String get voiceDisclosureTitle => 'Spracherkennung';
+
+  @override
+  String get voiceDisclosureBody =>
+      'Deine Sprache wird zur Transkription an Apple (iOS) oder Google (Android) gesendet. MINT speichert dein Audio nie.';
 }

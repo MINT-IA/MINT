@@ -7,8 +7,11 @@
 /// Sprint Coach AI Layer — T4
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:io' show Platform;
@@ -229,6 +232,8 @@ class NotificationService {
   /// [strings] — i18n-resolved notification text. Pass
   /// `NotificationStrings.fromL10n(S.of(context)!)` when a [BuildContext] is
   /// available. Falls back to [NotificationStrings.french] otherwise.
+  // TODO(P2): Add per-category notification preferences (check-in, 3a, tax, streak)
+  // Currently all-or-nothing via ConsentManager.notifications
   Future<void> scheduleCoachingReminders({
     required CoachProfile profile,
     NotificationStrings? strings,
@@ -273,15 +278,21 @@ class NotificationService {
 
     // 5. Weekly recap: Monday 10:00 — "Ton récap de la semaine est prêt"
     _scheduleWeeklyRecap(now, s);
+
+    // FIX-W11: Persist critical deadline dates for recovery on app resume
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('_scheduled_deadlines', jsonEncode({
+      '3a_deadline': DateTime(DateTime.now().year, 12, 31).toIso8601String(),
+      'last_scheduled': DateTime.now().toIso8601String(),
+    }));
   }
 
   /// Weekly recap notification: fires every Monday at 10:00.
   void _scheduleWeeklyRecap(tz.TZDateTime now, NotificationStrings s) {
-    // Find next Monday
-    var nextMonday = now.add(Duration(days: (8 - now.weekday) % 7));
-    if (nextMonday.isBefore(now) || nextMonday.isAtSameMomentAs(now)) {
-      nextMonday = nextMonday.add(const Duration(days: 7));
-    }
+    // FIX-W11: Correct Monday calculation — always schedule for NEXT Monday
+    var daysUntilMonday = (DateTime.monday - now.weekday) % 7;
+    if (daysUntilMonday == 0) daysUntilMonday = 7; // Always schedule for NEXT Monday
+    final nextMonday = now.add(Duration(days: daysUntilMonday));
     final scheduledDate = tz.TZDateTime(
       tz.local,
       nextMonday.year,
@@ -498,13 +509,15 @@ class NotificationService {
   }) async {
     if (_plugin == null) return;
 
+    // P1-nLPD: Don't show financial amounts on lock screen
     final androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
       channelDescription: NotificationStrings.french.channelDescription,
       importance: Importance.high,
       priority: Priority.defaultPriority,
-      styleInformation: BigTextStyleInformation(body),
+      styleInformation: const DefaultStyleInformation(false, false),
+      visibility: NotificationVisibility.private,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -544,6 +557,9 @@ class NotificationService {
 
   /// Handle notification tap — extract route from payload.
   /// Store the route in a static field that GoRouter can read on next frame.
+  ///
+  /// Auth guard in GoRouter (app.dart:188-214) protects all non-public routes.
+  /// No additional auth check needed here — the guard will redirect to login.
   void _onNotificationTap(NotificationResponse response) {
     pendingRoute = response.payload;
   }
@@ -557,5 +573,28 @@ class NotificationService {
     final route = pendingRoute;
     pendingRoute = null;
     return route;
+  }
+
+  // ── Missed deadline recovery ──────────────────────────────
+
+  /// FIX-W11: Check if critical deadlines were missed while app was killed.
+  /// Call this on app resume (MainNavigationShell.didChangeAppLifecycleState).
+  /// Sets a SharedPreferences flag that PulseScreen or similar can consume
+  /// to show a banner on next app open.
+  static Future<void> checkMissedDeadlines() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('_scheduled_deadlines');
+    if (raw == null) return;
+    try {
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+      final deadline3a = DateTime.tryParse(data['3a_deadline'] ?? '');
+      if (deadline3a != null && DateTime.now().isAfter(deadline3a)) {
+        // 3a deadline passed — show banner on next app open
+        // This will be consumed by PulseScreen or similar
+        await prefs.setBool('_missed_3a_deadline', true);
+      }
+    } catch (_) {
+      // Corrupted data — ignore silently
+    }
   }
 }
