@@ -9597,5 +9597,15 @@
       }
     }
   },
-  "tabMint": "Mint"
+  "tabMint": "Mint",
+  "coachIntensityPrompt": "Antes de começar: como queres que te fale?",
+  "intensityTranquille": "Suave",
+  "intensityClair": "Claro",
+  "intensityDirect": "Direto",
+  "intensityCash": "Franco",
+  "intensityBrut": "Cru",
+  "cashModeTitle": "Intensidade vocal",
+  "cashModeSubtitle": "Como o coach fala contigo",
+  "intensityAdjustedUp": "OK, subi um nível.",
+  "intensityAdjustedDown": "OK, desci um nível."
 }

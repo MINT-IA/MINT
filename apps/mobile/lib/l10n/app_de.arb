@@ -9597,5 +9597,15 @@
       }
     }
   },
-  "tabMint": "Mint"
+  "tabMint": "Mint",
+  "coachIntensityPrompt": "Bevor wir loslegen: Wie soll ich mit dir reden?",
+  "intensityTranquille": "Sanft",
+  "intensityClair": "Klar",
+  "intensityDirect": "Direkt",
+  "intensityCash": "Unverblümt",
+  "intensityBrut": "Roh",
+  "cashModeTitle": "Sprachintensität",
+  "cashModeSubtitle": "Wie der Coach mit dir spricht",
+  "intensityAdjustedUp": "OK, ich lege einen Zahn zu.",
+  "intensityAdjustedDown": "OK, ich nehme es etwas zurück."
 }

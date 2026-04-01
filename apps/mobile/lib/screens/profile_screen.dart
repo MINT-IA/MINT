@@ -117,6 +117,11 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
 
+                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+
+                  // Voice intensity
+                  _VoiceIntensitySection(),
+
                   // ══════════════════════════════════════════
                   //  SECTION: Compte
                   // ══════════════════════════════════════════
@@ -1021,4 +1026,131 @@ class _ProfileCompletionData {
         precision, identityComplete, incomeComplete,
         pensionComplete, propertyComplete,
       );
+}
+
+/// Voice intensity radio group for coaching preferences.
+///
+/// Self-contained StatefulWidget that reads/writes SharedPreferences.
+/// Levels: 1 (Tranquille) to 5 (Brut).
+class _VoiceIntensitySection extends StatefulWidget {
+  @override
+  State<_VoiceIntensitySection> createState() => _VoiceIntensitySectionState();
+}
+
+class _VoiceIntensitySectionState extends State<_VoiceIntensitySection> {
+  static const String _key = 'mint_coach_cash_level';
+  int _level = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final v = prefs.getInt(_key);
+      if (v != null && mounted) {
+        setState(() => _level = v.clamp(1, 5));
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _save(int level) async {
+    setState(() => _level = level);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_key, level);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final labels = <int, String>{
+      1: s.intensityTranquille,
+      2: s.intensityClair,
+      3: s.intensityDirect,
+      4: s.intensityCash,
+      5: s.intensityBrut,
+    };
+
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.record_voice_over_outlined,
+                  color: MintColors.primary, size: 20),
+              const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.cashModeTitle,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      s.cashModeSubtitle,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.md),
+          ...labels.entries.map((entry) {
+            final isSelected = _level == entry.key;
+            return GestureDetector(
+              onTap: () => _save(entry.key),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected
+                              ? MintColors.primary
+                              : MintColors.textMuted.withValues(alpha: 0.3),
+                          width: isSelected ? 6 : 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+                    Text(
+                      '${entry.key} \u2014 ${entry.value}',
+                      style: MintTextStyles.bodyMedium(
+                        color: isSelected
+                            ? MintColors.textPrimary
+                            : MintColors.textSecondary,
+                      ).copyWith(
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
 }

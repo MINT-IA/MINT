@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -100,6 +101,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Once answered, the picker is replaced by the user's response text.
   final Set<int> _answeredInputIndices = {};
 
+  /// Voice intensity level (1-5). Persisted in SharedPreferences.
+  /// 1 = Tranquille, 2 = Clair, 3 = Direct, 4 = Cash, 5 = Brut
+  int _cashLevel = 3;
+
+  /// Whether the user has already chosen an intensity (hides picker chips).
+  bool _intensityChosen = false;
+
+  /// Whether the cash level has been loaded from SharedPreferences.
+  bool _cashLevelLoaded = false;
+
+  /// SharedPreferences key for voice intensity level.
+  static const String _cashLevelKey = 'mint_coach_cash_level';
+
   @override
   void initState() {
     super.initState();
@@ -109,6 +123,39 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (widget.conversationId != null) {
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
+    }
+    _loadCashLevel();
+  }
+
+  /// Load voice intensity from SharedPreferences.
+  Future<void> _loadCashLevel() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final level = prefs.getInt(_cashLevelKey);
+      if (mounted) {
+        setState(() {
+          _cashLevelLoaded = true;
+          if (level != null) {
+            _cashLevel = level.clamp(1, 5);
+            _intensityChosen = true;
+          }
+        });
+      }
+    } catch (_) {
+      // Graceful degradation: default level 3, show picker.
+      if (mounted) {
+        setState(() => _cashLevelLoaded = true);
+      }
+    }
+  }
+
+  /// Save voice intensity to SharedPreferences.
+  Future<void> _saveCashLevel(int level) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_cashLevelKey, level);
+    } catch (_) {
+      // Best-effort persistence.
     }
   }
 
@@ -230,8 +277,124 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
+  /// Handle intensity chip selection.
+  void _onIntensitySelected(int level) {
+    setState(() {
+      _cashLevel = level;
+      _intensityChosen = true;
+    });
+    _saveCashLevel(level);
+
+    // Add adapted confirmation message.
+    final String confirmation;
+    switch (level) {
+      case 1:
+        confirmation =
+            'Bien re\u00e7u. Je serai doux et progressif.';
+        break;
+      case 2:
+        confirmation =
+            'Compris. Clair et pos\u00e9, sans jargon inutile.';
+        break;
+      case 3:
+        confirmation =
+            'OK. Je vais droit au but, sans d\u00e9tour.';
+        break;
+      case 4:
+        confirmation =
+            'Re\u00e7u. Je te dis les choses cash, pas de pincettes.';
+        break;
+      case 5:
+        confirmation =
+            'Not\u00e9. Mode brut\u00a0: je ne m\u00e2che pas mes mots.';
+        break;
+      default:
+        confirmation = S.of(context)!.intensityDirect;
+    }
+
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: confirmation,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
+    });
+    _scrollToBottom();
+  }
+
+  /// Regex patterns for voice intensity adjustment commands.
+  static final RegExp _intensityUpPattern = RegExp(
+    r'(plus cash|plus direct|mode brut|sois plus direct|parle.?moi plus cash|monte.*cran|plus franc)',
+    caseSensitive: false,
+  );
+  static final RegExp _intensityDownPattern = RegExp(
+    r'(plus doux|plus gentil|sois plus doux|calme|moins direct|baisse.*cran|plus tranquille|doucement)',
+    caseSensitive: false,
+  );
+
+  /// Check if the user message is a voice intensity adjustment command.
+  /// Returns true if handled (message should not be sent to LLM).
+  bool _handleVoiceIntensityCommand(String text) {
+    final s = S.of(context)!;
+    if (_intensityUpPattern.hasMatch(text)) {
+      final newLevel = (_cashLevel + 1).clamp(1, 5);
+      if (newLevel == _cashLevel) return false; // Already at max
+      setState(() {
+        _cashLevel = newLevel;
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: s.intensityAdjustedUp,
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _saveCashLevel(newLevel);
+      _scrollToBottom();
+      return true;
+    }
+    if (_intensityDownPattern.hasMatch(text)) {
+      final newLevel = (_cashLevel - 1).clamp(1, 5);
+      if (newLevel == _cashLevel) return false; // Already at min
+      setState(() {
+        _cashLevel = newLevel;
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: s.intensityAdjustedDown,
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _saveCashLevel(newLevel);
+      _scrollToBottom();
+      return true;
+    }
+    return false;
+  }
+
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+
+    // Check for voice intensity adjustment commands before sending to LLM.
+    if (_handleVoiceIntensityCommand(text.trim())) {
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'user',
+          content: text.trim(),
+          timestamp: DateTime.now(),
+        ));
+      });
+      _controller.clear();
+      // Re-order: user message first, then response.
+      if (_messages.length >= 2) {
+        final assistantMsg = _messages.removeLast();
+        final userMsg = _messages.removeLast();
+        _messages.add(userMsg);
+        _messages.add(assistantMsg);
+      }
+      _scrollToBottom();
+      return;
+    }
 
     setState(() {
       _messages.add(ChatMessage(
@@ -813,6 +976,27 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ),
           );
         }
+
+        // Wrap with intensity picker for first assistant message if needed.
+        final bool showIntensity = _cashLevelLoaded &&
+            !_intensityChosen &&
+            index == 0 &&
+            msg.isAssistant &&
+            !(_isStreaming && msg == _messages.last);
+        final Widget wrappedChild = showIntensity
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  child,
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 42),
+                    child: _buildIntensityChips(),
+                  ),
+                ],
+              )
+            : child;
+
         return TweenAnimationBuilder<double>(
           key: ValueKey('msg_$index'),
           tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -827,10 +1011,52 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
             );
           },
-          child: child,
+          child: wrappedChild,
         );
       },
       ),
+    );
+  }
+
+  /// Build inline intensity picker chips.
+  Widget _buildIntensityChips() {
+    final s = S.of(context)!;
+    final chips = <MapEntry<int, String>>[
+      MapEntry(1, s.intensityTranquille),
+      MapEntry(3, s.intensityDirect),
+      MapEntry(4, s.intensityCash),
+      MapEntry(5, s.intensityBrut),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 10,
+      children: chips.map((entry) {
+        return GestureDetector(
+          onTap: () => _onIntensitySelected(entry.key),
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: MintColors.porcelaine,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: MintColors.border.withValues(alpha: 0.3),
+                width: 0.5,
+              ),
+            ),
+            child: Text(
+              entry.value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                height: 1.3,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

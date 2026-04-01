@@ -10061,5 +10061,15 @@
       }
     }
   },
-  "tabMint": "Mint"
+  "tabMint": "Mint",
+  "coachIntensityPrompt": "Avant de commencer : comment tu veux que je te parle ?",
+  "intensityTranquille": "Tranquille",
+  "intensityClair": "Clair",
+  "intensityDirect": "Direct",
+  "intensityCash": "Cash",
+  "intensityBrut": "Brut",
+  "cashModeTitle": "Intensité vocale",
+  "cashModeSubtitle": "Comment le coach s’adresse à toi",
+  "intensityAdjustedUp": "OK, je monte d’un cran.",
+  "intensityAdjustedDown": "OK, je baisse d’un cran."
 }

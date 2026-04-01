@@ -9597,5 +9597,15 @@
       }
     }
   },
-  "tabMint": "Mint"
+  "tabMint": "Mint",
+  "coachIntensityPrompt": "Before we start: how do you want me to talk to you?",
+  "intensityTranquille": "Gentle",
+  "intensityClair": "Clear",
+  "intensityDirect": "Direct",
+  "intensityCash": "Blunt",
+  "intensityBrut": "Raw",
+  "cashModeTitle": "Voice intensity",
+  "cashModeSubtitle": "How the coach speaks to you",
+  "intensityAdjustedUp": "OK, I’ve turned it up a notch.",
+  "intensityAdjustedDown": "OK, I’ve toned it down a notch."
 }

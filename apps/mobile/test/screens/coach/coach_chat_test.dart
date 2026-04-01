@@ -84,9 +84,12 @@ void main() {
     }
   }
 
-  // SharedPreferences mock needed for ContextInjectorService (S58 AI memory).
+  // SharedPreferences mock needed for ContextInjectorService (S58 AI memory)
+  // and voice intensity level (default to 3 = Direct so greeting tests pass).
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'mint_coach_cash_level': 3,
+    });
   });
 
   group('CoachChatScreen', () {
