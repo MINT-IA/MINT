@@ -83,12 +83,13 @@ void main() {
       // grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(60000)
       //   uses Newton-Raphson iteration (not the old / 0.87 linear approx)
       //   → ~67548 CHF with current social charges constants
-      // renteFromRAMD(~67548) = ~2163 (linear interpolation)
+      // renteFromRAMD(~67548) via Echelle 44: between 64680 (2142) and 67620 (2199)
+      //   ratio ≈ 0.976 → rente ≈ 2197.6
       // With anneesContribuees=40 + futureYears=19 = 44 total => gapFactor=1.0
-      // So rente = ~2163
+      // So rente ≈ 2194-2198 (exact depends on Newton-Raphson brut estimate)
 
       expect(
-          report.retirementProjection?.monthlyAvsRent, closeTo(2163.11, 1.0));
+          report.retirementProjection?.monthlyAvsRent, closeTo(2194.4, 5.0));
     });
 
     test('Married AVS Rent calculation with spouse gaps', () {

@@ -85,30 +85,29 @@ class AvsCalculator {
     return (value * 20).roundToDouble() / 20;
   }
 
-  /// AVS rente based on RAMD (LAVS art. 34, echelle 44).
+  /// AVS rente based on RAMD using Echelle 44 (LAVS art. 34).
   ///
-  /// Linear interpolation between min and max rente.
-  /// RAMD <= 14'700 → 1'260/mois (minimum)
-  /// RAMD >= 88'200 → 2'520/mois (maximum)
-  /// No data (0) → return 0 (cannot estimate rente without salary data).
+  /// Concave lookup + linear interpolation between table points.
+  /// Source: Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
+  /// RAMD <= 0 → 0 (no salary data).
+  /// RAMD <= 14'700 → 1'260/mois (minimum).
+  /// RAMD >= 88'200 → 2'520/mois (maximum).
+  /// Between table points: linear interpolation within the bracket.
   /// gapFactor in computeMonthlyRente already handles contribution years.
-  ///
-  /// NOTE: Uses linear interpolation between RAMD min and max.
-  /// The official AVS scale (Echelle 44) uses a concave curve that benefits
-  /// middle-income earners by 3-8%. This is a known simplification.
-  /// TODO(P1-Finance): Implement full Echelle 44 lookup table for production.
   static double renteFromRAMD(double grossAnnualSalary) {
-    if (grossAnnualSalary <= 0) return 0.0;
-    final ramdMax = reg('avs.ramd_max', avsRAMDMax);
-    final ramdMin = reg('avs.ramd_min', avsRAMDMin);
-    final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
-    final renteMin = reg('avs.min_monthly_pension', avsRenteMinMensuelle);
-    if (grossAnnualSalary >= ramdMax) return renteMax;
-    if (grossAnnualSalary <= ramdMin) return renteMin;
-    final range = ramdMax - ramdMin;
-    if (range <= 0) return renteMin;
-    final fraction = (grossAnnualSalary - ramdMin) / range;
-    return renteMin + (renteMax - renteMin) * fraction;
+    if (grossAnnualSalary <= 0) return 0;
+    const table = avsEchelle44;
+    if (grossAnnualSalary <= table.first[0]) return table.first[1];
+    if (grossAnnualSalary >= table.last[0]) return table.last[1];
+    for (int i = 0; i < table.length - 1; i++) {
+      final lower = table[i];
+      final upper = table[i + 1];
+      if (grossAnnualSalary >= lower[0] && grossAnnualSalary <= upper[0]) {
+        final ratio = (grossAnnualSalary - lower[0]) / (upper[0] - lower[0]);
+        return lower[1] + ratio * (upper[1] - lower[1]);
+      }
+    }
+    return table.last[1];
   }
 
   /// Couple AVS with married cap (LAVS art. 35).
