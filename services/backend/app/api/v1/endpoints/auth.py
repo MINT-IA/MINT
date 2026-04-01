@@ -1119,7 +1119,7 @@ def delete_account(
         db.rollback()
         logger.error("Account deletion failed for user %s: %s", user_id, e)
         raise HTTPException(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Account deletion failed. Please try again or contact support.",
         )
 

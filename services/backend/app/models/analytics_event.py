@@ -3,7 +3,7 @@ Analytics event model for tracking user behavior and app usage.
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Index, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, String, Text
 from app.core.database import Base
 
 
