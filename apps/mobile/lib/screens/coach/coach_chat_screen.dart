@@ -775,7 +775,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
 
   Widget _buildMessageList() {
-    return ListView.builder(
+    return RepaintBoundary(
+      child: ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(
           horizontal: MintSpacing.md, vertical: MintSpacing.md),
@@ -829,6 +830,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           child: child,
         );
       },
+      ),
     );
   }
 }

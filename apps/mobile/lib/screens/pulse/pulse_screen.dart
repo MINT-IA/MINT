@@ -301,20 +301,22 @@ class _PulseScreenState extends State<PulseScreen> {
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── 1+2. REVELATION 5 TEMPS ──
-                MintEntrance(child: MintCountUp(
-                  value: dominantNumber.value.abs(),
-                  prefix: _dominantPrefix(dominantNumber),
-                  suffix: _dominantSuffix(dominantNumber),
-                  setupText: narrativePhrase,
-                  contextText: dominantLabel,
-                  color: dominantColor,
-                  fullReveal: !_hasRevealedOnce,
-                  onRevealComplete: () {
-                    if (mounted && !_hasRevealedOnce) {
-                      setState(() => _hasRevealedOnce = true);
-                    }
-                  },
-                )),
+                RepaintBoundary(
+                  child: MintEntrance(child: MintCountUp(
+                    value: dominantNumber.value.abs(),
+                    prefix: _dominantPrefix(dominantNumber),
+                    suffix: _dominantSuffix(dominantNumber),
+                    setupText: narrativePhrase,
+                    contextText: dominantLabel,
+                    color: dominantColor,
+                    fullReveal: !_hasRevealedOnce,
+                    onRevealComplete: () {
+                      if (mounted && !_hasRevealedOnce) {
+                        setState(() => _hasRevealedOnce = true);
+                      }
+                    },
+                  )),
+                ),
                 // Uncertainty band: ±15% when confidence < 70 and
                 // dominant number is a financial projection (CHF or %).
                 if ((mintState?.confidenceScore ?? 0) < 70 &&

@@ -543,12 +543,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     ),
 
                   // ══════════════════════════════════════════════
-                  //  BLOC A — ACCROCHE
+                  //  BLOC A — ACCROCHE (RepaintBoundary for perf)
                   //  Chiffre-choc + Hero CHF/mois + micro-légendes
                   // ══════════════════════════════════════════════
-                  _buildChiffreChocAccroche(),
-                  const SizedBox(height: MintSpacing.md),
-                  _buildHeroMonthly(),
+                  RepaintBoundary(
+                    child: Column(
+                      children: [
+                        _buildChiffreChocAccroche(),
+                        const SizedBox(height: MintSpacing.md),
+                        _buildHeroMonthly(),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: MintSpacing.lg),
 
                   // ══════════════════════════════════════════════
@@ -943,39 +949,42 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     // Retirement age chips: 58 to 70.
     const ageOptions = [58, 60, 62, 63, 64, 65, 66, 67, 70];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l.renteVsCapitalRetirementAgeChips, style: _labelStyle),
-        const SizedBox(height: MintSpacing.sm),
-        Wrap(
-          spacing: MintSpacing.xs,
-          runSpacing: MintSpacing.xs,
-          children: ageOptions.map((age) {
-            final isSelected = _ageRetraiteSlider.value.round() == age;
-            return ChoiceChip(
-              label: Text('$age'),
-              selected: isSelected,
-              onSelected: (_) {
-                _ageRetraiteSlider.value = age.toDouble();
-                _userRecalculate();
-              },
-              selectedColor: MintColors.primary.withValues(alpha: 0.15),
-              backgroundColor: MintColors.surface,
-              labelStyle: MintTextStyles.bodySmall(
-                color: isSelected ? MintColors.primary : MintColors.textPrimary,
-              ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
-              side: BorderSide(
-                color: isSelected ? MintColors.primary : MintColors.border,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              visualDensity: VisualDensity.compact,
-            );
-          }).toList(),
-        ),
-      ],
+    return ValueListenableBuilder<double>(
+      valueListenable: _ageRetraiteSlider,
+      builder: (context, ageValue, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l.renteVsCapitalRetirementAgeChips, style: _labelStyle),
+          const SizedBox(height: MintSpacing.sm),
+          Wrap(
+            spacing: MintSpacing.xs,
+            runSpacing: MintSpacing.xs,
+            children: ageOptions.map((age) {
+              final isSelected = ageValue.round() == age;
+              return ChoiceChip(
+                label: Text('$age'),
+                selected: isSelected,
+                onSelected: (_) {
+                  _ageRetraiteSlider.value = age.toDouble();
+                  _userRecalculate();
+                },
+                selectedColor: MintColors.primary.withValues(alpha: 0.15),
+                backgroundColor: MintColors.surface,
+                labelStyle: MintTextStyles.bodySmall(
+                  color: isSelected ? MintColors.primary : MintColors.textPrimary,
+                ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+                side: BorderSide(
+                  color: isSelected ? MintColors.primary : MintColors.border,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                visualDensity: VisualDensity.compact,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 
