@@ -473,41 +473,7 @@ const int friThresholdAttention = 40;
 // Base legale: LAVS art. 34, Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025)
 // ══════════════════════════════════════════════════════════════════════════════
 
-/// Echelle 44 — table officielle OFAS (rentes mensuelles AVS, 44 ans de cotisation).
-/// Source : Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
-/// ATTENTION : cette table est mise a jour tous les 2 ans par le Conseil federal.
-/// Le backend (social_insurance.py) est la source de verite.
-/// Ces valeurs servent de fallback offline uniquement.
-/// Format: [RAMD (CHF/an), rente mensuelle (CHF/mois)].
-/// Note: RAMD < 14700 → rente minimale 1260. RAMD = 0 signifie pas de donnees.
-const List<List<double>> avsEchelle44 = [
-  [14700, 1260],
-  [17640, 1299],
-  [20580, 1338],
-  [23520, 1377],
-  [26460, 1416],
-  [29400, 1470],
-  [32340, 1524],
-  [35280, 1578],
-  [38220, 1632],
-  [41160, 1686],
-  [44100, 1743],
-  [47040, 1800],
-  [49980, 1857],
-  [52920, 1914],
-  [55860, 1971],
-  [58800, 2028],
-  [61740, 2085],
-  [64680, 2142],
-  [67620, 2199],
-  [70560, 2256],
-  [73500, 2313],
-  [76440, 2370],
-  [79380, 2427],
-  [82320, 2462],
-  [85260, 2491],
-  [88200, 2520],
-];
+// avsEchelle44 — defined above (line ~169). Do not duplicate.
 
 // ══════════════════════════════════════════════════════════════════════════════
 // Projection — Hypothèses par défaut

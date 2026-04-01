@@ -1,5 +1,4 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 // ALL AVS calculations MUST use AvsCalculator from financial_core.
 // See ADR-20260223-unified-financial-engine.md
