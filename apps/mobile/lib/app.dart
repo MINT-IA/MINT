@@ -342,8 +342,15 @@ final _router = GoRouter(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final prompt = state.uri.queryParameters['prompt'];
-        final conversationId = state.uri.queryParameters['conversationId'];
+        final rawPrompt = state.uri.queryParameters['prompt'];
+        final prompt = (rawPrompt != null && rawPrompt.length <= 500)
+            ? rawPrompt
+            : null;
+        final rawConvId = state.uri.queryParameters['conversationId'];
+        final conversationId = (rawConvId != null &&
+                RegExp(r'^[a-zA-Z0-9\-]{1,64}$').hasMatch(rawConvId))
+            ? rawConvId
+            : null;
         return CoachChatScreen(
           initialPrompt: prompt,
           conversationId: conversationId,

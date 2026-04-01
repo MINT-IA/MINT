@@ -1808,7 +1808,7 @@
     }
   },
   "agirScenarioBriefTitle": "Pensionierungsszenarien im Überblick",
-  "agirScenarioBriefSummary": "In ~{years} Jahren zielt dein Basis-Szenario auf {baseCapital} (~{replacement}% Ersatzquote).",
+  "agirScenarioBriefSummary": "In ~{years} Jahren zielt dein Basis-Szenario auf {baseCapital} (~{replacement}% Ersatzquote). Die Spanne Vorsichtig vs Optimistisch beträgt {gapCapital}.",
   "@agirScenarioBriefSummary": {
     "placeholders": {
       "years": {

@@ -472,7 +472,7 @@ class _SectionLabel extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
-                _formatTimestamp(timestamp!, l),
+                _formatTimestamp(timestamp!, l, context),
                 style: MintTextStyles.labelSmall(
                   color: MintColors.textMuted,
                 ),
@@ -488,7 +488,7 @@ class _SectionLabel extends StatelessWidget {
   /// - Yesterday: "Mis à jour hier"
   /// - 2–30 days: "Mis à jour il y a X jours"
   /// - > 30 days: "Mis à jour le 14 mars"
-  static String _formatTimestamp(DateTime ts, S l) {
+  static String _formatTimestamp(DateTime ts, S l, BuildContext context) {
     final now = DateTime.now();
     final diff = now.difference(ts);
 
@@ -503,7 +503,8 @@ class _SectionLabel extends StatelessWidget {
       return l.dossierUpdatedAgo(diff.inDays);
     }
     // > 30 days — show absolute date.
-    final formatted = DateFormat('d MMMM', 'fr_CH').format(ts);
+    final locale = Localizations.localeOf(context).toString();
+    final formatted = DateFormat('d MMMM', locale).format(ts);
     return l.dossierUpdatedOn(formatted);
   }
 }

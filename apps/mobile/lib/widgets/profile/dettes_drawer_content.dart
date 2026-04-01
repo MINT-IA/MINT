@@ -77,7 +77,7 @@ class DettesDrawerContent extends StatelessWidget {
         final years = (remaining / 365).ceil();
         lines.add(FinancialLine(
           label: l10n.financialSummaryEcheance(
-            DateFormat('MM.yyyy').format(det.echeanceHypotheque!),
+            DateFormat('MM.yyyy', Localizations.localeOf(context).toString()).format(det.echeanceHypotheque!),
             '$years',
           ),
           formattedValue: '',

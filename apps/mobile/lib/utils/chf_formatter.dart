@@ -1,5 +1,8 @@
 /// Swiss CHF formatting utility — single source of truth.
 ///
+/// CHF amounts are ALWAYS formatted in Swiss style (1'234.00) regardless of
+/// locale, because CHF is a Swiss currency and Swiss formatting is the standard.
+/// This is intentional per CLAUDE.md §7 (Design System).
 /// Formats a double value as a Swiss-style CHF string with
 /// apostrophe thousands separator (e.g. "4'280").
 ///
