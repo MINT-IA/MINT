@@ -6,7 +6,7 @@ Implements INV-1 through INV-6 from P6_BILLING_INVARIANTS.md.
 from __future__ import annotations
 
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import HTTPException, status
@@ -24,7 +24,7 @@ MAX_ACTIVE_MEMBERS = 2
 
 
 def _now() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def get_household_for_user(db: Session, user_id: str) -> Optional[HouseholdModel]:

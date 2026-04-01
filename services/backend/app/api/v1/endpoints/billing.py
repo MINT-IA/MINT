@@ -133,9 +133,9 @@ def debug_activate_subscription(
     sub.tier = body.tier
     sub.status = body.status
     sub.is_trial = body.is_trial
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
-    sub.current_period_end = datetime.utcnow() + timedelta(days=body.period_days)
+    sub.current_period_end = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=body.period_days)
     db.commit()
     db.refresh(sub)
     _, features = recompute_entitlements(db, current_user.id)

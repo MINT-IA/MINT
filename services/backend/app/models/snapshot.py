@@ -5,7 +5,7 @@ Sources:
     - LPD (Loi sur la protection des donnees) — right to erasure
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Index, text
 from app.core.database import Base
@@ -17,7 +17,7 @@ class SnapshotModel(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     trigger = Column(String, nullable=False)  # quarterly, life_event, profile_update, check_in
     model_version = Column(String, default="1.0", nullable=False)
 

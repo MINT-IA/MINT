@@ -4,7 +4,7 @@ Authentication security service (anti-bruteforce + password reset tokens).
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 from secrets import token_urlsafe
 import math
@@ -24,7 +24,7 @@ EMAIL_VERIFICATION_TOKEN_TTL_MINUTES = 24 * 60
 
 
 def _now() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def _get_or_create_security_state(db: Session, email: str) -> LoginSecurityStateModel:

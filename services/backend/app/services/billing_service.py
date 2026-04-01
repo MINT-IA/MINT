@@ -4,7 +4,7 @@ Billing orchestration service.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 import hmac
 import hashlib
@@ -69,7 +69,7 @@ _JWT_COMPACT_RE = re.compile(r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$"
 
 
 def _now() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def _is_subscription_active(sub: SubscriptionModel) -> bool:

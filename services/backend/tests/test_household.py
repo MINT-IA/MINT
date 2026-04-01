@@ -2,7 +2,7 @@
 Tests for household management endpoints (Couple+ billing, P6.4 + P6.5).
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
 
@@ -334,7 +334,7 @@ def test_e8_accept_expired_invitation(client: TestClient):
         member = db.query(HouseholdMemberModel).filter(
             HouseholdMemberModel.invitation_code == code
         ).first()
-        member.invited_at = datetime.utcnow() - timedelta(hours=73)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=73)
         db.commit()
     finally:
         db.close()
@@ -391,7 +391,7 @@ def test_a1_invitation_expiry_72h(client: TestClient):
             HouseholdMemberModel.invitation_code == code
         ).first()
         # Set to just under 72h -- should still work
-        member.invited_at = datetime.utcnow() - timedelta(hours=71, minutes=59)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=71, minutes=59)
         db.commit()
     finally:
         db.close()
@@ -420,7 +420,7 @@ def test_a2_accept_expired_code(client: TestClient):
         member = db.query(HouseholdMemberModel).filter(
             HouseholdMemberModel.invitation_code == code
         ).first()
-        member.invited_at = datetime.utcnow() - timedelta(hours=100)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=100)
         db.commit()
     finally:
         db.close()

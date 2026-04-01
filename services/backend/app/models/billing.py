@@ -2,7 +2,7 @@
 Billing models: subscriptions, entitlements, transactions, webhook events.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from sqlalchemy import (
     Column,
@@ -36,10 +36,10 @@ class SubscriptionModel(Base):
     current_period_end = Column(DateTime, nullable=True)
     external_customer_id = Column(String, nullable=True, index=True)
     external_subscription_id = Column(String, nullable=True, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     last_event_at = Column(DateTime, nullable=True)
     updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     user = relationship("User")
@@ -66,9 +66,9 @@ class EntitlementModel(Base):
     )
     feature_key = Column(String, nullable=False, index=True)
     is_active = Column(Boolean, nullable=False, default=False)
-    granted_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    granted_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     subscription = relationship("SubscriptionModel", back_populates="entitlements")
@@ -87,7 +87,7 @@ class BillingTransactionModel(Base):
     currency = Column(String, nullable=False, default="chf")
     status = Column(String, nullable=False, default="succeeded")
     raw_payload = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     subscription = relationship("SubscriptionModel", back_populates="transactions")
 
@@ -106,4 +106,4 @@ class BillingWebhookEventModel(Base):
     outcome = Column(String, nullable=False, default="applied")  # applied | skipped_duplicate | skipped_stale
     is_processed = Column(Boolean, nullable=False, default=False)
     payload = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)

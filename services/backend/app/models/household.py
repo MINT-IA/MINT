@@ -2,7 +2,7 @@
 Household models for Couple+ billing (P6).
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from sqlalchemy import (
     Column,
@@ -28,9 +28,9 @@ class HouseholdModel(Base):
     billing_owner_user_id = Column(
         String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     household_owner = relationship("User", foreign_keys=[household_owner_user_id])
@@ -61,7 +61,7 @@ class HouseholdMemberModel(Base):
     role = Column(String, nullable=False, default="owner")
     status = Column(String, nullable=False, default="pending")
     invitation_code = Column(String, nullable=True, unique=True, index=True)
-    invited_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    invited_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     accepted_at = Column(DateTime, nullable=True)
     cooldown_override = Column(Boolean, default=False, nullable=False)
 
@@ -80,4 +80,4 @@ class AdminAuditEventModel(Base):
     reason = Column(Text, nullable=False)  # min 10 chars enforced at service level
     ip_address = Column(String, nullable=True)
     user_agent = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)

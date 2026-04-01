@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Any, Dict
 from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
@@ -15,7 +15,7 @@ class SessionCreate(BaseModel):
 class Session(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     profileId: UUID
-    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     answers: Dict[str, Any]
     selectedFocusKinds: List[str]
     recommendedGoalTemplateId: str
@@ -76,4 +76,4 @@ class SessionReport(BaseModel):
     topActions: List[TopAction] = Field(..., min_length=3, max_length=3)
     recommendations: List[Recommendation]
     disclaimers: List[str] = Field(..., min_length=3)
-    generatedAt: datetime = Field(default_factory=datetime.utcnow)
+    generatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

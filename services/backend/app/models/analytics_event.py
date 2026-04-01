@@ -2,7 +2,7 @@
 Analytics event model for tracking user behavior and app usage.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, String, Text
 from app.core.database import Base
 
@@ -21,6 +21,6 @@ class AnalyticsEvent(Base):
     session_id = Column(String, nullable=True, index=True)  # anonymous session UUID
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)  # optional, if logged in
     screen_name = Column(String, nullable=True, index=True)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     app_version = Column(String, nullable=True)
     platform = Column(String, nullable=True)  # "ios", "android", "web"

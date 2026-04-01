@@ -4,7 +4,7 @@ Tests cover the 13 scenarios from P6_BILLING_INVARIANTS.md section 6.
 ALL 13 must pass before merge to main.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
 
@@ -435,7 +435,7 @@ def test_w2_stale_event_ignored(client: TestClient):
         )
         assert sub is not None
         # Set last_event_at to far future
-        sub.last_event_at = datetime.utcnow() + timedelta(days=365)
+        sub.last_event_at = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=365)
         # Also set an external_subscription_id for Stripe lookup
         sub.external_subscription_id = "sub_stale_w2_test"
         db.commit()
@@ -711,7 +711,7 @@ def test_a1_invitation_expires_72h(client: TestClient):
             .filter(HouseholdMemberModel.invitation_code == code)
             .first()
         )
-        member.invited_at = datetime.utcnow() - timedelta(hours=73)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=73)
         db.commit()
     finally:
         db.close()
@@ -778,7 +778,7 @@ def test_a2_accept_expired_code_410(client: TestClient):
             .filter(HouseholdMemberModel.invitation_code == code)
             .first()
         )
-        member.invited_at = datetime.utcnow() - timedelta(hours=100)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=100)
         db.commit()
     finally:
         db.close()
