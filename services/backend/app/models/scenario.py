@@ -5,7 +5,7 @@ Replaces the in-memory _scenarios dict.
 """
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, JSON, ForeignKey
 from app.core.database import Base
 
@@ -19,4 +19,4 @@ class ScenarioModel(Base):
     kind = Column(String, nullable=False)
     inputs = Column(JSON, nullable=True)
     outputs = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

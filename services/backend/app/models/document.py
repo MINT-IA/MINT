@@ -12,7 +12,7 @@ Raw file bytes are never stored — only extracted metadata.
 """
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, Float, Integer, JSON, ForeignKey
 from app.core.database import Base
 
@@ -24,7 +24,7 @@ class DocumentModel(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     document_type = Column(String, nullable=False)
-    upload_date = Column(DateTime, default=datetime.utcnow)
+    upload_date = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     confidence = Column(Float, default=0.0)
     fields_found = Column(Integer, default=0)
     fields_total = Column(Integer, default=0)
