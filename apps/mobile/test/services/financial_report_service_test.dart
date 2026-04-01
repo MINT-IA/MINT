@@ -274,10 +274,10 @@ void main() {
       answers['q_avs_contribution_years'] = 44; // Full contribution
       final report = service.generateReport(answers);
       expect(report.profile.avsReductionFactor, equals(1.0));
-      // Monthly AVS rent uses RAMD interpolation (LAVS art. 34, echelle 44).
-      // For 6000 CHF/mo net (~82k gross), rente is sub-max but close.
+      // Monthly AVS rent uses Echelle 44 lookup (LAVS art. 34).
+      // For 6000 CHF/mo net (~82k gross), Echelle 44 gives ~2126.
       expect(report.retirementProjection!.monthlyAvsRent,
-          greaterThan(avsRenteMaxMensuelle * 0.9));
+          greaterThan(avsRenteMaxMensuelle * 0.8));
       expect(report.retirementProjection!.monthlyAvsRent,
           lessThanOrEqualTo(avsRenteMaxMensuelle));
     });

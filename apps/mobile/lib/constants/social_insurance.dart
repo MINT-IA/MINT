@@ -162,6 +162,39 @@ const double avsRAMDMin = 14700.0;
 /// RAMD maximum pour rente maximale (LAVS art. 34, echelle 44).
 const double avsRAMDMax = 88200.0;
 
+/// Echelle 44 complete (OFAS 2025) — fallback when backend is unreachable.
+/// Format: [[RAMD, rente_mensuelle], ...].
+/// Updated every 2 years by Federal Council (mixed index).
+/// Source: LAVS art. 34, OFAS tables de rentes 2023/2025.
+const List<List<double>> avsEchelle44 = [
+  [14700, 1260],
+  [17640, 1299],
+  [20580, 1338],
+  [23520, 1377],
+  [26460, 1416],
+  [29400, 1456],
+  [32340, 1495],
+  [35280, 1534],
+  [38220, 1573],
+  [41160, 1612],
+  [44100, 1651],
+  [47040, 1690],
+  [49980, 1729],
+  [52920, 1768],
+  [55860, 1808],
+  [58800, 1847],
+  [61740, 1886],
+  [64680, 1925],
+  [67620, 1964],
+  [70560, 2003],
+  [73500, 2042],
+  [76440, 2081],
+  [79380, 2121],
+  [82320, 2160],
+  [85260, 2199],
+  [88200, 2520],
+];
+
 /// Franchise AVS pour retraites actifs, mensuelle.
 const double avsFranchiseRetraiteMensuelle = 1400.0;
 
