@@ -550,13 +550,17 @@ class TestOpenBankingEndpoints:
         # List
         response = client.get("/api/v1/open-banking/consents")
         assert response.status_code == 200
-        consents = response.json()
-        assert any(c["consentId"] == consent_id for c in consents)
+        body = response.json()
+        assert "items" in body
+        assert "total" in body
+        assert any(c["consentId"] == consent_id for c in body["items"])
 
         # Revoke
         response = client.delete(f"/api/v1/open-banking/consent/{consent_id}")
         assert response.status_code == 200
-        assert response.json()["ok"] is True
+        revoke_data = response.json()
+        assert revoke_data["status"] == "revoked"
+        assert revoke_data["consentId"] == consent_id
 
     def test_transactions_endpoint(self, client):
         """GET /accounts/{id}/transactions should return categorized transactions."""
@@ -566,8 +570,10 @@ class TestOpenBankingEndpoints:
         )
         assert response.status_code == 200
         data = response.json()
-        assert len(data) > 0
-        first = data[0]
+        assert "items" in data
+        assert "total" in data
+        assert data["total"] > 0
+        first = data["items"][0]
         assert "id" in first
         assert "category" in first
         assert "isDebit" in first

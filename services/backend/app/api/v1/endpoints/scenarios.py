@@ -6,7 +6,7 @@ Persisted in PostgreSQL via ScenarioModel.
 import uuid
 from datetime import datetime, timezone
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,7 @@ from app.models.profile_model import ProfileModel
 from app.models.scenario import ScenarioModel
 from app.models.user import User
 from pydantic import UUID4
-from app.schemas.scenario import Scenario, ScenarioCreate, ScenarioKind
+from app.schemas.scenario import Scenario, ScenarioCreate, ScenarioKind, PaginatedScenariosResponse
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.rules_engine import (
     calculate_compound_interest,
@@ -100,15 +100,17 @@ def create_scenario(
     )
 
 
-@router.get("/{profile_id}", response_model=List[Scenario])
+@router.get("/{profile_id}", response_model=PaginatedScenariosResponse)
 @limiter.limit("30/minute")
 def list_scenarios(
     request: Request,
     profile_id: UUID4,
+    limit: int = Query(default=50, ge=1, le=200, description="Nombre max de resultats"),
+    offset: int = Query(default=0, ge=0, description="Offset pour la pagination"),
     current_user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
-) -> List[Scenario]:
-    """List all scenarios for a profile. Reads from DB."""
+) -> PaginatedScenariosResponse:
+    """List all scenarios for a profile (paginated, ordered by creation date desc). Reads from DB."""
     # P0-2: Verify profile ownership before returning scenarios
     profile = db.query(ProfileModel).filter(
         ProfileModel.id == str(profile_id),
@@ -117,18 +119,28 @@ def list_scenarios(
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
+    # Count total before pagination
+    total = db.query(ScenarioModel).filter(
+        ScenarioModel.profile_id == str(profile_id)
+    ).count()
+
     rows = db.query(ScenarioModel).filter(
         ScenarioModel.profile_id == str(profile_id)
-    ).order_by(ScenarioModel.created_at.desc()).all()
+    ).order_by(ScenarioModel.created_at.desc()).offset(offset).limit(limit).all()
 
-    return [
-        Scenario(
-            id=row.id,
-            profileId=row.profile_id,
-            kind=row.kind,
-            inputs=row.inputs or {},
-            outputs=row.outputs or {},
-            createdAt=row.created_at,
-        )
-        for row in rows
-    ]
+    return PaginatedScenariosResponse(
+        items=[
+            Scenario(
+                id=row.id,
+                profileId=row.profile_id,
+                kind=row.kind,
+                inputs=row.inputs or {},
+                outputs=row.outputs or {},
+                createdAt=row.created_at,
+            )
+            for row in rows
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )

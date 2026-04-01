@@ -33,6 +33,9 @@ from app.schemas.open_banking import (
     OpenBankingStatusResponse,
     ConsentRequest,
     ConsentResponse,
+    ConsentRevokeResponse,
+    PaginatedConsentsResponse,
+    PaginatedTransactionsResponse,
     BankAccountResponse,
     TransactionResponse,
     BalanceResponse,
@@ -181,8 +184,8 @@ def create_consent(request: ConsentRequest, response: Response, current_user: Us
     )
 
 
-@router.delete("/consent/{consent_id}")
-def revoke_consent(consent_id: str, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)):
+@router.delete("/consent/{consent_id}", response_model=ConsentRevokeResponse)
+def revoke_consent(consent_id: str, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> ConsentRevokeResponse:
     """Revoke a banking consent.
 
     The consent is immediately invalidated. All associated data access stops.
@@ -202,33 +205,47 @@ def revoke_consent(consent_id: str, response: Response, current_user: User = Dep
     if not success:
         raise HTTPException(status_code=404, detail="Consentement non trouve.")
 
-    return {
-        "ok": True,
-        "message": "Consentement revoque avec succes.",
-        "consentId": consent_id,
-    }
+    return ConsentRevokeResponse(
+        status="revoked",
+        consentId=consent_id,
+    )
 
 
-@router.get("/consents", response_model=List[ConsentResponse])
-def list_consents(response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> List[ConsentResponse]:
-    """List active consents for the current person."""
+@router.get("/consents", response_model=PaginatedConsentsResponse)
+def list_consents(
+    response: Response,
+    limit: int = Query(default=50, ge=1, le=200, description="Nombre max de resultats"),
+    offset: int = Query(default=0, ge=0, description="Offset pour la pagination"),
+    current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> PaginatedConsentsResponse:
+    """List active consents for the current person (paginated, ordered by grant date desc)."""
     _check_open_banking_enabled()
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     consents = _consent_manager.get_active_consents(current_user.id, db=db)
+    # Order by granted_at descending (most recent first)
+    consents_sorted = sorted(consents, key=lambda c: c.granted_at, reverse=True)
+    total = len(consents_sorted)
+    page = consents_sorted[offset:offset + limit]
 
-    return [
-        ConsentResponse(
-            consentId=c.consent_id,
-            bankId=c.bank_id,
-            bankName=c.bank_name,
-            scopes=c.scopes,
-            grantedAt=c.granted_at,
-            expiresAt=c.expires_at,
-            status="active",
-        )
-        for c in consents
-    ]
+    return PaginatedConsentsResponse(
+        items=[
+            ConsentResponse(
+                consentId=c.consent_id,
+                bankId=c.bank_id,
+                bankName=c.bank_name,
+                scopes=c.scopes,
+                grantedAt=c.granted_at,
+                expiresAt=c.expires_at,
+                status="active",
+            )
+            for c in page
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -279,16 +296,18 @@ def list_accounts(current_user: User = Depends(require_current_user)) -> Aggrega
 
 @router.get(
     "/accounts/{account_id}/transactions",
-    response_model=List[TransactionResponse],
+    response_model=PaginatedTransactionsResponse,
 )
 def list_transactions(
     account_id: str,
     date_from: str = Query("2025-01-01", description="Date de debut (YYYY-MM-DD)"),
     date_to: str = Query("2025-12-31", description="Date de fin (YYYY-MM-DD)"),
     category: Optional[str] = Query(None, description="Filtrer par categorie"),
+    limit: int = Query(default=50, ge=1, le=200, description="Nombre max de resultats"),
+    offset: int = Query(default=0, ge=0, description="Offset pour la pagination"),
     current_user: User = Depends(require_current_user),
-) -> List[TransactionResponse]:
-    """List transactions for an account with optional filters.
+) -> PaginatedTransactionsResponse:
+    """List transactions for an account with optional filters (paginated, ordered by date desc).
 
     Requires an active consent with 'transactions' scope.
     """
@@ -300,20 +319,30 @@ def list_transactions(
     if category:
         categorized = [t for t in categorized if t.category == category]
 
-    return [
-        TransactionResponse(
-            id=t.transaction_id,
-            date=t.date,
-            description=t.description,
-            amount=t.amount,
-            currency=t.currency,
-            category=t.category,
-            merchant=t.merchant,
-            isDebit=t.is_debit,
-            confidence=t.confidence,
-        )
-        for t in categorized
-    ]
+    # Order by date descending (most recent first)
+    categorized_sorted = sorted(categorized, key=lambda t: t.date, reverse=True)
+    total = len(categorized_sorted)
+    page = categorized_sorted[offset:offset + limit]
+
+    return PaginatedTransactionsResponse(
+        items=[
+            TransactionResponse(
+                id=t.transaction_id,
+                date=t.date,
+                description=t.description,
+                amount=t.amount,
+                currency=t.currency,
+                category=t.category,
+                merchant=t.merchant,
+                isDebit=t.is_debit,
+                confidence=t.confidence,
+            )
+            for t in page
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 # ---------------------------------------------------------------------------

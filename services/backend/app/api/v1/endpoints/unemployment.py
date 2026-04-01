@@ -13,6 +13,8 @@ from fastapi import APIRouter
 from app.schemas.unemployment import (
     UnemploymentBenefitsRequest,
     UnemploymentBenefitsResponse,
+    UnemploymentChecklistResponse,
+    OrpLinkResponse,
     TimelineStep,
 )
 from app.services.unemployment.calculator import (
@@ -79,24 +81,30 @@ def calculate_unemployment_benefits(
 # Generic checklist + timeline
 # ---------------------------------------------------------------------------
 
-@router.get("/checklist")
-def unemployment_checklist():
+@router.get("/checklist", response_model=UnemploymentChecklistResponse)
+def unemployment_checklist() -> UnemploymentChecklistResponse:
     """Get the generic unemployment checklist and timeline.
 
     Useful for displaying information even before a specific calculation.
     """
-    return get_unemployment_checklist()
+    data = get_unemployment_checklist()
+    timeline_steps = [TimelineStep(**step) for step in data.get("timeline", [])]
+    return UnemploymentChecklistResponse(
+        checklist=data.get("checklist", []),
+        timeline=timeline_steps,
+    )
 
 
 # ---------------------------------------------------------------------------
 # ORP link by canton
 # ---------------------------------------------------------------------------
 
-@router.get("/orp-link/{canton}")
-def orp_link(canton: str):
+@router.get("/orp-link/{canton}", response_model=OrpLinkResponse)
+def orp_link(canton: str) -> OrpLinkResponse:
     """Get the ORP (Office regional de placement) link for a given canton.
 
     Returns the cantonal employment office URL. Falls back to arbeit.swiss
     for unknown cantons.
     """
-    return get_orp_link(canton)
+    data = get_orp_link(canton)
+    return OrpLinkResponse(canton=data["canton"], url=data["url"])
