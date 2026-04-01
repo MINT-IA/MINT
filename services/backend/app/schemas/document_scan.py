@@ -9,7 +9,7 @@ See: MINT_FINAL_EXECUTION_SYSTEM.md §13.11 (Chantier 4)
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 from typing import List, Optional, Union
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 
@@ -73,7 +73,7 @@ class DocumentScanConfirmation(BaseModel):
         "ocr_mlkit",
         description="How the data was extracted: ocr_mlkit, claude_vision, manual",
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class DocumentScanResponse(BaseModel):
