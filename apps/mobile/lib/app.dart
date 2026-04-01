@@ -39,6 +39,7 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
+import 'package:mint_mobile/screens/import/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/api_service.dart';
@@ -917,6 +918,11 @@ final _router = GoRouter(
       path: '/bank-import',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BankImportScreen(),
+    ),
+    GoRoute(
+      path: '/bank-import-v2',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const BankImportV2Screen(),
     ),
 
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
