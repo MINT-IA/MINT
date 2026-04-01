@@ -25,6 +25,7 @@ from app.core.auth import require_current_user
 from app.core.database import get_db
 from app.models.document import DocumentModel
 from app.main import app
+from tests.conftest import TestingSessionLocal
 
 # Re-use conftest's test DB infrastructure
 from tests.conftest import TestingSessionLocal, override_get_db
@@ -37,6 +38,39 @@ def _fake_user():
     user.id = "test-user-id"
     user.email = "test@mint.ch"
     return user
+
+
+def _override_get_db():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def _ensure_premium_subscription():
+    """Ensure the test user has a premium subscription for vault access."""
+    from datetime import timedelta
+    from app.models.billing import SubscriptionModel
+    db = TestingSessionLocal()
+    try:
+        existing = (
+            db.query(SubscriptionModel)
+            .filter(SubscriptionModel.user_id == "test-user-id")
+            .first()
+        )
+        if not existing:
+            sub = SubscriptionModel(
+                user_id="test-user-id",
+                tier="premium",
+                status="active",
+                source="test",
+                current_period_end=datetime.utcnow() + timedelta(days=30),
+            )
+            db.add(sub)
+            db.commit()
+    finally:
+        db.close()
 
 
 # ──────────────────────────────────────────────────────────────────────────────

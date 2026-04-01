@@ -185,8 +185,8 @@ async def upload_document(
         False,
         description="Whether to index extracted data in the RAG vector store",
     ),
-    _user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
+    _user: User = Depends(require_current_user),
 ):
     """
     Upload a PDF document for extraction.

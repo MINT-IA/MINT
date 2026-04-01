@@ -158,7 +158,7 @@ class ComplianceGuard {
   ];
 
   // Fuzzy banned pattern for "sans ... risque" variants
-  // FIX-W12: Bounded repetition to prevent ReDoS catastrophic backtracking
+  // FIX-W12 + SEC-4: Bounded quantifier to prevent ReDoS catastrophic backtracking
   static final _sansRisquePattern = RegExp(r'sans\s+(?:\w+\s+){0,10}risque', caseSensitive: false);
 
   static const List<String> projectionKeywords = [
@@ -282,6 +282,15 @@ class ComplianceGuard {
       }
     }
 
+    // SEC-9: Escape HTML/script tags in LLM response (markdown injection)
+    if (!useFallback) {
+      text = text
+          .replaceAll('<script', '&lt;script')
+          .replaceAll('</script', '&lt;/script')
+          .replaceAll('<iframe', '&lt;iframe')
+          .replaceAll('javascript:', 'blocked:');
+    }
+
     // Defense-in-depth: if sanitization emptied the text, force fallback.
     if (!useFallback && text.trim().isEmpty) {
       useFallback = true;
@@ -311,12 +320,26 @@ class ComplianceGuard {
     return [];
   }
 
+  /// SEC-5: Normalize common homoglyphs (Greek/Cyrillic → Latin) before
+  /// banned-term detection to prevent bypass via look-alike characters.
+  static String _normalizeHomoglyphs(String text) {
+    return text
+        .replaceAll('\u03BF', 'o') // Greek omicron → o
+        .replaceAll('\u0430', 'a') // Cyrillic а → a
+        .replaceAll('\u0435', 'e') // Cyrillic е → e
+        .replaceAll('\u0456', 'i') // Cyrillic і → i
+        .replaceAll('\u0440', 'p') // Cyrillic р → p
+        .replaceAll('\u0441', 'c') // Cyrillic с → c
+        .replaceAll('\u217C', 'l') // Roman numeral ⅼ → l
+        .replaceAll('\u217F', 'm'); // Roman numeral ⅿ → m
+  }
+
   /// CRIT #5 fix: use word-boundary regex for single-word banned terms
   /// to avoid false positives on "incertain", "parfaitement".
   /// Text is lowercased before matching to handle accented uppercase
   /// (Dart caseSensitive:false only folds ASCII a-z/A-Z, not À-ÿ).
   static List<String> _checkBannedTerms(String text) {
-    final lower = text.toLowerCase();
+    final lower = _normalizeHomoglyphs(text).toLowerCase();
     final found = <String>[];
     for (final entry in _bannedTermPatterns.entries) {
       if (entry.value.hasMatch(lower)) {
@@ -340,16 +363,8 @@ class ComplianceGuard {
   /// Processes multi-word phrases first (longer match priority), then
   /// single-word terms, to avoid partial replacements mangling phrases.
   static String _sanitizeBannedTerms(String text) {
-    // FIX-W12: Normalize common homoglyphs before banned term matching
-    var result = text
-        .replaceAll('ο', 'o')  // Greek omicron → Latin o
-        .replaceAll('а', 'a')  // Cyrillic a → Latin a
-        .replaceAll('е', 'e')  // Cyrillic e → Latin e
-        .replaceAll('і', 'i')  // Cyrillic i → Latin i
-        .replaceAll('р', 'p')  // Cyrillic r → Latin p
-        .replaceAll('с', 'c')  // Cyrillic s → Latin c
-        .replaceAll('ⅼ', 'l')  // Roman numeral l → Latin l
-        .replaceAll('ⅿ', 'm'); // Roman numeral m → Latin m
+    // FIX-W12 + SEC-5: Normalize homoglyphs before sanitization
+    var result = _normalizeHomoglyphs(text);
     final phrases = termReplacements.entries.where((e) => e.key.contains(' '));
     final words = termReplacements.entries.where((e) => !e.key.contains(' '));
     for (final entry in [...phrases, ...words]) {

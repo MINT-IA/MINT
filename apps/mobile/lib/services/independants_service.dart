@@ -434,7 +434,7 @@ class IndependantsService {
   //  4. DIVIDENDE VS SALAIRE
   // ════════════════════════════════════════════════════════════
 
-  /// Calculate the optimal salary vs dividend split for a SA/Sàrl.
+  /// Calculate the most tax-efficient salary vs dividend split for a SA/Sarl.
   ///
   /// Salary portion: full income tax + AVS charges (~12.5% employer+employee).
   /// Dividend portion: 50% taxation (qualifying participation), no AVS.

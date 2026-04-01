@@ -456,15 +456,31 @@ def test_w2_stale_event_ignored(client: TestClient):
         },
     }
 
-    # Disable Stripe signature verification for this test
+    # SEC-3: Use a test webhook secret with proper HMAC signature
+    import json
+    import hmac
+    import hashlib
+    import time
+
+    test_secret = "whsec_test_stale_event"
     prev_secret = settings.STRIPE_WEBHOOK_SECRET
-    settings.STRIPE_WEBHOOK_SECRET = ""
+    settings.STRIPE_WEBHOOK_SECRET = test_secret
     try:
-        import json
+        payload = json.dumps(stripe_event).encode("utf-8")
+        timestamp = str(int(time.time()))
+        signed_payload = f"{timestamp}.{payload.decode('utf-8')}".encode("utf-8")
+        sig = hmac.new(
+            test_secret.encode("utf-8"), signed_payload, hashlib.sha256
+        ).hexdigest()
+        stripe_sig = f"t={timestamp},v1={sig}"
+
         resp = client.post(
             "/api/v1/billing/webhooks/stripe",
-            content=json.dumps(stripe_event).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            content=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Stripe-Signature": stripe_sig,
+            },
         )
         assert resp.status_code == 200
     finally:

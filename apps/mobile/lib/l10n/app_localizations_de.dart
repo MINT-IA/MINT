@@ -17933,7 +17933,7 @@ class SDe extends S {
 
   @override
   String get chiffreChocSectionDisclaimer =>
-      'Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht zugesichert.';
+      'Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse sind Schätzungen.';
 
   @override
   String get concubinageTabProtection => 'Schutz';

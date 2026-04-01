@@ -3,19 +3,23 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 class ReportPersistenceService {
   static const String _wizardKey = 'wizard_answers_v2';
   static const String _completedKey = 'wizard_completed';
 
-  /// Sauvegarde les réponses du wizard (incremental off)
+  /// Sauvegarde les réponses du wizard (incremental off).
+  /// SEC-10: Sensitive financial keys are stored in encrypted storage.
   static Future<void> saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = json.encode(answers);
+    final cleaned = await SecureWizardStore.secureSensitiveKeys(answers);
+    final jsonString = json.encode(cleaned);
     await prefs.setString(_wizardKey, jsonString);
   }
 
-  /// Charge les réponses existantes
+  /// Charge les réponses existantes.
+  /// SEC-10: Sensitive financial keys are restored from encrypted storage.
   static Future<Map<String, dynamic>> loadAnswers() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_wizardKey);
@@ -23,7 +27,8 @@ class ReportPersistenceService {
     if (jsonString == null) return {};
 
     try {
-      return Map<String, dynamic>.from(json.decode(jsonString));
+      final answers = Map<String, dynamic>.from(json.decode(jsonString));
+      return await SecureWizardStore.restoreSensitiveKeys(answers);
     } catch (e, stack) {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');

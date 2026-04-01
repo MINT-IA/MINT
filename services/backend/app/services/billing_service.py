@@ -425,7 +425,11 @@ def create_stripe_billing_portal_session(
 def verify_stripe_webhook_signature(payload: bytes, sig_header: Optional[str]) -> None:
     secret = settings.STRIPE_WEBHOOK_SECRET
     if not secret:
-        return
+        # SEC-3: Reject all webhooks if secret is not configured
+        raise HTTPException(
+            status_code=403,
+            detail="Webhook secret not configured — rejecting all webhooks.",
+        )
     if not sig_header:
         raise HTTPException(status_code=400, detail="Missing Stripe signature header")
     elements = dict(

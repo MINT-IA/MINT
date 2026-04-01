@@ -91,6 +91,19 @@ class ConversationMeta {
 //  ConversationStore — SharedPreferences-based persistence
 // ────────────────────────────────────────────────────────────
 
+/// SEC-6: PII patterns to scrub from persisted conversation messages.
+/// Defense-in-depth: prevents accidental PII storage in SharedPreferences.
+final RegExp _piiScrubPattern = RegExp(
+  r'(?:'
+  r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}' // IBAN
+  r'|\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b' // AHV/AVS number
+  r'|\b\d{4,7}\s*(?:CHF|francs?)\b' // salary amounts
+  r')',
+  caseSensitive: false,
+);
+
+String _scrubPii(String text) => text.replaceAll(_piiScrubPattern, '[***]');
+
 class ConversationStore {
   /// Prefix for individual conversation message lists.
   static const _messagesPrefix = '_chat_conversations_';
@@ -385,7 +398,7 @@ class ConversationStore {
   Map<String, dynamic> _messageToJson(ChatMessage msg) => {
         'schemaVersion': ChatMessage.schemaVersion,
         'role': msg.role,
-        'content': msg.content,
+        'content': _scrubPii(msg.content),
         'timestamp': msg.timestamp.toIso8601String(),
         'tier': msg.tier.name,
         if (msg.suggestedActions != null)

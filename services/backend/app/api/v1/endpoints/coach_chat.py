@@ -57,6 +57,21 @@ from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
 
+# SEC-6: PII patterns to scrub from user messages before LLM processing
+_PII_PATTERNS = [
+    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}"),  # IBAN
+    re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),  # AHV/AVS
+    re.compile(r"\b\d{4,7}\s*(?:CHF|francs?)\b", re.IGNORECASE),  # salary
+]
+
+
+def _scrub_pii(text: str) -> str:
+    """Remove PII patterns from text (defense-in-depth)."""
+    for pattern in _PII_PATTERNS:
+        text = pattern.sub("[***]", text)
+    return text
+
+
 router = APIRouter()
 
 # Lazy-initialized singletons (mirrors rag.py pattern)

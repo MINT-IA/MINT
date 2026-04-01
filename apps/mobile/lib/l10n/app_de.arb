@@ -8592,7 +8592,7 @@
   "coachBriefingFallbackGreeting": "Hallo",
   "coachBriefingBadgeLlm": "KI-Coach",
   "coachBriefingBadge": "Coach",
-  "coachBriefingConfidenceLow": "Vertrauen {score} % — Ergänzen",
+  "coachBriefingConfidenceLow": "Vertrauen {score} % \u2014 Ergänzen",
   "@coachBriefingConfidenceLow": {
     "placeholders": {
       "score": {
@@ -8616,7 +8616,7 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht zugesichert.",
+  "chiffreChocSectionDisclaimer": "Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar \u2014 Ergebnisse sind Schätzungen.",
   "concubinageTabProtection": "Schutz",
   "concubinageHeroChiffreChoc": "CHF {montant} gefährdetes Vermögen",
   "@concubinageHeroChiffreChoc": {
