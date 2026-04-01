@@ -155,7 +155,34 @@ MINT peut percevoir des commissions de partenaires (banques, assurances, prestat
 
 ### 7.3 Sous-traitants techniques
 
-En Phase 1, nous n'utilisons aucun sous-traitant ayant acces a tes donnees personnelles. Si cela change, nous mettrons a jour cette politique et t'en informerons.
+En Phase 1, nous utilisons les sous-traitants suivants :
+
+**Sentry.io** (Sentry GmbH, Berlin, Allemagne)
+- Données : journaux d'erreurs applicatives (aucune donnée personnelle — sendDefaultPii=false)
+- Durée de conservation : 30 jours
+- Base légale : intérêt légitime (débogage, stabilité de l'application)
+
+**Railway.app** (Railway Corp., San Francisco, États-Unis)
+- Données : profils utilisateurs, scénarios, snapshots (chiffrés en transit TLS 1.3)
+- Durée : tant que le compte est actif
+- Base légale : exécution du contrat
+- Garanties : Standard Contractual Clauses (SCC)
+
+**Anthropic / OpenAI** (États-Unis) — uniquement si tu actives BYOK
+- Données : contexte coaching anonymisé (âge, canton, archetype, score FRI — jamais ton salaire exact)
+- Durée : par requête (pas stocké par MINT)
+- Base légale : consentement explicite (byokDataSharing)
+- Tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
+
+**Apple / Google** — uniquement si tu utilises la reconnaissance vocale
+- Données : flux audio vocal (envoyé au moteur de reconnaissance native)
+- Durée : par requête
+- Base légale : consentement explicite (activation vocale)
+
+**Google Fonts** (Google LLC, États-Unis)
+- Données : adresse IP (lors du téléchargement initial des polices)
+- Durée : ponctuel (polices mises en cache localement)
+- Base légale : intérêt légitime (affichage typographique)
 
 ### 7.4 Obligations legales
 
@@ -262,12 +289,7 @@ Si des analytics sont actives, elles sont :
 
 ## 11. Transferts internationaux de donnees
 
-En Phase 1, **aucune donnee personnelle n'est transferee hors de Suisse** ni hors de ton appareil.
-
-Si un transfert international devenait necessaire dans une phase ulterieure, nous respecterons les exigences de l'art. 16 nLPD :
-- Transfert uniquement vers des pays disposant d'un niveau de protection adequat (liste du Conseil federal)
-- A defaut, mise en place de garanties appropriees (clauses contractuelles types, regles d'entreprise contraignantes)
-- Information et consentement prealables
+Tes données sont hébergées sur Railway (États-Unis). Les transferts vers les États-Unis sont protégés par des Standard Contractual Clauses (SCC). En Phase 2, nous prévoyons un hébergement en Suisse.
 
 ---
 

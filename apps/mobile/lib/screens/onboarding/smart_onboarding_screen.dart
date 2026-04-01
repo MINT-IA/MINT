@@ -71,6 +71,15 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   void initState() {
     super.initState();
     _loadDraft();
+    // FIX-W11-nLPD: Show consent BEFORE any data collection
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_onboardingConsent != true && !_consentDeclinedThisSession) {
+        _showOnboardingConsentSheet().then((granted) {
+          _onboardingConsent = granted;
+          if (!granted) _consentDeclinedThisSession = true;
+        });
+      }
+    });
   }
 
   @override
@@ -143,18 +152,9 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   }
 
   Future<void> _onInputChanged() async {
-    if (_onboardingConsent != true) {
-      _onboardingConsent ??= await SmartOnboardingDraftService.isConsentGiven();
-    }
-
-    if (_onboardingConsent == false && _consentDeclinedThisSession) return;
-
-    if (_onboardingConsent != true) {
-      final granted = await _showOnboardingConsentSheet();
-      _onboardingConsent = granted;
-      if (!granted) _consentDeclinedThisSession = true;
-      if (!granted) return;
-    }
+    // FIX-W11-nLPD: Consent is now shown upfront in initState.
+    // Only save draft if consent was already granted.
+    if (_onboardingConsent != true) return;
 
     await SmartOnboardingDraftService.saveDraft(
       age: _viewModel.age,
