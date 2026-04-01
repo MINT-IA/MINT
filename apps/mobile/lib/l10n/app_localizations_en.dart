@@ -20696,4 +20696,35 @@ class SEn extends S {
 
   @override
   String get tabMint => 'Mint';
+
+  @override
+  String get coachIntensityPrompt =>
+      'Before we start: how do you want me to talk to you?';
+
+  @override
+  String get intensityTranquille => 'Gentle';
+
+  @override
+  String get intensityClair => 'Clear';
+
+  @override
+  String get intensityDirect => 'Direct';
+
+  @override
+  String get intensityCash => 'Blunt';
+
+  @override
+  String get intensityBrut => 'Raw';
+
+  @override
+  String get cashModeTitle => 'Voice intensity';
+
+  @override
+  String get cashModeSubtitle => 'How the coach speaks to you';
+
+  @override
+  String get intensityAdjustedUp => 'OK, I’ve turned it up a notch.';
+
+  @override
+  String get intensityAdjustedDown => 'OK, I’ve toned it down a notch.';
 }

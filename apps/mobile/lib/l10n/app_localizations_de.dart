@@ -20847,4 +20847,35 @@ class SDe extends S {
 
   @override
   String get tabMint => 'Mint';
+
+  @override
+  String get coachIntensityPrompt =>
+      'Bevor wir loslegen: Wie soll ich mit dir reden?';
+
+  @override
+  String get intensityTranquille => 'Sanft';
+
+  @override
+  String get intensityClair => 'Klar';
+
+  @override
+  String get intensityDirect => 'Direkt';
+
+  @override
+  String get intensityCash => 'Unverblümt';
+
+  @override
+  String get intensityBrut => 'Roh';
+
+  @override
+  String get cashModeTitle => 'Sprachintensität';
+
+  @override
+  String get cashModeSubtitle => 'Wie der Coach mit dir spricht';
+
+  @override
+  String get intensityAdjustedUp => 'OK, ich lege einen Zahn zu.';
+
+  @override
+  String get intensityAdjustedDown => 'OK, ich nehme es etwas zurück.';
 }

@@ -20800,4 +20800,35 @@ class SFr extends S {
 
   @override
   String get tabMint => 'Mint';
+
+  @override
+  String get coachIntensityPrompt =>
+      'Avant de commencer : comment tu veux que je te parle ?';
+
+  @override
+  String get intensityTranquille => 'Tranquille';
+
+  @override
+  String get intensityClair => 'Clair';
+
+  @override
+  String get intensityDirect => 'Direct';
+
+  @override
+  String get intensityCash => 'Cash';
+
+  @override
+  String get intensityBrut => 'Brut';
+
+  @override
+  String get cashModeTitle => 'Intensité vocale';
+
+  @override
+  String get cashModeSubtitle => 'Comment le coach s’adresse à toi';
+
+  @override
+  String get intensityAdjustedUp => 'OK, je monte d’un cran.';
+
+  @override
+  String get intensityAdjustedDown => 'OK, je baisse d’un cran.';
 }

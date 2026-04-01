@@ -20808,4 +20808,35 @@ class SPt extends S {
 
   @override
   String get tabMint => 'Mint';
+
+  @override
+  String get coachIntensityPrompt =>
+      'Antes de começar: como queres que te fale?';
+
+  @override
+  String get intensityTranquille => 'Suave';
+
+  @override
+  String get intensityClair => 'Claro';
+
+  @override
+  String get intensityDirect => 'Direto';
+
+  @override
+  String get intensityCash => 'Franco';
+
+  @override
+  String get intensityBrut => 'Cru';
+
+  @override
+  String get cashModeTitle => 'Intensidade vocal';
+
+  @override
+  String get cashModeSubtitle => 'Como o coach fala contigo';
+
+  @override
+  String get intensityAdjustedUp => 'OK, subi um nível.';
+
+  @override
+  String get intensityAdjustedDown => 'OK, desci um nível.';
 }

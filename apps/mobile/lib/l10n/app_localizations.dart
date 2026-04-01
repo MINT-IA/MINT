@@ -36596,6 +36596,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Mint'**
   String get tabMint;
+
+  /// No description provided for @coachIntensityPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant de commencer : comment tu veux que je te parle ?'**
+  String get coachIntensityPrompt;
+
+  /// No description provided for @intensityTranquille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tranquille'**
+  String get intensityTranquille;
+
+  /// No description provided for @intensityClair.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clair'**
+  String get intensityClair;
+
+  /// No description provided for @intensityDirect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct'**
+  String get intensityDirect;
+
+  /// No description provided for @intensityCash.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cash'**
+  String get intensityCash;
+
+  /// No description provided for @intensityBrut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Brut'**
+  String get intensityBrut;
+
+  /// No description provided for @cashModeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intensité vocale'**
+  String get cashModeTitle;
+
+  /// No description provided for @cashModeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment le coach s’adresse à toi'**
+  String get cashModeSubtitle;
+
+  /// No description provided for @intensityAdjustedUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK, je monte d’un cran.'**
+  String get intensityAdjustedUp;
+
+  /// No description provided for @intensityAdjustedDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK, je baisse d’un cran.'**
+  String get intensityAdjustedDown;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

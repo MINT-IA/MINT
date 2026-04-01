@@ -20858,4 +20858,35 @@ class SIt extends S {
 
   @override
   String get tabMint => 'Mint';
+
+  @override
+  String get coachIntensityPrompt =>
+      'Prima di iniziare: come vuoi che ti parli?';
+
+  @override
+  String get intensityTranquille => 'Dolce';
+
+  @override
+  String get intensityClair => 'Chiaro';
+
+  @override
+  String get intensityDirect => 'Diretto';
+
+  @override
+  String get intensityCash => 'Schietto';
+
+  @override
+  String get intensityBrut => 'Crudo';
+
+  @override
+  String get cashModeTitle => 'Intensità vocale';
+
+  @override
+  String get cashModeSubtitle => 'Come ti parla il coach';
+
+  @override
+  String get intensityAdjustedUp => 'OK, alzo di un livello.';
+
+  @override
+  String get intensityAdjustedDown => 'OK, abbasso di un livello.';
 }

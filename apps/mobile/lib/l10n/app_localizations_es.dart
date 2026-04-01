@@ -20805,4 +20805,35 @@ class SEs extends S {
 
   @override
   String get tabMint => 'Mint';
+
+  @override
+  String get coachIntensityPrompt =>
+      'Antes de empezar: ¿cómo quieres que te hable?';
+
+  @override
+  String get intensityTranquille => 'Suave';
+
+  @override
+  String get intensityClair => 'Claro';
+
+  @override
+  String get intensityDirect => 'Directo';
+
+  @override
+  String get intensityCash => 'Franco';
+
+  @override
+  String get intensityBrut => 'Crudo';
+
+  @override
+  String get cashModeTitle => 'Intensidad vocal';
+
+  @override
+  String get cashModeSubtitle => 'Cómo te habla el coach';
+
+  @override
+  String get intensityAdjustedUp => 'OK, subo un punto.';
+
+  @override
+  String get intensityAdjustedDown => 'OK, bajo un punto.';
 }
