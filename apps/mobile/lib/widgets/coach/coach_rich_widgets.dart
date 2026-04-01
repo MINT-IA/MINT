@@ -145,7 +145,7 @@ class CoachRichWidgetBuilder {
         title: 'Rente vs Capital (sc. base)',
         leftTitle: 'Rente LPP',
         leftValue: '${formatChf(renteMensuelle)}/mois',
-        leftDescription: 'Revenu garanti \u00e0 vie, imposable',
+        leftDescription: 'Revenu r\u00e9gulier \u00e0 vie, imposable',
         rightTitle: 'Capital',
         rightValue: formatChfWithPrefix(capitalTotal),
         rightDescription: 'Tax\u00e9 au retrait, flexibilit\u00e9',
