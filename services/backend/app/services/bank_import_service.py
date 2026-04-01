@@ -173,7 +173,7 @@ CATEGORY_PATTERNS: list[tuple[re.Pattern, str, Optional[str]]] = [
     (re.compile(r"\b(Serafe|Billag)\b", re.I), "Logement", "redevance"),
     # Food & groceries
     (re.compile(r"\b(Migros|M-Budget|Denner)\b", re.I), "Alimentation", "supermarche"),
-    (re.compile(r"\b(Coop|Prix Garantie|Fust)\b", re.I), "Alimentation", "supermarche"),
+    (re.compile(r"\b(Coop|Coop\s+Prix|Fust)\b", re.I), "Alimentation", "supermarche"),
     (re.compile(r"\b(Aldi|Lidl)\b", re.I), "Alimentation", "discount"),
     (re.compile(r"\b(Volg|Spar|Aligro|Manor Food)\b", re.I), "Alimentation", "supermarche"),
     # Transport
