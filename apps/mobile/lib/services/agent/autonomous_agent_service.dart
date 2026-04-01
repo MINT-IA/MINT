@@ -217,7 +217,7 @@ class AgentSafetyGate {
     r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
   );
   static final RegExp _phonePattern = RegExp(
-    r'(?:\+41|0041|0)\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}',
+    r'(?:\+41|0)[\s.-]?(?:76|77|78|79|[1-4]\d)[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}',
   );
 
   /// Banned terms — absolute promises forbidden by MINT compliance.

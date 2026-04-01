@@ -92,6 +92,11 @@ class AvsCalculator {
   /// RAMD >= 88'200 → 2'520/mois (maximum)
   /// No data (0) → return 0 (cannot estimate rente without salary data).
   /// gapFactor in computeMonthlyRente already handles contribution years.
+  ///
+  /// NOTE: Uses linear interpolation between RAMD min and max.
+  /// The official AVS scale (Echelle 44) uses a concave curve that benefits
+  /// middle-income earners by 3-8%. This is a known simplification.
+  /// TODO(P1-Finance): Implement full Echelle 44 lookup table for production.
   static double renteFromRAMD(double grossAnnualSalary) {
     if (grossAnnualSalary <= 0) return 0.0;
     final ramdMax = reg('avs.ramd_max', avsRAMDMax);

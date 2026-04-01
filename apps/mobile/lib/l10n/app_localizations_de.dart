@@ -4239,7 +4239,7 @@ class SDe extends S {
   @override
   String agirScenarioBriefSummary(
       String years, String baseCapital, String replacement, String gapCapital) {
-    return 'In ~$years Jahren zielt dein Basis-Szenario auf $baseCapital (~$replacement% Ersatzquote).';
+    return 'In ~$years Jahren zielt dein Basis-Szenario auf $baseCapital (~$replacement% Ersatzquote). Die Spanne Vorsichtig vs Optimistisch beträgt $gapCapital.';
   }
 
   @override

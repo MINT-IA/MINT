@@ -158,25 +158,25 @@ MINT peut percevoir des commissions de partenaires (banques, assurances, prestat
 En Phase 1, nous utilisons les sous-traitants suivants :
 
 **Sentry.io** (Sentry GmbH, Berlin, Allemagne)
-- Données : journaux d'erreurs applicatives (aucune donnée personnelle — sendDefaultPii=false)
+- Données : journaux d'erreurs applicatives anonymisés, métadonnées techniques (OS, version app — aucune donnée personnelle — sendDefaultPii=false)
 - Durée de conservation : 30 jours
 - Base légale : intérêt légitime (débogage, stabilité de l'application)
 
 **Railway.app** (Railway Corp., San Francisco, États-Unis)
-- Données : profils utilisateurs, scénarios, snapshots (chiffrés en transit TLS 1.3)
-- Durée : tant que le compte est actif
+- Données : profils utilisateurs, scénarios, snapshots (chiffrés en transit TLS 1.3), requêtes API (calculs génériques, barèmes), logs serveur
+- Durée : tant que le compte est actif (données utilisateur) ; 7 jours (logs serveur)
 - Base légale : exécution du contrat
 - Garanties : Standard Contractual Clauses (SCC)
 
 **Anthropic / OpenAI** (États-Unis) — uniquement si tu actives BYOK
-- Données : contexte coaching anonymisé (âge, canton, archetype, score FRI — jamais ton salaire exact)
-- Durée : par requête (pas stocké par MINT)
-- Base légale : consentement explicite (byokDataSharing)
+- Données : contexte coaching anonymisé (âge, canton, archetype, score FRI — jamais ton salaire exact — voir CoachContext)
+- Durée : aucune rétention (mode API, pas d'entraînement — pas stocké par MINT)
+- Base légale : consentement explicite (byokDataSharing / activation explicite du coach AI)
 - Tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
 
 **Apple / Google** — uniquement si tu utilises la reconnaissance vocale
-- Données : flux audio vocal (envoyé au moteur de reconnaissance native)
-- Durée : par requête
+- Données : signal vocal pour la saisie vocale (speech-to-text), traité sur l'appareil
+- Durée : ponctuel (traitement en temps réel, aucun stockage)
 - Base légale : consentement explicite (activation vocale)
 
 **Google Play Store / Apple App Store** — achats in-app (abonnements)
@@ -294,7 +294,19 @@ Si des analytics sont actives, elles sont :
 
 ## 11. Transferts internationaux de donnees
 
-Tes données sont hébergées sur Railway (États-Unis). Les transferts vers les États-Unis sont protégés par des Standard Contractual Clauses (SCC). En Phase 2, nous prévoyons un hébergement en Suisse.
+Certains sous-traitants techniques (voir section 7.3) sont hébergés aux États-Unis :
+
+- **Railway** (hébergement backend) : serveurs US. Les données transmises sont des calculs génériques (barèmes, taux légaux) sans données personnelles identifiables. Garanties : Standard Contractual Clauses (SCC) conformément à l'art. 16 al. 2 let. d nLPD.
+- **Sentry** (monitoring) : serveurs US. Uniquement des logs d'erreurs anonymisés. Garanties : SCC.
+- **Anthropic / OpenAI** (coach AI) : serveurs US. Contexte anonymisé uniquement. Garanties : SCC + mode API sans rétention.
+- **Google Fonts** : serveurs US. Adresse IP uniquement au premier chargement. Garanties : SCC.
+
+**Hébergement suisse prévu en Phase 2** : la migration vers un hébergeur suisse (Infomaniak, Exoscale ou équivalent) est planifiée pour la Phase 2 afin de supprimer tout transfert transfrontalier de données.
+
+Pour tout transfert international, nous respectons les exigences de l'art. 16 nLPD :
+- Transfert uniquement vers des pays disposant d'un niveau de protection adéquat (liste du Conseil fédéral)
+- À défaut, mise en place de garanties appropriées (clauses contractuelles types, règles d'entreprise contraignantes)
+- Information et consentement préalables
 
 ---
 
