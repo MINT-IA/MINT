@@ -106,7 +106,7 @@ En Phase 1, **toutes tes donnees personnelles restent sur ton appareil**. Concre
   - **EncryptedSharedPreferences** sur Android (AES-256-GCM via Android Keystore)
 - Les rapports generes (PDF) sont stockes dans le repertoire local de l'application
 
-**Aucune donnee personnelle n'est transmise a un serveur externe en Phase 1.** Les appels API entre l'application et notre backend concernent uniquement des calculs generiques (baremes fiscaux, taux legaux) qui ne contiennent aucune donnee personnelle identifiable.
+**Les donnees personnelles de ton profil sont synchronisees avec notre backend heberge sur Railway (Etats-Unis), protege par des Standard Contractual Clauses (SCC) et chiffre en transit (TLS 1.3).** En Phase 2, nous prevoyons un hebergement en Suisse. Les details de chaque sous-traitant sont listes en section 7.3.
 
 ### 5.2 Stockage futur (Phase 2+)
 
@@ -178,6 +178,11 @@ En Phase 1, nous utilisons les sous-traitants suivants :
 - Données : flux audio vocal (envoyé au moteur de reconnaissance native)
 - Durée : par requête
 - Base légale : consentement explicite (activation vocale)
+
+**Google Play Store / Apple App Store** — achats in-app (abonnements)
+- Données : identifiant de transaction, type d'abonnement, date d'achat
+- Durée : selon les politiques Apple/Google (MINT ne stocke que le statut d'abonnement)
+- Base légale : exécution du contrat
 
 **Google Fonts** (Google LLC, États-Unis)
 - Données : adresse IP (lors du téléchargement initial des polices)
