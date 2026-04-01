@@ -353,15 +353,15 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Merge individual fields into the existing profile (incremental update).
   /// Used by chat inline pickers to update one field at a time without
   /// overwriting the rest of the profile.
-  void mergeAnswers(Map<String, dynamic> partial) {
+  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
     final merged = Map<String, dynamic>.from(_lastAnswers)..addAll(partial);
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
+    await ReportPersistenceService.saveAnswers(merged);
     notifyListeners();
-    ReportPersistenceService.saveAnswers(merged);
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).
@@ -384,8 +384,8 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Source: OFAS barème cotisations 2025. Estimation; le taux réel dépend
   /// du plan LPP et du canton.
   ///
-  /// Persiste de maniere asynchrone via [ReportPersistenceService].
-  void updateFromSmartFlow({
+  /// Persiste via [ReportPersistenceService] before notifying listeners.
+  Future<void> updateFromSmartFlow({
     required int age,
     required double grossSalary,
     required String canton,
@@ -409,7 +409,7 @@ class CoachProfileProvider extends ChangeNotifier {
     /// Residence permit type: 'C', 'B', 'G', 'L', or 'other'.
     /// When 'G', archetype is forced to cross_border.
     String? permitType,
-  }) {
+  }) async {
     // P0-9: Clamp salary to valid bounds before any computation.
     final clampedGrossSalary = grossSalary.clamp(0, 10000000).toDouble();
 
@@ -547,11 +547,11 @@ class CoachProfileProvider extends ChangeNotifier {
     _isPartialProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
-    notifyListeners();
 
-    // Persist asynchronously so the dashboard can reload from storage
-    ReportPersistenceService.saveAnswers(answers);
-    ReportPersistenceService.setMiniOnboardingCompleted(true);
+    // Persist BEFORE notify so downstream listeners see consistent state
+    await ReportPersistenceService.saveAnswers(answers);
+    await ReportPersistenceService.setMiniOnboardingCompleted(true);
+    notifyListeners();
   }
 
   /// Create a NEW local CoachProfile from backend data when no local profile
@@ -790,7 +790,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Update the user's primary focus/intention from Pulse screen.
   /// Does NOT trigger full profile recomputation — only persists the new focus.
-  void updatePrimaryFocus(String focus) {
+  Future<void> updatePrimaryFocus(String focus) async {
     if (_profile == null) return;
     _profile = _profile!.copyWith(
       primaryFocus: focus,
@@ -799,29 +799,29 @@ class CoachProfileProvider extends ChangeNotifier {
     // Persist to wizard answers for survival across app restart.
     _lastAnswers['q_primary_focus'] = focus;
     _profileUpdatedSinceBudget = true;
+    await ReportPersistenceService.saveAnswers(_lastAnswers);
     notifyListeners();
-    ReportPersistenceService.saveAnswers(_lastAnswers);
   }
 
 
   /// Ajoute un check-in mensuel au profil et le persiste.
   // TODO(P2): Sync monthly check-ins to backend for cross-device access
-  void addCheckIn(MonthlyCheckIn checkIn) {
+  Future<void> addCheckIn(MonthlyCheckIn checkIn) async {
     if (_profile == null) return;
     final updated = [..._profile!.checkIns, checkIn];
     _profile = _profile!.copyWithCheckIns(updated);
-    // Persister les check-ins
-    ReportPersistenceService.saveCheckIns(
+    // Persist BEFORE notify so downstream listeners see consistent state
+    await ReportPersistenceService.saveCheckIns(
       updated.map((ci) => ci.toJson()).toList(),
     );
     notifyListeners();
   }
 
   /// Met a jour les contributions dans le profil et les persiste.
-  void updateContributions(List<PlannedMonthlyContribution> contributions) {
+  Future<void> updateContributions(List<PlannedMonthlyContribution> contributions) async {
     if (_profile == null) return;
     _profile = _profile!.copyWithContributions(contributions);
-    ReportPersistenceService.saveContributions(
+    await ReportPersistenceService.saveContributions(
       contributions.map((c) => c.toJson()).toList(),
     );
     notifyListeners();

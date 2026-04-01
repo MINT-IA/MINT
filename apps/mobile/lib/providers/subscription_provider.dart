@@ -18,6 +18,7 @@ import 'package:mint_mobile/services/subscription_service.dart';
 class SubscriptionProvider extends ChangeNotifier {
   SubscriptionState _state;
   DateTime _lastRefresh = DateTime.now();
+  bool _isRefreshing = false;
 
   SubscriptionProvider()
       : _state = SubscriptionService.currentState() {
@@ -85,9 +86,15 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> refreshFromBackend() async {
-    _state = await SubscriptionService.refreshFromBackend();
-    _lastRefresh = DateTime.now();
-    notifyListeners();
+    if (_isRefreshing) return;
+    _isRefreshing = true;
+    try {
+      _state = await SubscriptionService.refreshFromBackend();
+      _lastRefresh = DateTime.now();
+      notifyListeners();
+    } finally {
+      _isRefreshing = false;
+    }
   }
 
   /// FIX-083 + FIX-W11-3: Refresh on app resume if last refresh was > 15 min ago.
