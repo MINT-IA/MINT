@@ -246,10 +246,15 @@ class TestRetrieveMemoriesEndpointIntercept:
     @pytest.fixture(autouse=True)
     def _setup_auth(self):
         from app.core.auth import require_current_user, get_current_user
+        from app.services.billing_service import ALL_FEATURES
 
         app.dependency_overrides[require_current_user] = _fake_user
         app.dependency_overrides[get_current_user] = _fake_user
-        yield
+        with patch(
+            "app.api.v1.endpoints.coach_chat.recompute_entitlements",
+            return_value=("premium", ALL_FEATURES),
+        ):
+            yield
         app.dependency_overrides.pop(require_current_user, None)
         app.dependency_overrides.pop(get_current_user, None)
 

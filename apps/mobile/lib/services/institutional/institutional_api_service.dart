@@ -237,7 +237,7 @@ class MockPensionFundBackend implements PensionFundBackend {
   @override
   Future<PensionFundData> fetchFundData(PensionFund fund) async {
     if (shouldFailFetch) {
-      throw Exception('Erreur réseau\u00a0: impossible de joindre le serveur');
+      throw Exception('Network offline');
     }
 
     final info = PensionFundRegistry.getInfo(fund);

@@ -16,10 +16,11 @@ import os
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.services.billing_service import recompute_entitlements
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.document import DocumentModel
@@ -195,6 +196,19 @@ async def upload_document(
 
     The raw PDF is never stored — only the extracted fields are kept.
     """
+    # Entitlement gate: vault feature required for unlimited uploads.
+    # Free users are limited to 2 documents.
+    effective_tier, active_features = recompute_entitlements(db, str(_user.id))
+    if "vault" not in active_features:
+        doc_count = db.query(DocumentModel).filter(
+            DocumentModel.user_id == str(_user.id)
+        ).count()
+        if doc_count >= 2:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Limite de 2 documents atteinte. Passe à Premium pour plus.",
+            )
+
     # nLPD art. 6 al. 7: Verify document_upload consent before persisting
     if not ConsentManager.is_consent_given(
         str(_user.id), ConsentType.document_upload, db=db

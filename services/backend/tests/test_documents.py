@@ -44,6 +44,15 @@ def _fake_user():
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _mock_entitlements_premium():
+    """Patch recompute_entitlements to grant premium access (all features)."""
+    from app.services.billing_service import ALL_FEATURES
+    return patch(
+        "app.api.v1.endpoints.documents.recompute_entitlements",
+        return_value=("premium", ALL_FEATURES),
+    )
+
+
 @pytest.fixture
 def client():
     """Test client with test DB and auth override."""
@@ -57,7 +66,7 @@ def client():
     ConsentManager.update_consent("test-user-id", ConsentType.document_upload, True, db=db)
     db.close()
 
-    with TestClient(app) as c:
+    with _mock_entitlements_premium(), TestClient(app) as c:
         yield c
     app.dependency_overrides.pop(require_current_user, None)
     app.dependency_overrides.pop(get_db, None)

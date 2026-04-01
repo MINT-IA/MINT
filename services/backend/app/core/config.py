@@ -110,3 +110,14 @@ if os.getenv("ENVIRONMENT", "development") == "production":
             "AUTH_REQUIRE_EMAIL_VERIFICATION is False in production. "
             "Set AUTH_REQUIRE_EMAIL_VERIFICATION=true in environment variables."
         )
+
+# Fail-fast: INTERNAL_ACCESS_ENABLED with wildcard in production = universal premium
+if (
+    os.getenv("ENVIRONMENT", "development") == "production"
+    and settings.INTERNAL_ACCESS_ENABLED
+    and settings.INTERNAL_ACCESS_ALLOWLIST.strip() == "*"
+):
+    raise RuntimeError(
+        "CRITICAL: INTERNAL_ACCESS_ENABLED=true with wildcard allowlist in production. "
+        "This grants ALL users premium access. Set INTERNAL_ACCESS_ALLOWLIST to specific emails."
+    )

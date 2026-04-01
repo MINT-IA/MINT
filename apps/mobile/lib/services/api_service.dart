@@ -317,7 +317,10 @@ class ApiService {
         await AuthService.logout();
         throw ApiException.sessionExpired();
       } else {
-        throw Exception('POST $endpoint failed: ${response.body}');
+        throw ApiException(
+          _extractErrorDetail(response.body, fallback: 'Request failed'),
+          statusCode: response.statusCode,
+        );
       }
     } on SocketException {
       throw ApiException.offline();
@@ -350,7 +353,10 @@ class ApiService {
         await AuthService.logout();
         throw ApiException.sessionExpired();
       } else {
-        throw Exception('PUT $endpoint failed: ${response.body}');
+        throw ApiException(
+          _extractErrorDetail(response.body, fallback: 'Request failed'),
+          statusCode: response.statusCode,
+        );
       }
     } on SocketException {
       throw ApiException.offline();
@@ -379,7 +385,10 @@ class ApiService {
         throw ApiException.sessionExpired();
       }
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('DELETE $endpoint failed: ${response.body}');
+        throw ApiException(
+          _extractErrorDetail(response.body, fallback: 'Request failed'),
+          statusCode: response.statusCode,
+        );
       }
     } on SocketException {
       throw ApiException.offline();
@@ -451,7 +460,10 @@ class ApiService {
     if (response.statusCode == 200) {
       return _safeJsonDecode(response.body, statusCode: response.statusCode);
     } else {
-      throw Exception('Failed to get user info: ${response.body}');
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to get user info'),
+        statusCode: response.statusCode,
+      );
     }
   }
 
@@ -1171,7 +1183,10 @@ class ApiService {
     if (response.statusCode == 200) {
       return Profile.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
-      throw Exception('Failed to create profile: ${response.body}');
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to create profile'),
+        statusCode: response.statusCode,
+      );
     }
   }
 
@@ -1185,7 +1200,10 @@ class ApiService {
     if (response.statusCode == 200) {
       return SessionReport.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
-      throw Exception('Failed to get session report: ${response.body}');
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to get session report'),
+        statusCode: response.statusCode,
+      );
     }
   }
 }

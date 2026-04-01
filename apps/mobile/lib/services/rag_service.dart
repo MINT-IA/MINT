@@ -255,7 +255,7 @@ class RagService {
         final errorBody = _tryDecodeError(response.body);
         throw RagApiException(
           code: 'server_error',
-          message: errorBody ?? 'Erreur serveur (${response.statusCode}).', // Dynamic — not extracted
+          message: errorBody ?? 'Service temporarily unavailable',
         );
       }
     }
@@ -338,7 +338,7 @@ class RagService {
       final errorBody = _tryDecodeError(response.body);
       throw RagApiException(
         code: 'vision_error',
-        message: errorBody ?? 'Erreur d\'extraction vision (${response.statusCode}).', // Dynamic — not extracted
+        message: errorBody ?? 'Service temporarily unavailable',
       );
     }
   }

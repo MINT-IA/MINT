@@ -461,6 +461,7 @@ class SlmDownloadService {
     return null;
   }
 
+  // TODO(W12): i18n — needs AppLocalizations context for user-facing strings below
   String _toUserFacingError(Object error) {
     final raw = error.toString();
     final lower = raw.toLowerCase();

@@ -1095,7 +1095,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
       return _PdfParseResult(
         success: false,
-        errorMessage: mounted ? S.of(context)!.docScanBackendParsingError(e.toString()) : 'Backend PDF parsing error: $e',
+        errorMessage: mounted ? S.of(context)!.docScanBackendParsingError('') : 'Backend PDF parsing error',
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);

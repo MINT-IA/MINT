@@ -37,10 +37,11 @@ import os
 import re
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.services.billing_service import recompute_entitlements
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.user import User
@@ -1006,6 +1007,14 @@ async def coach_chat(
         502: LLM API call failed.
         503: RAG dependencies not installed.
     """
+    # Entitlement gate: coachLlm requires Premium or higher.
+    effective_tier, active_features = recompute_entitlements(db, str(_user.id))
+    if "coachLlm" not in active_features:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Un abonnement Premium est requis pour le coaching IA.",
+        )
+
     # nLPD art. 6 al. 7: Check conversation_memory consent.
     # Without consent, conversation is stateless (no memory_block persistence).
     has_memory_consent = ConsentManager.is_consent_given(

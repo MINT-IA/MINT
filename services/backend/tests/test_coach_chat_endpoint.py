@@ -78,7 +78,7 @@ def client_with_auth():
     """Test client with auth override (authenticated user)."""
     app.dependency_overrides[require_current_user] = _fake_user
     app.dependency_overrides[get_current_user] = _fake_user
-    with TestClient(app) as c:
+    with _mock_entitlements_premium(), TestClient(app) as c:
         yield c
     app.dependency_overrides.pop(require_current_user, None)
     app.dependency_overrides.pop(get_current_user, None)
@@ -97,6 +97,15 @@ def client_no_auth():
 # Helper: patch both the lazy orchestrator getter AND the module-level singleton
 # so tests don't need chromadb
 # ---------------------------------------------------------------------------
+
+
+def _mock_entitlements_premium():
+    """Patch recompute_entitlements to grant premium access (all features)."""
+    from app.services.billing_service import ALL_FEATURES
+    return patch(
+        "app.api.v1.endpoints.coach_chat.recompute_entitlements",
+        return_value=("premium", ALL_FEATURES),
+    )
 
 
 def _mock_orchestrator(result: dict):
