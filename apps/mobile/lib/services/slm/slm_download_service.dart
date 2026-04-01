@@ -229,9 +229,7 @@ class SlmDownloadService {
   /// User-facing prerequisite warning when download cannot start.
   String? get prerequisiteWarning {
     if (canAttemptDownload) return null;
-    return 'Ce build TestFlight ne contient pas l’authentification '
-        'requise pour télécharger Gemma 3n. '
-        'Demande un build avec HUGGINGFACE_TOKEN ou une URL CDN publique.';
+    return 'slm_auth_missing';
   }
 
   /// Active cancel token for in-progress downloads.
@@ -335,7 +333,7 @@ class SlmDownloadService {
     try {
       final initialized = await initializePlugin(huggingFaceToken: hfToken);
       if (!initialized) {
-        _lastError = 'Initialisation du moteur SLM impossible.';
+        _lastError = 'slm_init_failed';
         _lastErrorRaw = 'FlutterGemma.initialize failed';
         _state = DownloadState.failed;
         _emitState();
@@ -461,32 +459,32 @@ class SlmDownloadService {
     return null;
   }
 
-  // TODO(W12): i18n — needs AppLocalizations context for user-facing strings below
+  /// Returns an error code key for localized display by the UI layer.
+  /// The UI should map these keys to i18n strings (slmError*).
   String _toUserFacingError(Object error) {
     final raw = error.toString();
     final lower = raw.toLowerCase();
     if (lower.contains('http 401') ||
         lower.contains('authentication required') ||
         lower.contains('unauthorized')) {
-      return 'Accès refusé au modèle (HuggingFace). '
-          "Le build doit inclure un token valide et l'accès au repo Gemma 3n.";
+      return 'slm_error_auth_denied';
     }
     if (lower.contains('http 403') || lower.contains('forbidden')) {
-      return 'Token HuggingFace invalide ou sans acces au repo Gemma 3n.';
+      return 'slm_error_token_invalid';
     }
     if (lower.contains('http 404') || lower.contains('not found')) {
-      return 'Fichier modèle introuvable. Vérifie l\'URL SLM_MODEL_URL.';
+      return 'slm_error_model_not_found';
     }
     if (lower.contains('missing huggingface token')) {
-      return 'Téléchargement impossible sur ce build : token HuggingFace manquant.';
+      return 'slm_error_token_missing';
     }
     if (lower.contains('timeout')) {
-      return 'Le téléchargement a expiré. Réessaie avec un réseau stable.';
+      return 'slm_error_timeout';
     }
     if (lower.contains('network') || lower.contains('socket')) {
-      return 'Erreur réseau pendant le téléchargement. Vérifie le Wi-Fi et la stabilité réseau.';
+      return 'slm_error_network';
     }
-    return 'Le téléchargement du modèle a échoué. Vérifie la configuration de ce build et réessaie.';
+    return 'slm_error_generic';
   }
 
   bool _isLikelyGatedGemmaUrl(String url) {

@@ -58,9 +58,9 @@ class HouseholdService {
     if (response.statusCode != 201) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Operation failed';
+        detail = json.decode(response.body)['detail'] ?? 'Invitation failed';
       } catch (_) {
-        detail = 'Operation failed';
+        detail = 'Invitation failed';
       }
       throw ApiException(detail, statusCode: response.statusCode);
     }
@@ -84,9 +84,9 @@ class HouseholdService {
     if (response.statusCode != 200) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Operation failed';
+        detail = json.decode(response.body)['detail'] ?? 'Invitation acceptance failed';
       } catch (_) {
-        detail = 'Operation failed';
+        detail = 'Invitation acceptance failed';
       }
       throw ApiException(detail, statusCode: response.statusCode);
     }
@@ -106,9 +106,9 @@ class HouseholdService {
     if (response.statusCode != 200) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Operation failed';
+        detail = json.decode(response.body)['detail'] ?? 'Member revocation failed';
       } catch (_) {
-        detail = 'Operation failed';
+        detail = 'Member revocation failed';
       }
       throw ApiException(detail, statusCode: response.statusCode);
     }
@@ -132,9 +132,9 @@ class HouseholdService {
     if (response.statusCode != 200) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Operation failed';
+        detail = json.decode(response.body)['detail'] ?? 'Ownership transfer failed';
       } catch (_) {
-        detail = 'Operation failed';
+        detail = 'Ownership transfer failed';
       }
       throw ApiException(detail, statusCode: response.statusCode);
     }

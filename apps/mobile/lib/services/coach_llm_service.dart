@@ -559,7 +559,7 @@ class CoachLlmService {
           'Prevoyance ${score.prevoyance.score}, '
           'Patrimoine ${score.patrimoine.score})');
     } catch (e) {
-      debugPrint('[CoachLLM] Error computing fitness score: $e');
+      debugPrint('[CoachLLM] FRI calculation error: $e');
     }
 
     // Projection retraite (wrapped in try-catch)
@@ -573,7 +573,7 @@ class CoachLlmService {
       parts.add(
           'Taux de remplacement : ${proj.tauxRemplacementBase.toStringAsFixed(1)}%');
     } catch (e) {
-      debugPrint('[CoachLLM] Error computing retirement projection: $e');
+      debugPrint('[CoachLLM] Projection error: $e');
     }
 
     // Conjoint
@@ -670,7 +670,7 @@ class CoachLlmService {
       prevoyanceScore = score.prevoyance.score;
       patrimoineScore = score.patrimoine.score;
     } catch (e) {
-      debugPrint('[CoachLLM] Error computing fitness score for prompt: $e');
+      debugPrint('[CoachLLM] System prompt FRI error: $e');
     }
 
     try {
@@ -681,7 +681,7 @@ class CoachLlmService {
       capitalBase = _toRange(projection.base.capitalFinal);
       tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
     } catch (e) {
-      debugPrint('[CoachLLM] Error computing projection for prompt: $e');
+      debugPrint('[CoachLLM] System prompt projection error: $e');
     }
 
     final buffer = StringBuffer();
@@ -797,7 +797,7 @@ class CoachLlmService {
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
     } catch (e) {
-      debugPrint('[CoachContext] Error computing FRI for grounding: $e');
+      debugPrint('[CoachLLM] CoachContext FRI error: $e');
     }
 
     try {
@@ -810,7 +810,7 @@ class CoachLlmService {
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
     } catch (e) {
-      debugPrint('[CoachContext] Error computing projection for grounding: $e');
+      debugPrint('[CoachLLM] CoachContext projection error: $e');
     }
 
     final epargne3a = profile.prevoyance.totalEpargne3a;

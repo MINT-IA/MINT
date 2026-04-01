@@ -447,8 +447,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       await _processImageFile(XFile(localPath));
     } catch (e) {
+      debugPrint('[DocumentScan] Import error: $e');
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanImportError("Réessaie ou utilise un autre fichier."));
+      _showErrorSnack(S.of(context)!.docScanGenericError);
     }
   }
 
@@ -606,8 +607,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!mounted) return;
       await context.push('/scan/review', extra: result);
     } catch (e) {
+      debugPrint('[DocumentScan] Parsing error: $e');
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanParsingError("Le fichier n'a pas pu être lu."));
+      _showErrorSnack(S.of(context)!.docScanGenericError);
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -1053,8 +1055,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<_PdfParseResult> _processPdfViaBackend(String path) async {
-    // Pre-read i18n before async gap
-    final pdfError = S.of(context)!.docScanPdfBackendError('Le PDF n\u2019a pas pu être traité.');
     if (kIsWeb || _selectedType != DocumentType.lppCertificate) {
       return _PdfParseResult(
         success: false,
@@ -1091,13 +1091,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return _PdfParseResult(
         success: false,
         requiresAuthentication: requiresAuthentication,
-        errorMessage: pdfError,
+        errorMessage: mounted
+            ? S.of(context)!.docScanGenericError
+            : 'PDF parsing error',
       );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
       return _PdfParseResult(
         success: false,
-        errorMessage: mounted ? S.of(context)!.docScanBackendParsingError('') : 'Backend PDF parsing error',
+        errorMessage: mounted
+            ? S.of(context)!.docScanGenericError
+            : 'PDF parsing error',
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -1299,8 +1303,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     } on RagApiException catch (e) {
       _showErrorSnack(e.message);
     } catch (e) {
+      debugPrint('[DocumentScan] Vision error: $e');
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanVisionError("L'analyse n'a pas abouti."));
+      _showErrorSnack(S.of(context)!.docScanGenericError);
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }

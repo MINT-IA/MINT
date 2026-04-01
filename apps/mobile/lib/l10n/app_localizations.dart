@@ -45054,6 +45054,258 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tes paroles sont envoyées à Apple (iOS) ou Google (Android) pour la transcription. MINT ne stocke jamais ton audio.'**
   String get voiceDisclosureBody;
+
+  /// No description provided for @trajectoryKnownSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que MINT sait'**
+  String get trajectoryKnownSectionTitle;
+
+  /// No description provided for @trajectoryFieldAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get trajectoryFieldAge;
+
+  /// No description provided for @trajectoryFieldAgeUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'ans'**
+  String get trajectoryFieldAgeUnit;
+
+  /// No description provided for @trajectoryFieldRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut'**
+  String get trajectoryFieldRevenu;
+
+  /// No description provided for @trajectoryFieldCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get trajectoryFieldCanton;
+
+  /// No description provided for @trajectoryFieldLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get trajectoryFieldLpp;
+
+  /// No description provided for @trajectoryField3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne 3a'**
+  String get trajectoryField3a;
+
+  /// No description provided for @trajectoryFieldConjoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conjoint·e'**
+  String get trajectoryFieldConjoint;
+
+  /// No description provided for @trajectoryFieldIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'À compléter'**
+  String get trajectoryFieldIncomplete;
+
+  /// No description provided for @trajectoryFieldConjointYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get trajectoryFieldConjointYes;
+
+  /// No description provided for @trajectoryFieldConjointNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get trajectoryFieldConjointNo;
+
+  /// No description provided for @trajectoryDecisionsSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes décisions'**
+  String get trajectoryDecisionsSectionTitle;
+
+  /// No description provided for @trajectoryNextStepSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape'**
+  String get trajectoryNextStepSectionTitle;
+
+  /// No description provided for @trajectoryNextStepBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le coach t’accompagne vers cette action.'**
+  String get trajectoryNextStepBody;
+
+  /// No description provided for @trajectoryConfidenceSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance'**
+  String get trajectoryConfidenceSectionTitle;
+
+  /// No description provided for @trajectoryConfidenceLowMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données sont encore parcellaires — chaque info supplémentaire affine ta trajectoire.'**
+  String get trajectoryConfidenceLowMessage;
+
+  /// No description provided for @trajectoryConfidenceHighMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil bien renseigné — tes projections sont fiables.'**
+  String get trajectoryConfidenceHighMessage;
+
+  /// No description provided for @trajectoryConfidenceCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Améliorer la précision'**
+  String get trajectoryConfidenceCta;
+
+  /// No description provided for @settingsSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get settingsSheetTitle;
+
+  /// No description provided for @settingsConsentsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consentements'**
+  String get settingsConsentsTitle;
+
+  /// No description provided for @settingsConsentsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vie privée et partage de données'**
+  String get settingsConsentsSubtitle;
+
+  /// No description provided for @settingsSlmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'IA embarquée'**
+  String get settingsSlmTitle;
+
+  /// No description provided for @settingsSlmSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tourne sur ton appareil, même hors ligne'**
+  String get settingsSlmSubtitle;
+
+  /// No description provided for @settingsByokTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clé IA perso'**
+  String get settingsByokTitle;
+
+  /// No description provided for @settingsByokSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Branche ton propre modèle IA'**
+  String get settingsByokSubtitle;
+
+  /// No description provided for @settingsLangueTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue'**
+  String get settingsLangueTitle;
+
+  /// No description provided for @settingsLangueSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir la langue de l’app'**
+  String get settingsLangueSubtitle;
+
+  /// No description provided for @settingsAboutTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get settingsAboutTitle;
+
+  /// No description provided for @settingsAboutSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version, mentions légales, contact'**
+  String get settingsAboutSubtitle;
+
+  /// No description provided for @pulseLabelMonthlyGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart mensuel à combler'**
+  String get pulseLabelMonthlyGap;
+
+  /// No description provided for @pulseLabelRetirementFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge libre à la retraite'**
+  String get pulseLabelRetirementFree;
+
+  /// No description provided for @pulseLabelMonthlyFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge libre mensuelle'**
+  String get pulseLabelMonthlyFree;
+
+  /// No description provided for @slmErrorAuthDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès refusé au modèle (HuggingFace). Le build doit inclure un token valide.'**
+  String get slmErrorAuthDenied;
+
+  /// No description provided for @slmErrorTokenInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Token HuggingFace invalide ou sans accès au repo Gemma 3n.'**
+  String get slmErrorTokenInvalid;
+
+  /// No description provided for @slmErrorModelNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier modèle introuvable. Vérifie l\'URL du modèle.'**
+  String get slmErrorModelNotFound;
+
+  /// No description provided for @slmErrorTokenMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement impossible : token HuggingFace manquant.'**
+  String get slmErrorTokenMissing;
+
+  /// No description provided for @slmErrorTimeout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le téléchargement a expiré. Réessaie avec un réseau stable.'**
+  String get slmErrorTimeout;
+
+  /// No description provided for @slmErrorNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur réseau pendant le téléchargement. Vérifie ta connexion.'**
+  String get slmErrorNetwork;
+
+  /// No description provided for @slmErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le téléchargement du modèle a échoué. Réessaie plus tard.'**
+  String get slmErrorGeneric;
+
+  /// No description provided for @slmErrorInitFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Initialisation du moteur IA impossible.'**
+  String get slmErrorInitFailed;
+
+  /// No description provided for @slmErrorAuthMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce build ne contient pas l\'authentification requise pour télécharger le modèle.'**
+  String get slmErrorAuthMissing;
+
+  /// No description provided for @docScanGenericError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue lors de l\'analyse du document. Réessaie ou utilise la saisie manuelle.'**
+  String get docScanGenericError;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -25635,4 +25635,142 @@ class SDe extends S {
   @override
   String get voiceDisclosureBody =>
       'Deine Sprache wird zur Transkription an Apple (iOS) oder Google (Android) gesendet. MINT speichert dein Audio nie.';
+
+  @override
+  String get trajectoryKnownSectionTitle => 'Was MINT weiss';
+
+  @override
+  String get trajectoryFieldAge => 'Alter';
+
+  @override
+  String get trajectoryFieldAgeUnit => 'Jahre';
+
+  @override
+  String get trajectoryFieldRevenu => 'Bruttoeinkommen';
+
+  @override
+  String get trajectoryFieldCanton => 'Kanton';
+
+  @override
+  String get trajectoryFieldLpp => 'BVG-Guthaben';
+
+  @override
+  String get trajectoryField3a => 'Säule 3a';
+
+  @override
+  String get trajectoryFieldConjoint => 'Partner·in';
+
+  @override
+  String get trajectoryFieldIncomplete => 'Zu ergänzen';
+
+  @override
+  String get trajectoryFieldConjointYes => 'Ja';
+
+  @override
+  String get trajectoryFieldConjointNo => 'Nicht angegeben';
+
+  @override
+  String get trajectoryDecisionsSectionTitle => 'Deine Entscheidungen';
+
+  @override
+  String get trajectoryNextStepSectionTitle => 'Nächster Schritt';
+
+  @override
+  String get trajectoryNextStepBody =>
+      'Der Coach begleitet dich zu dieser Aktion.';
+
+  @override
+  String get trajectoryConfidenceSectionTitle => 'Vertrauen';
+
+  @override
+  String get trajectoryConfidenceLowMessage =>
+      'Deine Daten sind noch lückenhaft — jede weitere Angabe verfeinert deine Prognose.';
+
+  @override
+  String get trajectoryConfidenceHighMessage =>
+      'Gut dokumentiertes Profil — deine Projektionen sind zuverlässig.';
+
+  @override
+  String get trajectoryConfidenceCta => 'Genauigkeit verbessern';
+
+  @override
+  String get settingsSheetTitle => 'Einstellungen';
+
+  @override
+  String get settingsConsentsTitle => 'Einwilligungen';
+
+  @override
+  String get settingsConsentsSubtitle => 'Datenschutz und Datenfreigabe';
+
+  @override
+  String get settingsSlmTitle => 'Geräte-KI';
+
+  @override
+  String get settingsSlmSubtitle => 'Läuft auf deinem Gerät, auch offline';
+
+  @override
+  String get settingsByokTitle => 'Eigener KI-Schlüssel';
+
+  @override
+  String get settingsByokSubtitle => 'Verbinde dein eigenes KI-Modell';
+
+  @override
+  String get settingsLangueTitle => 'Sprache';
+
+  @override
+  String get settingsLangueSubtitle => 'App-Sprache wählen';
+
+  @override
+  String get settingsAboutTitle => 'Über';
+
+  @override
+  String get settingsAboutSubtitle => 'Version, rechtliche Hinweise, Kontakt';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Monatliche Lücke zu schliessen';
+
+  @override
+  String get pulseLabelRetirementFree => 'Freie Marge im Ruhestand';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Monatliche freie Marge';
+
+  @override
+  String get slmErrorAuthDenied =>
+      'Zugriff auf das Modell verweigert (HuggingFace). Der Build muss ein gültiges Token enthalten.';
+
+  @override
+  String get slmErrorTokenInvalid =>
+      'HuggingFace-Token ungültig oder ohne Zugriff auf Gemma-3n-Repo.';
+
+  @override
+  String get slmErrorModelNotFound =>
+      'Modelldatei nicht gefunden. Überprüfe die Modell-URL.';
+
+  @override
+  String get slmErrorTokenMissing =>
+      'Download unmöglich: HuggingFace-Token fehlt.';
+
+  @override
+  String get slmErrorTimeout =>
+      'Download abgelaufen. Versuche es mit stabilem Netzwerk erneut.';
+
+  @override
+  String get slmErrorNetwork =>
+      'Netzwerkfehler beim Download. Überprüfe deine Verbindung.';
+
+  @override
+  String get slmErrorGeneric =>
+      'Modell-Download fehlgeschlagen. Versuche es später erneut.';
+
+  @override
+  String get slmErrorInitFailed => 'KI-Engine-Initialisierung fehlgeschlagen.';
+
+  @override
+  String get slmErrorAuthMissing =>
+      'Dieser Build enthält nicht die erforderliche Authentifizierung zum Herunterladen des Modells.';
+
+  @override
+  String get docScanGenericError =>
+      'Bei der Dokumentanalyse ist ein Fehler aufgetreten. Versuche es erneut oder verwende die manuelle Eingabe.';
 }

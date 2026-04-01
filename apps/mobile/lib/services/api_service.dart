@@ -1190,6 +1190,33 @@ class ApiService {
     }
   }
 
+  static Future<Session> createSession({
+    required String profileId,
+    required Map<String, dynamic> answers,
+    required List<String> selectedFocusKinds,
+    String? selectedGoalTemplateId,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/sessions'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'profileId': profileId,
+        'answers': answers,
+        'selectedFocusKinds': selectedFocusKinds,
+        'selectedGoalTemplateId': selectedGoalTemplateId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return Session.fromJson(jsonDecode(response.body));
+    } else {
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to create session'),
+        statusCode: response.statusCode,
+      );
+    }
+  }
+
   @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<SessionReport> getSessionReport(String sessionId) async {
     final response = await http.get(

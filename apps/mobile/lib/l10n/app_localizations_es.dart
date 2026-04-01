@@ -25588,4 +25588,143 @@ class SEs extends S {
   @override
   String get voiceDisclosureBody =>
       'Tu voz se envía a Apple (iOS) o Google (Android) para la transcripción. MINT nunca almacena tu audio.';
+
+  @override
+  String get trajectoryKnownSectionTitle => 'Lo que MINT sabe';
+
+  @override
+  String get trajectoryFieldAge => 'Edad';
+
+  @override
+  String get trajectoryFieldAgeUnit => 'años';
+
+  @override
+  String get trajectoryFieldRevenu => 'Ingreso bruto';
+
+  @override
+  String get trajectoryFieldCanton => 'Cantón';
+
+  @override
+  String get trajectoryFieldLpp => 'Saldo LPP';
+
+  @override
+  String get trajectoryField3a => 'Ahorro 3a';
+
+  @override
+  String get trajectoryFieldConjoint => 'Cónyuge';
+
+  @override
+  String get trajectoryFieldIncomplete => 'Por completar';
+
+  @override
+  String get trajectoryFieldConjointYes => 'Sí';
+
+  @override
+  String get trajectoryFieldConjointNo => 'No especificado';
+
+  @override
+  String get trajectoryDecisionsSectionTitle => 'Tus decisiones';
+
+  @override
+  String get trajectoryNextStepSectionTitle => 'Próximo paso';
+
+  @override
+  String get trajectoryNextStepBody =>
+      'El coach te acompaña hacia esta acción.';
+
+  @override
+  String get trajectoryConfidenceSectionTitle => 'Confianza';
+
+  @override
+  String get trajectoryConfidenceLowMessage =>
+      'Tus datos aún son parciales — cada información adicional afina tu trayectoria.';
+
+  @override
+  String get trajectoryConfidenceHighMessage =>
+      'Perfil bien documentado — tus proyecciones son fiables.';
+
+  @override
+  String get trajectoryConfidenceCta => 'Mejorar la precisión';
+
+  @override
+  String get settingsSheetTitle => 'Ajustes';
+
+  @override
+  String get settingsConsentsTitle => 'Consentimientos';
+
+  @override
+  String get settingsConsentsSubtitle => 'Privacidad y uso compartido de datos';
+
+  @override
+  String get settingsSlmTitle => 'IA en el dispositivo';
+
+  @override
+  String get settingsSlmSubtitle =>
+      'Funciona en tu dispositivo, incluso sin conexión';
+
+  @override
+  String get settingsByokTitle => 'Clave IA personal';
+
+  @override
+  String get settingsByokSubtitle => 'Conecta tu propio modelo IA';
+
+  @override
+  String get settingsLangueTitle => 'Idioma';
+
+  @override
+  String get settingsLangueSubtitle => 'Elegir el idioma de la app';
+
+  @override
+  String get settingsAboutTitle => 'Acerca de';
+
+  @override
+  String get settingsAboutSubtitle => 'Versión, avisos legales, contacto';
+
+  @override
+  String get pulseLabelMonthlyGap => 'Brecha mensual a cubrir';
+
+  @override
+  String get pulseLabelRetirementFree => 'Margen libre en la jubilación';
+
+  @override
+  String get pulseLabelMonthlyFree => 'Margen libre mensual';
+
+  @override
+  String get slmErrorAuthDenied =>
+      'Acceso denegado al modelo (HuggingFace). El build debe incluir un token válido.';
+
+  @override
+  String get slmErrorTokenInvalid =>
+      'Token HuggingFace inválido o sin acceso al repo Gemma 3n.';
+
+  @override
+  String get slmErrorModelNotFound =>
+      'Archivo de modelo no encontrado. Verifica la URL del modelo.';
+
+  @override
+  String get slmErrorTokenMissing =>
+      'Descarga imposible: token HuggingFace faltante.';
+
+  @override
+  String get slmErrorTimeout =>
+      'La descarga expiró. Reintenta con una red estable.';
+
+  @override
+  String get slmErrorNetwork =>
+      'Error de red durante la descarga. Verifica tu conexión.';
+
+  @override
+  String get slmErrorGeneric =>
+      'Descarga del modelo fallida. Inténtalo más tarde.';
+
+  @override
+  String get slmErrorInitFailed => 'Inicialización del motor IA fallida.';
+
+  @override
+  String get slmErrorAuthMissing =>
+      'Este build no contiene la autenticación requerida para descargar el modelo.';
+
+  @override
+  String get docScanGenericError =>
+      'Se produjo un error al analizar el documento. Inténtalo de nuevo o usa la entrada manual.';
 }

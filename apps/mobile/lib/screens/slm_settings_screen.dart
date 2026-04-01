@@ -21,6 +21,23 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 ///   - Initialize the engine for on-device inference
 ///
 /// Privacy: model runs 100% on-device, zero data leaves the device.
+/// Resolve SLM error code keys to localized strings.
+String _resolveSlmError(String? errorKey, S l10n) {
+  if (errorKey == null) return l10n.slmDownloadFailedDefault;
+  return switch (errorKey) {
+    'slm_error_auth_denied' => l10n.slmErrorAuthDenied,
+    'slm_error_token_invalid' => l10n.slmErrorTokenInvalid,
+    'slm_error_model_not_found' => l10n.slmErrorModelNotFound,
+    'slm_error_token_missing' => l10n.slmErrorTokenMissing,
+    'slm_error_timeout' => l10n.slmErrorTimeout,
+    'slm_error_network' => l10n.slmErrorNetwork,
+    'slm_error_generic' => l10n.slmErrorGeneric,
+    'slm_init_failed' => l10n.slmErrorInitFailed,
+    'slm_auth_missing' => l10n.slmErrorAuthMissing,
+    _ => errorKey, // Fallback: show raw string
+  };
+}
+
 class SlmSettingsScreen extends StatelessWidget {
   const SlmSettingsScreen({super.key});
 
@@ -284,7 +301,7 @@ class SlmSettingsScreen extends StatelessWidget {
                   const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
-                      slm.prerequisiteWarning!,
+                      _resolveSlmError(slm.prerequisiteWarning, l10n),
                       style: MintTextStyles.bodySmall(
                         color: MintColors.warning,
                       ),
@@ -381,7 +398,7 @@ class SlmSettingsScreen extends StatelessWidget {
                   const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
-                      slm.lastError ?? l10n.slmDownloadFailedMessage,
+                      _resolveSlmError(slm.lastError, l10n),
                       style: MintTextStyles.bodySmall(
                         color: MintColors.error,
                       ),
@@ -479,7 +496,7 @@ class SlmSettingsScreen extends StatelessWidget {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(
-            slm.prerequisiteWarning ?? l10n.slmDownloadNotAvailable,
+            _resolveSlmError(slm.prerequisiteWarning, l10n),
           ),
           backgroundColor: MintColors.error,
           duration: const Duration(seconds: 6),
@@ -523,8 +540,7 @@ class SlmSettingsScreen extends StatelessWidget {
     if (!success &&
         context.mounted &&
         slm.downloadState == DownloadState.failed) {
-      final reason =
-          slm.lastError ?? l10n.slmDownloadFailedDefault;
+      final reason = _resolveSlmError(slm.lastError, l10n);
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(l10n.slmDownloadFailedSnack(reason)),

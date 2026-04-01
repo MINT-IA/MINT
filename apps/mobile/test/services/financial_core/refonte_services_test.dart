@@ -14,7 +14,7 @@ void main() {
     const baseRate = 0.068; // LPP minimum legal (6.8%)
     const reduction = lppEarlyRetirementRateReduction; // 0.002
 
-    test('retirementAge 65 (standard) returns baseRate unchanged', () {
+    test('retirementAge 65 (standard) returns baseRate unchanged', () async {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
         retirementAge: 65,
@@ -22,7 +22,7 @@ void main() {
       expect(rate, equals(baseRate));
     });
 
-    test('retirementAge 63 returns baseRate - 2 * reductionPerYear', () {
+    test('retirementAge 63 returns baseRate - 2 * reductionPerYear', () async {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
         retirementAge: 63,
@@ -31,7 +31,7 @@ void main() {
       expect(rate, closeTo(0.064, 1e-10));
     });
 
-    test('retirementAge 58 returns clamped rate (>= 0.03)', () {
+    test('retirementAge 58 returns clamped rate (>= 0.03)', () async {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
         retirementAge: 58,
@@ -42,7 +42,7 @@ void main() {
       expect(rate, greaterThanOrEqualTo(0.03));
     });
 
-    test('retirementAge 67 (late retirement) returns baseRate', () {
+    test('retirementAge 67 (late retirement) returns baseRate', () async {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
         retirementAge: 67,
@@ -51,7 +51,7 @@ void main() {
       expect(rate, equals(baseRate));
     });
 
-    test('retirementAge 70 (very late retirement) returns baseRate', () {
+    test('retirementAge 70 (very late retirement) returns baseRate', () async {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
         retirementAge: 70,
@@ -59,7 +59,7 @@ void main() {
       expect(rate, equals(baseRate));
     });
 
-    test('low baseRate (0.04) with early retirement clamps at 0.03', () {
+    test('low baseRate (0.04) with early retirement clamps at 0.03', () async {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: 0.04,
         retirementAge: 58,
@@ -70,7 +70,7 @@ void main() {
       expect(rate, equals(0.03));
     });
 
-    test('custom referenceAge 64 with retirement at 64 returns baseRate', () {
+    test('custom referenceAge 64 with retirement at 64 returns baseRate', () async {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
         retirementAge: 64,
@@ -90,7 +90,7 @@ void main() {
       expect(rate, closeTo(0.064, 1e-10));
     });
 
-    test('reduction never goes below 3% floor', () {
+    test('reduction never goes below 3% floor', () async {
       // Extreme early retirement with high reduction
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: 0.068,
@@ -147,7 +147,7 @@ void main() {
       ),
     ];
 
-    test('null firstName produces empty conjName — no matching', () {
+    test('null firstName produces empty conjName — no matching', () async {
       const String? firstName = null;
       final conjName = firstName?.toLowerCase() ?? '';
       expect(conjName.isEmpty, isTrue);
@@ -168,7 +168,7 @@ void main() {
       expect(conjAnnualBuyback, equals(0));
     });
 
-    test('empty string firstName produces empty conjName — no matching', () {
+    test('empty string firstName produces empty conjName — no matching', () async {
       const firstName = '';
       final conjName = firstName.toLowerCase();
       expect(conjName.isEmpty, isTrue);
@@ -187,7 +187,7 @@ void main() {
       expect(conj3aMonthly, equals(0));
     });
 
-    test('firstName "Lauren" matches lpp_buyback_lauren contribution', () {
+    test('firstName "Lauren" matches lpp_buyback_lauren contribution', () async {
       const firstName = 'Lauren';
       final conjName = firstName.toLowerCase();
       expect(conjName, equals('lauren'));
@@ -204,7 +204,7 @@ void main() {
       expect(matchedBuybacks[0].amount, equals(500));
     });
 
-    test('firstName "Lauren" matches 3a_lauren contribution', () {
+    test('firstName "Lauren" matches 3a_lauren contribution', () async {
       const firstName = 'Lauren';
       final conjName = firstName.toLowerCase();
 
@@ -220,7 +220,7 @@ void main() {
       expect(matched3a[0].amount, equals(604));
     });
 
-    test('firstName "Lauren" does NOT match Julien contributions', () {
+    test('firstName "Lauren" does NOT match Julien contributions', () async {
       const firstName = 'Lauren';
       final conjName = firstName.toLowerCase();
 
@@ -234,7 +234,7 @@ void main() {
       expect(matchedJulien, isEmpty);
     });
 
-    test('case-insensitive matching works (LAUREN vs lauren)', () {
+    test('case-insensitive matching works (LAUREN vs lauren)', () async {
       const firstName = 'LAUREN';
       final conjName = firstName.toLowerCase();
       expect(conjName, equals('lauren'));
@@ -250,7 +250,7 @@ void main() {
       expect(matched[0].id, equals('lpp_buyback_lauren'));
     });
 
-    test('label-only match works when id does not contain name', () {
+    test('label-only match works when id does not contain name', () async {
       final customContributions = [
         const PlannedMonthlyContribution(
           id: 'lpp_buyback_conj',
@@ -279,11 +279,11 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('ConfidenceScorer constants', () {
-    test('minConfidenceForProjection is 40.0', () {
+    test('minConfidenceForProjection is 40.0', () async {
       expect(ConfidenceScorer.minConfidenceForProjection, equals(40.0));
     });
 
-    test('minConfidenceForProjection is a double', () {
+    test('minConfidenceForProjection is a double', () async {
       expect(ConfidenceScorer.minConfidenceForProjection, isA<double>());
     });
   });
@@ -327,9 +327,9 @@ void main() {
       );
     }
 
-    test('simulate() with conjoint firstName=null does not crash', () {
+    test('simulate() with conjoint firstName=null does not crash', () async {
       final profile = buildCoupleProfile(conjointFirstName: null);
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 10,
         seed: 42,
@@ -339,9 +339,9 @@ void main() {
       expect(result.disclaimer, isNotEmpty);
     });
 
-    test('simulate() with conjoint firstName="" does not crash', () {
+    test('simulate() with conjoint firstName="" does not crash', () async {
       final profile = buildCoupleProfile(conjointFirstName: '');
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 10,
         seed: 42,
@@ -351,7 +351,7 @@ void main() {
     });
 
     test('simulate() with conjoint firstName="Lauren" assigns buyback correctly',
-        () {
+        () async {
       final profileWithBuyback = buildCoupleProfile(
         conjointFirstName: 'Lauren',
         contributions: const [
@@ -374,12 +374,12 @@ void main() {
         contributions: const [],
       );
 
-      final withBuyback = MonteCarloProjectionService.simulate(
+      final withBuyback = await MonteCarloProjectionService.simulate(
         profile: profileWithBuyback,
         numSimulations: 50,
         seed: 42,
       );
-      final withoutBuyback = MonteCarloProjectionService.simulate(
+      final withoutBuyback = await MonteCarloProjectionService.simulate(
         profile: profileWithout,
         numSimulations: 50,
         seed: 42,
@@ -391,7 +391,7 @@ void main() {
 
     test(
         'simulate() with conjoint firstName=null ignores buyback contributions',
-        () {
+        () async {
       final profileNullName = buildCoupleProfile(
         conjointFirstName: null,
         contributions: const [
@@ -408,12 +408,12 @@ void main() {
         contributions: const [],
       );
 
-      final withContrib = MonteCarloProjectionService.simulate(
+      final withContrib = await MonteCarloProjectionService.simulate(
         profile: profileNullName,
         numSimulations: 50,
         seed: 42,
       );
-      final withoutContrib = MonteCarloProjectionService.simulate(
+      final withoutContrib = await MonteCarloProjectionService.simulate(
         profile: profileNoContrib,
         numSimulations: 50,
         seed: 42,
@@ -424,14 +424,14 @@ void main() {
       expect(withContrib.medianAt65, equals(withoutContrib.medianAt65));
     });
 
-    test('simulate() is deterministic with fixed seed', () {
+    test('simulate() is deterministic with fixed seed', () async {
       final profile = buildCoupleProfile(conjointFirstName: 'Lauren');
-      final run1 = MonteCarloProjectionService.simulate(
+      final run1 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 50,
         seed: 123,
       );
-      final run2 = MonteCarloProjectionService.simulate(
+      final run2 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 50,
         seed: 123,

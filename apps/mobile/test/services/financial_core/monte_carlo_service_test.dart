@@ -15,16 +15,16 @@ void main() {
   // ── GROUP 1: COUPLE SCENARIOS ──────────────────────────────
 
   group('MonteCarloProjectionService — couple profiles', () {
-    test('married couple produces higher median than single person', () {
+    test('married couple produces higher median than single person', () async {
       final single = _buildSingleProfile();
       final couple = _buildCoupleProfile();
 
-      final resultSingle = MonteCarloProjectionService.simulate(
+      final resultSingle = await MonteCarloProjectionService.simulate(
         profile: single,
         numSimulations: 200,
         seed: 42,
       );
-      final resultCouple = MonteCarloProjectionService.simulate(
+      final resultCouple = await MonteCarloProjectionService.simulate(
         profile: couple,
         numSimulations: 200,
         seed: 42,
@@ -38,18 +38,18 @@ void main() {
       );
     });
 
-    test('concubinage couple also produces higher income', () {
+    test('concubinage couple also produces higher income', () async {
       final single = _buildSingleProfile();
       final concubin = _buildCoupleProfile().copyWith(
         etatCivil: CoachCivilStatus.concubinage,
       );
 
-      final resultSingle = MonteCarloProjectionService.simulate(
+      final resultSingle = await MonteCarloProjectionService.simulate(
         profile: single,
         numSimulations: 200,
         seed: 42,
       );
-      final resultConcubin = MonteCarloProjectionService.simulate(
+      final resultConcubin = await MonteCarloProjectionService.simulate(
         profile: concubin,
         numSimulations: 200,
         seed: 42,
@@ -62,7 +62,7 @@ void main() {
       );
     });
 
-    test('couple with FATCA conjoint skips conjoint 3a', () {
+    test('couple with FATCA conjoint skips conjoint 3a', () async {
       // FATCA conjoint: canContribute3a = false
       final fatcaCouple = _buildCoupleProfile().copyWith(
         conjoint: ConjointProfile(
@@ -101,12 +101,12 @@ void main() {
         ),
       );
 
-      final resultFatca = MonteCarloProjectionService.simulate(
+      final resultFatca = await MonteCarloProjectionService.simulate(
         profile: fatcaCouple,
         numSimulations: 200,
         seed: 42,
       );
-      final resultNormal = MonteCarloProjectionService.simulate(
+      final resultNormal = await MonteCarloProjectionService.simulate(
         profile: normalCouple,
         numSimulations: 200,
         seed: 42,
@@ -122,7 +122,7 @@ void main() {
       expect(resultFatca.projection.length, equals(30));
     });
 
-    test('couple with conjoint without birthYear does not crash', () {
+    test('couple with conjoint without birthYear does not crash', () async {
       final profile = _buildCoupleProfile().copyWith(
         conjoint: const ConjointProfile(
           firstName: 'Unknown',
@@ -132,7 +132,7 @@ void main() {
         ),
       );
 
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -147,9 +147,9 @@ void main() {
   // ── GROUP 2: EARLY RETIREMENT ──────────────────────────────
 
   group('MonteCarloProjectionService — early retirement', () {
-    test('early retirement before 63 triggers AVS alerte', () {
+    test('early retirement before 63 triggers AVS alerte', () async {
       final profile = _buildSingleProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 60,
         numSimulations: 100,
@@ -164,9 +164,9 @@ void main() {
       expect(result.retirementAge, equals(60));
     });
 
-    test('early retirement at 58 has no AVS for 5 years', () {
+    test('early retirement at 58 has no AVS for 5 years', () async {
       final profile = _buildSingleProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 58,
         numSimulations: 200,
@@ -190,9 +190,9 @@ void main() {
       expect(incomeAt63, greaterThanOrEqualTo(0));
     });
 
-    test('retirement at 63 does not trigger early retirement alerte', () {
+    test('retirement at 63 does not trigger early retirement alerte', () async {
       final profile = _buildSingleProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 63,
         numSimulations: 50,
@@ -210,7 +210,7 @@ void main() {
   // ── GROUP 3: EDGE CASES ────────────────────────────────────
 
   group('MonteCarloProjectionService — edge cases', () {
-    test('very high capital (5M) does not crash and produces income', () {
+    test('very high capital (5M) does not crash and produces income', () async {
       final profile = _buildSingleProfile().copyWith(
         prevoyance: const PrevoyanceProfile(
           avoirLppTotal: 2000000,
@@ -225,7 +225,7 @@ void main() {
         ),
       );
 
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 100,
         seed: 42,
@@ -241,7 +241,7 @@ void main() {
       );
     });
 
-    test('0 years to retirement (age == retirementAge) does not crash', () {
+    test('0 years to retirement (age == retirementAge) does not crash', () async {
       // Profile with age = 65 and retirementAge = 65 → 0 accumulation years
       final profile = CoachProfile(
         firstName: 'Senior',
@@ -265,7 +265,7 @@ void main() {
         ),
       );
 
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 65,
         numSimulations: 50,
@@ -277,7 +277,7 @@ void main() {
       expect(result.projection[0].age, equals(65));
     });
 
-    test('independant without LPP still works (no bonifications)', () {
+    test('independant without LPP still works (no bonifications)', () async {
       final profile = CoachProfile(
         firstName: 'Indie',
         birthYear: DateTime.now().year - 45,
@@ -299,7 +299,7 @@ void main() {
         ),
       );
 
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 100,
         seed: 42,
@@ -310,11 +310,11 @@ void main() {
       expect(result.medianAt65, greaterThan(0));
     });
 
-    test('custom depensesMensuelles overrides estimation', () {
+    test('custom depensesMensuelles overrides estimation', () async {
       final profile = _buildSingleProfile();
 
       // Low expenses → lower ruin probability
-      final resultLowExpenses = MonteCarloProjectionService.simulate(
+      final resultLowExpenses = await MonteCarloProjectionService.simulate(
         profile: profile,
         depensesMensuelles: 2000,
         numSimulations: 200,
@@ -322,7 +322,7 @@ void main() {
       );
 
       // Very high expenses → higher ruin probability
-      final resultHighExpenses = MonteCarloProjectionService.simulate(
+      final resultHighExpenses = await MonteCarloProjectionService.simulate(
         profile: profile,
         depensesMensuelles: 15000,
         numSimulations: 200,
@@ -336,7 +336,7 @@ void main() {
       );
     });
 
-    test('empty canton defaults to ZH (no crash)', () {
+    test('empty canton defaults to ZH (no crash)', () async {
       final profile = CoachProfile(
         firstName: 'NoCanton',
         birthYear: DateTime.now().year - 40,
@@ -356,7 +356,7 @@ void main() {
         ),
       );
 
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -370,7 +370,7 @@ void main() {
   // ── GROUP 4: ALERTES ───────────────────────────────────────
 
   group('MonteCarloProjectionService — alertes', () {
-    test('high ruin probability triggers deficit alerte', () {
+    test('high ruin probability triggers deficit alerte', () async {
       // Very low capital + high expenses → high ruin
       final profile = CoachProfile(
         firstName: 'Poor',
@@ -393,7 +393,7 @@ void main() {
         ),
       );
 
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         depensesMensuelles: 8000,
         numSimulations: 300,
@@ -417,9 +417,9 @@ void main() {
       }
     });
 
-    test('sources list is non-empty and contains legal references', () {
+    test('sources list is non-empty and contains legal references', () async {
       final profile = _buildSingleProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 10,
         seed: 42,
@@ -436,16 +436,16 @@ void main() {
   // ── GROUP 5: LPP CAPITAL STRATEGY ─────────────────────────
 
   group('MonteCarloProjectionService — lppCapitalPct variations', () {
-    test('0% capital (full rente) vs 100% capital produce different results', () {
+    test('0% capital (full rente) vs 100% capital produce different results', () async {
       final profile = _buildSingleProfile();
 
-      final resultRente = MonteCarloProjectionService.simulate(
+      final resultRente = await MonteCarloProjectionService.simulate(
         profile: profile,
         lppCapitalPct: 0.0,
         numSimulations: 200,
         seed: 42,
       );
-      final resultCapital = MonteCarloProjectionService.simulate(
+      final resultCapital = await MonteCarloProjectionService.simulate(
         profile: profile,
         lppCapitalPct: 1.0,
         numSimulations: 200,
@@ -463,22 +463,22 @@ void main() {
       expect(resultCapital.medianAt65, greaterThan(0));
     });
 
-    test('50% capital split produces income between 0% and 100%', () {
+    test('50% capital split produces income between 0% and 100%', () async {
       final profile = _buildSingleProfile();
 
-      final result0 = MonteCarloProjectionService.simulate(
+      final result0 = await MonteCarloProjectionService.simulate(
         profile: profile,
         lppCapitalPct: 0.0,
         numSimulations: 300,
         seed: 42,
       );
-      final result50 = MonteCarloProjectionService.simulate(
+      final result50 = await MonteCarloProjectionService.simulate(
         profile: profile,
         lppCapitalPct: 0.5,
         numSimulations: 300,
         seed: 42,
       );
-      final result100 = MonteCarloProjectionService.simulate(
+      final result100 = await MonteCarloProjectionService.simulate(
         profile: profile,
         lppCapitalPct: 1.0,
         numSimulations: 300,
@@ -500,15 +500,15 @@ void main() {
   // ── GROUP 6: CONVERGENCE & STATISTICAL PROPERTIES ──────────
 
   group('MonteCarloProjectionService — convergence', () {
-    test('two runs with different seeds produce similar medians (within 25%)', () {
+    test('two runs with different seeds produce similar medians (within 25%)', () async {
       final profile = _buildSingleProfile();
 
-      final result1 = MonteCarloProjectionService.simulate(
+      final result1 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 500,
         seed: 111,
       );
-      final result2 = MonteCarloProjectionService.simulate(
+      final result2 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 500,
         seed: 999,
@@ -524,11 +524,11 @@ void main() {
       );
     });
 
-    test('P10/P50/P90 at retirement maintain correct ordering across seeds', () {
+    test('P10/P50/P90 at retirement maintain correct ordering across seeds', () async {
       final profile = _buildSingleProfile();
 
       for (final seed in [1, 42, 100, 12345, 99999]) {
-        final result = MonteCarloProjectionService.simulate(
+        final result = await MonteCarloProjectionService.simulate(
           profile: profile,
           numSimulations: 200,
           seed: seed,
@@ -547,9 +547,9 @@ void main() {
       }
     });
 
-    test('all projection values are non-negative', () {
+    test('all projection values are non-negative', () async {
       final profile = _buildSingleProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 300,
         seed: 42,
@@ -573,22 +573,22 @@ void main() {
   // ── GROUP 7: RETIREMENT AGE VARIATIONS ─────────────────────
 
   group('MonteCarloProjectionService — retirement age', () {
-    test('later retirement produces higher median (more accumulation)', () {
+    test('later retirement produces higher median (more accumulation)', () async {
       final profile = _buildSingleProfile();
 
-      final result60 = MonteCarloProjectionService.simulate(
+      final result60 = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 60,
         numSimulations: 300,
         seed: 42,
       );
-      final result65 = MonteCarloProjectionService.simulate(
+      final result65 = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 65,
         numSimulations: 300,
         seed: 42,
       );
-      final result70 = MonteCarloProjectionService.simulate(
+      final result70 = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 70,
         numSimulations: 300,
@@ -608,11 +608,11 @@ void main() {
       );
     });
 
-    test('retirementAge field in result matches input', () {
+    test('retirementAge field in result matches input', () async {
       final profile = _buildSingleProfile();
 
       for (final age in [58, 60, 63, 65, 67, 70]) {
-        final result = MonteCarloProjectionService.simulate(
+        final result = await MonteCarloProjectionService.simulate(
           profile: profile,
           retirementAgeUser: age,
           numSimulations: 10,
@@ -627,7 +627,7 @@ void main() {
   // ── GROUP 8: LPP BUYBACK IMPACT ────────────────────────────
 
   group('MonteCarloProjectionService — LPP buyback', () {
-    test('profile with LPP buyback produces higher income', () {
+    test('profile with LPP buyback produces higher income', () async {
       final noBuyback = _buildSingleProfile().copyWith(
         plannedContributions: const [
           PlannedMonthlyContribution(
@@ -666,12 +666,12 @@ void main() {
         ],
       );
 
-      final resultNo = MonteCarloProjectionService.simulate(
+      final resultNo = await MonteCarloProjectionService.simulate(
         profile: noBuyback,
         numSimulations: 200,
         seed: 42,
       );
-      final resultWith = MonteCarloProjectionService.simulate(
+      final resultWith = await MonteCarloProjectionService.simulate(
         profile: withBuyback,
         numSimulations: 200,
         seed: 42,
