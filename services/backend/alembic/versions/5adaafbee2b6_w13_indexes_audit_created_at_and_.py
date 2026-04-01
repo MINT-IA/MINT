@@ -1,7 +1,7 @@
 """w13_indexes_audit_created_at_and_analytics_compound
 
 Revision ID: 5adaafbee2b6
-Revises: p7_external_data_sources
+Revises: p13_password_changed_at
 Create Date: 2026-04-01 21:44:45.911466
 
 Adds:
@@ -16,7 +16,7 @@ from sqlalchemy import inspect
 
 # revision identifiers, used by Alembic.
 revision: str = '5adaafbee2b6'
-down_revision: Union[str, Sequence[str], None] = 'p7_external_data_sources'
+down_revision: Union[str, Sequence[str], None] = 'p13_password_changed_at'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
