@@ -76,6 +76,14 @@ class LppCalculator {
     double? bonificationRateOverride,
     double? salaireAssureOverride,
   }) {
+    // NOTE: LPP entry threshold (22'680) applies to annual salary.
+    // For partial years, the effective threshold should be pro-rated.
+    // Currently assumes full-year employment.
+    // TODO(P2-Finance): Add contributionMonths param for pro-rated threshold
+    //
+    // NOTE: grossAnnualSalary should be base salary × 12, NOT including
+    // 13th month bonus, unless the LPP certificate explicitly includes it
+    // in the coordinated salary. See LPP art. 8.
     final seuil = reg('lpp.entry_threshold', lppSeuilEntree);
     final belowThreshold =
         salaireAssureOverride == null && grossAnnualSalary < seuil;

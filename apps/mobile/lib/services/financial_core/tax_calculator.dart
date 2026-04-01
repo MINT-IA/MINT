@@ -409,26 +409,54 @@ class RetirementTaxCalculator {
     return totallySaved;
   }
 
-  /// Estimate annual 3a tax saving using canton-aware marginal rate.
+  /// Estimate 3a tax saving from annual contribution (OPP3, LIFD art. 33).
   ///
-  /// Replaces hardcoded `7258 * 0.25` patterns. Uses the real marginal rate
-  /// for the user's income level, canton, and family situation.
+  /// [grossAnnualSalary]: declarant's gross annual salary.
+  /// [canton]: for marginal rate lookup.
+  /// [isMarried]: for family situation adjustment.
+  /// [children]: number of dependent children.
+  /// [hasLpp]: if true, ceiling = 7'258; if false, ceiling = min(20% net, 36'288).
+  /// [contributionMonths]: months worked in the tax year (1-12). Pro-rates the
+  ///   ceiling for partial years (e.g. new job mid-year, or first job).
+  ///   OPP3 art. 7: the deductible amount is proportional to the employment duration.
+  /// [contribution]: actual contribution; if null, assumes max deductible.
   ///
-  /// Legal basis: OPP3 art. 7 (plafond 3a), LIFD (impot federal).
+  /// Returns the estimated tax saving in CHF.
+  ///
+  /// Legal basis: OPP3 art. 7 (plafond 3a), LIFD art. 33 (deduction).
   static double estimate3aTaxSaving({
     required double grossAnnualSalary,
     required String canton,
     bool isMarried = false,
     int children = 0,
+    bool hasLpp = true,
+    int contributionMonths = 12,
+    double? contribution,
   }) {
     if (grossAnnualSalary <= 0) return 0;
-    final marginalRate = estimateMarginalRate(
-      grossAnnualSalary,
-      canton,
+    final months = contributionMonths.clamp(1, 12);
+
+    // Ceiling depends on LPP affiliation (OPP3 art. 7)
+    final double annualCeiling = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp);
+
+    // Pro-rate for partial year
+    final double proRatedCeiling = annualCeiling * months / 12;
+
+    // Actual deductible = min(contribution, proRatedCeiling)
+    final double deductible = contribution != null
+        ? contribution.clamp(0.0, proRatedCeiling)
+        : proRatedCeiling;
+
+    return estimateTaxSaving(
+      income: grossAnnualSalary,
+      deduction: deductible,
+      canton: canton,
       isMarried: isMarried,
       children: children,
     );
-    return reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * marginalRate;
   }
 
   /// Estimate retirement income tax (annual → monthly).
