@@ -9,25 +9,6 @@ class SPt extends S {
   SPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appTitle => 'MINT';
-
-  @override
-  String get landingHero => 'Financial OS.';
-
-  @override
-  String get landingSubtitle => 'O teu copiloto financeiro suico.';
-
-  @override
-  String get landingBetaBadge => 'Beta Privada';
-
-  @override
-  String get landingHeroPrefix => 'O primeiro';
-
-  @override
-  String get landingSubtitleLong =>
-      'A inteligencia de um CFO, no teu bolso.\nZero tretas. Puro conselho.';
-
-  @override
   String get landingFeature1Title => 'Diagnostico Instantaneo';
 
   @override
@@ -46,25 +27,13 @@ class SPt extends S {
   String get landingFeature3Desc => 'Zero comissao. Zero conflito.';
 
   @override
-  String get landingDiagnosticSubtitle => 'Balanco 360° • 5 minutos';
-
-  @override
-  String get landingResumeDiagnostic => 'Retomar o meu diagnostico';
-
-  @override
   String get startDiagnostic => 'Iniciar o meu diagnostico';
 
   @override
   String get tabExplore => 'Explorar';
 
   @override
-  String get tabTrack => 'SEGUIR';
-
-  @override
   String get budgetTitle => 'Dominar o meu Orcamento';
-
-  @override
-  String get simulatorsTitle => 'Simuladores de Viagem';
 
   @override
   String get recommendations => 'As tuas Recomendacoes';
@@ -74,46 +43,11 @@ class SPt extends S {
       'Os resultados apresentados sao estimativas a titulo indicativo. Nao constituem aconselhamento financeiro personalizado.';
 
   @override
-  String get onboardingSkip => 'Saltar';
-
-  @override
-  String onboardingProgress(String step, String total) {
-    return 'Passo $step de $total';
-  }
-
-  @override
   String get onboardingStep1Title => 'Ola, sou o teu mentor.';
 
   @override
   String get onboardingStep1Subtitle =>
       'Vamos comecar por nos conhecer. Qual e a tua situacao atual?';
-
-  @override
-  String get onboardingHouseholdSingle => 'Sozinho/a';
-
-  @override
-  String get onboardingHouseholdSingleDesc =>
-      'Giro as minhas financas sozinho/a';
-
-  @override
-  String get onboardingHouseholdCouple => 'Em casal';
-
-  @override
-  String get onboardingHouseholdCoupleDesc =>
-      'Partilhamos os nossos objetivos financeiros';
-
-  @override
-  String get onboardingHouseholdFamily => 'Familia';
-
-  @override
-  String get onboardingHouseholdFamilyDesc => 'Com filhos a cargo';
-
-  @override
-  String get onboardingHouseholdSingleParent => 'Pai/mae solteiro(a)';
-
-  @override
-  String get onboardingHouseholdSingleParentDesc =>
-      'Giro sozinho(a) com filhos a cargo';
 
   @override
   String get onboardingStep2Title => 'Muito bem.';
@@ -123,32 +57,6 @@ class SPt extends S {
       'Que viagem financeira queres empreender em primeiro lugar?';
 
   @override
-  String get onboardingGoalHouse => 'Tornar-me proprietario';
-
-  @override
-  String get onboardingGoalHouseDesc => 'Preparar a minha entrada e hipoteca';
-
-  @override
-  String get onboardingGoalRetire => 'Serenidade na Reforma';
-
-  @override
-  String get onboardingGoalRetireDesc => 'Maximizar o meu futuro a longo prazo';
-
-  @override
-  String get onboardingGoalInvest => 'Investir & Crescer';
-
-  @override
-  String get onboardingGoalInvestDesc =>
-      'Fazer crescer as minhas poupancas de forma inteligente';
-
-  @override
-  String get onboardingGoalTaxOptim => 'Otimizacao Fiscal';
-
-  @override
-  String get onboardingGoalTaxOptimDesc =>
-      'Reduzir os meus impostos legalmente';
-
-  @override
   String get onboardingStep3Title => 'Quase la.';
 
   @override
@@ -156,608 +64,11 @@ class SPt extends S {
       'Estes detalhes permitem-nos personalizar os teus calculos segundo a lei suica.';
 
   @override
-  String get onboardingCantonLabel => 'Cantao de residencia';
-
-  @override
-  String get onboardingCantonHint => 'Seleciona o teu cantao';
-
-  @override
-  String get onboardingBirthYearLabel => 'Ano de nascimento (opcional)';
-
-  @override
-  String get onboardingBirthYearHint => 'Ex: 1990';
-
-  @override
-  String get onboardingContinue => 'Continuar';
-
-  @override
   String get onboardingStep4Title => 'Pronto para comecar?';
 
   @override
   String get onboardingStep4Subtitle =>
       'O Mint e um ambiente seguro. Eis os nossos compromissos contigo.';
-
-  @override
-  String get onboardingTrustTransparency => 'Transparencia total';
-
-  @override
-  String get onboardingTrustTransparencyDesc =>
-      'Todas as hipoteses sao visiveis.';
-
-  @override
-  String get onboardingTrustPrivacy => 'Privacidade';
-
-  @override
-  String get onboardingTrustPrivacyDesc =>
-      'Calculos locais, sem armazenamento de dados sensiveis.';
-
-  @override
-  String get onboardingTrustSecurity => 'Seguranca';
-
-  @override
-  String get onboardingTrustSecurityDesc =>
-      'Sem acesso direto ao teu dinheiro.';
-
-  @override
-  String get onboardingEnterSpace => 'Entrar no meu espaco';
-
-  @override
-  String get advisorMiniStep1Title => 'Qual e a tua prioridade?';
-
-  @override
-  String get advisorMiniStep1Subtitle =>
-      'A MINT adapta-se ao que mais importa para ti agora';
-
-  @override
-  String get advisorMiniFirstNameLabel => 'Primeiro nome (opcional)';
-
-  @override
-  String get advisorMiniFirstNameHint => 'Nome';
-
-  @override
-  String get advisorMiniStressBudget => 'Controlar o meu orcamento';
-
-  @override
-  String get advisorMiniStressDebt => 'Reduzir as minhas dividas';
-
-  @override
-  String get advisorMiniStressTax => 'Otimizar os meus impostos';
-
-  @override
-  String get advisorMiniStressRetirement => 'Proteger a minha reforma';
-
-  @override
-  String advisorMiniResumeDiagnostic(String progress) {
-    return 'Retomar o meu diagnostico ($progress%)';
-  }
-
-  @override
-  String get advisorMiniFullDiagnostic => 'Diagnostico completo (10 min)';
-
-  @override
-  String get advisorMiniStep2Title => 'O essencial';
-
-  @override
-  String get advisorMiniStep2Subtitle => 'Idade e cantao mudam tudo na Suica';
-
-  @override
-  String get advisorMiniBirthYearLabel => 'Ano de nascimento';
-
-  @override
-  String get advisorMiniBirthYearInvalid => 'Ano invalido';
-
-  @override
-  String advisorMiniBirthYearRange(String maxYear) {
-    return 'Entre 1940 e $maxYear';
-  }
-
-  @override
-  String get advisorMiniCantonLabel => 'Cantao de residencia';
-
-  @override
-  String get advisorMiniCantonHint => 'Selecionar';
-
-  @override
-  String get advisorMiniStep3Title => 'O teu rendimento';
-
-  @override
-  String get advisorMiniStep3Subtitle =>
-      'Para calcular o teu potencial de poupanca';
-
-  @override
-  String get advisorMiniIncomeLabel => 'Rendimento liquido mensal (CHF)';
-
-  @override
-  String get advisorMiniHousingTitle => 'Habitacao';
-
-  @override
-  String get advisorMiniHousingTenant => 'Arrendatario/a';
-
-  @override
-  String get advisorMiniHousingOwner => 'Proprietario/a';
-
-  @override
-  String get advisorMiniHousingHosted => 'Alojado/a / sem renda';
-
-  @override
-  String get advisorMiniHousingCostTenant => 'Renda / custos habitacao / mes';
-
-  @override
-  String get advisorMiniHousingCostOwner => 'Custos habitacao / hipoteca / mes';
-
-  @override
-  String get advisorMiniDebtPaymentsLabel =>
-      'Prestacoes de divida / leasing / mes';
-
-  @override
-  String get advisorMiniPatrimonyTitle => 'Património (opcional)';
-
-  @override
-  String get advisorMiniCashSavingsLabel => 'Liquidez / poupança disponível';
-
-  @override
-  String get advisorMiniInvestmentsTotalLabel =>
-      'Investimentos (títulos, ETF, fundos)';
-
-  @override
-  String get advisorMiniPillar3aTotalLabel => 'Total 3a aproximado';
-
-  @override
-  String get advisorMiniCivilStatusLabel => 'Estado civil do casal';
-
-  @override
-  String get advisorMiniCivilStatusMarried => 'Casado/a';
-
-  @override
-  String get advisorMiniCivilStatusConcubinage => 'Em uniao de facto';
-
-  @override
-  String get advisorMiniPartnerIncomeLabel =>
-      'Rendimento liquido mensal do parceiro';
-
-  @override
-  String get advisorMiniPartnerBirthYearLabel =>
-      'Ano de nascimento do parceiro';
-
-  @override
-  String get advisorMiniPartnerFirstNameLabel =>
-      'Primeiro nome do parceiro (opcional)';
-
-  @override
-  String get advisorMiniPartnerFirstNameHint => 'Nome';
-
-  @override
-  String get advisorMiniPartnerStatusHint => 'Parceiro';
-
-  @override
-  String get advisorMiniPartnerStatusInactive => 'Sem atividade';
-
-  @override
-  String get advisorMiniPartnerRequiredTitle =>
-      'Dados do parceiro obrigatorios';
-
-  @override
-  String get advisorMiniPartnerRequiredBody =>
-      'Adiciona estado civil, rendimento, ano de nascimento e estado do parceiro para uma projecao familiar fiavel.';
-
-  @override
-  String get advisorMiniPartnerProfileTitle => 'Perfil do/da parceiro/a';
-
-  @override
-  String get advisorReadinessLabel => 'Completude do perfil';
-
-  @override
-  String get advisorReadinessLevel => 'Nível';
-
-  @override
-  String get advisorReadinessSufficient =>
-      'Base suficiente para um plano inicial.';
-
-  @override
-  String get advisorReadinessToComplete => 'A completar';
-
-  @override
-  String get advisorMiniCoachIntroTitle => 'O teu coach MINT';
-
-  @override
-  String get advisorMiniCoachIntroControl =>
-      'Agora tens um plano concreto. Avancamos com 3 prioridades em 7 dias e depois ajustamos com o teu coach.';
-
-  @override
-  String get advisorMiniWelcomeTitle => 'Bem-vindo/a!';
-
-  @override
-  String get advisorMiniWelcomeBody =>
-      'O teu espaço financeiro está pronto. Descobre o que o teu coach preparou.';
-
-  @override
-  String get advisorMiniCoachIntroWarmth =>
-      'Vamos juntos. Todas as semanas, ajudo-te a avançar num ponto concreto.';
-
-  @override
-  String get advisorMiniCoachPriorityBaseline =>
-      'Confirmar score e trajetoria inicial';
-
-  @override
-  String get advisorMiniCoachPriorityCouple =>
-      'Alinhar a estrategia do agregado para evitar pontos cegos de casal';
-
-  @override
-  String get advisorMiniCoachPrioritySingleParent =>
-      'Priorizar protecao do agregado e fundo de emergencia';
-
-  @override
-  String get advisorMiniCoachPriorityBudget =>
-      'Estabilizar primeiro o orcamento e custos fixos';
-
-  @override
-  String get advisorMiniCoachPriorityTax =>
-      'Identificar otimizacoes fiscais prioritarias';
-
-  @override
-  String get advisorMiniCoachPriorityRetirement =>
-      'Reforcar a trajetoria reforma com acoes concretas';
-
-  @override
-  String get advisorMiniCoachPriorityRealEstate =>
-      'Verificar sustentabilidade do projeto imobiliario';
-
-  @override
-  String get advisorMiniCoachPriorityDebtFree =>
-      'Acelerar reducao da divida sem quebrar liquidez';
-
-  @override
-  String get advisorMiniCoachPriorityWealth =>
-      'Construir plano robusto de acumulacao de patrimonio';
-
-  @override
-  String get advisorMiniCoachPriorityPension =>
-      'Otimizar 3a/LPP e nivel de rendimento na reforma';
-
-  @override
-  String get advisorMiniQuickPickLabel => 'Escolha rapida';
-
-  @override
-  String get advisorMiniQuickPickIncomeLabel => 'Montantes frequentes';
-
-  @override
-  String get advisorMiniFixedCostsTitle => 'Custos fixos (opcional)';
-
-  @override
-  String get advisorMiniFixedCostsHint =>
-      'Inclui: internet/movel, seguros casa/RC/auto, transportes, subscricoes e encargos recorrentes.';
-
-  @override
-  String get advisorMiniFixedCostsSubtitle =>
-      'Adiciona impostos, LAMal e outros custos fixos para um orcamento realista desde o inicio.';
-
-  @override
-  String get advisorMiniPrefillEstimates => 'Preencher estimativas';
-
-  @override
-  String get advisorMiniPrefillHint =>
-      'Estimado com base no teu cantão — ajusta se diferente.';
-
-  @override
-  String advisorMiniPrefillTaxCouple(String canton) {
-    return 'Preenchido a partir do teu rendimento acima (cantão $canton, casal)';
-  }
-
-  @override
-  String advisorMiniPrefillTaxSingle(String canton) {
-    return 'Preenchido a partir do teu rendimento acima (cantão $canton)';
-  }
-
-  @override
-  String advisorMiniPrefillLamalFamily(String adults, String children) {
-    return 'LAMal estimada para $adults adulto(s) + $children criança(s)';
-  }
-
-  @override
-  String advisorMiniPrefillLamalCouple(String adults) {
-    return 'LAMal estimada para $adults adultos';
-  }
-
-  @override
-  String get advisorMiniPrefillLamalSingle => 'LAMal estimada para 1 adulto';
-
-  @override
-  String get advisorMiniPrefillAdjust => 'Ajusta se diferente.';
-
-  @override
-  String get advisorMiniTaxProvisionLabel => 'Provisao de impostos / mes';
-
-  @override
-  String get advisorMiniLamalLabel => 'Premios LAMal / mes';
-
-  @override
-  String get advisorMiniOtherFixedLabel => 'Outros custos fixos / mes';
-
-  @override
-  String get advisorMiniStep2AhaTitle => 'O teu cantao em resumo';
-
-  @override
-  String advisorMiniStep2AhaHorizon(String years) {
-    return 'Horizonte de reforma: ~$years anos';
-  }
-
-  @override
-  String advisorMiniStep2AhaTaxQualitative(String canton, String pressure) {
-    return 'Fiscalidade em $canton: $pressure em relacao a media suica';
-  }
-
-  @override
-  String get advisorMiniStep2AhaPressureLow => 'baixa';
-
-  @override
-  String get advisorMiniStep2AhaPressureMedium => 'moderada';
-
-  @override
-  String get advisorMiniStep2AhaPressureHigh => 'elevada';
-
-  @override
-  String get advisorMiniStep2AhaPressureVeryHigh => 'muito elevada';
-
-  @override
-  String get advisorMiniStep2AhaPressureLabel => 'Pressao fiscal';
-
-  @override
-  String get advisorMiniStep2AhaQualitativeHint =>
-      'Vai ser refinado com o teu rendimento no proximo passo.';
-
-  @override
-  String get advisorMiniStep2AhaDisclaimer =>
-      'Ordem de grandeza educativa baseada em dados cantonais de referencia MINT.';
-
-  @override
-  String get advisorMiniProjectionDisclaimer =>
-      'Ferramenta educativa — nao constitui aconselhamento financeiro (LAVS/LPP).';
-
-  @override
-  String get advisorMiniExitTitle => 'Sair agora?';
-
-  @override
-  String get advisorMiniExitBodyControl =>
-      'O teu progresso esta guardado. Podes retomar mais tarde.';
-
-  @override
-  String get advisorMiniExitBodyChallenge =>
-      'So mais alguns segundos e tens a tua trajetoria personalizada.';
-
-  @override
-  String get advisorMiniExitStay => 'Continuar';
-
-  @override
-  String get advisorMiniExitLeave => 'Sair';
-
-  @override
-  String get advisorMiniMetricsTitle => 'Metricas onboarding';
-
-  @override
-  String get advisorMiniMetricsSubtitle =>
-      'Tracking local das variantes control/challenge';
-
-  @override
-  String get advisorMiniMetricsControl => 'Control';
-
-  @override
-  String get advisorMiniMetricsChallenge => 'Challenge';
-
-  @override
-  String get advisorMiniMetricsStarts => 'Starts';
-
-  @override
-  String get advisorMiniMetricsCompletionRate => 'Taxa de completion';
-
-  @override
-  String get advisorMiniMetricsExitStayRate =>
-      'Taxa de stay apos prompt de saida';
-
-  @override
-  String get advisorMiniMetricsAhaToStep3 => 'Passo 2 A-ha → Passo 3';
-
-  @override
-  String get advisorMiniMetricsQuickPicks => 'Quick picks';
-
-  @override
-  String get advisorMiniMetricsAvgStepTime => 'Tempo medio por step';
-
-  @override
-  String get advisorMiniMetricsReset => 'Reset metrics';
-
-  @override
-  String advisorMiniEtaLabel(String seconds) {
-    return 'Tempo restante estimado: ${seconds}s';
-  }
-
-  @override
-  String get advisorMiniEtaConfidenceHigh => 'Confianca alta';
-
-  @override
-  String get advisorMiniEtaConfidenceLow => 'Confianca media';
-
-  @override
-  String get advisorMiniEmploymentLabel => 'Estatuto profissional';
-
-  @override
-  String get advisorMiniHouseholdLabel => 'O teu agregado';
-
-  @override
-  String get advisorMiniHouseholdSubtitle =>
-      'Ajustamos impostos e custos fixos ao teu contexto';
-
-  @override
-  String get advisorMiniReadyTitle => 'Validado';
-
-  @override
-  String get advisorMiniReadyLabel => 'O que a MINT entendeu';
-
-  @override
-  String get advisorMiniReadyStep1 =>
-      'Prioridade registada. Personalizamos a tua trajetoria.';
-
-  @override
-  String get advisorMiniReadyStep2 =>
-      'Base fiscal pronta. Contexto cantonal calibrado.';
-
-  @override
-  String get advisorMiniReadyStep3 =>
-      'Perfil minimo pronto. Projecao indicativa disponivel.';
-
-  @override
-  String advisorMiniReadyStress(String label) {
-    return 'Prioridade: $label';
-  }
-
-  @override
-  String advisorMiniReadyProfile(String employment, String household) {
-    return 'Perfil: $employment · $household';
-  }
-
-  @override
-  String advisorMiniReadyLocation(String canton, String horizon) {
-    return 'Base fiscal: $canton · $horizon';
-  }
-
-  @override
-  String advisorMiniReadyIncome(String income) {
-    return 'Rendimento liquido: CHF $income/mes';
-  }
-
-  @override
-  String advisorMiniReadyFixed(String count) {
-    return 'Custos fixos captados: $count/3';
-  }
-
-  @override
-  String get advisorMiniEmploymentEmployee => 'Assalariado/a';
-
-  @override
-  String get advisorMiniEmploymentSelfEmployed => 'Independente';
-
-  @override
-  String get advisorMiniEmploymentStudent => 'Estudante / Aprendiz';
-
-  @override
-  String get advisorMiniEmploymentUnemployed => 'Sem emprego';
-
-  @override
-  String get advisorMiniSeeProjection => 'Ver a minha projecao';
-
-  @override
-  String get advisorMiniPreferFullDiagnostic =>
-      'Prefiro o diagnostico completo (10 min)';
-
-  @override
-  String advisorMiniQuickInsight(String low, String high, String horizon) {
-    return 'Estimativa rapida: uma poupanca regular entre CHF $low e CHF $high/mes ja pode mudar a tua trajetoria. $horizon';
-  }
-
-  @override
-  String advisorMiniHorizon(String years) {
-    return 'Horizonte de reforma: ~$years anos.';
-  }
-
-  @override
-  String get advisorMiniStep4Title => 'O teu objetivo';
-
-  @override
-  String get advisorMiniStep4Subtitle =>
-      'A MINT personaliza o teu plano segundo a tua prioridade principal';
-
-  @override
-  String get advisorMiniGoalRetirement => 'Preparar a minha reforma';
-
-  @override
-  String get advisorMiniGoalRealEstate => 'Comprar um imovel';
-
-  @override
-  String get advisorMiniGoalDebtFree => 'Reduzir as minhas dividas';
-
-  @override
-  String get advisorMiniGoalIndependence =>
-      'Construir a minha independencia financeira';
-
-  @override
-  String get advisorMiniActivateDashboard => 'Ativar o meu dashboard';
-
-  @override
-  String get advisorMiniAdjustLater =>
-      'Poderas ajustar tudo depois no Dashboard e Agir.';
-
-  @override
-  String advisorMiniPreviewTitle(String goal) {
-    return 'Preview de trajetoria: $goal';
-  }
-
-  @override
-  String advisorMiniPreviewSubtitle(String years) {
-    return 'Projecao indicativa em ~$years anos';
-  }
-
-  @override
-  String get advisorMiniPreviewPrudent => 'Prudente';
-
-  @override
-  String get advisorMiniPreviewBase => 'Base';
-
-  @override
-  String get advisorMiniPreviewOptimistic => 'Otimista';
-
-  @override
-  String get homeSafeModeActive => 'MODO PROTECAO ATIVADO';
-
-  @override
-  String get homeHide => 'Ocultar';
-
-  @override
-  String get homeSafeModeMessage =>
-      'Detetamos sinais de tensao. O MINT aconselha-te a estabilizar o teu orcamento antes de investir.';
-
-  @override
-  String get homeSafeModeResources => 'Recursos & Ajuda gratuita';
-
-  @override
-  String get homeMentorAdvisor => 'Mentor Advisor';
-
-  @override
-  String get homeMentorDescription =>
-      'Inicia a tua sessao personalizada para obter um diagnostico completo da tua situacao financeira.';
-
-  @override
-  String get homeStartSession => 'Iniciar a minha sessao';
-
-  @override
-  String get homeSimulator3a => 'Reforma 3a';
-
-  @override
-  String get homeSimulatorGrowth => 'Crescimento';
-
-  @override
-  String get homeSimulatorLeasing => 'Leasing';
-
-  @override
-  String get homeSimulatorCredit => 'Credito ao Consumo';
-
-  @override
-  String get homeReportV2Title => '🧪 NOVO: Relatorio V2 (Demo)';
-
-  @override
-  String get homeReportV2Subtitle =>
-      'Score por circulo, comparador 3a, estrategia LPP';
-
-  @override
-  String get profileTitle => 'O MEU PERFIL MENTOR';
-
-  @override
-  String get profilePrecisionIndex => 'Indice de Precisao';
-
-  @override
-  String get profilePrecisionMessage =>
-      'Quanto mais completo o teu perfil, mais poderoso e o teu relatorio \"Statement of Advice\".';
-
-  @override
-  String get profileFactFindTitle => 'Detalhes FactFind';
 
   @override
   String get profileSectionIdentity => 'Identidade & Agregado';
@@ -772,22 +83,10 @@ class SPt extends S {
   String get profileSectionProperty => 'Imoveis & Dividas';
 
   @override
-  String get profileStatusComplete => 'Completo';
-
-  @override
-  String get profileStatusPartial => 'Parcial (Liquido)';
-
-  @override
-  String get profileStatusMissing => 'Em falta';
-
-  @override
   String get profileReward15 => '+15% de precisao';
 
   @override
   String get profileReward10 => '+10% de precisao';
-
-  @override
-  String get profileSecurityTitle => 'Seguranca & Dados';
 
   @override
   String get profileConsentControl => 'Controlo de Partilhas';
@@ -796,115 +95,10 @@ class SPt extends S {
   String get profileConsentManage => 'Gerir os meus acessos bLink';
 
   @override
-  String get profileAccountTitle => 'Conta';
-
-  @override
   String get profileUser => 'Utilizador';
 
   @override
   String get profileDeleteData => 'Eliminar os meus dados locais';
-
-  @override
-  String get rentVsCapitalTitle => 'Renda vs Capital';
-
-  @override
-  String get rentVsCapitalDescription =>
-      'Compara a renda vitalicia e o levantamento de capital do teu 2º pilar';
-
-  @override
-  String get rentVsCapitalSubtitle => 'Simula o teu 2º pilar • LPP';
-
-  @override
-  String get rentVsCapitalAvoirOblig => 'Haver obrigatorio';
-
-  @override
-  String get rentVsCapitalAvoirSurob => 'Haver supra-obrigatorio';
-
-  @override
-  String get rentVsCapitalTauxConversion =>
-      'Taxa de conversao supra-obrigatoria';
-
-  @override
-  String get rentVsCapitalAgeRetraite => 'Idade de reforma';
-
-  @override
-  String get rentVsCapitalCanton => 'Cantao';
-
-  @override
-  String get rentVsCapitalStatutCivil => 'Estado civil';
-
-  @override
-  String get rentVsCapitalSingle => 'Solteiro/a';
-
-  @override
-  String get rentVsCapitalMarried => 'Casado/a';
-
-  @override
-  String get rentVsCapitalRenteViagere => 'Renda vitalicia';
-
-  @override
-  String get rentVsCapitalCapitalNet => 'Capital liquido';
-
-  @override
-  String get rentVsCapitalBreakEven => 'Break-even';
-
-  @override
-  String get rentVsCapitalCapitalA85 => 'Capital aos 85 anos';
-
-  @override
-  String get rentVsCapitalJamais => 'Nunca';
-
-  @override
-  String get rentVsCapitalPrudent => 'Prudente (1%)';
-
-  @override
-  String get rentVsCapitalCentral => 'Central (3%)';
-
-  @override
-  String get rentVsCapitalOptimiste => 'Otimista (5%)';
-
-  @override
-  String get rentVsCapitalTauxConversionExpl =>
-      'A taxa de conversao determina o montante da tua renda anual em funcao do teu haver de velhice. A taxa legal minima e de 6,8% para a parte obrigatoria (LPP art. 14). Para a parte supra-obrigatoria, cada caixa de pensoes fixa a sua propria taxa, geralmente entre 3% e 6%.';
-
-  @override
-  String get rentVsCapitalChoixExpl =>
-      'A renda oferece um rendimento regular vitalicio, mas cessa com a morte (eventualmente com uma renda de sobrevivente reduzida). O capital oferece mais flexibilidade, mas comporta um risco de esgotamento se os rendimentos forem baixos ou a longevidade elevada.';
-
-  @override
-  String get rentVsCapitalDisclaimer =>
-      'Os resultados apresentados sao estimativas a titulo indicativo. Nao constituem aconselhamento financeiro personalizado. Consulta a tua caixa de pensoes e um consultor qualificado antes de qualquer decisao.';
-
-  @override
-  String get disabilityGapTitle => 'A minha rede de segurança';
-
-  @override
-  String get disabilityGapSubtitle =>
-      'O que acontece se já não puder trabalhar?';
-
-  @override
-  String get disabilityGapRevenu => 'Rendimento mensal liquido';
-
-  @override
-  String get disabilityGapCanton => 'Cantao';
-
-  @override
-  String get disabilityGapStatut => 'Estatuto profissional';
-
-  @override
-  String get disabilityGapSalarie => 'Assalariado';
-
-  @override
-  String get disabilityGapIndependant => 'Independente';
-
-  @override
-  String get disabilityGapAnciennete => 'Anos de servico';
-
-  @override
-  String get disabilityGapIjm => 'IJM coletiva via o meu empregador';
-
-  @override
-  String get disabilityGapDegre => 'Grau de invalidez';
 
   @override
   String get disabilityGapPhase1 => 'Fase 1 — Empregador';
@@ -914,36 +108,6 @@ class SPt extends S {
 
   @override
   String get disabilityGapPhase3 => 'Fase 3 — AI + LPP';
-
-  @override
-  String get disabilityGapRevenuActuel => 'Rendimento atual';
-
-  @override
-  String get disabilityGapGapMensuel => 'Lacuna mensal maxima';
-
-  @override
-  String get disabilityGapRiskCritical => 'Risco critico';
-
-  @override
-  String get disabilityGapRiskHigh => 'Risco elevado';
-
-  @override
-  String get disabilityGapRiskMedium => 'Risco moderado';
-
-  @override
-  String get disabilityGapRiskLow => 'Risco baixo';
-
-  @override
-  String get disabilityGapDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento de seguros (LSFin).';
-
-  @override
-  String get disabilityGapIjmExpl =>
-      'A IJM (indemnizacao diaria de doenca) e um seguro que cobre 80% do teu salario durante max. 720 dias em caso de doenca. O empregador nao e obrigado a subscreve-la, mas muitos fazem-no via seguro coletivo. Sem IJM, apos o periodo legal de manutencao do salario, nao recebes mais nada ate a eventual renda AI.';
-
-  @override
-  String get disabilityGapCo324aExpl =>
-      'Segundo o art. 324a CO, o empregador deve pagar o salario durante um periodo limitado em caso de doenca. Esta duracao depende dos anos de servico e da escala cantonal aplicavel (bernesa, zurichesa ou basileia). Apos este periodo, so a IJM (se existir) assume.';
 
   @override
   String get authLogin => 'Iniciar sessao';
@@ -959,9 +123,6 @@ class SPt extends S {
 
   @override
   String get authConfirmPassword => 'Confirmar palavra-passe';
-
-  @override
-  String get authDisplayName => 'Nome de exibicao (opcional)';
 
   @override
   String get authCreateAccount => 'Criar a minha conta';
@@ -985,14 +146,7 @@ class SPt extends S {
   String get authPasswordHint => 'Minimo 8 caracteres';
 
   @override
-  String get authError => 'Erro de inicio de sessao';
-
-  @override
   String get authEmailInvalid => 'Endereco de e-mail invalido';
-
-  @override
-  String get authPasswordTooShort =>
-      'A palavra-passe deve ter pelo menos 8 caracteres';
 
   @override
   String get authPasswordMismatch => 'As palavras-passe nao correspondem';
@@ -1095,9 +249,6 @@ class SPt extends S {
   String get askMintTitle => 'Ask MINT';
 
   @override
-  String get askMintSubtitle => 'Faz as tuas perguntas sobre financas suicas';
-
-  @override
   String get askMintConfigureTitle => 'Configura a tua IA';
 
   @override
@@ -1109,10 +260,6 @@ class SPt extends S {
 
   @override
   String get askMintEmptyTitle => 'Faz-me uma pergunta';
-
-  @override
-  String get askMintEmptySubtitle =>
-      'Posso ajudar-te com financas suicas: 3º pilar, LPP, impostos, orcamento...';
 
   @override
   String get askMintSuggestedTitle => 'SUGESTOES';
@@ -1146,10 +293,6 @@ class SPt extends S {
   @override
   String get askMintErrorGeneric =>
       'Ocorreu um erro. Verifica a tua ligacao e tenta novamente.';
-
-  @override
-  String get askMintDisclaimer =>
-      'As respostas sao geradas por IA e nao constituem aconselhamento financeiro personalizado.';
 
   @override
   String get byokTitle => 'Inteligencia Artificial';
@@ -1217,9 +360,6 @@ class SPt extends S {
       'O BYOK permite-te usar a tua propria chave API de um fornecedor de IA (Claude, OpenAI, Mistral) para obter respostas personalizadas sobre financas suicas.\n\nVantagens:\n• Controlo total sobre os teus dados\n• Sem custos ocultos do MINT\n• So pagas o que consomes\n• Chave encriptada no teu dispositivo';
 
   @override
-  String get profileAiTitle => 'Inteligencia Artificial';
-
-  @override
   String get profileAiByok => 'Ask MINT (BYOK)';
 
   @override
@@ -1227,26 +367,6 @@ class SPt extends S {
 
   @override
   String get profileAiNotConfigured => 'Nao configurado';
-
-  @override
-  String get documentsTitle => 'Os meus documentos';
-
-  @override
-  String get documentsSubtitle =>
-      'Upload e analise dos teus documentos financeiros';
-
-  @override
-  String get documentsUploadTitle => 'Carrega o teu certificado LPP';
-
-  @override
-  String get documentsUploadBody =>
-      'O MINT extrai automaticamente os teus dados de previdencia profissional';
-
-  @override
-  String get documentsUploadButton => 'Escolher um ficheiro PDF';
-
-  @override
-  String get documentsAnalyzing => 'Analise em curso...';
 
   @override
   String documentsConfidence(String confidence) {
@@ -1271,17 +391,10 @@ class SPt extends S {
   String get documentsDeleteMessage => 'Esta acao e irreversivel.';
 
   @override
-  String get documentsPrivacy =>
-      'Os teus documentos sao analisados localmente e nunca sao partilhados com terceiros. Podes elimina-los a qualquer momento.';
-
-  @override
   String get documentsEmpty => 'Nenhum documento';
 
   @override
   String get documentsLppCertificate => 'Certificado LPP';
-
-  @override
-  String get documentsUnknown => 'Documento desconhecido';
 
   @override
   String get documentsCategoryEpargne => 'Poupanca';
@@ -1358,11 +471,6 @@ class SPt extends S {
 
   @override
   String get profileDocuments => 'Os meus documentos';
-
-  @override
-  String profileDocumentsCount(String count) {
-    return '$count documento(s)';
-  }
 
   @override
   String get bankImportTitle => 'Importar os meus extratos';
@@ -1493,28 +601,7 @@ class SPt extends S {
   String get jobCompareNewJob => 'EMPREGO PREVISTO';
 
   @override
-  String get jobCompareSalaireBrut => 'Salario bruto anual';
-
-  @override
   String get jobCompareAge => 'A tua idade';
-
-  @override
-  String get jobComparePartEmployeur => 'Parte empregador LPP';
-
-  @override
-  String get jobCompareTauxConversion => 'Taxa de conversao';
-
-  @override
-  String get jobCompareAvoirVieillesse => 'Haver de velhice atual';
-
-  @override
-  String get jobCompareCouvertureInvalidite => 'Cobertura de invalidez';
-
-  @override
-  String get jobCompareCapitalDeces => 'Capital de falecimento';
-
-  @override
-  String get jobCompareRachatMax => 'Resgate maximo';
 
   @override
   String get jobCompareIjm => 'IJM coletiva incluída';
@@ -1523,16 +610,7 @@ class SPt extends S {
   String get jobCompareButton => 'Comparar';
 
   @override
-  String get jobCompareResults => 'Resultados';
-
-  @override
   String get jobCompareAxis => 'Eixo';
-
-  @override
-  String get jobCompareActuel => 'Atual';
-
-  @override
-  String get jobCompareNouveau => 'Novo';
 
   @override
   String get jobCompareDelta => 'Diferenca';
@@ -1559,60 +637,7 @@ class SPt extends S {
   String get jobCompareRachat => 'Resgate max';
 
   @override
-  String get jobCompareLifetimeImpact => 'Impacto em toda a reforma';
-
-  @override
-  String get jobCompareAlerts => 'Pontos de atencao';
-
-  @override
   String get jobCompareChecklist => 'Antes de assinar';
-
-  @override
-  String get jobCompareChecklistReglement =>
-      'Pedir o regulamento da caixa de pensoes';
-
-  @override
-  String get jobCompareChecklistTaux =>
-      'Verificar a taxa de conversao supra-obrigatoria';
-
-  @override
-  String get jobCompareChecklistPart => 'Comparar a parte do empregador';
-
-  @override
-  String get jobCompareChecklistCoordination =>
-      'Verificar a deducao de coordenacao';
-
-  @override
-  String get jobCompareChecklistIjm =>
-      'Perguntar se a IJM coletiva esta incluida';
-
-  @override
-  String get jobCompareChecklistRachat =>
-      'Verificar o prazo de espera para resgate';
-
-  @override
-  String get jobCompareChecklistRisque =>
-      'Calcular o impacto nas prestacoes de risco';
-
-  @override
-  String get jobCompareChecklistLibrePassage =>
-      'Verificar a livre passagem: transferencia em 30 dias max';
-
-  @override
-  String get jobCompareEducational =>
-      'O salario invisivel representa 10-30% da tua remuneracao total.';
-
-  @override
-  String get jobCompareVerdictBetter => 'O novo posto e globalmente melhor';
-
-  @override
-  String get jobCompareVerdictWorse => 'O posto atual oferece melhor protecao';
-
-  @override
-  String get jobCompareVerdictComparable => 'Os dois postos sao comparaveis';
-
-  @override
-  String get jobCompareDetailedComparison => 'Comparacao detalhada';
 
   @override
   String get jobCompareDetailedSubtitle => '7 eixos de previdência';
@@ -1624,20 +649,8 @@ class SPt extends S {
   String get jobCompareShowDetails => 'Ver detalhes';
 
   @override
-  String get jobCompareChecklistSubtitle => 'Lista de verificação';
-
-  @override
-  String get jobCompareLifetimeTitle => 'Impacto em toda a reforma';
-
-  @override
   String get jobCompareDisclaimer =>
       'Os resultados apresentados são estimativas indicativas. Não constituem aconselhamento financeiro personalizado. Consulta o teu fundo de pensões e um·a especialista qualificado·a antes de qualquer decisão.';
-
-  @override
-  String get divorceTitle => 'Impacto financeiro de um divorcio';
-
-  @override
-  String get divorceSubtitle => 'Antecipar as consequencias financeiras';
 
   @override
   String get divorceIntro =>
@@ -1653,20 +666,7 @@ class SPt extends S {
   String get divorceDureeMariage => 'Duração do casamento';
 
   @override
-  String get divorceNombreEnfants => 'Numero de filhos';
-
-  @override
   String get divorceRegimeMatrimonial => 'Regime matrimonial';
-
-  @override
-  String get divorceRegimeAcquets =>
-      'Participacao nos adquiridos (por defeito)';
-
-  @override
-  String get divorceRegimeCommunaute => 'Comunhao de bens';
-
-  @override
-  String get divorceRegimeSeparation => 'Separacao de bens';
 
   @override
   String get divorceRevenus => 'RENDIMENTOS';
@@ -1706,12 +706,6 @@ class SPt extends S {
   String get divorcePatrimoineSubtitle => 'Fortuna e dívidas comuns';
 
   @override
-  String get divorceFortuneCommune => 'Patrimonio comum';
-
-  @override
-  String get divorceDettesCommunes => 'Dividas comuns';
-
-  @override
   String get divorceSimuler => 'Simular';
 
   @override
@@ -1745,9 +739,6 @@ class SPt extends S {
   String get divorceTotalApresDivorce => 'Total após divórcio';
 
   @override
-  String get divorceDifference => 'Diferenca';
-
-  @override
   String get divorcePartagePatrimoine => 'PARTILHA DO PATRIMÓNIO';
 
   @override
@@ -1755,10 +746,6 @@ class SPt extends S {
 
   @override
   String get divorcePensionAlimentaire => 'PENSÃO ALIMENTAR (ESTIMAÇÃO)';
-
-  @override
-  String get divorcePensionAlimentaireNote =>
-      'Estimativa baseada na diferenca de rendimentos e no numero de filhos.';
 
   @override
   String get divorcePointsAttention => 'PONTOS DE ATENÇÃO';
@@ -1770,18 +757,7 @@ class SPt extends S {
   String get divorceActionsSubtitle => 'Checklist de preparação';
 
   @override
-  String get divorceEduAcquets => 'O que e a participacao nos adquiridos?';
-
-  @override
-  String get divorceEduAcquetsBody =>
-      'A participacao nos adquiridos e o regime matrimonial por defeito na Suica (CC art. 181 ss). Os adquiridos sao divididos em partes iguais em caso de divorcio.';
-
-  @override
   String get divorceEduLpp => 'Como funciona a divisao LPP?';
-
-  @override
-  String get divorceEduLppBody =>
-      'Os haveres LPP acumulados durante o casamento sao divididos em partes iguais (CC art. 122).';
 
   @override
   String get divorceDisclaimer =>
@@ -1791,65 +767,10 @@ class SPt extends S {
   String get successionTitle => 'Sucessão e transmissão';
 
   @override
-  String get successionSubtitle => 'Novo direito sucessorio 2023';
-
-  @override
-  String get successionIntro =>
-      'O novo direito sucessorio (2023) alargou a quota disponivel. Tens agora mais liberdade para favorecer certos herdeiros.';
-
-  @override
-  String get successionSituationPersonnelle => 'Situacao pessoal';
-
-  @override
   String get successionSituationSubtitle => 'Estado civil, herdeiros';
 
   @override
-  String get successionStatutCivil => 'Estado civil';
-
-  @override
-  String get successionCivilMarie => 'Casado/a';
-
-  @override
-  String get successionCivilCelibataire => 'Solteiro/a';
-
-  @override
-  String get successionCivilDivorce => 'Divorciado/a';
-
-  @override
-  String get successionCivilVeuf => 'Viuvo/a';
-
-  @override
-  String get successionCivilConcubinage => 'Uniao de facto';
-
-  @override
-  String get successionNombreEnfants => 'Numero de filhos';
-
-  @override
-  String get successionParentsVivants => 'Pais vivos';
-
-  @override
-  String get successionFratrie => 'Irmaos/Irmas';
-
-  @override
-  String get successionConcubin => 'Companheiro/a';
-
-  @override
-  String get successionFortune => 'Patrimonio';
-
-  @override
   String get successionFortuneSubtitle => 'Patrimonio total, 3a, LPP';
-
-  @override
-  String get successionFortuneTotale => 'Patrimonio total';
-
-  @override
-  String get successionAvoirs3a => 'Haveres 3º pilar';
-
-  @override
-  String get successionCapitalDecesLpp => 'Capital de falecimento LPP';
-
-  @override
-  String get successionCanton => 'Cantao';
 
   @override
   String get successionTestament => 'Testamento';
@@ -1858,87 +779,15 @@ class SPt extends S {
   String get successionTestamentSubtitle => 'CC art. 498–504';
 
   @override
-  String get successionHasTestament => 'Tenho um testamento';
-
-  @override
-  String get successionQuotiteBeneficiaire => 'Quem recebe a quota disponivel?';
-
-  @override
-  String get successionBeneficiaireConjoint => 'Conjuge';
-
-  @override
-  String get successionBeneficiaireEnfants => 'Filhos';
-
-  @override
-  String get successionBeneficiaireConcubin => 'Companheiro/a';
-
-  @override
-  String get successionBeneficiaireTiers => 'Terceiros / Obra';
-
-  @override
-  String get successionSimuler => 'Simular';
-
-  @override
-  String get successionRepartitionLegale => 'Reparticao legal';
-
-  @override
-  String get successionRepartitionTestament => 'Reparticao com testamento';
-
-  @override
-  String get successionReservesHereditaires => 'Reservas hereditarias (2023)';
-
-  @override
-  String get successionReservesNote =>
-      'Montantes protegidos por lei (intocaveis)';
-
-  @override
-  String get successionQuotiteDisponible => 'Quota disponivel';
-
-  @override
-  String get successionQuotiteNote =>
-      'Este montante pode ser livremente atribuido por testamento.';
-
-  @override
-  String get successionFiscalite => 'Fiscalidade sucessoria';
-
-  @override
-  String get successionExonere => 'Isento';
-
-  @override
-  String get successionTotalImpot => 'Total imposto sucessorio';
-
-  @override
-  String get succession3aOpp3 => 'Beneficiarios 3a (OPP3 art. 2)';
-
-  @override
-  String get succession3aNote =>
-      'O 3º pilar NAO segue o teu testamento. A ordem de beneficiarios e fixada por lei.';
-
-  @override
-  String get successionPointsAttention => 'Pontos de atencao';
-
-  @override
   String get successionChecklist => 'Protecao dos meus entes queridos';
-
-  @override
-  String get successionChecklistSubtitle => 'Ações a empreender';
-
-  @override
-  String get successionEduQuotite => 'O que e a quota disponivel?';
 
   @override
   String get successionEduQuotiteBody =>
       'A quota disponivel e a parte da tua sucessao que podes livremente atribuir por testamento. Desde 2023, a reserva dos descendentes e de 1/2.';
 
   @override
-  String get successionEdu3a => 'O 3a e a sucessao: atencao!';
-
-  @override
   String get successionEdu3aBody =>
       'O 3º pilar e pago diretamente segundo a OPP3, nao segundo o teu testamento.';
-
-  @override
-  String get successionEduConcubin => 'Companheiros e a sucessao';
 
   @override
   String get successionEduConcubinBody =>
@@ -1947,195 +796,6 @@ class SPt extends S {
   @override
   String get successionDisclaimer =>
       'Informação educativa, não aconselhamento jurídico (LSFin/CC).';
-
-  @override
-  String get lifeEventsSection => 'Eventos de vida';
-
-  @override
-  String get lifeEventDivorce => 'Divorcio';
-
-  @override
-  String get lifeEventSuccession => 'Sucessao';
-
-  @override
-  String get coachingTitle => 'Coaching proativo';
-
-  @override
-  String get coachingSubtitle => 'As tuas sugestoes personalizadas';
-
-  @override
-  String get coachingIntro =>
-      'Sugestoes personalizadas baseadas no teu perfil. Quanto mais completo o perfil, mais pertinentes os conselhos.';
-
-  @override
-  String get coachingFilterAll => 'Todos';
-
-  @override
-  String get coachingFilterHigh => 'Alta prioridade';
-
-  @override
-  String get coachingFilterFiscal => 'Fiscalidade';
-
-  @override
-  String get coachingFilterPrevoyance => 'Previdencia';
-
-  @override
-  String get coachingFilterBudget => 'Orcamento';
-
-  @override
-  String get coachingFilterRetraite => 'Reforma';
-
-  @override
-  String get coachingNoTips => 'O teu perfil está completo. Nada a assinalar.';
-
-  @override
-  String coachingImpact(String amount) {
-    return 'Impacto estimado: $amount';
-  }
-
-  @override
-  String get coachingSource => 'Fonte';
-
-  @override
-  String coachingTipCount(String count) {
-    return '$count conselhos';
-  }
-
-  @override
-  String get coachingPriorityHigh => 'Alta prioridade';
-
-  @override
-  String get coachingPriorityMedium => 'Prioridade media';
-
-  @override
-  String get coachingPriorityLow => 'Informacao';
-
-  @override
-  String get coaching3aDeadlineTitle =>
-      'Contribuicao 3a antes de 31 de dezembro';
-
-  @override
-  String coaching3aDeadlineMessage(
-      String remaining, String plafond, String impact) {
-    return 'Resta-te $remaining de margem no teu teto 3a ($plafond). Uma contribuicao antes de 31 de dezembro poderia reduzir a tua carga fiscal em cerca de $impact.';
-  }
-
-  @override
-  String get coaching3aDeadlineAction => 'Simular o meu 3a';
-
-  @override
-  String get coaching3aMissingTitle => 'Nao tens 3º pilar';
-
-  @override
-  String coaching3aMissingMessage(
-      String plafond, String impact, String canton) {
-    return 'Abrir um 3º pilar permitiria deduzir ate $plafond do teu rendimento tributavel por ano. A poupanca fiscal estimada e de $impact por ano no cantao de $canton.';
-  }
-
-  @override
-  String get coaching3aMissingAction => 'Descobrir o 3º pilar';
-
-  @override
-  String get coaching3aNotMaxedTitle => 'Teto 3a nao atingido';
-
-  @override
-  String coaching3aNotMaxedMessage(
-      String current, String plafond, String remaining, String impact) {
-    return 'A tua contribuicao 3a atual e de $current num teto de $plafond. Contribuir com o restante $remaining poderia representar uma poupanca fiscal de cerca de $impact.';
-  }
-
-  @override
-  String get coaching3aNotMaxedAction => 'Simular o meu 3a';
-
-  @override
-  String get coachingLppBuybackTitle => 'Resgate LPP possivel';
-
-  @override
-  String coachingLppBuybackMessage(String gap, String impact) {
-    return 'Tens uma lacuna de previdencia de $gap. Um resgate voluntario poderia poupar-te cerca de $impact de impostos melhorando a tua reforma.';
-  }
-
-  @override
-  String get coachingLppBuybackAction => 'Simular um resgate LPP';
-
-  @override
-  String get coachingTaxDeadlineTitle => 'Declaracao de impostos a entregar';
-
-  @override
-  String coachingTaxDeadlineMessage(String canton, String days) {
-    return 'O prazo para a tua declaracao fiscal no cantao de $canton e 31 de marco. Restam $days dias.';
-  }
-
-  @override
-  String get coachingTaxDeadlineAction => 'Ver a minha checklist fiscal';
-
-  @override
-  String coachingRetirementTitle(String years) {
-    return 'Reforma em $years anos';
-  }
-
-  @override
-  String coachingRetirementMessage(String years) {
-    return 'A $years anos da reforma, e importante verificar a tua estrategia de previdencia. Otimizaste os teus resgates LPP? As tuas contas 3a sao diversificadas?';
-  }
-
-  @override
-  String get coachingRetirementAction => 'Planear a minha reforma';
-
-  @override
-  String get coachingEmergencyTitle => 'Reserva de emergencia insuficiente';
-
-  @override
-  String coachingEmergencyMessage(String months, String deficit) {
-    return 'A tua poupanca disponivel cobre $months meses de encargos fixos. Os especialistas recomendam pelo menos 3 meses. Faltam-te cerca de $deficit.';
-  }
-
-  @override
-  String get coachingEmergencyAction => 'Ver o meu orcamento';
-
-  @override
-  String coachingDebtTitle(String ratio) {
-    return 'Taxa de endividamento elevada ($ratio%)';
-  }
-
-  @override
-  String coachingDebtMessage(String ratio) {
-    return 'A tua taxa de endividamento estimada e de $ratio%, acima do limiar de 33% recomendado pelos bancos suicos.';
-  }
-
-  @override
-  String get coachingDebtAction => 'Analisar as minhas dividas';
-
-  @override
-  String get coachingPartTimeTitle => 'Tempo parcial: lacuna de previdencia';
-
-  @override
-  String coachingPartTimeMessage(String rate) {
-    return 'A $rate% de atividade, a tua previdencia profissional esta reduzida. A deducao de coordenacao penaliza ainda mais os trabalhadores a tempo parcial.';
-  }
-
-  @override
-  String get coachingPartTimeAction => 'Simular a minha previdencia';
-
-  @override
-  String get coachingIndependantTitle => 'Independente: sem LPP obrigatoria';
-
-  @override
-  String get coachingIndependantMessage =>
-      'Como independente, nao estas sujeito a LPP obrigatoria. A tua previdencia baseia-se no AVS e no 3º pilar. Maximiza as tuas contribuicoes 3a.';
-
-  @override
-  String get coachingIndependantAction => 'Explorar as minhas opcoes';
-
-  @override
-  String get coachingBudgetMissingTitle => 'Ainda sem orcamento';
-
-  @override
-  String get coachingBudgetMissingMessage =>
-      'Um orcamento estruturado e a base de qualquer estrategia financeira. Permite identificar a tua capacidade real de poupanca.';
-
-  @override
-  String get coachingBudgetMissingAction => 'Criar o meu orcamento';
 
   @override
   String get coachingAge25Title => '25 anos: abrir o 3º pilar';
@@ -2187,535 +847,11 @@ class SPt extends S {
       'A 2 anos da reforma legal: finalizar a estrategia. Ultimo resgate LPP, escolha renda/capital.';
 
   @override
-  String get coachingDisclaimer =>
-      'As sugestoes apresentadas sao pistas de reflexao baseadas em estimativas simplificadas. Nao constituem aconselhamento financeiro personalizado. Consulta um profissional qualificado antes de qualquer decisao.';
-
-  @override
-  String get coachingDemoMode =>
-      'Modo demo: perfil exemplo (35 anos, VD, CHF 85\'000). Completa o teu diagnostico para conselhos personalizados.';
-
-  @override
-  String get coachingNowCardTitle => 'Coaching proativo';
-
-  @override
-  String get coachingNowCardSubtitle =>
-      'Conselhos personalizados baseados no teu perfil';
-
-  @override
-  String get coachingCategoryFiscalite => 'Fiscalidade';
-
-  @override
-  String get coachingCategoryPrevoyance => 'Previdencia';
-
-  @override
-  String get coachingCategoryBudget => 'Orcamento';
-
-  @override
-  String get coachingCategoryRetraite => 'Reforma';
-
-  @override
-  String get segmentsSection => 'Segmentos';
-
-  @override
-  String get segmentsGenderGapTitle => 'Gender gap previdencia';
-
-  @override
-  String get segmentsGenderGapSubtitle => 'Impacto do tempo parcial na reforma';
-
-  @override
-  String get segmentsGenderGapAppBar => 'GENDER GAP PREVIDENCIA';
-
-  @override
-  String get segmentsGenderGapHeader => 'Lacuna de previdencia';
-
-  @override
-  String get segmentsGenderGapHeaderSub =>
-      'Impacto do tempo parcial na reforma';
-
-  @override
-  String get segmentsGenderGapIntro =>
-      'A deducao de coordenacao (CHF 25\'725) nao e proporcional ao tempo parcial, o que penaliza ainda mais as pessoas que trabalham a tempo reduzido. Desloca o cursor para ver o impacto.';
-
-  @override
-  String get segmentsGenderGapTauxLabel => 'Taxa de atividade';
-
-  @override
-  String get segmentsGenderGapParams => 'Parametros';
-
-  @override
-  String get segmentsGenderGapRevenuLabel => 'Rendimento anual bruto (100%)';
-
-  @override
-  String get segmentsGenderGapAgeLabel => 'Idade';
-
-  @override
-  String get segmentsGenderGapAvoirLabel => 'Haver LPP atual';
-
-  @override
-  String get segmentsGenderGapAnneesCotisLabel => 'Anos de contribuicao';
-
-  @override
-  String get segmentsGenderGapCantonLabel => 'Cantao';
-
-  @override
-  String get segmentsGenderGapRenteTitle => 'Renda LPP estimada';
-
-  @override
-  String segmentsGenderGapRenteSub(String years) {
-    return 'Projecao a $years anos (idade 65)';
-  }
-
-  @override
-  String get segmentsGenderGapAt100 => 'A 100%';
-
-  @override
-  String segmentsGenderGapAtCurrent(String rate) {
-    return 'A $rate%';
-  }
-
-  @override
-  String get segmentsGenderGapLacuneAnnuelle => 'Lacuna anual';
-
-  @override
-  String get segmentsGenderGapLacuneTotale => 'Lacuna total (~20 anos)';
-
-  @override
-  String get segmentsGenderGapCoordinationTitle =>
-      'Compreender a deducao de coordenacao';
-
-  @override
-  String get segmentsGenderGapCoordinationBody =>
-      'A deducao de coordenacao e um montante fixo de CHF 25\'725 subtraido do teu salario bruto para calcular o salario coordenado (base LPP). Este montante e o mesmo quer trabalhes a 100% ou a 50%.';
-
-  @override
-  String get segmentsGenderGapSalaireBrut100 => 'Salario bruto a 100%';
-
-  @override
-  String get segmentsGenderGapSalaireCoord100 => 'Salario coordenado a 100%';
-
-  @override
-  String segmentsGenderGapSalaireBrutCurrent(String rate) {
-    return 'Salario bruto a $rate%';
-  }
-
-  @override
-  String segmentsGenderGapSalaireCoordCurrent(String rate) {
-    return 'Salario coordenado a $rate%';
-  }
-
-  @override
-  String get segmentsGenderGapDeductionFixe => 'Deducao de coordenacao (fixa)';
-
-  @override
-  String get segmentsGenderGapOfsTitle => 'Estatistica OFS';
-
-  @override
-  String get segmentsGenderGapOfsStat =>
-      'Na Suica, as mulheres recebem em media 37% menos de renda que os homens (OFS 2024)';
-
-  @override
-  String get segmentsGenderGapRecTitle => 'RECOMENDACOES';
-
-  @override
-  String get segmentsGenderGapRecRachat => 'Resgate LPP voluntario';
-
-  @override
-  String get segmentsGenderGapRecRachatDesc =>
-      'Um resgate voluntario permite colmatar parcialmente a lacuna de previdencia beneficiando de uma deducao fiscal.';
-
-  @override
-  String get segmentsGenderGapRec3a => '3º pilar maximizado';
-
-  @override
-  String get segmentsGenderGapRec3aDesc =>
-      'Contribui com o teto anual de CHF 7\'258 (assalariados) para compensar parcialmente a lacuna LPP.';
-
-  @override
-  String get segmentsGenderGapRecCoord =>
-      'Verificar a proporcionalidade da coordenacao';
-
-  @override
-  String get segmentsGenderGapRecCoordDesc =>
-      'Algumas caixas de pensoes proporcionam a deducao de coordenacao em funcao da taxa de atividade.';
-
-  @override
-  String get segmentsGenderGapRecTaux =>
-      'Explorar um aumento da taxa de atividade';
-
-  @override
-  String get segmentsGenderGapRecTauxDesc =>
-      'Mesmo um aumento de 10 a 20 pontos pode reduzir significativamente a lacuna.';
-
-  @override
-  String get segmentsGenderGapDisclaimer =>
-      'Os resultados apresentados sao estimativas simplificadas a titulo indicativo. Nao constituem aconselhamento financeiro personalizado. Consulta a tua caixa de pensoes e um profissional qualificado.';
-
-  @override
-  String get segmentsGenderGapSources => 'Fontes';
-
-  @override
-  String get segmentsFrontalierTitle => 'Frontaleiro';
-
-  @override
-  String get segmentsFrontalierSubtitle => 'Direitos e obrigacoes por pais';
-
-  @override
-  String get segmentsFrontalierAppBar => 'PERCURSO FRONTALEIRO';
-
-  @override
-  String get segmentsFrontalierHeader => 'Trabalhador frontaleiro';
-
-  @override
-  String get segmentsFrontalierHeaderSub => 'Direitos e obrigacoes por pais';
-
-  @override
-  String get segmentsFrontalierIntro =>
-      'As regras fiscais, de previdencia e de seguro variam segundo o teu pais de residencia e o teu cantao de trabalho.';
-
-  @override
-  String get segmentsFrontalierPaysLabel => 'Pais de residencia';
-
-  @override
-  String get segmentsFrontalierCantonLabel => 'Cantao de trabalho';
-
-  @override
-  String get segmentsFrontalierRulesTitle => 'REGRAS APLICAVEIS';
-
-  @override
-  String get segmentsFrontalierCatFiscal => 'Regime fiscal';
-
-  @override
-  String get segmentsFrontalierCat3a => '3º pilar';
-
-  @override
-  String get segmentsFrontalierCatLpp => 'LPP / Livre passagem';
-
-  @override
-  String get segmentsFrontalierCatAvs => 'AVS / Coordenacao';
-
-  @override
-  String get segmentsFrontalierQuasiResidentTitle =>
-      'Estatuto de quase-residente (GE)';
-
-  @override
-  String get segmentsFrontalierQuasiResidentDesc =>
-      'O estatuto de quase-residente e acessivel se pelo menos 90% dos rendimentos do agregado provem da Suica.';
-
-  @override
-  String get segmentsFrontalierQuasiResidentCondition =>
-      'Condicao: >= 90% dos rendimentos do agregado provenientes da Suica';
-
-  @override
-  String get segmentsFrontalierChecklist => 'Checklist frontaleiro';
-
-  @override
-  String get segmentsFrontalierPaysFR => 'Franca';
-
-  @override
-  String get segmentsFrontalierPaysDE => 'Alemanha';
-
-  @override
-  String get segmentsFrontalierPaysIT => 'Italia';
-
-  @override
-  String get segmentsFrontalierPaysAT => 'Austria';
-
-  @override
-  String get segmentsFrontalierPaysLI => 'Liechtenstein';
-
-  @override
-  String get segmentsFrontalierAttention => 'Atencao';
-
-  @override
-  String get segmentsFrontalierDisclaimer =>
-      'As informacoes apresentadas sao gerais e podem variar segundo a tua situacao pessoal. Consulta um fiduciario especializado em situacoes transfrontaleiras.';
-
-  @override
-  String get segmentsFrontalierSources => 'Fontes';
-
-  @override
-  String get segmentsIndependantTitle => 'Independente';
-
-  @override
-  String get segmentsIndependantSubtitle => 'Cobertura e protecao social';
-
-  @override
-  String get segmentsIndependantAppBar => 'PERCURSO INDEPENDENTE';
-
-  @override
-  String get segmentsIndependantHeader => 'Independente';
-
-  @override
-  String get segmentsIndependantHeaderSub => 'Analise de cobertura e protecao';
-
-  @override
-  String get segmentsIndependantIntro =>
-      'Como independente, nao tens LPP obrigatoria, nem IJM, nem LAA. A tua protecao depende das tuas diligencias pessoais.';
-
-  @override
-  String get segmentsIndependantRevenuLabel => 'Rendimento liquido anual';
-
-  @override
-  String get segmentsIndependantCoverageTitle => 'A minha cobertura atual';
-
-  @override
-  String get segmentsIndependantLpp => 'LPP (filiacao voluntaria)';
-
-  @override
-  String get segmentsIndependantIjm => 'IJM (indemnizacao diaria de doenca)';
-
-  @override
-  String get segmentsIndependantLaa => 'LAA (seguro de acidentes)';
-
-  @override
-  String get segmentsIndependant3a => '3º pilar (3a)';
-
-  @override
-  String get segmentsIndependantAnalyseTitle => 'ANALISE DE COBERTURA';
-
-  @override
-  String get segmentsIndependantCouvert => 'Coberto';
-
-  @override
-  String get segmentsIndependantNonCouvert => 'NAO COBERTO';
-
-  @override
-  String get segmentsIndependantCritique => 'NAO COBERTO — Critico';
-
-  @override
-  String get segmentsIndependantProtectionTitle => 'Custo da protecao completa';
-
-  @override
-  String get segmentsIndependantProtectionSub => 'Estimativa mensal';
-
-  @override
-  String get segmentsIndependantAvs => 'AVS / AI / APG';
-
-  @override
-  String get segmentsIndependantIjmEst => 'IJM (estimativa)';
-
-  @override
-  String get segmentsIndependantLaaEst => 'LAA (estimativa)';
-
-  @override
-  String get segmentsIndependant3aMax => '3º pilar (max)';
-
-  @override
-  String get segmentsIndependantTotalMensuel => 'Total mensal';
-
-  @override
-  String get segmentsIndependantAvsTitle => 'Contribuicao AVS independente';
-
-  @override
-  String segmentsIndependantAvsDesc(String amount) {
-    return 'A tua contribuicao AVS estimada: $amount/ano (taxa degressiva para rendimentos inferiores a CHF 58\'800).';
-  }
-
-  @override
-  String get segmentsIndependant3aTitle => '3º pilar — teto independente';
-
-  @override
-  String get segmentsIndependant3aWithLpp =>
-      'Com LPP voluntaria: teto 3a standard de CHF 7\'258/ano.';
-
-  @override
-  String get segmentsIndependant3aWithoutLpp =>
-      'Sem LPP: teto 3a \'grande\' de 20% do rendimento liquido, max CHF 36\'288/ano.';
-
-  @override
-  String get segmentsIndependantRecTitle => 'RECOMENDACOES';
-
-  @override
-  String get segmentsIndependantDisclaimer =>
-      'Os montantes apresentados sao estimativas indicativas. Consulta um fiduciario ou segurador antes de qualquer decisao.';
-
-  @override
-  String get segmentsIndependantSources => 'Fontes';
-
-  @override
-  String get segmentsIndependantAlertIjm =>
-      'CRITICO: Nao tens seguro IJM. Em caso de doenca, nao teras nenhum rendimento de substituicao.';
-
-  @override
-  String get segmentsIndependantAlertLaa =>
-      'IMPORTANTE: Sem seguro de acidentes individual (LAA), as despesas medicas em caso de acidente nao sao cobertas.';
-
-  @override
-  String get segmentsIndependantAlertLpp =>
-      'A tua previdencia baseia-se unicamente no AVS e no 3º pilar.';
-
-  @override
-  String get segmentsIndependantAlert3a =>
-      'Nao aproveitas o 3º pilar. Teto independente: CHF 36\'288/ano.';
-
-  @override
-  String get segmentsDemoMode =>
-      'Modo demo: perfil exemplo. Completa o teu diagnostico para resultados personalizados.';
-
-  @override
-  String get assurancesLamalTitle => 'Otimizador de franquia LAMal';
-
-  @override
-  String get assurancesLamalSubtitle =>
-      'Encontra a franquia ideal segundo as tuas despesas de saude';
-
-  @override
-  String get assurancesLamalPrimeMensuelle => 'Premio mensal (franquia 300)';
-
-  @override
-  String get assurancesLamalDepensesSante =>
-      'Despesas de saude anuais estimadas';
-
-  @override
-  String get assurancesLamalAdulte => 'Adulto';
-
-  @override
-  String get assurancesLamalEnfant => 'Crianca';
-
-  @override
-  String get assurancesLamalFranchise => 'Franquia';
-
-  @override
-  String get assurancesLamalPrimeAnnuelle => 'Premio anual';
-
-  @override
-  String get assurancesLamalCoutTotal => 'Custo total';
-
-  @override
-  String get assurancesLamalEconomie => 'Poupanca vs 300';
-
-  @override
-  String get assurancesLamalOptimale => 'Franquia recomendada';
-
-  @override
-  String get assurancesLamalBreakEven => 'Limiar de rentabilidade';
-
-  @override
-  String get assurancesLamalDelaiRappel =>
-      'Lembrete: alteracao possivel antes de 30 de novembro';
-
-  @override
-  String get assurancesLamalQuotePart => 'Quota-parte (10%, max 700 CHF)';
-
-  @override
-  String get assurancesCoverageTitle => 'Check-up de cobertura';
-
-  @override
-  String get assurancesCoverageSubtitle => 'Avalia a tua protecao de seguros';
-
-  @override
-  String get assurancesCoverageScore => 'Score de cobertura';
-
-  @override
-  String get assurancesCoverageLacunes => 'Lacunas identificadas';
-
-  @override
-  String get assurancesCoverageStatut => 'Estatuto profissional';
-
-  @override
-  String get assurancesCoverageSalarie => 'Assalariado';
-
-  @override
-  String get assurancesCoverageIndependant => 'Independente';
-
-  @override
-  String get assurancesCoverageSansEmploi => 'Sem emprego';
-
-  @override
-  String get assurancesCoverageHypotheque => 'Hipoteca em curso';
-
-  @override
-  String get assurancesCoverageFamille => 'Pessoas a cargo';
-
-  @override
-  String get assurancesCoverageLocataire => 'Inquilino';
-
-  @override
-  String get assurancesCoverageVoyages => 'Viagens frequentes';
-
-  @override
-  String get assurancesCoverageIjm => 'IJM coletiva (empregador)';
-
-  @override
-  String get assurancesCoverageLaa => 'LAA (seguro de acidentes)';
-
-  @override
-  String get assurancesCoverageRc => 'RC privada';
-
-  @override
-  String get assurancesCoverageMenage => 'Seguro de recheio';
-
-  @override
-  String get assurancesCoverageJuridique => 'Protecao juridica';
-
-  @override
-  String get assurancesCoverageVoyage => 'Seguro de viagem';
-
-  @override
-  String get assurancesCoverageDeces => 'Seguro de falecimento';
-
-  @override
-  String get assurancesCoverageCouvert => 'Coberto';
-
-  @override
-  String get assurancesCoverageNonCouvert => 'Nao coberto';
-
-  @override
-  String get assurancesCoverageAVerifier => 'A verificar';
-
-  @override
-  String get assurancesCoverageCritique => 'Critico';
-
-  @override
-  String get assurancesCoverageHaute => 'Alta';
-
-  @override
-  String get assurancesCoverageMoyenne => 'Media';
-
-  @override
-  String get assurancesCoverageBasse => 'Baixa';
-
-  @override
-  String get assurancesDemoMode => 'MODO DEMO';
-
-  @override
-  String get assurancesDisclaimer =>
-      'Esta analise e indicativa. Os premios variam segundo a seguradora, a regiao e o modelo de seguro. Consulta a tua caixa de saude para valores exatos.';
-
-  @override
-  String get assurancesSection => 'Seguros';
-
-  @override
-  String get assurancesLamalTile => 'Franquia LAMal';
-
-  @override
-  String get assurancesLamalTileSub => 'Encontra a franquia ideal';
-
-  @override
-  String get assurancesCoverageTile => 'Check-up de cobertura';
-
-  @override
-  String get assurancesCoverageTileSub => 'Avalia a tua protecao de seguros';
-
-  @override
   String get openBankingTitle => 'Open Banking';
-
-  @override
-  String get openBankingSubtitle => 'Liga as tuas contas bancarias';
 
   @override
   String get openBankingFinmaGate =>
       'Funcionalidade em preparacao — consulta regulamentar FINMA em curso';
-
-  @override
-  String get openBankingDemoData =>
-      'Os dados exibidos sao exemplos de demonstracao';
-
-  @override
-  String get openBankingTotalBalance => 'Saldo total';
-
-  @override
-  String get openBankingAccounts => 'Contas ligadas';
 
   @override
   String get openBankingAddBank => 'Adicionar um banco';
@@ -2727,83 +863,13 @@ class SPt extends S {
   String get openBankingTransactions => 'Transacoes';
 
   @override
-  String get openBankingNoTransactions => 'Nenhuma transacao';
-
-  @override
-  String get openBankingIncome => 'Rendimentos';
-
-  @override
-  String get openBankingExpenses => 'Despesas';
-
-  @override
-  String get openBankingNetSavings => 'Poupanca liquida';
-
-  @override
-  String get openBankingSavingsRate => 'Taxa de poupanca';
-
-  @override
   String get openBankingConsents => 'Consentimentos';
-
-  @override
-  String get openBankingConsentActive => 'Ativo';
-
-  @override
-  String get openBankingConsentExpiring => 'Expira em breve';
-
-  @override
-  String get openBankingConsentExpired => 'Expirado';
 
   @override
   String get openBankingConsentRevoke => 'Revogar';
 
   @override
-  String get openBankingConsentRevoked => 'Revogado';
-
-  @override
-  String get openBankingConsentScopes => 'Autorizacoes';
-
-  @override
-  String get openBankingConsentScopeAccounts => 'Contas';
-
-  @override
-  String get openBankingConsentScopeBalances => 'Saldos';
-
-  @override
-  String get openBankingConsentScopeTransactions => 'Transacoes';
-
-  @override
-  String get openBankingConsentDuration => 'Duracao maxima: 90 dias';
-
-  @override
-  String get openBankingNlpdTitle => 'Os teus direitos (nLPD)';
-
-  @override
-  String get openBankingNlpdRevoke =>
-      'Podes revogar o teu consentimento a qualquer momento';
-
-  @override
-  String get openBankingNlpdNoSharing =>
-      'Os teus dados nunca sao partilhados com terceiros';
-
-  @override
-  String get openBankingNlpdReadOnly =>
-      'Acesso em leitura apenas — nenhuma operacao financeira';
-
-  @override
-  String get openBankingNlpdDuration =>
-      'Duracao maxima de consentimento: 90 dias';
-
-  @override
-  String get openBankingSelectBank => 'Escolher um banco';
-
-  @override
-  String get openBankingSelectScopes => 'Escolher as autorizacoes';
-
-  @override
   String get openBankingConfirm => 'Confirmar';
-
-  @override
-  String get openBankingCancel => 'Cancelar';
 
   @override
   String get openBankingBack => 'Voltar';
@@ -2851,21 +917,6 @@ class SPt extends S {
   String get openBankingCategoryRevenu => 'Rendimento';
 
   @override
-  String get openBankingLastSync => 'Ultima sincronizacao';
-
-  @override
-  String get openBankingIbanMasked => 'IBAN mascarado';
-
-  @override
-  String get openBankingFilterAll => 'Todas';
-
-  @override
-  String get openBankingThisMonth => 'Este mes';
-
-  @override
-  String get openBankingLastMonth => 'Mes anterior';
-
-  @override
   String get openBankingDemoMode => 'MODO DEMO';
 
   @override
@@ -2876,522 +927,13 @@ class SPt extends S {
   String get openBankingBlink => 'Alimentado por bLink (SIX)';
 
   @override
-  String get openBankingFinancialOverview => 'Visao geral financeira';
-
-  @override
-  String get openBankingTopExpenses => 'Top 3 despesas';
-
-  @override
-  String get openBankingViewTransactions => 'Ver transacoes';
-
-  @override
-  String get openBankingManageConsents => 'Gerir consentimentos';
-
-  @override
   String get openBankingMonthlySummary => 'Resumo mensal';
 
   @override
   String get openBankingAddConsent => 'Adicionar consentimento';
 
   @override
-  String get openBankingConsentGrantedOn => 'Concedido em';
-
-  @override
-  String get openBankingConsentExpiresOn => 'Expira em';
-
-  @override
-  String get openBankingConsentRevokedConfirm => 'Consentimento revogado';
-
-  @override
-  String get openBankingScopeAccountsDesc => 'Contas (lista das tuas contas)';
-
-  @override
-  String get openBankingScopeBalancesDesc =>
-      'Saldos (saldo atual das tuas contas)';
-
-  @override
-  String get openBankingScopeTransactionsDesc =>
-      'Transacoes (historico de movimentos)';
-
-  @override
-  String get openBankingReadOnlyInfo =>
-      'Acesso em leitura apenas. Nenhuma operacao financeira pode ser efetuada.';
-
-  @override
-  String get openBankingConsentConfirmText =>
-      'Ao confirmar, autorizas o MINT a aceder aos dados selecionados em modo de leitura durante 90 dias. Podes revogar este consentimento a qualquer momento.';
-
-  @override
-  String get openBankingSection => 'Open Banking';
-
-  @override
-  String get openBankingTile => 'Open Banking';
-
-  @override
-  String get openBankingTileSub => 'Liga as tuas contas bancarias';
-
-  @override
-  String get lppDeepSection => 'LPP APROFUNDADO';
-
-  @override
-  String get lppDeepRachatTitle => 'Resgate escalonado';
-
-  @override
-  String get lppDeepRachatSubtitle =>
-      'Otimiza os teus resgates LPP ao longo de varios anos';
-
-  @override
-  String get lppDeepRachatAppBar => 'RESGATE LPP ESCALONADO';
-
-  @override
-  String get lppDeepRachatIntroTitle => 'Porque escalonar os resgates?';
-
-  @override
-  String get lppDeepRachatIntroBody =>
-      'O imposto suico sendo progressivo, repartir um resgate LPP por varios anos permite ficar em escaloes marginais mais elevados cada ano, maximizando assim a poupanca fiscal total.';
-
-  @override
-  String get lppDeepRachatParams => 'Parametros';
-
-  @override
-  String get lppDeepRachatAvoirActuel => 'Haver LPP atual';
-
-  @override
-  String get lppDeepRachatMax => 'Resgate maximo';
-
-  @override
-  String get lppDeepRachatRevenu => 'Rendimento tributavel';
-
-  @override
-  String get lppDeepRachatTauxMarginal => 'Taxa marginal estimada';
-
-  @override
-  String get lppDeepRachatHorizon => 'Horizonte (anos)';
-
-  @override
-  String get lppDeepRachatComparaison => 'Comparacao';
-
-  @override
-  String get lppDeepRachatBloc => 'TUDO EM 1 ANO';
-
-  @override
-  String get lppDeepRachatBlocSub => 'Resgate em bloco';
-
-  @override
-  String lppDeepRachatEchelonne(String years) {
-    return 'ESCALONADO EM $years ANOS';
-  }
-
-  @override
-  String get lppDeepRachatEchelonneSub => 'Resgate repartido';
-
-  @override
-  String get lppDeepRachatEconomie => 'Poupanca fiscal';
-
-  @override
-  String lppDeepRachatEconomieDelta(String amount) {
-    return 'Ao escalonar, poupas mais CHF $amount de impostos.';
-  }
-
-  @override
-  String get lppDeepRachatPlanAnnuel => 'Plano anual';
-
-  @override
-  String get lppDeepRachatAnnee => 'Ano';
-
-  @override
-  String get lppDeepRachatMontant => 'Resgate';
-
-  @override
-  String get lppDeepRachatEcoFiscale => 'Poupanca';
-
-  @override
-  String get lppDeepRachatCoutNet => 'Custo liquido';
-
-  @override
-  String get lppDeepRachatTotal => 'Total';
-
-  @override
-  String get lppDeepRachatBlocageEpl => 'LPP art. 79b al. 3 — Bloqueio EPL';
-
-  @override
-  String get lppDeepRachatBlocageEplBody =>
-      'Apos cada resgate, qualquer levantamento EPL (incentivo a propriedade de habitacao) fica bloqueado durante 3 anos. Planeia em conformidade se uma compra imobiliaria estiver prevista.';
-
-  @override
-  String get lppDeepRachatDisclaimer =>
-      'Simulacao pedagogica baseada numa progressividade estimada. O resgate LPP esta sujeito a aceitacao pela caixa de pensoes. Consulta a tua caixa de pensoes e um especialista em previdencia antes de qualquer decisao.';
-
-  @override
-  String get lppDeepLibrePassageTitle => 'Livre passagem';
-
-  @override
-  String get lppDeepLibrePassageSubtitle =>
-      'Checklist em caso de mudanca de emprego ou partida';
-
-  @override
-  String get lppDeepLibrePassageAppBar => 'LIVRE PASSAGEM';
-
-  @override
-  String get lppDeepLibrePassageSituation => 'Situacao';
-
-  @override
-  String get lppDeepLibrePassageChangement => 'Mudanca de emprego';
-
-  @override
-  String get lppDeepLibrePassageDepart => 'Partida da Suica';
-
-  @override
-  String get lppDeepLibrePassageCessation => 'Cessacao de atividade';
-
-  @override
-  String get lppDeepLibrePassageNewEmployer => 'Novo empregador';
-
-  @override
-  String get lppDeepLibrePassageNewEmployerSub => 'Ja tens um novo empregador?';
-
-  @override
-  String get lppDeepLibrePassageAlertes => 'Alertas';
-
-  @override
-  String get lppDeepLibrePassageChecklist => 'Checklist';
-
-  @override
-  String get lppDeepLibrePassageRecommandations => 'Recomendacoes';
-
-  @override
-  String get lppDeepLibrePassageUrgenceCritique => 'Critico';
-
-  @override
-  String get lppDeepLibrePassageUrgenceHaute => 'Alta';
-
-  @override
-  String get lppDeepLibrePassageUrgenceMoyenne => 'Media';
-
-  @override
-  String get lppDeepLibrePassageCentrale => 'Central do 2º pilar (sfbvg.ch)';
-
-  @override
-  String get lppDeepLibrePassageCentraleSub =>
-      'Pesquisa haveres de livre passagem esquecidos';
-
-  @override
-  String get lppDeepLibrePassagePrivacy =>
-      'Os teus dados ficam no teu dispositivo. Nenhuma informacao e transmitida a terceiros. Conforme com a nLPD.';
-
-  @override
-  String get lppDeepLibrePassageDisclaimer =>
-      'Estas informacoes sao pedagogicas e nao constituem aconselhamento juridico ou financeiro personalizado. As regras dependem da tua caixa de pensoes e da tua situacao. Base legal: LFLP, OLP.';
-
-  @override
-  String get lppDeepEplTitle => 'Levantamento EPL';
-
-  @override
-  String get lppDeepEplSubtitle => 'Financiar uma habitacao com o teu 2º pilar';
-
-  @override
-  String get lppDeepEplAppBar => 'LEVANTAMENTO EPL';
-
-  @override
-  String get lppDeepEplIntroTitle =>
-      'Levantamento EPL — Propriedade de habitacao';
-
-  @override
-  String get lppDeepEplIntroBody =>
-      'O EPL permite utilizar o teu haver LPP para financiar a compra de uma habitacao, amortizar uma hipoteca ou financiar renovacoes. Montante minimo: CHF 20\'000.';
-
-  @override
-  String get lppDeepEplParams => 'Parametros';
-
-  @override
-  String get lppDeepEplAvoirTotal => 'Haver LPP total';
-
-  @override
-  String get lppDeepEplAge => 'Idade';
-
-  @override
-  String get lppDeepEplMontantSouhaite => 'Montante desejado';
-
-  @override
-  String get lppDeepEplRachatsRecents => 'Resgates LPP recentes';
-
-  @override
-  String get lppDeepEplRachatsRecentsSub =>
-      'Efetuaste um resgate LPP nos ultimos 3 anos?';
-
-  @override
-  String get lppDeepEplAnneesSDepuisRachat => 'Anos desde o resgate';
-
-  @override
-  String get lppDeepEplResultat => 'Resultado';
-
-  @override
-  String get lppDeepEplMontantMaxRetirable => 'Montante maximo levantavel';
-
-  @override
-  String get lppDeepEplMontantApplicable => 'Montante aplicavel';
-
-  @override
-  String get lppDeepEplRetraitImpossible =>
-      'O levantamento nao e possivel na configuracao atual.';
-
-  @override
-  String get lppDeepEplImpactPrestations => 'Impacto nas prestacoes';
-
-  @override
-  String get lppDeepEplReductionInvalidite =>
-      'Reducao da renda de invalidez (estimativa anual)';
-
-  @override
-  String get lppDeepEplReductionDeces =>
-      'Reducao do capital de falecimento (estimativa)';
-
-  @override
-  String get lppDeepEplImpactNote =>
-      'O levantamento EPL reduz proporcionalmente as tuas prestacoes de risco. Verifica junto da tua caixa de pensoes os montantes exatos.';
-
-  @override
-  String get lppDeepEplEstimationFiscale => 'Estimativa fiscal';
-
-  @override
-  String get lppDeepEplMontantRetire => 'Montante levantado';
-
-  @override
-  String get lppDeepEplImpotEstime => 'Imposto estimado sobre o levantamento';
-
-  @override
-  String get lppDeepEplMontantNet => 'Montante liquido apos imposto';
-
-  @override
-  String get lppDeepEplTaxNote =>
-      'O levantamento em capital e tributado a uma taxa reduzida (cerca de 1/5 do bareme ordinario). A taxa exata depende do cantao e da situacao pessoal.';
-
-  @override
-  String get lppDeepEplPointsAttention => 'Pontos de atencao';
-
-  @override
-  String get lppDeepEplDisclaimer =>
-      'Simulacao pedagogica a titulo indicativo. O montante levantavel exato depende do regulamento da tua caixa de pensoes. O imposto varia segundo o cantao e a situacao pessoal. Base legal: art. 30c LPP, OEPL.';
-
-  @override
-  String get exploreTitle => 'Explorar';
-
-  @override
-  String get explorePillarComprendreTitle => 'Quero entender';
-
-  @override
-  String get explorePillarComprendreSub =>
-      'O essencial das financas suicas, sem jargao. Quiz incluido.';
-
-  @override
-  String get explorePillarComprendreCta => 'Explorar os 9 temas';
-
-  @override
-  String get explorePillarCalculerTitle => 'Quero calcular';
-
-  @override
-  String get explorePillarCalculerSub =>
-      'Simula, compara, otimiza. 49 ferramentas a tua disposicao.';
-
-  @override
-  String get explorePillarCalculerCta => 'Ver todas as ferramentas';
-
-  @override
-  String get explorePillarLifeTitle => 'Esta a acontecer-me algo';
-
-  @override
-  String get explorePillarLifeSub =>
-      'Casamento, nascimento, divorcio, mudanca... acompanhamos-te.';
-
-  @override
-  String get exploreGoalBudget => 'Dominar o meu orcamento';
-
-  @override
-  String get exploreGoalBudgetSub => 'Gerir as minhas despesas → 3 min';
-
-  @override
-  String get exploreGoalProperty => 'Tornar-me proprietario';
-
-  @override
-  String get exploreGoalPropertySub => 'Simular a minha compra → 5 min';
-
-  @override
-  String get exploreGoalTax => 'Pagar menos impostos';
-
-  @override
-  String get exploreGoalTaxSub => 'Otimizar o meu 3a → 3 min';
-
-  @override
-  String get exploreGoalRetirement => 'Preparar a minha reforma';
-
-  @override
-  String get exploreGoalRetirementSub => 'Ver o meu plano → 10 min';
-
-  @override
-  String get exploreEventMarriage => 'Casamento';
-
-  @override
-  String get exploreEventMarriageSub => 'Impacto fiscal e LPP';
-
-  @override
-  String get exploreEventBirth => 'Nascimento';
-
-  @override
-  String get exploreEventBirthSub => 'Abonos e deducoes';
-
-  @override
-  String get exploreEventConcubinage => 'Uniao de facto';
-
-  @override
-  String get exploreEventConcubinageSub => 'Proteger o teu casal';
-
-  @override
-  String get exploreEventDivorce => 'Divorcio';
-
-  @override
-  String get exploreEventDivorceSub => 'Partilha LPP e AVS';
-
-  @override
-  String get exploreEventSuccession => 'Sucessao';
-
-  @override
-  String get exploreEventSuccessionSub => 'Direitos e planeamento';
-
-  @override
-  String get exploreEventHouseSale => 'Venda imobiliaria';
-
-  @override
-  String get exploreEventHouseSaleSub => 'Imposto mais-valia';
-
-  @override
-  String get exploreEventDonation => 'Doacao';
-
-  @override
-  String get exploreEventDonationSub => 'Fiscalidade e limites';
-
-  @override
-  String get exploreEventExpat => 'Expatriacao';
-
-  @override
-  String get exploreEventExpatSub => 'Partida ou chegada';
-
-  @override
-  String get exploreDocUploadLpp => 'Certificados e documentos';
-
-  @override
-  String get exploreDocUploadLppSub => 'Certificado LPP, extratos AVS →';
-
-  @override
-  String get exploreAskMintTitle => 'Ask MINT';
-
-  @override
-  String get exploreAskMintConfigured =>
-      'Faz as tuas perguntas sobre financas suicas →';
-
-  @override
-  String get exploreAskMintNotConfigured => 'Configura a tua IA para comecar →';
-
-  @override
-  String get exploreLearn3a => 'O que e o pilar 3a?';
-
-  @override
-  String get exploreLearnLpp => 'LPP: Como funciona';
-
-  @override
-  String get exploreLearnFiscal => 'Fiscalidade suica 101';
-
-  @override
-  String get coachWelcome => 'Bem-vindo ao MINT';
-
-  @override
-  String coachHello(String firstName) {
-    return 'Olá $firstName';
-  }
-
-  @override
-  String get coachFitnessTitle => 'O teu Fitness Financeiro';
-
-  @override
-  String get coachFinancialForm => 'Forme financière';
-
-  @override
-  String get coachScoreComposite => 'Pontuação composta · 3 pilares';
-
-  @override
-  String get coachPillarBudget => 'Budget';
-
-  @override
-  String get coachPillarPrevoyance => 'Prévoyance';
-
-  @override
-  String get coachPillarPatrimoine => 'Patrimoine';
-
-  @override
-  String get coachCompletePrompt =>
-      'Completa o teu diagnóstico para descobrir a tua pontuação';
-
-  @override
-  String get coachDiscoverScore => 'Descobrir a minha pontuação — 10 min';
-
-  @override
   String get coachTrajectory => 'Ta trajectoire';
-
-  @override
-  String get coachTrajectoryPrompt =>
-      'A tua trajetória financeira espera por ti';
-
-  @override
-  String get coachDidYouKnow => 'Le savais-tu ?';
-
-  @override
-  String get coachFact3a =>
-      'O 3.º pilar pode poupar-te até CHF 2\'500 de impostos por ano, consoante o teu cantão e o teu rendimento. Um gesto simples com um efeito acumulado enorme.';
-
-  @override
-  String get coachFact3aLink => 'Simular a minha poupança 3a';
-
-  @override
-  String get coachFactAvs =>
-      'Na Suíça, cada ano AVS em falta = −2.3% de renda vitalícia. É possível recuperar anos sob certas condições.';
-
-  @override
-  String get coachFactAvsLink => 'Verificar os meus anos AVS';
-
-  @override
-  String get coachFactLpp =>
-      'O resgate LPP é uma das alavancas fiscais mais potentes para os/as assalariados/as na Suíça. Cada franco resgatado é dedutível do rendimento tributável.';
-
-  @override
-  String get coachFactLppLink => 'Explorar o resgate LPP';
-
-  @override
-  String get coachMotivation =>
-      'Junta-te aos milhares de utilizadores que já fizeram o seu diagnóstico financeiro.';
-
-  @override
-  String get coachMotivationSub => 'e receber ações concretas.';
-
-  @override
-  String get coachLaunchDiagnostic => 'Iniciar o meu diagnóstico';
-
-  @override
-  String get coachQuickActions => 'Actions rapides';
-
-  @override
-  String get coachCheckin => 'Check-in\nmensuel';
-
-  @override
-  String get coachVerse3a => 'Verser\n3a';
-
-  @override
-  String get coachSimBuyback => 'Simuler\nrachat';
-
-  @override
-  String get coachExplore => 'Explorer';
-
-  @override
-  String get coachPulseDisclaimer =>
-      'Estimativas educativas — não constitui aconselhamento financeiro. Os rendimentos passados não pressupõem rendimentos futuros. Consulta um especialista. LSFin.';
 
   @override
   String get eduTheme3aTitle => 'Le 3e pilier (3a)';
@@ -3635,89 +1177,6 @@ class SPt extends S {
   String get trajectoryGoalLabel => 'Cible';
 
   @override
-  String get agirTitle => 'AGIR';
-
-  @override
-  String get agirThisMonth => 'Este mês';
-
-  @override
-  String get agirTimeline => 'Timeline';
-
-  @override
-  String get agirTimelineSub => 'Os teus próximos prazos';
-
-  @override
-  String get agirHistory => 'Historique';
-
-  @override
-  String get agirHistorySub => 'Tes check-ins passés';
-
-  @override
-  String agirCheckinDone(String month) {
-    return 'Check-in $month efetuado';
-  }
-
-  @override
-  String get agirDone => 'Fait';
-
-  @override
-  String agirCheckinCta(String month) {
-    return 'Fazer o meu check-in $month';
-  }
-
-  @override
-  String get agirNoCheckin => 'Ainda sem check-in';
-
-  @override
-  String get agirNoCheckinSub =>
-      'Faz o teu primeiro check-in para começar a acompanhar a tua progressão.';
-
-  @override
-  String get agirTimeline3a => 'Último dia contribuição 3a';
-
-  @override
-  String get agirTimeline3aSub =>
-      'Verifica que o teu teto foi atingido antes do final de dezembro.';
-
-  @override
-  String get agirTimeline3aCta => 'Vérifier mon 3a';
-
-  @override
-  String agirTimelineTax(String canton) {
-    return 'Declaração de impostos $canton';
-  }
-
-  @override
-  String get agirTimelineTaxSub =>
-      'Lembra-te de reunir os teus certificados 3a e LPP.';
-
-  @override
-  String get agirTimelineTaxCta => 'Preparar os meus documentos';
-
-  @override
-  String get agirTimelineLamal => 'Franquia LAMal (mudar?)';
-
-  @override
-  String get agirTimelineLamalSub =>
-      'Avalia se a tua franquia atual ainda é adequada.';
-
-  @override
-  String get agirTimelineLamalCta => 'Simular as franquias';
-
-  @override
-  String get agirTimelineRetireSub => 'O teu objetivo principal.';
-
-  @override
-  String get agirAuto => 'Auto';
-
-  @override
-  String get agirManuel => 'Manuel';
-
-  @override
-  String get agirDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro personalizado. Os prazos são indicativos e podem variar consoante o teu cantão e situação.';
-
-  @override
   String checkinTitle(String month) {
     return 'CHECK-IN $month';
   }
@@ -3847,11 +1306,6 @@ class SPt extends S {
       'Centraliza, compreende e age sobre os teus documentos';
 
   @override
-  String vaultDocCount(String count) {
-    return '$count documents';
-  }
-
-  @override
   String get vaultCategoryLpp => 'Prévoyance LPP';
 
   @override
@@ -3934,10 +1388,6 @@ class SPt extends S {
   String get vaultEmptyTitle => 'Aucun document';
 
   @override
-  String get vaultEmptySubtitle =>
-      'Adiciona o teu primeiro documento para alimentar as tuas simulações com dados reais.';
-
-  @override
   String get vaultPremiumTitle => 'Coffre-fort Premium';
 
   @override
@@ -3976,174 +1426,6 @@ class SPt extends S {
       'O MINT é uma ferramenta educativa. As informações jurídicas apresentadas são a título indicativo e não substituem aconselhamento profissional.';
 
   @override
-  String get soaTitle => 'Ton Plan Mint';
-
-  @override
-  String get soaScoreLabel => 'Pontuação de Saúde Financeira';
-
-  @override
-  String get soaPrioritiesTitle => 'As tuas 3 Ações Prioritárias';
-
-  @override
-  String get soaDiagnosticTitle => 'Diagnóstico por Círculo';
-
-  @override
-  String get soaTaxTitle => 'Simulation Fiscale';
-
-  @override
-  String get soaRetirementTitle => 'Projeção Reforma (65 anos)';
-
-  @override
-  String get soaLppTitle => 'Stratégie Rachat LPP';
-
-  @override
-  String get soaBudgetTitle => 'Ton Budget Calculé';
-
-  @override
-  String get soaTransparencyTitle => 'Transparência e Roteiro';
-
-  @override
-  String get soaDisclaimerText =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro nos termos da LSFin. As projeções baseiam-se nos dados declarados.';
-
-  @override
-  String get soaNextTitle => 'Et ensuite ?';
-
-  @override
-  String get soaNextSubtitle => 'Módulos adaptados ao teu perfil';
-
-  @override
-  String get soaExportPdf => 'Export PDF';
-
-  @override
-  String get soaActionStart => 'Commencer';
-
-  @override
-  String get soaTaxableIncome => 'Revenu imposable';
-
-  @override
-  String get soaDeductions => 'Déductions';
-
-  @override
-  String get soaEstimatedTax => 'Impôts estimés';
-
-  @override
-  String get soaEffectiveRate => 'Taux effectif';
-
-  @override
-  String get soaCapitalEstimate => 'Capital estimé';
-
-  @override
-  String get soaAvsRent => 'Rente AVS mensuelle';
-
-  @override
-  String get soaLppRent => 'Rente LPP mensuelle';
-
-  @override
-  String get soaTotalMonthly => 'TOTAL mensuel';
-
-  @override
-  String soaAvsGapWarning(String gap) {
-    return 'Atenção: Lacunas AVS detetadas ($gap anos)';
-  }
-
-  @override
-  String soaBuybackYear(String year) {
-    return 'Année $year';
-  }
-
-  @override
-  String soaBuybackAmount(String amount) {
-    return 'Rachat: CHF $amount';
-  }
-
-  @override
-  String soaBuybackSaving(String amount) {
-    return 'Poupança: CHF $amount';
-  }
-
-  @override
-  String soaTotalSaving(String amount) {
-    return 'Poupança fiscal total: CHF $amount';
-  }
-
-  @override
-  String soaNature(String nature) {
-    return 'Nature : $nature';
-  }
-
-  @override
-  String get soaAssumptions => 'Hipóteses de Trabalho';
-
-  @override
-  String get soaConflicts => 'Conflitos de Interesses e Comissões';
-
-  @override
-  String get soaNoConflict =>
-      'Nenhum conflito de interesses identificado para este relatório.';
-
-  @override
-  String get soaSafeModeLocked => 'Prioridade ao desendividamento';
-
-  @override
-  String get soaSafeModeMessage =>
-      'As tuas ações prioritárias são substituídas por um plano de desendividamento.';
-
-  @override
-  String get soaLimitations => 'Limitations';
-
-  @override
-  String get soaProtectionSources => 'Fontes: LP art. 93, Diretivas CSIAS';
-
-  @override
-  String get soaPrevoyanceSources => 'Fontes: LPP art. 14, OPP3, LAVS';
-
-  @override
-  String get soaCroissanceSources => 'Fontes: LIFD art. 33';
-
-  @override
-  String get soaOptimisationSources => 'Fontes: CC art. 470, LIFD';
-
-  @override
-  String get soaAvailableMonth => 'Disponible / mois';
-
-  @override
-  String get soaRemainder => 'Reste à vivre';
-
-  @override
-  String get soaEstimatedTaxLabel => 'Impôts Estimés';
-
-  @override
-  String get soaSavingsRate => 'Taxa de poupança';
-
-  @override
-  String get soaSavingsGoal => 'Objectif: 20%';
-
-  @override
-  String get soaProtectionScore => 'Score Protection';
-
-  @override
-  String get soaActiveDebts => 'Dettes actives';
-
-  @override
-  String get soaSerene => 'Serein';
-
-  @override
-  String get soaNetIncome => 'Revenu net';
-
-  @override
-  String get soaHousing => 'Habitação';
-
-  @override
-  String get soaDebtRepayment => 'Remboursement dettes';
-
-  @override
-  String get soaAvailable => 'Disponible';
-
-  @override
-  String get soaImportant => 'IMPORTANT:';
-
-  @override
   String get soaDisclaimer1 =>
       'Esta é uma ferramenta educativa, não constitui aconselhamento financeiro (LSFin).';
 
@@ -4157,10 +1439,6 @@ class SPt extends S {
 
   @override
   String get commonCancel => 'Cancelar';
-
-  @override
-  String get profileCompleteBanner =>
-      'Perfil completo! O teu coach tem todos os dados para conselhos fiáveis.';
 
   @override
   String get profileAnnualRefreshTitle => 'Atualização anual';
@@ -4203,47 +1481,6 @@ class SPt extends S {
       'Conserva a ligação e a chave BYOK. Os documentos do backend não são eliminados.';
 
   @override
-  String get coachPulseTitle => 'Coach Pulse';
-
-  @override
-  String get coachIaBadge => 'Coach IA';
-
-  @override
-  String get agirCoachPulseDone =>
-      'Estás em dia este mês. Dá agora prioridade à ação de maior impacto.';
-
-  @override
-  String get agirCoachPulsePending =>
-      'O teu check-in mensal é a próxima ação crítica para manter a tua trajetória de previdência.';
-
-  @override
-  String agirCoachPulseWhyNow(String reason) {
-    return 'Porquê agora: $reason';
-  }
-
-  @override
-  String get agirScenarioBriefTitle => 'Cenários de reforma em resumo';
-
-  @override
-  String agirScenarioBriefSummary(
-      String years, String baseCapital, String replacement, String gapCapital) {
-    return 'Em ~$years anos, o teu cenário Base visa $baseCapital (~$replacement% de taxa de substituição).';
-  }
-
-  @override
-  String get agirScenarioBriefCta => 'Abrir a simulação completa';
-
-  @override
-  String get advisorMiniWeekOneCta => 'Lancer ma semaine 1';
-
-  @override
-  String get advisorMiniStartWithDashboard => 'Começar com o dashboard';
-
-  @override
-  String get advisorMiniCoachIntroChallenge =>
-      'Objetivo: passar da análise à ação esta semana. Começamos agora com o essencial.';
-
-  @override
   String get checkinScoreReasonStable =>
       'Pontuação estável este mês: mantém a regularidade das tuas ações.';
 
@@ -4278,242 +1515,11 @@ class SPt extends S {
   String get checkinImpactPending => 'Impacto em curso de cálculo';
 
   @override
-  String get coachDataQualityTitle => 'Qualite des donnees';
-
-  @override
-  String coachDataQualityBody(String dataPoints, String percentage) {
-    return 'Cálculo atual: $dataPoints dados introduzidos ($percentage%). Os campos não preenchidos são estimados — os teus resultados serão mais precisos com cada novo dado.';
-  }
-
-  @override
   String get coachShockTitle => 'Os teus números-chave';
 
   @override
   String get coachShockSubtitle =>
       'Montantes personalizados para esclarecer as tuas decisões';
-
-  @override
-  String get coachScenarioDecodedTitle => 'Os teus cenários decifrados';
-
-  @override
-  String get coachBadgeStatic => 'Coach';
-
-  @override
-  String get agirActionsRecommendedTitle => 'Actions recommandees';
-
-  @override
-  String get agirActionsRecommendedSubtitle => 'Triees par priorite';
-
-  @override
-  String get profileCoachKnowledgeTitle => 'O que o MINT sabe sobre ti';
-
-  @override
-  String get profileStateFull => 'Profil complet';
-
-  @override
-  String get profileStatePartial => 'Profil partiel';
-
-  @override
-  String get profileStateMissing => 'Profil non renseigne';
-
-  @override
-  String profileCoachKnowledgeSummary(String profileState, String precision,
-      String checkins, String scorePart) {
-    return '$profileState • Precisão $precision% • Check-ins: $checkins$scorePart';
-  }
-
-  @override
-  String get profileChipEntered => 'saisi';
-
-  @override
-  String get profileChipEstimated => 'estime';
-
-  @override
-  String get profileChipToComplete => 'a completer';
-
-  @override
-  String get coachNarrativeModeConcise => 'Curto';
-
-  @override
-  String get coachNarrativeModeDetailed => 'Detalhado';
-
-  @override
-  String get advisorMiniMetricsWinnerLive => 'Vencedor ao vivo';
-
-  @override
-  String get advisorMiniMetricsUplift => 'Ganho challenge vs control';
-
-  @override
-  String get advisorMiniMetricsSignal => 'Sinal';
-
-  @override
-  String get advisorMiniMetricsSignalInsufficient =>
-      'Aguardar >=10 inicios por variante';
-
-  @override
-  String get profileCoachMonthlyTitle => 'Resumo coach do mes';
-
-  @override
-  String get profileCoachMonthlyTrendInsufficient =>
-      'Ainda nao ha check-ins suficientes para uma tendencia mensal.';
-
-  @override
-  String profileCoachMonthlyTrendUp(String delta) {
-    return '+$delta pontos este mes, boa dinamica.';
-  }
-
-  @override
-  String profileCoachMonthlyTrendDown(String delta) {
-    return '-$delta pontos este mes, vamos ajustar as prioridades.';
-  }
-
-  @override
-  String get profileCoachMonthlyTrendFlat =>
-      'Pontuacao estavel este mes, mantem o ritmo.';
-
-  @override
-  String profileCoachMonthlyByokPrefix(String trend) {
-    return 'Leitura coach IA: $trend';
-  }
-
-  @override
-  String get profileCoachMonthlyActionComplete =>
-      'Proximo passo: completar o diagnostico para tornar as recomendacoes mais fiaveis.';
-
-  @override
-  String get profileCoachMonthlyActionCheckin =>
-      'Proximo passo: fazer o check-in mensal para recalibrar o plano.';
-
-  @override
-  String get profileCoachMonthlyActionAgir =>
-      'Proximo passo: executar uma acao prioritaria no Agir.';
-
-  @override
-  String get profileGuidanceTitle => 'Secao recomendada';
-
-  @override
-  String profileGuidanceBody(String section) {
-    return 'Completa agora $section para tornar o teu plano mais fiavel.';
-  }
-
-  @override
-  String profileGuidanceCta(String section) {
-    return 'Completar $section';
-  }
-
-  @override
-  String get advisorMiniMetricsLiveTitle =>
-      'Qualidade onboarding em tempo real';
-
-  @override
-  String get advisorMiniMetricsLiveStep => 'Passo atual';
-
-  @override
-  String get advisorMiniMetricsLiveQuality => 'Pontuacao de qualidade';
-
-  @override
-  String get advisorMiniMetricsLiveNext => 'Secao recomendada';
-
-  @override
-  String get coachPersonaPriorityCouple => 'Prioridade casal';
-
-  @override
-  String get coachPersonaPriorityFamily => 'Prioridade familia';
-
-  @override
-  String get coachPersonaPrioritySingleParent =>
-      'Prioridade pai/mae solteiro(a)';
-
-  @override
-  String get coachPersonaPrioritySingle => 'Prioridade pessoal';
-
-  @override
-  String get coachWizardSectionIdentity => 'Identidade e agregado';
-
-  @override
-  String get coachWizardSectionIncome => 'Rendimento e agregado';
-
-  @override
-  String get coachWizardSectionPension => 'Previdencia';
-
-  @override
-  String get coachWizardSectionProperty => 'Imobiliario e divida';
-
-  @override
-  String coachPersonaGuidanceCouple(String section) {
-    return 'Para tornar fiaveis as projecoes do agregado, completa agora $section.';
-  }
-
-  @override
-  String coachPersonaGuidanceSingleParent(String section) {
-    return 'O teu plano depende da protecao do agregado. Completa agora $section.';
-  }
-
-  @override
-  String coachPersonaGuidanceSingle(String section) {
-    return 'Para personalizar o teu plano coach, completa agora $section.';
-  }
-
-  @override
-  String coachEnrichTargetTitle(String current, String target) {
-    return 'Passar de $current% para $target% de precisao';
-  }
-
-  @override
-  String get coachEnrichBodyIdentity =>
-      'Adiciona bases de identidade/agregado para ativar calculos fiaveis desde hoje.';
-
-  @override
-  String get coachEnrichBodyIncome =>
-      'Completa rendimento e estrutura do agregado para recomendacoes realmente personalizadas.';
-
-  @override
-  String get coachEnrichBodyPension =>
-      'Adiciona AVS/LPP/3a para uma projecao de reforma acionavel.';
-
-  @override
-  String get coachEnrichBodyProperty =>
-      'Adiciona imobiliario e dividas para calibrar orcamento e risco reais.';
-
-  @override
-  String get coachEnrichBodyDefault =>
-      'O diagnostico completo demora 10 minutos e desbloqueia a tua trajetoria personalizada.';
-
-  @override
-  String get coachEnrichActionIdentity => 'Completar Identidade e agregado';
-
-  @override
-  String get coachEnrichActionIncome => 'Completar Rendimento e agregado';
-
-  @override
-  String get coachEnrichActionPension => 'Completar Previdencia';
-
-  @override
-  String get coachEnrichActionProperty => 'Completar Imobiliario e divida';
-
-  @override
-  String get coachEnrichActionDefault => 'Completar o meu diagnostico';
-
-  @override
-  String coachAgirPartialTitle(String quality) {
-    return 'Plano em construcao ($quality%)';
-  }
-
-  @override
-  String coachAgirPartialBody(String section) {
-    return 'Para ativar as tuas acoes prioritarias, completa agora $section.';
-  }
-
-  @override
-  String coachAgirPartialAction(String section) {
-    return 'Completar $section';
-  }
-
-  @override
-  String get landingTagline => 'O teu coach financeiro suíço';
-
-  @override
-  String get landingRegister => 'Registar';
 
   @override
   String get landingHeroRetirementNow1 => 'A tua reforma,';
@@ -4527,88 +1533,7 @@ class SPt extends S {
   }
 
   @override
-  String get landingHeroCountdown1Single => 'Em 1 ano,';
-
-  @override
   String get landingHeroCountdown2 => 'começa a tua reforma.';
-
-  @override
-  String get landingHeroSubtitle =>
-      'A maioria dos suíços descobre o seu défice de reforma demasiado tarde.';
-
-  @override
-  String get landingSliderAge => 'A tua idade';
-
-  @override
-  String landingSliderAgeSuffix(String age) {
-    return '$age anos';
-  }
-
-  @override
-  String get landingSliderSalary => 'O teu salário bruto';
-
-  @override
-  String landingSliderSalarySuffix(String amount) {
-    return '$amount CHF/ano';
-  }
-
-  @override
-  String get landingToday => 'Hoje';
-
-  @override
-  String get landingChfPerMonth => 'CHF/mês';
-
-  @override
-  String get landingAtRetirement => 'Na reforma*';
-
-  @override
-  String landingDropPurchasingPower(String percent) {
-    return '-$percent% de poder de compra';
-  }
-
-  @override
-  String landingLppCapNotice(String amount) {
-    return 'Acima de $amount CHF/ano, a pensão obrigatória é limitada.';
-  }
-
-  @override
-  String landingHookHigh(String amount) {
-    return 'Um défice de $amount/mês é significativo. MINT ajuda-te a perceber onde agir.';
-  }
-
-  @override
-  String get landingHookMedium =>
-      'O teu défice é gerível. MINT mostra-te as alavancas concretas (resgate LPP, 3a, reforma antecipada).';
-
-  @override
-  String get landingHookLow =>
-      'Estás em boa posição. MINT mostra-te como manter o rumo e otimizar os teus pilares.';
-
-  @override
-  String get landingWhyMint => 'Porquê MINT?';
-
-  @override
-  String get landingFeaturePillarsTitle =>
-      'Todos os teus pilares, um só painel';
-
-  @override
-  String get landingFeaturePillarsSubtitle =>
-      'AVS, LPP e 3a calculados para a tua situação real — não médias suíças.';
-
-  @override
-  String get landingFeatureCoachTitle => 'Coach adaptado à tua fase de vida';
-
-  @override
-  String get landingFeatureCoachSubtitle =>
-      '25 ou 60 anos, fronteiriço ou independente — os conselhos mudam conforme quem és.';
-
-  @override
-  String get landingFeaturePrivacyTitle =>
-      '100% privado, dados no teu dispositivo';
-
-  @override
-  String get landingFeaturePrivacySubtitle =>
-      'Sem partilha, sem publicidade. O teu perfil fica local a menos que cries uma conta.';
 
   @override
   String get landingTrustSwiss => 'Feito na Suíça';
@@ -4620,27 +1545,8 @@ class SPt extends S {
   String get landingTrustNoCommitment => 'Sem compromisso';
 
   @override
-  String get landingCtaTitle => 'O teu plano em 30 segundos';
-
-  @override
-  String get landingCtaSubtitle => '3 perguntas • Grátis • Sem compromisso';
-
-  @override
   String get landingLegalFooter =>
       '*Estimativa indicativa (1.° + 2.° pilar), baseada no salário atual como proxy de carreira. Não constitui aconselhamento financeiro nos termos da LSFin. Os teus dados ficam no teu dispositivo.';
-
-  @override
-  String get onboardingConsentTitle => 'Guardar respostas localmente';
-
-  @override
-  String get onboardingConsentBody =>
-      'MINT recolhe os teus dados financeiros unicamente para calcular as tuas projeções de previdência. Os teus dados ficam no teu dispositivo e nunca são partilhados sem o teu consentimento explícito.';
-
-  @override
-  String get onboardingConsentAllow => 'Autorizar';
-
-  @override
-  String get onboardingConsentContinueWithout => 'Continuar sem guardar';
 
   @override
   String get profileBilanTitle => 'O meu resumo financeiro';
@@ -4654,57 +1560,13 @@ class SPt extends S {
       'Completa o teu perfil para ver os teus números';
 
   @override
-  String get profileFamilyTitle => 'Família';
-
-  @override
-  String get profileHouseholdTitle => 'O nosso agregado';
-
-  @override
-  String get profileHouseholdStatus => 'Casal+';
-
-  @override
-  String get profileAiSlmTitle => 'IA on-device (SLM)';
-
-  @override
-  String get profileAiSlmReady => 'Modelo pronto';
-
-  @override
-  String get profileAiSlmNotInstalled => 'Modelo não instalado';
-
-  @override
   String get profileLanguageTitle => 'Idioma';
 
   @override
   String get profileAdminObservability => 'Admin observability';
 
   @override
-  String get profileAdminAnalytics => 'Analytics beta testers';
-
-  @override
   String get profileDeleteCloudAccount => 'Eliminar a minha conta cloud';
-
-  @override
-  String get profileDeleteCloudTitle => 'Eliminar a conta?';
-
-  @override
-  String get profileDeleteCloudBody =>
-      'Esta ação elimina a tua conta cloud e os dados associados. Os teus dados locais ficam neste dispositivo.';
-
-  @override
-  String get profileDeleteCloudConfirm => 'Eliminar';
-
-  @override
-  String get profileDeleteCloudSuccess => 'Conta eliminada com sucesso.';
-
-  @override
-  String get profileDeleteCloudError =>
-      'Eliminação não possível de momento. Tenta novamente mais tarde.';
-
-  @override
-  String get dashboardDefaultUserName => 'Tu';
-
-  @override
-  String get dashboardDefaultConjointName => 'Parceiro/a';
 
   @override
   String get dashboardGoalRetirement => 'Reforma';
@@ -4721,322 +1583,15 @@ class SPt extends S {
   String get dashboardMyData => 'Os meus dados';
 
   @override
-  String get dashboardQuickStartTitle =>
-      'Descobre a tua projeção em 30 segundos';
-
-  @override
   String get dashboardQuickStartBody =>
       '4 informações bastam para estimar o teu rendimento na reforma. Podes afinar com documentos e detalhes.';
-
-  @override
-  String get dashboardQuickStartCta => 'Começar';
-
-  @override
-  String get dashboardEnrichScanTitle => 'Digitaliza o teu certificado LPP';
-
-  @override
-  String get dashboardEnrichScanImpact => '+20 pts de precisão';
-
-  @override
-  String get dashboardEnrichCoachTitle => 'Fala com o Coach';
-
-  @override
-  String get dashboardEnrichCoachImpact => 'Responde às tuas dúvidas';
-
-  @override
-  String get dashboardEnrichSimTitle => 'Simula um cenário';
-
-  @override
-  String get dashboardEnrichSimImpact => '3a, LPP, hipoteca...';
-
-  @override
-  String get dashboardNextSteps => 'Próximos passos';
-
-  @override
-  String get dashboardEduTitle => 'O sistema de reforma suíço';
-
-  @override
-  String get dashboardEduAvs => '1.º pilar — AVS';
-
-  @override
-  String get dashboardEduAvsDesc =>
-      'Base obrigatória para todos. Financiado pelas tuas contribuições (LAVS art. 21).';
-
-  @override
-  String get dashboardEduLpp => '2.º pilar — LPP';
-
-  @override
-  String get dashboardEduLppDesc =>
-      'Previdência profissional através da tua caixa de pensões (LPP art. 14).';
-
-  @override
-  String get dashboardEdu3a => '3.º pilar — 3a';
-
-  @override
-  String get dashboardEdu3aDesc =>
-      'Poupança voluntária com dedução fiscal (OPP3 art. 7).';
 
   @override
   String get dashboardDisclaimer =>
       'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.';
 
   @override
-  String get dashboardCockpitLink => 'Cockpit detalhado';
-
-  @override
-  String dashboardImpactEstimate(String amount) {
-    return 'Impacto estimado: CHF $amount';
-  }
-
-  @override
-  String get dashboardMetricMonthlyIncome => 'Rendimento mensal';
-
-  @override
-  String get dashboardMetricChfMonth => 'CHF/mês';
-
-  @override
   String get dashboardMetricReplacementRate => 'Taxa de substituição';
-
-  @override
-  String get dashboardMetricRetirementDuration => 'Duração estimada da reforma';
-
-  @override
-  String get dashboardMetricYears => 'anos';
-
-  @override
-  String get dashboardMetricLifeExpectancy =>
-      'Esperança de vida estimada: 85 anos';
-
-  @override
-  String get dashboardMetricMonthlyGap => 'Diferença mensal';
-
-  @override
-  String get dashboardMetricVsTarget => 'Vs objetivo 70% do salário bruto';
-
-  @override
-  String get dashboardNextActionLabel => 'Melhorar a tua precisão';
-
-  @override
-  String get dashboardNextActionDetail =>
-      'Digitaliza o teu certificado LPP para afinar as tuas projeções.';
-
-  @override
-  String get dashboardWeatherSunny =>
-      'Mercados favoráveis, poupança maximizada.';
-
-  @override
-  String get dashboardWeatherPartlyCloudy =>
-      'Trajetória atual, alguns ajustes.';
-
-  @override
-  String get dashboardWeatherRainy => 'Choques de mercado ou lacunas AVS/LPP.';
-
-  @override
-  String get dashboardAgeBandYoungTitle => 'A tua alavanca principal: o 3a';
-
-  @override
-  String get dashboardAgeBandYoungSubtitle =>
-      'Cada franco investido agora trabalha 40 anos. Abrir o teu 3a demora 15 minutos.';
-
-  @override
-  String get dashboardAgeBandYoungCta => 'Simular o meu 3a';
-
-  @override
-  String get dashboardAgeBandStabTitle => '3a + proteção familiar';
-
-  @override
-  String get dashboardAgeBandStabSubtitle =>
-      'Habitação, cobertura morte/invalidez: agora é o momento de construir a arquitetura.';
-
-  @override
-  String get dashboardAgeBandStabCta => 'Ver simuladores';
-
-  @override
-  String get dashboardAgeBandPeakTitle => 'Recompra LPP + otimização fiscal';
-
-  @override
-  String get dashboardAgeBandPeakSubtitle =>
-      'Os teus rendimentos estão no pico — é a janela para reduzir a diferença na reforma.';
-
-  @override
-  String get dashboardAgeBandPeakCta => 'Simular uma recompra';
-
-  @override
-  String get dashboardAgeBandPreRetTitle =>
-      'A tua diferença de reforma em CHF/mês';
-
-  @override
-  String get dashboardAgeBandPreRetSubtitle =>
-      'Renda vs capital, reforma antecipada, recompra escalonada: as decisões aproximam-se.';
-
-  @override
-  String get dashboardAgeBandPreRetCta => 'Renda vs Capital';
-
-  @override
-  String get dashboardAgeBandRetWithdrawTitle => 'Ordem de levantamento 3a';
-
-  @override
-  String get dashboardAgeBandRetWithdrawSubtitle =>
-      'Escalonar os teus levantamentos 3a em 3–5 anos reduz significativamente o imposto conforme o cantão.';
-
-  @override
-  String get dashboardAgeBandRetWithdrawCta => 'Planear os meus levantamentos';
-
-  @override
-  String get dashboardAgeBandRetSuccessionTitle => 'Sucessão e transmissão';
-
-  @override
-  String get dashboardAgeBandRetSuccessionSubtitle =>
-      'Testamento, doação em vida, beneficiários LPP: proteger quem amas.';
-
-  @override
-  String get dashboardAgeBandRetSuccessionCta => 'Explorar';
-
-  @override
-  String get agirResetTooltip => 'Reiniciar';
-
-  @override
-  String get agirResetHistoryLabel => 'Reiniciar o meu histórico do coach';
-
-  @override
-  String get agirResetDiagnosticLabel => 'Recomeçar o meu diagnóstico';
-
-  @override
-  String get agirResetHistoryTitle => 'Reiniciar o teu histórico do coach?';
-
-  @override
-  String get agirResetHistoryMessage =>
-      'Isto elimina os teus check-ins, o histórico de pontuação e o progresso dos simuladores.';
-
-  @override
-  String get agirResetHistoryCta => 'Reiniciar';
-
-  @override
-  String get agirResetDiagnosticTitle => 'Recomeçar o teu diagnóstico?';
-
-  @override
-  String get agirResetDiagnosticMessage =>
-      'Isto elimina o teu diagnóstico atual e as tuas respostas do mini-onboarding.';
-
-  @override
-  String get agirResetDiagnosticCta => 'Recomeçar';
-
-  @override
-  String get agirHistoryResetSnackbar => 'Histórico do coach reiniciado.';
-
-  @override
-  String get agirSwipeDone => 'Feito';
-
-  @override
-  String get agirSwipeSnooze => 'Adiar 30d';
-
-  @override
-  String agirSwipeDoneSnackbar(String title) {
-    return '$title — marcado como feito';
-  }
-
-  @override
-  String agirSwipeSnoozeSnackbar(String title) {
-    return '$title — adiado 30 dias';
-  }
-
-  @override
-  String get agirDependencyDebt => 'Depois: reembolso de dívida';
-
-  @override
-  String get agirEmptyTitle => 'O teu plano de ação espera-te';
-
-  @override
-  String get agirEmptyBody =>
-      'Completa o teu diagnóstico para obteres um plano mensal personalizado baseado na tua situação real.';
-
-  @override
-  String get agirEmptyLaunchCta => 'Lançar o meu diagnóstico — 10 min';
-
-  @override
-  String get agirNoContribTitle => 'Nenhuma contribuição planeada';
-
-  @override
-  String get agirNoContribBody =>
-      'Faz o teu primeiro check-in para configurar as tuas contribuições mensais.';
-
-  @override
-  String get agirNoContribCta => 'Configurar as minhas contribuições';
-
-  @override
-  String get agirProgressTitle => 'Progresso anual';
-
-  @override
-  String agirProgressSubtitle(String year) {
-    return 'Planeado vs pago em $year';
-  }
-
-  @override
-  String get agirConfirmLabel => 'A confirmar';
-
-  @override
-  String agirVersesLabel(String amount) {
-    return '$amount pagos';
-  }
-
-  @override
-  String agirObjectifLabel(String amount) {
-    return 'Objetivo: $amount';
-  }
-
-  @override
-  String get agirPriorityImmediate => 'Prioridade imediata';
-
-  @override
-  String get agirPriorityTrimestre => 'Este trimestre';
-
-  @override
-  String get agirPriorityAnnee => 'Este ano';
-
-  @override
-  String get agirPriorityLongTerme => 'Longo prazo';
-
-  @override
-  String get agirTimelineCheckinTitle => 'Check-in mensal';
-
-  @override
-  String get agirTimelineCheckinDone =>
-      'Feito — contribuições confirmadas para este mês.';
-
-  @override
-  String get agirTimelineCheckinPending =>
-      'Confirma as tuas contribuições do mês em 2 min.';
-
-  @override
-  String get agirTimelineCheckinCta => 'Fazer o meu check-in';
-
-  @override
-  String agirTimelineRetirementTitle(String name) {
-    return 'Reforma $name (65 anos)';
-  }
-
-  @override
-  String get agirTimelineThisMonth => 'Este mês';
-
-  @override
-  String agirTimelineInMonths(String months) {
-    return 'em $months meses';
-  }
-
-  @override
-  String agirTimelineInYears(String years) {
-    return 'em $years anos';
-  }
-
-  @override
-  String get agirTimelineInOneYear => 'em 1 ano';
-
-  @override
-  String get agirPerYear => '/ano';
-
-  @override
-  String get agirCoachPulseWhyDefault =>
-      'Começa com uma ação simples para ativar a tua dinâmica.';
 
   @override
   String get checkinScoreTitle => 'A tua pontuação financeira';
@@ -5089,30 +1644,13 @@ class SPt extends S {
   String get budgetOtherFixed => 'Outras despesas fixas';
 
   @override
-  String get budgetNotProvided => '(não indicado)';
-
-  @override
   String get budgetQualityEstimated => 'estimado';
-
-  @override
-  String get budgetQualityEntered => 'inserido';
 
   @override
   String get budgetQualityMissing => 'em falta';
 
   @override
   String get budgetAvailable => 'Disponível';
-
-  @override
-  String get budgetMissingDataBanner =>
-      'Algumas despesas ainda estão em falta. Completa o teu diagnóstico para tornar este orçamento mais fiável.';
-
-  @override
-  String get budgetEstimatedDataBanner =>
-      'Este orçamento inclui estimativas (impostos/LAMal). Insere os teus montantes reais para uma projeção mais fiável.';
-
-  @override
-  String get budgetCompleteData => 'Completar os meus dados →';
 
   @override
   String get budgetEnvelopeFuture => '🔒 Futuro (Poupança, Projetos)';
@@ -5166,45 +1704,6 @@ class SPt extends S {
 
   @override
   String get budgetEmergencyFund => 'Fundo de emergência';
-
-  @override
-  String get budgetEmergencyGoalReached => 'Objetivo alcançado';
-
-  @override
-  String get budgetEmergencyOnTrack => 'No bom caminho';
-
-  @override
-  String get budgetEmergencyToReinforce => 'A reforçar';
-
-  @override
-  String budgetEmergencyMonthsCovered(String months) {
-    return '$months meses cobertos';
-  }
-
-  @override
-  String budgetEmergencyTarget(String target) {
-    return 'Objetivo: $target meses';
-  }
-
-  @override
-  String get budgetEmergencyComplete =>
-      'Estás protegido contra imprevistos. Continua assim.';
-
-  @override
-  String budgetEmergencyIncomplete(String target) {
-    return 'Poupa pelo menos $target meses de despesas para te protegeres contra imprevistos (perda de emprego, reparações...).';
-  }
-
-  @override
-  String get budgetDisclaimerTitle => 'IMPORTANTE:';
-
-  @override
-  String get budgetDisclaimerEducational =>
-      '• Esta é uma ferramenta educativa, não aconselhamento financeiro (LSFin).';
-
-  @override
-  String get budgetDisclaimerDeclarative =>
-      '• Os montantes baseiam-se nas informações declaradas.';
 
   @override
   String get budgetDisclaimerFormula =>
@@ -5797,9 +2296,6 @@ class SPt extends S {
   String get mariageFiscalComparison => 'COMPARAÇÃO FISCAL';
 
   @override
-  String get mariageTwoCelibataires => '2 solteiros';
-
-  @override
   String get mariageMaries => 'Casados';
 
   @override
@@ -5945,9 +2441,6 @@ class SPt extends S {
   String get divorceAppBarTitle => 'Divórcio — Impacto financeiro';
 
   @override
-  String get divorceHeaderTitle => 'Impacto financeiro de um divórcio';
-
-  @override
   String get divorceHeaderSubtitle => 'Antecipa as consequências financeiras';
 
   @override
@@ -6002,19 +2495,6 @@ class SPt extends S {
   @override
   String get divorceEduLppContent =>
       'Desde 1 de janeiro de 2017 (CC art. 122), os haveres de previdência profissional (2° pilar) acumulados durante o casamento são partilhados em partes iguais em caso de divórcio. A partilha é feita diretamente entre as duas caixas de pensões, sem passar pelas contas pessoais dos cônjuges. É um direito imperativo ao qual os cônjuges só podem renunciar sob condições estritas.';
-
-  @override
-  String get successionAppBarTitle => 'Sucessão — Planeamento';
-
-  @override
-  String get successionHeaderTitle => 'Planear a minha sucessão';
-
-  @override
-  String get successionHeaderSubtitle => 'Novo direito sucessório 2023';
-
-  @override
-  String get successionIntroText =>
-      'O novo direito sucessório (2023) alargou a quota disponível. Agora tens mais liberdade para favorecer certos herdeiros. Esta ferramenta mostra-te a distribuição legal e o impacto de um testamento.';
 
   @override
   String get donationAppBarTitle => 'Doação — Simulador';
@@ -6426,51 +2906,6 @@ class SPt extends S {
   String get jobCompareNewLabel => 'Novo';
 
   @override
-  String get disabilityGapParamsTitle => 'Os teus parâmetros';
-
-  @override
-  String get disabilityGapParamsSubtitle => 'Ajusta à tua situação';
-
-  @override
-  String get disabilityGapIncomeLabel => 'Rendimento mensal líquido';
-
-  @override
-  String get disabilityGapCantonLabel => 'Cantão';
-
-  @override
-  String get disabilityGapStatusLabel => 'Estatuto profissional';
-
-  @override
-  String get disabilityGapEmployee => 'Assalariado';
-
-  @override
-  String get disabilityGapSelfEmployed => 'Indep.';
-
-  @override
-  String get disabilityGapSeniorityLabel => 'Anos de antiguidade';
-
-  @override
-  String get disabilityGapIjmLabel => 'IJM coletiva através do meu empregador';
-
-  @override
-  String get disabilityGapDegreeLabel => 'Grau de invalidez';
-
-  @override
-  String get disabilityGapChartTitle => 'Evolução da tua cobertura';
-
-  @override
-  String get disabilityGapChartSubtitle => 'As 3 fases de proteção';
-
-  @override
-  String get disabilityGapCurrentIncome => 'Rendimento atual';
-
-  @override
-  String get disabilityGapMaxGap => 'GAP MENSAL MÁXIMO';
-
-  @override
-  String get disabilityGapPhaseDetail => 'DETALHE DAS FASES';
-
-  @override
   String get disabilityGapPhase1Title => 'Fase 1: Empregador';
 
   @override
@@ -6478,49 +2913,6 @@ class SPt extends S {
 
   @override
   String get disabilityGapPhase3Title => 'Fase 3: AI + LPP';
-
-  @override
-  String get disabilityGapDurationLabel => 'Duração:';
-
-  @override
-  String get disabilityGapCoverageLabel => 'Cobertura:';
-
-  @override
-  String get disabilityGapLegalLabel => 'Fonte legal:';
-
-  @override
-  String get disabilityGapIfYouAre => 'SE ÉS...';
-
-  @override
-  String get disabilityGapEduTitle => 'COMPREENDER';
-
-  @override
-  String get disabilityGapEduIjmTitle => 'IJM vs AI: qual a diferença?';
-
-  @override
-  String get disabilityGapEduIjmBody =>
-      'A IJM (indemnização diária de doença) é um seguro que cobre 80% do teu salário durante máx. 720 dias em caso de doença. O empregador não é obrigado a subscrevê-la, mas muitos fazem-no através de um seguro coletivo. Sem IJM, após o período legal de manutenção do salário, não recebes mais nada até à eventual renda AI.';
-
-  @override
-  String get disabilityGapEduCoTitle =>
-      'A obrigação do teu empregador (CO art. 324a)';
-
-  @override
-  String get disabilityGapEduCoBody =>
-      'Segundo o art. 324a CO, o empregador deve pagar o salário durante um período limitado em caso de doença. Esta duração depende dos anos de serviço e da escala cantonal aplicável (bernesa, zuriquesa ou basileia). Após este período, apenas a IJM (se existente) toma o lugar.';
-
-  @override
-  String get successionIntroDesc =>
-      'O novo direito sucessório (2023) alargou a quota disponível. Agora tens mais liberdade para favorecer certos herdeiros. Esta ferramenta mostra-te a distribuição legal e o impacto de um testamento.';
-
-  @override
-  String get successionSimulateButton => 'Simular';
-
-  @override
-  String get successionLegalDistribution => 'DISTRIBUIÇÃO LEGAL';
-
-  @override
-  String get successionTestamentDistribution => 'DISTRIBUIÇÃO COM TESTAMENTO';
 
   @override
   String get successionReservesTitle => 'Reservas hereditárias';
@@ -6532,48 +2924,7 @@ class SPt extends S {
   String get successionQuotiteTitle => 'Porção disponível';
 
   @override
-  String get successionQuotiteDesc =>
-      'Este montante pode ser livremente atribuído por testamento à pessoa da tua escolha.';
-
-  @override
-  String get successionBeneficiaries3aTitle => 'BENEFICIÁRIOS 3a (OPP3 ART. 2)';
-
-  @override
-  String get successionBeneficiaries3aDesc =>
-      'O 3.º pilar NÃO segue o teu testamento. A ordem de beneficiários é fixada por lei:';
-
-  @override
   String get successionChecklistTitle => 'Checklist proteção patrimonial';
-
-  @override
-  String get successionTotalTax => 'Total imposto sucessório';
-
-  @override
-  String get successionTestamentSwitch => 'Tenho um testamento';
-
-  @override
-  String get successionBeneficiaryQuestion => 'Quem recebe a quota disponível?';
-
-  @override
-  String get successionCivilStatusLabel => 'Estado civil';
-
-  @override
-  String get successionFortuneLabel => 'Fortuna total';
-
-  @override
-  String get successionAvoirs3aLabel => 'Haveres 3a';
-
-  @override
-  String get successionDeathCapitalLabel => 'Capital de morte LPP';
-
-  @override
-  String get successionChildrenLabel => 'Número de filhos';
-
-  @override
-  String get successionParentsAlive => 'Pais vivos';
-
-  @override
-  String get successionSiblings => 'Irmãos (irmãos/irmãs)';
 
   @override
   String get mariageProtectionItem1 =>
@@ -6652,10 +3003,6 @@ class SPt extends S {
   }
 
   @override
-  String get mariageRepartitionDissolution =>
-      'REPARTIÇÃO EM CASO DE DISSOLUÇÃO';
-
-  @override
   String get mariagePersonne1Recoit => 'Pessoa 1 recebe';
 
   @override
@@ -6668,35 +3015,13 @@ class SPt extends S {
   String get mariagePersonne2Garde => 'Pessoa 2 mantém';
 
   @override
-  String get successionSituationTitle => 'SITUAÇÃO PESSOAL';
-
-  @override
   String get successionSituationSubtitle2 => 'Estado civil, herdeiros';
-
-  @override
-  String get successionFortuneTitle => 'PATRIMÔNIO';
 
   @override
   String get successionFortuneSubtitle2 => 'Património total, 3a, LPP';
 
   @override
   String get successionTestamentTitle => 'Testamento';
-
-  @override
-  String get successionTestamentSubtitle2 => 'Vontades testamentárias';
-
-  @override
-  String successionQuotitePct(String pct) {
-    return 'ou seja, $pct% da sucessão';
-  }
-
-  @override
-  String get successionExonereLabel => 'Isento';
-
-  @override
-  String successionFiscaliteCanton(String canton) {
-    return 'FISCALIDADE SUCESSÓRIA ($canton)';
-  }
 
   @override
   String get successionEduQuotiteBody2 =>
@@ -6709,10 +3034,6 @@ class SPt extends S {
   @override
   String get successionEduConcubinBody2 =>
       'No direito suíço, os concubinos NÃO têm direitos sucessórios legais. Sem testamento, um concubino não recebe nada. Além disso, o imposto sucessório para concubinos é geralmente muito mais alto do que para cônjuges (frequentemente 20-25% em vez de 0%). Para proteger o teu parceiro, é essencial redigir um testamento, verificar as cláusulas de beneficiários 3a/LPP e considerar seguros de vida.';
-
-  @override
-  String get successionDisclaimerText =>
-      'Os resultados apresentados são estimativas indicativas e não constituem aconselhamento jurídico ou notarial personalizado. O direito sucessório tem muitas subtilezas. Consulte um notário ou advogado especializado antes de tomar qualquer decisão.';
 
   @override
   String get donationIntroText =>
@@ -6831,10 +3152,6 @@ class SPt extends S {
   @override
   String get donationEduConcubinBody =>
       'Os concubinos não têm direitos sucessórios legais na Suíça. Uma doação é a forma mais direta de os favorecer. No entanto, o imposto cantonal sobre doações entre concubinos é geralmente elevado (18-25% conforme o cantão). Schwyz é a exceção: sem imposto sobre doações. Considerar um testamento complementar para proteção completa.';
-
-  @override
-  String get donationDisclaimer =>
-      'Esta ferramenta educativa fornece estimativas indicativas e não constitui aconselhamento jurídico, fiscal ou notarial personalizado nos termos da LSFin. Consulta um especialista (notário) para a tua situação.';
 
   @override
   String get donationCanton => 'Cantão';
@@ -6995,10 +3312,6 @@ class SPt extends S {
       'Se utilizaste fundos de previdência (EPL) para a compra da tua residência principal, deves reembolsá-los na venda (LPP art. 30d). Este reembolso é obrigatório e é feito ao teu fundo de pensões (LPP) e/ou à tua fundação 3a. O montante está inscrito no registo predial e não pode ser evitado.';
 
   @override
-  String get housingSaleDisclaimer =>
-      'Esta ferramenta educativa fornece estimativas indicativas e não constitui aconselhamento fiscal, jurídico ou imobiliário personalizado nos termos da LSFin. Consulta um especialista para a tua situação pessoal.';
-
-  @override
   String get housingSaleCanton => 'Cantão';
 
   @override
@@ -7102,115 +3415,18 @@ class SPt extends S {
   String get independantCost3a => 'Pilar 3a (máx.)';
 
   @override
-  String disabilityGapSeniorityYears(String years) {
-    return '$years anos';
-  }
-
-  @override
   String disabilityGapPhase1Duration(String weeks) {
     return '$weeks semanas';
   }
 
   @override
-  String get disabilityGapPhase1Full => '100% do salário';
-
-  @override
-  String get disabilityGapNoCoverage => 'Sem cobertura';
-
-  @override
-  String get disabilityGapNone => 'Nenhuma';
-
-  @override
   String get disabilityGapPhase2Duration => 'Até 24 meses';
-
-  @override
-  String disabilityGapPhase2Coverage(String amount) {
-    return '80% do salário ($amount CHF/mês)';
-  }
-
-  @override
-  String get disabilityGapCollectiveInsurance => 'Seguro coletivo';
-
-  @override
-  String get disabilityGapNotSubscribed => 'Não subscrito';
 
   @override
   String get disabilityGapPhase3Duration => 'Após 24 meses';
 
   @override
-  String get disabilityGapActionSelfIjm => 'Subscreve um IJM individual';
-
-  @override
-  String get disabilityGapActionSelfIjmSub =>
-      'Prioridade absoluta para independentes';
-
-  @override
-  String get disabilityGapActionCheckHr =>
-      'Verifica com o teu RH a tua cobertura de doença';
-
-  @override
-  String get disabilityGapActionCheckHrSub =>
-      'Pergunta se existe um IJM coletivo';
-
-  @override
-  String get disabilityGapActionConditions =>
-      'Pede as condições exatas do teu IJM';
-
-  @override
-  String get disabilityGapActionConditionsSub =>
-      'Período de espera, duração, taxa de cobertura';
-
-  @override
-  String get successionMarried => 'Casado/a';
-
-  @override
-  String get successionSingle => 'Solteiro/a';
-
-  @override
-  String get successionDivorced => 'Divorciado/a';
-
-  @override
-  String get successionWidowed => 'Viúvo/a';
-
-  @override
-  String get successionConcubinage => 'Concubinato';
-
-  @override
-  String get successionConjoint => 'Cônjuge';
-
-  @override
-  String get successionChildren => 'Filhos';
-
-  @override
-  String get successionThirdParty => 'Terceiros / Obra';
-
-  @override
-  String get successionQuotiteFreedom =>
-      'Este montante pode ser livremente atribuído por testamento à pessoa da tua escolha.';
-
-  @override
-  String get successionFiscalTitle => 'FISCALIDADE SUCESSÓRIA';
-
-  @override
-  String get successionExempt => 'Isento';
-
-  @override
-  String get successionEduQuotiteTitle => 'O que é a quota disponível?';
-
-  @override
-  String get successionEdu3aTitle => 'O 3a e a sucessão: atenção!';
-
-  @override
-  String get successionEduConcubinTitle => 'Os concubinos e a sucessão';
-
-  @override
-  String get successionCantonLabel => 'Cantão';
-
-  @override
   String get debtCheckTitle => 'Check-up de Saúde Financeira';
-
-  @override
-  String get debtCheckExportTooltip => 'Exportar meu relatório';
 
   @override
   String get debtCheckSectionDaily => 'Gestão diária';
@@ -7380,9 +3596,6 @@ class SPt extends S {
 
   @override
   String get affordabilityEquityRatio => 'Capitais próprios / preço';
-
-  @override
-  String get affordabilityOk => 'OK';
 
   @override
   String get affordabilityExceeded => 'Excedido';
@@ -7968,51 +4181,6 @@ class SPt extends S {
   String get naissanceBabyCostDivers => 'Diversos (brinquedos, higiene…)';
 
   @override
-  String get waterfallBrutMensuel => 'Brut mensuel';
-
-  @override
-  String get waterfallAvsAc => 'AVS / AC';
-
-  @override
-  String get waterfallLppEmploye => 'LPP employé';
-
-  @override
-  String get waterfallNetFicheDePaie => 'Recibo líquido';
-
-  @override
-  String get waterfallImpots => 'Impôts';
-
-  @override
-  String get waterfallDisponible => 'Disponible';
-
-  @override
-  String get waterfallLoyer => 'Loyer';
-
-  @override
-  String get waterfallLamal => 'LAMal';
-
-  @override
-  String get waterfallLeasing => 'Leasing';
-
-  @override
-  String get waterfallAutresFixes => 'Autres fixes';
-
-  @override
-  String get waterfallResteAVivre => 'Reste à vivre';
-
-  @override
-  String get waterfallPillar3a => '3a';
-
-  @override
-  String get waterfallInvestissement => 'Investissement';
-
-  @override
-  String get waterfallMargeLibre => 'Marge libre';
-
-  @override
-  String get waterfallTitle => 'Cascata orçamental';
-
-  @override
   String get narrativeDefaultName => 'Tu';
 
   @override
@@ -8281,108 +4449,7 @@ class SPt extends S {
   String get financialSummaryRestartDiagnostic => 'Reiniciar o diagnóstico';
 
   @override
-  String get financialSummaryNarrativeFiscalite =>
-      'A otimização fiscal é a tua primeira alavanca: 3a, resgate LPP, deduções.';
-
-  @override
-  String get financialSummaryNarrativePrevoyance =>
-      'A tua previdência determina o teu conforto na reforma. Cada ano conta.';
-
-  @override
-  String get financialSummaryNarrativeAvs =>
-      'O AVS é a base da tua reforma. Verifica as tuas lacunas de contribuição.';
-
-  @override
-  String get financialSummaryLegendSaisi => 'Inserido';
-
-  @override
-  String get financialSummaryLegendEstime => 'Estimado';
-
-  @override
-  String get financialSummaryLegendCertifie => 'Certificado';
-
-  @override
-  String get financialSummarySalaireBrutMensuel => 'Salário bruto mensal';
-
-  @override
-  String get financialSummary13emeSalaire => '13.º salário';
-
-  @override
-  String financialSummaryNemeMois(String n) {
-    return '$n.º mês';
-  }
-
-  @override
-  String financialSummaryBonusEstime(String pct) {
-    return 'Bónus estimado ($pct%)';
-  }
-
-  @override
-  String financialSummaryConjointBrutMensuel(String name) {
-    return '$name — bruto mensal';
-  }
-
-  @override
   String get financialSummaryDefaultConjoint => 'Cônjuge';
-
-  @override
-  String get financialSummaryRevenuBrutAnnuel => 'Rendimento bruto anual';
-
-  @override
-  String get financialSummaryRevenuBrutAnnuelCouple =>
-      'Rendimento bruto anual (casal)';
-
-  @override
-  String get financialSummarySoitLisseSur12Mois => 'distribuído em 12 meses';
-
-  @override
-  String get financialSummaryDeductionsSalariales => 'Deduções salariais';
-
-  @override
-  String get financialSummaryChargesSociales => 'Encargos sociais (AVS/AI/AC)';
-
-  @override
-  String get financialSummaryCotisationLpp => 'Contribuição LPP empregado·a';
-
-  @override
-  String get financialSummaryNetFicheDePaie => 'Líquido recibo de vencimento';
-
-  @override
-  String get financialSummaryNetFicheDePaieHint =>
-      'O que chega à tua conta todos os meses';
-
-  @override
-  String get financialSummaryFiscalite => 'Fiscalidade';
-
-  @override
-  String get financialSummaryImpotEstime => 'Imposto estimado (ICC + IFD)';
-
-  @override
-  String get financialSummaryTauxMarginalEstime => 'Taxa marginal estimada';
-
-  @override
-  String financialSummary13emeEtBonusHint(String label, String montant) {
-    return '$label: ~$montant líquido/ano (não incluído no mensal)';
-  }
-
-  @override
-  String get financialSummaryRevenusEtFiscalite => 'Rendimentos e Fiscalidade';
-
-  @override
-  String get financialSummaryDisponibleApresImpot => 'Disponível após impostos';
-
-  @override
-  String get financialSummaryFootnoteRevenus =>
-      'Estimativa simplificada. A AANP e a IJM variam consoante o empregador e não estão incluídas. A LPP empregado reflete o mínimo legal (50/50) — a tua caixa pode aplicar outra repartição.';
-
-  @override
-  String get financialSummaryScanFicheSalaire => 'Digitalizar o meu recibo';
-
-  @override
-  String get financialSummaryModifierRevenu => 'Modificar rendimento';
-
-  @override
-  String get financialSummaryEditSalaireBrut => 'Salário bruto mensal (CHF)';
 
   @override
   String get financialSummaryAvs1erPilier => 'AVS (1.º pilar)';
@@ -8456,13 +4523,6 @@ class SPt extends S {
       '⚠️ FATCA — Apenas uma minoria de fornecedores aceita (ex. Raiffeisen)';
 
   @override
-  String get financialSummaryPrevoyanceTitle => 'Previdência';
-
-  @override
-  String get financialSummaryScanCertificatLpp =>
-      'Digitalizar certificado LPP / AVS';
-
-  @override
   String get financialSummaryModifierPrevoyance => 'Modificar previdência';
 
   @override
@@ -8519,14 +4579,6 @@ class SPt extends S {
   String get financialSummaryPrevoyanceCapital => 'Previdência (capital)';
 
   @override
-  String get financialSummaryAvoirLppTotal => 'Ativos LPP totais';
-
-  @override
-  String financialSummaryCapital3a(String n, String s) {
-    return 'Capital 3a ($n conta$s)';
-  }
-
-  @override
   String get financialSummaryPatrimoineBrut => 'Património bruto';
 
   @override
@@ -8547,66 +4599,6 @@ class SPt extends S {
 
   @override
   String get financialSummaryEditInvestissements => 'Investimentos (CHF)';
-
-  @override
-  String get financialSummaryEditValeurImmobiliere => 'Valor imobiliário (CHF)';
-
-  @override
-  String get financialSummaryLoyerCharges => 'Renda / encargos';
-
-  @override
-  String get financialSummaryAssuranceMaladie => 'Seguro de saúde';
-
-  @override
-  String get financialSummaryElectriciteEnergie => 'Eletricidade / energia';
-
-  @override
-  String get financialSummaryTransport => 'Transporte';
-
-  @override
-  String get financialSummaryTelecom => 'Telecomunicações';
-
-  @override
-  String get financialSummaryFraisMedicaux => 'Despesas médicas';
-
-  @override
-  String get financialSummaryAutresFraisFixes => 'Outras despesas fixas';
-
-  @override
-  String get financialSummaryAucuneDepense => 'Nenhuma despesa registada';
-
-  @override
-  String get financialSummaryDepensesFixes => 'Despesas fixas';
-
-  @override
-  String get financialSummaryTotalMensuel => 'Total mensal';
-
-  @override
-  String get financialSummaryModifierDepenses => 'Modificar despesas';
-
-  @override
-  String get financialSummaryEditLoyerCharges => 'Renda / encargos (CHF/mês)';
-
-  @override
-  String get financialSummaryEditAssuranceMaladie =>
-      'Seguro de saúde (CHF/mês)';
-
-  @override
-  String get financialSummaryEditElectricite =>
-      'Eletricidade / energia (CHF/mês)';
-
-  @override
-  String get financialSummaryEditTransport => 'Transporte (CHF/mês)';
-
-  @override
-  String get financialSummaryEditTelecom => 'Telecomunicações (CHF/mês)';
-
-  @override
-  String get financialSummaryEditFraisMedicaux => 'Despesas médicas (CHF/mês)';
-
-  @override
-  String get financialSummaryEditAutresFraisFixes =>
-      'Outras despesas fixas (CHF/mês)';
 
   @override
   String get financialSummaryModifierDettes => 'Modificar dívidas';
@@ -8680,16 +4672,7 @@ class SPt extends S {
   String get financialSummaryTotalDettes => 'Dívidas totais';
 
   @override
-  String get financialSummaryScannerDocument => 'Digitalizar um documento';
-
-  @override
-  String get financialSummaryCascadeBudgetaire => 'Cascata orçamental';
-
-  @override
   String get financialSummaryToi => 'Tu';
-
-  @override
-  String get financialSummaryConjointeDefault => 'Cônjuge';
 
   @override
   String get financialSummaryDisclaimer =>
@@ -8697,60 +4680,6 @@ class SPt extends S {
 
   @override
   String get financialSummaryEnregistrer => 'Guardar';
-
-  @override
-  String get financialSummaryCheckSalaireBrut => 'Salário bruto';
-
-  @override
-  String get financialSummaryCheckCanton => 'Cantão';
-
-  @override
-  String get financialSummaryCheckAvoirLpp => 'Ativos LPP';
-
-  @override
-  String get financialSummaryCheckEpargne3a => 'Poupança 3a';
-
-  @override
-  String get financialSummaryCheckEpargneLiquide => 'Poupança líquida';
-
-  @override
-  String get financialSummaryCheckLoyerHypotheque => 'Renda / hipoteca';
-
-  @override
-  String get financialSummaryCheckAssuranceMaladie => 'Seguro de saúde';
-
-  @override
-  String get financialSummaryWhatIf3aQuestion =>
-      'E se maximizasses o teu 3a todos os anos?';
-
-  @override
-  String get financialSummaryWhatIf3aExplanation =>
-      'Na tua taxa marginal, cada franco depositado em 3a poupa-te ~30% de impostos.';
-
-  @override
-  String get financialSummaryWhatIf3aAction => 'Simular';
-
-  @override
-  String get financialSummaryWhatIfLppQuestion =>
-      'E se a tua caixa LPP passasse de 1% a 3%?';
-
-  @override
-  String get financialSummaryWhatIfLppExplanation =>
-      'Um melhor rendimento LPP aumenta o teu capital de reforma sem esforço.';
-
-  @override
-  String get financialSummaryWhatIfLppAction => 'Comparar';
-
-  @override
-  String get financialSummaryWhatIfAchatQuestion =>
-      'E se comprasses em vez de arrendar?';
-
-  @override
-  String get financialSummaryWhatIfAchatExplanation =>
-      'A amortização indireta pelo 2.º pilar pode reduzir impostos e construir património.';
-
-  @override
-  String get financialSummaryWhatIfAchatAction => 'Explorar';
 
   @override
   String get dataQualityTitle => 'Qualidade dos dados';
@@ -8790,72 +4719,9 @@ class SPt extends S {
   }
 
   @override
-  String get confidenceLabelSalaire => 'Salário bruto';
-
-  @override
-  String get confidenceLabelAgeCanton => 'Idade / Cantão';
-
-  @override
-  String get confidenceLabelAge => 'Idade';
-
-  @override
-  String get confidenceLabelCanton => 'Cantão';
-
-  @override
-  String get confidenceLabelMenage => 'Situação do agregado';
-
-  @override
-  String get confidenceLabelAvoirLpp => 'Ativos LPP';
-
-  @override
-  String get confidenceLabelTauxConversion => 'Taxa de conversão';
-
-  @override
-  String get confidenceLabelAnneesAvs => 'Anos AVS';
-
-  @override
-  String get confidenceLabelEpargne3a => 'Poupança 3a';
-
-  @override
-  String get confidenceLabelPatrimoine => 'Património';
-
-  @override
-  String get confidencePromptFreshnessPrefix => 'Atualiza: ';
-
-  @override
-  String confidencePromptFreshnessStale(String months) {
-    return 'Dados de $months meses atrás — rescaneie o seu certificado';
-  }
-
-  @override
-  String get confidencePromptFreshnessConfirm =>
-      'Confirma que este valor ainda é atual';
-
-  @override
-  String get confidencePromptAccuracyPrefix => 'Confirma: ';
-
-  @override
-  String get confidencePromptAccuracyEstimated => 'Insere o teu valor real';
-
-  @override
-  String get confidencePromptAccuracyCertificate =>
-      'Digitaliza o teu certificado para confirmar';
-
-  @override
-  String get pulseTitle => 'Hoje';
-
-  @override
   String pulseGreeting(String name) {
     return 'Olá $name';
   }
-
-  @override
-  String pulseGreetingCouple(String name1, String name2) {
-    return 'Olá $name1 e $name2';
-  }
-
-  @override
-  String get pulseWelcome => 'Vamos ver onde estás.';
 
   @override
   String get pulseEmptyTitle => 'Começa por preencher o teu perfil!';
@@ -8869,13 +4735,6 @@ class SPt extends S {
 
   @override
   String get pulseVisibilityTitle => 'Visibilidade financeira';
-
-  @override
-  String get pulsePrioritiesTitle => 'As tuas prioridades';
-
-  @override
-  String get pulsePrioritiesSubtitle =>
-      'Ações personalizadas com base no teu perfil';
 
   @override
   String get pulseComprendreTitle => 'Compreender';
@@ -8921,192 +4780,15 @@ class SPt extends S {
       'Ferramenta educativa. Não constitui aconselhamento financeiro personalizado. LSFin art. 3';
 
   @override
-  String get pulseKeyFigRetraite => 'Reforma estimada';
-
-  @override
-  String pulseKeyFigRetraitePct(String pct) {
-    return '$pct % do rendimento';
-  }
-
-  @override
   String get pulseKeyFigBudgetLibre => 'Orçamento livre';
 
   @override
   String get pulseKeyFigPatrimoine => 'Património';
 
   @override
-  String pulseAmountPerMonth(String amount) {
-    return '$amount/mês';
-  }
-
-  @override
-  String pulseCoupleRetraite(String montant) {
-    return 'Reforma casal: $montant';
-  }
-
-  @override
   String pulseCoupleAlertWeak(String name, String score) {
     return 'O perfil de $name está a $score % de visibilidade';
   }
-
-  @override
-  String get pulseAxisLiquidite => 'Liquidez';
-
-  @override
-  String get pulseAxisFiscalite => 'Fiscalidade';
-
-  @override
-  String get pulseAxisRetraite => 'Reforma';
-
-  @override
-  String get pulseAxisSecurite => 'Segurança';
-
-  @override
-  String get pulseHintAddSalary => 'Adiciona o teu salário para começar';
-
-  @override
-  String get pulseHintAddSavings =>
-      'Introduz as tuas poupanças e investimentos';
-
-  @override
-  String get pulseHintLiquiditeComplete =>
-      'Os teus dados de liquidez estão completos';
-
-  @override
-  String get pulseHintAddAgeCanton =>
-      'Indica a tua idade e cantão de residência';
-
-  @override
-  String get pulseHintScanTax => 'Digitaliza a tua declaração fiscal';
-
-  @override
-  String get pulseHintFiscaliteComplete =>
-      'Os teus dados fiscais estão completos';
-
-  @override
-  String get pulseHintAddLpp => 'Adiciona o teu certificado LPP';
-
-  @override
-  String get pulseHintExtractAvs => 'Solicita o teu extrato AVS';
-
-  @override
-  String get pulseHintAdd3a => 'Introduz as tuas contas 3a';
-
-  @override
-  String get pulseHintRetraiteComplete =>
-      'Os teus dados de reforma estão completos';
-
-  @override
-  String get pulseHintAddFamily => 'Indica a tua situação familiar';
-
-  @override
-  String get pulseHintAddStatus => 'Completa o teu estatuto profissional';
-
-  @override
-  String get pulseHintSecuriteComplete =>
-      'Os teus dados de segurança estão completos';
-
-  @override
-  String get pulseNarrativeExcellent =>
-      'Tens uma visão clara da tua situação. Continua a manter os teus dados atualizados.';
-
-  @override
-  String pulseNarrativeGood(String axis) {
-    return 'Boa visibilidade! Refina a tua $axis para ir mais longe.';
-  }
-
-  @override
-  String pulseNarrativeModerate(String axis) {
-    return 'Começas a ver com mais clareza. Concentra-te na tua $axis.';
-  }
-
-  @override
-  String pulseNarrativeWeak(String hint) {
-    return 'Cada informação conta. Começa por $hint.';
-  }
-
-  @override
-  String get pulseNoCheckinMsg =>
-      'Sem check-in este mês. Regista os teus pagamentos para acompanhar o teu progresso.';
-
-  @override
-  String get pulseCheckinBtn => 'Check-in';
-
-  @override
-  String pulseBriefingTitle(String trend) {
-    return 'Balanço do mês — $trend';
-  }
-
-  @override
-  String get pulseFriLiquidite => 'Liquidez';
-
-  @override
-  String get pulseFriFiscalite => 'Otimização fiscal';
-
-  @override
-  String get pulseFriRetraite => 'Reforma';
-
-  @override
-  String get pulseFriRisque => 'Riscos estruturais';
-
-  @override
-  String get pulseFriTitle => 'Solidez financeira';
-
-  @override
-  String pulseFriWeakest(String axis) {
-    return 'Ponto mais frágil: $axis';
-  }
-
-  @override
-  String get lppBuybackAdvTitle => 'Otimização de resgate LPP';
-
-  @override
-  String get lppBuybackAdvSubtitle =>
-      'Alavancagem fiscal + efeito de capitalização';
-
-  @override
-  String get lppBuybackAdvPotential => 'Potencial de resgate';
-
-  @override
-  String get lppBuybackAdvYears => 'Anos até à reforma';
-
-  @override
-  String get lppBuybackAdvStaggering => 'Escalonamento';
-
-  @override
-  String get lppBuybackAdvFundRate => 'Taxa do fundo LPP';
-
-  @override
-  String get lppBuybackAdvIncome => 'Rendimento tributável';
-
-  @override
-  String get lppBuybackAdvFinalCapital => 'Valor final capitalizado';
-
-  @override
-  String lppBuybackAdvRealReturn(String pct) {
-    return 'Rendimento real: $pct % / ano';
-  }
-
-  @override
-  String get lppBuybackAdvTaxSaving => 'Poupança fiscal';
-
-  @override
-  String get lppBuybackAdvNetEffort => 'Esforço líquido';
-
-  @override
-  String get lppBuybackAdvTotalGain => 'Ganho total da operação';
-
-  @override
-  String get lppBuybackAdvCapitalMinusEffort => 'Capital - Esforço líquido';
-
-  @override
-  String get lppBuybackAdvFundRateLabel => 'Taxa LPP aplicada';
-
-  @override
-  String get lppBuybackAdvLeverageEffect => 'Efeito de alavancagem fiscal';
-
-  @override
-  String get lppBuybackAdvBonASavoir => 'Bom saber';
 
   @override
   String get lppBuybackAdvBon1 =>
@@ -9119,10 +4801,6 @@ class SPt extends S {
   @override
   String get lppBuybackAdvBon3 =>
       'Atenção: qualquer levantamento EPL fica bloqueado durante 3 anos após um resgate (LPP art. 79b al. 3).';
-
-  @override
-  String get lppBuybackAdvDisclaimer =>
-      'Simulação incluindo juros do fundo e poupança fiscal suavizada. O rendimento real é calculado sobre o teu esforço líquido real.';
 
   @override
   String get householdTitle => 'A nossa Família';
@@ -9172,9 +4850,6 @@ class SPt extends S {
 
   @override
   String get householdHaveCode => 'Tenho um código de convite';
-
-  @override
-  String get householdCouplePlusTitle => 'Couple+';
 
   @override
   String get householdUpsellDescription =>
@@ -9511,9 +5186,6 @@ class SPt extends S {
   String get landingPunchline2 => 'Se o compreenderes.';
 
   @override
-  String get landingCtaComprendre => 'Compreender';
-
-  @override
   String get landingJargon1 => 'Dedução de coordenação';
 
   @override
@@ -9544,141 +5216,11 @@ class SPt extends S {
   String get landingClear5 => 'O imposto quando compras';
 
   @override
-  String get landingWhyNobody => 'O que não entendes custa-te. Todos os anos.';
-
-  @override
-  String get landingMintDoesIt => 'MINT fá-lo.';
-
-  @override
   String get landingCtaCommencer => 'Começar';
 
   @override
   String get landingLegalFooterShort =>
       'Ferramenta educativa. Não constitui aconselhamento financeiro (LSFin). Dados no teu dispositivo.';
-
-  @override
-  String pulseDigitalTwinPct(String pct) {
-    return 'Gémeo digital: $pct%';
-  }
-
-  @override
-  String get pulseDigitalTwinHint =>
-      'Quanto mais completo o teu perfil, mais fiáveis as projeções.';
-
-  @override
-  String get pulseActionsThisMonth => 'Para fazer este mês';
-
-  @override
-  String get pulseHeroChangeBtn => 'Mudar';
-
-  @override
-  String get pulseCoachInsightTitle => 'A análise do coach';
-
-  @override
-  String get pulseRefineProfile => 'Refinar meu perfil';
-
-  @override
-  String get pulseWhatIf3aQuestion => 'E se contribuísses o máximo no 3a?';
-
-  @override
-  String pulseWhatIf3aImpact(String amount) {
-    return '−CHF $amount/ano de impostos';
-  }
-
-  @override
-  String get pulseWhatIfLppQuestion => 'E se fizesses um resgate LPP?';
-
-  @override
-  String pulseWhatIfLppImpact(String amount) {
-    return 'Até −CHF $amount de impostos';
-  }
-
-  @override
-  String get pulseWhatIfEarlyQuestion => 'E se te reformasses 1 ano mais cedo?';
-
-  @override
-  String pulseWhatIfEarlyImpact(String amount) {
-    return '−CHF $amount/mês de pensão';
-  }
-
-  @override
-  String get pulseActionSignalSingular => '1 ação a fazer';
-
-  @override
-  String pulseActionSignalPlural(String count) {
-    return '$count ações a fazer';
-  }
-
-  @override
-  String get agirTopActionCta => 'Começar';
-
-  @override
-  String agirOtherActions(String count) {
-    return '$count outras ações';
-  }
-
-  @override
-  String get exploreSuggestionLabel => 'Sugestão para ti';
-
-  @override
-  String get exploreSuggestion3aTitle =>
-      'Pilar 3a: a tua primeira alavanca fiscal';
-
-  @override
-  String get exploreSuggestion3aSub =>
-      'Descobre quanto podes poupar em impostos';
-
-  @override
-  String get exploreSuggestionLppTitle => 'Resgate LPP: uma oportunidade?';
-
-  @override
-  String get exploreSuggestionLppSub =>
-      'Simula o impacto na tua reforma e impostos';
-
-  @override
-  String get exploreSuggestionRetirementTitle => 'A tua reforma aproxima-se';
-
-  @override
-  String get exploreSuggestionRetirementSub =>
-      'Renda, capital ou misto? Compara as opções';
-
-  @override
-  String get exploreSuggestionBudgetTitle => 'Começa pelo teu orçamento';
-
-  @override
-  String get exploreSuggestionBudgetSub =>
-      '3 minutos para ver para onde vai o teu dinheiro';
-
-  @override
-  String get pulseReadinessTitle => 'Forma financeira';
-
-  @override
-  String get pulseReadinessGood => 'Boa preparação';
-
-  @override
-  String get pulseReadinessProgress => 'Em progresso';
-
-  @override
-  String get pulseReadinessWeak => 'A reforçar';
-
-  @override
-  String pulseReadinessRetireIn(int years) {
-    return 'Reforma em $years anos';
-  }
-
-  @override
-  String pulseReadinessYearsToAct(int years) {
-    return 'Ainda $years anos para agir';
-  }
-
-  @override
-  String get pulseReadinessActNow => 'O essencial acontece agora';
-
-  @override
-  String get pulseReadinessRetired => 'Já aposentado/a';
-
-  @override
-  String get pulseCompleteProfile => 'Complete o seu perfil';
 
   @override
   String get profileSectionMyFile => 'Meu dossiê';
@@ -9688,25 +5230,6 @@ class SPt extends S {
 
   @override
   String get profileCompletionLabel => 'O teu dossiê';
-
-  @override
-  String get agirBudgetNet => 'Líquido';
-
-  @override
-  String get agirBudgetFixed => 'Fixos';
-
-  @override
-  String get agirBudgetAvailable => 'Disponível';
-
-  @override
-  String get agirBudgetSaved => 'Poupado';
-
-  @override
-  String get agirBudgetRemaining => 'Resto';
-
-  @override
-  String get agirBudgetWarning =>
-      'Os teus contributos excedem o orçamento disponível';
 
   @override
   String get enrichmentCtaScan => 'Digitalizar um documento';
@@ -9736,11 +5259,6 @@ class SPt extends S {
 
   @override
   String get heroGapScanCta => 'Digitalizar certificado LPP';
-
-  @override
-  String heroGapBoost(int percent) {
-    return '+$percent % precisão';
-  }
 
   @override
   String get heroGapMetaphor5k => 'É como passar de um T5 para um estúdio';
@@ -9776,32 +5294,7 @@ class SPt extends S {
   String get shellWelcomeBack => 'De volta. Os teus números estão atualizados.';
 
   @override
-  String shellWelcomeBackDelta(Object delta) {
-    return 'De volta! A sua precisu00e3o ganhou +$delta pts desde a u00faltima visita.';
-  }
-
-  @override
-  String get shellRecommendationsUpdated => 'Recomendações atualizadas';
-
-  @override
-  String get pulseEnrichirTitle => 'Digitaliza o teu certificado LPP';
-
-  @override
-  String pulseEnrichirSubtitle(String points) {
-    return 'Confiança → +$points pontos';
-  }
-
-  @override
-  String get pulseEnrichirCta => 'Digitalizar →';
-
-  @override
   String get tabMoi => 'Eu';
-
-  @override
-  String get coupleSwitchSolo => 'Solo';
-
-  @override
-  String get coupleSwitchDuo => 'Duo';
 
   @override
   String get identityStatusSalarie => 'Assalariado';
@@ -10416,35 +5909,13 @@ class SPt extends S {
   String get renteVsCapitalAppBarTitle => 'Pensão ou capital: a tua decisão';
 
   @override
-  String get renteVsCapitalIntro =>
-      'Na reforma, escolhes de uma vez por todas: um rendimento vitalício ou o teu capital em mão.';
-
-  @override
   String get renteVsCapitalRenteLabel => 'Rente';
-
-  @override
-  String get renteVsCapitalRenteExplanation =>
-      'A tua caixa de pensões paga-te um montante fixo todos os meses, enquanto viveres — mesmo que chegues aos 100 anos. Em troca, nunca recuperas o teu capital.';
 
   @override
   String get renteVsCapitalCapitalLabel => 'Capital';
 
   @override
-  String get renteVsCapitalCapitalExplanation =>
-      'Levantas todo o teu capital LPP de uma vez. Investe-lo e levantas o que precisas cada mês. Liberdade total, mas o risco de ficar sem nada é real.';
-
-  @override
   String get renteVsCapitalMixteLabel => 'Mixte';
-
-  @override
-  String get renteVsCapitalMixteExplanation =>
-      'A parte obrigatória em renda (taxa 6.8 %) + a sobreobrigatória em capital. Um compromisso entre segurança e flexibilidade.';
-
-  @override
-  String get renteVsCapitalEstimateMode => 'Estimar para mim';
-
-  @override
-  String get renteVsCapitalCertificateMode => 'Tenho o meu certificado';
 
   @override
   String get renteVsCapitalAge => 'Ton âge';
@@ -10454,20 +5925,6 @@ class SPt extends S {
 
   @override
   String get renteVsCapitalLppTotal => 'O teu capital LPP atual (CHF)';
-
-  @override
-  String renteVsCapitalEstimatedCapital(int age, String amount) {
-    return 'Capital estimado aos $age anos: ~$amount';
-  }
-
-  @override
-  String renteVsCapitalEstimatedRente(String amount) {
-    return 'Pensão estimada: ~$amount/ano';
-  }
-
-  @override
-  String get renteVsCapitalProjectionSource =>
-      'Projeção baseada na tua idade, salário e LPP atual';
 
   @override
   String get renteVsCapitalLppOblig =>
@@ -10488,10 +5945,6 @@ class SPt extends S {
   String get renteVsCapitalTcSurob => 'Taxa conv. supraobrig. (%)';
 
   @override
-  String get renteVsCapitalMaxPrecision =>
-      'Precisão máxima — resultados baseados nos teus dados reais.';
-
-  @override
   String get renteVsCapitalCanton => 'Canton';
 
   @override
@@ -10506,67 +5959,12 @@ class SPt extends S {
   }
 
   @override
-  String renteVsCapitalAccrocheTaxEpuise(String taxDelta, int age) {
-    return 'Esta decisão pode custar-te $taxDelta de impostos a mais — ou deixar-te sem nada aos $age anos. Só podes tomá-la uma vez.';
-  }
-
-  @override
-  String renteVsCapitalAccrocheTax(String taxDelta) {
-    return 'Esta decisão pode alterar $taxDelta de impostos sobre a tua reforma. Só podes tomá-la uma vez.';
-  }
-
-  @override
-  String renteVsCapitalAccrocheEpuise(int age) {
-    return 'Com o capital, podes ficar sem dinheiro a partir dos $age anos. Com a renda, recebes um montante fixo vitalício. Só podes escolher uma vez.';
-  }
-
-  @override
-  String get renteVsCapitalHeroRente => 'RENTE';
-
-  @override
-  String get renteVsCapitalHeroCapital => 'CAPITAL';
-
-  @override
   String get renteVsCapitalPerMonth => '/mois';
-
-  @override
-  String get renteVsCapitalForLife => 'à vie';
-
-  @override
-  String renteVsCapitalDuration(String duration) {
-    return 'durante $duration';
-  }
-
-  @override
-  String get renteVsCapitalMicroRente =>
-      'A tua caixa paga-te este montante todos os meses, enquanto viveres.';
-
-  @override
-  String renteVsCapitalMicroCapital(String swr, String rendement) {
-    return 'Levantas $swr % por ano (hipótese) de um capital investido a $rendement %.';
-  }
-
-  @override
-  String renteVsCapitalSyntheseCapitalHigher(String delta) {
-    return 'O capital dá-te $delta/mês a mais, mas pode esgotar-se.';
-  }
-
-  @override
-  String renteVsCapitalSyntheseRenteHigher(String delta) {
-    return 'A renda dá-te $delta/mês a mais, e nunca para.';
-  }
-
-  @override
-  String get renteVsCapitalAvsEstimated => 'AVS estimée : ';
 
   @override
   String renteVsCapitalAvsAmount(String amount) {
     return '~$amount/mois';
   }
-
-  @override
-  String get renteVsCapitalAvsSupplementary =>
-      ' suplementares em ambos os casos (LAVS art. 29)';
 
   @override
   String get renteVsCapitalLifeExpectancy => 'E se eu viver até aos...';
@@ -10750,10 +6148,6 @@ class SPt extends S {
   @override
   String get renteVsCapitalEplLegalRef =>
       'LPP art. 30c — OPP2 art. 5 (mín. CHF 20\'000)';
-
-  @override
-  String get renteVsCapitalProfileAutoFill =>
-      'Valores pré-preenchidos a partir do teu perfil';
 
   @override
   String get frontalierAppBarTitle => 'Frontalier';
@@ -11342,210 +6736,6 @@ class SPt extends S {
   @override
   String get achievementsFirstArbitrageDesc =>
       'Completar a tua primeira simulação de comparação';
-
-  @override
-  String get nudgeSalaryTitle => 'Dia de pagamento !';
-
-  @override
-  String get nudgeSalaryMessage =>
-      'Pensaste na tua transferência 3a este mês? Cada mês conta para a tua previdência.';
-
-  @override
-  String get nudgeSalaryAction => 'Ver o meu 3a';
-
-  @override
-  String get nudgeTaxTitle => 'Declaração fiscal';
-
-  @override
-  String get nudgeTaxMessage =>
-      'Verifica o prazo da declaração fiscal no teu cantão. Já verificaste as tuas deduções 3a e LPP?';
-
-  @override
-  String get nudgeTaxAction => 'Simular os meus impostos';
-
-  @override
-  String get nudge3aTitle => 'Reta final para o teu 3a';
-
-  @override
-  String get nudge3aMessageLastDay =>
-      'É o último dia para contribuir para o teu 3a!';
-
-  @override
-  String nudge3aMessage(String days, String limit, String year) {
-    return 'Restam $days dia(s) para contribuir até $limit CHF e reduzir os teus impostos $year.';
-  }
-
-  @override
-  String get nudge3aAction => 'Calcular a minha poupança';
-
-  @override
-  String nudgeBirthdayTitle(String age) {
-    return 'Fazes $age anos este ano !';
-  }
-
-  @override
-  String get nudgeBirthdayAction => 'Ver o meu painel';
-
-  @override
-  String get nudgeAnniversaryTitle => 'Já 1 ano juntos!';
-
-  @override
-  String get nudgeAnniversaryMessage =>
-      'Usas o MINT há um ano. É o momento ideal para atualizar o teu perfil e medir os teus progressos.';
-
-  @override
-  String get nudgeAnniversaryAction => 'Atualizar o meu perfil';
-
-  @override
-  String get nudgeLppStartTitle => 'Início das contribuições LPP';
-
-  @override
-  String get nudgeLppChangeTitle => 'Mudança de escalão LPP';
-
-  @override
-  String nudgeLppStartMessage(String rate) {
-    return 'As tuas contribuições LPP de velhice começam este ano ($rate %). É o início da tua previdência profissional.';
-  }
-
-  @override
-  String nudgeLppChangeMessage(String age, String rate) {
-    return 'Aos $age anos, o teu crédito de velhice sobe para $rate %. Pode ser um bom momento para considerar um resgate LPP.';
-  }
-
-  @override
-  String get nudgeLppAction => 'Explorar o resgate';
-
-  @override
-  String get nudgeWeeklyTitle => 'Já faz algum tempo!';
-
-  @override
-  String get nudgeWeeklyMessage =>
-      'A tua situação financeira evolui a cada semana. Dedica 2 minutos a verificar o teu painel.';
-
-  @override
-  String get nudgeWeeklyAction => 'Ver o meu Pulse';
-
-  @override
-  String get nudgeStreakTitle => 'A tua série está em risco!';
-
-  @override
-  String nudgeStreakMessage(String count) {
-    return 'Tens uma série de $count dias. Uma pequena ação hoje basta para a manter.';
-  }
-
-  @override
-  String get nudgeStreakAction => 'Continuar a minha série';
-
-  @override
-  String get nudgeGoalTitle => 'O teu objetivo aproxima-se';
-
-  @override
-  String nudgeGoalMessage(String desc, String days) {
-    return '«$desc» — restam $days dia(s). Fizeste progressos neste tema?';
-  }
-
-  @override
-  String get nudgeGoalAction => 'Falar com o coach';
-
-  @override
-  String get nudgeFhsTitle => 'A tua pontuação de saúde desceu';
-
-  @override
-  String nudgeFhsMessage(String drop) {
-    return 'O teu Financial Health Score perdeu $drop pontos. Vamos ver o que pode explicar esta mudança.';
-  }
-
-  @override
-  String get nudgeFhsAction => 'Compreender a descida';
-
-  @override
-  String get recapEngagement => 'Envolvimento';
-
-  @override
-  String get recapBudget => 'Orçamento';
-
-  @override
-  String get recapGoals => 'Objetivos';
-
-  @override
-  String get recapFhs => 'Pontuação financeira';
-
-  @override
-  String get recapOnTrack => 'Orçamento dentro do esperado esta semana.';
-
-  @override
-  String get recapOverBudget =>
-      'Orçamento ultrapassado esta semana — verifica as principais rubricas.';
-
-  @override
-  String get recapUnderBudget =>
-      'Gastaste menos do que previsto — bom controlo!';
-
-  @override
-  String get recapNoData => 'Dados de orçamento insuficientes esta semana.';
-
-  @override
-  String recapDaysActive(String count) {
-    return '$count dia(s) ativo(s) esta semana.';
-  }
-
-  @override
-  String recapGoalsActive(String count) {
-    return '$count objetivo(s) em curso.';
-  }
-
-  @override
-  String recapFhsUp(String delta) {
-    return 'Pontuação subiu +$delta pontos.';
-  }
-
-  @override
-  String recapFhsDown(String delta) {
-    return 'Pontuação desceu $delta pontos.';
-  }
-
-  @override
-  String get recapFhsStable => 'Pontuação estável esta semana.';
-
-  @override
-  String get recapTitle => 'O teu resumo semanal';
-
-  @override
-  String recapPeriod(String start, String end) {
-    return 'De $start a $end';
-  }
-
-  @override
-  String get recapBudgetTitle => 'Orçamento';
-
-  @override
-  String get recapBudgetSaved => 'Poupado esta semana';
-
-  @override
-  String get recapBudgetRate => 'Taxa de poupança';
-
-  @override
-  String get recapActionsTitle => 'Ações realizadas';
-
-  @override
-  String get recapActionsNone => 'Nenhuma ação esta semana';
-
-  @override
-  String get recapProgressTitle => 'Progresso';
-
-  @override
-  String recapProgressDelta(String delta) {
-    return '$delta pts de confiança';
-  }
-
-  @override
-  String get recapHighlightsTitle => 'Pontos de destaque';
-
-  @override
-  String get recapNextFocusTitle => 'A semana que vem';
-
-  @override
-  String get recapEmpty => 'Ainda sem dados esta semana';
 
   @override
   String get decesProcheTitre => 'Falecimento de um familiar';
@@ -12404,61 +7594,8 @@ class SPt extends S {
   String get budgetCtaDiscover => 'Descobrir';
 
   @override
-  String get budgetDisclaimerImportant => 'IMPORTANTE:';
-
-  @override
   String get budgetDisclaimerBased =>
       '• Os montantes baseiam-se nas informações declaradas.';
-
-  @override
-  String get refreshReturnToDashboard => 'Voltar ao painel';
-
-  @override
-  String get refreshOptionNone => 'Nenhum';
-
-  @override
-  String get refreshOptionPurchase => 'Compra';
-
-  @override
-  String get refreshOptionSale => 'Venda';
-
-  @override
-  String get refreshOptionRefinancing => 'Refinanciamento';
-
-  @override
-  String get refreshOptionMarriage => 'Casamento';
-
-  @override
-  String get refreshOptionBirth => 'Nascimento';
-
-  @override
-  String get refreshOptionDivorce => 'Divórcio';
-
-  @override
-  String get refreshOptionDeath => 'Falecimento';
-
-  @override
-  String get refreshProfileUpdated => 'Perfil atualizado!';
-
-  @override
-  String refreshScoreUp(String delta) {
-    return 'A tua pontuação subiu $delta pontos!';
-  }
-
-  @override
-  String refreshScoreDown(String delta) {
-    return 'A tua pontuação desceu $delta pontos — verifiquemos juntos';
-  }
-
-  @override
-  String get refreshScoreStable =>
-      'A tua pontuação está estável — continua assim!';
-
-  @override
-  String get refreshBefore => 'Antes';
-
-  @override
-  String get refreshAfter => 'Depois';
 
   @override
   String get chiffreChocDisclaimer =>
@@ -12468,50 +7605,9 @@ class SPt extends S {
   String get chiffreChocAction => 'O que posso fazer?';
 
   @override
-  String get chiffreChocEnrich => 'Refinar o meu perfil';
-
-  @override
   String chiffreChocConfidence(String count) {
     return 'Estimativa baseada em $count informações. Quanto mais precisares, mais fiável.';
   }
-
-  @override
-  String get chatErrorInvalidKey =>
-      'A tua chave API parece inválida ou expirada. Verifica-a nas definições.';
-
-  @override
-  String get chatErrorRateLimit =>
-      'Limite de pedidos atingido. Tenta novamente em alguns instantes.';
-
-  @override
-  String get chatErrorTechnical => 'Erro técnico. Tenta novamente mais tarde.';
-
-  @override
-  String get chatErrorConnection =>
-      'Erro de ligação. Verifica a tua ligação à internet ou a chave API.';
-
-  @override
-  String get chatCoachMint => 'Coach MINT';
-
-  @override
-  String get chatEmptyStateMessage =>
-      'Completa o teu diagnóstico para falar com o teu coach';
-
-  @override
-  String get chatStartButton => 'Começar';
-
-  @override
-  String get chatDisclaimer =>
-      'Ferramenta educativa — as respostas não constituem conselho financeiro. LSFin.';
-
-  @override
-  String get chatTooltipHistory => 'Histórico';
-
-  @override
-  String get chatTooltipExport => 'Exportar conversa';
-
-  @override
-  String get chatTooltipSettings => 'Definições IA';
 
   @override
   String get slmChooseModel => 'Escolhe o teu modelo';
@@ -12608,16 +7704,6 @@ class SPt extends S {
       'O nome é necessário para personalizar o coach';
 
   @override
-  String get authBirthYear => 'Ano de nascimento';
-
-  @override
-  String get authBirthYearRequired => 'Necessário para as projeções AVS/LPP';
-
-  @override
-  String get authPasswordRequirements =>
-      'Usa pelo menos 8 caracteres para proteger a tua conta';
-
-  @override
   String get authCguAccept => 'Li e aceito os ';
 
   @override
@@ -12625,9 +7711,6 @@ class SPt extends S {
 
   @override
   String get authCguAndPrivacy => ' e a ';
-
-  @override
-  String get authPrivacyLink => 'Política de Privacidade';
 
   @override
   String get authConfirm18 =>
@@ -12645,21 +7728,6 @@ class SPt extends S {
       'Dados anónimos para melhorar os benchmarks suíços';
 
   @override
-  String get authPasswordWeak => 'Fraco';
-
-  @override
-  String get authPasswordMedium => 'Médio';
-
-  @override
-  String get authPasswordStrong => 'Forte';
-
-  @override
-  String get authPasswordVeryStrong => 'Muito forte';
-
-  @override
-  String get authOrContinueWith => 'ou continuar com';
-
-  @override
   String get authPrivacyReassurance =>
       'Os teus dados permanecem encriptados no teu dispositivo. Sem conexão bancária.';
 
@@ -12668,21 +7736,6 @@ class SPt extends S {
 
   @override
   String get authBack => 'Voltar';
-
-  @override
-  String coachGreetingSlm(String name) {
-    return 'Olá $name. Tudo fica no teu dispositivo — nada sai. O que queres saber ?';
-  }
-
-  @override
-  String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Olá $name. Estou a ver os teus números — diz-me o que te preocupa.$scoreSuffix';
-  }
-
-  @override
-  String coachScoreSuffix(int score) {
-    return ' A tua pontuação: $score/100 — vamos ver onde falha.';
-  }
 
   @override
   String get coachComplianceError =>
@@ -12698,14 +7751,6 @@ class SPt extends S {
 
   @override
   String get coachErrorGeneric => 'Erro técnico. Tenta novamente mais tarde.';
-
-  @override
-  String get coachErrorBadRequest =>
-      'Pedido inválido. Tenta reformular a tua pergunta.';
-
-  @override
-  String get coachErrorServiceUnavailable =>
-      'Serviço temporariamente indisponível. Tenta novamente daqui a uns minutos.';
 
   @override
   String get coachErrorConnection =>
@@ -12761,18 +7806,6 @@ class SPt extends S {
   String get coachTooltipSettings => 'Definições de IA';
 
   @override
-  String get coachTooltipLifeEvent => 'Evento de vida';
-
-  @override
-  String get coachTierSlm => 'IA on-device';
-
-  @override
-  String get coachTierByok => 'IA nuvem (BYOK)';
-
-  @override
-  String get coachTierFallback => 'Modo offline';
-
-  @override
   String get coachBadgeSlm => 'On-device';
 
   @override
@@ -12782,10 +7815,6 @@ class SPt extends S {
   String get coachBadgeFallback => 'Offline';
 
   @override
-  String get coachDisclaimer =>
-      'Ferramenta educativa — as respostas não constituem aconselhamento financeiro (LSFin art. 3). Consulta um especialista para decisões importantes.';
-
-  @override
   String get coachLoading => 'A ver os teus números…';
 
   @override
@@ -12793,12 +7822,6 @@ class SPt extends S {
 
   @override
   String get coachInputHint => 'Uma pergunta sobre as tuas finanças?';
-
-  @override
-  String get coachTitle => 'Coach MINT';
-
-  @override
-  String get coachFallbackName => 'amigo/a';
 
   @override
   String get coachUserMessage => 'A tua mensagem';
@@ -12883,7 +7906,7 @@ class SPt extends S {
   }
 
   @override
-  String get tabMint => 'Mint';
+  String get tabCoach => 'Coach';
 
   @override
   String get pulseNarrativeRetirementClose =>
@@ -12967,19 +7990,13 @@ class SPt extends S {
   String get dossierCoupleSubtitle => 'Lar, cônjuge, projeções duo';
 
   @override
+  String get dossierBilanTitle => 'Balanço financeiro';
+
+  @override
+  String get dossierBilanSubtitle => 'Visão geral do teu património';
+
+  @override
   String get dossierReglages => 'Definições';
-
-  @override
-  String get dossierConsentsTitle => 'Consentimentos';
-
-  @override
-  String get dossierConsentsSubtitle => 'Privacidade e partilha de dados';
-
-  @override
-  String get dossierAiTitle => 'IA & Coach';
-
-  @override
-  String get dossierAiSubtitle => 'Modelo local, chave API';
 
   @override
   String get dossierStartProfile => 'Começa o teu perfil';
@@ -13232,18 +8249,6 @@ class SPt extends S {
   String get santeHubToolInvaliditeIndependant => 'Invalidez independente';
 
   @override
-  String get dossierSlmTitle => 'Modelo local (SLM)';
-
-  @override
-  String get dossierSlmSubtitle => 'IA integrada, funciona offline';
-
-  @override
-  String get dossierByokTitle => 'Chave API (BYOK)';
-
-  @override
-  String get dossierByokSubtitle => 'Conecta o teu próprio modelo IA';
-
-  @override
   String get budgetErrorRetry => 'O cálculo falhou. Tentar de novo?';
 
   @override
@@ -13309,18 +8314,6 @@ class SPt extends S {
   }
 
   @override
-  String get quickStartTitle => 'Tres perguntas, um primeiro numero.';
-
-  @override
-  String get quickStartSubtitle => 'O resto decides tu, quando quiseres.';
-
-  @override
-  String get quickStartFirstName => 'O teu nome';
-
-  @override
-  String get quickStartFirstNameHint => 'Opcional';
-
-  @override
   String get quickStartAge => 'A tua idade';
 
   @override
@@ -13329,67 +8322,17 @@ class SPt extends S {
   }
 
   @override
-  String get quickStartSalary => 'O teu rendimento bruto anual';
-
-  @override
-  String quickStartSalaryValue(String salary) {
-    return '$salary/ano';
-  }
-
-  @override
-  String get quickStartNoIncome => 'Sem rendimento';
-
-  @override
   String get quickStartCanton => 'Cantao';
-
-  @override
-  String get quickStartPreviewTitle => 'Pre-visualizacao reforma';
-
-  @override
-  String get quickStartVerdictGood => 'No bom caminho';
-
-  @override
-  String get quickStartVerdictWatch => 'A vigiar';
-
-  @override
-  String get quickStartVerdictGap => 'Desvio significativo';
-
-  @override
-  String get quickStartToday => 'Hoje';
-
-  @override
-  String get quickStartAtRetirement => 'Na reforma';
 
   @override
   String get quickStartPerMonth => '/mes';
 
   @override
-  String quickStartDropPct(String pct, String gap) {
-    return '-$pct % de poder de compra ($gap/mes)';
-  }
-
-  @override
-  String get quickStartDisclaimer =>
-      'Estimativa educativa. Nao constitui aconselhamento financeiro (LSFin).';
-
-  @override
   String get quickStartCta => 'Ver o meu resumo';
 
   @override
-  String get quickStartSectionIdentity => 'Identidade & Agregado';
-
-  @override
-  String get quickStartSectionIncome => 'Rendimento & Poupanca';
-
-  @override
-  String get quickStartSectionPension => 'Previdencia (LPP)';
-
-  @override
-  String get quickStartSectionProperty => 'Imoveis & Dividas';
-
-  @override
-  String quickStartSectionGuidance(String label) {
-    return 'Secao: $label — atualiza as tuas informacoes abaixo.';
+  String quickStartNarrative(String pct) {
+    return 'Manténs ~$pct % do teu nível de vida.';
   }
 
   @override
@@ -13937,9 +8880,6 @@ class SPt extends S {
   String get affordabilityEmotionalPositif => 'Podes pagar isto';
 
   @override
-  String get affordabilityEmotionalNegatif => 'Falta uma peça do puzzle';
-
-  @override
   String get affordabilityExploreAlso => 'Explorar mais';
 
   @override
@@ -13983,9 +8923,6 @@ class SPt extends S {
 
   @override
   String get demenagementTitreV2 => 'Mudar de cantão, quanto poupas?';
-
-  @override
-  String get demenagementCtaOptimal => 'Encontrar o cantão adequado';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -14306,9 +9243,6 @@ class SPt extends S {
   String get sim3aTitle => 'O teu 3.º pilar';
 
   @override
-  String get sim3aExportTooltip => 'Exportar o meu relatório';
-
-  @override
   String get sim3aCoachTitle => 'O conselho do Mentor';
 
   @override
@@ -14431,11 +9365,6 @@ class SPt extends S {
   @override
   String realReturnVsNominal(String rate) {
     return 'vs $rate % taxa líquida 3a (bruto − custos)';
-  }
-
-  @override
-  String realReturnEffortNet(String amount, String pts) {
-    return 'Esforço líquido: $amount/ano | Prémio fiscal implícito: +$pts pts';
   }
 
   @override
@@ -15478,118 +10407,16 @@ class SPt extends S {
   String get dividendeVsSalaireTitle => 'Dividendo vs Salário';
 
   @override
-  String get dividendeVsSalaireHeaderInfo =>
-      'Se possuis uma SA ou Sarl, podes pagar-te salário e dividendos. O dividendo é tributado a 50% e escapa às contribuições AVS.';
-
-  @override
-  String get dividendeVsSalaireBenefice => 'Lucro total';
-
-  @override
-  String get dividendeVsSalaireSliderMax500k => 'CHF 500’000';
-
-  @override
-  String get dividendeVsSalairePartSalaire => 'Parte salário';
-
-  @override
-  String get dividendeVsSalaireTauxMarginal => 'Taxa marginal';
-
-  @override
-  String dividendeVsSalaireChiffreChocPositive(String amount) {
-    return 'O split adaptado poupa-te $amount/ano vs 100% salário';
-  }
-
-  @override
-  String get dividendeVsSalaireChiffreChocNeutral =>
-      'Ajusta o split para encontrar poupanças';
-
-  @override
-  String get dividendeVsSalaireRequalificationTitle =>
-      'Risco de requalificação';
-
-  @override
-  String get dividendeVsSalaireRequalificationBody =>
-      'Se a parte salarial for inferior a ~60% do lucro, a administração fiscal pode requalificar dividendos como salário.';
-
-  @override
-  String get dividendeVsSalairePartSalaireLabel => 'Parte salário';
-
-  @override
-  String get dividendeVsSalairePartDividende => 'Parte dividendo';
-
-  @override
-  String dividendeVsSalairePctBenefice(int pct) {
-    return '$pct% do lucro';
-  }
-
-  @override
   String get dividendeVsSalaireChargeSalaire => 'Encargo sobre salário';
 
   @override
-  String get dividendeVsSalaireChargeDividende => 'Encargo sobre dividendo';
-
-  @override
-  String get dividendeVsSalaireChargeTotalSplit => 'Encargo total (split)';
-
-  @override
   String get dividendeVsSalaireCharge100Salaire => 'Encargo se 100% salário';
-
-  @override
-  String get dividendeVsSalaireChartTitle => 'Encargo total por split';
 
   @override
   String get dividendeVsSalairePctSalaire0 => '0% salário';
 
   @override
   String get dividendeVsSalairePctSalaire100 => '100% salário';
-
-  @override
-  String get dividendeVsSalaireChargeTotale => 'Encargo total';
-
-  @override
-  String get dividendeVsSalaireSplitAdapte => 'Split adaptado';
-
-  @override
-  String get dividendeVsSalairePositionActuelle => 'Posição atual';
-
-  @override
-  String get dividendeVsSalaireARetenir => 'A reter';
-
-  @override
-  String get dividendeVsSalaireEduImpotTitle => 'Imposto sobre lucros';
-
-  @override
-  String get dividendeVsSalaireEduImpotBody =>
-      'O lucro distribuído como dividendo é tributado primeiro ao nível da empresa, depois ao nível pessoal.';
-
-  @override
-  String get dividendeVsSalaireEduAvsTitle => 'AVS apenas sobre salário';
-
-  @override
-  String get dividendeVsSalaireEduAvsBody =>
-      'As contribuições AVS (~12.5%) aplicam-se apenas à parte salarial.';
-
-  @override
-  String get dividendeVsSalaireEduCantonalTitle => 'Prática cantonal';
-
-  @override
-  String get dividendeVsSalaireEduCantonalBody =>
-      'As autoridades fiscais monitorizam distribuições excessivas de dividendos.';
-
-  @override
-  String get dividendeVsSalaireDisclaimer =>
-      'Simulação simplificada. Consulta um especialista para uma análise completa.';
-
-  @override
-  String get dividendeVsSalaireCantonalDisclaimer =>
-      'O impacto fiscal depende da prática cantonal.';
-
-  @override
-  String get dividendeVsSalaireComplianceFooter =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).';
-
-  @override
-  String get dividendeVsSalaireSources =>
-      'Fontes: LIFD art. 18, 20, 33; CO art. 660';
 
   @override
   String get lppVolontaireTitle => 'LPP voluntária';
@@ -15620,18 +10447,6 @@ class SPt extends S {
   String lppVolontaireChiffreChocCaption(String amount) {
     return 'Sem LPP voluntária, perdes $amount/ano de capitalização para a reforma';
   }
-
-  @override
-  String get lppVolontaireSalaireCoordonne => 'Salário coordenado';
-
-  @override
-  String get lppVolontaireTauxBonification => 'Taxa bonificação';
-
-  @override
-  String get lppVolontaireCotisationAn => 'Contribuição /ano';
-
-  @override
-  String get lppVolontaireEconomieFiscaleAn => 'Poupança fiscal /ano';
 
   @override
   String get lppVolontaireTrancheAge => 'Faixa etária';
@@ -15683,11 +10498,6 @@ class SPt extends S {
   @override
   String get lppVolontaireDisclaimer =>
       'As projeções são estimativas. Consulta um especialista em previdência.';
-
-  @override
-  String lppVolontairePerAn(String amount) {
-    return '$amount/ano';
-  }
 
   @override
   String get coverageCheckTitle => 'Check-up cobertura';
@@ -15756,17 +10566,6 @@ class SPt extends S {
   String get coverageCheckScore => 'Score de cobertura';
 
   @override
-  String coverageCheckLacunes(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count lacunas críticas',
-      one: '$count lacuna crítica',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get coverageCheckAnalyseTitle => 'Análise detalhada';
 
   @override
@@ -15803,14 +10602,6 @@ class SPt extends S {
   @override
   String get coverageCheckSourcesBody =>
       'CO art. 41 (RC) / CO art. 324a (IJM) / LAA art. 4 / LAMal art. 34 / LCA / Direito cantonal';
-
-  @override
-  String get coverageCheckSlashHundred => '/ 100';
-
-  @override
-  String coverageCheckAnsLabel(int age) {
-    return '$age anos';
-  }
 
   @override
   String get eplAppBarTitle => 'Levantamento EPL';
@@ -16069,52 +10860,7 @@ class SPt extends S {
   String get documentDetailCancelButton => 'Cancelar';
 
   @override
-  String get portfolioTitle => 'O meu património';
-
-  @override
-  String get portfolioNetWorth => 'Valor líquido total';
-
-  @override
   String get portfolioReadiness => 'Readiness Index';
-
-  @override
-  String get portfolioEnvelopeTitle => 'Allocation by envelope';
-
-  @override
-  String get portfolioLibre => 'Free (Investment account)';
-
-  @override
-  String get portfolioLie => 'Tied (Pillar 3a)';
-
-  @override
-  String get portfolioReserve => 'Reserved (Emergency fund)';
-
-  @override
-  String get portfolioCoachAdvice =>
-      'Your allocation is healthy. Consider rebalancing your 3a soon.';
-
-  @override
-  String get portfolioDebtWarning =>
-      'Debt alert: Your top priority is debt reduction before any reinvestment.';
-
-  @override
-  String get portfolioSafeModeTitle => 'Debt reduction priority';
-
-  @override
-  String get portfolioSafeModeMsg =>
-      'Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.';
-
-  @override
-  String get portfolioRetirement => 'Retirement readiness';
-
-  @override
-  String get portfolioProperty => 'Property project';
-
-  @override
-  String get portfolioFamily => 'Family protection';
-
-  @override
-  String get portfolioToday => 'today';
 
   @override
   String get timelineTitle => 'O meu percurso';
@@ -16134,60 +10880,10 @@ class SPt extends S {
       'Seleciona um evento para simular o seu impacto financeiro.';
 
   @override
-  String get confidenceDashboardTitle => 'Precisão do teu perfil';
-
-  @override
-  String get confidenceDetailByAxis => 'Detalhe por eixo';
-
-  @override
-  String get confidenceFeatureGates => 'Funcionalidades desbloqueadas';
-
-  @override
-  String get confidenceImprove => 'Melhora a tua precisão';
-
-  @override
-  String confidenceRequired(int percent) {
-    return '$percent % necessário';
-  }
-
-  @override
-  String get confidenceLevelExcellent => 'Excellent';
-
-  @override
-  String get confidenceLevelGood => 'Good';
-
-  @override
-  String get confidenceLevelOk => 'Correct';
-
-  @override
-  String get confidenceLevelImprove => 'To improve';
-
-  @override
-  String get confidenceLevelInsufficient => 'Insufficient';
-
-  @override
-  String get confidenceSources => 'Fontes';
-
-  @override
   String get cockpitDetailTitle => 'Cockpit detalhado';
 
   @override
-  String get cockpitEmptyMsg =>
-      'Complete your profile to access the detailed cockpit.';
-
-  @override
-  String get cockpitEnrichCta => 'Enrich my profile';
-
-  @override
-  String get cockpitDisclaimer =>
-      'Simplified educational tool. Not financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7.';
-
-  @override
   String get annualRefreshTitle => 'Check-up anual';
-
-  @override
-  String get annualRefreshIntro =>
-      'A few quick questions to update your profile.';
 
   @override
   String get annualRefreshSubmit => 'Atualizar o meu perfil';
@@ -16196,67 +10892,8 @@ class SPt extends S {
   String get annualRefreshResult => 'Perfil atualizado!';
 
   @override
-  String get annualRefreshDashboard => 'Back to dashboard';
-
-  @override
   String get annualRefreshDisclaimer =>
       'Esta ferramenta tem fins educativos e não constitui aconselhamento financeiro na aceção da LSFin. Consulta um·a especialista para aconselhamento personalizado.';
-
-  @override
-  String get acceptInvitationTitle => 'Aderir a um agregado';
-
-  @override
-  String get acceptInvitationPrompt => 'Enter the code from your partner';
-
-  @override
-  String get acceptInvitationCodeValidity => 'The code is valid for 72 hours.';
-
-  @override
-  String get acceptInvitationJoin => 'Join household';
-
-  @override
-  String get acceptInvitationSuccess => 'Welcome to the household!';
-
-  @override
-  String get acceptInvitationSuccessBody =>
-      'You joined the Couple+ household. Your retirement projections are now linked.';
-
-  @override
-  String get acceptInvitationViewHousehold => 'View my household';
-
-  @override
-  String get financialReportTitle => 'O teu Plano Mint';
-
-  @override
-  String get financialReportBudget => 'Your Budget';
-
-  @override
-  String get financialReportProtection => 'Your Protection';
-
-  @override
-  String get financialReportRetirement => 'Your Retirement';
-
-  @override
-  String get financialReportTax => 'Your Taxes';
-
-  @override
-  String get financialReportPriorities => 'Your 3 priority actions';
-
-  @override
-  String get financialReportOptimize3a => 'Optimise your 3a';
-
-  @override
-  String get financialReportLppStrategy => 'LPP Buyback Strategy';
-
-  @override
-  String get financialReportTransparency => 'Transparency and compliance';
-
-  @override
-  String get financialReportLegalMention => 'Legal notice';
-
-  @override
-  String get financialReportDisclaimer =>
-      'Educational tool — not financial advice under FinSA. Amounts are estimates based on declared data.';
 
   @override
   String get capKindComplete => 'Completar';
@@ -16428,11 +11065,6 @@ class SPt extends S {
 
   @override
   String get retroactive3aSources => 'Fontes';
-
-  @override
-  String coverageCriticalGaps(Object count) {
-    return 'lacuna$count crítica$count';
-  }
 
   @override
   String get coverageCriticalGapSingular => 'lacuna crítica';
@@ -17581,9 +12213,6 @@ class SPt extends S {
       'Acesso apenas de leitura. Não é possível efetuar operações financeiras.';
 
   @override
-  String get consentConfirmTitle => 'Confirmation';
-
-  @override
   String get consentConfirmBanque => 'Banque';
 
   @override
@@ -17735,9 +12364,6 @@ class SPt extends S {
 
   @override
   String get transactionListModeDemo => 'MODO DEMO';
-
-  @override
-  String get lppVolontaireRevenuMax250k => 'CHF 250’000';
 
   @override
   String get lppVolontaireSalaireCoordLabel => 'Salário coordenado';
@@ -17941,52 +12567,16 @@ class SPt extends S {
   String get concubinageProtectionAvsSurvivor => 'Pensão AVS de sobrevivente';
 
   @override
-  String get concubinageProtectionAvsSurvivorMarried =>
-      '80 % da pensão do falecido (LAVS art. 23)';
-
-  @override
-  String get concubinageProtectionAvsSurvivorConcubin =>
-      'Nenhuma pensão — CHF 0/mês';
-
-  @override
   String get concubinageProtectionLppSurvivor => 'Pensão LPP de sobrevivente';
-
-  @override
-  String get concubinageProtectionLppSurvivorMarried =>
-      '60 % da pensão do falecido (LPP art. 19)';
-
-  @override
-  String get concubinageProtectionLppSurvivorConcubin =>
-      'Apenas conforme regulamento da caixa';
 
   @override
   String get concubinageProtectionHeritage => 'Herança legal';
 
   @override
-  String get concubinageProtectionHeritageMarried => 'Isento (CC art. 462)';
-
-  @override
-  String get concubinageProtectionHeritageConcubin =>
-      'Imposto cantonal (20-40 %)';
-
-  @override
   String get concubinageProtectionPension => 'Pensão alimentícia';
 
   @override
-  String get concubinageProtectionPensionMarried => 'Protegida pelo juiz';
-
-  @override
-  String get concubinageProtectionPensionConcubin => 'Sem obrigação legal';
-
-  @override
   String get concubinageProtectionAvsPlafond => 'Teto AVS casal';
-
-  @override
-  String get concubinageProtectionAvsPlafondMarried =>
-      'Máx. 150 % (LAVS art. 35)';
-
-  @override
-  String get concubinageProtectionAvsPlafondConcubin => 'Sem teto — 2×100 %';
 
   @override
   String get concubinageProtectionMaried => 'Casado';
@@ -18000,11 +12590,6 @@ class SPt extends S {
 
   @override
   String get concubinageProtectionLppSlider => 'Pensão LPP mensal do parceiro';
-
-  @override
-  String concubinageProtectionSurvivorTotal(String montant) {
-    return '$montant/mês para o cônjuge sobrevivente casado';
-  }
 
   @override
   String get concubinageProtectionSurvivorZero =>
@@ -18031,5118 +12616,132 @@ class SPt extends S {
       'A escolha depende da tua situação pessoal. Consulta um notário para uma análise completa.';
 
   @override
-  String get mortgageJourneyTitle => 'Percurso compra imobiliária';
-
-  @override
-  String get mortgageJourneySubtitle =>
-      '7 passos de «posso comprar?» a «assinei!»';
-
-  @override
-  String get mortgageJourneyPrevious => 'Anterior';
-
-  @override
-  String get mortgageJourneyNextStep => 'Próximo passo';
-
-  @override
-  String get mortgageJourneyComplete => '✅ Percurso completo!';
-
-  @override
-  String get clause3aTitle => 'A cláusula 3a esquecida';
-
-  @override
-  String get clause3aQuestion => 'Depositaste uma cláusula de beneficiário?';
-
-  @override
-  String get clause3aStepsTitle => 'Como depositar uma cláusula em 5 minutos:';
-
-  @override
-  String clause3aFeedbackOk(String partner) {
-    return 'Bem! Verifica que a cláusula nomeia $partner — e que está atualizada após cada evento de vida.';
-  }
-
-  @override
-  String get clause3aFeedbackNok =>
-      'Ação prioritária: deposita a tua cláusula de beneficiário na tua fundação 3a — em 5 minutos.';
-
-  @override
-  String get fiscalSuperpowerTitle => 'O superpoder fiscal';
-
-  @override
-  String get fiscalSuperpowerSubtitle =>
-      'O Estado devolve-te dinheiro por teres um filho.';
-
-  @override
-  String get fiscalSuperpowerTaxBenefits => 'As tuas vantagens fiscais';
-
-  @override
-  String get babyCostTitle => 'O custo da felicidade';
-
-  @override
-  String get babyCostBreakdownTitle => 'Desdobramento mensal';
-
-  @override
-  String get lifeEventSheetTitle => 'Está-me a acontecer algo';
-
-  @override
-  String get lifeEventSheetSubtitle =>
-      'Escolhe um evento para ver o impacto financeiro';
-
-  @override
-  String get lifeEventSheetSectionFamille => 'Família';
-
-  @override
-  String get lifeEventSheetSectionPro => 'Profissional';
-
-  @override
-  String get lifeEventSheetSectionPatrimoine => 'Património';
-
-  @override
-  String get lifeEventSheetSectionMobilite => 'Mobilidade';
-
-  @override
-  String get lifeEventSheetSectionSante => 'Saúde';
-
-  @override
-  String get lifeEventSheetSectionCrise => 'Crise';
-
-  @override
-  String get lifeEventLabelMariage => 'Vou casar';
-
-  @override
-  String get lifeEventLabelDivorce => 'Vou divorciar';
-
-  @override
-  String get lifeEventLabelNaissance => 'Estou à espera de um filho';
-
-  @override
-  String get lifeEventLabelConcubinage => 'Vivemos juntos';
-
-  @override
-  String get lifeEventLabelDeces => 'Morte de uma pessoa próxima';
-
-  @override
-  String get lifeEventLabelPremierEmploi => 'Primeiro emprego';
-
-  @override
-  String get lifeEventLabelNouveauJob => 'Novo emprego';
-
-  @override
-  String get lifeEventLabelIndependant => 'Fico independente';
-
-  @override
-  String get lifeEventLabelPerteEmploi => 'Perda de emprego';
-
-  @override
-  String get lifeEventLabelRetraite => 'Vou reformar-me';
-
-  @override
-  String get lifeEventLabelAchatImmo => 'Compra imobiliária';
-
-  @override
-  String get lifeEventLabelVenteImmo => 'Venda imobiliária';
-
-  @override
-  String get lifeEventLabelHeritage => 'Recebo uma herança';
-
-  @override
-  String get lifeEventLabelDonation => 'Quero dar aos meus filhos';
-
-  @override
-  String get lifeEventLabelDemenagement => 'Mudança de cantão';
-
-  @override
-  String get lifeEventLabelExpatriation => 'Vou para o estrangeiro';
-
-  @override
-  String get lifeEventLabelInvalidite => 'Estou bem coberto/a?';
-
-  @override
-  String get lifeEventLabelDettes => 'Tenho dívidas';
-
-  @override
-  String get lifeEventPromptMariage =>
-      'Vou casar — que impacto nos meus impostos, AVS e previdência?';
-
-  @override
-  String get lifeEventPromptDivorce =>
-      'Vou divorciar — o que acontece com o LPP e os impostos?';
-
-  @override
-  String get lifeEventPromptNaissance =>
-      'Estou à espera de um filho — que apoios e deduções estão disponíveis?';
-
-  @override
-  String get lifeEventPromptConcubinage =>
-      'Não somos casados — como nos proteger mutuamente?';
-
-  @override
-  String get lifeEventPromptDeces =>
-      'Morte de uma pessoa próxima — que diligências financeiras preciso de fazer?';
-
-  @override
-  String get lifeEventPromptPremierEmploi =>
-      'É o meu primeiro emprego — o que preciso saber sobre a previdência e as contribuições?';
-
-  @override
-  String get lifeEventPromptNouveauJob =>
-      'Mudo de emprego — como comparar ofertas e gerir o meu livre trânsito?';
-
-  @override
-  String get lifeEventPromptIndependant =>
-      'Fico independente — que opções de previdência sem LPP?';
-
-  @override
-  String get lifeEventPromptPerteEmploi =>
-      'Perdi o emprego — que subsídios de desemprego e durante quanto tempo?';
-
-  @override
-  String get lifeEventPromptRetraite =>
-      'Quando me posso reformar e quanto receberei?';
-
-  @override
-  String get lifeEventPromptAchatImmo =>
-      'Posso comprar um imóvel com o meu rendimento e entrada?';
-
-  @override
-  String get lifeEventPromptVenteImmo =>
-      'Vendo o meu imóvel — que imposto sobre a mais-valia devo prever?';
-
-  @override
-  String get lifeEventPromptHeritage =>
-      'Recebo uma herança — quais são as consequências fiscais?';
-
-  @override
-  String get lifeEventPromptDonation =>
-      'Quero dar aos meus filhos — que impacto fiscal e que limites?';
-
-  @override
-  String get lifeEventPromptDemenagement =>
-      'Mudo de cantão — que impacto fiscal devo antecipar?';
-
-  @override
-  String get lifeEventPromptExpatriation =>
-      'Vou para o estrangeiro — o que faço com o AVS, LPP e pilar 3a?';
-
-  @override
-  String get lifeEventPromptInvalidite =>
-      'Estou bem coberto/a em caso de invalidez ou acidente?';
-
-  @override
-  String get lifeEventPromptDettes =>
-      'Tenho dívidas — como geri-las sem tocar na minha previdência?';
-
-  @override
-  String compoundDisclaimerInflation(String inflation) {
-    return 'Pressupostos pedagógicos (inflação $inflation %). O desempenho passado não garante resultados futuros.';
-  }
-
-  @override
-  String get interactive3aDisclaimer =>
-      'Pressupostos pedagógicos. O desempenho passado não garante rendimentos futuros.';
-
-  @override
-  String get milestoneContinueBtn => 'Continuar';
-
-  @override
-  String get slmAutoPromptTitle => 'Coach IA no teu dispositivo';
-
-  @override
-  String get slmAutoPromptBody =>
-      'O MINT pode instalar um modelo de IA diretamente no teu telefone para conselhos personalizados — 100 % privado, nenhum dado sai do teu dispositivo.';
-
-  @override
-  String get slmAutoInstalledMsg =>
-      'Coach IA instalado ! Os teus conselhos serão personalizados.';
-
-  @override
-  String get slmInstallBtn => 'Instalar coach IA';
-
-  @override
-  String get slmLaterBtn => 'Mais tarde';
-
-  @override
-  String get rcDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin art. 3).';
-
-  @override
-  String rcPillar3aTitle(String year) {
-    return 'Contribuição 3a $year';
-  }
-
-  @override
-  String get rcPillar3aSubtitle => 'Poupança fiscal estimada';
-
-  @override
-  String rcPillar3aExplanation(String plafond) {
-    return 'Poupança fiscal estimada ao contribuir com o máximo de $plafond CHF';
-  }
-
-  @override
-  String get rcPillar3aCtaLabel => 'Simular o meu 3a';
-
-  @override
-  String get rcLppBuybackTitle => 'Recompra LPP';
-
-  @override
-  String get rcLppBuybackSubtitle => 'Potencial de recompra disponível';
-
-  @override
-  String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
-    return 'Recompra possível. Poupança fiscal estimada de $taxSaving CHF em $rachatSimule CHF';
-  }
-
-  @override
-  String get rcLppBuybackCtaLabel => 'Simular uma recompra';
-
-  @override
-  String get rcReplacementRateTitle => 'Taxa de substituição';
-
-  @override
-  String rcReplacementRateSubtitle(String age) {
-    return 'Projeção aos $age anos';
-  }
-
-  @override
-  String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly) {
-    return 'Rendimento estimado na reforma: $totalMonthly CHF/mês vs $currentMonthly CHF/mês atualmente';
-  }
-
-  @override
-  String get rcReplacementRateCtaLabel => 'Explorar os meus cenários';
-
-  @override
-  String get rcReplacementRateAlerte =>
-      'Taxa abaixo do limiar recomendado de 60 %. Explora as opções.';
-
-  @override
-  String get rcAvsGapTitle => 'Lacuna AVS';
-
-  @override
-  String rcAvsGapSubtitle(String lacunes) {
-    return '$lacunes anos de contribuição em falta';
-  }
-
-  @override
-  String get rcAvsGapExplanation =>
-      'Redução estimada da tua pensão AVS anual devido a lacunas';
-
-  @override
-  String get rcAvsGapCtaLabel => 'Ver o meu extrato AVS';
-
-  @override
-  String get rcCoupleAlertTitle => 'Diferença de visibilidade do casal';
-
-  @override
-  String rcCoupleAlertSubtitle(String name, String score) {
-    return '$name em $score %';
-  }
-
-  @override
-  String rcCoupleAlertExplanation(String gap) {
-    return 'Diferença de $gap pontos entre os dois perfis. Equilibrá-los melhora a projeção do casal.';
-  }
-
-  @override
-  String get rcCoupleAlertCtaLabel => 'Enriquecer o perfil do casal';
-
-  @override
-  String get rcIndependantTitle => 'Previdência independente';
-
-  @override
-  String get rcIndependantSubtitle =>
-      'Sem LPP, o teu 3a é a tua previdência principal';
-
-  @override
-  String rcIndependantExplanation(String max3a, String current3a) {
-    return 'Limite 3a sem LPP: $max3a CHF/ano. Capital 3a atual: $current3a CHF';
-  }
-
-  @override
-  String get rcIndependantCtaLabel => 'Explorar as minhas opções';
-
-  @override
-  String get rcTaxOptTitle => 'Otimização fiscal';
-
-  @override
-  String get rcTaxOptSubtitle => 'Deduções estimadas disponíveis';
-
-  @override
-  String rcTaxOptExplanation(String plafond3a) {
-    return 'Poupança fiscal estimada via 3a ($plafond3a CHF) + recompra LPP';
-  }
-
-  @override
-  String get rcTaxOptCtaLabel => 'Descobrir as minhas deduções';
-
-  @override
-  String get rcPatrimoineTitle => 'Património';
-
-  @override
-  String get rcPatrimoineSubtitleLow => 'Almofada de segurança insuficiente';
-
-  @override
-  String get rcPatrimoineSubtitleOk => 'Visão geral';
-
-  @override
-  String rcPatrimoineExplanationLow(String epargne, String coussinMin) {
-    return 'Poupança líquida ($epargne CHF) abaixo de 3 meses de despesas ($coussinMin CHF)';
-  }
-
-  @override
-  String rcPatrimoineExplanationOk(String epargne, String investissements) {
-    return 'Poupança $epargne CHF + investimentos $investissements CHF';
-  }
-
-  @override
-  String get rcPatrimoineCtaLabelLow => 'Analisar o meu orçamento';
-
-  @override
-  String get rcPatrimoineCtaLabelOk => 'Ver o meu património';
-
-  @override
-  String rcPatrimoineAlerte(String coussinMin) {
-    return 'Almofada de segurança recomendada: $coussinMin CHF (3 meses de despesas)';
-  }
-
-  @override
-  String get rcMortgageTitle => 'Hipoteca';
-
-  @override
-  String rcMortgageSubtitle(String ltv) {
-    return 'Rácio LTV: $ltv %';
-  }
-
-  @override
-  String rcMortgageExplanation(String propertyValue) {
-    return 'Saldo hipotecário. Valor do imóvel: $propertyValue CHF';
-  }
-
-  @override
-  String get rcMortgageCtaLabel => 'Simular capacidade';
-
-  @override
-  String get rcCtaDetail => 'Ver detalhes →';
-
-  @override
-  String get rcLibrePassageTitle => 'Livre passagem';
-
-  @override
-  String get rcLibrePassageSubtitle =>
-      'O que fazer com o teu capital de livre passagem?';
-
-  @override
-  String get rcRenteVsCapitalTitle => 'Renda vs Capital';
-
-  @override
-  String get rcRenteVsCapitalSubtitle =>
-      'Renda ou capital: calcular ambas as opções';
-
-  @override
-  String get rcFiscalComparatorTitle => 'Comparador cantonal';
-
-  @override
-  String get rcFiscalComparatorSubtitle =>
-      'Quanto ganharías mudando de cantão?';
-
-  @override
-  String get rcStaggeredWithdrawalTitle => 'Levantamento 3a escalonado';
-
-  @override
-  String get rcStaggeredWithdrawalSubtitle =>
-      'Escalonar os levantamentos para reduzir impostos';
-
-  @override
-  String get rcRealReturn3aTitle => 'Rendimento real 3a';
-
-  @override
-  String get rcRealReturn3aSubtitle =>
-      'Rendimento após comissões, inflação e impostos';
-
-  @override
-  String get rcComparator3aTitle => 'Comparador 3a';
-
-  @override
-  String get rcComparator3aSubtitle => 'Comparar os prestadores de 3a';
-
-  @override
-  String get rcRentVsBuyTitle => 'Arrendar ou comprar';
-
-  @override
-  String get rcRentVsBuySubtitle => 'Comparar ambos os cenários a longo prazo';
-
-  @override
-  String get rcAmortizationTitle => 'Amortização';
-
-  @override
-  String get rcAmortizationSubtitle => 'Direta vs indireta — impacto fiscal';
-
-  @override
-  String get rcImputedRentalTitle => 'Valor locativo imputado';
-
-  @override
-  String get rcImputedRentalSubtitle => 'Compreender a tributação da habitação';
-
-  @override
-  String get rcSaronVsFixedTitle => 'SARON vs taxa fixa';
-
-  @override
-  String get rcSaronVsFixedSubtitle => 'Qual tipo de hipoteca escolher';
-
-  @override
-  String get rcEplTitle => 'Levantamento EPL';
-
-  @override
-  String get rcEplSubtitle => 'Usar o 2.º pilar para imóveis';
-
-  @override
-  String get rcHousingSaleTitle => 'Venda imobiliária';
-
-  @override
-  String get rcHousingSaleSubtitle =>
-      'Imposto sobre ganhos imobiliários + reinvestimento';
-
-  @override
-  String get rcMariageTitle => 'Impacto do casamento';
-
-  @override
-  String get rcMariageSubtitle => 'Impostos, AVS, LPP, sucessão';
-
-  @override
-  String get rcDivorceTitle => 'Simulador de divórcio';
-
-  @override
-  String get rcDivorceSubtitle => 'Divisão LPP, pensão, impostos';
-
-  @override
-  String get rcNaissanceTitle => 'Impacto de um nascimento';
-
-  @override
-  String get rcNaissanceSubtitle => 'Abonos, deduções, orçamento';
-
-  @override
-  String get rcConcubinageTitle => 'Proteção da união de facto';
-
-  @override
-  String get rcConcubinageSubtitle => 'Direitos, riscos e soluções';
-
-  @override
-  String get rcSuccessionTitle => 'Sucessão';
-
-  @override
-  String get rcSuccessionSubtitle => 'Simular a transferência de património';
-
-  @override
-  String get rcDonationTitle => 'Doação';
-
-  @override
-  String get rcDonationSubtitle => 'Impacto fiscal de uma doação';
-
-  @override
-  String get rcUnemploymentTitle => 'Perda de emprego';
-
-  @override
-  String get rcUnemploymentSubtitle => 'Subsídios, duração, diligências';
-
-  @override
-  String get rcFirstJobTitle => 'Primeiro emprego';
-
-  @override
-  String get rcFirstJobSubtitle => 'Compreender tudo desde o início';
-
-  @override
-  String get rcExpatriationTitle => 'Expatriação';
-
-  @override
-  String get rcExpatriationSubtitle => 'Impacto no AVS, LPP, 3a e impostos';
-
-  @override
-  String get rcFrontalierTitle => 'Trabalhador fronteiriço';
-
-  @override
-  String get rcFrontalierSubtitle => 'Imposto na fonte e particularidades';
-
-  @override
-  String get rcJobComparisonTitle => 'Comparador de ofertas';
-
-  @override
-  String get rcJobComparisonSubtitle =>
-      'Líquido + previdência: qual oferta vale realmente mais?';
-
-  @override
-  String get rcDividendeVsSalaireTitle => 'Dividendo vs Salário';
-
-  @override
-  String get rcDividendeVsSalaireSubtitle =>
-      'Otimizar a remuneração em SARL/SA';
-
-  @override
-  String get rcLamalFranchiseTitle => 'Franquia LAMal';
-
-  @override
-  String get rcLamalFranchiseSubtitle => 'Que franquia escolher?';
-
-  @override
-  String get rcCoverageCheckTitle => 'Verificação de cobertura';
-
-  @override
-  String get rcCoverageCheckSubtitle => 'Verificar as tuas coberturas';
-
-  @override
-  String get rcDisabilityTitle => 'Invalidez — lacuna de rendimento';
-
-  @override
-  String get rcDisabilitySubtitle =>
-      'Gap entre rendimento atual e rendas AI/LPP';
-
-  @override
-  String get rcGenderGapTitle => 'Diferença de género';
-
-  @override
-  String get rcGenderGapSubtitle => 'Impacto do part-time na reforma';
-
-  @override
-  String get rcBudgetTitle => 'Orçamento';
-
-  @override
-  String get rcBudgetSubtitle => 'Quanto te sobra no fim do mês?';
-
-  @override
-  String get rcDebtRatioTitle => 'Rácio de endividamento';
-
-  @override
-  String get rcDebtRatioSubtitle =>
-      'A partir de que limiar as dívidas se tornam perigosas?';
-
-  @override
-  String get rcCompoundInterestTitle => 'Juro composto';
-
-  @override
-  String get rcCompoundInterestSubtitle =>
-      'Simular o crescimento das poupanças';
-
-  @override
-  String get rcLeasingTitle => 'Simulador de leasing';
-
-  @override
-  String get rcLeasingSubtitle => 'Custo real de um leasing de automóvel';
-
-  @override
-  String get rcConsumerCreditTitle => 'Crédito ao consumo';
-
-  @override
-  String get rcConsumerCreditSubtitle => 'Custo total de um crédito ao consumo';
-
-  @override
-  String get rcAllocationAnnuelleTitle => 'Alocação anual';
-
-  @override
-  String get rcAllocationAnnuelleSubtitle =>
-      'Onde colocar as poupanças este ano';
-
-  @override
-  String get rcSuggestedPrompt50PlusRetirement =>
-      'Quando a reforma se torna viável?';
-
-  @override
-  String get rcSuggestedPromptRenteOuCapital =>
-      'Renda ou capital: o que me dá mais liberdade?';
-
-  @override
-  String get rcSuggestedPromptRachatLpp =>
-      'Quanto vale uma recompra LPP no meu caso?';
-
-  @override
-  String get rcSuggestedPromptAllegerImpots =>
-      'Onde reduzir os meus impostos este ano?';
-
-  @override
-  String get rcSuggestedPromptVersement3a =>
-      'Quanto contribuir para o 3a este ano?';
-
-  @override
-  String get nudgeSalaryBody =>
-      'Pensaste na tua transferência para o pilar 3a este mês? Cada mês conta para a tua previdência.';
-
-  @override
-  String get nudgeTaxDeadlineTitle => 'Declaração fiscal';
-
-  @override
-  String get nudgeTaxDeadlineBody =>
-      'Verifica o prazo de entrega da declaração fiscal no teu cantão. Reviste as deduções do 3a e da LPP?';
-
-  @override
-  String get nudge3aDeadlineTitle => 'Última linha reta para o teu 3a';
-
-  @override
-  String nudge3aDeadlineBody(String days, String limit, String year) {
-    return 'Faltam $days dia(s) para contribuir até $limit CHF e reduzir os teus impostos de $year.';
-  }
-
-  @override
-  String get nudgeBirthdayBody =>
-      'Um marco que pode marcar a tua planificação previdenciária. Simulaste o impacto deste ano?';
-
-  @override
-  String get nudgeProfileTitle => 'O teu perfil merece ser enriquecido';
-
-  @override
-  String get nudgeProfileBody =>
-      'Quanto mais completo for o teu perfil, mais relevantes são as análises do MINT. Bastam poucos dados.';
-
-  @override
-  String get nudgeInactiveTitle => 'Já passou algum tempo !';
-
-  @override
-  String get nudgeInactiveBody =>
-      'A tua situação financeira evolui todas as semanas. Dedica 2 minutos a verificar o teu painel.';
-
-  @override
-  String get nudgeGoalProgressTitle => 'O teu objetivo está a avançar !';
-
-  @override
-  String nudgeGoalProgressBody(String progress) {
-    return 'Atingiste $progress % do teu objetivo. Continua assim !';
-  }
-
-  @override
-  String get nudgeAnniversaryBody =>
-      'Usas o MINT há um ano. É o momento ideal para atualizar o teu perfil e medir o teu progresso.';
-
-  @override
-  String get nudgeLppBuybackTitle => 'Janela de recompra LPP';
-
-  @override
-  String nudgeLppBuybackBody(String year) {
-    return 'O final de $year aproxima-se: última oportunidade para uma recompra LPP dedutível.';
-  }
-
-  @override
-  String get nudgeNewYearTitle => 'Novo ano, novo começo !';
-
-  @override
-  String nudgeNewYearBody(String year) {
-    return '$year: abre-se um novo envelope do pilar 3a. Bom momento para planear as tuas contribuições.';
-  }
-
-  @override
-  String get rcSuggestedPromptCommencer3a => 'Porquê começar o 3a agora?';
-
-  @override
-  String get rcSuggestedPrompt2ePilier =>
-      'O que faz concretamente o 2.º pilar?';
-
-  @override
-  String get rcSuggestedPromptIndependant =>
-      'Independente: o que preciso de reconstruir?';
-
-  @override
-  String get rcSuggestedPromptCouple =>
-      'Onde falha a nossa previdência de casal?';
-
-  @override
-  String get rcSuggestedPromptFatca => 'FATCA: o que muda para o meu 3a?';
-
-  @override
-  String get rcUnitPts => 'pts';
-
-  @override
-  String get routeSuggestionCta => 'Abrir';
-
-  @override
-  String get routeSuggestionPartialWarning => 'Estimativa — dados incompletos';
-
-  @override
-  String get routeSuggestionBlocked =>
-      'Preciso de mais informações para te levar lá';
-
-  @override
-  String get routeReturnAcknowledge =>
-      'Bem-vindo de volta! Se ajustaste dados, diz-me e recalculo.';
-
-  @override
-  String get routeReturnCompleted =>
-      'Anotado. Os teus dados estão atualizados.';
-
-  @override
-  String get routeReturnAbandoned => 'Sem problema — voltamos quando quiseres.';
-
-  @override
-  String get routeReturnChanged =>
-      'Os teus números mudaram. Recalculo a trajetória.';
-
-  @override
-  String get hypothesisEditorTitle => 'Hipóteses de simulação';
-
-  @override
-  String get hypothesisEditorSubtitle =>
-      'Ajusta os parâmetros para ver o impacto nas projeções.';
-
-  @override
-  String get lifecyclePhaseDemarrage => 'Início';
-
-  @override
-  String get lifecyclePhaseDemarrageDesc =>
-      'Primeiros passos na vida profissional: orçamento, 3a e bons hábitos financeiros.';
-
-  @override
-  String get lifecyclePhaseConstruction => 'Construção';
-
-  @override
-  String get lifecyclePhaseConstructionDesc =>
-      'Aceleração de carreira, poupança, primeira habitação, planeamento familiar.';
-
-  @override
-  String get lifecyclePhaseAcceleration => 'Aceleração';
-
-  @override
-  String get lifecyclePhaseAccelerationDesc =>
-      'Fase de rendimentos elevados: otimização LPP, fiscalidade e crescimento patrimonial.';
-
-  @override
-  String get lifecyclePhaseConsolidation => 'Consolidação';
-
-  @override
-  String get lifecyclePhaseConsolidationDesc =>
-      'Preparação para a reforma, recompra LPP, início do planeamento sucessorial.';
-
-  @override
-  String get lifecyclePhaseTransition => 'Transição';
-
-  @override
-  String get lifecyclePhaseTransitionDesc =>
-      'Decisões pré-reforma: renda ou capital, sequência de levantamentos.';
-
-  @override
-  String get lifecyclePhaseRetraite => 'Reforma';
-
-  @override
-  String get lifecyclePhaseRetraiteDesc =>
-      'Vida na reforma: adaptação do orçamento e gestão do património.';
-
-  @override
-  String get lifecyclePhaseTransmission => 'Transmissão';
-
-  @override
-  String get lifecyclePhaseTransmissionDesc =>
-      'Planeamento sucessorial, doações e transmissão do património.';
-
-  @override
-  String get challengeWeeklyTitle => 'Desafio da semana';
-
-  @override
-  String get challengeCompleted => 'Desafio concluído!';
-
-  @override
-  String challengeStreak(int count) {
-    return '$count semanas consecutivas';
-  }
-
-  @override
-  String get challengeBudget01Title =>
-      'Verifica as tuas 3 maiores despesas da semana';
-
-  @override
-  String get challengeBudget01Desc =>
-      'Imagina saber exatamente para onde vai cada franco: abre o teu orçamento e identifica as 3 categorias mais altas desta semana.';
-
-  @override
-  String get challengeBudget02Title =>
-      'Calcula a tua taxa de poupança mensal real';
-
-  @override
-  String get challengeBudget02Desc =>
-      'A tua taxa de poupança é o que sobra após todas as despesas. Verifica se supera os 10 % do teu rendimento líquido.';
-
-  @override
-  String get challengeBudget03Title =>
-      'Compara o custo dos teus seguros com uma oferta alternativa';
-
-  @override
-  String get challengeBudget03Desc =>
-      'Os prémios de seguro podem variar 30 % consoante o fornecedor. Verifica se poderias poupar ao mudar de caixa.';
-
-  @override
-  String get challengeBudget04Title =>
-      'Analisa as tuas despesas fixas vs. variáveis';
-
-  @override
-  String get challengeBudget04Desc =>
-      'Separa os custos fixos (renda, seguros) dos variáveis (saídas, lazer). É a base para otimizar o teu orçamento.';
-
-  @override
-  String get challengeBudget05Title => 'Verifica o teu rácio de endividamento';
-
-  @override
-  String get challengeBudget05Desc =>
-      'O teu rácio de endividamento não deve ultrapassar 33 % do rendimento bruto. Calcula-o para saberes onde estás.';
-
-  @override
-  String get challengeBudget06Title => 'Simula o custo real do teu leasing';
-
-  @override
-  String get challengeBudget06Desc =>
-      'Um leasing é mais do que a mensalidade: seguro, manutenção, valor residual. Calcula o custo total.';
-
-  @override
-  String get challengeBudget07Title =>
-      'Avalia a tua almofada de segurança em meses';
-
-  @override
-  String get challengeBudget07Desc =>
-      'Quantos meses conseguirias aguentar sem rendimento? O ideal são 3 a 6 meses de despesas.';
-
-  @override
-  String get challengeBudget08Title =>
-      'Verifica se poderias reduzir o teu crédito ao consumo';
-
-  @override
-  String get challengeBudget08Desc =>
-      'Um crédito ao consumo a 8-12 % é muito caro. Vê se podes acelerar o reembolso ou consolicá-lo.';
-
-  @override
-  String get challengeEpargne01Title => 'Poupa CHF 50 esta semana';
-
-  @override
-  String get challengeEpargne01Desc =>
-      'Mesmo um pequeno valor conta: CHF 50 por semana são CHF 2\'600 por ano. O mais difícil é começar.';
-
-  @override
-  String get challengeEpargne02Title => 'Verifica o teu saldo 3a face ao teto';
-
-  @override
-  String get challengeEpargne02Desc =>
-      'O teto 3a para empregados é de CHF 7\'258 por ano. Verifica quanto já depositaste este ano.';
-
-  @override
-  String get challengeEpargne03Title => 'Simula uma recompra LPP de CHF 5\'000';
-
-  @override
-  String get challengeEpargne03Desc =>
-      'Uma recompra LPP é dedutível nos impostos. Simula o impacto de uma recompra de CHF 5\'000 na tua previdência e fiscalidade.';
-
-  @override
-  String get challengeEpargne04Title =>
-      'Verifica se ainda podes contribuir para o 3a este ano';
-
-  @override
-  String get challengeEpargne04Desc =>
-      'As contribuições 3a são anuais: se ainda não atingiste o máximo, pode restar tempo.';
-
-  @override
-  String get challengeEpargne05Title =>
-      'Compara os rendimentos das tuas contas 3a';
-
-  @override
-  String get challengeEpargne05Desc =>
-      'Nem todas as contas 3a são iguais. Compara os rendimentos das tuas contas com o simulador.';
-
-  @override
-  String get challengeEpargne06Title =>
-      'Calcula o rendimento real do teu 3a após inflação';
-
-  @override
-  String get challengeEpargne06Desc =>
-      'Um rendimento de 1 % com inflação de 1,5 % é um rendimento real negativo. Verifica a tua situação.';
-
-  @override
-  String get challengeEpargne07Title =>
-      'Simula um levantamento faseado das tuas contas 3a';
-
-  @override
-  String get challengeEpargne07Desc =>
-      'Levantar o 3a ao longo de vários anos pode reduzir os impostos. Simula a estratégia de levantamento faseado.';
-
-  @override
-  String get challengeEpargne08Title =>
-      'Verifica se podes contribuir retroativamente para o 3a';
-
-  @override
-  String get challengeEpargne08Desc =>
-      'Desde 2025, podes recuperar anos sem contribuições. Verifica se és elegível para o 3a retroativo.';
-
-  @override
-  String get challengeEpargne09Title =>
-      'Verifica a tua conta de livre-trânsito se mudaste de empregador';
-
-  @override
-  String get challengeEpargne09Desc =>
-      'Ao mudar de emprego, o teu capital LPP é transferido para uma conta de livre-trânsito. Verifica que nada foi esquecido.';
-
-  @override
-  String get challengePrevoyance01Title =>
-      'Solicita o teu extrato de conta AVS';
-
-  @override
-  String get challengePrevoyance01Desc =>
-      'O teu extrato AVS mostra os teus anos de contribuição e a pensão estimada. Solicita-o gratuitamente em avs.ch.';
-
-  @override
-  String get challengePrevoyance02Title =>
-      'Verifica a tua cobertura de invalidez';
-
-  @override
-  String get challengePrevoyance02Desc =>
-      'Em caso de invalidez, a tua pensão AI + LPP cobre as tuas despesas? Verifica a eventual lacuna.';
-
-  @override
-  String get challengePrevoyance03Title =>
-      'Compara renda vs. capital para o teu LPP';
-
-  @override
-  String get challengePrevoyance03Desc =>
-      'Renda vitalicia ou capital? Cada opção tem vantagens fiscais e de flexibilidade. Compara os cenários.';
-
-  @override
-  String get challengePrevoyance04Title => 'Consulta a tua projeção de reforma';
-
-  @override
-  String get challengePrevoyance04Desc =>
-      'Imagina a tua reforma: AVS + LPP + 3a — quanto terás realmente? Verifica se estás na trajetória certa.';
-
-  @override
-  String get challengePrevoyance05Title =>
-      'Otimiza a tua sequência de decumulação';
-
-  @override
-  String get challengePrevoyance05Desc =>
-      'A ordem em que retiras dos pilares tem um impacto fiscal importante. Simula diferentes sequências.';
-
-  @override
-  String get challengePrevoyance06Title => 'Verifica as tuas lacunas AVS';
-
-  @override
-  String get challengePrevoyance06Desc =>
-      'Cada ano sem contribuições AVS reduz a pensão. Verifica se tens lacunas a colmatar.';
-
-  @override
-  String get challengePrevoyance07Title => 'Planeia a tua sucessão';
-
-  @override
-  String get challengePrevoyance07Desc =>
-      'Quem herda o quê no direito suíço? Verifica as quotas legítimas e se é necessário um testamento.';
-
-  @override
-  String get challengePrevoyance08Title =>
-      'Verifica a tua cobertura em caso de desemprego';
-
-  @override
-  String get challengePrevoyance08Desc =>
-      'Perder o emprego é stressante. Saber quanto receberias e durante quanto tempo pode tranquilizar-te. Simula a tua situação.';
-
-  @override
-  String get challengePrevoyance09Title =>
-      'Verifica a cobertura de invalidez como independente';
-
-  @override
-  String get challengePrevoyance09Desc =>
-      'Como independente, a tua cobertura AI pode ser insuficiente. Verifica se seria útil um seguro de subsistência diário complementar.';
-
-  @override
-  String get challengeFiscalite01Title => 'Estima a tua poupança fiscal do 3a';
-
-  @override
-  String get challengeFiscalite01Desc =>
-      'Cada franco depositado no 3a é dedutível. Calcula quanto poupes em impostos este ano.';
-
-  @override
-  String get challengeFiscalite02Title =>
-      'Verifica se uma recompra LPP seria dedutível este ano';
-
-  @override
-  String get challengeFiscalite02Desc =>
-      'As recompras LPP são dedutíveis do rendimento tributável. Verifica o teu potencial de recompra e a poupança fiscal.';
-
-  @override
-  String get challengeFiscalite03Title =>
-      'Simula o imposto sobre um levantamento de capital';
-
-  @override
-  String get challengeFiscalite03Desc =>
-      'Os levantamentos de capital (LPP/3a) são tributados separadamente a uma taxa reduzida. Simula o imposto para diferentes montantes.';
-
-  @override
-  String get challengeFiscalite04Title =>
-      'Compara salário vs. dividendo se és independente';
-
-  @override
-  String get challengeFiscalite04Desc =>
-      'O mix salário/dividendo depende do teu rendimento e cantão. Simula ambos os cenários.';
-
-  @override
-  String get challengeFiscalite05Title =>
-      'Verifica o valor locativo imputado do teu imóvel';
-
-  @override
-  String get challengeFiscalite05Desc =>
-      'Se és proprietário, o valor locativo imputado é adicionado ao rendimento tributável. Verifica se está correto.';
-
-  @override
-  String get challengeFiscalite06Title => 'Calcula a tua carga fiscal total';
-
-  @override
-  String get challengeFiscalite06Desc =>
-      'Imposto federal + cantonal + municipal: calcula a tua carga fiscal total em percentagem do rendimento.';
-
-  @override
-  String get challengeFiscalite07Title => 'Verifica a tua conformidade FATCA';
-
-  @override
-  String get challengeFiscalite07Desc =>
-      'Como cidadão americano, as tuas contas suíças estão sujeitas a FATCA. Verifica que a tua situação está em ordem.';
-
-  @override
-  String get challengeFiscalite08Title => 'Verifica a tua retenção na fonte';
-
-  @override
-  String get challengeFiscalite08Desc =>
-      'Como trabalhador fronteiriço, pagas impostos na fonte. Verifica se a taxa aplicada corresponde à tua situação.';
-
-  @override
-  String get challengePatrimoine01Title =>
-      'Calcula a tua capacidade de empréstimo hipotecário';
-
-  @override
-  String get challengePatrimoine01Desc =>
-      'Com a regra do terço, verifica quanto poderias pedir emprestado para uma compra imobiliária.';
-
-  @override
-  String get challengePatrimoine02Title =>
-      'Simula SARON vs. taxa fixa para a tua hipoteca';
-
-  @override
-  String get challengePatrimoine02Desc =>
-      'SARON (variável) ou taxa fixa? Simula ambos os cenários a 10 anos para ver a diferença.';
-
-  @override
-  String get challengePatrimoine03Title => 'Compara arrendar vs. comprar';
-
-  @override
-  String get challengePatrimoine03Desc =>
-      'Comprar nem sempre é melhor do que arrendar. Compara ambas as opções a 20 anos com o simulador.';
-
-  @override
-  String get challengePatrimoine04Title =>
-      'Simula um levantamento antecipado LPP para habitacao';
-
-  @override
-  String get challengePatrimoine04Desc =>
-      'Podes usar o 2.º pilar para financiar a tua habitação. Simula o impacto na tua reforma.';
-
-  @override
-  String get challengePatrimoine05Title =>
-      'Consulta o teu balanço patrimonial completo';
-
-  @override
-  String get challengePatrimoine05Desc =>
-      'Ativos, passivos, património líquido: faça um balanço da tua situação financeira global. Um momento importante para ganhar perspetiva.';
-
-  @override
-  String get challengePatrimoine06Title =>
-      'Verifica a tua alocação anual de poupança';
-
-  @override
-  String get challengePatrimoine06Desc =>
-      'Entre 3a, recompra LPP e amortização hipotecária, como distribuir a poupança este ano? Cada escolha tem um impacto fiscal diferente.';
-
-  @override
-  String get challengePatrimoine07Title =>
-      'Simula o impacto da amortização hipotecária';
-
-  @override
-  String get challengePatrimoine07Desc =>
-      'Amortização direta ou indireta via 3a? Simula ambas as opções e o seu impacto fiscal.';
-
-  @override
-  String get challengePatrimoine08Title =>
-      'Simula o efeito dos juros compostos a 20 anos';
-
-  @override
-  String get challengePatrimoine08Desc =>
-      'Mesmo um pequeno rendimento cria um efeito bola de neve. Simula o crescimento da tua poupança a 20 anos.';
-
-  @override
-  String get challengeEducation01Title => 'Lê o artigo sobre a 13.ª pensão AVS';
-
-  @override
-  String get challengeEducation01Desc =>
-      'Desde 2026, a 13.ª pensão AVS aumenta a tua pensão anual. Descobre o que muda concretamente para ti.';
-
-  @override
-  String get challengeEducation02Title =>
-      'Entende a diferença entre a taxa de conversão mínima e a supraobrigatória';
-
-  @override
-  String get challengeEducation02Desc =>
-      'A taxa de conversão LPP de 6,8 % aplica-se apenas ao mínimo. A tua caixa pode ter uma taxa diferente para a parte supraobrigatória.';
-
-  @override
-  String get challengeEducation03Title => 'Descobre como funciona o 1.º pilar';
-
-  @override
-  String get challengeEducation03Desc =>
-      'O AVS é um sistema de repartio: os ativos financiam os reformados. Entende as bases da tua futura pensão.';
-
-  @override
-  String get challengeEducation04Title => 'Entende o sistema de 3 pilares';
-
-  @override
-  String get challengeEducation04Desc =>
-      'AVS + LPP + 3a: cada pilar tem o seu papel. Entende como se complementam para a tua reforma.';
-
-  @override
-  String get challengeEducation05Title =>
-      'Explora o conceito de taxa de substituição';
-
-  @override
-  String get challengeEducation05Desc =>
-      'A taxa de substituição mede a relação entre a tua pensão e o último salário. O objetivo habitual é 60-80 %.';
-
-  @override
-  String get challengeEducation06Title =>
-      'Entende os bónus LPP por escalao etário';
-
-  @override
-  String get challengeEducation06Desc =>
-      'Os bónus LPP aumentam com a idade: 7 %, 10 %, 15 %, 18 %. Verifica em que escalao estás.';
-
-  @override
-  String get challengeEducation07Title =>
-      'Descobre as consequências financeiras da coabitação';
-
-  @override
-  String get challengeEducation07Desc =>
-      'Em concubinário não tens os mesmos direitos sucessórios que um casal casado. Verifica as proteções necessárias.';
-
-  @override
-  String get challengeEducation08Title =>
-      'Entende o impacto do gender gap na reforma';
-
-  @override
-  String get challengeEducation08Desc =>
-      'As mulheres recebem em média 37 % menos de pensão. Entende as causas e as soluções possíveis.';
-
-  @override
-  String get challengeArchetypeEu01Title =>
-      'Verifica os teus anos de contribuição na UE para o AVS';
-
-  @override
-  String get challengeArchetypeEu01Desc =>
-      'Graças aos acordos bilaterais, os teus anos cotizados na UE contam para a tua pensão AVS suíça. Pede um certificado E205 para verificar a totalização.';
-
-  @override
-  String get challengeArchetypeNonEu01Title =>
-      'Verifica se uma convenção de segurança social abrange o teu país';
-
-  @override
-  String get challengeArchetypeNonEu01Desc =>
-      'Sem acordo bilateral, as tuas contribuições estrangeiras não contam para o AVS. Verifica se o teu país de origem tem um acordo com a Suíça.';
-
-  @override
-  String get challengeArchetypeReturning01Title =>
-      'Verifica o teu potencial de recompra LPP após regressar à Suíça';
-
-  @override
-  String get challengeArchetypeReturning01Desc =>
-      'De volta à Suíça após uma estadia no estrangeiro? Podes ter um potencial de recompra LPP importante, dedutível fiscalmente. Simula o montante.';
-
-  @override
-  String get voiceMicLabel => 'Falar ao microfone';
-
-  @override
-  String get voiceMicListening => 'A ouvir…';
-
-  @override
-  String get voiceMicProcessing => 'A processar…';
-
-  @override
-  String get voiceSpeakerLabel => 'Ouvir a resposta';
-
-  @override
-  String get voiceSpeakerStop => 'Parar a leitura';
-
-  @override
-  String get voiceUnavailable =>
-      'Funções de voz não disponíveis neste dispositivo';
-
-  @override
-  String get voicePermissionNeeded =>
-      'Permite o acesso ao microfone para usar a voz';
-
-  @override
-  String get voiceNoSpeech => 'Não ouvi nada. Tenta de novo.';
-
-  @override
-  String get voiceError => 'Erro de voz. Usa o teclado.';
-
-  @override
-  String get benchmarkTitle => 'Perfis semelhantes no teu cantão';
-
-  @override
-  String get benchmarkSubtitle => 'Dados agregados e anonimizados (OFS)';
-
-  @override
-  String get benchmarkOptInBody =>
-      'Compara a tua situação com as medianas do teu cantão. Dados anonimizados, nunca um ranking.';
-
-  @override
-  String get benchmarkOptInButton => 'Ativar';
-
-  @override
-  String get benchmarkOptOutButton => 'Desativar';
-
-  @override
-  String get benchmarkDisclaimer =>
-      'Dados agregados OFS — ferramenta educativa, não um ranking. Não constitui aconselhamento (LSFin art. 3).';
-
-  @override
-  String benchmarkInsightIncome(String canton, String amount) {
-    return 'O rendimento mediano no cantão de $canton é de CHF $amount/ano';
-  }
-
-  @override
-  String benchmarkInsightSavings(String rate) {
-    return 'Um perfil semelhante poupa cerca de $rate% do seu rendimento';
-  }
-
-  @override
-  String benchmarkInsightTax(String canton, String level) {
-    return 'A carga fiscal em $canton é $level em relação à média suíça';
-  }
-
-  @override
-  String benchmarkInsightHousing(String amount) {
-    return 'A renda mediana para um apartamento de 4 quartos é CHF $amount/mês';
-  }
-
-  @override
-  String benchmarkInsight3a(String rate) {
-    return 'Cerca de $rate% dos trabalhadores contribuem para o 3.º pilar';
-  }
-
-  @override
-  String benchmarkInsightLpp(String rate) {
-    return 'A taxa de cobertura LPP é de $rate%';
-  }
-
-  @override
-  String get benchmarkTaxLevelBelow => 'inferior';
-
-  @override
-  String get benchmarkTaxLevelAverage => 'comparável';
-
-  @override
-  String get benchmarkTaxLevelAbove => 'superior';
-
-  @override
-  String get benchmarkNoDataCanton => 'Dados não disponíveis para este cantão';
-
-  @override
-  String get llmFailoverActive => 'Failover automático ativado';
-
-  @override
-  String get llmProviderClaude => 'Claude (Anthropic)';
-
-  @override
-  String get llmProviderOpenai => 'GPT-4o (OpenAI)';
-
-  @override
-  String get llmProviderMistral => 'Mistral';
-
-  @override
-  String get llmProviderLocal => 'Modelo local';
-
-  @override
-  String get llmCircuitOpen => 'Serviço temporariamente indisponível';
-
-  @override
-  String get llmAllProvidersDown =>
-      'Todos os serviços de IA estão indisponíveis. Modo offline ativado.';
-
-  @override
-  String get llmQualityGood => 'Qualidade da resposta: boa';
-
-  @override
-  String get llmQualityDegraded => 'Qualidade da resposta: degradada';
-
-  @override
-  String get gamificationCommunityTitle => 'Desafio do mês';
-
-  @override
-  String get gamificationSeasonalTitle => 'Eventos sazonais';
-
-  @override
-  String get gamificationMilestonesTitle => 'As tuas conquistas';
-
-  @override
-  String get gamificationOptInPrompt => 'Participar nos desafios da comunidade';
-
-  @override
-  String get communityChallenge01Title =>
-      'Prepara a tua declaração de impostos';
-
-  @override
-  String get communityChallenge01Desc =>
-      'Janeiro é o momento certo para reunir os teus documentos fiscais. Contacta o teu cantão para saber o prazo e os documentos necessários.';
-
-  @override
-  String get communityChallenge02Title => 'Identifica as tuas deduções fiscais';
-
-  @override
-  String get communityChallenge02Desc =>
-      'Despesas profissionais, juros hipotecários, doações : lista todas as deduções a que tens direito antes de submeter a tua declaração.';
-
-  @override
-  String get communityChallenge03Title =>
-      'Verifica a tua contribuição para o 3.º pilar antes do prazo';
-
-  @override
-  String get communityChallenge03Desc =>
-      'Alguns cantões permitem completar a contribuição do ano anterior para o pilar 3a até março. Verifica as regras do teu cantão.';
-
-  @override
-  String get communityChallenge04Title =>
-      'Consulta o teu certificado de previdência LPP';
-
-  @override
-  String get communityChallenge04Desc =>
-      'O teu certificado anual LPP chegou. Dedica 10 minutos a compreender o teu capital, a taxa de conversão e o potencial de recompra.';
-
-  @override
-  String get communityChallenge05Title => 'Simula uma recompra LPP';
-
-  @override
-  String get communityChallenge05Desc =>
-      'Uma recompra LPP melhora a tua reforma E reduz os teus impostos. Calcula quanto poderias recomprar e o impacto fiscal no teu cantão.';
-
-  @override
-  String get communityChallenge06Title => 'Faz a tua revisão semestral';
-
-  @override
-  String get communityChallenge06Desc =>
-      'Passaram 6 meses : revê os teus objetivos financeiros, verifica se estás no caminho certo e ajusta se necessário.';
-
-  @override
-  String get communityChallenge07Title =>
-      'Define o teu objetivo de poupança estival';
-
-  @override
-  String get communityChallenge07Desc =>
-      'O verão pode afetar o teu orçamento. Define um objetivo de poupança para julho e acompanha o teu progresso até ao final de agosto.';
-
-  @override
-  String get communityChallenge08Title =>
-      'Constitui ou reforça o teu fundo de emergência';
-
-  @override
-  String get communityChallenge08Desc =>
-      'Um fundo de emergência de 3 a 6 meses de despesas fixas protege-te dos imprevistos. Verifica onde estás e planeia as contribuições em falta.';
-
-  @override
-  String get communityChallenge09Title =>
-      'Programa a tua contribuição de outono para o 3.º pilar';
-
-  @override
-  String get communityChallenge09Desc =>
-      'Setembro é ideal para programar a próxima contribuição para o pilar 3a. Distribuir as contribuições ao longo do ano reduz o stress do prazo de dezembro.';
-
-  @override
-  String get communityChallenge10Title => 'Celebra o mês da previdência';
-
-  @override
-  String get communityChallenge10Desc =>
-      'Outubro é o mês oficial da previdência na Suíça. Consulta a tua projeção de reforma e identifica uma ação concreta para melhorar a tua situação.';
-
-  @override
-  String get communityChallenge11Title =>
-      'Planeia as tuas últimas otimizações de fim de ano';
-
-  @override
-  String get communityChallenge11Desc =>
-      'Restam poucas semanas para agir: contribuição 3a, doação, declaração de despesas. Identifica o que ainda podes fazer antes de 31 de dezembro.';
-
-  @override
-  String get communityChallenge12Title =>
-      'Faz a tua contribuição para o 3.º pilar antes de 31 de dezembro';
-
-  @override
-  String get communityChallenge12Desc =>
-      'O prazo do 3a aproxima-se. Contribui até CHF 7’258 (trabalhador por conta de outrem com LPP) antes de 31 de dezembro para beneficiar da dedução fiscal deste ano.';
-
-  @override
-  String get seasonalTaxSeasonTitle => 'Época fiscal';
-
-  @override
-  String get seasonalTaxSeasonDesc =>
-      'Fevereiro–março: é o momento de preparar a tua declaração de impostos. Reúne os teus justificativos e identifica as tuas deduções.';
-
-  @override
-  String get seasonal3aCountdownTitle => 'Contagem decrescente 3.º pilar';
-
-  @override
-  String get seasonal3aCountdownDesc =>
-      'O prazo de 31 de dezembro para contribuições ao pilar 3a está a aproximar-se. Verifica o teu saldo e planeia a contribuição para maximizar a dedução fiscal.';
-
-  @override
-  String get seasonalNewYearResolutionsTitle => 'Resoluções financeiras';
-
-  @override
-  String get seasonalNewYearResolutionsDesc =>
-      'Novo ano, novos objetivos financeiros. Define 1 ou 2 ações concretas que vais implementar este ano.';
-
-  @override
-  String get seasonalMidYearReviewTitle => 'Revisão semestral';
-
-  @override
-  String get seasonalMidYearReviewDesc =>
-      'Atingiste a marca dos 6 meses. Toma um momento para verificar o teu progresso em direção aos objetivos e ajustar se necessário.';
-
-  @override
-  String get seasonalRetirementMonthTitle => 'Mês da previdência';
-
-  @override
-  String get seasonalRetirementMonthDesc =>
-      'Outubro é o mês nacional da previdência na Suíça. É o momento de verificar a tua projeção de reforma e a tua taxa de substituição.';
-
-  @override
-  String get milestoneEngagementFirstWeekTitle => 'Primeira semana';
-
-  @override
-  String get milestoneEngagementFirstWeekDesc =>
-      'Usas o MINT há 7 dias. Construir hábitos começa aqui.';
-
-  @override
-  String get milestoneEngagementOneMonthTitle => 'Um mês fiel';
-
-  @override
-  String get milestoneEngagementOneMonthDesc =>
-      '30 dias com MINT. A tua curiosidade financeira está presente.';
-
-  @override
-  String get milestoneEngagementCitoyenTitle => 'Cidadão MINT';
-
-  @override
-  String get milestoneEngagementCitoyenDesc =>
-      '90 dias: fazes parte das pessoas que tomam o seu futuro financeiro nas próprias mãos.';
-
-  @override
-  String get milestoneEngagementFideleTitle => 'Fiel 6 meses';
-
-  @override
-  String get milestoneEngagementFideleDesc =>
-      '180 dias de acompanhamento financeiro. A tua regularidade constrói uma visão clara da tua situação.';
-
-  @override
-  String get milestoneEngagementVeteranTitle => 'Veterano MINT';
-
-  @override
-  String get milestoneEngagementVeteranDesc =>
-      '365 dias com MINT. Um ano completo de consciência financeira.';
-
-  @override
-  String get milestoneKnowledgeCurieuxTitle => 'Curioso';
-
-  @override
-  String get milestoneKnowledgeCurieuxDesc =>
-      'Exploraste 5 conceitos financeiros. O conhecimento é o ponto de partida de cada decisão informada.';
-
-  @override
-  String get milestoneKnowledgeEclaireTitle => 'Informado';
-
-  @override
-  String get milestoneKnowledgeEclaireDesc =>
-      '20 conceitos lidos. Estás a construir uma sólida compreensão do sistema financeiro suíço.';
-
-  @override
-  String get milestoneKnowledgeExpertTitle => 'Especialista';
-
-  @override
-  String get milestoneKnowledgeExpertDesc =>
-      '50 conceitos explorados. Dominas os fundamentos da previdência suíça.';
-
-  @override
-  String get milestoneKnowledgeStrategisteTitle => 'Estratega';
-
-  @override
-  String get milestoneKnowledgeStrategisteDesc =>
-      '100 conceitos. Tens uma visão estratégica a longo prazo das tuas finanças.';
-
-  @override
-  String get milestoneKnowledgeMaitreTitle => 'Mestre';
-
-  @override
-  String get milestoneKnowledgeMaitreDesc =>
-      '200 conceitos lidos. A tua cultura financeira é um ativo concreto para as tuas decisões de vida.';
-
-  @override
-  String get milestoneActionPremierPasTitle => 'Primeiro passo';
-
-  @override
-  String get milestoneActionPremierPasDesc =>
-      'Realizaste a tua primeira ação financeira concreta. Cada grande mudança começa por um primeiro passo.';
-
-  @override
-  String get milestoneActionActeurTitle => 'Ator';
-
-  @override
-  String get milestoneActionActeurDesc =>
-      '5 ações financeiras realizadas. Passas da reflexão à ação.';
-
-  @override
-  String get milestoneActionMaitreDestinTitle => 'Dono do teu destino';
-
-  @override
-  String get milestoneActionMaitreDestinDesc =>
-      '20 ações concretas. Geres ativamente a tua situação financeira.';
-
-  @override
-  String get milestoneActionBatisseurTitle => 'Construtor';
-
-  @override
-  String get milestoneActionBatisseurDesc =>
-      '50 ações financeiras. Constróis pacientemente uma base sólida.';
-
-  @override
-  String get milestoneActionArchitecteTitle => 'Arquiteto';
-
-  @override
-  String get milestoneActionArchitecteDesc =>
-      '100 ações. És o arquiteto da tua liberdade financeira.';
-
-  @override
-  String get milestoneConsistencyFlammeNaissanteTitle => 'Chama nascente';
-
-  @override
-  String get milestoneConsistencyFlammeNaissanteDesc =>
-      '2 semanas consecutivas. A tua regularidade está a tomar forma.';
-
-  @override
-  String get milestoneConsistencyFlammeViveTitle => 'Chama viva';
-
-  @override
-  String get milestoneConsistencyFlammeViveDesc =>
-      '4 semanas sem interrupção. A tua disciplina financeira está em marcha.';
-
-  @override
-  String get milestoneConsistencyFlammeEtermelleTitle => 'Chama eterna';
-
-  @override
-  String get milestoneConsistencyFlammeEtermelleDesc =>
-      '12 semanas consecutivas. A tua constância tornou-se um hábito.';
-
-  @override
-  String get milestoneConsistencyConfianceTitle => 'Perfil de confiança';
-
-  @override
-  String get milestoneConsistencyConfianceDesc =>
-      'O teu perfil atingiu um nível de confiança de 70 %. Os teus dados permitem cálculos fiáveis.';
-
-  @override
-  String get milestoneConsistencyChallengesTitle => '6 desafios concluídos';
-
-  @override
-  String get milestoneConsistencyChallengesDesc =>
-      'Completaste 6 desafios mensais. Seis meses de compromisso financeiro concreto.';
-
-  @override
-  String get rcSalaryLabel => 'O teu rendimento';
-
-  @override
-  String get rcAgeLabel => 'A tua idade';
-
-  @override
-  String get rcCantonLabel => 'O teu cantão';
-
-  @override
-  String get rcCivilStatusLabel => 'O teu estado civil';
-
-  @override
-  String get rcEmploymentStatusLabel => 'O teu estatuto profissional';
-
-  @override
-  String get rcLppLabel => 'Os teus dados LPP';
-
-  @override
-  String get expertTitle => 'Consultar um·a especialista';
-
-  @override
-  String get expertSubtitle =>
-      'MINT prepara o teu dossier para uma consulta eficiente';
-
-  @override
-  String get expertDisclaimer =>
-      'MINT facilita a ligação — não substitui aconselhamento personalizado (LSFin art. 3)';
-
-  @override
-  String get expertSpecRetirement => 'Reforma';
-
-  @override
-  String get expertSpecSuccession => 'Sucessão';
-
-  @override
-  String get expertSpecExpatriation => 'Expatriação';
-
-  @override
-  String get expertSpecDivorce => 'Divórcio';
-
-  @override
-  String get expertSpecSelfEmployment => 'Independente';
-
-  @override
-  String get expertSpecRealEstate => 'Imobiliário';
-
-  @override
-  String get expertSpecTax => 'Fiscalidade';
-
-  @override
-  String get expertSpecDebt => 'Gestão de dívidas';
-
-  @override
-  String get expertDossierTitle => 'O teu dossier preparado';
-
-  @override
-  String expertDossierIncomplete(int count) {
-    return 'Perfil incompleto — $count dados em falta';
-  }
-
-  @override
-  String get expertRequestSession => 'Solicitar uma consulta';
-
-  @override
-  String get expertSessionRequested => 'Pedido enviado';
-
-  @override
-  String get expertMissingData =>
-      'Valor estimado — a confirmar com o·a especialista';
-
-  @override
-  String get expertDossierSectionSituation => 'Situação pessoal';
-
-  @override
-  String get expertDossierSectionPrevoyance => 'Previdência';
-
-  @override
-  String get expertDossierSectionPatrimoine => 'Património';
-
-  @override
-  String get expertDossierSectionFinancement => 'Financiamento';
-
-  @override
-  String get expertDossierSectionDeductions => 'Deduções fiscais';
-
-  @override
-  String get expertDossierSectionBudget => 'Orçamento e dívidas';
-
-  @override
-  String get expertItemAge => 'Idade';
-
-  @override
-  String get expertItemSalaryRange => 'Rendimento bruto anual';
-
-  @override
-  String get expertItemCoupleStatus => 'Situação familiar';
-
-  @override
-  String get expertItemConjointAge => 'Idade do·a cônjuge';
-
-  @override
-  String get expertItemLppBalance => 'Saldo LPP';
-
-  @override
-  String get expertItem3aStatus => 'Pilar 3a';
-
-  @override
-  String get expertItem3aBalance => 'Capital 3a';
-
-  @override
-  String get expertItemLppBuybackPotential => 'Resgate LPP possível';
-
-  @override
-  String get expertItemAvsYears => 'Anos de contribuição AVS';
-
-  @override
-  String get expertItemReplacementRate => 'Taxa de substituição estimada';
-
-  @override
-  String get expertItemFamilyStatus => 'Estado civil';
-
-  @override
-  String get expertItemChildren => 'Filhos';
-
-  @override
-  String get expertItemPatrimoineRange => 'Património estimado';
-
-  @override
-  String get expertItemPropertyStatus => 'Habitação';
-
-  @override
-  String get expertItemPropertyValue => 'Valor imobiliário';
-
-  @override
-  String get expertItemNationality => 'Nacionalidade';
-
-  @override
-  String get expertItemArchetype => 'Perfil fiscal';
-
-  @override
-  String get expertItemYearsInCh => 'Anos na Suíça';
-
-  @override
-  String get expertItemResidencePermit => 'Autorização de residência';
-
-  @override
-  String get expertItemAvsStatus => 'Estado AVS';
-
-  @override
-  String get expertItemAvsGaps => 'Lacunas AVS';
-
-  @override
-  String get expertItemCivilStatus => 'Estado civil';
-
-  @override
-  String get expertItemConjointLpp => 'LPP do·a cônjuge';
-
-  @override
-  String get expertItemEmploymentStatus => 'Situação profissional';
-
-  @override
-  String get expertItemLppCoverage => 'Cobertura LPP';
-
-  @override
-  String get expertItemCanton => 'Cantão';
-
-  @override
-  String get expertItemCurrentHousing => 'Habitação atual';
-
-  @override
-  String get expertItemEquityEstimate => 'Fundos próprios disponíveis';
-
-  @override
-  String get expertItemLppEpl => 'EPL possível';
-
-  @override
-  String get expertItemMortgageBalance => 'Hipoteca em curso';
-
-  @override
-  String get expertItemDebtRatio => 'Rácio de endividamento';
-
-  @override
-  String get expertItemChargesVsIncome => 'Encargos vs rendimento';
-
-  @override
-  String get expertItemDebtType => 'Tipos de dívida';
-
-  @override
-  String get expertValueUnknown => 'Não indicado';
-
-  @override
-  String get expertValueNone => 'Nenhum·a';
-
-  @override
-  String get expertValueOwner => 'Proprietário·a';
-
-  @override
-  String get expertValueTenant => 'Inquilino·a';
-
-  @override
-  String get expertValueSingle => 'Solteiro·a';
-
-  @override
-  String get expertValueMarried => 'Casado·a';
-
-  @override
-  String get expertValueDivorced => 'Divorciado·a';
-
-  @override
-  String get expertValueWidowed => 'Viúvo·a';
-
-  @override
-  String get expertValueConcubinage => 'Em coabitação';
-
-  @override
-  String get expertValue3aActive => 'Ativo';
-
-  @override
-  String get expertValue3aInactive => 'Inativo';
-
-  @override
-  String get expertValueLppYes => 'Coberto·a';
-
-  @override
-  String get expertValueLppNo => 'Não coberto·a';
-
-  @override
-  String get expertValueLppEplPossible => 'Possível (a verificar)';
-
-  @override
-  String get expertValueDebtNone => 'Sem dívidas';
-
-  @override
-  String get expertValueDebtLow => 'Baixo (< 50 % do rendimento anual)';
-
-  @override
-  String get expertValueDebtMedium => 'Moderado (50–100 % do rendimento anual)';
-
-  @override
-  String get expertValueDebtHigh => 'Alto (> 100 % do rendimento anual)';
-
-  @override
-  String get expertValueChargesNone => 'Sem encargos de dívida';
-
-  @override
-  String get expertValueSalarie => 'Assalariado·a';
-
-  @override
-  String get expertValueIndependant => 'Independente';
-
-  @override
-  String get expertValueChomage => 'Desempregado·a';
-
-  @override
-  String get expertValueRetraite => 'Reformado·a';
-
-  @override
-  String get expertDebtTypeConso => 'Crédito ao consumo';
-
-  @override
-  String get expertDebtTypeLeasing => 'Leasing';
-
-  @override
-  String get expertDebtTypeHypo => 'Hipoteca';
-
-  @override
-  String get expertDebtTypeAutre => 'Outras dívidas';
-
-  @override
-  String get expertArchetypeSwissNative => 'Residente suíço·a';
-
-  @override
-  String get expertArchetypeExpatEu => 'Expat UE/EFTA';
-
-  @override
-  String get expertArchetypeExpatNonEu => 'Expat não-UE';
-
-  @override
-  String get expertArchetypeExpatUs => 'Residente US (FATCA)';
-
-  @override
-  String get expertArchetypeIndepWithLpp => 'Independente com LPP';
-
-  @override
-  String get expertArchetypeIndepNoLpp => 'Independente sem LPP';
-
-  @override
-  String get expertArchetypeCrossBorder => 'Trabalhador·a fronteiriço·a';
-
-  @override
-  String get expertArchetypeReturningSwiss => 'Suíço·a de regresso';
-
-  @override
-  String get expertMissingLppBalance => 'Saldo LPP não indicado';
-
-  @override
-  String get expertMissingAvsYears => 'Anos AVS não indicados';
-
-  @override
-  String get expertMissingLppBuyback => 'Lacuna de resgate LPP desconhecida';
-
-  @override
-  String get expertMissing3a => 'Capital 3a não indicado';
-
-  @override
-  String get expertMissingConjoint => 'Dados do·a cônjuge em falta';
-
-  @override
-  String get expertMissingPatrimoine => 'Património não indicado';
-
-  @override
-  String get expertMissingHousing => 'Situação habitacional desconhecida';
-
-  @override
-  String get expertMissingChildren => 'Número de filhos não indicado';
-
-  @override
-  String get expertMissingNationality => 'Nacionalidade não indicada';
-
-  @override
-  String get expertMissingArrivalAge => 'Idade de chegada à Suíça não indicada';
-
-  @override
-  String get expertMissingPermit => 'Autorização de residência não indicada';
-
-  @override
-  String get expertMissingConjointLpp => 'LPP do·a cônjuge não indicada';
-
-  @override
-  String get expertMissingIndependantStatus =>
-      'Estatuto de independente não confirmado';
-
-  @override
-  String get expertMissingLppCoverage => 'Cobertura LPP não indicada';
-
-  @override
-  String get expertMissingCanton => 'Cantão não indicado';
-
-  @override
-  String get expertMissingEquity => 'Fundos próprios não indicados';
-
-  @override
-  String get expertMissingHousingStatus => 'Estado habitacional não indicado';
-
-  @override
-  String get expertMissingDebtDetail => 'Detalhe de dívidas em falta';
-
-  @override
-  String get expertMissingMensualites =>
-      'Prestações mensais de dívidas não indicadas';
-
-  @override
-  String get agentFormTitle => 'Formulário pré-preenchido';
-
-  @override
-  String get agentFormDisclaimer =>
-      'Verifica cada campo antes de enviar. MINT não submete nada em teu nome.';
-
-  @override
-  String get agentFormValidateAll => 'Confirmo que verifiquei';
-
-  @override
-  String get agentFormEstimated => 'Estimado — a confirmar';
-
-  @override
-  String get agentLetterTitle => 'Carta preparada';
-
-  @override
-  String get agentLetterDisclaimer =>
-      'Adapta e envia tu mesmo. MINT não transmite nada.';
-
-  @override
-  String get agentLetterPensionSubject => 'Pedido de extrato de previdência';
-
-  @override
-  String get agentLetterTransferSubject =>
-      'Pedido de transferência de livre passagem';
-
-  @override
-  String get agentLetterAvsSubject => 'Pedido de extrato de conta AVS';
-
-  @override
-  String get agentLetterPlaceholderName => '[O teu nome completo]';
-
-  @override
-  String get agentLetterPlaceholderAddress => '[O teu endereço]';
-
-  @override
-  String get agentLetterPlaceholderSsn => '[O teu número AVS]';
-
-  @override
-  String get agentLetterPlaceholderDate => '[Data]';
-
-  @override
-  String get agentTaxFormTitle => 'Declaração fiscal — pré-preenchimento';
-
-  @override
-  String get agent3aFormTitle => 'Certificado 3.º pilar';
-
-  @override
-  String get agentLppFormTitle => 'Formulário de resgate LPP';
-
-  @override
-  String agentFieldSource(String source) {
-    return 'Fonte : $source';
-  }
-
-  @override
-  String get agentValidationRequired =>
-      'Validação necessária antes de qualquer utilização';
-
-  @override
-  String get agentOutputDisclaimer =>
-      'Ferramenta educativa — não constitui conselho financeiro, fiscal ou jurídico. Verifica cada informação. Em conformidade com LSFin.';
-
-  @override
-  String get agentNoAction =>
-      'MINT não submete, transmite nem executa nada automaticamente.';
-
-  @override
-  String get agentSpecialistLabel => 'um·a especialista habilitado·a';
-
-  @override
-  String get agentLppBuybackTitle => 'Pedido de resgate LPP';
-
-  @override
-  String get agentPensionFundSubject => 'Pedido de certificado de previdência';
-
-  @override
-  String get agentLppTransferSubject =>
-      'Pedido de transferência de previdência (livre passagem)';
-
-  @override
-  String get agentFormCantonFallback => '[cantão]';
-
-  @override
-  String get agentFormRevenuBrut => 'Rendimento bruto estimado';
-
-  @override
-  String get agentFormCanton => 'Cantão de residência';
-
-  @override
-  String get agentFormSituationFamiliale => 'Situação familiar';
-
-  @override
-  String get agentFormNbEnfants => 'Número de filhos';
-
-  @override
-  String get agentFormDeduction3a => 'Dedução 3a possível';
-
-  @override
-  String get agentFormRachatLppDeductible => 'Resgate LPP dedutível estimado';
-
-  @override
-  String get agentFormStatutProfessionnel => 'Situação profissional';
-
-  @override
-  String get agentFormBeneficiaireNom => 'Nome do/da beneficiário·a';
-
-  @override
-  String get agentFormNumeroCompte3a => 'Número de conta 3a';
-
-  @override
-  String agentFormMontantVersement(String plafond, String year) {
-    return '~$plafond CHF (limite $year)';
-  }
-
-  @override
-  String get agentFormMontantVersementLabel => 'Montante do pagamento anual';
-
-  @override
-  String get agentFormTypeContrat => 'Tipo de contrato';
-
-  @override
-  String get agentFormTypeContratSalarie => 'Trabalhador·a com LPP';
-
-  @override
-  String get agentFormTypeContratIndependant => 'Independente sem LPP';
-
-  @override
-  String get agentFormToComplete => '[A completar]';
-
-  @override
-  String get agentFormTitulaireNom => 'Nome do/da titular';
-
-  @override
-  String get agentFormNumeroPolice => 'Número de apólice';
-
-  @override
-  String get agentFormAvoirLpp => 'Ter LPP atual';
-
-  @override
-  String get agentFormRachatMax => 'Resgate máximo disponível';
-
-  @override
-  String get agentFormRachatsDeja => 'Resgates já efetuados';
-
-  @override
-  String get agentFormMontantRachatSouhaite => 'Montante do resgate pretendido';
-
-  @override
-  String get agentFormToCompleteAupres => '[A completar junto da caixa]';
-
-  @override
-  String agentFormToCompleteMax(String max) {
-    return '[A preencher — máx. $max CHF]';
-  }
-
-  @override
-  String get agentFormCivilCelibataire => 'Solteiro·a';
-
-  @override
-  String get agentFormCivilMarie => 'Casado·a';
-
-  @override
-  String get agentFormCivilDivorce => 'Divorciado·a';
-
-  @override
-  String get agentFormCivilVeuf => 'Viúvo·a';
-
-  @override
-  String get agentFormCivilConcubinage => 'União de facto';
-
-  @override
-  String get agentFormEmplSalarie => 'Trabalhador·a por conta de outrem';
-
-  @override
-  String get agentFormEmplIndependant => 'Trabalhador·a independente';
-
-  @override
-  String get agentFormEmplChomage => 'À procura de emprego';
-
-  @override
-  String get agentFormEmplRetraite => 'Reformado·a';
-
-  @override
-  String get agentLetterCaisseFallback => '[Nome da caixa de pensões]';
-
-  @override
-  String get agentLetterPostalCity => '[Código postal e cidade]';
-
-  @override
-  String get agentLetterCaisseAddress => '[Endereço da caixa]';
-
-  @override
-  String get agentLetterPoliceNumber => '[Número de apólice : A completar]';
-
-  @override
-  String get agentLetterCaisseCurrentName => '[Caixa de pensões atual]';
-
-  @override
-  String get agentLetterCaisseCurrentAddress => '[Endereço da caixa atual]';
-
-  @override
-  String get agentLetterToComplete => '[A completar]';
-
-  @override
-  String get agentLetterAvsOrg => 'Caixa de compensação AVS competente';
-
-  @override
-  String get agentLetterAvsAddress => '[Endereço]';
-
-  @override
-  String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber) {
-    return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nVenho por este meio submeter os seguintes pedidos relativos ao meu processo de previdência profissional:\n\n1. Certificado de previdência atualizado $year (ter de velhice, prestações cobertas, taxa de conversão aplicável)\n\n2. Confirmação da minha capacidade de resgate (montante máximo nos termos do art. 79b LPP)\n\n3. Simulação de reforma antecipada (projeção do ter e da renda aos 63 e 64 anos, se aplicável)\n\nAgradeço antecipadamente a vossa diligência e fico à disposição para qualquer informação adicional.\n\nCom os melhores cumprimentos,\n\n$name\n$policeNumber';
-  }
-
-  @override
-  String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete) {
-    return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nEm virtude da cessação do meu contrato de trabalho / da minha saída da Suíça (riscar o que não se aplica), solicito que procedam à transferência do meu ter de livre passagem.\n\nMontante a transferir: a totalidade do ter de livre passagem à data de saída.\n\nInstituição de destino:\nNome: $toComplete\nIBAN ou número de conta: $toComplete\nEndereço: $toComplete\n\nData de saída: $toComplete\n\nAgradeço a vossa diligência e solicito confirmação da boa execução desta transferência.\n\nCom os melhores cumprimentos,\n\n$name';
-  }
-
-  @override
-  String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject) {
-    return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nSolicito que me enviem um extrato da minha conta individual AVS (CI) para verificar o estado das minhas contribuições e identificar eventuais lacunas.\n\nAgradeço antecipadamente a vossa diligência.\n\nCom os melhores cumprimentos,\n\n$name';
-  }
-
-  @override
-  String get seasonalEventCta => 'Falar com o coach';
-
-  @override
-  String get communityChallengeCta => 'Aceitar o desafio';
-
-  @override
-  String get dossierExpertSectionTitle => 'Consultar um·a especialista';
-
-  @override
-  String get expertPrepareDossierCta => 'Preparar o meu dossier';
-
-  @override
-  String get dossierAgentSectionTitle => 'Documentos preparados';
-
-  @override
-  String get agentFormsTaxCta => 'Preparar a minha declaração';
-
-  @override
-  String get agentFormsTaxSubtitle => 'Pré-preenchido a partir do teu perfil';
-
-  @override
-  String get agentFormsAvsCta => 'Solicitar o meu extrato AVS';
-
-  @override
-  String get agentFormsAvsSubtitle => 'Modelo de carta pronto a enviar';
-
-  @override
-  String get agentFormsLppCta => 'Solicitar transferência LPP';
-
-  @override
-  String get agentFormsLppSubtitle =>
-      'Carta de transferência de livre passagem';
-
-  @override
-  String get notifThreeATitle => 'Prazo 3a';
-
-  @override
-  String get notifThreeA92Days => 'Restam 92 dias para depositar no teu 3a.';
-
-  @override
-  String notifThreeA61Days(String saving) {
-    return 'Restam 61 dias. Poupança estimada: CHF $saving.';
-  }
-
-  @override
-  String notifThreeALastMonth(String saving) {
-    return 'Último mês para o teu 3a. CHF $saving de poupança em jogo.';
-  }
-
-  @override
-  String get notifThreeA11Days => '11 dias. Último lembrete 3a.';
-
-  @override
-  String notifNewYearTitle(String year) {
-    return 'Novos limites $year';
-  }
-
-  @override
-  String notifNewYearBody(String year) {
-    return 'Novos limites $year. A tua poupança potencial mudou.';
-  }
-
-  @override
-  String get notifCheckInTitle => 'Check-in mensal';
-
-  @override
-  String get notifCheckInBody => 'O teu check-in mensal está disponível.';
-
-  @override
-  String get notifTaxTitle => 'Declaração fiscal';
-
-  @override
-  String get notifTax44Days =>
-      'Declaração fiscal em 44 dias. Começa a reunir os teus documentos.';
-
-  @override
-  String get notifTax16Days =>
-      'Declaração fiscal em 16 dias. Começa a preenchê-la.';
-
-  @override
-  String get notifTaxLastWeek =>
-      'Declaração antes de 31 de março. Última semana.';
-
-  @override
-  String get notifFriTitle => 'Pontuação de solidez';
-
-  @override
-  String notifFriCheckIn(String delta) {
-    return 'Desde o teu último check-in: $delta pontos.';
-  }
-
-  @override
-  String notifFriImproved(String delta) {
-    return 'A tua solidez melhorou $delta pontos.';
-  }
-
-  @override
-  String get notifProfileUpdatedTitle => 'Perfil atualizado';
-
-  @override
-  String get notifProfileUpdatedBody =>
-      'O teu perfil foi atualizado. Novas projeções disponíveis.';
-
-  @override
-  String get notifOffTrackTitle => 'Estás a afastar-te do teu plano';
-
-  @override
-  String notifOffTrackBody(String adherence, String total, String impact) {
-    return 'Adesão a $adherence% em $total ações. Estimativa linear (sem rendimento/impostos): ~CHF $impact.';
-  }
-
-  @override
-  String get agentTaskTaxDeclarationTitle =>
-      'Pré-preenchimento da declaração fiscal';
-
-  @override
-  String get agentTaskTaxDeclarationDesc =>
-      'Estimativa dos principais campos da tua declaração fiscal baseada no teu perfil MINT. Todos os montantes são aproximados.';
-
-  @override
-  String get agentTaskThreeAFormTitle => 'Pré-preenchimento do formulário 3a';
-
-  @override
-  String get agentTaskThreeAFormDesc =>
-      'Informações básicas para uma contribuição para o pilar 3. O limite é calculado com base na tua situação profissional.';
-
-  @override
-  String get agentTaskCaisseLetterTitle => 'Carta ao fundo de pensões';
-
-  @override
-  String get agentTaskCaisseLetterDesc =>
-      'Modelo de carta formal para solicitar um certificado LPP, confirmação de recompra e simulação de reforma antecipada.';
-
-  @override
-  String get agentTaskFiscalDossierTitle => 'Preparação do dossier fiscal';
-
-  @override
-  String get agentTaskFiscalDossierDesc =>
-      'Resumo educativo da tua situação fiscal estimada com deduções possíveis e perguntas para um·a especialista.';
-
-  @override
-  String get agentTaskAvsExtractTitle => 'Pedido de extrato AVS';
-
-  @override
-  String get agentTaskAvsExtractDesc =>
-      'Modelo de carta para solicitar um extrato de conta individual (CI) à tua caixa de compensação AVS.';
-
-  @override
-  String get agentTaskLppCertificateTitle => 'Pedido de certificado LPP';
-
-  @override
-  String get agentTaskLppCertificateDesc =>
-      'Modelo de carta para solicitar um certificado de previdência profissional atualizado ao teu fundo de pensões.';
-
-  @override
-  String get agentTaskDisclaimer =>
-      'Esta ferramenta é puramente educativa e não constitui aconselhamento financeiro, fiscal ou jurídico. Os montantes mostrados são estimativas indicativas. Consulta um·a especialista qualificado·a antes de qualquer decisão. Em conformidade com a LSFin.';
-
-  @override
-  String get agentTaskValidationPromptDefault =>
-      'Verifica cuidadosamente cada informação antes de usar. Todos os campos são estimativas a confirmar.';
-
-  @override
-  String get agentTaskValidationPromptLetter =>
-      'Verifica as informações e preenche os campos entre colchetes antes de enviar esta carta.';
-
-  @override
-  String get agentTaskValidationPromptRequest =>
-      'Verifica as informações e preenche os campos entre colchetes antes de enviar este pedido.';
-
-  @override
-  String agentFieldRevenuBrutValue(String range) {
-    return '~$range CHF/ano';
-  }
-
-  @override
-  String agentFieldRachatLppValue(String range) {
-    return '~$range CHF';
-  }
-
-  @override
-  String get agentFieldAnneRef => 'Ano de referência';
-
-  @override
-  String get agentFieldCaissePension => 'Fundo de pensões';
-
-  @override
-  String get agentFieldAddressPerso => 'Morada pessoal';
-
-  @override
-  String get agentFieldAddresseCaisse => 'Morada do fundo de pensões';
-
-  @override
-  String get agentFieldNumeroPolice => 'Número de apólice';
-
-  @override
-  String get agentFieldNumeroAvs => 'Número AVS';
-
-  @override
-  String get agentFieldAddresseCaisseAvs => 'Morada da caixa AVS';
-
-  @override
-  String get agentFiscalDossierRevenu => 'Rendimento bruto estimado';
-
-  @override
-  String get agentFiscalDossierPlafond3a => 'Limite 3a aplicável';
-
-  @override
-  String get agentFiscalDossierRachat => 'Recompra LPP disponível';
-
-  @override
-  String get agentFiscalDossierCapital3a => 'Capital 3a acumulado';
-
-  @override
-  String get proactiveLifecycleChange =>
-      'Acabaste de entrar numa nova fase de vida. Vemos o que muda para ti ?';
-
-  @override
-  String get proactiveWeeklyRecap =>
-      'O teu resumo semanal está pronto. Queres vê-lo ?';
-
-  @override
-  String proactiveGoalMilestone(String progress) {
-    return 'O teu objetivo ultrapassou os $progress %. Muito bem !';
-  }
-
-  @override
-  String proactiveSeasonalReminder(String event) {
-    return 'É a época de $event. Uma boa altura para…';
-  }
-
-  @override
-  String proactiveInactivityReturn(String days) {
-    return 'Fico feliz em te ver ! Já passaram $days dias. Fazemos o ponto da situação ?';
-  }
-
-  @override
-  String proactiveConfidenceUp(String delta) {
-    return 'A tua confiança melhorou $delta pts desde a última vez.';
-  }
-
-  @override
-  String get proactiveNewCap => 'Tenho uma nova prioridade para ti.';
-
-  @override
-  String get dossierToolsSection => 'Ferramentas';
-
-  @override
-  String get dossierToolsCta => 'Ver todas as ferramentas';
-
-  @override
-  String get pulseNarrativeBudgetGoal => 'a tua margem mensal livre:';
-
-  @override
-  String get pulseNarrativeHousingGoal =>
-      'a tua capacidade de compra estimada:';
-
-  @override
-  String get pulseNarrativeRetirementGoal => 'a tua taxa de substituição:';
-
-  @override
-  String get pulseLabelBudgetFree => 'Orçamento livre este mês';
-
-  @override
-  String get pulseLabelPurchasingCapacity => 'Capacidade de compra estimada';
-
-  @override
-  String capSequenceProgress(int completed, int total) {
-    return '$completed/$total passos';
-  }
-
-  @override
-  String get capSequenceComplete => 'Plano concluído!';
-
-  @override
-  String get capSequenceCurrentStep => 'Próximo passo';
-
-  @override
-  String get capStepRetirement01Title => 'Conhecer o teu salário bruto';
-
-  @override
-  String get capStepRetirement01Desc =>
-      'A base de todos os cálculos de reforma.';
-
-  @override
-  String get capStepRetirement02Title => 'Estimar a tua renda AVS';
-
-  @override
-  String get capStepRetirement02Desc =>
-      'Os teus anos contribuídos determinam o 1.º pilar.';
-
-  @override
-  String get capStepRetirement03Title => 'Verificar o teu capital LPP';
-
-  @override
-  String get capStepRetirement03Desc =>
-      'O certificado LPP revela o teu capital do 2.º pilar.';
-
-  @override
-  String get capStepRetirement04Title => 'Calcular a tua taxa de substituição';
-
-  @override
-  String get capStepRetirement04Desc =>
-      'Quanto do teu salário receberes na reforma.';
-
-  @override
-  String get capStepRetirement05Title => 'Simular uma contribuição 3a';
-
-  @override
-  String get capStepRetirement05Desc =>
-      'Deduzir até CHF 7.258 e reforçar a reforma.';
-
-  @override
-  String get capStepRetirement06Title => 'Avaliar uma recompra LPP';
-
-  @override
-  String get capStepRetirement06Desc => 'Cobrir lacunas e reduzir impostos.';
-
-  @override
-  String get capStepRetirement07Title => 'Comparar renda vs capital';
-
-  @override
-  String get capStepRetirement07Desc =>
-      'Renda mensal ou levantamento do capital?';
-
-  @override
-  String get capStepRetirement08Title => 'Planear o levantamento';
-
-  @override
-  String get capStepRetirement08Desc =>
-      'A ordem de levantamento afeta a fatura fiscal.';
-
-  @override
-  String get capStepRetirement09Title => 'Otimizar fiscalmente';
-
-  @override
-  String get capStepRetirement09Desc =>
-      '3a, recompra, timing: reduzir a tributação do capital.';
-
-  @override
-  String get capStepRetirement10Title => 'Consultar um·a especialista';
-
-  @override
-  String get capStepRetirement10Desc =>
-      'Revisão especializada da tua situação completa.';
-
-  @override
-  String get capStepBudget01Title => 'Conhecer os teus rendimentos';
-
-  @override
-  String get capStepBudget01Desc =>
-      'O ponto de partida de qualquer análise orçamental.';
-
-  @override
-  String get capStepBudget02Title => 'Listar as tuas despesas fixas';
-
-  @override
-  String get capStepBudget02Desc =>
-      'Renda, seguro de saúde, transportes: os inevitáveis.';
-
-  @override
-  String get capStepBudget03Title => 'Calcular a tua margem livre';
-
-  @override
-  String get capStepBudget03Desc =>
-      'O que sobra após as despesas — o teu espaço de manobra.';
-
-  @override
-  String get capStepBudget04Title => 'Identificar poupanças possíveis';
-
-  @override
-  String get capStepBudget04Desc => 'Pequenos ajustes, grande impacto mensal.';
-
-  @override
-  String get capStepBudget05Title => 'Construir uma poupança de precaução';
-
-  @override
-  String get capStepBudget05Desc =>
-      '3 meses de despesas líquidas: a tua rede de segurança.';
-
-  @override
-  String get capStepBudget06Title => 'Planear o 3a';
-
-  @override
-  String get capStepBudget06Desc =>
-      'Cada franco depositado reduz impostos e prepara a reforma.';
-
-  @override
-  String get capStepHousing01Title => 'Conhecer os teus rendimentos';
-
-  @override
-  String get capStepHousing01Desc =>
-      'A base do cálculo da capacidade de compra.';
-
-  @override
-  String get capStepHousing02Title => 'Avaliar os teus fundos próprios';
-
-  @override
-  String get capStepHousing02Desc =>
-      'Poupanças, 3a e LPP: reunir o aporte necessário.';
-
-  @override
-  String get capStepHousing03Title => 'Calcular a tua capacidade de compra';
-
-  @override
-  String get capStepHousing03Desc => 'Até que preço podes comprar?';
-
-  @override
-  String get capStepHousing04Title => 'Simular a hipoteca';
-
-  @override
-  String get capStepHousing04Desc =>
-      'Prestação mensal, amortização, taxa teórica.';
-
-  @override
-  String get capStepHousing05Title => 'Avaliar o EPL (2.º pilar)';
-
-  @override
-  String get capStepHousing05Desc =>
-      'Levantamento antecipado LPP para financiar o aporte.';
-
-  @override
-  String get capStepHousing06Title => 'Comparar arrendamento vs compra';
-
-  @override
-  String get capStepHousing06Desc => 'O cálculo que vai além das intuições.';
-
-  @override
-  String get capStepHousing07Title => 'Consultar um·a especialista';
-
-  @override
-  String get capStepHousing07Desc =>
-      'Notário, corretor, consultor: quando envolver quem.';
-
-  @override
-  String get goalSelectorTitle => 'Qual é o teu objetivo principal?';
-
-  @override
-  String get goalSelectorAuto => 'Deixar o MINT decidir';
-
-  @override
-  String get goalSelectorAutoDesc =>
-      'O MINT adapta-se automaticamente ao teu perfil';
-
-  @override
-  String get goalRetirementTitle => 'A minha reforma';
-
-  @override
-  String get goalRetirementDesc => 'Planear a transição para a reforma';
-
-  @override
-  String get goalBudgetTitle => 'O meu orçamento';
-
-  @override
-  String get goalBudgetDesc => 'Controlar as despesas e poupar';
-
-  @override
-  String get goalHousingTitle => 'Comprar um imóvel';
-
-  @override
-  String get goalHousingDesc => 'Avaliar a minha capacidade e planear a compra';
-
-  @override
-  String get goalTaxTitle => 'Pagar menos impostos';
-
-  @override
-  String get goalTaxDesc => 'Otimizar as deduções (3a, resgate LPP)';
-
-  @override
-  String get goalDebtTitle => 'Gerir as dívidas';
-
-  @override
-  String get goalDebtDesc => 'Recuperar margem e reembolsar';
-
-  @override
-  String get goalBirthTitle => 'Preparar um nascimento';
-
-  @override
-  String get goalBirthDesc => 'Antecipar os custos e adaptar o orçamento';
-
-  @override
-  String get goalIndependentTitle => 'Tornar-me independente';
-
-  @override
-  String get goalIndependentDesc => 'Previdência, fiscalidade e cobertura';
-
-  @override
-  String pulseGoalChip(String goal) {
-    return 'Objetivo: $goal';
-  }
-
-  @override
-  String get dossierProfileSection => 'O meu perfil';
-
-  @override
-  String get dossierPlanSection => 'O meu plano';
-
-  @override
-  String get dossierDataSection => 'Os meus dados';
-
-  @override
-  String get dossierConfidenceLabel => 'Fiabilidade do dossier';
-
-  @override
-  String get dossierCompleteCta => 'Completar o meu perfil';
-
-  @override
-  String get dossierChooseGoalCta => 'Escolher um objetivo';
-
-  @override
-  String get dossierScanLppCta => 'Digitalizar o meu certificado LPP';
-
-  @override
-  String get dossierDataRevenu => 'Rendimento';
-
-  @override
-  String get dossierDataLpp => '2.º pilar';
-
-  @override
-  String get dossierData3a => '3.º pilar';
-
-  @override
-  String get dossierDataBudget => 'Margem mensal';
-
-  @override
-  String get dossierDataUnknown => 'Não indicado';
-
-  @override
-  String dossierPlanProgress(int done, int total) {
-    return '$done / $total etapas';
-  }
-
-  @override
-  String get dossierPlanChangeGoal => 'Mudar objetivo';
-
-  @override
-  String get dossierPlanCurrentStep => 'Etapa atual';
-
-  @override
-  String get dossierPlanNextStep => 'Próxima etapa';
-
-  @override
-  String dossierConfidencePct(int pct) {
-    return '$pct %';
-  }
-
-  @override
-  String memoryRefTopic(int days, String topic) {
-    return 'Há $days dias, falaste-me de $topic.';
-  }
-
-  @override
-  String memoryRefGoal(String goal) {
-    return 'Tinhas definido o objetivo: $goal. Fazemos o ponto da situação?';
-  }
-
-  @override
-  String memoryRefScreenVisit(String screen) {
-    return 'Da última vez, utilizaste $screen.';
-  }
-
-  @override
-  String get memoryRefRecentInsights => 'O que recordo das nossas conversás:';
-
-  @override
-  String openerBudgetDeficit(String deficit) {
-    return 'CHF $deficit/mês de défice. Vemos onde está a apertar?';
-  }
-
-  @override
-  String opener3aDeadline(String days, String plafond) {
-    return 'Restam $days dias para depositar até $plafond CHF no teu 3a.';
-  }
-
-  @override
-  String openerGapWarning(String rate, String gap) {
-    return 'A tua taxa de substituição: $rate %. Na reforma, faltar-te-iam CHF $gap/mês.';
-  }
-
-  @override
-  String openerSavingsOpportunity(String plafond) {
-    return 'O teu 3a: CHF 0 este ano. $plafond CHF de poupança fiscal em jogo.';
-  }
-
-  @override
-  String openerProgressCelebration(String delta) {
-    return 'A tua fiabilidade ganhou $delta pontos. Os teus números são mais precisos.';
-  }
-
-  @override
-  String openerPlanProgress(String n, String total, String next) {
-    return 'Etapa $n/$total concluída. Próxima: $next.';
-  }
-
-  @override
-  String get semanticsBackButton => 'Voltar';
-
-  @override
-  String get semanticsDecrement => 'Diminuir';
-
-  @override
-  String get semanticsIncrement => 'Aumentar';
-
-  @override
-  String get frontalierDisclaimer =>
-      'Estimativas simplificadas para fins educativos — não constitui aconselhamento fiscal ou jurídico. Os montantes dependem de muitos fatores. Consulta um especialista fiscal para uma análise personalizada. LSFin.';
-
-  @override
-  String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
-
-  @override
-  String get firstJobPayslipAvsExplanation =>
-      'Contribuição do trabalhador: 5.3% do salário bruto. O teu empregador também paga 5.3% adicional.';
-
-  @override
-  String get firstJobPayslipLppLabel => 'LPP (2.º pilar)';
-
-  @override
-  String get firstJobPayslipLppExplanation =>
-      'Poupança para reforma obrigatória a partir dos 25 anos. A taxa exata depende da tua caixa e idade.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Imposto na fonte (estimativa)';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Deduzido diretamente do salário se fores tributado na fonte. A taxa varia por cantão, estado civil e rendimento.';
-
-  @override
-  String get firstJobChecklistDeadline1 => 'Antes de sair';
-
-  @override
-  String get firstJobChecklistAction1 =>
-      'Solicita o teu certificado LPP ao empregador atual.';
-
-  @override
-  String get firstJobChecklistConsequence1 =>
-      'Sem certificado, não podes verificar se o montante transferido está correto.';
-
-  @override
-  String get firstJobChecklistDeadline2 => '30 dias';
-
-  @override
-  String get firstJobChecklistAction2 =>
-      'Verifica que o teu capital LPP foi transferido para a caixa do novo empregador.';
-
-  @override
-  String get firstJobChecklistConsequence2 =>
-      'Sem transferência, o teu capital vai para a fundação supletiva a uma taxa de 0.05%.';
-
-  @override
-  String get firstJobChecklistDeadline3 => '1 mês';
-
-  @override
-  String get firstJobChecklistAction3 =>
-      'Informa o teu seguro de saúde LAMal da mudança de empregador se tiveras cobertura coletiva.';
-
-  @override
-  String get firstJobChecklistDeadline4 => 'A partir do primeiro salário';
-
-  @override
-  String get firstJobChecklistAction4 =>
-      'Continua as tuas contribuições ao pilar 3a — a interrupção custa-te deduções fiscais.';
-
-  @override
-  String get firstJobBudgetBesoins => 'Necessidades';
-
-  @override
-  String get firstJobBudgetLoyer => 'Renda';
-
-  @override
-  String get firstJobBudgetTransport => 'Transporte';
-
-  @override
-  String get firstJobBudgetAlimentation => 'Alimentação';
-
-  @override
-  String get firstJobBudgetEnvies => 'Desejos';
-
-  @override
-  String get firstJobBudgetLoisirs => 'Lazer';
-
-  @override
-  String get firstJobBudgetRestaurants => 'Restaurantes';
-
-  @override
-  String get firstJobBudgetVoyages => 'Viagens';
-
-  @override
-  String get firstJobBudgetShopping => 'Compras';
-
-  @override
-  String get firstJobBudgetEpargne => 'Poupança & 3a';
-
-  @override
-  String get firstJobBudgetPilier3a => 'Pilar 3a';
-
-  @override
-  String get firstJobBudgetEpargneCourt => 'Poupança';
-
-  @override
-  String get firstJobBudgetFondsUrgence => 'Fundo de emergência';
-
-  @override
-  String firstJobBudgetChiffreChoc(String annual, String future) {
-    return 'Se poupares $annual CHF/ano a partir de agora, terás ~$future CHF aos 65.';
-  }
-
-  @override
-  String get firstJobScenarioMySalary => 'O meu salário';
-
-  @override
-  String get firstJobScenarioDefault => 'Padrão';
-
-  @override
-  String get firstJobScenarioMedianCH => 'Mediana CH';
-
-  @override
-  String get firstJobScenarioBoosted => '+20%';
-
-  @override
-  String firstJobScenarioSemantics(String label) {
-    return 'Cenário salarial: $label';
-  }
-
-  @override
-  String get pulseRetirementIncome => 'Rendimento aposentadoria estimado';
-
-  @override
-  String get pulseCapImpact => 'Alavanca identificada';
-
-  @override
-  String get dossierAddConjointCta => 'Adicionar meu·minha parceiro·a';
-
-  @override
-  String get dossierDataAvs => '1º pilar';
-
-  @override
-  String get dossierDataFiscalite => 'Fiscalidade';
-
-  @override
-  String get pulseRetirementIncomeEstimated =>
-      'Aposentadoria estimada (mínimo LPP)';
-
-  @override
-  String get dossierScanLppPrecision =>
-      'Digitalize o certificado para projeções mais precisas';
-
-  @override
-  String get pulsePlanTitle => 'Meu plano';
-
-  @override
-  String pulsePlanProgress(int completed, int total) {
-    return '$completed/$total';
-  }
-
-  @override
-  String pulsePlanNextStep(String stepName) {
-    return 'Próximo passo: $stepName';
-  }
-
-  @override
-  String get dossierCoachingTitle => 'Acompanhamento';
-
-  @override
-  String get dossierCoachingSubtitle => 'Frequência de lembretes e sugestões';
-
-  @override
-  String get coachingSheetSubtitle =>
-      'Escolha com que frequência o MINT te acompanha';
-
-  @override
-  String get coachingIntensityDiscret => 'Discreto';
-
-  @override
-  String get coachingIntensityCalme => 'Calmo';
-
-  @override
-  String get coachingIntensityEquilibre => 'Equilibrado';
-
-  @override
-  String get coachingIntensityAttentif => 'Atento';
-
-  @override
-  String get coachingIntensityProactif => 'Proativo';
-
-  @override
-  String get coachingDescDiscret =>
-      'MINT te deixa em paz. Lembretes raros, apenas prazos críticos.';
-
-  @override
-  String get coachingDescCalme =>
-      'MINT intervém ocasionalmente. Um lembrete a cada 3 dias no máximo.';
-
-  @override
-  String get coachingDescEquilibre =>
-      'MINT te guia diariamente. Um lembrete por dia, sugestões contextuais.';
-
-  @override
-  String get coachingDescAttentif =>
-      'MINT está atento em cada sessão. Sugestões frequentes e memória rica.';
-
-  @override
-  String get coachingDescProactif =>
-      'MINT te acompanha ativamente. Lembretes em cada visita, memória completa.';
-
-  @override
-  String coachingEngagementStats(Object engaged, Object total) {
-    return '$engaged interações de $total sugestões';
-  }
-
-  @override
   String get landingHiddenAmount => 'Valor oculto';
 
   @override
   String get landingHiddenSubtitle => 'Crie uma conta para ver seus números';
 
   @override
-  String get friBarTitle => 'Resiliência financeira';
+  String get renteVsCapitalV2Title => 'Renda ou capital.';
 
   @override
-  String get friBarLiquidity => 'Liquidez';
+  String get renteVsCapitalV2Subtitle =>
+      'O mesmo dinheiro. Duas vidas diferentes.';
 
   @override
-  String get friBarFlexibility => 'Flexibilidade';
+  String get renteVsCapitalChoiceRenteSubtitle =>
+      'Mais estável, menos flexível';
 
   @override
-  String get friBarResilience => 'Resiliência';
+  String get renteVsCapitalChoiceCapitalSubtitle => 'Mais livre, mais exigente';
 
   @override
-  String get friBarStability => 'Estabilidade';
+  String get renteVsCapitalChoiceMixteSubtitle => 'Um equilíbrio a construir';
 
   @override
-  String get deuxViesTitle => 'As vossas duas vidas';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Se escolheres a renda';
 
   @override
-  String deuxViesGap(String amount, String name) {
-    return 'Diferença de $amount/mês a favor de $name';
-  }
+  String get renteVsCapitalConsequenceCapitalEyebrow =>
+      'Se escolheres o capital';
 
   @override
-  String deuxViesLever(String lever, String impact) {
-    return '$lever fecharia $impact da diferença';
-  }
+  String get renteVsCapitalConsequenceMixteEyebrow =>
+      'Se escolheres a opção mista';
 
   @override
-  String get deuxViesDisclaimer =>
-      'Ferramenta educativa. Não é aconselhamento financeiro (LSFin).';
+  String get renteVsCapitalConsequenceRenteNarrative =>
+      'Um rendimento fixo todos os meses, sem te preocupares com os mercados. Em troca, o teu capital já não te pertence.';
 
   @override
-  String get expertTierScreenTitle => 'Consultar um·a especialista';
+  String get renteVsCapitalConsequenceCapitalNarrative =>
+      'Geres o teu dinheiro livremente, mas pode esgotar-se. Cada ano conta.';
 
   @override
-  String get expertTierFinancialPlanner => 'Planeador·a financeiro·a';
+  String get renteVsCapitalConsequenceMixteNarrative =>
+      'A parte obrigatória como renda para a segurança, a suplementar como capital para a flexibilidade.';
 
   @override
-  String get expertTierFinancialPlannerDesc =>
-      'Reforma, previdência, estratégia de levantamento, planeamento patrimonial global';
+  String get renteVsCapitalConsequenceMixteRenteLabel => 'Renda (obrigatória)';
 
   @override
-  String get expertTierTaxSpecialist => 'Especialista fiscal';
+  String get renteVsCapitalConsequenceMixteCapitalLabel =>
+      'Capital (suplementar)';
 
   @override
-  String get expertTierTaxSpecialistDesc =>
-      'Otimização fiscal, recompra LPP, declaração, planeamento intercantonal';
+  String get renteVsCapitalSignalRevenu => 'Rendimento mensal';
 
   @override
-  String get expertTierNotary => 'Notário·a';
+  String get renteVsCapitalSignalFiscalite => 'Fiscalidade acumulada';
 
   @override
-  String get expertTierNotaryDesc =>
-      'Sucessão, testamento, doação, regime matrimonial, pacto sucessório';
+  String get renteVsCapitalSignalTransmission => 'Transmissão';
 
   @override
-  String get expertTierPrice => 'CHF 129 / sessão';
+  String get renteVsCapitalConfidenceNoticeLow =>
+      'Sem certificado LPP, isto continua a ser uma estimativa aproximada.';
 
   @override
-  String get expertTierSelectCta => 'Preparar o meu dossier';
+  String get renteVsCapitalConfidenceNoticeHigh =>
+      'Dados completos — resultados fiáveis.';
 
   @override
-  String get expertTierDossierPreviewTitle => 'Prévia do teu dossier';
+  String get renteVsCapitalConfidenceCta => 'Precisar os meus dados';
 
   @override
-  String get expertTierDossierGenerating => 'A preparar o dossier…';
+  String get renteVsCapitalFastEstimateTitle => 'Fazer uma primeira estimativa';
 
   @override
-  String get expertTierDossierReady => 'Dossier pronto';
+  String get renteVsCapitalCtaCompare => 'Comparar para mim';
 
   @override
-  String get expertTierRequestCta => 'Pedir uma consulta';
+  String get renteVsCapitalAdvancedDisclosure => 'Tenho o meu certificado LPP';
 
   @override
-  String get expertTierComingSoonTitle => 'Em breve';
+  String get renteVsCapitalPerMonthForLife => '/mês, vitalício';
 
   @override
-  String get expertTierComingSoon =>
-      'A marcação de consultas chega em breve. O teu dossier está pronto — poderás transmiti-lo assim que o serviço abrir.';
+  String get renteVsCapitalNetAfterTax => 'líquido de impostos';
 
   @override
-  String expertTierCompleteness(String percent) {
-    return 'Perfil completo a $percent %';
-  }
+  String get renteVsCapitalTransmissionRenteMarried => '60 % ao cônjuge';
 
   @override
-  String get expertTierEstimated => 'Estimado';
+  String get renteVsCapitalTransmissionRenteSingle => 'Nada aos herdeiros';
 
   @override
-  String get expertTierMissingDataTitle => 'Dados a completar';
+  String get renteVsCapitalTransmissionCapitalValue => '100 % aos herdeiros';
 
   @override
-  String get expertTierDisclaimerBanner =>
-      'MINT prepara o dossier, o·a especialista dá o conselho';
+  String get quickStartAgeTitle => 'Quantos anos tens?';
 
   @override
-  String get expertTierBack => 'Escolher outro·a especialista';
+  String get quickStartAgeSubtitle => 'Começamos por aqui.';
 
   @override
-  String get expertTierOk => 'Entendido';
+  String get quickStartRevenueTitle => 'O teu rendimento bruto anual?';
 
   @override
-  String get docCardTitle => 'Documento pré-preenchido';
+  String get quickStartRevenueSubtitle => 'Mesmo aproximado, basta.';
 
   @override
-  String get docCardFiscalDeclaration => 'Declaração fiscal';
+  String get quickStartCantonTitle => 'Onde vives?';
 
   @override
-  String get docCardPensionFundLetter => 'Carta ao fundo de pensão';
+  String get quickStartCantonSubtitle => 'O teu cantão muda muita coisa.';
 
   @override
-  String get docCardLppBuybackRequest => 'Pedido de resgate LPP';
+  String get quickStartNext => 'Seguinte';
 
   @override
-  String get docCardDisclaimer => 'Verifica cada campo. MINT nunca envia nada.';
+  String get quickStartResultConfidence =>
+      'Estimativa baseada em 3 dados. O coach vai precisar.';
 
   @override
-  String get docCardViewDocument => 'Ver documento';
+  String get quickStartCtaCoach => 'Falar com o coach';
 
   @override
-  String get docCardValidationFailed => 'A validação do documento falhou.';
-
-  @override
-  String get docCardGenerating => 'A gerar documento…';
-
-  @override
-  String docCardFieldCount(int count) {
-    return '$count campos pré-preenchidos';
-  }
-
-  @override
-  String get docCardReadOnly => 'Somente leitura — completar manualmente';
-
-  @override
-  String get sourceBadgeEstimated => 'Estimado';
-
-  @override
-  String get sourceBadgeDeclared => 'Declarado';
-
-  @override
-  String get sourceBadgeCertified => 'Certificado';
-
-  @override
-  String get monteCarloTitle => 'As tuas chances de viver confortavelmente';
-
-  @override
-  String monteCarloSubtitle(int count) {
-    return '$count cenários simulados';
-  }
-
-  @override
-  String get monteCarloHeroPhrase =>
-      'de probabilidade de que o teu capital dure até aos 90 anos';
-
-  @override
-  String get monteCarloLegendWideBand => 'Faixa ampla';
-
-  @override
-  String get monteCarloLegendProbableBand => 'Faixa provável';
-
-  @override
-  String get monteCarloLegendMedian => 'Cenário central';
-
-  @override
-  String get monteCarloLegendCurrentIncome => 'O que ganhas hoje';
-
-  @override
-  String monteCarloMedianAtAge(int age) {
-    return 'Cenário central aos $age anos';
-  }
-
-  @override
-  String get monteCarloProbableRange => 'Faixa provável';
-
-  @override
-  String get monteCarloSuccessLabel =>
-      'Probabilidade de que o teu\ncapital dure até aos 90 anos';
-
-  @override
-  String get monteCarloDisclaimer =>
-      'Os rendimentos passados não são indicadores de rendimentos futuros. Simulação educativa (LSFin).';
-
-  @override
-  String get dossierIdentiteSection => 'Identidade';
-
-  @override
-  String get dossierDocumentsSection => 'Documentos';
-
-  @override
-  String get dossierCoupleSection => 'Casal';
-
-  @override
-  String get dossierPreferencesSection => 'Preferências';
-
-  @override
-  String dossierUpdatedAgo(int days) {
-    return 'Atualizado há $days dias';
-  }
-
-  @override
-  String dossierUpdatedOn(String date) {
-    return 'Atualizado em $date';
-  }
-
-  @override
-  String get dossierUpdatedToday => 'Atualizado hoje';
-
-  @override
-  String get dossierUpdatedYesterday => 'Atualizado ontem';
-
-  @override
-  String get exploreHubOtherTopics => 'Outros temas';
-
-  @override
-  String get bankImportSummaryHeader => 'RESUMO';
-
-  @override
-  String get bankImportTransactionsHeader => 'TRANSAÇÕES';
-
-  @override
-  String bankImportMoreTransactions(int count) {
-    return '... e mais $count transações';
-  }
-
-  @override
-  String get bankImportGenericError => 'Ocorreu um erro ao analisar o extrato.';
-
-  @override
-  String get helpResourcesAppBarTitle => 'AJUDA EM CASO DE DÍVIDA';
-
-  @override
-  String get helpResourcesIntroTitle => 'Não estás sozinho';
-
-  @override
-  String get helpResourcesIntroBody =>
-      'Na Suíça, muitos serviços profissionais oferecem acompanhamento gratuito e confidencial para pessoas em dificuldades financeiras. Pedir ajuda é um ato de coragem.';
-
-  @override
-  String get helpResourcesIntroNote =>
-      'Todos os links levam a sites externos. A MINT não transmite dados a estes serviços.';
-
-  @override
-  String get helpResourcesDettesName => 'Dettes Conseils Suisse';
-
-  @override
-  String get helpResourcesDettesDesc =>
-      'Federação dos serviços de aconselhamento de dívidas na Suíça.';
-
-  @override
-  String get helpResourcesCaritasName => 'Caritas — Aconselhamento de dívidas';
-
-  @override
-  String get helpResourcesCaritasDesc =>
-      'Serviço de ajuda da Caritas Suíça para pessoas endividadas.';
-
-  @override
-  String get helpResourcesFreeLabel => 'GRÁTIS';
-
-  @override
-  String get helpResourcesCantonalHeader => 'SERVIÇO CANTONAL';
-
-  @override
-  String get helpResourcesCantonLabel => 'O teu cantão';
-
-  @override
-  String get helpResourcesNoService =>
-      'Nenhum serviço cantonal registado para este cantão.';
-
-  @override
-  String get helpResourcesPrivacyTitle => 'Proteção de dados (nLPD)';
-
-  @override
-  String get helpResourcesPrivacyBody =>
-      'A MINT não transmite dados pessoais aos serviços acima referidos.';
-
-  @override
-  String get helpResourcesDisclaimer =>
-      'A MINT fornece estes links para fins informativos e educativos.';
-
-  @override
-  String get successionUrgenceAction1 =>
-      'Declarar o óbito no registo civil em 2 dias';
-
-  @override
-  String get successionUrgenceAction2 =>
-      'Informar o empregador e seguradoras (LAMal, LPP)';
-
-  @override
-  String get successionUrgenceAction3 =>
-      'Bloquear contas bancárias conjuntas se necessário';
-
-  @override
-  String get successionUrgenceAction4 =>
-      'Contactar o notário se a pessoa tinha testamento';
-
-  @override
-  String get successionDemarchesAction1 =>
-      'Solicitar pensões de sobreviventes AVS (LAVS art. 23)';
-
-  @override
-  String get successionDemarchesAction2 =>
-      'Contactar a caixa LPP para o capital de falecimento';
-
-  @override
-  String get successionDemarchesAction3 =>
-      'Cancelar assinaturas e contratos em nome do falecido';
-
-  @override
-  String get successionDemarchesAction4 =>
-      'Fazer inventário de ativos e dívidas';
-
-  @override
-  String get successionDemarchesAction5 =>
-      'Solicitar certificados de herdeiros ao notário';
-
-  @override
-  String get successionLegaleAction1 =>
-      'Abrir o procedimento de sucessão com o notário';
-
-  @override
-  String get successionLegaleAction2 =>
-      'Partilhar bens conforme testamento ou lei (CC art. 537)';
-
-  @override
-  String get successionLegaleAction3 =>
-      'Apresentar declaração fiscal do ano do falecimento';
-
-  @override
-  String get successionLegaleAction4 =>
-      'Atualizar beneficiários dos teus próprios contratos';
-
-  @override
-  String get disabilityGapAct1Label => 'ATO 1 · Empregador';
-
-  @override
-  String get disabilityGapAct1Detail =>
-      '80 % do teu salário pago pelo empregador';
-
-  @override
-  String get disabilityGapAct1Duration => 'Semanas 1-26';
-
-  @override
-  String get disabilityGapAct2LabelIjm => 'ATO 2 · IJM (seguro de doença)';
-
-  @override
-  String get disabilityGapAct2LabelNoIjm => 'ATO 2 · Sem IJM';
-
-  @override
-  String get disabilityGapAct2SubIjm =>
-      'Seguro coletivo — 80% durante 720 dias máx.';
-
-  @override
-  String get disabilityGapAct2SubNoIjm =>
-      'Sem IJM, passas diretamente à AI após o empregador';
-
-  @override
-  String get disabilityGapAct2Duration => 'Até 24 meses';
-
-  @override
-  String get disabilityGapAct2DetailIjm => '80% do salário segurado';
-
-  @override
-  String get disabilityGapAct2DetailNoIjm =>
-      'Sem cobertura — prazo AI em curso';
-
-  @override
-  String get disabilityGapAct3Label => 'ATO 3 · AI + LPP (definitivo)';
-
-  @override
-  String get disabilityGapAct3Duration => 'Após 24 meses';
-
-  @override
-  String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount) {
-    return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mês';
-  }
-
-  @override
-  String get disabilityGapIjmCoverage =>
-      '80% durante 720 dias — seguro coletivo';
-
-  @override
-  String get disabilityGapNoIjmCoverage =>
-      'Nenhuma IJM subscrita — risco máximo';
-
-  @override
-  String disabilityGapAiDetail(String amount) {
-    return 'Máx. $amount CHF/mês — ~14 meses de espera';
-  }
-
-  @override
-  String get disabilityGapLppCovered =>
-      'Pensão de invalidez ≈ 40% salário coordenado (LPP art. 23)';
-
-  @override
-  String get disabilityGapLppNotCovered =>
-      'Salário abaixo do limiar LPP — sem cobertura 2º pilar';
-
-  @override
-  String get disabilityGapSavingsLabel => 'Reserva de emergência';
-
-  @override
-  String disabilityGapSavingsDetail(String months) {
-    return '$months meses de despesas cobertos';
-  }
-
-  @override
-  String get disabilityGapApgLabel => 'APG / IJM (perda de rendimento)';
-
-  @override
-  String get disabilityGapAiLabel => 'AI (seguro de invalidez)';
-
-  @override
-  String get disabilityGapLppLabel => 'LPP invalidez (2º pilar)';
-
-  @override
-  String get disabilityGapSources =>
-      '• LAI art. 28-29\n• LPP art. 23-26\n• CO art. 324a\n• LPGA art. 19';
-
-  @override
-  String disabilityGapAgeLabel(int age) {
-    return '$age anos';
-  }
-
-  @override
-  String get documentDetailExplanationObligatoire =>
-      'Montante acumulado na parte obrigatória LPP';
-
-  @override
-  String get documentDetailExplanationSurobligatoire =>
-      'Parte além do mínimo legal';
-
-  @override
-  String get documentDetailExplanationTotal =>
-      'Total do teu capital de velhice';
-
-  @override
-  String get documentDetailExplanationSalaireAssure =>
-      'Salário sobre o qual as contribuições são calculadas';
-
-  @override
-  String get documentDetailExplanationSalaireAvs =>
-      'Salário determinante para o AVS';
-
-  @override
-  String get documentDetailExplanationDeduction =>
-      'Montante deduzido para coordenar com o AVS';
-
-  @override
-  String get documentDetailExplanationTauxOblig => 'Mínimo legal: 6.8%';
-
-  @override
-  String get documentDetailExplanationTauxSurob =>
-      'Definido pela tua caixa de pensões';
-
-  @override
-  String get documentDetailExplanationTauxEnv => 'Taxa média ponderada';
-
-  @override
-  String get documentDetailExplanationInvalidite =>
-      'Pensão em caso de incapacidade de trabalho';
-
-  @override
-  String get documentDetailExplanationDeces =>
-      'Montante pago aos beneficiários em caso de falecimento';
-
-  @override
-  String get documentDetailExplanationConjoint =>
-      'Pensão paga ao cônjuge sobrevivente';
-
-  @override
-  String get documentDetailExplanationEnfant => 'Pensão paga por filho';
-
-  @override
-  String get documentDetailExplanationRachat =>
-      'Montante que pode ser resgatado para otimizar a tua previdência';
-
-  @override
-  String get documentDetailExplanationEmploye => 'A tua contribuição anual';
-
-  @override
-  String get documentDetailExplanationEmployeur =>
-      'Contribuição do teu empregador';
-
-  @override
-  String get disabilitySelfEmployedAlertLabel => '🚨  ALERTA INDEPENDENTE';
-
-  @override
-  String get disabilitySelfEmployedTitle =>
-      'A tua rede de segurança não existe';
-
-  @override
-  String get disabilitySelfEmployedAppBarTitle => 'Invalidez — Independente';
-
-  @override
-  String get disabilitySelfEmployedRevenueTitle =>
-      'O teu rendimento mensal líquido';
-
-  @override
-  String get disabilitySelfEmployedRevenueHint =>
-      'Ajusta para ver o impacto na tua situação real';
-
-  @override
-  String get disabilitySelfEmployedRevenueLabel => 'Rendimento líquido/mês';
-
-  @override
-  String get disabilitySelfEmployedInsuranceQuestion =>
-      'Já tens seguro de perda de rendimento?';
-
-  @override
-  String get disabilitySelfEmployedYes => 'Sim';
-
-  @override
-  String get disabilitySelfEmployedNo => 'Não / Não sei';
-
-  @override
-  String get disabilitySelfEmployedApgTip =>
-      'Uma APG individual a partir de CHF 45/mês pode cobrir 80% do teu rendimento durante 720 dias.';
-
-  @override
-  String get disabilitySelfEmployedDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento de seguros.';
-
-  @override
-  String get disabilitySelfEmployedSources =>
-      '• LAMal art. 67-77\n• CO art. 324a\n• LAI art. 28\n• LAVS art. 2 al. 3';
-
-  @override
-  String get confidenceDashboardLevelExcellent => 'Excelente';
-
-  @override
-  String get confidenceDashboardLevelGood => 'Boa';
-
-  @override
-  String get confidenceDashboardLevelFair => 'Razoável';
-
-  @override
-  String get confidenceDashboardLevelImprove => 'A melhorar';
-
-  @override
-  String get confidenceDashboardLevelInsufficient => 'Insuficiente';
-
-  @override
-  String get confidenceDashboardBreakdownTitle => 'Detalhe por eixo';
-
-  @override
-  String get confidenceDashboardFeaturesTitle =>
-      'Funcionalidades desbloqueadas';
-
-  @override
-  String confidenceDashboardRequired(String percent) {
-    return '$percent % necessário';
-  }
-
-  @override
-  String get confidenceDashboardEnrichTitle => 'Melhora a tua precisão';
-
-  @override
-  String get confidenceDashboardSourcesTitle => 'Fontes';
-
-  @override
-  String get cockpitDetailEmptyState =>
-      'Completa o teu perfil para aceder ao cockpit detalhado.';
-
-  @override
-  String get cockpitDetailEnrichProfile => 'Enriquecer o meu perfil';
-
-  @override
-  String get cockpitDetailDisclaimer =>
-      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).';
-
-  @override
-  String get toolBudgetSnapshotHint =>
-      'Aqui está uma visão do teu orçamento atual.';
-
-  @override
-  String get toolScoreGaugeHint =>
-      'Aqui está a tua pontuação de confiança financeira.';
-
-  @override
-  String get coachFactCardTitle => 'Sabias que?';
-
-  @override
-  String firstJobPrimePerMonth(String amount) {
-    return '$amount/mês';
-  }
-
-  @override
-  String firstJobCoutMaxPerYear(String amount) {
-    return 'Máx. $amount/ano';
-  }
-
-  @override
-  String get jobChangeChecklistSemantics =>
-      'Lista de verificação novo emprego LPP livre passagem ações urgentes';
-
-  @override
-  String get jobChangeChecklistTitle =>
-      'Lista de verificação mudança de emprego';
-
-  @override
-  String get jobChangeChecklistSubtitle =>
-      'Tens 30 dias para verificar que o teu LPP foi transferido.';
-
-  @override
-  String jobChangeChecklistProgress(int completed, int total) {
-    return '$completed / $total ações concluídas';
-  }
-
-  @override
-  String get jobChangeChecklistAlertTitle =>
-      'Pede SEMPRE o certificado LPP antes de assinar';
-
-  @override
-  String get jobChangeChecklistAlertBody =>
-      'Sem transferência do livre passagem nos prazos, o teu capital LPP pode acabar na Fundação supletiva a 0.05 %.';
-
-  @override
-  String get jobChangeChecklistDisclaimer =>
-      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Fonte: LPP art. 3 (livre passagem), OLP art. 1-3.';
-
-  @override
-  String get circleLabelEmergencyFund => 'Fundo de emergência';
-
-  @override
-  String get circleLabelDettes => 'Dívidas';
-
-  @override
-  String get circleLabelRevenu => 'Rendimento';
-
-  @override
-  String get circleLabelAssurancesObligatoires => 'Seguros obrigatórios';
-
-  @override
-  String get circleLabelTroisaOptimisation => '3a - Otimização';
-
-  @override
-  String get circleLabelTroisaVersement => '3a - Contribuição';
-
-  @override
-  String get circleLabelLppRachat => 'LPP - Resgate';
-
-  @override
-  String get circleLabelAvs => 'AVS';
-
-  @override
-  String get circleLabelInvestissements => 'Investimentos';
-
-  @override
-  String get circleLabelPatrimoineImmobilier => 'Patrimônio imobiliário';
-
-  @override
-  String get circleNameProtection => 'Proteção & Segurança';
-
-  @override
-  String get circleNamePrevoyance => 'Previdência Fiscal';
-
-  @override
-  String get circleNameCroissance => 'Crescimento';
-
-  @override
-  String get circleNameOptimisation => 'Otimização & Transferência';
-
-  @override
-  String get nudgeSalaryDayTitle => 'Dia de pagamento!';
-
-  @override
-  String get nudgeSalaryDayMessage =>
-      'Pensaste na tua transferência 3a este mês? Cada mês conta para a tua previdência.';
-
-  @override
-  String get nudgeSalaryDayAction => 'Ver o meu 3a';
-
-  @override
-  String get nudgeTaxDeadlineMessage =>
-      'Verifica o prazo da declaração fiscal no teu cantão. Verificaste as tuas deduções 3a e LPP?';
-
-  @override
-  String get nudgeTaxDeadlineAction => 'Simular os meus impostos';
-
-  @override
-  String get nudgeThreeADeadlineTitle => 'Última reta para o teu 3a';
-
-  @override
-  String get nudgeThreeADeadlineMessageLastDay =>
-      'Hoje é o último dia para contribuir para o teu 3a!';
-
-  @override
-  String get nudgeThreeADeadlineAction => 'Calcular a minha poupança';
-
-  @override
-  String get nudgeBirthdayDashboardAction => 'Ver o meu painel';
-
-  @override
-  String get nudgeLppBonifStartTitle => 'Início das contribuições LPP';
-
-  @override
-  String get nudgeLppBonifChangeTitle => 'Mudança de escalão LPP';
-
-  @override
-  String get nudgeLppBonifAction => 'Explorar o resgate';
-
-  @override
-  String get nudgeWeeklyCheckInTitle => 'Já passou algum tempo!';
-
-  @override
-  String get nudgeWeeklyCheckInMessage =>
-      'A tua situação financeira evolui a cada semana. Dedica 2 minutos para verificar o teu painel.';
-
-  @override
-  String get nudgeWeeklyCheckInAction => 'Ver o meu Pulse';
-
-  @override
-  String get nudgeStreakRiskTitle => 'A tua série está em perigo!';
-
-  @override
-  String get nudgeStreakRiskAction => 'Continuar a minha série';
-
-  @override
-  String get nudgeGoalApproachingTitle => 'O teu objetivo está a aproximar-se';
-
-  @override
-  String get nudgeGoalApproachingAction => 'Falar com o coach';
-
-  @override
-  String get nudgeFhsDroppedTitle => 'A tua pontuação de saúde desceu';
-
-  @override
-  String get nudgeFhsDroppedAction => 'Perceber a descida';
-
-  @override
-  String get ragErrorInvalidKey => 'A chave API é inválida ou expirou.';
-
-  @override
-  String get ragErrorRateLimit =>
-      'Limite de pedidos atingido. Tenta novamente dentro de momentos.';
-
-  @override
-  String get ragErrorBadRequest => 'Pedido inválido.';
-
-  @override
-  String get ragErrorServiceUnavailable =>
-      'Serviço temporariamente indisponível. Tenta mais tarde.';
-
-  @override
-  String get ragErrorStatus => 'Impossível verificar o estado do sistema RAG.';
-
-  @override
-  String get ragErrorVisionBadRequest => 'Pedido de visão inválido.';
-
-  @override
-  String get ragErrorImageTooLarge =>
-      'A imagem excede o limite de tamanho de 20 MB.';
-
-  @override
-  String get ragErrorRateLimitShort => 'Limite de pedidos atingido.';
-
-  @override
-  String get paywallTitle => 'Desbloqueia o MINT Coach';
-
-  @override
-  String get paywallSubtitle => 'O teu coach financeiro pessoal';
-
-  @override
-  String get paywallTrialBadge => 'Teste gratuito 14 dias';
-
-  @override
-  String paywallSubscriptionActivated(String tier) {
-    return 'Subscrição $tier ativada com sucesso.';
-  }
-
-  @override
-  String get paywallTrialActivated =>
-      'Teste gratuito ativado! Aproveita o MINT Coach durante 14 dias.';
-
-  @override
-  String get paywallRestoreButton => 'Restaurar uma compra';
-
-  @override
-  String get paywallRestoreSuccess => 'Subscrição restaurada com sucesso!';
-
-  @override
-  String get paywallRestoreNoPurchase => 'Nenhuma compra anterior encontrada.';
-
-  @override
-  String get paywallDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro. LSFin. Podes cancelar a qualquer momento nas definições da tua conta.';
-
-  @override
-  String get paywallClose => 'Fechar';
-
-  @override
-  String paywallSelectTier(String name) {
-    return 'Selecionar $name';
-  }
-
-  @override
-  String paywallChooseTier(String tier) {
-    return 'Escolher $tier';
-  }
-
-  @override
-  String get paywallStartTrial => 'Iniciar teste gratuito';
-
-  @override
-  String get paywallPricePerMonth => '/mês';
-
-  @override
-  String get paywallFeatureTop => 'Top';
-
-  @override
-  String get arbitrageOptionFullRente => '100 % Renda';
-
-  @override
-  String get arbitrageOptionFullCapital => '100 % Capital';
-
-  @override
-  String get arbitrageOptionMixed =>
-      'Misto (renda obrig. + capital sobreobrig.)';
-
-  @override
-  String get arbitrageOptionAmortIndirect => 'Amortização indireta';
-
-  @override
-  String get arbitrageOptionInvestLibre => 'Investimento livre';
-
-  @override
-  String get tornadoLabelRendementCapital => 'Rendimento do teu capital';
-
-  @override
-  String get tornadoLabelTauxRetrait => 'Levantamento anual do capital';
-
-  @override
-  String get tornadoLabelConversionOblig => 'Conversão LPP obrigatória';
-
-  @override
-  String get tornadoLabelConversionSurob => 'Conversão LPP sobreobrig.';
-
-  @override
-  String get tornadoLabelRendementMarche => 'Rendimento dos teus investimentos';
-
-  @override
-  String get tornadoLabelTauxMarginal => 'A tua taxa de imposto';
-
-  @override
-  String get tornadoLabelRendement3a => 'Rendimento do teu 3º pilar';
-
-  @override
-  String get tornadoLabelRendementLpp => 'Rendimento do teu fundo LPP';
-
-  @override
-  String get tornadoLabelTauxHypothecaire => 'Taxa hipotecária';
-
-  @override
-  String get tornadoLabelAppreciationImmo => 'Valorização imobiliária';
-
-  @override
-  String get tornadoLabelLoyerMensuel => 'Renda mensal';
-
-  @override
-  String get tornadoLabelTauxImpotCapital => 'Taxa de imposto sobre o capital';
-
-  @override
-  String get tornadoLabelAgeRetraite => 'Idade de reforma';
-
-  @override
-  String get tornadoLabelCapitalTotal => 'Capital total';
-
-  @override
-  String get tornadoLabelAnneesAvantRetraite => 'Anos antes da reforma';
-
-  @override
-  String get tornadoLabelBas => 'Baixo';
-
-  @override
-  String get tornadoLabelHaut => 'Alto';
-
-  @override
-  String get educationalLearnMoreStressCheck =>
-      'O teu stress financeiro, explicado claramente';
-
-  @override
-  String get educationalLearnMoreLpp => 'Entender o 2º pilar (LPP)';
-
-  @override
-  String get educationalLearnMoreTroisA => 'O 3º pilar em detalhe';
-
-  @override
-  String get educationalLearnMoreMortgage => 'Tipos de hipoteca na Suíça';
-
-  @override
-  String get educationalLearnMoreCredit => 'Crédito ao consumo';
-
-  @override
-  String get educationalLearnMoreLeasing => 'Leasing vs compra';
-
-  @override
-  String get educationalLearnMoreEmergency =>
-      'Porque ter um fundo de emergência?';
-
-  @override
-  String get educationalLearnMoreCivilStatus =>
-      'Estado civil e finanças na Suíça';
-
-  @override
-  String get educationalLearnMoreEmployment =>
-      'Estatuto profissional e previdência';
-
-  @override
-  String get educationalLearnMoreHousing => 'Arrendar ou ser proprietário?';
-
-  @override
-  String get educationalLearnMoreCanton => 'Fiscalidade cantonal na Suíça';
-
-  @override
-  String get educationalLearnMoreLppBuyback => 'Resgate LPP, como funciona?';
-
-  @override
-  String get educationalLearnMoreTroisaCount => 'Estratégia multi-conta 3a';
-
-  @override
-  String get educationalLearnMoreInvestments =>
-      'Investimentos e fiscalidade suíça';
-
-  @override
-  String get educationalLearnMoreRealEstate =>
-      'Financiar uma compra imobiliária';
-
-  @override
-  String get capMissingPieceHeadline => 'Falta uma peça';
-
-  @override
-  String capMissingPieceWhyNow(String label) {
-    return '$label — sem este dado, a tua projeção fica imprecisa.';
-  }
-
-  @override
-  String capMissingPieceExpectedImpact(String impact) {
-    return '+$impact pontos de confiança';
-  }
-
-  @override
-  String capMissingPieceConfidenceLabel(String score) {
-    return 'confiança $score %';
-  }
-
-  @override
-  String get capDebtHeadline => 'A tua dívida pesa';
-
-  @override
-  String get capDebtWhyNow =>
-      'Pagar primeiro a taxa mais alta liberta margem todos os meses.';
-
-  @override
-  String get capDebtCtaLabel => 'Ver o meu plano';
-
-  @override
-  String get capDebtExpectedImpact => 'margem a recuperar';
-
-  @override
-  String get capIndepNoLppHeadline => 'O teu 2.º pilar : CHF 0';
-
-  @override
-  String get capIndepNoLppWhyNow =>
-      'Sem LPP, a tua reforma = AVS sozinha. Uma rede voluntária muda a trajetória.';
-
-  @override
-  String get capIndepNoLppCtaLabel => 'Construir a minha rede';
-
-  @override
-  String get capIndepNoLppExpectedImpact => 'reforma reforçada';
-
-  @override
-  String get capDisabilityGapHeadline => 'A tua rede de invalidez : apenas AI';
-
-  @override
-  String get capDisabilityGapWhyNow =>
-      'Sem LPP, a tua cobertura de invalidez limita-se à AI. A lacuna pode surpreender.';
-
-  @override
-  String get capDisabilityGapCtaLabel => 'Ver a lacuna';
-
-  @override
-  String get capDisabilityGapExpectedImpact => 'perceber a lacuna ~70 %';
-
-  @override
-  String get cap3aHeadline => 'Este ano ainda conta';
-
-  @override
-  String get cap3aWhyNow =>
-      'Um depósito 3a pode ainda reduzir os impostos e reforçar a reforma.';
-
-  @override
-  String get cap3aCtaLabel => 'Simular o meu 3a';
-
-  @override
-  String get capLppBuybackHeadline => 'Resgate LPP disponível';
-
-  @override
-  String capLppBuybackWhyNow(String amount) {
-    return 'Podes resgatar até $amount e deduzir nos impostos.';
-  }
-
-  @override
-  String get capLppBuybackCtaLabel => 'Simular um resgate';
-
-  @override
-  String get capLppBuybackExpectedImpact => 'dedução fiscal';
-
-  @override
-  String get capBudgetDeficitHeadline => 'A tua margem a recuperar';
-
-  @override
-  String get capBudgetDeficitWhyNow =>
-      'O teu orçamento está apertado. Ajustar uma rubrica pode dar fôlego.';
-
-  @override
-  String get capBudgetDeficitCtaLabel => 'Ajustar o meu orçamento';
-
-  @override
-  String get capBudgetDeficitExpectedImpact => 'margem mensal';
-
-  @override
-  String get capReplacementRateHeadline => 'A tua reforma ainda está curta';
-
-  @override
-  String capReplacementRateWhyNow(String rate) {
-    return '$rate % de taxa de substituição. Um resgate ou 3a muda a trajetória.';
-  }
-
-  @override
-  String get capReplacementRateCtaLabel => 'Explorar os meus cenários';
-
-  @override
-  String get capReplacementRateExpectedImpact => '+4 a +7 pontos';
-
-  @override
-  String get capCoverageCheckSeniorHeadline =>
-      'Invalidez depois dos 50 : um ponto cego ?';
-
-  @override
-  String get capCoverageCheckHeadline =>
-      'A tua cobertura merece uma verificação';
-
-  @override
-  String get capCoverageCheckSeniorWhyNow =>
-      'Depois dos 50, a lacuna entre rendimento e prestações AI + LPP pode ultrapassar 40 %. O teu IJM cobre o resto ?';
-
-  @override
-  String get capCoverageCheckWhyNow =>
-      'IJM, AI, LPP invalidez — verifica que a tua rede aguenta.';
-
-  @override
-  String get capCoverageCheckCtaLabel => 'Verificar';
-
-  @override
-  String get capChomageHeadline => 'Proteger os próximos 90 dias';
-
-  @override
-  String get capChomageWhyNow =>
-      'Desempregado : três urgências — os teus direitos AC, o impacto no LPP e ajustar o orçamento.';
-
-  @override
-  String get capChomageCtaLabel => 'Ver os meus direitos';
-
-  @override
-  String get capChomageExpectedImpact => 'estabilização imediata';
-
-  @override
-  String get capDivorceUrgencyHeadline => 'Divórcio : clarificar o que muda';
-
-  @override
-  String get capDivorceUrgencyWhyNow =>
-      'Divisão LPP, pensão alimentícia, habitação — os impactos financeiros merecem uma avaliação clara.';
-
-  @override
-  String get capDivorceUrgencyCtaLabel => 'Simular o impacto';
-
-  @override
-  String get capDivorceUrgencyExpectedImpact => 'esclarecimento LPP + impostos';
-
-  @override
-  String get capLeMarriageHeadline => 'Casamento à vista';
-
-  @override
-  String get capLeMarriageWhyNow => 'Impostos, AVS, LPP, sucessão — tudo muda.';
-
-  @override
-  String get capLeMarriageCtaLabel => 'Ver o impacto';
-
-  @override
-  String get capLeDivorceHeadline => 'Divórcio em curso';
-
-  @override
-  String get capLeDivorceWhyNow => 'Divisão LPP, pensão, impostos — antecipa.';
-
-  @override
-  String get capLeDivorceCtaLabel => 'Simular';
-
-  @override
-  String get capLeBirthHeadline => 'Nascimento previsto';
-
-  @override
-  String get capLeBirthWhyNow => 'Subsídios, deduções, orçamento — prepara-te.';
-
-  @override
-  String get capLeBirthCtaLabel => 'Ver o impacto';
-
-  @override
-  String get capLeHousingPurchaseHeadline => 'Compra imobiliária';
-
-  @override
-  String get capLeHousingPurchaseWhyNow =>
-      'EPL, 3a, hipoteca — tudo se decide agora.';
-
-  @override
-  String get capLeHousingPurchaseCtaLabel => 'Simular a minha capacidade';
-
-  @override
-  String get capLeJobLossHeadline => 'Perda de emprego';
-
-  @override
-  String get capLeJobLossWhyNow =>
-      'Desemprego, LPP, orçamento — as 3 urgências.';
-
-  @override
-  String get capLeJobLossCtaLabel => 'Ver os meus direitos';
-
-  @override
-  String get capLeSelfEmploymentHeadline => 'Passagem à autonomia';
-
-  @override
-  String get capLeSelfEmploymentWhyNow =>
-      'LPP voluntário, máx. 3a, IJM — reconstrói a tua rede.';
-
-  @override
-  String get capLeSelfEmploymentCtaLabel => 'Verificar a minha cobertura';
-
-  @override
-  String get capLeRetirementHeadline => 'Reforma no horizonte';
-
-  @override
-  String get capLeRetirementWhyNow =>
-      'Capital ou renda, levantamento, timing — é o momento.';
-
-  @override
-  String get capLeRetirementCtaLabel => 'Explorar as minhas opções';
-
-  @override
-  String get capLeConcubinageHeadline => 'Vida em comum';
-
-  @override
-  String get capLeConcubinageWhyNow =>
-      'Sem limite AVS 150 %, sem divisão LPP automática — antecipa.';
-
-  @override
-  String get capLeConcubinageCtaLabel => 'Ver as diferenças';
-
-  @override
-  String get capLeDeathOfRelativeHeadline => 'Perda de um ente querido';
-
-  @override
-  String get capLeDeathOfRelativeWhyNow =>
-      'Sucessão, rendas de sobrevivência, prazos — o que é urgente.';
-
-  @override
-  String get capLeDeathOfRelativeCtaLabel => 'Ver os procedimentos';
-
-  @override
-  String get capLeNewJobHeadline => 'Novo posto';
-
-  @override
-  String get capLeNewJobWhyNow =>
-      'LPP, livre passagem, 3a — três coisas a verificar.';
-
-  @override
-  String get capLeNewJobCtaLabel => 'Comparar';
-
-  @override
-  String get capLeHousingSaleHeadline => 'Venda imobiliária';
-
-  @override
-  String get capLeHousingSaleWhyNow =>
-      'Mais-valia, reembolso EPL, reinvestimento — planeia.';
-
-  @override
-  String get capLeHousingSaleCtaLabel => 'Ver o impacto';
-
-  @override
-  String get capLeInheritanceHeadline => 'Herça recebida';
-
-  @override
-  String get capLeInheritanceWhyNow =>
-      'Impostos, integração no património, resgate LPP — pondera.';
-
-  @override
-  String get capLeInheritanceCtaLabel => 'Ver as minhas opções';
-
-  @override
-  String get capLeDonationHeadline => 'Doação planeada';
-
-  @override
-  String get capLeDonationWhyNow =>
-      'Adiantamento da herça, fiscalidade, relatório — antecipa.';
-
-  @override
-  String get capLeDonationCtaLabel => 'Ver o impacto';
-
-  @override
-  String get capLeDisabilityHeadline => 'Risco de invalidez';
-
-  @override
-  String get capLeDisabilityWhyNow =>
-      'AI, LPP invalidez, IJM — verifica a tua rede.';
-
-  @override
-  String get capLeDisabilityCtaLabel => 'Verificar a minha cobertura';
-
-  @override
-  String get capLeCantonMoveHeadline => 'Mudança de cantão';
-
-  @override
-  String get capLeCantonMoveWhyNow =>
-      'Impostos, LAMal, encargos — o impacto pode surpreender.';
-
-  @override
-  String get capLeCantonMoveCtaLabel => 'Comparar cantões';
-
-  @override
-  String get capLeCountryMoveHeadline => 'Saída da Suíça';
-
-  @override
-  String get capLeCountryMoveWhyNow =>
-      'Livre passagem, AVS, 3a — o que te segue, o que fica.';
-
-  @override
-  String get capLeCountryMoveCtaLabel => 'Ver as consequências';
-
-  @override
-  String get capLeDebtCrisisHeadline => 'Situação de dívida';
-
-  @override
-  String get capLeDebtCrisisWhyNow =>
-      'Priorizar, reestruturar, proteger o essencial — passo a passo.';
-
-  @override
-  String get capLeDebtCrisisCtaLabel => 'Ver o meu plano';
-
-  @override
-  String get capCouple3aHeadline => 'A dois, mais uma alavanca';
-
-  @override
-  String get capCouple3aWhyNow =>
-      'O vosso agregado pode deduzir 2 × 7’258 CHF contribuindo cada um para o 3a. A conta do teu parceiro ainda não está registada.';
-
-  @override
-  String get capCouple3aCtaLabel => 'Simular o 3a de casal';
-
-  @override
-  String get capCouple3aExpectedImpact => 'até 14’516 CHF em deduções';
-
-  @override
-  String get capCoupleLppBuybackHeadline =>
-      'Resgate LPP : a alavanca do parceiro';
-
-  @override
-  String capCoupleLppBuybackWhyNow(String amount) {
-    return 'O teu parceiro tem um resgate possível de $amount. Priorizar a taxa marginal mais alta maximiza a dedução.';
-  }
-
-  @override
-  String get capCoupleLppBuybackCtaLabel => 'Comparar resgates';
-
-  @override
-  String get capCoupleLppBuybackExpectedImpact =>
-      'otimização fiscal do agregado';
-
-  @override
-  String get capCoupleAvsCapHeadline => 'AVS de casal : o teto dos 150 %';
-
-  @override
-  String get capCoupleAvsCapWhyNow =>
-      'Casados, as vossas rendas AVS acumuladas são limitadas a 150 % da renda máxima (LAVS art. 35). A diferença pode chegar a ~10’000 CHF/ano.';
-
-  @override
-  String get capCoupleAvsCapCtaLabel => 'Ver o impacto AVS';
-
-  @override
-  String get capCoupleAvsCapExpectedImpact => 'perceber o delta ~10k/ano';
-
-  @override
-  String get capHonestyDebtHeadline =>
-      'A tua situação merece um olhar especializado';
-
-  @override
-  String get capHonestyDebtWhyNow =>
-      'As alavancas clássicas não chegam aqui. Um especialista em dívidas pode ajudar-te a construir um plano realista.';
-
-  @override
-  String get capHonestryCrossBorderHeadline => 'Façamos um balanço juntos';
-
-  @override
-  String get capHonestryCrossBorderWhyNow =>
-      'No teu horizonte, as alavancas do 2.º pilar são limitadas. Um especialista transfronteiço pode identificar caminhos que o MINT ainda não cobre.';
-
-  @override
-  String get capHonestyNoLppHeadline => 'A tua base está lá';
-
-  @override
-  String get capHonestyNoLppWhyNow =>
-      'As alavancas clássicas não mudam muito o quadro aqui. Um especialista pode ajudar-te a ver mais longe.';
-
-  @override
-  String get capHonestyCtaLabel => 'Falar com o coach';
-
-  @override
-  String get capHonestyExpectedImpact => 'esclarecimento';
-
-  @override
-  String get capHonestyDebtCoachPrompt =>
-      'A minha dívida ultrapassa largamente o meu rendimento anual. Os simuladores já não bastam. Encaminha-me para um especialista em desendividamento.';
-
-  @override
-  String get capHonestyCrossBorderCoachPrompt =>
-      'Sou fronteiriço/a perto da reforma sem LPP. Que opções realistas existem? Encaminha-me para um especialista.';
-
-  @override
-  String get capHonestyNoLppCoachPrompt =>
-      'Aproximo-me da reforma com pouco 2.º pilar. Ajuda-me a perceber o que adquiri e encaminha-me para um especialista.';
-
-  @override
-  String capAcquiredAvsWithRente(String rente, String years) {
-    return 'AVS : ~$rente CHF/mês ($years anos contribuídos)';
-  }
-
-  @override
-  String capAcquiredAvsYearsOnly(String years) {
-    return 'AVS : $years anos contribuídos';
-  }
-
-  @override
-  String get capAcquiredAvsInProgress => 'AVS : direitos em curso';
-
-  @override
-  String capAcquiredLpp(String amount) {
-    return 'LPP : $amount acumulado';
-  }
-
-  @override
-  String capAcquired3a(String amount) {
-    return '3a : $amount poupados';
-  }
-
-  @override
-  String get capFallbackHeadline => 'Completa o teu perfil';
-
-  @override
-  String get capFallbackWhyNow =>
-      'Quanto mais o MINT te conhece, mais precisas são as alavancas.';
-
-  @override
-  String get capFallbackCtaLabel => 'Enriquecer';
-
-  @override
-  String get pulseIndepLppTitle => 'CHF 0';
-
-  @override
-  String get pulseIndepLppSubtitle => 'Este é o teu 2.º pilar hoje.';
-
-  @override
-  String get pulseIndepLppDetail =>
-      'Sem LPP, a tua reforma = AVS sozinha : ~CHF 1’934/mês.';
-
-  @override
-  String get pulseIndepLppCta => 'Construir a minha rede';
-
-  @override
-  String get pulseDebtSubtitle => 'de dívida a reembolsar.';
-
-  @override
-  String get pulseDebtCta => 'Ver o meu plano';
-
-  @override
-  String get pulseComprSalaireSubtitle =>
-      'desaparecem do teu salário antes de chegar.';
-
-  @override
-  String get pulseComprSalaireDetail =>
-      'AVS, LPP, AC, impostos — descobre para onde vai cada franco.';
-
-  @override
-  String get pulseComprSalaireCta => 'Perceber o meu recibo';
-
-  @override
-  String get pulseComprSystemeTitle => '3 pilares';
-
-  @override
-  String get pulseComprSystemeSubtitle => 'O sistema suíço em 1 minuto.';
-
-  @override
-  String get pulseComprSystemeDetail =>
-      'AVS (Estado) + LPP (empregador) + 3a (tu) = a tua reforma.';
-
-  @override
-  String get pulseComprSystemeCta => 'Descobrir';
-
-  @override
-  String get pulseComprSituationTitle => 'A tua visibilidade financeira';
-
-  @override
-  String get pulseComprSituationSubtitle =>
-      'O que sabes realmente da tua situação ?';
-
-  @override
-  String get pulseComprSituationDetail =>
-      'Completa o teu perfil para afinar a tua pontuação.';
-
-  @override
-  String get pulseComprSituationCta => 'Ver a minha pontuação';
-
-  @override
-  String get pulseProtRetraiteCapRenteTitle => 'Capital ou Renda ?';
-
-  @override
-  String get pulseProtRetraiteCapRenteSubtitle => 'A escolha que muda tudo.';
-
-  @override
-  String get pulseProtRetraiteCapRenteDetail =>
-      'Compara as duas opções com os teus números reais.';
-
-  @override
-  String get pulseProtRetraiteCapRenteCta => 'Comparar';
-
-  @override
-  String get pulseProtRetraiteSubtitle => 'conservado na reforma.';
-
-  @override
-  String get pulseProtRetraiteDetail => 'Mediana suíça : 60 %. Onde estás ?';
-
-  @override
-  String get pulseProtRetraiteCta => 'Ver a minha projeção';
-
-  @override
-  String get pulseProtFamilleSubtitle => 'A vossa reforma a dois.';
-
-  @override
-  String get pulseProtFamilleDetail =>
-      'Antecipa a lacuna quando só um está reformado.';
-
-  @override
-  String get pulseProtFamilleCta => 'Ver a timeline';
-
-  @override
-  String get pulseProtUrgenceDebtSubtitle => 'a reembolsar.';
-
-  @override
-  String get pulseProtUrgenceDebtDetail => 'Começa pela taxa mais alta.';
-
-  @override
-  String get pulseProtUrgenceDebtCta => 'O meu plano de reembolso';
-
-  @override
-  String get pulseProtUrgenceTitle => 'A tua rede de segurança';
-
-  @override
-  String get pulseProtUrgenceSubtitle =>
-      'O que acontece se já não puderes trabalhar ?';
-
-  @override
-  String get pulseProtUrgenceDetail =>
-      'IJM, AI, LPP invalidez — verifica a tua cobertura.';
-
-  @override
-  String get pulseProtUrgenceCta => 'Verificar';
-
-  @override
-  String get pulseOptFiscalSubtitle => 'deixados ao fisco cada ano.';
-
-  @override
-  String get pulseOptFiscalDetail =>
-      '3a + resgate LPP = as tuas alavancas mais poderosas.';
-
-  @override
-  String get pulseOptFiscalCta => 'Recuperar';
-
-  @override
-  String get pulseOptPatrimoineSubtitle => 'O teu património total.';
-
-  @override
-  String get pulseOptPatrimoineDetail => 'Poupança + LPP + 3a + investimentos.';
-
-  @override
-  String get pulseOptPatrimoineCtaLabel => 'Detalhe';
-
-  @override
-  String get pulseOptCapRenteTitle => 'Capital ou Renda ?';
-
-  @override
-  String get pulseOptCapRenteSubtitle =>
-      'A diferença pode ultrapassar CHF 200’000.';
-
-  @override
-  String get pulseOptCapRenteDetail =>
-      'Tributado uma vez (capital) vs cada ano (renda).';
-
-  @override
-  String get pulseOptCapRenteCta => 'Comparar';
-
-  @override
-  String get pulseNavExpatGapsSubtitle =>
-      'de contribuições em falta no teu AVS.';
-
-  @override
-  String get pulseNavExpatGapsDetail =>
-      'Cada ano em falta = -2.3 % de renda vitalicia.';
-
-  @override
-  String get pulseNavExpatGapsCta => 'Analisar as minhas lacunas';
-
-  @override
-  String get pulseNavExpatTitle => 'Novo na Suíça ?';
-
-  @override
-  String get pulseNavExpatSubtitle =>
-      'Os teus direitos, as tuas lacunas, as armadilhas a evitar.';
-
-  @override
-  String get pulseNavExpatDetail =>
-      'AVS, LPP, 3a — tudo o que conta desde a chegada.';
-
-  @override
-  String get pulseNavExpatCta => 'Descobrir';
-
-  @override
-  String get pulseNavAchatTitle => 'Comprar um imóvel';
-
-  @override
-  String get pulseNavAchatSubtitle => 'Calcula a tua capacidade de compra.';
-
-  @override
-  String get pulseNavAchatDetail =>
-      'O teu 3a e LPP = o teu principal adiantamento.';
-
-  @override
-  String get pulseNavAchatCta => 'Simular';
-
-  @override
-  String get pulseNavAchatCapSubtitle => 'O imóvel que podes almejar.';
-
-  @override
-  String get pulseNavAchatCapCta => 'Simular a minha compra';
-
-  @override
-  String get pulseNavIndependantTitle => 'Autónomo·a ?';
-
-  @override
-  String get pulseNavIndependantSubtitle => 'Sem empregador, a tua rede = tu.';
-
-  @override
-  String get pulseNavIndependantDetail =>
-      'LPP voluntário, máx. 3a 36’288/ano, IJM obrigatório.';
-
-  @override
-  String get pulseNavIndependantCta => 'Verificar a minha cobertura';
-
-  @override
-  String get pulseNavEvenementTitle => 'Uma mudança de vida ?';
-
-  @override
-  String get pulseNavEvenementSubtitle =>
-      'Cada evento tem um impacto financeiro.';
-
-  @override
-  String get pulseNavEvenementDetail =>
-      'Casamento, nascimento, divórcio, herça, mudança...';
-
-  @override
-  String get pulseNavEvenementCta => 'Explorar';
-
-  @override
-  String get reengagementTitleNewYear => 'Novos limites do 3a';
-
-  @override
-  String get reengagementTitleTaxPrep => 'Declaração fiscal';
-
-  @override
-  String get reengagementTitleTaxDeadline => 'Prazo fiscal';
-
-  @override
-  String get reengagementTitleThreeA => 'Prazo do 3a';
-
-  @override
-  String get reengagementTitleThreeAFinal => 'Último mês para o 3a';
-
-  @override
-  String get reengagementTitleQuarterlyFri => 'Pontuação de solidez';
-
-  @override
-  String get assurancesAlerteDelai =>
-      'Lembrete : as alterações de franquia devem ser feitas antes do dia 30 de novembro de cada ano para o ano seguinte.';
-
-  @override
-  String get assurancesDisclaimerLamal =>
-      'Esta análise é indicativa. Os prêmios variam conforme o segurador, a região e o modelo de seguro. Consulte a sua caixa de saúde para obter valores exatos. Fonte : LAMal art. 62-64, OAMal.';
-
-  @override
-  String get assurancesDisclaimerCoverage =>
-      'Esta análise é indicativa e não constitui aconselhamento personalizado em seguros. Os prêmios variam conforme o segurador e o seu perfil. Consulte um·a especialista para uma avaliação completa.';
-
-  @override
-  String get recommendationsDisclaimer =>
-      'Sugestões pedagógicas baseadas no seu perfil — ferramenta educativa que não constitui aconselhamento financeiro personalizado no sentido da LSFin. Consulte um·a especialista para uma análise adaptada à sua situação.';
-
-  @override
-  String get recommendationsTitleEmergencyFund =>
-      'Constituir um fundo de emergência';
-
-  @override
-  String get recommendationsTitlePillar3a => 'Otimizar com o pilar 3a';
-
-  @override
-  String get recommendationsTitleLppBuyback => 'Simular uma compra LPP';
-
-  @override
-  String get recommendationsTitleCompoundInterest => 'O poder do tempo';
-
-  @override
-  String get recommendationsTitleStartDiagnostic => 'Inicia o teu diagnóstico';
-
-  @override
-  String get cantonalBenchmarkDisclaimer =>
-      'Estes dados são ordens de grandeza derivadas de estatísticas federais anonimizadas (OFS). Não constituem aconselhamento financeiro. Nenhum dado pessoal é comparado com outros utilizadores. Ferramenta educativa : não constitui aconselhamento no sentido da LSFin.';
-
-  @override
-  String get scenarioLabelPrudent => 'Cenário prudente';
-
-  @override
-  String get scenarioLabelReference => 'Cenário de referência';
-
-  @override
-  String get scenarioLabelFavorable => 'Cenário favorável';
-
-  @override
-  String get scenarioDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro no sentido da LSFin. As projeções baseiam-se em hipóteses de rendimento e não predizem resultados futuros. Consulte um·a especialista para um plano personalizado.';
-
-  @override
-  String get bayesianDisclaimer =>
-      'Estimativas bayesianas baseadas em estatísticas suíças (OFS/BFS). Estes valores são aproximações pedagógicas, não certezas. Não constitui aconselhamento financeiro no sentido da LSFin.';
-
-  @override
-  String get consentLabelByok => 'Personalização com IA';
-
-  @override
-  String get consentLabelSnapshot => 'Histórico de progresso';
-
-  @override
-  String get consentLabelNotifications => 'Lembretes personalizados';
-
-  @override
-  String get consentDashboardDisclaimer =>
-      'Os seus dados pertencem-lhe. Cada parâmetro é revogável a qualquer momento (nLPD art. 6).';
-
-  @override
-  String get wizardValidationRequired => 'Esta questão é obrigatória';
-
-  @override
-  String get wizardAnswerNotProvided => 'Não fornecido';
-
-  @override
-  String get arbitrageTitleRenteVsCapital => 'Renda vs Capital';
-
-  @override
-  String get arbitrageMissingLpp =>
-      'Adicione o seu saldo LPP para ver esta comparação';
-
-  @override
-  String get arbitrageTitleCalendrierRetraits => 'Calendário de levantamentos';
-
-  @override
-  String get arbitrageMissingLppAnd3a =>
-      'Adicione o seu saldo LPP e 3a para ver o calendário';
-
-  @override
-  String get arbitrageTitleRachatVsMarche => 'Resgate LPP vs Mercado';
-
-  @override
-  String get arbitrageMissingLppCertificat =>
-      'Digitalize o seu certificado LPP para conhecer a sua margem de resgate';
-
-  @override
-  String get reportTitleBilanFlash => 'O seu Balanço Flash';
-
-  @override
-  String get reportLabelSanteFinanciere => 'Saúde Financeira';
-
-  @override
-  String get retirementProjectionDisclaimer =>
-      'Projeção educativa baseada nas tarifas AVS/LPP 2025. Não constitui aconselhamento financeiro ou previdenciário. Os valores são estimativas que podem variar consoante alterações legislativas e a situação pessoal. Consulte um especialista para um plano personalizado. LSFin.';
-
-  @override
-  String get retirementIncomeLabelPillar3a => '3º pilar';
-
-  @override
-  String get retirementIncomeLabelPatrimoine => 'Património livre';
-
-  @override
-  String get retirementPhaseLabelBothRetired => 'Ambos reformados';
-
-  @override
-  String get retirementPhaseLabelRetraite => 'Reforma';
-
-  @override
-  String get forecasterDisclaimer =>
-      'Projeções educativas baseadas em pressupostos de rendimento. Não constitui aconselhamento financeiro. Os rendimentos passados não predizem os futuros. Consulte um especialista para um plano personalizado. LSFin.';
-
-  @override
-  String get forecasterEtSiDisclaimer =>
-      'Simulação «E se...» apenas para fins educativos. Pressupostos de rendimento ajustados manualmente. Não constitui aconselhamento financeiro (LSFin). Os rendimentos passados não predizem os futuros.';
-
-  @override
-  String get lppRachatDisclaimerEchelonne =>
-      'Simulação educativa baseada em taxas fiscais cantonais estimadas. O resgate LPP está sujeito à aprovação do fundo de pensões. A dedução anual está limitada ao rendimento tributável. Bloqueio EPL de 3 anos após cada resgate (LPP art. 79b al. 3). Consulte o seu fundo de pensões e um especialista antes de qualquer decisão.';
-
-  @override
-  String get lppLibrePassageDisclaimer =>
-      'Esta informação é educativa e não constitui aconselhamento jurídico ou financeiro personalizado. As regras dependem do seu fundo de pensões e situação. Base legal: LFLP, OLP. Consulte um especialista em previdência profissional.';
-
-  @override
-  String get lppEplDisclaimer =>
-      'Simulação educativa de caráter indicativo. O valor exato levanável depende do regulamento do seu fundo de pensões e do saldo aos 50 anos. O imposto varia consoante o cantão e a situação pessoal. Base legal: art. 30c LPP, OEPL. Consulte o seu fundo de pensões e um especialista antes de qualquer decisão.';
-
-  @override
-  String get lppChecklistTitleDecompte => 'Solicitar extrato de saída';
-
-  @override
-  String get lppChecklistDescDecompte =>
-      'Solicite um extrato detalhado ao fundo de pensões com a repartição obrigatória/suplementar.';
-
-  @override
-  String get lppChecklistTitleTransfert30j => 'Transferir o saldo em 30 dias';
-
-  @override
-  String get lppChecklistDescTransfert30j =>
-      'O saldo deve ser transferido para o novo fundo de pensões. Fornecer os dados do novo fundo ao anterior.';
-
-  @override
-  String get lppChecklistAlertTransfertTitle =>
-      'Prazo de transferência próximo';
-
-  @override
-  String get lppChecklistAlertTransfertMsg =>
-      'O saldo deve ser transferido em 30 dias. Contacte o seu antigo fundo de pensões rapidamente.';
-
-  @override
-  String get lppChecklistTitleOuvrirLP => 'Abrir uma conta de livre passage';
-
-  @override
-  String get lppChecklistDescOuvrirLP =>
-      'Sem novo empregador, o saldo deve ser depositado em uma ou duas contas de livre passage (máx. 2 por lei).';
-
-  @override
-  String get lppChecklistTitleChoisirLP =>
-      'Escolher entre conta bancária e apólice de livre passage';
-
-  @override
-  String get lppChecklistDescChoisirLP =>
-      'A conta bancária oferece mais flexibilidade. A apólice de seguro pode incluir cobertura de risco.';
-
-  @override
-  String get lppChecklistTitleVerifierDestination =>
-      'Verificar as regras de levantamento consoante o país de destino';
-
-  @override
-  String get lppChecklistDescVerifierDestination =>
-      'UE/EFTA: apenas a parte suplementar pode ser levantada em dinheiro. A parte obrigatória permanece na Suíça. Fora da UE/EFTA: levantamento total possível.';
-
-  @override
-  String get lppChecklistTitleAnnoncerDepart =>
-      'Notificar o fundo de pensões da saída';
-
-  @override
-  String get lppChecklistDescAnnoncerDepart =>
-      'Informe o seu fundo nos 30 dias seguintes à saída.';
-
-  @override
-  String get lppChecklistAlertTransfert6mTitle =>
-      'Transferência a efetuar em 6 meses';
-
-  @override
-  String get lppChecklistAlertTransfert6mMsg =>
-      'Após deixar a Suíça, tem 6 meses para transferir o saldo ou abrir uma conta de livre passage.';
-
-  @override
-  String get lppChecklistTitleChomage => 'Verificar os direitos ao desemprego';
-
-  @override
-  String get lppChecklistDescChomage =>
-      'Em caso de desemprego, a previdência profissional continua através da instituição supletiva (Fundação LPP).';
-
-  @override
-  String get lppChecklistTitleAvoirs => 'Procurar saldos esquecidos';
-
-  @override
-  String get lppChecklistDescAvoirs =>
-      'Utilize a Central do 2º Pilar (sfbvg.ch) para procurar eventuais saldos de livre passage esquecidos.';
-
-  @override
-  String get lppChecklistTitleCouverture =>
-      'Verificar a cobertura de risco transitória';
-
-  @override
-  String get lppChecklistDescCouverture =>
-      'Durante o período de livre passage, a cobertura em caso de morte e invalidez pode ser reduzida. Verifique os seus contratos.';
-
-  @override
-  String get pillar3aStaggeredDisclaimer =>
-      'Simulação educativa de caráter indicativo. O imposto sobre o levantamento de capital depende do cantão, município, situação pessoal e do total levantado no ano fiscal. As taxas utilizadas são médias cantonais simplificadas. Base legal: OPP3, LIFD art. 38. Consulte um especialista antes de qualquer decisão.';
-
-  @override
-  String get pillar3aRealReturnDisclaimer =>
-      'Simulação educativa baseada em pressupostos de rendimento constante. Os rendimentos passados não predizem os futuros. Comissões e rendimentos variam consoante o prestador. A poupança fiscal depende da taxa marginal real. Base legal: OPP3, LIFD art. 33 al. 1 let. e. Consulte um especialista antes de qualquer decisão.';
-
-  @override
-  String get pillar3aProviderDisclaimer =>
-      'Os rendimentos passados não predizem os futuros. Comissões e rendimentos médios baseiam-se em dados históricos simplificados para fins educativos. A escolha de um prestador 3a depende da situação pessoal, perfil de risco e horizonte de investimento. A MINT não é um intermediário financeiro e não presta aconselhamento de investimento. Consulte um especialista.';
-
-  @override
-  String get reportDisclaimerBase1 =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro na aceção da LSFin.';
-
-  @override
-  String get reportDisclaimerBase2 =>
-      'Os valores são estimativas baseadas nos dados declarados.';
-
-  @override
-  String get reportDisclaimerBase3 =>
-      'Os resultados passados não predizem os resultados futuros.';
-
-  @override
-  String get reportDisclaimerFiscal =>
-      'A estimativa fiscal é aproximada e não substitui uma declaração de impostos.';
-
-  @override
-  String get reportDisclaimerRetraite =>
-      'A projeção de reforma é indicativa e depende de alterações legislativas (reformas AVS/LPP).';
-
-  @override
-  String get reportDisclaimerRachatLpp =>
-      'O resgate LPP está sujeito a um bloqueio de 3 anos para levantamentos EPL (LPP art. 79b al. 3).';
-
-  @override
-  String get reportActionTitle3aFirst => 'Abre a tua primeira conta 3a';
-
-  @override
-  String get reportActionDesc3aFirst =>
-      'Deduz até CHF 7’258/ano do rendimento tributável. Poupança imediata.';
-
-  @override
-  String get reportActionTitle3aSecond => 'Abre uma 2ª conta 3a fintech';
-
-  @override
-  String get reportActionDesc3aSecond =>
-      'Otimiza a fiscalidade no levantamento e diversifica os investimentos.';
-
-  @override
-  String get reportActionTitleAvsCheck => 'Verifica a tua conta AVS';
-
-  @override
-  String get reportActionDescAvsCheck =>
-      'Evita perder até CHF 38’000 de pensão ao longo da vida.';
-
-  @override
-  String get reportActionTitleDette => 'Reembolsa as tuas dívidas de consumo';
-
-  @override
-  String get reportActionDescDette =>
-      'É o investimento mais rentável: poupes 6-10 % ao ano em juros.';
-
-  @override
-  String get reportActionTitleUrgence => 'Constitui o teu fundo de emergência';
-
-  @override
-  String get reportActionDescUrgence =>
-      'Aponta a 3 meses de despesas numa conta poupança separada.';
-
-  @override
-  String get reportRoadmapPhaseImmediat => 'Imediato';
-
-  @override
-  String get reportRoadmapTimeframeImmediat => 'Este mês';
-
-  @override
-  String get reportRoadmapPhaseCourtTerme => 'Curto Prazo';
-
-  @override
-  String get reportRoadmapTimeframeCourtTerme => '3-6 meses';
-
-  @override
-  String get visibilityNarrativeHigh =>
-      'Tens uma visão clara da tua situação. Mantém os teus dados atualizados.';
-
-  @override
-  String visibilityNarrativeMediumHigh(String axisLabel) {
-    return 'Boa visibilidade! Refina a tua $axisLabel para ir mais longe.';
-  }
-
-  @override
-  String visibilityNarrativeMedium(String axisLabel) {
-    return 'Estás a começar a ver com mais clareza. Concentra-te na tua $axisLabel.';
-  }
-
-  @override
-  String visibilityNarrativeLow(String hint) {
-    return 'Cada informação conta. Começa por $hint.';
-  }
-
-  @override
-  String get visibilityAxisLabelLiquidite => 'Liquidez';
-
-  @override
-  String get visibilityAxisLabelFiscalite => 'Fiscalidade';
-
-  @override
-  String get visibilityAxisLabelRetraite => 'Reforma';
-
-  @override
-  String get visibilityAxisLabelSecurite => 'Segurança';
-
-  @override
-  String get visibilityHintAddSalaire => 'Adiciona o teu salário para começar';
-
-  @override
-  String get visibilityHintAddEpargne =>
-      'Indica as tuas poupanças e investimentos';
-
-  @override
-  String get visibilityHintLiquiditeComplete =>
-      'Os teus dados de liquidez estão completos';
-
-  @override
-  String get visibilityHintAddAgeCanton =>
-      'Indica a tua idade e cantão de residência';
-
-  @override
-  String get visibilityHintScanFiscal => 'Digitaliza a tua declaração fiscal';
-
-  @override
-  String get visibilityHintFiscaliteComplete =>
-      'Os teus dados fiscais estão completos';
-
-  @override
-  String get visibilityHintAddLpp => 'Adiciona o teu certificado LPP';
-
-  @override
-  String get visibilityHintCommandeAvs => 'Solicita o teu extrato AVS';
-
-  @override
-  String get visibilityHintAdd3a => 'Indica as tuas contas 3a';
-
-  @override
-  String get visibilityHintRetraiteComplete =>
-      'Os teus dados de reforma estão completos';
-
-  @override
-  String get visibilityHintAddFamille => 'Indica a tua situação familiar';
-
-  @override
-  String get visibilityHintAddStatutPro => 'Completa o teu estado profissional';
-
-  @override
-  String get visibilityHintSecuriteComplete =>
-      'Os teus dados de segurança estão completos';
-
-  @override
-  String get exploreHubRetraiteIntro =>
-      'Cada ano que passa muda as tuas opções. Eis onde estás.';
-
-  @override
-  String get exploreHubFamilleIntro =>
-      'Casamento, nascimento, separação: cada marco tem um impacto financeiro.';
-
-  @override
-  String get exploreHubTravailIntro =>
-      'O teu estado profissional determina os teus direitos. Verifica-os.';
-
-  @override
-  String get exploreHubLogementIntro =>
-      'Comprar, alugar, mudar: os números antes da decisão.';
-
-  @override
-  String get exploreHubFiscaliteIntro =>
-      'Cada franco deduzido é um franco ganho. Encontra as tuas alavancas.';
-
-  @override
-  String get exploreHubPatrimoineIntro =>
-      'O que transmites merece tanta atenção quanto o que ganhas.';
-
-  @override
-  String get exploreHubSanteIntro =>
-      'A tua cobertura protege-te — ou custa demasiado. Verifica.';
-
-  @override
-  String get exploreTalkToMint => 'Falar com o MINT';
-
-  @override
-  String get dossierSettingsTitle => 'Definições';
-
-  @override
-  String get dossierEnrichmentHint => 'Para melhorar a precisão:';
-
-  @override
-  String get pulseBudgetATitle => 'Hoje';
-
-  @override
-  String get pulseBudgetBTitle => 'Na reforma';
-
-  @override
-  String get pulseBudgetRevenu => 'Rendimento';
-
-  @override
-  String get pulseBudgetCharges => 'Encargos';
-
-  @override
-  String get pulseBudgetLibre => 'Livre';
-
-  @override
-  String get pulseBudgetRetirementNet => 'Líquido reforma';
-
-  @override
-  String get pulseBudgetGap => 'Diferença';
-
-  @override
-  String get sim3aTaxRateChipsLabel => 'Taxa marginal de imposto';
-
-  @override
-  String get sim3aReturnChipsLabel => 'Rendimento esperado';
-
-  @override
-  String get sim3aYearsAutoLabel => 'Anos até à reforma';
-
-  @override
-  String get sim3aContributionFieldLabel => 'Contribuição anual';
-
-  @override
-  String get sim3aProfilePreFilled => 'Preenchido a partir do teu perfil';
-
-  @override
-  String sim3aProfileEstimatedRate(String rate, String canton) {
-    return 'A tua taxa marginal estimada: $rate% ($canton)';
-  }
-
-  @override
-  String sim3aYearsReadOnly(int years) {
-    return '$years anos (calculado a partir da tua idade)';
-  }
-
-  @override
-  String get renteVsCapitalRetirementAgeChips => 'Idade de reforma';
-
-  @override
-  String get renteVsCapitalLifeExpectancyChips => 'Esperança de vida';
-
-  @override
-  String get budgetEnvelopeFieldHint => 'Montante em CHF';
-
-  @override
-  String get budgetEnvelopeFieldFuture => 'Poupança futura (CHF/mês)';
-
-  @override
-  String get budgetEnvelopeFieldVariables => 'Despesas variáveis (CHF/mês)';
-
-  @override
-  String get retroactive3aYearsChipsLabel => 'Anos a recuperar';
+  String get quickStartCtaExplore => 'Explorar primeiro';
 
   @override
   String get lightningMenuTitle => 'O que queres explorar?';
@@ -23228,2373 +12827,29 @@ class SPt extends S {
   String get lightningMenuRetirementPrepAction => 'O meu plano de reforma';
 
   @override
-  String get lightningMenuPayslipTitle => 'Compreender o meu recibo de salário';
+  String get trajectoryGoalSectionTitle => 'O teu objetivo';
 
   @override
-  String get lightningMenuPayslipSubtitle =>
-      'Bruto, líquido, deduções: tudo claro';
+  String get trajectoryGoalRetraite => 'Reforma aos 65 anos';
 
   @override
-  String get lightningMenuPayslipAction => 'Explica-me o meu recibo de salário';
+  String get trajectoryGoalAchatImmo => 'Compra imobiliária';
 
   @override
-  String get lightningMenuThreePillarsTitle => 'O que são os 3 pilares?';
+  String get trajectoryGoalIndependance => 'Independência financeira';
 
   @override
-  String get lightningMenuThreePillarsSubtitle =>
-      'O sistema suíço em 2 minutos';
+  String get trajectoryGoalDebtFree => 'Libertação das dívidas';
 
   @override
-  String get lightningMenuThreePillarsAction =>
-      'O que são os 3 pilares suíços?';
-
-  @override
-  String get lightningMenuScanDocTitle => 'Digitalizar um documento';
-
-  @override
-  String get lightningMenuScanDocSubtitle =>
-      'Certificado LPP, recibo, impostos';
-
-  @override
-  String get lightningMenuFirstBudgetTitle => 'O meu primeiro orçamento';
-
-  @override
-  String get lightningMenuFirstBudgetSubtitle =>
-      'Saber para onde vai o teu dinheiro cada mês';
-
-  @override
-  String get lightningMenuFirstBudgetAction =>
-      'Ajuda-me a fazer o meu orçamento';
-
-  @override
-  String get lightningMenuTaxReliefTitle => 'Onde reduzir impostos';
-
-  @override
-  String get lightningMenuTaxReliefSubtitle => 'Deduções e alavancas fiscais';
-
-  @override
-  String get lightningMenuTaxReliefAction => 'Como pagar menos impostos?';
-
-  @override
-  String get lightningMenuCompleteProfileTitle => 'Completar o perfil';
-
-  @override
-  String get lightningMenuCompleteProfileSubtitle =>
-      'Quanto mais preciso, mais justo é o MINT';
-
-  @override
-  String get lightningMenuLppBuybackTitle => 'Resgatar LPP';
-
-  @override
-  String get lightningMenuLppBuybackSubtitle =>
-      'Uma alavanca fiscal muitas vezes subestimada';
-
-  @override
-  String get lightningMenuLppBuybackAction => 'Vale a pena um resgate LPP?';
-
-  @override
-  String get lightningMenuLivingBudgetTitle => 'O meu orçamento vivo';
-
-  @override
-  String get lightningMenuLivingBudgetSubtitle =>
-      'O teu equilíbrio este mês, atualizado';
-
-  @override
-  String get lightningMenuLivingBudgetAction => 'Onde estou?';
-
-  @override
-  String get budgetSnapshotTitle => 'O teu orçamento vivo';
-
-  @override
-  String get budgetSnapshotPresentLabel => 'Livre hoje';
-
-  @override
-  String get budgetSnapshotRetirementLabel => 'Livre na reforma';
-
-  @override
-  String get budgetSnapshotGapLabel => 'Lacuna';
-
-  @override
-  String get budgetSnapshotConfidenceLabel => 'Fiabilidade';
-
-  @override
-  String get budgetSnapshotConfidenceLow => 'Adiciona dados para refinar.';
-
-  @override
-  String get budgetSnapshotConfidenceOk => 'Estimativa credível.';
-
-  @override
-  String get budgetSnapshotLeverLabel => 'Alavanca';
-
-  @override
-  String get budgetSnapshotFreeLabel => 'O teu livre mensal';
-
-  @override
-  String get onboardingSmartTitle =>
-      'Descobre a tua situação de reforma em 30 segundos';
-
-  @override
-  String get onboardingSmartSubtitle =>
-      'Algumas informações bastam para uma primeira visão personalizada.';
-
-  @override
-  String get onboardingSmartFirstNameLabel => 'Como te chamas?';
-
-  @override
-  String get onboardingSmartFirstNameHint => 'O teu nome (opcional)';
-
-  @override
-  String get onboardingSmartAgeDirectInput => 'Entrada direta';
-
-  @override
-  String get onboardingSmartSeeResult => 'Ver o meu resultado';
-
-  @override
-  String get onboardingSmartDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin). As estimativas baseiam-se nas tabelas de 2025 e podem variar.';
-
-  @override
-  String get onboardingSmartAgePickerHint => 'Escolhe a tua idade';
-
-  @override
-  String get onboardingSmartCountryOrigin => 'O teu país de origem';
-
-  @override
-  String get onboardingSmartCantonTitle => 'Escolhe o teu cantão';
-
-  @override
-  String get onboardingSmartCantonNotFound => 'Nenhum cantão encontrado';
-
-  @override
-  String get onboardingSmartSalaryLabel => 'O teu salário bruto anual';
-
-  @override
-  String get onboardingSmartAgeLabel => 'A tua idade';
-
-  @override
-  String get onboardingSmartEmploymentLabel => 'A tua situação profissional';
-
-  @override
-  String get onboardingSmartNationalityLabel => 'A tua nacionalidade';
-
-  @override
-  String get onboardingSmartCantonLabel => 'O teu cantão';
-
-  @override
-  String get onboardingAgeInvalid => 'A idade deve estar entre 18 e 75';
-
-  @override
-  String get onboardingSmartCantonSearch => 'Pesquisar (ex. VD, Vaud)';
-
-  @override
-  String get onboardingSmartSalaryPerYear => 'CHF/ano';
-
-  @override
-  String get greetingMorning => 'Bom dia';
-
-  @override
-  String get greetingAfternoon => 'Boa tarde';
-
-  @override
-  String get greetingEvening => 'Boa noite';
-
-  @override
-  String get authShowPassword => 'Mostrar palavra-passe';
-
-  @override
-  String get authHidePassword => 'Ocultar palavra-passe';
-
-  @override
-  String get exploreHubRetraiteIntro55plus =>
-      'A reforma aproxima-se: cada decisão conta a dobrar. Eis onde estás.';
-
-  @override
-  String get exploreHubRetraiteIntro40plus =>
-      'Cada ano que passa muda as tuas opções. Eis onde estás.';
-
-  @override
-  String get exploreHubRetraiteIntroYoung =>
-      'É longe, mas é agora que importa. Eis porquê.';
-
-  @override
-  String get exploreHubTravailIntro55plus =>
-      'Fim de carreira, reforma antecipada, transição: os teus direitos mudam.';
-
-  @override
-  String get exploreHubTravailIntro40plus =>
-      'O teu estatuto profissional determina os teus direitos. Verifica-os.';
-
-  @override
-  String get exploreHubTravailIntroYoung =>
-      'Primeiro emprego, independente, fronteiriço: cada estatuto tem as suas regras.';
-
-  @override
-  String get exploreHubLogementIntro55plus =>
-      'Ficar, vender, transmitir: os números antes da decisão.';
-
-  @override
-  String get exploreHubLogementIntro40plus =>
-      'Comprar, alugar, mudar: os números antes da decisão.';
-
-  @override
-  String get exploreHubLogementIntroYoung =>
-      'Primeira compra ou aluguer: compreender as regras do jogo.';
-
-  @override
-  String get archetypeSwissNative => 'Residente suíço/a';
-
-  @override
-  String get archetypeExpatEu => 'Expat UE/EFTA';
-
-  @override
-  String get archetypeExpatNonEu => 'Expat fora da UE';
-
-  @override
-  String get archetypeExpatUs => 'Residente nos EUA (FATCA)';
-
-  @override
-  String get archetypeIndependentWithLpp => 'Independente com LPP';
-
-  @override
-  String get archetypeIndependentNoLpp => 'Independente sem LPP';
-
-  @override
-  String get archetypeCrossBorder => 'Fronteiriço/a';
-
-  @override
-  String get archetypeReturningSwiss => 'Suíço/a de regresso';
-
-  @override
-  String get employmentSalarie => 'Assalariado/a';
-
-  @override
-  String get employmentIndependant => 'Independente';
-
-  @override
-  String get employmentSansEmploi => 'Sem emprego';
-
-  @override
-  String get employmentRetraite => 'Reformado/a';
-
-  @override
-  String get nationalitySuisse => 'Suíça';
-
-  @override
-  String get nationalityEuAele => 'UE/EFTA';
-
-  @override
-  String get nationalityAutre => 'Outro';
-
-  @override
-  String get stepStressTitle => 'O que mais te preocupa?';
-
-  @override
-  String get stepStressSubtitle =>
-      'Escolhe um tema — vamos personalizar a tua experiência.';
-
-  @override
-  String get stepStressRetirement => 'A minha reforma';
-
-  @override
-  String get stepStressRetirementSub => 'Terei o suficiente para viver?';
-
-  @override
-  String get stepStressTaxes => 'Os meus impostos';
-
-  @override
-  String get stepStressTaxesSub => 'Estou a pagar demais?';
-
-  @override
-  String get stepStressBudget => 'O meu orçamento';
-
-  @override
-  String get stepStressBudgetSub => 'Para onde vai o meu dinheiro?';
-
-  @override
-  String get stepStressWealth => 'O meu património';
-
-  @override
-  String get stepStressWealthSub => 'Como fazê-lo crescer?';
-
-  @override
-  String get stepStressCouple => 'Em casal';
-
-  @override
-  String get stepStressCoupleSub => 'Otimizar a dois';
-
-  @override
-  String get stepStressCurious => 'Apenas curioso';
-
-  @override
-  String get stepStressCuriousSub => 'Quero compreender a minha situação';
-
-  @override
-  String get stepStressDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).';
-
-  @override
-  String get stepNextTitle => 'O teu primeiro balanço está pronto';
-
-  @override
-  String stepNextConfidence(int pct) {
-    return 'Precisão atual: $pct %. Quanto mais completares o teu perfil, mais fiáveis serão as projeções.';
+  String trajectoryGoalHorizon(int years) {
+    return 'Horizonte: $years anos';
   }
 
   @override
-  String get stepNextEnrich => 'Refinar o meu perfil';
-
-  @override
-  String get stepNextDashboard => 'Ver o meu dashboard';
-
-  @override
-  String get stepNextCheckin => 'Fazer o meu primeiro check-in';
-
-  @override
-  String get stepNextDisclaimer =>
-      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
-
-  @override
-  String get stepTopActionsTitle => 'As tuas 3 ações prioritárias';
-
-  @override
-  String get stepTopActionsSubtitle =>
-      'Com base na tua situação, aqui é por onde começar.';
-
-  @override
-  String get stepTopActionsEmpty =>
-      'Completa o teu perfil para receber ações personalizadas.';
-
-  @override
-  String get stepTopActionsContinue => 'Continuar';
-
-  @override
-  String get stepTopActionsBack => 'Voltar';
-
-  @override
-  String stepTopActionsImpact(String amount) {
-    return 'Impacto estimado: $amount';
+  String trajectoryGoalTarget(String amount) {
+    return 'Alvo: $amount';
   }
-
-  @override
-  String get stepTopActionsDisclaimer =>
-      'Sugestões educativas. Não constitui aconselhamento financeiro (LSFin). Consulta um especialista para um plano personalizado.';
-
-  @override
-  String stepChocConfidenceInfo(int count) {
-    return 'Estimativa baseada em $count informações. Quanto mais precisares, mais fiável.';
-  }
-
-  @override
-  String stepChocConfidenceLabel(int pct) {
-    return 'Precisão: $pct %';
-  }
-
-  @override
-  String get stepChocLiteracyTitle => 'Para personalizar os teus conselhos';
-
-  @override
-  String get stepChocLiteracySubtitle =>
-      '3 perguntas rápidas — sem resposta certa ou errada.';
-
-  @override
-  String get stepChocLiteracyLpp => 'Conheço o montante do meu capital LPP';
-
-  @override
-  String get stepChocLiteracyConversion => 'Sei o que é a taxa de conversão';
-
-  @override
-  String get stepChocLiteracy3a => 'Já contribuí para uma conta 3a';
-
-  @override
-  String get stepChocYes => 'Sim';
-
-  @override
-  String get stepChocNo => 'Não';
-
-  @override
-  String get stepChocAction => 'O que posso fazer?';
-
-  @override
-  String get stepChocEnrich => 'Refinar o meu perfil';
-
-  @override
-  String get stepChocDashboard => 'Ver o meu dashboard';
-
-  @override
-  String get stepChocDisclaimer =>
-      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
-
-  @override
-  String get stepChocPedagogicalCaveat =>
-      'Estimativa ilustrativa baseada em dados parciais. Enriqueça o seu perfil para valores mais precisos.';
-
-  @override
-  String get stepJitTitle => 'Compreender em 30 segundos';
-
-  @override
-  String get stepJitSi => 'SE';
-
-  @override
-  String get stepJitAlors => 'ENTÃO';
-
-  @override
-  String get stepJitAction => 'O que posso fazer?';
-
-  @override
-  String get stepJitBack => 'Voltar';
-
-  @override
-  String get stepJitDisclaimer =>
-      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).';
-
-  @override
-  String get stepJitLiquidityCond =>
-      'as tuas poupanças de emergência cobrem menos de 2 meses de despesas';
-
-  @override
-  String get stepJitLiquidityCons =>
-      'um imprevisto (perda de emprego, reparação urgente) pode colocar-te em dificuldade financeira rapidamente.';
-
-  @override
-  String get stepJitLiquidityInsight =>
-      'Os especialistas recomendam 3 a 6 meses de despesas fixas em reserva. Mesmo CHF 100/mês numa conta poupança faz uma diferença significativa em 12 meses.';
-
-  @override
-  String get stepJitLiquiditySource =>
-      'Recomendação de consultoria orçamental Suíça';
-
-  @override
-  String get stepJitRetirementCond =>
-      'a tua taxa de substituição na reforma está abaixo de 60 %';
-
-  @override
-  String get stepJitRetirementCons =>
-      'o teu nível de vida pode diminuir significativamente quando parares de trabalhar.';
-
-  @override
-  String get stepJitRetirementInsight =>
-      'Na Suíça, o AVS e a LPP cobrem em média 60 % do último salário. O 3º pilar e a poupança livre preenchem o restante. Quanto mais cedo começares, menor o esforço mensal.';
-
-  @override
-  String get stepJitRetirementSource => 'LAVS art. 34 / LPP art. 14';
-
-  @override
-  String get stepJitTax3aCond =>
-      'não contribuís o máximo para o teu 3º pilar todos os anos';
-
-  @override
-  String get stepJitTax3aCons =>
-      'estás a perder uma poupança fiscal e um capital de reforma adicional.';
-
-  @override
-  String get stepJitTax3aInsight =>
-      'Cada franco contribuído para o 3a é dedutível do rendimento tributável. Em 20 anos, a diferença entre contribuir 0 e o máximo (CHF 7\'258) pode ultrapassar CHF 200\'000.';
-
-  @override
-  String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
-
-  @override
-  String get stepJitIncomeCond =>
-      'a tua projeção de rendimento na reforma está estimada';
-
-  @override
-  String get stepJitIncomeCons =>
-      'conhecer este montante permite-te planear e ajustar a tua estratégia de previdência agora.';
-
-  @override
-  String get stepJitIncomeInsight =>
-      'O sistema suíço de 3 pilares (AVS + LPP + 3a) cobre em média 60 % do último salário. Cada pilar tem as suas regras e alavancas de otimização específicas.';
-
-  @override
-  String get stepJitIncomeSource => 'LAVS art. 34 / LPP art. 14 / OPP3 art. 7';
-
-  @override
-  String get stepJitDefaultCond =>
-      'ainda não tens um plano financeiro estruturado';
-
-  @override
-  String get stepJitDefaultCons =>
-      'arriscas perder oportunidades de otimização fiscal e de previdência.';
-
-  @override
-  String get stepJitDefaultInsight =>
-      'Um balanço financeiro anual permite identificar as alavancas mais impactantes: 3a, resgate LPP, franquia LAMal, amortização indireta.';
-
-  @override
-  String get stepJitDefaultSource => 'Recomendação educativa MINT';
-
-  @override
-  String get stepOcrTitle => 'Enriquece o teu perfil em 30 segundos';
-
-  @override
-  String get stepOcrSkip => 'Continuar sem documento';
-
-  @override
-  String get stepOcrIntro =>
-      'Digitaliza um ou mais documentos para que o MINT calcule a tua situação com mais precisão.';
-
-  @override
-  String get stepOcrLppTitle => 'A tua carta de reforma LPP';
-
-  @override
-  String get stepOcrLppSubtitle =>
-      'Capital, taxa de conversão, lacuna de resgate';
-
-  @override
-  String get stepOcrLppBoost => '+27 pts de precisão';
-
-  @override
-  String get stepOcrAvsTitle => 'O teu extrato AVS';
-
-  @override
-  String get stepOcrAvsSubtitle => 'Anos de contribuição, lacunas, RAMD';
-
-  @override
-  String get stepOcrAvsBoost => '+22 pts de precisão';
-
-  @override
-  String get stepOcrTaxTitle => 'A tua declaração fiscal';
-
-  @override
-  String get stepOcrTaxSubtitle =>
-      'Rendimento tributável, património, taxa marginal';
-
-  @override
-  String get stepOcrTaxBoost => '+17 pts de precisão';
-
-  @override
-  String get stepOcr3aTitle => 'A tua conta 3a';
-
-  @override
-  String get stepOcr3aSubtitle => 'Saldo, contribuições acumuladas, rendimento';
-
-  @override
-  String get stepOcr3aBoost => '+7 pts de precisão';
-
-  @override
-  String get stepOcrScanned => 'Digitalizado';
-
-  @override
-  String stepOcrContinueWith(int count, String plural) {
-    return 'Continuar ($count documento$plural digitalizado$plural)';
-  }
-
-  @override
-  String get stepOcrContinueWithout => 'Continuar sem documento';
-
-  @override
-  String get stepOcrDisclaimer =>
-      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin). Documentos processados no teu dispositivo, nenhum dado enviado (LPD art. 6).';
-
-  @override
-  String get stepOcrLpdBanner =>
-      'Os teus documentos são processados no teu dispositivo. Nada é enviado para a Internet.';
-
-  @override
-  String get stepOcrLpdTitle => 'Processamento privado no teu dispositivo';
-
-  @override
-  String get stepOcrLpdBody =>
-      'Este documento é analisado diretamente no teu telefone.\nNenhum dado é enviado pela Internet.\nAs informações extraídas são eliminadas após o processamento.';
-
-  @override
-  String get stepOcrLpdLegal =>
-      'Base legal: LPD art. 6 — minimização de dados.';
-
-  @override
-  String get stepOcrLpdScan => 'Digitalizar este documento';
-
-  @override
-  String get stepOcrLpdCancel => 'Cancelar';
-
-  @override
-  String stepOcrSnackSuccess(int count, String plural) {
-    return '$count campo$plural extraído$plural com sucesso';
-  }
-
-  @override
-  String get stepOcrSnackEmpty =>
-      'Documento processado — nenhum campo reconhecido automaticamente';
-
-  @override
-  String stepOcrSnackError(String error) {
-    return 'Erro de processamento: $error';
-  }
-
-  @override
-  String get stepOcrSnackWebOnly =>
-      'Digitalização de imagem não disponível na web. Usa a app móvel ou importa um ficheiro .txt.';
-
-  @override
-  String stepQuestionsAgeYears(int age) {
-    return '$age anos';
-  }
-
-  @override
-  String get stepQuestionsCountryUs => 'Estados Unidos';
-
-  @override
-  String get stepQuestionsCountryGb => 'Reino Unido';
-
-  @override
-  String get stepQuestionsCountryCa => 'Canadá';
-
-  @override
-  String get stepQuestionsCountryIn => 'Índia';
-
-  @override
-  String get stepQuestionsCountryCn => 'China';
-
-  @override
-  String get stepQuestionsCountryBr => 'Brasil';
-
-  @override
-  String get stepQuestionsCountryAu => 'Austrália';
-
-  @override
-  String get stepQuestionsCountryJp => 'Japão';
-
-  @override
-  String get householdAcceptCodeHint => 'CODE';
-
-  @override
-  String get friInsufficientData =>
-      'Completa o teu perfil para ver a tua pontuação';
-
-  @override
-  String projectionUncertaintyBand(String low, String high) {
-    return 'CHF $low — $high / mês';
-  }
-
-  @override
-  String get portfolioAppBarTitle => 'O meu património';
-
-  @override
-  String get portfolioValeurTotaleNette => 'Valor total líquido';
-
-  @override
-  String get portfolioRepartitionEnveloppe => 'Distribuição por envelope';
-
-  @override
-  String get portfolioLibrePlacement => 'Livre (Conta de investimento)';
-
-  @override
-  String get portfolioLiePilier3a => 'Vinculado (Pilar 3a)';
-
-  @override
-  String get portfolioReserveFondsUrgence => 'Reservado (Fundo de emergência)';
-
-  @override
-  String get portfolioSafeModeLocked => 'Prioridade ao desendividamento';
-
-  @override
-  String get portfolioSafeModeBody =>
-      'Os conselhos de alocação estão desativados em modo de proteção. A tua prioridade é reduzir as dívidas antes de reequilibrar o patrimônio.';
-
-  @override
-  String get byokShowKey => 'Mostrar chave';
-
-  @override
-  String get byokHideKey => 'Ocultar chave';
-
-  @override
-  String get themeDetailEssentiel60s => 'O essencial em 60 segundos';
-
-  @override
-  String get themeDetailTesteConnaissances => 'Testa os teus conhecimentos';
-
-  @override
-  String get themeDetailSavaisTu => 'Sabias que?';
-
-  @override
-  String get themeDetailSourcesLegales => 'Fontes legais';
-
-  @override
-  String get themeDetailRappel => 'Lembrete';
-
-  @override
-  String get themeDetailBienVu => 'Bem visto!';
-
-  @override
-  String get themeDetailPasToutAFait => 'Não é bem assim...';
-
-  @override
-  String get emergencyFundTitle => 'A tua rede de segurança';
-
-  @override
-  String get emergencyFundSubtitle => 'Calcula o teu fundo de emergência ideal';
-
-  @override
-  String get emergencyFundDisclaimer =>
-      'O objetivo de 3-6 meses é uma recomendação geral. A tua situação pessoal pode exigir um montante diferente.';
-
-  @override
-  String get emergencyFundHyp1 =>
-      'Encargos fixos = renda + seguros + assinaturas + créditos';
-
-  @override
-  String get emergencyFundHyp2 =>
-      'Objetivo recomendado: 3 meses (mínimo) a 6 meses (conforto)';
-
-  @override
-  String get emergencyFundHyp3 =>
-      'Colocação sugerida: conta poupança acessível, não investida';
-
-  @override
-  String get emergencyFundChargesLabel => 'Os teus encargos fixos mensais';
-
-  @override
-  String get emergencyFundChargesDesc =>
-      'Renda + seguros + assinaturas + créditos';
-
-  @override
-  String get emergencyFundObjectifLabel => 'Objetivo em meses de segurança';
-
-  @override
-  String emergencyFundMoisUnit(int count) {
-    return '$count meses';
-  }
-
-  @override
-  String get emergencyFundMinimum => 'Mínimo';
-
-  @override
-  String get emergencyFundConfort => 'Conforto';
-
-  @override
-  String get emergencyFundObjectifTitle =>
-      'O teu objetivo de fundo de emergência';
-
-  @override
-  String get emergencyFundProgression => 'O teu progresso';
-
-  @override
-  String emergencyFundManque(String amount) {
-    return 'Faltam-te $amount';
-  }
-
-  @override
-  String get emergencyFundAtteint => 'Objetivo atingido!';
-
-  @override
-  String get emergencyFundExplication =>
-      'Este fundo protege-te de imprevistos (perda de emprego, doença, reparações) sem tocar nos teus investimentos.';
-
-  @override
-  String get lifeEventSuggestionsHeader => 'E depois?';
-
-  @override
-  String get lifeEventSuggestionsSubheader => 'Módulos adaptados ao teu perfil';
-
-  @override
-  String get lifeEventSuggestionsSimuler => 'Simular';
-
-  @override
-  String get lifeEventSugMariage => 'Casamento';
-
-  @override
-  String get lifeEventSugMariageReason =>
-      'Descobre o impacto fiscal e na previdência';
-
-  @override
-  String get lifeEventSugConcubinage => 'União de facto';
-
-  @override
-  String get lifeEventSugConcubinageReason =>
-      'Atenção: sem proteção legal automática';
-
-  @override
-  String get lifeEventSugNaissance => 'Nascimento';
-
-  @override
-  String get lifeEventSugNaissanceReason =>
-      'Simula o impacto financeiro de um filho';
-
-  @override
-  String get lifeEventSugSuccession => 'Planeamento sucessório';
-
-  @override
-  String get lifeEventSugSuccessionReason =>
-      'Quotas hereditárias e porção disponível (CC art. 470)';
-
-  @override
-  String get lifeEventSugDonation => 'Doação entre vivos';
-
-  @override
-  String get lifeEventSugDonationReason =>
-      'Antecipa a tua sucessão e otimiza a fiscalidade';
-
-  @override
-  String get lifeEventSugPremierEmploi => 'Primeiro emprego';
-
-  @override
-  String get lifeEventSugPremierEmploiReason =>
-      'Lança as bases: AVS, LPP, 3a e orçamento';
-
-  @override
-  String get lifeEventSugChangementEmploi => 'Mudança de emprego';
-
-  @override
-  String get lifeEventSugChangementEmploiReason =>
-      'Compara a tua LPP antes de assinar um novo contrato';
-
-  @override
-  String get lifeEventSugOutilsIndependant => 'Ferramentas independente';
-
-  @override
-  String get lifeEventSugOutilsIndependantReason =>
-      'AVS, LPP voluntária, 3a alargado e dividendo vs salário';
-
-  @override
-  String get lifeEventSugRetraite => 'Planeamento reforma';
-
-  @override
-  String get lifeEventSugRetraiteReason =>
-      'Renda vs capital, escalonamento 3a, lacuna AVS';
-
-  @override
-  String get lifeEventSugAchatImmo => 'Compra imobiliária';
-
-  @override
-  String get lifeEventSugAchatImmoReason =>
-      'Simula a tua capacidade de empréstimo e o contributo EPL';
-
-  @override
-  String get lifeEventSugDemenagement => 'Mudança cantonal';
-
-  @override
-  String get lifeEventSugDemenagementReason =>
-      'O teu cantão está entre os mais tributados — compara os 26';
-
-  @override
-  String get lifeEventSugInvalidite => 'Invalidez';
-
-  @override
-  String get lifeEventSugInvaliditeReason =>
-      'Verifica a tua cobertura AI + LPP em caso de acidente';
-
-  @override
-  String get indepProtAvs => 'Duplica a tua contribuição';
-
-  @override
-  String get indepProtLpp => 'Desaparece — escolha voluntária';
-
-  @override
-  String get indepProtLaa => 'Desaparece — acidente fora do trabalho';
-
-  @override
-  String get indepProtIjm => 'Desaparece — doença CHF 0';
-
-  @override
-  String get indepProtApg => 'Desaparece — licença parental';
-
-  @override
-  String get indepLppProInvalidite => 'Cobertura de invalidez incluída';
-
-  @override
-  String get indepLppProDeductible => 'Contribuições dedutíveis';
-
-  @override
-  String get indepLppProRente => 'Renda prevista na reforma';
-
-  @override
-  String get indepLppConCotisations => 'Contribuições obrigatórias elevadas';
-
-  @override
-  String get indepLppConFlexible => 'Menos flexível';
-
-  @override
-  String get indepGrand3aSub =>
-      '20% do rendimento líquido, máx. CHF 36\'288/ano';
-
-  @override
-  String get indepGrand3aProFlexibilite => 'Flexibilidade total';
-
-  @override
-  String get indepGrand3aProDeduction => 'Dedução fiscal máxima';
-
-  @override
-  String get indepGrand3aProCapital => 'Capital disponível aos 60 anos';
-
-  @override
-  String get indepGrand3aConInvalidite => 'Sem cobertura de invalidez';
-
-  @override
-  String get indepGrand3aConRente => 'Sem renda prevista';
-
-  @override
-  String get indepLayerImpots => 'Impostos (estimativa)';
-
-  @override
-  String get indepLayerChargesSociales => 'Encargos sociais AVS/AI';
-
-  @override
-  String get indepLayerFraisPro => 'Despesas profissionais';
-
-  @override
-  String get indepLayerJoursNonFact => 'Dias não faturáveis';
-
-  @override
-  String get indepFiscal3a => 'Pilar 3a grande contribuição';
-
-  @override
-  String get indepFiscal3aNote =>
-      'Máx. 20% do rendimento líquido, teto CHF 36\'288/ano sem LPP';
-
-  @override
-  String get indepFiscalFraisPro => 'Despesas profissionais efetivas';
-
-  @override
-  String get indepFiscalFraisProNote =>
-      'Renda escritório, material, formação — dedutíveis ao custo';
-
-  @override
-  String get indepFiscalPrimesLpp => 'Prémios seguro doença (LPP vol.)';
-
-  @override
-  String get indepChargeAvs => 'AVS / AI / APG';
-
-  @override
-  String get indepChargeLpp => 'LPP (2.° pilar)';
-
-  @override
-  String get indepChargeLppNote => 'Facultativo para independente (LPP art. 4)';
-
-  @override
-  String get indepChargeAc => 'Desemprego (AC)';
-
-  @override
-  String get indepChargeAcNote => 'Sem AC para independente (LACI art. 2)';
-
-  @override
-  String get indepChargePro => 'Contribuições profissionais (IJM/LAA)';
-
-  @override
-  String get indepChargeProNote => 'Inteiramente a cargo do independente';
-
-  @override
-  String get indepPlanInscriptionAvs => 'Inscrição caixa AVS independentes';
-
-  @override
-  String get indepPlanInscriptionAvsConseq =>
-      'Multas retroativas se prazo ultrapassado';
-
-  @override
-  String get indepPlanLaa => 'Seguro acidentes LAA (se sem LPP)';
-
-  @override
-  String get indepPlanLaaConseq => 'Sem cobertura acidente profissional';
-
-  @override
-  String get indepPlanOuvrir3a => 'Abrir conta 3a (dedução até CHF 36\'288)';
-
-  @override
-  String get indepPlanIjm => 'Avaliar IJM (indemnização diária doença)';
-
-  @override
-  String get indepPlanIjmConseq =>
-      'Perda de rendimento desde o dia 3 em caso de doença';
-
-  @override
-  String get indepPlanFraisPro =>
-      'Despesas profissionais dedutíveis — manter registo';
-
-  @override
-  String get indepPlanAcomptes =>
-      'Adiantamentos fiscais cantonais — evitar juros';
-
-  @override
-  String get donationTypeEspeces => 'Dinheiro / Liquidez';
-
-  @override
-  String get donationTypeImmobilier => 'Imobiliário';
-
-  @override
-  String get donationTypeTitres => 'Títulos / Valores mobiliários';
-
-  @override
-  String get donationRegimeParticipation => 'Participação nos adquiridos';
-
-  @override
-  String get donationRegimeCommunaute => 'Comunhão de bens';
-
-  @override
-  String get donationRegimeSeparation => 'Separação de bens';
-
-  @override
-  String donationReserveBarLabel(String pct) {
-    return 'Reserva $pct%';
-  }
-
-  @override
-  String donationDisponibleBarLabel(String pct) {
-    return 'Disponível $pct%';
-  }
-
-  @override
-  String get donationDisclaimerFallback =>
-      'Esta ferramenta educativa fornece estimativas indicativas e não constitui aconselhamento jurídico, fiscal ou notarial personalizado. Consulta um especialista (notário) para a tua situação.';
-
-  @override
-  String get widgetRetirementTitle => 'O teu resumo de reforma';
-
-  @override
-  String get widgetRetirementToday => 'Hoje';
-
-  @override
-  String get widgetRetirementFuture => 'Na reforma';
-
-  @override
-  String get widgetBudgetTitle => 'O teu orçamento';
-
-  @override
-  String get widgetBudgetIncome => 'Receitas';
-
-  @override
-  String get widgetBudgetExpenses => 'Despesas';
-
-  @override
-  String get widgetPillarTitle => 'Os teus 3 pilares';
-
-  @override
-  String get widgetPillarAvsLpp => 'AVS + LPP';
-
-  @override
-  String get widgetPillar3a => '3º pilar';
-
-  @override
-  String get widgetPillarNotDeclared => 'Não declarado';
-
-  @override
-  String get widgetBudgetLabel => 'Orçamento';
-
-  @override
-  String get widgetInputLppLabel => 'Saldo LPP (CHF)';
-
-  @override
-  String get widgetInput3aLabel => 'Poupança pilar 3a (CHF)';
-
-  @override
-  String get widgetScoreFallback => 'Pontuação';
-
-  @override
-  String get widgetInputSalaryFallback => 'Salário';
-
-  @override
-  String get scoreGaugeLevelExcellent => 'Excelente';
-
-  @override
-  String get scoreGaugeLevelGood => 'Bom';
-
-  @override
-  String get scoreGaugeLevelAttention => 'Atenção';
-
-  @override
-  String get scoreGaugeLevelCritical => 'Crítico';
-
-  @override
-  String get scoreGaugeTitle => 'Forma financeira';
-
-  @override
-  String get scoreGaugeSubtitle => 'Pontuação composta · 3 pilares';
-
-  @override
-  String get scoreGaugeGainTitle => 'O que te fez subir';
-
-  @override
-  String get scoreGaugeNextTitle => 'Para subir mais';
-
-  @override
-  String get scoreGaugeDisclaimer =>
-      'Estimativas educativas — não constitui aconselhamento financeiro.';
-
-  @override
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine) {
-    return 'Pontuação de forma financeira. $score de 100. Nível $level. Orçamento $budget, Previdência $prevoyance, Património $patrimoine.';
-  }
-
-  @override
-  String get scoreGaugeSectionBudget => 'Orçamento';
-
-  @override
-  String get scoreGaugeSectionPrevoyance => 'Previdência';
-
-  @override
-  String get scoreGaugeSectionPatrimoine => 'Património';
-
-  @override
-  String get byokErrorSaveFailed => 'Erro ao guardar a chave.';
-
-  @override
-  String get byokErrorNotConfigured =>
-      'Configura primeiro um fornecedor e uma chave.';
-
-  @override
-  String get byokErrorConnection =>
-      'Erro de conexão. Verifica a tua conexão à internet.';
-
-  @override
-  String get authErrorNetwork =>
-      'Serviço indisponível. Verifica a tua rede e tenta novamente.';
-
-  @override
-  String get authErrorEmailUsed =>
-      'Este e-mail já está em uso. Inicia sessão ou redefine a tua palavra-passe.';
-
-  @override
-  String get authErrorIncorrect => 'E-mail ou palavra-passe incorretos.';
-
-  @override
-  String get authErrorRegistration =>
-      'Registo indisponível. Usa o modo local e tenta mais tarde.';
-
-  @override
-  String get authErrorService =>
-      'Serviço de conta indisponível neste ambiente. Usa o modo local.';
-
-  @override
-  String get authErrorInvalid => 'As informações inseridas são inválidas.';
-
-  @override
-  String get authErrorExpired => 'Este link expirou. Solicita um novo.';
-
-  @override
-  String get authErrorNotVerified =>
-      'O teu e-mail ainda não foi verificado. Verifica o teu e-mail e tenta novamente.';
-
-  @override
-  String get authErrorGeneric =>
-      'Ação indisponível de momento. Tenta daqui a pouco.';
-
-  @override
-  String ageYears(int age) {
-    return '$age anos';
-  }
-
-  @override
-  String get coachMintLabel => 'Coach MINT';
-
-  @override
-  String get consentNoActiveConsents => 'Sem consentimentos ativos';
-
-  @override
-  String get sequenceHousingGoal => 'Compra de imóvel';
-
-  @override
-  String get sequence3aGoal => 'Otimização pilar 3a';
-
-  @override
-  String get sequenceRetirementGoal => 'Preparação para reforma';
-
-  @override
-  String get sequenceTensionGoal => 'Resolver tensu00e3o financeira';
-
-  @override
-  String get sequenceTensionStep1 => 'Diagnu00f3stico de du00edvida';
-
-  @override
-  String get sequenceTensionStep2 => 'Oru00e7amento real';
-
-  @override
-  String get sequenceTensionStep3 => 'Plano de pagamento';
-
-  @override
-  String get sequenceTensionStep4 => 'Resumo';
-
-  @override
-  String get summaryCapaciteAchat => 'Capacidade de compra';
-
-  @override
-  String get summaryFondsPropres => 'Fundos próprios necessários';
-
-  @override
-  String get summaryRetraitEpl => 'Levantamento EPL previsto';
-
-  @override
-  String get summaryImpactRente => 'Impacto na sua pensão';
-
-  @override
-  String get summaryImpotRetrait => 'Imposto sobre levantamento';
-
-  @override
-  String get summaryMontantNet => 'Montante líquido após impostos';
-
-  @override
-  String get summaryVersementAnnuel => 'Contribuição anual';
-
-  @override
-  String get summaryEconomieFiscale => 'Poupança fiscal anual';
-
-  @override
-  String get summaryGainEchelonnement => 'Ganho com levantamentos escalonados';
-
-  @override
-  String get summaryTauxRemplacement => 'Taxa de substituição';
-
-  @override
-  String get summaryEcartMensuel => 'Diferença mensal estimada';
-
-  @override
-  String get summaryEconomieRachat => 'Poupança com recompra escalonada';
-
-  @override
-  String get summaryRatioEndettement => 'Rácio de endividamento';
-
-  @override
-  String get summaryMargeMensuelle => 'Margem mensal';
-
-  @override
-  String get summaryRevenuNet => 'Rendimento líquido mensal';
-
-  @override
-  String get summaryChargesFixes => 'Encargos fixos totais';
-
-  @override
-  String get summaryHorizonLiberation => 'Horizonte de libertação';
-
-  @override
-  String get summaryVersementMensuel => 'Pagamento mensal';
-
-  @override
-  String get summaryDonneesLpp => 'Dados do certificado LPP';
-
-  @override
-  String get summaryEstimationSansCertificat => 'Estimativa sem certificado';
-
-  @override
-  String get summaryChoixRenteCapital => 'Escolha renda/capital';
-
-  @override
-  String get sequenceAllStepsComplete => 'Todas as etapas concluídas';
-
-  @override
-  String sequenceStepLabel(int current, int total) {
-    return 'Etapa $current/$total';
-  }
-
-  @override
-  String get sequenceQuitConfirm => 'Percurso encerrado.';
-
-  @override
-  String sequenceStepCompleted(String progress) {
-    return 'Etapa $progress concluída. Pronto para a próxima?';
-  }
-
-  @override
-  String get sequenceCompleted =>
-      'Percurso completo! Todas as etapas estão concluídas.';
-
-  @override
-  String get sequencePaused => 'Percurso em pausa. Pode retomar quando quiser.';
-
-  @override
-  String get sequenceStepSkipped => 'Vamos pular esta etapa por enquanto.';
-
-  @override
-  String get sequenceStepRetry =>
-      'Sem problema. Vamos tentar esta etapa novamente.';
-
-  @override
-  String get sequenceReEvaluate =>
-      'Os seus dados mudaram. Recalculando as etapas afetadas.';
-
-  @override
-  String shellWelcomeBackDeltaPts(Object delta) {
-    return 'De volta! A sua precisão ganhou +$delta pts desde a última visita.';
-  }
-
-  @override
-  String get chatPickPhoto => 'Tirar uma foto';
-
-  @override
-  String get chatPickGallery => 'Escolher uma imagem';
-
-  @override
-  String get chatPickFile => 'Ficheiro (PDF, DOCX)';
-
-  @override
-  String get chatFileTooLarge => 'Ficheiro demasiado grande (máx. 5 MB)';
-
-  @override
-  String get chatDocSent => 'Documento enviado para análise';
-
-  @override
-  String get chatDocAnalysisIntro =>
-      'Analisei o teu documento. Eis o que encontrei:';
-
-  @override
-  String get chatDocUpdatePrompt =>
-      'Queres que atualize o teu perfil com estes dados?';
-
-  @override
-  String get chatDocExtractionFailed =>
-      'Não consegui extrair dados deste documento. Tenta com uma foto mais nítida.';
-
-  @override
-  String get chatDocError => 'Erro ao analisar o documento. Tenta novamente.';
-
-  @override
-  String get chatDocAttachTooltip => 'Digitalizar um documento';
-
-  @override
-  String get seasonalLamalTitle => 'Novos prémios LAMal';
-
-  @override
-  String get seasonalLamalDesc =>
-      'Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é adequada à tua situação.';
-
-  @override
-  String get extractionWhoseDocument => 'De quem é este documento?';
-
-  @override
-  String get extractionWhoseDocumentBody =>
-      'Tens um perfil de casal. Este documento é teu ou do teu parceiro?';
-
-  @override
-  String get extractionDocMine => 'É meu';
-
-  @override
-  String get extractionDocPartner => 'É do meu parceiro';
-
-  @override
-  String capCoachPromptMissingData(Object category) {
-    return 'Ajuda-me understand why $category is important for my situation.';
-  }
-
-  @override
-  String get capCoachPromptDebt =>
-      'Ajuda-me prioritize my debt repayment. Where should I start?';
-
-  @override
-  String get capCoachPromptIndepNoLpp =>
-      'I\'m self-employed without LPP. What pension options do I have?';
-
-  @override
-  String get capCoachPrompt3a =>
-      'Como much can I save with a 3a contribution this year?';
-
-  @override
-  String get capCoachPromptRachat =>
-      'Ajuda-me understand if a LPP buyback makes sense for me.';
-
-  @override
-  String get capCoachPromptBudgetDeficit =>
-      'My budget is in deficit. Como can I find some breathing room?';
-
-  @override
-  String capCoachPromptReplacement(Object rate) {
-    return 'My replacement rate is $rate%. Is that enough for retirement?';
-  }
-
-  @override
-  String get capCoachPromptUnemployment =>
-      'I\'m unemployed. What are my financial options?';
-
-  @override
-  String get capCoachPromptDivorce =>
-      'I\'m divorced. Como can I protect my financial situation?';
-
-  @override
-  String get capCoachPromptCoupleOptim =>
-      'Como can we optimize our pension planning as a couple?';
-
-  @override
-  String get capCoachPromptCouple =>
-      'We\'re a couple. Como should we coordinate our finances?';
-
-  @override
-  String get capCoachPromptMarried =>
-      'We\'re both working and married. Como can we optimize?';
-
-  @override
-  String get sequencePreretraiteGoal => 'Prepare my retirement';
-
-  @override
-  String get sequencePreretraiteStep1 => 'Retirement projection';
-
-  @override
-  String get sequencePreretraiteStep2 => '3a review';
-
-  @override
-  String get sequencePreretraiteStep3 => 'Annuity or capital';
-
-  @override
-  String get sequencePreretraiteStep4 => 'Levantamento 3a escalonado';
-
-  @override
-  String get sequencePreretraiteStep5 => 'Mortgage';
-
-  @override
-  String get sequencePreretraiteStep6 => 'LPP buyback';
-
-  @override
-  String get sequencePreretraiteStep7 => 'LAMal franchise';
-
-  @override
-  String get sequencePreretraiteStep8 => 'Succession';
-
-  @override
-  String get sequencePreretraiteStep9 => 'Retirement budget';
-
-  @override
-  String get sequencePreretraiteStep10 => 'Withdrawal plan';
-
-  @override
-  String get sequencePreretraiteStep11 => 'Summary';
-
-  @override
-  String proactiveContractDeadline(Object days, Object label) {
-    return 'Lembrete: $label vence em $days dias. Planeia com antecedência.';
-  }
-
-  @override
-  String get sequenceCoupleGoal => 'Coordinate finances together';
-
-  @override
-  String get sequenceCoupleStep1 => 'Marriage or partnership';
-
-  @override
-  String get sequenceCoupleStep2 => 'Couple profile';
-
-  @override
-  String get sequenceCoupleStep3 => '3a together';
-
-  @override
-  String get sequenceCoupleStep4 => 'Couple taxation';
-
-  @override
-  String get sequenceCoupleStep5 => 'Summary';
-
-  @override
-  String get sequenceNaissanceGoal => 'Prepare for baby financially';
-
-  @override
-  String get sequenceNaissanceStep1 => 'Birth impact';
-
-  @override
-  String get sequenceNaissanceStep2 => 'Family budget';
-
-  @override
-  String get sequenceNaissanceStep3 => '3a parent';
-
-  @override
-  String get sequenceNaissanceStep4 => 'Summary';
-
-  @override
-  String get sequencePremiersPasGoal => 'Understand my first salary';
-
-  @override
-  String get sequencePremiersPasStep1 => 'First job';
-
-  @override
-  String get sequencePremiersPasStep2 => 'My first budget';
-
-  @override
-  String get sequencePremiersPasStep3 => 'Discover 3a';
-
-  @override
-  String get sequenceDensificationGoal => 'Protect and consolidate';
-
-  @override
-  String get sequenceDensificationStep1 => 'Retirement projection';
-
-  @override
-  String get sequenceDensificationStep2 => 'Disability protection';
-
-  @override
-  String get sequenceDensificationStep3 => 'LPP buyback';
-
-  @override
-  String get sequenceDensificationStep4 => 'Summary';
-
-  @override
-  String get sequenceRetraiteActiveGoal => 'Manage my retirement';
-
-  @override
-  String get sequenceRetraiteActiveStep1 => 'Retirement budget';
-
-  @override
-  String get sequenceRetraiteActiveStep2 => 'Succession';
-
-  @override
-  String get sequenceRetraiteActiveStep3 => 'LAMal franchise';
-
-  @override
-  String get sequenceRetraiteActiveStep4 => 'Summary';
-
-  @override
-  String get sequenceReadyNextStep => 'Pronto para o próximo passo';
-
-  @override
-  String get sequenceQuitButton => 'Abandonar o percurso';
-
-  @override
-  String get notifChannelDescription =>
-      'Lembretes de check-in, prazos 3a e notificações de coaching';
-
-  @override
-  String get notifWeeklyRecapTitle => 'O teu resumo semanal';
-
-  @override
-  String get notifWeeklyRecapBody =>
-      'Orçamento, progresso, próximo passo — tudo pronto.';
-
-  @override
-  String get notifCheckinTitle => 'Check-in mensal';
-
-  @override
-  String get notifCheckinBody =>
-      'Confirma as tuas contribuições do mês em 2 min';
-
-  @override
-  String get notifDeadline3aTitle => 'Prazo 3a';
-
-  @override
-  String notifDeadline3aBody3Months(String remaining) {
-    return 'Restam 3 meses para contribuir para o teu 3a (CHF $remaining de margem)';
-  }
-
-  @override
-  String notifDeadline3aBody46Days(String remaining) {
-    return 'Restam 46 dias para maximizar o teu 3a (CHF $remaining de margem)';
-  }
-
-  @override
-  String get notifDeadline3aBody16Days =>
-      'Restam 16 dias para contribuir para o teu 3a';
-
-  @override
-  String get notifDeadline3aBodyLastDays =>
-      'Últimos dias! Contribui para o teu 3a antes de 31 de dezembro';
-
-  @override
-  String get notifTaxDeadlineTitle => 'Declaração fiscal';
-
-  @override
-  String get notifTaxDeadlineBody44Days =>
-      'Declaração fiscal em 44 dias — reúne os teus documentos';
-
-  @override
-  String get notifTaxDeadlineBody16Days =>
-      'Declaração fiscal em 16 dias — começa a preenchê-la';
-
-  @override
-  String get notifTaxDeadlineBodyLastWeek =>
-      'Declaração fiscal até 31 de março — última semana!';
-
-  @override
-  String get notifStreakProtectionTitle => 'Protege a tua série';
-
-  @override
-  String notifStreakProtectionBody(String streak) {
-    return 'Estás com $streak meses consecutivos — não quebres a tua série!';
-  }
-
-  @override
-  String recapActiveWeek(String days) {
-    return 'Esta semana, estiveste ativo $days dia(s) no MINT.';
-  }
-
-  @override
-  String get recapQuietWeek => 'Esta semana foi calma no MINT.';
-
-  @override
-  String recapSavings(String amount) {
-    return 'A tua poupança estimada é de CHF $amount.';
-  }
-
-  @override
-  String recapConfidenceUp(String delta) {
-    return 'A tua confiança melhorou +$delta pts.';
-  }
-
-  @override
-  String recapNextFocus(String focus) {
-    return 'Na próxima semana, concentra-te em $focus.';
-  }
-
-  @override
-  String get loadingGeneric => 'A carregar…';
-
-  @override
-  String get commonConfirm => 'Confirmar';
-
-  @override
-  String get b2bHubTitle => 'A minha empresa';
-
-  @override
-  String get b2bHubInvalidCode => 'Código inválido ou expirado';
-
-  @override
-  String get b2bHubLeaveTitle => 'Sair da organização?';
-
-  @override
-  String get b2bHubLeaveBody =>
-      'Os módulos reservados à tua empresa deixarão de estar acessíveis.';
-
-  @override
-  String get b2bHubNarrativeHeadline => 'Previdência empresarial';
-
-  @override
-  String get b2bHubNarrativeBody =>
-      'Se o teu empregador utiliza o MINT, introduz o código de convite para aceder aos módulos de previdência reservados aos colaboradores.';
-
-  @override
-  String get b2bHubInviteCodeLabel => 'Código de convite';
-
-  @override
-  String get b2bHubJoinButton => 'Aderir';
-
-  @override
-  String get b2bHubJoinSemantics => 'Aderir à organização';
-
-  @override
-  String get b2bHubNoCodeHint =>
-      'Sem código? Pergunta ao teu departamento de RH.';
-
-  @override
-  String b2bHubEmployeeCount(String count) {
-    return '$count colaboradores';
-  }
-
-  @override
-  String get b2bHubModulesTitle => 'Os teus módulos';
-
-  @override
-  String get b2bHubLeaveButton => 'Sair da organização';
-
-  @override
-  String get b2bModuleEducation => 'Educação financeira';
-
-  @override
-  String get b2bModuleEducationSubtitle =>
-      'Artigos, conceitos e questionários adaptados à tua situação';
-
-  @override
-  String get b2bModuleWellness => 'Bem-estar financeiro';
-
-  @override
-  String get b2bModuleWellnessSubtitle =>
-      'Pontuação de saúde financeira e recomendações';
-
-  @override
-  String get b2bModule3a => 'Pilar 3a empresarial';
-
-  @override
-  String get b2bModule3aSubtitle => 'Otimização e simulação do terceiro pilar';
-
-  @override
-  String get b2bModuleLpp => 'Previdência profissional (LPP)';
-
-  @override
-  String get b2bModuleLppSubtitle =>
-      'Análise detalhada da tua caixa de pensões';
-
-  @override
-  String get pensionFundTitle => 'Dados certificados';
-
-  @override
-  String get pensionFundConnectionError => 'Ligação indisponível de momento';
-
-  @override
-  String get pensionFundDisconnectTitle => 'Desligar a caixa?';
-
-  @override
-  String get pensionFundDisconnectBody =>
-      'As tuas projeções voltarão ao modo «estimado» em vez de «certificado».';
-
-  @override
-  String get pensionFundDisconnectButton => 'Desligar';
-
-  @override
-  String get pensionFundNarrativeHeadline => 'Importação automática';
-
-  @override
-  String get pensionFundNarrativeBody =>
-      'Liga a tua caixa de pensões para substituir as estimativas pelos teus dados reais. Apenas leitura — o MINT não altera nada.';
-
-  @override
-  String get pensionFundAvailableTitle => 'Caixas disponíveis';
-
-  @override
-  String pensionFundConnectedStatus(String name) {
-    return '$name, ligado';
-  }
-
-  @override
-  String pensionFundDisconnectedStatus(String name) {
-    return '$name, não ligado';
-  }
-
-  @override
-  String pensionFundSyncDate(String date) {
-    return 'Sincro $date';
-  }
-
-  @override
-  String get pensionFundReconnectionNeeded => 'Reconexão necessária';
-
-  @override
-  String get pensionFundAvailable => 'Disponível';
-
-  @override
-  String get pensionFundDisconnectTooltip => 'Desligar';
-
-  @override
-  String get pensionFundConnectButton => 'Ligar';
-
-  @override
-  String get pensionFundDisclaimer =>
-      'O MINT é uma ferramenta educativa em modo de leitura (LSFin art. 3). Nenhuma transação é efetuada nas tuas contas. Podes desligar-te a qualquer momento.';
-
-  @override
-  String get semanticsBudgetStartButton => 'Começar a inserir o orçamento';
-
-  @override
-  String get semanticsBenchmarkToggle => 'Ativar comparações cantonais';
-
-  @override
-  String semanticsBenchmarkMetric(
-      String label, String status, String low, String high) {
-    return '$label: $status. Intervalo típico de $low a $high';
-  }
-
-  @override
-  String semanticsRecapPeriod(String start, String end) {
-    return 'Resumo de $start a $end';
-  }
-
-  @override
-  String semanticsRecapSection(String title, String content) {
-    return '$title: $content';
-  }
-
-  @override
-  String semanticsRepaymentFreeIn(int months) {
-    return 'Livre de dívidas em $months meses';
-  }
-
-  @override
-  String semanticsRepaymentDeleteDebt(String name) {
-    return 'Eliminar dívida $name';
-  }
-
-  @override
-  String semanticsRepaymentBudget(String amount) {
-    return 'Orçamento mensal: $amount francos. Toca para editar';
-  }
-
-  @override
-  String get semanticsRepaymentValidate => 'Confirmar valor';
-
-  @override
-  String semanticsRepaymentStrategy(String title, int months, String interest) {
-    return '$title: $months meses, juros $interest francos';
-  }
-
-  @override
-  String semanticsAvsDifference(String amount) {
-    return 'Diferença anual: $amount francos';
-  }
-
-  @override
-  String semanticsMetricLabelValue(String label, String value) {
-    return '$label: $value';
-  }
-
-  @override
-  String semanticsAvsTauxEffectif(String rate) {
-    return 'Taxa efetiva: $rate por cento';
-  }
-
-  @override
-  String semanticsDividendeSaving(String amount) {
-    return 'Poupança: $amount francos por ano';
-  }
-
-  @override
-  String get semanticsDividendeAdjust =>
-      'Ajusta o split para encontrar poupanças';
-
-  @override
-  String get semanticsDividendeRequalification =>
-      'Alerta: risco de requalificação fiscal se a parte salarial for inferior a 60 por cento';
-
-  @override
-  String semanticsLppCapitalisation(String amount) {
-    return 'Capitalização anual: $amount francos';
-  }
-
-  @override
-  String semanticsLppGain(String amount) {
-    return 'Ganho com LPP voluntária: $amount francos';
-  }
-
-  @override
-  String get semantics3aLppToggle => 'Afiliado LPP';
-
-  @override
-  String semantics3aEconomieFiscale(String amount) {
-    return 'Poupança fiscal: $amount francos';
-  }
-
-  @override
-  String semantics3aAvantageSalarie(String amount) {
-    return 'Vantagem sobre assalariado: $amount francos';
-  }
-
-  @override
-  String get semanticsCoachTabLabel => 'Aba Coach MINT';
-
-  @override
-  String semanticsRealReturnGain(String amount) {
-    return 'Ganho comparado à poupança: $amount francos';
-  }
-
-  @override
-  String get capNoCapHeadline => 'Estás no bom caminho';
-
-  @override
-  String get capNoCapWhyNow =>
-      'Continua a explorar o MINT para aprofundar a tua situação.';
-
-  @override
-  String get narrativeEplHeadline =>
-      'Levantamento EPL: vantagens e bloqueio de 3 anos';
-
-  @override
-  String get narrativeEplBody =>
-      'O art. 30c LPP permite retirar o 2º pilar para financiar habitação própria. Atenção: se fez recompras, aplica-se um bloqueio de 3 anos (LPP art. 79b par. 3).';
-
-  @override
-  String get narrativeEplBadge => '2º pilar — EPL';
-
-  @override
-  String get narrativeRachatHeadline => 'Escalonar para poupar';
-
-  @override
-  String get narrativeRachatBody =>
-      'Distribuir uma recompra LPP por vários anos permite deduzir cada parcela do rendimento tributável (LPP art. 79b). A progressividade fiscal torna esta estratégia frequentemente mais vantajosa do que um pagamento único.';
-
-  @override
-  String get narrativeRachatBadge => '2º pilar';
-
-  @override
-  String get rachatEchelonneEyebrow => 'Recompra LPP escalonada';
-
-  @override
-  String rachatEchelonneNarrativeSavings(int horizon) {
-    return 'Escalonar a recompra em $horizon anos reduz a tua carga fiscal total.';
-  }
-
-  @override
-  String get rachatEchelonneNarrativeNoSavings =>
-      'Na tua situação, a recompra em bloco é mais vantajosa.';
-
-  @override
-  String get narrativeLibrePassageHeadline =>
-      'Livre passagem: 6 meses para agir';
-
-  @override
-  String get narrativeLibrePassageBody =>
-      'Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.';
-
-  @override
-  String get narrativeLibrePassageBadge => 'Livre passagem';
-
-  @override
-  String get narrativeAmortizationHeadline => 'Direto ou indireto?';
-
-  @override
-  String get narrativeAmortizationBody =>
-      'A amortização direta reduz a tua dívida todos os anos. A indireta deposita num 3a, dedutível fiscalmente (OPP3). Dependendo da tua taxa marginal, a indireta pode custar-te menos no total.';
-
-  @override
-  String get narrativeAmortizationBadge => 'Amortização';
-
-  @override
-  String get amortizationEyebrow => 'Amortização direta vs indireta';
-
-  @override
-  String get amortizationSavingsLabel => 'de poupança com a indireta';
-
-  @override
-  String get amortizationDifferenceLabel =>
-      'de diferença entre as duas estratégias';
-
-  @override
-  String get narrativeSaronHeadline => 'SARON ou taxa fixa?';
-
-  @override
-  String get narrativeSaronBody =>
-      'O SARON segue o mercado monetário e pode mudar a cada trimestre. Uma taxa fixa bloqueia os teus juros durante todo o prazo. Dependendo da tua tolerância ao risco, a diferença pode jogar a teu favor… ou não.';
-
-  @override
-  String get narrativeSaronBadge => 'Hipoteca';
-
-  @override
-  String get saronEyebrow => 'SARON vs Taxa fixa';
-
-  @override
-  String get saronSavingsLabel => 'de poupança potencial com SARON';
-
-  @override
-  String get saronCostLabel => 'de custo adicional com SARON';
-
-  @override
-  String get narrativeRealReturnHeadline => 'Rendimento real após inflação';
-
-  @override
-  String get narrativeRealReturnBody =>
-      'O rendimento apresentado não diz tudo. Após comissões de gestão e inflação, o ganho real pode diferir. A poupança fiscal do 3a (LIFD art. 33) melhora consideravelmente o rendimento efetivo.';
-
-  @override
-  String get narrativeRealReturnBadge => '3º pilar';
-
-  @override
-  String get narrativeRetroactive3aHeadline => 'Recuperar até 10 anos de 3a';
-
-  @override
-  String get narrativeRetroactive3aBody =>
-      'A partir de 2026, a OPP3 art. 7 permite pagar retroativamente os anos de contribuição 3a em falta. Cada pagamento é dedutível do rendimento tributável (LIFD art. 33).';
-
-  @override
-  String get narrativeRetroactive3aBadge => '3º pilar';
-
-  @override
-  String get retroactive3aSavingsLabel =>
-      'de poupança fiscal com a recuperação 3a';
-
-  @override
-  String get narrativeFirstJobHeadline => 'O teu primeiro salário explicado';
-
-  @override
-  String get narrativeFirstJobBody =>
-      'Entre AVS (LAVS art. 5), LPP (art. 16), imposto na fonte e LAMal, o teu líquido representa cerca de 75-80 % do bruto. Compreender estas deduções é o primeiro passo para uma boa gestão.';
-
-  @override
-  String get narrativeFirstJobBadge => 'Primeiro emprego';
-
-  @override
-  String get narrativeMarriageHeadline => 'Impacto financeiro do casamento';
-
-  @override
-  String get narrativeMarriageBody =>
-      'O casamento modifica a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Dependendo dos vossos rendimentos respetivos, o impacto fiscal pode ser positivo ou negativo.';
-
-  @override
-  String get narrativeMarriageBadge => 'Casamento';
-
-  @override
-  String get narrativeBirthHeadline => 'Custos e apoios ao nascimento';
-
-  @override
-  String get narrativeBirthBody =>
-      'A licença de maternidade (LAPG art. 16b–d) cobre 14 semanas a 80 % do salário. Os abonos de família variam por cantão (LAFam art. 3). Este simulador estima o impacto global no teu orçamento.';
-
-  @override
-  String get narrativeBirthBadge => 'Nascimento';
-
-  @override
-  String get narrativeCoverageHeadline => 'Verifica a tua cobertura';
-
-  @override
-  String get narrativeCoverageBody =>
-      'LAMal, IJM, RC privada, seguro do lar… Cada seguro cobre um risco diferente. Este balanço identifica as lacunas conforme a tua situação e o teu cantão.';
-
-  @override
-  String get narrativeCoverageBadge => 'Seguros';
-
-  @override
-  String get narrativeDisabilityHeadline =>
-      'Compreende a tua lacuna de invalidez';
-
-  @override
-  String get narrativeDisabilityBody =>
-      'Em caso de invalidez, o teu rendimento passa por 3 fases: empregador (CO art. 324a), IJM, depois AI + LPP (LAI art. 28, LPP art. 23-26). A queda pode atingir 40-60 % do teu salário atual.';
-
-  @override
-  String get narrativeDisabilityBadge => 'Invalidez';
-
-  @override
-  String get narrativeUnemploymentHeadline => 'Os teus direitos de desemprego';
-
-  @override
-  String get narrativeUnemploymentBody =>
-      'A LACI prevê uma indemnização de 70-80 % do ganho segurado (art. 22). A duração depende dos teus meses de contribuição e da tua idade (art. 27). Este simulador estima os teus direitos com base na tua situação atual.';
-
-  @override
-  String get narrativeUnemploymentBadge => 'Desemprego';
-
-  @override
-  String get imputedRentalEyebrow => 'Valor de aluguer imputado';
-
-  @override
-  String get imputedRentalSavingsLabel => 'de poupança fiscal líquida';
-
-  @override
-  String get imputedRentalTaxLabel => 'de imposto adicional';
-
-  @override
-  String get semanticsBack => 'Voltar';
-
-  @override
-  String get semanticsDecrease => 'Diminuir';
-
-  @override
-  String get semanticsIncrease => 'Aumentar';
-
-  @override
-  String get realReturnPrimaryLabel =>
-      'rendimento real após impostos e inflação';
-
-  @override
-  String get realReturnNarrative =>
-      'Graças à dedução fiscal, o teu 3a rende muito mais do que uma conta poupança clássica.';
-
-  @override
-  String get retroactive3aEmptyTitle => 'Recuperação 3a';
-
-  @override
-  String get retroactive3aEmptySubtitle =>
-      'Insere o teu rendimento para calcular a tua poupança fiscal';
-
-  @override
-  String get retroactive3aEmptyCta => 'Adicionar o meu rendimento';
-
-  @override
-  String get onboardingPermitTypeLabel => 'O teu tipo de autorização';
-
-  @override
-  String get onboardingPermitC => 'Autorização C (estabelecimento)';
-
-  @override
-  String get onboardingPermitB => 'Autorização B (residência)';
-
-  @override
-  String get onboardingPermitG => 'Autorização G (fronteiriço)';
-
-  @override
-  String get onboardingPermitL => 'Autorização L (curta duração)';
-
-  @override
-  String get onboardingPermitOther => 'Outro';
-
-  @override
-  String get onboardingIjmWarningTitle => 'Proteção doença: a verificar';
-
-  @override
-  String get onboardingIjmWarningBody =>
-      'Como trabalhador independente, não tens subsídio diário de doença (IJM) por defeito. Sem cobertura, uma doença poderia interromper os teus rendimentos sem compensação. Tens também 6 meses para te inscreveres voluntariamente num fundo de pensões (LPP art. 4).';
-
-  @override
-  String get rachatLppNotApplicableAfterRetirement =>
-      'A recompra LPP já não é aplicável após a reforma. Esta simulação destina-se a trabalhadores ativos que pretendem colmatar uma lacuna de previdência.';
-
-  @override
-  String get apiErrorOffline =>
-      'Sem ligação à internet. Verifica a tua rede e tenta novamente.';
-
-  @override
-  String get apiErrorTimeout =>
-      'O servidor está a demorar demasiado a responder. Tenta novamente.';
-
-  @override
-  String get apiErrorSessionExpired =>
-      'Sessão expirada — inicia sessão novamente.';
-
-  @override
-  String get apiErrorServer =>
-      'Erro do servidor. Tenta novamente dentro de momentos.';
-
-  @override
-  String get pensionFundConnectComingSoon =>
-      'Disponível em breve — a aguardar acordos-piloto';
-
-  @override
-  String get greetingNight => 'Boa noite';
-
-  @override
-  String get onboardingCalculationError =>
-      'Erro de cálculo. Verifica os teus dados e tenta novamente.';
-
-  @override
-  String get onboardingRetirementAgeWarning =>
-      'Reforma antes dos 55? Verifica a tua idade ou situação profissional.';
-
-  @override
-  String indicativeBannerTitle(String pct) {
-    return 'Resultado indicativo ($pct % de fiabilidade)';
-  }
-
-  @override
-  String get indicativeBannerBody =>
-      'Precisa os teus dados para projeções personalizadas.';
-
-  @override
-  String get indicativeBannerCta => 'Precisar';
-
-  @override
-  String get exploreHubTitle => 'Explorar';
-
-  @override
-  String get safeModeTitle => 'Foco Prioritário';
-
-  @override
-  String get safeModeMessage =>
-      'Para a tua segurança financeira, desativamos as otimizações avançadas enquanto um sinal de dívida estiver ativo.';
-
-  @override
-  String get safeModeCta => 'Ver o meu plano de redução de dívida';
-
-  @override
-  String get coachGateTitle => 'Função Coach';
-
-  @override
-  String get coachGateSubtitle => 'Disponível com MINT Coach';
-
-  @override
-  String get coachGateUnlock => 'Desbloquear';
-
-  @override
-  String get documentVisionDisclaimer =>
-      'Extração via Claude Vision. Verifica os valores.';
-
-  @override
-  String get conversationHistoryError =>
-      'Não foi possível carregar o histórico.';
-
-  @override
-  String get portfolioCompleteProfile =>
-      'Completa o teu perfil para desbloquear o teu índice de preparação.';
-
-  @override
-  String get portfolioNoData => 'Nenhum dado patrimonial fornecido.';
-
-  @override
-  String get syncFailedLocalSave =>
-      'Sincronização falhou — os teus dados estão guardados localmente';
-
-  @override
-  String get financialReportEmptyTitle => 'O teu relatório financeiro';
-
-  @override
-  String get financialReportEmptySubtitle =>
-      'Completa o teu perfil para gerar o teu relatório personalizado';
-
-  @override
-  String get financialReportEmptyCta => 'Completar o meu perfil';
-
-  @override
-  String get staggeredWithdrawalEmptyTitle => 'Levantamento 3a escalonado';
-
-  @override
-  String get staggeredWithdrawalEmptySubtitle =>
-      'Introduz as tuas poupanças 3a para otimizar os levantamentos';
-
-  @override
-  String get staggeredWithdrawalEmptyCta => 'Adicionar o meu 3a';
-
-  @override
-  String consentExportFormat(String format) {
-    return 'Formato: $format';
-  }
-
-  @override
-  String consentExportDate(String date) {
-    return 'Data: $date';
-  }
-
-  @override
-  String consentExportCategories(String categories) {
-    return 'Categorias: $categories';
-  }
-
-  @override
-  String get errorNotAuthenticated => 'Não autenticado';
-
-  @override
-  String get budgetEmptySubtitle =>
-      'Introduz o teu salário para criar o teu orçamento personalizado';
-
-  @override
-  String get budgetEmptyCta => 'Adicionar o meu salário';
-
-  @override
-  String get coachConfirmAction => 'Confirmar';
-
-  @override
-  String get coachCancelAction => 'Cancelar';
-
-  @override
-  String get semanticsDelete => 'Eliminar';
-
-  @override
-  String get docScanProcessingError => 'Erro de processamento.';
-
-  @override
-  String docScanBackendParsingError(String error) {
-    return 'Erro de backend ao processar o PDF: $error';
-  }
-
-  @override
-  String get expatNoAcRightsAbroad =>
-      'Sem direitos AC suíços se trabalhares no estrangeiro';
-
-  @override
-  String get expatAcIndemnities => 'Prestações AC até 520 dias';
-
-  @override
-  String get expatJobLossAbroad =>
-      'Se perderes o emprego no estrangeiro, apenas o regime local se aplica — frequentemente menos generoso.';
-
-  @override
-  String coachChangeGoalConfirm(String goalTag) {
-    return 'Mudar o teu objetivo para: $goalTag?';
-  }
-
-  @override
-  String coachMarkStepConfirm(String stepId) {
-    return 'Marcar o passo \"$stepId\" como concluído?';
-  }
-
-  @override
-  String get semanticsActive => 'ativo';
-
-  @override
-  String get semanticsInactive => 'inativo';
-
-  @override
-  String get semanticsReached => 'alcançado';
-
-  @override
-  String get semanticsNotReached => 'não alcançado';
-
-  @override
-  String get rcSuggestedPromptSuccession =>
-      'Como organizar a minha sucessão na Suíça?';
-
-  @override
-  String get rcSuggestedPromptDonation =>
-      'Quais as vantagens fiscais de uma doação em vida?';
-
-  @override
-  String get rcSuggestedPromptPatrimoine =>
-      'Como otimizar a transmissão do meu património?';
-
-  @override
-  String get onboardingProfileCreated =>
-      'Perfil criado! Podes começar a explorar MINT.';
-
-  @override
-  String get capEstatePlanningHeadline => 'Preparar a tua transmissão';
-
-  @override
-  String get capEstatePlanningWhyNow =>
-      'Testamento, beneficiários LPP e 3a, pacto sucessório: decisões a tomar agora.';
-
-  @override
-  String get capEstatePlanningWhyNowVeuf =>
-      'Após um falecimento, os direitos sucessórios e beneficiários mudam. Verifica a tua situação.';
-
-  @override
-  String get capEstatePlanningCtaLabel => 'Compreender os procedimentos';
-
-  @override
-  String get mortgageStep1Title => 'Posso comprar?';
-
-  @override
-  String get mortgageStep1Subtitle =>
-      'Regra dos terços: os encargos (juros teóricos a 5% + amortização 1% + manutenção 1%) não devem exceder 1/3 do rendimento bruto.';
-
-  @override
-  String get mortgageStep1Action =>
-      'Calcula a tua capacidade com o simulador MINT';
-
-  @override
-  String get mortgageStep2Title => 'De onde vêm os meus fundos próprios?';
-
-  @override
-  String get mortgageStep2Subtitle =>
-      'Precisas de 20% do preço como fundos próprios. Fontes: poupanças, 3a, EPL (2.º pilar, máx. 10% do preço). Atenção: o EPL bloqueia a recompra LPP durante 3 anos.';
-
-  @override
-  String get mortgageStep2Action => 'Verifica o teu saldo 3a e LPP no MINT';
-
-  @override
-  String get mortgageStep3Title => 'Que tipo de hipoteca?';
-
-  @override
-  String get mortgageStep3Subtitle =>
-      'Hipoteca fixa: segurança, taxa fixa por 2-15 anos. SARON (variável): taxa mais baixa mas risco de aumento. Mix possível. Taxa atual ≠ taxa teórica de 5%.';
-
-  @override
-  String get mortgageStep3Action => 'Compara ofertas de pelo menos 3 bancos';
-
-  @override
-  String get mortgageStep4Title => 'Amortização direta ou indireta?';
-
-  @override
-  String get mortgageStep4Subtitle =>
-      'Direta: reembolsas o banco cada ano (dívida diminui, dedução fiscal diminui). Indireta: pagas no teu 3a, depois reembolsas em bloco. Vantagem fiscal da indireta.';
-
-  @override
-  String get mortgageStep4Action =>
-      'Consulta um especialista fiscal para o teu cantão';
-
-  @override
-  String get mortgageStep5Title => 'E o valor locativo?';
-
-  @override
-  String get mortgageStep5Subtitle =>
-      'Se ocupas a tua propriedade, pagas imposto sobre o valor locativo (renda fictícia). Em contrapartida, podes deduzir os juros hipotecários e os custos de manutenção.';
-
-  @override
-  String get mortgageStep5Action =>
-      'Estima o teu imposto sobre o valor locativo no MINT';
-
-  @override
-  String get mortgageStep6Title => 'No final: alugar ou comprar?';
-
-  @override
-  String get mortgageStep6Subtitle =>
-      'Uma decisão tanto pessoal como financeira. Fatores: duração de residência prevista, estabilidade profissional, flexibilidade desejada. Break-even típico: 7-12 anos.';
-
-  @override
-  String get mortgageStep6Action => 'Lança o Balanço de comparação no MINT';
-
-  @override
-  String get mortgageStep7Title => 'O meu plano de ação';
-
-  @override
-  String get mortgageStep7Subtitle =>
-      'Antes de assinar: verificar o regulamento de compropriedade, a avaliação do edifício, as obras planeadas, o fundo de renovação. Fazer rever a escritura de venda.';
-
-  @override
-  String get mortgageStep7Action => 'Descarrega a checklist de compra MINT';
-
-  @override
-  String get mortgageJourneyDisclaimer =>
-      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Consulta um especialista hipotecário antes de qualquer decisão. Fontes: FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.';
-
-  @override
-  String mortgageJourneyStepLabel(int number, String title) {
-    return 'Passo $number · $title';
-  }
-
-  @override
-  String get onboardingConsentAccept => 'Aceitar';
-
-  @override
-  String get onboardingConsentDecline => 'Recusar';
-
-  @override
-  String get voiceDisclosureTitle => 'Reconhecimento de voz';
-
-  @override
-  String get voiceDisclosureBody =>
-      'As tuas palavras são enviadas para a Apple (iOS) ou Google (Android) para transcrição. MINT nunca armazena o teu áudio.';
 
   @override
   String get trajectoryKnownSectionTitle => 'O que MINT sabe';
@@ -25696,28 +12951,6802 @@ class SPt extends S {
   String get pulseLabelMonthlyFree => 'Margem livre mensal';
 
   @override
+  String ageYears(int age) {
+    return '$age anos';
+  }
+
+  @override
+  String get agent3aFormTitle => 'Certificado 3.º pilar';
+
+  @override
+  String get agentFieldAddressPerso => 'Morada pessoal';
+
+  @override
+  String get agentFieldAddresseCaisse => 'Morada do fundo de pensões';
+
+  @override
+  String get agentFieldAddresseCaisseAvs => 'Morada da caixa AVS';
+
+  @override
+  String get agentFieldAnneRef => 'Ano de referência';
+
+  @override
+  String get agentFieldCaissePension => 'Fundo de pensões';
+
+  @override
+  String get agentFieldNumeroAvs => 'Número AVS';
+
+  @override
+  String get agentFieldNumeroPolice => 'Número de apólice';
+
+  @override
+  String agentFieldRachatLppValue(String range) {
+    return '~$range CHF';
+  }
+
+  @override
+  String agentFieldRevenuBrutValue(String range) {
+    return '~$range CHF/ano';
+  }
+
+  @override
+  String agentFieldSource(String source) {
+    return 'Fonte : $source';
+  }
+
+  @override
+  String get agentFiscalDossierCapital3a => 'Capital 3a acumulado';
+
+  @override
+  String get agentFiscalDossierPlafond3a => 'Limite 3a aplicável';
+
+  @override
+  String get agentFiscalDossierRachat => 'Recompra LPP disponível';
+
+  @override
+  String get agentFiscalDossierRevenu => 'Rendimento bruto estimado';
+
+  @override
+  String get agentFormAvoirLpp => 'Ter LPP atual';
+
+  @override
+  String get agentFormBeneficiaireNom => 'Nome do/da beneficiário·a';
+
+  @override
+  String get agentFormCanton => 'Cantão de residência';
+
+  @override
+  String get agentFormCantonFallback => '[cantão]';
+
+  @override
+  String get agentFormCivilCelibataire => 'Solteiro·a';
+
+  @override
+  String get agentFormCivilConcubinage => 'União de facto';
+
+  @override
+  String get agentFormCivilDivorce => 'Divorciado·a';
+
+  @override
+  String get agentFormCivilMarie => 'Casado·a';
+
+  @override
+  String get agentFormCivilVeuf => 'Viúvo·a';
+
+  @override
+  String get agentFormDeduction3a => 'Dedução 3a possível';
+
+  @override
+  String get agentFormDisclaimer =>
+      'Verifica cada campo antes de enviar. MINT não submete nada em teu nome.';
+
+  @override
+  String get agentFormEmplChomage => 'À procura de emprego';
+
+  @override
+  String get agentFormEmplIndependant => 'Trabalhador·a independente';
+
+  @override
+  String get agentFormEmplRetraite => 'Reformado·a';
+
+  @override
+  String get agentFormEmplSalarie => 'Trabalhador·a por conta de outrem';
+
+  @override
+  String get agentFormEstimated => 'Estimado — a confirmar';
+
+  @override
+  String get agentFormMontantRachatSouhaite => 'Montante do resgate pretendido';
+
+  @override
+  String agentFormMontantVersement(String plafond, String year) {
+    return '~$plafond CHF (limite $year)';
+  }
+
+  @override
+  String get agentFormMontantVersementLabel => 'Montante do pagamento anual';
+
+  @override
+  String get agentFormNbEnfants => 'Número de filhos';
+
+  @override
+  String get agentFormNumeroCompte3a => 'Número de conta 3a';
+
+  @override
+  String get agentFormNumeroPolice => 'Número de apólice';
+
+  @override
+  String get agentFormRachatLppDeductible => 'Resgate LPP dedutível estimado';
+
+  @override
+  String get agentFormRachatMax => 'Resgate máximo disponível';
+
+  @override
+  String get agentFormRachatsDeja => 'Resgates já efetuados';
+
+  @override
+  String get agentFormRevenuBrut => 'Rendimento bruto estimado';
+
+  @override
+  String get agentFormSituationFamiliale => 'Situação familiar';
+
+  @override
+  String get agentFormStatutProfessionnel => 'Situação profissional';
+
+  @override
+  String get agentFormTitle => 'Formulário pré-preenchido';
+
+  @override
+  String get agentFormTitulaireNom => 'Nome do/da titular';
+
+  @override
+  String get agentFormToComplete => '[A completar]';
+
+  @override
+  String get agentFormToCompleteAupres => '[A completar junto da caixa]';
+
+  @override
+  String agentFormToCompleteMax(String max) {
+    return '[A preencher — máx. $max CHF]';
+  }
+
+  @override
+  String get agentFormTypeContrat => 'Tipo de contrato';
+
+  @override
+  String get agentFormTypeContratIndependant => 'Independente sem LPP';
+
+  @override
+  String get agentFormTypeContratSalarie => 'Trabalhador·a com LPP';
+
+  @override
+  String get agentFormValidateAll => 'Confirmo que verifiquei';
+
+  @override
+  String get agentFormsAvsCta => 'Solicitar o meu extrato AVS';
+
+  @override
+  String get agentFormsAvsSubtitle => 'Modelo de carta pronto a enviar';
+
+  @override
+  String get agentFormsLppCta => 'Solicitar transferência LPP';
+
+  @override
+  String get agentFormsLppSubtitle =>
+      'Carta de transferência de livre passagem';
+
+  @override
+  String get agentFormsTaxCta => 'Preparar a minha declaração';
+
+  @override
+  String get agentFormsTaxSubtitle => 'Pré-preenchido a partir do teu perfil';
+
+  @override
+  String get agentLetterAvsAddress => '[Endereço]';
+
+  @override
+  String agentLetterAvsExtractBody(
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
+    return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nSolicito que me enviem um extrato da minha conta individual AVS (CI) para verificar o estado das minhas contribuições e identificar eventuais lacunas.\n\nAgradeço antecipadamente a vossa diligência.\n\nCom os melhores cumprimentos,\n\n$name';
+  }
+
+  @override
+  String get agentLetterAvsOrg => 'Caixa de compensação AVS competente';
+
+  @override
+  String get agentLetterAvsSubject => 'Pedido de extrato de conta AVS';
+
+  @override
+  String get agentLetterCaisseAddress => '[Endereço da caixa]';
+
+  @override
+  String get agentLetterCaisseCurrentAddress => '[Endereço da caixa atual]';
+
+  @override
+  String get agentLetterCaisseCurrentName => '[Caixa de pensões atual]';
+
+  @override
+  String get agentLetterCaisseFallback => '[Nome da caixa de pensões]';
+
+  @override
+  String get agentLetterDisclaimer =>
+      'Adapta e envia tu mesmo. MINT não transmite nada.';
+
+  @override
+  String agentLetterLppTransferBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
+    return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nEm virtude da cessação do meu contrato de trabalho / da minha saída da Suíça (riscar o que não se aplica), solicito que procedam à transferência do meu ter de livre passagem.\n\nMontante a transferir: a totalidade do ter de livre passagem à data de saída.\n\nInstituição de destino:\nNome: $toComplete\nIBAN ou número de conta: $toComplete\nEndereço: $toComplete\n\nData de saída: $toComplete\n\nAgradeço a vossa diligência e solicito confirmação da boa execução desta transferência.\n\nCom os melhores cumprimentos,\n\n$name';
+  }
+
+  @override
+  String agentLetterPensionFundBody(
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
+    return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nVenho por este meio submeter os seguintes pedidos relativos ao meu processo de previdência profissional:\n\n1. Certificado de previdência atualizado $year (ter de velhice, prestações cobertas, taxa de conversão aplicável)\n\n2. Confirmação da minha capacidade de resgate (montante máximo nos termos do art. 79b LPP)\n\n3. Simulação de reforma antecipada (projeção do ter e da renda aos 63 e 64 anos, se aplicável)\n\nAgradeço antecipadamente a vossa diligência e fico à disposição para qualquer informação adicional.\n\nCom os melhores cumprimentos,\n\n$name\n$policeNumber';
+  }
+
+  @override
+  String get agentLetterPensionSubject => 'Pedido de extrato de previdência';
+
+  @override
+  String get agentLetterPlaceholderAddress => '[O teu endereço]';
+
+  @override
+  String get agentLetterPlaceholderDate => '[Data]';
+
+  @override
+  String get agentLetterPlaceholderName => '[O teu nome completo]';
+
+  @override
+  String get agentLetterPlaceholderSsn => '[O teu número AVS]';
+
+  @override
+  String get agentLetterPoliceNumber => '[Número de apólice : A completar]';
+
+  @override
+  String get agentLetterPostalCity => '[Código postal e cidade]';
+
+  @override
+  String get agentLetterTitle => 'Carta preparada';
+
+  @override
+  String get agentLetterToComplete => '[A completar]';
+
+  @override
+  String get agentLetterTransferSubject =>
+      'Pedido de transferência de livre passagem';
+
+  @override
+  String get agentLppBuybackTitle => 'Pedido de resgate LPP';
+
+  @override
+  String get agentLppFormTitle => 'Formulário de resgate LPP';
+
+  @override
+  String get agentLppTransferSubject =>
+      'Pedido de transferência de previdência (livre passagem)';
+
+  @override
+  String get agentNoAction =>
+      'MINT não submete, transmite nem executa nada automaticamente.';
+
+  @override
+  String get agentOutputDisclaimer =>
+      'Ferramenta educativa — não constitui conselho financeiro, fiscal ou jurídico. Verifica cada informação. Em conformidade com LSFin.';
+
+  @override
+  String get agentPensionFundSubject => 'Pedido de certificado de previdência';
+
+  @override
+  String get agentSpecialistLabel => 'um·a especialista habilitado·a';
+
+  @override
+  String get agentTaskAvsExtractDesc =>
+      'Modelo de carta para solicitar um extrato de conta individual (CI) à tua caixa de compensação AVS.';
+
+  @override
+  String get agentTaskAvsExtractTitle => 'Pedido de extrato AVS';
+
+  @override
+  String get agentTaskCaisseLetterDesc =>
+      'Modelo de carta formal para solicitar um certificado LPP, confirmação de recompra e simulação de reforma antecipada.';
+
+  @override
+  String get agentTaskCaisseLetterTitle => 'Carta ao fundo de pensões';
+
+  @override
+  String get agentTaskDisclaimer =>
+      'Esta ferramenta é puramente educativa e não constitui aconselhamento financeiro, fiscal ou jurídico. Os montantes mostrados são estimativas indicativas. Consulta um·a especialista qualificado·a antes de qualquer decisão. Em conformidade com a LSFin.';
+
+  @override
+  String get agentTaskFiscalDossierDesc =>
+      'Resumo educativo da tua situação fiscal estimada com deduções possíveis e perguntas para um·a especialista.';
+
+  @override
+  String get agentTaskFiscalDossierTitle => 'Preparação do dossier fiscal';
+
+  @override
+  String get agentTaskLppCertificateDesc =>
+      'Modelo de carta para solicitar um certificado de previdência profissional atualizado ao teu fundo de pensões.';
+
+  @override
+  String get agentTaskLppCertificateTitle => 'Pedido de certificado LPP';
+
+  @override
+  String get agentTaskTaxDeclarationDesc =>
+      'Estimativa dos principais campos da tua declaração fiscal baseada no teu perfil MINT. Todos os montantes são aproximados.';
+
+  @override
+  String get agentTaskTaxDeclarationTitle =>
+      'Pré-preenchimento da declaração fiscal';
+
+  @override
+  String get agentTaskThreeAFormDesc =>
+      'Informações básicas para uma contribuição para o pilar 3. O limite é calculado com base na tua situação profissional.';
+
+  @override
+  String get agentTaskThreeAFormTitle => 'Pré-preenchimento do formulário 3a';
+
+  @override
+  String get agentTaskValidationPromptDefault =>
+      'Verifica cuidadosamente cada informação antes de usar. Todos os campos são estimativas a confirmar.';
+
+  @override
+  String get agentTaskValidationPromptLetter =>
+      'Verifica as informações e preenche os campos entre colchetes antes de enviar esta carta.';
+
+  @override
+  String get agentTaskValidationPromptRequest =>
+      'Verifica as informações e preenche os campos entre colchetes antes de enviar este pedido.';
+
+  @override
+  String get agentTaxFormTitle => 'Declaração fiscal — pré-preenchimento';
+
+  @override
+  String get agentValidationRequired =>
+      'Validação necessária antes de qualquer utilização';
+
+  @override
+  String get amortizationDifferenceLabel =>
+      'de diferença entre as duas estratégias';
+
+  @override
+  String get amortizationEyebrow => 'Amortização direta vs indireta';
+
+  @override
+  String get amortizationSavingsLabel => 'de poupança com a indireta';
+
+  @override
+  String get apiErrorOffline =>
+      'Sem ligação à internet. Verifica a tua rede e tenta novamente.';
+
+  @override
+  String get apiErrorServer =>
+      'Erro do servidor. Tenta novamente dentro de momentos.';
+
+  @override
+  String get apiErrorSessionExpired =>
+      'Sessão expirada — inicia sessão novamente.';
+
+  @override
+  String get apiErrorTimeout =>
+      'O servidor está a demorar demasiado a responder. Tenta novamente.';
+
+  @override
+  String get arbitrageMissingLpp =>
+      'Adicione o seu saldo LPP para ver esta comparação';
+
+  @override
+  String get arbitrageMissingLppAnd3a =>
+      'Adicione o seu saldo LPP e 3a para ver o calendário';
+
+  @override
+  String get arbitrageMissingLppCertificat =>
+      'Digitalize o seu certificado LPP para conhecer a sua margem de resgate';
+
+  @override
+  String get arbitrageOptionAmortIndirect => 'Amortização indireta';
+
+  @override
+  String get arbitrageOptionFullCapital => '100 % Capital';
+
+  @override
+  String get arbitrageOptionFullRente => '100 % Renda';
+
+  @override
+  String get arbitrageOptionInvestLibre => 'Investimento livre';
+
+  @override
+  String get arbitrageOptionMixed =>
+      'Misto (renda obrig. + capital sobreobrig.)';
+
+  @override
+  String get arbitrageTitleCalendrierRetraits => 'Calendário de levantamentos';
+
+  @override
+  String get arbitrageTitleRachatVsMarche => 'Resgate LPP vs Mercado';
+
+  @override
+  String get arbitrageTitleRenteVsCapital => 'Renda vs Capital';
+
+  @override
+  String get archetypeCrossBorder => 'Fronteiriço/a';
+
+  @override
+  String get archetypeExpatEu => 'Expat UE/EFTA';
+
+  @override
+  String get archetypeExpatNonEu => 'Expat fora da UE';
+
+  @override
+  String get archetypeExpatUs => 'Residente nos EUA (FATCA)';
+
+  @override
+  String get archetypeIndependentNoLpp => 'Independente sem LPP';
+
+  @override
+  String get archetypeIndependentWithLpp => 'Independente com LPP';
+
+  @override
+  String get archetypeReturningSwiss => 'Suíço/a de regresso';
+
+  @override
+  String get archetypeSwissNative => 'Residente suíço/a';
+
+  @override
+  String get assurancesAlerteDelai =>
+      'Lembrete : as alterações de franquia devem ser feitas antes do dia 30 de novembro de cada ano para o ano seguinte.';
+
+  @override
+  String get assurancesDisclaimerCoverage =>
+      'Esta análise é indicativa e não constitui aconselhamento personalizado em seguros. Os prêmios variam conforme o segurador e o seu perfil. Consulte um·a especialista para uma avaliação completa.';
+
+  @override
+  String get assurancesDisclaimerLamal =>
+      'Esta análise é indicativa. Os prêmios variam conforme o segurador, a região e o modelo de seguro. Consulte a sua caixa de saúde para obter valores exatos. Fonte : LAMal art. 62-64, OAMal.';
+
+  @override
+  String get authErrorEmailUsed =>
+      'Este e-mail já está em uso. Inicia sessão ou redefine a tua palavra-passe.';
+
+  @override
+  String get authErrorExpired => 'Este link expirou. Solicita um novo.';
+
+  @override
+  String get authErrorGeneric =>
+      'Ação indisponível de momento. Tenta daqui a pouco.';
+
+  @override
+  String get authErrorIncorrect => 'E-mail ou palavra-passe incorretos.';
+
+  @override
+  String get authErrorInvalid => 'As informações inseridas são inválidas.';
+
+  @override
+  String get authErrorNetwork =>
+      'Serviço indisponível. Verifica a tua rede e tenta novamente.';
+
+  @override
+  String get authErrorNotVerified =>
+      'O teu e-mail ainda não foi verificado. Verifica o teu e-mail e tenta novamente.';
+
+  @override
+  String get authErrorRegistration =>
+      'Registo indisponível. Usa o modo local e tenta mais tarde.';
+
+  @override
+  String get authErrorService =>
+      'Serviço de conta indisponível neste ambiente. Usa o modo local.';
+
+  @override
+  String get authHidePassword => 'Ocultar palavra-passe';
+
+  @override
+  String get authShowPassword => 'Mostrar palavra-passe';
+
+  @override
+  String b2bHubEmployeeCount(String count) {
+    return '$count colaboradores';
+  }
+
+  @override
+  String get b2bHubInvalidCode => 'Código inválido ou expirado';
+
+  @override
+  String get b2bHubInviteCodeLabel => 'Código de convite';
+
+  @override
+  String get b2bHubJoinButton => 'Aderir';
+
+  @override
+  String get b2bHubJoinSemantics => 'Aderir à organização';
+
+  @override
+  String get b2bHubLeaveBody =>
+      'Os módulos reservados à tua empresa deixarão de estar acessíveis.';
+
+  @override
+  String get b2bHubLeaveButton => 'Sair da organização';
+
+  @override
+  String get b2bHubLeaveTitle => 'Sair da organização?';
+
+  @override
+  String get b2bHubModulesTitle => 'Os teus módulos';
+
+  @override
+  String get b2bHubNarrativeBody =>
+      'Se o teu empregador utiliza o MINT, introduz o código de convite para aceder aos módulos de previdência reservados aos colaboradores.';
+
+  @override
+  String get b2bHubNarrativeHeadline => 'Previdência empresarial';
+
+  @override
+  String get b2bHubNoCodeHint =>
+      'Sem código? Pergunta ao teu departamento de RH.';
+
+  @override
+  String get b2bHubTitle => 'A minha empresa';
+
+  @override
+  String get b2bModule3a => 'Pilar 3a empresarial';
+
+  @override
+  String get b2bModule3aSubtitle => 'Otimização e simulação do terceiro pilar';
+
+  @override
+  String get b2bModuleEducation => 'Educação financeira';
+
+  @override
+  String get b2bModuleEducationSubtitle =>
+      'Artigos, conceitos e questionários adaptados à tua situação';
+
+  @override
+  String get b2bModuleLpp => 'Previdência profissional (LPP)';
+
+  @override
+  String get b2bModuleLppSubtitle =>
+      'Análise detalhada da tua caixa de pensões';
+
+  @override
+  String get b2bModuleWellness => 'Bem-estar financeiro';
+
+  @override
+  String get b2bModuleWellnessSubtitle =>
+      'Pontuação de saúde financeira e recomendações';
+
+  @override
+  String get babyCostBreakdownTitle => 'Desdobramento mensal';
+
+  @override
+  String get babyCostTitle => 'O custo da felicidade';
+
+  @override
+  String get bankImportGenericError => 'Ocorreu um erro ao analisar o extrato.';
+
+  @override
+  String bankImportMoreTransactions(int count) {
+    return '... e mais $count transações';
+  }
+
+  @override
+  String get bankImportSummaryHeader => 'RESUMO';
+
+  @override
+  String get bankImportTransactionsHeader => 'TRANSAÇÕES';
+
+  @override
+  String get bayesianDisclaimer =>
+      'Estimativas bayesianas baseadas em estatísticas suíças (OFS/BFS). Estes valores são aproximações pedagógicas, não certezas. Não constitui aconselhamento financeiro no sentido da LSFin.';
+
+  @override
+  String get benchmarkDisclaimer =>
+      'Dados agregados OFS — ferramenta educativa, não um ranking. Não constitui aconselhamento (LSFin art. 3).';
+
+  @override
+  String benchmarkInsight3a(String rate) {
+    return 'Cerca de $rate% dos trabalhadores contribuem para o 3.º pilar';
+  }
+
+  @override
+  String benchmarkInsightHousing(String amount) {
+    return 'A renda mediana para um apartamento de 4 quartos é CHF $amount/mês';
+  }
+
+  @override
+  String benchmarkInsightIncome(String canton, String amount) {
+    return 'O rendimento mediano no cantão de $canton é de CHF $amount/ano';
+  }
+
+  @override
+  String benchmarkInsightLpp(String rate) {
+    return 'A taxa de cobertura LPP é de $rate%';
+  }
+
+  @override
+  String benchmarkInsightSavings(String rate) {
+    return 'Um perfil semelhante poupa cerca de $rate% do seu rendimento';
+  }
+
+  @override
+  String benchmarkInsightTax(String canton, String level) {
+    return 'A carga fiscal em $canton é $level em relação à média suíça';
+  }
+
+  @override
+  String get benchmarkNoDataCanton => 'Dados não disponíveis para este cantão';
+
+  @override
+  String get benchmarkOptInBody =>
+      'Compara a tua situação com as medianas do teu cantão. Dados anonimizados, nunca um ranking.';
+
+  @override
+  String get benchmarkOptInButton => 'Ativar';
+
+  @override
+  String get benchmarkOptOutButton => 'Desativar';
+
+  @override
+  String get benchmarkSubtitle => 'Dados agregados e anonimizados (OFS)';
+
+  @override
+  String get benchmarkTaxLevelAbove => 'superior';
+
+  @override
+  String get benchmarkTaxLevelAverage => 'comparável';
+
+  @override
+  String get benchmarkTaxLevelBelow => 'inferior';
+
+  @override
+  String get benchmarkTitle => 'Perfis semelhantes no teu cantão';
+
+  @override
+  String get budgetEmptyCta => 'Adicionar o meu salário';
+
+  @override
+  String get budgetEmptySubtitle =>
+      'Introduz o teu salário para criar o teu orçamento personalizado';
+
+  @override
+  String get budgetEnvelopeFieldFuture => 'Poupança futura (CHF/mês)';
+
+  @override
+  String get budgetEnvelopeFieldHint => 'Montante em CHF';
+
+  @override
+  String get budgetEnvelopeFieldVariables => 'Despesas variáveis (CHF/mês)';
+
+  @override
+  String get budgetSnapshotConfidenceLabel => 'Fiabilidade';
+
+  @override
+  String get budgetSnapshotConfidenceLow => 'Adiciona dados para refinar.';
+
+  @override
+  String get budgetSnapshotConfidenceOk => 'Estimativa credível.';
+
+  @override
+  String get budgetSnapshotFreeLabel => 'O teu livre mensal';
+
+  @override
+  String get budgetSnapshotGapLabel => 'Lacuna';
+
+  @override
+  String get budgetSnapshotLeverLabel => 'Alavanca';
+
+  @override
+  String get budgetSnapshotPresentLabel => 'Livre hoje';
+
+  @override
+  String get budgetSnapshotRetirementLabel => 'Livre na reforma';
+
+  @override
+  String get budgetSnapshotTitle => 'O teu orçamento vivo';
+
+  @override
+  String get byokErrorConnection =>
+      'Erro de conexão. Verifica a tua conexão à internet.';
+
+  @override
+  String get byokErrorNotConfigured =>
+      'Configura primeiro um fornecedor e uma chave.';
+
+  @override
+  String get byokErrorSaveFailed => 'Erro ao guardar a chave.';
+
+  @override
+  String get byokHideKey => 'Ocultar chave';
+
+  @override
+  String get byokShowKey => 'Mostrar chave';
+
+  @override
+  String get cantonalBenchmarkDisclaimer =>
+      'Estes dados são ordens de grandeza derivadas de estatísticas federais anonimizadas (OFS). Não constituem aconselhamento financeiro. Nenhum dado pessoal é comparado com outros utilizadores. Ferramenta educativa : não constitui aconselhamento no sentido da LSFin.';
+
+  @override
+  String get cap3aCtaLabel => 'Simular o meu 3a';
+
+  @override
+  String get cap3aHeadline => 'Este ano ainda conta';
+
+  @override
+  String get cap3aWhyNow =>
+      'Um depósito 3a pode ainda reduzir os impostos e reforçar a reforma.';
+
+  @override
+  String capAcquired3a(String amount) {
+    return '3a : $amount poupados';
+  }
+
+  @override
+  String get capAcquiredAvsInProgress => 'AVS : direitos em curso';
+
+  @override
+  String capAcquiredAvsWithRente(String rente, String years) {
+    return 'AVS : ~$rente CHF/mês ($years anos contribuídos)';
+  }
+
+  @override
+  String capAcquiredAvsYearsOnly(String years) {
+    return 'AVS : $years anos contribuídos';
+  }
+
+  @override
+  String capAcquiredLpp(String amount) {
+    return 'LPP : $amount acumulado';
+  }
+
+  @override
+  String get capBudgetDeficitCtaLabel => 'Ajustar o meu orçamento';
+
+  @override
+  String get capBudgetDeficitExpectedImpact => 'margem mensal';
+
+  @override
+  String get capBudgetDeficitHeadline => 'A tua margem a recuperar';
+
+  @override
+  String get capBudgetDeficitWhyNow =>
+      'O teu orçamento está apertado. Ajustar uma rubrica pode dar fôlego.';
+
+  @override
+  String get capChomageCtaLabel => 'Ver os meus direitos';
+
+  @override
+  String get capChomageExpectedImpact => 'estabilização imediata';
+
+  @override
+  String get capChomageHeadline => 'Proteger os próximos 90 dias';
+
+  @override
+  String get capChomageWhyNow =>
+      'Desempregado : três urgências — os teus direitos AC, o impacto no LPP e ajustar o orçamento.';
+
+  @override
+  String get capCoachPrompt3a =>
+      'Como much can I save with a 3a contribution this year?';
+
+  @override
+  String get capCoachPromptBudgetDeficit =>
+      'My budget is in deficit. Como can I find some breathing room?';
+
+  @override
+  String get capCoachPromptCouple =>
+      'We\'re a couple. Como should we coordinate our finances?';
+
+  @override
+  String get capCoachPromptCoupleOptim =>
+      'Como can we optimize our pension planning as a couple?';
+
+  @override
+  String get capCoachPromptDebt =>
+      'Ajuda-me prioritize my debt repayment. Where should I start?';
+
+  @override
+  String get capCoachPromptDivorce =>
+      'I\'m divorced. Como can I protect my financial situation?';
+
+  @override
+  String get capCoachPromptIndepNoLpp =>
+      'I\'m self-employed without LPP. What pension options do I have?';
+
+  @override
+  String get capCoachPromptMarried =>
+      'We\'re both working and married. Como can we optimize?';
+
+  @override
+  String capCoachPromptMissingData(Object category) {
+    return 'Ajuda-me understand why $category is important for my situation.';
+  }
+
+  @override
+  String get capCoachPromptRachat =>
+      'Ajuda-me understand if a LPP buyback makes sense for me.';
+
+  @override
+  String capCoachPromptReplacement(Object rate) {
+    return 'My replacement rate is $rate%. Is that enough for retirement?';
+  }
+
+  @override
+  String get capCoachPromptUnemployment =>
+      'I\'m unemployed. What are my financial options?';
+
+  @override
+  String get capCouple3aCtaLabel => 'Simular o 3a de casal';
+
+  @override
+  String get capCouple3aExpectedImpact => 'até 14’516 CHF em deduções';
+
+  @override
+  String get capCouple3aHeadline => 'A dois, mais uma alavanca';
+
+  @override
+  String get capCouple3aWhyNow =>
+      'O vosso agregado pode deduzir 2 × 7’258 CHF contribuindo cada um para o 3a. A conta do teu parceiro ainda não está registada.';
+
+  @override
+  String get capCoupleAvsCapCtaLabel => 'Ver o impacto AVS';
+
+  @override
+  String get capCoupleAvsCapExpectedImpact => 'perceber o delta ~10k/ano';
+
+  @override
+  String get capCoupleAvsCapHeadline => 'AVS de casal : o teto dos 150 %';
+
+  @override
+  String get capCoupleAvsCapWhyNow =>
+      'Casados, as vossas rendas AVS acumuladas são limitadas a 150 % da renda máxima (LAVS art. 35). A diferença pode chegar a ~10’000 CHF/ano.';
+
+  @override
+  String get capCoupleLppBuybackCtaLabel => 'Comparar resgates';
+
+  @override
+  String get capCoupleLppBuybackExpectedImpact =>
+      'otimização fiscal do agregado';
+
+  @override
+  String get capCoupleLppBuybackHeadline =>
+      'Resgate LPP : a alavanca do parceiro';
+
+  @override
+  String capCoupleLppBuybackWhyNow(String amount) {
+    return 'O teu parceiro tem um resgate possível de $amount. Priorizar a taxa marginal mais alta maximiza a dedução.';
+  }
+
+  @override
+  String get capCoverageCheckCtaLabel => 'Verificar';
+
+  @override
+  String get capCoverageCheckHeadline =>
+      'A tua cobertura merece uma verificação';
+
+  @override
+  String get capCoverageCheckSeniorHeadline =>
+      'Invalidez depois dos 50 : um ponto cego ?';
+
+  @override
+  String get capCoverageCheckSeniorWhyNow =>
+      'Depois dos 50, a lacuna entre rendimento e prestações AI + LPP pode ultrapassar 40 %. O teu IJM cobre o resto ?';
+
+  @override
+  String get capCoverageCheckWhyNow =>
+      'IJM, AI, LPP invalidez — verifica que a tua rede aguenta.';
+
+  @override
+  String get capDebtCtaLabel => 'Ver o meu plano';
+
+  @override
+  String get capDebtExpectedImpact => 'margem a recuperar';
+
+  @override
+  String get capDebtHeadline => 'A tua dívida pesa';
+
+  @override
+  String get capDebtWhyNow =>
+      'Pagar primeiro a taxa mais alta liberta margem todos os meses.';
+
+  @override
+  String get capDisabilityGapCtaLabel => 'Ver a lacuna';
+
+  @override
+  String get capDisabilityGapExpectedImpact => 'perceber a lacuna ~70 %';
+
+  @override
+  String get capDisabilityGapHeadline => 'A tua rede de invalidez : apenas AI';
+
+  @override
+  String get capDisabilityGapWhyNow =>
+      'Sem LPP, a tua cobertura de invalidez limita-se à AI. A lacuna pode surpreender.';
+
+  @override
+  String get capDivorceUrgencyCtaLabel => 'Simular o impacto';
+
+  @override
+  String get capDivorceUrgencyExpectedImpact => 'esclarecimento LPP + impostos';
+
+  @override
+  String get capDivorceUrgencyHeadline => 'Divórcio : clarificar o que muda';
+
+  @override
+  String get capDivorceUrgencyWhyNow =>
+      'Divisão LPP, pensão alimentícia, habitação — os impactos financeiros merecem uma avaliação clara.';
+
+  @override
+  String get capEstatePlanningCtaLabel => 'Compreender os procedimentos';
+
+  @override
+  String get capEstatePlanningHeadline => 'Preparar a tua transmissão';
+
+  @override
+  String get capEstatePlanningWhyNow =>
+      'Testamento, beneficiários LPP e 3a, pacto sucessório: decisões a tomar agora.';
+
+  @override
+  String get capEstatePlanningWhyNowVeuf =>
+      'Após um falecimento, os direitos sucessórios e beneficiários mudam. Verifica a tua situação.';
+
+  @override
+  String get capFallbackCtaLabel => 'Enriquecer';
+
+  @override
+  String get capFallbackHeadline => 'Completa o teu perfil';
+
+  @override
+  String get capFallbackWhyNow =>
+      'Quanto mais o MINT te conhece, mais precisas são as alavancas.';
+
+  @override
+  String get capHonestryCrossBorderHeadline => 'Façamos um balanço juntos';
+
+  @override
+  String get capHonestryCrossBorderWhyNow =>
+      'No teu horizonte, as alavancas do 2.º pilar são limitadas. Um especialista transfronteiço pode identificar caminhos que o MINT ainda não cobre.';
+
+  @override
+  String get capHonestyCrossBorderCoachPrompt =>
+      'Sou fronteiriço/a perto da reforma sem LPP. Que opções realistas existem? Encaminha-me para um especialista.';
+
+  @override
+  String get capHonestyCtaLabel => 'Falar com o coach';
+
+  @override
+  String get capHonestyDebtCoachPrompt =>
+      'A minha dívida ultrapassa largamente o meu rendimento anual. Os simuladores já não bastam. Encaminha-me para um especialista em desendividamento.';
+
+  @override
+  String get capHonestyDebtHeadline =>
+      'A tua situação merece um olhar especializado';
+
+  @override
+  String get capHonestyDebtWhyNow =>
+      'As alavancas clássicas não chegam aqui. Um especialista em dívidas pode ajudar-te a construir um plano realista.';
+
+  @override
+  String get capHonestyExpectedImpact => 'esclarecimento';
+
+  @override
+  String get capHonestyNoLppCoachPrompt =>
+      'Aproximo-me da reforma com pouco 2.º pilar. Ajuda-me a perceber o que adquiri e encaminha-me para um especialista.';
+
+  @override
+  String get capHonestyNoLppHeadline => 'A tua base está lá';
+
+  @override
+  String get capHonestyNoLppWhyNow =>
+      'As alavancas clássicas não mudam muito o quadro aqui. Um especialista pode ajudar-te a ver mais longe.';
+
+  @override
+  String get capIndepNoLppCtaLabel => 'Construir a minha rede';
+
+  @override
+  String get capIndepNoLppExpectedImpact => 'reforma reforçada';
+
+  @override
+  String get capIndepNoLppHeadline => 'O teu 2.º pilar : CHF 0';
+
+  @override
+  String get capIndepNoLppWhyNow =>
+      'Sem LPP, a tua reforma = AVS sozinha. Uma rede voluntária muda a trajetória.';
+
+  @override
+  String get capLeBirthCtaLabel => 'Ver o impacto';
+
+  @override
+  String get capLeBirthHeadline => 'Nascimento previsto';
+
+  @override
+  String get capLeBirthWhyNow => 'Subsídios, deduções, orçamento — prepara-te.';
+
+  @override
+  String get capLeCantonMoveCtaLabel => 'Comparar cantões';
+
+  @override
+  String get capLeCantonMoveHeadline => 'Mudança de cantão';
+
+  @override
+  String get capLeCantonMoveWhyNow =>
+      'Impostos, LAMal, encargos — o impacto pode surpreender.';
+
+  @override
+  String get capLeConcubinageCtaLabel => 'Ver as diferenças';
+
+  @override
+  String get capLeConcubinageHeadline => 'Vida em comum';
+
+  @override
+  String get capLeConcubinageWhyNow =>
+      'Sem limite AVS 150 %, sem divisão LPP automática — antecipa.';
+
+  @override
+  String get capLeCountryMoveCtaLabel => 'Ver as consequências';
+
+  @override
+  String get capLeCountryMoveHeadline => 'Saída da Suíça';
+
+  @override
+  String get capLeCountryMoveWhyNow =>
+      'Livre passagem, AVS, 3a — o que te segue, o que fica.';
+
+  @override
+  String get capLeDeathOfRelativeCtaLabel => 'Ver os procedimentos';
+
+  @override
+  String get capLeDeathOfRelativeHeadline => 'Perda de um ente querido';
+
+  @override
+  String get capLeDeathOfRelativeWhyNow =>
+      'Sucessão, rendas de sobrevivência, prazos — o que é urgente.';
+
+  @override
+  String get capLeDebtCrisisCtaLabel => 'Ver o meu plano';
+
+  @override
+  String get capLeDebtCrisisHeadline => 'Situação de dívida';
+
+  @override
+  String get capLeDebtCrisisWhyNow =>
+      'Priorizar, reestruturar, proteger o essencial — passo a passo.';
+
+  @override
+  String get capLeDisabilityCtaLabel => 'Verificar a minha cobertura';
+
+  @override
+  String get capLeDisabilityHeadline => 'Risco de invalidez';
+
+  @override
+  String get capLeDisabilityWhyNow =>
+      'AI, LPP invalidez, IJM — verifica a tua rede.';
+
+  @override
+  String get capLeDivorceCtaLabel => 'Simular';
+
+  @override
+  String get capLeDivorceHeadline => 'Divórcio em curso';
+
+  @override
+  String get capLeDivorceWhyNow => 'Divisão LPP, pensão, impostos — antecipa.';
+
+  @override
+  String get capLeDonationCtaLabel => 'Ver o impacto';
+
+  @override
+  String get capLeDonationHeadline => 'Doação planeada';
+
+  @override
+  String get capLeDonationWhyNow =>
+      'Adiantamento da herça, fiscalidade, relatório — antecipa.';
+
+  @override
+  String get capLeHousingPurchaseCtaLabel => 'Simular a minha capacidade';
+
+  @override
+  String get capLeHousingPurchaseHeadline => 'Compra imobiliária';
+
+  @override
+  String get capLeHousingPurchaseWhyNow =>
+      'EPL, 3a, hipoteca — tudo se decide agora.';
+
+  @override
+  String get capLeHousingSaleCtaLabel => 'Ver o impacto';
+
+  @override
+  String get capLeHousingSaleHeadline => 'Venda imobiliária';
+
+  @override
+  String get capLeHousingSaleWhyNow =>
+      'Mais-valia, reembolso EPL, reinvestimento — planeia.';
+
+  @override
+  String get capLeInheritanceCtaLabel => 'Ver as minhas opções';
+
+  @override
+  String get capLeInheritanceHeadline => 'Herça recebida';
+
+  @override
+  String get capLeInheritanceWhyNow =>
+      'Impostos, integração no património, resgate LPP — pondera.';
+
+  @override
+  String get capLeJobLossCtaLabel => 'Ver os meus direitos';
+
+  @override
+  String get capLeJobLossHeadline => 'Perda de emprego';
+
+  @override
+  String get capLeJobLossWhyNow =>
+      'Desemprego, LPP, orçamento — as 3 urgências.';
+
+  @override
+  String get capLeMarriageCtaLabel => 'Ver o impacto';
+
+  @override
+  String get capLeMarriageHeadline => 'Casamento à vista';
+
+  @override
+  String get capLeMarriageWhyNow => 'Impostos, AVS, LPP, sucessão — tudo muda.';
+
+  @override
+  String get capLeNewJobCtaLabel => 'Comparar';
+
+  @override
+  String get capLeNewJobHeadline => 'Novo posto';
+
+  @override
+  String get capLeNewJobWhyNow =>
+      'LPP, livre passagem, 3a — três coisas a verificar.';
+
+  @override
+  String get capLeRetirementCtaLabel => 'Explorar as minhas opções';
+
+  @override
+  String get capLeRetirementHeadline => 'Reforma no horizonte';
+
+  @override
+  String get capLeRetirementWhyNow =>
+      'Capital ou renda, levantamento, timing — é o momento.';
+
+  @override
+  String get capLeSelfEmploymentCtaLabel => 'Verificar a minha cobertura';
+
+  @override
+  String get capLeSelfEmploymentHeadline => 'Passagem à autonomia';
+
+  @override
+  String get capLeSelfEmploymentWhyNow =>
+      'LPP voluntário, máx. 3a, IJM — reconstrói a tua rede.';
+
+  @override
+  String get capLppBuybackCtaLabel => 'Simular um resgate';
+
+  @override
+  String get capLppBuybackExpectedImpact => 'dedução fiscal';
+
+  @override
+  String get capLppBuybackHeadline => 'Resgate LPP disponível';
+
+  @override
+  String capLppBuybackWhyNow(String amount) {
+    return 'Podes resgatar até $amount e deduzir nos impostos.';
+  }
+
+  @override
+  String capMissingPieceConfidenceLabel(String score) {
+    return 'confiança $score %';
+  }
+
+  @override
+  String capMissingPieceExpectedImpact(String impact) {
+    return '+$impact pontos de confiança';
+  }
+
+  @override
+  String get capMissingPieceHeadline => 'Falta uma peça';
+
+  @override
+  String capMissingPieceWhyNow(String label) {
+    return '$label — sem este dado, a tua projeção fica imprecisa.';
+  }
+
+  @override
+  String get capNoCapHeadline => 'Estás no bom caminho';
+
+  @override
+  String get capNoCapWhyNow =>
+      'Continua a explorar o MINT para aprofundar a tua situação.';
+
+  @override
+  String get capReplacementRateCtaLabel => 'Explorar os meus cenários';
+
+  @override
+  String get capReplacementRateExpectedImpact => '+4 a +7 pontos';
+
+  @override
+  String get capReplacementRateHeadline => 'A tua reforma ainda está curta';
+
+  @override
+  String capReplacementRateWhyNow(String rate) {
+    return '$rate % de taxa de substituição. Um resgate ou 3a muda a trajetória.';
+  }
+
+  @override
+  String get capSequenceComplete => 'Plano concluído!';
+
+  @override
+  String get capSequenceCurrentStep => 'Próximo passo';
+
+  @override
+  String capSequenceProgress(int completed, int total) {
+    return '$completed/$total passos';
+  }
+
+  @override
+  String get capStepBudget01Desc =>
+      'O ponto de partida de qualquer análise orçamental.';
+
+  @override
+  String get capStepBudget01Title => 'Conhecer os teus rendimentos';
+
+  @override
+  String get capStepBudget02Desc =>
+      'Renda, seguro de saúde, transportes: os inevitáveis.';
+
+  @override
+  String get capStepBudget02Title => 'Listar as tuas despesas fixas';
+
+  @override
+  String get capStepBudget03Desc =>
+      'O que sobra após as despesas — o teu espaço de manobra.';
+
+  @override
+  String get capStepBudget03Title => 'Calcular a tua margem livre';
+
+  @override
+  String get capStepBudget04Desc => 'Pequenos ajustes, grande impacto mensal.';
+
+  @override
+  String get capStepBudget04Title => 'Identificar poupanças possíveis';
+
+  @override
+  String get capStepBudget05Desc =>
+      '3 meses de despesas líquidas: a tua rede de segurança.';
+
+  @override
+  String get capStepBudget05Title => 'Construir uma poupança de precaução';
+
+  @override
+  String get capStepBudget06Desc =>
+      'Cada franco depositado reduz impostos e prepara a reforma.';
+
+  @override
+  String get capStepBudget06Title => 'Planear o 3a';
+
+  @override
+  String get capStepHousing01Desc =>
+      'A base do cálculo da capacidade de compra.';
+
+  @override
+  String get capStepHousing01Title => 'Conhecer os teus rendimentos';
+
+  @override
+  String get capStepHousing02Desc =>
+      'Poupanças, 3a e LPP: reunir o aporte necessário.';
+
+  @override
+  String get capStepHousing02Title => 'Avaliar os teus fundos próprios';
+
+  @override
+  String get capStepHousing03Desc => 'Até que preço podes comprar?';
+
+  @override
+  String get capStepHousing03Title => 'Calcular a tua capacidade de compra';
+
+  @override
+  String get capStepHousing04Desc =>
+      'Prestação mensal, amortização, taxa teórica.';
+
+  @override
+  String get capStepHousing04Title => 'Simular a hipoteca';
+
+  @override
+  String get capStepHousing05Desc =>
+      'Levantamento antecipado LPP para financiar o aporte.';
+
+  @override
+  String get capStepHousing05Title => 'Avaliar o EPL (2.º pilar)';
+
+  @override
+  String get capStepHousing06Desc => 'O cálculo que vai além das intuições.';
+
+  @override
+  String get capStepHousing06Title => 'Comparar arrendamento vs compra';
+
+  @override
+  String get capStepHousing07Desc =>
+      'Notário, corretor, consultor: quando envolver quem.';
+
+  @override
+  String get capStepHousing07Title => 'Consultar um·a especialista';
+
+  @override
+  String get capStepRetirement01Desc =>
+      'A base de todos os cálculos de reforma.';
+
+  @override
+  String get capStepRetirement01Title => 'Conhecer o teu salário bruto';
+
+  @override
+  String get capStepRetirement02Desc =>
+      'Os teus anos contribuídos determinam o 1.º pilar.';
+
+  @override
+  String get capStepRetirement02Title => 'Estimar a tua renda AVS';
+
+  @override
+  String get capStepRetirement03Desc =>
+      'O certificado LPP revela o teu capital do 2.º pilar.';
+
+  @override
+  String get capStepRetirement03Title => 'Verificar o teu capital LPP';
+
+  @override
+  String get capStepRetirement04Desc =>
+      'Quanto do teu salário receberes na reforma.';
+
+  @override
+  String get capStepRetirement04Title => 'Calcular a tua taxa de substituição';
+
+  @override
+  String get capStepRetirement05Desc =>
+      'Deduzir até CHF 7.258 e reforçar a reforma.';
+
+  @override
+  String get capStepRetirement05Title => 'Simular uma contribuição 3a';
+
+  @override
+  String get capStepRetirement06Desc => 'Cobrir lacunas e reduzir impostos.';
+
+  @override
+  String get capStepRetirement06Title => 'Avaliar uma recompra LPP';
+
+  @override
+  String get capStepRetirement07Desc =>
+      'Renda mensal ou levantamento do capital?';
+
+  @override
+  String get capStepRetirement07Title => 'Comparar renda vs capital';
+
+  @override
+  String get capStepRetirement08Desc =>
+      'A ordem de levantamento afeta a fatura fiscal.';
+
+  @override
+  String get capStepRetirement08Title => 'Planear o levantamento';
+
+  @override
+  String get capStepRetirement09Desc =>
+      '3a, recompra, timing: reduzir a tributação do capital.';
+
+  @override
+  String get capStepRetirement09Title => 'Otimizar fiscalmente';
+
+  @override
+  String get capStepRetirement10Desc =>
+      'Revisão especializada da tua situação completa.';
+
+  @override
+  String get capStepRetirement10Title => 'Consultar um·a especialista';
+
+  @override
+  String get challengeArchetypeEu01Desc =>
+      'Graças aos acordos bilaterais, os teus anos cotizados na UE contam para a tua pensão AVS suíça. Pede um certificado E205 para verificar a totalização.';
+
+  @override
+  String get challengeArchetypeEu01Title =>
+      'Verifica os teus anos de contribuição na UE para o AVS';
+
+  @override
+  String get challengeArchetypeNonEu01Desc =>
+      'Sem acordo bilateral, as tuas contribuições estrangeiras não contam para o AVS. Verifica se o teu país de origem tem um acordo com a Suíça.';
+
+  @override
+  String get challengeArchetypeNonEu01Title =>
+      'Verifica se uma convenção de segurança social abrange o teu país';
+
+  @override
+  String get challengeArchetypeReturning01Desc =>
+      'De volta à Suíça após uma estadia no estrangeiro? Podes ter um potencial de recompra LPP importante, dedutível fiscalmente. Simula o montante.';
+
+  @override
+  String get challengeArchetypeReturning01Title =>
+      'Verifica o teu potencial de recompra LPP após regressar à Suíça';
+
+  @override
+  String get challengeBudget01Desc =>
+      'Imagina saber exatamente para onde vai cada franco: abre o teu orçamento e identifica as 3 categorias mais altas desta semana.';
+
+  @override
+  String get challengeBudget01Title =>
+      'Verifica as tuas 3 maiores despesas da semana';
+
+  @override
+  String get challengeBudget02Desc =>
+      'A tua taxa de poupança é o que sobra após todas as despesas. Verifica se supera os 10 % do teu rendimento líquido.';
+
+  @override
+  String get challengeBudget02Title =>
+      'Calcula a tua taxa de poupança mensal real';
+
+  @override
+  String get challengeBudget03Desc =>
+      'Os prémios de seguro podem variar 30 % consoante o fornecedor. Verifica se poderias poupar ao mudar de caixa.';
+
+  @override
+  String get challengeBudget03Title =>
+      'Compara o custo dos teus seguros com uma oferta alternativa';
+
+  @override
+  String get challengeBudget04Desc =>
+      'Separa os custos fixos (renda, seguros) dos variáveis (saídas, lazer). É a base para otimizar o teu orçamento.';
+
+  @override
+  String get challengeBudget04Title =>
+      'Analisa as tuas despesas fixas vs. variáveis';
+
+  @override
+  String get challengeBudget05Desc =>
+      'O teu rácio de endividamento não deve ultrapassar 33 % do rendimento bruto. Calcula-o para saberes onde estás.';
+
+  @override
+  String get challengeBudget05Title => 'Verifica o teu rácio de endividamento';
+
+  @override
+  String get challengeBudget06Desc =>
+      'Um leasing é mais do que a mensalidade: seguro, manutenção, valor residual. Calcula o custo total.';
+
+  @override
+  String get challengeBudget06Title => 'Simula o custo real do teu leasing';
+
+  @override
+  String get challengeBudget07Desc =>
+      'Quantos meses conseguirias aguentar sem rendimento? O ideal são 3 a 6 meses de despesas.';
+
+  @override
+  String get challengeBudget07Title =>
+      'Avalia a tua almofada de segurança em meses';
+
+  @override
+  String get challengeBudget08Desc =>
+      'Um crédito ao consumo a 8-12 % é muito caro. Vê se podes acelerar o reembolso ou consolicá-lo.';
+
+  @override
+  String get challengeBudget08Title =>
+      'Verifica se poderias reduzir o teu crédito ao consumo';
+
+  @override
+  String get challengeCompleted => 'Desafio concluído!';
+
+  @override
+  String get challengeEducation01Desc =>
+      'Desde 2026, a 13.ª pensão AVS aumenta a tua pensão anual. Descobre o que muda concretamente para ti.';
+
+  @override
+  String get challengeEducation01Title => 'Lê o artigo sobre a 13.ª pensão AVS';
+
+  @override
+  String get challengeEducation02Desc =>
+      'A taxa de conversão LPP de 6,8 % aplica-se apenas ao mínimo. A tua caixa pode ter uma taxa diferente para a parte supraobrigatória.';
+
+  @override
+  String get challengeEducation02Title =>
+      'Entende a diferença entre a taxa de conversão mínima e a supraobrigatória';
+
+  @override
+  String get challengeEducation03Desc =>
+      'O AVS é um sistema de repartio: os ativos financiam os reformados. Entende as bases da tua futura pensão.';
+
+  @override
+  String get challengeEducation03Title => 'Descobre como funciona o 1.º pilar';
+
+  @override
+  String get challengeEducation04Desc =>
+      'AVS + LPP + 3a: cada pilar tem o seu papel. Entende como se complementam para a tua reforma.';
+
+  @override
+  String get challengeEducation04Title => 'Entende o sistema de 3 pilares';
+
+  @override
+  String get challengeEducation05Desc =>
+      'A taxa de substituição mede a relação entre a tua pensão e o último salário. O objetivo habitual é 60-80 %.';
+
+  @override
+  String get challengeEducation05Title =>
+      'Explora o conceito de taxa de substituição';
+
+  @override
+  String get challengeEducation06Desc =>
+      'Os bónus LPP aumentam com a idade: 7 %, 10 %, 15 %, 18 %. Verifica em que escalao estás.';
+
+  @override
+  String get challengeEducation06Title =>
+      'Entende os bónus LPP por escalao etário';
+
+  @override
+  String get challengeEducation07Desc =>
+      'Em concubinário não tens os mesmos direitos sucessórios que um casal casado. Verifica as proteções necessárias.';
+
+  @override
+  String get challengeEducation07Title =>
+      'Descobre as consequências financeiras da coabitação';
+
+  @override
+  String get challengeEducation08Desc =>
+      'As mulheres recebem em média 37 % menos de pensão. Entende as causas e as soluções possíveis.';
+
+  @override
+  String get challengeEducation08Title =>
+      'Entende o impacto do gender gap na reforma';
+
+  @override
+  String get challengeEpargne01Desc =>
+      'Mesmo um pequeno valor conta: CHF 50 por semana são CHF 2\'600 por ano. O mais difícil é começar.';
+
+  @override
+  String get challengeEpargne01Title => 'Poupa CHF 50 esta semana';
+
+  @override
+  String get challengeEpargne02Desc =>
+      'O teto 3a para empregados é de CHF 7\'258 por ano. Verifica quanto já depositaste este ano.';
+
+  @override
+  String get challengeEpargne02Title => 'Verifica o teu saldo 3a face ao teto';
+
+  @override
+  String get challengeEpargne03Desc =>
+      'Uma recompra LPP é dedutível nos impostos. Simula o impacto de uma recompra de CHF 5\'000 na tua previdência e fiscalidade.';
+
+  @override
+  String get challengeEpargne03Title => 'Simula uma recompra LPP de CHF 5\'000';
+
+  @override
+  String get challengeEpargne04Desc =>
+      'As contribuições 3a são anuais: se ainda não atingiste o máximo, pode restar tempo.';
+
+  @override
+  String get challengeEpargne04Title =>
+      'Verifica se ainda podes contribuir para o 3a este ano';
+
+  @override
+  String get challengeEpargne05Desc =>
+      'Nem todas as contas 3a são iguais. Compara os rendimentos das tuas contas com o simulador.';
+
+  @override
+  String get challengeEpargne05Title =>
+      'Compara os rendimentos das tuas contas 3a';
+
+  @override
+  String get challengeEpargne06Desc =>
+      'Um rendimento de 1 % com inflação de 1,5 % é um rendimento real negativo. Verifica a tua situação.';
+
+  @override
+  String get challengeEpargne06Title =>
+      'Calcula o rendimento real do teu 3a após inflação';
+
+  @override
+  String get challengeEpargne07Desc =>
+      'Levantar o 3a ao longo de vários anos pode reduzir os impostos. Simula a estratégia de levantamento faseado.';
+
+  @override
+  String get challengeEpargne07Title =>
+      'Simula um levantamento faseado das tuas contas 3a';
+
+  @override
+  String get challengeEpargne08Desc =>
+      'Desde 2025, podes recuperar anos sem contribuições. Verifica se és elegível para o 3a retroativo.';
+
+  @override
+  String get challengeEpargne08Title =>
+      'Verifica se podes contribuir retroativamente para o 3a';
+
+  @override
+  String get challengeEpargne09Desc =>
+      'Ao mudar de emprego, o teu capital LPP é transferido para uma conta de livre-trânsito. Verifica que nada foi esquecido.';
+
+  @override
+  String get challengeEpargne09Title =>
+      'Verifica a tua conta de livre-trânsito se mudaste de empregador';
+
+  @override
+  String get challengeFiscalite01Desc =>
+      'Cada franco depositado no 3a é dedutível. Calcula quanto poupes em impostos este ano.';
+
+  @override
+  String get challengeFiscalite01Title => 'Estima a tua poupança fiscal do 3a';
+
+  @override
+  String get challengeFiscalite02Desc =>
+      'As recompras LPP são dedutíveis do rendimento tributável. Verifica o teu potencial de recompra e a poupança fiscal.';
+
+  @override
+  String get challengeFiscalite02Title =>
+      'Verifica se uma recompra LPP seria dedutível este ano';
+
+  @override
+  String get challengeFiscalite03Desc =>
+      'Os levantamentos de capital (LPP/3a) são tributados separadamente a uma taxa reduzida. Simula o imposto para diferentes montantes.';
+
+  @override
+  String get challengeFiscalite03Title =>
+      'Simula o imposto sobre um levantamento de capital';
+
+  @override
+  String get challengeFiscalite04Desc =>
+      'O mix salário/dividendo depende do teu rendimento e cantão. Simula ambos os cenários.';
+
+  @override
+  String get challengeFiscalite04Title =>
+      'Compara salário vs. dividendo se és independente';
+
+  @override
+  String get challengeFiscalite05Desc =>
+      'Se és proprietário, o valor locativo imputado é adicionado ao rendimento tributável. Verifica se está correto.';
+
+  @override
+  String get challengeFiscalite05Title =>
+      'Verifica o valor locativo imputado do teu imóvel';
+
+  @override
+  String get challengeFiscalite06Desc =>
+      'Imposto federal + cantonal + municipal: calcula a tua carga fiscal total em percentagem do rendimento.';
+
+  @override
+  String get challengeFiscalite06Title => 'Calcula a tua carga fiscal total';
+
+  @override
+  String get challengeFiscalite07Desc =>
+      'Como cidadão americano, as tuas contas suíças estão sujeitas a FATCA. Verifica que a tua situação está em ordem.';
+
+  @override
+  String get challengeFiscalite07Title => 'Verifica a tua conformidade FATCA';
+
+  @override
+  String get challengeFiscalite08Desc =>
+      'Como trabalhador fronteiriço, pagas impostos na fonte. Verifica se a taxa aplicada corresponde à tua situação.';
+
+  @override
+  String get challengeFiscalite08Title => 'Verifica a tua retenção na fonte';
+
+  @override
+  String get challengePatrimoine01Desc =>
+      'Com a regra do terço, verifica quanto poderias pedir emprestado para uma compra imobiliária.';
+
+  @override
+  String get challengePatrimoine01Title =>
+      'Calcula a tua capacidade de empréstimo hipotecário';
+
+  @override
+  String get challengePatrimoine02Desc =>
+      'SARON (variável) ou taxa fixa? Simula ambos os cenários a 10 anos para ver a diferença.';
+
+  @override
+  String get challengePatrimoine02Title =>
+      'Simula SARON vs. taxa fixa para a tua hipoteca';
+
+  @override
+  String get challengePatrimoine03Desc =>
+      'Comprar nem sempre é melhor do que arrendar. Compara ambas as opções a 20 anos com o simulador.';
+
+  @override
+  String get challengePatrimoine03Title => 'Compara arrendar vs. comprar';
+
+  @override
+  String get challengePatrimoine04Desc =>
+      'Podes usar o 2.º pilar para financiar a tua habitação. Simula o impacto na tua reforma.';
+
+  @override
+  String get challengePatrimoine04Title =>
+      'Simula um levantamento antecipado LPP para habitacao';
+
+  @override
+  String get challengePatrimoine05Desc =>
+      'Ativos, passivos, património líquido: faça um balanço da tua situação financeira global. Um momento importante para ganhar perspetiva.';
+
+  @override
+  String get challengePatrimoine05Title =>
+      'Consulta o teu balanço patrimonial completo';
+
+  @override
+  String get challengePatrimoine06Desc =>
+      'Entre 3a, recompra LPP e amortização hipotecária, como distribuir a poupança este ano? Cada escolha tem um impacto fiscal diferente.';
+
+  @override
+  String get challengePatrimoine06Title =>
+      'Verifica a tua alocação anual de poupança';
+
+  @override
+  String get challengePatrimoine07Desc =>
+      'Amortização direta ou indireta via 3a? Simula ambas as opções e o seu impacto fiscal.';
+
+  @override
+  String get challengePatrimoine07Title =>
+      'Simula o impacto da amortização hipotecária';
+
+  @override
+  String get challengePatrimoine08Desc =>
+      'Mesmo um pequeno rendimento cria um efeito bola de neve. Simula o crescimento da tua poupança a 20 anos.';
+
+  @override
+  String get challengePatrimoine08Title =>
+      'Simula o efeito dos juros compostos a 20 anos';
+
+  @override
+  String get challengePrevoyance01Desc =>
+      'O teu extrato AVS mostra os teus anos de contribuição e a pensão estimada. Solicita-o gratuitamente em avs.ch.';
+
+  @override
+  String get challengePrevoyance01Title =>
+      'Solicita o teu extrato de conta AVS';
+
+  @override
+  String get challengePrevoyance02Desc =>
+      'Em caso de invalidez, a tua pensão AI + LPP cobre as tuas despesas? Verifica a eventual lacuna.';
+
+  @override
+  String get challengePrevoyance02Title =>
+      'Verifica a tua cobertura de invalidez';
+
+  @override
+  String get challengePrevoyance03Desc =>
+      'Renda vitalicia ou capital? Cada opção tem vantagens fiscais e de flexibilidade. Compara os cenários.';
+
+  @override
+  String get challengePrevoyance03Title =>
+      'Compara renda vs. capital para o teu LPP';
+
+  @override
+  String get challengePrevoyance04Desc =>
+      'Imagina a tua reforma: AVS + LPP + 3a — quanto terás realmente? Verifica se estás na trajetória certa.';
+
+  @override
+  String get challengePrevoyance04Title => 'Consulta a tua projeção de reforma';
+
+  @override
+  String get challengePrevoyance05Desc =>
+      'A ordem em que retiras dos pilares tem um impacto fiscal importante. Simula diferentes sequências.';
+
+  @override
+  String get challengePrevoyance05Title =>
+      'Otimiza a tua sequência de decumulação';
+
+  @override
+  String get challengePrevoyance06Desc =>
+      'Cada ano sem contribuições AVS reduz a pensão. Verifica se tens lacunas a colmatar.';
+
+  @override
+  String get challengePrevoyance06Title => 'Verifica as tuas lacunas AVS';
+
+  @override
+  String get challengePrevoyance07Desc =>
+      'Quem herda o quê no direito suíço? Verifica as quotas legítimas e se é necessário um testamento.';
+
+  @override
+  String get challengePrevoyance07Title => 'Planeia a tua sucessão';
+
+  @override
+  String get challengePrevoyance08Desc =>
+      'Perder o emprego é stressante. Saber quanto receberias e durante quanto tempo pode tranquilizar-te. Simula a tua situação.';
+
+  @override
+  String get challengePrevoyance08Title =>
+      'Verifica a tua cobertura em caso de desemprego';
+
+  @override
+  String get challengePrevoyance09Desc =>
+      'Como independente, a tua cobertura AI pode ser insuficiente. Verifica se seria útil um seguro de subsistência diário complementar.';
+
+  @override
+  String get challengePrevoyance09Title =>
+      'Verifica a cobertura de invalidez como independente';
+
+  @override
+  String challengeStreak(int count) {
+    return '$count semanas consecutivas';
+  }
+
+  @override
+  String get challengeWeeklyTitle => 'Desafio da semana';
+
+  @override
+  String get chatDocAnalysisIntro =>
+      'Analisei o teu documento. Eis o que encontrei:';
+
+  @override
+  String get chatDocAttachTooltip => 'Digitalizar um documento';
+
+  @override
+  String get chatDocError => 'Erro ao analisar o documento. Tenta novamente.';
+
+  @override
+  String get chatDocExtractionFailed =>
+      'Não consegui extrair dados deste documento. Tenta com uma foto mais nítida.';
+
+  @override
+  String get chatDocSent => 'Documento enviado para análise';
+
+  @override
+  String get chatDocUpdatePrompt =>
+      'Queres que atualize o teu perfil com estes dados?';
+
+  @override
+  String get chatFileTooLarge => 'Ficheiro demasiado grande (máx. 5 MB)';
+
+  @override
+  String get chatPickFile => 'Ficheiro (PDF, DOCX)';
+
+  @override
+  String get chatPickGallery => 'Escolher uma imagem';
+
+  @override
+  String get chatPickPhoto => 'Tirar uma foto';
+
+  @override
+  String get circleLabelAssurancesObligatoires => 'Seguros obrigatórios';
+
+  @override
+  String get circleLabelAvs => 'AVS';
+
+  @override
+  String get circleLabelDettes => 'Dívidas';
+
+  @override
+  String get circleLabelEmergencyFund => 'Fundo de emergência';
+
+  @override
+  String get circleLabelInvestissements => 'Investimentos';
+
+  @override
+  String get circleLabelLppRachat => 'LPP - Resgate';
+
+  @override
+  String get circleLabelPatrimoineImmobilier => 'Patrimônio imobiliário';
+
+  @override
+  String get circleLabelRevenu => 'Rendimento';
+
+  @override
+  String get circleLabelTroisaOptimisation => '3a - Otimização';
+
+  @override
+  String get circleLabelTroisaVersement => '3a - Contribuição';
+
+  @override
+  String get circleNameCroissance => 'Crescimento';
+
+  @override
+  String get circleNameOptimisation => 'Otimização & Transferência';
+
+  @override
+  String get circleNamePrevoyance => 'Previdência Fiscal';
+
+  @override
+  String get circleNameProtection => 'Proteção & Segurança';
+
+  @override
+  String get clause3aFeedbackNok =>
+      'Ação prioritária: deposita a tua cláusula de beneficiário na tua fundação 3a — em 5 minutos.';
+
+  @override
+  String clause3aFeedbackOk(String partner) {
+    return 'Bem! Verifica que a cláusula nomeia $partner — e que está atualizada após cada evento de vida.';
+  }
+
+  @override
+  String get clause3aQuestion => 'Depositaste uma cláusula de beneficiário?';
+
+  @override
+  String get clause3aStepsTitle => 'Como depositar uma cláusula em 5 minutos:';
+
+  @override
+  String get clause3aTitle => 'A cláusula 3a esquecida';
+
+  @override
+  String get coachCancelAction => 'Cancelar';
+
+  @override
+  String coachChangeGoalConfirm(String goalTag) {
+    return 'Mudar o teu objetivo para: $goalTag?';
+  }
+
+  @override
+  String get coachConfirmAction => 'Confirmar';
+
+  @override
+  String get coachErrorBadRequest =>
+      'Pedido inválido. Tenta reformular a tua pergunta.';
+
+  @override
+  String get coachErrorServiceUnavailable =>
+      'Serviço temporariamente indisponível. Tenta novamente daqui a uns minutos.';
+
+  @override
+  String get coachFactCardTitle => 'Sabias que?';
+
+  @override
+  String get coachGateSubtitle => 'Disponível com MINT Coach';
+
+  @override
+  String get coachGateTitle => 'Função Coach';
+
+  @override
+  String get coachGateUnlock => 'Desbloquear';
+
+  @override
+  String coachMarkStepConfirm(String stepId) {
+    return 'Marcar o passo \"$stepId\" como concluído?';
+  }
+
+  @override
+  String get coachMintLabel => 'Coach MINT';
+
+  @override
+  String get coachPulseDisclaimer =>
+      'Estimativas educativas — não constitui aconselhamento financeiro. Os rendimentos passados não pressupõem rendimentos futuros. Consulta um especialista. LSFin.';
+
+  @override
+  String get coachingDescAttentif =>
+      'MINT está atento em cada sessão. Sugestões frequentes e memória rica.';
+
+  @override
+  String get coachingDescCalme =>
+      'MINT intervém ocasionalmente. Um lembrete a cada 3 dias no máximo.';
+
+  @override
+  String get coachingDescDiscret =>
+      'MINT te deixa em paz. Lembretes raros, apenas prazos críticos.';
+
+  @override
+  String get coachingDescEquilibre =>
+      'MINT te guia diariamente. Um lembrete por dia, sugestões contextuais.';
+
+  @override
+  String get coachingDescProactif =>
+      'MINT te acompanha ativamente. Lembretes em cada visita, memória completa.';
+
+  @override
+  String coachingEngagementStats(Object engaged, Object total) {
+    return '$engaged interações de $total sugestões';
+  }
+
+  @override
+  String get coachingIntensityAttentif => 'Atento';
+
+  @override
+  String get coachingIntensityCalme => 'Calmo';
+
+  @override
+  String get coachingIntensityDiscret => 'Discreto';
+
+  @override
+  String get coachingIntensityEquilibre => 'Equilibrado';
+
+  @override
+  String get coachingIntensityProactif => 'Proativo';
+
+  @override
+  String get coachingSheetSubtitle =>
+      'Escolha com que frequência o MINT te acompanha';
+
+  @override
+  String get cockpitDetailDisclaimer =>
+      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).';
+
+  @override
+  String get cockpitDetailEmptyState =>
+      'Completa o teu perfil para aceder ao cockpit detalhado.';
+
+  @override
+  String get cockpitDetailEnrichProfile => 'Enriquecer o meu perfil';
+
+  @override
+  String get commonConfirm => 'Confirmar';
+
+  @override
+  String get communityChallenge01Desc =>
+      'Janeiro é o momento certo para reunir os teus documentos fiscais. Contacta o teu cantão para saber o prazo e os documentos necessários.';
+
+  @override
+  String get communityChallenge01Title =>
+      'Prepara a tua declaração de impostos';
+
+  @override
+  String get communityChallenge02Desc =>
+      'Despesas profissionais, juros hipotecários, doações : lista todas as deduções a que tens direito antes de submeter a tua declaração.';
+
+  @override
+  String get communityChallenge02Title => 'Identifica as tuas deduções fiscais';
+
+  @override
+  String get communityChallenge03Desc =>
+      'Alguns cantões permitem completar a contribuição do ano anterior para o pilar 3a até março. Verifica as regras do teu cantão.';
+
+  @override
+  String get communityChallenge03Title =>
+      'Verifica a tua contribuição para o 3.º pilar antes do prazo';
+
+  @override
+  String get communityChallenge04Desc =>
+      'O teu certificado anual LPP chegou. Dedica 10 minutos a compreender o teu capital, a taxa de conversão e o potencial de recompra.';
+
+  @override
+  String get communityChallenge04Title =>
+      'Consulta o teu certificado de previdência LPP';
+
+  @override
+  String get communityChallenge05Desc =>
+      'Uma recompra LPP melhora a tua reforma E reduz os teus impostos. Calcula quanto poderias recomprar e o impacto fiscal no teu cantão.';
+
+  @override
+  String get communityChallenge05Title => 'Simula uma recompra LPP';
+
+  @override
+  String get communityChallenge06Desc =>
+      'Passaram 6 meses : revê os teus objetivos financeiros, verifica se estás no caminho certo e ajusta se necessário.';
+
+  @override
+  String get communityChallenge06Title => 'Faz a tua revisão semestral';
+
+  @override
+  String get communityChallenge07Desc =>
+      'O verão pode afetar o teu orçamento. Define um objetivo de poupança para julho e acompanha o teu progresso até ao final de agosto.';
+
+  @override
+  String get communityChallenge07Title =>
+      'Define o teu objetivo de poupança estival';
+
+  @override
+  String get communityChallenge08Desc =>
+      'Um fundo de emergência de 3 a 6 meses de despesas fixas protege-te dos imprevistos. Verifica onde estás e planeia as contribuições em falta.';
+
+  @override
+  String get communityChallenge08Title =>
+      'Constitui ou reforça o teu fundo de emergência';
+
+  @override
+  String get communityChallenge09Desc =>
+      'Setembro é ideal para programar a próxima contribuição para o pilar 3a. Distribuir as contribuições ao longo do ano reduz o stress do prazo de dezembro.';
+
+  @override
+  String get communityChallenge09Title =>
+      'Programa a tua contribuição de outono para o 3.º pilar';
+
+  @override
+  String get communityChallenge10Desc =>
+      'Outubro é o mês oficial da previdência na Suíça. Consulta a tua projeção de reforma e identifica uma ação concreta para melhorar a tua situação.';
+
+  @override
+  String get communityChallenge10Title => 'Celebra o mês da previdência';
+
+  @override
+  String get communityChallenge11Desc =>
+      'Restam poucas semanas para agir: contribuição 3a, doação, declaração de despesas. Identifica o que ainda podes fazer antes de 31 de dezembro.';
+
+  @override
+  String get communityChallenge11Title =>
+      'Planeia as tuas últimas otimizações de fim de ano';
+
+  @override
+  String get communityChallenge12Desc =>
+      'O prazo do 3a aproxima-se. Contribui até CHF 7’258 (trabalhador por conta de outrem com LPP) antes de 31 de dezembro para beneficiar da dedução fiscal deste ano.';
+
+  @override
+  String get communityChallenge12Title =>
+      'Faz a tua contribuição para o 3.º pilar antes de 31 de dezembro';
+
+  @override
+  String get communityChallengeCta => 'Aceitar o desafio';
+
+  @override
+  String compoundDisclaimerInflation(String inflation) {
+    return 'Pressupostos pedagógicos (inflação $inflation %). O desempenho passado não garante resultados futuros.';
+  }
+
+  @override
+  String get confidenceDashboardBreakdownTitle => 'Detalhe por eixo';
+
+  @override
+  String get confidenceDashboardEnrichTitle => 'Melhora a tua precisão';
+
+  @override
+  String get confidenceDashboardFeaturesTitle =>
+      'Funcionalidades desbloqueadas';
+
+  @override
+  String get confidenceDashboardLevelExcellent => 'Excelente';
+
+  @override
+  String get confidenceDashboardLevelFair => 'Razoável';
+
+  @override
+  String get confidenceDashboardLevelGood => 'Boa';
+
+  @override
+  String get confidenceDashboardLevelImprove => 'A melhorar';
+
+  @override
+  String get confidenceDashboardLevelInsufficient => 'Insuficiente';
+
+  @override
+  String confidenceDashboardRequired(String percent) {
+    return '$percent % necessário';
+  }
+
+  @override
+  String get confidenceDashboardSourcesTitle => 'Fontes';
+
+  @override
+  String get consentDashboardDisclaimer =>
+      'Os seus dados pertencem-lhe. Cada parâmetro é revogável a qualquer momento (nLPD art. 6).';
+
+  @override
+  String consentExportCategories(String categories) {
+    return 'Categorias: $categories';
+  }
+
+  @override
+  String consentExportDate(String date) {
+    return 'Data: $date';
+  }
+
+  @override
+  String consentExportFormat(String format) {
+    return 'Formato: $format';
+  }
+
+  @override
+  String get consentLabelByok => 'Personalização com IA';
+
+  @override
+  String get consentLabelNotifications => 'Lembretes personalizados';
+
+  @override
+  String get consentLabelSnapshot => 'Histórico de progresso';
+
+  @override
+  String get consentNoActiveConsents => 'Sem consentimentos ativos';
+
+  @override
+  String get conversationHistoryError =>
+      'Não foi possível carregar o histórico.';
+
+  @override
+  String get deuxViesDisclaimer =>
+      'Ferramenta educativa. Não é aconselhamento financeiro (LSFin).';
+
+  @override
+  String deuxViesGap(String amount, String name) {
+    return 'Diferença de $amount/mês a favor de $name';
+  }
+
+  @override
+  String deuxViesLever(String lever, String impact) {
+    return '$lever fecharia $impact da diferença';
+  }
+
+  @override
+  String get deuxViesTitle => 'As vossas duas vidas';
+
+  @override
+  String get disabilityGapAct1Detail =>
+      '80 % do teu salário pago pelo empregador';
+
+  @override
+  String get disabilityGapAct1Duration => 'Semanas 1-26';
+
+  @override
+  String get disabilityGapAct1Label => 'ATO 1 · Empregador';
+
+  @override
+  String get disabilityGapAct2DetailIjm => '80% do salário segurado';
+
+  @override
+  String get disabilityGapAct2DetailNoIjm =>
+      'Sem cobertura — prazo AI em curso';
+
+  @override
+  String get disabilityGapAct2Duration => 'Até 24 meses';
+
+  @override
+  String get disabilityGapAct2LabelIjm => 'ATO 2 · IJM (seguro de doença)';
+
+  @override
+  String get disabilityGapAct2LabelNoIjm => 'ATO 2 · Sem IJM';
+
+  @override
+  String get disabilityGapAct2SubIjm =>
+      'Seguro coletivo — 80% durante 720 dias máx.';
+
+  @override
+  String get disabilityGapAct2SubNoIjm =>
+      'Sem IJM, passas diretamente à AI após o empregador';
+
+  @override
+  String disabilityGapAct3Detail(
+      String aiAmount, String lppAmount, String totalAmount) {
+    return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mês';
+  }
+
+  @override
+  String get disabilityGapAct3Duration => 'Após 24 meses';
+
+  @override
+  String get disabilityGapAct3Label => 'ATO 3 · AI + LPP (definitivo)';
+
+  @override
+  String disabilityGapAgeLabel(int age) {
+    return '$age anos';
+  }
+
+  @override
+  String disabilityGapAiDetail(String amount) {
+    return 'Máx. $amount CHF/mês — ~14 meses de espera';
+  }
+
+  @override
+  String get disabilityGapAiLabel => 'AI (seguro de invalidez)';
+
+  @override
+  String get disabilityGapApgLabel => 'APG / IJM (perda de rendimento)';
+
+  @override
+  String get disabilityGapIjmCoverage =>
+      '80% durante 720 dias — seguro coletivo';
+
+  @override
+  String get disabilityGapLppCovered =>
+      'Pensão de invalidez ≈ 40% salário coordenado (LPP art. 23)';
+
+  @override
+  String get disabilityGapLppLabel => 'LPP invalidez (2º pilar)';
+
+  @override
+  String get disabilityGapLppNotCovered =>
+      'Salário abaixo do limiar LPP — sem cobertura 2º pilar';
+
+  @override
+  String get disabilityGapNoIjmCoverage =>
+      'Nenhuma IJM subscrita — risco máximo';
+
+  @override
+  String disabilityGapSavingsDetail(String months) {
+    return '$months meses de despesas cobertos';
+  }
+
+  @override
+  String get disabilityGapSavingsLabel => 'Reserva de emergência';
+
+  @override
+  String get disabilityGapSources =>
+      '• LAI art. 28-29\n• LPP art. 23-26\n• CO art. 324a\n• LPGA art. 19';
+
+  @override
+  String get disabilitySelfEmployedAlertLabel => '🚨  ALERTA INDEPENDENTE';
+
+  @override
+  String get disabilitySelfEmployedApgTip =>
+      'Uma APG individual a partir de CHF 45/mês pode cobrir 80% do teu rendimento durante 720 dias.';
+
+  @override
+  String get disabilitySelfEmployedAppBarTitle => 'Invalidez — Independente';
+
+  @override
+  String get disabilitySelfEmployedDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento de seguros.';
+
+  @override
+  String get disabilitySelfEmployedInsuranceQuestion =>
+      'Já tens seguro de perda de rendimento?';
+
+  @override
+  String get disabilitySelfEmployedNo => 'Não / Não sei';
+
+  @override
+  String get disabilitySelfEmployedRevenueHint =>
+      'Ajusta para ver o impacto na tua situação real';
+
+  @override
+  String get disabilitySelfEmployedRevenueLabel => 'Rendimento líquido/mês';
+
+  @override
+  String get disabilitySelfEmployedRevenueTitle =>
+      'O teu rendimento mensal líquido';
+
+  @override
+  String get disabilitySelfEmployedSources =>
+      '• LAMal art. 67-77\n• CO art. 324a\n• LAI art. 28\n• LAVS art. 2 al. 3';
+
+  @override
+  String get disabilitySelfEmployedTitle =>
+      'A tua rede de segurança não existe';
+
+  @override
+  String get disabilitySelfEmployedYes => 'Sim';
+
+  @override
+  String get docCardDisclaimer => 'Verifica cada campo. MINT nunca envia nada.';
+
+  @override
+  String docCardFieldCount(int count) {
+    return '$count campos pré-preenchidos';
+  }
+
+  @override
+  String get docCardFiscalDeclaration => 'Declaração fiscal';
+
+  @override
+  String get docCardGenerating => 'A gerar documento…';
+
+  @override
+  String get docCardLppBuybackRequest => 'Pedido de resgate LPP';
+
+  @override
+  String get docCardPensionFundLetter => 'Carta ao fundo de pensão';
+
+  @override
+  String get docCardReadOnly => 'Somente leitura — completar manualmente';
+
+  @override
+  String get docCardTitle => 'Documento pré-preenchido';
+
+  @override
+  String get docCardValidationFailed => 'A validação do documento falhou.';
+
+  @override
+  String get docCardViewDocument => 'Ver documento';
+
+  @override
+  String docScanBackendParsingError(String error) {
+    return 'Erro de backend ao processar o PDF: $error';
+  }
+
+  @override
+  String get docScanGenericError =>
+      'Ocorreu um erro ao analisar o documento. Tenta novamente ou usa a entrada manual.';
+
+  @override
+  String get docScanProcessingError => 'Erro de processamento.';
+
+  @override
+  String get documentDetailExplanationConjoint =>
+      'Pensão paga ao cônjuge sobrevivente';
+
+  @override
+  String get documentDetailExplanationDeces =>
+      'Montante pago aos beneficiários em caso de falecimento';
+
+  @override
+  String get documentDetailExplanationDeduction =>
+      'Montante deduzido para coordenar com o AVS';
+
+  @override
+  String get documentDetailExplanationEmploye => 'A tua contribuição anual';
+
+  @override
+  String get documentDetailExplanationEmployeur =>
+      'Contribuição do teu empregador';
+
+  @override
+  String get documentDetailExplanationEnfant => 'Pensão paga por filho';
+
+  @override
+  String get documentDetailExplanationInvalidite =>
+      'Pensão em caso de incapacidade de trabalho';
+
+  @override
+  String get documentDetailExplanationObligatoire =>
+      'Montante acumulado na parte obrigatória LPP';
+
+  @override
+  String get documentDetailExplanationRachat =>
+      'Montante que pode ser resgatado para otimizar a tua previdência';
+
+  @override
+  String get documentDetailExplanationSalaireAssure =>
+      'Salário sobre o qual as contribuições são calculadas';
+
+  @override
+  String get documentDetailExplanationSalaireAvs =>
+      'Salário determinante para o AVS';
+
+  @override
+  String get documentDetailExplanationSurobligatoire =>
+      'Parte além do mínimo legal';
+
+  @override
+  String get documentDetailExplanationTauxEnv => 'Taxa média ponderada';
+
+  @override
+  String get documentDetailExplanationTauxOblig => 'Mínimo legal: 6.8%';
+
+  @override
+  String get documentDetailExplanationTauxSurob =>
+      'Definido pela tua caixa de pensões';
+
+  @override
+  String get documentDetailExplanationTotal =>
+      'Total do teu capital de velhice';
+
+  @override
+  String get documentVisionDisclaimer =>
+      'Extração via Claude Vision. Verifica os valores.';
+
+  @override
+  String get donationDisclaimerFallback =>
+      'Esta ferramenta educativa fornece estimativas indicativas e não constitui aconselhamento jurídico, fiscal ou notarial personalizado. Consulta um especialista (notário) para a tua situação.';
+
+  @override
+  String donationDisponibleBarLabel(String pct) {
+    return 'Disponível $pct%';
+  }
+
+  @override
+  String get donationRegimeCommunaute => 'Comunhão de bens';
+
+  @override
+  String get donationRegimeParticipation => 'Participação nos adquiridos';
+
+  @override
+  String get donationRegimeSeparation => 'Separação de bens';
+
+  @override
+  String donationReserveBarLabel(String pct) {
+    return 'Reserva $pct%';
+  }
+
+  @override
+  String get donationTypeEspeces => 'Dinheiro / Liquidez';
+
+  @override
+  String get donationTypeImmobilier => 'Imobiliário';
+
+  @override
+  String get donationTypeTitres => 'Títulos / Valores mobiliários';
+
+  @override
+  String get dossierAddConjointCta => 'Adicionar meu·minha parceiro·a';
+
+  @override
+  String get dossierAgentSectionTitle => 'Documentos preparados';
+
+  @override
+  String get dossierChooseGoalCta => 'Escolher um objetivo';
+
+  @override
+  String get dossierCoachingSubtitle => 'Frequência de lembretes e sugestões';
+
+  @override
+  String get dossierCoachingTitle => 'Acompanhamento';
+
+  @override
+  String get dossierCompleteCta => 'Completar o meu perfil';
+
+  @override
+  String get dossierConfidenceLabel => 'Fiabilidade do dossier';
+
+  @override
+  String dossierConfidencePct(int pct) {
+    return '$pct %';
+  }
+
+  @override
+  String get dossierCoupleSection => 'Casal';
+
+  @override
+  String get dossierData3a => '3.º pilar';
+
+  @override
+  String get dossierDataAvs => '1º pilar';
+
+  @override
+  String get dossierDataBudget => 'Margem mensal';
+
+  @override
+  String get dossierDataFiscalite => 'Fiscalidade';
+
+  @override
+  String get dossierDataLpp => '2.º pilar';
+
+  @override
+  String get dossierDataRevenu => 'Rendimento';
+
+  @override
+  String get dossierDataSection => 'Os meus dados';
+
+  @override
+  String get dossierDataUnknown => 'Não indicado';
+
+  @override
+  String get dossierDocumentsSection => 'Documentos';
+
+  @override
+  String get dossierEnrichmentHint => 'Para melhorar a precisão:';
+
+  @override
+  String get dossierExpertSectionTitle => 'Consultar um·a especialista';
+
+  @override
+  String get dossierIdentiteSection => 'Identidade';
+
+  @override
+  String get dossierPlanChangeGoal => 'Mudar objetivo';
+
+  @override
+  String get dossierPlanCurrentStep => 'Etapa atual';
+
+  @override
+  String get dossierPlanNextStep => 'Próxima etapa';
+
+  @override
+  String dossierPlanProgress(int done, int total) {
+    return '$done / $total etapas';
+  }
+
+  @override
+  String get dossierPlanSection => 'O meu plano';
+
+  @override
+  String get dossierPreferencesSection => 'Preferências';
+
+  @override
+  String get dossierProfileSection => 'O meu perfil';
+
+  @override
+  String get dossierScanLppCta => 'Digitalizar o meu certificado LPP';
+
+  @override
+  String get dossierScanLppPrecision =>
+      'Digitalize o certificado para projeções mais precisas';
+
+  @override
+  String get dossierSettingsTitle => 'Definições';
+
+  @override
+  String get dossierToolsCta => 'Ver todas as ferramentas';
+
+  @override
+  String get dossierToolsSection => 'Ferramentas';
+
+  @override
+  String dossierUpdatedAgo(int days) {
+    return 'Atualizado há $days dias';
+  }
+
+  @override
+  String dossierUpdatedOn(String date) {
+    return 'Atualizado em $date';
+  }
+
+  @override
+  String get dossierUpdatedToday => 'Atualizado hoje';
+
+  @override
+  String get dossierUpdatedYesterday => 'Atualizado ontem';
+
+  @override
+  String get educationalLearnMoreCanton => 'Fiscalidade cantonal na Suíça';
+
+  @override
+  String get educationalLearnMoreCivilStatus =>
+      'Estado civil e finanças na Suíça';
+
+  @override
+  String get educationalLearnMoreCredit => 'Crédito ao consumo';
+
+  @override
+  String get educationalLearnMoreEmergency =>
+      'Porque ter um fundo de emergência?';
+
+  @override
+  String get educationalLearnMoreEmployment =>
+      'Estatuto profissional e previdência';
+
+  @override
+  String get educationalLearnMoreHousing => 'Arrendar ou ser proprietário?';
+
+  @override
+  String get educationalLearnMoreInvestments =>
+      'Investimentos e fiscalidade suíça';
+
+  @override
+  String get educationalLearnMoreLeasing => 'Leasing vs compra';
+
+  @override
+  String get educationalLearnMoreLpp => 'Entender o 2º pilar (LPP)';
+
+  @override
+  String get educationalLearnMoreLppBuyback => 'Resgate LPP, como funciona?';
+
+  @override
+  String get educationalLearnMoreMortgage => 'Tipos de hipoteca na Suíça';
+
+  @override
+  String get educationalLearnMoreRealEstate =>
+      'Financiar uma compra imobiliária';
+
+  @override
+  String get educationalLearnMoreStressCheck =>
+      'O teu stress financeiro, explicado claramente';
+
+  @override
+  String get educationalLearnMoreTroisA => 'O 3º pilar em detalhe';
+
+  @override
+  String get educationalLearnMoreTroisaCount => 'Estratégia multi-conta 3a';
+
+  @override
+  String get emergencyFundAtteint => 'Objetivo atingido!';
+
+  @override
+  String get emergencyFundChargesDesc =>
+      'Renda + seguros + assinaturas + créditos';
+
+  @override
+  String get emergencyFundChargesLabel => 'Os teus encargos fixos mensais';
+
+  @override
+  String get emergencyFundConfort => 'Conforto';
+
+  @override
+  String get emergencyFundDisclaimer =>
+      'O objetivo de 3-6 meses é uma recomendação geral. A tua situação pessoal pode exigir um montante diferente.';
+
+  @override
+  String get emergencyFundExplication =>
+      'Este fundo protege-te de imprevistos (perda de emprego, doença, reparações) sem tocar nos teus investimentos.';
+
+  @override
+  String get emergencyFundHyp1 =>
+      'Encargos fixos = renda + seguros + assinaturas + créditos';
+
+  @override
+  String get emergencyFundHyp2 =>
+      'Objetivo recomendado: 3 meses (mínimo) a 6 meses (conforto)';
+
+  @override
+  String get emergencyFundHyp3 =>
+      'Colocação sugerida: conta poupança acessível, não investida';
+
+  @override
+  String emergencyFundManque(String amount) {
+    return 'Faltam-te $amount';
+  }
+
+  @override
+  String get emergencyFundMinimum => 'Mínimo';
+
+  @override
+  String emergencyFundMoisUnit(int count) {
+    return '$count meses';
+  }
+
+  @override
+  String get emergencyFundObjectifLabel => 'Objetivo em meses de segurança';
+
+  @override
+  String get emergencyFundObjectifTitle =>
+      'O teu objetivo de fundo de emergência';
+
+  @override
+  String get emergencyFundProgression => 'O teu progresso';
+
+  @override
+  String get emergencyFundSubtitle => 'Calcula o teu fundo de emergência ideal';
+
+  @override
+  String get emergencyFundTitle => 'A tua rede de segurança';
+
+  @override
+  String get employmentIndependant => 'Independente';
+
+  @override
+  String get employmentRetraite => 'Reformado/a';
+
+  @override
+  String get employmentSalarie => 'Assalariado/a';
+
+  @override
+  String get employmentSansEmploi => 'Sem emprego';
+
+  @override
+  String get errorNotAuthenticated => 'Não autenticado';
+
+  @override
+  String get expatAcIndemnities => 'Prestações AC até 520 dias';
+
+  @override
+  String get expatJobLossAbroad =>
+      'Se perderes o emprego no estrangeiro, apenas o regime local se aplica — frequentemente menos generoso.';
+
+  @override
+  String get expatNoAcRightsAbroad =>
+      'Sem direitos AC suíços se trabalhares no estrangeiro';
+
+  @override
+  String get expertArchetypeCrossBorder => 'Trabalhador·a fronteiriço·a';
+
+  @override
+  String get expertArchetypeExpatEu => 'Expat UE/EFTA';
+
+  @override
+  String get expertArchetypeExpatNonEu => 'Expat não-UE';
+
+  @override
+  String get expertArchetypeExpatUs => 'Residente US (FATCA)';
+
+  @override
+  String get expertArchetypeIndepNoLpp => 'Independente sem LPP';
+
+  @override
+  String get expertArchetypeIndepWithLpp => 'Independente com LPP';
+
+  @override
+  String get expertArchetypeReturningSwiss => 'Suíço·a de regresso';
+
+  @override
+  String get expertArchetypeSwissNative => 'Residente suíço·a';
+
+  @override
+  String get expertDebtTypeAutre => 'Outras dívidas';
+
+  @override
+  String get expertDebtTypeConso => 'Crédito ao consumo';
+
+  @override
+  String get expertDebtTypeHypo => 'Hipoteca';
+
+  @override
+  String get expertDebtTypeLeasing => 'Leasing';
+
+  @override
+  String get expertDisclaimer =>
+      'MINT facilita a ligação — não substitui aconselhamento personalizado (LSFin art. 3)';
+
+  @override
+  String expertDossierIncomplete(int count) {
+    return 'Perfil incompleto — $count dados em falta';
+  }
+
+  @override
+  String get expertDossierSectionBudget => 'Orçamento e dívidas';
+
+  @override
+  String get expertDossierSectionDeductions => 'Deduções fiscais';
+
+  @override
+  String get expertDossierSectionFinancement => 'Financiamento';
+
+  @override
+  String get expertDossierSectionPatrimoine => 'Património';
+
+  @override
+  String get expertDossierSectionPrevoyance => 'Previdência';
+
+  @override
+  String get expertDossierSectionSituation => 'Situação pessoal';
+
+  @override
+  String get expertDossierTitle => 'O teu dossier preparado';
+
+  @override
+  String get expertItem3aBalance => 'Capital 3a';
+
+  @override
+  String get expertItem3aStatus => 'Pilar 3a';
+
+  @override
+  String get expertItemAge => 'Idade';
+
+  @override
+  String get expertItemArchetype => 'Perfil fiscal';
+
+  @override
+  String get expertItemAvsGaps => 'Lacunas AVS';
+
+  @override
+  String get expertItemAvsStatus => 'Estado AVS';
+
+  @override
+  String get expertItemAvsYears => 'Anos de contribuição AVS';
+
+  @override
+  String get expertItemCanton => 'Cantão';
+
+  @override
+  String get expertItemChargesVsIncome => 'Encargos vs rendimento';
+
+  @override
+  String get expertItemChildren => 'Filhos';
+
+  @override
+  String get expertItemCivilStatus => 'Estado civil';
+
+  @override
+  String get expertItemConjointAge => 'Idade do·a cônjuge';
+
+  @override
+  String get expertItemConjointLpp => 'LPP do·a cônjuge';
+
+  @override
+  String get expertItemCoupleStatus => 'Situação familiar';
+
+  @override
+  String get expertItemCurrentHousing => 'Habitação atual';
+
+  @override
+  String get expertItemDebtRatio => 'Rácio de endividamento';
+
+  @override
+  String get expertItemDebtType => 'Tipos de dívida';
+
+  @override
+  String get expertItemEmploymentStatus => 'Situação profissional';
+
+  @override
+  String get expertItemEquityEstimate => 'Fundos próprios disponíveis';
+
+  @override
+  String get expertItemFamilyStatus => 'Estado civil';
+
+  @override
+  String get expertItemLppBalance => 'Saldo LPP';
+
+  @override
+  String get expertItemLppBuybackPotential => 'Resgate LPP possível';
+
+  @override
+  String get expertItemLppCoverage => 'Cobertura LPP';
+
+  @override
+  String get expertItemLppEpl => 'EPL possível';
+
+  @override
+  String get expertItemMortgageBalance => 'Hipoteca em curso';
+
+  @override
+  String get expertItemNationality => 'Nacionalidade';
+
+  @override
+  String get expertItemPatrimoineRange => 'Património estimado';
+
+  @override
+  String get expertItemPropertyStatus => 'Habitação';
+
+  @override
+  String get expertItemPropertyValue => 'Valor imobiliário';
+
+  @override
+  String get expertItemReplacementRate => 'Taxa de substituição estimada';
+
+  @override
+  String get expertItemResidencePermit => 'Autorização de residência';
+
+  @override
+  String get expertItemSalaryRange => 'Rendimento bruto anual';
+
+  @override
+  String get expertItemYearsInCh => 'Anos na Suíça';
+
+  @override
+  String get expertMissing3a => 'Capital 3a não indicado';
+
+  @override
+  String get expertMissingArrivalAge => 'Idade de chegada à Suíça não indicada';
+
+  @override
+  String get expertMissingAvsYears => 'Anos AVS não indicados';
+
+  @override
+  String get expertMissingCanton => 'Cantão não indicado';
+
+  @override
+  String get expertMissingChildren => 'Número de filhos não indicado';
+
+  @override
+  String get expertMissingConjoint => 'Dados do·a cônjuge em falta';
+
+  @override
+  String get expertMissingConjointLpp => 'LPP do·a cônjuge não indicada';
+
+  @override
+  String get expertMissingData =>
+      'Valor estimado — a confirmar com o·a especialista';
+
+  @override
+  String get expertMissingDebtDetail => 'Detalhe de dívidas em falta';
+
+  @override
+  String get expertMissingEquity => 'Fundos próprios não indicados';
+
+  @override
+  String get expertMissingHousing => 'Situação habitacional desconhecida';
+
+  @override
+  String get expertMissingHousingStatus => 'Estado habitacional não indicado';
+
+  @override
+  String get expertMissingIndependantStatus =>
+      'Estatuto de independente não confirmado';
+
+  @override
+  String get expertMissingLppBalance => 'Saldo LPP não indicado';
+
+  @override
+  String get expertMissingLppBuyback => 'Lacuna de resgate LPP desconhecida';
+
+  @override
+  String get expertMissingLppCoverage => 'Cobertura LPP não indicada';
+
+  @override
+  String get expertMissingMensualites =>
+      'Prestações mensais de dívidas não indicadas';
+
+  @override
+  String get expertMissingNationality => 'Nacionalidade não indicada';
+
+  @override
+  String get expertMissingPatrimoine => 'Património não indicado';
+
+  @override
+  String get expertMissingPermit => 'Autorização de residência não indicada';
+
+  @override
+  String get expertPrepareDossierCta => 'Preparar o meu dossier';
+
+  @override
+  String get expertRequestSession => 'Solicitar uma consulta';
+
+  @override
+  String get expertSessionRequested => 'Pedido enviado';
+
+  @override
+  String get expertSpecDebt => 'Gestão de dívidas';
+
+  @override
+  String get expertSpecDivorce => 'Divórcio';
+
+  @override
+  String get expertSpecExpatriation => 'Expatriação';
+
+  @override
+  String get expertSpecRealEstate => 'Imobiliário';
+
+  @override
+  String get expertSpecRetirement => 'Reforma';
+
+  @override
+  String get expertSpecSelfEmployment => 'Independente';
+
+  @override
+  String get expertSpecSuccession => 'Sucessão';
+
+  @override
+  String get expertSpecTax => 'Fiscalidade';
+
+  @override
+  String get expertSubtitle =>
+      'MINT prepara o teu dossier para uma consulta eficiente';
+
+  @override
+  String get expertTierBack => 'Escolher outro·a especialista';
+
+  @override
+  String get expertTierComingSoon =>
+      'A marcação de consultas chega em breve. O teu dossier está pronto — poderás transmiti-lo assim que o serviço abrir.';
+
+  @override
+  String get expertTierComingSoonTitle => 'Em breve';
+
+  @override
+  String expertTierCompleteness(String percent) {
+    return 'Perfil completo a $percent %';
+  }
+
+  @override
+  String get expertTierDisclaimerBanner =>
+      'MINT prepara o dossier, o·a especialista dá o conselho';
+
+  @override
+  String get expertTierDossierGenerating => 'A preparar o dossier…';
+
+  @override
+  String get expertTierDossierPreviewTitle => 'Prévia do teu dossier';
+
+  @override
+  String get expertTierDossierReady => 'Dossier pronto';
+
+  @override
+  String get expertTierEstimated => 'Estimado';
+
+  @override
+  String get expertTierFinancialPlanner => 'Planeador·a financeiro·a';
+
+  @override
+  String get expertTierFinancialPlannerDesc =>
+      'Reforma, previdência, estratégia de levantamento, planeamento patrimonial global';
+
+  @override
+  String get expertTierMissingDataTitle => 'Dados a completar';
+
+  @override
+  String get expertTierNotary => 'Notário·a';
+
+  @override
+  String get expertTierNotaryDesc =>
+      'Sucessão, testamento, doação, regime matrimonial, pacto sucessório';
+
+  @override
+  String get expertTierOk => 'Entendido';
+
+  @override
+  String get expertTierPrice => 'CHF 129 / sessão';
+
+  @override
+  String get expertTierRequestCta => 'Pedir uma consulta';
+
+  @override
+  String get expertTierScreenTitle => 'Consultar um·a especialista';
+
+  @override
+  String get expertTierSelectCta => 'Preparar o meu dossier';
+
+  @override
+  String get expertTierTaxSpecialist => 'Especialista fiscal';
+
+  @override
+  String get expertTierTaxSpecialistDesc =>
+      'Otimização fiscal, recompra LPP, declaração, planeamento intercantonal';
+
+  @override
+  String get expertTitle => 'Consultar um·a especialista';
+
+  @override
+  String get expertValue3aActive => 'Ativo';
+
+  @override
+  String get expertValue3aInactive => 'Inativo';
+
+  @override
+  String get expertValueChargesNone => 'Sem encargos de dívida';
+
+  @override
+  String get expertValueChomage => 'Desempregado·a';
+
+  @override
+  String get expertValueConcubinage => 'Em coabitação';
+
+  @override
+  String get expertValueDebtHigh => 'Alto (> 100 % do rendimento anual)';
+
+  @override
+  String get expertValueDebtLow => 'Baixo (< 50 % do rendimento anual)';
+
+  @override
+  String get expertValueDebtMedium => 'Moderado (50–100 % do rendimento anual)';
+
+  @override
+  String get expertValueDebtNone => 'Sem dívidas';
+
+  @override
+  String get expertValueDivorced => 'Divorciado·a';
+
+  @override
+  String get expertValueIndependant => 'Independente';
+
+  @override
+  String get expertValueLppEplPossible => 'Possível (a verificar)';
+
+  @override
+  String get expertValueLppNo => 'Não coberto·a';
+
+  @override
+  String get expertValueLppYes => 'Coberto·a';
+
+  @override
+  String get expertValueMarried => 'Casado·a';
+
+  @override
+  String get expertValueNone => 'Nenhum·a';
+
+  @override
+  String get expertValueOwner => 'Proprietário·a';
+
+  @override
+  String get expertValueRetraite => 'Reformado·a';
+
+  @override
+  String get expertValueSalarie => 'Assalariado·a';
+
+  @override
+  String get expertValueSingle => 'Solteiro·a';
+
+  @override
+  String get expertValueTenant => 'Inquilino·a';
+
+  @override
+  String get expertValueUnknown => 'Não indicado';
+
+  @override
+  String get expertValueWidowed => 'Viúvo·a';
+
+  @override
+  String get exploreHubFamilleIntro =>
+      'Casamento, nascimento, separação: cada marco tem um impacto financeiro.';
+
+  @override
+  String get exploreHubFiscaliteIntro =>
+      'Cada franco deduzido é um franco ganho. Encontra as tuas alavancas.';
+
+  @override
+  String get exploreHubLogementIntro =>
+      'Comprar, alugar, mudar: os números antes da decisão.';
+
+  @override
+  String get exploreHubLogementIntro40plus =>
+      'Comprar, alugar, mudar: os números antes da decisão.';
+
+  @override
+  String get exploreHubLogementIntro55plus =>
+      'Ficar, vender, transmitir: os números antes da decisão.';
+
+  @override
+  String get exploreHubLogementIntroYoung =>
+      'Primeira compra ou aluguer: compreender as regras do jogo.';
+
+  @override
+  String get exploreHubOtherTopics => 'Outros temas';
+
+  @override
+  String get exploreHubPatrimoineIntro =>
+      'O que transmites merece tanta atenção quanto o que ganhas.';
+
+  @override
+  String get exploreHubRetraiteIntro =>
+      'Cada ano que passa muda as tuas opções. Eis onde estás.';
+
+  @override
+  String get exploreHubRetraiteIntro40plus =>
+      'Cada ano que passa muda as tuas opções. Eis onde estás.';
+
+  @override
+  String get exploreHubRetraiteIntro55plus =>
+      'A reforma aproxima-se: cada decisão conta a dobrar. Eis onde estás.';
+
+  @override
+  String get exploreHubRetraiteIntroYoung =>
+      'É longe, mas é agora que importa. Eis porquê.';
+
+  @override
+  String get exploreHubSanteIntro =>
+      'A tua cobertura protege-te — ou custa demasiado. Verifica.';
+
+  @override
+  String get exploreHubTitle => 'Explorar';
+
+  @override
+  String get exploreHubTravailIntro =>
+      'O teu estado profissional determina os teus direitos. Verifica-os.';
+
+  @override
+  String get exploreHubTravailIntro40plus =>
+      'O teu estatuto profissional determina os teus direitos. Verifica-os.';
+
+  @override
+  String get exploreHubTravailIntro55plus =>
+      'Fim de carreira, reforma antecipada, transição: os teus direitos mudam.';
+
+  @override
+  String get exploreHubTravailIntroYoung =>
+      'Primeiro emprego, independente, fronteiriço: cada estatuto tem as suas regras.';
+
+  @override
+  String get exploreTalkToMint => 'Falar com o MINT';
+
+  @override
+  String get extractionDocMine => 'É meu';
+
+  @override
+  String get extractionDocPartner => 'É do meu parceiro';
+
+  @override
+  String get extractionWhoseDocument => 'De quem é este documento?';
+
+  @override
+  String get extractionWhoseDocumentBody =>
+      'Tens um perfil de casal. Este documento é teu ou do teu parceiro?';
+
+  @override
+  String get financialReportEmptyCta => 'Completar o meu perfil';
+
+  @override
+  String get financialReportEmptySubtitle =>
+      'Completa o teu perfil para gerar o teu relatório personalizado';
+
+  @override
+  String get financialReportEmptyTitle => 'O teu relatório financeiro';
+
+  @override
+  String get firstJobBudgetAlimentation => 'Alimentação';
+
+  @override
+  String get firstJobBudgetBesoins => 'Necessidades';
+
+  @override
+  String firstJobBudgetChiffreChoc(String annual, String future) {
+    return 'Se poupares $annual CHF/ano a partir de agora, terás ~$future CHF aos 65.';
+  }
+
+  @override
+  String get firstJobBudgetEnvies => 'Desejos';
+
+  @override
+  String get firstJobBudgetEpargne => 'Poupança & 3a';
+
+  @override
+  String get firstJobBudgetEpargneCourt => 'Poupança';
+
+  @override
+  String get firstJobBudgetFondsUrgence => 'Fundo de emergência';
+
+  @override
+  String get firstJobBudgetLoisirs => 'Lazer';
+
+  @override
+  String get firstJobBudgetLoyer => 'Renda';
+
+  @override
+  String get firstJobBudgetPilier3a => 'Pilar 3a';
+
+  @override
+  String get firstJobBudgetRestaurants => 'Restaurantes';
+
+  @override
+  String get firstJobBudgetShopping => 'Compras';
+
+  @override
+  String get firstJobBudgetTransport => 'Transporte';
+
+  @override
+  String get firstJobBudgetVoyages => 'Viagens';
+
+  @override
+  String get firstJobChecklistAction1 =>
+      'Solicita o teu certificado LPP ao empregador atual.';
+
+  @override
+  String get firstJobChecklistAction2 =>
+      'Verifica que o teu capital LPP foi transferido para a caixa do novo empregador.';
+
+  @override
+  String get firstJobChecklistAction3 =>
+      'Informa o teu seguro de saúde LAMal da mudança de empregador se tiveras cobertura coletiva.';
+
+  @override
+  String get firstJobChecklistAction4 =>
+      'Continua as tuas contribuições ao pilar 3a — a interrupção custa-te deduções fiscais.';
+
+  @override
+  String get firstJobChecklistConsequence1 =>
+      'Sem certificado, não podes verificar se o montante transferido está correto.';
+
+  @override
+  String get firstJobChecklistConsequence2 =>
+      'Sem transferência, o teu capital vai para a fundação supletiva a uma taxa de 0.05%.';
+
+  @override
+  String get firstJobChecklistDeadline1 => 'Antes de sair';
+
+  @override
+  String get firstJobChecklistDeadline2 => '30 dias';
+
+  @override
+  String get firstJobChecklistDeadline3 => '1 mês';
+
+  @override
+  String get firstJobChecklistDeadline4 => 'A partir do primeiro salário';
+
+  @override
+  String firstJobCoutMaxPerYear(String amount) {
+    return 'Máx. $amount/ano';
+  }
+
+  @override
+  String get firstJobPayslipAvsExplanation =>
+      'Contribuição do trabalhador: 5.3% do salário bruto. O teu empregador também paga 5.3% adicional.';
+
+  @override
+  String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
+
+  @override
+  String get firstJobPayslipImpotExplanation =>
+      'Deduzido diretamente do salário se fores tributado na fonte. A taxa varia por cantão, estado civil e rendimento.';
+
+  @override
+  String get firstJobPayslipImpotLabel => 'Imposto na fonte (estimativa)';
+
+  @override
+  String get firstJobPayslipLppExplanation =>
+      'Poupança para reforma obrigatória a partir dos 25 anos. A taxa exata depende da tua caixa e idade.';
+
+  @override
+  String get firstJobPayslipLppLabel => 'LPP (2.º pilar)';
+
+  @override
+  String firstJobPrimePerMonth(String amount) {
+    return '$amount/mês';
+  }
+
+  @override
+  String get firstJobScenarioBoosted => '+20%';
+
+  @override
+  String get firstJobScenarioDefault => 'Padrão';
+
+  @override
+  String get firstJobScenarioMedianCH => 'Mediana CH';
+
+  @override
+  String get firstJobScenarioMySalary => 'O meu salário';
+
+  @override
+  String firstJobScenarioSemantics(String label) {
+    return 'Cenário salarial: $label';
+  }
+
+  @override
+  String get fiscalSuperpowerSubtitle =>
+      'O Estado devolve-te dinheiro por teres um filho.';
+
+  @override
+  String get fiscalSuperpowerTaxBenefits => 'As tuas vantagens fiscais';
+
+  @override
+  String get fiscalSuperpowerTitle => 'O superpoder fiscal';
+
+  @override
+  String get forecasterDisclaimer =>
+      'Projeções educativas baseadas em pressupostos de rendimento. Não constitui aconselhamento financeiro. Os rendimentos passados não predizem os futuros. Consulte um especialista para um plano personalizado. LSFin.';
+
+  @override
+  String get forecasterEtSiDisclaimer =>
+      'Simulação «E se...» apenas para fins educativos. Pressupostos de rendimento ajustados manualmente. Não constitui aconselhamento financeiro (LSFin). Os rendimentos passados não predizem os futuros.';
+
+  @override
+  String get friBarFlexibility => 'Flexibilidade';
+
+  @override
+  String get friBarLiquidity => 'Liquidez';
+
+  @override
+  String get friBarResilience => 'Resiliência';
+
+  @override
+  String get friBarStability => 'Estabilidade';
+
+  @override
+  String get friBarTitle => 'Resiliência financeira';
+
+  @override
+  String get friInsufficientData =>
+      'Completa o teu perfil para ver a tua pontuação';
+
+  @override
+  String get frontalierDisclaimer =>
+      'Estimativas simplificadas para fins educativos — não constitui aconselhamento fiscal ou jurídico. Os montantes dependem de muitos fatores. Consulta um especialista fiscal para uma análise personalizada. LSFin.';
+
+  @override
+  String get gamificationCommunityTitle => 'Desafio do mês';
+
+  @override
+  String get gamificationMilestonesTitle => 'As tuas conquistas';
+
+  @override
+  String get gamificationOptInPrompt => 'Participar nos desafios da comunidade';
+
+  @override
+  String get gamificationSeasonalTitle => 'Eventos sazonais';
+
+  @override
+  String get goalBirthDesc => 'Antecipar os custos e adaptar o orçamento';
+
+  @override
+  String get goalBirthTitle => 'Preparar um nascimento';
+
+  @override
+  String get goalBudgetDesc => 'Controlar as despesas e poupar';
+
+  @override
+  String get goalBudgetTitle => 'O meu orçamento';
+
+  @override
+  String get goalDebtDesc => 'Recuperar margem e reembolsar';
+
+  @override
+  String get goalDebtTitle => 'Gerir as dívidas';
+
+  @override
+  String get goalHousingDesc => 'Avaliar a minha capacidade e planear a compra';
+
+  @override
+  String get goalHousingTitle => 'Comprar um imóvel';
+
+  @override
+  String get goalIndependentDesc => 'Previdência, fiscalidade e cobertura';
+
+  @override
+  String get goalIndependentTitle => 'Tornar-me independente';
+
+  @override
+  String get goalRetirementDesc => 'Planear a transição para a reforma';
+
+  @override
+  String get goalRetirementTitle => 'A minha reforma';
+
+  @override
+  String get goalSelectorAuto => 'Deixar o MINT decidir';
+
+  @override
+  String get goalSelectorAutoDesc =>
+      'O MINT adapta-se automaticamente ao teu perfil';
+
+  @override
+  String get goalSelectorTitle => 'Qual é o teu objetivo principal?';
+
+  @override
+  String get goalTaxDesc => 'Otimizar as deduções (3a, resgate LPP)';
+
+  @override
+  String get goalTaxTitle => 'Pagar menos impostos';
+
+  @override
+  String get greetingAfternoon => 'Boa tarde';
+
+  @override
+  String get greetingEvening => 'Boa noite';
+
+  @override
+  String get greetingMorning => 'Bom dia';
+
+  @override
+  String get greetingNight => 'Boa noite';
+
+  @override
+  String get helpResourcesAppBarTitle => 'AJUDA EM CASO DE DÍVIDA';
+
+  @override
+  String get helpResourcesCantonLabel => 'O teu cantão';
+
+  @override
+  String get helpResourcesCantonalHeader => 'SERVIÇO CANTONAL';
+
+  @override
+  String get helpResourcesCaritasDesc =>
+      'Serviço de ajuda da Caritas Suíça para pessoas endividadas.';
+
+  @override
+  String get helpResourcesCaritasName => 'Caritas — Aconselhamento de dívidas';
+
+  @override
+  String get helpResourcesDettesDesc =>
+      'Federação dos serviços de aconselhamento de dívidas na Suíça.';
+
+  @override
+  String get helpResourcesDettesName => 'Dettes Conseils Suisse';
+
+  @override
+  String get helpResourcesDisclaimer =>
+      'A MINT fornece estes links para fins informativos e educativos.';
+
+  @override
+  String get helpResourcesFreeLabel => 'GRÁTIS';
+
+  @override
+  String get helpResourcesIntroBody =>
+      'Na Suíça, muitos serviços profissionais oferecem acompanhamento gratuito e confidencial para pessoas em dificuldades financeiras. Pedir ajuda é um ato de coragem.';
+
+  @override
+  String get helpResourcesIntroNote =>
+      'Todos os links levam a sites externos. A MINT não transmite dados a estes serviços.';
+
+  @override
+  String get helpResourcesIntroTitle => 'Não estás sozinho';
+
+  @override
+  String get helpResourcesNoService =>
+      'Nenhum serviço cantonal registado para este cantão.';
+
+  @override
+  String get helpResourcesPrivacyBody =>
+      'A MINT não transmite dados pessoais aos serviços acima referidos.';
+
+  @override
+  String get helpResourcesPrivacyTitle => 'Proteção de dados (nLPD)';
+
+  @override
+  String get householdAcceptCodeHint => 'CODE';
+
+  @override
+  String get hypothesisEditorSubtitle =>
+      'Ajusta os parâmetros para ver o impacto nas projeções.';
+
+  @override
+  String get hypothesisEditorTitle => 'Hipóteses de simulação';
+
+  @override
+  String get imputedRentalEyebrow => 'Valor de aluguer imputado';
+
+  @override
+  String get imputedRentalSavingsLabel => 'de poupança fiscal líquida';
+
+  @override
+  String get imputedRentalTaxLabel => 'de imposto adicional';
+
+  @override
+  String get indepChargeAc => 'Desemprego (AC)';
+
+  @override
+  String get indepChargeAcNote => 'Sem AC para independente (LACI art. 2)';
+
+  @override
+  String get indepChargeAvs => 'AVS / AI / APG';
+
+  @override
+  String get indepChargeLpp => 'LPP (2.° pilar)';
+
+  @override
+  String get indepChargeLppNote => 'Facultativo para independente (LPP art. 4)';
+
+  @override
+  String get indepChargePro => 'Contribuições profissionais (IJM/LAA)';
+
+  @override
+  String get indepChargeProNote => 'Inteiramente a cargo do independente';
+
+  @override
+  String get indepFiscal3a => 'Pilar 3a grande contribuição';
+
+  @override
+  String get indepFiscal3aNote =>
+      'Máx. 20% do rendimento líquido, teto CHF 36\'288/ano sem LPP';
+
+  @override
+  String get indepFiscalFraisPro => 'Despesas profissionais efetivas';
+
+  @override
+  String get indepFiscalFraisProNote =>
+      'Renda escritório, material, formação — dedutíveis ao custo';
+
+  @override
+  String get indepFiscalPrimesLpp => 'Prémios seguro doença (LPP vol.)';
+
+  @override
+  String get indepGrand3aConInvalidite => 'Sem cobertura de invalidez';
+
+  @override
+  String get indepGrand3aConRente => 'Sem renda prevista';
+
+  @override
+  String get indepGrand3aProCapital => 'Capital disponível aos 60 anos';
+
+  @override
+  String get indepGrand3aProDeduction => 'Dedução fiscal máxima';
+
+  @override
+  String get indepGrand3aProFlexibilite => 'Flexibilidade total';
+
+  @override
+  String get indepGrand3aSub =>
+      '20% do rendimento líquido, máx. CHF 36\'288/ano';
+
+  @override
+  String get indepLayerChargesSociales => 'Encargos sociais AVS/AI';
+
+  @override
+  String get indepLayerFraisPro => 'Despesas profissionais';
+
+  @override
+  String get indepLayerImpots => 'Impostos (estimativa)';
+
+  @override
+  String get indepLayerJoursNonFact => 'Dias não faturáveis';
+
+  @override
+  String get indepLppConCotisations => 'Contribuições obrigatórias elevadas';
+
+  @override
+  String get indepLppConFlexible => 'Menos flexível';
+
+  @override
+  String get indepLppProDeductible => 'Contribuições dedutíveis';
+
+  @override
+  String get indepLppProInvalidite => 'Cobertura de invalidez incluída';
+
+  @override
+  String get indepLppProRente => 'Renda prevista na reforma';
+
+  @override
+  String get indepPlanAcomptes =>
+      'Adiantamentos fiscais cantonais — evitar juros';
+
+  @override
+  String get indepPlanFraisPro =>
+      'Despesas profissionais dedutíveis — manter registo';
+
+  @override
+  String get indepPlanIjm => 'Avaliar IJM (indemnização diária doença)';
+
+  @override
+  String get indepPlanIjmConseq =>
+      'Perda de rendimento desde o dia 3 em caso de doença';
+
+  @override
+  String get indepPlanInscriptionAvs => 'Inscrição caixa AVS independentes';
+
+  @override
+  String get indepPlanInscriptionAvsConseq =>
+      'Multas retroativas se prazo ultrapassado';
+
+  @override
+  String get indepPlanLaa => 'Seguro acidentes LAA (se sem LPP)';
+
+  @override
+  String get indepPlanLaaConseq => 'Sem cobertura acidente profissional';
+
+  @override
+  String get indepPlanOuvrir3a => 'Abrir conta 3a (dedução até CHF 36\'288)';
+
+  @override
+  String get indepProtApg => 'Desaparece — licença parental';
+
+  @override
+  String get indepProtAvs => 'Duplica a tua contribuição';
+
+  @override
+  String get indepProtIjm => 'Desaparece — doença CHF 0';
+
+  @override
+  String get indepProtLaa => 'Desaparece — acidente fora do trabalho';
+
+  @override
+  String get indepProtLpp => 'Desaparece — escolha voluntária';
+
+  @override
+  String get indicativeBannerBody =>
+      'Precisa os teus dados para projeções personalizadas.';
+
+  @override
+  String get indicativeBannerCta => 'Precisar';
+
+  @override
+  String indicativeBannerTitle(String pct) {
+    return 'Resultado indicativo ($pct % de fiabilidade)';
+  }
+
+  @override
+  String get interactive3aDisclaimer =>
+      'Pressupostos pedagógicos. O desempenho passado não garante rendimentos futuros.';
+
+  @override
+  String get jobChangeChecklistAlertBody =>
+      'Sem transferência do livre passagem nos prazos, o teu capital LPP pode acabar na Fundação supletiva a 0.05 %.';
+
+  @override
+  String get jobChangeChecklistAlertTitle =>
+      'Pede SEMPRE o certificado LPP antes de assinar';
+
+  @override
+  String get jobChangeChecklistDisclaimer =>
+      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Fonte: LPP art. 3 (livre passagem), OLP art. 1-3.';
+
+  @override
+  String jobChangeChecklistProgress(int completed, int total) {
+    return '$completed / $total ações concluídas';
+  }
+
+  @override
+  String get jobChangeChecklistSemantics =>
+      'Lista de verificação novo emprego LPP livre passagem ações urgentes';
+
+  @override
+  String get jobChangeChecklistSubtitle =>
+      'Tens 30 dias para verificar que o teu LPP foi transferido.';
+
+  @override
+  String get jobChangeChecklistTitle =>
+      'Lista de verificação mudança de emprego';
+
+  @override
+  String get lifeEventLabelAchatImmo => 'Compra imobiliária';
+
+  @override
+  String get lifeEventLabelConcubinage => 'Vivemos juntos';
+
+  @override
+  String get lifeEventLabelDeces => 'Morte de uma pessoa próxima';
+
+  @override
+  String get lifeEventLabelDemenagement => 'Mudança de cantão';
+
+  @override
+  String get lifeEventLabelDettes => 'Tenho dívidas';
+
+  @override
+  String get lifeEventLabelDivorce => 'Vou divorciar';
+
+  @override
+  String get lifeEventLabelDonation => 'Quero dar aos meus filhos';
+
+  @override
+  String get lifeEventLabelExpatriation => 'Vou para o estrangeiro';
+
+  @override
+  String get lifeEventLabelHeritage => 'Recebo uma herança';
+
+  @override
+  String get lifeEventLabelIndependant => 'Fico independente';
+
+  @override
+  String get lifeEventLabelInvalidite => 'Estou bem coberto/a?';
+
+  @override
+  String get lifeEventLabelMariage => 'Vou casar';
+
+  @override
+  String get lifeEventLabelNaissance => 'Estou à espera de um filho';
+
+  @override
+  String get lifeEventLabelNouveauJob => 'Novo emprego';
+
+  @override
+  String get lifeEventLabelPerteEmploi => 'Perda de emprego';
+
+  @override
+  String get lifeEventLabelPremierEmploi => 'Primeiro emprego';
+
+  @override
+  String get lifeEventLabelRetraite => 'Vou reformar-me';
+
+  @override
+  String get lifeEventLabelVenteImmo => 'Venda imobiliária';
+
+  @override
+  String get lifeEventPromptAchatImmo =>
+      'Posso comprar um imóvel com o meu rendimento e entrada?';
+
+  @override
+  String get lifeEventPromptConcubinage =>
+      'Não somos casados — como nos proteger mutuamente?';
+
+  @override
+  String get lifeEventPromptDeces =>
+      'Morte de uma pessoa próxima — que diligências financeiras preciso de fazer?';
+
+  @override
+  String get lifeEventPromptDemenagement =>
+      'Mudo de cantão — que impacto fiscal devo antecipar?';
+
+  @override
+  String get lifeEventPromptDettes =>
+      'Tenho dívidas — como geri-las sem tocar na minha previdência?';
+
+  @override
+  String get lifeEventPromptDivorce =>
+      'Vou divorciar — o que acontece com o LPP e os impostos?';
+
+  @override
+  String get lifeEventPromptDonation =>
+      'Quero dar aos meus filhos — que impacto fiscal e que limites?';
+
+  @override
+  String get lifeEventPromptExpatriation =>
+      'Vou para o estrangeiro — o que faço com o AVS, LPP e pilar 3a?';
+
+  @override
+  String get lifeEventPromptHeritage =>
+      'Recebo uma herança — quais são as consequências fiscais?';
+
+  @override
+  String get lifeEventPromptIndependant =>
+      'Fico independente — que opções de previdência sem LPP?';
+
+  @override
+  String get lifeEventPromptInvalidite =>
+      'Estou bem coberto/a em caso de invalidez ou acidente?';
+
+  @override
+  String get lifeEventPromptMariage =>
+      'Vou casar — que impacto nos meus impostos, AVS e previdência?';
+
+  @override
+  String get lifeEventPromptNaissance =>
+      'Estou à espera de um filho — que apoios e deduções estão disponíveis?';
+
+  @override
+  String get lifeEventPromptNouveauJob =>
+      'Mudo de emprego — como comparar ofertas e gerir o meu livre trânsito?';
+
+  @override
+  String get lifeEventPromptPerteEmploi =>
+      'Perdi o emprego — que subsídios de desemprego e durante quanto tempo?';
+
+  @override
+  String get lifeEventPromptPremierEmploi =>
+      'É o meu primeiro emprego — o que preciso saber sobre a previdência e as contribuições?';
+
+  @override
+  String get lifeEventPromptRetraite =>
+      'Quando me posso reformar e quanto receberei?';
+
+  @override
+  String get lifeEventPromptVenteImmo =>
+      'Vendo o meu imóvel — que imposto sobre a mais-valia devo prever?';
+
+  @override
+  String get lifeEventSheetSectionCrise => 'Crise';
+
+  @override
+  String get lifeEventSheetSectionFamille => 'Família';
+
+  @override
+  String get lifeEventSheetSectionMobilite => 'Mobilidade';
+
+  @override
+  String get lifeEventSheetSectionPatrimoine => 'Património';
+
+  @override
+  String get lifeEventSheetSectionPro => 'Profissional';
+
+  @override
+  String get lifeEventSheetSectionSante => 'Saúde';
+
+  @override
+  String get lifeEventSheetSubtitle =>
+      'Escolhe um evento para ver o impacto financeiro';
+
+  @override
+  String get lifeEventSheetTitle => 'Está-me a acontecer algo';
+
+  @override
+  String get lifeEventSugAchatImmo => 'Compra imobiliária';
+
+  @override
+  String get lifeEventSugAchatImmoReason =>
+      'Simula a tua capacidade de empréstimo e o contributo EPL';
+
+  @override
+  String get lifeEventSugChangementEmploi => 'Mudança de emprego';
+
+  @override
+  String get lifeEventSugChangementEmploiReason =>
+      'Compara a tua LPP antes de assinar um novo contrato';
+
+  @override
+  String get lifeEventSugConcubinage => 'União de facto';
+
+  @override
+  String get lifeEventSugConcubinageReason =>
+      'Atenção: sem proteção legal automática';
+
+  @override
+  String get lifeEventSugDemenagement => 'Mudança cantonal';
+
+  @override
+  String get lifeEventSugDemenagementReason =>
+      'O teu cantão está entre os mais tributados — compara os 26';
+
+  @override
+  String get lifeEventSugDonation => 'Doação entre vivos';
+
+  @override
+  String get lifeEventSugDonationReason =>
+      'Antecipa a tua sucessão e otimiza a fiscalidade';
+
+  @override
+  String get lifeEventSugInvalidite => 'Invalidez';
+
+  @override
+  String get lifeEventSugInvaliditeReason =>
+      'Verifica a tua cobertura AI + LPP em caso de acidente';
+
+  @override
+  String get lifeEventSugMariage => 'Casamento';
+
+  @override
+  String get lifeEventSugMariageReason =>
+      'Descobre o impacto fiscal e na previdência';
+
+  @override
+  String get lifeEventSugNaissance => 'Nascimento';
+
+  @override
+  String get lifeEventSugNaissanceReason =>
+      'Simula o impacto financeiro de um filho';
+
+  @override
+  String get lifeEventSugOutilsIndependant => 'Ferramentas independente';
+
+  @override
+  String get lifeEventSugOutilsIndependantReason =>
+      'AVS, LPP voluntária, 3a alargado e dividendo vs salário';
+
+  @override
+  String get lifeEventSugPremierEmploi => 'Primeiro emprego';
+
+  @override
+  String get lifeEventSugPremierEmploiReason =>
+      'Lança as bases: AVS, LPP, 3a e orçamento';
+
+  @override
+  String get lifeEventSugRetraite => 'Planeamento reforma';
+
+  @override
+  String get lifeEventSugRetraiteReason =>
+      'Renda vs capital, escalonamento 3a, lacuna AVS';
+
+  @override
+  String get lifeEventSugSuccession => 'Planeamento sucessório';
+
+  @override
+  String get lifeEventSugSuccessionReason =>
+      'Quotas hereditárias e porção disponível (CC art. 470)';
+
+  @override
+  String get lifeEventSuggestionsHeader => 'E depois?';
+
+  @override
+  String get lifeEventSuggestionsSimuler => 'Simular';
+
+  @override
+  String get lifeEventSuggestionsSubheader => 'Módulos adaptados ao teu perfil';
+
+  @override
+  String get lifecyclePhaseAcceleration => 'Aceleração';
+
+  @override
+  String get lifecyclePhaseAccelerationDesc =>
+      'Fase de rendimentos elevados: otimização LPP, fiscalidade e crescimento patrimonial.';
+
+  @override
+  String get lifecyclePhaseConsolidation => 'Consolidação';
+
+  @override
+  String get lifecyclePhaseConsolidationDesc =>
+      'Preparação para a reforma, recompra LPP, início do planeamento sucessorial.';
+
+  @override
+  String get lifecyclePhaseConstruction => 'Construção';
+
+  @override
+  String get lifecyclePhaseConstructionDesc =>
+      'Aceleração de carreira, poupança, primeira habitação, planeamento familiar.';
+
+  @override
+  String get lifecyclePhaseDemarrage => 'Início';
+
+  @override
+  String get lifecyclePhaseDemarrageDesc =>
+      'Primeiros passos na vida profissional: orçamento, 3a e bons hábitos financeiros.';
+
+  @override
+  String get lifecyclePhaseRetraite => 'Reforma';
+
+  @override
+  String get lifecyclePhaseRetraiteDesc =>
+      'Vida na reforma: adaptação do orçamento e gestão do património.';
+
+  @override
+  String get lifecyclePhaseTransition => 'Transição';
+
+  @override
+  String get lifecyclePhaseTransitionDesc =>
+      'Decisões pré-reforma: renda ou capital, sequência de levantamentos.';
+
+  @override
+  String get lifecyclePhaseTransmission => 'Transmissão';
+
+  @override
+  String get lifecyclePhaseTransmissionDesc =>
+      'Planeamento sucessorial, doações e transmissão do património.';
+
+  @override
+  String get lightningMenuCompleteProfileSubtitle =>
+      'Quanto mais preciso, mais justo é o MINT';
+
+  @override
+  String get lightningMenuCompleteProfileTitle => 'Completar o perfil';
+
+  @override
+  String get lightningMenuFirstBudgetAction =>
+      'Ajuda-me a fazer o meu orçamento';
+
+  @override
+  String get lightningMenuFirstBudgetSubtitle =>
+      'Saber para onde vai o teu dinheiro cada mês';
+
+  @override
+  String get lightningMenuFirstBudgetTitle => 'O meu primeiro orçamento';
+
+  @override
+  String get lightningMenuLivingBudgetAction => 'Onde estou?';
+
+  @override
+  String get lightningMenuLivingBudgetSubtitle =>
+      'O teu equilíbrio este mês, atualizado';
+
+  @override
+  String get lightningMenuLivingBudgetTitle => 'O meu orçamento vivo';
+
+  @override
+  String get lightningMenuLppBuybackAction => 'Vale a pena um resgate LPP?';
+
+  @override
+  String get lightningMenuLppBuybackSubtitle =>
+      'Uma alavanca fiscal muitas vezes subestimada';
+
+  @override
+  String get lightningMenuLppBuybackTitle => 'Resgatar LPP';
+
+  @override
+  String get lightningMenuPayslipAction => 'Explica-me o meu recibo de salário';
+
+  @override
+  String get lightningMenuPayslipSubtitle =>
+      'Bruto, líquido, deduções: tudo claro';
+
+  @override
+  String get lightningMenuPayslipTitle => 'Compreender o meu recibo de salário';
+
+  @override
+  String get lightningMenuScanDocSubtitle =>
+      'Certificado LPP, recibo, impostos';
+
+  @override
+  String get lightningMenuScanDocTitle => 'Digitalizar um documento';
+
+  @override
+  String get lightningMenuTaxReliefAction => 'Como pagar menos impostos?';
+
+  @override
+  String get lightningMenuTaxReliefSubtitle => 'Deduções e alavancas fiscais';
+
+  @override
+  String get lightningMenuTaxReliefTitle => 'Onde reduzir impostos';
+
+  @override
+  String get lightningMenuThreePillarsAction =>
+      'O que são os 3 pilares suíços?';
+
+  @override
+  String get lightningMenuThreePillarsSubtitle =>
+      'O sistema suíço em 2 minutos';
+
+  @override
+  String get lightningMenuThreePillarsTitle => 'O que são os 3 pilares?';
+
+  @override
+  String get llmAllProvidersDown =>
+      'Todos os serviços de IA estão indisponíveis. Modo offline ativado.';
+
+  @override
+  String get llmCircuitOpen => 'Serviço temporariamente indisponível';
+
+  @override
+  String get llmFailoverActive => 'Failover automático ativado';
+
+  @override
+  String get llmProviderClaude => 'Claude (Anthropic)';
+
+  @override
+  String get llmProviderLocal => 'Modelo local';
+
+  @override
+  String get llmProviderMistral => 'Mistral';
+
+  @override
+  String get llmProviderOpenai => 'GPT-4o (OpenAI)';
+
+  @override
+  String get llmQualityDegraded => 'Qualidade da resposta: degradada';
+
+  @override
+  String get llmQualityGood => 'Qualidade da resposta: boa';
+
+  @override
+  String get loadingGeneric => 'A carregar…';
+
+  @override
+  String get lppChecklistAlertTransfert6mMsg =>
+      'Após deixar a Suíça, tem 6 meses para transferir o saldo ou abrir uma conta de livre passage.';
+
+  @override
+  String get lppChecklistAlertTransfert6mTitle =>
+      'Transferência a efetuar em 6 meses';
+
+  @override
+  String get lppChecklistAlertTransfertMsg =>
+      'O saldo deve ser transferido em 30 dias. Contacte o seu antigo fundo de pensões rapidamente.';
+
+  @override
+  String get lppChecklistAlertTransfertTitle =>
+      'Prazo de transferência próximo';
+
+  @override
+  String get lppChecklistDescAnnoncerDepart =>
+      'Informe o seu fundo nos 30 dias seguintes à saída.';
+
+  @override
+  String get lppChecklistDescAvoirs =>
+      'Utilize a Central do 2º Pilar (sfbvg.ch) para procurar eventuais saldos de livre passage esquecidos.';
+
+  @override
+  String get lppChecklistDescChoisirLP =>
+      'A conta bancária oferece mais flexibilidade. A apólice de seguro pode incluir cobertura de risco.';
+
+  @override
+  String get lppChecklistDescChomage =>
+      'Em caso de desemprego, a previdência profissional continua através da instituição supletiva (Fundação LPP).';
+
+  @override
+  String get lppChecklistDescCouverture =>
+      'Durante o período de livre passage, a cobertura em caso de morte e invalidez pode ser reduzida. Verifique os seus contratos.';
+
+  @override
+  String get lppChecklistDescDecompte =>
+      'Solicite um extrato detalhado ao fundo de pensões com a repartição obrigatória/suplementar.';
+
+  @override
+  String get lppChecklistDescOuvrirLP =>
+      'Sem novo empregador, o saldo deve ser depositado em uma ou duas contas de livre passage (máx. 2 por lei).';
+
+  @override
+  String get lppChecklistDescTransfert30j =>
+      'O saldo deve ser transferido para o novo fundo de pensões. Fornecer os dados do novo fundo ao anterior.';
+
+  @override
+  String get lppChecklistDescVerifierDestination =>
+      'UE/EFTA: apenas a parte suplementar pode ser levantada em dinheiro. A parte obrigatória permanece na Suíça. Fora da UE/EFTA: levantamento total possível.';
+
+  @override
+  String get lppChecklistTitleAnnoncerDepart =>
+      'Notificar o fundo de pensões da saída';
+
+  @override
+  String get lppChecklistTitleAvoirs => 'Procurar saldos esquecidos';
+
+  @override
+  String get lppChecklistTitleChoisirLP =>
+      'Escolher entre conta bancária e apólice de livre passage';
+
+  @override
+  String get lppChecklistTitleChomage => 'Verificar os direitos ao desemprego';
+
+  @override
+  String get lppChecklistTitleCouverture =>
+      'Verificar a cobertura de risco transitória';
+
+  @override
+  String get lppChecklistTitleDecompte => 'Solicitar extrato de saída';
+
+  @override
+  String get lppChecklistTitleOuvrirLP => 'Abrir uma conta de livre passage';
+
+  @override
+  String get lppChecklistTitleTransfert30j => 'Transferir o saldo em 30 dias';
+
+  @override
+  String get lppChecklistTitleVerifierDestination =>
+      'Verificar as regras de levantamento consoante o país de destino';
+
+  @override
+  String get lppEplDisclaimer =>
+      'Simulação educativa de caráter indicativo. O valor exato levanável depende do regulamento do seu fundo de pensões e do saldo aos 50 anos. O imposto varia consoante o cantão e a situação pessoal. Base legal: art. 30c LPP, OEPL. Consulte o seu fundo de pensões e um especialista antes de qualquer decisão.';
+
+  @override
+  String get lppLibrePassageDisclaimer =>
+      'Esta informação é educativa e não constitui aconselhamento jurídico ou financeiro personalizado. As regras dependem do seu fundo de pensões e situação. Base legal: LFLP, OLP. Consulte um especialista em previdência profissional.';
+
+  @override
+  String get lppRachatDisclaimerEchelonne =>
+      'Simulação educativa baseada em taxas fiscais cantonais estimadas. O resgate LPP está sujeito à aprovação do fundo de pensões. A dedução anual está limitada ao rendimento tributável. Bloqueio EPL de 3 anos após cada resgate (LPP art. 79b al. 3). Consulte o seu fundo de pensões e um especialista antes de qualquer decisão.';
+
+  @override
+  String memoryRefGoal(String goal) {
+    return 'Tinhas definido o objetivo: $goal. Fazemos o ponto da situação?';
+  }
+
+  @override
+  String get memoryRefRecentInsights => 'O que recordo das nossas conversás:';
+
+  @override
+  String memoryRefScreenVisit(String screen) {
+    return 'Da última vez, utilizaste $screen.';
+  }
+
+  @override
+  String memoryRefTopic(int days, String topic) {
+    return 'Há $days dias, falaste-me de $topic.';
+  }
+
+  @override
+  String get milestoneActionActeurDesc =>
+      '5 ações financeiras realizadas. Passas da reflexão à ação.';
+
+  @override
+  String get milestoneActionActeurTitle => 'Ator';
+
+  @override
+  String get milestoneActionArchitecteDesc =>
+      '100 ações. És o arquiteto da tua liberdade financeira.';
+
+  @override
+  String get milestoneActionArchitecteTitle => 'Arquiteto';
+
+  @override
+  String get milestoneActionBatisseurDesc =>
+      '50 ações financeiras. Constróis pacientemente uma base sólida.';
+
+  @override
+  String get milestoneActionBatisseurTitle => 'Construtor';
+
+  @override
+  String get milestoneActionMaitreDestinDesc =>
+      '20 ações concretas. Geres ativamente a tua situação financeira.';
+
+  @override
+  String get milestoneActionMaitreDestinTitle => 'Dono do teu destino';
+
+  @override
+  String get milestoneActionPremierPasDesc =>
+      'Realizaste a tua primeira ação financeira concreta. Cada grande mudança começa por um primeiro passo.';
+
+  @override
+  String get milestoneActionPremierPasTitle => 'Primeiro passo';
+
+  @override
+  String get milestoneConsistencyChallengesDesc =>
+      'Completaste 6 desafios mensais. Seis meses de compromisso financeiro concreto.';
+
+  @override
+  String get milestoneConsistencyChallengesTitle => '6 desafios concluídos';
+
+  @override
+  String get milestoneConsistencyConfianceDesc =>
+      'O teu perfil atingiu um nível de confiança de 70 %. Os teus dados permitem cálculos fiáveis.';
+
+  @override
+  String get milestoneConsistencyConfianceTitle => 'Perfil de confiança';
+
+  @override
+  String get milestoneConsistencyFlammeEtermelleDesc =>
+      '12 semanas consecutivas. A tua constância tornou-se um hábito.';
+
+  @override
+  String get milestoneConsistencyFlammeEtermelleTitle => 'Chama eterna';
+
+  @override
+  String get milestoneConsistencyFlammeNaissanteDesc =>
+      '2 semanas consecutivas. A tua regularidade está a tomar forma.';
+
+  @override
+  String get milestoneConsistencyFlammeNaissanteTitle => 'Chama nascente';
+
+  @override
+  String get milestoneConsistencyFlammeViveDesc =>
+      '4 semanas sem interrupção. A tua disciplina financeira está em marcha.';
+
+  @override
+  String get milestoneConsistencyFlammeViveTitle => 'Chama viva';
+
+  @override
+  String get milestoneContinueBtn => 'Continuar';
+
+  @override
+  String get milestoneEngagementCitoyenDesc =>
+      '90 dias: fazes parte das pessoas que tomam o seu futuro financeiro nas próprias mãos.';
+
+  @override
+  String get milestoneEngagementCitoyenTitle => 'Cidadão MINT';
+
+  @override
+  String get milestoneEngagementFideleDesc =>
+      '180 dias de acompanhamento financeiro. A tua regularidade constrói uma visão clara da tua situação.';
+
+  @override
+  String get milestoneEngagementFideleTitle => 'Fiel 6 meses';
+
+  @override
+  String get milestoneEngagementFirstWeekDesc =>
+      'Usas o MINT há 7 dias. Construir hábitos começa aqui.';
+
+  @override
+  String get milestoneEngagementFirstWeekTitle => 'Primeira semana';
+
+  @override
+  String get milestoneEngagementOneMonthDesc =>
+      '30 dias com MINT. A tua curiosidade financeira está presente.';
+
+  @override
+  String get milestoneEngagementOneMonthTitle => 'Um mês fiel';
+
+  @override
+  String get milestoneEngagementVeteranDesc =>
+      '365 dias com MINT. Um ano completo de consciência financeira.';
+
+  @override
+  String get milestoneEngagementVeteranTitle => 'Veterano MINT';
+
+  @override
+  String get milestoneKnowledgeCurieuxDesc =>
+      'Exploraste 5 conceitos financeiros. O conhecimento é o ponto de partida de cada decisão informada.';
+
+  @override
+  String get milestoneKnowledgeCurieuxTitle => 'Curioso';
+
+  @override
+  String get milestoneKnowledgeEclaireDesc =>
+      '20 conceitos lidos. Estás a construir uma sólida compreensão do sistema financeiro suíço.';
+
+  @override
+  String get milestoneKnowledgeEclaireTitle => 'Informado';
+
+  @override
+  String get milestoneKnowledgeExpertDesc =>
+      '50 conceitos explorados. Dominas os fundamentos da previdência suíça.';
+
+  @override
+  String get milestoneKnowledgeExpertTitle => 'Especialista';
+
+  @override
+  String get milestoneKnowledgeMaitreDesc =>
+      '200 conceitos lidos. A tua cultura financeira é um ativo concreto para as tuas decisões de vida.';
+
+  @override
+  String get milestoneKnowledgeMaitreTitle => 'Mestre';
+
+  @override
+  String get milestoneKnowledgeStrategisteDesc =>
+      '100 conceitos. Tens uma visão estratégica a longo prazo das tuas finanças.';
+
+  @override
+  String get milestoneKnowledgeStrategisteTitle => 'Estratega';
+
+  @override
+  String get monteCarloDisclaimer =>
+      'Os rendimentos passados não são indicadores de rendimentos futuros. Simulação educativa (LSFin).';
+
+  @override
+  String get monteCarloHeroPhrase =>
+      'de probabilidade de que o teu capital dure até aos 90 anos';
+
+  @override
+  String get monteCarloLegendCurrentIncome => 'O que ganhas hoje';
+
+  @override
+  String get monteCarloLegendMedian => 'Cenário central';
+
+  @override
+  String get monteCarloLegendProbableBand => 'Faixa provável';
+
+  @override
+  String get monteCarloLegendWideBand => 'Faixa ampla';
+
+  @override
+  String monteCarloMedianAtAge(int age) {
+    return 'Cenário central aos $age anos';
+  }
+
+  @override
+  String get monteCarloProbableRange => 'Faixa provável';
+
+  @override
+  String monteCarloSubtitle(int count) {
+    return '$count cenários simulados';
+  }
+
+  @override
+  String get monteCarloSuccessLabel =>
+      'Probabilidade de que o teu\ncapital dure até aos 90 anos';
+
+  @override
+  String get monteCarloTitle => 'As tuas chances de viver confortavelmente';
+
+  @override
+  String get mortgageJourneyComplete => '✅ Percurso completo!';
+
+  @override
+  String get mortgageJourneyDisclaimer =>
+      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Consulta um especialista hipotecário antes de qualquer decisão. Fontes: FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.';
+
+  @override
+  String get mortgageJourneyNextStep => 'Próximo passo';
+
+  @override
+  String get mortgageJourneyPrevious => 'Anterior';
+
+  @override
+  String mortgageJourneyStepLabel(int number, String title) {
+    return 'Passo $number · $title';
+  }
+
+  @override
+  String get mortgageJourneySubtitle =>
+      '7 passos de «posso comprar?» a «assinei!»';
+
+  @override
+  String get mortgageJourneyTitle => 'Percurso compra imobiliária';
+
+  @override
+  String get mortgageStep1Action =>
+      'Calcula a tua capacidade com o simulador MINT';
+
+  @override
+  String get mortgageStep1Subtitle =>
+      'Regra dos terços: os encargos (juros teóricos a 5% + amortização 1% + manutenção 1%) não devem exceder 1/3 do rendimento bruto.';
+
+  @override
+  String get mortgageStep1Title => 'Posso comprar?';
+
+  @override
+  String get mortgageStep2Action => 'Verifica o teu saldo 3a e LPP no MINT';
+
+  @override
+  String get mortgageStep2Subtitle =>
+      'Precisas de 20% do preço como fundos próprios. Fontes: poupanças, 3a, EPL (2.º pilar, máx. 10% do preço). Atenção: o EPL bloqueia a recompra LPP durante 3 anos.';
+
+  @override
+  String get mortgageStep2Title => 'De onde vêm os meus fundos próprios?';
+
+  @override
+  String get mortgageStep3Action => 'Compara ofertas de pelo menos 3 bancos';
+
+  @override
+  String get mortgageStep3Subtitle =>
+      'Hipoteca fixa: segurança, taxa fixa por 2-15 anos. SARON (variável): taxa mais baixa mas risco de aumento. Mix possível. Taxa atual ≠ taxa teórica de 5%.';
+
+  @override
+  String get mortgageStep3Title => 'Que tipo de hipoteca?';
+
+  @override
+  String get mortgageStep4Action =>
+      'Consulta um especialista fiscal para o teu cantão';
+
+  @override
+  String get mortgageStep4Subtitle =>
+      'Direta: reembolsas o banco cada ano (dívida diminui, dedução fiscal diminui). Indireta: pagas no teu 3a, depois reembolsas em bloco. Vantagem fiscal da indireta.';
+
+  @override
+  String get mortgageStep4Title => 'Amortização direta ou indireta?';
+
+  @override
+  String get mortgageStep5Action =>
+      'Estima o teu imposto sobre o valor locativo no MINT';
+
+  @override
+  String get mortgageStep5Subtitle =>
+      'Se ocupas a tua propriedade, pagas imposto sobre o valor locativo (renda fictícia). Em contrapartida, podes deduzir os juros hipotecários e os custos de manutenção.';
+
+  @override
+  String get mortgageStep5Title => 'E o valor locativo?';
+
+  @override
+  String get mortgageStep6Action => 'Lança o Balanço de comparação no MINT';
+
+  @override
+  String get mortgageStep6Subtitle =>
+      'Uma decisão tanto pessoal como financeira. Fatores: duração de residência prevista, estabilidade profissional, flexibilidade desejada. Break-even típico: 7-12 anos.';
+
+  @override
+  String get mortgageStep6Title => 'No final: alugar ou comprar?';
+
+  @override
+  String get mortgageStep7Action => 'Descarrega a checklist de compra MINT';
+
+  @override
+  String get mortgageStep7Subtitle =>
+      'Antes de assinar: verificar o regulamento de compropriedade, a avaliação do edifício, as obras planeadas, o fundo de renovação. Fazer rever a escritura de venda.';
+
+  @override
+  String get mortgageStep7Title => 'O meu plano de ação';
+
+  @override
+  String get narrativeAmortizationBadge => 'Amortização';
+
+  @override
+  String get narrativeAmortizationBody =>
+      'A amortização direta reduz a tua dívida todos os anos. A indireta deposita num 3a, dedutível fiscalmente (OPP3). Dependendo da tua taxa marginal, a indireta pode custar-te menos no total.';
+
+  @override
+  String get narrativeAmortizationHeadline => 'Direto ou indireto?';
+
+  @override
+  String get narrativeBirthBadge => 'Nascimento';
+
+  @override
+  String get narrativeBirthBody =>
+      'A licença de maternidade (LAPG art. 16b–d) cobre 14 semanas a 80 % do salário. Os abonos de família variam por cantão (LAFam art. 3). Este simulador estima o impacto global no teu orçamento.';
+
+  @override
+  String get narrativeBirthHeadline => 'Custos e apoios ao nascimento';
+
+  @override
+  String get narrativeCoverageBadge => 'Seguros';
+
+  @override
+  String get narrativeCoverageBody =>
+      'LAMal, IJM, RC privada, seguro do lar… Cada seguro cobre um risco diferente. Este balanço identifica as lacunas conforme a tua situação e o teu cantão.';
+
+  @override
+  String get narrativeCoverageHeadline => 'Verifica a tua cobertura';
+
+  @override
+  String get narrativeDisabilityBadge => 'Invalidez';
+
+  @override
+  String get narrativeDisabilityBody =>
+      'Em caso de invalidez, o teu rendimento passa por 3 fases: empregador (CO art. 324a), IJM, depois AI + LPP (LAI art. 28, LPP art. 23-26). A queda pode atingir 40-60 % do teu salário atual.';
+
+  @override
+  String get narrativeDisabilityHeadline =>
+      'Compreende a tua lacuna de invalidez';
+
+  @override
+  String get narrativeEplBadge => '2º pilar — EPL';
+
+  @override
+  String get narrativeEplBody =>
+      'O art. 30c LPP permite retirar o 2º pilar para financiar habitação própria. Atenção: se fez recompras, aplica-se um bloqueio de 3 anos (LPP art. 79b par. 3).';
+
+  @override
+  String get narrativeEplHeadline =>
+      'Levantamento EPL: vantagens e bloqueio de 3 anos';
+
+  @override
+  String get narrativeFirstJobBadge => 'Primeiro emprego';
+
+  @override
+  String get narrativeFirstJobBody =>
+      'Entre AVS (LAVS art. 5), LPP (art. 16), imposto na fonte e LAMal, o teu líquido representa cerca de 75-80 % do bruto. Compreender estas deduções é o primeiro passo para uma boa gestão.';
+
+  @override
+  String get narrativeFirstJobHeadline => 'O teu primeiro salário explicado';
+
+  @override
+  String get narrativeLibrePassageBadge => 'Livre passagem';
+
+  @override
+  String get narrativeLibrePassageBody =>
+      'Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.';
+
+  @override
+  String get narrativeLibrePassageHeadline =>
+      'Livre passagem: 6 meses para agir';
+
+  @override
+  String get narrativeMarriageBadge => 'Casamento';
+
+  @override
+  String get narrativeMarriageBody =>
+      'O casamento modifica a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Dependendo dos vossos rendimentos respetivos, o impacto fiscal pode ser positivo ou negativo.';
+
+  @override
+  String get narrativeMarriageHeadline => 'Impacto financeiro do casamento';
+
+  @override
+  String get narrativeRachatBadge => '2º pilar';
+
+  @override
+  String get narrativeRachatBody =>
+      'Distribuir uma recompra LPP por vários anos permite deduzir cada parcela do rendimento tributável (LPP art. 79b). A progressividade fiscal torna esta estratégia frequentemente mais vantajosa do que um pagamento único.';
+
+  @override
+  String get narrativeRachatHeadline => 'Escalonar para poupar';
+
+  @override
+  String get narrativeRealReturnBadge => '3º pilar';
+
+  @override
+  String get narrativeRealReturnBody =>
+      'O rendimento apresentado não diz tudo. Após comissões de gestão e inflação, o ganho real pode diferir. A poupança fiscal do 3a (LIFD art. 33) melhora consideravelmente o rendimento efetivo.';
+
+  @override
+  String get narrativeRealReturnHeadline => 'Rendimento real após inflação';
+
+  @override
+  String get narrativeRetroactive3aBadge => '3º pilar';
+
+  @override
+  String get narrativeRetroactive3aBody =>
+      'A partir de 2026, a OPP3 art. 7 permite pagar retroativamente os anos de contribuição 3a em falta. Cada pagamento é dedutível do rendimento tributável (LIFD art. 33).';
+
+  @override
+  String get narrativeRetroactive3aHeadline => 'Recuperar até 10 anos de 3a';
+
+  @override
+  String get narrativeSaronBadge => 'Hipoteca';
+
+  @override
+  String get narrativeSaronBody =>
+      'O SARON segue o mercado monetário e pode mudar a cada trimestre. Uma taxa fixa bloqueia os teus juros durante todo o prazo. Dependendo da tua tolerância ao risco, a diferença pode jogar a teu favor… ou não.';
+
+  @override
+  String get narrativeSaronHeadline => 'SARON ou taxa fixa?';
+
+  @override
+  String get narrativeUnemploymentBadge => 'Desemprego';
+
+  @override
+  String get narrativeUnemploymentBody =>
+      'A LACI prevê uma indemnização de 70-80 % do ganho segurado (art. 22). A duração depende dos teus meses de contribuição e da tua idade (art. 27). Este simulador estima os teus direitos com base na tua situação atual.';
+
+  @override
+  String get narrativeUnemploymentHeadline => 'Os teus direitos de desemprego';
+
+  @override
+  String get nationalityAutre => 'Outro';
+
+  @override
+  String get nationalityEuAele => 'UE/EFTA';
+
+  @override
+  String get nationalitySuisse => 'Suíça';
+
+  @override
+  String get notifChannelDescription =>
+      'Lembretes de check-in, prazos 3a e notificações de coaching';
+
+  @override
+  String get notifCheckInBody => 'O teu check-in mensal está disponível.';
+
+  @override
+  String get notifCheckInTitle => 'Check-in mensal';
+
+  @override
+  String get notifCheckinBody =>
+      'Confirma as tuas contribuições do mês em 2 min';
+
+  @override
+  String get notifCheckinTitle => 'Check-in mensal';
+
+  @override
+  String get notifDeadline3aBody16Days =>
+      'Restam 16 dias para contribuir para o teu 3a';
+
+  @override
+  String notifDeadline3aBody3Months(String remaining) {
+    return 'Restam 3 meses para contribuir para o teu 3a (CHF $remaining de margem)';
+  }
+
+  @override
+  String notifDeadline3aBody46Days(String remaining) {
+    return 'Restam 46 dias para maximizar o teu 3a (CHF $remaining de margem)';
+  }
+
+  @override
+  String get notifDeadline3aBodyLastDays =>
+      'Últimos dias! Contribui para o teu 3a antes de 31 de dezembro';
+
+  @override
+  String get notifDeadline3aTitle => 'Prazo 3a';
+
+  @override
+  String notifFriCheckIn(String delta) {
+    return 'Desde o teu último check-in: $delta pontos.';
+  }
+
+  @override
+  String notifFriImproved(String delta) {
+    return 'A tua solidez melhorou $delta pontos.';
+  }
+
+  @override
+  String get notifFriTitle => 'Pontuação de solidez';
+
+  @override
+  String notifNewYearBody(String year) {
+    return 'Novos limites $year. A tua poupança potencial mudou.';
+  }
+
+  @override
+  String notifNewYearTitle(String year) {
+    return 'Novos limites $year';
+  }
+
+  @override
+  String notifOffTrackBody(String adherence, String total, String impact) {
+    return 'Adesão a $adherence% em $total ações. Estimativa linear (sem rendimento/impostos): ~CHF $impact.';
+  }
+
+  @override
+  String get notifOffTrackTitle => 'Estás a afastar-te do teu plano';
+
+  @override
+  String get notifProfileUpdatedBody =>
+      'O teu perfil foi atualizado. Novas projeções disponíveis.';
+
+  @override
+  String get notifProfileUpdatedTitle => 'Perfil atualizado';
+
+  @override
+  String notifStreakProtectionBody(String streak) {
+    return 'Estás com $streak meses consecutivos — não quebres a tua série!';
+  }
+
+  @override
+  String get notifStreakProtectionTitle => 'Protege a tua série';
+
+  @override
+  String get notifTax16Days =>
+      'Declaração fiscal em 16 dias. Começa a preenchê-la.';
+
+  @override
+  String get notifTax44Days =>
+      'Declaração fiscal em 44 dias. Começa a reunir os teus documentos.';
+
+  @override
+  String get notifTaxDeadlineBody16Days =>
+      'Declaração fiscal em 16 dias — começa a preenchê-la';
+
+  @override
+  String get notifTaxDeadlineBody44Days =>
+      'Declaração fiscal em 44 dias — reúne os teus documentos';
+
+  @override
+  String get notifTaxDeadlineBodyLastWeek =>
+      'Declaração fiscal até 31 de março — última semana!';
+
+  @override
+  String get notifTaxDeadlineTitle => 'Declaração fiscal';
+
+  @override
+  String get notifTaxLastWeek =>
+      'Declaração antes de 31 de março. Última semana.';
+
+  @override
+  String get notifTaxTitle => 'Declaração fiscal';
+
+  @override
+  String get notifThreeA11Days => '11 dias. Último lembrete 3a.';
+
+  @override
+  String notifThreeA61Days(String saving) {
+    return 'Restam 61 dias. Poupança estimada: CHF $saving.';
+  }
+
+  @override
+  String get notifThreeA92Days => 'Restam 92 dias para depositar no teu 3a.';
+
+  @override
+  String notifThreeALastMonth(String saving) {
+    return 'Último mês para o teu 3a. CHF $saving de poupança em jogo.';
+  }
+
+  @override
+  String get notifThreeATitle => 'Prazo 3a';
+
+  @override
+  String get notifWeeklyRecapBody =>
+      'Orçamento, progresso, próximo passo — tudo pronto.';
+
+  @override
+  String get notifWeeklyRecapTitle => 'O teu resumo semanal';
+
+  @override
+  String nudge3aDeadlineBody(String days, String limit, String year) {
+    return 'Faltam $days dia(s) para contribuir até $limit CHF e reduzir os teus impostos de $year.';
+  }
+
+  @override
+  String get nudge3aDeadlineTitle => 'Última linha reta para o teu 3a';
+
+  @override
+  String get nudgeAnniversaryBody =>
+      'Usas o MINT há um ano. É o momento ideal para atualizar o teu perfil e medir o teu progresso.';
+
+  @override
+  String get nudgeBirthdayBody =>
+      'Um marco que pode marcar a tua planificação previdenciária. Simulaste o impacto deste ano?';
+
+  @override
+  String get nudgeBirthdayDashboardAction => 'Ver o meu painel';
+
+  @override
+  String get nudgeFhsDroppedAction => 'Perceber a descida';
+
+  @override
+  String get nudgeFhsDroppedTitle => 'A tua pontuação de saúde desceu';
+
+  @override
+  String get nudgeGoalApproachingAction => 'Falar com o coach';
+
+  @override
+  String get nudgeGoalApproachingTitle => 'O teu objetivo está a aproximar-se';
+
+  @override
+  String nudgeGoalProgressBody(String progress) {
+    return 'Atingiste $progress % do teu objetivo. Continua assim !';
+  }
+
+  @override
+  String get nudgeGoalProgressTitle => 'O teu objetivo está a avançar !';
+
+  @override
+  String get nudgeInactiveBody =>
+      'A tua situação financeira evolui todas as semanas. Dedica 2 minutos a verificar o teu painel.';
+
+  @override
+  String get nudgeInactiveTitle => 'Já passou algum tempo !';
+
+  @override
+  String get nudgeLppBonifAction => 'Explorar o resgate';
+
+  @override
+  String get nudgeLppBonifChangeTitle => 'Mudança de escalão LPP';
+
+  @override
+  String get nudgeLppBonifStartTitle => 'Início das contribuições LPP';
+
+  @override
+  String nudgeLppBuybackBody(String year) {
+    return 'O final de $year aproxima-se: última oportunidade para uma recompra LPP dedutível.';
+  }
+
+  @override
+  String get nudgeLppBuybackTitle => 'Janela de recompra LPP';
+
+  @override
+  String nudgeNewYearBody(String year) {
+    return '$year: abre-se um novo envelope do pilar 3a. Bom momento para planear as tuas contribuições.';
+  }
+
+  @override
+  String get nudgeNewYearTitle => 'Novo ano, novo começo !';
+
+  @override
+  String get nudgeProfileBody =>
+      'Quanto mais completo for o teu perfil, mais relevantes são as análises do MINT. Bastam poucos dados.';
+
+  @override
+  String get nudgeProfileTitle => 'O teu perfil merece ser enriquecido';
+
+  @override
+  String get nudgeSalaryBody =>
+      'Pensaste na tua transferência para o pilar 3a este mês? Cada mês conta para a tua previdência.';
+
+  @override
+  String get nudgeSalaryDayAction => 'Ver o meu 3a';
+
+  @override
+  String get nudgeSalaryDayMessage =>
+      'Pensaste na tua transferência 3a este mês? Cada mês conta para a tua previdência.';
+
+  @override
+  String get nudgeSalaryDayTitle => 'Dia de pagamento!';
+
+  @override
+  String get nudgeStreakRiskAction => 'Continuar a minha série';
+
+  @override
+  String get nudgeStreakRiskTitle => 'A tua série está em perigo!';
+
+  @override
+  String get nudgeTaxDeadlineAction => 'Simular os meus impostos';
+
+  @override
+  String get nudgeTaxDeadlineBody =>
+      'Verifica o prazo de entrega da declaração fiscal no teu cantão. Reviste as deduções do 3a e da LPP?';
+
+  @override
+  String get nudgeTaxDeadlineMessage =>
+      'Verifica o prazo da declaração fiscal no teu cantão. Verificaste as tuas deduções 3a e LPP?';
+
+  @override
+  String get nudgeTaxDeadlineTitle => 'Declaração fiscal';
+
+  @override
+  String get nudgeThreeADeadlineAction => 'Calcular a minha poupança';
+
+  @override
+  String get nudgeThreeADeadlineMessageLastDay =>
+      'Hoje é o último dia para contribuir para o teu 3a!';
+
+  @override
+  String get nudgeThreeADeadlineTitle => 'Última reta para o teu 3a';
+
+  @override
+  String get nudgeWeeklyCheckInAction => 'Ver o meu Pulse';
+
+  @override
+  String get nudgeWeeklyCheckInMessage =>
+      'A tua situação financeira evolui a cada semana. Dedica 2 minutos para verificar o teu painel.';
+
+  @override
+  String get nudgeWeeklyCheckInTitle => 'Já passou algum tempo!';
+
+  @override
+  String get onboardingAgeInvalid => 'A idade deve estar entre 18 e 75';
+
+  @override
+  String get onboardingCalculationError =>
+      'Erro de cálculo. Verifica os teus dados e tenta novamente.';
+
+  @override
+  String get onboardingConsentAccept => 'Aceitar';
+
+  @override
+  String get onboardingConsentDecline => 'Recusar';
+
+  @override
+  String get onboardingIjmWarningBody =>
+      'Como trabalhador independente, não tens subsídio diário de doença (IJM) por defeito. Sem cobertura, uma doença poderia interromper os teus rendimentos sem compensação. Tens também 6 meses para te inscreveres voluntariamente num fundo de pensões (LPP art. 4).';
+
+  @override
+  String get onboardingIjmWarningTitle => 'Proteção doença: a verificar';
+
+  @override
+  String get onboardingPermitB => 'Autorização B (residência)';
+
+  @override
+  String get onboardingPermitC => 'Autorização C (estabelecimento)';
+
+  @override
+  String get onboardingPermitG => 'Autorização G (fronteiriço)';
+
+  @override
+  String get onboardingPermitL => 'Autorização L (curta duração)';
+
+  @override
+  String get onboardingPermitOther => 'Outro';
+
+  @override
+  String get onboardingPermitTypeLabel => 'O teu tipo de autorização';
+
+  @override
+  String get onboardingProfileCreated =>
+      'Perfil criado! Podes começar a explorar MINT.';
+
+  @override
+  String get onboardingRetirementAgeWarning =>
+      'Reforma antes dos 55? Verifica a tua idade ou situação profissional.';
+
+  @override
+  String get onboardingSmartAgeDirectInput => 'Entrada direta';
+
+  @override
+  String get onboardingSmartAgeLabel => 'A tua idade';
+
+  @override
+  String get onboardingSmartAgePickerHint => 'Escolhe a tua idade';
+
+  @override
+  String get onboardingSmartCantonLabel => 'O teu cantão';
+
+  @override
+  String get onboardingSmartCantonNotFound => 'Nenhum cantão encontrado';
+
+  @override
+  String get onboardingSmartCantonSearch => 'Pesquisar (ex. VD, Vaud)';
+
+  @override
+  String get onboardingSmartCantonTitle => 'Escolhe o teu cantão';
+
+  @override
+  String get onboardingSmartCountryOrigin => 'O teu país de origem';
+
+  @override
+  String get onboardingSmartDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin). As estimativas baseiam-se nas tabelas de 2025 e podem variar.';
+
+  @override
+  String get onboardingSmartEmploymentLabel => 'A tua situação profissional';
+
+  @override
+  String get onboardingSmartFirstNameHint => 'O teu nome (opcional)';
+
+  @override
+  String get onboardingSmartFirstNameLabel => 'Como te chamas?';
+
+  @override
+  String get onboardingSmartNationalityLabel => 'A tua nacionalidade';
+
+  @override
+  String get onboardingSmartSalaryLabel => 'O teu salário bruto anual';
+
+  @override
+  String get onboardingSmartSalaryPerYear => 'CHF/ano';
+
+  @override
+  String get onboardingSmartSeeResult => 'Ver o meu resultado';
+
+  @override
+  String get onboardingSmartSubtitle =>
+      'Algumas informações bastam para uma primeira visão personalizada.';
+
+  @override
+  String get onboardingSmartTitle =>
+      'Descobre a tua situação de reforma em 30 segundos';
+
+  @override
+  String opener3aDeadline(String days, String plafond) {
+    return 'Restam $days dias para depositar até $plafond CHF no teu 3a.';
+  }
+
+  @override
+  String openerBudgetDeficit(String deficit) {
+    return 'CHF $deficit/mês de défice. Vemos onde está a apertar?';
+  }
+
+  @override
+  String openerGapWarning(String rate, String gap) {
+    return 'A tua taxa de substituição: $rate %. Na reforma, faltar-te-iam CHF $gap/mês.';
+  }
+
+  @override
+  String openerPlanProgress(String n, String total, String next) {
+    return 'Etapa $n/$total concluída. Próxima: $next.';
+  }
+
+  @override
+  String openerProgressCelebration(String delta) {
+    return 'A tua fiabilidade ganhou $delta pontos. Os teus números são mais precisos.';
+  }
+
+  @override
+  String openerSavingsOpportunity(String plafond) {
+    return 'O teu 3a: CHF 0 este ano. $plafond CHF de poupança fiscal em jogo.';
+  }
+
+  @override
+  String paywallChooseTier(String tier) {
+    return 'Escolher $tier';
+  }
+
+  @override
+  String get paywallClose => 'Fechar';
+
+  @override
+  String get paywallDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro. LSFin. Podes cancelar a qualquer momento nas definições da tua conta.';
+
+  @override
+  String get paywallFeatureTop => 'Top';
+
+  @override
+  String get paywallPricePerMonth => '/mês';
+
+  @override
+  String get paywallRestoreButton => 'Restaurar uma compra';
+
+  @override
+  String get paywallRestoreNoPurchase => 'Nenhuma compra anterior encontrada.';
+
+  @override
+  String get paywallRestoreSuccess => 'Subscrição restaurada com sucesso!';
+
+  @override
+  String paywallSelectTier(String name) {
+    return 'Selecionar $name';
+  }
+
+  @override
+  String get paywallStartTrial => 'Iniciar teste gratuito';
+
+  @override
+  String paywallSubscriptionActivated(String tier) {
+    return 'Subscrição $tier ativada com sucesso.';
+  }
+
+  @override
+  String get paywallSubtitle => 'O teu coach financeiro pessoal';
+
+  @override
+  String get paywallTitle => 'Desbloqueia o MINT Coach';
+
+  @override
+  String get paywallTrialActivated =>
+      'Teste gratuito ativado! Aproveita o MINT Coach durante 14 dias.';
+
+  @override
+  String get paywallTrialBadge => 'Teste gratuito 14 dias';
+
+  @override
+  String get pensionFundAvailable => 'Disponível';
+
+  @override
+  String get pensionFundAvailableTitle => 'Caixas disponíveis';
+
+  @override
+  String get pensionFundConnectButton => 'Ligar';
+
+  @override
+  String get pensionFundConnectComingSoon =>
+      'Disponível em breve — a aguardar acordos-piloto';
+
+  @override
+  String pensionFundConnectedStatus(String name) {
+    return '$name, ligado';
+  }
+
+  @override
+  String get pensionFundConnectionError => 'Ligação indisponível de momento';
+
+  @override
+  String get pensionFundDisclaimer =>
+      'O MINT é uma ferramenta educativa em modo de leitura (LSFin art. 3). Nenhuma transação é efetuada nas tuas contas. Podes desligar-te a qualquer momento.';
+
+  @override
+  String get pensionFundDisconnectBody =>
+      'As tuas projeções voltarão ao modo «estimado» em vez de «certificado».';
+
+  @override
+  String get pensionFundDisconnectButton => 'Desligar';
+
+  @override
+  String get pensionFundDisconnectTitle => 'Desligar a caixa?';
+
+  @override
+  String get pensionFundDisconnectTooltip => 'Desligar';
+
+  @override
+  String pensionFundDisconnectedStatus(String name) {
+    return '$name, não ligado';
+  }
+
+  @override
+  String get pensionFundNarrativeBody =>
+      'Liga a tua caixa de pensões para substituir as estimativas pelos teus dados reais. Apenas leitura — o MINT não altera nada.';
+
+  @override
+  String get pensionFundNarrativeHeadline => 'Importação automática';
+
+  @override
+  String get pensionFundReconnectionNeeded => 'Reconexão necessária';
+
+  @override
+  String pensionFundSyncDate(String date) {
+    return 'Sincro $date';
+  }
+
+  @override
+  String get pensionFundTitle => 'Dados certificados';
+
+  @override
+  String get pillar3aProviderDisclaimer =>
+      'Os rendimentos passados não predizem os futuros. Comissões e rendimentos médios baseiam-se em dados históricos simplificados para fins educativos. A escolha de um prestador 3a depende da situação pessoal, perfil de risco e horizonte de investimento. A MINT não é um intermediário financeiro e não presta aconselhamento de investimento. Consulte um especialista.';
+
+  @override
+  String get pillar3aRealReturnDisclaimer =>
+      'Simulação educativa baseada em pressupostos de rendimento constante. Os rendimentos passados não predizem os futuros. Comissões e rendimentos variam consoante o prestador. A poupança fiscal depende da taxa marginal real. Base legal: OPP3, LIFD art. 33 al. 1 let. e. Consulte um especialista antes de qualquer decisão.';
+
+  @override
+  String get pillar3aStaggeredDisclaimer =>
+      'Simulação educativa de caráter indicativo. O imposto sobre o levantamento de capital depende do cantão, município, situação pessoal e do total levantado no ano fiscal. As taxas utilizadas são médias cantonais simplificadas. Base legal: OPP3, LIFD art. 38. Consulte um especialista antes de qualquer decisão.';
+
+  @override
+  String get portfolioAppBarTitle => 'O meu património';
+
+  @override
+  String get portfolioCompleteProfile =>
+      'Completa o teu perfil para desbloquear o teu índice de preparação.';
+
+  @override
+  String get portfolioLibrePlacement => 'Livre (Conta de investimento)';
+
+  @override
+  String get portfolioLiePilier3a => 'Vinculado (Pilar 3a)';
+
+  @override
+  String get portfolioNoData => 'Nenhum dado patrimonial fornecido.';
+
+  @override
+  String get portfolioRepartitionEnveloppe => 'Distribuição por envelope';
+
+  @override
+  String get portfolioReserveFondsUrgence => 'Reservado (Fundo de emergência)';
+
+  @override
+  String get portfolioSafeModeBody =>
+      'Os conselhos de alocação estão desativados em modo de proteção. A tua prioridade é reduzir as dívidas antes de reequilibrar o patrimônio.';
+
+  @override
+  String get portfolioSafeModeLocked => 'Prioridade ao desendividamento';
+
+  @override
+  String get portfolioValeurTotaleNette => 'Valor total líquido';
+
+  @override
+  String proactiveConfidenceUp(String delta) {
+    return 'A tua confiança melhorou $delta pts desde a última vez.';
+  }
+
+  @override
+  String proactiveContractDeadline(Object days, Object label) {
+    return 'Lembrete: $label vence em $days dias. Planeia com antecedência.';
+  }
+
+  @override
+  String proactiveGoalMilestone(String progress) {
+    return 'O teu objetivo ultrapassou os $progress %. Muito bem !';
+  }
+
+  @override
+  String proactiveInactivityReturn(String days) {
+    return 'Fico feliz em te ver ! Já passaram $days dias. Fazemos o ponto da situação ?';
+  }
+
+  @override
+  String get proactiveLifecycleChange =>
+      'Acabaste de entrar numa nova fase de vida. Vemos o que muda para ti ?';
+
+  @override
+  String get proactiveNewCap => 'Tenho uma nova prioridade para ti.';
+
+  @override
+  String proactiveSeasonalReminder(String event) {
+    return 'É a época de $event. Uma boa altura para…';
+  }
+
+  @override
+  String get proactiveWeeklyRecap =>
+      'O teu resumo semanal está pronto. Queres vê-lo ?';
+
+  @override
+  String projectionUncertaintyBand(String low, String high) {
+    return 'CHF $low — $high / mês';
+  }
+
+  @override
+  String pulseAmountPerMonth(String amount) {
+    return '$amount/mês';
+  }
+
+  @override
+  String get pulseBudgetATitle => 'Hoje';
+
+  @override
+  String get pulseBudgetBTitle => 'Na reforma';
+
+  @override
+  String get pulseBudgetCharges => 'Encargos';
+
+  @override
+  String get pulseBudgetGap => 'Diferença';
+
+  @override
+  String get pulseBudgetLibre => 'Livre';
+
+  @override
+  String get pulseBudgetRetirementNet => 'Líquido reforma';
+
+  @override
+  String get pulseBudgetRevenu => 'Rendimento';
+
+  @override
+  String get pulseCapImpact => 'Alavanca identificada';
+
+  @override
+  String get pulseComprSalaireCta => 'Perceber o meu recibo';
+
+  @override
+  String get pulseComprSalaireDetail =>
+      'AVS, LPP, AC, impostos — descobre para onde vai cada franco.';
+
+  @override
+  String get pulseComprSalaireSubtitle =>
+      'desaparecem do teu salário antes de chegar.';
+
+  @override
+  String get pulseComprSituationCta => 'Ver a minha pontuação';
+
+  @override
+  String get pulseComprSituationDetail =>
+      'Completa o teu perfil para afinar a tua pontuação.';
+
+  @override
+  String get pulseComprSituationSubtitle =>
+      'O que sabes realmente da tua situação ?';
+
+  @override
+  String get pulseComprSituationTitle => 'A tua visibilidade financeira';
+
+  @override
+  String get pulseComprSystemeCta => 'Descobrir';
+
+  @override
+  String get pulseComprSystemeDetail =>
+      'AVS (Estado) + LPP (empregador) + 3a (tu) = a tua reforma.';
+
+  @override
+  String get pulseComprSystemeSubtitle => 'O sistema suíço em 1 minuto.';
+
+  @override
+  String get pulseComprSystemeTitle => '3 pilares';
+
+  @override
+  String get pulseDebtCta => 'Ver o meu plano';
+
+  @override
+  String get pulseDebtSubtitle => 'de dívida a reembolsar.';
+
+  @override
+  String pulseGoalChip(String goal) {
+    return 'Objetivo: $goal';
+  }
+
+  @override
+  String get pulseIndepLppCta => 'Construir a minha rede';
+
+  @override
+  String get pulseIndepLppDetail =>
+      'Sem LPP, a tua reforma = AVS sozinha : ~CHF 1’934/mês.';
+
+  @override
+  String get pulseIndepLppSubtitle => 'Este é o teu 2.º pilar hoje.';
+
+  @override
+  String get pulseIndepLppTitle => 'CHF 0';
+
+  @override
+  String get pulseLabelBudgetFree => 'Orçamento livre este mês';
+
+  @override
+  String get pulseLabelPurchasingCapacity => 'Capacidade de compra estimada';
+
+  @override
+  String get pulseNarrativeBudgetGoal => 'a tua margem mensal livre:';
+
+  @override
+  String get pulseNarrativeHousingGoal =>
+      'a tua capacidade de compra estimada:';
+
+  @override
+  String get pulseNarrativeRetirementGoal => 'a tua taxa de substituição:';
+
+  @override
+  String get pulseNavAchatCapCta => 'Simular a minha compra';
+
+  @override
+  String get pulseNavAchatCapSubtitle => 'O imóvel que podes almejar.';
+
+  @override
+  String get pulseNavAchatCta => 'Simular';
+
+  @override
+  String get pulseNavAchatDetail =>
+      'O teu 3a e LPP = o teu principal adiantamento.';
+
+  @override
+  String get pulseNavAchatSubtitle => 'Calcula a tua capacidade de compra.';
+
+  @override
+  String get pulseNavAchatTitle => 'Comprar um imóvel';
+
+  @override
+  String get pulseNavEvenementCta => 'Explorar';
+
+  @override
+  String get pulseNavEvenementDetail =>
+      'Casamento, nascimento, divórcio, herça, mudança...';
+
+  @override
+  String get pulseNavEvenementSubtitle =>
+      'Cada evento tem um impacto financeiro.';
+
+  @override
+  String get pulseNavEvenementTitle => 'Uma mudança de vida ?';
+
+  @override
+  String get pulseNavExpatCta => 'Descobrir';
+
+  @override
+  String get pulseNavExpatDetail =>
+      'AVS, LPP, 3a — tudo o que conta desde a chegada.';
+
+  @override
+  String get pulseNavExpatGapsCta => 'Analisar as minhas lacunas';
+
+  @override
+  String get pulseNavExpatGapsDetail =>
+      'Cada ano em falta = -2.3 % de renda vitalicia.';
+
+  @override
+  String get pulseNavExpatGapsSubtitle =>
+      'de contribuições em falta no teu AVS.';
+
+  @override
+  String get pulseNavExpatSubtitle =>
+      'Os teus direitos, as tuas lacunas, as armadilhas a evitar.';
+
+  @override
+  String get pulseNavExpatTitle => 'Novo na Suíça ?';
+
+  @override
+  String get pulseNavIndependantCta => 'Verificar a minha cobertura';
+
+  @override
+  String get pulseNavIndependantDetail =>
+      'LPP voluntário, máx. 3a 36’288/ano, IJM obrigatório.';
+
+  @override
+  String get pulseNavIndependantSubtitle => 'Sem empregador, a tua rede = tu.';
+
+  @override
+  String get pulseNavIndependantTitle => 'Autónomo·a ?';
+
+  @override
+  String get pulseOptCapRenteCta => 'Comparar';
+
+  @override
+  String get pulseOptCapRenteDetail =>
+      'Tributado uma vez (capital) vs cada ano (renda).';
+
+  @override
+  String get pulseOptCapRenteSubtitle =>
+      'A diferença pode ultrapassar CHF 200’000.';
+
+  @override
+  String get pulseOptCapRenteTitle => 'Capital ou Renda ?';
+
+  @override
+  String get pulseOptFiscalCta => 'Recuperar';
+
+  @override
+  String get pulseOptFiscalDetail =>
+      '3a + resgate LPP = as tuas alavancas mais poderosas.';
+
+  @override
+  String get pulseOptFiscalSubtitle => 'deixados ao fisco cada ano.';
+
+  @override
+  String get pulseOptPatrimoineCtaLabel => 'Detalhe';
+
+  @override
+  String get pulseOptPatrimoineDetail => 'Poupança + LPP + 3a + investimentos.';
+
+  @override
+  String get pulseOptPatrimoineSubtitle => 'O teu património total.';
+
+  @override
+  String pulsePlanNextStep(String stepName) {
+    return 'Próximo passo: $stepName';
+  }
+
+  @override
+  String pulsePlanProgress(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String get pulsePlanTitle => 'Meu plano';
+
+  @override
+  String get pulseProtFamilleCta => 'Ver a timeline';
+
+  @override
+  String get pulseProtFamilleDetail =>
+      'Antecipa a lacuna quando só um está reformado.';
+
+  @override
+  String get pulseProtFamilleSubtitle => 'A vossa reforma a dois.';
+
+  @override
+  String get pulseProtRetraiteCapRenteCta => 'Comparar';
+
+  @override
+  String get pulseProtRetraiteCapRenteDetail =>
+      'Compara as duas opções com os teus números reais.';
+
+  @override
+  String get pulseProtRetraiteCapRenteSubtitle => 'A escolha que muda tudo.';
+
+  @override
+  String get pulseProtRetraiteCapRenteTitle => 'Capital ou Renda ?';
+
+  @override
+  String get pulseProtRetraiteCta => 'Ver a minha projeção';
+
+  @override
+  String get pulseProtRetraiteDetail => 'Mediana suíça : 60 %. Onde estás ?';
+
+  @override
+  String get pulseProtRetraiteSubtitle => 'conservado na reforma.';
+
+  @override
+  String get pulseProtUrgenceCta => 'Verificar';
+
+  @override
+  String get pulseProtUrgenceDebtCta => 'O meu plano de reembolso';
+
+  @override
+  String get pulseProtUrgenceDebtDetail => 'Começa pela taxa mais alta.';
+
+  @override
+  String get pulseProtUrgenceDebtSubtitle => 'a reembolsar.';
+
+  @override
+  String get pulseProtUrgenceDetail =>
+      'IJM, AI, LPP invalidez — verifica a tua cobertura.';
+
+  @override
+  String get pulseProtUrgenceSubtitle =>
+      'O que acontece se já não puderes trabalhar ?';
+
+  @override
+  String get pulseProtUrgenceTitle => 'A tua rede de segurança';
+
+  @override
+  String get pulseRetirementIncome => 'Rendimento aposentadoria estimado';
+
+  @override
+  String get pulseRetirementIncomeEstimated =>
+      'Aposentadoria estimada (mínimo LPP)';
+
+  @override
+  String get quickStartNoIncome => 'Sem rendimento';
+
+  @override
+  String get rachatEchelonneEyebrow => 'Recompra LPP escalonada';
+
+  @override
+  String get rachatEchelonneNarrativeNoSavings =>
+      'Na tua situação, a recompra em bloco é mais vantajosa.';
+
+  @override
+  String rachatEchelonneNarrativeSavings(int horizon) {
+    return 'Escalonar a recompra em $horizon anos reduz a tua carga fiscal total.';
+  }
+
+  @override
+  String get rachatLppNotApplicableAfterRetirement =>
+      'A recompra LPP já não é aplicável após a reforma. Esta simulação destina-se a trabalhadores ativos que pretendem colmatar uma lacuna de previdência.';
+
+  @override
+  String get ragErrorBadRequest => 'Pedido inválido.';
+
+  @override
+  String get ragErrorImageTooLarge =>
+      'A imagem excede o limite de tamanho de 20 MB.';
+
+  @override
+  String get ragErrorInvalidKey => 'A chave API é inválida ou expirou.';
+
+  @override
+  String get ragErrorRateLimit =>
+      'Limite de pedidos atingido. Tenta novamente dentro de momentos.';
+
+  @override
+  String get ragErrorRateLimitShort => 'Limite de pedidos atingido.';
+
+  @override
+  String get ragErrorServiceUnavailable =>
+      'Serviço temporariamente indisponível. Tenta mais tarde.';
+
+  @override
+  String get ragErrorStatus => 'Impossível verificar o estado do sistema RAG.';
+
+  @override
+  String get ragErrorVisionBadRequest => 'Pedido de visão inválido.';
+
+  @override
+  String get rcAgeLabel => 'A tua idade';
+
+  @override
+  String get rcAllocationAnnuelleSubtitle =>
+      'Onde colocar as poupanças este ano';
+
+  @override
+  String get rcAllocationAnnuelleTitle => 'Alocação anual';
+
+  @override
+  String get rcAmortizationSubtitle => 'Direta vs indireta — impacto fiscal';
+
+  @override
+  String get rcAmortizationTitle => 'Amortização';
+
+  @override
+  String get rcAvsGapCtaLabel => 'Ver o meu extrato AVS';
+
+  @override
+  String get rcAvsGapExplanation =>
+      'Redução estimada da tua pensão AVS anual devido a lacunas';
+
+  @override
+  String rcAvsGapSubtitle(String lacunes) {
+    return '$lacunes anos de contribuição em falta';
+  }
+
+  @override
+  String get rcAvsGapTitle => 'Lacuna AVS';
+
+  @override
+  String get rcBudgetSubtitle => 'Quanto te sobra no fim do mês?';
+
+  @override
+  String get rcBudgetTitle => 'Orçamento';
+
+  @override
+  String get rcCantonLabel => 'O teu cantão';
+
+  @override
+  String get rcCivilStatusLabel => 'O teu estado civil';
+
+  @override
+  String get rcComparator3aSubtitle => 'Comparar os prestadores de 3a';
+
+  @override
+  String get rcComparator3aTitle => 'Comparador 3a';
+
+  @override
+  String get rcCompoundInterestSubtitle =>
+      'Simular o crescimento das poupanças';
+
+  @override
+  String get rcCompoundInterestTitle => 'Juro composto';
+
+  @override
+  String get rcConcubinageSubtitle => 'Direitos, riscos e soluções';
+
+  @override
+  String get rcConcubinageTitle => 'Proteção da união de facto';
+
+  @override
+  String get rcConsumerCreditSubtitle => 'Custo total de um crédito ao consumo';
+
+  @override
+  String get rcConsumerCreditTitle => 'Crédito ao consumo';
+
+  @override
+  String get rcCoupleAlertCtaLabel => 'Enriquecer o perfil do casal';
+
+  @override
+  String rcCoupleAlertExplanation(String gap) {
+    return 'Diferença de $gap pontos entre os dois perfis. Equilibrá-los melhora a projeção do casal.';
+  }
+
+  @override
+  String rcCoupleAlertSubtitle(String name, String score) {
+    return '$name em $score %';
+  }
+
+  @override
+  String get rcCoupleAlertTitle => 'Diferença de visibilidade do casal';
+
+  @override
+  String get rcCoverageCheckSubtitle => 'Verificar as tuas coberturas';
+
+  @override
+  String get rcCoverageCheckTitle => 'Verificação de cobertura';
+
+  @override
+  String get rcCtaDetail => 'Ver detalhes →';
+
+  @override
+  String get rcDebtRatioSubtitle =>
+      'A partir de que limiar as dívidas se tornam perigosas?';
+
+  @override
+  String get rcDebtRatioTitle => 'Rácio de endividamento';
+
+  @override
+  String get rcDisabilitySubtitle =>
+      'Gap entre rendimento atual e rendas AI/LPP';
+
+  @override
+  String get rcDisabilityTitle => 'Invalidez — lacuna de rendimento';
+
+  @override
+  String get rcDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin art. 3).';
+
+  @override
+  String get rcDividendeVsSalaireSubtitle =>
+      'Otimizar a remuneração em SARL/SA';
+
+  @override
+  String get rcDividendeVsSalaireTitle => 'Dividendo vs Salário';
+
+  @override
+  String get rcDivorceSubtitle => 'Divisão LPP, pensão, impostos';
+
+  @override
+  String get rcDivorceTitle => 'Simulador de divórcio';
+
+  @override
+  String get rcDonationSubtitle => 'Impacto fiscal de uma doação';
+
+  @override
+  String get rcDonationTitle => 'Doação';
+
+  @override
+  String get rcEmploymentStatusLabel => 'O teu estatuto profissional';
+
+  @override
+  String get rcEplSubtitle => 'Usar o 2.º pilar para imóveis';
+
+  @override
+  String get rcEplTitle => 'Levantamento EPL';
+
+  @override
+  String get rcExpatriationSubtitle => 'Impacto no AVS, LPP, 3a e impostos';
+
+  @override
+  String get rcExpatriationTitle => 'Expatriação';
+
+  @override
+  String get rcFirstJobSubtitle => 'Compreender tudo desde o início';
+
+  @override
+  String get rcFirstJobTitle => 'Primeiro emprego';
+
+  @override
+  String get rcFiscalComparatorSubtitle =>
+      'Quanto ganharías mudando de cantão?';
+
+  @override
+  String get rcFiscalComparatorTitle => 'Comparador cantonal';
+
+  @override
+  String get rcFrontalierSubtitle => 'Imposto na fonte e particularidades';
+
+  @override
+  String get rcFrontalierTitle => 'Trabalhador fronteiriço';
+
+  @override
+  String get rcGenderGapSubtitle => 'Impacto do part-time na reforma';
+
+  @override
+  String get rcGenderGapTitle => 'Diferença de género';
+
+  @override
+  String get rcHousingSaleSubtitle =>
+      'Imposto sobre ganhos imobiliários + reinvestimento';
+
+  @override
+  String get rcHousingSaleTitle => 'Venda imobiliária';
+
+  @override
+  String get rcImputedRentalSubtitle => 'Compreender a tributação da habitação';
+
+  @override
+  String get rcImputedRentalTitle => 'Valor locativo imputado';
+
+  @override
+  String get rcIndependantCtaLabel => 'Explorar as minhas opções';
+
+  @override
+  String rcIndependantExplanation(String max3a, String current3a) {
+    return 'Limite 3a sem LPP: $max3a CHF/ano. Capital 3a atual: $current3a CHF';
+  }
+
+  @override
+  String get rcIndependantSubtitle =>
+      'Sem LPP, o teu 3a é a tua previdência principal';
+
+  @override
+  String get rcIndependantTitle => 'Previdência independente';
+
+  @override
+  String get rcJobComparisonSubtitle =>
+      'Líquido + previdência: qual oferta vale realmente mais?';
+
+  @override
+  String get rcJobComparisonTitle => 'Comparador de ofertas';
+
+  @override
+  String get rcLamalFranchiseSubtitle => 'Que franquia escolher?';
+
+  @override
+  String get rcLamalFranchiseTitle => 'Franquia LAMal';
+
+  @override
+  String get rcLeasingSubtitle => 'Custo real de um leasing de automóvel';
+
+  @override
+  String get rcLeasingTitle => 'Simulador de leasing';
+
+  @override
+  String get rcLibrePassageSubtitle =>
+      'O que fazer com o teu capital de livre passagem?';
+
+  @override
+  String get rcLibrePassageTitle => 'Livre passagem';
+
+  @override
+  String get rcLppBuybackCtaLabel => 'Simular uma recompra';
+
+  @override
+  String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
+    return 'Recompra possível. Poupança fiscal estimada de $taxSaving CHF em $rachatSimule CHF';
+  }
+
+  @override
+  String get rcLppBuybackSubtitle => 'Potencial de recompra disponível';
+
+  @override
+  String get rcLppBuybackTitle => 'Recompra LPP';
+
+  @override
+  String get rcLppLabel => 'Os teus dados LPP';
+
+  @override
+  String get rcMariageSubtitle => 'Impostos, AVS, LPP, sucessão';
+
+  @override
+  String get rcMariageTitle => 'Impacto do casamento';
+
+  @override
+  String get rcMortgageCtaLabel => 'Simular capacidade';
+
+  @override
+  String rcMortgageExplanation(String propertyValue) {
+    return 'Saldo hipotecário. Valor do imóvel: $propertyValue CHF';
+  }
+
+  @override
+  String rcMortgageSubtitle(String ltv) {
+    return 'Rácio LTV: $ltv %';
+  }
+
+  @override
+  String get rcMortgageTitle => 'Hipoteca';
+
+  @override
+  String get rcNaissanceSubtitle => 'Abonos, deduções, orçamento';
+
+  @override
+  String get rcNaissanceTitle => 'Impacto de um nascimento';
+
+  @override
+  String rcPatrimoineAlerte(String coussinMin) {
+    return 'Almofada de segurança recomendada: $coussinMin CHF (3 meses de despesas)';
+  }
+
+  @override
+  String get rcPatrimoineCtaLabelLow => 'Analisar o meu orçamento';
+
+  @override
+  String get rcPatrimoineCtaLabelOk => 'Ver o meu património';
+
+  @override
+  String rcPatrimoineExplanationLow(String epargne, String coussinMin) {
+    return 'Poupança líquida ($epargne CHF) abaixo de 3 meses de despesas ($coussinMin CHF)';
+  }
+
+  @override
+  String rcPatrimoineExplanationOk(String epargne, String investissements) {
+    return 'Poupança $epargne CHF + investimentos $investissements CHF';
+  }
+
+  @override
+  String get rcPatrimoineSubtitleLow => 'Almofada de segurança insuficiente';
+
+  @override
+  String get rcPatrimoineSubtitleOk => 'Visão geral';
+
+  @override
+  String get rcPatrimoineTitle => 'Património';
+
+  @override
+  String get rcPillar3aCtaLabel => 'Simular o meu 3a';
+
+  @override
+  String rcPillar3aExplanation(String plafond) {
+    return 'Poupança fiscal estimada ao contribuir com o máximo de $plafond CHF';
+  }
+
+  @override
+  String get rcPillar3aSubtitle => 'Poupança fiscal estimada';
+
+  @override
+  String rcPillar3aTitle(String year) {
+    return 'Contribuição 3a $year';
+  }
+
+  @override
+  String get rcRealReturn3aSubtitle =>
+      'Rendimento após comissões, inflação e impostos';
+
+  @override
+  String get rcRealReturn3aTitle => 'Rendimento real 3a';
+
+  @override
+  String get rcRentVsBuySubtitle => 'Comparar ambos os cenários a longo prazo';
+
+  @override
+  String get rcRentVsBuyTitle => 'Arrendar ou comprar';
+
+  @override
+  String get rcRenteVsCapitalSubtitle =>
+      'Renda ou capital: calcular ambas as opções';
+
+  @override
+  String get rcRenteVsCapitalTitle => 'Renda vs Capital';
+
+  @override
+  String get rcReplacementRateAlerte =>
+      'Taxa abaixo do limiar recomendado de 60 %. Explora as opções.';
+
+  @override
+  String get rcReplacementRateCtaLabel => 'Explorar os meus cenários';
+
+  @override
+  String rcReplacementRateExplanation(
+      String totalMonthly, String currentMonthly) {
+    return 'Rendimento estimado na reforma: $totalMonthly CHF/mês vs $currentMonthly CHF/mês atualmente';
+  }
+
+  @override
+  String rcReplacementRateSubtitle(String age) {
+    return 'Projeção aos $age anos';
+  }
+
+  @override
+  String get rcReplacementRateTitle => 'Taxa de substituição';
+
+  @override
+  String get rcSalaryLabel => 'O teu rendimento';
+
+  @override
+  String get rcSaronVsFixedSubtitle => 'Qual tipo de hipoteca escolher';
+
+  @override
+  String get rcSaronVsFixedTitle => 'SARON vs taxa fixa';
+
+  @override
+  String get rcStaggeredWithdrawalSubtitle =>
+      'Escalonar os levantamentos para reduzir impostos';
+
+  @override
+  String get rcStaggeredWithdrawalTitle => 'Levantamento 3a escalonado';
+
+  @override
+  String get rcSuccessionSubtitle => 'Simular a transferência de património';
+
+  @override
+  String get rcSuccessionTitle => 'Sucessão';
+
+  @override
+  String get rcSuggestedPrompt2ePilier =>
+      'O que faz concretamente o 2.º pilar?';
+
+  @override
+  String get rcSuggestedPrompt50PlusRetirement =>
+      'Quando a reforma se torna viável?';
+
+  @override
+  String get rcSuggestedPromptAllegerImpots =>
+      'Onde reduzir os meus impostos este ano?';
+
+  @override
+  String get rcSuggestedPromptCommencer3a => 'Porquê começar o 3a agora?';
+
+  @override
+  String get rcSuggestedPromptCouple =>
+      'Onde falha a nossa previdência de casal?';
+
+  @override
+  String get rcSuggestedPromptDonation =>
+      'Quais as vantagens fiscais de uma doação em vida?';
+
+  @override
+  String get rcSuggestedPromptFatca => 'FATCA: o que muda para o meu 3a?';
+
+  @override
+  String get rcSuggestedPromptIndependant =>
+      'Independente: o que preciso de reconstruir?';
+
+  @override
+  String get rcSuggestedPromptPatrimoine =>
+      'Como otimizar a transmissão do meu património?';
+
+  @override
+  String get rcSuggestedPromptRachatLpp =>
+      'Quanto vale uma recompra LPP no meu caso?';
+
+  @override
+  String get rcSuggestedPromptRenteOuCapital =>
+      'Renda ou capital: o que me dá mais liberdade?';
+
+  @override
+  String get rcSuggestedPromptSuccession =>
+      'Como organizar a minha sucessão na Suíça?';
+
+  @override
+  String get rcSuggestedPromptVersement3a =>
+      'Quanto contribuir para o 3a este ano?';
+
+  @override
+  String get rcTaxOptCtaLabel => 'Descobrir as minhas deduções';
+
+  @override
+  String rcTaxOptExplanation(String plafond3a) {
+    return 'Poupança fiscal estimada via 3a ($plafond3a CHF) + recompra LPP';
+  }
+
+  @override
+  String get rcTaxOptSubtitle => 'Deduções estimadas disponíveis';
+
+  @override
+  String get rcTaxOptTitle => 'Otimização fiscal';
+
+  @override
+  String get rcUnemploymentSubtitle => 'Subsídios, duração, diligências';
+
+  @override
+  String get rcUnemploymentTitle => 'Perda de emprego';
+
+  @override
+  String get rcUnitPts => 'pts';
+
+  @override
+  String get realReturnNarrative =>
+      'Graças à dedução fiscal, o teu 3a rende muito mais do que uma conta poupança clássica.';
+
+  @override
+  String get realReturnPrimaryLabel =>
+      'rendimento real após impostos e inflação';
+
+  @override
+  String get recapActionsNone => 'Nenhuma ação esta semana';
+
+  @override
+  String get recapActionsTitle => 'Ações realizadas';
+
+  @override
+  String recapActiveWeek(String days) {
+    return 'Esta semana, estiveste ativo $days dia(s) no MINT.';
+  }
+
+  @override
+  String get recapBudgetRate => 'Taxa de poupança';
+
+  @override
+  String get recapBudgetSaved => 'Poupado esta semana';
+
+  @override
+  String get recapBudgetTitle => 'Orçamento';
+
+  @override
+  String recapConfidenceUp(String delta) {
+    return 'A tua confiança melhorou +$delta pts.';
+  }
+
+  @override
+  String get recapEmpty => 'Ainda sem dados esta semana';
+
+  @override
+  String get recapHighlightsTitle => 'Pontos de destaque';
+
+  @override
+  String recapNextFocus(String focus) {
+    return 'Na próxima semana, concentra-te em $focus.';
+  }
+
+  @override
+  String get recapNextFocusTitle => 'A semana que vem';
+
+  @override
+  String recapPeriod(String start, String end) {
+    return 'De $start a $end';
+  }
+
+  @override
+  String recapProgressDelta(String delta) {
+    return '$delta pts de confiança';
+  }
+
+  @override
+  String get recapProgressTitle => 'Progresso';
+
+  @override
+  String get recapQuietWeek => 'Esta semana foi calma no MINT.';
+
+  @override
+  String recapSavings(String amount) {
+    return 'A tua poupança estimada é de CHF $amount.';
+  }
+
+  @override
+  String get recapTitle => 'O teu resumo semanal';
+
+  @override
+  String get recommendationsDisclaimer =>
+      'Sugestões pedagógicas baseadas no seu perfil — ferramenta educativa que não constitui aconselhamento financeiro personalizado no sentido da LSFin. Consulte um·a especialista para uma análise adaptada à sua situação.';
+
+  @override
+  String get recommendationsTitleCompoundInterest => 'O poder do tempo';
+
+  @override
+  String get recommendationsTitleEmergencyFund =>
+      'Constituir um fundo de emergência';
+
+  @override
+  String get recommendationsTitleLppBuyback => 'Simular uma compra LPP';
+
+  @override
+  String get recommendationsTitlePillar3a => 'Otimizar com o pilar 3a';
+
+  @override
+  String get recommendationsTitleStartDiagnostic => 'Inicia o teu diagnóstico';
+
+  @override
+  String get reengagementTitleNewYear => 'Novos limites do 3a';
+
+  @override
+  String get reengagementTitleQuarterlyFri => 'Pontuação de solidez';
+
+  @override
+  String get reengagementTitleTaxDeadline => 'Prazo fiscal';
+
+  @override
+  String get reengagementTitleTaxPrep => 'Declaração fiscal';
+
+  @override
+  String get reengagementTitleThreeA => 'Prazo do 3a';
+
+  @override
+  String get reengagementTitleThreeAFinal => 'Último mês para o 3a';
+
+  @override
+  String get renteVsCapitalLifeExpectancyChips => 'Esperança de vida';
+
+  @override
+  String get renteVsCapitalRetirementAgeChips => 'Idade de reforma';
+
+  @override
+  String get reportActionDesc3aFirst =>
+      'Deduz até CHF 7’258/ano do rendimento tributável. Poupança imediata.';
+
+  @override
+  String get reportActionDesc3aSecond =>
+      'Otimiza a fiscalidade no levantamento e diversifica os investimentos.';
+
+  @override
+  String get reportActionDescAvsCheck =>
+      'Evita perder até CHF 38’000 de pensão ao longo da vida.';
+
+  @override
+  String get reportActionDescDette =>
+      'É o investimento mais rentável: poupes 6-10 % ao ano em juros.';
+
+  @override
+  String get reportActionDescUrgence =>
+      'Aponta a 3 meses de despesas numa conta poupança separada.';
+
+  @override
+  String get reportActionTitle3aFirst => 'Abre a tua primeira conta 3a';
+
+  @override
+  String get reportActionTitle3aSecond => 'Abre uma 2ª conta 3a fintech';
+
+  @override
+  String get reportActionTitleAvsCheck => 'Verifica a tua conta AVS';
+
+  @override
+  String get reportActionTitleDette => 'Reembolsa as tuas dívidas de consumo';
+
+  @override
+  String get reportActionTitleUrgence => 'Constitui o teu fundo de emergência';
+
+  @override
+  String get reportDisclaimerBase1 =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro na aceção da LSFin.';
+
+  @override
+  String get reportDisclaimerBase2 =>
+      'Os valores são estimativas baseadas nos dados declarados.';
+
+  @override
+  String get reportDisclaimerBase3 =>
+      'Os resultados passados não predizem os resultados futuros.';
+
+  @override
+  String get reportDisclaimerFiscal =>
+      'A estimativa fiscal é aproximada e não substitui uma declaração de impostos.';
+
+  @override
+  String get reportDisclaimerRachatLpp =>
+      'O resgate LPP está sujeito a um bloqueio de 3 anos para levantamentos EPL (LPP art. 79b al. 3).';
+
+  @override
+  String get reportDisclaimerRetraite =>
+      'A projeção de reforma é indicativa e depende de alterações legislativas (reformas AVS/LPP).';
+
+  @override
+  String get reportLabelSanteFinanciere => 'Saúde Financeira';
+
+  @override
+  String get reportRoadmapPhaseCourtTerme => 'Curto Prazo';
+
+  @override
+  String get reportRoadmapPhaseImmediat => 'Imediato';
+
+  @override
+  String get reportRoadmapTimeframeCourtTerme => '3-6 meses';
+
+  @override
+  String get reportRoadmapTimeframeImmediat => 'Este mês';
+
+  @override
+  String get reportTitleBilanFlash => 'O seu Balanço Flash';
+
+  @override
+  String get retirementIncomeLabelPatrimoine => 'Património livre';
+
+  @override
+  String get retirementIncomeLabelPillar3a => '3º pilar';
+
+  @override
+  String get retirementPhaseLabelBothRetired => 'Ambos reformados';
+
+  @override
+  String get retirementPhaseLabelRetraite => 'Reforma';
+
+  @override
+  String get retirementProjectionDisclaimer =>
+      'Projeção educativa baseada nas tarifas AVS/LPP 2025. Não constitui aconselhamento financeiro ou previdenciário. Os valores são estimativas que podem variar consoante alterações legislativas e a situação pessoal. Consulte um especialista para um plano personalizado. LSFin.';
+
+  @override
+  String get retroactive3aEmptyCta => 'Adicionar o meu rendimento';
+
+  @override
+  String get retroactive3aEmptySubtitle =>
+      'Insere o teu rendimento para calcular a tua poupança fiscal';
+
+  @override
+  String get retroactive3aEmptyTitle => 'Recuperação 3a';
+
+  @override
+  String get retroactive3aSavingsLabel =>
+      'de poupança fiscal com a recuperação 3a';
+
+  @override
+  String get retroactive3aYearsChipsLabel => 'Anos a recuperar';
+
+  @override
+  String get routeReturnAbandoned => 'Sem problema — voltamos quando quiseres.';
+
+  @override
+  String get routeReturnAcknowledge =>
+      'Bem-vindo de volta! Se ajustaste dados, diz-me e recalculo.';
+
+  @override
+  String get routeReturnChanged =>
+      'Os teus números mudaram. Recalculo a trajetória.';
+
+  @override
+  String get routeReturnCompleted =>
+      'Anotado. Os teus dados estão atualizados.';
+
+  @override
+  String get routeSuggestionBlocked =>
+      'Preciso de mais informações para te levar lá';
+
+  @override
+  String get routeSuggestionCta => 'Abrir';
+
+  @override
+  String get routeSuggestionPartialWarning => 'Estimativa — dados incompletos';
+
+  @override
+  String get safeModeCta => 'Ver o meu plano de redução de dívida';
+
+  @override
+  String get safeModeMessage =>
+      'Para a tua segurança financeira, desativamos as otimizações avançadas enquanto um sinal de dívida estiver ativo.';
+
+  @override
+  String get safeModeTitle => 'Foco Prioritário';
+
+  @override
+  String get saronCostLabel => 'de custo adicional com SARON';
+
+  @override
+  String get saronEyebrow => 'SARON vs Taxa fixa';
+
+  @override
+  String get saronSavingsLabel => 'de poupança potencial com SARON';
+
+  @override
+  String get scenarioDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro no sentido da LSFin. As projeções baseiam-se em hipóteses de rendimento e não predizem resultados futuros. Consulte um·a especialista para um plano personalizado.';
+
+  @override
+  String get scenarioLabelFavorable => 'Cenário favorável';
+
+  @override
+  String get scenarioLabelPrudent => 'Cenário prudente';
+
+  @override
+  String get scenarioLabelReference => 'Cenário de referência';
+
+  @override
+  String get scoreGaugeDisclaimer =>
+      'Estimativas educativas — não constitui aconselhamento financeiro.';
+
+  @override
+  String get scoreGaugeGainTitle => 'O que te fez subir';
+
+  @override
+  String get scoreGaugeLevelAttention => 'Atenção';
+
+  @override
+  String get scoreGaugeLevelCritical => 'Crítico';
+
+  @override
+  String get scoreGaugeLevelExcellent => 'Excelente';
+
+  @override
+  String get scoreGaugeLevelGood => 'Bom';
+
+  @override
+  String get scoreGaugeNextTitle => 'Para subir mais';
+
+  @override
+  String get scoreGaugeSectionBudget => 'Orçamento';
+
+  @override
+  String get scoreGaugeSectionPatrimoine => 'Património';
+
+  @override
+  String get scoreGaugeSectionPrevoyance => 'Previdência';
+
+  @override
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
+    return 'Pontuação de forma financeira. $score de 100. Nível $level. Orçamento $budget, Previdência $prevoyance, Património $patrimoine.';
+  }
+
+  @override
+  String get scoreGaugeSubtitle => 'Pontuação composta · 3 pilares';
+
+  @override
+  String get scoreGaugeTitle => 'Forma financeira';
+
+  @override
+  String get seasonal3aCountdownDesc =>
+      'O prazo de 31 de dezembro para contribuições ao pilar 3a está a aproximar-se. Verifica o teu saldo e planeia a contribuição para maximizar a dedução fiscal.';
+
+  @override
+  String get seasonal3aCountdownTitle => 'Contagem decrescente 3.º pilar';
+
+  @override
+  String get seasonalEventCta => 'Falar com o coach';
+
+  @override
+  String get seasonalLamalDesc =>
+      'Os prémios 2027 foram publicados. Verifica se a tua franquia ainda é adequada à tua situação.';
+
+  @override
+  String get seasonalLamalTitle => 'Novos prémios LAMal';
+
+  @override
+  String get seasonalMidYearReviewDesc =>
+      'Atingiste a marca dos 6 meses. Toma um momento para verificar o teu progresso em direção aos objetivos e ajustar se necessário.';
+
+  @override
+  String get seasonalMidYearReviewTitle => 'Revisão semestral';
+
+  @override
+  String get seasonalNewYearResolutionsDesc =>
+      'Novo ano, novos objetivos financeiros. Define 1 ou 2 ações concretas que vais implementar este ano.';
+
+  @override
+  String get seasonalNewYearResolutionsTitle => 'Resoluções financeiras';
+
+  @override
+  String get seasonalRetirementMonthDesc =>
+      'Outubro é o mês nacional da previdência na Suíça. É o momento de verificar a tua projeção de reforma e a tua taxa de substituição.';
+
+  @override
+  String get seasonalRetirementMonthTitle => 'Mês da previdência';
+
+  @override
+  String get seasonalTaxSeasonDesc =>
+      'Fevereiro–março: é o momento de preparar a tua declaração de impostos. Reúne os teus justificativos e identifica as tuas deduções.';
+
+  @override
+  String get seasonalTaxSeasonTitle => 'Época fiscal';
+
+  @override
+  String semantics3aAvantageSalarie(String amount) {
+    return 'Vantagem sobre assalariado: $amount francos';
+  }
+
+  @override
+  String semantics3aEconomieFiscale(String amount) {
+    return 'Poupança fiscal: $amount francos';
+  }
+
+  @override
+  String get semantics3aLppToggle => 'Afiliado LPP';
+
+  @override
+  String get semanticsActive => 'ativo';
+
+  @override
+  String semanticsAvsDifference(String amount) {
+    return 'Diferença anual: $amount francos';
+  }
+
+  @override
+  String semanticsAvsTauxEffectif(String rate) {
+    return 'Taxa efetiva: $rate por cento';
+  }
+
+  @override
+  String get semanticsBack => 'Voltar';
+
+  @override
+  String get semanticsBackButton => 'Voltar';
+
+  @override
+  String semanticsBenchmarkMetric(
+      String label, String status, String low, String high) {
+    return '$label: $status. Intervalo típico de $low a $high';
+  }
+
+  @override
+  String get semanticsBenchmarkToggle => 'Ativar comparações cantonais';
+
+  @override
+  String get semanticsBudgetStartButton => 'Começar a inserir o orçamento';
+
+  @override
+  String get semanticsCoachTabLabel => 'Aba Coach MINT';
+
+  @override
+  String get semanticsDecrease => 'Diminuir';
+
+  @override
+  String get semanticsDecrement => 'Diminuir';
+
+  @override
+  String get semanticsDelete => 'Eliminar';
+
+  @override
+  String get semanticsDividendeAdjust =>
+      'Ajusta o split para encontrar poupanças';
+
+  @override
+  String get semanticsDividendeRequalification =>
+      'Alerta: risco de requalificação fiscal se a parte salarial for inferior a 60 por cento';
+
+  @override
+  String semanticsDividendeSaving(String amount) {
+    return 'Poupança: $amount francos por ano';
+  }
+
+  @override
+  String get semanticsInactive => 'inativo';
+
+  @override
+  String get semanticsIncrease => 'Aumentar';
+
+  @override
+  String get semanticsIncrement => 'Aumentar';
+
+  @override
+  String semanticsLppCapitalisation(String amount) {
+    return 'Capitalização anual: $amount francos';
+  }
+
+  @override
+  String semanticsLppGain(String amount) {
+    return 'Ganho com LPP voluntária: $amount francos';
+  }
+
+  @override
+  String semanticsMetricLabelValue(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String get semanticsNotReached => 'não alcançado';
+
+  @override
+  String get semanticsReached => 'alcançado';
+
+  @override
+  String semanticsRealReturnGain(String amount) {
+    return 'Ganho comparado à poupança: $amount francos';
+  }
+
+  @override
+  String semanticsRecapPeriod(String start, String end) {
+    return 'Resumo de $start a $end';
+  }
+
+  @override
+  String semanticsRecapSection(String title, String content) {
+    return '$title: $content';
+  }
+
+  @override
+  String semanticsRepaymentBudget(String amount) {
+    return 'Orçamento mensal: $amount francos. Toca para editar';
+  }
+
+  @override
+  String semanticsRepaymentDeleteDebt(String name) {
+    return 'Eliminar dívida $name';
+  }
+
+  @override
+  String semanticsRepaymentFreeIn(int months) {
+    return 'Livre de dívidas em $months meses';
+  }
+
+  @override
+  String semanticsRepaymentStrategy(String title, int months, String interest) {
+    return '$title: $months meses, juros $interest francos';
+  }
+
+  @override
+  String get semanticsRepaymentValidate => 'Confirmar valor';
+
+  @override
+  String get sequence3aGoal => 'Otimização pilar 3a';
+
+  @override
+  String get sequenceAllStepsComplete => 'Todas as etapas concluídas';
+
+  @override
+  String get sequenceCompleted =>
+      'Percurso completo! Todas as etapas estão concluídas.';
+
+  @override
+  String get sequenceCoupleGoal => 'Coordinate finances together';
+
+  @override
+  String get sequenceCoupleStep1 => 'Marriage or partnership';
+
+  @override
+  String get sequenceCoupleStep2 => 'Couple profile';
+
+  @override
+  String get sequenceCoupleStep3 => '3a together';
+
+  @override
+  String get sequenceCoupleStep4 => 'Couple taxation';
+
+  @override
+  String get sequenceCoupleStep5 => 'Summary';
+
+  @override
+  String get sequenceDensificationGoal => 'Protect and consolidate';
+
+  @override
+  String get sequenceDensificationStep1 => 'Retirement projection';
+
+  @override
+  String get sequenceDensificationStep2 => 'Disability protection';
+
+  @override
+  String get sequenceDensificationStep3 => 'LPP buyback';
+
+  @override
+  String get sequenceDensificationStep4 => 'Summary';
+
+  @override
+  String get sequenceHousingGoal => 'Compra de imóvel';
+
+  @override
+  String get sequenceNaissanceGoal => 'Prepare for baby financially';
+
+  @override
+  String get sequenceNaissanceStep1 => 'Birth impact';
+
+  @override
+  String get sequenceNaissanceStep2 => 'Family budget';
+
+  @override
+  String get sequenceNaissanceStep3 => '3a parent';
+
+  @override
+  String get sequenceNaissanceStep4 => 'Summary';
+
+  @override
+  String get sequencePaused => 'Percurso em pausa. Pode retomar quando quiser.';
+
+  @override
+  String get sequencePremiersPasGoal => 'Understand my first salary';
+
+  @override
+  String get sequencePremiersPasStep1 => 'First job';
+
+  @override
+  String get sequencePremiersPasStep2 => 'My first budget';
+
+  @override
+  String get sequencePremiersPasStep3 => 'Discover 3a';
+
+  @override
+  String get sequencePreretraiteGoal => 'Prepare my retirement';
+
+  @override
+  String get sequencePreretraiteStep1 => 'Retirement projection';
+
+  @override
+  String get sequencePreretraiteStep10 => 'Withdrawal plan';
+
+  @override
+  String get sequencePreretraiteStep11 => 'Summary';
+
+  @override
+  String get sequencePreretraiteStep2 => '3a review';
+
+  @override
+  String get sequencePreretraiteStep3 => 'Annuity or capital';
+
+  @override
+  String get sequencePreretraiteStep4 => 'Levantamento 3a escalonado';
+
+  @override
+  String get sequencePreretraiteStep5 => 'Mortgage';
+
+  @override
+  String get sequencePreretraiteStep6 => 'LPP buyback';
+
+  @override
+  String get sequencePreretraiteStep7 => 'LAMal franchise';
+
+  @override
+  String get sequencePreretraiteStep8 => 'Succession';
+
+  @override
+  String get sequencePreretraiteStep9 => 'Retirement budget';
+
+  @override
+  String get sequenceQuitButton => 'Abandonar o percurso';
+
+  @override
+  String get sequenceQuitConfirm => 'Percurso encerrado.';
+
+  @override
+  String get sequenceReEvaluate =>
+      'Os seus dados mudaram. Recalculando as etapas afetadas.';
+
+  @override
+  String get sequenceReadyNextStep => 'Pronto para o próximo passo';
+
+  @override
+  String get sequenceRetirementGoal => 'Preparação para reforma';
+
+  @override
+  String get sequenceRetraiteActiveGoal => 'Manage my retirement';
+
+  @override
+  String get sequenceRetraiteActiveStep1 => 'Retirement budget';
+
+  @override
+  String get sequenceRetraiteActiveStep2 => 'Succession';
+
+  @override
+  String get sequenceRetraiteActiveStep3 => 'LAMal franchise';
+
+  @override
+  String get sequenceRetraiteActiveStep4 => 'Summary';
+
+  @override
+  String sequenceStepCompleted(String progress) {
+    return 'Etapa $progress concluída. Pronto para a próxima?';
+  }
+
+  @override
+  String sequenceStepLabel(int current, int total) {
+    return 'Etapa $current/$total';
+  }
+
+  @override
+  String get sequenceStepRetry =>
+      'Sem problema. Vamos tentar esta etapa novamente.';
+
+  @override
+  String get sequenceStepSkipped => 'Vamos pular esta etapa por enquanto.';
+
+  @override
+  String get sequenceTensionGoal => 'Resolver tensu00e3o financeira';
+
+  @override
+  String get sequenceTensionStep1 => 'Diagnu00f3stico de du00edvida';
+
+  @override
+  String get sequenceTensionStep2 => 'Oru00e7amento real';
+
+  @override
+  String get sequenceTensionStep3 => 'Plano de pagamento';
+
+  @override
+  String get sequenceTensionStep4 => 'Resumo';
+
+  @override
+  String shellWelcomeBackDelta(Object delta) {
+    return 'De volta! A sua precisu00e3o ganhou +$delta pts desde a u00faltima visita.';
+  }
+
+  @override
+  String shellWelcomeBackDeltaPts(Object delta) {
+    return 'De volta! A sua precisão ganhou +$delta pts desde a última visita.';
+  }
+
+  @override
+  String get sim3aContributionFieldLabel => 'Contribuição anual';
+
+  @override
+  String sim3aProfileEstimatedRate(String rate, String canton) {
+    return 'A tua taxa marginal estimada: $rate% ($canton)';
+  }
+
+  @override
+  String get sim3aProfilePreFilled => 'Preenchido a partir do teu perfil';
+
+  @override
+  String get sim3aReturnChipsLabel => 'Rendimento esperado';
+
+  @override
+  String get sim3aTaxRateChipsLabel => 'Taxa marginal de imposto';
+
+  @override
+  String get sim3aYearsAutoLabel => 'Anos até à reforma';
+
+  @override
+  String sim3aYearsReadOnly(int years) {
+    return '$years anos (calculado a partir da tua idade)';
+  }
+
+  @override
+  String get slmAutoInstalledMsg =>
+      'Coach IA instalado ! Os teus conselhos serão personalizados.';
+
+  @override
+  String get slmAutoPromptBody =>
+      'O MINT pode instalar um modelo de IA diretamente no teu telefone para conselhos personalizados — 100 % privado, nenhum dado sai do teu dispositivo.';
+
+  @override
+  String get slmAutoPromptTitle => 'Coach IA no teu dispositivo';
+
+  @override
   String get slmErrorAuthDenied =>
       'Acesso negado ao modelo (HuggingFace). O build deve incluir um token válido.';
 
   @override
-  String get slmErrorTokenInvalid =>
-      'Token HuggingFace inválido ou sem acesso ao repo Gemma 3n.';
-
-  @override
-  String get slmErrorModelNotFound =>
-      'Ficheiro de modelo não encontrado. Verifica o URL do modelo.';
-
-  @override
-  String get slmErrorTokenMissing =>
-      'Download impossível: token HuggingFace em falta.';
-
-  @override
-  String get slmErrorTimeout =>
-      'O download expirou. Tenta novamente com uma rede estável.';
-
-  @override
-  String get slmErrorNetwork =>
-      'Erro de rede durante o download. Verifica a tua ligação.';
+  String get slmErrorAuthMissing =>
+      'Este build não contém a autenticação necessária para descarregar o modelo.';
 
   @override
   String get slmErrorGeneric =>
@@ -25727,10 +19756,1056 @@ class SPt extends S {
   String get slmErrorInitFailed => 'Inicialização do motor IA falhou.';
 
   @override
-  String get slmErrorAuthMissing =>
-      'Este build não contém a autenticação necessária para descarregar o modelo.';
+  String get slmErrorModelNotFound =>
+      'Ficheiro de modelo não encontrado. Verifica o URL do modelo.';
 
   @override
-  String get docScanGenericError =>
-      'Ocorreu um erro ao analisar o documento. Tenta novamente ou usa a entrada manual.';
+  String get slmErrorNetwork =>
+      'Erro de rede durante o download. Verifica a tua ligação.';
+
+  @override
+  String get slmErrorTimeout =>
+      'O download expirou. Tenta novamente com uma rede estável.';
+
+  @override
+  String get slmErrorTokenInvalid =>
+      'Token HuggingFace inválido ou sem acesso ao repo Gemma 3n.';
+
+  @override
+  String get slmErrorTokenMissing =>
+      'Download impossível: token HuggingFace em falta.';
+
+  @override
+  String get slmInstallBtn => 'Instalar coach IA';
+
+  @override
+  String get slmLaterBtn => 'Mais tarde';
+
+  @override
+  String get sourceBadgeCertified => 'Certificado';
+
+  @override
+  String get sourceBadgeDeclared => 'Declarado';
+
+  @override
+  String get sourceBadgeEstimated => 'Estimado';
+
+  @override
+  String get staggeredWithdrawalEmptyCta => 'Adicionar o meu 3a';
+
+  @override
+  String get staggeredWithdrawalEmptySubtitle =>
+      'Introduz as tuas poupanças 3a para otimizar os levantamentos';
+
+  @override
+  String get staggeredWithdrawalEmptyTitle => 'Levantamento 3a escalonado';
+
+  @override
+  String get stepChocAction => 'O que posso fazer?';
+
+  @override
+  String stepChocConfidenceInfo(int count) {
+    return 'Estimativa baseada em $count informações. Quanto mais precisares, mais fiável.';
+  }
+
+  @override
+  String stepChocConfidenceLabel(int pct) {
+    return 'Precisão: $pct %';
+  }
+
+  @override
+  String get stepChocDashboard => 'Ver o meu dashboard';
+
+  @override
+  String get stepChocDisclaimer =>
+      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
+
+  @override
+  String get stepChocEnrich => 'Refinar o meu perfil';
+
+  @override
+  String get stepChocLiteracy3a => 'Já contribuí para uma conta 3a';
+
+  @override
+  String get stepChocLiteracyConversion => 'Sei o que é a taxa de conversão';
+
+  @override
+  String get stepChocLiteracyLpp => 'Conheço o montante do meu capital LPP';
+
+  @override
+  String get stepChocLiteracySubtitle =>
+      '3 perguntas rápidas — sem resposta certa ou errada.';
+
+  @override
+  String get stepChocLiteracyTitle => 'Para personalizar os teus conselhos';
+
+  @override
+  String get stepChocNo => 'Não';
+
+  @override
+  String get stepChocPedagogicalCaveat =>
+      'Estimativa ilustrativa baseada em dados parciais. Enriqueça o seu perfil para valores mais precisos.';
+
+  @override
+  String get stepChocYes => 'Sim';
+
+  @override
+  String get stepJitAction => 'O que posso fazer?';
+
+  @override
+  String get stepJitAlors => 'ENTÃO';
+
+  @override
+  String get stepJitBack => 'Voltar';
+
+  @override
+  String get stepJitDefaultCond =>
+      'ainda não tens um plano financeiro estruturado';
+
+  @override
+  String get stepJitDefaultCons =>
+      'arriscas perder oportunidades de otimização fiscal e de previdência.';
+
+  @override
+  String get stepJitDefaultInsight =>
+      'Um balanço financeiro anual permite identificar as alavancas mais impactantes: 3a, resgate LPP, franquia LAMal, amortização indireta.';
+
+  @override
+  String get stepJitDefaultSource => 'Recomendação educativa MINT';
+
+  @override
+  String get stepJitDisclaimer =>
+      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).';
+
+  @override
+  String get stepJitIncomeCond =>
+      'a tua projeção de rendimento na reforma está estimada';
+
+  @override
+  String get stepJitIncomeCons =>
+      'conhecer este montante permite-te planear e ajustar a tua estratégia de previdência agora.';
+
+  @override
+  String get stepJitIncomeInsight =>
+      'O sistema suíço de 3 pilares (AVS + LPP + 3a) cobre em média 60 % do último salário. Cada pilar tem as suas regras e alavancas de otimização específicas.';
+
+  @override
+  String get stepJitIncomeSource => 'LAVS art. 34 / LPP art. 14 / OPP3 art. 7';
+
+  @override
+  String get stepJitLiquidityCond =>
+      'as tuas poupanças de emergência cobrem menos de 2 meses de despesas';
+
+  @override
+  String get stepJitLiquidityCons =>
+      'um imprevisto (perda de emprego, reparação urgente) pode colocar-te em dificuldade financeira rapidamente.';
+
+  @override
+  String get stepJitLiquidityInsight =>
+      'Os especialistas recomendam 3 a 6 meses de despesas fixas em reserva. Mesmo CHF 100/mês numa conta poupança faz uma diferença significativa em 12 meses.';
+
+  @override
+  String get stepJitLiquiditySource =>
+      'Recomendação de consultoria orçamental Suíça';
+
+  @override
+  String get stepJitRetirementCond =>
+      'a tua taxa de substituição na reforma está abaixo de 60 %';
+
+  @override
+  String get stepJitRetirementCons =>
+      'o teu nível de vida pode diminuir significativamente quando parares de trabalhar.';
+
+  @override
+  String get stepJitRetirementInsight =>
+      'Na Suíça, o AVS e a LPP cobrem em média 60 % do último salário. O 3º pilar e a poupança livre preenchem o restante. Quanto mais cedo começares, menor o esforço mensal.';
+
+  @override
+  String get stepJitRetirementSource => 'LAVS art. 34 / LPP art. 14';
+
+  @override
+  String get stepJitSi => 'SE';
+
+  @override
+  String get stepJitTax3aCond =>
+      'não contribuís o máximo para o teu 3º pilar todos os anos';
+
+  @override
+  String get stepJitTax3aCons =>
+      'estás a perder uma poupança fiscal e um capital de reforma adicional.';
+
+  @override
+  String get stepJitTax3aInsight =>
+      'Cada franco contribuído para o 3a é dedutível do rendimento tributável. Em 20 anos, a diferença entre contribuir 0 e o máximo (CHF 7\'258) pode ultrapassar CHF 200\'000.';
+
+  @override
+  String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
+
+  @override
+  String get stepJitTitle => 'Compreender em 30 segundos';
+
+  @override
+  String get stepNextCheckin => 'Fazer o meu primeiro check-in';
+
+  @override
+  String stepNextConfidence(int pct) {
+    return 'Precisão atual: $pct %. Quanto mais completares o teu perfil, mais fiáveis serão as projeções.';
+  }
+
+  @override
+  String get stepNextDashboard => 'Ver o meu dashboard';
+
+  @override
+  String get stepNextDisclaimer =>
+      'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin). Fontes: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
+
+  @override
+  String get stepNextEnrich => 'Refinar o meu perfil';
+
+  @override
+  String get stepNextTitle => 'O teu primeiro balanço está pronto';
+
+  @override
+  String get stepOcr3aBoost => '+7 pts de precisão';
+
+  @override
+  String get stepOcr3aSubtitle => 'Saldo, contribuições acumuladas, rendimento';
+
+  @override
+  String get stepOcr3aTitle => 'A tua conta 3a';
+
+  @override
+  String get stepOcrAvsBoost => '+22 pts de precisão';
+
+  @override
+  String get stepOcrAvsSubtitle => 'Anos de contribuição, lacunas, RAMD';
+
+  @override
+  String get stepOcrAvsTitle => 'O teu extrato AVS';
+
+  @override
+  String stepOcrContinueWith(int count, String plural) {
+    return 'Continuar ($count documento$plural digitalizado$plural)';
+  }
+
+  @override
+  String get stepOcrContinueWithout => 'Continuar sem documento';
+
+  @override
+  String get stepOcrDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin). Documentos processados no teu dispositivo, nenhum dado enviado (LPD art. 6).';
+
+  @override
+  String get stepOcrIntro =>
+      'Digitaliza um ou mais documentos para que o MINT calcule a tua situação com mais precisão.';
+
+  @override
+  String get stepOcrLpdBanner =>
+      'Os teus documentos são processados no teu dispositivo. Nada é enviado para a Internet.';
+
+  @override
+  String get stepOcrLpdBody =>
+      'Este documento é analisado diretamente no teu telefone.\nNenhum dado é enviado pela Internet.\nAs informações extraídas são eliminadas após o processamento.';
+
+  @override
+  String get stepOcrLpdCancel => 'Cancelar';
+
+  @override
+  String get stepOcrLpdLegal =>
+      'Base legal: LPD art. 6 — minimização de dados.';
+
+  @override
+  String get stepOcrLpdScan => 'Digitalizar este documento';
+
+  @override
+  String get stepOcrLpdTitle => 'Processamento privado no teu dispositivo';
+
+  @override
+  String get stepOcrLppBoost => '+27 pts de precisão';
+
+  @override
+  String get stepOcrLppSubtitle =>
+      'Capital, taxa de conversão, lacuna de resgate';
+
+  @override
+  String get stepOcrLppTitle => 'A tua carta de reforma LPP';
+
+  @override
+  String get stepOcrScanned => 'Digitalizado';
+
+  @override
+  String get stepOcrSkip => 'Continuar sem documento';
+
+  @override
+  String get stepOcrSnackEmpty =>
+      'Documento processado — nenhum campo reconhecido automaticamente';
+
+  @override
+  String stepOcrSnackError(String error) {
+    return 'Erro de processamento: $error';
+  }
+
+  @override
+  String stepOcrSnackSuccess(int count, String plural) {
+    return '$count campo$plural extraído$plural com sucesso';
+  }
+
+  @override
+  String get stepOcrSnackWebOnly =>
+      'Digitalização de imagem não disponível na web. Usa a app móvel ou importa um ficheiro .txt.';
+
+  @override
+  String get stepOcrTaxBoost => '+17 pts de precisão';
+
+  @override
+  String get stepOcrTaxSubtitle =>
+      'Rendimento tributável, património, taxa marginal';
+
+  @override
+  String get stepOcrTaxTitle => 'A tua declaração fiscal';
+
+  @override
+  String get stepOcrTitle => 'Enriquece o teu perfil em 30 segundos';
+
+  @override
+  String stepQuestionsAgeYears(int age) {
+    return '$age anos';
+  }
+
+  @override
+  String get stepQuestionsCountryAu => 'Austrália';
+
+  @override
+  String get stepQuestionsCountryBr => 'Brasil';
+
+  @override
+  String get stepQuestionsCountryCa => 'Canadá';
+
+  @override
+  String get stepQuestionsCountryCn => 'China';
+
+  @override
+  String get stepQuestionsCountryGb => 'Reino Unido';
+
+  @override
+  String get stepQuestionsCountryIn => 'Índia';
+
+  @override
+  String get stepQuestionsCountryJp => 'Japão';
+
+  @override
+  String get stepQuestionsCountryUs => 'Estados Unidos';
+
+  @override
+  String get stepStressBudget => 'O meu orçamento';
+
+  @override
+  String get stepStressBudgetSub => 'Para onde vai o meu dinheiro?';
+
+  @override
+  String get stepStressCouple => 'Em casal';
+
+  @override
+  String get stepStressCoupleSub => 'Otimizar a dois';
+
+  @override
+  String get stepStressCurious => 'Apenas curioso';
+
+  @override
+  String get stepStressCuriousSub => 'Quero compreender a minha situação';
+
+  @override
+  String get stepStressDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).';
+
+  @override
+  String get stepStressRetirement => 'A minha reforma';
+
+  @override
+  String get stepStressRetirementSub => 'Terei o suficiente para viver?';
+
+  @override
+  String get stepStressSubtitle =>
+      'Escolhe um tema — vamos personalizar a tua experiência.';
+
+  @override
+  String get stepStressTaxes => 'Os meus impostos';
+
+  @override
+  String get stepStressTaxesSub => 'Estou a pagar demais?';
+
+  @override
+  String get stepStressTitle => 'O que mais te preocupa?';
+
+  @override
+  String get stepStressWealth => 'O meu património';
+
+  @override
+  String get stepStressWealthSub => 'Como fazê-lo crescer?';
+
+  @override
+  String get stepTopActionsBack => 'Voltar';
+
+  @override
+  String get stepTopActionsContinue => 'Continuar';
+
+  @override
+  String get stepTopActionsDisclaimer =>
+      'Sugestões educativas. Não constitui aconselhamento financeiro (LSFin). Consulta um especialista para um plano personalizado.';
+
+  @override
+  String get stepTopActionsEmpty =>
+      'Completa o teu perfil para receber ações personalizadas.';
+
+  @override
+  String stepTopActionsImpact(String amount) {
+    return 'Impacto estimado: $amount';
+  }
+
+  @override
+  String get stepTopActionsSubtitle =>
+      'Com base na tua situação, aqui é por onde começar.';
+
+  @override
+  String get stepTopActionsTitle => 'As tuas 3 ações prioritárias';
+
+  @override
+  String get successionDemarchesAction1 =>
+      'Solicitar pensões de sobreviventes AVS (LAVS art. 23)';
+
+  @override
+  String get successionDemarchesAction2 =>
+      'Contactar a caixa LPP para o capital de falecimento';
+
+  @override
+  String get successionDemarchesAction3 =>
+      'Cancelar assinaturas e contratos em nome do falecido';
+
+  @override
+  String get successionDemarchesAction4 =>
+      'Fazer inventário de ativos e dívidas';
+
+  @override
+  String get successionDemarchesAction5 =>
+      'Solicitar certificados de herdeiros ao notário';
+
+  @override
+  String get successionLegaleAction1 =>
+      'Abrir o procedimento de sucessão com o notário';
+
+  @override
+  String get successionLegaleAction2 =>
+      'Partilhar bens conforme testamento ou lei (CC art. 537)';
+
+  @override
+  String get successionLegaleAction3 =>
+      'Apresentar declaração fiscal do ano do falecimento';
+
+  @override
+  String get successionLegaleAction4 =>
+      'Atualizar beneficiários dos teus próprios contratos';
+
+  @override
+  String get successionUrgenceAction1 =>
+      'Declarar o óbito no registo civil em 2 dias';
+
+  @override
+  String get successionUrgenceAction2 =>
+      'Informar o empregador e seguradoras (LAMal, LPP)';
+
+  @override
+  String get successionUrgenceAction3 =>
+      'Bloquear contas bancárias conjuntas se necessário';
+
+  @override
+  String get successionUrgenceAction4 =>
+      'Contactar o notário se a pessoa tinha testamento';
+
+  @override
+  String get summaryCapaciteAchat => 'Capacidade de compra';
+
+  @override
+  String get summaryChargesFixes => 'Encargos fixos totais';
+
+  @override
+  String get summaryChoixRenteCapital => 'Escolha renda/capital';
+
+  @override
+  String get summaryDonneesLpp => 'Dados do certificado LPP';
+
+  @override
+  String get summaryEcartMensuel => 'Diferença mensal estimada';
+
+  @override
+  String get summaryEconomieFiscale => 'Poupança fiscal anual';
+
+  @override
+  String get summaryEconomieRachat => 'Poupança com recompra escalonada';
+
+  @override
+  String get summaryEstimationSansCertificat => 'Estimativa sem certificado';
+
+  @override
+  String get summaryFondsPropres => 'Fundos próprios necessários';
+
+  @override
+  String get summaryGainEchelonnement => 'Ganho com levantamentos escalonados';
+
+  @override
+  String get summaryHorizonLiberation => 'Horizonte de libertação';
+
+  @override
+  String get summaryImpactRente => 'Impacto na sua pensão';
+
+  @override
+  String get summaryImpotRetrait => 'Imposto sobre levantamento';
+
+  @override
+  String get summaryMargeMensuelle => 'Margem mensal';
+
+  @override
+  String get summaryMontantNet => 'Montante líquido após impostos';
+
+  @override
+  String get summaryRatioEndettement => 'Rácio de endividamento';
+
+  @override
+  String get summaryRetraitEpl => 'Levantamento EPL previsto';
+
+  @override
+  String get summaryRevenuNet => 'Rendimento líquido mensal';
+
+  @override
+  String get summaryTauxRemplacement => 'Taxa de substituição';
+
+  @override
+  String get summaryVersementAnnuel => 'Contribuição anual';
+
+  @override
+  String get summaryVersementMensuel => 'Pagamento mensal';
+
+  @override
+  String get syncFailedLocalSave =>
+      'Sincronização falhou — os teus dados estão guardados localmente';
+
+  @override
+  String get themeDetailBienVu => 'Bem visto!';
+
+  @override
+  String get themeDetailEssentiel60s => 'O essencial em 60 segundos';
+
+  @override
+  String get themeDetailPasToutAFait => 'Não é bem assim...';
+
+  @override
+  String get themeDetailRappel => 'Lembrete';
+
+  @override
+  String get themeDetailSavaisTu => 'Sabias que?';
+
+  @override
+  String get themeDetailSourcesLegales => 'Fontes legais';
+
+  @override
+  String get themeDetailTesteConnaissances => 'Testa os teus conhecimentos';
+
+  @override
+  String get toolBudgetSnapshotHint =>
+      'Aqui está uma visão do teu orçamento atual.';
+
+  @override
+  String get toolScoreGaugeHint =>
+      'Aqui está a tua pontuação de confiança financeira.';
+
+  @override
+  String get tornadoLabelAgeRetraite => 'Idade de reforma';
+
+  @override
+  String get tornadoLabelAnneesAvantRetraite => 'Anos antes da reforma';
+
+  @override
+  String get tornadoLabelAppreciationImmo => 'Valorização imobiliária';
+
+  @override
+  String get tornadoLabelBas => 'Baixo';
+
+  @override
+  String get tornadoLabelCapitalTotal => 'Capital total';
+
+  @override
+  String get tornadoLabelConversionOblig => 'Conversão LPP obrigatória';
+
+  @override
+  String get tornadoLabelConversionSurob => 'Conversão LPP sobreobrig.';
+
+  @override
+  String get tornadoLabelHaut => 'Alto';
+
+  @override
+  String get tornadoLabelLoyerMensuel => 'Renda mensal';
+
+  @override
+  String get tornadoLabelRendement3a => 'Rendimento do teu 3º pilar';
+
+  @override
+  String get tornadoLabelRendementCapital => 'Rendimento do teu capital';
+
+  @override
+  String get tornadoLabelRendementLpp => 'Rendimento do teu fundo LPP';
+
+  @override
+  String get tornadoLabelRendementMarche => 'Rendimento dos teus investimentos';
+
+  @override
+  String get tornadoLabelTauxHypothecaire => 'Taxa hipotecária';
+
+  @override
+  String get tornadoLabelTauxImpotCapital => 'Taxa de imposto sobre o capital';
+
+  @override
+  String get tornadoLabelTauxMarginal => 'A tua taxa de imposto';
+
+  @override
+  String get tornadoLabelTauxRetrait => 'Levantamento anual do capital';
+
+  @override
+  String get visibilityAxisLabelFiscalite => 'Fiscalidade';
+
+  @override
+  String get visibilityAxisLabelLiquidite => 'Liquidez';
+
+  @override
+  String get visibilityAxisLabelRetraite => 'Reforma';
+
+  @override
+  String get visibilityAxisLabelSecurite => 'Segurança';
+
+  @override
+  String get visibilityHintAdd3a => 'Indica as tuas contas 3a';
+
+  @override
+  String get visibilityHintAddAgeCanton =>
+      'Indica a tua idade e cantão de residência';
+
+  @override
+  String get visibilityHintAddEpargne =>
+      'Indica as tuas poupanças e investimentos';
+
+  @override
+  String get visibilityHintAddFamille => 'Indica a tua situação familiar';
+
+  @override
+  String get visibilityHintAddLpp => 'Adiciona o teu certificado LPP';
+
+  @override
+  String get visibilityHintAddSalaire => 'Adiciona o teu salário para começar';
+
+  @override
+  String get visibilityHintAddStatutPro => 'Completa o teu estado profissional';
+
+  @override
+  String get visibilityHintCommandeAvs => 'Solicita o teu extrato AVS';
+
+  @override
+  String get visibilityHintFiscaliteComplete =>
+      'Os teus dados fiscais estão completos';
+
+  @override
+  String get visibilityHintLiquiditeComplete =>
+      'Os teus dados de liquidez estão completos';
+
+  @override
+  String get visibilityHintRetraiteComplete =>
+      'Os teus dados de reforma estão completos';
+
+  @override
+  String get visibilityHintScanFiscal => 'Digitaliza a tua declaração fiscal';
+
+  @override
+  String get visibilityHintSecuriteComplete =>
+      'Os teus dados de segurança estão completos';
+
+  @override
+  String get visibilityNarrativeHigh =>
+      'Tens uma visão clara da tua situação. Mantém os teus dados atualizados.';
+
+  @override
+  String visibilityNarrativeLow(String hint) {
+    return 'Cada informação conta. Começa por $hint.';
+  }
+
+  @override
+  String visibilityNarrativeMedium(String axisLabel) {
+    return 'Estás a começar a ver com mais clareza. Concentra-te na tua $axisLabel.';
+  }
+
+  @override
+  String visibilityNarrativeMediumHigh(String axisLabel) {
+    return 'Boa visibilidade! Refina a tua $axisLabel para ir mais longe.';
+  }
+
+  @override
+  String get voiceDisclosureBody =>
+      'As tuas palavras são enviadas para a Apple (iOS) ou Google (Android) para transcrição. MINT nunca armazena o teu áudio.';
+
+  @override
+  String get voiceDisclosureTitle => 'Reconhecimento de voz';
+
+  @override
+  String get voiceError => 'Erro de voz. Usa o teclado.';
+
+  @override
+  String get voiceMicLabel => 'Falar ao microfone';
+
+  @override
+  String get voiceMicListening => 'A ouvir…';
+
+  @override
+  String get voiceMicProcessing => 'A processar…';
+
+  @override
+  String get voiceNoSpeech => 'Não ouvi nada. Tenta de novo.';
+
+  @override
+  String get voicePermissionNeeded =>
+      'Permite o acesso ao microfone para usar a voz';
+
+  @override
+  String get voiceSpeakerLabel => 'Ouvir a resposta';
+
+  @override
+  String get voiceSpeakerStop => 'Parar a leitura';
+
+  @override
+  String get voiceUnavailable =>
+      'Funções de voz não disponíveis neste dispositivo';
+
+  @override
+  String get widgetBudgetExpenses => 'Despesas';
+
+  @override
+  String get widgetBudgetIncome => 'Receitas';
+
+  @override
+  String get widgetBudgetLabel => 'Orçamento';
+
+  @override
+  String get widgetBudgetTitle => 'O teu orçamento';
+
+  @override
+  String get widgetInput3aLabel => 'Poupança pilar 3a (CHF)';
+
+  @override
+  String get widgetInputLppLabel => 'Saldo LPP (CHF)';
+
+  @override
+  String get widgetInputSalaryFallback => 'Salário';
+
+  @override
+  String get widgetPillar3a => '3º pilar';
+
+  @override
+  String get widgetPillarAvsLpp => 'AVS + LPP';
+
+  @override
+  String get widgetPillarNotDeclared => 'Não declarado';
+
+  @override
+  String get widgetPillarTitle => 'Os teus 3 pilares';
+
+  @override
+  String get widgetRetirementFuture => 'Na reforma';
+
+  @override
+  String get widgetRetirementTitle => 'O teu resumo de reforma';
+
+  @override
+  String get widgetRetirementToday => 'Hoje';
+
+  @override
+  String get widgetScoreFallback => 'Pontuação';
+
+  @override
+  String get wizardAnswerNotProvided => 'Não fornecido';
+
+  @override
+  String get wizardValidationRequired => 'Esta questão é obrigatória';
+
+  @override
+  String get acceptInvitationCodeValidity => 'The code is valid for 72 hours.';
+
+  @override
+  String get acceptInvitationJoin => 'Join household';
+
+  @override
+  String get acceptInvitationPrompt => 'Enter the code from your partner';
+
+  @override
+  String get acceptInvitationSuccess => 'Welcome to the household!';
+
+  @override
+  String get acceptInvitationSuccessBody =>
+      'You joined the Couple+ household. Your retirement projections are now linked.';
+
+  @override
+  String get acceptInvitationTitle => 'Aderir a um agregado';
+
+  @override
+  String get coachDisclaimer =>
+      'Ferramenta educativa — as respostas não constituem aconselhamento financeiro (LSFin art. 3). Consulta um especialista para decisões importantes.';
+
+  @override
+  String get coachFallbackName => 'amigo/a';
+
+  @override
+  String coachGreetingDefault(String name, String scoreSuffix) {
+    return 'Olá $name. Estou a ver os teus números — diz-me o que te preocupa.$scoreSuffix';
+  }
+
+  @override
+  String coachGreetingSlm(String name) {
+    return 'Olá $name. Tudo fica no teu dispositivo — nada sai. O que queres saber ?';
+  }
+
+  @override
+  String coachScoreSuffix(int score) {
+    return ' A tua pontuação: $score/100 — vamos ver onde falha.';
+  }
+
+  @override
+  String get coachTierByok => 'IA nuvem (BYOK)';
+
+  @override
+  String get coachTierFallback => 'Modo offline';
+
+  @override
+  String get coachTierSlm => 'IA on-device';
+
+  @override
+  String get coachTitle => 'Coach MINT';
+
+  @override
+  String get confidenceDashboardTitle => 'Precisão do teu perfil';
+
+  @override
+  String get disabilityGapDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento de seguros (LSFin).';
+
+  @override
+  String get dossierByokSubtitle => 'Conecta o teu próprio modelo IA';
+
+  @override
+  String get dossierByokTitle => 'Chave API (BYOK)';
+
+  @override
+  String get dossierConsentsSubtitle => 'Privacidade e partilha de dados';
+
+  @override
+  String get dossierConsentsTitle => 'Consentimentos';
+
+  @override
+  String get dossierSlmSubtitle => 'IA integrada, funciona offline';
+
+  @override
+  String get dossierSlmTitle => 'Modelo local (SLM)';
+
+  @override
+  String get nudgeAnniversaryAction => 'Atualizar o meu perfil';
+
+  @override
+  String get nudgeAnniversaryMessage =>
+      'Usas o MINT há um ano. É o momento ideal para atualizar o teu perfil e medir os teus progressos.';
+
+  @override
+  String get nudgeAnniversaryTitle => 'Já 1 ano juntos!';
+
+  @override
+  String nudgeBirthdayTitle(String age) {
+    return 'Fazes $age anos este ano !';
+  }
+
+  @override
+  String get nudgeSalaryTitle => 'Dia de pagamento !';
+
+  @override
+  String get onboardingConsentAllow => 'Autorizar';
+
+  @override
+  String get onboardingConsentBody =>
+      'MINT recolhe os teus dados financeiros unicamente para calcular as tuas projeções de previdência. Os teus dados ficam no teu dispositivo e nunca são partilhados sem o teu consentimento explícito.';
+
+  @override
+  String get onboardingConsentContinueWithout => 'Continuar sem guardar';
+
+  @override
+  String get onboardingConsentTitle => 'Guardar respostas localmente';
+
+  @override
+  String get onboardingTrustTransparency => 'Transparencia total';
+
+  @override
+  String get quickStartAtRetirement => 'Na reforma';
+
+  @override
+  String get quickStartDisclaimer =>
+      'Estimativa educativa. Nao constitui aconselhamento financeiro (LSFin).';
+
+  @override
+  String quickStartDropPct(String pct, String gap) {
+    return '-$pct % de poder de compra ($gap/mes)';
+  }
+
+  @override
+  String get quickStartFirstName => 'O teu nome';
+
+  @override
+  String get quickStartFirstNameHint => 'Opcional';
+
+  @override
+  String get quickStartPreviewTitle => 'Pre-visualizacao reforma';
+
+  @override
+  String get quickStartSalary => 'O teu rendimento bruto anual';
+
+  @override
+  String quickStartSalaryValue(String salary) {
+    return '$salary/ano';
+  }
+
+  @override
+  String quickStartSectionGuidance(String label) {
+    return 'Secao: $label — atualiza as tuas informacoes abaixo.';
+  }
+
+  @override
+  String get quickStartSectionIdentity => 'Identidade & Agregado';
+
+  @override
+  String get quickStartSectionIncome => 'Rendimento & Poupanca';
+
+  @override
+  String get quickStartSectionPension => 'Previdencia (LPP)';
+
+  @override
+  String get quickStartSectionProperty => 'Imoveis & Dividas';
+
+  @override
+  String get quickStartSubtitle => 'O resto decides tu, quando quiseres.';
+
+  @override
+  String get quickStartTitle => 'Tres perguntas, um primeiro numero.';
+
+  @override
+  String get quickStartToday => 'Hoje';
+
+  @override
+  String get quickStartVerdictGap => 'Desvio significativo';
+
+  @override
+  String get quickStartVerdictGood => 'No bom caminho';
+
+  @override
+  String get quickStartVerdictWatch => 'A vigiar';
+
+  @override
+  String renteVsCapitalAccrocheEpuise(int age) {
+    return 'Com o capital, podes ficar sem dinheiro a partir dos $age anos. Com a renda, recebes um montante fixo vitalício. Só podes escolher uma vez.';
+  }
+
+  @override
+  String renteVsCapitalAccrocheTax(String taxDelta) {
+    return 'Esta decisão pode alterar $taxDelta de impostos sobre a tua reforma. Só podes tomá-la uma vez.';
+  }
+
+  @override
+  String renteVsCapitalAccrocheTaxEpuise(String taxDelta, int age) {
+    return 'Esta decisão pode custar-te $taxDelta de impostos a mais — ou deixar-te sem nada aos $age anos. Só podes tomá-la uma vez.';
+  }
+
+  @override
+  String get renteVsCapitalAvsEstimated => 'AVS estimée : ';
+
+  @override
+  String get renteVsCapitalAvsSupplementary =>
+      ' suplementares em ambos os casos (LAVS art. 29)';
+
+  @override
+  String get renteVsCapitalCapitalExplanation =>
+      'Levantas todo o teu capital LPP de uma vez. Investe-lo e levantas o que precisas cada mês. Liberdade total, mas o risco de ficar sem nada é real.';
+
+  @override
+  String get renteVsCapitalCertificateMode => 'Tenho o meu certificado';
+
+  @override
+  String renteVsCapitalDuration(String duration) {
+    return 'durante $duration';
+  }
+
+  @override
+  String get renteVsCapitalEstimateMode => 'Estimar para mim';
+
+  @override
+  String renteVsCapitalEstimatedCapital(int age, String amount) {
+    return 'Capital estimado aos $age anos: ~$amount';
+  }
+
+  @override
+  String renteVsCapitalEstimatedRente(String amount) {
+    return 'Pensão estimada: ~$amount/ano';
+  }
+
+  @override
+  String get renteVsCapitalForLife => 'à vie';
+
+  @override
+  String get renteVsCapitalHeroCapital => 'CAPITAL';
+
+  @override
+  String get renteVsCapitalHeroRente => 'RENTE';
+
+  @override
+  String get renteVsCapitalIntro =>
+      'Na reforma, escolhes de uma vez por todas: um rendimento vitalício ou o teu capital em mão.';
+
+  @override
+  String get renteVsCapitalMaxPrecision =>
+      'Precisão máxima — resultados baseados nos teus dados reais.';
+
+  @override
+  String renteVsCapitalMicroCapital(String swr, String rendement) {
+    return 'Levantas $swr % por ano (hipótese) de um capital investido a $rendement %.';
+  }
+
+  @override
+  String get renteVsCapitalMicroRente =>
+      'A tua caixa paga-te este montante todos os meses, enquanto viveres.';
+
+  @override
+  String get renteVsCapitalMixteExplanation =>
+      'A parte obrigatória em renda (taxa 6.8 %) + a sobreobrigatória em capital. Um compromisso entre segurança e flexibilidade.';
+
+  @override
+  String get renteVsCapitalProfileAutoFill =>
+      'Valores pré-preenchidos a partir do teu perfil';
+
+  @override
+  String get renteVsCapitalProjectionSource =>
+      'Projeção baseada na tua idade, salário e LPP atual';
+
+  @override
+  String get renteVsCapitalRenteExplanation =>
+      'A tua caixa de pensões paga-te um montante fixo todos os meses, enquanto viveres — mesmo que chegues aos 100 anos. Em troca, nunca recuperas o teu capital.';
+
+  @override
+  String renteVsCapitalSyntheseCapitalHigher(String delta) {
+    return 'O capital dá-te $delta/mês a mais, mas pode esgotar-se.';
+  }
+
+  @override
+  String renteVsCapitalSyntheseRenteHigher(String delta) {
+    return 'A renda dá-te $delta/mês a mais, e nunca para.';
+  }
+
+  @override
+  String get tabMint => 'Mint';
 }
