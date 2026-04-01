@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/services/backend_coach_service.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -42,8 +41,9 @@ class CoachMessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final msg = message;
     final isStreamingThis = isStreaming;
-    final isAskUserInput = msg.widgetCall != null &&
-        (msg.widgetCall!['tool'] as String?) == 'ask_user_input';
+    final hasToolCalls = msg.hasRichToolCalls;
+    final isAskUserInput = hasToolCalls &&
+        msg.richToolCalls.any((tc) => tc.name == 'ask_user_input');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -108,24 +108,22 @@ class CoachMessageBubble extends StatelessWidget {
           ],
           // Rich widget or input request from Claude tool calling (S56)
           if (!isStreamingThis &&
-              msg.widgetCall != null &&
+              hasToolCalls &&
               !(isAskUserInput && isInputAnswered)) ...[
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 42, right: 16),
-              child: WidgetRenderer.build(
-                    context,
-                    WidgetCall(
-                      tool: msg.widgetCall!['tool'] as String? ?? '',
-                      params: Map<String, dynamic>.from(
-                          msg.widgetCall!['params'] as Map? ?? {}),
-                    ),
-                    onInputSubmitted: (field, value) {
-                      onInputSubmitted?.call(messageIndex, field, value);
-                    },
-                  ) ??
-                  const SizedBox.shrink(),
-            ),
+            for (final toolCall in msg.richToolCalls) ...[
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 42, right: 16),
+                child: WidgetRenderer.build(
+                      context,
+                      toolCall,
+                      onInputSubmitted: (field, value) {
+                        onInputSubmitted?.call(messageIndex, field, value);
+                      },
+                    ) ??
+                    const SizedBox.shrink(),
+              ),
+            ],
           ],
           // Sources
           if (msg.sources.isNotEmpty) ...[

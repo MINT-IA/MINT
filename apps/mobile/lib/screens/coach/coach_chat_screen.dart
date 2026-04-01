@@ -10,7 +10,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/services/backend_coach_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
@@ -188,7 +188,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         : 'On commence par quoi\u00a0?';
 
     // Emotional suggestions based on age/situation + life event trigger
-    final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
+    final personalizedPrompts = ResponseCardService.suggestedPrompts(p, l: S.of(context)!);
     final suggestions = personalizedPrompts.isNotEmpty
         ? [...personalizedPrompts.take(2), 'Il m\u2019arrive quelque chose']
         : [
@@ -210,14 +210,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   //  MESSAGE SENDING — SLM streaming or standard
   // ════════════════════════════════════════════════════════════
 
-  void _showLightningMenu() {
-    showModalBottomSheet<void>(
+  Future<void> _showLightningMenu() async {
+    final capMem = await CapMemoryStore.load();
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => LightningMenu(
         profile: _profile,
-        onSendMessage: _sendMessage,
+        capMemory: capMem,
+        onSendMessage: (message) {
+          if (mounted) _sendMessage(message);
+        },
+        onNavigate: (route) {
+          if (mounted) context.push(route);
+        },
       ),
     );
   }
@@ -263,10 +271,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       await _handleStreamResponse(stream, text.trim(), ctx);
       return;
     }
-
-    // Try backend Claude proxy (S56 — server-side, no BYOK needed).
-    final backendSuccess = await _tryBackendClaude(text.trim());
-    if (backendSuccess) return;
 
     // Fallback to standard (BYOK → fallback chain).
     await _handleStandardResponse(text.trim(), memoryBlock: memoryBlock);
@@ -366,7 +370,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
-        ? ResponseCardService.generateForChat(_profile!, userMessage)
+        ? ResponseCardService.generateForChat(_profile!, userMessage, l: S.of(context)!)
         : <ResponseCard>[];
 
     setState(() {
@@ -377,65 +381,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         suggestedActions: suggestedActions,
         responseCards: cards,
         tier: ChatTier.slm,
-        userQuery: userMessage,
       );
       _isStreaming = false;
     });
     _scrollToBottom();
-  }
-
-  /// Try backend Claude proxy (S56). Returns true if successful.
-  Future<bool> _tryBackendClaude(String text) async {
-    if (_profile == null) return false;
-
-    try {
-      final history = _messages
-          .where((m) => m.role == 'user' || m.role == 'assistant')
-          .map((m) => {'role': m.role, 'content': m.content})
-          .toList();
-
-      final response = await BackendCoachService.chat(
-        message: text,
-        profile: _profile!,
-        history: history,
-      );
-
-      if (response == null) return false;
-
-      // Generate inline response cards
-      final cards = ResponseCardService.generateForChat(_profile!, text);
-
-      if (!mounted) return true;
-
-      // Build widgetCall map from Claude tool_use response
-      Map<String, dynamic>? widgetCallMap;
-      if (response.widget != null) {
-        widgetCallMap = {
-          'tool': response.widget!.tool,
-          'params': response.widget!.params,
-        };
-      }
-
-      setState(() {
-        _messages.add(ChatMessage(
-          role: 'assistant',
-          content: response.reply,
-          timestamp: DateTime.now(),
-          suggestedActions: _inferSuggestedActions(text),
-          responseCards: cards,
-          tier: ChatTier.byok,
-          disclaimers: [response.disclaimer],
-          userQuery: text,
-          widgetCall: widgetCallMap,
-        ));
-        _isLoading = false;
-      });
-      _scrollToBottom();
-      return true;
-    } catch (e) {
-      debugPrint('[CoachChat] Backend Claude error: $e');
-      return false;
-    }
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
@@ -455,7 +404,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text)
+          ? ResponseCardService.generateForChat(_profile!, text, l: S.of(context)!)
           : <ResponseCard>[];
 
       setState(() {
@@ -468,7 +417,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           disclaimers: response.disclaimers,
           responseCards: cards,
           tier: tier,
-          userQuery: text,
         ));
         _isLoading = false;
       });
@@ -843,11 +791,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             child: UserMessageBubble(message: msg),
           );
         } else {
-          // Build rich widget if applicable
+          // Build rich widget if applicable — look up the preceding user message
           Widget? richWidget;
-          if (msg.userQuery != null && _profile != null) {
+          if (_profile != null && index > 0 && _messages[index - 1].isUser) {
             richWidget = CoachRichWidgetBuilder.build(
-                context, msg.userQuery!, _profile!);
+                context, _messages[index - 1].content, _profile!);
           }
 
           child = Semantics(
