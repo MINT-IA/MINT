@@ -540,7 +540,7 @@ class Compte3a {
 
   factory Compte3a.fromJson(Map<String, dynamic> json) {
     return Compte3a(
-      provider: json['provider'] as String,
+      provider: (json['provider'] as String?) ?? 'Inconnu',
       solde: (json['solde'] as num?)?.toDouble() ?? 0.0,
       rendementEstime: (json['rendementEstime'] as num?)?.toDouble() ?? 0.04,
     );

@@ -578,7 +578,10 @@ class CoachProfileProvider extends ChangeNotifier {
     // P0-9: Clamp remote salary to valid bounds.
     final clampedGrossYearly = grossYearly?.clamp(0, 10000000).toDouble();
     final salaireBrutMensuel = clampedGrossYearly != null ? clampedGrossYearly / 12 : 0.0;
+    // Use actual birthYear if available; fallback = current year - 40
+    // but mark profile as partial so wizard completion is triggered.
     final effectiveBirthYear = birthYear ?? (DateTime.now().year - 40);
+    final isPartialAge = birthYear == null;
 
     _profile = CoachProfile(
       birthYear: effectiveBirthYear,
@@ -588,10 +591,14 @@ class CoachProfileProvider extends ChangeNotifier {
       employmentStatus: employmentStatus ?? 'salarie',
       goalA: GoalA(
         type: GoalAType.retraite,
-        targetDate: DateTime(effectiveBirthYear + 65),
+        // If birthYear is estimated, use a conservative target (don't assume 65)
+        targetDate: isPartialAge
+            ? DateTime(DateTime.now().year + 20) // Generic "20 years from now"
+            : DateTime(effectiveBirthYear + 65),
         label: 'Retraite',
       ),
     );
+    _isPartialProfile = _isPartialProfile || isPartialAge;
     _isPartialProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
@@ -613,7 +620,7 @@ class CoachProfileProvider extends ChangeNotifier {
     if (p.birthYear == 0 && remoteData['birthYear'] != null) {
       updates['birthYear'] = remoteData['birthYear'];
     }
-    if (p.canton.isEmpty && remoteData['canton'] != null) {
+    if ((p.canton.isEmpty || p.canton == 'unknown') && remoteData['canton'] != null) {
       updates['canton'] = remoteData['canton'] as String?;
     }
     if (p.gender == null && remoteData['gender'] != null) {

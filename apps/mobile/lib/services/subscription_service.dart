@@ -290,11 +290,13 @@ class SubscriptionService {
         ..clear()
         ..addAll((data['features'] as List?)?.cast<String>() ?? const []);
 
+      // Use a single DateTime.now() for consistent trial calculation
+      final now = DateTime.now();
       _state = SubscriptionState(
         tier: tier,
         source: SubscriptionSource.backend,
         isTrialActive: isTrial,
-        trialDaysRemaining: _deriveTrialDays(periodEnd, isTrial),
+        trialDaysRemaining: _deriveTrialDays(periodEnd, isTrial, now),
         expiresAt: periodEnd,
       );
       return _state;
@@ -303,9 +305,9 @@ class SubscriptionService {
     }
   }
 
-  static int _deriveTrialDays(DateTime? periodEnd, bool isTrial) {
+  static int _deriveTrialDays(DateTime? periodEnd, bool isTrial, [DateTime? now]) {
     if (!isTrial || periodEnd == null) return 0;
-    final days = periodEnd.difference(DateTime.now()).inDays;
+    final days = periodEnd.difference(now ?? DateTime.now()).inDays;
     return days < 0 ? 0 : days;
   }
 
