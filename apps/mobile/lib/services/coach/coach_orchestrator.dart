@@ -187,6 +187,16 @@ class CoachOrchestrator {
         ? '$basePrompt\n\n$memoryBlock'
         : basePrompt;
 
+    // FIX-W12: Warn if system prompt exceeds 40% of context
+    final systemPromptChars = systemPrompt.length;
+    final maxSystemChars = (_maxPromptChars * 0.4).floor();
+    if (systemPromptChars > maxSystemChars) {
+      debugPrint(
+        '[Coach] WARNING: System prompt $systemPromptChars chars exceeds '
+        '40% budget ($maxSystemChars). Truncating memory block.',
+      );
+    }
+
     // 1. SLM tier for chat
     if (_slmEligible()) {
       final conversationCtx = _buildConversationContext(history, userMessage);

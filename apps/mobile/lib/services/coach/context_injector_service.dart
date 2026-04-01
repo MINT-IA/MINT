@@ -190,7 +190,9 @@ class ContextInjectorService {
     // naturally reference past topics in its responses.
     String recentInsightsBlock = '';
     try {
-      final recentInsights = await CoachMemoryService.getInsights(prefs: sp);
+      final rawInsights = await CoachMemoryService.getInsights(prefs: sp);
+      // FIX-W12: Cap cross-session insights to prevent context overflow
+      final recentInsights = rawInsights.take(10).toList(); // Max 10 insights in context
       if (recentInsights.isNotEmpty) {
         final coachingPref = CoachingPreference.load(sp);
         recentInsightsBlock = _buildRecentInsightsBlock(

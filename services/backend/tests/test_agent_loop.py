@@ -128,21 +128,27 @@ class TestAgentLoopTermination:
         assert orch.query.call_count == MAX_AGENT_LOOP_ITERATIONS
 
     def test_breaks_on_token_budget_exceeded(self):
-        """Loop breaks early when cumulative tokens exceed MAX_AGENT_LOOP_TOKENS."""
-        # First iteration: 5000 tokens. Token check passes (5000 < 8000) → re-call.
-        # Second iteration: 5000 more tokens → total 10000 >= 8000 → break.
+        """Loop breaks early when cumulative tokens exceed MAX_AGENT_LOOP_TOKENS.
+
+        Uses 1500 tokens per iteration to stay under per-request budget (4000)
+        for the first two calls, then hit the overall budget (8000) check.
+        Iter 0: total=1500, request=1500 → continue (has internal tools).
+        Iter 1: total=3000, request=3000 → continue (has internal tools).
+        Iter 2: total=4500, request=4500 >= 4000 → per-request break.
+        """
         results = [
             _make_orchestrator_result(
                 answer=f"Iteration {i}",
                 tool_calls=[{"name": "retrieve_memories", "input": {"topic": "test"}}],
-                tokens_used=5000,
+                tokens_used=1500,
             )
-            for i in range(5)
+            for i in range(10)
         ]
         orch = _make_mock_orchestrator(*results)
         result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
-        assert orch.query.call_count == 2
-        assert result["tokens_used"] == 10000
+        # 3 calls: iter 0 (1500), iter 1 (3000), iter 2 (4500 >= 4000 → break)
+        assert orch.query.call_count == 3
+        assert result["tokens_used"] == 4500
 
 
 # ===========================================================================

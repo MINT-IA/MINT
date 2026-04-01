@@ -444,6 +444,7 @@ def _handle_retrieve_memories(
 
 MAX_AGENT_LOOP_ITERATIONS = 5
 MAX_AGENT_LOOP_TOKENS = 8000
+MAX_REQUEST_TOKENS = 4000  # Per-request budget
 
 
 def _execute_internal_tool(
@@ -826,6 +827,7 @@ async def _run_agent_loop(
     all_sources: list = []
     all_disclaimers: list = []
     total_tokens = 0
+    request_tokens_used = 0
     final_answer = ""
     current_question = question
     answer_text = ""  # initialized to prevent NameError in for/else
@@ -837,11 +839,12 @@ async def _run_agent_loop(
         # Check token budget BEFORE calling (except first iteration)
         if iteration > 0 and total_tokens >= MAX_AGENT_LOOP_TOKENS:
             logger.warning(
-                "Agent loop token budget exceeded: %d >= %d (before iteration %d)",
-                total_tokens,
-                MAX_AGENT_LOOP_TOKENS,
-                iteration,
+                "Agent loop token budget exhausted (%d/%d) at iteration %d for user %s",
+                total_tokens, MAX_AGENT_LOOP_TOKENS, iteration, user_id,
             )
+            # Append a completion note to the last answer
+            if answer_text:
+                answer_text += "\n\n_Note\u00a0: certaines informations n'ont pas pu être chargées. Repose ta question pour plus de détails._"
             final_answer = answer_text
             break
 
@@ -858,11 +861,19 @@ async def _run_agent_loop(
         )
 
         # Accumulate metadata across iterations
-        total_tokens += result.get("tokens_used", 0)
+        iteration_tokens = result.get("tokens_used", 0)
+        total_tokens += iteration_tokens
+        request_tokens_used += iteration_tokens
         all_sources.extend(result.get("sources", []))
         all_disclaimers.extend(result.get("disclaimers", []))
 
         answer_text = result.get("answer", "")
+
+        # FIX-W12: Per-request token budget guard
+        if request_tokens_used >= MAX_REQUEST_TOKENS:
+            logger.warning("Per-request token budget exceeded: %d", request_tokens_used)
+            final_answer = answer_text
+            break
         raw_tool_calls = result.get("tool_calls") or []
 
         # P0-5: Collect known tool names for unknown-call detection
@@ -918,6 +929,9 @@ async def _run_agent_loop(
         tool_results: list = []
         for call in internal_calls:
             result_text = _execute_internal_tool(call, memory_block, profile_context)
+            # FIX-W12: Truncate tool results to prevent context explosion
+            if len(result_text) > 500:
+                result_text = result_text[:500] + "... [tronqué]"
             # P0-3: Sanitize tool output through injection filter before
             # re-injecting into the next LLM prompt. Tool results could
             # contain user-controlled data (e.g., memory content).
