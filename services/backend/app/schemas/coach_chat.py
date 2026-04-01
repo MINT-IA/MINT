@@ -135,6 +135,7 @@ class CoachChatResponse(CoachChatBaseModel):
         default_factory=list,
         description="Sources de la base de connaissance utilisees (RAG retrieval).",
     )
+    cash_level: int = Field(default=3, ge=1, le=5, description="Voice intensity 1-5")
     disclaimers: list[str] = Field(
         default_factory=list,
         description="Disclaimers de conformite ajoutes par ComplianceGuard.",
