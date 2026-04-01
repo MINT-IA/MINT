@@ -238,6 +238,204 @@ void main() {
     });
   });
 
+  group('Divorce splitting (LAVS art. 29quinquies)', () {
+    test('woman 60k, ex-husband 120k, 20y marriage → higher rente', () {
+      final rente = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 60000,
+        isDivorced: true,
+        exSpouseAnnualSalary: 120000,
+        marriageYears: 20,
+      );
+      // RAMD = (90000 * 20/44) + (60000 * 24/44) ≈ 73636
+      // Must be higher than without splitting
+      final withoutSplitting = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 60000,
+      );
+      expect(rente, greaterThan(withoutSplitting));
+    });
+
+    test('high earner loses rente after splitting', () {
+      final withoutSplitting = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 120000,
+      );
+      final withSplitting = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 120000,
+        isDivorced: true,
+        exSpouseAnnualSalary: 60000,
+        marriageYears: 20,
+      );
+      // High earner gets lower RAMD after split
+      expect(withSplitting, lessThanOrEqualTo(withoutSplitting));
+    });
+
+    test('no divorce = no change', () {
+      final normal = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+      );
+      final withDefaults = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+        isDivorced: false,
+      );
+      expect(withDefaults, equals(normal));
+    });
+
+    test('isDivorced=true but no exSpouseSalary → no change', () {
+      final normal = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+      );
+      final divorced = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+        isDivorced: true,
+        marriageYears: 10,
+      );
+      expect(divorced, equals(normal));
+    });
+
+    test('isDivorced=true but marriageYears=0 → no change', () {
+      final normal = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+      );
+      final divorced = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+        isDivorced: true,
+        exSpouseAnnualSalary: 120000,
+        marriageYears: 0,
+      );
+      expect(divorced, equals(normal));
+    });
+
+    test('equal salaries → splitting has no effect', () {
+      final normal = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+      );
+      final split = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+        isDivorced: true,
+        exSpouseAnnualSalary: 80000,
+        marriageYears: 20,
+      );
+      expect(split, closeTo(normal, 0.01));
+    });
+
+    test('full marriage (44y) → pure average', () {
+      final rente = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 60000,
+        isDivorced: true,
+        exSpouseAnnualSalary: 120000,
+        marriageYears: 44,
+      );
+      // Effective salary = (60000+120000)/2 = 90000 → capped at RAMD max
+      final expected = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 90000,
+      );
+      expect(rente, closeTo(expected, 0.01));
+    });
+  });
+
+  group('Child-raising credits (LAVS art. 29sexies)', () {
+    test('child credits boost low-income rente', () {
+      final without = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 50000,
+      );
+      final withCredits = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 50000,
+        childRaisingYears: 16,
+      );
+      expect(withCredits, greaterThan(without));
+    });
+
+    test('2 children 16y each = 32y credits boost', () {
+      final without = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 50000,
+      );
+      final withCredits = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 50000,
+        childRaisingYears: 32,
+      );
+      expect(withCredits, greaterThan(without));
+    });
+
+    test('no child years = no change', () {
+      final normal = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+      );
+      final withZero = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+        childRaisingYears: 0,
+      );
+      expect(withZero, equals(normal));
+    });
+
+    test('child credits capped at RAMD max', () {
+      // High salary + lots of credits → should not exceed max rente
+      final rente = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 85000,
+        childRaisingYears: 32,
+      );
+      expect(rente, lessThanOrEqualTo(avsRenteMaxMensuelle));
+    });
+
+    test('combined divorce splitting + child credits', () {
+      final baseRente = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 50000,
+      );
+      final combined = AvsCalculator.computeMonthlyRente(
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 50000,
+        isDivorced: true,
+        exSpouseAnnualSalary: 100000,
+        marriageYears: 15,
+        childRaisingYears: 16,
+      );
+      expect(combined, greaterThan(baseRente));
+    });
+  });
+
   group('AvsCalculator.annualRente — 13e rente', () {
     test('rente max × 13 = 32760', () {
       final r = AvsCalculator.annualRente(avsRenteMaxMensuelle);

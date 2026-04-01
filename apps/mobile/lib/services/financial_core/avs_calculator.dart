@@ -19,6 +19,8 @@ class AvsCalculator {
   /// - Early retirement penalty (6.8%/yr from 63) — LAVS art. 40
   /// - Deferral bonus (up to +31.5% at 70) — LAVS art. 39
   /// - Gender-aware reference age for AVS21 (LAVS art. 21 al. 1)
+  /// - Divorce income splitting — LAVS art. 29quinquies
+  /// - Child-raising credits (bonifications éducatives) — LAVS art. 29sexies
   ///
   /// [isFemale] and [birthYear] are optional — when provided, the
   /// reference age accounts for AVS21 transitional cohorts (women
@@ -32,6 +34,11 @@ class AvsCalculator {
     double grossAnnualSalary = 0,
     bool? isFemale,
     int? birthYear,
+    bool isDivorced = false,
+    double? exSpouseAnnualSalary,
+    int marriageYears = 0,
+    int childRaisingYears = 0,
+    int totalContributionYears = avsDureeCotisationComplete,
   }) {
     // Determine gender-aware reference age (AVS21, LAVS art. 21 al. 1)
     final refAge = (isFemale != null && birthYear != null)
@@ -58,8 +65,36 @@ class AvsCalculator {
         (totalYears - lacunes).clamp(0, fullYears);
     final gapFactor = fullYears > 0 ? effectiveYears / fullYears : 0.0;
 
-    // 2. RAMD-based rente (LAVS art. 34, echelle 44)
-    final baseRente = renteFromRAMD(grossAnnualSalary);
+    // 2. Effective salary (RAMD) with divorce splitting + child credits
+    double effectiveSalary = grossAnnualSalary;
+
+    // 2a. Divorce income splitting (LAVS art. 29quinquies)
+    // During marriage years, combined income is split 50/50.
+    // Remaining years use individual salary.
+    if (isDivorced &&
+        exSpouseAnnualSalary != null &&
+        marriageYears > 0) {
+      final combinedDuringMarriage =
+          (grossAnnualSalary + exSpouseAnnualSalary) / 2;
+      final marriageRatio = marriageYears / totalContributionYears;
+      final singleRatio = 1.0 - marriageRatio;
+      effectiveSalary = (combinedDuringMarriage * marriageRatio) +
+          (grossAnnualSalary * singleRatio);
+    }
+
+    // 2b. Child-raising credits / bonifications éducatives (LAVS art. 29sexies)
+    // Annual credit = 3× minimum annual AVS pension.
+    // Added to RAMD prorated over total contribution years.
+    if (childRaisingYears > 0) {
+      const bonificationAnnuelle = 3 * avsRenteMinMensuelle * 12;
+      final bonificationRAMD =
+          (bonificationAnnuelle * childRaisingYears) / totalContributionYears;
+      effectiveSalary += bonificationRAMD;
+      effectiveSalary = effectiveSalary.clamp(0, avsRAMDMax);
+    }
+
+    // 2c. RAMD-based rente (LAVS art. 34, echelle 44)
+    final baseRente = renteFromRAMD(effectiveSalary);
     double rente = baseRente * gapFactor;
 
     // 3. Early/late retirement adjustments relative to gender-aware refAge
