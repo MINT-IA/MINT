@@ -52,6 +52,7 @@ from app.api.v1.endpoints import (
     knowledge,
     regulatory,
     bank_import,
+    budget,
 )
 
 api_router = APIRouter()
@@ -189,4 +190,7 @@ api_router.include_router(knowledge.router, tags=["Knowledge S67"])
 api_router.include_router(regulatory.router, tags=["Regulatory Core"])
 api_router.include_router(
     bank_import.router, prefix="/bank-import", tags=["Bank Import"]
+)
+api_router.include_router(
+    budget.router, prefix="/budget", tags=["Budget Anomaly Detection"]
 )
