@@ -1005,7 +1005,25 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           return provider;
         }),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ChangeNotifierProvider(create: (_) {
+          final provider = CoachProfileProvider();
+          provider.loadFromWizard();
+          return provider;
+        }),
+        ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>(
+          create: (_) => BudgetProvider(),
+          update: (_, coachProvider, budgetProvider) {
+            if (coachProvider.hasProfile &&
+                coachProvider.profileUpdatedSinceBudget) {
+              final profile = coachProvider.profile!;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                budgetProvider?.refreshFromProfile(profile);
+                coachProvider.markBudgetSynced();
+              });
+            }
+            return budgetProvider!;
+          },
+        ),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
           provider.loadSavedKey();
@@ -1015,11 +1033,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
-        ChangeNotifierProvider(create: (_) {
-          final provider = CoachProfileProvider();
-          provider.loadFromWizard();
-          return provider;
-        }),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();
