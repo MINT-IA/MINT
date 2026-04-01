@@ -522,6 +522,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
       final bytes = await file.readAsBytes();
+      // TODO(P2-W12): Strip EXIF metadata before Vision API call.
+      // Requires `image` package. GPS location and camera info currently exposed.
       final base64Image = base64Encode(bytes);
 
       final response = await DocumentService.extractWithVision(
@@ -1235,6 +1237,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     setState(() => _isProcessing = true);
     try {
       final bytes = await file.readAsBytes();
+      // TODO(P2-W12): Strip EXIF metadata before Vision API call.
+      // Requires `image` package. GPS location and camera info currently exposed.
       final base64Image = base64Encode(bytes);
 
       final ext = file.path.split('.').last.toLowerCase();

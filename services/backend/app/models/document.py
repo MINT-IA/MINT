@@ -1,3 +1,8 @@
+# TODO(P0-INFRA): Database is currently unencrypted SQLite.
+# PII (salary, pension data) stored in plaintext JSON columns.
+# Migration to encrypted PostgreSQL required before production launch.
+# See: services/backend/app/core/database.py
+
 """
 Document model — persists scanned/uploaded document metadata.
 

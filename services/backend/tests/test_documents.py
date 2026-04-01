@@ -440,7 +440,7 @@ class TestUploadValidation:
             files={"file": ("document.pdf", b"dummy content", "text/plain")},
         )
         assert response.status_code == 400
-        assert "Unsupported file type" in response.json()["detail"]
+        assert "Only PDF files are accepted" in response.json()["detail"]
 
     def test_upload_wrong_extension(self, client):
         """POST /upload with non-.pdf extension returns 400."""
@@ -453,13 +453,31 @@ class TestUploadValidation:
 
     def test_upload_empty_file(self, client):
         """POST /upload with empty file returns 400."""
-        # Use application/octet-stream to bypass content-type check
+        # application/octet-stream is now rejected (FIX-W12), use application/pdf
         response = client.post(
             "/api/v1/documents/upload",
-            files={"file": ("empty.pdf", b"", "application/octet-stream")},
+            files={"file": ("empty.pdf", b"", "application/pdf")},
         )
         assert response.status_code == 400
         assert "Empty file" in response.json()["detail"]
+
+    def test_upload_octet_stream_rejected(self, client):
+        """POST /upload with application/octet-stream is rejected (FIX-W12)."""
+        response = client.post(
+            "/api/v1/documents/upload",
+            files={"file": ("doc.pdf", b"%PDF-1.4 content", "application/octet-stream")},
+        )
+        assert response.status_code == 400
+        assert "Only PDF files are accepted" in response.json()["detail"]
+
+    def test_upload_invalid_magic_bytes(self, client):
+        """POST /upload with non-PDF content returns 400 (FIX-W12 magic bytes)."""
+        response = client.post(
+            "/api/v1/documents/upload",
+            files={"file": ("fake.pdf", b"<html>not a pdf</html>", "application/pdf")},
+        )
+        assert response.status_code == 400
+        assert "invalid magic bytes" in response.json()["detail"]
 
     def test_upload_statement_wrong_extension(self, client):
         """POST /upload-statement with unsupported extension returns 400."""

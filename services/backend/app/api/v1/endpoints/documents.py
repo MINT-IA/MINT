@@ -221,15 +221,17 @@ async def upload_document(
             ),
         )
 
-    # Validate file type
-    if file.content_type and file.content_type not in (
-        "application/pdf",
-        "application/octet-stream",
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail="Unsupported file type. Only PDF files are accepted.",
-        )
+    # FIX-W12: Enforce per-user document limit (all tiers)
+    MAX_DOCUMENTS_PER_USER = 100
+    total_docs = db.query(DocumentModel).filter(
+        DocumentModel.user_id == str(_user.id)
+    ).count()
+    if total_docs >= MAX_DOCUMENTS_PER_USER:
+        raise HTTPException(400, f"Limite de {MAX_DOCUMENTS_PER_USER} documents atteinte.")
+
+    # FIX-W12: Strict MIME type — reject application/octet-stream
+    if file.content_type and file.content_type != "application/pdf":
+        raise HTTPException(400, "Only PDF files are accepted (Content-Type: application/pdf).")
 
     # Check filename extension
     filename = file.filename or ""
@@ -247,6 +249,13 @@ async def upload_document(
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    # FIX-W12: Validate PDF magic bytes (first 5 bytes must be %PDF-)
+    if not file_bytes[:5] == b"%PDF-":
+        raise HTTPException(
+            status_code=400,
+            detail="File is not a valid PDF (invalid magic bytes).",
+        )
 
     if len(file_bytes) > MAX_UPLOAD_BYTES:
         raise HTTPException(
