@@ -1011,7 +1011,7 @@ class GoalA {
       ),
       targetDate: DateTime.tryParse(json['targetDate'] ?? '') ?? DateTime.now(),
       targetAmount: (json['targetAmount'] as num?)?.toDouble(),
-      label: json['label'] as String,
+      label: (json['label'] as String?) ?? '',
     );
   }
 
@@ -1051,7 +1051,7 @@ class GoalB {
 
   factory GoalB.fromJson(Map<String, dynamic> json) {
     return GoalB(
-      label: json['label'] as String,
+      label: (json['label'] as String?) ?? '',
       targetAmount: (json['targetAmount'] as num?)?.toDouble() ?? 0.0,
       targetDate: json['targetDate'] != null
           ? (DateTime.tryParse(json['targetDate'] ?? '') ?? DateTime.now())
@@ -1159,10 +1159,10 @@ class PlannedMonthlyContribution {
 
   factory PlannedMonthlyContribution.fromJson(Map<String, dynamic> json) {
     return PlannedMonthlyContribution(
-      id: json['id'] as String,
-      label: json['label'] as String,
+      id: (json['id'] as String?) ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
+      label: (json['label'] as String?) ?? '',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
-      category: json['category'] as String,
+      category: (json['category'] as String?) ?? 'other',
       isAutomatic: json['isAutomatic'] ?? false,
     );
   }

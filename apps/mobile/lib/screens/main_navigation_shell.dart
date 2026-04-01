@@ -16,6 +16,7 @@ import 'package:mint_mobile/services/session_snapshot_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/ios_iap_service.dart';
 
 /// Shell principal de navigation MINT — S52 UX Cohesion
 ///
@@ -138,6 +139,14 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       try {
         context.read<SubscriptionProvider>().refreshIfStale();
       } catch (_) {} // Provider may not be in tree during tests
+
+      // FIX-W11-3: Auto-restore IAP purchases on resume (crash recovery).
+      // If app crashed during purchase, user is charged but features not unlocked.
+      try {
+        if (IosIapService.isSupportedPlatform) {
+          IosIapService.restoreAndSync();
+        }
+      } catch (_) {} // Best-effort, don't block resume
 
       // Show delta snackbar if away > 1 hour and state changed
       if (_lastPauseTime != null) {
