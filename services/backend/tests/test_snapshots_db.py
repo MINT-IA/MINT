@@ -270,11 +270,12 @@ class TestOpenBankingConsentDB:
         assert create_resp.status_code == 200
         consent_id = create_resp.json()["consentId"]
 
-        # List consents — returns List[ConsentResponse] directly
+        # List consents — returns paginated response with items
         list_resp = client.get("/api/v1/open-banking/consents")
         assert list_resp.status_code == 200
         data = list_resp.json()
-        consent_ids = [c["consentId"] for c in data]
+        items = data.get("items", data) if isinstance(data, dict) else data
+        consent_ids = [c["consentId"] for c in items]
         assert consent_id in consent_ids
 
     def test_open_banking_consent_revocable(self, client):
