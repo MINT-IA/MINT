@@ -3,13 +3,13 @@
 /// Lightweight store using SharedPreferences (consistent with MINT pattern).
 /// Stores conversation messages as JSON and maintains an index of metadata.
 ///
-/// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are global, not per-account.
-/// Account isolation relies on purge at logout/deleteAccount (auth_provider.dart).
-/// TODO: Prefix all keys with user ID for native multi-account isolation.
+/// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are now user-prefixed
+/// when a user ID is set via [ConversationStore.setCurrentUserId].
+/// Account isolation relies on prefix + purge at logout/deleteAccount.
 library;
 
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 
@@ -54,8 +54,8 @@ class ConversationMeta {
     return ConversationMeta(
       id: json['id'] as String,
       title: json['title'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      lastMessageAt: DateTime.parse(json['lastMessageAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      lastMessageAt: DateTime.tryParse(json['lastMessageAt'] as String? ?? '') ?? DateTime.now(),
       messageCount: json['messageCount'] as int? ?? 0,
       summary: json['summary'] as String?,
       tags: (json['tags'] as List<dynamic>?)
@@ -105,6 +105,17 @@ class ConversationStore {
   /// Maximum title length (characters).
   static const _maxTitleLength = 50;
 
+  // ── User-scoped key prefix (cross-account isolation) ────
+
+  static String? _currentUserId;
+
+  /// Set the current user ID to prefix all SharedPreferences keys.
+  /// Call on login (with userId) and on logout (with null).
+  static void setCurrentUserId(String? userId) => _currentUserId = userId;
+
+  static String _userPrefix() =>
+      _currentUserId != null ? '${_currentUserId}_' : '';
+
   // ── Public API ──────────────────────────────────────────
 
   /// Save a conversation (messages + metadata).
@@ -119,12 +130,14 @@ class ConversationStore {
 
     final prefs = await SharedPreferences.getInstance();
 
-    // Serialize messages
+    // FIX-W11-1: Atomic write — temp key first, then real key, then remove temp.
+    final key = '${_userPrefix()}$_messagesPrefix$conversationId';
+    final tempKey = '${key}_tmp';
     final messagesJson = messages.map(_messageToJson).toList();
-    await prefs.setString(
-      '$_messagesPrefix$conversationId',
-      jsonEncode(messagesJson),
-    );
+    final encoded = jsonEncode(messagesJson);
+    await prefs.setString(tempKey, encoded);
+    await prefs.setString(key, encoded);
+    await prefs.remove(tempKey);
 
     // Update index
     final index = await _loadIndex(prefs);
@@ -164,7 +177,13 @@ class ConversationStore {
   /// Returns an empty list if the conversation does not exist.
   Future<List<ChatMessage>> loadConversation(String conversationId) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('$_messagesPrefix$conversationId');
+    final key = '${_userPrefix()}$_messagesPrefix$conversationId';
+    final tempKey = '${key}_tmp';
+    var raw = prefs.getString(key);
+    // FIX-W11-1: Recovery — if main key missing/empty but temp exists, use temp.
+    if (raw == null || raw.isEmpty) {
+      raw = prefs.getString(tempKey);
+    }
     if (raw == null) return [];
 
     try {
@@ -172,7 +191,8 @@ class ConversationStore {
       return list
           .map((e) => _messageFromJson(e as Map<String, dynamic>))
           .toList();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ConversationStore] Corrupted conversation $conversationId: $e');
       return [];
     }
   }
@@ -188,7 +208,7 @@ class ConversationStore {
   /// Delete a conversation (messages + metadata).
   Future<void> deleteConversation(String conversationId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('$_messagesPrefix$conversationId');
+    await prefs.remove('${_userPrefix()}$_messagesPrefix$conversationId');
 
     final index = await _loadIndex(prefs);
     index.removeWhere((m) => m.id == conversationId);
@@ -323,7 +343,7 @@ class ConversationStore {
 
   /// Load the conversation index from SharedPreferences.
   Future<List<ConversationMeta>> _loadIndex(SharedPreferences prefs) async {
-    final raw = prefs.getString(_indexKey);
+    final raw = prefs.getString('${_userPrefix()}$_indexKey');
     if (raw == null) return [];
 
     try {
@@ -345,12 +365,12 @@ class ConversationStore {
     if (index.length > _maxConversations) {
       final toRemove = index.sublist(_maxConversations);
       for (final meta in toRemove) {
-        await prefs.remove('$_messagesPrefix${meta.id}');
+        await prefs.remove('${_userPrefix()}$_messagesPrefix${meta.id}');
       }
       index = index.sublist(0, _maxConversations);
     }
     final json = index.map((m) => m.toJson()).toList();
-    await prefs.setString(_indexKey, jsonEncode(json));
+    await prefs.setString('${_userPrefix()}$_indexKey', jsonEncode(json));
   }
 
   // ── ChatMessage serialization ───────────────────────────
@@ -383,7 +403,7 @@ class ConversationStore {
     return ChatMessage(
       role: json['role'] as String,
       content: json['content'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
       tier: tier,
       suggestedActions: (json['suggestedActions'] as List<dynamic>?)
           ?.map((e) => e as String)

@@ -100,6 +100,8 @@ class AuthProvider extends ChangeNotifier {
         _email = await AuthService.getUserEmail();
         _displayName = await AuthService.getDisplayName();
         _isLoggedIn = true;
+        // FIX-W11-7: Set user prefix for conversation isolation.
+        ConversationStore.setCurrentUserId(_userId);
         _error = null;
       }
       // F3-2: Restore email verification state from SharedPreferences.
@@ -149,6 +151,8 @@ class AuthProvider extends ChangeNotifier {
           refreshToken: response['refresh_token'] as String?,
         );
         _isLoggedIn = true;
+        // FIX-W11-7: Set user prefix for conversation isolation.
+        ConversationStore.setCurrentUserId(userId);
       } else {
         _isLoggedIn = false;
       }
@@ -207,6 +211,8 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
+      // FIX-W11-7: Set user prefix for conversation isolation.
+      ConversationStore.setCurrentUserId(userId);
       _requiresEmailVerification = false;
       _error = null;
       _isLoading = false;
@@ -231,6 +237,8 @@ class AuthProvider extends ChangeNotifier {
       await ApiService.deleteAccount();
       await AuthService.logout();
       // V6-4 audit fix: purge ALL local data on account deletion
+      // FIX-W11-7: Clear user prefix on account deletion.
+      ConversationStore.setCurrentUserId(null);
       await _purgeLocalData();
       _isLoggedIn = false;
       _userId = null;
@@ -326,6 +334,8 @@ class AuthProvider extends ChangeNotifier {
   /// cross-account data bleed on shared devices.
   Future<void> logout() async {
     await AuthService.logout();
+    // FIX-W11-7: Clear user prefix on logout.
+    ConversationStore.setCurrentUserId(null);
     await _purgeLocalData();
     _isLoggedIn = false;
     _userId = null;
