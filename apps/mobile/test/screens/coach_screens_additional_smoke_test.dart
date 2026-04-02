@@ -139,8 +139,8 @@ void main() {
       await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
       await tester.pump();
-      // i18n: dashboardDisclaimer contains "ne constitue pas"
-      expect(find.textContaining('constitue pas', skipOffstage: false), findsWidgets);
+      // i18n: disclaimerShort = "Outil éducatif, pas un conseil financier."
+      expect(find.textContaining('ducatif', skipOffstage: false), findsWidgets);
     });
 
     testWidgets('shows app bar title', (tester) async {

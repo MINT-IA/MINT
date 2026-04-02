@@ -74,8 +74,8 @@ void main() {
     testWidgets('shows disclaimer in empty state', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pump(const Duration(seconds: 1));
-      // Disclaimer should appear
-      expect(find.textContaining('LSFin'), findsWidgets);
+      // Short disclaimer: "Outil éducatif, pas un conseil financier."
+      expect(find.textContaining('ducatif'), findsWidgets);
     });
   });
 
