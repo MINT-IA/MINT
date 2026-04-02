@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
+import 'package:mint_mobile/services/snapshot_service.dart';
 
 /// Point d'entrée de l'application MINT
 ///
@@ -87,6 +88,10 @@ Future<void> main() async {
     RegulatorySyncService.fetchConstants().catchError((e) {
       if (kDebugMode) debugPrint('Err Regulatory: $e');
       return <String, double>{};
+    }),
+    // W15: Load snapshots from backend (fire-and-forget, non-blocking)
+    SnapshotService.loadFromBackend().catchError((e) {
+      if (kDebugMode) debugPrint('Err Snapshots: $e');
     }),
   ]);
 
