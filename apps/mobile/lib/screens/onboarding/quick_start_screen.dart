@@ -46,8 +46,8 @@ class QuickStartScreen extends StatefulWidget {
 class _QuickStartScreenState extends State<QuickStartScreen> {
   final _analytics = AnalyticsService();
   final _nameController = TextEditingController();
-  int _birthYear = 1981;
-  double _salary = 85000;
+  int _birthYear = DateTime.now().year - 30;
+  double _salary = 60000;
   String _canton = 'ZH';
   bool _saving = false;
   bool _consentGranted = false;
@@ -57,6 +57,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     super.initState();
     // nLPD art. 6: Show consent BEFORE any data collection or tracking
     _checkAndRequestConsent();
+
+    // Pre-fill from SharedPreferences (onboarding data saved earlier)
+    _prefillFromOnboardingData();
 
     // Pre-fill from existing profile if editing a specific section
     if (widget.initialSection != null) {
@@ -129,6 +132,41 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
         _salary = profile.revenuBrutAnnuel.clamp(0, 10000000);
       }
     });
+  }
+
+  /// Pre-fill from SharedPreferences (data saved during earlier onboarding steps).
+  /// Priority: route extra > SharedPreferences > CoachProfileProvider > defaults.
+  Future<void> _prefillFromOnboardingData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final birthYear = prefs.getInt('onboarding_birth_year');
+    final salary = prefs.getDouble('onboarding_gross_salary');
+    final canton = prefs.getString('onboarding_canton');
+
+    if (mounted) {
+      setState(() {
+        if (birthYear != null && birthYear >= 1940 && birthYear <= 2010) {
+          _birthYear = birthYear;
+        }
+        if (salary != null && salary > 0) _salary = salary;
+        if (canton != null && canton.isNotEmpty) _canton = canton;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final extra = GoRouterState.of(context).extra;
+    if (extra is Map<String, dynamic>) {
+      final by = extra['birthYear'] as int?;
+      final gs = (extra['grossSalary'] as num?)?.toDouble();
+      final ct = extra['canton'] as String?;
+      setState(() {
+        if (by != null) _birthYear = by;
+        if (gs != null && gs > 0) _salary = gs;
+        if (ct != null && ct.isNotEmpty) _canton = ct;
+      });
+    }
   }
 
   /// Show a guidance snackbar indicating which section the user should edit.
