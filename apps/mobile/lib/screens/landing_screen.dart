@@ -532,63 +532,34 @@ class _LandingScreenState extends State<LandingScreen>
         ? _birthYear! - 1940
         : (currentYear - 1980 - 1940).clamp(0, 70);
 
+    // Set initial value immediately (no scroll needed)
+    if (_birthYear == null) setState(() => _birthYear = 1940 + initialIndex);
+
     showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) {
-        int selected = _birthYear ?? 1980;
         return Container(
-          height: 280,
+          height: 250,
           color: MintColors.white,
-          child: Column(
-            children: [
-              // Done bar
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: MintSpacing.md,
-                  vertical: MintSpacing.sm,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: Text(
-                        'OK',
-                        style: MintTextStyles.titleMedium(
-                          color: MintColors.primary,
-                        ),
-                      ),
-                      onPressed: () {
-                        setState(() => _birthYear = selected);
-                        Navigator.of(ctx).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(
-                    initialItem: initialIndex,
-                  ),
-                  itemExtent: 40,
-                  onSelectedItemChanged: (index) {
-                    selected = 1940 + index;
-                  },
-                  children: List.generate(
-                    71, // 1940 to 2010
-                    (i) => Center(
-                      child: Text(
-                        '${1940 + i}',
-                        style: MintTextStyles.bodyMedium(
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
+          child: CupertinoPicker(
+            scrollController: FixedExtentScrollController(
+              initialItem: initialIndex,
+            ),
+            itemExtent: 40,
+            onSelectedItemChanged: (index) {
+              setState(() => _birthYear = 1940 + index);
+            },
+            children: List.generate(
+              71, // 1940 to 2010
+              (i) => Center(
+                child: Text(
+                  '${1940 + i}',
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textPrimary,
                   ),
                 ),
               ),
-            ],
+            ),
           ),
         );
       },
@@ -599,61 +570,33 @@ class _LandingScreenState extends State<LandingScreen>
     final initialIndex =
         _canton != null ? _cantons.indexOf(_canton!) : 0;
 
+    // Set initial value immediately (no scroll needed)
+    if (_canton == null) setState(() => _canton = _cantons[initialIndex]);
+
     showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) {
-        String selected = _canton ?? _cantons.first;
         return Container(
-          height: 280,
+          height: 250,
           color: MintColors.white,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: MintSpacing.md,
-                  vertical: MintSpacing.sm,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
+          child: CupertinoPicker(
+            scrollController: FixedExtentScrollController(
+              initialItem: initialIndex.clamp(0, _cantons.length - 1),
+            ),
+            itemExtent: 40,
+            onSelectedItemChanged: (index) {
+              setState(() => _canton = _cantons[index]);
+            },
+            children: _cantons
+                .map((c) => Center(
                       child: Text(
-                        'OK',
-                        style: MintTextStyles.titleMedium(
-                          color: MintColors.primary,
+                        c,
+                        style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary,
                         ),
                       ),
-                      onPressed: () {
-                        setState(() => _canton = selected);
-                        Navigator.of(ctx).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(
-                    initialItem: initialIndex.clamp(0, _cantons.length - 1),
-                  ),
-                  itemExtent: 40,
-                  onSelectedItemChanged: (index) {
-                    selected = _cantons[index];
-                  },
-                  children: _cantons
-                      .map((c) => Center(
-                            child: Text(
-                              c,
-                              style: MintTextStyles.bodyMedium(
-                                color: MintColors.textPrimary,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-              ),
-            ],
+                    ))
+                .toList(),
           ),
         );
       },
