@@ -10116,5 +10116,16 @@
   "disclaimerFull": "Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.",
   "chiffreChocSilenceQuestion": "C'est ton chiffre. Qu'est-ce que tu en penses\u00a0?",
   "chiffreChocSilenceHint": "Dis ce qui te vient...",
-  "chiffreChocSkipToHome": "Passer au dashboard"
+  "chiffreChocSkipToHome": "Passer au dashboard",
+  "landingQuickCalcTitle": "Ton chiffre en 30 secondes",
+  "landingQuickCalcSubtitle": "Aucun compte. Rien n'est stocké. Calcul éphémère.",
+  "landingBirthYear": "Année de naissance",
+  "landingSalary": "Salaire brut annuel (CHF)",
+  "landingCanton": "Canton",
+  "landingCalculate": "Voir mon chiffre",
+  "landingPrivacyBadge": "Aucun compte requis. Calcul sur ton téléphone. Rien n'est stocké.",
+  "landingVzComparison": "Ce que VZ facture 1\u2019200\u00a0CHF, tu l'as en 30 secondes.",
+  "instantChiffreChocConfidence": "Estimation ±15\u00a0%\u00a0— crée un compte pour plus de précision",
+  "instantChiffreChocNothingStored": "Aucun compte. Rien n'est stocké.",
+  "instantChiffreChocComeBack": "Reviens quand tu veux"
 }

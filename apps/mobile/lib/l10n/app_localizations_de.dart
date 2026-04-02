@@ -20988,4 +20988,42 @@ class SDe extends S {
 
   @override
   String get chiffreChocSkipToHome => 'Zum Dashboard';
+
+  @override
+  String get landingQuickCalcTitle => 'Deine Zahl in 30 Sekunden';
+
+  @override
+  String get landingQuickCalcSubtitle =>
+      'Kein Konto. Nichts gespeichert. Flüchtige Berechnung.';
+
+  @override
+  String get landingBirthYear => 'Geburtsjahr';
+
+  @override
+  String get landingSalary => 'Brutto-Jahresgehalt (CHF)';
+
+  @override
+  String get landingCanton => 'Kanton';
+
+  @override
+  String get landingCalculate => 'Meine Zahl sehen';
+
+  @override
+  String get landingPrivacyBadge =>
+      'Kein Konto erforderlich. Berechnung auf deinem Handy. Nichts gespeichert.';
+
+  @override
+  String get landingVzComparison =>
+      'Wofür VZ CHF 1’200 verlangt, bekommst du in 30 Sekunden.';
+
+  @override
+  String get instantChiffreChocConfidence =>
+      'Schätzung ±15 % — erstelle ein Konto für mehr Genauigkeit';
+
+  @override
+  String get instantChiffreChocNothingStored =>
+      'Kein Konto. Nichts gespeichert.';
+
+  @override
+  String get instantChiffreChocComeBack => 'Komm zurück, wann immer du willst';
 }

@@ -20834,4 +20834,41 @@ class SEn extends S {
 
   @override
   String get chiffreChocSkipToHome => 'Go to dashboard';
+
+  @override
+  String get landingQuickCalcTitle => 'Your number in 30 seconds';
+
+  @override
+  String get landingQuickCalcSubtitle =>
+      'No account. Nothing stored. Ephemeral calculation.';
+
+  @override
+  String get landingBirthYear => 'Birth year';
+
+  @override
+  String get landingSalary => 'Gross annual salary (CHF)';
+
+  @override
+  String get landingCanton => 'Canton';
+
+  @override
+  String get landingCalculate => 'See my number';
+
+  @override
+  String get landingPrivacyBadge =>
+      'No account required. Calculated on your phone. Nothing stored.';
+
+  @override
+  String get landingVzComparison =>
+      'What VZ charges CHF 1,200 for, you get in 30 seconds.';
+
+  @override
+  String get instantChiffreChocConfidence =>
+      'Estimate ±15% — create an account for more accuracy';
+
+  @override
+  String get instantChiffreChocNothingStored => 'No account. Nothing stored.';
+
+  @override
+  String get instantChiffreChocComeBack => 'Come back anytime';
 }

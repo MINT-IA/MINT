@@ -36836,6 +36836,72 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Passer au dashboard'**
   String get chiffreChocSkipToHome;
+
+  /// No description provided for @landingQuickCalcTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton chiffre en 30 secondes'**
+  String get landingQuickCalcTitle;
+
+  /// No description provided for @landingQuickCalcSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte. Rien n\'est stocké. Calcul éphémère.'**
+  String get landingQuickCalcSubtitle;
+
+  /// No description provided for @landingBirthYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année de naissance'**
+  String get landingBirthYear;
+
+  /// No description provided for @landingSalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut annuel (CHF)'**
+  String get landingSalary;
+
+  /// No description provided for @landingCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get landingCanton;
+
+  /// No description provided for @landingCalculate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon chiffre'**
+  String get landingCalculate;
+
+  /// No description provided for @landingPrivacyBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte requis. Calcul sur ton téléphone. Rien n\'est stocké.'**
+  String get landingPrivacyBadge;
+
+  /// No description provided for @landingVzComparison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que VZ facture 1’200 CHF, tu l\'as en 30 secondes.'**
+  String get landingVzComparison;
+
+  /// No description provided for @instantChiffreChocConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation ±15 % — crée un compte pour plus de précision'**
+  String get instantChiffreChocConfidence;
+
+  /// No description provided for @instantChiffreChocNothingStored.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte. Rien n\'est stocké.'**
+  String get instantChiffreChocNothingStored;
+
+  /// No description provided for @instantChiffreChocComeBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reviens quand tu veux'**
+  String get instantChiffreChocComeBack;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

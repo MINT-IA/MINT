@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -7,6 +8,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/analytics_consent_banner.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -25,6 +29,21 @@ class _LandingScreenState extends State<LandingScreen>
   late final AnimationController _heroController;
   late final AnimationController _translatorController;
   late final AnimationController _footerController;
+
+  // Quick calc fields
+  int? _birthYear;
+  double? _grossSalary;
+  String? _canton;
+  final TextEditingController _salaryController = TextEditingController();
+
+  static const List<String> _cantons = [
+    'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
+    'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
+    'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+  ];
+
+  bool get _canCalculate =>
+      _birthYear != null && _grossSalary != null && _canton != null;
 
   @override
   void initState() {
@@ -55,6 +74,7 @@ class _LandingScreenState extends State<LandingScreen>
 
   @override
   void dispose() {
+    _salaryController.dispose();
     _heroController.dispose();
     _translatorController.dispose();
     _footerController.dispose();
@@ -100,6 +120,8 @@ class _LandingScreenState extends State<LandingScreen>
                         _buildTranslator(),
                         const SizedBox(height: MintSpacing.xxxl),
                         _buildHiddenNumber(),
+                        const SizedBox(height: MintSpacing.xxxl),
+                        _buildQuickCalc(),
                         const SizedBox(height: MintSpacing.xxl),
                         _buildCta(),
                         const SizedBox(height: MintSpacing.xxl),
@@ -327,6 +349,327 @@ class _LandingScreenState extends State<LandingScreen>
   }
 
   // ---------------------------------------------------------------------------
+  // Section 3b: Quick Calc — "Ton chiffre en 30 secondes"
+  // ---------------------------------------------------------------------------
+  Widget _buildQuickCalc() {
+    final l10n = S.of(context)!;
+
+    return FadeTransition(
+      opacity: CurvedAnimation(
+        parent: _footerController,
+        curve: Curves.easeOut,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          Text(
+            l10n.landingQuickCalcTitle,
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l10n.landingQuickCalcSubtitle,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Field 1: Birth year
+          _QuickCalcTile(
+            icon: Icons.cake_outlined,
+            label: l10n.landingBirthYear,
+            value: _birthYear?.toString(),
+            onTap: () => _showBirthYearPicker(),
+          ),
+          const SizedBox(height: MintSpacing.md),
+
+          // Field 2: Gross salary
+          MintSurface(
+            tone: MintSurfaceTone.craie,
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md,
+              vertical: MintSpacing.xs,
+            ),
+            radius: 12,
+            child: TextField(
+              controller: _salaryController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                prefixText: 'CHF\u00a0',
+                prefixStyle: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                hintText: '85\u2019000',
+                hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
+                labelText: l10n.landingSalary,
+                labelStyle: MintTextStyles.labelSmall(color: MintColors.textMuted),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: MintSpacing.sm),
+              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+              onChanged: (value) {
+                final parsed = double.tryParse(value.replaceAll("'", '').replaceAll('\u2019', ''));
+                setState(() => _grossSalary = parsed);
+              },
+            ),
+          ),
+          const SizedBox(height: MintSpacing.md),
+
+          // Field 3: Canton
+          _QuickCalcTile(
+            icon: Icons.location_on_outlined,
+            label: l10n.landingCanton,
+            value: _canton,
+            onTap: () => _showCantonPicker(),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Privacy badge
+          Row(
+            children: [
+              Icon(
+                Icons.shield_outlined,
+                size: 14,
+                color: MintColors.textMuted.withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: MintSpacing.xs),
+              Expanded(
+                child: Text(
+                  l10n.landingPrivacyBadge,
+                  style: MintTextStyles.micro(
+                    color: MintColors.textMuted.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Calculate button
+          SizedBox(
+            width: double.infinity,
+            child: Semantics(
+              label: l10n.landingCalculate,
+              button: true,
+              child: FilledButton(
+                onPressed: _canCalculate ? _onCalculate : null,
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.corailDiscret,
+                  disabledBackgroundColor: MintColors.textMuted.withValues(alpha: 0.15),
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: MintSpacing.md + 2,
+                    horizontal: MintSpacing.xl,
+                  ),
+                ),
+                child: Text(
+                  l10n.landingCalculate,
+                  style: MintTextStyles.titleMedium(
+                    color: _canCalculate ? MintColors.white : MintColors.textMuted,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+
+          // VZ comparison
+          Center(
+            child: Text(
+              l10n.landingVzComparison,
+              style: MintTextStyles.micro(
+                color: MintColors.textMuted.withValues(alpha: 0.5),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onCalculate() {
+    if (!_canCalculate) return;
+
+    _analytics.trackCTAClick('cta_quick_calc', screenName: '/');
+
+    final currentYear = DateTime.now().year;
+    final age = currentYear - _birthYear!;
+    const retirementAge = 65;
+
+    // AVS estimate
+    final avsMonthly = AvsCalculator.computeMonthlyRente(
+      currentAge: age,
+      retirementAge: retirementAge,
+      grossAnnualSalary: _grossSalary!,
+    );
+
+    // LPP simplified estimate (no existing balance — ephemeral)
+    // Use coordinated salary + age-based bonification rates
+    final salaireCoord = LppCalculator.computeSalaireCoordonne(_grossSalary!);
+    double lppBalance = 0;
+    for (int a = 25; a < age && a <= 65; a++) {
+      lppBalance *= 1.01; // ~1% caisse return
+      lppBalance += salaireCoord * getLppBonificationRate(a);
+    }
+    // Project to retirement
+    for (int a = age; a < retirementAge && a <= 65; a++) {
+      lppBalance *= 1.01;
+      lppBalance += salaireCoord * getLppBonificationRate(a);
+    }
+    final lppAnnualRente = lppBalance * lppTauxConversionMinDecimal;
+    final lppMonthly = lppAnnualRente / 12;
+
+    final totalMonthly = avsMonthly + lppMonthly;
+    final netMonthly = _grossSalary! / 12 * 0.85;
+    final replacementPercent =
+        netMonthly > 0 ? ((totalMonthly / netMonthly) * 100).round() : 0;
+
+    context.push(
+      '/chiffre-choc-instant',
+      extra: {
+        'monthlyTotal': totalMonthly,
+        'replacementPercent': replacementPercent,
+        'canton': _canton!,
+        'grossSalary': _grossSalary!,
+      },
+    );
+  }
+
+  void _showBirthYearPicker() {
+    final currentYear = DateTime.now().year;
+    final initialIndex = _birthYear != null
+        ? _birthYear! - 1940
+        : (currentYear - 1980 - 1940).clamp(0, 70);
+
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) {
+        int selected = _birthYear ?? 1980;
+        return Container(
+          height: 280,
+          color: MintColors.white,
+          child: Column(
+            children: [
+              // Done bar
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.md,
+                  vertical: MintSpacing.sm,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        'OK',
+                        style: MintTextStyles.titleMedium(
+                          color: MintColors.primary,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() => _birthYear = selected);
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: CupertinoPicker(
+                  scrollController: FixedExtentScrollController(
+                    initialItem: initialIndex,
+                  ),
+                  itemExtent: 40,
+                  onSelectedItemChanged: (index) {
+                    selected = 1940 + index;
+                  },
+                  children: List.generate(
+                    71, // 1940 to 2010
+                    (i) => Center(
+                      child: Text(
+                        '${1940 + i}',
+                        style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCantonPicker() {
+    final initialIndex =
+        _canton != null ? _cantons.indexOf(_canton!) : 0;
+
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) {
+        String selected = _canton ?? _cantons.first;
+        return Container(
+          height: 280,
+          color: MintColors.white,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.md,
+                  vertical: MintSpacing.sm,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        'OK',
+                        style: MintTextStyles.titleMedium(
+                          color: MintColors.primary,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() => _canton = selected);
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: CupertinoPicker(
+                  scrollController: FixedExtentScrollController(
+                    initialItem: initialIndex.clamp(0, _cantons.length - 1),
+                  ),
+                  itemExtent: 40,
+                  onSelectedItemChanged: (index) {
+                    selected = _cantons[index];
+                  },
+                  children: _cantons
+                      .map((c) => Center(
+                            child: Text(
+                              c,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.textPrimary,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // CTA — pill-shaped filled button
   // ---------------------------------------------------------------------------
   Widget _buildCta() {
@@ -416,6 +759,55 @@ class _LandingScreenState extends State<LandingScreen>
           S.of(context)!.landingLegalFooterShort,
           textAlign: TextAlign.center,
           style: MintTextStyles.micro(color: MintColors.textMuted.withValues(alpha: 0.6)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tappable tile for birth year / canton selection in quick calc.
+class _QuickCalcTile extends StatelessWidget {
+  const _QuickCalcTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: MintSurface(
+        tone: MintSurfaceTone.craie,
+        padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.md,
+          vertical: MintSpacing.md,
+        ),
+        radius: 12,
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: MintColors.textSecondary),
+            const SizedBox(width: MintSpacing.md),
+            Expanded(
+              child: Text(
+                value ?? label,
+                style: value != null
+                    ? MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                    : MintTextStyles.bodyMedium(color: MintColors.textMuted),
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: MintColors.textMuted,
+            ),
+          ],
         ),
       ),
     );

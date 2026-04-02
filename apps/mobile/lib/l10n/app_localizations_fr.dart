@@ -20941,4 +20941,42 @@ class SFr extends S {
 
   @override
   String get chiffreChocSkipToHome => 'Passer au dashboard';
+
+  @override
+  String get landingQuickCalcTitle => 'Ton chiffre en 30 secondes';
+
+  @override
+  String get landingQuickCalcSubtitle =>
+      'Aucun compte. Rien n\'est stocké. Calcul éphémère.';
+
+  @override
+  String get landingBirthYear => 'Année de naissance';
+
+  @override
+  String get landingSalary => 'Salaire brut annuel (CHF)';
+
+  @override
+  String get landingCanton => 'Canton';
+
+  @override
+  String get landingCalculate => 'Voir mon chiffre';
+
+  @override
+  String get landingPrivacyBadge =>
+      'Aucun compte requis. Calcul sur ton téléphone. Rien n\'est stocké.';
+
+  @override
+  String get landingVzComparison =>
+      'Ce que VZ facture 1’200 CHF, tu l\'as en 30 secondes.';
+
+  @override
+  String get instantChiffreChocConfidence =>
+      'Estimation ±15 % — crée un compte pour plus de précision';
+
+  @override
+  String get instantChiffreChocNothingStored =>
+      'Aucun compte. Rien n\'est stocké.';
+
+  @override
+  String get instantChiffreChocComeBack => 'Reviens quand tu veux';
 }

@@ -9652,5 +9652,16 @@
   "disclaimerFull": "Simplified educational tool. Does not constitute personal financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7. Consult a qualified specialist for personalized guidance.",
   "chiffreChocSilenceQuestion": "That's your number. What do you think?",
   "chiffreChocSilenceHint": "Say what comes to mind...",
-  "chiffreChocSkipToHome": "Go to dashboard"
+  "chiffreChocSkipToHome": "Go to dashboard",
+  "landingQuickCalcTitle": "Your number in 30 seconds",
+  "landingQuickCalcSubtitle": "No account. Nothing stored. Ephemeral calculation.",
+  "landingBirthYear": "Birth year",
+  "landingSalary": "Gross annual salary (CHF)",
+  "landingCanton": "Canton",
+  "landingCalculate": "See my number",
+  "landingPrivacyBadge": "No account required. Calculated on your phone. Nothing stored.",
+  "landingVzComparison": "What VZ charges CHF 1,200 for, you get in 30 seconds.",
+  "instantChiffreChocConfidence": "Estimate \u00b115% \u2014 create an account for more accuracy",
+  "instantChiffreChocNothingStored": "No account. Nothing stored.",
+  "instantChiffreChocComeBack": "Come back anytime"
 }
